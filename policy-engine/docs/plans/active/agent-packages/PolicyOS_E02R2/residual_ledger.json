@@ -10280,11 +10280,11 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "Commit 686ccf159d18e5514f99e13a83e6033029d2d398 integrates a reviewed, bounded Registry→VOI repair: the Pareto owner records typed missing/non-finite omissions and limited coverage, refuses to turn observed-axis unions into declared bases, and the VOI consumer withholds current frontier/dominated preference for partial, basis-limited, or historical views while a complete finite declared-basis control still ranks. Three complete files passed the bounded postpatch comparison (76 cases: 72 pass, 4 fail); all 66 common identities match prepatch (62 pass→pass, 4 fail→fail, zero pass→fail) and 10 new cases pass. The four remaining reds are not attributed: four-base P41 is UNRUN. Commit a3b432027 then adds a reviewed sequence-local DTO integrity slice: unique/in-range omission positions within declared input_count, immutable omission collection, and a same-ref/distinct-position preserving control. Its owner file is 35/35 PASS, the marker-retaining removal is 2 red / 2 green, and the two-file importer comparison has the same 4 reds in both source states (no pass→fail in that cohort only). This is bounded input-position evidence; it does not establish identity against original evaluation bytes or sequence order. Keep B111 partial; Appendix C no_finding_level_record remains the historical record boundary. Residuals: ObjectiveStack still supplies numeric defaults (including zero) for absent measurements; the production registry caller supplies no source-bound OptimizerObjectiveSpec/basis and the registry has no served production constructor/caller; report, legacy-frontier, transfer/catalog and default-hierarchy consumers do not all carry this assessment; authentic historical v1 bytes and durable non-finite reload are not established; and durable occurrence identity across replay/reordering remains UNRUN. A distinct adjacent OPT-01 status defect excludes infeasible rows before Pareto comparison yet labels them dominated for VOI rejection; this is not the same eligible-input omission mechanism and is recorded as a bounded separate residual in the cited memo. Full four-base replay, served end-to-end and historical replay remain UNRUN.",
+      "residual": "At code/test commit fdd65e88963321b49875eacc101bcd5474dd1f82, targeted current P41 covers 3 whole files across four refs (12/12 cells present; zero MISSING/UNRUN): Execution 39/42 pass (3 fail), E02 head 38/42 (4 fail), Main 39/42 (3 fail), integration 56/59 (3 fail). Each historical base has 42 common identities with integration and zero common pass→fail; 17 integration identities are new and pass. The separate Execution→E02-head comparison has one PASS_TO_FAIL for test_search_controller_accepts_policy_bundle_after_module_reload, attribution UNRESOLVED and BODY_SAME_INPUT_CLOSURE_UNMEASURED. Three canonical_n9_promotion_sequence_required failures reproduce on all four refs. The selected cohort is not the complete 21-file/74-selector Appendix-A/B matrix. Direct Pareto/importer JUnits are 35/35 and 53/53; the finite-input permutation probe is 6/6. A finite ±1e308 hypervolume falsifier raises on the non-finite derived value instead of returning a typed limited/unavailable result. A direct champion-selector probe is input-order-sensitive for finite/NaN/+Inf candidates; production upstream emission, persistence/CAS, and N9 promotion/publication are not_established. P37: equality of supplied sets is recomputed, but the ordinary PolicyArtifactBuilder._build_frontier_report copies projection.eligible_candidate_hashes into source_feasible_candidate_hashes and leaves eligibility_unknown_candidate_hashes empty; upstream completeness and unknown absence are not_established. P38 divergent case: a source-feasible candidate omitted before projection is absent from both self-derived sets and equality remains green. The independent source-feasible/unknown-set producer and bridge, omitted-before-projection semantic test, and served surface remain missing. Keep B111 partial.",
       "residual_owner": {
-        "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
+        "appointment_status": "Owner roles are named by code path and review; no individual appointment is claimed.",
         "kind": "implementation_owner",
-        "name": "ParetoPromoter.compute_front; ParetoRegistry; existing controller/coordinator and PolicyArtifactBuilder/PolicyFrontierReport consumers"
+        "name": "Independent source-feasible/unknown-eligibility producer; PolicyArtifactBuilder bridge; Pareto/HV owner and direct champion consumer"
       },
       "r_class": null,
       "p_triage": null,
@@ -10296,10 +10296,10 @@
             "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py@git-blob:ca8c99923d09779f7997a2746dde9fdae28107f8",
             "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py@git-blob:ef960e48314869f2d8bae544c89bade317d8f7f7"
           ],
-          "identity": "B111 bounded Registry→VOI integration; full three-file pre/post comparison at code commit 686ccf159",
+          "identity": "B111 bounded source/consumer and four-ref P41 update at fdd65e88963321b49875eacc101bcd5474dd1f82",
           "kind": "bounded_behavioral_test_receipt_or_source_audit",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-current-057-postpatch-20260928/B111_INTEGRATED_WHOLE_FILE_RECEIPT.md@sha256:fba2eb1ea9cffe4c89c34d3828617c0f65f5a4946a1f17ce2d70947d773e967c",
-          "scope": "The complete three-file run has 76 cases (72 pass, 4 fail); exact-JUnit identity comparison to the prepatch 66-case run has 62 pass→pass, 4 fail→fail, zero pass→fail, and 10 new passing cases. The four persistent reds are not attributed by this comparison. This proves only the reviewed Registry→VOI slice. It does not establish a served production registry caller, source-bound objective basis, full output-consumer propagation, authentic historical-byte replay, or four-base P41; those remain UNRUN/partial. Row status remains partial.",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T192114Z-396/results.json@sha256:07c7e7b753424d5dee2544cc60f3bed907d88e104ff905d12eaac5ef8e0b38c3",
+          "scope": "Three whole files were requested at four refs (12/12 cells present, zero MISSING/UNRUN), not the full 21-file/74-selector matrix. At integration 56/59 passed and the same three canonical N9 failures reproduced at all refs. Each historical base has 42 common identities and zero integration pass→fail, with 17 new integration passes. A distinct Execution→E02-head comparison has one unresolved PASS_TO_FAIL selector and BODY_SAME_INPUT_CLOSURE_UNMEASURED. P37 recomputes equality of supplied sets, but ordinary report production self-derives source-feasible from projection eligibility and defaults unknown empty; upstream completeness/unknown absence are not_established. P38 omitted-before-projection case remains green. Direct champion probe is not upstream production evidence. B111 stays partial.",
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B111",
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-b111-current-db426-prepatch-20260928/prepatch.junit.xml@sha256:63c67e0d5fcf425a713f893c083a1245a98bb711e0b095740f462078f4f75bb9",
@@ -10309,7 +10309,18 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111_CANDIDATE_V2_MEMO.md@sha256:2652f91fd442fdf07473c8044f8f37569fe26b01f9a42272eeb350e87a5babb4",
             "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py@git-blob:29d8831bfa492b5254165cfc569b394e28e94155",
             "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py@git-blob:c14f3425a40d71ae28278157b9e2293f657c6cb1",
-            "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py@git-blob:b1285ebaa78217d4af8949fb7ff65586f381fdf6"
+            "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py@git-blob:b1285ebaa78217d4af8949fb7ff65586f381fdf6",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T192114Z-396/results.json@sha256:07c7e7b753424d5dee2544cc60f3bed907d88e104ff905d12eaac5ef8e0b38c3",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-independent-review-20260929/B111_FINAL_REVIEW.md@sha256:2581de4f8bbd783e841c6a5e3bbad640c4d2eb9edb2a5fa7b4807a1174a32ab4",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-docs-independent-review-20260929/B111_DOCS_INDEPENDENT_REVIEW.md@sha256:ae3d615a14df63507c4e0410d82e13c8d36d8159c1228a0966108559520ccc43",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-integrate-c173-20260929/b111-card-pareto.junit.xml@sha256:7834239c3b4a849ec1e3ed4771e20ad4319499430e413e1b4a8e0536305073f1",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-integrate-c173-20260929/v3-summary-final-importers.junit.xml@sha256:8ab3eef1f560c58ab4901c1d9e52dff07476ad43f2c8d21e6f9249c453840d91",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-permutation-probe-20260929/result.json@sha256:08dc0456e8852e534f65cb12d2251619d3196e52d1662b96ec43fe37f5e5a921",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-permutation-probe-20260929/hypervolume_overflow_result.json@sha256:6f1c3d3f254705a0a7764db385045a7a2bfaf1e9518c0e2658e06dddae7293dc",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-permutation-probe-20260929/champion_selector_result.json@sha256:4268de98ed84da7ecbd1dd8b13e4bc6aec10f82e0b92c112378640627cc17da1",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-guardrails-interrupted-20260929/RECEIPT.md@sha256:ed431c3057b32d61a209af4210667d9e6ebbec7d9770295f89bde4c8599f8986",
+            "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py@git-blob:5ac88b50c467d58bd44d76d3a7834aa0efe79940",
+            "policy-engine/src/polisyos/scientist/policy_design/output.py@git-blob:f0d43b5762ba3388fdfc899069fb5ca48dc52534"
           ]
         },
         "package_record": "e02_package_projection",
@@ -10554,29 +10565,137 @@
           ]
         }
       },
-    "n_card_audit_2026_09_28": {
-      "identity": "read-only N card/caller audit:B111",
-      "classification_retained": "partial",
-      "finding_test_status_retained": "PASS_BOUNDED",
-      "fresh_behavioral_verdict": "UNRUN",
-      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L2939-L2963",
-      "test_locators_at_source_test_snapshot": [
-        "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@sha256:af5eef9728522dd432b42feae78a50ba8ea66a8679578dbe5441a0914744579f#test_non_finite_and_missing_metrics_are_excluded_from_numeric_front; test_mixed_objective_coverage_is_typed_and_keeps_finite_front; test_invalid_reference_point_does_not_emit_non_finite_hypervolume",
-        "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py@sha256:4b3d7fd27b3384e4d3b5d669d806812fdee68f991f7c8bb52020b9f777f5f928#test_pareto_registry_keeps_missing_axis_typed_unassessed; test_pareto_registry_observed_axis_union_is_not_complete; test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_control_ranks",
-        "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py@sha256:38902e34984d7cf6c459ad97c06f657c4be6fc316e22132e031da8045146300b#test_voi_rejects_dominated_candidate; test_voi_keeps_unassessed_candidate_in_candidate_computation; test_limited_frontier_snapshot_does_not_receive_frontier_score; test_historical_registry_frontier_stays_unassessed_through_voi_scheduler"
-      ],
-      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
-      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
-      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
-      "source_test_denominators": {
-        "source_python_files": 2696,
-        "test_python_files": 2743
+      "n_card_audit_2026_09_28": {
+        "identity": "read-only N card/caller audit:B111",
+        "classification_retained": "partial",
+        "finding_test_status_retained": "PASS_BOUNDED",
+        "fresh_behavioral_verdict": "UNRUN",
+        "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L2939-L2963",
+        "test_locators_at_source_test_snapshot": [
+          "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@sha256:af5eef9728522dd432b42feae78a50ba8ea66a8679578dbe5441a0914744579f#test_non_finite_and_missing_metrics_are_excluded_from_numeric_front; test_mixed_objective_coverage_is_typed_and_keeps_finite_front; test_invalid_reference_point_does_not_emit_non_finite_hypervolume",
+          "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py@sha256:4b3d7fd27b3384e4d3b5d669d806812fdee68f991f7c8bb52020b9f777f5f928#test_pareto_registry_keeps_missing_axis_typed_unassessed; test_pareto_registry_observed_axis_union_is_not_complete; test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_control_ranks",
+          "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py@sha256:38902e34984d7cf6c459ad97c06f657c4be6fc316e22132e031da8045146300b#test_voi_rejects_dominated_candidate; test_voi_keeps_unassessed_candidate_in_candidate_computation; test_limited_frontier_snapshot_does_not_receive_frontier_score; test_historical_registry_frontier_stays_unassessed_through_voi_scheduler"
+        ],
+        "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+        "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+        "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+        "source_test_denominators": {
+          "source_python_files": 2696,
+          "test_python_files": 2743
+        },
+        "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+        "tests_run_by_this_audit": false,
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B111",
+        "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
       },
-      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
-      "tests_run_by_this_audit": false,
-      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B111",
-      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
-    }
+      "h_n_review_disposition": {
+        "kind": "implementation_owner",
+        "summary": "Targeted three-file P41 at fdd65e88963321b49875eacc101bcd5474dd1f82 is complete as a custom cohort but does not complete the 21-file/74-selector matrix. It records 12/12 cells, integration 56/59, three N9 failures at all refs, zero integration pass→fail per historical base, and one separate unresolved historical Execution→E02-head PASS_TO_FAIL. The ordinary report builder self-derives source-feasible from projection eligibility and leaves unknown empty; equality is recomputed but source completeness/unknown absence are not_established. Finite hypervolume overflow and direct champion input-order sensitivity remain; production emission/persistence/promotion/publication are not established. B111 remains partial.",
+        "next_step": "Add an independent owner-produced source-feasible identity set and explicit unknown-eligibility set, bridge both into the ordinary PolicyArtifactBuilder report path, and add a negative test where an eligible candidate is omitted before projection plus an explicit-unknown control. Give finite derived-hypervolume overflow a typed limited/unavailable outcome and normalize/reject non-finite candidates at the actual production ingress. Prove the production producer→persisted artifact→consumer/promotion path, then complete the 21-file/74-selector four-base P41 matrix. Do not call the direct champion probe evidence of production upstream emission. Keep B111 partial until those gaps are closed."
+      },
+      "b111_bounded_evidence_2026_09_29": {
+        "code_test_commit": "fdd65e88963321b49875eacc101bcd5474dd1f82",
+        "status_retained": "partial",
+        "tests_run_by_this_documentation_patch": false,
+        "p41_custom_cohort": {
+          "manifest_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T192114Z-396/results.json@sha256:07c7e7b753424d5dee2544cc60f3bed907d88e104ff905d12eaac5ef8e0b38c3",
+          "requested_cells": 12,
+          "present_cells": 12,
+          "missing_cells": 0,
+          "unrun_cells": 0,
+          "per_ref": {
+            "execution_78187878e": {
+              "cases": 42,
+              "passed": 39,
+              "failed": 3
+            },
+            "e02_head_00d946c2b": {
+              "cases": 42,
+              "passed": 38,
+              "failed": 4
+            },
+            "main_5fd3ebcc1": {
+              "cases": 42,
+              "passed": 39,
+              "failed": 3
+            },
+            "integration_fdd65e889": {
+              "cases": 59,
+              "passed": 56,
+              "failed": 3
+            }
+          },
+          "common_case_comparison": {
+            "historical_common_cases_per_base": 42,
+            "integration_pass_to_fail_per_base": 0,
+            "new_integration_cases": 17,
+            "new_integration_cases_passed": 17,
+            "separate_execution_to_e02_head_pass_to_fail": 1,
+            "selector": "test_search_controller_accepts_policy_bundle_after_module_reload",
+            "attribution": "UNRESOLVED",
+            "input_closure": "BODY_SAME_INPUT_CLOSURE_UNMEASURED"
+          },
+          "inherited_failures": [
+            "canonical_n9_promotion_sequence_required (3 selectors; reproduces on all four refs)"
+          ],
+          "scope_limit": "Three selected whole files, not the full 21-file/74-selector Appendix-A/B matrix."
+        },
+        "direct_receipts": {
+          "pareto_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-integrate-c173-20260929/b111-card-pareto.junit.xml@sha256:7834239c3b4a849ec1e3ed4771e20ad4319499430e413e1b4a8e0536305073f1",
+          "pareto_junit": "35/35 pass",
+          "importer_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-integrate-c173-20260929/v3-summary-final-importers.junit.xml@sha256:8ab3eef1f560c58ab4901c1d9e52dff07476ad43f2c8d21e6f9249c453840d91",
+          "importer_junit": "53/53 pass",
+          "permutation_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-permutation-probe-20260929/result.json@sha256:08dc0456e8852e534f65cb12d2251619d3196e52d1662b96ec43fe37f5e5a921",
+          "permutation_probe": "6/6 pass; three finite cases under two input orders"
+        },
+        "falsifiers": {
+          "finite_hypervolume_overflow_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-permutation-probe-20260929/hypervolume_overflow_result.json@sha256:6f1c3d3f254705a0a7764db385045a7a2bfaf1e9518c0e2658e06dddae7293dc",
+          "finite_hypervolume_overflow": "Finite ±1e308 input yields a non-finite derived hypervolume and compute_front raises validation rather than returning typed limited/unavailable.",
+          "direct_champion_selector_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-permutation-probe-20260929/champion_selector_result.json@sha256:4268de98ed84da7ecbd1dd8b13e4bc6aec10f82e0b92c112378640627cc17da1",
+          "direct_champion_selector": "Selected winner changes with input order among b111_finite, b111_nan, and b111_pos_inf when each is placed first.",
+          "production_upstream_nonfinite_emission": "not_established",
+          "persistence_cas_reachability": "not_established",
+          "n9_promotion_or_publication": "not_established"
+        },
+        "p37_p38": {
+          "property": "Agreement between source-feasible and eligible candidates and explicit unknown-eligibility treatment.",
+          "recomputed": "DTO validates equality/uniqueness of supplied sets.",
+          "producer_behavior": "Ordinary PolicyArtifactBuilder._build_frontier_report copies projection.eligible_candidate_hashes to source_feasible_candidate_hashes and leaves eligibility_unknown_candidate_hashes empty; no independent source/unknown inputs exist on this path.",
+          "not_established": [
+            "upstream candidate completeness",
+            "absence of unknown eligibility"
+          ],
+          "divergent_case": "A source-feasible candidate omitted before projection is absent from both self-derived sets, so equality remains green.",
+          "capability_labels": [
+            "producer_missing",
+            "bridge_missing",
+            "semantic_test_missing",
+            "surface_missing"
+          ]
+        },
+        "reviews": {
+          "code_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-independent-review-20260929/B111_FINAL_REVIEW.md@sha256:2581de4f8bbd783e841c6a5e3bbad640c4d2eb9edb2a5fa7b4807a1174a32ab4",
+          "docs_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-docs-independent-review-20260929/B111_DOCS_INDEPENDENT_REVIEW.md@sha256:ae3d615a14df63507c4e0410d82e13c8d36d8159c1228a0966108559520ccc43"
+        },
+        "source_pins": {
+          "pareto": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py@git-blob:5ac88b50c467d58bd44d76d3a7834aa0efe79940",
+          "ordinary_report_builder": "policy-engine/src/polisyos/scientist/policy_design/output.py@git-blob:f0d43b5762ba3388fdfc899069fb5ca48dc52534"
+        },
+        "guardrail_attempt": {
+          "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-guardrails-interrupted-20260929/RECEIPT.md@sha256:ed431c3057b32d61a209af4210667d9e6ebbec7d9770295f89bde4c8599f8986",
+          "state": "UNRUN",
+          "exit_code": 143,
+          "verdict": null
+        },
+        "counts_retained": {
+          "total": 282,
+          "unique": 282,
+          "closed": 7,
+          "partial": 262,
+          "held": 12,
+          "open": 1
+        }
+      }
     },
     {
       "id": "B112",

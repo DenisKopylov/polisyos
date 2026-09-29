@@ -13,7 +13,12 @@ from polisyos.scientist.methods.autotune.models import (
     MetricDirection,
     PromotionPolicy,
 )
-from polisyos.scientist.methods.autotune.pareto import ParetoFront, ParetoPromoter
+from polisyos.scientist.methods.autotune.pareto import (
+    ParetoFront,
+    ParetoInputAssessment,
+    ParetoPromoter,
+    ParetoUnassessedEvaluation,
+)
 
 _COUNTER = 0
 
@@ -590,10 +595,65 @@ class TestParetoFront:
         assert finite_control.input_assessment.status == "complete"
         assert finite_control.input_assessment.input_count == 2
         assert finite_control.input_assessment.assessed_count == 2
-        assert finite_control.input_assessment.unassessed_evaluations == []
+        assert finite_control.input_assessment.unassessed_evaluations == ()
         assert finite_control.model_dump(mode="json")["members"] == promoter.compute_front(
             [best, missing, non_finite, dominated]
         ).model_dump(mode="json")["members"]
+
+    @pytest.mark.parametrize("omission_indices", [(0, 0), (0, 2)])
+    def test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions(
+        self, omission_indices: tuple[int, int]
+    ) -> None:
+        """Counts alone cannot prove that each omitted input has its own position."""
+        payload = {
+            "status": "no_usable_inputs",
+            "input_count": 2,
+            "assessed_count": 0,
+            "unassessed_evaluations": [
+                {
+                    "input_index": index,
+                    "candidate_ref_id": f"candidate-{position}",
+                    "missing_coordinate_ids": ["score"],
+                }
+                for position, index in enumerate(omission_indices)
+            ],
+        }
+
+        with pytest.raises(ValueError, match="omission input_index"):
+            ParetoInputAssessment.model_validate(payload)
+
+    def test_validated_input_assessment_cannot_gain_an_omission_after_validation(self) -> None:
+        """A frozen assessment must keep its checked index partition intact."""
+        omission = ParetoUnassessedEvaluation(
+            input_index=1,
+            candidate_ref_id="candidate-missing",
+            missing_coordinate_ids=["score"],
+        )
+        assessment = ParetoInputAssessment(
+            status="partial", input_count=2, assessed_count=1, unassessed_evaluations=[omission]
+        )
+
+        with pytest.raises((AttributeError, TypeError)):
+            assessment.unassessed_evaluations.append(omission)
+        assert tuple(item.input_index for item in assessment.unassessed_evaluations) == (1,)
+        assert assessment.model_dump(mode="json")["unassessed_evaluations"][0]["input_index"] == 1
+
+    def test_duplicate_invalid_candidate_refs_keep_distinct_input_positions(self) -> None:
+        """Repeated evaluation identity is legal when positions are distinct."""
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        finite = _eval(acc=0.9, speed=0.8)
+        invalid = _eval(acc=math.nan, speed=0.7)
+
+        front = promoter.compute_front([finite, invalid, invalid])
+        assessment = front.input_assessment
+
+        assert [member.candidate_ref_id for member in front.members] == [
+            str(finite.candidate_ref.artifact_id)
+        ]
+        assert tuple(item.input_index for item in assessment.unassessed_evaluations) == (1, 2)
+        assert {item.candidate_ref_id for item in assessment.unassessed_evaluations} == {
+            str(invalid.candidate_ref.artifact_id)
+        }
 
     def test_invalid_reference_point_does_not_emit_non_finite_hypervolume(self):
         """Hypervolume refuses an invalid reference point instead of propagating it."""

@@ -330,10 +330,11 @@ def test_unassessed_nonfinite_vector_is_retained_locally_but_not_transferred(tmp
     with pytest.raises(ValueError, match="raw non-finite objective value"):
         registry.get_snapshot(source.run_id)
 
-    malformed_wire["entries"][candidate_hash]["evaluation"]["secondary"][
+    nonstandard_numeric_wire = json.loads(json.dumps(wire))
+    nonstandard_numeric_wire["entries"][candidate_hash]["evaluation"]["secondary"][
         "unstated_quality"
     ]["weight"] = float("nan")
-    snapshot_path.write_text(json.dumps(malformed_wire, allow_nan=True), encoding="utf-8")
+    snapshot_path.write_text(json.dumps(nonstandard_numeric_wire, allow_nan=True), encoding="utf-8")
     with pytest.raises(ValueError, match="non-standard JSON numeric token"):
         registry.get_snapshot(source.run_id)
 

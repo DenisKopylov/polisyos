@@ -1,5 +1,25 @@
 # E02-R2 write leases
 
+## Active bounded R2 historical S8 lease (2026-09-29; canonical `86bdf0e5b`)
+
+One direct R2 candidate writer owns only a scratch patch to
+`policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`
+and `policy-engine/tests/unit/runtime/quality/test_s8_blocked_generation_owner.py`.
+Root alone applies a reviewed patch to `codex/e02-r2`. The slice may project an
+exactly replayed historical N6-v1 source as a typed blocked/no-ranking S8
+disposition with both missing deployment identity and unestablished v1 source
+custody declared. It cannot claim currentness transitions, a current source,
+verified S8 evidence, or served R1 closure. Test first; capture a marker-
+retaining removal probe and a candidate-band preserving control. The current
+direct-owner whole-file baseline is 1/3 with two source-preservation setup
+failures; the historical three bases lack that test file. Preserve the
+historical `MISSING` and current 1 PASS/2 FAIL as measured. The post-edit
+whole-file/P41 replay remains `UNRUN` until a new receipt exists.
+No other candidate edits these two paths until review and root handoff. R1
+retains its Control store/HTTP files; R13 retains its Data Forge/N6 files.
+Source is frozen during each test run; the 8 GiB disk floor and 20–30% free
+memory reserve still apply.
+
 ## B88 served record-ref replay slice (2026-09-29; canonical `607872175`)
 
 Root alone writes the canonical B88 slice while R1 and R13 remain isolated in

@@ -1,5 +1,29 @@
 # E02-R2 write leases
 
+## B111 required evaluation status at every registry intake (2026-09-30)
+
+The B111 candidate `edb05ed7de7ae9de441e76a2c9009e6d24233dec` is frozen
+for independent review, not integrated. Its public `ParetoRegistry.update`
+and `ParetoRegistryEntry` currently default an omitted evaluation status to
+`valid`. A direct caller can thereby enter a declared-basis frontier or
+transfer surface with a finite vector but without an established producer
+status. This is the same B111 downstream admission class under P40; the
+criterion is a recomputed finite vector **and** an explicitly supplied typed
+producer status, never a default-`valid` declaration.
+
+The same B111 writer may append one follow-up candidate commit. In addition
+to its existing leased paths below, the exact expanded write set is:
+`policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py`,
+`policy-engine/tests/unit/scientist/search/test_voi_scheduler.py`, and
+`policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py`.
+The source contract, concrete update API, and entry DTO must require the
+status; existing direct test fixtures may supply `valid` only when they are
+deliberately constructing a fully assessed input, and historical fixtures
+must retain their limited status. No other writer owns these three paths
+during this amendment. The current candidate is unchanged until this lease
+is recorded. Behavior, four-base P41 and marker-retaining removal remain
+`UNRUN` below the 8 GiB free-disk floor; static review does not close B111.
+
 ## R2 temporal S8 source handoff to R13 candidate N5 (2026-09-30)
 
 The R2 temporal S8 candidate at `a2143a4e1c2fe436a9d357dab5f7966cbc693ad1`

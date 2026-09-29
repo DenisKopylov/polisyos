@@ -14,29 +14,39 @@ from polisyos.runtime.http.services.control import generation_cycle as bridge
 from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
 from tests.unit.runtime.http.test_control_service_di import (
     _build_control_service,
+    _run_controlled_simulate_only_job_fixture,
     _signed_generation_evidence,
-)
-from tests.unit.runtime.http.test_control_service_di import (
-    test_process_nl_job_enters_persisted_tenant_scope as _worker_example,
 )
 
 
 @pytest.fixture(scope="module")
 def compiled_payload(tmp_path_factory):
-    """Capture a real generated fixture run at the existing production worker boundary."""
-    captured = {}
-    service_type = _build_control_service.__globals__["ControlPlaneService"]
-    original = service_type.resolve_generation_value_choices
-
-    def capture(self, **kwargs):
-        ref = artifacts.ArtifactID.model_validate(kwargs["compiled_run_ref"])
-        captured["source"] = canon.from_canonical_bytes(self._artifact_store.get_bytes(ref))
-        return original(self, **kwargs)
-
+    """Capture the existing owner-bound N4→N5 control worker source."""
     with pytest.MonkeyPatch.context() as patches:
-        patches.setattr(service_type, "resolve_generation_value_choices", capture)
-        asyncio.run(_worker_example(patches, tmp_path_factory.mktemp("pa1-worker"), "missing"))
-    return captured["source"]
+        fixture = asyncio.run(
+            _run_controlled_simulate_only_job_fixture(
+                patches,
+                tmp_path_factory.mktemp("controlled-profile-n5"),
+            )
+        )
+        try:
+            return canon.from_canonical_bytes(fixture.compiled_payload)
+        finally:
+            fixture.service.close()
+
+
+def test_compiled_payload_is_controlled_profile_candidate_n5(compiled_payload):
+    """The normative owner fixture must come from the admitted N4→N5 station."""
+    compiled = bridge.CompiledRecursiveGenerationCycleRun.model_validate(compiled_payload)
+
+    assert compiled.cycle_substrate_context_ref is not None
+    assert compiled.recursive_run.leaf_nodes
+    for leaf in compiled.recursive_run.leaf_nodes:
+        assert leaf.cycle_run is not None
+        assert leaf.cycle_run.cycles
+        assert leaf.cycle_run.cycles[-1].simulation.status == "joint_simulated"
+        assert leaf.cycle_run.promotion_port.status == "not_promoted"
+        assert leaf.cycle_run.promotion_port.certified_candidate_ids == ()
 
 
 @pytest.fixture

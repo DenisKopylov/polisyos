@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import os
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -883,163 +884,95 @@ async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -
         service.close()
 
 
+@pytest.fixture(scope="module")
+def controlled_recursive_result(tmp_path_factory):
+    """Build one owner-bound result used only to probe candidate-intent rejection."""
+    with pytest.MonkeyPatch.context() as patches:
+        fixture = asyncio.run(
+            _run_controlled_simulate_only_job_fixture(
+                patches,
+                tmp_path_factory.mktemp("candidate-only-rejection-source"),
+            )
+        )
+        try:
+            return generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
+                canon.from_canonical_bytes(fixture.compiled_payload)
+            )
+        finally:
+            fixture.service.close()
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("normative_mode", ["missing", "authorized", "wrong_role", "wrong_source"])
 async def test_process_nl_job_enters_persisted_tenant_scope(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
     normative_mode: str,
+    controlled_recursive_result,
 ) -> None:
-    from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        REPO_ROOT,
-        _budget,
-        _CgfGenerationPort,
-        _problem,
-    )
-
+    """Candidate intent keeps tenant scope and cannot turn request evidence into S8."""
+    compiled_fixture = controlled_recursive_result
     service = _build_control_service(tmp_path)
     try:
-        monkeypatch.setattr(
-            promotion_sequence_module,
-            "_legacy_policy_promotion_callers",
-            lambda repo_root: (),
-        )
-        problem = _problem(f"worker_epoch_strangle_{uuid4().hex}")
-
-        async def compile_problem(**kwargs):
-            del kwargs
-            return problem
-
-        class _CanonicalFixtureN4Port(N4GenerationPort):
-            def __init__(self) -> None:
-                super().__init__(model_id="fixture-model")
-                self._delegate = _CgfGenerationPort()
-
-            async def __call__(self, problem, *, cycle_index):
-                return await self._delegate(problem, cycle_index=cycle_index)
-
-        monkeypatch.setattr(
-            generation_cycle_service,
-            "build_design_problem_from_nl_request",
-            compile_problem,
-        )
-        recursive_budget = RecursiveCycleBudget(
-            max_depth=0,
-            max_nodes=1,
-            min_cycles_per_leaf=1,
-            max_cycles_per_leaf=1,
-        )
-        compiled_fixture = (
-            await generation_cycle_service.compile_and_run_recursive_generation_cycle(
-                raw_request=problem.nl_provenance.raw_request,
-                context={},
-                model_name="fixture-model",
-                compiler_gateway=object(),  # type: ignore[arg-type]
-                budget_state=_budget(),
-                recursive_budget=recursive_budget,
-                root_n4_generation_port=_CanonicalFixtureN4Port(),
-                promotion_runtime=service._promotion_runtime,
-                root_evaluation_context=_explicit_simulation_execution_context(problem),
-                eval_safety_verifier=_NeverCalledEvalSafetyVerifier(),
-                repo_root=REPO_ROOT,
-            )
-        )
-
-        normative_context = {}
+        context = {}
         if normative_mode != "missing":
-            normative_context["normative_evidence"] = _signed_generation_evidence(
-                service, compiled_fixture, fault=normative_mode
+            context["normative_evidence"] = _signed_generation_evidence(
+                service,
+                compiled_fixture,
+                fault=normative_mode,
             )
         request = NaturalLanguageRunRequest(
-            request=problem.nl_provenance.raw_request,
+            request=compiled_fixture.design_problem.nl_provenance.raw_request,
             llm_model="simulated-qwen",
-            context=normative_context,
+            context=context,
         )
+        claims = _fixture_claims()
         launch = await service.launch_nl_run(
             request,
-            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-            authorization_proof=bound_nl_authorization_proof(
-                _fixture_claims(), request
-            ),
+            principal=RuntimePrincipal.from_user_claims(claims),
+            authorization_proof=bound_nl_authorization_proof(claims, request),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
 
-        async def _compile_worker_request(**kwargs):
+        async def return_recursive_result(**kwargs):
             assert get_current_tenant_id_or_none() == "tenant-fixture"
             assert get_current_cell_id() == "cell-fixture"
-            assert kwargs["raw_request"] == problem.nl_provenance.raw_request
+            assert kwargs["raw_request"] == request.request
             assert kwargs["execution_intent"] == "candidate_only"
-            assert kwargs["promotion_runtime"] is service._promotion_runtime
             assert service._promotion_runtime.store is service._artifact_store
             return compiled_fixture
 
-        monkeypatch.setattr(
-            generation_cycle_service,
-            "compile_and_run_recursive_generation_cycle",
-            _compile_worker_request,
-        )
+        def refuse_s8(**_kwargs):
+            pytest.fail("candidate-only compiled result entered the S8 resolver")
+
+        def refuse_publication(**_kwargs):
+            pytest.fail("candidate-only compiled result entered generation publication")
+
+        monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", return_recursive_result)
+        monkeypatch.setattr(service, "resolve_generation_value_choices", refuse_s8)
+        monkeypatch.setattr(service, "_publish_generation_run", refuse_publication)
 
         service._process_control_job(record)
 
         completed = service._control_store.get_job(launch.job_id)
-        assert completed is not None
-        assert completed.state == "completed"
-        assert completed.progress["promotion_refusal_reasons"] == [
-            "epoch_validity_refused:policy_admission_missing"
-        ]
-        compiled_ref = ArtifactID.model_validate(
-            completed.progress["compiled_recursive_generation_cycle_ref"]
-        )
-        assert service._artifact_store.get_manifest(compiled_ref).kind == (
-            "runtime.compiled_recursive_generation_cycle"
-        )
-        persisted = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
-            canon.from_canonical_bytes(service._artifact_store.get_bytes(compiled_ref))
-        )
-        leaf = persisted.recursive_run.leaf_nodes[0]
-        assert leaf.cycle_run is not None
-        assert leaf.cycle_run.promotion_port.reason == (
-            "epoch_validity_refused:policy_admission_missing"
-        )
-        # PA1: the real worker must persist an owner-replayable normative refusal.
-        assert completed.progress.get("normative_disposition_ref"), (
-            "default worker omitted the source-bound normative decision request"
-        )
-        status = service.get_job_status(launch.job_id)
-        disposition = status.progress["normative_disposition"]
-        projected_leaf = next(iter(disposition["leaf_dispositions"].values()))
-        assert projected_leaf["candidate_fronts"] == {
-            name: list(ids) for name, ids in leaf.cycle_run.fronts.candidate_ids_by_front().items()
-        }
-        assert projected_leaf["dominance_status"] == "not_established"
-        assert disposition["strangle_receipt"]["default_flipped"] is True
-        if normative_mode == "authorized":
-            assert disposition["authorization_status"] == "authorized"
-            assert disposition["ranked_recommendations"]
-            expired = service._current_normative_generation_projection(
-                disposition_ref=completed.progress["normative_disposition_ref"],
-                compiled_run_ref=str(compiled_ref),
-                evaluated_at=datetime.now(UTC) + timedelta(days=2),
-            )
-            assert expired["authorization_status"] == "blocked"
-            assert expired["ranked_recommendations"] == []
-            assert next(iter(expired["leaf_dispositions"].values()))["decision_request"][
-                "reason_codes"
-            ] == ["p20_normative_authorization_stale"]
-        else:
-            assert disposition["authorization_status"] == "blocked"
-            assert disposition["ranked_recommendations"] == []
-            expected = {
-                "missing": "p20_normative_authorization_missing",
-                "wrong_role": "p20_normative_authority_scope_mismatch",
-                "wrong_source": "p20_normative_generation_binding_mismatch",
-            }[normative_mode]
-            assert projected_leaf["decision_request"]["reason_codes"] == [expected]
+        assert completed is not None and completed.state == "completed"
+        progress = completed.progress
+        assert progress["status"] == "not_established"
+        assert progress["execution_band"] == "candidate"
+        assert progress["execution_intent_band"] == "candidate_only"
+        assert progress["candidate_computation_status"] == "not_established"
+        assert progress["limitation_code"] == "candidate_only_compiled_result_not_admitted"
+        assert progress["n5_status"] == "not_run"
+        assert progress["n8_status"] == "not_run"
+        assert progress["n9_status"] == "not_run"
+        assert progress["s8_status"] == "not_run"
+        assert progress["publication_status"] == "not_run"
+        assert "compiled_recursive_generation_cycle_ref" not in progress
+        assert "normative_disposition_ref" not in progress
+        assert "manifest_ref" not in progress
     finally:
         service.close()
-
 
 def _signed_generation_evidence(service, compiled, *, fault: str):
     """Explicit fixture principals permit selection only; this is no governed promotion."""
@@ -1804,12 +1737,11 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         service.close()
 
 
-@pytest.mark.asyncio
-async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
+async def _run_controlled_simulate_only_job_fixture(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
-) -> None:
-    """A labeled test fixture reaches N5 without establishing profile or S8 authority."""
+) -> SimpleNamespace:
+    """Run the existing owner-bound simulate-only station for downstream tests."""
     from polisyos.core.security import (
         get_current_access_scope_or_none,
         tenant_scope,
@@ -2108,6 +2040,7 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         build_fixture_recursive_controller,
     )
 
+    service_transferred = False
     try:
         context_payload = {
             "evaluation_safety_attempt": _valid_intake_for_mode(
@@ -2212,8 +2145,34 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert progress["s8_status"] == "not_run"
         assert progress["publication_status"] == "not_run"
 
+        compiled_ref = ArtifactID.model_validate(
+            progress["compiled_recursive_generation_cycle_ref"]
+        )
+        fixture = SimpleNamespace(
+            service=service,
+            job=completed,
+            compiled_payload=service._artifact_store.get_bytes(compiled_ref),
+            compiled_ref=str(compiled_ref),
+            cycle_substrate_context_job_ref=progress[
+                "cycle_substrate_context_job_ref"
+            ],
+        )
+        service_transferred = True
+        return fixture
+
     finally:
-        service.close()
+        if not service_transferred:
+            service.close()
+
+
+@pytest.mark.asyncio
+async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """A labeled fixture reaches N5 without establishing profile or S8 authority."""
+    fixture = await _run_controlled_simulate_only_job_fixture(monkeypatch, tmp_path)
+    fixture.service.close()
 
 
 @pytest.mark.asyncio

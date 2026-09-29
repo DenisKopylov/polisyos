@@ -1,0 +1,34 @@
+id = "2026-09-29-e02-r2-b111-frontier-v3"
+title = "Version Scientist frontier artifacts with eligible identities"
+type = "changed"
+component = "scientist-policy-design"
+owner = "team-scientist"
+summary = "PolicyFrontierReport and RejectedAlternativesSummary now persist the eligible-candidate identity denominator in schema v3."
+evidence = [
+  "tests/unit/scientist/policy_design/test_phase_b_output.py",
+  "tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+  "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+]
+compatibility = "New PolicyFrontierReport and RejectedAlternativesSummary records use schema 3.0 and include eligible_candidate_hashes in each Pareto projection. Updated readers accept v1, v2, and v3; v1/v2 historical bytes remain replayable. Previous strict readers do not accept v3 and must be upgraded before v3 artifacts are emitted."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: persisted Scientist policy-design frontier and rejected-alternative artifacts"
+migration = "The B111 code slice adds no separate writer-disable switch. Before deploying its v3 writer, either stage a reader-only compatible release or coordinate the rollout so no artifact is written until every consumer can read v3. Existing v1/v2 artifacts remain unchanged and are not restamped. If that sequence cannot be established, hold release. After v3 artifacts exist, do not roll back to a strict v1/v2-only reader; retain a compatible reader and repair forward, or hold consumers until compatibility is restored."
+api = "No HTTP route, OpenAPI schema, generated client, artifact reference type, or artifact kind changes in this slice. The persisted schema versions for the two internal artifact payloads advance to 3.0."
+limitations = "This is bounded B111 progress, not finding closure or release approval. Historical v2 artifacts do not contain the complete source identity denominator, so replay cannot establish identities absent from those bytes. The non-finite ParetoRegistrySnapshot persistence defect and source-bound objective-basis/served-registry residual remain open."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["ops/migrations/ir/README.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]
+
+[[compatibility_change]]
+id = "b111-scientist-frontier-artifacts-v3"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: persisted Scientist PolicyFrontierReport and RejectedAlternativesSummary artifacts"
+owner = "team-scientist"
+version_owner = "team-ir"
+deprecation_window = "2 minor releases for reader upgrade; this slice schedules no retirement or rewrite of historical v1/v2 artifacts."
+release_note = "Scientist frontier and rejected-alternative artifacts now persist as v3 with an eligible-candidate identity denominator; strict prior readers must be upgraded before deploying the v3 writer."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["ops/migrations/ir/README.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]

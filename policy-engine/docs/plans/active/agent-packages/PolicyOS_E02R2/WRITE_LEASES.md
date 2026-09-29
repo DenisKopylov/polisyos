@@ -1232,3 +1232,18 @@ One R1 candidate writer may reuse the clean branch-attached `codex/e02-r2-r13-se
 Root alone owns `policy-engine/src/polisyos/scientist/methods/autotune/pareto.py` and `policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py` for the reviewed two-file slice. The B109 test-only change and its 31/31 whole-file result at `0cf4afa19` are the pre-edit current evidence; the post-B109 four-base replay remains `UNRUN` under the resource continuation. No other writer may edit these files until root commits and releases this lease. The exact write set excludes registry, output report, generated families, objective basis, and governed artifacts.
 
 The property is internal, sequence-local assessment consistency: each omission index is unique and within declared `input_count`, and the validated omission sequence cannot be mutated afterward. Test malformed and reconstructed DTOs first, then preserve duplicate candidate refs at distinct indices and the finite subfront under a separate invalid input. A marker-retaining removal of the index predicate must turn the negative red; a preserving control must stay green. Review this slice independently before any B111 status change. The wider registry-to-report omission propagation, source-bound objective basis, served owner/provider, and complete four-base replay remain residuals, so B111 stays `partial`.
+
+## B111 v3 persisted-artifact migration documentation (2026-09-29)
+
+The reviewed denominator code slice is frozen at `1458949cc30cb6df6db01acf835799035497239e`.
+One docs-only writer may add exactly these companion paths on this candidate
+branch: `policy-engine/release-fragments/unreleased/2026-09-29-e02-r2-b111-frontier-v3.toml`,
+`policy-engine/ops/migrations/ir/README.md`, and this candidate copy of
+`WRITE_LEASES.md`. The documentation covers only v3 persistence for
+`PolicyFrontierReport` and `RejectedAlternativesSummary`, including the
+incompatibility with prior strict readers, preserved v1/v2 reads and replay,
+reader-first rollout, and hold/forward-repair behavior after v3 writes. It does
+not authorize source/test changes, a ParetoRegistrySnapshot non-finite codec,
+canonical branch edits, migration-contract edits, or register/plan changes.
+Root alone integrates this separate documentation commit. Release/promotion
+remains blocked until the owning gate has reviewed the migration evidence.

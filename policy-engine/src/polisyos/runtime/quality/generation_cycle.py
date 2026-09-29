@@ -4619,14 +4619,11 @@ class GenerationCycleController:
                     terminal_status = "blocked"
                     blocked_reason = fake_reason
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
-            if (
-                n9_terminal_disposition(terminal_status)
-                is not N9TerminalDisposition.TERMINAL_BLOCKED
-                and cycle.voi_decision.next_action == "blocked"
-            ):
-                terminal_status = "blocked"
-                blocked_reason = cycle.voi_decision.reason
-                cycle = _blocked_cycle(cycle, reason=blocked_reason)
+            terminal_status, blocked_reason, cycle = _reconcile_blocked_voi_action(
+                cycle,
+                terminal_status=terminal_status,
+                blocked_reason=blocked_reason,
+            )
             acquisition_receipt: AcquisitionReceipt | None = None
             if n9_terminal_disposition(terminal_status) is not (
                 N9TerminalDisposition.TERMINAL_BLOCKED
@@ -4686,6 +4683,13 @@ class GenerationCycleController:
                 break
             current_problem = cycle.revision_request.revised_problem
             cycle_index += 1
+
+        if cycles:
+            terminal_status, blocked_reason, cycles[-1] = _reconcile_blocked_voi_action(
+                cycles[-1],
+                terminal_status=terminal_status,
+                blocked_reason=blocked_reason,
+            )
 
         source_receipt = self._source_preservation_receipt()
         source_refusal = _source_custody_authority_refusal(
@@ -10738,6 +10742,22 @@ def _blocked_cycle(cycle: GenerationCycleRecord, *, reason: str) -> GenerationCy
             "search_iteration": iteration,
         }
     )
+
+
+def _reconcile_blocked_voi_action(
+    cycle: GenerationCycleRecord,
+    *,
+    terminal_status: TerminalStatus,
+    blocked_reason: str | None,
+) -> tuple[TerminalStatus, str | None, GenerationCycleRecord]:
+    """Align the N6 run terminal with the final cycle action before N9."""
+
+    if n9_terminal_disposition(terminal_status) is N9TerminalDisposition.TERMINAL_BLOCKED:
+        return terminal_status, blocked_reason, cycle
+    if cycle.voi_decision.next_action != "blocked":
+        return terminal_status, blocked_reason, cycle
+    reason = cycle.voi_decision.reason
+    return "blocked", reason, _blocked_cycle(cycle, reason=reason)
 
 
 def _cycle_with_acquisition_routing_report(

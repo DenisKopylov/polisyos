@@ -343,6 +343,7 @@ def test_no_registry_hierarchy_persists_candidates_without_global_frontier_claim
     projection = report.view_projections["global_feasible"]
     assert projection.assessment.status == "basis_limited"
     assert projection.assessment.basis_scope.scope == "not_established"
+    assert projection.eligible_candidate_hashes == (candidate_hash,)
     assert projection.unassessed_candidate_hashes == (candidate_hash,)
 
 

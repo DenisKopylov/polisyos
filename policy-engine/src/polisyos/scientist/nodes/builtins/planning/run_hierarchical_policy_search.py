@@ -1146,6 +1146,7 @@ def _persist_frontier_report(
                 assessed_count=0,
                 unassessed_candidate_hashes=candidate_hashes,
             ),
+            eligible_candidate_hashes=tuple(candidate_hashes),
             candidate_frontier_hashes=tuple(candidate_hashes),
             unassessed_candidate_hashes=tuple(candidate_hashes),
         )

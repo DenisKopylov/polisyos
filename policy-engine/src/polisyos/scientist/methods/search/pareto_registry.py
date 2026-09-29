@@ -176,6 +176,7 @@ class ParetoRegistrySnapshot(BaseModel):
         return ParetoViewProjection(
             view=view_key,
             assessment=assessment,
+            eligible_candidate_hashes=tuple(eligible_hashes),
             candidate_frontier_hashes=candidate_frontier_hashes,
             ranked_frontier_hashes=ranked_hashes,
             unassessed_candidate_hashes=unassessed_hashes,

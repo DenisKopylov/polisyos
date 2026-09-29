@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -181,7 +181,7 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("3.0", pattern=r"^\d+\.\d+$")
     loop_id: str = Field(min_length=1)
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
@@ -204,6 +204,25 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
         payload.pop("candidate_frontier", None)
         payload.pop("view_projections", None)
         return payload
+
+    def historical_v2_payload(self) -> dict[str, Any]:
+        """Project the v2 persisted report shape without the identity denominator."""
+        if self.schema_version != "2.0":
+            raise ValueError("historical v2 serialization requires a v2 report")
+        payload = self.model_dump(mode="python", exclude_none=True)
+        for projection in payload.get("view_projections", {}).values():
+            projection.pop("eligible_candidate_hashes", None)
+        return payload
+
+    @model_validator(mode="after")
+    def _validate_projection_schema(self) -> PolicyFrontierReport:
+        """Require the full eligible denominator in new persisted reports."""
+        if self.schema_version == "3.0" and any(
+            projection.eligible_candidate_hashes is None
+            for projection in self.view_projections.values()
+        ):
+            raise ValueError("v3 policy frontier projections require eligible candidate identities")
+        return self
 
 
 class ChampionPolicyDossier(ArtifactMinimalityMixin):
@@ -374,7 +393,7 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("3.0", pattern=r"^\d+\.\d+$")
     loop_id: str = Field(min_length=1)
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
@@ -394,6 +413,27 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
         for alternative in payload.get("alternatives", []):
             alternative.pop("disposition", None)
         return payload
+
+    def historical_v2_payload(self) -> dict[str, Any]:
+        """Project the v2 persisted summary shape without the identity denominator."""
+        if self.schema_version != "2.0":
+            raise ValueError("historical v2 serialization requires a v2 summary")
+        payload = self.model_dump(mode="json", exclude_none=True)
+        projection = payload.get("view_projection")
+        if projection is not None:
+            projection.pop("eligible_candidate_hashes", None)
+        return payload
+
+    @model_validator(mode="after")
+    def _validate_projection_schema(self) -> RejectedAlternativesSummary:
+        """Require the full eligible denominator in new persisted summaries."""
+        if (
+            self.schema_version == "3.0"
+            and self.view_projection is not None
+            and self.view_projection.eligible_candidate_hashes is None
+        ):
+            raise ValueError("v3 rejected-alternative projection requires eligible candidate identities")
+        return self
 
 
 class ReplayableAuditBundle(ArtifactMinimalityMixin):
@@ -1635,6 +1675,7 @@ def _limited_pareto_projection(
             assessed_count=0,
             unassessed_candidate_hashes=list(hashes),
         ),
+        eligible_candidate_hashes=hashes,
         unassessed_candidate_hashes=hashes,
     )
 
@@ -1648,9 +1689,15 @@ def _persist_model(
     ref_cls: type[ArtifactRef],
     inputs: list[InputRef] | None,
 ) -> ArtifactRef:
-    historical_projection = getattr(payload, "historical_v1_payload", None)
+    historical_projection = None
+    if payload.schema_version in {"1.0", "2.0"}:
+        historical_projection = getattr(
+            payload,
+            f"historical_v{payload.schema_version[0]}_payload",
+            None,
+        )
     stored_payload: BaseModel | dict[str, Any] = payload
-    if payload.schema_version == "1.0" and callable(historical_projection):
+    if callable(historical_projection):
         stored_payload = historical_projection()
     ref = store.put_json(
         stored_payload,
@@ -1668,18 +1715,25 @@ def _persist_model(
 def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls: type[BaseModel]) -> Any:
     raw = store.get_bytes(ref.artifact_id)
     payload = from_canonical_bytes(raw)
-    model = model_cls.model_validate(payload)
-    historical_projection = getattr(model, "historical_v1_payload", None)
+    schema_version = payload.get("schema_version") if isinstance(payload, dict) else None
+    context = {"artifact_schema_version": schema_version} if schema_version else None
+    model = model_cls.model_validate(payload, context=context)
+    historical_projection = None
+    if schema_version in {"1.0", "2.0"}:
+        historical_projection = getattr(
+            model,
+            f"historical_v{schema_version[0]}_payload",
+            None,
+        )
     if (
         isinstance(payload, dict)
-        and payload.get("schema_version") == "1.0"
         and callable(historical_projection)
         and to_canonical_bytes(
             historical_projection(), CanonSpec(forbid_floats=False)
         )
         != raw
     ):
-        raise ValueError("historical v1 policy artifact does not replay byte-exactly")
+        raise ValueError(f"historical v{schema_version[0]} policy artifact does not replay byte-exactly")
     return model
 
 

@@ -12,7 +12,7 @@ from __future__ import annotations
 import importlib
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_validator
 
 if TYPE_CHECKING:
     from polisyos.scientist.methods.search.funnel.orchestrator import (
@@ -154,27 +154,79 @@ class ParetoViewProjection(BaseModel):
 
     view: str = Field(min_length=1)
     assessment: ParetoViewAssessment
+    eligible_candidate_hashes: tuple[str, ...] | None = None
     candidate_frontier_hashes: tuple[str, ...] = ()
     ranked_frontier_hashes: tuple[str, ...] = ()
     unassessed_candidate_hashes: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def _validate_projection(self) -> ParetoViewProjection:
-        """Prevent limited candidate sub-fronts from being represented as ranks."""
+    def _validate_projection(self, info: ValidationInfo) -> ParetoViewProjection:
+        """Bind status-specific identity lists to one eligible denominator."""
         for name, values in (
+            ("eligible candidates", self.eligible_candidate_hashes or ()),
             ("candidate frontier", self.candidate_frontier_hashes),
             ("ranked frontier", self.ranked_frontier_hashes),
             ("unassessed candidates", self.unassessed_candidate_hashes),
         ):
             if len(set(values)) != len(values):
                 raise ValueError(f"Pareto projection repeats a {name} member")
+            if any(not value for value in values):
+                raise ValueError(f"Pareto projection contains an empty {name} identity")
         if not set(self.ranked_frontier_hashes) <= set(self.candidate_frontier_hashes):
             raise ValueError("ranked Pareto members must belong to the candidate frontier")
         if self.assessment.status != "complete" and self.ranked_frontier_hashes:
             raise ValueError("limited Pareto projection cannot expose ranked members")
-        if self.assessment.status == "complete" and self.unassessed_candidate_hashes:
-            raise ValueError("complete Pareto projection cannot retain unassessed candidates")
+        if self.eligible_candidate_hashes is None:
+            if not (
+                isinstance(info.context, dict)
+                and info.context.get("artifact_schema_version") == "2.0"
+            ):
+                raise ValueError("Pareto projection requires an eligible candidate identity denominator")
+            self._validate_historical_v2_identities()
+            return self
+
+        eligible = set(self.eligible_candidate_hashes)
+        if len(self.eligible_candidate_hashes) != self.assessment.input_count:
+            raise ValueError("Pareto projection eligible identities do not match the assessment denominator")
+        if not set(self.candidate_frontier_hashes) <= eligible:
+            raise ValueError("Pareto candidate frontier contains an ineligible identity")
+        if not set(self.assessment.unassessed_candidate_hashes) <= eligible:
+            raise ValueError("Pareto assessment names an ineligible unassessed candidate identity")
+
+        status = self.assessment.status
+        if status in {"partial", "no_usable_inputs"}:
+            expected_unassessed = set(self.assessment.unassessed_candidate_hashes)
+        elif status == "complete":
+            expected_unassessed = set()
+        else:
+            expected_unassessed = eligible
+        if set(self.unassessed_candidate_hashes) != expected_unassessed:
+            raise ValueError(
+                "Pareto projection unassessed candidate identities do not match its status and assessment"
+            )
         return self
+
+    def _validate_historical_v2_identities(self) -> None:
+        """Validate the identity relations available in pre-denominator v2 records."""
+        status = self.assessment.status
+        projected_unassessed = set(self.unassessed_candidate_hashes)
+        assessed_unassessed = set(self.assessment.unassessed_candidate_hashes)
+        if status in {"partial", "no_usable_inputs"}:
+            if projected_unassessed != assessed_unassessed:
+                raise ValueError(
+                    "historical v2 unassessed candidate identities do not match the assessment"
+                )
+        elif status == "complete":
+            if projected_unassessed or assessed_unassessed:
+                raise ValueError("historical v2 complete projection retains unassessed identities")
+        elif len(projected_unassessed) != self.assessment.input_count:
+            raise ValueError(
+                "historical v2 limited projection does not contain the full assessment denominator"
+            )
+        elif not assessed_unassessed <= projected_unassessed:
+            raise ValueError(
+                "historical v2 assessment omission is absent from projection identities"
+            )
 
 
 class TellResult(BaseModel):

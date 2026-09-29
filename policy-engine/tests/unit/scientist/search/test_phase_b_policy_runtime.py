@@ -830,6 +830,11 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
     assert projection.assessment == view
     assert projection.candidate_frontier_hashes == (complete_hash,)
     assert projection.ranked_frontier_hashes == ()
+    assert set(projection.eligible_candidate_hashes) == {
+        complete_hash,
+        *missing_hashes,
+        empty_axes_hash,
+    }
     assert set(projection.unassessed_candidate_hashes) == set(missing_hashes) | {empty_axes_hash}
     assert voi_snapshot.assessment_status == "partial"
     assert not voi_snapshot.frontier_candidate_hashes
@@ -867,6 +872,7 @@ def test_pareto_registry_observed_axis_union_is_not_complete(tmp_path) -> None:
     assert assessment.basis_scope.coordinate_ids == ["policy_value"]
     assert projection.assessment == assessment
     assert projection.ranked_frontier_hashes == ()
+    assert projection.eligible_candidate_hashes == tuple(sorted(candidate_hashes))
     assert set(projection.unassessed_candidate_hashes) == set(candidate_hashes)
     assert set(voi_snapshot.unassessed_candidate_hashes) == set(candidate_hashes)
     assert not voi_snapshot.frontier_candidate_hashes
@@ -943,6 +949,7 @@ def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_con
     assert finite_assessment.coverage_status == "complete"
     assert finite_snapshot.frontiers["global_feasible"] == [finite_hashes[1]]
     assert set(finite_projection.ranked_frontier_hashes) == {finite_hashes[1]}
+    assert finite_projection.eligible_candidate_hashes == tuple(sorted(finite_hashes))
     assert not finite_projection.unassessed_candidate_hashes
     assert finite_voi.position_for(finite_hashes[1]) == "frontier"
 

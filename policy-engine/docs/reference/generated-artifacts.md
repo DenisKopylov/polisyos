@@ -1922,7 +1922,7 @@ uv run --extra test python tools/quality/validation/check_layer3_gy_n13b_acquisi
 Canonical regeneration commands:
 
 ```bash
-uv run python tools/quality/validation/check_layer3_gy_value_gate_contract.py --write-dependency-discriminant architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json --write --expected-source-freeze 3ffb6ad5ed95d316656bc19946018a4eec52bc3b
+uv run python tools/quality/validation/check_layer3_gy_value_gate_contract.py --write-dependency-discriminant architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json --write --expected-source-freeze 32442a2fe41a3b8daa74b6350a256ac06f4239cf
 ```
 
 ## `Policy Design Case Layer 3 GY-N11 anytime-valid confidence ledger`

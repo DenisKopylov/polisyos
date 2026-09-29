@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import TYPE_CHECKING, Any
+import multiprocessing
+import os
+from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -26,9 +29,6 @@ from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.runner.local_runner import LocalWorkflowRunner
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 pytestmark = pytest.mark.integration
 
@@ -654,6 +654,46 @@ class _NodeOnlyCASCheckpointHook:
         return await self._delegate.on_node_complete_async(**kwargs)
 
 
+def _resume_parallel_tier_in_fresh_process(
+    cas_root: str,
+    run_id: str,
+    bundle_ref_payload: dict[str, Any],
+    result_queue: Any,
+) -> None:
+    """Read and resume a durable tier head without the writer's process state."""
+    ParallelLeftNode.calls = 0
+    ParallelRightNode.calls = 0
+    FlakyAfterParallelNode.calls = 0
+    FlakyAfterParallelNode.fail_once = False
+
+    reopened_store = FileSystemCAS(Path(cas_root))
+    resolved = resolve_latest_checkpoint(reopened_store, run_id)
+    assert resolved is not None
+    head, checkpoint_artifact = resolved
+    assert checkpoint_artifact.state is not None
+
+    resumed = resume_from_checkpoint(
+        reopened_store,
+        run_id,
+        workflow=_parallel_workflow(),
+        registry=_parallel_registry(),
+        registry_bundle_ref=ArtifactRef.model_validate(bundle_ref_payload),
+        checkpoint_policy="strict",
+    )
+    result_queue.put(
+        {
+            "pid": os.getpid(),
+            "sequence_number": head.sequence_number,
+            "completed_nodes": checkpoint_artifact.metadata.completed_nodes,
+            "checkpoint_params": checkpoint_artifact.state["params"],
+            "report_status": resumed.report.status,
+            "resumed_params": resumed.state.params,
+            "peer_calls": [ParallelLeftNode.calls, ParallelRightNode.calls],
+            "final_calls": FlakyAfterParallelNode.calls,
+        }
+    )
+
+
 @pytest.mark.asyncio
 async def test_parallel_tier_rejects_node_only_hook_before_any_side_effect(
     tmp_path: Path,
@@ -729,36 +769,45 @@ async def test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_pee
             checkpoint_hook=hook,
         )
 
-    resolved = resolve_latest_checkpoint(store, run_id)
-    assert resolved is not None
-    head, checkpoint_artifact = resolved
-    assert checkpoint_artifact.metadata.completed_nodes == ["left", "right"]
-    assert checkpoint_artifact.state is not None
-    assert checkpoint_artifact.state["params"]["left"] == 1
-    assert checkpoint_artifact.state["params"]["right"] == 2
     assert ParallelLeftNode.calls == 1
     assert ParallelRightNode.calls == 1
     assert FlakyAfterParallelNode.calls == 0
 
-    FlakyAfterParallelNode.fail_once = False
+    assert isinstance(bundle_ref, ArtifactRef)
     monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
-    resumed = resume_from_checkpoint(
-        store,
-        run_id,
-        workflow=workflow,
-        registry=_parallel_registry(),
-        registry_bundle_ref=bundle_ref,
-        checkpoint_policy="strict",
+    process_context = multiprocessing.get_context("spawn")
+    result_queue = process_context.Queue()
+    child = process_context.Process(
+        target=_resume_parallel_tier_in_fresh_process,
+        args=(str(tmp_path), run_id, bundle_ref.model_dump(mode="json"), result_queue),
     )
+    try:
+        child.start()
+        child.join(timeout=60)
+        assert child.exitcode == 0
+        observed = result_queue.get(timeout=5)
+    finally:
+        if child.is_alive():
+            child.terminate()
+            child.join(timeout=5)
+        result_queue.close()
 
-    assert resumed.report.status == "ok"
-    assert resumed.state.params["left"] == 1
-    assert resumed.state.params["right"] == 2
-    assert resumed.state.params["final"] is True
-    assert head.sequence_number == 1
+    assert observed["pid"] != os.getpid()
+    assert observed["completed_nodes"] == ["left", "right"]
+    assert observed["checkpoint_params"] == {"seed": 29, "left": 1, "right": 2}
+    assert observed["sequence_number"] == 1
+    assert observed["report_status"] == "ok"
+    assert observed["resumed_params"] == {
+        "seed": 29,
+        "left": 1,
+        "right": 2,
+        "final": True,
+    }
+    assert observed["peer_calls"] == [0, 0]
+    assert observed["final_calls"] == 1
     assert ParallelLeftNode.calls == 1
     assert ParallelRightNode.calls == 1
-    assert FlakyAfterParallelNode.calls == 1
+    assert FlakyAfterParallelNode.calls == 0
 
 
 @pytest.mark.asyncio

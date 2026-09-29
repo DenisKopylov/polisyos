@@ -1,5 +1,39 @@
 # E02-R2 write leases
 
+## R1 served N4 source-owner witness lease (2026-09-29; `21752fa16`)
+
+One R1 writer reuses the clean worktree
+`/Users/deniskopylov/.codex/worktrees/e02-r7-r8-probes/polisyos`, branch
+`codex/e02-r2-r13-selected-row-candidate`, after an append-only fast-forward
+from `codex/e02-r2`. Its exclusive permanent write set is
+`policy-engine/tests/unit/runtime/http/test_control_service_di.py` and
+`policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`.
+This supersedes the earlier immutable-front/current-egress candidate lease
+below. That uncommitted diagnostic patch was frozen at
+`/Users/deniskopylov/.codex/scratch/e02-r1-current-fronts-v2-5a57a6665/r1-v2-premise-review.patch@sha256:79aea6ca0041902d6971bf4799491fa89e6bdcd9645e7da9e0e036c28f072707`,
+then reversed byte-exactly before the worktree fast-forward. Root alone
+integrates a reviewed candidate; no runtime source edit is leased here.
+
+Replace the controlled fixture's `SimpleNamespace` N4 bypass with the real
+`N4GenerationPort` and a deterministic local response against the exact served
+problem, owner-replayed context, and selected WMR. Require a nonempty typed
+`DesignGenerationOrganRun`, source-store replay with positive equal
+expected/retained identity sets, and an N5 `joint_simulated` candidate result.
+The positive retains the existing profile-admission `not_established`, no N9
+promotion, no S8 authority, and no publication controls. Test first: the
+source-positive assertion must fail on the old fixture. A marker-retaining
+source-persistence failure must make the receipt drift/refuse while its
+expected identity denominator remains positive; N9 refusal alone is not the
+probe because the profile is already limited. If canonical N4 cannot ground
+an atom against this exact fixture, record the typed owner/data premise and
+stop this slice without fabricating an atom or copying another fixture's ref.
+Run one resource-bearing test process at a time, keep 8 GiB free and at least
+25% RAM available, and freeze its worktree source during every run.
+Design:
+`/Users/deniskopylov/.codex/scratch/e02-r1-positive-owner-path-20260929/R1_N4_POSITIVE_OWNER_PATH_DESIGN.md@sha256:3356bde502577023f08111cfc6aa2b7f414b0c7793c9d7207428f5f675bbb120`;
+independent conditional GO:
+`/Users/deniskopylov/.codex/scratch/e02-r1-positive-owner-path-review-20260929.md@sha256:11513ef851f9e9fda5ffa4544d4326aa646687a43c8742ada9ccce944f864938`.
+
 ## R5 protected-mode denominator test lease (2026-09-29; `cd9e935e5`)
 
 The current R1 owner-fixture design does not use

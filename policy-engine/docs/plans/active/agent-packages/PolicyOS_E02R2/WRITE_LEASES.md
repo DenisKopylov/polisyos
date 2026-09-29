@@ -1,5 +1,24 @@
 # E02-R2 write leases
 
+## R6 foreign-context N5 removal probe (2026-09-29; `58df9a932`)
+
+The R5 writer and five-selector R9 reader have finished in the clean reused
+`/Users/deniskopylov/.codex/worktrees/e02-r2-r1-sim-gateway/polisyos` worktree.
+One R6 probe writer may fast-forward its branch `codex/e02-r2-r1-sim-gateway`
+to the current integration head, then temporarily edit only
+`policy-engine/src/polisyos/runtime/quality/generation_cycle.py`.
+No permanent source or test edit is leased. The mutation must disable only the
+atomless `candidate_unbound` resolver call inside `_context_world_model_record`,
+keeping the identity markers and other gates intact. Before mutation, record
+the exact source blob and run the foreign-context negative plus the
+same-context control. Under mutation, the negative must turn red and the
+control must stay green. Restore the source byte-exactly with a reversed patch,
+verify a clean attached branch, and keep all JUnit/raw outputs in scratch.
+Do not use the canonical integration worktree for the mutation. Use one capped
+pytest process at a time; preserve 8 GiB free disk and at least 25% free RAM.
+This is a proof lease, not authority to rewrite R6 or adjacent R13 behavior.
+Design: `/Users/deniskopylov/.codex/scratch/e02-r6-property-audit-20260929/R6_REMOVAL_PROBE_PLAN.md@sha256:d82cc91e3500e10fd321b38e982f15f4817d9ab5dc931ce6c7424632234222f3`.
+
 ## R1 served N4 source-owner witness lease (2026-09-29; `21752fa16`)
 
 One R1 writer reuses the clean worktree

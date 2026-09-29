@@ -788,3 +788,24 @@ There are 42 common case identities between integration and each historical ref,
 The smallest closure is an independent owner-produced source-feasible identity set plus an explicit unknown-eligibility set, bridged into the ordinary report builder, with a semantic negative test for an eligible candidate omitted before projection and a separate explicit-unknown control. Current capability labels: `producer_missing`, `bridge_missing`, `semantic_test_missing`, and `surface_missing`. B111 remains `partial`. The direct champion probe does not establish production non-finite emission. Next steps also include a typed finite-hypervolume overflow outcome, production producer→consumer/persistence evidence, and the complete 21-file P41 matrix.
 
 The architecture-guardrail attempt was interrupted with exit 143 before a verdict; its state is `UNRUN`, not pass or fail: /Users/deniskopylov/.codex/scratch/e02-r2-guardrails-interrupted-20260929/RECEIPT.md@sha256:ed431c3057b32d61a209af4210667d9e6ebbec7d9770295f89bde4c8599f8986. This bounded evidence update runs no tests or gates and changes no finding status or aggregate count. Reviews: bounded code review /Users/deniskopylov/.codex/scratch/e02-b111-independent-review-20260929/B111_FINAL_REVIEW.md@sha256:2581de4f8bbd783e841c6a5e3bbad640c4d2eb9edb2a5fa7b4807a1174a32ab4; independent docs review /Users/deniskopylov/.codex/scratch/e02-b111-docs-independent-review-20260929/B111_DOCS_INDEPENDENT_REVIEW.md@sha256:ae3d615a14df63507c4e0410d82e13c8d36d8159c1228a0966108559520ccc43. Relevant source pin: policy-engine/src/polisyos/scientist/methods/autotune/pareto.py@git-blob:5ac88b50c467d58bd44d76d3a7834aa0efe79940; ordinary report-builder pin: policy-engine/src/polisyos/scientist/policy_design/output.py@git-blob:f0d43b5762ba3388fdfc899069fb5ca48dc52534.
+
+## R2 outer-v1 replay update at `03505d419` (2026-09-30)
+
+**Discrepancies first.** The scoped pre-edit P41 denominator is two whole test
+files at four refs: three Git-`MISSING` historical history-file cells and five
+present `UNRUN` cells. After the code change, the focused test, whole-file
+four-base replay, byte-guard removal probe, and installed source-free served
+path are still `UNRUN` because available disk is below the agreed 8 GiB floor.
+Static Ruff, Python compile, and diff checks passed; independent code review
+gave a bounded GO, not a test result.
+
+The source now freezes the outer-v1 projection and rejects same-mapping
+noncanonical bytes or a wrong CAS manifest profile before the existing
+normative composition checks. This advances R2's historical wire-replay
+property but does not establish positive S8 authority, deployment identity,
+or future rule-version semantic replay. `OPEN_PREMISES.md` records the latter
+as OP-R2-OUTER-RULE-REPLAY; the existing OP-R2-N6 issuer premise remains.
+R2/B30 and the aggregate ledger statuses stay partial and unchanged. Exact
+source/test pins, P41 denominator, test identity, and review receipt are in
+the R2 outer-v1 section of `BASELINES.md`. No register row or GY/Atlas plan
+was changed.

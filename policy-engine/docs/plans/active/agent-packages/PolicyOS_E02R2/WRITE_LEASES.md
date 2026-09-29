@@ -1,5 +1,40 @@
 # E02-R2 write leases
 
+## B111 registry-to-result assessment propagation (queued 2026-09-29; `e17d550bb`)
+
+After the R14 candidate below is reviewed and integrated or rejected, one
+direct B111 writer may reuse its clean existing candidate worktree. Root alone
+integrates the reviewed B111 candidate. The exclusive permanent source write
+set is `scientist/methods/search/pareto_registry.py`, `run_state.py`,
+`controller.py`, `contracts.py`, `scientist/policy_design/search.py`,
+`scientist/policy_design/output.py`, and
+`scientist/nodes/builtins/planning/run_hierarchical_policy_search.py` under
+`policy-engine/src/polisyos/`. The mirrored tests named in the independent
+review are leased to this writer; any new source/test path requires a written
+lease amendment before editing. R2 owns its separate S8/generation files;
+R13 remains sequenced on any overlapping source. Do not change the objective
+basis owner, instantiate another ParetoRegistry, or edit the debt register or
+plans.
+
+Use the existing `ParetoRegistrySnapshot.view_assessments` as the single basis
+truth. Test first: an omitted required-axis row must remain typed unassessed
+through the registry, run state, SearchResult, hierarchy, and both persisted
+reports, while complete finite and candidate-only controls keep working.
+Change both hashed report schemas to v2 only with explicit byte-exact v1
+historical serializers/loaders; never reissue or restamp old artifacts. The
+registry-less hierarchy producer must retain candidate work without emitting
+an unproved global frontier. Remove assessment propagation or per-row
+disposition while keeping schema/status markers: the persisted/served witness
+must turn red. Freeze source for each run and independently review each clean
+candidate boundary. Before permanent edits, attempt the specified four-base
+whole-file replay; preserve resource-limited cells as typed UNRUN under Denis's
+prior ruling, then run focused and touched-file current-head tests. Keep one
+resource-bearing test process at a time in this worktree, at least 8 GiB free
+disk and 25% free RAM. Do not run concurrently with another heavy native job.
+
+Design correction and test set:
+`/Users/deniskopylov/.codex/scratch/e02-b111-current-design-6f6e-20260929/B111_CLASS_PROPAGATION_REVIEW.md@sha256:b37e3bcf8a260af27d6efe8d32d518bfa4a87faf9d6ee65830a5aae32761b9fa`.
+
 ## R14 existing-owner facade imports (narrowed 2026-09-29; `913bf82db`)
 
 One direct R14 candidate writer may reuse a clean existing candidate worktree

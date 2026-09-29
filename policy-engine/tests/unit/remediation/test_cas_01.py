@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import threading
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -406,6 +407,115 @@ def test_concurrent_writers_publish_only_the_persisted_first_writer_profile(
     assert first_ref.artifact_id == second_ref.artifact_id
     _assert_manifest_profile(store.get_manifest(first_ref), first_options, data=PAYLOAD)
     _assert_manifest_profile(store.get_manifest(second_ref), second_options, data=PAYLOAD)
+
+
+def test_exception_releases_same_id_lock_for_scoped_view_waiter(tmp_path: Path) -> None:
+    """A failed view writer cannot strand a waiting writer of the same blob."""
+    store = FileSystemCAS(tmp_path / "cas")
+    default_options = _options("cas.default", "application/json")
+    failed_options = _options("cas.failed", "application/json")
+    waiting_options = _options("cas.waiting", "application/json")
+    default_ref = store.put_bytes(PAYLOAD, default_options)
+    aid = default_ref.artifact_id
+    failed_manifest = store._manifests.build(
+        artifact_id=aid,
+        data=PAYLOAD,
+        sha=aid.hex,
+        opts=failed_options,
+    )
+    failed_view_path = store._layout.view_manifest_path(
+        aid,
+        store._manifests.profile_sha256(failed_manifest),
+    )
+    assert not failed_view_path.exists()
+
+    first_inside_lock = threading.Event()
+    release_first = threading.Event()
+    waiter_contended = threading.Event()
+    waiter_acquired_early = threading.Event()
+    waiter_done = threading.Event()
+    outcome_guard = threading.Lock()
+    outcomes: dict[str, ArtifactRef | Exception] = {}
+    original_write_once = store._files.write_once
+    original_artifact_lock = store._artifact_lock
+
+    def _fail_first_view(path: Path, data: bytes) -> bool:
+        if path == failed_view_path and threading.current_thread().name == "cas-failed-view":
+            first_inside_lock.set()
+            if not release_first.wait(timeout=5):
+                raise TimeoutError("failed view writer was never released")
+            raise OSError("injected scoped-view write failure")
+        return original_write_once(path, data)
+
+    @contextmanager
+    def _observed_artifact_lock(artifact_id: ArtifactID):
+        lock = original_artifact_lock(artifact_id)
+        if threading.current_thread().name != "cas-waiting-view":
+            with lock:
+                yield
+            return
+        if lock.acquire(blocking=False):
+            waiter_acquired_early.set()
+        else:
+            waiter_contended.set()
+            lock.acquire()
+        try:
+            yield
+        finally:
+            lock.release()
+
+    store._files.write_once = _fail_first_view  # type: ignore[method-assign]
+    store._artifact_lock = _observed_artifact_lock  # type: ignore[method-assign]
+
+    def _writer(name: str, options: PutOptions) -> None:
+        try:
+            outcome: ArtifactRef | Exception = store.put_bytes(PAYLOAD, options)
+        except Exception as exc:  # pragma: no cover - checked through outcomes below
+            outcome = exc
+        with outcome_guard:
+            outcomes[name] = outcome
+        if name == "cas-waiting-view":
+            waiter_done.set()
+
+    failed_writer = threading.Thread(
+        target=_writer,
+        args=("cas-failed-view", failed_options),
+        name="cas-failed-view",
+        daemon=True,
+    )
+    waiting_writer = threading.Thread(
+        target=_writer,
+        args=("cas-waiting-view", waiting_options),
+        name="cas-waiting-view",
+        daemon=True,
+    )
+    failed_writer.start()
+    try:
+        assert first_inside_lock.wait(timeout=2)
+        waiting_writer.start()
+        assert waiter_contended.wait(timeout=2)
+        assert not waiter_acquired_early.is_set()
+        assert not waiter_done.is_set()
+    finally:
+        release_first.set()
+        failed_writer.join(timeout=5)
+        if waiting_writer.ident is not None:
+            waiting_writer.join(timeout=5)
+
+    assert not failed_writer.is_alive()
+    assert not waiting_writer.is_alive()
+    assert isinstance(outcomes.get("cas-failed-view"), OSError)
+    assert str(outcomes["cas-failed-view"]) == "injected scoped-view write failure"
+    waiting_ref = outcomes.get("cas-waiting-view")
+    assert isinstance(waiting_ref, ArtifactRef)
+    assert waiting_ref.artifact_id == aid
+    assert waiting_ref.manifest_profile_sha256 is not None
+    assert not failed_view_path.exists()
+    assert store.get_bytes(default_ref) == PAYLOAD
+    assert store.get_bytes(waiting_ref) == PAYLOAD
+    _assert_manifest_profile(store.get_manifest(default_ref), default_options, data=PAYLOAD)
+    _assert_manifest_profile(store.get_manifest(waiting_ref), waiting_options, data=PAYLOAD)
+    assert store.put_bytes(PAYLOAD, waiting_options) == waiting_ref
 
 
 def test_lock_registry_is_bounded_without_evicting_active_waiters(tmp_path: Path) -> None:

@@ -800,7 +800,7 @@ Static Ruff, Python compile, and diff checks passed; independent code review
 gave a bounded GO, not a test result.
 
 The source now freezes the outer-v1 projection and rejects same-mapping
-noncanonical bytes or a wrong CAS manifest profile before the existing
+noncanonical bytes or a simulated wrong CAS manifest response before the
 normative composition checks. This advances R2's historical wire-replay
 property but does not establish positive S8 authority, deployment identity,
 or future rule-version semantic replay. `OPEN_PREMISES.md` records the latter

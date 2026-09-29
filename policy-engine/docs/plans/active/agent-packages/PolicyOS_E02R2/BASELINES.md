@@ -2706,11 +2706,11 @@ artifact hash, kind, media type and schema name/version, validates the v1 DTO,
 then compares the exact canonical v1 bytes. The new served-owner test
 `tests/unit/runtime/http/test_normative_generation_bridge.py::test_outer_v1_replay_rejects_noncanonical_bytes_and_manifest_schema`
 constructs a same-mapping whitespace variant with a new valid CAS ref and
-wrong-schema manifests. It also requests canonical owner replay as a
-property-preserving control. This test and the marker-retaining removal probe
-are **UNRUN**; source inspection and reviewer GO do not count as behavioral
-passes. The installed-wheel outer owner fixture and the full served
-ControlPlaneService path across a source-free installation also remain UNRUN.
+simulated wrong-schema `get_manifest` responses. It also requests canonical
+owner replay as a property-preserving control. This test and the
+marker-retaining removal probe are **UNRUN**; source inspection and reviewer
+GO are not behavioral passes. The installed-wheel outer owner fixture and
+source-free served ControlPlaneService path also remain UNRUN.
 
 Scoped `.venv/bin/python -m ruff check` on the two changed files exited 0;
 `py_compile` and `git diff --check` exited 0 before commit. Independent review
@@ -2722,3 +2722,4 @@ inventory at this head. No current S8 authority or R2 closure follows.
 Source pins: `policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@git-blob:b42fe85abb091657d7470f35851625ab45e5271a`
 and `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py@git-blob:61bd74938468618f0d5877ea95dbc0288cd50a5a`.
 Review: `/Users/deniskopylov/.codex/scratch/e02r2-r2-outer-v1-review-20260930/review.md@sha256:cc226ff88bfed0dc58bf8ddf01c4552d3615ecf9aab35a5161585762213fb8a5`.
+Document factual review: `/Users/deniskopylov/.codex/scratch/e02r2-r2-outer-v1-review-20260930/docs-factual-review.md@sha256:2daee8d88a8c7d3257a63e0ed79abff80eb0e8dd4390139af96a1b75bacc4ed2`.

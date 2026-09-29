@@ -583,7 +583,9 @@ async def test_actual_wdi_admits_delta_and_reenters_same_case(
     assert served.reentry.new_cycle.value_port.selected_method_fqn is None
 
 
-async def _admit_served_wdi_projection(tmp_path, monkeypatch, request):
+async def _admit_served_wdi_projection(
+    tmp_path, monkeypatch, request, *, baseline_country_code="UKR"
+):
     """Create the real WDI admission and return its verified active projection."""
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         CatalogAcquisitionOverlay,
@@ -617,7 +619,7 @@ async def _admit_served_wdi_projection(tmp_path, monkeypatch, request):
                         "acquisition.worldbank.government_balance",
                         "GC.BAL.CASH.GD.ZS",
                         "government.balance",
-                        "UKR",
+                        baseline_country_code,
                         year,
                         value,
                         '{"unit":"percent_gdp"}',
@@ -790,11 +792,13 @@ async def test_served_wdi_admits_selected_row_but_n5_refusal_prevents_n8(
 
 
 @pytest.mark.asyncio
-async def test_real_value_owner_gateway_exposes_iso3_scope_gap_before_projection_read(
+async def test_real_value_owner_gateway_projects_selected_wdi_iso3_row_into_iso2_profile(
     tmp_path, monkeypatch, request
 ):
-    """Owner-boundary only: UKR admission rows are excluded by the normalized UA scope."""
-    admitted = await _admit_served_wdi_projection(tmp_path, monkeypatch, request)
+    """Only the active verified WDI member may bridge ISO3 source to ISO2 profile."""
+    admitted = await _admit_served_wdi_projection(
+        tmp_path, monkeypatch, request, baseline_country_code="UA"
+    )
     served = admitted.served
     projection = admitted.projection
     selected_rows = tuple(
@@ -807,26 +811,17 @@ async def test_real_value_owner_gateway_exposes_iso3_scope_gap_before_projection
     gateway = RealValueOwnerGateway(
         repo_root=served.case.authority.repo_root,
         catalog_overlay_path=served.case.call_args["overlay_path"],
+        artifact_store=served.case.bridge.artifact_store,
         activated_observation_projection=projection,
     )
 
-    # This calls the real owner API directly with the verified admission projection.
-    # It does not claim that the served N5/EvalSafety path reaches N8. The owner
-    # normalizes the problem's ISO3 region to ISO2 `UA`, while the persisted L1/WDI
-    # rows carry ISO3 `UKR`; the profile query therefore has no usable scoped rows.
+    # This calls the real owner API directly with the verified active projection.
+    # The three L1 ISO2 rows and selected WDI ISO3 row form one four-period profile.
+    # The served N5/EvalSafety path remains a separate typed refusal witness.
     from polisyos.runtime.quality.generation_cycle import _resolve_owner_scope_region
 
     assert _resolve_owner_scope_region("UKR", owner_access_ref="test://scope") == "UA"
     assert selected.country_code == "UKR"
-    with pytest.raises(ValueOwnerAccessError) as initial_refusal:
-        gateway.load_value_data_profile(
-            candidate=object(),
-            problem=served.closure.design_problem_basis,
-            world_record=object(),
-        )
-    assert initial_refusal.value.code == "acquire_data:value_owner_rows_missing"
-    assert "no usable owner rows" in str(initial_refusal.value)
-
     overlay_path = served.case.call_args["overlay_path"]
     with duckdb.connect(str(overlay_path), read_only=True) as con:
         marker_snapshot = con.execute(
@@ -837,6 +832,129 @@ async def test_real_value_owner_gateway_exposes_iso3_scope_gap_before_projection
             [projection.epoch_id],
         ).fetchone()
     assert marker_snapshot is not None
+    with duckdb.connect(str(overlay_path)) as con:
+        con.execute(
+            "INSERT INTO ds_observations (observation_id, dataset_id, raw_variable, "
+            "canonical_var, country_code, year, value, condition_json) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                "unselected-ukr-collision-2025",
+                "unregistered.other-source",
+                "GC.BAL.CASH.GD.ZS",
+                "government.balance",
+                "UKR",
+                2025,
+                -999.0,
+                '{"unit":"percent_gdp"}',
+            ],
+        )
+    with duckdb.connect(str(overlay_path), read_only=True) as con:
+        assert con.execute(
+            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref, "
+            "epoch_activation_state FROM acquisition_epochs WHERE epoch_id = ?",
+            [projection.epoch_id],
+        ).fetchone() == marker_snapshot
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    with tenant_scope(
+        None,
+        tenant_id=served.closure.tenant_id,
+        cell_id=served.closure.cell_id,
+    ):
+        profile = gateway.load_value_data_profile(
+            candidate=object(),
+            problem=served.closure.design_problem_basis,
+            world_record=object(),
+        )
+    assert profile.unit_count == 1
+    assert profile.period_count == 4
+    assert profile.owner_row_count == 4
+    selected_profile_rows = tuple(
+        row for row in profile.rows if row.period_id == 2024
+    )
+    assert len(selected_profile_rows) == 1
+    selected_profile_row = selected_profile_rows[0]
+    assert selected_profile_row.unit_id == "UA"
+    assert selected_profile_row.outcome_value == pytest.approx(selected.value)
+    assert selected_profile_row.source_row_content_hashes == (
+        gy_content_hash(
+            {
+                "outcome": "government.balance",
+                "unit_id": "UA",
+                "period_id": 2024,
+                "value": selected.value,
+                "dataset_id": selected.dataset_id,
+                "observation_id": selected.observation_id,
+                "measurement_unit": "percent_gdp",
+            }
+        ),
+    )
+    assert all(row.period_id != 2025 for row in profile.rows)
+
+    # A content-valid CAS passport for a different connector must not authorize
+    # ISO3→ISO2 normalization, even when the active-row and epoch markers remain.
+    from polisyos.core import contracts
+    from polisyos.fabric.data_plane import canonical_json_bytes, content_sha256
+
+    store = served.case.bridge.artifact_store
+    with tenant_scope(
+        None,
+        tenant_id=served.closure.tenant_id,
+        cell_id=served.closure.cell_id,
+    ):
+        wrong_passport_payload = contracts.epoch.load_verified_epoch_statement(
+            store=store,
+            ref=projection.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+        wrong_registration = dict(wrong_passport_payload["registration"])
+        wrong_registration["connector_id"] = "unregistered.country-code-source"
+        wrong_passport_payload["registration"] = wrong_registration
+        wrong_identity = {
+            key: value
+            for key, value in wrong_passport_payload.items()
+            if key not in {"passport_id", "status", "rejection_codes"}
+        }
+        wrong_passport_payload["passport_id"] = (
+            "passport:" + content_sha256(wrong_identity)
+        )
+        encoded_passport = canonical_json_bytes(wrong_passport_payload)
+        wrong_passport_ref = store.put_bytes(
+            len(encoded_passport).to_bytes(8, "big") + encoded_passport,
+            artifacts.PutOptions(
+                kind="epoch.acquisition_passport_snapshot",
+                media_type="application/vnd.polisyos.epoch+json",
+            ),
+        )
+        wrong_projection = type(projection).issue(
+            receipt_ref=projection.receipt_ref,
+            receipt_content_sha256=projection.receipt_content_sha256,
+            passport_ref=wrong_passport_ref,
+            passport_content_sha256=content_sha256(wrong_passport_payload),
+            variable_id=projection.variable_id,
+            epoch_id=projection.epoch_id,
+            passport_id=wrong_passport_payload["passport_id"],
+            admission_content_sha256=projection.admission_content_sha256,
+            observations=tuple(row.observation for row in projection.observations),
+        )
+        wrong_registration_gateway = RealValueOwnerGateway(
+            repo_root=served.case.authority.repo_root,
+            catalog_overlay_path=overlay_path,
+            artifact_store=store,
+            activated_observation_projection=wrong_projection,
+        )
+        with pytest.raises(ValueOwnerAccessError) as wrong_registration_refusal:
+            wrong_registration_gateway.load_value_data_profile(
+                candidate=object(),
+                problem=served.closure.design_problem_basis,
+                world_record=object(),
+            )
+    assert (
+        wrong_registration_refusal.value.code
+        == "acquire_data:active_observation_country_scheme_not_established"
+    )
 
     with duckdb.connect(str(overlay_path)) as con:
         physical_before = con.execute(
@@ -857,16 +975,23 @@ async def test_real_value_owner_gateway_exposes_iso3_scope_gap_before_projection
             [projection.epoch_id],
         ).fetchone() == marker_snapshot
 
-    with pytest.raises(ValueOwnerAccessError) as after_tamper:
+    with tenant_scope(
+        None,
+        tenant_id=served.closure.tenant_id,
+        cell_id=served.closure.cell_id,
+    ), pytest.raises(ValueOwnerAccessError) as after_tamper:
         gateway.load_value_data_profile(
             candidate=object(),
             problem=served.closure.design_problem_basis,
             world_record=object(),
         )
-    assert after_tamper.value.code == "acquire_data:value_owner_rows_missing"
-    assert len(admitted.profile_calls) == 2
+    assert after_tamper.value.code == "acquire_data:active_observation_projection_drift"
+    assert len(admitted.profile_calls) == 3
     assert len(admitted.profile_errors) == 2
-    assert all("no usable owner rows" in error for error in admitted.profile_errors)
+    assert "registered WDI ISO3 source code" in admitted.profile_errors[0]
+    assert "N8 query rows differ from the Data Forge verified active member" in (
+        admitted.profile_errors[1]
+    )
 
 
 @pytest.mark.asyncio

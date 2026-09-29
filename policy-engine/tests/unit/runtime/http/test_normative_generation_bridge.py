@@ -298,6 +298,122 @@ def test_signed_frontier_must_bind_actual_source_not_same_candidate_names(statio
     )
 
 
+def test_legacy_v1_composition_replays_without_currentness_or_authority(station, monkeypatch):
+    """A historical v1 claim replays byte-for-byte but cannot carry present authority."""
+    from polisyos.runtime.quality import generation_cycle as n6
+
+    service, compiled, source_ref = station
+    now = datetime.now(UTC)
+    owner = bridge.normative_owner_for_runtime_store(
+        service._artifact_store,
+        service._normative_authority_trust,
+        repo_root=service._repo_root,
+    )
+    node = compiled.recursive_run.leaf_nodes[0]
+    run = node.cycle_run
+    assert run is not None
+    evidence = bridge.NormativeRunEvidenceRefs.model_validate(
+        _signed_generation_evidence(service, compiled, fault="authorized")
+    ).by_node[node.node_ref]
+    binding = s8.NormativeGenerationBinding(
+        compiled_run_ref=source_ref,
+        source_run_ref="sha256:" + canon.content_hash(
+            canon.to_canonical_bytes(run.model_dump(mode="json"), canon.CanonSpec(forbid_floats=False))
+        ),
+        node_ref=node.node_ref,
+    )
+    leaf = s8.NormativeGenerationDisposition(
+        generation_binding=binding,
+        case_id=run.cycles[0].revision_request.revised_problem.design_problem_id,
+        candidate_fronts=run.fronts.candidate_ids_by_front(),
+        evidence=evidence,
+        authorization_status="authorized",
+        ranked_recommendations=(run.candidate_summaries[0].candidate_id,),
+        admitted_at=now,
+        trust_epoch=service._normative_authority_trust.epoch,
+    )
+    leaf_ref = service._artifact_store.put_json(
+        leaf.model_dump(mode="json"),
+        artifacts.PutOptions(
+            kind=s8.NORMATIVE_GENERATION_DISPOSITION_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=s8.NORMATIVE_GENERATION_DISPOSITION_KIND,
+                version=s8.NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    outer = bridge.NormativeRunDisposition(
+        compiled_run_ref=source_ref,
+        leaf_disposition_refs={node.node_ref: str(leaf_ref.artifact_id)},
+        leaf_dispositions={node.node_ref: leaf},
+        authorization_status="authorized",
+        ranked_recommendations=leaf.ranked_recommendations,
+        strangle_receipt=bridge.NormativeRunStrangleReceipt(
+            compiled_run_ref=source_ref,
+            source_node_refs=(node.node_ref,),
+            disposition_node_refs=(node.node_ref,),
+        ),
+    )
+    outer_ref = _put_sidecar(service, outer.model_dump(mode="json"))
+    outer_bytes = service._artifact_store.get_bytes(
+        artifacts.ArtifactID.model_validate(outer_ref)
+    )
+    currentness_calls: list[dict[str, object]] = []
+
+    def unexpected_currentness_read(**kwargs: object) -> n6.N6DeploymentCurrentnessObservation:
+        currentness_calls.append(dict(kwargs))
+        raise AssertionError("historical replay must not query live currentness")
+
+    monkeypatch.setattr(n6, "observe_n6_deployment_currentness", unexpected_currentness_read)
+    replay = bridge.replay_normative_run_disposition(
+        store=service._artifact_store,
+        owner=owner,
+        disposition_ref=outer_ref,
+        compiled_run_ref=source_ref,
+    )
+    assert replay.disposition.model_dump(mode="json") == outer.model_dump(mode="json")
+    assert not replay.admission_authority_established
+    assert currentness_calls == []
+
+    projected = bridge.project_normative_run_disposition(
+        store=service._artifact_store,
+        owner=owner,
+        disposition_ref=outer_ref,
+        compiled_run_ref=source_ref,
+        evaluated_at=now,
+    )
+    assert projected.authorization_status == "blocked"
+    assert projected.ranked_recommendations == ()
+    assert (
+        "p20_normative_generation_admission_currentness_not_recorded"
+        in projected.leaf_dispositions[node.node_ref].decision_request.reason_codes
+    )
+    assert service._artifact_store.get_bytes(artifacts.ArtifactID.model_validate(outer_ref)) == (
+        outer_bytes
+    )
+    assert currentness_calls == []
+
+    # Removal probe: route historical replay through the current projector while
+    # retaining the same v1 refs/markers. It must detect the history/current delta.
+    with monkeypatch.context() as removed_history_boundary:
+        removed_history_boundary.setattr(
+            owner,
+            "replay_generation_disposition",
+            lambda ref: owner.project_generation_disposition(ref, evaluated_at=now),
+        )
+        with pytest.raises(
+            s8.P20NormativeChoiceError,
+            match="p20_normative_composition_content_mismatch",
+        ):
+            bridge.replay_normative_run_disposition(
+                store=service._artifact_store,
+                owner=owner,
+                disposition_ref=outer_ref,
+                compiled_run_ref=source_ref,
+            )
+
+
 @pytest.mark.parametrize("sidecar_ref", [None, "sha256:" + "f" * 64])
 def test_missing_or_unresolved_sidecar_preserves_current_source_fronts(station, sidecar_ref):
     service, compiled, source_ref = station

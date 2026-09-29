@@ -1,5 +1,31 @@
 # E02-R2 write leases
 
+## R5 protected-mode denominator test lease (2026-09-29; `cd9e935e5`)
+
+The current R1 owner-fixture design does not use
+`policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py`.
+Release that file from the older R1 owner-station lease for one R5 writer in
+the clean, reused `codex/e02-r2-r1-sim-gateway` worktree. After an append-only
+fast-forward to this branch, the writer's permanent write set is exactly that
+one test file. Root alone integrates a reviewed candidate. The production
+owner `runtime/quality/recursive_generation_cycle.py` may be changed only as
+a temporary marker-retaining removal probe, with its initial blob recorded
+and restored exactly before any candidate commit. No other agent writes this
+worktree during that probe.
+
+The test extends the existing pre-N4 EvalSafety denominator selector across
+`sandbox_pilot`, `field_pilot`, and `deployment`: missing, extra, and wrong-key
+leaf contexts must refuse before N4. Preserve the exact-current protected
+control and context-free candidate/simulation controls. Do not claim a
+DataTrust producer or revised-basis EvalSafety refresh. A denominator-guard
+removal must turn the semantic test red while leaving its marker text present.
+The exact current four-base whole-file comparison precedes the edit if the
+resource guard permits it; otherwise retain each typed `UNRUN` and proceed
+under Denis's 2026-09-27 ruling, then run the focused and whole current-file
+checks after the candidate. Keep at least 8 GiB free and 20–30% memory free;
+one test process at a time. Design audit:
+`/Users/deniskopylov/.codex/scratch/e02-r5-next-engineering-audit-20260929/R5_NEXT_ENGINEERING_AUDIT.md@sha256:8cbb4318dcb7105c735df0986768a2da512a38b7619ce70d1deb12a2edcf4e47`.
+
 ## R1 immutable-front/current-egress candidate lease (2026-09-29)
 
 One R1 writer may reuse the clean worktree at

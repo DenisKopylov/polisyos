@@ -128,13 +128,18 @@ class ParetoInputAssessment(BaseModel):
     status: Literal["complete", "partial", "no_usable_inputs"]
     input_count: int = Field(ge=0)
     assessed_count: int = Field(ge=0)
-    unassessed_evaluations: list[ParetoUnassessedEvaluation] = Field(default_factory=list)
+    unassessed_evaluations: tuple[ParetoUnassessedEvaluation, ...] = Field(default_factory=tuple)
 
     @model_validator(mode="after")
     def _validate_coverage_counts(self) -> Self:
         """Require every supplied row to be assessed or explicitly omitted."""
         if self.assessed_count + len(self.unassessed_evaluations) != self.input_count:
             raise ValueError("input assessment counts do not cover the supplied evaluations")
+        omission_indices = [item.input_index for item in self.unassessed_evaluations]
+        if len(set(omission_indices)) != len(omission_indices):
+            raise ValueError("omission input_index must be unique within an assessment")
+        if any(index >= self.input_count for index in omission_indices):
+            raise ValueError("omission input_index is outside the declared input_count")
         if self.status == "complete" and (
             self.input_count == 0 or self.unassessed_evaluations
         ):

@@ -9809,9 +9809,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C still records no original finding-level record. The focused current-head JUnit at 9adc5d09 now supplies bounded local evidence for three selectors (2D equal-secondary, the existing 3D cross-first-group case, and duplicate-vector preservation), 3/3 PASS. This does not cover the card-exact same-first-group 3D pair or establish the served hierarchy. The served owner/provider and consumer witness remain UNRUN; overall finding status remains partial."
+        "detail": "Appendix C's no-finding-level-record label remains an accurate historical description of E02's record. E02-R2 now supplies a finding-specific bounded local comparator record: the exact same-first-group 3D pair (1,2,1)/(1,1,1) in both input permutations, duplicate and incomparable controls, and a normalized MINIMIZE lower-raw-cost control pass; the marker-retaining <= to < removal probe turns red only on the exact pair. This refines the no-record classification only for the local discriminator. Overall B109 remains partial: the served run/tenant/cell-bound ParetoRegistry owner/provider and consumer witness are unappointed/unproved, and the current six-file four-base replay remains UNRUN."
       },
-      "residual": "Focused current-head JUnit at 9adc5d09 ran the exact existing 2D equal-secondary selector, the existing 3D cross-first-group selector, and the duplicate-vector control: 3/3 PASS (current-9adc-v2.junit.xml@sha256:8559ebd179aa0188ecf234fcf59ebe358452eba2653fe271e6cbee2f8bf4c437). This is bounded local comparator evidence only. The 2D test checks (2,1) dominates (1,1); the existing 3D test uses (2,1,1)/(1,1,1), which cross first-coordinate groups and is not the card's same-group (1,2,1)/(1,1,1) discriminator. P37: for these three selectors only, the unit assertions recompute the returned candidate-reference set against the expected set at this head; this does not cover the complete card matrix or other bases. P38: the served property is that a persisted hierarchical PolicyFrontierReport reflects the same run-bound ParetoRegistry snapshot read by downstream consumers. These tests exercise ParetoPromoter.compute_front directly. A concrete divergence is a feasible but dominated candidate being emitted as global_feasible because the served report builder keys membership to evaluation.feasible and does not consume the registry snapshot. The card-exact same-group 3D selector, local marker-retaining <= to < removal probe, served positive/reload witness, served removal probe, served duplicate-tie control, and current six-file four-base P41 replay remain UNRUN. The prior baseline recorded the exact test selectors as NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1; this one-head run is not base-equivalent evidence. The last static owner/provider census is pinned to 768ef3ca and is not a runtime witness. Keep the overall finding partial. The unresolved served capability remains a runtime-issued Pareto owner/provider bound to run, tenant, cell and the runtime artifact store, bridged through ExecutionContext/workflow construction to the served hierarchical coordinator and output consumers. Preserve ordinary candidate evaluation under unknown scope; do not invent scope or a parallel registry owner.",
+      "residual": "The local card discriminator is closed within the bounded local-comparator profile. Reviewed candidate 25f01088d362f5d2b4b3e59482bee80c6ff93672 adds both permutations of the same-first-group 3D pair and checks indices/vectors against the independent quadratic oracle, with duplicate, incomparable, and lower-raw-cost MINIMIZE controls. Candidate receipt: /Users/deniskopylov/.codex/scratch/e02-b109-witness-20260929/B109_TEST_RECEIPT.md@sha256:031f0f097078d4a581033412dc05596f4ccfccee50d85d15ada2e2ffee4c709e. Integration head 0cf4afa19fb52b4b4e84b4f8bd5e76732639eedf: 31/31 whole-file pass; JUnit /Users/deniskopylov/.codex/scratch/e02-b109-exact-0cf4-20260929/test_pareto.xml@sha256:5486df089d33e34469db3d9fd5f6aeb5debdb3f4c30f39d187dd0c9f0d21e8e0. The local <= to < removal probe is recorded at /Users/deniskopylov/.codex/scratch/e02-b109-witness-20260929/removal-probe-final.junit.xml@sha256:6ef06c2ba0128504f341c9f166daf448a43062f1c0c9fe22c7377e533bb693e5. These are one-head local results, not the full six-file four-base P41 replay. The overall finding remains partial: the served RunHierarchicalPolicySearchNode still has no appointed run/tenant/cell-bound ParetoRegistry owner/provider using the runtime ArtifactStore through ExecutionContext/workflow construction, and no persisted frontier consumer witness. A feasible dominated candidate can still be projected as global_feasible without that registry snapshot. Keep ordinary candidate evaluation available with a typed limitation; do not infer scope or add a parallel registry owner.",
       "residual_owner": {
         "appointment_status": "No runtime-scoped Pareto owner/provider appointment is recorded in the repository or blocker memo; no individual appointment is claimed.",
         "kind": "smallest_missing_capability",
@@ -9821,22 +9821,22 @@
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "behavioral_verdict": "PASS_BOUNDED_LOCAL_COMPARATOR",
-          "source_head": "9adc5d09e949297d90cd7e681d9fc3e5a615b2e3",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "source_head": "0cf4afa19fb52b4b4e84b4f8bd5e76732639eedf",
           "candidate_test_paths_at_sha": [
-            "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:18fb2bf06882b0a01cc398698f366d0b02418049"
+            "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:bd2b7eef9eab3c0a06f4542a62dc1d90f292415b"
           ],
-          "identity": "test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_two_objective_front_preserves_duplicate_ties",
-          "kind": "bounded_behavioral_test_receipt_or_source_audit",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-b109-focused-20260929/current-9adc-v2.junit.xml@sha256:8559ebd179aa0188ecf234fcf59ebe358452eba2653fe271e6cbee2f8bf4c437",
-          "scope": "Current head 9adc5d09e949297d90cd7e681d9fc3e5a615b2e3: 3/3 PASS, 0 failures/errors/skips for exactly the 2D equal-secondary selector, existing 3D cross-first-group selector, and duplicate-vector control. P37 predicate is recomputed only for the actual front-member references on these three direct inputs. The card-exact same-first-group 3D pair, marker-retaining removal probe, complete selector matrix, served hierarchy owner/provider/consumer path, served removal/control, and full four-base replay are UNRUN; this bounded helper receipt does not close B109.",
+          "identity": "TestParetoFront.test_three_dimensional_same_first_group_uses_local_strict_dominance[points0-expected_indices0]; TestParetoFront.test_three_dimensional_same_first_group_uses_local_strict_dominance[points1-expected_indices1]; TestParetoFront.test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties; TestParetoFront.test_three_dimensional_minimize_direction_keeps_lower_raw_cost",
+          "kind": "bounded_behavioral_test_and_marker_retaining_removal_probe",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b109-exact-0cf4-20260929/test_pareto.xml@sha256:5486df089d33e34469db3d9fd5f6aeb5debdb3f4c30f39d187dd0c9f0d21e8e0",
+          "scope": "Integrated source head 0cf4afa19fb52b4b4e84b4f8bd5e76732639eedf: the complete test_pareto.py file passes 31/31. The exact same-first-group 3D pair in both input orders, duplicate/incomparable controls, and normalized MINIMIZE lower-raw-cost control are covered by the current test blob. The candidate removal receipt mutates only <= to < with markers retained: both exact permutations fail and all three preservation/direction controls pass. This closes the local discriminator only. It does not establish served registry custody or the six-file current four-base replay.",
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B109",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-n-b109-focused-20260929/current-9adc-v2.junit.xml@sha256:8559ebd179aa0188ecf234fcf59ebe358452eba2653fe271e6cbee2f8bf4c437",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-cyc-sim-opt-20260927/N_CYC_SIM_OPT_RECONCILIATION.md@sha256:5ee92eb7ca63b684a6380f65f0783136ffe603cda6884f27ca56e306e397151e#B109",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f",
-            "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a",
-            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@sha256:2b5caa7718acc0d6efcfaf13ada0a2fa92a578f0613c1e8118efc4ecaf3978a1"
+            "/Users/deniskopylov/.codex/scratch/e02-b109-exact-0cf4-20260929/B109_INTEGRATION_RECEIPT.md@sha256:2af8fceacdd9ed8b69317f45a83993d4d6b476c7b45e100c567ca7639cbee534",
+            "/Users/deniskopylov/.codex/scratch/e02-b109-exact-0cf4-20260929/test_pareto.xml@sha256:5486df089d33e34469db3d9fd5f6aeb5debdb3f4c30f39d187dd0c9f0d21e8e0",
+            "/Users/deniskopylov/.codex/scratch/e02-b109-witness-20260929/B109_TEST_RECEIPT.md@sha256:031f0f097078d4a581033412dc05596f4ccfccee50d85d15ada2e2ffee4c709e",
+            "/Users/deniskopylov/.codex/scratch/e02-b109-witness-20260929/removal-probe-final.junit.xml@sha256:6ef06c2ba0128504f341c9f166daf448a43062f1c0c9fe22c7377e533bb693e5",
+            "/Users/deniskopylov/.codex/scratch/e02-b109-witness-20260929/B109_INDEPENDENT_CODE_REVIEW.md@sha256:3c32824d937136f15a5d2b499bd016571142db11606adb13764401e202c96254"
           ]
         },
         "package_record": "e02_package_projection",
@@ -10001,10 +10001,14 @@
       },
       "p37_p38_measurement_scope": {
         "P37": {
-          "predicate": "The focused test asserts the actual ParetoFront member-reference set against the expected set for each of the three executed input cases.",
+          "predicate": "The optimized helper returns exactly the candidate indices in the independent direct-dominance oracle for both same-first-group 3D input permutations, and for the duplicate, incomparable, and normalized MINIMIZE controls; the public front retains the lower-raw-cost candidate.",
           "label": "recomputed",
-          "scope": "Only the 2D equal-secondary case, existing 3D cross-first-group case, and duplicate-vector control at source head 9adc5d09e949297d90cd7e681d9fc3e5a615b2e3.",
-          "unresolved_by_construction": ["card-exact same-first-group 3D case", "full directions/permutations/tie matrix", "other three P41 bases", "served hierarchy path"]
+          "scope": "Four focused cases and whole test_pareto.py (31/31) at integration head 0cf4afa19fb52b4b4e84b4f8bd5e76732639eedf; the new exact pair is checked in both permutations against the direct pairwise oracle.",
+          "unresolved_by_construction": [
+            "served hierarchical global-frontier and runtime-scoped ParetoRegistry path",
+            "current six-file four-base replay; the pre-edit historical rows do not replay the newly added selectors",
+            "full dimension, direction, permutation, and tie matrix beyond the listed fixtures"
+          ]
         },
         "P38": {
           "property": "The served persisted hierarchical global_frontier reflects the run-bound ParetoRegistry snapshot consumed downstream.",
@@ -10013,8 +10017,6 @@
           "behavioral_verdict": "UNRUN"
         },
         "remaining_unrun": {
-          "card_exact_same_first_group_3d": "UNRUN",
-          "marker_retaining_local_removal_probe": "UNRUN",
           "served_owner_registry_bridge_and_output_consumer": "UNRUN",
           "served_marker_retaining_owner_removal_and_preserving_control": "UNRUN",
           "six_file_four_base_P41": "UNRUN"
@@ -10066,27 +10068,27 @@
         "status_retained": "partial",
         "four_base_replay": "UNRUN at other three bases"
       },
-    "n_card_audit_2026_09_28": {
-      "identity": "read-only N card/caller audit:B109",
-      "classification_retained": "partial",
-      "finding_test_status_retained": "UNRUN",
-      "fresh_behavioral_verdict": "UNRUN",
-      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L2911-L2938",
-      "test_locators_at_source_test_snapshot": [
-        "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@sha256:af5eef9728522dd432b42feae78a50ba8ea66a8679578dbe5441a0914744579f#test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_two_objective_front_preserves_duplicate_ties; test_fast_front_matches_independent_slow_oracle"
-      ],
-      "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
-      "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
-      "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
-      "source_test_denominators": {
-        "source_python_files": 2696,
-        "test_python_files": 2743
-      },
-      "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
-      "tests_run_by_this_audit": false,
-      "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B109",
-      "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
-    }
+      "n_card_audit_2026_09_28": {
+        "identity": "read-only N card/caller audit:B109",
+        "classification_retained": "partial",
+        "finding_test_status_retained": "UNRUN",
+        "fresh_behavioral_verdict": "UNRUN",
+        "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L2911-L2938",
+        "test_locators_at_source_test_snapshot": [
+          "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@sha256:af5eef9728522dd432b42feae78a50ba8ea66a8679578dbe5441a0914744579f#test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group; test_two_objective_front_preserves_duplicate_ties; test_fast_front_matches_independent_slow_oracle"
+        ],
+        "source_test_snapshot_head": "3ec377af6f0be281f0e5ad6ec080a859fead9105",
+        "ledger_base_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+        "ledger_review_head": "8177440fdc3b86bffa479b7b8bfe1729bf968484",
+        "source_test_denominators": {
+          "source_python_files": 2696,
+          "test_python_files": 2743
+        },
+        "source_test_delta_note": "8 source/test files differ between the pinned source snapshot and ledger base; none intersects the test paths cited for this row. Delta paths are enumerated in the rendered audit addendum.",
+        "tests_run_by_this_audit": false,
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B109",
+        "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+      }
     },
     {
       "id": "B110",

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
-from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -17,9 +16,6 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
-from polisyos.runtime.http.services.control.generation_cycle import (
-    compile_and_run_recursive_generation_cycle,
-)
 from polisyos.runtime.http.services.control.nl_pipeline import (
     _DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY,
     NaturalLanguagePipelineRefusalError,
@@ -38,21 +34,6 @@ from polisyos.runtime.http.services.control_registry_providers import ControlReg
 from polisyos.runtime.quality.assurance_case import PolicyDesignCaseAuthorityError
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.design_problem import DesignProblem, DesignProblemAuthorityError
-from polisyos.runtime.quality.evaluation_safety import (
-    EvalSafetyAdmissionChallenge,
-    EvalSafetyConsumerAdmissionReceipt,
-    EvaluationExecutionContext,
-)
-from polisyos.runtime.quality.generation_cycle import (
-    N4GenerationPort,
-    SimulationPortObservation,
-    simulation_value_execution_context,
-)
-from polisyos.runtime.quality.open_world_risk import PromotionRuntime
-from polisyos.runtime.quality.recursive_generation_cycle import (
-    RecursiveCycleBudget,
-)
-from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayToolCall
 from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
 from polisyos.scientist.validation.policy_grounding import build_policy_grounding_matrix_report
@@ -331,72 +312,9 @@ class _FakeDesignProblemGateway:
         )
 
 
-class _PlainLanguageGenerationPort:
-    async def __call__(
-        self,
-        problem: DesignProblem,
-        *,
-        cycle_index: int,
-    ) -> SimpleNamespace:
-        del cycle_index
-        candidate = _plain_language_candidate(problem)
-        candidate_id = candidate.candidate_id
-        return SimpleNamespace(
-            status="generated",
-            candidates=(candidate,),
-            surrogate_rankings=(
-                SimpleNamespace(
-                    candidate_id=candidate_id,
-                    score=0.2,
-                    voi_estimate=0.1,
-                    trust_level="search_guiding",
-                    promotion_allowed=False,
-                ),
-            ),
-            grounding_dispositions=(),
-        )
-
-
-class _PlainLanguageN4GenerationPort(N4GenerationPort):
-    """Run the deterministic fixture through the canonical production N4 seam."""
-
-    def __init__(self) -> None:
-        super().__init__(model_id="plain-language-fixture")
-        self._delegate = _PlainLanguageGenerationPort()
-
-    async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> object:
-        return await self._delegate(problem, cycle_index=cycle_index)
-
-
-def _plain_language_candidate(problem: DesignProblem) -> SimpleNamespace:
-    candidate_id = f"candidate_{problem.design_problem_id}"
-    return SimpleNamespace(
-        candidate_id=candidate_id,
-        atom=SimpleNamespace(
-            intervention_id=f"intervention_{problem.design_problem_id}",
-            content_hash="sha256:" + "4" * 64,
-            status="candidate_unverified",
-            world_model_record_ref=None,
-            target_world_slots=(problem.outcome_of_interest.target_variable,),
-        ),
-        diversity_key=("plain", "language", "lane0", "candidate"),
-        status="candidate_unverified",
-    )
-
-
-class _NeverCalledSimulationEvalSafetyVerifier:
-    def require_admission(
-        self,
-        context: EvaluationExecutionContext,
-        challenge: EvalSafetyAdmissionChallenge,
-    ) -> EvalSafetyConsumerAdmissionReceipt:
-        del context, challenge
-        raise AssertionError("simulation-only front door called EvalSafety verifier")
-
-
 def _design_problem_tool_args(*, constraint_source: str = "UAH 10b budget cap") -> dict[str, Any]:
     return {
-        "schema_version": "policyos.runtime.design_problem.v2",
+        "schema_version": "policyos.runtime.design_problem.v3",
         "design_problem_id": "design_problem_ua_msme_credit",
         "problem_statement": "Design a wartime MSME credit guarantee for Ukraine.",
         "domain": "social",
@@ -492,7 +410,7 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
     )
 
     assert problem.design_problem_id == "design_problem_ua_msme_credit"
-    assert problem.schema_version == "policyos.runtime.design_problem.v2"
+    assert problem.schema_version == "policyos.runtime.design_problem.v3"
     assert problem.authority_profile.requested_authority_level == "research"
     assert problem.jurisdiction_time.region == "UA"
     assert problem.outcome_of_interest.target_variable == "firm_survival"
@@ -504,7 +422,7 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
     assert gateway.generate_calls[0]["max_tokens"] == 8192
     tool_schema = gateway.generate_calls[0]["tools"][0]["function"]["parameters"]
     assert tool_schema["properties"]["schema_version"] == {
-        "const": "policyos.runtime.design_problem.v2",
+        "const": "policyos.runtime.design_problem.v3",
         "type": "string",
     }
     assert "schema_version" in tool_schema["required"]
@@ -524,6 +442,37 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
         },
     ]
     assert span_support.calls
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_accepts_current_qualified_outcome() -> None:
+    """The current NL owner emits and parses the versioned qualified grammar."""
+
+    arguments = _design_problem_tool_args()
+    arguments["schema_version"] = "policyos.runtime.design_problem.v3"
+    arguments["outcome_of_interest"]["target_variable"] = "government.balance"
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=arguments,
+    )
+    problem = await build_design_problem_from_nl_request(
+        nl_request=(
+            "Design a wartime MSME credit guarantee within the stated UAH 10b budget cap; "
+            "measure Ukraine's government cash balance."
+        ),
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+        gateway_client=gateway,
+        span_support_client=_DeterministicSpanSupportClient(),
+    )
+
+    assert problem.schema_version == "policyos.runtime.design_problem.v3"
+    assert problem.outcome_of_interest.target_variable == "government.balance"
+    tool_schema = gateway.generate_calls[0]["tools"][0]["function"]["parameters"]
+    assert tool_schema["properties"]["schema_version"] == {
+        "const": "policyos.runtime.design_problem.v3",
+        "type": "string",
+    }
 
 
 @pytest.mark.asyncio
@@ -718,7 +667,7 @@ def test_design_problem_provider_constraint_exposes_existing_time_rule() -> None
 
 
 def test_design_problem_provider_schema_matches_versioned_slot_grammar() -> None:
-    """Constrained generation must expose the parser's versioned slot boundary."""
+    """The current provider contract emits v3 while saved v1/v2 use their own schema."""
 
     from jsonschema import Draft202012Validator
 
@@ -728,8 +677,10 @@ def test_design_problem_provider_schema_matches_versioned_slot_grammar() -> None
         (None, "credit_access", False),
         ("policyos.runtime.design_problem.v1", "government.balance", False),
         ("policyos.runtime.design_problem.v1", "credit_access", False),
-        ("policyos.runtime.design_problem.v2", "government.balance", True),
-        ("policyos.runtime.design_problem.v2", "credit_access", True),
+        ("policyos.runtime.design_problem.v2", "government.balance", False),
+        ("policyos.runtime.design_problem.v2", "credit_access", False),
+        ("policyos.runtime.design_problem.v3", "government.balance", True),
+        ("policyos.runtime.design_problem.v3", "credit_access", True),
         ("policyos.runtime.design_problem.legacy-import", "credit_access", False),
         ("policyos.runtime.design_problem.legacy-import", "government.balance", False),
     )
@@ -833,97 +784,55 @@ async def test_design_problem_front_door_keeps_nontruncated_malformed_output_str
 
 
 @pytest.mark.asyncio
-async def test_plain_language_front_door_calls_real_design_problem_compiler(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+async def test_plain_language_front_door_compiles_hashed_qualified_v3_problem() -> None:
     raw_request = (
-        "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap."
+        "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap, "
+        "and assess Ukraine's government cash balance."
     )
+    def government_balance_payload() -> dict[str, Any]:
+        payload = _design_problem_tool_args()
+        payload["problem_statement"] = (
+            "Improve Ukraine's government cash balance using grounded evidence."
+        )
+        payload["nl_provenance"]["raw_request"] = raw_request
+        payload["objectives"][0].update(
+            {
+                "objective_id": "government_balance",
+                "description": "Improve government cash balance.",
+                "metric_id": "government_balance",
+            }
+        )
+        payload["outcome_of_interest"].update(
+            {
+                "target_variable": "government.balance",
+                "metric_id": "government_balance",
+                "estimand": "Government cash balance for Ukraine.",
+            }
+        )
+        for lever in payload["candidate_lever_space"]["candidate_levers"]:
+            lever["target_slot"] = "government.balance"
+        return payload
+
     gateway = _FakeDesignProblemGateway(
         models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
-        arguments=_design_problem_tool_args(),
+        arguments=government_balance_payload(),
     )
     runtime_context = _intent_context(as_of="2026-05-12")
-    expected_payload = _design_problem_tool_args()
-    expected_payload["nl_provenance"]["source_context"].update(
-        {
-            "tenant_id": runtime_context["tenant_id"],
-            "cell_id": runtime_context["cell_id"],
-            "as_of": runtime_context["as_of"],
-        }
-    )
-    expected_problem = DesignProblem.model_validate(expected_payload)
-    expected_candidate = _plain_language_candidate(expected_problem)
-    from tests.unit.runtime.quality.test_value_gate import _world_record
-
-    world_record = _world_record("7")
-    n5_observation = SimulationPortObservation(
-        candidate_id=expected_candidate.candidate_id,
-        status="joint_simulated",
-        simulation_ref="sha256:" + "6" * 64,
-        k_world_ref_before=world_record.content_hash,
-        k_world_ref_after=world_record.content_hash,
-        world_model_record=world_record,
-    )
-
-    class _DeterministicFixtureN5Port:
-        def __init__(
-            self,
-            controller: object | None = None,
-            *,
-            repo_root: Path | None = None,
-            cycle_substrate_context: object | None = None,
-        ) -> None:
-            del controller, repo_root, cycle_substrate_context
-
-        def __call__(
-            self,
-            *,
-            candidate: object,
-            problem: DesignProblem,
-            cycle_index: int,
-        ) -> SimulationPortObservation:
-            del cycle_index
-            assert candidate.candidate_id == expected_candidate.candidate_id
-            assert problem.design_problem_id == expected_problem.design_problem_id
-            return n5_observation
-
-    from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
-
-    monkeypatch.setattr(
-        generation_cycle_owner,
-        "JointSimulationPort",
-        _DeterministicFixtureN5Port,
-    )
-    evaluation_context = simulation_value_execution_context(
-        candidate=expected_candidate,
-        simulation=n5_observation,
-        problem=expected_problem,
-    )
-    result = await compile_and_run_recursive_generation_cycle(
-        raw_request=raw_request,
+    problem = await build_design_problem_from_nl_request(
+        nl_request=raw_request,
         context=runtime_context,
         model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
-        compiler_gateway=gateway,
+        gateway_client=gateway,
         span_support_client=_DeterministicSpanSupportClient(),
-        root_n4_generation_port=_PlainLanguageN4GenerationPort(),
-        root_evaluation_context=evaluation_context,
-        eval_safety_verifier=_NeverCalledSimulationEvalSafetyVerifier(),
-        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas")),
-        repo_root=REPO_ROOT,
-        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}),
-        recursive_budget=RecursiveCycleBudget(
-            max_depth=0,
-            max_nodes=1,
-            min_cycles_per_leaf=1,
-            max_cycles_per_leaf=2,
-        ),
     )
 
-    assert result.design_problem.nl_provenance.raw_request == raw_request
-    assert result.recursive_run.root_design_problem_ref == result.design_problem_ref
-    assert result.recursive_run.observed_max_depth == 0
+    assert problem.nl_provenance.raw_request == raw_request
+    assert problem.schema_version == "policyos.runtime.design_problem.v3"
+    assert problem.outcome_of_interest.target_variable == "government.balance"
+    from polisyos.pdc import gy_content_hash
+
+    design_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    assert design_problem_ref.startswith("sha256:")
     assert gateway.generate_calls
 
 

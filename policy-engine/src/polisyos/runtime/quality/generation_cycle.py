@@ -81,8 +81,11 @@ from polisyos.pdc import (
 )
 from polisyos.runtime.http.errors import RuntimeDependencyError
 from polisyos.runtime.quality._generation_cycle_history_schema import (
+    FROZEN_DESIGN_PROBLEM_OUTCOME_FIELD_EDGES,
+    FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS,
     FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS,
     FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,
+    FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION,
     FROZEN_N6_HISTORY_SCHEMA,
 )
 from polisyos.runtime.quality.acquisition_planner import (
@@ -104,7 +107,10 @@ from polisyos.runtime.quality.confidence_ledger import (
     N6DeploymentCurrentnessObservation,
     observe_n6_deployment_currentness,
 )
-from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.design_problem import (
+    DesignProblem,
+    _QualifiedOutcomeOfInterestV3,
+)
 from polisyos.runtime.quality.evaluation_modes import (
     EvaluationMode as ValueEvaluationMode,
 )
@@ -502,7 +508,17 @@ def _historical_generation_cycle_field_tree(
         if not isinstance(payload, dict):
             raise ValueError("generation_cycle_history_typed_model_not_object")
         qualified_name = f"{type(value).__module__}.{type(value).__qualname__}"
-        shape = version_models.get(qualified_name)
+        historical_shape_owner = qualified_name
+        if isinstance(value, _QualifiedOutcomeOfInterestV3):
+            if (
+                design_problem_schema_version
+                != FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION
+            ):
+                raise ValueError("generation_cycle_history_typed_edge_drift")
+            historical_shape_owner = (
+                "polisyos.runtime.quality.design_problem.OutcomeOfInterest"
+            )
+        shape = version_models.get(historical_shape_owner)
         if not isinstance(shape, dict):
             raise ValueError("generation_cycle_history_typed_owner_unmapped")
 
@@ -531,7 +547,28 @@ def _historical_generation_cycle_field_tree(
                     for path, owner in shape["typed_model_edges"].get(field_name, ())
                 )
             )
-            if _historical_typed_model_edges(field.annotation) != expected_edges:
+            current_edges = _historical_typed_model_edges(field.annotation)
+            if isinstance(value, DesignProblem) and field_name == "outcome_of_interest":
+                legacy_outcome_edges = FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS[
+                    FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
+                ][0]
+                if (
+                    expected_edges != legacy_outcome_edges
+                    or current_edges != FROZEN_DESIGN_PROBLEM_OUTCOME_FIELD_EDGES
+                ):
+                    raise ValueError("generation_cycle_history_typed_edge_drift")
+                outcome = getattr(value, field_name)
+                outcome_edges = _historical_typed_model_edges(type(outcome))
+                allowed_outcome_edges = FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS.get(
+                    nested_design_problem_schema_version
+                    or FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,
+                    FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS[
+                        FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
+                    ],
+                )
+                if outcome_edges not in allowed_outcome_edges:
+                    raise ValueError("generation_cycle_history_typed_edge_drift")
+            elif current_edges != expected_edges:
                 raise ValueError("generation_cycle_history_typed_edge_drift")
 
         frozen_field_vocabulary = shape.get("field_vocabulary")
@@ -541,8 +578,11 @@ def _historical_generation_cycle_field_tree(
             if field_name in excluded_fields:
                 continue
             field = current_fields[field_name]
+            pattern_schema_version = nested_design_problem_schema_version
+            if pattern_schema_version not in FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS:
+                pattern_schema_version = FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
             frozen_pattern = FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS.get(
-                nested_design_problem_schema_version or "", {}
+                pattern_schema_version, {}
             ).get(qualified_name, {}).get(field_name)
             if frozen_pattern is not None and field_name in value.model_fields_set:
                 historical_value = getattr(value, field_name)

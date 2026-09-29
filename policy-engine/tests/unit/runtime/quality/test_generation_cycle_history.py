@@ -29,7 +29,10 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionActionRecord,
     AcquisitionStrategy,
 )
-from polisyos.runtime.quality.design_problem import CandidateLever
+from polisyos.runtime.quality.design_problem import (
+    CandidateLever,
+    DesignProblem,
+)
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleRun,
     StrangleReceipt,
@@ -620,6 +623,85 @@ def test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot() -> Non
             problem["candidate_lever_space"]["candidate_levers"][0]["target_slot"]
             == "government.balance"
         )
+
+
+def test_v3_history_accepts_nested_design_problem_v3_qualified_outcome() -> None:
+    """A new nested v3 problem replays with its exact qualified outcome owner."""
+
+    _fixture_name, payload = _v3_history_fixtures()[0]
+    for cycle in payload["cycles"]:
+        problem = cycle["revision_request"]["revised_problem"]
+        problem["schema_version"] = "policyos.runtime.design_problem.v3"
+        problem["outcome_of_interest"]["target_variable"] = "government.balance"
+
+    run = GenerationCycleRun.model_validate(payload)
+    projection = generation._historical_generation_cycle_run_projection(run)
+    spec = canon.CanonSpec(forbid_floats=False)
+    assert canon.to_canonical_bytes(projection, spec) == canon.to_canonical_bytes(
+        payload, spec
+    )
+    assert all(
+        cycle["revision_request"]["revised_problem"]["outcome_of_interest"][
+            "target_variable"
+        ]
+        == "government.balance"
+        for cycle in projection["cycles"]
+    )
+
+
+@pytest.mark.parametrize(
+    "schema_version",
+    [
+        "policyos.runtime.design_problem.v1",
+        "policyos.runtime.design_problem.v2",
+        "policyos.runtime.design_problem.v3",
+    ],
+)
+def test_history_rejects_qualified_outcome_without_v3_nested_owner(
+    schema_version: str,
+) -> None:
+    """A version marker alone cannot give the strict outcome owner v3 syntax."""
+
+    _fixture_name, payload = _v3_history_fixtures()[0]
+    run = GenerationCycleRun.model_validate(payload)
+
+    def replace_old_outcome(value: object) -> tuple[object, bool]:
+        if isinstance(value, DesignProblem):
+            outcome = value.outcome_of_interest.model_copy(
+                update={"target_variable": "government.balance"}
+            )
+            return (
+                value.model_copy(
+                    update={
+                        "schema_version": schema_version,
+                        "outcome_of_interest": outcome,
+                    }
+                ),
+                True,
+            )
+        if isinstance(value, BaseModel):
+            for field_name in type(value).model_fields:
+                replacement, changed = replace_old_outcome(getattr(value, field_name))
+                if changed:
+                    return value.model_copy(update={field_name: replacement}), True
+        if isinstance(value, (tuple, list)):
+            items = list(value)
+            for index, item in enumerate(items):
+                replacement, changed = replace_old_outcome(item)
+                if changed:
+                    items[index] = replacement
+                    return (tuple(items) if isinstance(value, tuple) else items), True
+        return value, False
+
+    forged, changed = replace_old_outcome(run)
+    assert changed
+    assert isinstance(forged, GenerationCycleRun)
+    assert forged.schema_version == run.schema_version
+    assert forged.strangle_receipt.status == run.strangle_receipt.status
+    with pytest.raises(
+        ValueError, match="generation_cycle_history_field_pattern_out_of_epoch"
+    ):
+        generation._historical_generation_cycle_run_projection(forged)
 
 
 def test_v3_history_projects_n5_artifact_root_model_as_scalar_wire() -> None:

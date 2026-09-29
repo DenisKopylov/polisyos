@@ -1,5 +1,8 @@
 """Actual WDI/default executor and native owner chain through same-case re-entry."""
 
+import hashlib
+import json
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -20,9 +23,12 @@ from polisyos.runtime.quality.acquisition_executor import (
     SemanticEpochAdmissionResolutionError,
 )
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
+from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
     GenerationCycleController,
+    RealValueOwnerGateway,
+    ValueOwnerAccessError,
     currentness_for_generation_cycle_run,
     validate_generation_cycle_candidate_run,
     validate_generation_cycle_run,
@@ -551,6 +557,13 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
             service._projection(closure)
     finally:
         blob.write_bytes(native)
+    return SimpleNamespace(
+        control=control,
+        closure=closure,
+        case=case,
+        committed=result,
+        reentry=receipt,
+    )
 
 
 @pytest.mark.asyncio
@@ -558,12 +571,302 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
 async def test_actual_wdi_admits_delta_and_reenters_same_case(
     tmp_path, monkeypatch, request, guarded_cas
 ):
-    await _run_actual_wdi_admits_delta_and_reenters_same_case(
+    served = await _run_actual_wdi_admits_delta_and_reenters_same_case(
         tmp_path,
         monkeypatch,
         request,
         guarded_cas=guarded_cas,
     )
+    assert served.reentry.new_cycle.value_port.authority_blockers == (
+        "budget_exhausted_for_next_level",
+    )
+    assert served.reentry.new_cycle.value_port.selected_method_fqn is None
+
+
+async def _admit_served_wdi_projection(tmp_path, monkeypatch, request):
+    """Create the real WDI admission and return its verified active projection."""
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        CatalogAcquisitionOverlay,
+    )
+    from polisyos.runtime.quality.substrate_registry import DEFAULT_L1_DCAT_PATH
+    from tests._helpers import acquisition_chain
+    from tests.unit.data_forge.domains.catalog.knowledge import (
+        test_acquisition_authority as authority_fixture,
+    )
+
+    original_baseline = authority_fixture._baseline
+
+    def baseline_with_owner_rows(repo_path, *, license_id="CC-BY-4.0"):
+        baseline_path = original_baseline(repo_path, license_id=license_id)
+        base_observations = (
+            ("fixture-government-balance-2021", 2021, -18.4),
+            ("fixture-government-balance-2022", 2022, -17.8),
+            ("fixture-government-balance-2023", 2023, -18.2),
+        )
+        with duckdb.connect(str(baseline_path)) as con:
+            con.executemany(
+                """
+                INSERT INTO ds_observations (
+                    observation_id, dataset_id, raw_variable, canonical_var,
+                    country_code, year, value, condition_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    (
+                        observation_id,
+                        "acquisition.worldbank.government_balance",
+                        "GC.BAL.CASH.GD.ZS",
+                        "government.balance",
+                        "UKR",
+                        year,
+                        value,
+                        '{"unit":"percent_gdp"}',
+                    )
+                    for observation_id, year, value in base_observations
+                ],
+            )
+        l1_path = repo_path / DEFAULT_L1_DCAT_PATH
+        l1_path.parent.mkdir(parents=True, exist_ok=True)
+        l1_path.symlink_to(baseline_path)
+        digest = hashlib.sha256(baseline_path.read_bytes()).hexdigest()
+        manifest_path = repo_path / "production_data" / "manifest.json"
+        manifest_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0",
+                    "kind": "policyos.production_data_root",
+                    "fixture_catalog": {
+                        "path": DEFAULT_L1_DCAT_PATH.as_posix(),
+                        "sha256": digest,
+                    },
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+            encoding="utf-8",
+        )
+        return baseline_path
+
+    monkeypatch.setattr(authority_fixture, "_baseline", baseline_with_owner_rows)
+
+    original_problem = cycle_fixtures._problem
+
+    def government_balance_problem(problem_id="served_wdi_acquisition"):
+        payload = original_problem(problem_id).model_dump(mode="json")
+        payload["schema_version"] = "policyos.runtime.design_problem.v3"
+        payload["problem_statement"] = (
+            "Improve Ukraine's government cash balance using grounded evidence."
+        )
+        payload["jurisdiction_time"].update(
+            {
+                "region": "UKR",
+                "valid_time": "2024",
+                "policy_time": "2024",
+                "data_time": "2024",
+            }
+        )
+        payload["objectives"][0].update(
+            {
+                "objective_id": "government_balance",
+                "description": "Improve government cash balance.",
+                "metric_id": "government_balance",
+            }
+        )
+        payload["outcome_of_interest"].update(
+            {
+                "target_variable": "government.balance",
+                "metric_id": "government_balance",
+                "estimand": "Government cash balance for Ukraine.",
+            }
+        )
+        for lever in payload["candidate_lever_space"]["candidate_levers"]:
+            lever["target_slot"] = "government.balance"
+        return DesignProblem.model_validate(payload)
+
+    monkeypatch.setattr(cycle_fixtures, "_problem", government_balance_problem)
+    route_factory = acquisition_chain.AcquisitionWorldGrowthRoute
+
+    def route_with_n8_test_budget(**kwargs):
+        kwargs["reentry_budget_usd"] = Decimal("1.00")
+        return route_factory(**kwargs)
+
+    monkeypatch.setattr(
+        acquisition_chain, "AcquisitionWorldGrowthRoute", route_with_n8_test_budget
+    )
+
+    projections = []
+    original_projection_read = CatalogAcquisitionOverlay.read_activated_semantic_epoch_observations
+
+    def capture_projection(self, **kwargs):
+        projection = original_projection_read(self, **kwargs)
+        projections.append(projection)
+        return projection
+
+    monkeypatch.setattr(
+        CatalogAcquisitionOverlay,
+        "read_activated_semantic_epoch_observations",
+        capture_projection,
+    )
+    profile_calls = []
+    profile_errors = []
+    original_profile_load = RealValueOwnerGateway.load_value_data_profile
+
+    def capture_profile(self, **kwargs):
+        profile_calls.append(kwargs)
+        try:
+            profile = original_profile_load(self, **kwargs)
+        except Exception as exc:
+            profile_errors.append(f"{type(exc).__name__}: {exc}")
+            raise
+        return profile
+
+    monkeypatch.setattr(RealValueOwnerGateway, "load_value_data_profile", capture_profile)
+
+    served = await _run_actual_wdi_admits_delta_and_reenters_same_case(
+        tmp_path,
+        monkeypatch,
+        request,
+        guarded_cas=True,
+    )
+
+    assert len(projections) == 1
+    return SimpleNamespace(
+        served=served,
+        projection=projections[0],
+        profile_calls=profile_calls,
+        profile_errors=profile_errors,
+    )
+
+
+@pytest.mark.asyncio
+async def test_served_wdi_admits_selected_row_but_n5_refusal_prevents_n8(
+    tmp_path, monkeypatch, request
+):
+    """The served path admits WDI, then keeps N5/EvalSafety refusal explicit."""
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import content_sha256
+
+    admitted = await _admit_served_wdi_projection(tmp_path, monkeypatch, request)
+    served = admitted.served
+    projection = admitted.projection
+
+    assert served.case.bridge.artifact_store is served.control._artifact_store
+    assert served.closure.design_problem.outcome_of_interest.target_variable == (
+        "government.balance"
+    )
+    selected_rows = tuple(
+        row.observation
+        for row in projection.observations
+        if row.observation.country_code == "UKR" and row.observation.year == 2024
+    )
+    assert len(selected_rows) == 1
+    selected = selected_rows[0]
+    assert projection.variable_id == "government.balance"
+    assert projection.activation_state == "active"
+    assert projection.predicate_provenance == "recomputed"
+    assert projection.source_time_status == "not_established"
+    assert selected.canonical_var == "government.balance"
+    assert selected.value == pytest.approx(-17.1)
+    projected_selected = tuple(
+        row for row in projection.observations if row.observation.observation_id == selected.observation_id
+    )
+    assert len(projected_selected) == 1
+    assert projected_selected[0].row_content_sha256
+    assert projected_selected[0].row_content_sha256 == content_sha256(
+        selected.model_dump(mode="json")
+    )
+
+    cycle = served.reentry.new_cycle
+    assert cycle.simulation.status == "simulation_blocked"
+    assert cycle.simulation.authority_blockers == (
+        "joint_simulation_request_missing",
+        "production_data_bundle_missing",
+    )
+    assert cycle.value_port.status == "value_blocked"
+    assert cycle.value_port.authority_blockers == (
+        "eval_safety_simulation_provenance_mismatch",
+    )
+    assert admitted.profile_calls == []
+    assert admitted.profile_errors == []
+
+
+@pytest.mark.asyncio
+async def test_real_value_owner_gateway_exposes_iso3_scope_gap_before_projection_read(
+    tmp_path, monkeypatch, request
+):
+    """Owner-boundary only: UKR admission rows are excluded by the normalized UA scope."""
+    admitted = await _admit_served_wdi_projection(tmp_path, monkeypatch, request)
+    served = admitted.served
+    projection = admitted.projection
+    selected_rows = tuple(
+        row.observation
+        for row in projection.observations
+        if row.observation.country_code == "UKR" and row.observation.year == 2024
+    )
+    assert len(selected_rows) == 1
+    selected = selected_rows[0]
+    gateway = RealValueOwnerGateway(
+        repo_root=served.case.authority.repo_root,
+        catalog_overlay_path=served.case.call_args["overlay_path"],
+        activated_observation_projection=projection,
+    )
+
+    # This calls the real owner API directly with the verified admission projection.
+    # It does not claim that the served N5/EvalSafety path reaches N8. The owner
+    # normalizes the problem's ISO3 region to ISO2 `UA`, while the persisted L1/WDI
+    # rows carry ISO3 `UKR`; the profile query therefore has no usable scoped rows.
+    from polisyos.runtime.quality.generation_cycle import _resolve_owner_scope_region
+
+    assert _resolve_owner_scope_region("UKR", owner_access_ref="test://scope") == "UA"
+    assert selected.country_code == "UKR"
+    with pytest.raises(ValueOwnerAccessError) as initial_refusal:
+        gateway.load_value_data_profile(
+            candidate=object(),
+            problem=served.closure.design_problem_basis,
+            world_record=object(),
+        )
+    assert initial_refusal.value.code == "acquire_data:value_owner_rows_missing"
+    assert "no usable owner rows" in str(initial_refusal.value)
+
+    overlay_path = served.case.call_args["overlay_path"]
+    with duckdb.connect(str(overlay_path), read_only=True) as con:
+        marker_snapshot = con.execute(
+            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref, "
+            "epoch_activation_state FROM acquisition_epochs WHERE epoch_id = ?",
+            [projection.epoch_id],
+        ).fetchone()
+    assert marker_snapshot is not None
+
+    with duckdb.connect(str(overlay_path)) as con:
+        physical_before = con.execute(
+            "SELECT observation_id, value FROM ds_observations WHERE observation_id = ?",
+            [selected.observation_id],
+        ).fetchone()
+        assert physical_before == (selected.observation_id, selected.value)
+        con.execute(
+            "UPDATE ds_observations SET value = ? WHERE observation_id = ?",
+            [selected.value + 0.25, selected.observation_id],
+        )
+    with duckdb.connect(str(overlay_path), read_only=True) as con:
+        assert con.execute(
+            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref, "
+            "epoch_activation_state FROM acquisition_epochs WHERE epoch_id = ?",
+            [projection.epoch_id],
+        ).fetchone() == marker_snapshot
+
+    with pytest.raises(ValueOwnerAccessError) as after_tamper:
+        gateway.load_value_data_profile(
+            candidate=object(),
+            problem=served.closure.design_problem_basis,
+            world_record=object(),
+        )
+    assert after_tamper.value.code == "acquire_data:value_owner_rows_missing"
+    assert len(admitted.profile_calls) == 2
+    assert len(admitted.profile_errors) == 2
+    assert all("no usable owner rows" in error for error in admitted.profile_errors)
 
 
 @pytest.mark.asyncio

@@ -14,7 +14,9 @@ from polisyos.ir.kernel.time_semantics import TimeSemantics
 
 DESIGN_PROBLEM_SCHEMA_VERSION = "policyos.runtime.design_problem.v1"
 DESIGN_PROBLEM_V1_SCHEMA_VERSION = DESIGN_PROBLEM_SCHEMA_VERSION
-DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION = "policyos.runtime.design_problem.v2"
+DESIGN_PROBLEM_V2_SCHEMA_VERSION = "policyos.runtime.design_problem.v2"
+DESIGN_PROBLEM_V3_SCHEMA_VERSION = "policyos.runtime.design_problem.v3"
+DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION = DESIGN_PROBLEM_V3_SCHEMA_VERSION
 DESIGN_PROBLEM_PROJECTION_SCHEMA_VERSION = "policyos.runtime.design_problem.projection.v1"
 _DESIGN_PROBLEM_PROJECTION_KEY = "design_problem_projection"
 _DESIGN_PROBLEM_PROJECTION_NOTE_PREFIX = "design_problem_projection:"
@@ -29,11 +31,12 @@ _LEGACY_TARGET_SLOT_PATTERN = r"^[a-z][a-z0-9_]*$"
 
 
 def _add_versioned_target_slot_json_schema(schema: dict[str, Any]) -> None:
-    """Keep the exported schema aligned with the versioned runtime slot rule.
+    """Keep the exported schema aligned with versioned slot/outcome rules.
 
-    The generic model retains its historical v1 default. Only explicit v2
-    payloads accept qualified slots; every other string version keeps the
-    historical unqualified slot vocabulary.
+    Generic ``DesignProblem`` construction retains its historical v1 default.
+    Explicit v2 and v3 payloads accept qualified lever slots; only v3 accepts
+    qualified outcome variable identifiers. Unknown versions keep the legacy
+    unqualified grammar.
     """
 
     schema.setdefault("allOf", []).append(
@@ -43,7 +46,10 @@ def _add_versioned_target_slot_json_schema(schema: dict[str, Any]) -> None:
                     "required": ["schema_version"],
                     "properties": {
                         "schema_version": {
-                            "const": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION
+                            "enum": [
+                                DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+                                DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+                            ]
                         }
                     },
                 },
@@ -60,6 +66,31 @@ def _add_versioned_target_slot_json_schema(schema: dict[str, Any]) -> None:
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+                }
+            },
+        }
+    )
+    schema.setdefault("allOf", []).append(
+        {
+            "if": {
+                "not": {
+                    "required": ["schema_version"],
+                    "properties": {
+                        "schema_version": {
+                            "const": DESIGN_PROBLEM_V3_SCHEMA_VERSION
+                        }
+                    },
+                },
+            },
+            "then": {
+                "properties": {
+                    "outcome_of_interest": {
+                        "properties": {
+                            "target_variable": {
+                                "pattern": _LEGACY_TARGET_SLOT_PATTERN
                             }
                         }
                     }
@@ -157,10 +188,18 @@ class DesignStakeholder(_StrictModel):
 class OutcomeOfInterest(_StrictModel):
     """Represent the target variable the value gate will estimate."""
 
+    model_config = ConfigDict(extra="forbid", frozen=True, revalidate_instances="always")
+
     target_variable: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
     metric_id: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
     estimand: str = Field(..., min_length=1)
     direction: Literal["maximize", "minimize", "maintain_range"] = "maximize"
+
+
+class _QualifiedOutcomeOfInterestV3(OutcomeOfInterest):
+    """Nested v3 outcome contract for exact qualified canonical identifiers."""
+
+    target_variable: str = Field(..., pattern=SLOT_ID_PATTERN)
 
 
 class CandidateLever(_StrictModel):
@@ -252,7 +291,7 @@ class DesignProblem(_StrictModel):
     objectives: list[DesignObjective] = Field(default_factory=list)
     constraints: list[DesignConstraint] = Field(default_factory=list)
     stakeholders: list[DesignStakeholder] = Field(default_factory=list)
-    outcome_of_interest: OutcomeOfInterest
+    outcome_of_interest: OutcomeOfInterest | _QualifiedOutcomeOfInterestV3
     candidate_lever_space: CandidateLeverSpace
     evidence_acquisition_needs: EvidenceAcquisitionNeeds
     model_spec_ref: str | None = Field(None, pattern=r"^sha256:[a-f0-9]{64}$")
@@ -308,12 +347,32 @@ class DesignProblem(_StrictModel):
                 raise ValueError(
                     f"invented_admissibility:{constraint.constraint_id}:missing_source_text"
                 )
-        if self.schema_version != DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION:
+        if self.schema_version not in {
+            DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+            DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+        }:
             for lever in self.candidate_lever_space.candidate_levers:
                 if re.fullmatch(_LEGACY_TARGET_SLOT_PATTERN, lever.target_slot) is None:
                     if self.schema_version == DESIGN_PROBLEM_V1_SCHEMA_VERSION:
                         raise ValueError("design_problem_v1_target_slot_invalid")
                     raise ValueError("design_problem_legacy_target_slot_invalid")
+        if (
+            self.schema_version != DESIGN_PROBLEM_V3_SCHEMA_VERSION
+            and re.fullmatch(
+                _LEGACY_TARGET_SLOT_PATTERN,
+                self.outcome_of_interest.target_variable,
+            )
+            is None
+        ):
+            if self.schema_version == DESIGN_PROBLEM_V1_SCHEMA_VERSION:
+                raise ValueError("design_problem_v1_outcome_target_invalid")
+            raise ValueError("design_problem_legacy_outcome_target_invalid")
+        if (
+            self.schema_version == DESIGN_PROBLEM_V3_SCHEMA_VERSION
+            and "." in self.outcome_of_interest.target_variable
+            and type(self.outcome_of_interest) is not _QualifiedOutcomeOfInterestV3
+        ):
+            raise ValueError("design_problem_v3_outcome_requires_qualified_owner")
         return self
 
     @classmethod
@@ -343,6 +402,7 @@ class DesignProblem(_StrictModel):
             return None
         if payload.get("schema_version") in {
             DESIGN_PROBLEM_V1_SCHEMA_VERSION,
+            DESIGN_PROBLEM_V2_SCHEMA_VERSION,
             DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
         }:
             return cls.model_validate(payload)
@@ -886,6 +946,8 @@ __all__ = [
     "DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION",
     "DESIGN_PROBLEM_PROJECTION_SCHEMA_VERSION",
     "DESIGN_PROBLEM_SCHEMA_VERSION",
+    "DESIGN_PROBLEM_V2_SCHEMA_VERSION",
+    "DESIGN_PROBLEM_V3_SCHEMA_VERSION",
     "AuthorityProfile",
     "CandidateLever",
     "CandidateLeverSpace",

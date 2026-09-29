@@ -3909,6 +3909,42 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-removal-probe-design-20260928/R2_EXECUTION_20260928/R2_REMOVAL_PROBE_RECEIPT.md@sha256:1de68eb45cff5063e1163f2f6887bd3bc519e1c810c670f09ebe01979af2bf93",
           "review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-removal-probe-design-20260928/R2_EXECUTION_20260928/INDEPENDENT_REVIEW.md@sha256:75366c7cba841c3904662b921701d96a4dd5e7c25d78bc9a899b2aba835eff59",
           "scope": "Probe is at frozen 44a7441eb source. It establishes one B30 false-stop discriminator for historical replay, not packaged currentness, canonical deployment identity, a complete N6 source census, significant-dependency invalidation, authorized issuer/reissue, or the full four-base P41. Keep B30 partial; packaged identity/currentness remains UNRUN."
+        },
+        "r2_v2_s8_owner_replay_2026_09_29": {
+          "identity": "R2 v2 S8 owner replay and exact pre-R2 slice-base comparison at 658833ffd",
+          "kind": "bounded_focused_and_whole_file_replay_with_slice_base_red_attribution",
+          "behavioral_verdict": "PARTIAL_BOUNDED",
+          "scope": "The focused R2 group passes 6/6. The whole S8 owner file is 5/7 at 658833ffd and 3/5 at exact pre-R2 slice base af86c6aa3; the same two source-preservation failures reproduce and are inherited at the slice base, while integration adds two passing cases. The file is absent at execution 78187878e, E02 head 00d946c2b and main 5fd3ebcc1, so the required four-base P41 remains incomplete. This does not establish a signed currentness issuer, a positive source-preserving S8 path, or outer v1 exact-byte/schema/epoch validation; B30 remains partial.",
+          "four_base_status": {
+            "behavioral_verdict": "UNRUN",
+            "present_cells": 1,
+            "missing_cells": 3,
+            "integration_head": "5 passed / 2 failed out of 7",
+            "missing_revisions": [
+              "78187878e",
+              "00d946c2b",
+              "5fd3ebcc1"
+            ]
+          },
+          "slice_base_comparison": {
+            "slice_base": "af86c6aa3",
+            "slice_base_result": "3 passed / 2 failed out of 5",
+            "integration_result": "5 passed / 2 failed out of 7",
+            "shared_failures": [
+              "test_actual_blocked_n6_source_is_persisted_as_blocked_s8_disposition",
+              "test_actual_nonblocked_n6_stop_preserves_signed_s8_control"
+            ],
+            "shared_failure_reason": "generation_cycle_source_preservation_not_established",
+            "attribution": "both shared reds are inherited at the exact pre-R2 slice base; R2 adds two passing test identities"
+          },
+          "witness_refs": [
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T180136Z-78659/results.json@sha256:9aa9ab2b016eec51e7568824870c6d15eacb99fae13e2caf83d2c1039ea60042",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T180136Z-78659/cells/integration_head/test_s8_blocked_generation_owner-e69269d290e5.junit.xml@sha256:2ea6d510d0edc1b4ff2cc789e4f8392810cd787ef720791852716083c2135945",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-s8-slicebase-20260929/slicebase-af86.junit.xml@sha256:fe88fa40053e768e0bf7873c90c83a6632fffac229423082c8b7eb400eb6792f",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-temporal-replay-design-20260929/R2_INTEGRATED_FOCUSED_20260929.junit.xml@sha256:b3be3cc1677996990caf3ba30d06609a1668255d132b271cf1570f3568e918ca",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-temporal-replay-design-20260929/R2_INDEPENDENT_REVIEW.md@sha256:0e7894e2c3a39d1c1643e4a22cd56d2ad05e02f4e93286e0bf9b1a20c83f60e7",
+            "/Users/deniskopylov/.codex/scratch/e02-r2-temporal-replay-design-20260929/R2_SECOND_INDEPENDENT_REVIEW.md@sha256:395a0024554d5e1c31d69963509f02f7ec70f1269713954bd6de7b85bafa1eaf"
+          ]
         }
       }
     },

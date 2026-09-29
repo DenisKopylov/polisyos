@@ -1146,16 +1146,18 @@
     {
       "id": "B09",
       "r13_20260929_status_reconciliation": {
-        "reviewed_integration_head": "7d628fd8f6233a5cc7110c52a14141c0f226f519",
+        "reviewed_source_test_snapshot": "926a081a26e868fee0ba0e5f63b47c4028805210 (R13 review source/test identity; not the current branch head)",
         "r13_candidate_commit": "b6330454718f73ac907e07d88f7b8e52ee0c1d24",
-        "r13_integration_state_at_patch_base": "unintegrated",
+        "current_branch_head_at_reconciliation": "4fd29d6e0b540ddb5ef7a7cfdc753da861ff8517",
+        "r13_integration_status_on_current_branch": "The selected-row path is integrated in codex/e02-r2 at this head: served admission/readback reaches N5, which typed-refuses before N8",
         "historical_snapshot_disposition": "h_n_review_disposition at 95f082b retained partial because an active re-entry route existed; it did not establish the B09 N5 positive",
         "current_disposition": "open",
-        "evidence_scope": "R13 candidate binds a selected passport-verified WDI row into N8; its served witness stops at N5 refusal before N8, while the direct N8 projection test bypasses N4/N5 and candidate occurrence",
-        "missing_premise": "The owner-supported relevance/time rule that relates the newly admitted WDI observation to a refreshed NCM/WMR consumed by N5 is not established; do not infer causal structure from the outcome row",
+        "evidence_scope": "At current branch codex/e02-r2@4fd29d6e0b540ddb5ef7a7cfdc753da861ff8517, the integrated served acquisition path admits and reads back the selected passport-verified WDI row, then reaches N5, which returns typed refusal before N8; the direct N8 projection test bypasses N4/N5 and candidate occurrence. The cited R13 review records source/test identities at 926a081a26e868fee0ba0e5f63b47c4028805210, not an exact 4fd29d6e0 replay, and ran no tests",
+        "missing_premise": "The owner-supported rule for whether and how the selected observation changes the DataSnapshot/NCM/WMR consumed by N5, and the acquisition-bound problem-specific CycleSubstrateContext revalidated from that basis, are not established; do not infer causal structure from the outcome row",
         "residual_owner": "AcquisitionWorldGrowthBridge and GenerationCycleController, with the existing N3 WMR / CycleSubstrateContext owner at handoff; individual appointment not claimed",
         "closure_signal_and_falsifier": "On the canonical served path, keep the candidate subject/atom and grammar stable, admit a new passport/epoch-bound basis under an owner-supported WMR update rule, and prove the second N5 consumed that changed WMR and produced a distinct occurrence while prior history replays. UUID/time-only or unchanged-overlay changes must not count as progress; removing only the WMR/context refresh handoff while retaining admission markers must make the positive red",
         "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b09-status-reconciliation-20260929/B09_STATUS_RECONCILIATION.md@sha256:01d9af8d3349e1ff9898197d746c589c51061d4f575617badbd963cd5862221a",
+        "current_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-wdi-to-n5-20260929/R13_WDI_TO_N5_HANDOFF_REVIEW.md@sha256:3378176babaf2221e90fa2ef03d9c6353bf26dc8a334647fea99176c253f9f37",
         "exact_head_four_base_p41": "UNRUN"
       },
       "source_kind": "B",
@@ -1173,7 +1175,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records that E02 had no finding-level record. The current row now has a discriminator-level source audit and retained negative-control tests. The audit recommends open because the card’s required newly admitted-evidence positive is absent; the passing retry controls do not establish it. Appendix C remains a historical package/finding-record classification, not a contradictory behavior verdict."
       },
-      "residual": "The generic repeat gate still measures grammar/content progress rather than whether newly owner-admitted evidence was consumed by N5 (P37/P38). The 153/153 unit receipt proves only contract-testing/local-WMR callback re-entry; the 12/12 served integration receipt proves overlay/passport/epoch admission and a next-cycle re-entry. Neither establishes same-candidate, unchanged-grammar N5 consumption. Keep open; exact-head and four-base P41 remain UNRUN.",
+      "residual": "The generic repeat gate still measures grammar/content progress rather than whether newly owner-admitted evidence was consumed by N5 (P37/P38). The 153/153 unit receipt proves only contract-testing/local-WMR callback re-entry. The integrated served path admits and reads back the selected WDI row and reaches N5, which returns typed refusal before N8; this does not establish a successful same-candidate, unchanged-grammar N5 computation consuming a refreshed problem-bound WMR/context. Keep open; exact-head and four-base P41 remain UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner roles identified; no individual appointment is claimed.",
         "kind": "implementation_owner",

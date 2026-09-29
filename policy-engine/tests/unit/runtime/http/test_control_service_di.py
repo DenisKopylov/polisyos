@@ -1945,6 +1945,15 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         assert proposal.proposal.trinity_bundle.policy_spec.interventions
         assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
         assert service._promotion_runtime.store is service._artifact_store
+        if missing_scope_field is None:
+            # A valid completed N4 candidate remains visible after the reader
+            # reconstructs its stage claims from the typed owner artifact.
+            outward = service.get_job_status(launch.job_id)
+            assert outward.progress["candidate_proposal_ref"] == proposal_locator
+            assert outward.progress["n5_status"] == proposal.n5_status == "not_run"
+            assert outward.progress["n8_status"] == proposal.n8_status == "not_run"
+            assert outward.progress["n9_status"] == proposal.n9_status == "not_run"
+            assert "compiled_recursive_generation_cycle_ref" not in outward.progress
     finally:
         service.close()
 
@@ -1998,6 +2007,7 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         def __init__(self) -> None:
             self.calls: list[dict[str, object]] = []
             self.context: CycleSubstrateContext | None = None
+            self.candidate: SimpleNamespace | None = None
 
         def admit_context(
             self,
@@ -2018,6 +2028,46 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
                     "tenant_id": tenant_id,
                     "cell_id": cell_id,
                 }
+            )
+            if self.context is None or self.candidate is None:
+                return None
+            problem_ref = generation_cycle_service.gy_content_hash(
+                problem.model_dump(mode="json")
+            )
+            prior_context = self.context
+            self.context = build_cycle_substrate_context(
+                design_problem_ref=problem_ref,
+                domain=prior_context.domain,
+                substrate_registry=prior_context.substrate_registry,
+                selected_registry_entry_hashes=(
+                    prior_context.selected_registry_entry_hashes
+                ),
+                world_model_record=prior_context.world_model_record,
+                intervention_substrate=prior_context.intervention_substrate,
+                candidate_levers=prior_context.candidate_levers,
+                transport_context=prior_context.transport_context,
+                source_pack_content_hash=prior_context.source_pack_content_hash,
+                substrate_input_content_hash=prior_context.substrate_input_content_hash,
+            )
+            atom_draft = self.candidate.atom.model_copy(
+                update={
+                    "problem_frame_ref": problem_ref,
+                    "world_model_record_ref": (
+                        self.context.world_model_record.world_model_record_id
+                    ),
+                }
+            )
+            atom_draft = atom_draft.model_copy(
+                update={"content_hash": intervention_atom_content_hash(atom_draft)}
+            )
+            atom = InterventionAtomBinding.model_validate(
+                atom_draft.model_dump(mode="python")
+            )
+            self.candidate = SimpleNamespace(
+                candidate_id=self.candidate.candidate_id,
+                atom=atom,
+                diversity_key=self.candidate.diversity_key,
+                status=self.candidate.status,
             )
             return self.context
 
@@ -2090,6 +2140,7 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
                 diversity_key=("fixture", "controlled", "profile", "n5"),
                 status="candidate_unverified",
             )
+            source_owner.candidate = candidate
         except Exception:
             service.close()
             raise
@@ -2103,7 +2154,11 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
 
     async def compile_fixture_problem(**kwargs):
         compiler_calls.append(kwargs)
-        return problem
+        trusted_source_context = kwargs["trusted_source_context"]
+        provenance = problem.nl_provenance.model_copy(
+            update={"source_context": dict(trusted_source_context)}
+        )
+        return problem.model_copy(update={"nl_provenance": provenance})
 
     monkeypatch.setattr(
         generation_cycle_service,
@@ -2203,6 +2258,9 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
             contexts = run_kwargs["cycle_substrate_contexts_by_node"]
             assert contexts is not None and len(contexts) == 1
             resolved_context = next(iter(contexts.values()))
+            fixture_candidate = source_owner.candidate
+            assert fixture_candidate is not None
+
             class _FixtureGenerationPort:
                 def __init__(self) -> None:
                     self.problems: list[object] = []
@@ -2212,10 +2270,10 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
                     self.problems.append(problem_for_cycle)
                     return SimpleNamespace(
                         status="generated",
-                        candidates=(candidate,),
+                        candidates=(fixture_candidate,),
                         surrogate_rankings=(
                             SimpleNamespace(
-                                candidate_id=candidate.candidate_id,
+                                candidate_id=fixture_candidate.candidate_id,
                                 score=0.8,
                                 voi_estimate=0.2,
                                 trust_level="search_guiding",
@@ -2299,7 +2357,13 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert len(source_owner.calls) == 1
         admission_call = source_owner.calls[0]
         assert admission_call["target_world_scope_profile_id"] == profile_id
-        assert admission_call["problem"] is problem
+        admitted_problem = admission_call["problem"]
+        assert admitted_problem.nl_provenance.source_context == {
+            "tenant_id": "tenant-fixture",
+            "cell_id": "cell-fixture",
+            "job_id": launch.job_id,
+            "run_id": str(job.run_id),
+        }
         assert admission_call["job_id"] == launch.job_id
         assert admission_call["run_id"] == str(job.run_id)
         assert admission_call["tenant_id"] == "tenant-fixture"
@@ -2325,13 +2389,13 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert context_artifact.run_id == str(job.run_id)
         assert context_artifact.tenant_id == "tenant-fixture"
         assert context_artifact.cell_id == "cell-fixture"
-        assert context_artifact.problem == problem
+        assert context_artifact.problem == admitted_problem
         assert context_artifact.context.content_hash == owner_replays[0].context.content_hash
         assert context_artifact.profile_admission_status == "not_established"
         assert context_artifact.s8_status == "blocked"
         assert len(n5_port_observations) == len(n5_engine_requests) == 1
         n5_problem, n5_context, n5_observation = n5_port_observations[0]
-        assert n5_problem == problem
+        assert n5_problem == admitted_problem
         assert n5_context.content_hash == context_artifact.context.content_hash
         assert (
             n5_observation.world_model_record.content_hash
@@ -2357,16 +2421,82 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert progress["s8_status"] == "not_run"
         assert progress["publication_status"] == "not_run"
 
+        # The immutable completion event binds the N5 artifact to this job/run.
+        # Outward reads must reconstruct that source instead of trusting progress.
+        owner_compiled_ref = progress["compiled_recursive_generation_cycle_ref"]
+        completion = service._control_store.get_job_completed_outbox_event(
+            launch.job_id
+        )
+        assert completion is not None
+        assert completion.job_id == launch.job_id
+        assert completion.run_id == str(job.run_id)
+        assert completion.payload["progress"][
+            "compiled_recursive_generation_cycle_ref"
+        ] == owner_compiled_ref
+
+        # Replaying N5 must bind its CAS artifact to the exact WMR hash recorded
+        # by the historical N6 observation. The loaded result alone cannot
+        # establish which WMR the cycle asked N5 to consume.
+        expected_n5_world_hashes = {}
+        for node in recursive_run.leaf_nodes:
+            assert node.cycle_run is not None
+            for cycle in node.cycle_run.cycles:
+                simulation = cycle.simulation
+                if simulation.simulation_result_ref is None:
+                    continue
+                assert simulation.k_world_ref_before is not None
+                expected_n5_world_hashes[str(simulation.simulation_result_ref.artifact_id)] = (
+                    simulation.k_world_ref_before
+                )
+        assert expected_n5_world_hashes
+        from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
+
+        original_load_joint_result = generation_cycle_owner.load_joint_simulation_result
+        observed_n5_world_hashes = {}
+
+        def load_n5_with_expected_world_hash(ref, *, store, **kwargs):
+            ref_id = str(ref.artifact_id)
+            expected_world_hash = expected_n5_world_hashes[ref_id]
+            assert kwargs.get("expected_world_model_record_content_hash") == expected_world_hash
+            observed_n5_world_hashes[ref_id] = expected_world_hash
+            return original_load_joint_result(ref, store=store, **kwargs)
+
+        monkeypatch.setattr(
+            generation_cycle_owner,
+            "load_joint_simulation_result",
+            load_n5_with_expected_world_hash,
+        )
+
+        # Exercise the same tenant context through the guarded artifact-store
+        # proxy that the runtime composition supplies to served readers.
+        from polisyos.runtime.http.resilience import guard_runtime_cas
+
+        raw_artifact_store = service._artifact_store
+        original_get_bytes = raw_artifact_store.get_bytes
+        guarded_read_scopes = []
+
+        def observe_guarded_get_bytes(ref):
+            guarded_read_scopes.append(
+                (get_current_tenant_id_or_none(), get_current_cell_id())
+            )
+            return original_get_bytes(ref)
+
+        monkeypatch.setattr(raw_artifact_store, "get_bytes", observe_guarded_get_bytes)
+        service._artifact_store = guard_runtime_cas(raw_artifact_store)
         # A completed owner-bound simulate-only launch remains candidate-band at
         # the outward reader. Replaying it must not require the worker's expired
-        # lease or let mutable progress claim that S8/publication ran.
+        # lease or let mutable progress claim any stage or compiled source.
         forged_progress = dict(progress)
         forged_progress.update(
             {
                 "execution_intent_band": "eval_safety_required",
+                "n5_status": "forged_completed",
+                "n8_status": "completed",
+                "n9_status": "authorized",
                 "s8_status": "authorized",
                 "normative_disposition_status": "authorized",
                 "publication_status": "published",
+                "compiled_recursive_generation_cycle_ref": "sha256:" + "d" * 64,
                 "normative_disposition_ref": "sha256:" + "b" * 64,
                 "normative_disposition": {
                     "authorization_status": "authorized",
@@ -2394,8 +2524,28 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         )
         with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
             status = service.get_job_status(launch.job_id)
+        assert ("tenant-fixture", "cell-fixture") in guarded_read_scopes
         assert live_lease_reads == []
         assert status.progress["execution_intent_band"] == "simulate_only_attempt"
+        if status.progress.get("limitation_code") == "candidate_n6_n5_owner_replay_failed":
+            # The current historical N6 owner rejects this fixture's typed
+            # ArtifactID/string wire projection. Keep the gap explicit: the
+            # served worker above exercised N5, but the completed reader cannot
+            # replay its source and must not claim that result from progress.
+            assert observed_n5_world_hashes == {}
+            assert "compiled_recursive_generation_cycle_ref" not in status.progress
+            assert status.progress["n5_status"] == "not_established"
+            assert status.progress["n5_world_model_custody_status"] == "not_established"
+        else:
+            # If the historical owner becomes replayable, the reader must bind
+            # every loaded N5 result to the WMR named by its N6 observation.
+            assert observed_n5_world_hashes == expected_n5_world_hashes
+            assert status.progress["compiled_recursive_generation_cycle_ref"] == (
+                owner_compiled_ref
+            )
+            assert status.progress["n5_status"] in {"completed", "partial"}
+        assert status.progress["n8_status"] == "not_run"
+        assert status.progress["n9_status"] == "not_run"
         assert status.progress["s8_status"] == "not_run"
         assert status.progress["normative_disposition_status"] == "not_run"
         assert status.progress["publication_status"] == "not_run"

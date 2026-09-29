@@ -3033,6 +3033,32 @@ class ControlPlaneStore:
             raise RuntimeError("control_job_created_outbox_count_not_one")
         return self._row_to_outbox_record(rows[0])
 
+    def get_job_completed_outbox_event(self, job_id: str) -> ControlOutboxRecord:
+        """Read exactly one matching completion event from the durable outbox owner."""
+        rows = self._fetchall(
+            """
+            SELECT
+                event_id,
+                topic,
+                event_key,
+                state,
+                job_id,
+                run_id,
+                payload_json,
+                created_at,
+                published_at,
+                attempt,
+                error_message
+            FROM control_outbox_events
+            WHERE topic = ? AND event_key = ? AND job_id = ?
+            ORDER BY created_at ASC
+            """,
+            ("control.job.completed", f"{job_id}:job_completed", job_id),
+        )
+        if len(rows) != 1:
+            raise RuntimeError("control_job_completed_outbox_count_not_one")
+        return self._row_to_outbox_record(rows[0])
+
     def list_job_state_transitions(self, job_id: str) -> list[str]:
         """Return observed lifecycle states from the append-only job event log."""
 

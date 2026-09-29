@@ -3108,12 +3108,14 @@ class ControlPlaneService(
         """Replay normative authority once for every outward job-record reader."""
         if record.kind == "natural_language_run" and record.state == "completed":
             progress = dict(record.progress)
+            replayed_payload: dict[str, Any] | None = None
             try:
                 if not record.payload_ref:
                     raise RuntimeError("nl_job_execution_intent_not_established")
+                replayed_payload = self._load_payload_ref(record.payload_ref)
                 intent_binding = self._require_nl_job_execution_intent_binding(
                     job=record,
-                    payload=self._load_payload_ref(record.payload_ref),
+                    payload=replayed_payload,
                 )
             except (KeyError, OSError, RuntimeError, TypeError, ValueError):
                 # If persisted intent cannot be replayed, keep the normative
@@ -3128,34 +3130,16 @@ class ControlPlaneService(
                     "data_trust_required",
                     "simulate_only_attempt",
                 }
+                and replayed_payload is not None
             ):
-                # These server-bound bands terminate before S8. Mutable progress
-                # cannot turn that terminal computation into a normative refusal
-                # or an authorized projection. Rebuild the outward S8 status from
-                # the replayed launch intent and drop any forged/stale projection.
-                progress["execution_intent_band"] = intent_binding["intent_band"]
-                progress["execution_intent_limitation_code"] = (
-                    "data_trust_owner_not_established"
-                    if intent_binding["intent_band"] == "data_trust_required"
-                    else None
+                return replace(
+                    record,
+                    progress=self._project_completed_candidate_band(
+                        record=record,
+                        payload=replayed_payload,
+                        intent_binding=intent_binding,
+                    ),
                 )
-                progress["s8_status"] = "not_run"
-                progress["normative_disposition_status"] = "not_run"
-                progress["publication_status"] = "not_run"
-                for key in (
-                    "normative_disposition",
-                    "normative_disposition_ref",
-                    "normative_head_ref",
-                    "normative_head_strangle_receipt",
-                    "normative_head_limitation",
-                    "promotion_refusal_reasons",
-                    "ranked_recommendations",
-                    "authorization_status",
-                ):
-                    progress.pop(key, None)
-                if intent_binding["intent_band"] != "simulate_only_attempt":
-                    progress.pop("compiled_recursive_generation_cycle_ref", None)
-                return replace(record, progress=progress)
             stored_disposition_ref = progress.get("normative_disposition_ref")
             stored_compiled_ref = progress.get("compiled_recursive_generation_cycle_ref")
             copied_head_ref = progress.pop("normative_head_ref", None)
@@ -3254,6 +3238,394 @@ class ControlPlaneService(
             )
             return replace(record, progress=progress)
         return record
+
+    def _project_completed_candidate_band(
+        self,
+        *,
+        record: ControlJobRecord,
+        payload: Mapping[str, Any],
+        intent_binding: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Project completed candidate work from its immutable owner event and artifacts."""
+        band = str(intent_binding["intent_band"])
+        intent_limitation = (
+            "data_trust_owner_not_established" if band == "data_trust_required" else None
+        )
+        base = self._unestablished_candidate_band_progress(
+            record=record,
+            band=band,
+            intent_limitation=intent_limitation,
+            limitation_code="candidate_completion_owner_replay_failed",
+        )
+        try:
+            if record.run_id is None:
+                raise RuntimeError("candidate_completion_job_run_missing")
+            completion = self._control_store.get_job_completed_outbox_event(record.job_id)
+            event_payload = completion.payload
+            completion_progress = event_payload.get("progress")
+            if (
+                completion.topic != "control.job.completed"
+                or completion.event_key != f"{record.job_id}:job_completed"
+                or completion.job_id != record.job_id
+                or completion.run_id != record.run_id
+                or completion.state not in {"pending", "published"}
+                or event_payload.get("job_id") != record.job_id
+                or event_payload.get("job_kind") != record.kind
+                or event_payload.get("run_id") != record.run_id
+                or event_payload.get("pipeline_id") != record.pipeline_id
+                or event_payload.get("effective_execution_profile")
+                != record.effective_execution_profile
+                or event_payload.get("state") != "completed"
+                or not isinstance(completion_progress, Mapping)
+                or completion_progress.get("state") != "completed"
+                or completion_progress.get("phase") != "natural_language_run"
+                or completion_progress.get("run_id") != record.run_id
+                or completion_progress.get("execution_intent_band") != band
+            ):
+                raise RuntimeError("candidate_completion_owner_binding_mismatch")
+        except Exception:
+            # An absent or ambiguous completion row cannot be replaced with the
+            # mutable jobs.progress projection. Keep a typed candidate limitation.
+            return base
+
+        tenant_id, cell_id = _job_scope_identity(payload)
+        if (
+            tenant_id != intent_binding.get("tenant_id")
+            or cell_id != intent_binding.get("cell_id")
+            or not isinstance(tenant_id, str)
+            or not tenant_id.strip()
+            or not isinstance(cell_id, str)
+            or not cell_id.strip()
+        ):
+            return self._unestablished_candidate_band_progress(
+                record=record,
+                band=band,
+                intent_limitation=intent_limitation,
+                limitation_code="candidate_completion_scope_not_established",
+            )
+
+        if band == "simulate_only_attempt":
+            compiled_ref = completion_progress.get("compiled_recursive_generation_cycle_ref")
+            if isinstance(compiled_ref, str) and compiled_ref:
+                try:
+                    return self._project_replayed_simulate_only_result(
+                        record=record,
+                        payload=payload,
+                        intent_binding=intent_binding,
+                        completion_progress=completion_progress,
+                        compiled_ref=compiled_ref,
+                    )
+                except Exception:
+                    # No compiled ref or N5 status is projected unless the exact
+                    # completed bytes and every N6/N5 stage replay successfully.
+                    return self._unestablished_candidate_band_progress(
+                        record=record,
+                        band=band,
+                        intent_limitation=intent_limitation,
+                        limitation_code="candidate_n6_n5_owner_replay_failed",
+                        n5_status="not_established",
+                    )
+
+        proposal_locator_payload = completion_progress.get("candidate_proposal_ref")
+        if isinstance(proposal_locator_payload, Mapping):
+            try:
+                return self._project_replayed_n4_candidate_proposal(
+                    record=record,
+                    payload=payload,
+                    band=band,
+                    intent_limitation=intent_limitation,
+                    proposal_locator_payload=proposal_locator_payload,
+                )
+            except Exception:
+                return self._unestablished_candidate_band_progress(
+                    record=record,
+                    band=band,
+                    intent_limitation=intent_limitation,
+                    limitation_code="candidate_proposal_owner_replay_failed",
+                )
+
+        # In particular, an adapter returning a compiled run under candidate_only
+        # is not promoted to a candidate source or to N5 by its completion markers.
+        limitation_code = completion_progress.get("limitation_code")
+        if (
+            band in {"candidate_only", "data_trust_required"}
+            and isinstance(limitation_code, str)
+            and limitation_code == "candidate_only_compiled_result_not_admitted"
+        ):
+            base["limitation_code"] = limitation_code
+            base["candidate_result_limitation_code"] = limitation_code
+        elif band == "simulate_only_attempt":
+            return self._unestablished_candidate_band_progress(
+                record=record,
+                band=band,
+                intent_limitation=intent_limitation,
+                limitation_code="candidate_simulation_result_missing",
+            )
+        return base
+
+    @staticmethod
+    def _unestablished_candidate_band_progress(
+        *,
+        record: ControlJobRecord,
+        band: str,
+        intent_limitation: str | None,
+        limitation_code: str,
+        n5_status: str = "not_run",
+    ) -> dict[str, Any]:
+        """Return a fail-closed candidate projection without carrying progress claims."""
+        return {
+            "state": "completed",
+            "phase": "natural_language_run",
+            "status": "not_established",
+            "execution_band": "candidate",
+            "candidate_computation_status": "not_established",
+            "execution_intent_band": band,
+            "execution_intent_limitation_code": intent_limitation,
+            "limitation_code": limitation_code,
+            "candidate_result_limitation_code": limitation_code,
+            "proposal_persistence_status": "not_established",
+            "candidate_proposal_ref": None,
+            "n4_status": "not_established",
+            "n5_status": n5_status,
+            "n5_world_model_custody_status": "not_established",
+            "n5_world_model_custody_limitation_code": limitation_code,
+            "n8_status": "not_run",
+            "n9_status": "not_run",
+            "s8_status": "not_run",
+            "normative_disposition_status": "not_run",
+            "publication_status": "not_run",
+            "run_id": record.run_id,
+        }
+
+    def _project_replayed_n4_candidate_proposal(
+        self,
+        *,
+        record: ControlJobRecord,
+        payload: Mapping[str, Any],
+        band: str,
+        intent_limitation: str | None,
+        proposal_locator_payload: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Rebuild N4 projection from the generation-source owner's typed CAS artifact."""
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateProposalLocator,
+            N4CandidateProposalSimulationRecord,
+        )
+
+        if record.run_id is None:
+            raise RuntimeError("n4_candidate_proposal_job_run_missing")
+        tenant_id, cell_id = _job_scope_identity(payload)
+        raw_request = payload.get("request")
+        if not isinstance(raw_request, str):
+            raise RuntimeError("n4_candidate_proposal_request_not_established")
+        locator = N4CandidateProposalLocator.model_validate(proposal_locator_payload)
+        repository = GenerationSourceRepository(self._artifact_store)
+        proposal = repository.load_candidate_proposal_for_served_job(
+            locator,
+            job_id=record.job_id,
+            run_id=record.run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            raw_request=raw_request,
+        )
+        is_simulation_record = isinstance(proposal, N4CandidateProposalSimulationRecord)
+        if is_simulation_record != (band == "simulate_only_attempt"):
+            raise RuntimeError("n4_candidate_proposal_intent_band_mismatch")
+        progress: dict[str, Any] = {
+            "state": "completed",
+            "phase": "natural_language_run",
+            "status": (
+                "not_established" if intent_limitation is not None else proposal.status
+            ),
+            "execution_band": proposal.execution_band,
+            "candidate_computation_status": "completed",
+            "execution_intent_band": band,
+            "execution_intent_limitation_code": intent_limitation,
+            "limitation_code": intent_limitation or proposal.limitation_code,
+            "candidate_proposal_limitation_code": proposal.limitation_code,
+            "proposal_persistence_status": "persisted",
+            "stage": proposal.stage,
+            "candidate_proposal_ref": locator.model_dump(mode="json"),
+            "run_id": record.run_id,
+            "n5_status": proposal.n5_status,
+            "n8_status": proposal.n8_status,
+            "n9_status": proposal.n9_status,
+            "s8_status": "not_run",
+            "normative_disposition_status": "not_run",
+            "publication_status": "not_run",
+        }
+        if is_simulation_record:
+            progress["simulation_status"] = proposal.simulation_disposition.status
+            progress["simulation_limitation_code"] = (
+                proposal.simulation_disposition.reason_code
+            )
+        return progress
+
+    def _project_replayed_simulate_only_result(
+        self,
+        *,
+        record: ControlJobRecord,
+        payload: Mapping[str, Any],
+        intent_binding: Mapping[str, Any],
+        completion_progress: Mapping[str, Any],
+        compiled_ref: str,
+    ) -> dict[str, Any]:
+        """Replay exact compiled N6 history and N5 CAS results for one candidate run."""
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            _joint_simulation_port_outcome,
+            load_joint_simulation_result,
+            validate_generation_cycle_run_history,
+        )
+
+        if record.run_id is None or not compiled_ref.startswith("sha256:"):
+            raise RuntimeError("candidate_compiled_source_ref_not_established")
+        artifact_id = artifacts.ArtifactID.model_validate(compiled_ref)
+        if str(artifact_id) != compiled_ref:
+            raise RuntimeError("candidate_compiled_source_ref_not_canonical")
+        manifest = self._artifact_store.get_manifest(artifact_id)
+        compiled_schema = manifest.artifact_schema
+        if (
+            manifest.kind != "runtime.compiled_recursive_generation_cycle"
+            or manifest.media_type != "application/json"
+            or compiled_schema is None
+            or compiled_schema.name != "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
+            or compiled_schema.version != "1.0"
+        ):
+            raise RuntimeError("candidate_compiled_source_owner_profile_mismatch")
+        raw_bytes = self._artifact_store.get_bytes(artifact_id)
+        if (
+            manifest.byte_size != len(raw_bytes)
+            or manifest.integrity.sha256 != artifact_id.hex
+            or canonical_content_hash(raw_bytes, prefix=True) != compiled_ref
+        ):
+            raise RuntimeError("candidate_compiled_source_integrity_mismatch")
+        raw_compiled = from_canonical_bytes(raw_bytes)
+        if not isinstance(raw_compiled, Mapping):
+            raise RuntimeError("candidate_compiled_source_not_mapping")
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(raw_compiled)
+        source_context = compiled.design_problem.nl_provenance.source_context
+        tenant_id, cell_id = _job_scope_identity(payload)
+        expected_source_identity = {
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "job_id": record.job_id,
+            "run_id": record.run_id,
+        }
+        if any(source_context.get(key) != value for key, value in expected_source_identity.items()):
+            raise RuntimeError("candidate_compiled_problem_scope_mismatch")
+        if any(key in source_context for key in ("runtime_identity", "candidate_context")):
+            raise RuntimeError("candidate_compiled_problem_identity_carrier_forbidden")
+        if compiled.design_problem.nl_provenance.raw_request != payload.get("request"):
+            raise RuntimeError("candidate_compiled_problem_request_mismatch")
+
+        raw_recursive = raw_compiled.get("recursive_run")
+        raw_nodes = raw_recursive.get("nodes") if isinstance(raw_recursive, Mapping) else None
+        if not isinstance(raw_nodes, (list, tuple)):
+            raise RuntimeError("candidate_recursive_history_nodes_missing")
+        raw_nodes_by_ref = {
+            str(row.get("node_ref")): row for row in raw_nodes if isinstance(row, Mapping)
+        }
+        if len(raw_nodes_by_ref) != len(raw_nodes) or len(raw_nodes_by_ref) != len(
+            compiled.recursive_run.nodes
+        ):
+            raise RuntimeError("candidate_recursive_history_node_denominator_mismatch")
+
+        n5_outcomes: list[str] = []
+        n5_observation_count = 0
+        leaf_nodes = compiled.recursive_run.leaf_nodes
+        if not leaf_nodes:
+            raise RuntimeError("candidate_recursive_history_leaf_denominator_empty")
+        for node in leaf_nodes:
+            typed_run = node.cycle_run
+            raw_node = raw_nodes_by_ref.get(node.node_ref)
+            raw_run = raw_node.get("cycle_run") if isinstance(raw_node, Mapping) else None
+            if typed_run is None or not isinstance(raw_run, Mapping):
+                raise RuntimeError("candidate_recursive_history_leaf_missing")
+            history_issues = validate_generation_cycle_run_history(raw_run)
+            if history_issues:
+                raise RuntimeError("candidate_generation_cycle_history_not_replayable")
+            if not typed_run.cycles:
+                raise RuntimeError("candidate_generation_cycle_n5_denominator_empty")
+            for cycle in typed_run.cycles:
+                observation = cycle.simulation
+                n5_observation_count += 1
+                if observation.status == "simulation_pending_n5":
+                    if (
+                        observation.simulation_result_ref is not None
+                        or observation.simulation_ref is not None
+                    ):
+                        raise RuntimeError("candidate_pending_n5_has_result_reference")
+                    continue
+                if observation.simulation_result_ref is None or not observation.simulation_ref:
+                    raise RuntimeError("candidate_n5_result_reference_missing")
+                if (
+                    observation.k_world_ref_before is None
+                    or observation.k_world_ref_after != observation.k_world_ref_before
+                ):
+                    raise RuntimeError("candidate_n5_world_model_binding_not_established")
+                result = load_joint_simulation_result(
+                    observation.simulation_result_ref,
+                    store=self._artifact_store,
+                    expected_world_model_record_content_hash=observation.k_world_ref_before,
+                )
+                if result.receipt.payload_hash != observation.simulation_ref:
+                    raise RuntimeError("candidate_n5_receipt_binding_mismatch")
+                replayed_status, replayed_blockers = _joint_simulation_port_outcome(result)
+                if (
+                    replayed_status != observation.status
+                    or replayed_blockers != observation.authority_blockers
+                ):
+                    raise RuntimeError("candidate_n5_outcome_binding_mismatch")
+                n5_outcomes.append(replayed_status)
+
+        if n5_observation_count == 0:
+            raise RuntimeError("candidate_generation_cycle_n5_denominator_empty")
+        if len(n5_outcomes) == n5_observation_count:
+            n5_status = "completed"
+        elif n5_outcomes:
+            n5_status = "partial"
+        else:
+            n5_status = "not_run"
+        distinct_outcomes = tuple(dict.fromkeys(n5_outcomes))
+        simulation_status = (
+            distinct_outcomes[0]
+            if len(distinct_outcomes) == 1
+            else "mixed"
+            if distinct_outcomes
+            else "not_run"
+        )
+        if completion_progress.get("cycle_substrate_context_job_ref") is None:
+            context_custody_limitation = "completed_cycle_substrate_context_ref_missing"
+        else:
+            # The existing context owner only resolves under an active worker
+            # lease; this historical read cannot claim WMR-to-job custody.
+            context_custody_limitation = "completed_cycle_substrate_context_replay_unavailable"
+        return {
+            "state": "completed",
+            "phase": "natural_language_run",
+            "status": "simulation_only",
+            "execution_band": "candidate",
+            "candidate_computation_status": "completed",
+            "execution_intent_band": "simulate_only_attempt",
+            "execution_intent_limitation_code": None,
+            "candidate_result_limitation_code": context_custody_limitation,
+            "limitation_code": context_custody_limitation,
+            "run_id": record.run_id,
+            "compiled_recursive_generation_cycle_ref": compiled_ref,
+            "n5_status": n5_status,
+            "simulation_status": simulation_status,
+            "n5_world_model_custody_status": "not_established",
+            "n5_world_model_custody_limitation_code": context_custody_limitation,
+            "n8_status": "not_run",
+            "n9_status": "not_run",
+            "s8_status": "not_run",
+            "normative_disposition_status": "not_run",
+            "publication_status": "not_run",
+        }
 
     def get_latest_job_for_run(self, run_id: str) -> ControlJobRecord | None:
         """Return the newest durable control job attached to one runtime run."""

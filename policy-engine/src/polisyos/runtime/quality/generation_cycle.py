@@ -1201,7 +1201,13 @@ class ValuePortObservation(_StrictModel):
         if self.acquisition_requirement is not None:
             if self.candidate_id is None:
                 raise ValueError("value_acquisition_requirement_not_canonical")
-            if self.authority_blockers == ("treatment_assignment_not_owner_derived",):
+            if self.authority_blockers in {
+                ("treatment_assignment_not_owner_derived",),
+                (
+                    "treatment_assignment_not_owner_derived",
+                    "source_update_time_not_established",
+                ),
+            }:
                 expected = value_input_world_knowledge_requirement_gap(
                     claim_ref=f"value-claim:{self.candidate_id}"
                 )
@@ -3918,6 +3924,12 @@ class FoundryValuePort:
                 claim_ref=f"value-claim:{candidate_id}"
             ),
             world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            source_time_status=(
+                self._owner_gateway.activated_observation_projection.source_time_status
+                if isinstance(self._owner_gateway, RealValueOwnerGateway)
+                and self._owner_gateway.activated_observation_projection is not None
+                else None
+            ),
         )
 
     def _selection_inputs(self) -> dict[str, Any]:
@@ -9236,12 +9248,16 @@ def _blocked_value_observation(
     acquisition_requirement: AcquisitionRequirementGap | None = None,
     world_model_record_content_hash: str | None = None,
     transport_receipt: ValueTransportReceipt | None = None,
+    source_time_status: Literal["not_established"] | None = None,
 ) -> ValuePortObservation:
+    authority_blockers = (code,)
+    if source_time_status == "not_established":
+        authority_blockers += ("source_update_time_not_established",)
     return ValuePortObservation(
         status="value_blocked",
         candidate_id=candidate_id,
         value_ref=None,
-        authority_blockers=(code,),
+        authority_blockers=authority_blockers,
         reason=reason,
         evaluation_mode=mode,
         selected_method_fqn=selected_method_fqn,

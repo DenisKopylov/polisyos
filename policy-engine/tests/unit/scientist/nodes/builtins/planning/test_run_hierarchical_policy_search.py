@@ -49,6 +49,8 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveChannelValue,
     ObjectiveDirection,
     ObjectiveKind,
+    PolicyEvaluationRankAssessment,
+    PolicyEvaluationRankStatus,
     PolicyEvaluationVector,
 )
 from polisyos.scientist.policy_design.output import (
@@ -405,6 +407,83 @@ def test_finite_champion_is_stable_under_candidate_permutation() -> None:
         assert selection.candidate.candidate_id == "higher"
 
 
+def test_malformed_present_evaluation_does_not_use_accepted_structure_fallback() -> None:
+    accepted = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="accepted_structure_fallback"
+    )
+    malformed_iteration = SimpleNamespace(
+        iteration=0,
+        candidate=accepted.model_dump(mode="json"),
+        policy_evaluation=None,
+        policy_evaluation_status="invalid",
+        policy_evaluation_error="policy_evaluation_parse_failed",
+        stage_b_result={
+            "policy_evaluation": {"primary": "malformed"},
+            "feedback": {"verdict": "APPROVE"},
+        },
+        is_promising=True,
+        objective_value=0.0,
+    )
+    search_result = SimpleNamespace(
+        state=SimpleNamespace(
+            structure_candidates=[
+                SimpleNamespace(
+                    structure_id="accepted_structure",
+                    candidate=accepted,
+                    accepted=True,
+                )
+            ],
+            parameter_search_results={
+                "accepted_structure": SimpleNamespace(history=[malformed_iteration]),
+            },
+        )
+    )
+
+    selection = _select_champion_candidate(accepted, search_result)
+
+    assert selection.candidate is None
+    assert selection.evaluated_record_count == 1
+    assert selection.evaluation_issues == (
+        ("accepted_structure_fallback", "policy_evaluation_parse_failed"),
+    )
+
+
+def test_genuinely_missing_evaluation_keeps_zero_evaluated_fallback() -> None:
+    accepted = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="accepted_structure_fallback"
+    )
+    missing_iteration = SimpleNamespace(
+        iteration=0,
+        candidate=accepted.model_dump(mode="json"),
+        policy_evaluation=None,
+        policy_evaluation_status="missing",
+        policy_evaluation_error=None,
+        stage_b_result={"feedback": {"verdict": "APPROVE"}},
+        is_promising=True,
+        objective_value=0.0,
+    )
+    search_result = SimpleNamespace(
+        state=SimpleNamespace(
+            structure_candidates=[
+                SimpleNamespace(
+                    structure_id="accepted_structure",
+                    candidate=accepted,
+                    accepted=True,
+                )
+            ],
+            parameter_search_results={
+                "accepted_structure": SimpleNamespace(history=[missing_iteration]),
+            },
+        )
+    )
+
+    selection = _select_champion_candidate(accepted, search_result)
+
+    assert selection.evaluated_record_count == 0
+    assert selection.candidate is not None
+    assert selection.candidate.candidate_id == "accepted_structure_fallback"
+
+
 def test_hierarchical_search_handoff_preserves_shared_enum_and_none_compatibility() -> None:
     bundle_input = LexPolicyBundleInput.model_validate(
         {
@@ -685,6 +764,11 @@ def test_hierarchical_report_limits_complete_rank_when_candidate_eligibility_is_
         candidate=known,
         evaluation=SimpleNamespace(feasible=True, primary={}, constraint_statuses={}),
         metadata={},
+        rank_assessment=PolicyEvaluationRankAssessment(
+            candidate_id=known.candidate_id,
+            status=PolicyEvaluationRankStatus.RANKABLE,
+            rank_key=(1.0,),
+        ),
     )
     unknown_record = SimpleNamespace(
         structure_id="unknown",
@@ -740,6 +824,11 @@ def test_hierarchical_report_limits_complete_rank_when_candidate_eligibility_is_
         candidate=unknown,
         evaluation=SimpleNamespace(feasible=True, primary={}, constraint_statuses={}),
         metadata={},
+        rank_assessment=PolicyEvaluationRankAssessment(
+            candidate_id=unknown.candidate_id,
+            status=PolicyEvaluationRankStatus.RANKABLE,
+            rank_key=(1.0,),
+        ),
     )
     with patch(
         "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search"

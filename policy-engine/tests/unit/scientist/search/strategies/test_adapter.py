@@ -7,6 +7,7 @@ from polisyos.scientist.methods.search.objective import ObjectiveValue, Optimiza
 from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 from polisyos.scientist.methods.search.strategies.random import RandomSearchStrategy
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import EvaluationStatus
 
 
 def test_adapter_generates_controller_payload(simple_space: SearchSpace) -> None:
@@ -99,3 +100,43 @@ def test_adapter_exposes_raw_directional_score_not_negated_search_score(
     adapter.generate(history=[iteration], current_best=None, context={})
 
     assert adapter._evaluations[0].scalar_score == -5.0
+
+
+def test_adapter_keeps_malformed_policy_evaluation_out_of_strategy_training(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = RandomSearchStrategy(space=simple_space, seed=29)
+    adapter = StrategyAdapter(strategy=strategy, space=simple_space)
+    iteration = SearchIteration(
+        iteration=7,
+        candidate={
+            "candidate_id": "policy_candidate_7",
+            "x": 0.5,
+            "semantic": {"interventions": []},
+        },
+        objective_value=1.0,
+        objective_details=[
+            ObjectiveValue(
+                name="obj",
+                raw_value=1.0,
+                direction=OptimizationDirection.MINIMIZE,
+            )
+        ],
+        is_promising=True,
+        stage_a_passed=True,
+        stage_b_result={"policy_evaluation": {"primary": "malformed"}},
+        duration_seconds=0.1,
+        policy_evaluation_status="invalid",
+        policy_evaluation_error="policy_evaluation_parse_failed",
+    )
+
+    adapter.generate(history=[iteration], current_best=None, context={})
+
+    evaluation = adapter._evaluations[0]
+    assert evaluation.status is EvaluationStatus.STAGE_B_ERROR
+    assert not evaluation.is_valid
+    assert evaluation.metadata == {
+        "policy_evaluation_status": "invalid",
+        "policy_evaluation_error": "policy_evaluation_parse_failed",
+        "policy_candidate_id": "policy_candidate_7",
+    }

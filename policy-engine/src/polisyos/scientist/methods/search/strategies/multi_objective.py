@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 from dataclasses import dataclass
+from math import isfinite
 from typing import Any
 
 from polisyos.common.logger import get_logger
@@ -27,7 +28,11 @@ from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
 from polisyos.scientist.methods.search.strategies.errors import OptionalDependencyUnavailableError
 from polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter
 from polisyos.scientist.methods.search.strategies.runtime import apply_torch_runtime_settings
-from polisyos.scientist.methods.search.strategies.types import Evaluation, PolicyCandidate, StrategyState
+from polisyos.scientist.methods.search.strategies.types import (
+    Evaluation,
+    PolicyCandidate,
+    StrategyState,
+)
 
 logger = get_logger(__name__)
 
@@ -97,7 +102,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
     ) -> PolicyCandidate:
         del pending
         self._iteration = len(evaluations)
-        if len(evaluations) < self._config.n_initial:
+        if len(self._rankable_evaluations(evaluations)) < self._config.n_initial:
             return self._sobol_candidate(len(evaluations), source="sobol_init")
         if not self._botorch_ready:
             return self._random_candidate(source="random_no_botorch")
@@ -128,7 +133,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
     ) -> list[PolicyCandidate]:
         if batch_size < 1:
             return []
-        if len(evaluations) < self._config.n_initial:
+        if len(self._rankable_evaluations(evaluations)) < self._config.n_initial:
             return [
                 self._sobol_candidate(len(evaluations) + idx, source="sobol_init")
                 for idx in range(batch_size)
@@ -165,7 +170,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 ]
 
     def get_pareto_front(self, evaluations: list[Evaluation]) -> list[Evaluation]:
-        valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
+        valid = self._rankable_evaluations(evaluations)
         if len(valid) < 2:
             return valid
         points = [self._objective_vector(evaluation) for evaluation in valid]
@@ -194,7 +199,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
     def compute_hypervolume(self, evaluations: list[Evaluation]) -> float:
         if not self._botorch_ready:
             return 0.0
-        valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
+        valid = self._rankable_evaluations(evaluations)
         if not valid:
             return 0.0
         with self._arbiter.acquire("torch"):
@@ -253,7 +258,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 self._ref_point = self._ref_point.to(self._device)
 
     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
-        filtered = [e for e in evaluations if len(e.params_normalized) == self._space.dim]
+        filtered = self._rankable_evaluations(evaluations)
         if len(filtered) <= self._config.max_train_size:
             return filtered
         recent_n = self._config.max_train_size // 2
@@ -262,6 +267,27 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         step = max(1, len(older) // max(1, self._config.max_train_size - recent_n))
         sampled = older[::step][: self._config.max_train_size - recent_n]
         return sampled + recent
+
+    def _rankable_evaluations(self, evaluations: list[Evaluation]) -> list[Evaluation]:
+        """Keep only valid rows with finite coordinates for this strategy's rank vector."""
+        rankable: list[Evaluation] = []
+        for evaluation in evaluations:
+            if not evaluation.is_valid or len(evaluation.params_normalized) != self._space.dim:
+                continue
+            try:
+                if not all(isfinite(float(value)) for value in evaluation.params_normalized):
+                    continue
+            except (TypeError, ValueError):
+                continue
+            objective_values = {
+                objective.name: objective.raw_value for objective in evaluation.objectives
+            }
+            if any(name not in objective_values for name in self._objective_names):
+                continue
+            raw_values = [float(objective_values[name]) for name in self._objective_names]
+            if all(isfinite(value) for value in raw_values):
+                rankable.append(evaluation)
+        return rankable
 
     def _prepare_training_data(self, evaluations: list[Evaluation]):
         X = self._torch.tensor(
@@ -285,7 +311,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         }
         output: list[float] = []
         for idx, objective_name in enumerate(self._objective_names):
-            raw = float(objective_values.get(objective_name, 0.0))
+            raw = float(objective_values[objective_name])
             output.append(raw * self._negate_mask[idx])
         return output
 

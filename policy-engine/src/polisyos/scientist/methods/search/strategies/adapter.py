@@ -79,10 +79,25 @@ class StrategyAdapter:
 
         if not iteration.stage_a_passed:
             status = EvaluationStatus.STAGE_A_REJECT
-        elif iteration.stage_b_result is None:
+        elif (
+            iteration.stage_b_result is None
+            or iteration.policy_evaluation_status in {"invalid", "unassessed"}
+        ):
             status = EvaluationStatus.STAGE_B_ERROR
         else:
             status = EvaluationStatus.SUCCESS
+
+        candidate_id = iteration.candidate.get("candidate_id")
+        if candidate_id is None:
+            strategy_metadata = iteration.candidate.get("_strategy_metadata")
+            if isinstance(strategy_metadata, dict):
+                candidate_id = strategy_metadata.get("candidate_id")
+        metadata = {
+            "policy_evaluation_status": iteration.policy_evaluation_status,
+            "policy_evaluation_error": iteration.policy_evaluation_error,
+        }
+        if candidate_id is not None:
+            metadata["policy_candidate_id"] = str(candidate_id)
 
         return Evaluation(
             candidate_id=f"iter_{iteration.iteration}",
@@ -95,6 +110,7 @@ class StrategyAdapter:
             status=status,
             timestamp=iteration.timestamp,
             wall_time_seconds=iteration.duration_seconds,
+            metadata=metadata,
         )
 
     def _candidate_to_payload(self, candidate, context: dict[str, Any]) -> dict[str, Any]:

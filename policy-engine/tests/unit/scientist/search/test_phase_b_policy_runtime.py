@@ -119,6 +119,9 @@ from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime impor
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.policy_design.objectives import (
+    ObjectiveChannelValue,
+    ObjectiveDirection,
+    ObjectiveKind,
     ObjectiveStack,
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
@@ -847,6 +850,53 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
     assert no_axis_assessment.basis_scope.scope == "not_established"
     assert no_axis_assessment.coverage_status == "no_usable_inputs"
     assert no_axis_assessment.unresolved_axis_contract_candidate_hashes == [empty_axes_hash]
+
+
+def test_pareto_registry_mixed_full_vector_finite_and_invalid_rows_is_limited(tmp_path) -> None:
+    registry = ParetoRegistry(root=tmp_path / "pareto")
+    template = _evaluation_vector(_candidate())
+    finite_hash = "sha256:" + "a" * 64
+    invalid_hash = "sha256:" + "b" * 64
+    finite = template.model_copy(update={"candidate_id": "finite_candidate"})
+    hidden_nonfinite = ObjectiveChannelValue(
+        name="not_a_frontier_axis",
+        kind=ObjectiveKind.SECONDARY,
+        value=float("inf"),
+        direction=ObjectiveDirection.MAXIMIZE,
+    )
+    invalid = template.model_copy(
+        update={
+            "candidate_id": "invalid_candidate",
+            "secondary": {hidden_nonfinite.name: hidden_nonfinite},
+        }
+    )
+
+    registry.update(
+        "mixed-full-vector",
+        candidate_hash=finite_hash,
+        evaluation=finite,
+        objective_basis_by_view={
+            "global_feasible": _declared_global_pareto_basis(),
+        },
+    )
+    registry.update(
+        "mixed-full-vector",
+        candidate_hash=invalid_hash,
+        evaluation=invalid,
+    )
+
+    snapshot = registry.get_snapshot("mixed-full-vector")
+    assessment = snapshot.view_assessments["global_feasible"]
+    projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
+
+    assert assessment.status == "partial"
+    assert assessment.input_count == 2
+    assert assessment.assessed_count == 1
+    assert assessment.unassessed_candidate_hashes == [invalid_hash]
+    assert assessment.non_finite_coordinate_ids_by_candidate_hash[invalid_hash]
+    assert snapshot.frontiers["global_feasible"] == [finite_hash]
+    assert projection.candidate_frontier_hashes == (finite_hash,)
+    assert projection.ranked_frontier_hashes == ()
 
 
 def test_pareto_registry_observed_axis_union_is_not_complete(tmp_path) -> None:
@@ -2335,6 +2385,75 @@ def test_search_controller_policy_mode_updates_registry(tmp_path) -> None:
     assert result.pareto_projection.assessment.status == "basis_limited"
     assert result.pareto_projection.candidate_frontier_hashes
     assert result.pareto_projection.unassessed_candidate_hashes
+
+
+def test_search_controller_registry_intake_rejects_nonfinite_nonfrontier_channel(
+    tmp_path,
+) -> None:
+    candidate = _candidate()
+    registry = ParetoRegistry(root=tmp_path / "pareto_registry")
+
+    class NonFiniteSecondaryStack(ObjectiveStack):
+        def evaluate(self, bundle):
+            evaluation = super().evaluate(bundle)
+            hidden_channel = ObjectiveChannelValue(
+                name="registry_only_quality",
+                kind=ObjectiveKind.SECONDARY,
+                value=float("nan"),
+                direction=ObjectiveDirection.MAXIMIZE,
+            )
+            return evaluation.model_copy(
+                update={
+                    "secondary": {
+                        **evaluation.secondary,
+                        hidden_channel.name: hidden_channel,
+                    }
+                }
+            )
+
+    class StaticGenerator:
+        def generate(self, history, current_best, context):
+            return {"candidate_id": "candidate_b"}
+
+    controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([]),
+            policy_objective_stack=NonFiniteSecondaryStack(),
+            pareto_registry=registry,
+        ),
+        candidate_generator=StaticGenerator(),
+        stage_a_evaluator=lambda *_: (0.0, True),
+        stage_b_evaluator=lambda *_: {
+            "simulation_results": {},
+            "feedback": {"verdict": "APPROVE"},
+            "_policy_candidate_schema": candidate,
+            "policy_evaluation_bundle": PolicyEvaluationBundle(
+                candidate=candidate,
+                simulation_metrics={"policy_value": 11.0, "employment_rate": 0.9, "welfare": 12.0},
+                distributional_report=_distributional_report(),
+                causal_effect_report=_causal_effect_report(),
+                cross_graph_profile=_cross_graph_profile(),
+                uncertainty_envelope=_uncertainty(0.2),
+            ),
+        },
+    )
+
+    result = controller.run(initial_context={})
+    snapshot = registry.get_snapshot(result.search_id)
+    view = snapshot.view_assessments["global_feasible"]
+    candidate_hash = next(iter(snapshot.entries))
+
+    assert snapshot.entries[candidate_hash].evaluation.secondary["registry_only_quality"].value != (
+        snapshot.entries[candidate_hash].evaluation.secondary["registry_only_quality"].value
+    )
+    assert snapshot.frontiers["global_feasible"] == []
+    assert view.input_count == 1
+    assert view.assessed_count == 0
+    assert view.unassessed_candidate_hashes == [candidate_hash]
+    assert "secondary.registry_only_quality.value" in (
+        view.non_finite_coordinate_ids_by_candidate_hash[candidate_hash]
+    )
 
 
 def test_search_controller_accepts_policy_bundle_after_module_reload(tmp_path) -> None:

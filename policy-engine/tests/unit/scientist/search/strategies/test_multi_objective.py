@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies._deps import fit_gpytorch_mll
-from polisyos.scientist.methods.search.strategies.multi_objective import MOBayesianOptimizer, MOConfig
+from polisyos.scientist.methods.search.strategies.multi_objective import (
+    MOBayesianOptimizer,
+    MOConfig,
+)
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import Evaluation
 
@@ -80,3 +84,34 @@ def test_mo_batch_shape_when_deps_available(simple_space: SearchSpace) -> None:
     evals = [_make_eval(i, float(i), float(5 - i), simple_space) for i in range(8)]
     batch = strategy.suggest_batch(evals, batch_size=2)
     assert len(batch) == 2
+
+
+def test_mo_uses_only_finite_valid_rows_and_counts_valid_warmup(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = MOBayesianOptimizer(
+        simple_space,
+        objective_names=["f1", "f2"],
+        directions=[OptimizationDirection.MINIMIZE, OptimizationDirection.MINIMIZE],
+        config=MOConfig(n_initial=2, seed=31),
+    )
+    invalid = _make_eval(0, 1.0, float("nan"), simple_space)
+    finite = _make_eval(1, 2.0, 3.0, simple_space)
+    missing_axis = _make_eval(2, 3.0, 4.0, simple_space)
+    missing_axis.objectives = missing_axis.objectives[:1]
+    invalid_parameter = _make_eval(3, 4.0, 5.0, simple_space)
+    invalid_parameter.params_normalized = (float("nan"),)
+
+    assert strategy._select_training_subset([invalid, finite]) == [finite]
+    assert strategy._select_training_subset([invalid]) == []
+    assert strategy._select_training_subset([missing_axis]) == []
+    assert strategy._select_training_subset([invalid_parameter]) == []
+    assert strategy.get_pareto_front([invalid, finite]) == [finite]
+
+    candidate = strategy.suggest([invalid, finite])
+    batch = strategy.suggest_batch([invalid, finite], batch_size=2)
+
+    assert candidate.source_strategy == "sobol_init"
+    assert len(batch) == 2
+    assert all(item.source_strategy == "sobol_init" for item in batch)
+    assert strategy._iteration == 2

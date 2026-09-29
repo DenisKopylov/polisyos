@@ -6,6 +6,9 @@ from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
 from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.policy_design.objectives import (
+    ObjectiveChannelValue,
+    ObjectiveDirection,
+    ObjectiveKind,
     ObjectiveStack,
     PolicyEvaluationBundle,
     PolicyEvaluationRankStatus,
@@ -156,6 +159,38 @@ def test_blueprint_ranking_keeps_finite_winner_stable_under_permutation() -> Non
         )
 
         assert result.best_candidate == {"candidate_id": "higher_candidate"}
+
+
+def test_blueprint_keeps_malformed_present_distinct_from_missing_policy_evaluation() -> None:
+    def _evaluate(stage_b_result: dict[str, object]):
+        adapter = type(
+            "StaticAdapter",
+            (),
+            {"generate": lambda self, *_: {"candidate_id": "candidate", "x": 0.5}},
+        )()
+        return _run_blueprint_parameter_search(
+            loop_id="evaluation_status_probe",
+            adapter=adapter,
+            max_iterations=1,
+            stage_b_evaluator=lambda *_: stage_b_result,
+            stage_a_evaluator=lambda *_: (0.0, True),
+            context={},
+            initial_evaluations=[],
+        )
+
+    malformed = _evaluate(
+        {
+            "policy_evaluation": {"primary": "malformed"},
+            "feedback": {"verdict": "APPROVE"},
+        }
+    )
+    absent = _evaluate({"feedback": {"verdict": "APPROVE"}})
+
+    assert malformed.best_candidate is None
+    assert malformed.history[0].policy_evaluation_status == "invalid"
+    assert malformed.history[0].policy_evaluation_error == "policy_evaluation_parse_failed"
+    assert absent.history[0].policy_evaluation_status == "missing"
+    assert absent.history[0].policy_evaluation_error is None
 
 
 def test_generate_structure_candidates_includes_deterministic_variants() -> None:
@@ -344,6 +379,54 @@ def test_parameter_search_updates_shared_pareto_registry(tmp_path) -> None:
     assert result.iterations_completed >= 1
     assert snapshot.entries
     assert snapshot.frontiers["global_feasible"]
+
+
+def test_parameter_search_registry_intake_keeps_nonfinite_full_vector_unassessed(
+    tmp_path,
+) -> None:
+    candidate = _candidate()
+    registry = ParetoRegistry(tmp_path / "registry")
+    coordinator = HierarchicalSearchCoordinator(
+        pareto_registry=registry,
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            max_parameter_iterations=1,
+            require_explicit_parameter_bounds=False,
+            allow_legacy_shadow_inferred_bounds=True,
+        ),
+    )
+    structure = coordinator.generate_structure_candidates(candidate)[0]
+    template = _evaluation_vector(structure.candidate)
+    non_finite_channel = ObjectiveChannelValue(
+        name="registry_only_quality",
+        kind=ObjectiveKind.SECONDARY,
+        value=float("inf"),
+        direction=ObjectiveDirection.MAXIMIZE,
+    )
+    invalid_evaluation = template.model_copy(
+        update={"secondary": {**template.secondary, non_finite_channel.name: non_finite_channel}}
+    )
+
+    result = coordinator.run_parameter_search(
+        structure,
+        loop_id="loop_nonfinite_registry_intake",
+        stage_b_evaluator=lambda *_: {
+            "simulation_results": {"gdp_change": 0.1},
+            "policy_evaluation": invalid_evaluation.model_dump(mode="python"),
+        },
+    )
+    snapshot = registry.get_snapshot("loop_nonfinite_registry_intake")
+    view = snapshot.view_assessments["global_feasible"]
+
+    assert result.iterations_completed == 1
+    assert snapshot.entries
+    assert snapshot.frontiers["global_feasible"] == []
+    assert view.assessed_count == 0
+    assert set(view.unassessed_candidate_hashes) == set(snapshot.entries)
+    assert any(
+        "secondary.registry_only_quality.value" in coordinates
+        for coordinates in view.non_finite_coordinate_ids_by_candidate_hash.values()
+    )
 
 
 def test_parameter_search_uses_transfer_warm_start_without_mixing_seed_only_entries(

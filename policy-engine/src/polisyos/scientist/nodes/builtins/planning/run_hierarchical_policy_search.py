@@ -576,6 +576,8 @@ class _CandidateEvaluationRecord:
     feasible: bool
     metadata: dict[str, Any]
     rank_assessment: PolicyEvaluationRankAssessment | None = None
+    policy_evaluation_status: Literal["missing", "valid", "invalid", "unassessed"] = "missing"
+    policy_evaluation_error: str | None = None
 
 
 @dataclass(frozen=True)
@@ -585,6 +587,7 @@ class _ChampionSelection:
     candidate: PolicyCandidateSchema | None
     evaluated_record_count: int
     unassessed: tuple[PolicyEvaluationRankAssessment, ...] = ()
+    evaluation_issues: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -664,7 +667,11 @@ class RunHierarchicalPolicySearchNode:
                 selection_status="no_champion",
             )
             unassessed_candidate_ids = sorted(
-                assessment.candidate_id or "unknown" for assessment in selection.unassessed
+                {
+                    assessment.candidate_id or "unknown"
+                    for assessment in selection.unassessed
+                }
+                | {candidate_id for candidate_id, _ in selection.evaluation_issues}
             )
             invalid_coordinate_ids = sorted(
                 {
@@ -681,7 +688,7 @@ class RunHierarchicalPolicySearchNode:
                         level="warn",
                         code="policy_search_no_rankable_evaluations",
                         message=(
-                            "Evaluated policy candidates are unassessed for finite ranking; "
+                            "No assessed policy evaluation can supply a champion; "
                             "no champion or frontier artifact was emitted."
                         ),
                         attrs={
@@ -692,11 +699,21 @@ class RunHierarchicalPolicySearchNode:
                         },
                     ),
                     *rank_events,
+                    *_evaluation_issue_events(
+                        selection.evaluation_issues,
+                        selection_status="no_champion",
+                    ),
                 ],
             )
 
         champion = selection.candidate
-        rank_events = _rank_assessment_events(selection.unassessed)
+        rank_events = [
+            *_rank_assessment_events(selection.unassessed),
+            *_evaluation_issue_events(
+                selection.evaluation_issues,
+                selection_status="limited",
+            ),
+        ]
 
         champion_trinity_ref = _persist_trinity_bundle(
             ctx,
@@ -984,31 +1001,39 @@ def _select_champion_candidate(
     search_result: Any,
 ) -> _ChampionSelection:
     records = _iter_candidate_records(search_result)
-    evaluated_records = [record for record in records if record.evaluation is not None]
-    if evaluated_records:
-        assessed_records = []
-        for record in evaluated_records:
-            evaluation = record.evaluation
-            if evaluation is None:
-                continue
-            assessment = record.rank_assessment
-            if assessment is None:
-                assessment = _candidate_rank_assessment(
-                    evaluation,
-                    candidate=record.candidate,
-                    feasible=record.feasible,
+    attempted_records = [record for record in records if record.policy_evaluation_status != "missing"]
+    if attempted_records:
+        rankable_records = []
+        unassessed_assessments: list[PolicyEvaluationRankAssessment] = []
+        evaluation_issues: list[tuple[str, str]] = []
+        for record in attempted_records:
+            if record.evaluation is None or record.policy_evaluation_status == "invalid":
+                evaluation_issues.append(
+                    (
+                        record.candidate.candidate_id,
+                        record.policy_evaluation_error or "policy_evaluation_unavailable",
+                    )
                 )
-            assessed_records.append((record, assessment))
-        rankable_records = [
-            (record, assessment)
-            for record, assessment in assessed_records
-            if assessment.rank_key is not None
-        ]
-        unassessed = tuple(
-            assessment
-            for _, assessment in assessed_records
-            if assessment.status is PolicyEvaluationRankStatus.UNASSESSED
-        )
+                continue
+            assessment = record.rank_assessment or _candidate_rank_assessment(
+                record.evaluation,
+                candidate=record.candidate,
+                feasible=record.feasible,
+            )
+            if assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
+                unassessed_assessments.append(assessment)
+            elif (
+                record.policy_evaluation_status == "valid"
+                and assessment.rank_key is not None
+            ):
+                rankable_records.append((record, assessment))
+            else:
+                evaluation_issues.append(
+                    (
+                        record.candidate.candidate_id,
+                        record.policy_evaluation_error or "policy_evaluation_unassessed",
+                    )
+                )
         champion = (
             max(
                 rankable_records,
@@ -1019,8 +1044,9 @@ def _select_champion_candidate(
         )
         return _ChampionSelection(
             candidate=champion,
-            evaluated_record_count=len(evaluated_records),
-            unassessed=unassessed,
+            evaluated_record_count=len(attempted_records),
+            unassessed=tuple(unassessed_assessments),
+            evaluation_issues=tuple(evaluation_issues),
         )
 
     ranked_without_evaluation = sorted(
@@ -1048,7 +1074,36 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
     }
     for structure_id, result in search_result.state.parameter_search_results.items():
         for iteration in result.history:
-            evaluation = _coerce_policy_evaluation(getattr(iteration, "policy_evaluation", None))
+            raw_evaluation = getattr(iteration, "policy_evaluation", None)
+            evaluation = _coerce_policy_evaluation(raw_evaluation)
+            evaluation_status = getattr(iteration, "policy_evaluation_status", "missing")
+            evaluation_error = getattr(iteration, "policy_evaluation_error", None)
+            if evaluation_status not in {"missing", "valid", "invalid", "unassessed"}:
+                evaluation_status = "invalid"
+                evaluation_error = evaluation_error or "policy_evaluation_status_unknown"
+            if raw_evaluation is not None and evaluation is None:
+                evaluation_status = "invalid"
+                evaluation_error = evaluation_error or "policy_evaluation_parse_failed"
+            elif evaluation is not None and evaluation_status == "missing":
+                evaluation_status = "valid"
+            elif evaluation is None and evaluation_status == "valid":
+                evaluation_status = "invalid"
+                evaluation_error = evaluation_error or "policy_evaluation_unavailable"
+
+            stage_b_result = getattr(iteration, "stage_b_result", None)
+            if (
+                evaluation is None
+                and evaluation_status == "missing"
+                and isinstance(stage_b_result, Mapping)
+                and "policy_evaluation" in stage_b_result
+            ):
+                nested_evaluation = _coerce_policy_evaluation(stage_b_result)
+                if nested_evaluation is None:
+                    evaluation_status = "invalid"
+                    evaluation_error = "policy_evaluation_parse_failed"
+                else:
+                    evaluation = nested_evaluation
+                    evaluation_status = "valid"
             candidate_payload = iteration.candidate or result.best_candidate
             if not isinstance(candidate_payload, dict):
                 continue
@@ -1073,6 +1128,8 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
                     feasible=feasible,
                     metadata=dict(getattr(iteration, "stage_b_result", {}) or {}),
                     rank_assessment=rank_assessment,
+                    policy_evaluation_status=evaluation_status,
+                    policy_evaluation_error=evaluation_error,
                 )
             )
     if records:
@@ -1086,6 +1143,7 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
                 feasible=True,
                 metadata={},
                 rank_assessment=None,
+                policy_evaluation_status="missing",
             )
         )
     return records
@@ -1134,6 +1192,26 @@ def _rank_assessment_events(
             },
         )
         for assessment in assessments
+    ]
+
+
+def _evaluation_issue_events(
+    issues: tuple[tuple[str, str], ...],
+    *,
+    selection_status: Literal["limited", "no_champion"],
+) -> list[NodeEvent]:
+    return [
+        NodeEvent(
+            level="warn",
+            code="policy_evaluation_unassessed",
+            message="A malformed or unavailable policy evaluation was excluded from champion selection.",
+            attrs={
+                "selection_status": selection_status,
+                "candidate_id": candidate_id,
+                "reason": reason,
+            },
+        )
+        for candidate_id, reason in issues
     ]
 
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import copy
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -969,7 +969,9 @@ def _run_blueprint_parameter_search(
     unassessed_rank_assessments: list[PolicyEvaluationRankAssessment] = []
 
     for warm_start in initial_evaluations:
-        policy_evaluation = _coerce_policy_evaluation(warm_start.get("stage_b_result"))
+        policy_evaluation, evaluation_status, evaluation_error = _resolve_policy_evaluation(
+            warm_start.get("stage_b_result")
+        )
         objective_details = (
             policy_evaluation.as_legacy_objectives() if policy_evaluation is not None else []
         )
@@ -983,6 +985,8 @@ def _run_blueprint_parameter_search(
             stage_b_result=warm_start.get("stage_b_result"),
             duration_seconds=0.0,
             policy_evaluation=policy_evaluation,
+            policy_evaluation_status=evaluation_status,
+            policy_evaluation_error=evaluation_error,
         )
         history.append(record)
         if policy_evaluation is not None:
@@ -1023,13 +1027,17 @@ def _run_blueprint_parameter_search(
         _, stage_a_passed = stage_a_evaluator(candidate, context)
         stage_b_result: dict[str, Any] | None = None
         policy_evaluation: PolicyEvaluationVector | None = None
+        evaluation_status = "missing"
+        evaluation_error: str | None = None
         objective_value = float("inf")
         objective_details: list[Any] = []
         is_promising = False
         if stage_a_passed:
             stage_b_count += 1
             stage_b_result = stage_b_evaluator(candidate, context)
-            policy_evaluation = _coerce_policy_evaluation(stage_b_result)
+            policy_evaluation, evaluation_status, evaluation_error = _resolve_policy_evaluation(
+                stage_b_result
+            )
             if policy_evaluation is not None:
                 objective_details = policy_evaluation.as_legacy_objectives()
                 rank_assessment = _policy_rank_key(
@@ -1047,8 +1055,10 @@ def _run_blueprint_parameter_search(
                         best_rank_key = rank_assessment.rank_key
                         best_candidate = dict(candidate)
                         best_objective = objective_value
-            else:
+            elif evaluation_status == "missing":
                 objective_value = float((stage_b_result or {}).get("objective_value", float("inf")))
+            else:
+                objective_value = float("inf")
             is_promising = (
                 bool(stage_b_result)
                 and str((stage_b_result or {}).get("feedback", {}).get("verdict", "")).upper()
@@ -1070,15 +1080,13 @@ def _run_blueprint_parameter_search(
                     "unassessed"
                     if policy_evaluation is not None
                     and rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED
-                    else "valid"
-                    if policy_evaluation is not None
-                    else "missing"
+                    else evaluation_status
                 ),
                 policy_evaluation_error=(
                     _rank_assessment_reason(rank_assessment)
                     if policy_evaluation is not None
                     and rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED
-                    else None
+                    else evaluation_error
                 ),
             )
         )
@@ -1108,20 +1116,52 @@ def _run_blueprint_parameter_search(
 
 
 def _coerce_policy_evaluation(stage_b_result: Any) -> PolicyEvaluationVector | None:
-    if isinstance(stage_b_result, dict):
-        raw = stage_b_result.get("policy_evaluation", stage_b_result)
+    evaluation, _, _ = _resolve_policy_evaluation(stage_b_result)
+    return evaluation
+
+
+def _resolve_policy_evaluation(
+    stage_b_result: Any,
+) -> tuple[PolicyEvaluationVector | None, str, str | None]:
+    """Preserve absent, valid, and malformed-present policy evaluation states."""
+    if isinstance(stage_b_result, Mapping):
+        if "policy_evaluation" in stage_b_result:
+            raw = stage_b_result["policy_evaluation"]
+            present = True
+        else:
+            raw = stage_b_result
+            present = any(
+                key in stage_b_result
+                for key in (
+                    "primary",
+                    "hard_constraints",
+                    "secondary",
+                    "penalties",
+                    "feasible",
+                    "blocking_reasons",
+                )
+            )
     else:
         raw = stage_b_result
+        present = stage_b_result is not None
+    if not present:
+        return None, "missing", None
     try:
-        return _normalize_policy_evaluation_vector(raw, allow_mapping=isinstance(raw, dict))
+        evaluation = _normalize_policy_evaluation_vector(
+            raw,
+            allow_mapping=isinstance(raw, Mapping),
+        )
     except (TypeError, ValueError):
-        return None
+        return None, "invalid", "policy_evaluation_parse_failed"
+    return evaluation, "valid", None
 
 
 def _optimizer_objectives_for_iteration(
     iteration: SearchIteration,
     spec: OptimizerObjectiveSpec,
 ) -> list[ObjectiveValue]:
+    if iteration.policy_evaluation_status == "invalid":
+        return []
     if iteration.policy_evaluation is None:
         return list(iteration.objective_details)
     return _optimizer_objectives_from_policy_evaluation(iteration.policy_evaluation, spec)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from decimal import Decimal
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -30,8 +31,10 @@ from polisyos.scientist.methods.search.transfer_context import (
 )
 from polisyos.scientist.methods.search.voi_scheduler import ParetoSnapshot
 from polisyos.scientist.policy_design.objectives import (
+    PolicyEvaluationRankStatus,
     PolicyEvaluationVector,
     _normalize_policy_evaluation_vector,
+    assess_policy_evaluation_rank,
 )
 
 
@@ -678,6 +681,19 @@ class ParetoRegistry:
             entry.candidate_hash: entry.evaluation.frontier_objectives(view_name)
             for entry in ordered_entries
         }
+        non_finite_by_hash: dict[str, list[str]] = {}
+        unrankable_hashes: set[str] = set()
+        for entry in ordered_entries:
+            rank_assessment = assess_policy_evaluation_rank(
+                entry.evaluation,
+                rank_coordinates=_registry_rank_coordinates(entry.evaluation, view_name),
+                candidate_id=entry.candidate_id or entry.evaluation.candidate_id,
+            )
+            if rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
+                unrankable_hashes.add(entry.candidate_hash)
+                non_finite_by_hash[entry.candidate_hash] = sorted(
+                    {issue.coordinate_id for issue in rank_assessment.invalid_coordinates}
+                )
         axis_names = (
             list(declared_basis.coordinate_ids)
             if declared_basis is not None and declared_basis.scope == "declared"
@@ -714,9 +730,12 @@ class ParetoRegistry:
                     input_count=len(ordered_entries),
                     assessed_count=0,
                     unassessed_candidate_hashes=hashes,
+                    non_finite_coordinate_ids_by_candidate_hash=non_finite_by_hash,
                     unresolved_axis_contract_candidate_hashes=hashes,
                 ),
             )
+        for candidate_hash in unrankable_hashes:
+            objective_maps[candidate_hash] = {}
 
         evaluations_by_identity: dict[int, str] = {}
         evaluations = []
@@ -741,17 +760,19 @@ class ParetoRegistry:
         if front_assessment is None:
             raise ValueError("v2 Pareto promoter omitted its input assessment")
         missing_by_hash: dict[str, list[str]] = {}
-        non_finite_by_hash: dict[str, list[str]] = {}
         unassessed_hashes: list[str] = []
         for item in front_assessment.unassessed_evaluations:
             if item.input_index >= len(ordered_entries):
                 raise ValueError("Pareto assessment input index is outside the registry set")
             candidate_hash = ordered_entries[item.input_index].candidate_hash
             unassessed_hashes.append(candidate_hash)
-            if item.missing_coordinate_ids:
+            if item.missing_coordinate_ids and candidate_hash not in unrankable_hashes:
                 missing_by_hash[candidate_hash] = item.missing_coordinate_ids
             if item.non_finite_coordinate_ids:
-                non_finite_by_hash[candidate_hash] = item.non_finite_coordinate_ids
+                non_finite_by_hash[candidate_hash] = sorted(
+                    set(non_finite_by_hash.get(candidate_hash, []))
+                    | set(item.non_finite_coordinate_ids)
+                )
         coverage = ParetoViewAssessment(
             status=(
                 front_assessment.status
@@ -802,7 +823,13 @@ class ParetoRegistry:
                 ensure_ascii=False,
             ).encode("utf-8")
         else:
-            payload = snapshot.model_dump_json(indent=2, exclude_none=True).encode("utf-8")
+            payload = json.dumps(
+                snapshot.model_dump(mode="python", exclude_none=True),
+                indent=2,
+                ensure_ascii=False,
+                allow_nan=True,
+                default=_registry_json_default,
+            ).encode("utf-8")
         with NamedTemporaryFile(
             mode="wb",
             delete=False,
@@ -853,6 +880,47 @@ def _benchmark_eval(
         holdout_metrics=dict(objectives),
         promotable=entry.evaluation.feasible,
     )
+
+
+def _registry_json_default(value: Any) -> Any:
+    """Keep typed non-finite observations replayable in this local registry."""
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, BaseModel):
+        return value.model_dump(mode="python", exclude_none=True)
+    if isinstance(value, (set, frozenset)):
+        return sorted(value, key=repr)
+    raise TypeError(f"Unsupported Pareto registry value: {type(value).__name__}")
+
+
+def _registry_rank_coordinates(
+    evaluation: PolicyEvaluationVector,
+    view_name: str,
+) -> dict[str, float]:
+    """Return every coordinate consumed by registry and champion ordering."""
+    coordinates = {
+        f"frontier.{view_name}.{name}": float(value)
+        for name, value in evaluation.frontier_objectives(view_name).items()
+    }
+    policy_value = evaluation.primary.get("policy_value")
+    welfare = evaluation.primary.get("welfare")
+    employment = evaluation.primary.get("employment")
+    coordinates.update(
+        {
+            "rank.feasible": 1.0 if evaluation.feasible else 0.0,
+            "rank.policy_value": float(policy_value.value) if policy_value is not None else 0.0,
+            "rank.welfare_plus_employment": (
+                (float(welfare.value) if welfare is not None else 0.0)
+                + (float(employment.value) if employment is not None else 0.0)
+            ),
+            "rank.negative_blocking_count": -float(len(evaluation.blocking_reasons)),
+        }
+    )
+    return coordinates
 
 
 def _placeholder_ref(candidate_hash: str) -> ArtifactRef:

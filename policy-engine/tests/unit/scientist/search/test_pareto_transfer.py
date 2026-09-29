@@ -5,8 +5,10 @@ from decimal import Decimal
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveChannelValue,
@@ -15,8 +17,6 @@ from polisyos.scientist.policy_design.objectives import (
     PolicyEvaluationVector,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema, TargetPopulationSpec
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 
 def _candidate() -> PolicyCandidateSchema:
@@ -185,3 +185,51 @@ def test_same_domain_seed_sorting_precedes_cross_domain(tmp_path) -> None:
 
     assert len(bundle.entries) >= 2
     assert bundle.entries[0].domain == "labor"
+
+
+def test_unassessed_nonfinite_vector_is_retained_locally_but_not_transferred(tmp_path) -> None:
+    registry = ParetoRegistry(tmp_path / "registry")
+    candidate = _candidate()
+    evaluation = _evaluation_vector(candidate).model_copy(
+        update={
+            "secondary": {
+                "unstated_quality": ObjectiveChannelValue(
+                    name="unstated_quality",
+                    kind=ObjectiveKind.SECONDARY,
+                    value=float("nan"),
+                    direction=ObjectiveDirection.MAXIMIZE,
+                )
+            }
+        }
+    )
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="loop-nonfinite-source",
+        tenant_hash="tenant-a",
+    )
+    target = TransferContext(
+        task_family="policy",
+        domain="labor",
+        run_id="loop-nonfinite-target",
+        tenant_hash="tenant-a",
+    )
+    candidate_hash = candidate.candidate_hash()
+
+    registry.update(
+        source.run_id,
+        candidate_hash=candidate_hash,
+        evaluation=evaluation,
+        candidate_id=candidate.candidate_id,
+        policy_family="core_family",
+        seed_payload=candidate.model_dump(mode="json"),
+        transfer_context=source,
+    )
+
+    local = registry.get_snapshot(source.run_id)
+    assert candidate_hash in local.entries
+    assert local.entries[candidate_hash].evaluation.secondary["unstated_quality"].value != (
+        local.entries[candidate_hash].evaluation.secondary["unstated_quality"].value
+    )
+    assert local.frontiers["global_feasible"] == []
+    assert registry.get_seed_bundle(target, max_seeds=3).entries == []

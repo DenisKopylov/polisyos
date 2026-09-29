@@ -20596,7 +20596,7 @@
         "relation": "disagrees",
         "detail": "Appendix C held LA-049 on the same-version self-edge/compatibility concern. The principal-selected same-version Trinity contract is implemented, the dead self-edge is removed, and the current census finds no production caller of the retained helper. Close bounded to the in-repository owner/caller contract; broad historical/external compatibility is not a blanket requirement. This disagreement does not claim untested external compatibility."
       },
-      "residual": "No residual within the bounded in-repository owner/caller contract: the public same-version policy_ir boundary validates Trinity input, the unreachable self-edge registration is removed, and the complete current tracked source/tool census of 3,141 Python files (2,696 src plus 445 tools; 2,744 tracked tests are separate, and 6,408 is the product-wide tracked Python total) finds no production caller of the retained legacy helper. The 38-case current-head base/candidate comparison and marker-retaining removal probe are recorded. Broad historical/external compatibility is not a required blanket and is outside this bounded closure under the principal clarification.",
+      "residual": "No residual within the bounded in-repository owner/caller contract: the public same-version policy_ir boundary validates Trinity input, the unreachable self-edge registration is removed, and the complete tracked source/tool census captured at cd9e935e5 contains 3,141 Python files (2,696 src plus 445 tools); the all-scope tracked Python denominator is 6,410 at that capture (2,744 tests and 525 other). The bounded literal source/tool census finds no production caller of the retained legacy helper; dynamically constructed/reflected uses and external packages remain unresolved by construction. The 38-case current-head base/candidate comparison and marker-retaining removal probe are recorded. Broad historical/external compatibility is not a required blanket and is outside this bounded closure under the principal clarification.",
       "residual_owner": null,
       "r_class": null,
       "p_triage": null,
@@ -20703,7 +20703,8 @@
             "policy-engine/tests/unit/remediation/test_mig_01.py@sha256:0d1d3b929edf38704b0a4518799b60d3a5a00150a3454ff010eb7f12dcc7597f",
             "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#L3358",
             "/Users/deniskopylov/.codex/scratch/e02-h-la010-la049-la031-la032-recheck-20260928/current_owner_census.py@sha256:633fb25c1e70219f374cd31826898ad0387c1186628e95ca211f48629658b23d",
-            "/Users/deniskopylov/.codex/scratch/e02-h-la010-la049-la031-la032-recheck-20260928/current_owner_census.json@sha256:3ade80425ee1d7c6f522c56e4fe7b2ed5a3574d8d30cf8e3e5e89e1b32f8e162"
+            "/Users/deniskopylov/.codex/scratch/e02-h-la010-la049-la031-la032-recheck-20260928/current_owner_census.json@sha256:3ade80425ee1d7c6f522c56e4fe7b2ed5a3574d8d30cf8e3e5e89e1b32f8e162",
+            "/Users/deniskopylov/.codex/scratch/e02-held-la-mig-ledger-review-20260929/current_tree_census.json@sha256:d559a89af3e055a7a9a26fb7236ba9dd5c8bd618a91be228aaefa6c2c2f4f6a8"
           ],
           "remaining_out_of_scope": "Broad historical/external compatibility is not an appointed or required blanket; retained helper cleanup is optional."
         }

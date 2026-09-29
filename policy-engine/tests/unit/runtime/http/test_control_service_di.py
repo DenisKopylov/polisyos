@@ -10,7 +10,6 @@ import pytest
 import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
 from polisyos.common.async_tools import get_shared_executor
 from polisyos.core import canon
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.control import IngestRequest, NaturalLanguageRunRequest
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
@@ -1065,11 +1064,15 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
             )
         )
 
+        # These variants only exercise candidate-band isolation now: the served
+        # worker must ignore even fixture-authorized evidence. P20 mechanics are
+        # not established by these selector identities.
         normative_context = {}
         if normative_mode != "missing":
             normative_context["normative_evidence"] = _signed_generation_evidence(
                 service, compiled_fixture, fault=normative_mode
             )
+
         request = NaturalLanguageRunRequest(
             request=problem.nl_provenance.raw_request,
             llm_model="simulated-qwen",
@@ -1100,6 +1103,18 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
             _compile_worker_request,
         )
 
+        s8_calls: list[str] = []
+
+        def reject_candidate_s8_call(**_kwargs):
+            s8_calls.append("resolve_generation_value_choices")
+            raise AssertionError("candidate-only worker reached the S8 owner")
+
+        monkeypatch.setattr(
+            service,
+            "resolve_generation_value_choices",
+            reject_candidate_s8_call,
+        )
+
         service._process_control_job(record)
 
         completed = service._control_store.get_job(launch.job_id)
@@ -1125,6 +1140,7 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
         assert "promotion_refusal_reasons" not in completed.progress
         assert "compiled_recursive_generation_cycle_ref" not in completed.progress
         assert "normative_disposition_ref" not in completed.progress
+        assert s8_calls == []
 
         # Mutable progress is not authority. Leave the persisted launch binding
         # candidate-only while attempting to smuggle a protected intent and an
@@ -2340,6 +2356,82 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert progress["normative_disposition_status"] == "not_run"
         assert progress["s8_status"] == "not_run"
         assert progress["publication_status"] == "not_run"
+
+        # A completed owner-bound simulate-only launch remains candidate-band at
+        # the outward reader. Replaying it must not require the worker's expired
+        # lease or let mutable progress claim that S8/publication ran.
+        forged_progress = dict(progress)
+        forged_progress.update(
+            {
+                "execution_intent_band": "eval_safety_required",
+                "s8_status": "authorized",
+                "normative_disposition_status": "authorized",
+                "publication_status": "published",
+                "normative_disposition_ref": "sha256:" + "b" * 64,
+                "normative_disposition": {
+                    "authorization_status": "authorized",
+                    "ranked_recommendations": ["forged-candidate"],
+                },
+                "ranked_recommendations": ["forged-candidate"],
+                "promotion_refusal_reasons": ["forged-refusal"],
+            }
+        )
+        service._control_store.update_progress_state(
+            job_id=launch.job_id,
+            state="completed",
+            progress=forged_progress,
+        )
+        live_lease_reads: list[str] = []
+
+        def reject_completed_lease_lookup():
+            live_lease_reads.append(launch.job_id)
+            raise AssertionError("completed intent replay consulted a live worker lease")
+
+        monkeypatch.setattr(
+            service._control_store,
+            "current_execution_job_record",
+            reject_completed_lease_lookup,
+        )
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            status = service.get_job_status(launch.job_id)
+        assert live_lease_reads == []
+        assert status.progress["execution_intent_band"] == "simulate_only_attempt"
+        assert status.progress["s8_status"] == "not_run"
+        assert status.progress["normative_disposition_status"] == "not_run"
+        assert status.progress["publication_status"] == "not_run"
+        assert "normative_disposition" not in status.progress
+        assert "normative_disposition_ref" not in status.progress
+        assert "ranked_recommendations" not in status.progress
+        assert "promotion_refusal_reasons" not in status.progress
+
+        # If the persisted launch binding itself is malformed, the reader must
+        # leave the candidate-band sanitation path and recompute the actual P20
+        # projection; it may not preserve the forged green projection.
+        from polisyos.runtime.http.services.control import run_lifecycle as control_lifecycle
+
+        binding_key = control_lifecycle._EXECUTION_INTENT_BINDING_KEY
+        original_get_created_event = service._control_store.get_job_created_event_payload
+
+        def read_corrupted_created_event(job_id: str):
+            event = original_get_created_event(job_id)
+            if job_id != launch.job_id:
+                return event
+            corrupted = dict(event)
+            corrupted_binding = dict(corrupted[binding_key])
+            corrupted_binding["intent_digest"] = "sha256:" + "c" * 64
+            corrupted[binding_key] = corrupted_binding
+            return corrupted
+
+        monkeypatch.setattr(
+            service._control_store,
+            "get_job_created_event_payload",
+            read_corrupted_created_event,
+        )
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            malformed_status = service.get_job_status(launch.job_id)
+        projection = malformed_status.progress["normative_disposition"]
+        assert projection["authorization_status"] == "blocked"
+        assert projection["ranked_recommendations"] == []
 
     finally:
         service.close()

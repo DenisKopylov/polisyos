@@ -246,6 +246,8 @@ B109 exact selectors are absent at execution/main and pass only at E02/Phase 0; 
 
 ## No DEBT-register closures proposed
 
+**B153 bounded progress; no register-row proposal.** Existing owner behavior and the fixed-pool, waiter-before-release, two-writer successful-profile control (contention is not established), collision/readback and marker-removal receipts are recorded in `BASELINES.md`; the row remains partial. Proposed next selector (not authored/run): `tests/unit/remediation/test_cas_01.py::test_exception_releases_same_id_lock_for_scoped_view_waiter`, synchronizing on the distinct-view writer's actual acquire attempt for the same lock/stripe, then injecting the holder write exception and checking waiter completion plus exact manifest/byte readback; a thread-start event immediately before put_bytes is insufficient. No direct register/GY/Atlas edge is established, so no register closure is proposed.
+
 No debt row is proposed for closure from package acceptance, source-path overlap, a triage recommendation, or LA-021’s bounded finding-level closure alone. That finding-level closure does not itself close a DEBT-register row; the exact 418-input selector and 140 caller-file four-base replay remain `UNRUN`. None of the supported owner-scope edges in `CROSSWALK.md` substitutes for a row closure signal. B13 has no GY-PR1 or first-promotion crosswalk edge; its source card concerns partial-result preservation, and a broad candidate write-path overlap does not establish an exact owner/symbol relation. A future register proposal must name the exact row owner, closure-signal test identity, removal probe, and replay receipt that changes the row’s current predicate.
 
 ## Reissue and R14 evidence

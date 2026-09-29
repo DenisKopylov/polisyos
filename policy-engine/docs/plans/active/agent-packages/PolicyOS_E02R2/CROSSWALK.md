@@ -207,7 +207,7 @@ Supported relation rows: 19 grouped owner scopes representing 35 distinct findin
 | B150 | CAS-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | B151 | CAS-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | B152 | CAS-03 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
-| B153 | CAS-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
+| B153 | CAS-01 | — | B153 has bounded local evidence but remains partial pending exception-release progress for a same-ID writer using a distinct scoped view. The complete owner-scope pass establishes no direct live register, GY, or Atlas edge; that absence is `not_established`, not proof of no dependency. No R9 closure follows. |
 | B154 | CAS-03 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | B155 | CAS-03 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | B156 | FUN-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |

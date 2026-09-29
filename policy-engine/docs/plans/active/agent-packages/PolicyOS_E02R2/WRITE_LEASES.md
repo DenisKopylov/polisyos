@@ -1376,9 +1376,10 @@ The first same-process fresh-store variant was independently rejected as redunda
 This dated amendment supersedes only the initial B111 lease's v2 schema
 target. The implementation at `fdd65e889` changes the ordinary persisted
 `PolicyFrontierReport` and `RejectedAlternativesSummary` path directly from
-v1 to v3. V1 remains byte-exact historical replay; schema v2 was an
-unintegrated draft and is unsupported/rejected. Do not document a v2 writer,
-reader, serializer, or replay path.
+v1 to v3. V1 remains byte-exact historical replay; schema v2 for these two
+DTO kinds was an unintegrated draft and is unsupported/rejected. Do not
+document a v2 writer, reader, serializer, or replay path for these two kinds;
+`ParetoRegistrySnapshot` is a separate artifact with a v2.0 writer.
 
 The docs rebase uses candidate commits `5b2e45ffb` and `23edf1ab5` as
 material and may update only these B111-owned surfaces: this file,
@@ -1391,8 +1392,11 @@ material and may update only these B111-owned surfaces: this file,
 Root alone integrates. Do not edit source/tests, migration-class or promotion-gate
 contracts, generated families, DEBT-REGISTER, LEDGER, or GY/Atlas plans.
 
-The v3 DTO validator checks the source-feasible and eligibility-unknown
-identities supplied by its caller against the registry projection. The ordinary
+The v3 DTO validator compares caller-supplied source-feasible identities with
+the registry projection, checks duplicate/overlap with the caller-supplied
+unknown set, and requires the projection assessment status to be
+`denominator_limited` when the sets differ or the unknown set is nonempty;
+it does not authenticate unknown identities. The ordinary
 `PolicyArtifactBuilder._build_frontier_report` path does not receive an
 independent source population or unknown-eligibility input: it copies
 `projection.eligible_candidate_hashes` into `source_feasible_candidate_hashes`

@@ -414,6 +414,77 @@ def test_legacy_v1_composition_replays_without_currentness_or_authority(station,
             )
 
 
+def test_outer_v1_replay_rejects_noncanonical_bytes_and_manifest_schema(station, monkeypatch):
+    """The outer owner must replay its emitted wire bytes and exact v1 profile."""
+    service, _, source_ref = station
+    now = datetime.now(UTC)
+    owner = bridge.normative_owner_for_runtime_store(
+        service._artifact_store,
+        service._normative_authority_trust,
+        repo_root=service._repo_root,
+    )
+    emitted = service.resolve_generation_value_choices(
+        compiled_run_ref=source_ref, evidence=None, evaluated_at=now
+    )
+    assert emitted.disposition_ref is not None
+    outer_ref = emitted.disposition_ref
+    store = service._artifact_store
+    raw = store.get_bytes(artifacts.ArtifactID.model_validate(outer_ref))
+    canonical = bridge.replay_normative_run_disposition(
+        store=store,
+        owner=owner,
+        disposition_ref=outer_ref,
+        compiled_run_ref=source_ref,
+    )
+    assert canonical.disposition.disposition_ref == outer_ref
+
+    options = artifacts.PutOptions(
+        kind=bridge.NORMATIVE_RUN_DISPOSITION_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(
+            name=bridge.NORMATIVE_RUN_DISPOSITION_KIND,
+            version=bridge.NORMATIVE_RUN_DISPOSITION_SCHEMA,
+        ),
+    )
+    variant_ref = str(store.put_bytes(raw + b" \n", options).artifact_id)
+    assert canon.from_canonical_bytes(store.get_bytes(variant_ref)) == (
+        canon.from_canonical_bytes(raw)
+    )
+    with pytest.raises(bridge.P20NormativeChoiceError, match="outer_v1_bytes_mismatch"):
+        bridge.replay_normative_run_disposition(
+            store=store,
+            owner=owner,
+            disposition_ref=variant_ref,
+            compiled_run_ref=source_ref,
+        )
+
+    original_get_manifest = store.get_manifest
+    for name, version in (
+        ("runtime.wrong_composition", bridge.NORMATIVE_RUN_DISPOSITION_SCHEMA),
+        (bridge.NORMATIVE_RUN_DISPOSITION_KIND, "policyos.normative_generation_composition.v0"),
+    ):
+        wrong_schema = artifacts.SchemaInfo(name=name, version=version)
+
+        def manifest_with_wrong_schema(artifact_id, schema=wrong_schema):
+            manifest = original_get_manifest(artifact_id)
+            if str(artifact_id) == outer_ref:
+                return manifest.model_copy(update={"artifact_schema": schema})
+            return manifest
+
+        with monkeypatch.context() as changed_manifest:
+            changed_manifest.setattr(store, "get_manifest", manifest_with_wrong_schema)
+            with pytest.raises(
+                bridge.P20NormativeChoiceError,
+                match="outer_v1_schema_mismatch",
+            ):
+                bridge.replay_normative_run_disposition(
+                    store=store,
+                    owner=owner,
+                    disposition_ref=outer_ref,
+                    compiled_run_ref=source_ref,
+                )
+
+
 @pytest.mark.parametrize("sidecar_ref", [None, "sha256:" + "f" * 64])
 def test_missing_or_unresolved_sidecar_preserves_current_source_fronts(station, sidecar_ref):
     service, compiled, source_ref = station

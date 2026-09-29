@@ -5,7 +5,13 @@ import pytest
 from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
 from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 from polisyos.scientist.methods.search.transfer_context import TransferContext
-from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle
+from polisyos.scientist.policy_design.objectives import (
+    ObjectiveStack,
+    PolicyEvaluationBundle,
+    PolicyEvaluationRankStatus,
+    PolicyEvaluationVector,
+    assess_policy_evaluation_rank,
+)
 from polisyos.scientist.policy_design.output import (
     ChampionPolicyDossier,
     ConstraintSatisfactionEntry,
@@ -17,10 +23,139 @@ from polisyos.scientist.policy_design.schema import FallbackVariant
 from polisyos.scientist.policy_design.search import (
     HierarchicalSearchConfig,
     HierarchicalSearchCoordinator,
+    _run_blueprint_parameter_search,
 )
 from polisyos.scientist.policy_design.translator import TranslatorInputBundle
 
 from .test_phase_b_output import _candidate, _evaluation_vector
+
+
+def test_policy_rank_assessment_marks_non_finite_channels_and_derived_coordinates() -> None:
+    evaluation = _evaluation_vector(_candidate())
+    policy_value = evaluation.primary["policy_value"].model_copy(update={"value": float("inf")})
+    invalid = evaluation.model_copy(update={"primary": {"policy_value": policy_value}})
+
+    assessment = assess_policy_evaluation_rank(
+        invalid,
+        candidate_id="candidate_non_finite",
+        rank_coordinates={
+            "rank.policy_value": float("inf"),
+            "rank.welfare_plus_employment": 1e308 + 1e308,
+        },
+    )
+
+    assert assessment.status is PolicyEvaluationRankStatus.UNASSESSED
+    assert assessment.candidate_id == "candidate_non_finite"
+    assert assessment.rank_key is None
+    issues = {item.coordinate_id: item.reason for item in assessment.invalid_coordinates}
+    assert issues["primary.policy_value.value"] == "non_finite"
+    assert issues["rank.policy_value"] == "non_finite"
+    assert issues["rank.welfare_plus_employment"] == "non_finite"
+
+
+def test_blueprint_ranking_excludes_non_finite_rows_independent_of_input_order() -> None:
+    candidate = _candidate()
+    baseline = _evaluation_vector(candidate)
+    finite = baseline.model_copy(update={"candidate_id": "finite_candidate"})
+    policy_value = baseline.primary["policy_value"]
+    positive_infinity = baseline.model_copy(
+        update={
+            "candidate_id": "infinite_candidate",
+            "primary": {"policy_value": policy_value.model_copy(update={"value": float("inf")})},
+        }
+    )
+    nan = baseline.model_copy(
+        update={
+            "candidate_id": "nan_candidate",
+            "primary": {"policy_value": policy_value.model_copy(update={"value": float("nan")})},
+        }
+    )
+
+    def _warm_start(
+        candidate_id: str,
+        evaluation: PolicyEvaluationVector,
+    ) -> dict[str, object]:
+        return {
+            "candidate": {"candidate_id": candidate_id},
+            "stage_b_result": {
+                "policy_evaluation": evaluation.model_dump(mode="python"),
+            },
+        }
+
+    for invalid_id, invalid in (
+        ("infinite_candidate", positive_infinity),
+        ("nan_candidate", nan),
+    ):
+        for initial_evaluations in (
+            [_warm_start(invalid_id, invalid), _warm_start("finite_candidate", finite)],
+            [_warm_start("finite_candidate", finite), _warm_start(invalid_id, invalid)],
+        ):
+            result = _run_blueprint_parameter_search(
+                loop_id="finite_rank_probe",
+                adapter=object(),
+                max_iterations=0,
+                stage_b_evaluator=lambda *_: {},
+                stage_a_evaluator=lambda *_: (0.0, True),
+                context={},
+                initial_evaluations=initial_evaluations,
+            )
+
+            assert result.best_candidate == {"candidate_id": "finite_candidate"}
+            unassessed = result.telemetry["unassessed_policy_evaluation_ranks"]
+            assert [item["candidate_id"] for item in unassessed] == [invalid_id]
+            assert unassessed[0]["invalid_coordinates"]
+
+
+def test_blueprint_ranking_keeps_finite_winner_stable_under_permutation() -> None:
+    candidate = _candidate()
+    baseline = _evaluation_vector(candidate)
+    lower = baseline.model_copy(
+        update={
+            "candidate_id": "lower_candidate",
+            "primary": {
+                "policy_value": baseline.primary["policy_value"].model_copy(update={"value": 1.0})
+            },
+        }
+    )
+    higher = baseline.model_copy(
+        update={
+            "candidate_id": "higher_candidate",
+            "primary": {
+                "policy_value": baseline.primary["policy_value"].model_copy(update={"value": 2.0})
+            },
+        }
+    )
+
+    def _warm_start(
+        candidate_id: str,
+        evaluation: PolicyEvaluationVector,
+    ) -> dict[str, object]:
+        return {
+            "candidate": {"candidate_id": candidate_id},
+            "stage_b_result": {"policy_evaluation": evaluation.model_dump(mode="python")},
+        }
+
+    for initial_evaluations in (
+        [
+            _warm_start("lower_candidate", lower),
+            _warm_start("higher_candidate", higher),
+        ],
+        [
+            _warm_start("higher_candidate", higher),
+            _warm_start("lower_candidate", lower),
+        ],
+    ):
+        result = _run_blueprint_parameter_search(
+            loop_id="finite_rank_control",
+            adapter=object(),
+            max_iterations=0,
+            stage_b_evaluator=lambda *_: {},
+            stage_a_evaluator=lambda *_: (0.0, True),
+            context={},
+            initial_evaluations=initial_evaluations,
+        )
+
+        assert result.best_candidate == {"candidate_id": "higher_candidate"}
 
 
 def test_generate_structure_candidates_includes_deterministic_variants() -> None:

@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from enum import Enum
-from typing import Any
+from math import isfinite
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.foundry.methods.catalog.optimization.protocols import (
     AmbiguityCertificate,
@@ -223,6 +224,123 @@ class PolicyEvaluationVector(BaseModel):
         if self.primary:
             return next(iter(self.primary.values()))
         return None
+
+
+class PolicyEvaluationRankStatus(str, Enum):
+    """Candidate-band disposition of an evaluation supplied to a ranking path."""
+
+    RANKABLE = "rankable"
+    UNASSESSED = "unassessed"
+
+
+class PolicyEvaluationRankIssue(BaseModel):
+    """One numeric coordinate that prevents an evaluation from being ranked."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    coordinate_id: str = Field(min_length=1)
+    reason: Literal["non_finite"]
+
+
+class PolicyEvaluationRankAssessment(BaseModel):
+    """Finite assessment result for one policy evaluation and one rank key."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    candidate_id: str | None = None
+    status: PolicyEvaluationRankStatus
+    rank_key: tuple[float, ...] | None = None
+    invalid_coordinates: tuple[PolicyEvaluationRankIssue, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_status(self) -> PolicyEvaluationRankAssessment:
+        if self.status is PolicyEvaluationRankStatus.RANKABLE:
+            if (
+                self.rank_key is None
+                or not self.rank_key
+                or self.invalid_coordinates
+                or any(not isfinite(value) for value in self.rank_key)
+            ):
+                raise ValueError("rankable assessment requires a finite key without issues")
+        elif self.rank_key is not None or not self.invalid_coordinates:
+            raise ValueError("unassessed result requires invalid coordinates and no rank key")
+        return self
+
+
+def assess_policy_evaluation_rank(
+    evaluation: PolicyEvaluationVector,
+    *,
+    rank_coordinates: Mapping[str, float],
+    candidate_id: str | None = None,
+) -> PolicyEvaluationRankAssessment:
+    """Recompute whether every objective and rank coordinate is finite.
+
+    The assessment is candidate-band evidence. It does not establish objective
+    basis, eligibility, or promotion authority.
+
+    Args:
+        evaluation: Typed objective channels for one candidate.
+        rank_coordinates: Ordered components of the consumer's actual rank key.
+        candidate_id: Candidate identity from the consumer when the evaluation
+            does not carry one.
+
+    Returns:
+        A rankable result carrying the finite key, or an unassessed result with
+        each non-finite coordinate and its reason.
+    """
+    invalid_coordinates: list[PolicyEvaluationRankIssue] = []
+
+    def _assess_coordinate(coordinate_id: str, value: float) -> None:
+        if not isfinite(value):
+            invalid_coordinates.append(
+                PolicyEvaluationRankIssue(
+                    coordinate_id=coordinate_id,
+                    reason="non_finite",
+                )
+            )
+
+    for group_name, channels in (
+        ("primary", evaluation.primary),
+        ("hard_constraints", evaluation.hard_constraints),
+        ("secondary", evaluation.secondary),
+        ("penalties", evaluation.penalties),
+    ):
+        for channel_id, channel in channels.items():
+            coordinate_prefix = f"{group_name}.{channel_id}"
+            for field_name, value in (
+                ("value", channel.value),
+                ("weight", channel.weight),
+                ("normalized_value", channel.normalized_value),
+                ("higher_is_better", channel.higher_is_better),
+            ):
+                _assess_coordinate(f"{coordinate_prefix}.{field_name}", value)
+            if channel.threshold is not None:
+                _assess_coordinate(f"{coordinate_prefix}.threshold", channel.threshold)
+                margin = channel.margin
+                if margin is not None:
+                    _assess_coordinate(f"{coordinate_prefix}.margin", margin)
+
+    ordered_rank_coordinates = tuple(
+        (coordinate_id, float(value)) for coordinate_id, value in rank_coordinates.items()
+    )
+    for coordinate_id, value in ordered_rank_coordinates:
+        _assess_coordinate(coordinate_id, value)
+
+    status = (
+        PolicyEvaluationRankStatus.UNASSESSED
+        if invalid_coordinates
+        else PolicyEvaluationRankStatus.RANKABLE
+    )
+    return PolicyEvaluationRankAssessment(
+        candidate_id=(candidate_id if candidate_id is not None else evaluation.candidate_id),
+        status=status,
+        rank_key=(
+            tuple(value for _, value in ordered_rank_coordinates)
+            if status is PolicyEvaluationRankStatus.RANKABLE
+            else None
+        ),
+        invalid_coordinates=tuple(invalid_coordinates),
+    )
 
 
 def _normalize_policy_evaluation_vector(

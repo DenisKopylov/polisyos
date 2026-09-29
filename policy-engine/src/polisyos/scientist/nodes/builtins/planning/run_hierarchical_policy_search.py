@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import ValidationError
 
@@ -94,8 +94,11 @@ from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
+    PolicyEvaluationRankAssessment,
+    PolicyEvaluationRankStatus,
     PolicyEvaluationVector,
     _normalize_policy_evaluation_vector,
+    assess_policy_evaluation_rank,
 )
 from polisyos.scientist.policy_design.output import (
     PolicyFrontierEntry,
@@ -571,8 +574,17 @@ class _CandidateEvaluationRecord:
     candidate: PolicyCandidateSchema
     evaluation: PolicyEvaluationVector | None
     feasible: bool
-    objective_value: float
     metadata: dict[str, Any]
+    rank_assessment: PolicyEvaluationRankAssessment | None = None
+
+
+@dataclass(frozen=True)
+class _ChampionSelection:
+    """Typed candidate-band result of selecting a champion from evaluated rows."""
+
+    candidate: PolicyCandidateSchema | None
+    evaluated_record_count: int
+    unassessed: tuple[PolicyEvaluationRankAssessment, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -645,9 +657,46 @@ class RunHierarchicalPolicySearchNode:
             )
             return NodeOutcome(status="fail", state=state, error=error)
 
-        champion = _select_champion_candidate(candidate, search_result)
-        if champion is None:
-            champion = candidate
+        selection = _select_champion_candidate(candidate, search_result)
+        if selection.candidate is None:
+            rank_events = _rank_assessment_events(
+                selection.unassessed,
+                selection_status="no_champion",
+            )
+            unassessed_candidate_ids = sorted(
+                assessment.candidate_id or "unknown" for assessment in selection.unassessed
+            )
+            invalid_coordinate_ids = sorted(
+                {
+                    issue.coordinate_id
+                    for assessment in selection.unassessed
+                    for issue in assessment.invalid_coordinates
+                }
+            )
+            return NodeOutcome(
+                status="skip",
+                state=state,
+                events=[
+                    NodeEvent(
+                        level="warn",
+                        code="policy_search_no_rankable_evaluations",
+                        message=(
+                            "Evaluated policy candidates are unassessed for finite ranking; "
+                            "no champion or frontier artifact was emitted."
+                        ),
+                        attrs={
+                            "selection_status": "no_champion",
+                            "unassessed_candidate_count": selection.evaluated_record_count,
+                            "candidate_ids": ",".join(unassessed_candidate_ids),
+                            "invalid_coordinates": ",".join(invalid_coordinate_ids),
+                        },
+                    ),
+                    *rank_events,
+                ],
+            )
+
+        champion = selection.candidate
+        rank_events = _rank_assessment_events(selection.unassessed)
 
         champion_trinity_ref = _persist_trinity_bundle(
             ctx,
@@ -683,7 +732,7 @@ class RunHierarchicalPolicySearchNode:
         artifacts = [champion_trinity_ref]
         if frontier_ref is not None:
             artifacts.append(frontier_ref)
-        return NodeOutcome(status="ok", state=new_state, artifacts=artifacts)
+        return NodeOutcome(status="ok", state=new_state, artifacts=artifacts, events=rank_events)
 
 
 def _runtime_search_config_from_state(state: ExperimentState) -> object:
@@ -933,20 +982,63 @@ def _rejected_stage_b_result(
 def _select_champion_candidate(
     fallback_candidate: PolicyCandidateSchema,
     search_result: Any,
-) -> PolicyCandidateSchema | None:
-    ranked = sorted(
-        _iter_candidate_records(search_result),
-        key=_candidate_rank_key,
+) -> _ChampionSelection:
+    records = _iter_candidate_records(search_result)
+    evaluated_records = [record for record in records if record.evaluation is not None]
+    if evaluated_records:
+        assessed_records = []
+        for record in evaluated_records:
+            evaluation = record.evaluation
+            if evaluation is None:
+                continue
+            assessment = record.rank_assessment
+            if assessment is None:
+                assessment = _candidate_rank_assessment(
+                    evaluation,
+                    candidate=record.candidate,
+                    feasible=record.feasible,
+                )
+            assessed_records.append((record, assessment))
+        rankable_records = [
+            (record, assessment)
+            for record, assessment in assessed_records
+            if assessment.rank_key is not None
+        ]
+        unassessed = tuple(
+            assessment
+            for _, assessment in assessed_records
+            if assessment.status is PolicyEvaluationRankStatus.UNASSESSED
+        )
+        champion = (
+            max(
+                rankable_records,
+                key=lambda item: item[1].rank_key or (),
+            )[0].candidate
+            if rankable_records
+            else None
+        )
+        return _ChampionSelection(
+            candidate=champion,
+            evaluated_record_count=len(evaluated_records),
+            unassessed=unassessed,
+        )
+
+    ranked_without_evaluation = sorted(
+        records,
+        key=lambda record: 1 if record.feasible else 0,
         reverse=True,
     )
-    if ranked:
-        return ranked[0].candidate
+    if ranked_without_evaluation:
+        return _ChampionSelection(
+            candidate=ranked_without_evaluation[0].candidate,
+            evaluated_record_count=0,
+        )
     structure_candidates = [
         item.candidate for item in search_result.state.structure_candidates if item.accepted
     ]
     if structure_candidates:
-        return structure_candidates[0]
-    return fallback_candidate
+        return _ChampionSelection(candidate=structure_candidates[0], evaluated_record_count=0)
+    return _ChampionSelection(candidate=fallback_candidate, evaluated_record_count=0)
 
 
 def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationRecord]:
@@ -965,18 +1057,22 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
             )
             if evaluation is None:
                 feasible = bool(getattr(iteration, "is_promising", False))
-                objective_value = float(getattr(iteration, "objective_value", 0.0))
+                rank_assessment = None
             else:
                 feasible = bool(evaluation.feasible)
-                objective_value = float(evaluation.legacy_scalar_proxy)
+                rank_assessment = _candidate_rank_assessment(
+                    evaluation,
+                    candidate=candidate,
+                    feasible=feasible,
+                )
             records.append(
                 _CandidateEvaluationRecord(
                     structure_id=structure_id,
                     candidate=candidate,
                     evaluation=evaluation,
                     feasible=feasible,
-                    objective_value=objective_value,
                     metadata=dict(getattr(iteration, "stage_b_result", {}) or {}),
+                    rank_assessment=rank_assessment,
                 )
             )
     if records:
@@ -988,25 +1084,57 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
                 candidate=candidate,
                 evaluation=None,
                 feasible=True,
-                objective_value=0.0,
                 metadata={},
+                rank_assessment=None,
             )
         )
     return records
 
 
-def _candidate_rank_key(record: _CandidateEvaluationRecord) -> tuple[float, float, float, int]:
-    evaluation = record.evaluation
-    policy_value = _objective_value(evaluation, "policy_value")
+def _candidate_rank_assessment(
+    evaluation: PolicyEvaluationVector,
+    *,
+    candidate: PolicyCandidateSchema,
+    feasible: bool,
+) -> PolicyEvaluationRankAssessment:
     welfare = _objective_value(evaluation, "welfare")
     employment = _objective_value(evaluation, "employment")
-    blocking_count = 0 if evaluation is None else len(evaluation.blocking_reasons)
-    return (
-        1.0 if record.feasible else 0.0,
-        policy_value,
-        welfare + employment,
-        -blocking_count,
+    return assess_policy_evaluation_rank(
+        evaluation,
+        candidate_id=candidate.candidate_id,
+        rank_coordinates={
+            "rank.feasible": 1.0 if feasible else 0.0,
+            "rank.policy_value": _objective_value(evaluation, "policy_value"),
+            "rank.welfare_plus_employment": welfare + employment,
+            "rank.negative_blocking_count": -float(len(evaluation.blocking_reasons)),
+        },
     )
+
+
+def _rank_assessment_events(
+    assessments: tuple[PolicyEvaluationRankAssessment, ...],
+    *,
+    selection_status: Literal["limited", "no_champion"] = "limited",
+) -> list[NodeEvent]:
+    return [
+        NodeEvent(
+            level="warn",
+            code="policy_evaluation_rank_unassessed",
+            message=(
+                "Candidate evaluation was excluded from champion ranking because its "
+                "objective or rank coordinates are non-finite."
+            ),
+            attrs={
+                "selection_status": selection_status,
+                "candidate_id": assessment.candidate_id or "unknown",
+                "invalid_coordinates": ",".join(
+                    issue.coordinate_id for issue in assessment.invalid_coordinates
+                ),
+                "reasons": ",".join(issue.reason for issue in assessment.invalid_coordinates),
+            },
+        )
+        for assessment in assessments
+    ]
 
 
 def _objective_value(
@@ -1104,6 +1232,8 @@ def _persist_frontier_report(
     entries_by_hash: dict[str, PolicyFrontierEntry] = {}
     evaluation_feasibility_by_hash: dict[str, set[bool]] = {}
     missing_evaluation_hashes: set[str] = set()
+    unassessed_rank_hashes: set[str] = set()
+    rank_assessments_by_hash: dict[str, list[dict[str, Any]]] = {}
     for record in records:
         candidate_hash = record.candidate.candidate_hash()
         view_membership: list[str] = []
@@ -1113,7 +1243,11 @@ def _persist_frontier_report(
             "structure_id": record.structure_id,
             **dict(record.metadata),
         }
-        if record.evaluation is not None:
+        if (
+            record.evaluation is not None
+            and record.rank_assessment is not None
+            and record.rank_assessment.status is PolicyEvaluationRankStatus.RANKABLE
+        ):
             evaluation_feasibility_by_hash.setdefault(candidate_hash, set()).add(
                 record.evaluation.feasible
             )
@@ -1123,6 +1257,12 @@ def _persist_frontier_report(
             constraint_statuses = {
                 name: status.value for name, status in record.evaluation.constraint_statuses.items()
             }
+        elif record.evaluation is not None:
+            unassessed_rank_hashes.add(candidate_hash)
+            if record.rank_assessment is not None:
+                rank_assessments_by_hash.setdefault(candidate_hash, []).append(
+                    record.rank_assessment.model_dump(mode="json")
+                )
         else:
             missing_evaluation_hashes.add(candidate_hash)
         entries_by_hash[candidate_hash] = PolicyFrontierEntry(
@@ -1136,11 +1276,17 @@ def _persist_frontier_report(
             constraint_statuses=constraint_statuses,
             metadata=metadata,
         )
+    for candidate_hash, assessments in rank_assessments_by_hash.items():
+        entry = entries_by_hash.get(candidate_hash)
+        if entry is not None:
+            entry.metadata["policy_evaluation_rank_assessments"] = assessments
     source_feasible_hashes = tuple(
         sorted(
             candidate_hash
             for candidate_hash, feasible_states in evaluation_feasibility_by_hash.items()
-            if feasible_states == {True} and candidate_hash not in missing_evaluation_hashes
+            if feasible_states == {True}
+            and candidate_hash not in missing_evaluation_hashes
+            and candidate_hash not in unassessed_rank_hashes
         )
     )
     eligibility_unknown_hashes = tuple(
@@ -1148,6 +1294,7 @@ def _persist_frontier_report(
             candidate_hash
             for candidate_hash in entries_by_hash
             if candidate_hash in missing_evaluation_hashes
+            or candidate_hash in unassessed_rank_hashes
             or len(evaluation_feasibility_by_hash[candidate_hash]) != 1
         )
     )

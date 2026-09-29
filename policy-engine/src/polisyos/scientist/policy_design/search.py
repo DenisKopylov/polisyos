@@ -38,8 +38,11 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveDirection,
     ObjectiveStack,
     PolicyEvaluationBundle,
+    PolicyEvaluationRankAssessment,
+    PolicyEvaluationRankStatus,
     PolicyEvaluationVector,
     _normalize_policy_evaluation_vector,
+    assess_policy_evaluation_rank,
 )
 from polisyos.scientist.policy_design.schema import (
     MonitoringSignalSpec,
@@ -963,6 +966,7 @@ def _run_blueprint_parameter_search(
     stage_a_count = 0
     stage_b_count = 0
     telemetry: dict[str, Any] = {"runtime": "blueprint_parameter_search"}
+    unassessed_rank_assessments: list[PolicyEvaluationRankAssessment] = []
 
     for warm_start in initial_evaluations:
         policy_evaluation = _coerce_policy_evaluation(warm_start.get("stage_b_result"))
@@ -982,11 +986,25 @@ def _run_blueprint_parameter_search(
         )
         history.append(record)
         if policy_evaluation is not None:
-            rank_key = _policy_rank_key(policy_evaluation)
-            if best_rank_key is None or rank_key > best_rank_key:
+            rank_assessment = _policy_rank_key(
+                policy_evaluation,
+                candidate_id=record.candidate.get("candidate_id"),
+            )
+            if rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
+                record.objective_value = float("inf")
+                record.policy_evaluation_status = "unassessed"
+                record.policy_evaluation_error = _rank_assessment_reason(rank_assessment)
+                unassessed_rank_assessments.append(rank_assessment)
+            elif rank_assessment.rank_key is not None and (
+                best_rank_key is None or rank_assessment.rank_key > best_rank_key
+            ):
+                rank_key = rank_assessment.rank_key
                 best_rank_key = rank_key
                 best_candidate = dict(record.candidate)
                 best_objective = _diagnostic_policy_score(policy_evaluation)
+                record.policy_evaluation_status = "valid"
+            else:
+                record.policy_evaluation_status = "valid"
 
     stopping_reason: str | None = None
     iteration = 0
@@ -1013,13 +1031,22 @@ def _run_blueprint_parameter_search(
             stage_b_result = stage_b_evaluator(candidate, context)
             policy_evaluation = _coerce_policy_evaluation(stage_b_result)
             if policy_evaluation is not None:
-                objective_value = _diagnostic_policy_score(policy_evaluation)
                 objective_details = policy_evaluation.as_legacy_objectives()
-                rank_key = _policy_rank_key(policy_evaluation)
-                if best_rank_key is None or rank_key > best_rank_key:
-                    best_rank_key = rank_key
-                    best_candidate = dict(candidate)
-                    best_objective = objective_value
+                rank_assessment = _policy_rank_key(
+                    policy_evaluation,
+                    candidate_id=candidate.get("candidate_id"),
+                )
+                if rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
+                    objective_value = float("inf")
+                    unassessed_rank_assessments.append(rank_assessment)
+                else:
+                    objective_value = _diagnostic_policy_score(policy_evaluation)
+                    if rank_assessment.rank_key is not None and (
+                        best_rank_key is None or rank_assessment.rank_key > best_rank_key
+                    ):
+                        best_rank_key = rank_assessment.rank_key
+                        best_candidate = dict(candidate)
+                        best_objective = objective_value
             else:
                 objective_value = float((stage_b_result or {}).get("objective_value", float("inf")))
             is_promising = (
@@ -1039,12 +1066,31 @@ def _run_blueprint_parameter_search(
                 stage_b_result=stage_b_result,
                 duration_seconds=(datetime.now(UTC) - iter_start).total_seconds(),
                 policy_evaluation=policy_evaluation,
+                policy_evaluation_status=(
+                    "unassessed"
+                    if policy_evaluation is not None
+                    and rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED
+                    else "valid"
+                    if policy_evaluation is not None
+                    else "missing"
+                ),
+                policy_evaluation_error=(
+                    _rank_assessment_reason(rank_assessment)
+                    if policy_evaluation is not None
+                    and rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED
+                    else None
+                ),
             )
         )
         iteration += 1
 
     if stopping_reason is None:
         stopping_reason = f"Maximum iterations ({max_iterations}) reached"
+
+    if unassessed_rank_assessments:
+        telemetry["unassessed_policy_evaluation_ranks"] = [
+            assessment.model_dump(mode="json") for assessment in unassessed_rank_assessments
+        ]
 
     return SearchResult(
         search_id=loop_id,
@@ -1134,14 +1180,28 @@ def _to_search_direction(channel: Any) -> OptimizationDirection:
     return OptimizationDirection.MAXIMIZE
 
 
-def _policy_rank_key(evaluation: PolicyEvaluationVector) -> tuple[Any, ...]:
+def _policy_rank_key(
+    evaluation: PolicyEvaluationVector,
+    *,
+    candidate_id: str | None = None,
+) -> PolicyEvaluationRankAssessment:
     objectives = evaluation.frontier_objectives("global_feasible")
-    return (
-        1 if evaluation.feasible else 0,
-        float(objectives.get("policy_value", 0.0)),
-        float(objectives.get("employment", 0.0)),
-        float(objectives.get("welfare", 0.0)),
-        -float(len(evaluation.blocking_reasons)),
+    return assess_policy_evaluation_rank(
+        evaluation,
+        candidate_id=candidate_id,
+        rank_coordinates={
+            "rank.feasible": 1.0 if evaluation.feasible else 0.0,
+            "rank.policy_value": float(objectives.get("policy_value", 0.0)),
+            "rank.employment": float(objectives.get("employment", 0.0)),
+            "rank.welfare": float(objectives.get("welfare", 0.0)),
+            "rank.negative_blocking_count": -float(len(evaluation.blocking_reasons)),
+        },
+    )
+
+
+def _rank_assessment_reason(assessment: PolicyEvaluationRankAssessment) -> str:
+    return ";".join(
+        f"{issue.coordinate_id}:{issue.reason}" for issue in assessment.invalid_coordinates
     )
 
 

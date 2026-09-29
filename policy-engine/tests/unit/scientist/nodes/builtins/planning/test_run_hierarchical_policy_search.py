@@ -36,12 +36,20 @@ from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search i
     ARTIFACT_POLICY_FRONTIER_REPORT_REF,
     HierarchicalPolicySearchAdapter,
     RunHierarchicalPolicySearchNode,
+    _ChampionSelection,
     _evaluate_candidate_payload,
     _persist_frontier_report,
+    _select_champion_candidate,
 )
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
+)
+from polisyos.scientist.policy_design.objectives import (
+    ObjectiveChannelValue,
+    ObjectiveDirection,
+    ObjectiveKind,
+    PolicyEvaluationVector,
 )
 from polisyos.scientist.policy_design.output import (
     PolicyFrontierReport,
@@ -114,6 +122,287 @@ def _bundle() -> TrinityBundle:
             ],
         ),
     )
+
+
+def _rank_evaluation(
+    candidate_id: str,
+    *,
+    policy_value: float,
+    welfare: float,
+    employment: float,
+) -> PolicyEvaluationVector:
+    return PolicyEvaluationVector(
+        candidate_id=candidate_id,
+        primary={
+            name: ObjectiveChannelValue(
+                name=name,
+                kind=ObjectiveKind.PRIMARY,
+                value=value,
+                direction=ObjectiveDirection.MAXIMIZE,
+            )
+            for name, value in (
+                ("policy_value", policy_value),
+                ("welfare", welfare),
+                ("employment", employment),
+            )
+        },
+    )
+
+
+def _hierarchical_result_with_evaluations(
+    accepted_candidate: PolicyCandidateSchema,
+    evaluations: list[tuple[PolicyCandidateSchema, PolicyEvaluationVector]],
+) -> SimpleNamespace:
+    history = [
+        SimpleNamespace(
+            iteration=index,
+            candidate=candidate.model_dump(mode="json"),
+            policy_evaluation=evaluation,
+            stage_b_result={"source": "finite_rank_test"},
+            is_promising=True,
+            objective_value=0.0,
+        )
+        for index, (candidate, evaluation) in enumerate(evaluations)
+    ]
+    return SimpleNamespace(
+        state=SimpleNamespace(
+            structure_candidates=[
+                SimpleNamespace(
+                    structure_id="accepted_structure",
+                    candidate=accepted_candidate,
+                    accepted=True,
+                )
+            ],
+            parameter_search_results={
+                "accepted_structure": SimpleNamespace(history=history),
+            },
+        ),
+        model_dump=lambda mode="json": {"status": "candidate_only"},
+    )
+
+
+def test_run_hierarchical_policy_search_selects_finite_row_and_reports_unassessed_rows(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+) -> None:
+    fallback = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="accepted_fallback"
+    )
+    invalid_candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="candidate_infinite"
+    )
+    nan_candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="candidate_nan"
+    )
+    winner = PolicyCandidateSchema.from_trinity_bundle(_bundle(), candidate_id="finite_winner")
+    invalid = _rank_evaluation(
+        invalid_candidate.candidate_id,
+        policy_value=float("inf"),
+        welfare=2.0,
+        employment=3.0,
+    )
+    nan = _rank_evaluation(
+        nan_candidate.candidate_id,
+        policy_value=float("nan"),
+        welfare=2.0,
+        employment=3.0,
+    )
+    finite = _rank_evaluation(
+        winner.candidate_id,
+        policy_value=1.0,
+        welfare=2.0,
+        employment=3.0,
+    )
+
+    for evaluations in (
+        [(invalid_candidate, invalid), (nan_candidate, nan), (winner, finite)],
+        [(winner, finite), (nan_candidate, nan), (invalid_candidate, invalid)],
+    ):
+        search_result = _hierarchical_result_with_evaluations(fallback, evaluations)
+        persist_trinity = MagicMock(return_value=artifact_ref_factory(kind="ir.trinity_bundle"))
+
+        with (
+            patch(
+                "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._resolve_search_candidate",
+                return_value=fallback,
+            ),
+            patch(
+                "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search.HierarchicalPolicySearchAdapter.run_search",
+                return_value=search_result,
+            ),
+            patch(
+                "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_trinity_bundle",
+                persist_trinity,
+            ),
+            patch(
+                "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_frontier_report",
+                return_value=None,
+            ),
+        ):
+            outcome = RunHierarchicalPolicySearchNode().execute(
+                execution_context,
+                minimal_state.model_copy(deep=True),
+            )
+
+        assert outcome.status == "ok"
+        assert outcome.state.params["policy_candidate_schema"].candidate_id == "finite_winner"
+        assert persist_trinity.call_args.args[1] == winner.trinity_bundle
+        rank_warnings = [
+            event for event in outcome.events if event.code == "policy_evaluation_rank_unassessed"
+        ]
+        assert {event.attrs["candidate_id"] for event in rank_warnings} == {
+            "candidate_infinite",
+            "candidate_nan",
+        }
+        assert all(event.attrs["selection_status"] == "limited" for event in rank_warnings)
+        assert all(
+            "primary.policy_value.value" in event.attrs["invalid_coordinates"]
+            for event in rank_warnings
+        )
+
+
+def test_all_non_finite_evaluations_return_no_champion_without_artifacts(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+) -> None:
+    fallback = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="accepted_fallback"
+    )
+    infinite_candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="candidate_infinite"
+    )
+    nan_candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="candidate_nan"
+    )
+    overflow_candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="candidate_overflow"
+    )
+    evaluations = [
+        (
+            infinite_candidate,
+            _rank_evaluation(
+                infinite_candidate.candidate_id,
+                policy_value=float("inf"),
+                welfare=1.0,
+                employment=1.0,
+            ),
+        ),
+        (
+            nan_candidate,
+            _rank_evaluation(
+                nan_candidate.candidate_id,
+                policy_value=float("nan"),
+                welfare=1.0,
+                employment=1.0,
+            ),
+        ),
+        (
+            overflow_candidate,
+            _rank_evaluation(
+                overflow_candidate.candidate_id,
+                policy_value=1.0,
+                welfare=1e308,
+                employment=1e308,
+            ),
+        ),
+    ]
+    search_result = _hierarchical_result_with_evaluations(fallback, evaluations)
+    persist_trinity = MagicMock(return_value=artifact_ref_factory(kind="ir.trinity_bundle"))
+    persist_frontier = MagicMock(
+        return_value=artifact_ref_factory(kind="ir.policy_frontier_report")
+    )
+    state = minimal_state.model_copy(deep=True)
+    state_before = state.model_copy(deep=True)
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._resolve_search_candidate",
+            return_value=fallback,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search.HierarchicalPolicySearchAdapter.run_search",
+            return_value=search_result,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_trinity_bundle",
+            persist_trinity,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_frontier_report",
+            persist_frontier,
+        ),
+    ):
+        outcome = RunHierarchicalPolicySearchNode().execute(execution_context, state)
+
+    assert outcome.status == "skip"
+    assert outcome.state == state_before
+    persist_trinity.assert_not_called()
+    persist_frontier.assert_not_called()
+    no_champion_events = [
+        event for event in outcome.events if event.code == "policy_search_no_rankable_evaluations"
+    ]
+    assert len(no_champion_events) == 1
+    assert no_champion_events[0].attrs["selection_status"] == "no_champion"
+    assert no_champion_events[0].attrs["unassessed_candidate_count"] == 3
+    assert "candidate_infinite" in no_champion_events[0].attrs["candidate_ids"]
+    assert "candidate_nan" in no_champion_events[0].attrs["candidate_ids"]
+    assert "candidate_overflow" in no_champion_events[0].attrs["candidate_ids"]
+    assert "rank.welfare_plus_employment" in no_champion_events[0].attrs["invalid_coordinates"]
+    per_candidate_events = [
+        event for event in outcome.events if event.code == "policy_evaluation_rank_unassessed"
+    ]
+    assert {event.attrs["candidate_id"] for event in per_candidate_events} == {
+        "candidate_infinite",
+        "candidate_nan",
+        "candidate_overflow",
+    }
+    assert all(event.attrs["reasons"] == "non_finite" for event in per_candidate_events)
+    assert all(event.attrs["selection_status"] == "no_champion" for event in per_candidate_events)
+
+
+def test_zero_evaluated_rows_keep_accepted_structure_fallback() -> None:
+    fallback = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="accepted_structure_fallback"
+    )
+    search_result = _hierarchical_result_with_evaluations(fallback, [])
+
+    selection = _select_champion_candidate(fallback, search_result)
+
+    assert selection.evaluated_record_count == 0
+    assert selection.candidate is not None
+    assert selection.candidate.candidate_id == "accepted_structure_fallback"
+    assert selection.unassessed == ()
+
+
+def test_finite_champion_is_stable_under_candidate_permutation() -> None:
+    accepted = PolicyCandidateSchema.from_trinity_bundle(_bundle(), candidate_id="accepted")
+    lower = PolicyCandidateSchema.from_trinity_bundle(_bundle(), candidate_id="lower")
+    higher = PolicyCandidateSchema.from_trinity_bundle(_bundle(), candidate_id="higher")
+    lower_evaluation = _rank_evaluation(
+        lower.candidate_id,
+        policy_value=1.0,
+        welfare=2.0,
+        employment=3.0,
+    )
+    higher_evaluation = _rank_evaluation(
+        higher.candidate_id,
+        policy_value=2.0,
+        welfare=2.0,
+        employment=3.0,
+    )
+
+    for evaluations in (
+        [(lower, lower_evaluation), (higher, higher_evaluation)],
+        [(higher, higher_evaluation), (lower, lower_evaluation)],
+    ):
+        result = _hierarchical_result_with_evaluations(accepted, evaluations)
+
+        selection = _select_champion_candidate(accepted, result)
+
+        assert selection.candidate is not None
+        assert selection.candidate.candidate_id == "higher"
 
 
 def test_hierarchical_search_handoff_preserves_shared_enum_and_none_compatibility() -> None:
@@ -278,7 +567,7 @@ def test_run_hierarchical_policy_search_uses_branch_state_for_final_outputs(
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._select_champion_candidate",
-            return_value=candidate,
+            return_value=_ChampionSelection(candidate=candidate, evaluated_record_count=0),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_trinity_bundle",
@@ -335,7 +624,7 @@ def test_no_registry_hierarchy_persists_candidates_without_global_frontier_claim
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._select_champion_candidate",
-            return_value=candidate,
+            return_value=_ChampionSelection(candidate=candidate, evaluated_record_count=0),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_trinity_bundle",

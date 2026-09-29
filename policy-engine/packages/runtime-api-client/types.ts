@@ -7460,7 +7460,8 @@ export interface components {
             nl_provenance: components["schemas"]["NLProvenance"];
             /** Objectives */
             objectives?: components["schemas"]["DesignObjective"][];
-            outcome_of_interest: components["schemas"]["OutcomeOfInterest"];
+            /** Outcome Of Interest */
+            outcome_of_interest: components["schemas"]["OutcomeOfInterest"] | components["schemas"]["_QualifiedOutcomeOfInterestV3"];
             /** Policy Request Frame Ref */
             policy_request_frame_ref?: string | null;
             /** Problem Statement */
@@ -7476,7 +7477,7 @@ export interface components {
             schema_version: string;
             /** Stakeholders */
             stakeholders?: components["schemas"]["DesignStakeholder"][];
-        } & unknown;
+        } & (unknown & unknown);
         /**
          * DesignRecordV0
          * @description Minimal narrow-waist design record carried from S2 onward.
@@ -16941,6 +16942,24 @@ export interface components {
             research_intent_ref?: string | null;
             /** Trinity Bundle Ref */
             trinity_bundle_ref?: string | null;
+        };
+        /**
+         * _QualifiedOutcomeOfInterestV3
+         * @description Nested v3 outcome contract for exact qualified canonical identifiers.
+         */
+        _QualifiedOutcomeOfInterestV3: {
+            /**
+             * Direction
+             * @default maximize
+             * @enum {string}
+             */
+            direction: "maximize" | "minimize" | "maintain_range";
+            /** Estimand */
+            estimand: string;
+            /** Metric Id */
+            metric_id: string;
+            /** Target Variable */
+            target_variable: string;
         };
         /**
          * ArtifactID

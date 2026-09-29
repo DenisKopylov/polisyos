@@ -4582,3 +4582,78 @@ Read-only architecture memo: `/Users/deniskopylov/.codex/scratch/e02-r13-ledger-
 **Remainder, falsifier, and revisit trigger.** The owner must enumerate issued v1 outer records and their deployed readers, decide the rule-version transition, and preserve byte-exact v1 replay. Simulate a current aggregation-rule change while keeping an issued v1 record and its markers intact: the historical v1 result must remain identical, a freshly issued v2 result may follow the new rule, and an unsupported version must receive a typed non-authoritative result. A v1 result that silently changes meaning, or a fresh result incorrectly forced through v1, falsifies the proposal. Revisit if a rule needs external evidence that a frozen evaluator cannot reproduce or if issued inventories reveal a version not admitted by the transition.
 
 **Where it binds; pattern pass.** This decision binds historical S8 composition replay and current projection from the same persisted outer artifact. It does not supply N6 deployment identity, signed currentness, source-time semantics, positive S8 authority, or N9 promotion. P07 is the replay rule; P08 separates historical admission time from fresh currentness; P27/P31 keep one normative owner; P37 classifies historical rule identity as `not_established` today; P38's divergent case is unchanged canonical v1 bytes interpreted by changed current aggregation code. The smallest correct pattern is one owner-dispatched rule version plus one frozen historical serializer, with a semantic rule-change test rather than a marker test (P29). Evidence: `policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@git-blob:b42fe85abb091657d7470f35851625ab45e5271a` and `/Users/deniskopylov/.codex/scratch/e02r2-r2-outer-v1-review-20260930/review.md@sha256:cc226ff88bfed0dc58bf8ddf01c4552d3615ecf9aab35a5161585762213fb8a5`.
+
+## R13 N5 simulation-graph owner and served selector — principal draft (2026-09-30)
+
+**Question and status.** Which owner produces the world-model simulation graph
+and exact execution plan selected for same-case N5 after acquisition, and how
+does that selection reach the served worker under verified
+tenant/cell/job/worker/attempt scope? This is an owner-appointment/design
+decision for Denis and the WMR, Foundry and runtime-quality owners, not an
+adopted ruling. The E02-R2 lane proposes option 1 on 2026-09-30; neither the
+principal nor an owner has adopted it. The inspected code path establishes no
+producer or served bridge; organizational appointment status is not
+established. This draft changes no B/LA status, plan, register, issued epoch,
+or authority claim.
+
+**Options with costs.** (1) Appoint a world-model simulation-graph producer
+and have it issue a typed, persisted graph-plus-ExecPlan selection bound to
+the WMR/model or source cycle, registry and full plan order. Extend the WMR
+under a versioned transition, or use an equivalent owner-issued envelope,
+then let the served N5 caller re-resolve it on its injected guarded store and
+verified tenant/cell/job/worker/attempt scope. This supports a real positive
+state-to-engine witness. The world-model/Foundry owners bear the producer,
+schema and plan contract work; runtime-quality bears the selector and guarded
+store bridge; historical readers bear versioned replay tests and maintenance.
+(2) Keep direct controlled ProgramGraph execution as candidate-only
+characterization under a separately reviewed lease using test-owned,
+owner-built WMR/Foundry artifacts. This allows N5 numerical research without
+claiming served world growth; its graph/plan premise remains
+`not_established` for authority and the capability remains
+`implemented_but_not_orchestrated`. The test lane bears fixture and negative
+probe cost, while future integration bears the delayed served bridge; B12/R13
+stay partial. (3) Reuse the present policy `CompileResult` as the N5 plan solely
+because it carries the same ref kinds. This appears cheap to the integration
+lane but transfers an unverified model-phase and lineage risk to N5 consumers
+and the justification custodian. It is rejected by current evidence: it
+compiles a Trinity **policy** into an ExperimentState, with no owner proof
+that its graph is the world-model graph or a served same-case bridge.
+Ref-kind equality is a P38 proxy.
+
+**Premises and proposed posture.** The production DataState WMR builder
+supplies no `program_graph_refs`; no production caller supplies N5
+ProgramGraph plan hints. WMR v1 omits graph artifacts from manifest inputs,
+records bare graph IDs and no ExecPlan/order; `EnginePlan.model_dump` drops
+runtime refs. Foundry's policy compile refs have no path into the served N5
+worker. Option 1 is the lane's preliminary recommendation, while option 2 is
+the admissible interim candidate posture. No principal or owner choice has
+been adopted. Do not implement option 3. The selected WDI
+`percent_gdp` observation still lacks a compatible DataState slot/time and
+SKG lineage; appointment of a graph owner does not answer those questions.
+
+**Remainder, standing, falsifier, and revisit trigger.** Which owner or
+institution signs the WDI row-to-slot/unit/time rule, SKG lineage, the
+world-model graph/plan selection, and live serving scope is `not_established`
+here. N9, S8, publication and selected-view CAS replay retain separately
+recorded unresolved predicates; this draft does not appoint their signers.
+The graph owner, once identified, confirmed or appointed, must define which
+world-model graph is admissible for one WMR and how the full ExecPlan and
+registry are content-bound, then supply a served positive that actually
+changes N5's numerical input when the admitted bound state changes under
+verified tenant/cell/job/worker/attempt scope and an owner-approved
+row-to-slot/unit/time and SKG lineage rule. Keeping
+IDs and markers while removing the selected-state handoff must turn that
+positive red. A policy graph with the same ref type but different model phase,
+or a same-graph plan with changed order, must not gain authority. Revisit if
+an existing world-model graph producer and verified served selector is found
+by a complete owner census, or if the appointed producer cannot bind plan
+semantics through a versioned WMR/envelope.
+
+**Where it binds.** This draft binds only the R13/B12 ProgramGraph
+world-state-to-N5 handoff and its served graph/plan selection. It does not
+close canonical Data Forge row-to-DataSnapshot, WDI unit/time, SKG lineage,
+N9, S8, publication or multi-view CAS replay. P27/P31 require the WMR and
+Foundry owners; P37 leaves graph phase, plan provenance and live scope
+`not_established`; P38 distinguishes matching ref kinds from matching model
+meaning; P40 keeps the state-to-N5 gap in the existing R13 class. Evidence:
+`/Users/deniskopylov/.codex/scratch/e02-r13-n5-implementation-preflight-20260930/PREFLIGHT.md@sha256:0dc0ba211248c42c645c2c7e3c71012ad5dc4e99125c80d30929a696d7869bfd`.

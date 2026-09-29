@@ -1,9 +1,12 @@
 # R13 / B12 — bind selected world state to the N5 engine input
 
-Status: scoped engineering task and owner-decision inventory, **not** an accepted
-world-growth capability or a new finding. This is the existing R13
+Status: scoped design and owner-decision inventory; **no production code lease
+is active** for this N5 ProgramGraph bridge. This is not an accepted
+world-growth capability or a new finding. It is the existing R13
 selected-row-to-N5 class one level deeper (P40). Source-path review:
 `/Users/deniskopylov/.codex/scratch/e02-r13-n5-owner-seam-review-20260930/REVIEW.md@sha256:dc8cd758e8a5e867518b02145d549b9185c0d75f999db8c2cd13ab8b1b5fd390`.
+Production-reachability preflight:
+`/Users/deniskopylov/.codex/scratch/e02-r13-n5-implementation-preflight-20260930/PREFLIGHT.md@sha256:0dc0ba211248c42c645c2c7e3c71012ad5dc4e99125c80d30929a696d7869bfd`.
 
 ## Property and current divergence
 
@@ -11,10 +14,11 @@ An acquired observation can affect N5 only if Data Forge's exact admitted row
 changes the `DataSnapshot.data_ref` payload, Foundry binds that payload into a
 state snapshot, and the selected N5 engine actually reads the corresponding
 state/slot under the same tenant and cycle context. Matching artifact IDs alone
-are insufficient. The production caller is the served WDI acquisition port
+are insufficient. The intended production caller is the served WDI acquisition port
 through `AcquisitionWorldGrowthBridge.resume` and
 `GenerationCycleController.reenter_after_active_acquisition_overlay` to
-`JointSimulationPort._build_joint_simulation_request` and the N5 horizon.
+`JointSimulationPort._build_joint_simulation_request` and the N5 horizon. This
+caller currently supplies neither a ProgramGraph selection nor a bound plan.
 
 Today re-entry offers the projection to N8 and retains the previous N5 context.
 The candidate DataSnapshot retains the baseline `data_ref`. The N5 request
@@ -23,7 +27,26 @@ resolved refs, and takes numeric state from `runtime_hints`; the horizon uses
 the resolved WMR only for identity/diagnostics. Varying a hint while preserving
 the WMR can change N5's numerical input. This is the P38 divergent case.
 
-## Owner-first work that can proceed now
+## Missing production producer and selector before a served ProgramGraph lease
+
+The production DataState WMR builder leaves `program_graph_refs` empty. No
+production writer of N5's `joint_simulation_resource` or ProgramGraph plan
+hints was found. `FoundryCompileNode` emits a graph and ExecPlan for a Trinity
+**policy** into its ExperimentState; those artifacts have no served N5 edge
+and no contract identifying them as the world-model simulation graph.
+`EnginePlan.model_dump` drops runtime graph/plan/store fields, so a hinted
+EnginePlan object cannot supply that missing bridge. WMR v1 records bare
+graph IDs, omits graph artifacts from its manifest inputs, and binds no exact
+ExecPlan or order. A direct controlled N5 test can demonstrate a numerical
+handoff, but its served capability remains `implemented_but_not_orchestrated`.
+The next served production lease requires identifying, confirming or appointing
+the owner-issued world-model simulation-graph producer and a same-case,
+tenant/cell/job/worker/attempt-bound graph-plus-plan selection bridge. No such
+producer or bridge was established in the inspected code path; organizational
+appointment status is not established. Do not use the policy `CompileResult`
+merely because its ref types fit.
+
+## Prospective owner-first implementation after that appointment
 
 1. Use the existing N5 `program_graph` runner as the first controlled engine.
    It already calls Foundry's `execute_program_graph` for each horizon step.
@@ -81,9 +104,13 @@ the WMR can change N5's numerical input. This is the P38 divergent case.
    context under a live tenant/job/worker/attempt lease. No root-rebuilt CAS or
    caller-stamped SKG prior is admissible.
 
-The controlled-profile N5 state-consumption slice may be implemented and
-reviewed independently of the current WDI source mapping. It must be labeled
-as that bounded engineering result, not as proof that WDI changed the world.
+The controlled-profile N5 state-consumption slice can proceed under a
+separately reviewed candidate-only write lease, independently of the WDI
+source mapping and the served producer decision. It must use test-owned,
+owner-built WMR and Foundry artifacts, declare graph/plan provenance
+`not_established`, and retain the ordinary no-acquisition candidate control.
+It characterizes the numerical handoff but does not deliver a
+production-reachable capability or prove that WDI changed the world.
 
 ## Decisions and data that remain separate
 
@@ -138,8 +165,11 @@ as that bounded engineering result, not as proof that WDI changed the world.
   belong to the later served-acquisition lease. They must refuse or emit a
   typed limitation there, never masquerade as the USD slot.
 
-The exact source/test write lease must be independently reviewed before code
-changes. The first lease should cover N5 request construction in
+The exact **served production** source/test write lease is deferred until the
+world-model graph producer and selector bridge are identified, confirmed or
+appointed and independently reviewed. A direct controlled candidate lease
+may be reviewed separately now. The prospective served write set would cover
+N5 request construction in
 `runtime/quality/generation_cycle.py`, the Foundry snapshot/plan/registry
 readers and `execute_program_graph` write path needed to accept the injected
 `ArtifactStore` without unwrapping or rebuilding it, and N5's existing

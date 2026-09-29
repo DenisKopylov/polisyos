@@ -1,5 +1,13 @@
 # E02-R2 final report draft
 
+## Read-only H/LA and N18 reconciliation (2026-09-30)
+
+The latest held-card and no-record audits were compared with the complete JSON ledger at report cut `9bb2e349c06987d00381558b688bc25a94a2f0c8`: 282 unique rows (225 B + 57 LA). No audited row changed status or blocker. Of the 14 H cards, 12 remain held: `owner_decision` (B31, B201, B202, LA-005, LA-026, LA-027), `data_record` (B61, B219, LA-031), and `smallest_missing_capability` (B194, B197, LA-032); LA-010/049 are closed bounded. The B source census was pinned at `8cd84ed073dfb89506fe1e55712531ac5fd50bc5`, the LA source census at `682a22b8b10d112bbb692f3e9b71b78ed5415f09`. Neither `policy-engine/src` nor `policy-engine/tools` changed between those pins and the report cut; the R1 test file did change at `9bb2e349c`, so the audits are not a current whole-test replay. These read-only audits ran no behavioral tests or four-base P41 cells.
+
+The N18 subset is 18 of 282 current rows: closed bounded B59/B88/LA-021; partial B27/B28/B108/B109/B111/B19/B21/B23/B25/B26/B57/B58/B72/B73; open B09. This matches the row ledger; the older 18/18-partial map is historical. No status changed.
+
+Receipts: `RESIDUAL_LEDGER.md@git-blob:ab21c7b2cf8d8d70a0145715ac643c72528dc1a9`; `residual_ledger.json@git-blob:db9ead92ab941ec2cb397f1b80b791ff33037c38`; B audit `/Users/deniskopylov/.codex/scratch/e02-r2-held-b-cards-20260930/HELD_B_CARDS_AUDIT.md@sha256:682c4b5b1bb533a282a9255f71eea83638547c1f64050455c2929fc85015cfab` and census `/Users/deniskopylov/.codex/scratch/e02-r2-held-b-cards-20260930/source_census.json@sha256:b9d0e0a36946821fad216a029866b59339e81aefba53646911abc08a484bdb29`; LA audit `/Users/deniskopylov/.codex/scratch/e02-r2-held-la-cards-audit-20260930/HELD_LA_CARDS_AUDIT.md@sha256:b8d3f40774c4b229cf7ad2ec00b8d23d48fbc6f11f30060aee5325fc5fe1218b`; N18 audit `/Users/deniskopylov/.codex/scratch/e02-r2-no-record-audit-20260929/NO_RECORD_AUDIT.md@sha256:164e63cd26f1a2055d560b8ce266778e1155e21a5e855b41c7efe6709e7317a0`.
+
 ## B153 exception-waiter follow-on at `25c787698` (2026-09-29)
 
 **Discrepancies first.** The earlier section below says the same-ID

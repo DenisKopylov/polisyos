@@ -4672,6 +4672,76 @@ class ControlPlaneService(
                             ],
                         )
                         return
+                    if intent_band in {
+                        ExecutionIntentBand.CANDIDATE_ONLY,
+                        ExecutionIntentBand.DATA_TRUST_REQUIRED,
+                    }:
+                        # Both bands invoke candidate-only N4. A recursive result
+                        # from an adapter is not evidence that the requested band
+                        # was upgraded; terminate before N5, S8, or publication.
+                        limitation = "candidate_only_compiled_result_not_admitted"
+                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        event_id = self._emit_runtime_diagnostic_event(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "capability_manifest_ref": str(capability_manifest_ref),
+                                "execution_band": "candidate",
+                                "candidate_computation_status": "not_established",
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": limitation,
+                                "limitation_code": limitation,
+                                "n4_status": "not_established",
+                                "downstream_stages": {
+                                    "n5": "not_run",
+                                    "n8": "not_run",
+                                    "n9": "not_run",
+                                    "s8": "not_run",
+                                    "publication": "not_run",
+                                },
+                            },
+                            artifact_refs=[str(capability_manifest_ref)],
+                        )
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": "not_established",
+                            "execution_band": "candidate",
+                            "candidate_computation_status": "not_established",
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": limitation,
+                            "limitation_code": limitation,
+                            "stage": "candidate_only_result_rejected",
+                            "n4_status": "not_established",
+                            "run_id": run_id,
+                            "candidate_proposal_ref": None,
+                            "runtime_diagnostic_event_status": (
+                                "persisted" if event_id is not None else "not_established"
+                            ),
+                            "n5_status": "not_run",
+                            "n8_status": "not_run",
+                            "n9_status": "not_run",
+                            "s8_status": "not_run",
+                            "publication_status": "not_run",
+                        }
+                        if event_id is None:
+                            progress[
+                                "runtime_diagnostic_event_limitation_code"
+                            ] = "diagnostic_event_owner_scope_not_established"
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        return
                     if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT:
                         compiled_ref = self._put_json_artifact(
                             compiled.model_dump(mode="json"),

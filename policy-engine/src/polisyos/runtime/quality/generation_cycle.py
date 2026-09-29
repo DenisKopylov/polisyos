@@ -38,6 +38,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    RootModel,
     SerializerFunctionWrapHandler,
     model_serializer,
     model_validator,
@@ -487,6 +488,16 @@ def _historical_generation_cycle_field_tree(
     if not isinstance(version_models, dict):
         raise ValueError("generation_cycle_history_schema_version_unmapped")
 
+    is_root_model = isinstance(value, RootModel)
+    if is_root_model:
+        # RootModel is a BaseModel, but its persisted JSON is its root value.
+        # Check the parsed value against the exact supplied wire before using
+        # the frozen owner graph's ordinary ``root`` field projection.
+        root_wire = value.model_dump(mode="json")
+        spec = CanonSpec(forbid_floats=False)
+        if to_canonical_bytes(root_wire, spec) != to_canonical_bytes(payload, spec):
+            raise ValueError("generation_cycle_history_root_wire_mismatch")
+        payload = {"root": payload}
     if isinstance(value, BaseModel):
         if not isinstance(payload, dict):
             raise ValueError("generation_cycle_history_typed_model_not_object")
@@ -604,6 +615,10 @@ def _historical_generation_cycle_field_tree(
                 version=version,
                 design_problem_schema_version=nested_design_problem_schema_version,
             )
+        if is_root_model:
+            if set(result) != {"root"}:
+                raise ValueError("generation_cycle_history_root_owner_unmapped")
+            return result["root"]
         return result
 
     if isinstance(value, Mapping) and isinstance(payload, dict):

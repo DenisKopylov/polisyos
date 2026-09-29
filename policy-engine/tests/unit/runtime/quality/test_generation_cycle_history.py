@@ -21,6 +21,7 @@ import pytest
 from pydantic import BaseModel
 
 from polisyos.core import canon
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import generation_cycle as generation
@@ -618,6 +619,44 @@ def test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot() -> Non
         assert (
             problem["candidate_lever_space"]["candidate_levers"][0]["target_slot"]
             == "government.balance"
+        )
+
+
+def test_v3_history_projects_n5_artifact_root_model_as_scalar_wire() -> None:
+    """A valid N5 result ref replays through the frozen typed v3 graph."""
+
+    artifact_id = ArtifactID.from_sha256_hex("a" * 64)
+    observation = generation.SimulationPortObservation(
+        candidate_id="candidate_a",
+        status="joint_simulated",
+        simulation_result_ref=ArtifactRef(
+            artifact_id=artifact_id,
+            kind="runtime_quality.simulation_result",
+            media_type="application/json",
+        ),
+    )
+    wire = observation.model_dump(mode="json", exclude_unset=True)
+    assert wire["simulation_result_ref"]["artifact_id"] == str(artifact_id)
+
+    projected = generation._historical_generation_cycle_field_tree(
+        observation, wire, version="v3"
+    )
+    spec = canon.CanonSpec(forbid_floats=False)
+    assert canon.to_canonical_bytes(projected, spec) == canon.to_canonical_bytes(
+        wire, spec
+    )
+
+    malformed = copy.deepcopy(wire)
+    malformed["simulation_result_ref"]["artifact_id"] = "sha256:broken"
+    with pytest.raises(ValueError):
+        generation.SimulationPortObservation.model_validate(malformed)
+
+    noncanonical = copy.deepcopy(wire)
+    noncanonical["simulation_result_ref"]["artifact_id"] = "sha256:" + "A" * 64
+    normalized = generation.SimulationPortObservation.model_validate(noncanonical)
+    with pytest.raises(ValueError, match="generation_cycle_history_root_wire_mismatch"):
+        generation._historical_generation_cycle_field_tree(
+            normalized, noncanonical, version="v3"
         )
 
 

@@ -2150,3 +2150,14 @@ Main at `5fd3ebcc15637e98bbd4938de5d62ee5004504a8` returned measurement PASS, wh
 | main | `cf8895c5a9c8c41a36d2cc8c5243c81f962af4dbf841ced5ba99bf4a94fb1500` | `812075c6290b56d846d600e49ddaae605e5e7b04812954f9611a995879c4106a` | `f07578d70bff4bf32e1ceccfc0966d484ddd58a33569b7ffdaad005b289857f8` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 
 Complete JSON row and source citations: `P41_SECURITY_FOUR_BASE_ADDENDUM.json` SHA-256 `41e6f48ffda9e302d8c55499524679c647b3f21132d9560f5e3c4615f1b822d9`. The underlying full 21-file fixed-base inventory remains preserved unchanged at `p41_next_appendix_candidates_after_execution_security.json`; this addendum records only the two later admitted outcomes and the current integration hold.
+
+## Main-only acquisition P41 cells — append-only update (2026-09-29)
+
+**Discrepancy first.** Two previously PRESENT/UNRUN fixed-base cells now have fresh whole-file PASS results on Main `5fd3ebcc15637e98bbd4938de5d62ee5004504a8`. At this documentation snapshot, the corresponding current-integration cells remain **UNRUN** pending final source freeze. These Main results do not establish integration behavior, a repaired regression, or R13 closure.
+
+| Whole test file | Main test blob | Whole-file result | JUnit path@sha256 |
+|---|---|---|---|
+| `tests/unit/runtime/quality/test_acquisition_movement_positive.py` | `e2516e48fd58b3bfab2a271cb9423fc1405c1472` | 2/2 PASS; 0 failures/errors/skips | `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/p41-main-acquisition-light-20260929T032019Z-32958/cells/main/test_acquisition_movement_positive-1fab3debcfd4.junit.xml@sha256:763e3eb804ae846496dcb60c3d8b90a660faa3a3f6f22822cce54deb492c1c44` |
+| `tests/integration/core_runtime/test_acquisition_world_growth_chain.py` | `c101c5d2a2f25da0bce6cf6a265eff4a99a2bdc2` | 5/5 PASS; 0 failures/errors/skips | `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/p41-main-acquisition-light-20260929T032019Z-32958/cells/main/test_acquisition_world_growth_chain-8d9c29ca3e74.junit.xml@sha256:986069f9a23d70a78fd6fe41a4307a440eda9265a0f63005a949525f59752410` |
+
+The updated fixed-base census remains 21 files × 3 refs = 63 slots: **20 Git-verified MISSING + 23 whole-file suite PASS + 9 whole-file suite FAIL + 11 PRESENT/UNRUN = 63**. This supersedes the previous snapshot's `20 + 21 + 9 + 13` roll-up only; that earlier measurement remains preserved above. The full two-cell receipt is `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/p41-main-acquisition-light-20260929T032019Z-32958.json@sha256:771c72c75c203a4ea2568e14c8094ce0206f85b6a81bc180585ce0537b34ac2e`. The broker addendum records cell provenance and enumerates the exact 11 remaining fixed-base UNRUN cells: `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/P41_ACQUISITION_TWO_CELL_ADDENDUM.md@sha256:b0248de3498718c744b1656b52d69655fb57405c986128da40ec2a8de4b86966`.

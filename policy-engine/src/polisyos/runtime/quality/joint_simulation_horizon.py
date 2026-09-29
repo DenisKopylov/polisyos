@@ -1080,23 +1080,9 @@ class JointSimulationHorizonController:
         selectors = self._engine_selectors(request.world_model_record)
         decisions: list[EngineDecision] = []
         fallback_plan = request.engine_plan[0]
-        requested_step_count = len(request.horizon.steps())
         for plan in request.engine_plan:
             selector = selectors.get(plan.engine_kind, self._select_registry_method_engine)
             decision = selector(plan)
-            if (
-                decision.decision == "selected"
-                and decision.temporal_capability == "static"
-                and requested_step_count > 1
-            ):
-                decision = _unsupported(
-                    plan,
-                    "static_engine_cannot_ground_dynamic_horizon",
-                    (
-                        "static_engine_temporal_capability",
-                        "requested_horizon_has_multiple_steps",
-                    ),
-                )
             decision = self._resolve_engine_semantics(plan, decision)
             if decision.decision == "selected":
                 coupling_support = _resolve_coupling_support(

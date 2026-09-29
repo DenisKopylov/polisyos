@@ -445,10 +445,10 @@ def test_selected_outcome_and_engine_horizon_are_part_of_the_basis(
     assert result.higher_order_residuals == {}
 
 
-def test_static_ncm_cannot_shrink_a_multi_step_requested_horizon(
+def test_static_ncm_multi_step_horizon_is_limited_not_additive(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """B26: a static engine cannot turn an unmeasured requested horizon additive."""
+    """B26: preserve a static candidate run but limit incomplete horizon claims."""
 
     calls: list[None] = []
 
@@ -473,12 +473,22 @@ def test_static_ncm_cannot_shrink_a_multi_step_requested_horizon(
 
     result = JointSimulationHorizonController().run(request)
 
+    assert request.horizon.steps() == (0, 1, 2, 3)
+    assert result.engine_decisions[0].decision == "selected"
+    assert result.engine_decisions[0].temporal_capability == "static"
+    assert result.trajectories
+    assert calls
+    assert all(
+        tuple(point.step for point in trajectory.points) == (0,)
+        for trajectory in result.trajectories
+    )
     assert result.feedback_classification.numeric_interaction == "unsupported"
-    assert result.engine_decisions[0].decision == "unsupported"
-    assert result.engine_decisions[0].reason == "static_engine_cannot_ground_dynamic_horizon"
-    assert result.trajectories == ()
-    assert calls == []
-    assert "static_engine_temporal_capability" in result.engine_decisions[0].blockers
+    assert "interaction_evidence_incomplete" in result.feedback_classification.limitations
+    assert "eligible_joint_engine_missing" not in result.feedback_classification.limitations
+    assert any(
+        issue.startswith("horizon_incomplete:")
+        for issue in result.diagnostics["interaction_evidence_issues"]
+    )
 
 
 def test_static_ncm_single_step_horizon_remains_additive(

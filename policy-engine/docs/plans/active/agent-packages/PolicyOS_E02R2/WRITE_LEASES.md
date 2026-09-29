@@ -1,5 +1,47 @@
 # E02-R2 write leases
 
+## R1 immutable-front/current-egress candidate lease (2026-09-29)
+
+One R1 writer may reuse the clean worktree at
+`/Users/deniskopylov/.codex/worktrees/e02-r7-r8-probes/polisyos` on branch
+`codex/e02-r2-r13-selected-row-candidate`, first merging the latest
+`codex/e02-r2` append-only and verifying attachment, cleanliness and target
+blobs. Its exclusive write set is exactly:
+`policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`,
+`policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`,
+`policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`,
+and `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`.
+Root alone applies a reviewed candidate to the integration branch. B26's
+numerical paths and the R1 Control test are outside this lease.
+
+The property is replayable, byte-identical v1 S8 leaf and outer composition
+under changing N6 currentness, with unvalued candidate fronts visible only
+for the sole history-valid source issue
+`generation_cycle_source_preservation_not_established(reason=receipt_missing)`
+plus typed currentness `not_established` / census `UNRUN` and
+missing/unresolved sidecar. Fresh
+currentness belongs in a distinct typed egress projection with `projected_at`,
+never in either persisted v1 payload. Keep legacy v1 bytes and static reason
+codes; reuse the N6 historical validator and Confidence Ledger currentness
+owner. Apply the current projection on the initial `_process_control_job`
+response as well as status/latest reads. Composition is all-or-none for
+fronts. A terminal-blocked N6 run, stale or FAIL currentness, extra source
+issue, or invalid history exposes no fronts or ranking; no recommend,
+authority, N9, S8 approval or publication is inferred.
+
+Design: `/Users/deniskopylov/.codex/scratch/e02-r1-current-fronts-20260929/R1_CURRENT_FRONTS_DESIGN_V2.md@sha256:72d85b2e36f67f19b8f2614584f19f0a23442e031bae2aad3e29ec207bd77385`.
+Independent design GO with conditions:
+`/Users/deniskopylov/.codex/scratch/e02-r1-current-fronts-review-20260929.md@sha256:99c3b18c0e8bc1101c0f9a8482be9ed73a4ae3e0b9ac043ed9bd16709261b50b`.
+Test-first sequence: `/Users/deniskopylov/.codex/scratch/e02-r1-current-fronts-20260929/R1_CURRENT_FRONTS_TEST_FIRST_SEQUENCE.md@sha256:1d37ff357cdc68d7d4e9cbad0a3e9ca1aafa7454c67ed99b533c999b4267778d`.
+Obtain exact pre-edit red, history/currentness temporal controls, source-front
+mutation, marker-retaining egress-condition removal and a normal candidate
+control. Freeze source during tests, then independent delta review before
+integration. The historical N6 issuer and real DataState time contract are
+separate OPEN_PREMISES blockers, not reasons to refuse candidate work.
+Measure one process at a time until RAM and disk peaks are known; maintain
+at least 8 GiB free disk and 20–30% free RAM. Do not edit another path,
+generated family or governed receipt without a new lease.
+
 ## R1 ordinary candidate world-build removal probe (2026-09-29)
 
 Root alone edits `policy-engine/tests/unit/runtime/http/test_control_service_di.py`

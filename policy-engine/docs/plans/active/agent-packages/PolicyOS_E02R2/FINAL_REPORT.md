@@ -29,6 +29,20 @@ status. The NL Main→d103 selected pass→fail identity remains owner-attributi
 
 The separate `OPEN_PREMISES.md` remains the durable source for unresolved data contracts, evidence and owner appointments; this addendum records test outcomes only. At the pinned parent its blob is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md@git-blob:c46212afdcf9374ea7ae372b0209d5ebab7db800`.
 
+### R13/R14/R1 bounded addenda at docs base d8bce0373 (2026-09-29)
+
+**Discrepancies first.** c0cb70b88 passes the four complete R13 touched files 64/64, but the four-file × four-base replay remains UNRUN and selected-value-to-N5 consumption remains unproved; peak source RAM at 200k/500k rows is also unmeasured. R14's integrated measurement test is 5/5, while its precommit standalone API contract gate records measured OpenAPI drift (exit 1); no post-commit gate result or authorized generated-family reissue is inferred. R1 control-service reconciliation supersedes only stale execution/Main UNRUN_INPUT_MISMATCH labels from the immutable earlier receipt: 30 common execution→E02 identities show 3 pass→fail, and 30 common Main→29d identities show 5 pass→fail; source-owner attribution remains UNRESOLVED. The manual four-cell reconciliation is not a single harness P41 run.
+
+**Bounded results.** R13 remains partial with no status/count change; the four whole-file JUnits establish current c0 test behavior only. R14 remains unclosed: its P41 measurement-file slice has execution/E02 MISSING, Main 3/3 PASS, integration 5/5 PASS, zero pass→fail, and 0/74 Appendix A/B selections. R1 owner attribution and closure remain unresolved; this reconciled cell evidence establishes neither. Exact test receipts and citations are in the corresponding BASELINES.md addenda; OPEN_PREMISES.md preserves the distinct S8 guard boundary and selected-row scale/consumer limits.
+
+
+
+**R2 discrepancy at 686ecfcfa.** The candidate fd9375a NO-GO identified a raw-byte/history gap; the integrated _read now rejects canonical-byte spelling differences, with the history file 27/27 and focused direct-owner read 1/1. The direct test calls NormativeValueScheduleOwner._read, not ControlPlaneService.resolve_generation_value_choices; the full served HTTP/source-free/currentness path and a code-removal probe remain UNRUN. The separate extracted-wheel 1/1 run is pinned to candidate fd9375, not silently transferred to 686. R2 remains partial; no deployment identity, currentness, or S8 authority is inferred. Exact evidence is in BASELINES.md and OPEN_PREMISES.md.
+
+**R7/R8 bounded removal evidence.** Independent review GO applies to the exact-source probes only: R7 scope and active-probe removals turn their controls red, and R8 thread-local removal loses stale-worker refusals while current-worker control passes. This is not four-base P41 or class closure; all caller, persisted-head, and distributed-backend residuals remain as recorded in BASELINES.md.
+
+**R1 direct S8 source/context residual at the 686 evidence cut.** The owner review identifies a source/context-to-S8 bridge gap: current P20 leaf signature mechanics do not prove that the S8 disposition consumed the same persisted N4 handoff and job-bound context used by N5, and the job-level s8_status producer is not established by that path. The user-selected controlled synthetic N4→N5 mechanics slice remains engineering work; real-data validity and S8 authority stay limited pending source-time evidence and an independent S8 trust/epoch owner. The R1 gate design memo is at /Users/deniskopylov/.codex/scratch/e02-r1-normative-fixture-design-20260929/R1_NORMATIVE_FIXTURE_S8_GATE.md@sha256:6741d1cf57b3186eb53c06309fd75ed9451e39243128b866558a3573a45452bd. No later candidate guard is counted here without an integrated test receipt; this is not R1 closure.
+
 ### R1/R13 focused pre-edit P41 wave at `df5188a` (2026-09-28)
 
 This separate eight-cell wave covers control-service DI and the current cycle

@@ -1,5 +1,33 @@
 # E02-R2 write leases
 
+## Active owner corrections at `20b110f7b` (2026-09-29)
+
+Root committed the bounded R2 historical `ArtifactID` scalar-wire repair at
+`6eac18ccc`; its temporary `generation_cycle.py` and history-test lease is
+released. The R1 and R13 candidates may merge the current canonical branch
+append-only before their next tests. The R2 repair does not claim a served R1
+N6/N5 positive or current authority.
+
+The R1 candidate writer retains the three-file lease listed below and may
+also edit `policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`
+and its mirrored `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`
+for one owner-level historical completed-candidate replay operation. This
+extension is limited to the same R1 class: fail-closed invalid-intent
+sanitation, positive served N6/N5 readback, and a foreign-tenant negative
+through the runtime-supplied guarded/ambient-owned store. It must reuse the
+N6/N5 validation and artifact owners, not duplicate their rules in the HTTP
+reader. The current a037 candidate remains review NO-GO until a complete
+positive, marker-retaining removal red, preserving candidate control, and
+independent delta review. Do not edit the R13 `generation_cycle.py` owner.
+
+The R13 selected-row writer retains the correction lease below and its saved
+WIP recovery patch. Qualified DesignProblem outcome grammar, the frozen N6
+history predicate, provider schema, and generated families are under design
+review; no widened source lease is active yet. The shared canonical-variable
+contract premise is recorded separately in `OPEN_PREMISES.md` and does not
+block the exact WDI candidate route. Root alone writes canonical files and
+the package documents. Keep at least 8 GiB disk and 20–30% RAM free.
+
 ## Sequential R2 historical N6 projector lease (2026-09-29)
 
 The R13 candidate writer has frozen `generation_cycle.py` at SHA-256

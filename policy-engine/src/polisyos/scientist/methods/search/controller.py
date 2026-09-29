@@ -926,7 +926,7 @@ class SearchController:
         try:
             from polisyos.scientist.policy_design.objectives import (
                 PolicyEvaluationBundle,
-                PolicyEvaluationVector,
+                _normalize_policy_evaluation_vector,
             )
             from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
         except _IMPORT_ERRORS as exc:
@@ -944,37 +944,17 @@ class SearchController:
         typed_error_reason: str | None = None
         if typed_vector_present:
             raw_vector = stage_b_result.get("policy_evaluation")
-            if isinstance(raw_vector, PolicyEvaluationVector):
-                return _PolicyEvaluationResolution(value=raw_vector, status="valid")
-            if hasattr(raw_vector, "model_dump"):
-                try:
-                    raw_vector = raw_vector.model_dump(mode="python")
-                except _SEARCH_DEGRADED_ERRORS as exc:
-                    typed_error_reason = "policy_evaluation_normalization_failed"
-                    _search_degraded(
-                        operation="resolve_policy_evaluation",
-                        reason=typed_error_reason,
-                        exc=exc,
-                    )
-            if isinstance(raw_vector, dict):
-                try:
-                    return _PolicyEvaluationResolution(
-                        value=PolicyEvaluationVector.model_validate(raw_vector),
-                        status="valid",
-                    )
-                except _SEARCH_DEGRADED_ERRORS as exc:
-                    typed_error_reason = "policy_evaluation_parse_failed"
-                    _search_degraded(
-                        operation="resolve_policy_evaluation",
-                        reason=typed_error_reason,
-                        exc=exc,
-                    )
-            elif typed_error_reason is None:
+            try:
+                return _PolicyEvaluationResolution(
+                    value=_normalize_policy_evaluation_vector(raw_vector, allow_mapping=True),
+                    status="valid",
+                )
+            except _SEARCH_DEGRADED_ERRORS as exc:
                 typed_error_reason = "policy_evaluation_parse_failed"
                 _search_degraded(
                     operation="resolve_policy_evaluation",
                     reason=typed_error_reason,
-                    exc=ValueError("policy_evaluation must be a typed vector or mapping"),
+                    exc=exc,
                 )
 
         objective_stack = self._config.policy_objective_stack
@@ -1055,13 +1035,31 @@ class SearchController:
 
         try:
             evaluation = objective_stack.evaluate(bundle)
-            if not isinstance(evaluation, PolicyEvaluationVector):
+            try:
+                normalized = _normalize_policy_evaluation_vector(evaluation)
+            except TypeError as exc:
+                _search_degraded(
+                    operation="resolve_policy_evaluation",
+                    reason="objective_stack_returned_untyped_result",
+                    exc=exc,
+                )
                 return _PolicyEvaluationResolution(
                     value=None,
                     status="invalid",
                     reason="objective_stack_returned_untyped_result",
                 )
-            return _PolicyEvaluationResolution(value=evaluation, status="valid")
+            except _SEARCH_DEGRADED_ERRORS as exc:
+                _search_degraded(
+                    operation="resolve_policy_evaluation",
+                    reason="objective_stack_returned_invalid_vector",
+                    exc=exc,
+                )
+                return _PolicyEvaluationResolution(
+                    value=None,
+                    status="invalid",
+                    reason="objective_stack_returned_invalid_vector",
+                )
+            return _PolicyEvaluationResolution(value=normalized, status="valid")
         except _SEARCH_DEGRADED_ERRORS as exc:
             _search_degraded(
                 operation="resolve_policy_evaluation",

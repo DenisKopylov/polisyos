@@ -77,6 +77,7 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
+    _normalize_policy_evaluation_vector,
 )
 from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 from polisyos.scientist.policy_design.schema import (
@@ -1488,14 +1489,12 @@ def _build_evidence_driven_simulation_metrics(
 
 
 def _parse_policy_evaluation(value: Any) -> PolicyEvaluationVector | None:
-    if isinstance(value, PolicyEvaluationVector):
-        return value
-    if isinstance(value, dict):
-        try:
-            return PolicyEvaluationVector.model_validate(value)
-        except _POLICY_RUNTIME_VALIDATION_ERRORS:
-            return None
-    return None
+    try:
+        return _normalize_policy_evaluation_vector(
+            value, allow_mapping=isinstance(value, Mapping)
+        )
+    except _POLICY_RUNTIME_VALIDATION_ERRORS:
+        return None
 
 
 def _parse_ambiguity_certificate(value: Any) -> AmbiguityCertificate | None:

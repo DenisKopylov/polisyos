@@ -7,6 +7,7 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import BaseModel
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -2361,8 +2362,126 @@ def test_search_controller_accepts_policy_bundle_after_module_reload(tmp_path) -
     result = controller.run(initial_context={})
 
     assert len(result.history) == 1
-    assert result.history[0].policy_evaluation is not None
+    evaluation = result.history[0].policy_evaluation
+    assert isinstance(evaluation, reloaded.PolicyEvaluationVector)
     assert result.pareto_front
+    reopened = ParetoRegistry(root=tmp_path / "pareto_registry")
+    entries = reopened.get_snapshot(result.search_id).entries
+    assert len(entries) == 1
+    persisted = next(iter(entries.values())).evaluation
+    assert isinstance(persisted, PolicyEvaluationVector)
+    assert persisted.model_dump(mode="json") == evaluation.model_dump(mode="json")
+
+
+def test_search_controller_revalidates_reloaded_objective_result() -> None:
+    stale_vector_cls = PolicyEvaluationVector
+    sys.modules.pop("polisyos.scientist.policy_design.objectives", None)
+    reloaded = importlib.import_module("polisyos.scientist.policy_design.objectives")
+    assert reloaded.PolicyEvaluationVector is not stale_vector_cls
+
+    class ForeignVector(BaseModel):
+        candidate_id: str = "candidate_b"
+
+    class ReturningStack:
+        def __init__(self, result: object) -> None:
+            self.result = result
+
+        def evaluate(self, bundle: object) -> object:
+            return self.result
+
+    config = SearchConfig(
+        stopping=MaxIterations(1),
+        objective=CompositeObjective([]),
+        policy_objective_stack=ReturningStack(reloaded.PolicyEvaluationVector()),
+    )
+    controller = SearchController(
+        config=config,
+        candidate_generator=MagicMock(),
+        stage_a_evaluator=MagicMock(),
+        stage_b_evaluator=MagicMock(),
+    )
+    stage_b_result = {"policy_evaluation_bundle": reloaded.PolicyEvaluationBundle()}
+
+    ordinary = controller._resolve_policy_evaluation_with_status({}, stage_b_result)
+    assert ordinary.status == "valid"
+    assert isinstance(ordinary.value, reloaded.PolicyEvaluationVector)
+
+    config.policy_objective_stack = ReturningStack(
+        stale_vector_cls.model_construct(primary={"value": "not-a-channel"})
+    )
+    malformed = controller._resolve_policy_evaluation_with_status({}, stage_b_result)
+    assert malformed.status == "invalid"
+    assert malformed.value is None
+    assert malformed.reason == "objective_stack_returned_invalid_vector"
+
+    for untyped in ({"candidate_id": "candidate_b"}, ForeignVector()):
+        config.policy_objective_stack = ReturningStack(untyped)
+        rejected = controller._resolve_policy_evaluation_with_status({}, stage_b_result)
+        assert rejected.status == "invalid"
+        assert rejected.value is None
+        assert rejected.reason == "objective_stack_returned_untyped_result"
+
+
+def test_policy_vector_consumers_revalidate_across_module_reload() -> None:
+    design_search = importlib.import_module("polisyos.scientist.policy_design.search")
+    runtime_support = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.decide.policy_runtime_support"
+    )
+    hierarchical_search = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search"
+    )
+    sys.modules.pop("polisyos.scientist.policy_design.objectives", None)
+    current = importlib.import_module("polisyos.scientist.policy_design.objectives")
+    vector = current.PolicyEvaluationVector(
+        candidate_id="candidate_b",
+        primary={
+            "policy_value": current.ObjectiveChannelValue(
+                name="policy_value",
+                kind="primary",
+                value=11.0,
+                direction="maximize",
+                source="measured_panel",
+                metadata={"basis": "exact"},
+            )
+        },
+        feasible=False,
+        blocking_reasons=["hard_constraint"],
+    )
+
+    class ForeignVector(BaseModel):
+        candidate_id: str = "candidate_b"
+
+    for parse in (
+        design_search._coerce_policy_evaluation,
+        runtime_support._parse_policy_evaluation,
+        hierarchical_search._coerce_policy_evaluation,
+    ):
+        restored = parse(vector)
+        assert restored is not None
+        assert restored.candidate_id == "candidate_b"
+        assert restored.primary["policy_value"].source == "measured_panel"
+        assert restored.primary["policy_value"].metadata == {"basis": "exact"}
+        assert restored.feasible is False
+        assert restored.blocking_reasons == ["hard_constraint"]
+
+        serialized = parse(vector.model_dump(mode="json"))
+        assert serialized is not None
+        assert serialized.primary["policy_value"].source == "measured_panel"
+        assert serialized.feasible is False
+        assert parse(ForeignVector()) is None
+
+
+def test_pareto_registry_rejects_malformed_owner_vector_before_write(tmp_path) -> None:
+    registry = ParetoRegistry(root=tmp_path / "pareto_registry")
+    malformed = PolicyEvaluationVector.model_construct(primary={"value": "not-a-channel"})
+    schema_valid_raw = PolicyEvaluationVector(candidate_id="candidate_b").model_dump(mode="json")
+
+    with pytest.raises(ValueError):
+        registry.update("loop", candidate_hash="candidate_hash", evaluation=malformed)
+    with pytest.raises(TypeError):
+        registry.update("loop", candidate_hash="candidate_hash", evaluation=schema_valid_raw)
+
+    assert registry.get_snapshot("loop").entries == {}
 
 
 def test_direct_policy_runtime_workflow_engine_cannot_bypass_eval_safety_owner(

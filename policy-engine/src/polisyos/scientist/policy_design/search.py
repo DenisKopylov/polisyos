@@ -38,6 +38,7 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
+    _normalize_policy_evaluation_vector,
 )
 from polisyos.scientist.policy_design.schema import (
     MonitoringSignalSpec,
@@ -1050,18 +1051,14 @@ def _run_blueprint_parameter_search(
 
 
 def _coerce_policy_evaluation(stage_b_result: Any) -> PolicyEvaluationVector | None:
-    if isinstance(stage_b_result, PolicyEvaluationVector):
-        return stage_b_result
     if isinstance(stage_b_result, dict):
         raw = stage_b_result.get("policy_evaluation", stage_b_result)
-        if isinstance(raw, PolicyEvaluationVector):
-            return raw
-        if isinstance(raw, dict):
-            try:
-                return PolicyEvaluationVector.model_validate(raw)
-            except Exception:
-                return None
-    return None
+    else:
+        raw = stage_b_result
+    try:
+        return _normalize_policy_evaluation_vector(raw, allow_mapping=isinstance(raw, dict))
+    except (TypeError, ValueError):
+        return None
 
 
 def _optimizer_objectives_for_iteration(

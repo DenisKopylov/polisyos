@@ -90,6 +90,7 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
+    _normalize_policy_evaluation_vector,
 )
 from polisyos.scientist.policy_design.output import (
     PolicyFrontierEntry,
@@ -1038,12 +1039,10 @@ def _coerce_lex_bundle(payload: Any) -> LexPolicyBundleInput | None:
 
 
 def _coerce_policy_evaluation(payload: Any) -> PolicyEvaluationVector | None:
-    if payload is None:
-        return None
-    if isinstance(payload, PolicyEvaluationVector):
-        return payload
     try:
-        return PolicyEvaluationVector.model_validate(payload)
+        return _normalize_policy_evaluation_vector(
+            payload, allow_mapping=isinstance(payload, Mapping)
+        )
     except _POLICY_SEARCH_VALIDATION_ERRORS:
         return None
 

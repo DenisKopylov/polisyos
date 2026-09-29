@@ -24,7 +24,10 @@ from polisyos.scientist.methods.search.transfer_context import (
     resolve_transfer_context,
 )
 from polisyos.scientist.methods.search.voi_scheduler import ParetoSnapshot
-from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.objectives import (
+    PolicyEvaluationVector,
+    _normalize_policy_evaluation_vector,
+)
 
 
 class ParetoView(str, Enum):
@@ -265,6 +268,7 @@ class ParetoRegistry:
         transfer_context: TransferContext | None = None,
         objective_basis_by_view: dict[str, ParetoBasisScope] | None = None,
     ) -> FrontierDelta:
+        evaluation = _normalize_policy_evaluation_vector(evaluation)
         active_context = transfer_context or resolve_transfer_context(
             candidate=seed_payload,
             task_family=task_family or "policy",

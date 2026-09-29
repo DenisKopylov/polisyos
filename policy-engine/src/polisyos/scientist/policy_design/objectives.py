@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
 from typing import Any
 
@@ -222,6 +223,41 @@ class PolicyEvaluationVector(BaseModel):
         if self.primary:
             return next(iter(self.primary.values()))
         return None
+
+
+def _normalize_policy_evaluation_vector(
+    value: object, *, allow_mapping: bool = False
+) -> PolicyEvaluationVector:
+    """Validate an owner vector into this module generation's DTO class.
+
+    A Python module reload changes class identity without changing persisted vector
+    semantics. Serialized mappings are accepted only at explicitly declared ingress.
+
+    Args:
+        value: A vector from this owner or a serialized mapping at an admitted ingress.
+        allow_mapping: Whether the caller accepts serialized mapping input.
+
+    Returns:
+        A vector validated against this module generation's schema.
+
+    Raises:
+        TypeError: The value is not an admitted owner vector or mapping.
+        ValueError: The vector's declared fields fail current schema validation.
+    """
+
+    if isinstance(value, Mapping):
+        if not allow_mapping:
+            raise TypeError("ObjectiveStack must return an owner PolicyEvaluationVector")
+        payload = dict(value)
+    elif (
+        isinstance(value, BaseModel)
+        and type(value).__module__ == PolicyEvaluationVector.__module__
+        and type(value).__qualname__ == PolicyEvaluationVector.__qualname__
+    ):
+        payload = value.model_dump(mode="python")
+    else:
+        raise TypeError("policy evaluation is not an owner vector or admitted mapping")
+    return PolicyEvaluationVector.model_validate(payload)
 
 
 class ObjectiveStack:

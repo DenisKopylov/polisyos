@@ -1,5 +1,29 @@
 # E02-R2 write leases
 
+## R7 current-source active-probe removal replay (2026-09-29; `0cf4afa19`)
+
+One direct R7 probe writer uses the clean attached, reused candidate worktree
+`/Users/deniskopylov/.codex/worktrees/e02-r7-r8-probes/polisyos` at
+`25f01088d`. Its `acquisition_executor.py` and two selected test blobs are
+byte-identical to canonical `codex/e02-r2@0cf4afa19`; no branch update is
+needed. It may temporarily edit only
+`policy-engine/src/polisyos/runtime/quality/acquisition_executor.py` with the
+one-line `live_acquire_permit=permit` to `None` marker-retaining removal patch
+from the earlier R7 probe. First run the governed intercepted-transport test,
+the foreign-country refusal, and ordinary active-health control at exact
+unmodified source; then apply the mutation, require the governed request to
+show the extra USA egress while the ordinary control remains green, and
+reverse it byte-exactly. Store JUnit/log/patch hashes in scratch and verify
+clean attachment and original blobs. This is a current-source proof lease, not
+a permanent runtime change, a real network request, or all-transport closure.
+Freeze the candidate tree during each run, use one test process at a time,
+keep 8 GiB disk and 25% RAM free, and do not touch canonical source or other
+writers' files. Root alone integrates any future code candidate.
+
+Earlier probe: `/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R7_R8_CURRENT_MUTANT_RECEIPT.md@sha256:e38d626dd42c780d37d84607ce0cb51b7f2ddbb3e25387571fbd42f17c80ff84`;
+the exact same one-line patch applies cleanly to the current source blob
+`399fc8d459ebb71169ded1da375e59c9dc24ecea`.
+
 ## B109 exact same-group Pareto witness (2026-09-29; `4fd29d6e0`)
 
 One direct B109 writer reuses the clean attached worktree

@@ -19,6 +19,7 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from tests.unit.data_forge.domains.catalog.knowledge.test_overlay import (
     _downgrade_to_authentic_v1,
+    _scenario_with_raw_rows,
 )
 from tests.unit.runtime.quality.test_acquisition_executor import (
     _activate_real_epoch_scenario,
@@ -228,3 +229,187 @@ def test_two_active_epochs_reusing_registration_emit_each_row_once(tmp_path: Pat
     for table in overlay_module._BASELINE_UNION_TABLES:
         if table != "ds_observations":
             assert after[table] - before[table] == 1
+
+
+def test_active_projection_flows_through_n8_without_changing_panel_profile(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rows = [
+        {
+            "country_code": "UA",
+            "year": year,
+            "distress_score": value,
+            "condition_json": {"unit": "ratio"},
+        }
+        for year, value in ((2021, 0.42), (2022, 0.51), (2023, 0.47), (2024, 0.56))
+    ]
+    scenario = _scenario_with_raw_rows(tmp_path, monkeypatch, rows)
+    _production, activated = _activate_real_epoch_scenario(scenario)
+    projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
+    paths = SimpleNamespace(l1_dcat_path=scenario.authority.baseline_path)
+    monkeypatch.setattr(
+        data_state_substrate,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
+    candidate = SimpleNamespace(
+        atom=SimpleNamespace(target_world_slots=(scenario.passport.variable_id,)),
+    )
+    problem = SimpleNamespace(
+        outcome_of_interest=SimpleNamespace(
+            target_variable=scenario.passport.variable_id,
+        ),
+        jurisdiction_time=SimpleNamespace(region="UA"),
+    )
+    baseline_profile = RealValueOwnerGateway(
+        repo_root=scenario.authority.repo_root,
+        catalog_overlay_path=scenario.overlay.overlay_path,
+    ).load_value_data_profile(
+        candidate=candidate,
+        problem=problem,
+        world_record=object(),
+    )
+    projected_profile = RealValueOwnerGateway(
+        repo_root=scenario.authority.repo_root,
+        catalog_overlay_path=scenario.overlay.overlay_path,
+        activated_observation_projection=projection,
+    ).load_value_data_profile(
+        candidate=candidate,
+        problem=problem,
+        world_record=object(),
+    )
+
+    assert projection.variable_id == scenario.passport.variable_id
+    assert projection.source_time_status == "not_established"
+    assert len(projected_profile.rows) == 4
+    assert projected_profile.owner_row_count == 4
+    assert projected_profile == baseline_profile
+
+
+def test_single_active_observation_does_not_satisfy_n8_panel_floor(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rows = [
+        {
+            "country_code": "UA",
+            "year": 2024,
+            "distress_score": 0.42,
+            "condition_json": {"unit": "ratio"},
+        }
+    ]
+    scenario = _scenario_with_raw_rows(tmp_path, monkeypatch, rows)
+    _production, activated = _activate_real_epoch_scenario(scenario)
+    projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
+    paths = SimpleNamespace(l1_dcat_path=scenario.authority.baseline_path)
+    monkeypatch.setattr(
+        data_state_substrate,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
+
+    profile = _load_value_data_profile_from_l1_dcat(
+        repo_root=scenario.authority.repo_root,
+        outcome=scenario.passport.variable_id,
+        owner_access_ref="test://active-profile",
+        overlay_path=scenario.overlay.overlay_path,
+        activated_observation_projection=projection,
+    )
+
+    assert len(projection.observations) == 1
+    assert profile is None
+
+
+def test_n8_refuses_changed_selected_row_with_active_markers_retained(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rows = [
+        {
+            "country_code": "UA",
+            "year": year,
+            "distress_score": value,
+            "condition_json": {"unit": "ratio"},
+        }
+        for year, value in ((2021, 0.42), (2022, 0.51), (2023, 0.47), (2024, 0.56))
+    ]
+    scenario = _scenario_with_raw_rows(tmp_path, monkeypatch, rows)
+    _production, activated = _activate_real_epoch_scenario(scenario)
+    projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
+    selected = projection.observations[0].observation
+    paths = SimpleNamespace(l1_dcat_path=scenario.authority.baseline_path)
+    monkeypatch.setattr(
+        data_state_substrate,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: paths,
+    )
+
+    def markers() -> tuple[object, ...]:
+        con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+        try:
+            value = con.execute(
+                "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+                "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+                "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref, "
+                "epoch_activation_state FROM acquisition_epochs WHERE epoch_id = ?",
+                [scenario.passport.epoch_id],
+            ).fetchone()
+            assert value is not None
+            return value
+        finally:
+            con.close()
+
+    marker_snapshot = markers()
+    con = duckdb.connect(str(scenario.overlay.overlay_path))
+    try:
+        con.execute(
+            "UPDATE ds_observations SET value = ? WHERE observation_id = ?",
+            [selected.value + 0.01, selected.observation_id],
+        )
+    finally:
+        con.close()
+    assert markers() == marker_snapshot
+
+    with pytest.raises(ValueOwnerAccessError) as raised:
+        _load_value_data_profile_from_l1_dcat(
+            repo_root=scenario.authority.repo_root,
+            outcome=scenario.passport.variable_id,
+            owner_access_ref="test://active-profile",
+            overlay_path=scenario.overlay.overlay_path,
+            scope_region="UA",
+            activated_observation_projection=projection,
+        )
+
+    assert raised.value.code == "acquire_data:active_observation_projection_drift"
+    assert markers() == marker_snapshot

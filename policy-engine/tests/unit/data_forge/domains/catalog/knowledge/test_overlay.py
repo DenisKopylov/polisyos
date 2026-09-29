@@ -869,6 +869,81 @@ def test_active_owner_readback_refuses_value_drift_with_receipt_markers_retained
         )
 
 
+def test_active_observation_projection_binds_selected_rows_and_rejects_row_drift(
+    tmp_path: Path,
+) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+    _, activated = _activate_real_epoch_scenario(scenario)
+
+    projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
+
+    assert projection.activation_state == "active"
+    assert projection.epoch_id == scenario.passport.epoch_id
+    assert projection.passport_id == scenario.passport.passport_id
+    assert projection.admission_content_sha256 == activated.admission_content_sha256
+    assert projection.source_time_status == "not_established"
+    observations = tuple(row.observation for row in projection.observations)
+    assert tuple(row.value for row in observations) == (0.42, 0.51)
+    assert tuple(row.country_code for row in observations) == ("UA", "UA")
+    assert tuple(row.year for row in observations) == (2024, 2025)
+    assert len({row.observation_id for row in observations}) == 2
+    assert all(
+        row.row_content_sha256
+        == overlay_module.content_sha256(observation.model_dump(mode="json"))
+        for row, observation in zip(projection.observations, observations, strict=True)
+    )
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        owner_markers = con.execute(
+            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ?",
+            [scenario.passport.epoch_id],
+        ).fetchone()
+    finally:
+        con.close()
+    assert owner_markers is not None
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path))
+    try:
+        con.execute(
+            "UPDATE ds_observations SET value = ? WHERE observation_id = ?",
+            [0.43, observations[0].observation_id],
+        )
+    finally:
+        con.close()
+
+    with pytest.raises(
+        OverlayAdmissionError,
+        match="active_epoch_observation_content_mismatch",
+    ):
+        scenario.overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=activated.receipt_ref,
+            artifact_store=scenario.store,
+            passport=scenario.passport,
+            authority=scenario.authority,
+        )
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        assert con.execute(
+            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ?",
+            [scenario.passport.epoch_id],
+        ).fetchone() == owner_markers
+    finally:
+        con.close()
+
+
 def test_active_owner_readback_refuses_unrepresented_year_and_condition_with_markers_retained(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

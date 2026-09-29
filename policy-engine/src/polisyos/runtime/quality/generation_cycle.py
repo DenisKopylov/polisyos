@@ -3252,6 +3252,9 @@ class RealValueOwnerGateway:
     cycle_substrate_context: CycleSubstrateContext | None = None
     catalog_overlay_path: Path | None = None
     empirical_evidence_resolver: _S10EmpiricalEvidenceResolver | None = None
+    activated_observation_projection: (
+        data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+    ) = None
 
     def load_value_data_profile(
         self,
@@ -3311,6 +3314,7 @@ class RealValueOwnerGateway:
             owner_access_ref=owner_access_ref,
             overlay_path=self.catalog_overlay_path,
             scope_region=scope_region,
+            activated_observation_projection=self.activated_observation_projection,
         )
         if profile is None:
             raise ValueOwnerAccessError(
@@ -4739,6 +4743,9 @@ class GenerationCycleController:
         source_cycle: GenerationCycleRecord,
         problem: DesignProblem,
         overlay_receipt: data_forge_read_api.catalog.OverlayAdmissionReceipt,
+        observation_projection: (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        ),
         baseline_path: Path,
         overlay_path: Path,
         budget_state: BudgetState,
@@ -4788,6 +4795,19 @@ class GenerationCycleController:
         owner_receipt_type = data_forge_read_api.catalog.OverlayAdmissionReceipt
         if not isinstance(overlay_receipt, owner_receipt_type):
             raise GenerationCycleError("acquisition_reentry_overlay_receipt_invalid")
+        observation_projection_type = (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        )
+        if not isinstance(observation_projection, observation_projection_type):
+            raise GenerationCycleError("acquisition_reentry_observation_projection_invalid")
+        try:
+            observation_projection = observation_projection_type.model_validate(
+                observation_projection.model_dump(mode="json")
+            )
+        except Exception as exc:
+            raise GenerationCycleError(
+                "acquisition_reentry_observation_projection_invalid"
+            ) from exc
 
         selected_baseline_path = Path(baseline_path)
         selected_overlay_path = Path(overlay_path)
@@ -4841,6 +4861,20 @@ class GenerationCycleController:
             or missing_distributions != (passports[0].variable_id,)
         ):
             raise GenerationCycleError("acquisition_reentry_requirement_overlay_mismatch")
+        if (
+            observation_projection.receipt_ref != overlay_receipt.receipt_ref
+            or observation_projection.receipt_content_sha256
+            != overlay_receipt.receipt_content_hash
+            or observation_projection.epoch_id != overlay_receipt.epoch_id
+            or observation_projection.passport_id != overlay_receipt.passport_id
+            or observation_projection.admission_content_sha256
+            != overlay_receipt.admission_content_sha256
+            or observation_projection.activation_state != overlay_receipt.activation_state
+            or observation_projection.variable_id != passports[0].variable_id
+        ):
+            raise GenerationCycleError(
+                "acquisition_reentry_observation_projection_binding_mismatch"
+            )
         if (
             source_cycle.acquisition_cost_basis_record is not None
             and source_cycle.acquisition_cost_basis_record.missing_distribution
@@ -4900,6 +4934,7 @@ class GenerationCycleController:
                 repo_root=self._repo_root,
                 cycle_substrate_context=self._cycle_substrate_context,
                 catalog_overlay_path=selected_overlay_path,
+                activated_observation_projection=observation_projection,
             ),
             cycle_substrate_context=self._cycle_substrate_context,
             **value_port_kwargs,
@@ -7778,6 +7813,9 @@ def _load_value_data_profile_from_l1_dcat(
     owner_access_ref: str,
     overlay_path: Path | None = None,
     scope_region: str | None = None,
+    activated_observation_projection: (
+        data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+    ) = None,
 ) -> ValueDataProfile | None:
     """Load deterministic owner rows without deriving an exposure assignment."""
 
@@ -7821,7 +7859,12 @@ def _load_value_data_profile_from_l1_dcat(
               value,
               dataset_id,
               observation_id,
-              condition_json
+              condition_json,
+              canonical_var,
+              country_code,
+              year,
+              survey_year,
+              wave
             FROM ds_observations
             WHERE canonical_var = ?
               AND value IS NOT NULL
@@ -7843,6 +7886,104 @@ def _load_value_data_profile_from_l1_dcat(
             ),
             owner_access_ref=f"{owner_access_ref}#row-cap",
         )
+    projected_rows_by_id: dict[str, tuple[object, ...]] = {}
+    if activated_observation_projection is not None:
+        projection_type = (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        )
+        try:
+            observation_projection = projection_type.model_validate(
+                activated_observation_projection.model_dump(mode="json")
+            )
+        except Exception as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_invalid",
+                f"Data Forge active observation projection failed content validation: {exc}",
+                owner_access_ref=(
+                    f"{owner_access_ref}#activated-observation-projection"
+                ),
+            ) from exc
+        if (
+            observation_projection.variable_id != outcome
+            or observation_projection.activation_state != "active"
+            or observation_projection.predicate_provenance != "recomputed"
+            or observation_projection.source_time_status != "not_established"
+        ):
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_binding_mismatch",
+                "Data Forge active observation projection does not bind this N8 outcome",
+                owner_access_ref=(
+                    f"{owner_access_ref}#activated-observation-projection"
+                ),
+            )
+        physical_rows_by_id: dict[str, list[tuple[object, ...]]] = {}
+        for raw_row in raw_rows:
+            physical_rows_by_id.setdefault(str(raw_row[4]), []).append(raw_row)
+        for projected in observation_projection.observations:
+            observation = projected.observation
+            if normalized_scope_region and observation.country_code != normalized_scope_region:
+                continue
+            physical_matches = physical_rows_by_id.get(observation.observation_id, [])
+            expected_physical = (
+                observation.observation_id,
+                observation.dataset_id,
+                observation.canonical_var,
+                observation.country_code,
+                observation.year,
+                observation.survey_year,
+                observation.wave,
+                observation.value,
+                observation.condition_json,
+            )
+            actual_physical = (
+                str(physical_matches[0][4]),
+                str(physical_matches[0][3]),
+                str(physical_matches[0][6]),
+                str(physical_matches[0][7]),
+                physical_matches[0][8],
+                physical_matches[0][9],
+                physical_matches[0][10],
+                physical_matches[0][2],
+                str(physical_matches[0][5]),
+            ) if len(physical_matches) == 1 else None
+            if actual_physical != expected_physical:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_drift",
+                    (
+                        "N8 query rows differ from the Data Forge verified active member "
+                        f"{observation.observation_id}"
+                    ),
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            period_id = (
+                observation.year
+                if observation.year is not None
+                else observation.survey_year
+                if observation.survey_year is not None
+                else observation.wave
+            )
+            if period_id is None:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_time_missing",
+                    "Data Forge active observation has no N8 panel coordinate",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            projected_rows_by_id[observation.observation_id] = (
+                observation.country_code,
+                int(period_id),
+                observation.value,
+                observation.dataset_id,
+                observation.observation_id,
+                observation.condition_json,
+            )
+    raw_rows = [
+        projected_rows_by_id.get(str(row[4]), tuple(row[:6]))
+        for row in raw_rows
+    ]
     if not raw_rows:
         return None
     grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = {}

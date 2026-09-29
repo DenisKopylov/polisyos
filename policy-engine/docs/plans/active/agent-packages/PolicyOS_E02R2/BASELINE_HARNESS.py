@@ -27,6 +27,9 @@ from __future__ import annotations
 import argparse
 import ast
 import concurrent.futures
+import errno
+import fcntl
+import fnmatch
 import hashlib
 import json
 import math
@@ -39,6 +42,7 @@ import subprocess
 import threading
 import time
 import traceback
+import uuid
 import xml.etree.ElementTree as ET
 from collections import Counter
 from dataclasses import asdict, dataclass
@@ -105,6 +109,26 @@ EXPECTED_DATA_MANIFEST_SHA256 = (
 INTEGRATION_PACKAGE_RELATIVE = (
     "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2"
 )
+PROCESS_GROUP_FENCE_DIR = (
+    INTEGRATION_CHECKOUT
+    / INTEGRATION_PACKAGE_RELATIVE
+    / "raw"
+    / "process-group-fences"
+)
+PROCESS_GROUP_FENCE_FAILURE_DIR = (
+    INTEGRATION_CHECKOUT
+    / INTEGRATION_PACKAGE_RELATIVE
+    / "raw"
+    / "process-group-fence-failures"
+)
+PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH = (
+    INTEGRATION_CHECKOUT
+    / INTEGRATION_PACKAGE_RELATIVE
+    / "raw"
+    / "process-group-fence-write-failed.flag"
+)
+PROCESS_GROUP_FENCE_EVENT_SCHEMA = "policyos.e02r2.p41-process-group-fence-event.v1"
+PROCESS_GROUP_ADMISSION_LOCK_NAME = ".p41-process-group-admission.lock"
 REVIEWED_RELEASE_FRAGMENT_RELATIVE = (
     "policy-engine/release-fragments/unreleased/2026-09-24-e02-r2-openapi-integration.toml"
 )
@@ -635,6 +659,420 @@ def _sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _write_new_json_record(path: Path, record: dict[str, Any]) -> str:
+    """Create one immutable JSON record and sync both its bytes and directory entry."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = (json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n").encode()
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        offset = 0
+        while offset < len(payload):
+            written = os.write(fd, payload[offset:])
+            if written <= 0:
+                raise OSError("could not finish writing immutable process-group receipt")
+            offset += written
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+    directory_fd = os.open(path.parent, os.O_RDONLY)
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _valid_process_group_fence_id(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and bool(value)
+        and len(value) <= 128
+        and re.fullmatch(r"[A-Za-z0-9_-]+", value) is not None
+    )
+
+
+def _append_process_group_fence_event(
+    event: dict[str, Any],
+    *,
+    record_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Persist one pending or verified-absent process-group event without replacement."""
+    event_type = event.get("event")
+    fence_id = event.get("fence_id")
+    target_pgid = event.get("target_pgid")
+    if event_type not in {"pending_verification", "owner_verified_absent"}:
+        raise ValueError("unsupported process-group fence event")
+    if not _valid_process_group_fence_id(fence_id):
+        raise ValueError("process-group fence requires a safe fence_id")
+    if not isinstance(target_pgid, int) or isinstance(target_pgid, bool) or target_pgid <= 1:
+        raise ValueError("process-group fence requires a positive process-group ID")
+    enriched = {
+        **event,
+        "schema": PROCESS_GROUP_FENCE_EVENT_SCHEMA,
+        "recorded_at_utc": datetime.now(UTC).isoformat(),
+    }
+    event_dir = record_dir or PROCESS_GROUP_FENCE_DIR
+    if event_type == "pending_verification":
+        path = event_dir / f"pending-{fence_id}.json"
+    else:
+        path = event_dir / f"verified-{fence_id}.json"
+    digest = _write_new_json_record(path, enriched)
+    return {"path": str(path), "sha256": digest, "event": enriched}
+
+
+def _persist_unverified_process_group(event: dict[str, Any]) -> dict[str, Any]:
+    """Persist a process-group admission fence; fall back to a fail-closed marker."""
+    try:
+        record = _append_process_group_fence_event(event)
+        return {"persisted": True, **record}
+    except Exception as exc:
+        fence_id = event.get("fence_id")
+        failure_path = (
+            PROCESS_GROUP_FENCE_FAILURE_DIR / f"failure-{fence_id}.json"
+            if _valid_process_group_fence_id(fence_id)
+            else None
+        )
+        failure = {
+            "schema": PROCESS_GROUP_FENCE_EVENT_SCHEMA,
+            "state": "unidentified_unverified_process_group",
+            "target_pgid": event.get("target_pgid"),
+            "fence_id": event.get("fence_id"),
+            "run_id": event.get("run_id"),
+            "record_error": f"{type(exc).__name__}: {exc}",
+            "recorded_at_utc": datetime.now(UTC).isoformat(),
+        }
+        persisted = False
+        if failure_path is not None:
+            try:
+                _write_new_json_record(failure_path, failure)
+                persisted = True
+            except FileExistsError:
+                try:
+                    existing = json.loads(failure_path.read_text(encoding="utf-8"))
+                    persisted = (
+                        existing.get("schema") == PROCESS_GROUP_FENCE_EVENT_SCHEMA
+                        and existing.get("state") == "unidentified_unverified_process_group"
+                        and existing.get("fence_id") == fence_id
+                        and existing.get("target_pgid") == event.get("target_pgid")
+                        and existing.get("run_id") == event.get("run_id")
+                    )
+                except Exception:
+                    persisted = False
+            except Exception:
+                persisted = False
+        return {
+            "persisted": persisted,
+            "event": event,
+            "record_error": failure["record_error"],
+            "failure_marker_path": str(failure_path) if failure_path is not None else None,
+        }
+
+
+def _process_group_fence_state() -> dict[str, Any]:
+    """Read durable unresolved groups; malformed state blocks admission as UNRUN."""
+    try:
+        def record_paths(directory: Path, pattern: str) -> list[Path]:
+            try:
+                directory_stat = os.lstat(directory)
+            except FileNotFoundError:
+                return []
+            if not stat.S_ISDIR(directory_stat.st_mode):
+                raise ValueError(f"process-group fence path is not a directory: {directory}")
+            # pathlib glob suppresses some scandir OSErrors on recent Python
+            # versions, which could turn an unreadable journal into CLEAR.
+            # Enumerate explicitly so every listing failure reaches the
+            # outer typed-UNRUN handler.
+            with os.scandir(directory) as entries:
+                names = sorted(
+                    entry.name
+                    for entry in entries
+                    if fnmatch.fnmatchcase(entry.name, pattern)
+                )
+            return [directory / name for name in names]
+
+        failure_paths = record_paths(PROCESS_GROUP_FENCE_FAILURE_DIR, "failure-*.json")
+        try:
+            legacy_stat = os.lstat(PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH)
+        except FileNotFoundError:
+            legacy_failure_present = False
+        else:
+            if not stat.S_ISREG(legacy_stat.st_mode):
+                raise ValueError("legacy process-group failure marker is not a regular file")
+            legacy_failure_present = True
+        fallback_by_id: dict[str, dict[str, Any]] = {}
+        for path in failure_paths:
+            record = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(record, dict):
+                raise ValueError(f"fallback process-group fence is not an object: {path}")
+            fence_id = record.get("fence_id")
+            target_pgid = record.get("target_pgid")
+            if (
+                record.get("schema") != PROCESS_GROUP_FENCE_EVENT_SCHEMA
+                or record.get("state") != "unidentified_unverified_process_group"
+                or not _valid_process_group_fence_id(fence_id)
+                or path.name != f"failure-{fence_id}.json"
+                or not isinstance(target_pgid, int)
+                or isinstance(target_pgid, bool)
+                or target_pgid <= 1
+                or not isinstance(record.get("run_id"), str)
+                or not record["run_id"].strip()
+                or not isinstance(record.get("record_error"), str)
+                or not record["record_error"].strip()
+                or fence_id in fallback_by_id
+            ):
+                raise ValueError(f"malformed fallback process-group fence: {path}")
+            fallback_by_id[fence_id] = {
+                **record,
+                "source": "fallback_failure_marker",
+                "record_path": str(path),
+            }
+
+        if legacy_failure_present:
+            legacy = json.loads(PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH.read_text(encoding="utf-8"))
+            if not isinstance(legacy, dict):
+                raise ValueError("legacy process-group failure marker is not an object")
+            fence_id = legacy.get("fence_id")
+            target_pgid = legacy.get("target_pgid")
+            if (
+                legacy.get("schema") != PROCESS_GROUP_FENCE_EVENT_SCHEMA
+                or legacy.get("state") != "unidentified_unverified_process_group"
+                or not _valid_process_group_fence_id(fence_id)
+                or not isinstance(target_pgid, int)
+                or isinstance(target_pgid, bool)
+                or target_pgid <= 1
+                or not isinstance(legacy.get("run_id"), str)
+                or not legacy["run_id"].strip()
+                or not isinstance(legacy.get("record_error"), str)
+                or not legacy["record_error"].strip()
+                or fence_id in fallback_by_id
+            ):
+                raise ValueError("malformed legacy process-group failure marker")
+            fallback_by_id[fence_id] = {
+                **legacy,
+                "source": "fallback_failure_marker",
+                "record_path": str(PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH),
+            }
+
+        pending_paths = record_paths(PROCESS_GROUP_FENCE_DIR, "pending-*.json")
+        verification_paths = []
+        for event_dir in (PROCESS_GROUP_FENCE_DIR, PROCESS_GROUP_FENCE_FAILURE_DIR):
+            verification_paths.extend(record_paths(event_dir, "verified-*.json"))
+        verification_paths = sorted(set(verification_paths))
+        pending_by_id: dict[str, dict[str, Any]] = {}
+        malformed_fallback_primary_paths: list[Path] = []
+        for path in pending_paths:
+            # A fallback record can preserve the identity of a partially
+            # written primary record, but it cannot establish that an
+            # unreadable primary record is well-formed or consistent. Keep
+            # read errors visible to the outer typed-UNRUN handler.
+            raw_record = path.read_text(encoding="utf-8")
+            try:
+                record = json.loads(raw_record)
+            except json.JSONDecodeError:
+                fallback_id = path.name.removeprefix("pending-").removesuffix(".json")
+                if fallback_id in fallback_by_id:
+                    malformed_fallback_primary_paths.append(path)
+                    continue
+                raise
+            if not isinstance(record, dict):
+                fallback_id = path.name.removeprefix("pending-").removesuffix(".json")
+                if fallback_id in fallback_by_id:
+                    malformed_fallback_primary_paths.append(path)
+                    continue
+                raise ValueError(f"process-group fence is not an object: {path}")
+            fence_id = record.get("fence_id")
+            if (
+                record.get("schema") != PROCESS_GROUP_FENCE_EVENT_SCHEMA
+                or record.get("event") != "pending_verification"
+                or not _valid_process_group_fence_id(fence_id)
+                or path.name != f"pending-{fence_id}.json"
+                or not isinstance(record.get("target_pgid"), int)
+                or isinstance(record.get("target_pgid"), bool)
+                or record["target_pgid"] <= 1
+                or fence_id in pending_by_id
+            ):
+                raise ValueError(f"malformed process-group fence record: {path}")
+            pending_by_id[fence_id] = record
+
+        for fence_id, fallback in fallback_by_id.items():
+            existing = pending_by_id.get(fence_id)
+            if existing is not None and existing.get("target_pgid") != fallback.get("target_pgid"):
+                raise ValueError(f"fallback and primary fence disagree on PGID: {fence_id}")
+            if existing is None:
+                pending_by_id[fence_id] = {
+                    "event": "pending_verification",
+                    "fence_id": fence_id,
+                    "target_pgid": fallback["target_pgid"],
+                    "run_id": fallback["run_id"],
+                    "trigger": "fallback_failure_marker",
+                    "source": "fallback_failure_marker",
+                    "record_path": fallback["record_path"],
+                    "record_error": fallback["record_error"],
+                }
+            else:
+                existing["fallback_marker_path"] = fallback["record_path"]
+
+        resolved_ids: set[str] = set()
+        for path in verification_paths:
+            record = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(record, dict):
+                raise ValueError(f"process-group verification record is not an object: {path}")
+            fence_id = record.get("fence_id")
+            pending = pending_by_id.get(fence_id)
+            if (
+                record.get("schema") != PROCESS_GROUP_FENCE_EVENT_SCHEMA
+                or record.get("event") != "owner_verified_absent"
+                or not _valid_process_group_fence_id(fence_id)
+                or path.name != f"verified-{fence_id}.json"
+                or pending is None
+                or record.get("target_pgid") != pending.get("target_pgid")
+                or not isinstance(record.get("verified_by"), str)
+                or not record["verified_by"].strip()
+                or not isinstance(record.get("verification_note"), str)
+                or not record["verification_note"].strip()
+                or record.get("verification_method") != "killpg-zero-returned-esrch"
+                or fence_id in resolved_ids
+            ):
+                raise ValueError(f"malformed process-group verification record: {path}")
+            resolved_ids.add(fence_id)
+        pending = [
+            {
+                **record,
+                "record_path": record.get(
+                    "record_path",
+                    str(PROCESS_GROUP_FENCE_DIR / f"pending-{fence_id}.json"),
+                ),
+            }
+            for fence_id, record in sorted(pending_by_id.items())
+            if fence_id not in resolved_ids
+        ]
+        record_paths = [
+            *pending_paths,
+            *verification_paths,
+            *failure_paths,
+            *malformed_fallback_primary_paths,
+        ]
+        if legacy_failure_present:
+            record_paths.append(PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH)
+        digests = [
+            {"path": str(path), "sha256": _sha256(path)}
+            for path in record_paths
+        ]
+        return {
+            "verdict": "BLOCKED" if pending else "CLEAR",
+            "pending": pending,
+            "records": digests,
+            "sha256": hashlib.sha256(
+                json.dumps(digests, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest(),
+        }
+    except (OSError, ValueError, json.JSONDecodeError, TypeError) as exc:
+        return {
+            "verdict": "UNRUN",
+            "pending": [],
+            "inspection_error": f"{type(exc).__name__}: {exc}",
+            "sha256": None,
+        }
+
+
+def _resolve_process_group_fence(
+    fence_id: str,
+    *,
+    verified_by: str,
+    verification_note: str,
+) -> dict[str, Any]:
+    """Append an owner attestation only after the recorded PGID is absent to killpg(0)."""
+    if not verified_by.strip() or not verification_note.strip():
+        raise ValueError("owner identity and verification note are required")
+    state = _process_group_fence_state()
+    if state["verdict"] != "BLOCKED":
+        return {"status": "state_not_resolvable", "fence_state": state["verdict"]}
+    pending = next((item for item in state["pending"] if item["fence_id"] == fence_id), None)
+    if pending is None:
+        return {"status": "fence_not_pending", "fence_id": fence_id}
+    target_pgid = pending["target_pgid"]
+    try:
+        os.killpg(target_pgid, 0)
+    except ProcessLookupError as exc:
+        if exc.errno != errno.ESRCH:
+            return {"status": "still_present_or_unknown", "error": f"{type(exc).__name__}: {exc}"}
+    except OSError as exc:
+        return {"status": "still_present_or_unknown", "error": f"{type(exc).__name__}: {exc}"}
+    else:
+        return {"status": "still_present_or_unknown", "error": "killpg(0) found the process group"}
+    event = {
+        "event": "owner_verified_absent",
+        "fence_id": fence_id,
+        "target_pgid": target_pgid,
+        "verified_by": verified_by.strip(),
+        "verification_note": verification_note.strip(),
+        "verification_method": "killpg-zero-returned-esrch",
+    }
+    record_dir = (
+        PROCESS_GROUP_FENCE_FAILURE_DIR
+        if pending.get("source") == "fallback_failure_marker"
+        else None
+    )
+    receipt = _append_process_group_fence_event(event, record_dir=record_dir)
+    return {"status": "verified_absent", "fence_id": fence_id, "receipt": receipt}
+
+
+def _acquire_process_group_admission_lock() -> int | None:
+    """Serialize broker invocations while preserving a persistent lock file."""
+    lock_path = PROCESS_GROUP_FENCE_DIR.parent / PROCESS_GROUP_ADMISSION_LOCK_NAME
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        os.close(fd)
+        return None
+    return fd
+
+
+def _release_process_group_admission_lock(fd: int) -> None:
+    try:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+    finally:
+        os.close(fd)
+
+
+def _write_process_group_admission_unrun(
+    scratch_root: Path,
+    *,
+    failure_stage: str,
+    reason: str,
+    fence_state: dict[str, Any],
+) -> int:
+    """Write a local typed UNRUN receipt without starting any child process."""
+    scratch_root.mkdir(parents=True, exist_ok=True)
+    run_id = (
+        f"p41-admission-unrun-{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}"
+        f"-{os.getpid()}-{uuid.uuid4().hex[:8]}"
+    )
+    receipt_path = scratch_root / f"{run_id}.json"
+    report = {
+        "schema": "policyos.e02r2.p41-admission-unrun.v1",
+        "verdict": "UNRUN",
+        "measurement_verdict": "UNRUN",
+        "failure_stage": failure_stage,
+        "reason": reason,
+        "run_id": run_id,
+        "created_at_utc": datetime.now(UTC).isoformat(),
+        "test_process_started": False,
+        "popen_admitted": False,
+        "process_group_fence_path": str(PROCESS_GROUP_FENCE_DIR),
+        "process_group_fence_state_sha256": fence_state.get("sha256"),
+        "process_group_fence_state": fence_state.get("verdict"),
+        "pending_process_group_fences": fence_state.get("pending", []),
+        "inspection_error": fence_state.get("inspection_error"),
+    }
+    _write_new_json_record(receipt_path, report)
+    print(f"P41 admission UNRUN before subprocess creation: {reason}")  # noqa: T201
+    print(f"Admission receipt: {receipt_path}")  # noqa: T201
+    return 2
 
 
 def _appendix_identity_source_receipt() -> dict[str, Any]:
@@ -1613,41 +2051,120 @@ def _machine_admission_block_reason(scratch_root: Path, baseline_swap_used_bytes
     return _machine_admission_state(scratch_root, baseline_swap_used_bytes)[1]
 
 
-def _terminate_process_group(process: subprocess.Popen[bytes]) -> None:
-    try:
-        os.killpg(process.pid, signal.SIGTERM)
-    except ProcessLookupError:
-        return
-    try:
-        process.wait(timeout=3)
-    except subprocess.TimeoutExpired:
+def _termination_outcome(
+    process: subprocess.Popen[bytes],
+    *,
+    status: str,
+    group_state: str,
+    signals_attempted: list[str],
+    exc: OSError | None = None,
+) -> dict[str, Any]:
+    """Capture termination without converting an OS denial into a worker exception."""
+    return {
+        "status": status,
+        "target_pgid": process.pid,
+        "leader_returncode": process.poll(),
+        "group_state": group_state,
+        "signals_attempted": list(signals_attempted),
+        "error_number": exc.errno if exc is not None else None,
+        "error": f"{type(exc).__name__}: {exc}" if exc is not None else None,
+    }
+
+
+def _terminate_process_group(process: subprocess.Popen[bytes]) -> dict[str, Any]:
+    """Request process-group termination only while its leader is unreaped.
+
+    Once ``poll`` observes an exit, its PID may be reused as another process
+    group's ID. In that state this function records the uncertainty and sends
+    no signal to the numeric PGID.
+    """
+    signals_attempted: list[str] = []
+    if process.poll() is not None:
+        return _termination_outcome(
+            process,
+            status="leader_already_exited",
+            group_state="unknown_after_leader_exit",
+            signals_attempted=signals_attempted,
+        )
+
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        if process.poll() is not None:
+            return _termination_outcome(
+                process,
+                status="leader_exited_before_signal",
+                group_state="unknown_after_leader_exit",
+                signals_attempted=signals_attempted,
+            )
         try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-        process.wait()
+            os.killpg(process.pid, sig)
+        except ProcessLookupError as exc:
+            return _termination_outcome(
+                process,
+                status="group_not_found",
+                group_state="absent_at_signal_attempt",
+                signals_attempted=signals_attempted,
+                exc=exc,
+            )
+        except PermissionError as exc:
+            return _termination_outcome(
+                process,
+                status="permission_denied",
+                group_state="unknown_signal_denied",
+                signals_attempted=signals_attempted,
+                exc=exc,
+            )
+        except OSError as exc:
+            return _termination_outcome(
+                process,
+                status="signal_error",
+                group_state="unknown_signal_error",
+                signals_attempted=signals_attempted,
+                exc=exc,
+            )
+        signals_attempted.append(signal.Signals(sig).name)
+        try:
+            process.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            if sig == signal.SIGTERM and process.poll() is None:
+                continue
+            return _termination_outcome(
+                process,
+                status="leader_still_running",
+                group_state="unknown_after_signal_timeout",
+                signals_attempted=signals_attempted,
+            )
+        except OSError as exc:
+            return _termination_outcome(
+                process,
+                status="wait_error",
+                group_state="unknown_after_wait_error",
+                signals_attempted=signals_attempted,
+                exc=exc,
+            )
+        return _termination_outcome(
+            process,
+            status=f"leader_exited_after_{signal.Signals(sig).name.casefold()}",
+            group_state="requires_final_observation",
+            signals_attempted=signals_attempted,
+        )
+
+    return _termination_outcome(
+        process,
+        status="leader_still_running",
+        group_state="unknown_after_signal_timeout",
+        signals_attempted=signals_attempted,
+    )
 
 
-def _terminate_orphaned_group(
+def _observe_orphaned_group(
     process: subprocess.Popen[bytes],
     scratch_root: Path,
 ) -> dict[str, Any]:
-    """Terminate live descendants remaining after pytest's leader exited."""
-    try:
-        os.killpg(process.pid, signal.SIGTERM)
-    except ProcessLookupError:
-        return _resource_snapshot(process.pid, scratch_root, allow_empty_group=True)
-    deadline = time.monotonic() + 3.0
+    """Observe a PGID after leader exit without signaling a potentially reused ID."""
     latest = _resource_snapshot(process.pid, scratch_root, allow_empty_group=True)
+    deadline = time.monotonic() + 3.0
     while latest["process_group_live_process_count"] and time.monotonic() < deadline:
         time.sleep(0.2)
-        latest = _resource_snapshot(process.pid, scratch_root, allow_empty_group=True)
-    if latest["process_group_live_process_count"]:
-        try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-        time.sleep(0.1)
         latest = _resource_snapshot(process.pid, scratch_root, allow_empty_group=True)
     return latest
 
@@ -1747,6 +2264,28 @@ def _run_job(
         if launch_ready is not None:
             launch_ready.set()
         return _unrun_before_process_admission(job, revision, stop_reason)
+    fence_state = _process_group_fence_state()
+    if fence_state.get("verdict") != "CLEAR":
+        if launch_ready is not None:
+            launch_ready.set()
+        reason = (
+            "process-group verification fence is pending"
+            if fence_state.get("verdict") == "BLOCKED"
+            else (
+                "process-group fence inspection is UNRUN: "
+                f"{fence_state.get('inspection_error', 'unknown error')}"
+            )
+        )
+        row = _unrun_before_process_admission(job, revision, reason)
+        row.update(
+            {
+                "resource_guard_kind": "operational_unrun",
+                "resource_guard_code": "process_group_verification_pending",
+                "process_group_verification_required": True,
+                "process_group_fence_state_sha256": fence_state.get("sha256"),
+            }
+        )
+        return row
     try:
         admission_block = _machine_admission_block_reason(
             scratch_root,
@@ -1816,75 +2355,196 @@ def _run_job(
     timed_out = False
     live_process_group_after_exit = False
     process: subprocess.Popen[bytes] | None = None
+    process_group_termination: dict[str, Any] | None = None
+    process_group_termination_guard_code: str | None = None
+    process_group_fence_record: dict[str, Any] | None = None
+    process_group_fence_persisted = False
+    process_group_registered = False
+    process_group_registration_error: str | None = None
     initial_sample: dict[str, Any] | None = None
+
+    def persist_process_group_fence(trigger: str) -> None:
+        nonlocal process_group_fence_record, process_group_fence_persisted
+        nonlocal process_group_termination_guard_code, resource_guard
+        if process_group_fence_record is not None:
+            return
+        fence_id = uuid.uuid4().hex
+        sample = resource_samples[-1] if resource_samples else initial_sample
+        event = {
+            "event": "pending_verification",
+            "fence_id": fence_id,
+            "target_pgid": process.pid if process is not None else None,
+            "run_id": run_dir.name,
+            "revision_key": job.revision_key,
+            "revision_commit": revision["commit"],
+            "test_path": job.test_path,
+            "test_blob_oid": job.test_blob_oid,
+            "trigger": trigger,
+            "termination": process_group_termination,
+            "last_process_sample": sample,
+        }
+        if process is None:
+            return
+        result = _persist_unverified_process_group(event)
+        process_group_fence_record = result
+        process_group_fence_persisted = bool(result.get("persisted"))
+        if not process_group_fence_persisted:
+            process_group_termination_guard_code = "process_group_fence_persist_failed"
+            persistence_reason = (
+                "durable process-group fence could not be written; stop all later runs and "
+                "verify the recorded group manually"
+            )
+            resource_guard = (
+                f"{resource_guard}; {persistence_reason}"
+                if resource_guard
+                else persistence_reason
+            )
+
+
+    def request_termination(trigger: str) -> None:
+        """Attempt cleanup once and preserve a typed UNRUN if cleanup is uncertain."""
+        nonlocal process_group_termination, process_group_termination_guard_code
+        nonlocal resource_guard
+        if process is None or process_group_termination is not None:
+            return
+        try:
+            outcome = _terminate_process_group(process)
+        except Exception as exc:
+            outcome = {
+                "status": "cleanup_exception",
+                "target_pgid": process.pid,
+                "leader_returncode": process.poll(),
+                "group_state": "unknown_after_cleanup_exception",
+                "signals_attempted": [],
+                "error_number": getattr(exc, "errno", None),
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+        outcome["trigger"] = trigger
+        status = outcome["status"]
+        process_group_termination = outcome
+        unresolved = status in {
+            "permission_denied",
+            "signal_error",
+            "wait_error",
+            "leader_still_running",
+            "cleanup_exception",
+        } or (status == "group_not_found" and outcome.get("leader_returncode") is None)
+        if unresolved:
+            outcome["owner_verification_required"] = True
+            process_group_termination_guard_code = "process_group_termination_unverified"
+            previous_guard = resource_guard
+            resource_guard = (
+                "process-group termination could not be verified; owner confirmation that no "
+                "group member remains is required "
+                f"({status}; {outcome.get('error') or 'no OS error'})"
+            )
+            if previous_guard:
+                resource_guard = f"{previous_guard}; {resource_guard}"
+            with _PROCESS_GROUPS_LOCK:
+                persist_process_group_fence(trigger)
+        else:
+            outcome["owner_verification_required"] = False
+
     try:
         with stdout_path.open("wb") as stdout, stderr_path.open("wb") as stderr:
-            process = subprocess.Popen(
-                command,
-                cwd=project_root,
-                env=env,
-                stdout=stdout,
-                stderr=stderr,
-                start_new_session=True,
-            )
             with _PROCESS_GROUPS_LOCK:
-                _LIVE_PROCESS_GROUPS[process.pid] = {
-                    "process": process,
-                    "expected_profile": expected_profile,
-                    "revision_key": job.revision_key,
-                    "test_path": job.test_path,
-                }
-            stop_reason = _stop_requested_reason()
-            if stop_reason is not None:
-                resource_guard = stop_reason
-                _terminate_process_group(process)
-            else:
+                admission_state = _process_group_fence_state()
+                if admission_state.get("verdict") != "CLEAR":
+                    if launch_ready is not None:
+                        launch_ready.set()
+                    reason = (
+                        "process-group verification fence is pending before Popen"
+                        if admission_state.get("verdict") == "BLOCKED"
+                        else "process-group fence inspection is UNRUN before Popen"
+                    )
+                    row = _unrun_before_process_admission(job, revision, reason)
+                    row.update(
+                        {
+                            "resource_guard_kind": "operational_unrun",
+                            "resource_guard_code": "process_group_verification_pending",
+                            "process_group_verification_required": True,
+                            "process_group_fence_state_sha256": admission_state.get("sha256"),
+                        }
+                    )
+                    return row
+                process = subprocess.Popen(
+                    command,
+                    cwd=project_root,
+                    env=env,
+                    stdout=stdout,
+                    stderr=stderr,
+                    start_new_session=True,
+                )
                 try:
-                    initial_sample = _child_resource_snapshot(process, scratch_root)
-                    resource_samples.append(initial_sample)
-                    resource_guard = _resource_guard_reason(
-                        initial_sample,
-                        baseline_swap_used_bytes,
-                    )
-                    if resource_guard is not None:
-                        _terminate_process_group(process)
+                    _LIVE_PROCESS_GROUPS[process.pid] = {
+                        "process": process,
+                        "expected_profile": expected_profile,
+                        "revision_key": job.revision_key,
+                        "test_path": job.test_path,
+                    }
+                    process_group_registered = True
                 except Exception as exc:
-                    resource_guard = (
-                        f"initial resource inspection unavailable: {type(exc).__name__}: {exc}"
-                    )
-                    _terminate_process_group(process)
-            if launch_ready is not None:
-                launch_ready.set()
-            while process.poll() is None:
+                    process_group_registration_error = f"{type(exc).__name__}: {exc}"
+            if process_group_registration_error is not None:
+                resource_guard = "process-group registry registration failed after child launch"
+                launch_error = resource_guard + ": " + process_group_registration_error
+                request_termination("process_group_registry_registration_failure")
+                if launch_ready is not None:
+                    launch_ready.set()
+            if process_group_registration_error is None:
                 stop_reason = _stop_requested_reason()
                 if stop_reason is not None:
                     resource_guard = stop_reason
-                    _terminate_process_group(process)
-                    break
-                elapsed_now = time.monotonic() - start
-                if elapsed_now >= job.timeout_seconds:
-                    timed_out = True
-                    _terminate_process_group(process)
-                    break
-                time.sleep(min(RESOURCE_SAMPLE_SECONDS, max(0.1, job.timeout_seconds - elapsed_now)))
-                if process.poll() is not None:
-                    break
-                try:
-                    snapshot = _child_resource_snapshot(process, scratch_root)
-                except Exception as exc:
-                    resource_guard = (
-                        f"resource inspection unavailable: {type(exc).__name__}: {exc}"
+                    request_termination("cooperative_stop_after_process_start")
+                else:
+                    try:
+                        initial_sample = _child_resource_snapshot(process, scratch_root)
+                        resource_samples.append(initial_sample)
+                        resource_guard = _resource_guard_reason(
+                            initial_sample,
+                            baseline_swap_used_bytes,
+                        )
+                        if resource_guard is not None:
+                            request_termination("initial_resource_guard")
+                    except Exception as exc:
+                        resource_guard = (
+                            f"initial resource inspection unavailable: {type(exc).__name__}: {exc}"
+                        )
+                        request_termination("initial_resource_inspection_failure")
+                if launch_ready is not None:
+                    launch_ready.set()
+                while process.poll() is None:
+                    stop_reason = _stop_requested_reason()
+                    if stop_reason is not None:
+                        resource_guard = stop_reason
+                        request_termination("cooperative_stop_during_run")
+                        break
+                    elapsed_now = time.monotonic() - start
+                    if elapsed_now >= job.timeout_seconds:
+                        timed_out = True
+                        request_termination("cell_timeout")
+                        break
+                    time.sleep(
+                        min(RESOURCE_SAMPLE_SECONDS, max(0.1, job.timeout_seconds - elapsed_now))
                     )
-                    _terminate_process_group(process)
-                    break
-                resource_samples.append(snapshot)
-                resource_guard = _resource_guard_reason(
-                    snapshot,
-                    baseline_swap_used_bytes,
-                )
-                if resource_guard is not None:
-                    _terminate_process_group(process)
-                    break
+                    if process.poll() is not None:
+                        break
+                    try:
+                        snapshot = _child_resource_snapshot(process, scratch_root)
+                    except Exception as exc:
+                        resource_guard = (
+                            f"resource inspection unavailable: {type(exc).__name__}: {exc}"
+                        )
+                        request_termination("resource_inspection_failure")
+                        break
+                    resource_samples.append(snapshot)
+                    resource_guard = _resource_guard_reason(
+                        snapshot,
+                        baseline_swap_used_bytes,
+                    )
+                    if resource_guard is not None:
+                        request_termination("sampled_resource_guard")
+                        break
             stop_reason = _stop_requested_reason()
             if stop_reason is not None and resource_guard is None:
                 resource_guard = stop_reason
@@ -1892,7 +2552,14 @@ def _run_job(
                 returncode = process.returncode
                 if returncode == -signal.SIGALRM:
                     timed_out = True
-                    _terminate_process_group(process)
+                    process_group_termination = _termination_outcome(
+                        process,
+                        status="leader_exited_after_runner_alarm",
+                        group_state="requires_final_observation",
+                        signals_attempted=[],
+                    )
+                    process_group_termination["owner_verification_required"] = False
+                    process_group_termination["trigger"] = "runner_alarm"
             try:
                 final_sample = _child_resource_snapshot(process, scratch_root)
                 resource_samples.append(final_sample)
@@ -1900,15 +2567,60 @@ def _run_job(
                     process.poll() is not None
                     and final_sample["process_group_live_process_count"] > 0
                 ):
-                    resource_guard = (
-                        "pytest leader exited while live process-group descendants remained; "
-                        "the cell is UNRUN after targeted process-group termination"
-                    )
-                    final_sample = _terminate_orphaned_group(process, scratch_root)
+                    final_sample = _observe_orphaned_group(process, scratch_root)
                     resource_samples.append(final_sample)
                     if final_sample["process_group_live_process_count"] > 0:
                         live_process_group_after_exit = True
-                        resource_guard += "; live descendants remained after SIGKILL"
+                        process_group_termination = process_group_termination or {
+                            "status": "members_observed_after_leader_exit",
+                            "target_pgid": process.pid,
+                            "leader_returncode": process.returncode,
+                            "signals_attempted": [],
+                        }
+                        process_group_termination["group_state"] = (
+                            "live_members_observed_after_leader_exit"
+                        )
+                        process_group_termination["owner_verification_required"] = True
+                        process_group_termination_guard_code = (
+                            "process_group_termination_unverified"
+                        )
+                        observation_guard = (
+                            "process-group members remained observable after leader exit; "
+                            "no signal was sent after the leader was reaped; "
+                            "owner verification is required"
+                        )
+                        resource_guard = (
+                            f"{resource_guard}; {observation_guard}"
+                            if resource_guard
+                            else observation_guard
+                        )
+                        # The leader is already reaped, so never signal by its
+                        # numeric PGID. Persist the observed live group anyway:
+                        # the next broker invocation must remain fenced until
+                        # an owner verifies that the exact group is absent.
+                        with _PROCESS_GROUPS_LOCK:
+                            persist_process_group_fence(
+                                "live_members_observed_after_leader_exit"
+                            )
+                if process.poll() is not None:
+                    returncode = process.returncode
+                if process_group_termination is not None and final_sample is not None:
+                    process_group_termination[
+                        "leader_returncode_at_final_sample"
+                    ] = process.returncode
+                    process_group_termination["leader_status_at_final_sample"] = (
+                        "exited" if process.returncode is not None else "running"
+                    )
+                    process_group_termination["live_process_count_at_final_sample"] = (
+                        final_sample["process_group_live_process_count"]
+                    )
+                    if (
+                        final_sample["process_group_live_process_count"] == 0
+                        and not process_group_termination.get("owner_verification_required")
+                    ):
+                        process_group_termination["group_state"] = (
+                            "no_live_members_observed_at_final_sample"
+                        )
                 if resource_guard is None:
                     resource_guard = _resource_guard_reason(
                         final_sample,
@@ -1920,16 +2632,48 @@ def _run_job(
                 )
     except OSError as exc:
         if process is not None and process.poll() is None:
-            _terminate_process_group(process)
+            request_termination("worker_os_error_cleanup")
         launch_error = f"{type(exc).__name__}: {exc}"
     except Exception as exc:
         if process is not None and process.poll() is None:
-            _terminate_process_group(process)
+            request_termination("worker_exception_cleanup")
         launch_error = f"execution or resource inspection failed: {type(exc).__name__}: {exc}"
     finally:
         if process is not None:
             with _PROCESS_GROUPS_LOCK:
-                _LIVE_PROCESS_GROUPS.pop(process.pid, None)
+                try:
+                    registry_entry = _LIVE_PROCESS_GROUPS.get(process.pid)
+                except Exception as exc:
+                    registry_entry = None
+                    process_group_registration_error = (
+                        process_group_registration_error
+                        or f"registry lookup failed during cleanup: {type(exc).__name__}: {exc}"
+                    )
+                registered_entry_matches = (
+                    registry_entry is not None and registry_entry.get("process") is process
+                )
+                if process.poll() is not None:
+                    if registered_entry_matches:
+                        _LIVE_PROCESS_GROUPS.pop(process.pid, None)
+                else:
+                    process_group_termination = process_group_termination or {
+                        "status": "leader_still_running_at_worker_exit",
+                        "target_pgid": process.pid,
+                        "leader_returncode": None,
+                        "signals_attempted": [],
+                    }
+                    process_group_termination["owner_verification_required"] = True
+                    process_group_termination_guard_code = (
+                        process_group_termination_guard_code
+                        or "process_group_termination_unverified"
+                    )
+                    resource_guard = resource_guard or (
+                        "process-group leader was still running when the worker returned; "
+                        "owner verification is required"
+                    )
+                    persist_process_group_fence("leader_still_running_at_worker_exit")
+                    if registered_entry_matches:
+                        registry_entry["owner_verification_required"] = True
         if launch_ready is not None:
             launch_ready.set()
     elapsed = time.monotonic() - start
@@ -1947,7 +2691,11 @@ def _run_job(
             # A green-looking JUnit file cannot hide a process-level failure.
             suite_status = "fail"
 
-    guard_metadata = _resource_guard_metadata(resource_guard)
+    guard_metadata = _resource_guard_metadata(
+        resource_guard,
+        kind="operational_unrun" if process_group_termination_guard_code else None,
+        code=process_group_termination_guard_code,
+    )
     return {
         "revision_key": job.revision_key,
         "revision_label": revision["label"],
@@ -1965,11 +2713,25 @@ def _run_job(
         "pythonpath_roots": [str(checkout / "policy-engine/src"), str(checkout / "policy-engine")],
         "cwd": str(project_root),
         "returncode": returncode,
+        "process_status_at_worker_return": (
+            "not_started"
+            if process is None
+            else ("exited" if process.poll() is not None else "running")
+        ),
         "timed_out": timed_out,
         "resource_guard": resource_guard,
         "resource_guard_kind": guard_metadata["kind"],
         "resource_guard_code": guard_metadata["code"],
         "resource_group_live_after_exit": live_process_group_after_exit,
+        "process_group_termination": process_group_termination,
+        "process_group_registered": process_group_registered,
+        "process_group_registration_error": process_group_registration_error,
+        "process_group_fence_record": process_group_fence_record,
+        "process_group_fence_persisted": process_group_fence_persisted,
+        "process_group_verification_required": bool(
+            process_group_termination
+            and process_group_termination.get("owner_verification_required")
+        ),
         "resource_exclusive": job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS,
         "resource_metrics": _resource_summary(resource_samples) if resource_samples else None,
         "elapsed_seconds": round(elapsed, 3),
@@ -2327,10 +3089,15 @@ def _schedule(
                     f"scheduler paused after worker error at {row['revision_key']}:{row['test_path']}: "
                     f"{row['inspection_error']}"
                 )
+            elif row.get("process_group_verification_required"):
+                halt_reason = (
+                    f"scheduler stopped after {row['revision_key']}:{row['test_path']}; "
+                    "owner must verify that no process-group member remains before resuming"
+                )
             elif row.get("resource_group_live_after_exit"):
                 halt_reason = (
-                    f"scheduler stopped after {row['revision_key']}:{row['test_path']} left live descendants "
-                    "after targeted SIGTERM/SIGKILL"
+                    f"scheduler stopped after {row['revision_key']}:{row['test_path']} had "
+                    "live process-group members after leader exit"
                 )
             elif row.get("resource_guard"):
                 halt_reason = (
@@ -3435,7 +4202,9 @@ def _write_report(
         "pauses dispatch and checkpoints unstarted cells as UNRUN. SIGINT/SIGTERM sets a cooperative "
         "stop event; active workers terminate only their own PGID, and the scheduler drains and "
         "checkpoints active and unstarted cells as UNRUN. Live descendants left after the leader "
-        "exits are targeted for termination; survivors of SIGKILL stop further admission."
+        "exits are targeted only while the leader is unreaped; after leader exit the harness "
+        "observes the PGID without signaling it, and unresolved membership stops admission "
+        "for owner verification."
     )
     lines = [
         "# Four-base P41 test baselines",
@@ -4874,36 +5643,121 @@ def main() -> int:
     parser.add_argument("--timeout-seconds", type=int, default=1800)
     parser.add_argument("--workers", type=int, default=DEFAULT_PROCESS_GROUPS)
     parser.add_argument("--scratch-root", type=Path, default=SCRATCH_ROOT)
+    parser.add_argument(
+        "--resolve-process-group-fence",
+        metavar="FENCE_ID",
+        help="append an owner verification only if the exact recorded PGID is absent",
+    )
+    parser.add_argument("--verified-by", help="owner identity for a fence resolution")
+    parser.add_argument(
+        "--verification-note", help="why the owner confirms the recorded PGID is absent"
+    )
     args = parser.parse_args()
-    if args.run == args.rerun_timeouts:
+
+    resolving_fence = args.resolve_process_group_fence is not None
+    if resolving_fence:
+        if (
+            args.run
+            or args.rerun_timeouts
+            or args.scope is not None
+            or args.test_file
+            or args.reuse_results
+            or args.resume_run is not None
+        ):
+            parser.error(
+                "process-group fence resolution cannot be combined with a matrix run or reuse"
+            )
+        if not args.verified_by or not args.verification_note:
+            parser.error("fence resolution requires --verified-by and --verification-note")
+    elif args.run == args.rerun_timeouts:
         parser.error("pass exactly one of --run or --rerun-timeouts")
-    if not 1 <= args.workers <= MAX_PROCESS_GROUPS:
+    if not resolving_fence and not 1 <= args.workers <= MAX_PROCESS_GROUPS:
         parser.error(f"--workers must be between 1 and {MAX_PROCESS_GROUPS}")
-    args.scratch_root.mkdir(parents=True, exist_ok=True)
-    if args.rerun_timeouts:
-        if args.test_file or args.scope is not None:
-            parser.error("--rerun-timeouts cannot be combined with --test-file or --scope")
-        if args.prior_results is None:
-            parser.error("--rerun-timeouts requires --prior-results")
-        if args.timeout_seconds < 1800:
-            parser.error("timeout reruns require an explicit alarm of at least 1800 seconds")
-        global REQUESTED_TEST_PATHS
-        REQUESTED_TEST_PATHS = INITIAL_TEST_PATHS
-        return _run_with_stop_handlers(lambda: run_timeout_rerun(args))
-    if args.test_file:
-        if args.scope is not None:
-            parser.error("custom --test-file paths cannot be combined with --scope")
-        args.scope = "custom"
-        REQUESTED_TEST_PATHS = _normalize_custom_test_paths(args.test_file)
-    else:
-        args.scope = args.scope or "pre-repair"
-        scope_paths = {
-            "initial": INITIAL_TEST_PATHS,
-            "touched": ADDON_TEST_PATHS,
-            "pre-repair": PRE_REPAIR_TEST_PATHS,
-        }
-        REQUESTED_TEST_PATHS = scope_paths[args.scope]
-    return _run_with_stop_handlers(lambda: run_matrix(args))
+
+    # This lock is acquired before any helper that can call subprocess.run/Popen.
+    # It prevents a simultaneous broker invocation from missing a fence written
+    # after another invocation's initial read.
+    try:
+        lock_fd = _acquire_process_group_admission_lock()
+    except OSError as exc:
+        state = _process_group_fence_state()
+        return _write_process_group_admission_unrun(
+            args.scratch_root,
+            failure_stage="broker_invocation_lock_inspection",
+            reason=(
+                "could not acquire the process-group admission lock: "
+                f"{type(exc).__name__}: {exc}"
+            ),
+            fence_state=state,
+        )
+    if lock_fd is None:
+        state = _process_group_fence_state()
+        return _write_process_group_admission_unrun(
+            args.scratch_root,
+            failure_stage="broker_invocation_lock",
+            reason="another P41 harness invocation holds the admission lock",
+            fence_state=state,
+        )
+    try:
+        if resolving_fence:
+            resolution = _resolve_process_group_fence(
+                args.resolve_process_group_fence,
+                verified_by=args.verified_by,
+                verification_note=args.verification_note,
+            )
+            print(json.dumps(resolution, sort_keys=True))  # noqa: T201
+            return 0 if resolution.get("status") == "verified_absent" else 2
+
+        fence_state = _process_group_fence_state()
+        if fence_state.get("verdict") != "CLEAR":
+            failure_stage = (
+                "process_group_fence_admission"
+                if fence_state.get("verdict") == "BLOCKED"
+                else "process_group_fence_inspection"
+            )
+            reason = (
+                "an unresolved process-group fence requires owner verification "
+                "before any subprocess is started"
+                if failure_stage == "process_group_fence_admission"
+                else (
+                    "durable process-group fence could not be reconciled: "
+                    f"{fence_state.get('inspection_error', 'unknown inspection failure')}"
+                )
+            )
+            return _write_process_group_admission_unrun(
+                args.scratch_root,
+                failure_stage=failure_stage,
+                reason=reason,
+                fence_state=fence_state,
+            )
+
+        args.scratch_root.mkdir(parents=True, exist_ok=True)
+        if args.rerun_timeouts:
+            if args.test_file or args.scope is not None:
+                parser.error("--rerun-timeouts cannot be combined with --test-file or --scope")
+            if args.prior_results is None:
+                parser.error("--rerun-timeouts requires --prior-results")
+            if args.timeout_seconds < 1800:
+                parser.error("timeout reruns require an explicit alarm of at least 1800 seconds")
+            global REQUESTED_TEST_PATHS
+            REQUESTED_TEST_PATHS = INITIAL_TEST_PATHS
+            return _run_with_stop_handlers(lambda: run_timeout_rerun(args))
+        if args.test_file:
+            if args.scope is not None:
+                parser.error("custom --test-file paths cannot be combined with --scope")
+            args.scope = "custom"
+            REQUESTED_TEST_PATHS = _normalize_custom_test_paths(args.test_file)
+        else:
+            args.scope = args.scope or "pre-repair"
+            scope_paths = {
+                "initial": INITIAL_TEST_PATHS,
+                "touched": ADDON_TEST_PATHS,
+                "pre-repair": PRE_REPAIR_TEST_PATHS,
+            }
+            REQUESTED_TEST_PATHS = scope_paths[args.scope]
+        return _run_with_stop_handlers(lambda: run_matrix(args))
+    finally:
+        _release_process_group_admission_lock(lock_fd)
 
 
 if __name__ == "__main__":

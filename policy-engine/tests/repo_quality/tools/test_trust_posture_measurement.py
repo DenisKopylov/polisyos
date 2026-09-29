@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from _helpers.custody_markdown import rebound_register
 
+from tools.lib import fs as filesystem
 from tools.quality.validation import check_trust_claim_posture as checker
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -32,11 +33,24 @@ def source_repo(tmp_path: Path) -> Path:
 
 
 def call_report(root: Path, capsys, mode: str, compact: bool) -> dict:
+    target = root / checker._OUTPUT_PATH
+    before = target.read_bytes() if mode == "--check" else None
     assert checker.main(
         ["--repo-root", str(root), mode, *(["--json"] if compact else [])]
     ) == 0
     report = json.loads(capsys.readouterr().out)
+    assert report["verdict"] == "PASS"
     assert report["measurement"]["complete_verdict"] is True
+    assert report["write_attempted"] is (mode == "--write")
+    assert report["write_set_complete"] is True
+    assert any(
+        item.startswith("untyped_derivation_failures:")
+        for item in report["measurement"]["unresolved_by_construction"]
+    )
+    if mode != "--write":
+        assert report["write_set"] == []
+    if mode == "--check":
+        assert target.read_bytes() == before
     return report
 
 
@@ -44,6 +58,13 @@ def read_fact(report: dict, path: str) -> dict:
     return next(
         item for item in report["measurement"]["inputs"]
         if item["path"] == path and item["operation"] == "read_bytes"
+    )
+
+
+def path_fact(report: dict, path: str, operation: str) -> dict:
+    return next(
+        item for item in report["measurement"]["inputs"]
+        if item["path"] == path and item["operation"] == operation
     )
 
 
@@ -89,14 +110,36 @@ def test_cli_reads_whole_register_but_selects_only_appointed_ids(
 
 
 @pytest.mark.parametrize("compact", [False, True])
-@pytest.mark.parametrize("mutation", ["owner", "missing", "unreadable"])
-def test_cli_emits_partial_receipt_and_keeps_original_custody_rejection(
+def test_cli_returns_fail_for_present_invalid_custody_contract(
+    source_repo: Path, capsys, compact: bool
+) -> None:
+    custody = source_repo / checker._DEBT_REGISTER_PATH
+    custody.write_bytes(custody.read_bytes().replace(b"team-scientist", b"team-forged"))
+
+    exit_code = checker.main(
+        ["--repo-root", str(source_repo), "--check-sources", *( ["--json"] if compact else [])]
+    )
+    output = capsys.readouterr().out
+    report = json.loads(output)
+
+    assert exit_code == 1
+    assert "Traceback (most recent call last)" not in output
+    assert report["verdict"] == "FAIL"
+    assert report["measurement"]["complete_verdict"] is True
+    assert report["measurement"]["finding_coverage"].startswith("decisive predicate failure")
+    assert report["failure_code"] == "DS11-CUSTODY-APPOINTMENT-CONTRACT"
+    assert read_fact(report, checker._DEBT_REGISTER_PATH.as_posix())["sha256"] == sha256(
+        custody.read_bytes()
+    ).hexdigest()
+
+
+@pytest.mark.parametrize("compact", [False, True])
+@pytest.mark.parametrize("mutation", ["missing", "unreadable"])
+def test_cli_returns_unrun_for_missing_or_unreadable_custody_input(
     source_repo: Path, capsys, monkeypatch, compact: bool, mutation: str
 ) -> None:
     custody = source_repo / checker._DEBT_REGISTER_PATH
-    if mutation == "owner":
-        custody.write_bytes(custody.read_bytes().replace(b"team-scientist", b"team-forged"))
-    elif mutation == "missing":
+    if mutation == "missing":
         custody.unlink()
     else:
         original = Path.read_bytes
@@ -107,16 +150,124 @@ def test_cli_emits_partial_receipt_and_keeps_original_custody_rejection(
             return original(path)
 
         monkeypatch.setattr(Path, "read_bytes", denied)
-    with pytest.raises((ValueError, PermissionError)):
-        checker.main(["--repo-root", str(source_repo), "--check-sources", *(["--json"] if compact else [])])
+
+    exit_code = checker.main(
+        ["--repo-root", str(source_repo), "--check-sources", *( ["--json"] if compact else [])]
+    )
     output = capsys.readouterr().out
-    assert output, "the real caller must report its incomplete read boundary before failing"
     report = json.loads(output)
+    expected_status = "absent" if mutation == "missing" else "unreadable"
+    custody_facts = [
+        item for item in report["measurement"]["inputs"]
+        if item["path"] == checker._DEBT_REGISTER_PATH.as_posix()
+    ]
+
+    assert exit_code == 2
+    assert "Traceback (most recent call last)" not in output
     assert report["verdict"] == "UNRUN"
     assert report["measurement"]["complete_verdict"] is False
-    inputs = [item for item in report["measurement"]["inputs"] if item["path"] == checker._DEBT_REGISTER_PATH.as_posix()]
-    assert any(item["status"] == {"owner": "read", "missing": "absent", "unreadable": "unreadable"}[mutation] for item in inputs)
+    assert report["failure_stage"] == "compile_live_sources"
+    assert report["unrun_code"] == "DS11-INSPECTION-INCOMPLETE"
     assert report["error"]
+    assert any(item["status"] == expected_status for item in custody_facts)
+
+
+@pytest.mark.parametrize("compact", [False, True])
+def test_cli_missing_generated_target_is_determinate_drift_fail(
+    source_repo: Path, capsys, compact: bool
+) -> None:
+    register, _ = checker.compile_claim_posture_register(source_repo)
+    checker.write_claim_posture_register(register, output_root=source_repo)
+    target = source_repo / checker._OUTPUT_PATH
+    target.unlink()
+
+    exit_code = checker.main(
+        ["--repo-root", str(source_repo), "--check", *( ["--json"] if compact else [])]
+    )
+    output = capsys.readouterr().out
+    report = json.loads(output)
+
+    assert exit_code == 1
+    assert "Traceback (most recent call last)" not in output
+    assert report["verdict"] == "FAIL"
+    assert report["failure_code"] == "DS11-GENERATED-DRIFT"
+    assert report["failure_stage"] == "generated_artifact_presence"
+    assert report["measurement"]["complete_verdict"] is True
+    assert path_fact(report, checker._OUTPUT_PATH.as_posix(), "is_file")["status"] == "absent"
+    assert report["write_set"] == []
+    assert not target.exists()
+
+
+@pytest.mark.parametrize("compact", [False, True])
+def test_cli_unreadable_generated_target_is_unrun_not_drift_fail(
+    source_repo: Path, capsys, monkeypatch, compact: bool
+) -> None:
+    register, _ = checker.compile_claim_posture_register(source_repo)
+    checker.write_claim_posture_register(register, output_root=source_repo)
+    target = source_repo / checker._OUTPUT_PATH
+    original = Path.read_bytes
+    frozen_artifact = original(target)
+
+    def denied(path: Path) -> bytes:
+        if path == target:
+            raise PermissionError("synthetic unreadable generated artifact")
+        return original(path)
+
+    monkeypatch.setattr(Path, "read_bytes", denied)
+    exit_code = checker.main(
+        ["--repo-root", str(source_repo), "--check", *( ["--json"] if compact else [])]
+    )
+    output = capsys.readouterr().out
+    report = json.loads(output)
+
+    assert exit_code == 2
+    assert "Traceback (most recent call last)" not in output
+    assert report["verdict"] == "UNRUN"
+    assert report["failure_stage"] == "generated_artifact_byte_read"
+    assert report["unrun_code"] == "DS11-INSPECTION-INCOMPLETE"
+    assert report["measurement"]["complete_verdict"] is False
+    assert path_fact(report, checker._OUTPUT_PATH.as_posix(), "read_bytes")["status"] == "unreadable"
+    assert report["write_set"] == []
+    assert original(target) == frozen_artifact
+
+
+@pytest.mark.parametrize("compact", [False, True])
+def test_cli_rejects_same_byte_generated_target_symlink_escape_before_read(
+    source_repo: Path, capsys, monkeypatch, compact: bool
+) -> None:
+    register, payload = checker.compile_claim_posture_register(source_repo)
+    checker.write_claim_posture_register(register, output_root=source_repo)
+    inside_control = call_report(source_repo, capsys, "--check", compact)
+    assert inside_control["verdict"] == "PASS"
+    target = source_repo / checker._OUTPUT_PATH
+    outside = source_repo.parent / "outside-identical-posture.json"
+    outside.write_bytes(payload)
+    target.unlink()
+    target.symlink_to(outside)
+    real_reader = filesystem.measured_read_bytes
+    reads: list[Path] = []
+
+    def record_read(path: Path) -> bytes:
+        reads.append(path.resolve())
+        return real_reader(path)
+
+    monkeypatch.setattr(filesystem, "measured_read_bytes", record_read)
+    exit_code = checker.main(
+        ["--repo-root", str(source_repo), "--check", *( ["--json"] if compact else [])]
+    )
+    output = capsys.readouterr().out
+    report = json.loads(output)
+
+    assert exit_code == 1
+    assert "Traceback (most recent call last)" not in output
+    assert report["verdict"] == "FAIL"
+    assert report["failure_code"] == "DS11-GENERATED-DRIFT"
+    assert report["failure_stage"] == "generated_artifact_containment"
+    assert report["measurement"]["complete_verdict"] is True
+    assert outside.resolve() not in reads
+    assert target.is_symlink()
+    assert outside.read_bytes() == payload
+    assert report["write_set"] == []
 
 
 @pytest.mark.parametrize("compact", [False, True])
@@ -129,9 +280,15 @@ def test_cli_selected_source_growth_changes_receipt_and_fails_generated_drift(
     assert after["measurement"]["source_python_read_count"] == 2
     assert after["source_set_digest"] != before["source_set_digest"]
     assert after["payload_digest"] != before["payload_digest"]
-    with pytest.raises(ValueError, match="DS11-GENERATED-DRIFT"):
-        checker.main(["--repo-root", str(source_repo), "--check", *(["--json"] if compact else [])])
-    report = json.loads(capsys.readouterr().out)
-    assert report["measurement"]["complete_verdict"] is False
+    exit_code = checker.main(
+        ["--repo-root", str(source_repo), "--check", *(["--json"] if compact else [])]
+    )
+    output = capsys.readouterr().out
+    report = json.loads(output)
+    assert exit_code == 1
+    assert "Traceback (most recent call last)" not in output
+    assert report["verdict"] == "FAIL"
+    assert report["measurement"]["complete_verdict"] is True
     assert "DS11-GENERATED-DRIFT" in report["error"]
+    assert report["write_set"] == []
     assert read_fact(report, checker._OUTPUT_PATH.as_posix())["status"] == "read"

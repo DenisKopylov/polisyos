@@ -38,6 +38,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    RootModel,
     SerializerFunctionWrapHandler,
     model_serializer,
     model_validator,
@@ -80,8 +81,11 @@ from polisyos.pdc import (
 )
 from polisyos.runtime.http.errors import RuntimeDependencyError
 from polisyos.runtime.quality._generation_cycle_history_schema import (
+    FROZEN_DESIGN_PROBLEM_OUTCOME_FIELD_EDGES,
+    FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS,
     FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS,
     FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,
+    FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION,
     FROZEN_N6_HISTORY_SCHEMA,
 )
 from polisyos.runtime.quality.acquisition_planner import (
@@ -103,7 +107,10 @@ from polisyos.runtime.quality.confidence_ledger import (
     N6DeploymentCurrentnessObservation,
     observe_n6_deployment_currentness,
 )
-from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.design_problem import (
+    DesignProblem,
+    _QualifiedOutcomeOfInterestV3,
+)
 from polisyos.runtime.quality.evaluation_modes import (
     EvaluationMode as ValueEvaluationMode,
 )
@@ -487,11 +494,31 @@ def _historical_generation_cycle_field_tree(
     if not isinstance(version_models, dict):
         raise ValueError("generation_cycle_history_schema_version_unmapped")
 
+    is_root_model = isinstance(value, RootModel)
+    if is_root_model:
+        # RootModel is a BaseModel, but its persisted JSON is its root value.
+        # Check the parsed value against the exact supplied wire before using
+        # the frozen owner graph's ordinary ``root`` field projection.
+        root_wire = value.model_dump(mode="json")
+        spec = CanonSpec(forbid_floats=False)
+        if to_canonical_bytes(root_wire, spec) != to_canonical_bytes(payload, spec):
+            raise ValueError("generation_cycle_history_root_wire_mismatch")
+        payload = {"root": payload}
     if isinstance(value, BaseModel):
         if not isinstance(payload, dict):
             raise ValueError("generation_cycle_history_typed_model_not_object")
         qualified_name = f"{type(value).__module__}.{type(value).__qualname__}"
-        shape = version_models.get(qualified_name)
+        historical_shape_owner = qualified_name
+        if isinstance(value, _QualifiedOutcomeOfInterestV3):
+            if (
+                design_problem_schema_version
+                != FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION
+            ):
+                raise ValueError("generation_cycle_history_typed_edge_drift")
+            historical_shape_owner = (
+                "polisyos.runtime.quality.design_problem.OutcomeOfInterest"
+            )
+        shape = version_models.get(historical_shape_owner)
         if not isinstance(shape, dict):
             raise ValueError("generation_cycle_history_typed_owner_unmapped")
 
@@ -520,7 +547,28 @@ def _historical_generation_cycle_field_tree(
                     for path, owner in shape["typed_model_edges"].get(field_name, ())
                 )
             )
-            if _historical_typed_model_edges(field.annotation) != expected_edges:
+            current_edges = _historical_typed_model_edges(field.annotation)
+            if isinstance(value, DesignProblem) and field_name == "outcome_of_interest":
+                legacy_outcome_edges = FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS[
+                    FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
+                ][0]
+                if (
+                    expected_edges != legacy_outcome_edges
+                    or current_edges != FROZEN_DESIGN_PROBLEM_OUTCOME_FIELD_EDGES
+                ):
+                    raise ValueError("generation_cycle_history_typed_edge_drift")
+                outcome = getattr(value, field_name)
+                outcome_edges = _historical_typed_model_edges(type(outcome))
+                allowed_outcome_edges = FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS.get(
+                    nested_design_problem_schema_version
+                    or FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,
+                    FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS[
+                        FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
+                    ],
+                )
+                if outcome_edges not in allowed_outcome_edges:
+                    raise ValueError("generation_cycle_history_typed_edge_drift")
+            elif current_edges != expected_edges:
                 raise ValueError("generation_cycle_history_typed_edge_drift")
 
         frozen_field_vocabulary = shape.get("field_vocabulary")
@@ -530,8 +578,11 @@ def _historical_generation_cycle_field_tree(
             if field_name in excluded_fields:
                 continue
             field = current_fields[field_name]
+            pattern_schema_version = nested_design_problem_schema_version
+            if pattern_schema_version not in FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS:
+                pattern_schema_version = FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
             frozen_pattern = FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS.get(
-                nested_design_problem_schema_version or "", {}
+                pattern_schema_version, {}
             ).get(qualified_name, {}).get(field_name)
             if frozen_pattern is not None and field_name in value.model_fields_set:
                 historical_value = getattr(value, field_name)
@@ -604,6 +655,10 @@ def _historical_generation_cycle_field_tree(
                 version=version,
                 design_problem_schema_version=nested_design_problem_schema_version,
             )
+        if is_root_model:
+            if set(result) != {"root"}:
+                raise ValueError("generation_cycle_history_root_owner_unmapped")
+            return result["root"]
         return result
 
     if isinstance(value, Mapping) and isinstance(payload, dict):
@@ -1201,7 +1256,13 @@ class ValuePortObservation(_StrictModel):
         if self.acquisition_requirement is not None:
             if self.candidate_id is None:
                 raise ValueError("value_acquisition_requirement_not_canonical")
-            if self.authority_blockers == ("treatment_assignment_not_owner_derived",):
+            if self.authority_blockers in {
+                ("treatment_assignment_not_owner_derived",),
+                (
+                    "treatment_assignment_not_owner_derived",
+                    "source_update_time_not_established",
+                ),
+            }:
                 expected = value_input_world_knowledge_requirement_gap(
                     claim_ref=f"value-claim:{self.candidate_id}"
                 )
@@ -3252,6 +3313,10 @@ class RealValueOwnerGateway:
     cycle_substrate_context: CycleSubstrateContext | None = None
     catalog_overlay_path: Path | None = None
     empirical_evidence_resolver: _S10EmpiricalEvidenceResolver | None = None
+    artifact_store: ArtifactStore | None = None
+    activated_observation_projection: (
+        data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+    ) = None
 
     def load_value_data_profile(
         self,
@@ -3311,6 +3376,8 @@ class RealValueOwnerGateway:
             owner_access_ref=owner_access_ref,
             overlay_path=self.catalog_overlay_path,
             scope_region=scope_region,
+            artifact_store=self.artifact_store,
+            activated_observation_projection=self.activated_observation_projection,
         )
         if profile is None:
             raise ValueOwnerAccessError(
@@ -3914,6 +3981,12 @@ class FoundryValuePort:
                 claim_ref=f"value-claim:{candidate_id}"
             ),
             world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            source_time_status=(
+                self._owner_gateway.activated_observation_projection.source_time_status
+                if isinstance(self._owner_gateway, RealValueOwnerGateway)
+                and self._owner_gateway.activated_observation_projection is not None
+                else None
+            ),
         )
 
     def _selection_inputs(self) -> dict[str, Any]:
@@ -4739,6 +4812,9 @@ class GenerationCycleController:
         source_cycle: GenerationCycleRecord,
         problem: DesignProblem,
         overlay_receipt: data_forge_read_api.catalog.OverlayAdmissionReceipt,
+        observation_projection: (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        ),
         baseline_path: Path,
         overlay_path: Path,
         budget_state: BudgetState,
@@ -4788,6 +4864,19 @@ class GenerationCycleController:
         owner_receipt_type = data_forge_read_api.catalog.OverlayAdmissionReceipt
         if not isinstance(overlay_receipt, owner_receipt_type):
             raise GenerationCycleError("acquisition_reentry_overlay_receipt_invalid")
+        observation_projection_type = (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        )
+        if not isinstance(observation_projection, observation_projection_type):
+            raise GenerationCycleError("acquisition_reentry_observation_projection_invalid")
+        try:
+            observation_projection = observation_projection_type.model_validate(
+                observation_projection.model_dump(mode="json")
+            )
+        except Exception as exc:
+            raise GenerationCycleError(
+                "acquisition_reentry_observation_projection_invalid"
+            ) from exc
 
         selected_baseline_path = Path(baseline_path)
         selected_overlay_path = Path(overlay_path)
@@ -4841,6 +4930,20 @@ class GenerationCycleController:
             or missing_distributions != (passports[0].variable_id,)
         ):
             raise GenerationCycleError("acquisition_reentry_requirement_overlay_mismatch")
+        if (
+            observation_projection.receipt_ref != overlay_receipt.receipt_ref
+            or observation_projection.receipt_content_sha256
+            != overlay_receipt.receipt_content_hash
+            or observation_projection.epoch_id != overlay_receipt.epoch_id
+            or observation_projection.passport_id != overlay_receipt.passport_id
+            or observation_projection.admission_content_sha256
+            != overlay_receipt.admission_content_sha256
+            or observation_projection.activation_state != overlay_receipt.activation_state
+            or observation_projection.variable_id != passports[0].variable_id
+        ):
+            raise GenerationCycleError(
+                "acquisition_reentry_observation_projection_binding_mismatch"
+            )
         if (
             source_cycle.acquisition_cost_basis_record is not None
             and source_cycle.acquisition_cost_basis_record.missing_distribution
@@ -4900,6 +5003,8 @@ class GenerationCycleController:
                 repo_root=self._repo_root,
                 cycle_substrate_context=self._cycle_substrate_context,
                 catalog_overlay_path=selected_overlay_path,
+                artifact_store=self._artifact_store,
+                activated_observation_projection=observation_projection,
             ),
             cycle_substrate_context=self._cycle_substrate_context,
             **value_port_kwargs,
@@ -7778,15 +7883,168 @@ def _load_value_data_profile_from_l1_dcat(
     owner_access_ref: str,
     overlay_path: Path | None = None,
     scope_region: str | None = None,
+    artifact_store: ArtifactStore | None = None,
+    activated_observation_projection: (
+        data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+    ) = None,
 ) -> ValueDataProfile | None:
     """Load deterministic owner rows without deriving an exposure assignment."""
 
     normalized_scope_region = _optional_text(scope_region)
     owner_row_limit = 20_000
-    scope_clause = "\n              AND country_code = ?" if normalized_scope_region else ""
     parameters: list[str] = [outcome]
+    observation_projection = None
+    registered_dataset_id: str | None = None
+    registered_canonical_unit: str | None = None
+    selected_wdi_observation_ids: tuple[str, ...] = ()
+    registered_measurement_units_by_id: dict[str, str] = {}
+    if activated_observation_projection is not None:
+        projection_type = (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        )
+        try:
+            observation_projection = projection_type.model_validate(
+                activated_observation_projection.model_dump(mode="json")
+            )
+        except Exception as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_invalid",
+                f"Data Forge active observation projection failed content validation: {exc}",
+                owner_access_ref=(
+                    f"{owner_access_ref}#activated-observation-projection"
+                ),
+            ) from exc
+        if artifact_store is None:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_passport_store_missing",
+                "N8 requires the runtime artifact store to resolve the active passport",
+                owner_access_ref=f"{owner_access_ref}#active-passport",
+            )
+        try:
+            passport_payload = core_contracts.epoch.load_verified_epoch_statement(
+                store=artifact_store,
+                ref=observation_projection.passport_ref,
+                expected_kind="epoch.acquisition_passport_snapshot",
+            )
+            from polisyos.fabric.data_plane import content_sha256
+            from polisyos.runtime.quality import acquisition_executor
+
+            passport = acquisition_executor.AdmissionPassport.model_validate(
+                passport_payload
+            )
+            passport_content_hash = content_sha256(passport_payload)
+        except Exception as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_passport_unresolved",
+                f"N8 could not verify the Data Forge active passport: {exc}",
+                owner_access_ref=f"{owner_access_ref}#active-passport",
+            ) from exc
+        if (
+            observation_projection.variable_id != outcome
+            or observation_projection.activation_state != "active"
+            or observation_projection.predicate_provenance != "recomputed"
+            or observation_projection.source_time_status != "not_established"
+            or passport_content_hash != observation_projection.passport_content_sha256
+            or passport.passport_id != observation_projection.passport_id
+            or passport.epoch_id != observation_projection.epoch_id
+            or passport.variable_id != outcome
+            or passport.registration.field_binding.canonical_variable != outcome
+            or passport.registration.field_binding != passport.field_binding
+            or getattr(passport.status, "value", passport.status)
+            not in {"admitted", "admitted_degraded"}
+        ):
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_binding_mismatch",
+                "Data Forge active projection does not bind the verified passport and N8 outcome",
+                owner_access_ref=(
+                    f"{owner_access_ref}#activated-observation-projection"
+                ),
+            )
+        registered_dataset_id = passport.registration.catalog_dataset_id
+        registered_canonical_unit = _optional_text(
+            passport.registration.field_binding.canonical_unit
+        )
+        if any(
+            row.observation.dataset_id != registered_dataset_id
+            for row in observation_projection.observations
+        ):
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_registration_mismatch",
+                "Data Forge active rows differ from their passport registration dataset",
+                owner_access_ref=(
+                    f"{owner_access_ref}#activated-observation-projection"
+                ),
+            )
+        if normalized_scope_region:
+            from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
+                iso2_to_iso3,
+                normalize_country_code,
+            )
+
+            try:
+                wdi_country_code = iso2_to_iso3(normalized_scope_region)
+            except Exception as exc:  # pragma: no cover - defensive owner-boundary guard.
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_country_scheme_not_established",
+                    f"The registered WDI source code for this scope is unresolved: {exc}",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                ) from exc
+            selected_ids: list[str] = []
+            for row in observation_projection.observations:
+                observation = row.observation
+                if observation.country_code == normalized_scope_region:
+                    continue
+                if normalize_country_code(observation.country_code) != normalized_scope_region:
+                    continue
+                live_source = passport.live_source_execution
+                live_authorization = (
+                    live_source.authorization if live_source is not None else None
+                )
+                if (
+                    passport.registration.connector_id != "worldbank.wdi"
+                    or passport.source_lane != "live_fetch"
+                    or live_authorization is None
+                    or live_authorization.connector_id
+                    != passport.registration.connector_id
+                    or live_authorization.profile_id
+                    != passport.registration.source_profile_id
+                    or live_authorization.request_variables
+                    != (passport.registration.request_dataset_id,)
+                    or observation.country_code
+                    not in passport.registration.country_codes
+                    or observation.country_code != wdi_country_code
+                ):
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_country_scheme_not_established",
+                        "Only the registered WDI ISO3 source code may bind to this ISO2 scope",
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    )
+                selected_ids.append(observation.observation_id)
+            if len(selected_ids) > owner_row_limit:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_too_large",
+                    "The active selected-member projection exceeds the bounded N8 row limit",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            selected_wdi_observation_ids = tuple(sorted(set(selected_ids)))
+    scope_clause = ""
     if normalized_scope_region:
         parameters.append(normalized_scope_region)
+        if selected_wdi_observation_ids:
+            placeholders = ", ".join("?" for _ in selected_wdi_observation_ids)
+            scope_clause = (
+                "\n              AND (country_code = ? OR observation_id IN ("
+                f"{placeholders}))"
+            )
+            parameters.extend(selected_wdi_observation_ids)
+        else:
+            scope_clause = "\n              AND country_code = ?"
     try:
         from polisyos.runtime.quality.substrate_registry import (
             default_substrate_catalog_paths,
@@ -7821,7 +8079,12 @@ def _load_value_data_profile_from_l1_dcat(
               value,
               dataset_id,
               observation_id,
-              condition_json
+              condition_json,
+              canonical_var,
+              country_code,
+              year,
+              survey_year,
+              wave
             FROM ds_observations
             WHERE canonical_var = ?
               AND value IS NOT NULL
@@ -7843,6 +8106,102 @@ def _load_value_data_profile_from_l1_dcat(
             ),
             owner_access_ref=f"{owner_access_ref}#row-cap",
         )
+    projected_rows_by_id: dict[str, tuple[object, ...]] = {}
+    if observation_projection is not None:
+        physical_rows_by_id: dict[str, list[tuple[object, ...]]] = {}
+        for raw_row in raw_rows:
+            physical_rows_by_id.setdefault(str(raw_row[4]), []).append(raw_row)
+        for projected in observation_projection.observations:
+            observation = projected.observation
+            projected_unit = observation.country_code
+            if normalized_scope_region:
+                if (
+                    observation.country_code != normalized_scope_region
+                    and observation.observation_id not in selected_wdi_observation_ids
+                ):
+                    continue
+                projected_unit = normalized_scope_region
+            physical_matches = physical_rows_by_id.get(observation.observation_id, [])
+            expected_physical = (
+                observation.observation_id,
+                observation.dataset_id,
+                observation.canonical_var,
+                observation.country_code,
+                observation.year,
+                observation.survey_year,
+                observation.wave,
+                observation.value,
+                observation.condition_json,
+            )
+            actual_physical = (
+                str(physical_matches[0][4]),
+                str(physical_matches[0][3]),
+                str(physical_matches[0][6]),
+                str(physical_matches[0][7]),
+                physical_matches[0][8],
+                physical_matches[0][9],
+                physical_matches[0][10],
+                physical_matches[0][2],
+                str(physical_matches[0][5]),
+            ) if len(physical_matches) == 1 else None
+            if actual_physical != expected_physical:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_drift",
+                    (
+                        "N8 query rows differ from the Data Forge verified active member "
+                        f"{observation.observation_id}"
+                    ),
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            period_id = (
+                observation.year
+                if observation.year is not None
+                else observation.survey_year
+                if observation.survey_year is not None
+                else observation.wave
+            )
+            if period_id is None:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_time_missing",
+                    "Data Forge active observation has no N8 panel coordinate",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            if observation.observation_id in selected_wdi_observation_ids:
+                if (
+                    registered_canonical_unit is None
+                    or passport.registration.field_binding.raw_unit
+                    != registered_canonical_unit
+                    or passport.registration.field_binding.unit_transform != "identity"
+                ):
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_unit_transform_not_applied",
+                        (
+                            "The selected WDI value cannot enter N8 unchanged without an "
+                            "identity unit binding"
+                        ),
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    )
+                registered_measurement_units_by_id[
+                    observation.observation_id
+                ] = registered_canonical_unit
+            projected_rows_by_id[observation.observation_id] = (
+                projected_unit,
+                int(period_id),
+                observation.value,
+                observation.dataset_id,
+                observation.observation_id,
+                observation.condition_json,
+            )
+    raw_rows = [
+        projected_rows_by_id.get(str(row[4]), tuple(row[:6]))
+        for row in raw_rows
+    ]
     if not raw_rows:
         return None
     grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = {}
@@ -7851,7 +8210,11 @@ def _load_value_data_profile_from_l1_dcat(
         if not math.isfinite(numeric_value):
             continue
         source_dataset_id = _optional_text(dataset_id) or ""
-        measurement_unit = _measurement_unit_from_condition_json(condition_json) or ""
+        measurement_unit = (
+            registered_measurement_units_by_id.get(str(observation_id))
+            or _measurement_unit_from_condition_json(condition_json)
+            or ""
+        )
         grouped.setdefault((str(unit), int(period)), []).append(
             (numeric_value, source_dataset_id, str(observation_id), measurement_unit)
         )
@@ -9095,12 +9458,16 @@ def _blocked_value_observation(
     acquisition_requirement: AcquisitionRequirementGap | None = None,
     world_model_record_content_hash: str | None = None,
     transport_receipt: ValueTransportReceipt | None = None,
+    source_time_status: Literal["not_established"] | None = None,
 ) -> ValuePortObservation:
+    authority_blockers = (code,)
+    if source_time_status == "not_established":
+        authority_blockers += ("source_update_time_not_established",)
     return ValuePortObservation(
         status="value_blocked",
         candidate_id=candidate_id,
         value_ref=None,
-        authority_blockers=(code,),
+        authority_blockers=authority_blockers,
         reason=reason,
         evaluation_mode=mode,
         selected_method_fqn=selected_method_fqn,

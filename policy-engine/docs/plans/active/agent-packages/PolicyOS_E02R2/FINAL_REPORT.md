@@ -1,8 +1,95 @@
 # E02-R2 final report draft
 
-Integration source cutoff: branch `codex/e02-r2` at `e55012e22d7e41bc2957ca0b8f269baa2849e5bf` (the latest source/test snapshot represented here; each receipt retains its actual execution commit). The latest reviewed 282-row ledger snapshot carried from `764e122e2` is **6 closed / 263 partial / 12 held / 1 open** (the same tracked `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@sha256:20643a213132bffca60af71a4b868d9b4b1dd5384fbe31939ecd5e6f71b81a84` remains at e550); Appendix-C historical partition is 132/118/14/18 and reviewed P118 triage is 87/13/18. The complete Appendix-A/B and touched-file four-base matrix, exact LA-021 architect 418-input selector, and 140 caller-file replay remain incomplete. This is a draft; dated sections below retain their historical execution snapshots.
+The latest B88-specific four-ref whole-file cohort is at `0d8c7b9cdecc06d46329f099af2f252438090a04`: 2 files × 4 refs = 8 slots, with 3 Git-MISSING, 5 PRESENT PASS, 0 present FAIL/UNRUN, and 0 common-identity pass-to-fail. The current touched whole-file result is 20/20 and adjacent importer/tenant files are 9/9. This is bounded B88 evidence, not finding closure; all-transport egress and publisher update-time semantics remain open. The earlier focused R1/R13 P41 wave at `df5188a7435cbd0394da33979eab7482c754c249` remains a historical 8-cell result (3 JUnit PASS, 3 MISSING, 2 UNRUN after its resource guard); it is not the full Appendix matrix. The corrected strict 21-file / 84-cell matrix remains pinned to `d103d234cc114ef9a5b725de1d9a460b61ebeea0` and has **24 PASS / 20 FAIL / 20 MISSING / 20 UNRUN / 0 PENDING**; attribution is unresolved where stated below. The df5188a commit changes no `src/`, `tests/`, or `tools/` path relative to d103. Each receipt retains its exact execution commit. The latest reviewed 282-row ledger snapshot remains **6 closed / 263 partial / 12 held / 1 open**; proposed JSON evidence sha256 `9c5f29b82d62ea7be85358308a61170ca978bad9ab50d95e3c663c6fa8aa741e` adds B88 detail without changing these counts. Appendix-C historical partition is 132/118/14/18 and reviewed P118 triage is 87/13/18. The complete Appendix-A/B and touched-file four-base matrix, exact LA-021 architect 418-input selector, and 140 caller-file replay remain incomplete. This is a draft; dated sections below retain their historical execution snapshots.
 
 ## Discrepancies first
+
+### Exact-head observations at `0d8c7b9` (2026-09-29)
+
+**Discrepancy first.** The B88 normal record-reference handoff has a bounded, independently reviewed positive witness, but B88 remains partial: complete connector-transport egress and publisher source-update-time semantics are not established. Its selected two-file four-ref cohort is complete (3 MISSING, 5 PRESENT PASS, no common pass-to-fail), as recorded in `BASELINES.md`; this is not full finding closure. The exact-head whole-file result is 20/20, with adjacent importer/tenant tests 9/9; test-first and marker-retaining removal probes are red, and independent review is GO for this producer-to-consumer identity slice. The tests use the runtime-supplied tenant-bound store, validate the returned canonical `ArtifactID` through served replay, and preserve the existing RecordSession/ownership records. They do not claim all-transport coverage. The exact receipts, hashes, and source/test/release blobs are in `BASELINES.md` and the B88 row of `residual_ledger.json`.
+
+At the same head, the full normative bridge test file collected 23 cases: 3 passed and 20 errored during `_worker_example` explicit-N4 fixture setup with `cycle_substrate_context_not_established`; process exit was 1. The direct S8-owner file collected 3 cases: 1 passed and 2 failed before S8 at `generation_cycle_source_preservation_not_established`; process exit was 1, so its nonblocked preserving control is not green. These are R1 shared-fixture/source-preservation observations, with no R2 attribution and no four-base classification (`UNRUN`). Exact JUnit citations are in `BASELINES.md`.
+
+The exact-607 historical table records B88's prechange 19/19, STA-01's selected 36/36, and the R4 governed N6 check's typed `UNRUN` / exit 2. These remain single-head observations; B57/B58 remain partial, B59 bounded closed, and R4 currentness/issuer/N9 are unestablished. No ledger status/count changed.
+
+### R9 exact-view owner admission at `7dd9616dc`
+
+**Discrepancy first.** The integrated exact-view owner-admission slice has bounded independent GO and whole-file runs at its pinned commit: 28/28 cache, 16/16 configuration, and 11/11 fake-client S3/GCS. Removing owner admission while retaining markers turns the guarded tenant-B test red; the preserving tenant-A cache-hit control passes. Exact receipts and hashes are in the R9 subsection of `BASELINES.md`.
+
+The proof is limited to a guarded composite whose durable filesystem owner enforces tenant scope. It does not establish a served HTTP action, deployed S3/GCS tenant authorization or IAM, or detached-signature custody through cloud backends. The missing cloud contract/owner appointment and evidence premises remain in `OPEN_PREMISES.md`; R9 stays partial, with no finding or ledger status change. These are results at `7dd9616dc`; no later source snapshot is claimed.
+
+### Strict P41 census selection mismatch at d103
+
+The preliminary matrix had four incorrect NL `PENDING` labels: its selected
+18:25:41Z explicit-UNRUN receipt was superseded by a verified exact-cell
+four-base manifest created at 18:34:37Z, already present in the 18:36:54Z
+inventory. The corrected 84-cell counts are **24 PASS / 20 FAIL / 20 MISSING /
+20 UNRUN / 0 PENDING**. The corrected memo and exact matrix are
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/MEMO.md@sha256:518d034919ae0ccb5179578603c224b309cddcfa2399a0e5f8d5d044952d0faa` and
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/current_matrix.json@sha256:4c24c0b6126ca63e5c293364cbcd89004a4c12f746efb4075cb111413987ebdd`.
+This corrects a P41 selection/reporting discrepancy only; it changes no finding
+status. The NL Main→d103 selected pass→fail identity remains owner-attribution
+`UNRESOLVED` pending input-closure reconciliation.
+
+### R13 one-base results: 49 cases pinned, 8 revision not established
+
+**Discrepancy first.** Four whole-file JUnits record 57/57 passes. Only 49 cases—overlay 40/40 and world-growth 9/9—are authenticated by the run receipt to pre-edit `73815191`. Activation/readback 2/2 and native qualification 6/6 are green, but their revision attribution is `not_established`. The complete four-file × four-base P41 replay remains **UNRUN** in the retained record; the earlier partial three-file matrix is recorded separately. The 738-pinned cases are pre-edit evidence; the other eight are not attributed to that revision. Neither proves post-change R13 behavior or class closure. Detailed rows and citations are in the R13 `BASELINES.md` section. R13 remains partial; no finding status or ledger count changes.
+
+The separate `OPEN_PREMISES.md` remains the durable source for unresolved data contracts, evidence and owner appointments; this addendum records test outcomes only. At the pinned parent its blob is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md@git-blob:c46212afdcf9374ea7ae372b0209d5ebab7db800`.
+
+### R13/R14/R1 bounded addenda at docs base d8bce0373 (2026-09-29)
+
+**Discrepancies first.** c0cb70b88 passes the four complete R13 touched files 64/64, but the four-file × four-base replay remains UNRUN and selected-value-to-N5 consumption remains unproved; peak source RAM at 200k/500k rows is also unmeasured. R14's integrated measurement test is 5/5, while its precommit standalone API contract gate records measured OpenAPI drift (exit 1); no post-commit gate result or authorized generated-family reissue is inferred. R1 control-service reconciliation supersedes only stale execution/Main UNRUN_INPUT_MISMATCH labels from the immutable earlier receipt: 30 common execution→E02 identities show 3 pass→fail, and 30 common Main→29d identities show 5 pass→fail; source-owner attribution remains UNRESOLVED. The manual four-cell reconciliation is not a single harness P41 run.
+
+**Bounded results.** R13 remains partial with no status/count change; the four whole-file JUnits establish current c0 test behavior only. R14 remains unclosed: its P41 measurement-file slice has execution/E02 MISSING, Main 3/3 PASS, integration 5/5 PASS, zero pass→fail, and 0/74 Appendix A/B selections. R1 owner attribution and closure remain unresolved; this reconciled cell evidence establishes neither. Exact test receipts and citations are in the corresponding BASELINES.md addenda; OPEN_PREMISES.md preserves the distinct S8 guard boundary and selected-row scale/consumer limits.
+
+
+
+**R2 discrepancy at 686ecfcfa.** The candidate fd9375a NO-GO identified a raw-byte/history gap; the integrated _read now rejects canonical-byte spelling differences, with the history file 27/27 and focused direct-owner read 1/1. The direct test calls NormativeValueScheduleOwner._read, not ControlPlaneService.resolve_generation_value_choices; the full served HTTP/source-free/currentness path and a code-removal probe remain UNRUN. The separate extracted-wheel 1/1 run is pinned to candidate fd9375, not silently transferred to 686. R2 remains partial; no deployment identity, currentness, or S8 authority is inferred. Exact evidence is in BASELINES.md and OPEN_PREMISES.md.
+
+**R7/R8 bounded removal evidence.** Independent review GO applies to the exact-source probes only: R7 scope and active-probe removals turn their controls red, and R8 thread-local removal loses stale-worker refusals while current-worker control passes. This is not four-base P41 or class closure; all caller, persisted-head, and distributed-backend residuals remain as recorded in BASELINES.md.
+
+**R1 direct S8 source/context residual at the 686 evidence cut.** The owner review identifies a source/context-to-S8 bridge gap: current P20 leaf signature mechanics do not prove that the S8 disposition consumed the same persisted N4 handoff and job-bound context used by N5, and the job-level s8_status producer is not established by that path. The user-selected controlled synthetic N4→N5 mechanics slice remains engineering work; real-data validity and S8 authority stay limited pending source-time evidence and an independent S8 trust/epoch owner. The R1 gate design memo is at /Users/deniskopylov/.codex/scratch/e02-r1-normative-fixture-design-20260929/R1_NORMATIVE_FIXTURE_S8_GATE.md@sha256:6741d1cf57b3186eb53c06309fd75ed9451e39243128b866558a3573a45452bd. No later candidate guard is counted here without an integrated test receipt; this is not R1 closure.
+
+### R1/R13 focused pre-edit P41 wave at `df5188a` (2026-09-28)
+
+This separate eight-cell wave covers control-service DI and the current cycle
+substrate job-execution binding test. Three verified JUnit cells passed, three
+historical cells are `MISSING`, and two present cells are `UNRUN`; the aggregate
+harness/resource verdict is FAIL. Control-service DI passed 30/30 at the E02
+execution base and Main, but the E02-head cell was hard-guarded and the
+integration cell was not dispatched after that guard. The four Appendix-A
+control-service tenant-scope identities therefore remain unresolved by this
+wave. The new current cycle-substrate test passes 1/1; that current-only witness
+does not substitute for historical cells or close R13.
+
+The E02-head hard guard stopped after 35.86s when swap grew **1,409,883,832
+bytes** against the **268,435,456-byte** limit. Minimum free RAM was 30%, minimum
+scratch free space was 14,849,966,080 bytes, and the scheduler left no process
+running. The complete receipt is
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/results.json@sha256:e27e0116ffbdea45968576b941094c38db374e4dea5d023fd4eafd4c0a4ce263`;
+the cell table and JUnit citations are in `BASELINES.md`. No pass→fail owner,
+R1/R13 closure, or ledger status promotion is inferred from the incomplete
+cells.
+### R1 NL schema/parse repair — exact post-R1/R13 P41 at `d103d234c` (2026-09-28)
+
+**Discrepancy first.** The complete NL test file now has a post-R1/R13 four-base
+replay: 4/4 cells present, with 35 pass/11 fail at execution base, E02 head,
+and Main, and 37 pass/12 fail at integration (`d103d234c`). Only the selected
+Appendix-B N4 case is a common pass→fail; the other eleven identity-mismatch
+failures are present at every base, and three current-only schema controls
+pass. The exact result and all cell outcomes are in the latest R1 entry in
+`BASELINES.md`.
+
+The replay corroborates the ten schema/parse recoveries against the pre-fix
+same-file run and adds no pass→fail for that slice. One P41 input closure stays
+unresolved: the N4 test body is the same but pytest fixture/plugin context is
+not reconciled. Its current refusal still reports missing owner-bound context.
+The selected next engineering slice is the controlled, explicitly test-only
+owner-bound N4→N5 bridge through the runtime tenant store; that witness remains
+outstanding. Real-data N5 remains limited until DataState source-time and byte
+provenance are established, while S8 remains limited pending independent
+authority and trust evidence. R1 remains open, with no ledger status change.
 
 ### R1 code/test and documentation revision split (2026-09-28)
 
@@ -442,6 +529,13 @@ The governed `check_layer3_gy_generation_cycle_contract.py --check` ran as the s
 
 The read-only R4/CYC diagnosis is `/Users/deniskopylov/.codex/scratch/e02-r4-next-code-20260928/R4_CYC_NEXT_CODE_DIAGNOSIS.md@sha256:23663cfad35d762376e56dc28ab92319c0608ebe097994fd88ebbe0b76f1b3f7`. The final N9 problem basis is already used for the checker-local scope; the stable subject must not replace it. Keep R4 open: this result closes neither the currentness/issuer gap nor production old-basis ledger behavior, and authorizes no governed reissue.
 
+
+### R4 exact-head governed validator at `d103d234c` (2026-09-28)
+
+**Discrepancy first.** The standalone validator returned typed `UNRUN` / exit 2 at `n6_source_census` with `generation_cycle_currentness_reissue_required`. Its declared source scan covers 2,696/2,696 Python paths, but the canonical identity issuer is not appointed (`canonical_identity_binding=not_established`); historical v2 replay passes, required v3 currentness remains UNRUN, and N9 callbacks/sessions are both zero.
+
+This records that the currentness-blocked path returns a typed verdict; it does not re-exercise the previously crashing N9 scope-mismatch path and is not a passing governed contract or positive N9 witness. No currentness, deployment identity, or epoch was reissued. Keep R4 open for the appointed census/currentness path and final-basis N9 evidence. Exact sole-invocation output: `/Users/deniskopylov/.codex/scratch/e02-r4-readonly-audit-20260928/R4_check_d103d234c.out@sha256:2fadd0f9673cdac80001eb8d9edf4ee56a1d65c043126433015e50722b75c069`.
+
 ## B198 bounded closeout at `8b7b532dd` / report HEAD `90eb7e4f8` (2026-09-28)
 
 **Discrepancies first.** The four-base result is a complete replay of one welfare test file, not an Appendix-A/B selected case: 0/74 Appendix identities were included. The B198 test was absent at the three historical bases and is `CASE_SET_CHANGED`, not a historical pass. No common pass→fail occurred. The former `disagrees` row recorded an evidence-link gap; the new direct evidence supersedes it.
@@ -483,3 +577,50 @@ The served-R13 run at `be03695` and authority/custody run at `bcc1c67` have Main
 **Bounded conclusion.** Resource results are per-manifest: served-R13 passes (4 sampled cells, peak process-group RSS 1,115,904 KiB, minimum free memory 72%, minimum scratch free 13,813,596,160 bytes, zero swap growth); authority/custody passes (4 cells, 1,113,520 KiB, 62%, 16,108,658,688 bytes, zero swap growth); NL/movement fails its guard (5 sampled cells, 2 hard-guard cells in the manifest summary, 1 incomplete resource measurement, peak aggregate/process-group CPU 626%/625.8%, peak process-group RSS 4,211,344 KiB, minimum free memory 50%, minimum scratch free 13,706,076,160 bytes, zero swap growth). The E02 NL process exceeded the 600% CPU limit and returned `-15`; the scheduler then paused current NL without dispatch. Treat both NL cells as `UNRUN`, not failures or green results. The execution-base and Main NL suites nevertheless completed with 35 pass and 11 fail each. Detailed counts and valid JUnit paths/hashes are in the `BASELINES.md` addendum.
 
 The exact integration test snapshots are `be03695e244dc35ffe1065d76283d1c15e37f813` and `bcc1c674d02a4f5ce673872dc5e0fa23cdc22147`. A read-only comparison finds no changed path under `policy-engine/src` or `policy-engine/tests` from e550 through bcc1, so the report's e550 source/test cutoff remains accurate. No tests were rerun while preparing this documentation addendum. A separate AST census parsed 2,696/2,696 Python files and found the original five direct `FileSystemCAS` sites absent from the three named R13 target modules; the sole remaining `generation_cycle` root builder is limited to contract testing while the served bridge supplies the runtime store. This supports that bounded constructor-site direction, not whole R13/store-custody closure (receipt `/Users/deniskopylov/.codex/scratch/e02-r13-root-store-census-20260928/receipt.md@sha256:9c4d6163ddf99c442d99049cffeb2577bef99261c8a083a24f7fd8c2d144b416`). The three raw manifests and all 12 non-empty JUnit artifacts were hash/size checked; the E02 NL zero-byte placeholder has no digest and is explicitly excluded from valid JUnit receipts. Production data was read-only at `/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`.
+
+
+## Numeric-thread-capped NL P41 at `2a6501ecd` — discrepancies first (2026-09-28)
+
+**Discrepancies.** One Appendix B file now has a complete four-base replay: execution, E02 and Main each report 35 pass / 11 fail; current reports 27 pass / 22 fail. Across 46 common cases, 11 Main passes become failures, 11 existing failures remain, and 24 pass; three current-only schema/version cases pass. Ten new reds report `design_problem_compiler_schema_version_mismatch`, while selected `test_plain_language_front_door_calls_real_design_problem_compiler` reports R1's `cycle_substrate_context_not_established`. The manifest leaves all eleven owner attributions and test-input equivalence unresolved; the failures could be R1 behavior or a separate schema/fixture class. No test owner or closure is inferred. Exact identities, JUnit messages and inputs are in the adjacent `BASELINES.md` section.
+
+**Bounded result.** Unlike the prior guard-stopped NL receipt (`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164707Z-88068/results.json@sha256:6c2441c2ee5e5e35b1152cc2bc141bc7028dbb1b50ff48b7c004b7e14fd5ba87`), the numeric-thread-limited run completed all four cells with resource guard PASS: 208.6% peak process-group CPU, 3,424,000 KiB RSS, 46% minimum free RAM, 15,763,345,408 bytes minimum scratch free, and zero swap growth. This provides the missing whole-file outcomes, not proof that resource settings explain the behavioral differences. The fixed Appendix denominator remains 21 files / 84 whole-file cells and 74 selected identities; this run adds 4/84 cells and one selected identity. R1 and the full matrix remain open. Manifest `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T173749Z-9849/results.json@sha256:a232a0750331e890ec05ccf58718c48795df3a94f9ebc294fa2e8724e4375524`.
+
+## R8 post-repair four-base P41 update at ba46429 — discrepancies first (2026-09-28)
+
+**Discrepancy.** The four-base whole-file run has a case-set change: execution base, E02 head, and Main each contain the same two-case test blob; the integration snapshot contains the repaired seven-case file. The harness classifies the five current-only identities as CASE_SET_CHANGED (NOT_PRESENT historically), not as failures or missing test files. Both common cases pass at all four revisions, and the integration file passes 7/7. The previous R8 report of a post-repair whole-file replay UNRUN is superseded for this file/revision matrix by the completed receipt below; the five new behavioral tests have no historical-code outcome.
+
+**Bounded conclusion.** The four cells are complete with no UNRUN or MISSING; this resolves the post-repair P41 replay gap for test_acquisition_control_worker.py over the actual test source available at each pinned revision. Manifest and JUnit identities, common/current-only case lists, and resource readings are recorded in the BASELINES.md addendum “R8 post-repair four-base whole-file P41 at ba46429.” No pass-to-fail outcome is present among the two common cases. R8 remains partial: the served lease-loss window can leave visible CAS/event evidence before the current action-head append, and atomic CAS/event/head publication, PostgreSQL FOR UPDATE, and broader Ray/Temporal behavior remain unestablished. This update does not change any ledger row or the strict 84-cell Appendix A/B denominator.
+
+Manifest: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T180106Z-20826/results.json@sha256:36838660f0293b7ee484523e37622ee13f50f0d6852ef6fd8bb7ae9e814ccbc8.
+
+## R13/P31 current-owner P41 at `d103d234c` — discrepancies first (2026-09-28)
+
+**Discrepancy.** A custom 3-file × 4-ref replay completed nine of 12 cells. All nine present cells pass. The three `MISSING` cells are the absent historical `test_ownership_history.py` at execution base, E02 head, and Main; its current 18/18 run cannot be treated as a historical replay. The two test files available at every ref have no common pass→nonpass: all five serialization-contract and all 15 builder-pinning common identities pass across execution/E02/Main/current. Current-only cases pass but have no historical outcome. The harness exit 2 reflects matrix incompleteness. This wave selected zero of 74 Appendix identities and does not fill the 84-cell strict matrix.
+
+**Bounded R13 result.** The integrated nine-file custody/importer run is 122/122 and the served tenant-custody witness is 3/3. The independent review is bounded GO for the six-path owner-index slice. Together with the whole-file P41 result recorded in `BASELINES.md`, this supports that bounded owner path; it does not establish whole-system tenant isolation, every raw `FileSystemCAS` caller, or finding closure.
+
+**Residual and ledger.** Keep R13 and related findings partial. Direct raw-store `get_paths` remains outside the enforced seam; iterator claim membership is a snapshot with no read lease to the subsequent blob read; stat identity stands in for byte equality; and full-index JSON rewrites retain O(N²) cumulative update cost. The bounded repair removed the original five E02 direct `FileSystemCAS` constructor sites from `acquisition_planner.py`, `generation_cycle.py`, and `training_adapter.py`; it does not prove ACQ-01. The canonical route from Data Forge overlay admission through passport and native-epoch qualification to fresh WMR/CycleSubstrateContext and N5 has no served witness (see the source-blob and complete-census citations in the BASELINES.md R13/P31 addendum). Ledger status remains **6 closed / 263 partial / 12 held / 1 open** (282 rows). Receipt: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/results.json@sha256:a0208c9d5d3fa7ba7ffec697b04a2f7125f4c52958ec4d739bc160699a526179`; nine-file JUnit `/Users/deniskopylov/.codex/scratch/e02-r13-namespace-custody-20260928/integrated-nine-files.xml@sha256:3957fd27ced7a0383e5a25994a6fa4c3b099c7123070a0b93251da8bc96e289e`; served tenant JUnit `/Users/deniskopylov/.codex/scratch/e02-r13-namespace-custody-20260928/integrated-tenant-custody.xml@sha256:b928e9238a2227c83c457bcaeb34b5c66ddc44e2474b775d2204b37f103d817f`; review `/Users/deniskopylov/.codex/scratch/e02-r13-namespace-custody-20260928/review-50624a401/R13_P31_INDEPENDENT_REVIEW_50624a401.md@sha256:f089b28b0c1dd4dfef89ddc65508f8b8426cd26b9363a48d1e2afe646425e6ac`.
+
+## R13/P31 epoch-store owner seam integrated at `3ec377af6` — discrepancies first (2026-09-28)
+
+**Discrepancy.** The initial focused receipts covered five selectors and three whole files only at the integration head. A subsequent strict P41 wave measured these same three paths across four refs: 12 cells, 8 present and passing, 4 verified `MISSING`, and 0 present `UNRUN`. Both newer runtime-quality files are absent from execution and E02 refs; the files are present on Main and integration. This is not a complete 12-cell replay, and it does not establish R13-wide closure.
+
+| Test file | E02 execution `78187878e` | E02 `00d946c2b` | Main `5fd3ebcc1` | Integration `3ec377af6` |
+|---|---:|---:|---:|---:|
+| `test_artifact_store_protocol.py` | 8/8 pass | 8/8 pass | 8/8 pass | 9/9 pass |
+| `test_epoch_deployment.py` | `MISSING` | `MISSING` | 24/24 pass | 27/27 pass |
+| `test_semantic_epoch_native_qualification.py` | `MISSING` | `MISSING` | 5/5 pass | 6/6 pass |
+
+The four absent cells are source absences, not failures. The manifest records seven `CASE_SET_CHANGED` and six `MISSING` comparison rows, with no `PASS_TO_FAIL`. Of the 74 named Appendix A/B cases, this wave measured 2; both selected Appendix-B Main→integration comparisons are `SAME`, with 72 identities unselected. Full matrix, resource, and per-cell JUnit detail are in `BASELINES.md` under the R13/P31 epoch-store four-base P41 addendum; the machine manifest is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/results.json@sha256:6a1c166411082b4aebf55240f8bbe3ae2f176a795fd1261cc1d6af91b60afc20`.
+
+**Measured result.** The focused selector set passes 5/5. The complete `test_epoch_deployment.py` file passes 27/27, `test_semantic_epoch_native_qualification.py` passes 6/6, and `test_artifact_store_protocol.py` passes 9/9, for a denominator of three files / 42 cases. JUnits: `/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-integrated-3ec-20260928/five-selectors.junit.xml@sha256:693d475739ab7a7c17f623e1be9731d8e02d213f87d21305bdfae044145fe6ba` and `/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-integrated-3ec-20260928/three-whole-files.junit.xml@sha256:2ef36fa25bf2d72533f57b6df795878e1de8adad5b078b3ce4a7e3ad00f444fd`. Ruff passed on the six changed source/test files named in the `BASELINES.md` addendum; output is `/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-integrated-3ec-20260928/ruff-six-files.out@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18`.
+
+**Bounded conclusion.** The five integrated commits (`25916581c`, `e401b2f2b`, `3017e8df7`, `ab1adfce9`, `3ec377af6`) route epoch evidence and chronology policy reads/writes through the owner-resolved runtime `ArtifactStore`; the standalone fallback uses `build_artifact_store`. The candidate received independent bounded GO before integration: `/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-candidate-262a85a7/REVIEW-95b747f6f.md@sha256:d11100becd56d76b305359b5de6a065013c55c89e196376ffac2c5a2cfeee2fd`. Candidate-stage removal of `_repository()` routing and substitution of a raw policy store both turned the marker-retaining probes red; those probes were not rerun after integration (receipts are cited in `BASELINES.md`).
+
+The bounded property is exact runtime-store object reuse under composition. Root equality does not establish tenant identity; the runtime caller remains responsible for supplying the tenant-bound guarded store. R13 remains partial: the ACQ-01 overlay/passport/native-epoch → fresh WMR/CycleSubstrateContext → N5 path remains unproved, alongside the reviewed raw `get_paths`, iterator read-lease, stat-identity, and O(N²) index-update limitations. These results change no finding status or ledger count. No tests were run while preparing this documentation patch.
+
+## R2 historical scalar-root projection at `6eac18ccc` — bounded result, discrepancies first (2026-09-29)
+
+**Discrepancy.** The touched history test file is Git-MISSING at the three historical refs (execution `78187878e`, E02 `00d946c2b`, Main `5fd3ebcc1`) and passes 28/28 only at integration `6eac18ccc`; these four refs therefore do not provide a historical behavioral comparison. The exact-selector evidence is test-first red → repaired pass → marker-retaining removal red → preserving control pass. The complete 28/28 history run also checks the 2,883-file tracked JSON/JSONL corpus and includes an offline wheel build/extract test whose child imports the owner reader from the extracted wheel. Evidence and hashes are in the R2 addendum in `BASELINES.md`.
+
+**Bounded conclusion.** The change repairs scalar `ArtifactID(RootModel[str])` projection through the frozen historical N6 model graph. The tests prove this serializer property and byte-exact replay of the enumerated committed corpus; they do not prove every deployed persisted format, a v4 N6 record with a non-null N5 reference, or the served ControlPlaneService → N5/N9/S8 currentness path. At this canonical `6eac18ccc` report cut, R1's served positive was UNRUN (`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md@git-blob:57bc935beb624e4cbfe21b8aafb0a1d098f36677`, OP-R1-S8); later candidate work is unreviewed and unintegrated here. R2 remains partial and ledger status/counts are unchanged. P37 recomputes typed owner/version and canonical wire while deployment currentness remains `not_established`; P38's distinguishing case is a scalar RootModel wire under the old object-only BaseModel assumption. The comparison found no new Ruff finding; B009/S608 are inherited. No finding closure is claimed.

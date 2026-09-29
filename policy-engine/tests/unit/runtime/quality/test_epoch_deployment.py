@@ -39,9 +39,10 @@ def _write(store, payload: bytes, kind: str):
     )
 
 
-def _profile_configuration(tmp_path: Path):
+def _profile_configuration(tmp_path: Path, *, store=None):
     module = _module()
-    store = artifacts.FileSystemCAS(tmp_path / "evidence")
+    if store is None:
+        store = artifacts.FileSystemCAS(tmp_path / "evidence")
     signer_key = Ed25519PrivateKey.generate()
     signer = artifacts.Ed25519Signer(signer_key)
     public_path = tmp_path / "admission.pub"
@@ -83,6 +84,35 @@ def _profile_configuration(tmp_path: Path):
         signing_profile_admission_refs=(evidence.evidence_record_ref,),
     )
     return config, store, profile_ref, statement, repository, signer
+
+
+class _ObservedArtifactStore:
+    """Delegate a real CAS while recording or refusing its read boundary."""
+
+    _READS = frozenset(
+        {"get_bytes", "get_manifest_bytes", "get_signature_bytes", "get_paths", "verify"}
+    )
+
+    def __init__(self, delegate, *, deny_reads: bool = False) -> None:
+        self._delegate = delegate
+        self.root = delegate.root
+        self.deny_reads = deny_reads
+        self.reads: list[tuple[str, str]] = []
+
+    def __getattr__(self, name: str):
+        operation = getattr(self._delegate, name)
+        if name not in self._READS or not callable(operation):
+            return operation
+
+        def observed(*args, **kwargs):
+            artifact = args[0] if args else None
+            artifact_id = getattr(artifact, "artifact_id", artifact)
+            self.reads.append((name, str(artifact_id)))
+            if self.deny_reads:
+                raise PermissionError("bound epoch artifact-store read denied")
+            return operation(*args, **kwargs)
+
+        return observed
 
 
 def test_empty_deployment_retains_real_qualification_and_custody_negatives() -> None:
@@ -132,6 +162,109 @@ def test_profile_admission_resolves_exact_signed_owner_bytes(tmp_path: Path) -> 
         authority_purpose=statement.authority_purpose,
         requested_query_context_ref=statement.requested_query_context_ref,
     )
+
+
+def test_composed_profile_resolution_reads_exact_runtime_store(tmp_path: Path) -> None:
+    config, store, profile_ref, statement, _, _ = _profile_configuration(tmp_path)
+    owner = _module().build_epoch_deployment(config)
+    runtime_store = _ObservedArtifactStore(store)
+
+    with owner.composition_scope(runtime_artifact_store=runtime_store):
+        admitted = owner.resolve_admitted_signing_profile(
+            signing_profile_ref=profile_ref,
+            authority_purpose=statement.authority_purpose,
+            requested_query_context_ref=statement.requested_query_context_ref,
+        )
+
+    assert admitted.signing_profile_ref == profile_ref
+    observed_ids = {artifact_id for _, artifact_id in runtime_store.reads}
+    assert str(profile_ref.artifact_id) in observed_ids
+    assert str(config.signing_profile_admission_refs[0].artifact_id) in observed_ids
+
+
+def test_composed_profile_resolution_fails_when_runtime_store_denies_reads(
+    tmp_path: Path,
+) -> None:
+    config, store, profile_ref, statement, _, _ = _profile_configuration(tmp_path)
+    owner = _module().build_epoch_deployment(config)
+    admission_ref = config.signing_profile_admission_refs[0]
+    raw_profile_bytes = store.get_bytes(profile_ref.artifact_id)
+    assert security.raw_content_hash(raw_profile_bytes) == str(profile_ref.artifact_id)
+    raw_admission_bytes = store.get_bytes(admission_ref.artifact_id)
+    assert security.raw_content_hash(raw_admission_bytes) == str(admission_ref.artifact_id)
+    denied_runtime_store = _ObservedArtifactStore(store, deny_reads=True)
+
+    with (
+        owner.composition_scope(runtime_artifact_store=denied_runtime_store),
+        pytest.raises(ValueError, match="epoch signing profile evidence unavailable"),
+    ):
+        owner.resolve_admitted_signing_profile(
+            signing_profile_ref=profile_ref,
+            authority_purpose=statement.authority_purpose,
+            requested_query_context_ref=statement.requested_query_context_ref,
+        )
+
+    assert denied_runtime_store.reads
+    assert store.get_bytes(profile_ref.artifact_id) == raw_profile_bytes
+    assert store.get_bytes(admission_ref.artifact_id) == raw_admission_bytes
+
+
+def test_composed_signed_admission_denial_uses_exact_runtime_store(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
+    config, store, profile_ref, statement, _, _ = _profile_configuration(tmp_path)
+    owner = _module().build_epoch_deployment(config)
+    evidence_record_ref = config.signing_profile_admission_refs[0]
+    evidence_record_bytes = store.get_bytes(evidence_record_ref.artifact_id)
+    raw_root = artifacts.FileSystemCAS(store.root)
+    assert raw_root.get_bytes(evidence_record_ref.artifact_id) == evidence_record_bytes
+
+    class DenyOneEvidenceRecordRead:
+        """Refuse the configured signed-record identity through this runtime store."""
+
+        def __init__(self):
+            self.root = store.root
+            self.denied_reads: list[tuple[str, str]] = []
+
+        def __getattr__(self, name):
+            operation = getattr(store, name)
+            if name != "verify":
+                return operation
+
+            def verify(artifact_id):
+                observed_id = str(getattr(artifact_id, "artifact_id", artifact_id))
+                if observed_id == str(evidence_record_ref.artifact_id):
+                    self.denied_reads.append((name, observed_id))
+                    raise PermissionError("configured signed evidence record denied")
+                return operation(artifact_id)
+
+            return verify
+
+        def close(self):
+            # The guard owns this adapter, not the underlying case store.
+            return None
+
+    denied_store = DenyOneEvidenceRecordRead()
+    runtime_store = guard_runtime_cas(denied_store)
+    try:
+        with (
+            owner.composition_scope(runtime_artifact_store=runtime_store),
+            pytest.raises(ValueError, match="epoch signing profile evidence unavailable"),
+        ):
+            owner.resolve_admitted_signing_profile(
+                signing_profile_ref=profile_ref,
+                authority_purpose=statement.authority_purpose,
+                requested_query_context_ref=statement.requested_query_context_ref,
+            )
+    finally:
+        runtime_store.close()
+
+    assert denied_store.denied_reads == [
+        ("verify", str(evidence_record_ref.artifact_id))
+    ]
+    assert raw_root.get_bytes(evidence_record_ref.artifact_id) == evidence_record_bytes
 
 
 @pytest.mark.parametrize(

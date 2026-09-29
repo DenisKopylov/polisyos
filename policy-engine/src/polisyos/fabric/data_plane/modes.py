@@ -534,7 +534,7 @@ def run_record_mode(
     2. Run ingestion inside the simulator context.
     3. Collect captured fixtures from the temp directory.
     4. Persist RecordSession to CAS via ReplayStore.
-    5. Return (IngestionResult, record_ref_hex).
+    5. Return (IngestionResult, canonical record ArtifactID).
     """
     import tempfile
     import uuid
@@ -622,7 +622,7 @@ def run_record_mode(
         replay_store = ReplayStore(store)
         ref = replay_store.save_record_session(session)
 
-        return result, str(ref.artifact_id.hex)
+        return result, str(ref.artifact_id)
 
 
 # ---------------------------------------------------------------------------

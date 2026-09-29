@@ -14,13 +14,16 @@ import subprocess
 import sys
 import tempfile
 import tokenize
-from collections.abc import Callable, Mapping, Sequence
+import tomllib
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Literal
+from typing import Literal, NoReturn
 
 import yaml
+from pydantic import ValidationError
 
 from polisyos.common.markdown import split_markdown_table_row
 from polisyos.scientist.evidence.claims.posture import (
@@ -66,12 +69,14 @@ from polisyos.scientist.evidence.claims.posture import (
     validate_posture_register,
 )
 from tools.lib.fs import (
+    AdmittedPathError,
     FileReadMeasurement,
+    admitted_is_dir,
+    admitted_is_file,
+    admitted_read_bytes,
+    admitted_read_text,
     measure_file_reads,
-    measured_is_dir,
-    measured_is_file,
-    measured_read_bytes,
-    measured_read_text,
+    resolve_admitted_path,
 )
 from tools.quality.validation.trust_claim_posture_sources import (
     compile_source_claim_bindings,
@@ -89,6 +94,137 @@ _GENERATED_REFERENCE_PATH = Path("docs/reference/generated-artifacts.md")
 _OUTPUT_PATH = Path("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json")
 _DEBT_REGISTER_PATH = Path(CUSTODY_APPOINTMENT_SOURCE_PATH)
 _DEFAULT_REGISTER_AS_OF = date(2026, 9, 17)
+
+
+class _PosturePredicateError(ValueError):
+    """A declared trust-posture predicate was measured and failed."""
+
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        stage: str,
+        finding_coverage: str,
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.stage = stage
+        self.finding_coverage = finding_coverage
+
+
+class _PostureInspectionError(ValueError):
+    """A required inspection stage did not complete, so no property verdict exists."""
+
+    def __init__(self, message: str, *, stage: str) -> None:
+        super().__init__(message)
+        self.stage = stage
+
+
+def _reject_owner_predicate(code: str, stage: str, message: str) -> NoReturn:
+    """Transport a conclusive owner predicate failure without text classification."""
+    raise _PosturePredicateError(
+        code,
+        message,
+        stage=stage,
+        finding_coverage=(
+            f"decisive predicate failure: complete declared {stage} predicate "
+            "was evaluated and rejected its input"
+        ),
+    )
+
+
+@contextmanager
+def _completed_owner_predicate(code: str, stage: str) -> Iterator[None]:
+    """Transport ValueErrors from one completed semantic owner phase as typed FAIL."""
+    try:
+        yield
+    except _PosturePredicateError:
+        raise
+    except ValueError as error:
+        _reject_owner_predicate(code, stage, str(error))
+
+
+def _require_contained_path(
+    path: Path,
+    root: Path,
+    *,
+    code: str,
+    stage: str,
+    label: str,
+) -> Path:
+    """Resolve once at the owner boundary and reject escapes before file access."""
+    try:
+        return resolve_admitted_path(path, root)
+    except AdmittedPathError as error:
+        _reject_owner_predicate(
+            code,
+            stage,
+            f"{label} resolves outside its admitted root: {error}",
+        )
+
+
+def _admitted_is_file(
+    path: Path,
+    root: Path,
+    *,
+    code: str,
+    stage: str,
+    label: str,
+) -> bool:
+    """Inspect file presence only after resolving beneath the owner's root."""
+    try:
+        return admitted_is_file(path, root)
+    except AdmittedPathError as error:
+        _reject_owner_predicate(code, stage, f"{label} resolves outside its admitted root: {error}")
+
+
+def _admitted_is_dir(
+    path: Path,
+    root: Path,
+    *,
+    code: str,
+    stage: str,
+    label: str,
+) -> bool:
+    """Inspect directory presence only after resolving beneath the owner's root."""
+    try:
+        return admitted_is_dir(path, root)
+    except AdmittedPathError as error:
+        _reject_owner_predicate(code, stage, f"{label} resolves outside its admitted root: {error}")
+
+
+def _admitted_read_bytes(
+    path: Path,
+    root: Path,
+    *,
+    code: str,
+    stage: str,
+    label: str,
+) -> bytes:
+    """Read bytes only from a path resolved beneath the owner's admitted root."""
+    try:
+        return admitted_read_bytes(path, root)
+    except AdmittedPathError as error:
+        _reject_owner_predicate(code, stage, f"{label} resolves outside its admitted root: {error}")
+
+
+def _admitted_read_text(
+    path: Path,
+    root: Path,
+    *,
+    code: str,
+    stage: str,
+    label: str,
+    encoding: str = "utf-8",
+) -> str:
+    """Read text only from a path resolved beneath the owner's admitted root."""
+    try:
+        return admitted_read_text(path, root, encoding=encoding)
+    except AdmittedPathError as error:
+        _reject_owner_predicate(code, stage, f"{label} resolves outside its admitted root: {error}")
+
+
 _CORRUPTION_REASON_CODES: Mapping[str, tuple[str, ...]] = {
     "anti_role_removal": ("DS11-IDENTITY-ANTI-ROLE-DRIFT",),
     "body_fact_removal": ("DS11-A11Y-CERTIFICATION-NOT-EARNED",),
@@ -143,9 +279,22 @@ def derive_token_sources(repo_root: Path) -> SourceDerivation:
     root = repo_root.resolve()
     with measure_file_reads(root) as reads:
         source_root = (root / "src").resolve()
-        present = measured_is_dir(source_root)
-        if not present or not source_root.is_relative_to(root):
-            raise ValueError("repo_root/src must be a contained directory")
+        _require_contained_path(
+            source_root,
+            root,
+            code="DS11-SOURCE-SET-CONTAINMENT",
+            stage="source_root_containment",
+            label="repo_root/src",
+        )
+        present = _admitted_is_dir(
+            source_root,
+            root,
+            code="DS11-SOURCE-SET-CONTAINMENT",
+            stage="source_root_presence",
+            label="repo_root/src",
+        )
+        if not present:
+            raise ValueError("repo_root/src is missing or is not a directory")
         members: list[AdmittedSourceMember] = []
         rows: list[SourceInventoryRow] = []
         denied_raw_members: list[AdmittedSourceMember] = []
@@ -154,13 +303,28 @@ def derive_token_sources(repo_root: Path) -> SourceDerivation:
         reads.record(source_root, "rglob", status="enumerated", pattern="*.py", candidate_count=len(candidates))
         for candidate in candidates:
             path = candidate.resolve()
-            if not measured_is_file(path) or not path.is_relative_to(source_root):
-                reads.record(candidate, "source_selection", status="excluded", reason="non-file or outside contained src")
+            if not path.is_relative_to(source_root):
+                reads.record(candidate, "source_selection", status="excluded", reason="outside contained src")
                 continue
             if "__pycache__" in path.parts:
                 reads.record(candidate, "source_selection", status="excluded", reason="__pycache__")
                 continue
-            raw = measured_read_bytes(path)
+            if not _admitted_is_file(
+                path,
+                source_root,
+                code="DS11-SOURCE-SET-CONTAINMENT",
+                stage="source_member_presence",
+                label="token source member",
+            ):
+                reads.record(candidate, "source_selection", status="excluded", reason="non-file")
+                continue
+            raw = _admitted_read_bytes(
+                path,
+                source_root,
+                code="DS11-SOURCE-SET-CONTAINMENT",
+                stage="token_source_member_read",
+                label="token source member",
+            )
             raw.decode("utf-8")
             member = AdmittedSourceMember(
                 path=path.relative_to(root).as_posix(),
@@ -260,7 +424,11 @@ def reconcile_source_derivations(
                 for site in ast_sites ^ token_sites
             }
         )
-        raise ValueError("may_not_use_for derivations disagree at " + ", ".join(coordinates))
+        _reject_owner_predicate(
+            "DS11-SOURCE-DERIVATION-CONTRACT",
+            "source_derivation_reconciliation",
+            "may_not_use_for derivations disagree at " + ", ".join(coordinates),
+        )
     inventory_paths = {row.path for row in rows}
     denied_only_sites = tuple(
         site
@@ -279,15 +447,46 @@ def reconcile_source_derivations(
 
 def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
     """Derive and content-bind the complete ratified anti-role paragraph twice."""
-    path = (repo_root.resolve() / _IDENTITY_PATH).resolve()
-    if not path.is_relative_to(repo_root.resolve()) or not measured_is_file(path):
-        raise ValueError("ratified identity document is missing or outside repo_root")
-    raw = measured_read_bytes(path)
+    root = repo_root.resolve()
+    path = (root / _IDENTITY_PATH).resolve()
+    _require_contained_path(
+        path,
+        root,
+        code="DS11-IDENTITY-BOUNDARY-CONTRACT",
+        stage="identity_source_containment",
+        label="ratified identity document",
+    )
+    if not _admitted_is_file(
+        path,
+        root,
+        code="DS11-IDENTITY-BOUNDARY-CONTRACT",
+        stage="identity_source_presence",
+        label="ratified identity document",
+    ):
+        raise ValueError("ratified identity document is missing")
+    raw = _admitted_read_bytes(
+        path,
+        root,
+        code="DS11-IDENTITY-BOUNDARY-CONTRACT",
+        stage="identity_source_read",
+        label="ratified identity document",
+    )
     text = raw.decode("utf-8")
-    frontmatter, body = _split_frontmatter(text)
+    try:
+        frontmatter, body = _split_frontmatter(text)
+    except ValueError:
+        _reject_owner_predicate(
+            "DS11-IDENTITY-BOUNDARY-CONTRACT",
+            "identity_frontmatter_delimiters",
+            "ratified identity frontmatter is absent or unterminated",
+        )
     metadata = yaml.safe_load(frontmatter)
     if not isinstance(metadata, dict):
-        raise ValueError("ratified identity frontmatter is malformed")
+        _reject_owner_predicate(
+            "DS11-IDENTITY-BOUNDARY-CONTRACT",
+            "identity_frontmatter_shape",
+            "ratified identity frontmatter is malformed",
+        )
     owner = metadata.get("owner")
     last_reviewed = metadata.get("last_reviewed")
     decision_status = metadata.get("decision_status")
@@ -302,17 +501,29 @@ def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
         or not isinstance(may_not_use_for, list)
         or not all(isinstance(item, str) for item in may_not_use_for)
     ):
-        raise ValueError("ratified identity authority frontmatter is incomplete")
+        _reject_owner_predicate(
+            "DS11-IDENTITY-BOUNDARY-CONTRACT",
+            "identity_authority_fields",
+            "ratified identity authority frontmatter is incomplete",
+        )
     identity_section = re.search(
         r"## 1\. The decision in one sentence\s+(.+?)\s+## 2\.",
         body,
         flags=re.DOTALL,
     )
     if identity_section is None:
-        raise ValueError("ratified system-identity statement is absent")
+        _reject_owner_predicate(
+            "DS11-IDENTITY-BOUNDARY-CONTRACT",
+            "identity_statement_presence",
+            "ratified system-identity statement is absent",
+        )
     identity_statements = re.findall(r"\*\*(.+?)\*\*", identity_section.group(1), re.DOTALL)
     if len(identity_statements) != 1:
-        raise ValueError("ratified system-identity statement is ambiguous")
+        _reject_owner_predicate(
+            "DS11-IDENTITY-BOUNDARY-CONTRACT",
+            "identity_statement_cardinality",
+            "ratified system-identity statement is ambiguous",
+        )
     identity_statement = identity_statements[0]
     match = re.search(
         r"\*\*Anti-roles \(binding\):\*\*\s*(.+?)(?:\n\n|\Z)",
@@ -320,7 +531,11 @@ def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
         flags=re.DOTALL,
     )
     if match is None:
-        raise ValueError("binding anti-role paragraph is absent")
+        _reject_owner_predicate(
+            "DS11-IDENTITY-BOUNDARY-CONTRACT",
+            "identity_anti_role_presence",
+            "binding anti-role paragraph is absent",
+        )
     paragraph = " ".join(match.group(1).split())
     role_sentence = paragraph.split(".", 1)[0] + "."
     repeated = tuple(
@@ -333,7 +548,11 @@ def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
         part.strip().rstrip(".") for part in re.split(r",\s*|\s+or\s+", stripped) if part.strip()
     )
     if repeated != delimited:
-        raise ValueError("independent anti-role normalizers disagree")
+        _reject_owner_predicate(
+            "DS11-IDENTITY-BOUNDARY-CONTRACT",
+            "identity_anti_role_normalizers",
+            "independent anti-role normalizers disagree",
+        )
     paragraph_start = body[: match.start(1)].count("\n") + text[: text.index(body)].count("\n") + 1
     paragraph_end = paragraph_start + match.group(1).count("\n")
     identity_start = (
@@ -361,26 +580,33 @@ def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
         "sha256:"
         + hashlib.sha256(json.dumps(delimited, separators=(",", ":")).encode("utf-8")).hexdigest()
     )
-    return IdentityBoundaryBinding(
-        path=_IDENTITY_PATH.as_posix(),
-        content_digest=source_digest,
-        frontmatter_digest="sha256:" + hashlib.sha256(frontmatter.encode("utf-8")).hexdigest(),
-        paragraph_digest=paragraph_digest,
-        paragraph_start_line=paragraph_start,
-        paragraph_end_line=paragraph_end,
-        anti_roles=anti_roles,
-        derivation_receipt_digests=(method_a, method_b),
-        owner=owner,
-        last_reviewed=last_reviewed,
-        decision_status=decision_status,
-        authoritative_for=tuple(authoritative_for),
-        may_not_use_for=tuple(may_not_use_for),
-        identity_statement=identity_statement,
-        identity_statement_digest="sha256:"
-        + hashlib.sha256(identity_statement.encode("utf-8")).hexdigest(),
-        identity_statement_start_line=identity_start,
-        identity_statement_end_line=identity_end,
-    )
+    try:
+        return IdentityBoundaryBinding(
+            path=_IDENTITY_PATH.as_posix(),
+            content_digest=source_digest,
+            frontmatter_digest="sha256:" + hashlib.sha256(frontmatter.encode("utf-8")).hexdigest(),
+            paragraph_digest=paragraph_digest,
+            paragraph_start_line=paragraph_start,
+            paragraph_end_line=paragraph_end,
+            anti_roles=anti_roles,
+            derivation_receipt_digests=(method_a, method_b),
+            owner=owner,
+            last_reviewed=last_reviewed,
+            decision_status=decision_status,
+            authoritative_for=tuple(authoritative_for),
+            may_not_use_for=tuple(may_not_use_for),
+            identity_statement=identity_statement,
+            identity_statement_digest="sha256:"
+            + hashlib.sha256(identity_statement.encode("utf-8")).hexdigest(),
+            identity_statement_start_line=identity_start,
+            identity_statement_end_line=identity_end,
+        )
+    except ValidationError:
+        _reject_owner_predicate(
+            "DS11-IDENTITY-BOUNDARY-CONTRACT",
+            "identity_typed_artifact",
+            "ratified identity boundary violates its typed artifact schema",
+        )
 
 
 def derive_custody_appointments(
@@ -389,9 +615,28 @@ def derive_custody_appointments(
     """Derive the three accepted custody appointments from admitted debt rows."""
     root = repo_root.resolve()
     path = (root / _DEBT_REGISTER_PATH).resolve()
-    if not measured_is_file(path) or not path.is_relative_to(root):
-        raise ValueError("custody appointment debt source is missing or outside repo_root")
-    raw = measured_read_bytes(path)
+    _require_contained_path(
+        path,
+        root,
+        code="DS11-CUSTODY-APPOINTMENT-CONTRACT",
+        stage="custody_source_containment",
+        label="custody appointment debt source",
+    )
+    if not _admitted_is_file(
+        path,
+        root,
+        code="DS11-CUSTODY-APPOINTMENT-CONTRACT",
+        stage="custody_source_presence",
+        label="custody appointment debt source",
+    ):
+        raise ValueError("custody appointment debt source is missing")
+    raw = _admitted_read_bytes(
+        path,
+        root,
+        code="DS11-CUSTODY-APPOINTMENT-CONTRACT",
+        stage="custody_source_read",
+        label="custody appointment debt source",
+    )
     required_ids = set(CUSTODY_APPOINTMENT_DEBT_IDS)
     found: dict[str, CustodyAppointment] = {}
     for line_number, raw_line in enumerate(raw.splitlines(), 1):
@@ -403,12 +648,24 @@ def derive_custody_appointments(
         if not required_ids.intersection(ids):
             continue
         if len(cells) != 5:
-            raise ValueError("custody appointment source row must contain exactly five cells")
+            _reject_owner_predicate(
+                "DS11-CUSTODY-APPOINTMENT-CONTRACT",
+                "custody_appointment_row_shape",
+                "custody appointment source row must contain exactly five cells",
+            )
         if len(ids) != 1:
-            raise ValueError("custody appointment source row must name exactly one accepted ID")
+            _reject_owner_predicate(
+                "DS11-CUSTODY-APPOINTMENT-CONTRACT",
+                "custody_appointment_id_cardinality",
+                "custody appointment source row must name exactly one accepted ID",
+            )
         debt_id = ids[0]
         if debt_id in found:
-            raise ValueError(f"custody appointment {debt_id} is duplicated")
+            _reject_owner_predicate(
+                "DS11-CUSTODY-APPOINTMENT-CONTRACT",
+                "custody_appointment_duplicate_id",
+                f"custody appointment {debt_id} is duplicated",
+            )
         owners = tuple(
             token
             for token in re.findall(r"`([^`]+)`", cells[2])
@@ -421,15 +678,25 @@ def derive_custody_appointments(
             if token.startswith(("uv run pytest ", "pytest ", "python ", ".venv/bin/python "))
         )
         if len(owners) != 1 or len(statuses) != 1 or len(commands) != 1:
-            raise ValueError(f"custody appointment {debt_id} is not exactly appointed")
+            _reject_owner_predicate(
+                "DS11-CUSTODY-APPOINTMENT-CONTRACT",
+                "custody_appointment_cardinality",
+                f"custody appointment {debt_id} is not exactly appointed",
+            )
         try:
             status = CustodyAppointmentStatus(statuses[0])
-        except ValueError as exc:
-            raise ValueError(
-                f"custody appointment {debt_id} has an unsupported status"
-            ) from exc
+        except ValueError:
+            _reject_owner_predicate(
+                "DS11-CUSTODY-APPOINTMENT-CONTRACT",
+                "custody_appointment_status",
+                f"custody appointment {debt_id} has an unsupported status",
+            )
         if (owners[0], commands[0]) != CUSTODY_APPOINTMENT_CONTRACT[debt_id]:
-            raise ValueError("custody appointment source differs from the accepted contract")
+            _reject_owner_predicate(
+                "DS11-CUSTODY-APPOINTMENT-CONTRACT",
+                "custody_appointment_contract",
+                "custody appointment source differs from the accepted contract",
+            )
         found[debt_id] = CustodyAppointment(
             debt_id=debt_id,
             owner=owners[0],
@@ -443,7 +710,11 @@ def derive_custody_appointments(
             source_content=line,
         )
     if set(found) != required_ids:
-        raise ValueError("custody appointment debt source is incomplete")
+        _reject_owner_predicate(
+            "DS11-CUSTODY-APPOINTMENT-CONTRACT",
+            "custody_appointment_completeness",
+            "custody appointment debt source is incomplete",
+        )
     appointments = tuple(sorted(found.values(), key=lambda item: item.debt_id))
     return appointments
 
@@ -452,34 +723,87 @@ def derive_accessibility_document(repo_root: Path) -> AccessibilityDocumentBindi
     """Resolve the strict accessibility projection index against complete body bytes."""
     root = repo_root.resolve()
     path = (root / _A11Y_PATH).resolve()
-    if not measured_is_file(path) or not path.is_relative_to(root):
-        raise ValueError("accessibility document is missing or outside repo_root")
-    raw = measured_read_bytes(path)
+    _require_contained_path(
+        path,
+        root,
+        code="DS11-ACCESSIBILITY-CONTRACT",
+        stage="accessibility_source_containment",
+        label="accessibility document",
+    )
+    if not _admitted_is_file(
+        path,
+        root,
+        code="DS11-ACCESSIBILITY-CONTRACT",
+        stage="accessibility_source_presence",
+        label="accessibility document",
+    ):
+        raise ValueError("accessibility document is missing")
+    raw = _admitted_read_bytes(
+        path,
+        root,
+        code="DS11-ACCESSIBILITY-CONTRACT",
+        stage="accessibility_source_read",
+        label="accessibility document",
+    )
     text = raw.decode("utf-8")
-    frontmatter, body = _split_frontmatter(text)
+    try:
+        frontmatter, body = _split_frontmatter(text)
+    except ValueError:
+        _reject_owner_predicate(
+            "DS11-ACCESSIBILITY-CONTRACT",
+            "accessibility_frontmatter_delimiters",
+            "accessibility frontmatter is absent or unterminated",
+        )
     loaded = yaml.safe_load(frontmatter)
     if not isinstance(loaded, dict) or set(loaded) != {"ds11_projection_index"}:
-        raise ValueError("accessibility frontmatter must contain only ds11_projection_index")
-    index = DocumentProjectionIndex.model_validate(loaded["ds11_projection_index"])
+        _reject_owner_predicate(
+            "DS11-ACCESSIBILITY-CONTRACT",
+            "accessibility_frontmatter_shape",
+            "accessibility frontmatter must contain only ds11_projection_index",
+        )
+    try:
+        index = DocumentProjectionIndex.model_validate(loaded["ds11_projection_index"])
+    except ValidationError:
+        _reject_owner_predicate(
+            "DS11-ACCESSIBILITY-CONTRACT",
+            "accessibility_projection_index_schema",
+            "accessibility projection index violates its typed schema",
+        )
     body_bytes = body.encode("utf-8")
     body_sha = hashlib.sha256(body_bytes).hexdigest()
     if index.body_sha256 != body_sha:
-        raise ValueError("accessibility body digest differs from projection index")
+        _reject_owner_predicate(
+            "DS11-ACCESSIBILITY-CONTRACT",
+            "accessibility_body_digest",
+            "accessibility body digest differs from projection index",
+        )
     required_keys = {
         key
         for purpose in (*index.authoritative_for, *index.may_not_use_for)
         for key in purpose.basis
     }
     if not required_keys or not required_keys <= set(index.bindings):
-        raise ValueError("accessibility projection basis names an unresolved binding")
+        _reject_owner_predicate(
+            "DS11-ACCESSIBILITY-CONTRACT",
+            "accessibility_projection_basis",
+            "accessibility projection basis names an unresolved binding",
+        )
     resolved: list[ResolvedDocumentBinding] = []
     for key, selector in sorted(index.bindings.items()):
         exact = selector.exact_text.encode("utf-8")
         if body_bytes.count(exact) != selector.occurrence:
-            raise ValueError(f"accessibility selector {key} is absent or duplicated in body")
+            _reject_owner_predicate(
+                "DS11-ACCESSIBILITY-CONTRACT",
+                "accessibility_selector_cardinality",
+                f"accessibility selector {key} is absent or duplicated in body",
+            )
         start = body_bytes.index(exact)
         if selector.value.encode("utf-8") not in exact:
-            raise ValueError(f"accessibility selector {key} does not bind its declared value")
+            _reject_owner_predicate(
+                "DS11-ACCESSIBILITY-CONTRACT",
+                "accessibility_selector_value",
+                f"accessibility selector {key} does not bind its declared value",
+            )
         resolved.append(
             ResolvedDocumentBinding(
                 key=key,
@@ -493,25 +817,51 @@ def derive_accessibility_document(repo_root: Path) -> AccessibilityDocumentBindi
         )
     source_selector = index.bindings.get("source_as_of")
     if source_selector is None:
-        raise ValueError("accessibility source_as_of binding is absent")
+        _reject_owner_predicate(
+            "DS11-ACCESSIBILITY-CONTRACT",
+            "accessibility_source_as_of_presence",
+            "accessibility source_as_of binding is absent",
+        )
     limitation = "It does not replace the planned third-party countersign."
     limitation_occurrences = sum(
         " ".join(paragraph.split()).count(limitation) for paragraph in re.split(r"\n[ \t]*\n", body)
     )
     if limitation_occurrences != 1:
-        raise ValueError("accessibility limitation is absent or duplicated")
-    return AccessibilityDocumentBinding(
-        path=_A11Y_PATH.as_posix(),
-        source_content=text,
-        content_digest="sha256:" + hashlib.sha256(raw).hexdigest(),
-        frontmatter_digest="sha256:" + hashlib.sha256(frontmatter.encode()).hexdigest(),
-        body_digest="sha256:" + body_sha,
-        source_as_of=date.fromisoformat(source_selector.value),
-        bindings=tuple(resolved),
-        authoritative_for=index.authoritative_for,
-        may_not_use_for=index.may_not_use_for,
-        limitation_refs=(limitation,),
-    )
+        _reject_owner_predicate(
+            "DS11-ACCESSIBILITY-CONTRACT",
+            "accessibility_limitation_cardinality",
+            "accessibility limitation is absent or duplicated",
+        )
+    try:
+        return AccessibilityDocumentBinding(
+            path=_A11Y_PATH.as_posix(),
+            source_content=text,
+            content_digest="sha256:" + hashlib.sha256(raw).hexdigest(),
+            frontmatter_digest="sha256:" + hashlib.sha256(frontmatter.encode()).hexdigest(),
+            body_digest="sha256:" + body_sha,
+            source_as_of=_parse_accessibility_source_date(source_selector.value),
+            bindings=tuple(resolved),
+            authoritative_for=index.authoritative_for,
+            may_not_use_for=index.may_not_use_for,
+            limitation_refs=(limitation,),
+        )
+    except ValidationError:
+        _reject_owner_predicate(
+            "DS11-ACCESSIBILITY-CONTRACT",
+            "accessibility_typed_artifact",
+            "accessibility document violates its typed artifact schema",
+        )
+
+
+def _parse_accessibility_source_date(value: str) -> date:
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        _reject_owner_predicate(
+            "DS11-ACCESSIBILITY-CONTRACT",
+            "accessibility_source_as_of_date",
+            "accessibility source_as_of binding is not an ISO date",
+        )
 
 
 def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
@@ -525,11 +875,54 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
         Path("run-1/.last-run.json"),
         Path("run-1/results.json"),
     )
+    _require_contained_path(
+        receipt_root,
+        root,
+        code="DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+        stage="page_a11y_root_containment",
+        label="page-a11y receipt source",
+    )
+    if not _admitted_is_dir(
+        receipt_root,
+        root,
+        code="DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+        stage="page_a11y_root_presence",
+        label="page-a11y receipt source",
+    ):
+        raise ValueError("page-a11y receipt source is missing")
     files = tuple((receipt_root / item).resolve() for item in expected)
-    if any(not measured_is_file(item) or not item.is_relative_to(receipt_root) for item in files):
-        raise ValueError("page-a11y receipt must contain all five admitted files")
+    for item in files:
+        _require_contained_path(
+            item,
+            receipt_root,
+            code="DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            stage="page_a11y_member_containment",
+            label="page-a11y receipt member",
+        )
+    if any(
+        not _admitted_is_file(
+            item,
+            receipt_root,
+            code="DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            stage="page_a11y_member_presence",
+            label="page-a11y receipt member",
+        )
+        for item in files
+    ):
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_member_completeness",
+            "page-a11y receipt must contain all five admitted files",
+        )
     raw_by_name = {
-        name.as_posix(): measured_read_bytes(path) for name, path in zip(expected, files, strict=True)
+        name.as_posix(): _admitted_read_bytes(
+            path,
+            receipt_root,
+            code="DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            stage="page_a11y_member_read",
+            label="page-a11y receipt member",
+        )
+        for name, path in zip(expected, files, strict=True)
     }
     admitted = tuple(
         AdmittedSourceMember(
@@ -539,6 +932,12 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
         for name in expected
     )
     normalized = json.loads(raw_by_name["receipt.json"])
+    if not isinstance(normalized, dict):
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_receipt_shape",
+            "page-a11y receipt must be a JSON object",
+        )
     expected_authority_metadata = {
         "schema_version": "policyos.ds11.page_a11y_base_receipt.v1",
         "authority_purpose": "historical_currentness_limitation",
@@ -552,11 +951,19 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
     if {
         key: normalized.get(key) for key in expected_authority_metadata
     } != expected_authority_metadata:
-        raise ValueError(
-            "page-a11y authority/base/command metadata differs from the admitted basis"
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_authority_basis",
+            "page-a11y authority/base/command metadata differs from the admitted basis",
         )
     results = json.loads(raw_by_name["run-1/results.json"])
     last_run = json.loads(raw_by_name["run-1/.last-run.json"])
+    if not isinstance(results, dict) or not isinstance(last_run, dict):
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_result_shape",
+            "page-a11y result files must be JSON objects",
+        )
     for name in ("environment-before.json", "environment-after.json"):
         environment = json.loads(raw_by_name[name])
         if not isinstance(environment, dict) or not {
@@ -566,9 +973,20 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
             "arch",
             "cwd",
         } <= set(environment):
-            raise ValueError("page-a11y environment receipt is malformed")
-    identities, failures = _derive_page_result_rows(results.get("suites", ()))
-    stats = results.get("stats", {})
+            _reject_owner_predicate(
+                "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                "page_a11y_environment_shape",
+                "page-a11y environment receipt is malformed",
+            )
+    suites = results.get("suites")
+    stats = results.get("stats")
+    if not isinstance(suites, list) or not isinstance(stats, dict):
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_results_shape",
+            "page-a11y results require a suite list and stats object",
+        )
+    identities, failures = _derive_page_result_rows(suites)
     observed = {
         "collected": len(identities),
         "passed": sum(item[1] == "passed" for item in identities),
@@ -577,54 +995,123 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
         "duration_ms": stats.get("duration"),
         "exit_code": 1 if failures else 0,
     }
+    raw_authored_identities = normalized.get("collected_identities")
+    raw_authored_failures = normalized.get("inherited_failure_identities")
+    if (
+        not isinstance(raw_authored_identities, list)
+        or not isinstance(raw_authored_failures, list)
+        or any(
+            not isinstance(item, dict)
+            or not isinstance(item.get("identity"), str)
+            or not isinstance(item.get("status"), str)
+            for item in (*raw_authored_identities, *raw_authored_failures)
+        )
+    ):
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_recorded_identity_shape",
+            "page-a11y receipt identity rows are malformed",
+        )
     authored_identities = tuple(
-        (item["identity"], item["status"]) for item in normalized.get("collected_identities", ())
+        (item["identity"], item["status"]) for item in raw_authored_identities
     )
     authored_failures = tuple(
-        (item["identity"], item["status"])
-        for item in normalized.get("inherited_failure_identities", ())
+        (item["identity"], item["status"]) for item in raw_authored_failures
     )
     if normalized.get("result") != observed or authored_identities != identities:
-        raise ValueError("page-a11y receipt result/identity differs from recomputation")
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_result_identity",
+            "page-a11y receipt result/identity differs from recomputation",
+        )
     if authored_failures != tuple((item.identity, "failed") for item in failures):
-        raise ValueError("page-a11y receipt failure identities differ from recomputation")
-    raw_receipts = normalized.get("raw_receipts", {})
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_failure_identities",
+            "page-a11y receipt failure identities differ from recomputation",
+        )
+    raw_receipts = normalized.get("raw_receipts")
+    replay = normalized.get("replay_agreement")
+    if not isinstance(raw_receipts, dict) or not isinstance(replay, dict):
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_receipt_shape",
+            "page-a11y receipt raw_receipts and replay_agreement must be objects",
+        )
     if (
         raw_receipts.get("results_sha256")
         != hashlib.sha256(raw_by_name["run-1/results.json"]).hexdigest()
     ):
-        raise ValueError("page-a11y results receipt digest differs")
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_results_digest",
+            "page-a11y results receipt digest differs",
+        )
     if (
         raw_receipts.get("last_run_sha256")
         != hashlib.sha256(raw_by_name["run-1/.last-run.json"]).hexdigest()
     ):
-        raise ValueError("page-a11y last-run receipt digest differs")
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_last_run_digest",
+            "page-a11y last-run receipt digest differs",
+        )
     failure_ids = {item.test_id for item in failures}
-    if last_run.get("status") != "failed" or set(last_run.get("failedTests", ())) != failure_ids:
-        raise ValueError("page-a11y last-run failures differ from results")
-    replay = normalized.get("replay_agreement", {})
+    failed_tests = last_run.get("failedTests")
+    if not isinstance(failed_tests, list) or not all(isinstance(item, str) for item in failed_tests):
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_last_run_shape",
+            "page-a11y last-run failedTests must be a string list",
+        )
+    if last_run.get("status") != "failed" or set(failed_tests) != failure_ids:
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_last_run_failures",
+            "page-a11y last-run failures differ from results",
+        )
     if replay.get("admissibility") != "not_established" or replay.get("committed_raw_runs") != 1:
-        raise ValueError("page-a11y replay receipt overstates establishment")
-    return PageA11yReceiptBinding(
-        **expected_authority_metadata,
-        path=_PAGE_RECEIPT_PATH.as_posix(),
-        source_contents={
-            (_PAGE_RECEIPT_PATH / Path(name)).as_posix(): raw.decode("utf-8")
-            for name, raw in raw_by_name.items()
-        },
-        content_digest="sha256:" + hashlib.sha256(raw_by_name["receipt.json"]).hexdigest(),
-        admitted_sources=admitted,
-        source_as_of=date.fromisoformat(str(stats["startTime"])[:10]),
-        collected=observed["collected"],
-        passed=observed["passed"],
-        failed=observed["failed"],
-        skipped=observed["skipped"],
-        duration_ms=float(observed["duration_ms"]),
-        exit_code=observed["exit_code"],
-        failures=failures,
-        replay_establishment=EstablishmentClass.NOT_ESTABLISHED,
-        limitation_refs=(str(replay.get("limitation")),),
-    )
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_replay_establishment",
+            "page-a11y replay receipt overstates establishment",
+        )
+    try:
+        source_as_of = date.fromisoformat(str(stats["startTime"])[:10])
+        duration_ms = float(stats["duration"])
+    except (KeyError, TypeError, ValueError):
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_statistics",
+            "page-a11y results statistics are incomplete or invalid",
+        )
+    try:
+        return PageA11yReceiptBinding(
+            **expected_authority_metadata,
+            path=_PAGE_RECEIPT_PATH.as_posix(),
+            source_contents={
+                (_PAGE_RECEIPT_PATH / Path(name)).as_posix(): raw.decode("utf-8")
+                for name, raw in raw_by_name.items()
+            },
+            content_digest="sha256:" + hashlib.sha256(raw_by_name["receipt.json"]).hexdigest(),
+            admitted_sources=admitted,
+            source_as_of=source_as_of,
+            collected=observed["collected"],
+            passed=observed["passed"],
+            failed=observed["failed"],
+            skipped=observed["skipped"],
+            duration_ms=duration_ms,
+            exit_code=observed["exit_code"],
+            failures=failures,
+            replay_establishment=EstablishmentClass.NOT_ESTABLISHED,
+            limitation_refs=(str(replay.get("limitation")),),
+        )
+    except ValidationError:
+        _reject_owner_predicate(
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            "page_a11y_typed_artifact",
+            "page-a11y receipt violates its typed artifact schema",
+        )
 
 
 def _derive_page_result_rows(
@@ -633,14 +1120,65 @@ def _derive_page_result_rows(
     identities: list[tuple[str, str]] = []
     failures: list[PageA11yFailureBinding] = []
     for suite in suites:
-        for spec in suite.get("specs", ()):  # type: ignore[union-attr]
+        if not isinstance(suite, dict):
+            _reject_owner_predicate(
+                "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                "page_a11y_suite_shape",
+                "page-a11y suite rows must be objects",
+            )
+        specs = suite.get("specs", [])
+        if not isinstance(specs, list):
+            _reject_owner_predicate(
+                "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                "page_a11y_specs_shape",
+                "page-a11y suite specs must be a list",
+            )
+        for spec in specs:
             if not isinstance(spec, dict):
-                continue
+                _reject_owner_predicate(
+                    "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                    "page_a11y_spec_shape",
+                    "page-a11y spec rows must be objects",
+                )
             identity = f"{spec.get('file')}::{spec.get('title')}"
-            for test in spec.get("tests", ()):
+            tests = spec.get("tests", [])
+            if not isinstance(tests, list):
+                _reject_owner_predicate(
+                    "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                    "page_a11y_tests_shape",
+                    "page-a11y spec tests must be a list",
+                )
+            for test in tests:
                 if not isinstance(test, dict):
-                    continue
-                raw_status = str(test.get("status"))
+                    _reject_owner_predicate(
+                        "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                        "page_a11y_test_shape",
+                        "page-a11y test rows must be objects",
+                    )
+                raw_results = test.get("results", [])
+                if not isinstance(raw_results, list) or any(
+                    not isinstance(result, dict) for result in raw_results
+                ):
+                    _reject_owner_predicate(
+                        "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                        "page_a11y_test_results_shape",
+                        "page-a11y test results must be an object list",
+                    )
+                if not isinstance(spec.get("file"), str) or not isinstance(
+                    spec.get("title"), str
+                ):
+                    _reject_owner_predicate(
+                        "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                        "page_a11y_spec_identity",
+                        "page-a11y spec identity requires file and title strings",
+                    )
+                if not isinstance(test.get("status"), str):
+                    _reject_owner_predicate(
+                        "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                        "page_a11y_test_status",
+                        "page-a11y test status must be a string",
+                    )
+                raw_status = str(test["status"])
                 status = (
                     "passed"
                     if raw_status == "expected"
@@ -650,11 +1188,20 @@ def _derive_page_result_rows(
                 )
                 identities.append((identity, status))
                 if status == "failed":
-                    message = " ".join(
-                        str(result.get("error", {}).get("message", ""))
-                        for result in test.get("results", ())
-                        if isinstance(result, dict)
-                    )
+                    if not isinstance(spec.get("id"), str):
+                        _reject_owner_predicate(
+                            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                            "page_a11y_spec_id",
+                            "page-a11y failed-test spec requires an id string",
+                        )
+                    error_objects = [result.get("error", {}) for result in raw_results]
+                    if any(not isinstance(error, dict) for error in error_objects):
+                        _reject_owner_predicate(
+                            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                            "page_a11y_test_error_shape",
+                            "page-a11y test error details must be objects",
+                        )
+                    message = " ".join(str(error.get("message", "")) for error in error_objects)
                     failures.append(
                         PageA11yFailureBinding(
                             identity=identity,
@@ -662,11 +1209,16 @@ def _derive_page_result_rows(
                             issue_signature=_page_issue_signature(message),
                         )
                     )
-        nested = suite.get("suites", ())
-        if isinstance(nested, list):
-            nested_identities, nested_failures = _derive_page_result_rows(nested)
-            identities.extend(nested_identities)
-            failures.extend(nested_failures)
+        nested = suite.get("suites", [])
+        if not isinstance(nested, list):
+            _reject_owner_predicate(
+                "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+                "page_a11y_nested_suites_shape",
+                "page-a11y nested suites must be a list",
+            )
+        nested_identities, nested_failures = _derive_page_result_rows(nested)
+        identities.extend(nested_identities)
+        failures.extend(nested_failures)
     return tuple(identities), tuple(failures)
 
 
@@ -678,7 +1230,11 @@ def _page_issue_signature(message: str) -> str:
     expected = re.search(r'Expected substring:\s*"(?:link|button) \\"([^"\\]+)\\""', plain)
     if expected:
         return f"accessible_name:{expected.group(1)}"
-    raise ValueError("page-a11y failure has no admitted semantic issue signature")
+    _reject_owner_predicate(
+        "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+        "page_a11y_issue_signature",
+        "page-a11y failure has no admitted semantic issue signature",
+    )
 
 
 def validate_claim_copy(
@@ -1194,7 +1750,16 @@ def compile_claim_posture_register(
     """Compile, reconcile, assemble, validate, and canonically serialize live sources."""
     root = repo_root.resolve()
     token_result = derive_token_sources(root)
-    ast_result = derive_ast_sources(root)
+    ast_result = derive_ast_sources(
+        root,
+        read_bytes=lambda path, admitted_root: _admitted_read_bytes(
+            path,
+            admitted_root,
+            code="DS11-SOURCE-SET-CONTAINMENT",
+            stage="ast_source_member_read",
+            label="AST source member",
+        ),
+    )
     reconciled = reconcile_source_derivations(ast_result, token_result)
     identity = derive_identity_boundary(root)
     custody_appointments = derive_custody_appointments(root)
@@ -1206,7 +1771,19 @@ def compile_claim_posture_register(
     accessibility_document = None
     accessibility_members: tuple[AdmittedSourceMember, ...] = ()
     accessibility_path = root / _A11Y_PATH
-    if measured_is_file(accessibility_path) and measured_read_bytes(accessibility_path).startswith(b"---\n"):
+    if _admitted_is_file(
+        accessibility_path,
+        root,
+        code="DS11-ACCESSIBILITY-CONTRACT",
+        stage="accessibility_source_presence",
+        label="accessibility document",
+    ) and _admitted_read_bytes(
+        accessibility_path,
+        root,
+        code="DS11-ACCESSIBILITY-CONTRACT",
+        stage="accessibility_source_read",
+        label="accessibility document",
+    ).startswith(b"---\n"):
         accessibility_document = derive_accessibility_document(root)
         accessibility_members = (
             AdmittedSourceMember(
@@ -1216,7 +1793,13 @@ def compile_claim_posture_register(
         )
     page_receipt = None
     page_members: tuple[AdmittedSourceMember, ...] = ()
-    page_present = measured_is_dir(root / _PAGE_RECEIPT_PATH)
+    page_present = _admitted_is_dir(
+        root / _PAGE_RECEIPT_PATH,
+        root,
+        code="DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+        stage="page_a11y_root_presence",
+        label="page-a11y receipt source",
+    )
     if page_present:
         page_receipt = derive_page_a11y_receipt(root)
         page_members = page_receipt.admitted_sources
@@ -1255,7 +1838,14 @@ def compile_claim_posture_register(
         source_bindings=(*source_bindings, *semantic_bindings),
     )
     payload = canonical_register_bytes(register)
-    validate_posture_register(payload)
+    try:
+        validate_posture_register(payload)
+    except ValidationError:
+        _reject_owner_predicate(
+            "DS11-POSTURE-REGISTER-CONTRACT",
+            "compiled_posture_typed_artifact",
+            "compiled trust posture register violates its typed artifact schema",
+        )
     return register, payload
 
 
@@ -1267,8 +1857,13 @@ def write_claim_posture_register(
     """Write only the fixed generated target contained by ``output_root``."""
     root = output_root.resolve()
     target = (root / _OUTPUT_PATH).resolve()
-    if not target.is_relative_to(root):
-        raise ValueError("DS11-GENERATOR-ESCAPE: output target escapes output_root")
+    _require_contained_path(
+        target,
+        root,
+        code="DS11-GENERATED-FAMILY-CONTRACT",
+        stage="generated_output_containment",
+        label="generated output target",
+    )
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(canonical_register_bytes(register))
     return target
@@ -1280,12 +1875,45 @@ def validate_generated_family(repo_root: Path) -> GeneratedFamilyBinding:
 
     root = repo_root.resolve()
     manifest = (root / _GENERATED_MANIFEST_PATH).resolve()
-    if not measured_is_file(manifest) or not manifest.is_relative_to(root):
-        raise ValueError("generated-artifact manifest is missing or outside repo_root")
-    families = guardrails._parse_generated_artifacts(manifest)
+    _require_contained_path(
+        manifest,
+        root,
+        code="DS11-GENERATED-FAMILY-CONTRACT",
+        stage="generated_manifest_containment",
+        label="generated-artifact manifest",
+    )
+    if not _admitted_is_file(
+        manifest,
+        root,
+        code="DS11-GENERATED-FAMILY-CONTRACT",
+        stage="generated_manifest_presence",
+        label="generated-artifact manifest",
+    ):
+        raise ValueError("generated-artifact manifest is missing")
+    raw_manifest = _admitted_read_bytes(
+        manifest,
+        root,
+        code="DS11-GENERATED-FAMILY-CONTRACT",
+        stage="generated_manifest_read",
+        label="generated-artifact manifest",
+    )
+    try:
+        families = guardrails._parse_generated_artifacts(raw_manifest)
+    except (tomllib.TOMLDecodeError, UnicodeError):
+        raise
+    except (AttributeError, KeyError, TypeError, ValueError):
+        _reject_owner_predicate(
+            "DS11-GENERATED-FAMILY-CONTRACT",
+            "generated_family_manifest_schema",
+            "generated-artifact manifest violates its declared family schema",
+        )
     matches = [item for item in families if item.family_id == "trust-claim-posture-register"]
     if len(matches) != 1:
-        raise ValueError("trust posture generated family must appear exactly once")
+        _reject_owner_predicate(
+            "DS11-GENERATED-FAMILY-CONTRACT",
+            "generated_family_cardinality",
+            "trust posture generated family must appear exactly once",
+        )
     family = matches[0]
     outputs = tuple(path.relative_to(guardrails.REPO_ROOT).as_posix() for path in family.outputs)
     probe = family.output_probe_command
@@ -1300,7 +1928,11 @@ def validate_generated_family(repo_root: Path) -> GeneratedFamilyBinding:
         or "--output-root" not in probe
         or family.check_git_diff_paths
     ):
-        raise ValueError("trust posture generated family violates the strict writer contract")
+        _reject_owner_predicate(
+            "DS11-GENERATED-FAMILY-CONTRACT",
+            "generated_family_writer_contract",
+            "trust posture generated family violates the strict writer contract",
+        )
     return GeneratedFamilyBinding(
         family_id="trust-claim-posture-register",
         lifecycle="generated_committed",
@@ -1345,8 +1977,9 @@ def run_generated_family_output_probe(
         (str(source / ".venv/bin"), str(Path(sys.executable).parent), "/usr/bin", "/bin")
     )
     if shutil.which(rendered_command[0], path=executable_path) is None:
-        raise ValueError(
-            f"generated-family output probe executable is unavailable: {rendered_command[0]}"
+        raise _PostureInspectionError(
+            f"generated-family output probe executable is unavailable: {rendered_command[0]}",
+            stage="generated_family_output_command",
         )
     environment = {
         "LANG": "C.UTF-8",
@@ -1391,28 +2024,70 @@ def run_generated_family_output_probe(
     )
     escaped = tuple(sorted({*repo_changes, *(f"scratch/{item}" for item in scratch_changes)}))
     if escaped:
-        raise ValueError(
-            "generated-family output probe wrote outside output_root: " + ", ".join(escaped)
+        _reject_owner_predicate(
+            "DS11-GENERATED-FAMILY-PROBE",
+            "generated_family_output_containment",
+            "generated-family output probe wrote outside output_root",
         )
     if completed.returncode != 0:
-        command_output = ((completed.stdout or "") + (completed.stderr or "")).strip()
-        raise ValueError(
-            "generated-family output probe command failed "
-            f"with exit {completed.returncode}: {command_output}"
+        raise _PostureInspectionError(
+            f"generated-family output probe command exited {completed.returncode}",
+            stage="generated_family_output_command",
         )
 
-    observed = tuple(
-        sorted(path.relative_to(output).as_posix() for path in output.rglob("*") if measured_is_file(path))
-    )
+    output_paths = tuple(output.rglob("*"))
+    observed_paths: list[str] = []
+    for path in output_paths:
+        if _admitted_is_file(
+            path,
+            output,
+            code="DS11-GENERATED-FAMILY-PROBE",
+            stage="generated_family_candidate_containment",
+            label="generated-family candidate output",
+        ):
+            observed_paths.append(path.relative_to(output).as_posix())
+    observed = tuple(sorted(observed_paths))
     if observed != family.outputs:
-        raise ValueError("generated-family output probe differs from declared outputs")
+        _reject_owner_predicate(
+            "DS11-GENERATED-FAMILY-PROBE",
+            "generated_family_output_set",
+            "generated-family output probe differs from declared outputs",
+        )
     for relative in observed:
         expected = repo / relative
         candidate = output / relative
-        if not measured_is_file(expected):
-            raise ValueError(f"generated-family committed artifact is missing: {relative}")
-        if measured_read_bytes(candidate) != measured_read_bytes(expected):
-            raise ValueError(f"generated-family output differs from committed artifact: {relative}")
+        if not _admitted_is_file(
+            expected,
+            repo,
+            code="DS11-GENERATED-FAMILY-PROBE",
+            stage="generated_family_expected_containment",
+            label="committed generated-family output",
+        ):
+            _reject_owner_predicate(
+                "DS11-GENERATED-FAMILY-PROBE",
+                "generated_family_committed_output_presence",
+                f"generated-family committed artifact is missing: {relative}",
+            )
+        candidate_bytes = _admitted_read_bytes(
+            candidate,
+            output,
+            code="DS11-GENERATED-FAMILY-PROBE",
+            stage="generated_family_candidate_read",
+            label="generated-family candidate output",
+        )
+        expected_bytes = _admitted_read_bytes(
+            expected,
+            repo,
+            code="DS11-GENERATED-FAMILY-PROBE",
+            stage="generated_family_expected_read",
+            label="committed generated-family output",
+        )
+        if candidate_bytes != expected_bytes:
+            _reject_owner_predicate(
+                "DS11-GENERATED-FAMILY-PROBE",
+                "generated_family_output_bytes",
+                f"generated-family output differs from committed artifact: {relative}",
+            )
     return observed
 
 
@@ -1425,10 +2100,22 @@ def write_generated_reference(repo_root: Path, *, output_root: Path | None = Non
     manifest = (root / _GENERATED_MANIFEST_PATH).resolve()
     validate_generated_family(root)
     target = (target_root / _GENERATED_REFERENCE_PATH).resolve()
-    if not target.is_relative_to(target_root):
-        raise ValueError("generated reference target escapes output_root")
+    _require_contained_path(
+        target,
+        target_root,
+        code="DS11-GENERATED-FAMILY-CONTRACT",
+        stage="generated_reference_containment",
+        label="generated reference target",
+    )
+    raw_manifest = _admitted_read_bytes(
+        manifest,
+        root,
+        code="DS11-GENERATED-FAMILY-CONTRACT",
+        stage="generated_manifest_read",
+        label="generated-artifact manifest",
+    )
     rendered = guardrails.render_generated_artifacts_markdown(
-        guardrails._parse_generated_artifacts(manifest)
+        guardrails._parse_generated_artifacts(raw_manifest)
     ).encode()
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(rendered)
@@ -1445,7 +2132,11 @@ def validate_register_against_live_sources(
     parsed = validate_posture_register(payload)
     live, live_bytes = compile_claim_posture_register(repo_root, register_as_of=register_as_of)
     if payload != live_bytes:
-        raise ValueError("DS11-GENERATED-DRIFT")
+        _reject_owner_predicate(
+            "DS11-GENERATED-DRIFT",
+            "generated_artifact_byte_equality",
+            "DS11-GENERATED-DRIFT",
+        )
     return live if parsed == live else parsed
 
 
@@ -1579,9 +2270,24 @@ def _bounded_filesystem_snapshot(root: Path) -> dict[str, str]:
             continue
         if path.is_symlink():
             snapshot[relative.as_posix()] = "link:" + os.readlink(path)
-        elif measured_is_file(path):
+        elif _admitted_is_file(
+            path,
+            root,
+            code="DS11-CORRUPTION-PROBE-BOUNDARY",
+            stage="corruption_snapshot_path_containment",
+            label="corruption probe snapshot member",
+        ):
             snapshot[relative.as_posix()] = (
-                "sha256:" + hashlib.sha256(measured_read_bytes(path)).hexdigest()
+                "sha256:"
+                + hashlib.sha256(
+                    _admitted_read_bytes(
+                        path,
+                        root,
+                        code="DS11-CORRUPTION-PROBE-BOUNDARY",
+                        stage="corruption_snapshot_read",
+                        label="corruption probe snapshot member",
+                    )
+                ).hexdigest()
             )
     return snapshot
 
@@ -1598,10 +2304,26 @@ def _minimal_probe_repo(
     source_path.write_text(source, encoding="utf-8")
     identity = root / _IDENTITY_PATH
     identity.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(basis_root.resolve() / _IDENTITY_PATH, identity)
+    identity.write_bytes(
+        _admitted_read_bytes(
+            basis_root / _IDENTITY_PATH,
+            basis_root,
+            code="DS11-CORRUPTION-PROBE-BOUNDARY",
+            stage="corruption_probe_identity_input_read",
+            label="corruption probe identity source",
+        )
+    )
     debt_register = root / _DEBT_REGISTER_PATH
     debt_register.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(basis_root.resolve() / _DEBT_REGISTER_PATH, debt_register)
+    debt_register.write_bytes(
+        _admitted_read_bytes(
+            basis_root / _DEBT_REGISTER_PATH,
+            basis_root,
+            code="DS11-CORRUPTION-PROBE-BOUNDARY",
+            stage="corruption_probe_custody_input_read",
+            label="corruption probe custody source",
+        )
+    )
     return root
 
 
@@ -1765,7 +2487,13 @@ def _source_digest_rebinding_is_rejected(
         basis_root=repo_root,
     )
     identity = repo / _IDENTITY_PATH
-    text = measured_read_text(identity, encoding="utf-8")
+    text = _admitted_read_text(
+        identity,
+        repo,
+        code="DS11-CORRUPTION-PROBE-BOUNDARY",
+        stage="corruption_probe_identity_read",
+        label="corruption probe identity input",
+    )
     changed = text.replace("across the whole life of a", "throughout the whole life of a", 1)
     if changed == text:
         return False
@@ -1787,8 +2515,22 @@ def _body_fact_removal_is_rejected(repo_root: Path, scratch: Path) -> bool:
     source = repo_root.resolve() / _A11Y_PATH
     target = repo / _A11Y_PATH
     target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(source, target)
-    text = measured_read_text(target, encoding="utf-8")
+    target.write_bytes(
+        _admitted_read_bytes(
+            source,
+            repo_root,
+            code="DS11-CORRUPTION-PROBE-BOUNDARY",
+            stage="corruption_probe_accessibility_input_read",
+            label="corruption probe accessibility source",
+        )
+    )
+    text = _admitted_read_text(
+        target,
+        repo,
+        code="DS11-CORRUPTION-PROBE-BOUNDARY",
+        stage="corruption_probe_accessibility_read",
+        label="corruption probe accessibility input",
+    )
     boundary = text.find("\n---\n", 4)
     if boundary < 0:
         return False
@@ -1816,7 +2558,13 @@ def _anti_role_mutation_is_rejected(
         basis_root=repo_root,
     )
     identity = repo / _IDENTITY_PATH
-    text = measured_read_text(identity, encoding="utf-8")
+    text = _admitted_read_text(
+        identity,
+        repo,
+        code="DS11-CORRUPTION-PROBE-BOUNDARY",
+        stage="corruption_probe_identity_read",
+        label="corruption probe identity input",
+    )
     changed = text.replace(fragment, "", 1)
     if changed == text:
         return False
@@ -1914,7 +2662,11 @@ def _derive_token_row(member: AdmittedSourceMember, raw: bytes) -> SourceInvento
         )
     statements = _logical_statements(tokens)
     symbols = _token_symbols(tokens)
-    producer_metadata = _derive_token_producer_metadata(statements, symbols)
+    with _completed_owner_predicate(
+        "DS11-PRODUCER-METADATA",
+        "producer_metadata_contract",
+    ):
+        producer_metadata = _derive_token_producer_metadata(statements, symbols)
     semantic_fields = _token_semantic_field_positions(statements, symbols)
     declarations: list[SourceCoordinate] = []
     carriers: list[SourceCoordinate] = []
@@ -1979,7 +2731,11 @@ def _derive_token_row(member: AdmittedSourceMember, raw: bytes) -> SourceInvento
     consumers = _unique_coordinates(consumers)
     authoritative_sites = _unique_sites(authoritative_sites)
     forbidden_sites = _unique_sites(forbidden_sites)
-    _validate_token_producer_metadata_bindings(producer_metadata, authoritative_sites)
+    with _completed_owner_predicate(
+        "DS11-PRODUCER-METADATA",
+        "producer_metadata_binding",
+    ):
+        _validate_token_producer_metadata_bindings(producer_metadata, authoritative_sites)
     if not exact_authority:
         text = raw.decode("utf-8")
         line = next(
@@ -2808,13 +3564,13 @@ def _report(register: ClaimPostureRegisterV1) -> dict[str, object]:
 
 
 def _measurement_receipt(
-    reads: FileReadMeasurement, *, complete_verdict: bool
+    reads: FileReadMeasurement,
+    *,
+    complete_verdict: bool,
+    finding_coverage: str,
 ) -> dict[str, object]:
     receipt = reads.snapshot(complete_verdict=complete_verdict)
-    receipt["finding_coverage"] = (
-        "complete declared check over selected schema/source and evidence bindings"
-        if complete_verdict else "partial coverage; deciding run UNRUN"
-    )
+    receipt["finding_coverage"] = finding_coverage
     receipt["source_python_read_count"] = len({
         item["path"] for item in receipt["inputs"]
         if item["operation"] == "read_bytes" and item["status"] == "read"
@@ -2828,13 +3584,16 @@ def _measurement_receipt(
         "identity": _IDENTITY_PATH.as_posix(),
         "accessibility": _A11Y_PATH.as_posix() + " if present with frontmatter",
         "page_receipt": _PAGE_RECEIPT_PATH.as_posix() + " if directory present; five fixed JSON members",
+        "path_containment": "every checker-owned file-presence, byte-read, and text-read operation resolves its path beneath the admitted owner root before access; an escape is typed FAIL before the read or write",
     }
     receipt["unresolved_by_construction"].extend([
         "schema_and_evidence_only: this is a declared schema/source and evidence-binding check; runtime execution, external evidence truth, whole-tree capability completeness and current certification remain undecided.",
         "unselected_authority_documents: documents outside the named identity/accessibility/page-receipt/custody selectors cannot establish or refute this verdict; their authority claims remain undecided.",
         "unselected_custody_rows: the register is read as bytes, but only appointed IDs are interpreted; other rows and sections do not receive a custody verdict.",
         "source_discovery: the current filesystem src/**/*.py selector is not a tracked whole-repository denominator; excluded paths, other languages, unsupported/dynamic semantics and inaccessible traversal remain unresolved.",
-        "delegated_reads: AST derivation reads in trust_claim_posture_sources, guardrails manifest/reference readers and shutil copies are not operation-instrumented here; successful token-walk reads bind this receipt's Python inputs, not the delegated operations.",
+        "delegated_reads: the AST owner receives the shared admitted byte-reader, and generated-family parsing receives the already-admitted manifest bytes; guardrails copytree/snapshot internals and the declared generator subprocess remain delegated operations outside this explicit reader receipt, so their internal I/O is unresolved.",
+        "untyped_derivation_failures: source derivation ValueError/SyntaxError without a typed owner predicate remains UNRUN; its semantic classification is not established by this CLI.",
+        "probe_preconditions: unavailable executables, invalid scratch roots, unsupported internal corruption-probe arguments, or unavailable corruption targets prevent the probe from running and remain UNRUN.",
     ])
     return receipt
 
@@ -2855,31 +3614,94 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--corruption-probes", action="store_true")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
-    report: dict[str, object] = {"verdict": "UNRUN"}
+    report: dict[str, object] = {
+        "verdict": "UNRUN",
+        "declared_outputs": [],
+        "write_set": [],
+        "issue_codes": [],
+        "write_attempted": False,
+        "write_set_complete": True,
+    }
+    exit_code = 2
+    complete_verdict = False
+    finding_coverage = "partial coverage; deciding run UNRUN"
+    inspection_stage = "compile_live_sources"
     with measure_file_reads(args.repo_root) as reads:
         try:
+            inspection_stage = "compile_live_sources"
             register, payload = compile_claim_posture_register(
                 args.repo_root,
                 register_as_of=args.register_as_of,
             )
             report = _report(register)
+            report["write_attempted"] = False
+            report["write_set_complete"] = True
             if args.write:
+                inspection_stage = "write_generated_outputs"
                 target_root = (args.output_root or args.repo_root).resolve()
+                declared_outputs = [_OUTPUT_PATH.as_posix()]
+                if args.write_generated_reference:
+                    declared_outputs.append(_GENERATED_REFERENCE_PATH.as_posix())
+                report["declared_outputs"] = declared_outputs
+                report["write_attempted"] = True
+                report["write_set_complete"] = False
                 target = write_claim_posture_register(register, output_root=target_root)
-                report["declared_outputs"] = [_OUTPUT_PATH.as_posix()]
                 report["write_set"] = [target.relative_to(target_root).as_posix()]
                 if args.write_generated_reference:
                     reference = write_generated_reference(args.repo_root, output_root=target_root)
                     report["write_set"].append(reference.relative_to(target_root).as_posix())
+                report["write_set_complete"] = True
             elif args.check:
-                target = args.repo_root.resolve() / _OUTPUT_PATH
-                if not measured_is_file(target) or measured_read_bytes(target) != payload:
-                    raise ValueError("DS11-GENERATED-DRIFT")
-            elif args.corrupt_field_drift_check and not run_corruption_probe(
-                "extra_field", repo_root=args.repo_root, register_as_of=args.register_as_of
-            ):
-                raise ValueError("corruption probe did not reject the artifact")
+                target_root = args.repo_root.resolve()
+                target = target_root / _OUTPUT_PATH
+                inspection_stage = "generated_artifact_presence"
+                if not _admitted_is_file(
+                    target,
+                    target_root,
+                    code="DS11-GENERATED-DRIFT",
+                    stage="generated_artifact_containment",
+                    label="generated posture artifact",
+                ):
+                    raise _PosturePredicateError(
+                        "DS11-GENERATED-DRIFT",
+                        "generated posture artifact is absent",
+                        stage="generated_artifact_presence",
+                        finding_coverage=(
+                            "complete declared freshness check: required generated output is absent"
+                        ),
+                    )
+                inspection_stage = "generated_artifact_byte_read"
+                if _admitted_read_bytes(
+                    target,
+                    target_root,
+                    code="DS11-GENERATED-DRIFT",
+                    stage="generated_artifact_byte_read",
+                    label="generated posture artifact",
+                ) != payload:
+                    raise _PosturePredicateError(
+                        "DS11-GENERATED-DRIFT",
+                        "generated posture artifact differs from live compilation",
+                        stage="generated_artifact_byte_equality",
+                        finding_coverage=(
+                            "complete declared freshness check through byte comparison; "
+                            "the generated output is stale"
+                        ),
+                    )
+            elif args.corrupt_field_drift_check:
+                inspection_stage = "corruption_probe"
+                if not run_corruption_probe(
+                    "extra_field", repo_root=args.repo_root, register_as_of=args.register_as_of
+                ):
+                    raise _PosturePredicateError(
+                        "DS11-CORRUPTION-PROBE-FAIL",
+                        "corruption probe did not reject the artifact",
+                        stage="corruption_probe",
+                        finding_coverage=(
+                            "complete declared corruption-probe check; an invalid artifact was accepted"
+                        ),
+                    )
             elif args.check_a11y_receipt:
+                inspection_stage = "page_accessibility_receipt"
                 derive_page_a11y_receipt(args.repo_root)
             if args.corruption_probes:
                 if not args.check:
@@ -2894,24 +3716,76 @@ def main(argv: Sequence[str] | None = None) -> int:
                     or corruption["rejected_count"] != len(_CORRUPTION_REASON_CODES)
                     or corruption["scratch_escape_count"] != 0
                 ):
-                    raise ValueError("DS11 corruption probe wave escaped its semantic boundary")
+                    raise _PosturePredicateError(
+                        "DS11-CORRUPTION-PROBE-WAVE-FAIL",
+                        "DS11 corruption probe wave escaped its semantic boundary",
+                        stage="corruption_probe_wave",
+                        finding_coverage=(
+                            "complete declared corruption-probe wave; one or more expected "
+                            "rejections or scratch bounds failed"
+                        ),
+                    )
             if args.write_generated_reference and not args.write:
                 parser.error("--write-generated-reference requires --write")
-            report["verdict"] = "PASS"
+        except _PosturePredicateError as error:
+            report["verdict"] = "FAIL"
+            report["failure_code"] = error.code
+            report["error"] = f"{error.code}: {error}"
+            report["failure_stage"] = error.stage
+            exit_code = 1
+            complete_verdict = True
+            finding_coverage = error.finding_coverage
+        except _PostureInspectionError as error:
+            report["verdict"] = "UNRUN"
+            report["failure_stage"] = error.stage
+            report["unrun_code"] = "DS11-INSPECTION-INCOMPLETE"
+            report["error"] = f"{type(error).__name__}: {error}"
+            finding_coverage = (
+                f"inspection incomplete at {error.stage}; "
+                "no verdict predicate was established"
+            )
+            exit_code = 2
         except (OSError, ValueError, SyntaxError) as error:
             report["verdict"] = "UNRUN"
+            report["failure_stage"] = inspection_stage
+            report["unrun_code"] = "DS11-INSPECTION-INCOMPLETE"
             report["error"] = f"{type(error).__name__}: {error}"
-            raise
+            finding_coverage = (
+                f"inspection incomplete at {inspection_stage}; "
+                "no verdict predicate was established"
+            )
+            exit_code = 2
+        except Exception as error:
+            # A valid invocation that cannot be inspected gets a typed UNRUN result,
+            # never an uncaught traceback in place of the instrument verdict.
+            report["verdict"] = "UNRUN"
+            report["failure_stage"] = inspection_stage
+            report["unrun_code"] = "DS11-INSPECTION-INCOMPLETE"
+            report["error"] = f"{type(error).__name__}: {error}"
+            finding_coverage = (
+                f"inspection incomplete at {inspection_stage}; "
+                "no verdict predicate was established"
+            )
+            exit_code = 2
+        else:
+            report["verdict"] = "PASS"
+            exit_code = 0
+            complete_verdict = True
+            finding_coverage = (
+                "complete declared check over selected schema/source and evidence bindings"
+            )
         finally:
             report["measurement"] = _measurement_receipt(
-                reads, complete_verdict=report.get("verdict") == "PASS"
+                reads,
+                complete_verdict=complete_verdict,
+                finding_coverage=finding_coverage,
             )
             if args.json:
                 json.dump(report, sys.stdout, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
                 sys.stdout.write("\n")
             else:
                 print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
-    return 0
+    return exit_code
 
 
 

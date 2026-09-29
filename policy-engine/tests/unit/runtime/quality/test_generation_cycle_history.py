@@ -21,6 +21,7 @@ import pytest
 from pydantic import BaseModel
 
 from polisyos.core import canon
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import generation_cycle as generation
@@ -28,7 +29,10 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionActionRecord,
     AcquisitionStrategy,
 )
-from polisyos.runtime.quality.design_problem import CandidateLever
+from polisyos.runtime.quality.design_problem import (
+    CandidateLever,
+    DesignProblem,
+)
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleRun,
     StrangleReceipt,
@@ -193,14 +197,18 @@ import copy
 import json
 import os
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import polisyos
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core import artifacts
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.foundry.methods.catalog import dependency_authority
+from polisyos.runtime.quality.design_axes import value_choice_provenance
 from polisyos.runtime.quality import generation_cycle
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleRun,
+    validate_generation_cycle_run,
     validate_generation_cycle_run_history,
 )
 
@@ -251,6 +259,83 @@ for label, records in fixtures.items():
         assert validate_generation_cycle_run_history(payload) == (), label
         replayed_count += 1
 
+source = fixtures["v1"][0]
+schema_version = source["schema_version"]
+store = artifacts.FileSystemCAS(Path.cwd() / "s8-cas")
+owner = value_choice_provenance.NormativeValueScheduleOwner(
+    store=store,
+    trust=value_choice_provenance.NormativeAuthorityTrust(),
+    repo_root=None,
+)
+source_options = artifacts.PutOptions(
+    kind=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+    media_type="application/json",
+    schema=artifacts.SchemaInfo(
+        name=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+        version=schema_version,
+    ),
+)
+valid_source_ref = str(
+    store.put_json(source, source_options, canon_spec=spec).artifact_id
+)
+assert owner._read(
+    valid_source_ref,
+    kind=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+    schema=generation_cycle.GENERATION_CYCLE_SCHEMA_VERSION,
+) == source
+canonical_source_bytes = store.get_bytes(valid_source_ref)
+noncanonical_source_ref = str(
+    store.put_bytes(canonical_source_bytes + b" \\n", source_options).artifact_id
+)
+assert from_canonical_bytes(store.get_bytes(noncanonical_source_ref)) == source
+try:
+    owner._read(
+        noncanonical_source_ref,
+        kind=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+        schema=generation_cycle.GENERATION_CYCLE_SCHEMA_VERSION,
+    )
+except value_choice_provenance.P20NormativeChoiceError as exc:
+    assert exc.code == "p20_normative_generation_history_invalid"
+else:
+    raise AssertionError("S8 accepted noncanonical raw N6 source bytes")
+assert "strangle_receipt_currentness_not_established" in {
+    str(issue.get("code"))
+    for issue in validate_generation_cycle_run(GenerationCycleRun.model_validate(source))
+}
+binding = value_choice_provenance.NormativeGenerationBinding(
+    compiled_run_ref="sha256:" + "a" * 64,
+    source_run_ref=valid_source_ref,
+    node_ref="fixture:n6-leaf",
+)
+try:
+    owner._generation_disposition(
+        binding=binding,
+        evidence=None,
+        evaluated_at=datetime.now(UTC),
+    )
+except value_choice_provenance.P20NormativeChoiceError as exc:
+    assert str(exc) == "p20_normative_generation_source_invalid"
+else:
+    raise AssertionError("unissued deployment identity must keep S8 limited")
+
+mutated_v1 = copy.deepcopy(source)
+mutated_v1["source_handoff_refs"] = []
+assert GenerationCycleRun.model_validate(mutated_v1).model_dump(mode="json") == source
+invalid_source_ref = str(
+    store.put_json(mutated_v1, source_options, canon_spec=spec).artifact_id
+)
+invalid_binding = binding.model_copy(update={"source_run_ref": invalid_source_ref})
+try:
+    owner._generation_disposition(
+        binding=invalid_binding,
+        evidence=None,
+        evaluated_at=datetime.now(UTC),
+    )
+except value_choice_provenance.P20NormativeChoiceError as exc:
+    assert exc.code == "p20_normative_generation_history_invalid"
+else:
+    raise AssertionError("S8 accepted post-v1 persisted content after markers stayed intact")
+
 original = fixtures["v3"][0]
 mutated = copy.deepcopy(original)
 retained_run_id = mutated["run_id"]
@@ -262,7 +347,10 @@ issues = validate_generation_cycle_run_history(mutated)
 assert "generation_cycle_blocked_terminal_projection_mismatch" in {
     issue.get("code") for issue in issues
 }
-print(f"source_free_n6_history=v1,v2,v3 replayed={replayed_count} mutation=red")
+print(
+    f"source_free_n6_history=v1,v2,v3 replayed={replayed_count} "
+    "s8_raw_v1=red_currentness=limited unrelated_comment=valid"
+)
 """,
         ],
         cwd=outside,
@@ -274,7 +362,8 @@ print(f"source_free_n6_history=v1,v2,v3 replayed={replayed_count} mutation=red")
     )
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == (
-        "source_free_n6_history=v1,v2,v3 replayed=4 mutation=red"
+        "source_free_n6_history=v1,v2,v3 replayed=4 "
+        "s8_raw_v1=red_currentness=limited unrelated_comment=valid"
     )
 
     # Remove the import-boundary property while retaining every exported symbol.
@@ -533,6 +622,123 @@ def test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot() -> Non
         assert (
             problem["candidate_lever_space"]["candidate_levers"][0]["target_slot"]
             == "government.balance"
+        )
+
+
+def test_v3_history_accepts_nested_design_problem_v3_qualified_outcome() -> None:
+    """A new nested v3 problem replays with its exact qualified outcome owner."""
+
+    _fixture_name, payload = _v3_history_fixtures()[0]
+    for cycle in payload["cycles"]:
+        problem = cycle["revision_request"]["revised_problem"]
+        problem["schema_version"] = "policyos.runtime.design_problem.v3"
+        problem["outcome_of_interest"]["target_variable"] = "government.balance"
+
+    run = GenerationCycleRun.model_validate(payload)
+    projection = generation._historical_generation_cycle_run_projection(run)
+    spec = canon.CanonSpec(forbid_floats=False)
+    assert canon.to_canonical_bytes(projection, spec) == canon.to_canonical_bytes(
+        payload, spec
+    )
+    assert all(
+        cycle["revision_request"]["revised_problem"]["outcome_of_interest"][
+            "target_variable"
+        ]
+        == "government.balance"
+        for cycle in projection["cycles"]
+    )
+
+
+@pytest.mark.parametrize(
+    "schema_version",
+    [
+        "policyos.runtime.design_problem.v1",
+        "policyos.runtime.design_problem.v2",
+        "policyos.runtime.design_problem.v3",
+    ],
+)
+def test_history_rejects_qualified_outcome_without_v3_nested_owner(
+    schema_version: str,
+) -> None:
+    """A version marker alone cannot give the strict outcome owner v3 syntax."""
+
+    _fixture_name, payload = _v3_history_fixtures()[0]
+    run = GenerationCycleRun.model_validate(payload)
+
+    def replace_old_outcome(value: object) -> tuple[object, bool]:
+        if isinstance(value, DesignProblem):
+            outcome = value.outcome_of_interest.model_copy(
+                update={"target_variable": "government.balance"}
+            )
+            return (
+                value.model_copy(
+                    update={
+                        "schema_version": schema_version,
+                        "outcome_of_interest": outcome,
+                    }
+                ),
+                True,
+            )
+        if isinstance(value, BaseModel):
+            for field_name in type(value).model_fields:
+                replacement, changed = replace_old_outcome(getattr(value, field_name))
+                if changed:
+                    return value.model_copy(update={field_name: replacement}), True
+        if isinstance(value, (tuple, list)):
+            items = list(value)
+            for index, item in enumerate(items):
+                replacement, changed = replace_old_outcome(item)
+                if changed:
+                    items[index] = replacement
+                    return (tuple(items) if isinstance(value, tuple) else items), True
+        return value, False
+
+    forged, changed = replace_old_outcome(run)
+    assert changed
+    assert isinstance(forged, GenerationCycleRun)
+    assert forged.schema_version == run.schema_version
+    assert forged.strangle_receipt.status == run.strangle_receipt.status
+    with pytest.raises(
+        ValueError, match="generation_cycle_history_field_pattern_out_of_epoch"
+    ):
+        generation._historical_generation_cycle_run_projection(forged)
+
+
+def test_v3_history_projects_n5_artifact_root_model_as_scalar_wire() -> None:
+    """A valid N5 result ref replays through the frozen typed v3 graph."""
+
+    artifact_id = ArtifactID.from_sha256_hex("a" * 64)
+    observation = generation.SimulationPortObservation(
+        candidate_id="candidate_a",
+        status="joint_simulated",
+        simulation_result_ref=ArtifactRef(
+            artifact_id=artifact_id,
+            kind="runtime_quality.simulation_result",
+            media_type="application/json",
+        ),
+    )
+    wire = observation.model_dump(mode="json", exclude_unset=True)
+    assert wire["simulation_result_ref"]["artifact_id"] == str(artifact_id)
+
+    projected = generation._historical_generation_cycle_field_tree(
+        observation, wire, version="v3"
+    )
+    spec = canon.CanonSpec(forbid_floats=False)
+    assert canon.to_canonical_bytes(projected, spec) == canon.to_canonical_bytes(
+        wire, spec
+    )
+
+    malformed = copy.deepcopy(wire)
+    malformed["simulation_result_ref"]["artifact_id"] = "sha256:broken"
+    with pytest.raises(ValueError):
+        generation.SimulationPortObservation.model_validate(malformed)
+
+    noncanonical = copy.deepcopy(wire)
+    noncanonical["simulation_result_ref"]["artifact_id"] = "sha256:" + "A" * 64
+    normalized = generation.SimulationPortObservation.model_validate(noncanonical)
+    with pytest.raises(ValueError, match="generation_cycle_history_root_wire_mismatch"):
+        generation._historical_generation_cycle_field_tree(
+            normalized, noncanonical, version="v3"
         )
 
 

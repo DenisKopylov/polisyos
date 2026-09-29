@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactID
 from polisyos.fabric.connectors.contracts import (
     DataSchema,
     FieldSpec,
@@ -38,7 +39,9 @@ class _ReplayStoreStub:
 
     def save_record_session(self, session: object) -> SimpleNamespace:
         del session
-        return SimpleNamespace(artifact_id=SimpleNamespace(hex="record-ref"))
+        return SimpleNamespace(
+            artifact_id=ArtifactID.model_validate("sha256:" + "b" * 64)
+        )
 
     def load_record_session(self, artifact_id: object) -> object:
         del artifact_id
@@ -102,7 +105,7 @@ def test_run_record_mode_uses_shared_blocking_bridge(
 
     assert blocking_calls == ["_fake_run_connectors_ingestion"]
     assert result.mode_effective == "record"
-    assert record_ref == "record-ref"
+    assert record_ref == "sha256:" + "b" * 64
 
 
 def test_run_replay_mode_uses_shared_blocking_bridge(

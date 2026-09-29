@@ -1,5 +1,310 @@
 # E02-R2 write leases
 
+## Active bounded R2 historical S8 lease (2026-09-29; canonical `86bdf0e5b`)
+
+One direct R2 candidate writer owns only a scratch patch to
+`policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`
+and `policy-engine/tests/unit/runtime/quality/test_s8_blocked_generation_owner.py`.
+Root alone applies a reviewed patch to `codex/e02-r2`. The slice may project an
+exactly replayed historical N6-v1 source as a typed blocked/no-ranking S8
+disposition with both missing deployment identity and unestablished v1 source
+custody declared. It cannot claim currentness transitions, a current source,
+verified S8 evidence, or served R1 closure. Test first; capture a marker-
+retaining removal probe and a candidate-band preserving control. The current
+direct-owner whole-file baseline is 1/3 with two source-preservation setup
+failures; the historical three bases lack that test file. Preserve the
+historical `MISSING` and current 1 PASS/2 FAIL as measured. The post-edit
+whole-file/P41 replay remains `UNRUN` until a new receipt exists.
+No other candidate edits these two paths until review and root handoff. R1
+retains its Control store/HTTP files; R13 retains its Data Forge/N6 files.
+Source is frozen during each test run; the 8 GiB disk floor and 20–30% free
+memory reserve still apply.
+
+## B88 served record-ref replay slice (2026-09-29; canonical `607872175`)
+
+Root alone writes the canonical B88 slice while R1 and R13 remain isolated in
+their candidate worktrees. Complete direct caller census and test design:
+`/Users/deniskopylov/.codex/scratch/e02-b88-record-replay-design-607872175-20260929/B88_RECORD_REPLAY_WITNESS_DESIGN.md@sha256:b238b3b03abed1a2d1fe204fbdbf0f2a91b4cab81c1ec1bef39910db9e3ef6b2`.
+The exact writable set is `policy-engine/src/polisyos/fabric/data_plane/modes.py`,
+`policy-engine/tests/unit/fabric/data_plane/test_modes.py`, and
+`policy-engine/tests/unit/runtime/http/test_b88_served_replay.py`, plus this
+lease, `policy-engine/release-fragments/unreleased/2026-09-29-e02-r2-b88-record-ref.toml`,
+and later reviewed package reports. No `run_lifecycle.py` edit is leased;
+the R1 candidate retains it. The served test-first red proves that the normal
+record issuer returns bare hex while the replay reader requires a canonical
+`sha256:` ArtifactID. Repair the producer's public ref to the canonical ID,
+without rewriting retained sessions or trusting a mode label. Preserve the
+missing/corrupt-fixture no-egress negatives and ordinary-ingestion control;
+verify complete touched test files and a marker-retaining fallback removal
+probe. Do not infer publisher source time or all-transport egress coverage.
+Keep the 8 GiB disk floor and source frozen during every test run.
+
+## Active owner corrections at `20b110f7b` (2026-09-29)
+
+Root committed the bounded R2 historical `ArtifactID` scalar-wire repair at
+`6eac18ccc`; its temporary `generation_cycle.py` and history-test lease is
+released. The R1 and R13 candidates may merge the current canonical branch
+append-only before their next tests. The R2 repair does not claim a served R1
+N6/N5 positive or current authority.
+
+The R1 candidate writer retains the three-file lease listed below and may
+also edit `policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`
+and its mirrored `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`
+for one owner-level historical completed-candidate replay operation. This
+extension is limited to the same R1 class: fail-closed invalid-intent
+sanitation, positive served N6/N5 readback, and a foreign-tenant negative
+through the runtime-supplied guarded/ambient-owned store. It must reuse the
+N6/N5 validation and artifact owners, not duplicate their rules in the HTTP
+reader. The current a037 candidate remains review NO-GO until a complete
+positive, marker-retaining removal red, preserving candidate control, and
+independent delta review. Do not edit the R13 `generation_cycle.py` owner.
+
+The R13 selected-row writer retains the correction lease below and its saved
+WIP recovery patch. Qualified DesignProblem outcome grammar, the frozen N6
+history predicate, provider schema, and generated families have the bounded
+lease below. The shared canonical-variable contract premise is recorded
+separately in `OPEN_PREMISES.md` and does not block the exact WDI candidate
+route. Root alone writes canonical files and package documents. Keep at least
+8 GiB disk and 20–30% RAM free.
+
+## R13 exact WDI qualified-outcome lease (2026-09-29)
+
+After independent design review
+`/Users/deniskopylov/.codex/scratch/e02-r13-qualified-outcome-v3-review-20260929/QUALIFIED_OUTCOME_V3_REVIEW.md@sha256:2f1113ddbf4a622d60d26f67beeb9937b6d1f40799000c341828478db8139cdf`,
+the one R13 selected-row candidate writer may additionally edit these exact
+paths on its attached candidate branch:
+`policy-engine/src/polisyos/runtime/quality/design_problem.py`,
+`policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py`,
+`policy-engine/tests/unit/runtime/quality/test_design_problem.py`,
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`,
+`policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py`,
+and the already-leased served WDI test
+`policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py`.
+Its existing `generation_cycle.py` source lease covers only a necessary
+version-aware historical typed-edge adaptation and N8 source-time propagation;
+do not rewrite frozen v1/v2/v3 graphs or the R2 scalar RootModel repair.
+
+The v1 default and byte history remain intact; v2 retains qualified
+`target_slot` but strict unqualified outcome; v3 admits the exact qualified
+outcome, while standalone `OutcomeOfInterest` remains strict in runtime and
+JSON Schema. Keep v2 projection decoding. Test runtime/schema parity and a
+marker-retaining version-gate removal, replay every pinned historical N6
+record, and exercise a served WDI row whose `government.balance` identity is
+set before problem hashes and reaches N8 by exact admitted row content.
+Syntactically valid but unbound variables remain typed data gaps; source update
+time remains `not_established`. The candidate may regenerate only the
+DesignProblem contract and changed registered OpenAPI/client dependents through
+their owner commands, inspecting every delta before committing. A nonempty
+public schema/client delta needs a release fragment; no governed receipt, epoch,
+or trust pin may be restamped. The generated-artifact family is serialized:
+the R1 writer must not run its owner in parallel. Freeze candidate source/tests
+and obtain independent full-delta review before root integrates it.
+
+## Sequential R2 historical N6 projector lease (2026-09-29)
+
+The R13 candidate writer has frozen `generation_cycle.py` at SHA-256
+`f974c1144b92fcf496cbb6947ea086ffc07b0d33ed862086ad9aca8dc905383f`
+and released that source path temporarily; no R13 test process is running.
+Root alone may edit the canonical branch's
+`policy-engine/src/polisyos/runtime/quality/generation_cycle.py` and mirrored
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`
+for R2's historical `ArtifactID` RootModel scalar-wire replay defect. The
+property is byte-exact persisted N6 history replay, including a non-null N5
+result reference, without a live checkout or authority/currentness upgrade.
+Root must run a failing behavioral test first, then a preserving historical
+control and a marker-retaining removal probe. The R13 writer keeps its current
+WIP in its separate candidate worktree but does not edit `generation_cycle.py`
+until root commits this R2 slice and the candidate merges canonical append-only.
+The two branches' tests must never edit either tree during an in-flight run.
+
+This lease is a temporary sequencing override to the R13 source lease below.
+R1 continues on its frozen candidate branch; its N6/N5 positive path is not
+claimed until the corrected history owner and guarded CAS replay are tested.
+
+## Current R13 correction lease at `36bc65858` (2026-09-29)
+
+Root remains the sole writer of `codex/e02-r2`. Independent review found the
+frozen R13 candidate `04fe512bc` NO-GO for its selected-row-to-N8 claim: the
+read-only Data Forge route is owner-bound, but the served WDI test does not
+prove that its selected row enters N8, and the source-update/currentness
+limitation disappears after the gateway. The same R13 writer retains the clean
+attached `codex/e02-r2-r13-selected-row-candidate` worktree for the correction.
+Its exact additional write set is
+`policy-engine/tests/unit/runtime/quality/test_value_gate.py` and
+`policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py`;
+the original seven-file R13 source/test write set below stays leased. No
+Foundry selection-owner file, generated family, plan, register, or other test
+is leased. Request a new lease before changing one.
+
+The correction keeps hashed `ValueDataProfile` v1 and the Foundry v4 selection
+receipt unchanged: the latter binds observed owner rows and the effective
+query, and makes no source-update/currentness claim. WDI observation-year
+coordinates may still support candidate panel shape. The existing N8
+production result must carry `source_update_time_not_established` as a typed
+additional authority blocker, without hiding its treatment-assignment blocker
+or claiming current N8 authority. The served test must bind the exact admitted
+WDI row's value/content to the N8 profile/result through the existing runtime
+store and a real catalog owner; a marker-retaining removal of either row
+consumption or status propagation must turn red, while ordinary candidate
+selection remains allowed. If the selected route starts making a currentness
+claim, the Foundry receipt owner needs a separately versioned context/receipt
+transition with historical replay; a new unbound runtime hint is not accepted.
+
+The R1 candidate writer exclusively owns the three files in the next section;
+R13 does not edit them. Keep at least 8 GiB free disk and 20–30% free RAM.
+
+## Active leases after integration `686ecfcfa` (2026-09-29)
+
+Root alone writes the attached `codex/e02-r2` branch. The R2 S8 history-owner
+candidate was reviewed, integrated at `686ecfcfa`, and its source/test lease
+is released. The independent R7/R8 exact-source removal-probe worktree is
+restored and clean; those source leases are released. The prior dated lease
+entries below describe their historical snapshots, not current ownership.
+
+| Work | Exact writable surface | Current owner and boundary |
+|---|---|---|
+| R1 candidate-intent gate | Reused `codex/e02-r2-r1-candidate` worktree; `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`, `policy-engine/src/polisyos/runtime/http/services/control_plane_store.py`, and `policy-engine/tests/unit/runtime/http/test_control_service_di.py` | One direct candidate writer. The third file is leased only for an owner read of the exact `job_completed` outbox fact: the completed simulate-only reader must rebind its candidate compiled ref and stage statuses from immutable completion evidence, not mutable progress or strict N6 currentness. Preserve the existing store fence and event semantics. Root integrates only after a forged-progress negative, valid completion control, and independent full-delta review. No other writer may edit these candidate files concurrently. |
+| R13 selected-row-to-N8 candidate | Reused `codex/e02-r2-r13-selected-row-candidate` worktree; `policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py`, `policy-engine/src/polisyos/data_forge/read_api/catalog.py`, `policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py`, `policy-engine/src/polisyos/runtime/quality/generation_cycle.py`, and mirrored `test_overlay.py`, `test_acquisition_executor.py`, `test_acquisition_overlay_visibility.py`, `test_generation_cycle.py` | One direct candidate writer. Selected active rows may reach the existing N8 value owner only after full Data Forge admission readback through the runtime-supplied tenant store. The served WDI control and marker-retaining row-removal probe precede independent review. This lease makes no DataState/S1→WMR→N5, source-time, S8, or authority claim. |
+| R4 governed-check same-subject basis witness | `policy-engine/tests/unit/runtime/quality/test_generation_cycle.py` on canonical; root only | Independently reviewed V2 test patch is admitted for one focused test and marker-retaining owner-guard removal probe. N9 production owner/checker source remains read-only. Do not claim governed N6 currentness or N9 callback was reached by the typed `UNRUN` gate. |
+| R4 guard-removal probe | Reused clean detached `e02-r7-r8-probes` checkout at `6ad734ffc`; temporary copies of the reviewed R4 test and `policy-engine/src/polisyos/runtime/quality/promotion_sequence.py` only | One probe writer may disable the full-scope equality guard while preserving the mismatch marker, run the stale/matching controls, then restore both source blobs exactly. No mutant commit or canonical source edit. |
+| R2 S8 byte-history removal probe | Reused detached `e02-r7-r8-probes` checkout fast-forwarded to `ce286a67f`; temporary mutation of `policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py` only | One probe writer may bypass the raw-byte equality guard while retaining its marker, run the direct owner byte-variant negative and canonical positive, then restore the source blob exactly. No mutant commit or canonical source edit; full served S8/currentness remain separate. |
+| R9 typed views and R13 selected-row-to-N5 | Read-only source census and scratch design memo | The R13-to-N8 slice above is the only active R13 writer; selected-row-to-N5 remains a separate typed residual. No code lease or authorization to duplicate the world-growth owner. |
+| P41 fixed-base replay | Pinned historical worktrees and scratch JUnit/receipts | One broker, at most four profiled light groups; no source edit in a tree under test. Integration-head cells wait for the next source freeze. |
+| Premises and reports | Scratch-only patch against the current package documents | One docs preparer, then an independent reviewer; root alone applies and commits on the canonical branch. `OPEN_PREMISES.md` is the separate durable source for missing data, contracts, owner appointments and decisions. |
+
+Keep at least 8 GiB free disk and roughly 20–30% free RAM, with no new swap
+pressure; run heavy native jobs alone. A file crossing a listed write set
+requires a new lease entry before editing. Root verifies `git status -sb`
+before every commit. No historical base, governed receipt, epoch, plan, or
+register is restamped to make a gate green.
+
+## Active handoff (2026-09-29; canonical `c0cb70b88`)
+
+Root alone writes `codex/e02-r2`. The R13 selected-row candidate was reviewed,
+integrated at `c0cb70b88`, and its source/test lease is released. Its four
+touched test files pass 64/64 on that exact head; the integrated JUnit is
+`/Users/deniskopylov/.codex/scratch/e02-r13-integrated-c0cb70b88-20260929.xml@sha256:a03f77a26a4b8a1dfb46056d7943203300052e55ce7a90435114cbd1b03ac3c6`.
+R13 remains partial because selected admitted values are not yet shown in the
+problem-bound WMR consumed by served N5.
+
+The R2 history writer now exclusively leases the clean, attached reusable
+`codex/e02-r2-r1-candidate` worktree at `fd9375ae4` for these four paths:
+`policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`,
+`policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`,
+`policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`,
+and `policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`.
+The independently reviewed narrow seam validates exact persisted N6 history
+before model normalization and keeps currentness separate; broad model
+extraction is not admitted. The writer must freeze a test-first candidate for
+independent review before root integrates it. No other writer may edit those
+four files meanwhile.
+
+R1's controlled-profile witness writer owns only a scratch patch to
+`policy-engine/tests/unit/runtime/http/test_control_service_di.py`. R14's
+runtime-contract checker/test patch was reviewed and integrated at
+`6ad734ffc`; that two-file source lease is released. Its four-base touched-file
+replay found the test path Git-missing at execution/E02, Main 3/3 passing and
+integration 5/5 passing; all three shared Main selectors remain pass→pass.
+The complete manifest is
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T003439Z-60001/results.json@sha256:d0a7b3125a036aa5abc2c1cebe0af0f942c703369e04d55cf70e2cd464e68c8b`.
+R7/R8 marker-retaining probes now exclusively use the managed detached
+`e02-r7-r8-probes` worktree at `6ad734ffc`, with sequential mutation and exact
+source restoration; no mutant is committed. Neither candidate writer may edit
+canonical files. Read-only P41 planning and the separate
+`OPEN_PREMISES.md` blocker addenda hold no source lease. The complete R1
+control-service four-cell reconciliation is pinned in
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-single-base-control-service-20260929T000807Z-47844/reconciliation.json@sha256:c2cddee57b8d4d6c73a368a94f8d3bc09a1c980699bdf69016d0f66fb7fac782`;
+its five Main-to-integration pass→fail identities require repair or a
+principal-level disposition. Source trees remain frozen while their tests run.
+Keep at least 8 GiB free disk, approximately 20–30% free RAM, and at most
+four to five light test groups; heavy native jobs run alone.
+
+## R13 selected-row active-read integrity sublease (2026-09-29; canonical head `7dd9616dce28ab0892a9e76148f001db8ed7245a`)
+
+The first R13 Slice A design was not admitted: a selected-row projection used only by tests has no production consumer. Independent bounded review instead permits strengthening the existing Data Forge active-admission read, already called by `AcquisitionWorldGrowthBridge.resume` before served re-entry. The production property is that a selected active row's current value and decisive coordinates still match the source-derived admission content even if its ID, member keys, counts and receipt markers are unchanged. This slice must remain explicitly partial: it does not put the selected value into the problem-bound WMR or N5, does not qualify source-time semantics, and grants no S8/promotion/publication authority. Design and review: `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-n5-design-20260929.md@sha256:5cd9f2151f0231edcfcb1a07955513bd3aa74b582ce2622dd675c75fe6387673`; `/Users/deniskopylov/.codex/scratch/e02-r13-design-review-20260929/R13_SLICE_A_REVIEW.md@sha256:bfa9b09d9d1cd0f47bf27989ea68c30f032a0f210dcf164d0e0e38ba8c4cc182`.
+
+One candidate writer reuses the clean, branch-attached `codex/e02-r2-r1-candidate` worktree. The **exact source write set** is `policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py`, `policy-engine/src/polisyos/runtime/quality/acquisition_executor.py`, `policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py`, and `policy-engine/src/polisyos/runtime/quality/acquisition_epoch_admission.py`. The **exact test write set** is `policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py`, `policy-engine/tests/unit/runtime/quality/test_acquisition_activation_readback.py`, `policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py`, and `policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py`. A change outside this set requires a revised lease before writing. Do not edit `generation_cycle.py`, DataState, any generated artifact family, the register, plans or E02 records. Root remains the sole writer of `codex/e02-r2`; another agent independently reviews the frozen candidate before integration.
+
+The reader must bind the exact passport to the admitted receipt and runtime-supplied guarded store; rederive observations in source order, recompute the existing admission digest, and compare every decisive native row field without changing admission/write path or schema. Pass the existing authority through all three production resolver callers. Test first: a temporary overlay row-value mutation with receipt/member markers retained must refuse active read and served resume, while an unchanged epoch and an unrelated ordinary candidate route remain accepted within their existing limits. The original source must be restored byte-for-byte after a marker-retaining removal probe, before final tests and commit. P37/P38/P40 require naming the residual selected-row-to-N5 divergence, not claiming world-growth closure.
+
+Pre-edit canonical whole-file baselines at `73815191cc86ec4266689b1ac6bbe1bb49819bea`: overlay 40/40 `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-pre-20260929/overlay-738-pre.junit.xml@sha256:99af271f0f9b6e6fc4b99a92fd97b368d7da9ec527e605bc850593999942b38d`; served world-growth 9/9 `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-pre-20260929/world-growth-738-pre.junit.xml@sha256:9d2bac83f39e02b0ddc1b7dd918ed3a41151d0441916261c1f09380b8fca80eb`; activation/native pair 8/8 `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-pre-20260929/activation-native-738-pre.junit.xml@sha256:d7db82b1451bb046b04ca8b023de79d5e828911bfa645c9d72e14aad71193854`. Historical four-base attribution remains UNRUN for this exact test set.
+
+Resource admission remains at most four light test groups with at least 20–30% free RAM and 8 GiB free disk. Read-only production data is linked, never copied or written. Do not edit any tree under test during a run; commit only after branch attachment is checked. The root will retain the independent review, value-mutation removal receipt, and integrated whole-file/JUnit results.
+
+## R9 exact-view tenant-custody sublease (2026-09-29; canonical code head `68caebd84a5102a92eb93453c5a1bf0ca9ea2455`)
+
+The second R9 finding is the same cache-admission class one level deeper (P40): an exact `ArtifactRef` can return tenant A's cached bytes to tenant B even when the durable owner rejects B. The read-only production-caller and scratch-probe receipt is `/Users/deniskopylov/.codex/scratch/e02-r9-cache-code-20260929/R9_TENANT_EXACT_CACHE_AUDIT.md@sha256:b1775551a0c74443bffcf37a0f9b3fcf4beb8490509c454a92497cb8fbc4cd64`. This widens the property to durable-owner admission before every write-through cache hit. A local exact-profile marker is not authorization.
+
+The single R9 candidate writer reuses clean, branch-attached `codex/e02-r9-cache` at `ad8462d62eb720baa4e449e470a22df7761a656f`. The **exact write set** is `policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py` for the initial red and `policy-engine/src/polisyos/core/artifacts/backends/caching_store.py` for the class-wide fix. No other source, test, generated family, governed receipt, plan, register, or canonical file is leased. Root remains the only writer of `codex/e02-r2`; an independent reviewer reads the frozen candidate commit before integration. The test uses the actual `guard_runtime_cas` proxy with an ambient-enforced durable FileSystemCAS, an unscoped local cache, tenant-B denial, and an authorized tenant-A exact-view hit without a remote blob fetch. The marker-retaining removal probe deletes only the pre-local owner admission and must turn the tenant-B test red. Cloud S3/GCS tenant and signed-evidence authority remain typed residuals under OP-R9-CACHE-CUSTODY.
+
+Resource admission remains at most four light test groups with at least 20–30% available RAM and 8 GiB free disk; no worktree under test is edited during a run. Reuse the existing candidate environment; no data copy or Trash emptying.
+
+## Current-state addendum (2026-09-29; pinned integration HEAD `5f433df89f45f3bf29dd2a5d715985790e421db6`)
+
+This snapshot supersedes only the older active-lease snapshot below; all prior sections remain dated history. Root is the sole canonical writer of `codex/e02-r2`, including package documents, `WRITE_LEASES.md`, ledger, baselines and reports. Root's OP-R13 blocker/falsifier addendum is integrated at `359756edc`. R1 owner-bound context code is integrated at `77bfcdb36` and `eb1733750`, but R1 remains partial. Real DataState source-time qualification, trust/profile admission, and an S8 authority producer remain unestablished. No fixture, test lease or candidate authorizes S8.
+
+### R1 helper/importer migration and P41 state
+
+The complete recursive test-source census is `/Users/deniskopylov/.codex/scratch/e02-r1-normative-helper-write-set-20260929.md@sha256:4710f6edf00b7fc62c45c4affb47cde3935e5e072c1dad2fe028ed66431beedf`; the exact four-file migration set is:
+
+- `policy-engine/tests/unit/runtime/http/test_control_service_di.py`
+- `policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py`
+- `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`
+- `policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py`
+
+The broker's 16-cell P41 receipt is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T213314Z-92507/results.json@sha256:da21734cb758da1dc5d97be2431b3e3411277d899733251efa59c2510511a2b9`. It is incomplete: 16 total cells comprise 5 recorded PASS, 8 scheduler-paused `UNRUN`, one E02-head worker `PermissionError` `UNRUN`, and 2 Git-verified `MISSING`. The exact per-file statuses in that receipt are:
+
+| Whole test file | Execution `78187878e` | E02 `00d946c2b` | Main `5fd3ebcc1` | Integration recorded at `bed508646` |
+|---|---|---|---|---|
+| `test_control_service_di.py` | `UNRUN` (paused) | `UNRUN` (paused) | PASS | `UNRUN` (paused) |
+| `test_normative_evidence_intake.py` | PASS | `UNRUN` (`PermissionError` in broker worker; no test verdict) | PASS | `UNRUN` (paused) |
+| `test_normative_generation_bridge.py` | `UNRUN` (paused) | `UNRUN` (paused) | PASS | `UNRUN` (paused) |
+| `test_evaluation_safety_promotion_bridge.py` | `MISSING` in Git | `MISSING` in Git | PASS | `UNRUN` (paused) |
+
+The four integration cells are recorded at `bed508646`, not at current HEAD `5f433df89`; the latter adds the builder-facade source change. Do not relabel or claim the old cells as a four-base replay at current HEAD. The broker released its frozen canonical tree after the incomplete wave. Root admits the single R1 migration writer to proceed under Denis's later direction to continue code work with informative resource-bounded tests. Denis's explicit two-cell `UNRUN` ruling concerned R2; this R1 admission is the orchestrator's narrow decision. It assigns no red/green ownership to an `UNRUN`, does not turn it into `PASS`, and does not waive post-repair whole-file four-base verification.
+
+R11's supplemental served-path test is integrated at `be857b3c9ceb048b9a0fb491ad3ef475620557f3`. Preserve its `promotion_runtime=runtime` fixture input and `source_custody_limitation is None` assertion in `test_control_service_di.py`; its focused 1/1 witness does not replace that file's incomplete P41 cells. The earlier R11 lease also named `test_evaluation_safety_promotion_bridge.py`. No concurrent R11 writer remains: one R1 writer owns the four-file migration sequentially and must preserve the landed R11 control. R11 review: `/Users/deniskopylov/.codex/scratch/e02-r13-r11-stop-control-test-patch-20260929/INDEPENDENT_REVIEW.md@sha256:7e6a89ca1ecdd57581130dcc637b593aa50500552bafce2e7c10162c73d201e8`.
+
+After R1 hands off all four files, the R13 source-store graft witness remains a separate later sublease: `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py::test_compiled_owner_rejects_leaf_graft_even_when_s8_leaf_is_valid`. It shares a file with the R1 importer migration, so R1 completes first; then R13 runs under a sequential lease. The graft witness does not establish S8 authority.
+
+### Integrated and candidate statuses
+
+- **R14:** integrated at `ec604e9a9b4d7731304bcacd792585a423cc2b55`. Bounded independent review authorized integration and the commit records 30 focused checks; full touched-file P41 remains pending. Review: `/Users/deniskopylov/.codex/scratch/e02-r14-trust-check-patch-20260928/R14_INDEPENDENT_REVIEW_EB.md@sha256:756706c78398a4eb875d12946c5224aca2d47a12e4383fcd09e18907f14685fb`.
+- **R13 builder facade:** integrated at `5f433df89f45f3bf29dd2a5d715985790e421db6` after independent GO for the bounded correction. The Core-root import has the structural removal probe and 23/23 preserving test; see `/Users/deniskopylov/.codex/scratch/e02-r13-builder-facade-20260929/INDEPENDENT_REVIEW_05ecd78f.md@sha256:9cf1eab971b62edc29d82c3e4cdcb44c2802248e8a76703cbc3dccccefa02d9f` and `REVISION_RECEIPT.md@sha256:e09118cab8753feef6bba546f073c75378b32be08a0ab74edda1d33260e0b77d`. This bounds the newly introduced direct Core import edge only; pre-existing builder import edges, full architecture guardrails, broader storage custody and R13/P31 remain open.
+- **P41:** the cited four-file broker wave is released but incomplete as tabulated above. Any later test run must freeze its exact inputs for the run; no source edit may touch a tree under test.
+
+### Serialized overlap map and resource cap
+
+| Lane | Exact write set / state | Sequencing |
+|---|---|---|
+| Root integration/docs | Canonical `codex/e02-r2`, including all package documents and ledger | Root only. Candidates/reviewers do not edit canonical files. |
+| R1 migration | The four importer test files listed above | One writer sequentially across the four paths; preserve R11 control assertions; keep every unresolved P41 cell `UNRUN`. |
+| R13 graft witness | `test_normative_generation_bridge.py`, exact selector above | Starts only after R1's four-file handoff; never concurrent with R1 on the shared file. |
+| R14 | Six source/test files integrated at `ec604e9a9` | No new write lease; its full P41 replay is still pending. |
+| R13 builder facade | `builder.py` integrated at `5f433df89` | No separate candidate writer remains; broader pre-existing import edges and custody remain outside this bounded change. |
+| P41 broker | Prior 16-cell run released; future receipts in broker scratch | Re-freeze exact source/test inputs for each new run and preserve tree immutability while it runs. |
+
+Resource admission: cap at five light resource-bearing process groups, default four; use a fifth only while at least 20% RAM remains free, targeting 30%. Keep at least 8 GiB free disk. Heavy native suites, full architecture guardrails, wheel builds, and exclusive DuckDB/port/store jobs run alone. Reuse existing environments and the read-only `production_data` link. This is a ceiling, not a claim about current utilization. Only Denis empties Trash.
+
+## Active conditional bridges (2026-09-28; lease updated at `9bd9e8556`)
+
+- At clean canonical `be4713328`, the five queued R1/R13 test files have a bounded pre-edit P41 admission record: 5 files × 4 bases = 20 cells, 9 absent in the corresponding Git trees and 11 present but `UNRUN`. Five older JUnits are historical evidence but 0/11 present cells meet the current reuse verifier. No red is assigned to a candidate from this admission. The exact table, environment key, and disk reason are `/Users/deniskopylov/.codex/scratch/e02-p41-r1-r13-unrun-20260928/ADMISSION.md@sha256:a1981fe4e90849bc1035754dcfe851497039163e6ef7032a928f7549cc3f0701`. The isolated source leases below may proceed under Denis's recorded `UNRUN` contingency; no test is in flight in the canonical tree.
+
+- Root is the only writer of `codex/e02-r2`. The earlier R13/P31 six-path custody repair is integrated at `d103d234c`; its lease is released. Source/test changes below are in separate existing candidate worktrees. Scratch-only reviewers and package-document drafters do not edit either candidate or canonical source.
+- R1 controlled candidate bridge: clean `codex/e02-r2-r1-sim-gateway` at `64583b314` is reviewed NO-GO because its served positive stops at missing worker scope and its context route enters the N6 coordinator. The candidate writer owns only `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`, `policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`, `policy-engine/src/polisyos/runtime/quality/cycle_substrate.py`, `policy-engine/tests/unit/runtime/http/test_control_service_di.py`, `policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py`, and `policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py`. The quality owner source and its mirrored test are the two added paths for the purpose-limited, lease-bound `VerifiedNLJobScope` witness and negative controls; no writer owns `quality/generation_cycle.py` or the acquisition bridge under R1. The served route must be described as candidate-only N6 coordination with actual N4→N5 behavior and observed N9 non-certification, not as an N5-only mechanism. No full user `AccessScope` may be reconstructed from payload markers. The fixture proves routing and custody mechanics only; real DataState source-time, real profile admission and S8 authority remain separate premises. No production provider is appointed by the fixture. A changed write set must be recorded here before another file is edited.
+- R1 new mirrored test-file pre-edit census: `test_cycle_substrate.py` is PRESENT at all 4 required bases, with Git blobs `e951dfdf7652ff930bfa381c890862e81f561d5c` at execution base/E02 head/Main and `5d4d75969f95757bf696758df00ef3064087c50b` at integration `9bd9e8556`. These four cells are provisionally `UNRUN` for this lease; a past JUnit is not admitted without exact input/environment reconciliation. The existing `test_control_service_di.py` focused eight-cell wave leaves its E02-head and integration whole-file cells `UNRUN` after the swap resource guard. This is a bounded pre-edit admission under Denis's UNRUN contingency, not a pass→fail classification or R1 closure. The broker will attach a strict-reuse receipt before integration.
+- R13/P31 epoch evidence store: clean `codex/e02-r2-r1-candidate` owns only `policy-engine/src/polisyos/runtime/quality/epoch_deployment.py`, `policy-engine/src/polisyos/runtime/quality/chronology_proof.py`, `policy-engine/src/polisyos/core/artifacts/__init__.py`, `policy-engine/tests/unit/runtime/quality/test_epoch_deployment.py`, `policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py`, `policy-engine/tests/unit/runtime/quality/test_chronology_proof.py`, `policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py`, and `policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py`. The first candidate commit `672ad1447` is reviewed NO-GO for the broad P31 property: chronology's policy evidence still uses the raw deployment store. The same runtime-aware owner accessor must feed both production chronology store factories, with a marker-preserving denial of the policy-plane admission blob and a positive scoped read. The Core artifacts facade should expose the already-owned factory/config instead of adding a second Runtime deep import. Root reserves `policy-engine/architecture/public_surface/contract.toml` and its generated public-surface/inventory family for a separate reviewed owner transition; the candidate does not edit them. A guarded store alone does not prove tenant ownership: a tenant custody witness must exercise ambient ownership enforcement and a real tenant scope. This bounded repair does not appoint the native epoch issuer or close production world growth. Review: `/Users/deniskopylov/.codex/scratch/e02-r13-acq01-design-20260928/R13-P31-epoch-store-candidate-review-672ad1447.md@sha256:a113136d012b43666e5f645bd588f50cf7dd334a558e21f60f4b488cd054de6d`.
+- These two source leases are file-disjoint. The integration branch, generated-artifact families, governed epochs/receipts, and package documents remain serialized by root. Before integration each candidate needs a property-removal red, a preserving control, whole changed-file replay, and independent review. Run no canonical checkout edit during an in-flight canonical test. Keep at least 8 GiB free disk and 30% free RAM; reuse existing environments and never empty Trash.
+
+## Prior integration coordination (2026-09-28; superseded lease snapshot)
+
+The active R1/R13 write sets are only those under **Active conditional bridges** above. The assignments in this section and every older section below are retained as historical coordination, not concurrent leases.
+
+- Root is the sole writer of `codex/e02-r2`. The DDM lazy-facade contract and its owner-rendered inventory/public-surface projection are integrated; no DDM writer lease remains.
+- R13/P31 source/test candidate is frozen on `codex/e02-r2-r1-candidate` for independent review. Its six-path aggregate write set is `core/artifacts/{ownership.py,store.py}`, `scientist/orchestration/workflows/builder.py`, and their three mirrored test files. Root alone applies a reviewed patch; no candidate or reviewer edits canonical. R13 remains open after this bounded custody slice.
+- R1 simulated NL candidate is frozen on `codex/e02-r2-r1-sim-gateway` for independent review. Its write set is `runtime/http/services/control/nl_pipeline.py`, `scientist/orchestration/llm/simulated_gateway.py`, and `tests/unit/scientist/orchestration/llm/test_factory.py`. It does not touch the R13 owner files. The explicit N4 context/S8 authority case is outside that candidate and remains open.
+- Package ledger, baselines, reports, and decision drafts are root-only canonical writes. Four-base P41 runs freeze the canonical checkout for their entire lifetime; scratch read-only analysis and isolated candidate tests may continue. Limit active test work to measured resource groups, keep at least 8 GiB free and 20–30% RAM free, use the read-only production-data symlink, and never empty Trash.
+
 ## R13/P31 owner-level custody slice (2026-09-28; canonical HEAD `e55012e22`)
 
 - Root alone writes `codex/e02-r2`. The clean isolated `codex/e02-r2-r1-candidate` worktree at `/Users/deniskopylov/.codex/worktrees/e02-r2-r1-candidate/polisyos` has the exclusive R13/P31 candidate lease for `policy-engine/src/polisyos/core/artifacts/ownership.py`, `policy-engine/src/polisyos/core/artifacts/store.py`, `policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py`, `policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py`, `policy-engine/tests/unit/core/artifacts/test_ownership_history.py`, and `policy-engine/tests/unit/scientist/orchestration/workflows/test_builder_pinning.py`. No other source, test, governed artifact, generated family, plan, register, or package document is leased. The earlier default-store lease is complete at `e55012e22`; this is its owner-level follow-up.
@@ -551,13 +856,15 @@ The strict pre-repair P41 gate is still **not complete**: 62/84 cells complete, 
 
 ## Initial pre-repair freeze (superseded by the current code admission above)
 
-This is the coordination map for candidate writers. The `codex/e02-r2` integration worktree stays frozen for source/test edits until the baseline broker closes the strict pre-first-repair gate and records `BASELINES_DONE`: the 21 unique Appendix A/B test files × 4 pinned bases = 84 file/base cells. Current strict-gate census: 62 completed, 20 verified `MISSING`, and 2 present/`UNRUN` (the normative-generation bridge at E02 head and Phase 0); both present cells must be resolved before the first source repair. The 74 exact cases reconcile separately to A=15 `PASS_TO_FAIL`, 2 `SAME`, 20 `UNRUN`; B=27 `PASS_TO_FAIL`, 10 `SAME`, 0 `UNRUN` (42/12/20 total). The expanded 100-path/400-cell inventory is historical/additional admission context, not a global first-repair gate. Control API has a separate completed four-base replay (63/63 per base), but this does not complete the strict gate or TCS semantic probes. The broker alone owns `BASELINE_HARNESS.py`, `BASELINES.md`, raw replay metadata and admissions. Repair source/test edits remain frozen until the two present UNRUN cells are resolved and `BASELINES_DONE` is recorded. The strict map is `/Users/deniskopylov/.codex/scratch/e02-r2-p41-closeout-admission-map-20260925-v3.json@sha256:d00e0d7cd566cfb0d23d2f79182472a08b98de945610131be212f96504dc70e5`; runbook `/Users/deniskopylov/.codex/scratch/e02-r2-p41-closeout-runbook-20260925-v3.md@sha256:6e178194b40b3e860a3a1c837f7c865a98e92633e56f58b31207ffc85f38b33a`. Never run simultaneous writers on `runtime/quality/generation_cycle.py`.
+This is the coordination map for candidate writers. By default, the `codex/e02-r2` integration worktree stays frozen for source/test edits until the baseline broker closes the strict pre-first-repair gate and records `BASELINES_DONE`. The historical strict matrix is 21 unique Appendix A/B test files × 4 bases = 84 cells; its fourth base is Phase 0, with 62 completed, 20 verified `MISSING`, and 2 present/`UNRUN` (the normative-generation bridge at E02 head and Phase 0). That historical matrix is not a current-integration-head replay. The 74 exact cases reconcile separately to A=15 `PASS_TO_FAIL`, 2 `SAME`, 20 `UNRUN`; B=27 `PASS_TO_FAIL`, 10 `SAME`, 0 `UNRUN` (42/12/20 total). The expanded 100-path/400-cell inventory is historical/additional admission context, not a global first-repair gate. Control API's historical four-base result does not complete the strict gate or TCS semantic probes. The broker alone owns `BASELINE_HARNESS.py`, `BASELINES.md`, raw replay metadata and admissions. **Scoped resource continuation:** Denis's later lane-level instruction permits active TCS-01 engineering to proceed after the broker runs every affordable pre-edit cell and records each resource-limited/not-admitted cell as `UNRUN` with exact base and input identity, command/admission decision, guard/stop reason and retained receipt. This is an explicit continuation for TCS-01; it does not record `BASELINES_DONE`, resolve either strict present `UNRUN`, assign red ownership, or waive TCS post-fix replay. Other writers remain under the default gate unless separately admitted. The strict map is `/Users/deniskopylov/.codex/scratch/e02-r2-p41-closeout-admission-map-20260925-v3.json@sha256:d00e0d7cd566cfb0d23d2f79182472a08b98de945610131be212f96504dc70e5`; runbook `/Users/deniskopylov/.codex/scratch/e02-r2-p41-closeout-runbook-20260925-v3.md@sha256:6e178194b40b3e860a3a1c837f7c865a98e92633e56f58b31207ffc85f38b33a`. Never run simultaneous writers on `runtime/quality/generation_cycle.py`.
 
 The frozen normative v8 replay completed all four fresh collections (22 cases each) but does not close the strict gate. E02-head's one-case JUnit reports a pass for `test_signed_frontier_must_bind_actual_source_not_same_candidate_names`, while the enclosing P41 pilot is `UNRUN` because 270,880,768 bytes of disk loss remained unattributed (2,445,312 bytes beyond the unchanged 256 MiB tolerance); the Phase 0 pilot and both whole-file cells were not launched. This is a diagnostic discrepancy, not an admitted case outcome: preserve the 62/20/2 strict-cell census and 74-case counts above, and do not record `BASELINES_DONE`. The independent disk audit (`/Users/deniskopylov/.codex/scratch/e02-r2-v8-disk-attribution-independent-audit-20260925.md@sha256:2644a58e1eeb8fd64725f00b38b6df1d6a83f8be059ddea21183805942d328d6`) keeps the v8 receipt immutable and recommends that a future versioned runner preserve direct disk-capacity admission/floor checks while recording unexplained shared-volume drift as `not_established` diagnostic state; all other guards and source/checkout checks stay fixed. No later runner or reclassification receipt exists in this note. Receipt `/Users/deniskopylov/.codex/scratch/p41-normative-fullfile-20260925T105323Z-98879/results.json@sha256:8778ccad6ae23f82b659a3b24463a061b6377eeb241d597cf506c9df2c4f6101` and details are in `BASELINES.md` under “Normative bridge guarded replay v8”.
 
 A focused R10 pre-edit replay of `policy-engine/tests/integration/core_runtime/test_acquisition_admission_bundle.py` completed 4/4 present cells at 6/6 passed, with no missing or `UNRUN` cells. Its file blob and `pytest.ini` blob match across the four bases; normalized pytest flags match and imports resolve from each pinned checkout. Receipt: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260925T114032Z-24622/results.json@sha256:0a71316d05bf865ec8704210168bb5a9890baaac7bc359998f1c3fa99fa31639`; full IDs and source/import/resource evidence are in `BASELINES.md` under “R10 admission-bundle focused pre-edit replay”. This class-specific baseline does not close or reduce the 21×4 Appendix A/B strict gate or alter the 74 named-case outcomes; source/test writers remain frozen until the normative cells are resolved and `BASELINES_DONE` is recorded.
 
 ## Compute admission after the interruption
+
+**Current user override (2026-09-29).** For ordinary light jobs, the later explicit resource ruling supersedes the older 10 GiB disk floor and the 35%/30% free-memory targets in this section: keep at least **8 GiB free disk**, admit no more than **five light test process groups** with about **500% aggregate CPU** as the working ceiling, and retain roughly **25% free memory at admission / 20% while running**. Heavy native or numerical work remains exclusive. The single-group normative launcher retains its separately measured host-idle, process-sample, swap and **12 GiB early-abort** guards until that launcher is reviewed and changed. Observe actual pressure and stop admitting new jobs before the applicable floor; do not edit a tree while its tests run. Only fully verified, unneeded files may be moved with `mv` to named macOS Trash folders; never delete directly or empty Trash. The earlier limits below are historical for ordinary light admission; their normative-launcher checks still bind that pilot.
 
 Run one process for an unprofiled or heavy job. For measured jobs, admit at most four same-blob groups, with admission CPU capped at 500% and active-run CPU capped at 600%; each group must stay at or below 8 GiB resident memory. The single-group normative-bridge pilot is a measured exception: its prior two-thread run reached 587.6% and stopped at a 525% cap before JUnit, so its bounded launcher may tolerate a short process-group sample up to 625% while separately requiring host CPU idle of at least 15% (with only a bounded transient-sample allowance), no other pytest group, and the same memory, swap and disk guards. This exception does not admit parallel native jobs or change the general 600% limit. Keep at least 35% free-RAM reserve at admission and enforce a 30% hard reserve while jobs run. Swap growth must stay at or below 256 MiB, and free disk must remain at least 10 GiB; the normative launcher aborts earlier at 12 GiB. When a guard turns red, stop admission and checkpoint running work or record interrupted/unadmitted work as typed `UNRUN`; do not fall back to singleton `Popen` execution. Native or exclusive-resource jobs run alone.
 
@@ -571,15 +878,17 @@ Run one process for an unprofiled or heavy job. For measured jobs, admit at most
 | `DECISION_RECORDS.md` | decision writer |
 | E02 records, DEBT-REGISTER/LEDGER, plans, runtime/test code | their owners; read-only to this writer |
 
-TCS-01 has a nine-file off-100 pre-edit replay union, to be admitted by the broker after the R-class lane and per-class changed-input census: `policy-engine/tests/unit/runtime/http/test_control_api.py`, `test_runtime_rego_authorization_parity.py`, `test_runtime_api_authz.py`, `test_runtime_api_observability.py`, `test_workspace_loop_transition.py`, `test_runtime_api_write_path_hardening.py`, `policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py`, `policy-engine/tests/unit/runtime/http/test_runs_api.py`, and `test_core_only_runs_api.py`. The final two are included because the task covers `routes/runs.py`. `test_control_api.py` and `test_runtime_api_write_path_hardening.py` have separately completed four-base results at 63/63 and 7/7 per base (receipts cited in `DISCOVERY_INDEX.md`); these are baseline controls, not the proposed TCS tenant-bound semantic test. The other seven paths in this task-specific union and the entire TCS removal/control witness remain `UNRUN`. `test_control_service_di.py`, `test_normative_generation_bridge.py`, and `test_normative_evidence_intake.py` are in the Appendix A/B strict set. Every class-specific path requires whole-file four-base admission before a corresponding edit.
+TCS-01 has a 14-file task-specific whole-file P41 denominator (56 file/base statuses), admitted by the broker after the R-class lane and per-class changed-input census: the original nine paths are `policy-engine/tests/unit/runtime/http/test_control_api.py`, `test_runtime_rego_authorization_parity.py`, `test_runtime_api_authz.py`, `test_runtime_api_observability.py`, `test_workspace_loop_transition.py`, `test_runtime_api_write_path_hardening.py`, `policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py`, `policy-engine/tests/unit/runtime/http/test_runs_api.py`, and `test_core_only_runs_api.py`; class-wide P40 adds `policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py`, `test_acquisition_control_worker.py`, and `policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py`; the candidate test write set also includes `policy-engine/tests/unit/runtime/http/test_control_plane_store.py` and `test_normative_evidence_intake.py`. The four bases are execution `78187878e`, E02 head `00d946c2b`, main `5fd3ebcc1`, and integration HEAD `7d628fd8f6233a5cc7110c52a14141c0f226f519`. `1b48cee95dd17534527532e3b4f7930d9d479ee0` is an earlier ancestor. `5b64d38c3` was HEAD when v2 was reviewed; live HEAD pinned for v3 is `7d628fd8f6233a5cc7110c52a14141c0f226f519`. The 1b48-to-7d628 path delta contains only `OPEN_PREMISES.md` and `BASELINES.md`, with no `src` or `tests` paths. Do not relabel receipts across commits or treat path equivalence as a test run. Following the R-class handoffs, freeze the exact TCS pre-edit integration HEAD and recheck test/source input closure; any changed closure needs a new affordable replay or a resource-justified `UNRUN`. At the 7d628 snapshot, all 14 integration-head cells are `UNRUN` absent exact-head receipts. Historical four-cell controls for `test_control_api.py` (63/63 each; `raw/p41-custom-20260925T050338Z-88064/results.json@sha256:2259b569c1a5d97ff224f24cad7f9d2d141d21d1791471c6d80e031f47fe83d5`), `test_runtime_api_write_path_hardening.py` (7/7 each; `raw/p41-custom-20260925T055347Z-34201/results.json@sha256:5be1e7bfb85f60082c98761ad303214909cb7f8ad03ab84c1bbb4fce21788187`), and `test_control_plane_store.py` (28/28 at execution/E02, 29/29 at main/Phase 0; `raw/p41-custom-20260925T052235Z-96088/results.json@sha256:4dd5fab17b4b524621a2def4020a9ccc6630161dca8c9c7cb51c023b63d7f9ca`) use Phase 0 `73c656744` as fourth base and do not fill current-head cells. `test_normative_evidence_intake.py` has a partial older four-slot receipt pinned to integration `bed508646`: two 14/14 passes, one E02 worker-exception `UNRUN`, and one scheduler-paused `UNRUN` (`raw/p41-custom-20260928T213314Z-92507/results.json@sha256:da21734cb758da1dc5d97be2431b3e3411277d899733251efa59c2510511a2b9`); those outcomes remain attached to their recorded bases. The broker's “other seven” original entries are seven path-level replay sets, not seven cells; enumerate actual remaining cells per file. The three P40 paths have historical per-base rows but no exact 7d628 cell; `test_acquisition_authority_served.py` is `MISSING` at execution/E02, PASS at main, and FAIL at Phase 0, not a current integration result. TCS semantic and removal/preserving witnesses remain `UNRUN`.
+
+The historical strict Appendix A/B matrix is 21 files × four bases = 84 cells; it uses Phase 0 `73c656744` as the fourth base and records 62 completed, 20 verified `MISSING`, and 2 present `UNRUN`. This is not a current-integration-head replay; `BASELINES_DONE` remains false while either present cell is unresolved. Denis's later lane-level resource direction permits the active repair to continue after every affordable pre-edit cell is run and each resource-limited/not-admitted cell is recorded `UNRUN` with exact base and test/source identity, command or admission decision, resource guard/stop reason, and retained receipt. This permits engineering continuation; it does not turn `UNRUN` into PASS/FAIL, assign red ownership, or claim `BASELINES_DONE`. Run the affordable subset before edits, keep all runs source-frozen, and preserve per-cell status. After TCS implementation, whole-file four-base replay of each changed test path remains required for closure; if a post-fix cell is still resource-limited, keep it `UNRUN` and TCS open/partial until safely reverified. Apply this explicit lane-level continuation instead of the older absolute “all cells before code” wording; it is not a general permission to skip affordable baselines.
 
 ## Candidate write sets after baseline freeze
 
-The strict source-freeze gate is 21 unique Appendix A/B files × four bases = 84 file/base cells, currently 62 completed, 20 verified `MISSING`, and 2 present/`UNRUN` normative-generation bridge cells. Those two present cells must be resolved before the first repair and before the broker records `BASELINES_DONE`; see the pinned map and runbook in the opening paragraph. The expanded 100-path/400-cell inventory (32 initial paths plus 68 add-ons) is not a blanket first-repair requirement. It remains useful historical admission context, while each later class gets a fresh four-base replay for its frozen source/input closure. The broker alone owns baseline artifacts and outcomes; read-only diagnosis may proceed. Candidate writers wait for `BASELINES_DONE`, then follow the sequencing and collision rules. Compute admission follows the guarded policy above. R12 may inspect the independent acquisition fixture/bootstrap checker during diagnosis, but any R12 edit to `generation_cycle.py` remains serialized after R13, R6 and R11.
+The historical strict Appendix A/B matrix remains 21 unique files × four bases = 84 file/base cells; it uses Phase 0 `73c656744` as its fourth base and records 62 completed, 20 verified `MISSING`, and 2 present/`UNRUN` normative-generation bridge cells. It is not a current-integration-head replay. `BASELINES_DONE` is not recorded unless those present cells are resolved. Denis's later lane-level resource direction authorizes the active repair to continue after the broker runs every affordable pre-edit cell and records any present resource-limited/not-admitted result as `UNRUN` with exact source/base identity, command or admission decision, guard/stop reason, and retained receipt. This is a code-work continuation, not completion of the strict gate; `UNRUN` stays unowned, Git-verified path absence remains `MISSING`, and no class closes until its required post-fix replay is complete. TCS-01 applies this rule to its 14×4 task-specific denominator below. The expanded 100-path/400-cell inventory (32 initial paths plus 68 add-ons) is not a blanket first-repair requirement. It remains useful historical admission context, while each later class gets a fresh four-base replay for its frozen source/input closure. The broker alone owns baseline artifacts and outcomes; read-only diagnosis may proceed. Candidate writers follow the default gate unless the principal's explicit resource-bounded continuation applies. Compute admission follows the guarded policy above. R12 may inspect the independent acquisition fixture/bootstrap checker during diagnosis, but any R12 edit to `generation_cycle.py` remains serialized after R13, R6 and R11.
 
 | Sequence | Class | Exclusive write set | Handoff / constraint |
 |---|---|---|---|
-| 15 | TCS-01 | `runtime/http/routes/control.py`, `runtime/http/routes/runs.py`, `runtime/http/services/control/run_lifecycle.py`, `runtime/http/services/control/lex_pipeline.py`, `runtime/http/services/control_plane_store.py`, `runtime/http/production_approval_binding.py`, `runtime/http/resource_binding.py`, and broker-admitted importer/consumer tests | Post-R-class `ControlPlaneStore` owner lease for direct job/Lex status, run-detail projections, production-approval scorecard/packet inputs, and normative-evidence job selection. Use one verified tenant plus registry-resolved cell owner tuple and owner-scoped selectors; keep historical NULL-owner rows inaccessible. Preserve EvaluationSafety's independent payload/manifest verifier without editing `evaluation_safety.py`; workers/outbox audience remains unresolved. Run only after the R-class lane and after class-specific whole-file admission; two union files have independent four-base baselines (63/63 and 7/7 per base), while the other seven remain UNRUN. TCS semantic checks remain UNRUN. Prove foreign-owner refusal and same-owner operation across each in-scope consumer, migrations, proxy selection, and marker-retaining removal probe. TCS follows the R-class `ControlPlaneStore` handoffs (R8 → R1/R5); source overlap requires serialization, not preemption of R classes.
+| 15 | TCS-01 | One writer's exact class-wide set: `runtime/http/dependencies.py`, `runtime/http/routes/control.py`, `runtime/http/routes/acquisitions.py`, `runtime/http/routes/runs.py`, `runtime/http/services/acquisition_action_service.py`, `runtime/http/services/control/run_lifecycle.py`, `runtime/http/services/control/lex_pipeline.py`, `runtime/http/services/control_plane_store.py`, `runtime/http/production_approval_binding.py`, `runtime/http/resource_binding.py`; tests `test_runtime_authorization_access_audit.py`, `test_acquisition_control_worker.py`, `test_acquisition_authority_served.py`, `test_control_plane_store.py`, `test_normative_evidence_intake.py`, plus broker-admitted TCS importer/consumer paths | Post-R-class `ControlPlaneStore` owner lease for direct job/Lex status, run-detail projections, approval scorecard/packet inputs, normative-evidence job selection, and the acquisition route's tenant-only scope/idempotency edge. `acquisitions.py::_scope` is the same TCS-01 P40 class one level deeper, not a new class. Put one reusable verified-tenant + registry-routed-cell helper in existing `dependencies.py`; the helper and every consumer/store change have the same writer/lease, with no side owner or per-route helper. Use one immutable owner tuple and exact scoped selectors; keep historical NULL-owner rows inaccessible to in-scope consumers. Preserve the independent completed-job verifier at `runtime/http/services/control/evaluation_safety.py` unchanged and excluded. Keep the verified cell router/registry read-only. The task-specific denominator is 14 whole files × four bases = 56 statuses, with integration HEAD `7d628fd8f6233a5cc7110c52a14141c0f226f519` as the present snapshot; the v2 review HEAD `5b64d38c3` and earlier ancestor `1b48cee95` are historical identities. Receipts remain pinned to the commit actually tested. The prior full historical control receipts use Phase 0 `73c656744` as their fourth base, and the partial normative-evidence receipt pins `bed508646`; none fills the 7d628 cell. All 14 current integration cells are `UNRUN` absent exact-head receipts. The broker's other seven original entries are path-level replay sets, not seven missing cells. After R-class handoffs, freeze the exact TCS pre-edit HEAD and reconcile source closure. Under Denis's later lane-level direction, run every affordable pre-edit cell and retain each present constrained/unadmitted cell as `UNRUN` with per-cell base/input/command/admission/guard receipt; TCS code may then proceed without falsely recording `BASELINES_DONE`. Post-fix four-base whole-file replay for every changed test path is still required for closure, with any resource-limited cell left `UNRUN` and TCS open. TCS follows the R-class `ControlPlaneStore` handoffs (R8 → R1/R5); source overlap requires serialization, not preemption of R work. |
 | 1 | R8 | `runtime/http/services/control_plane_store.py`, including `update_manifest_ref` and `advance_acquisition_action_head`; `runtime/http/services/acquisition_action_service.py` / `runtime/quality/acquisition_route_authority_sink.py` only as caller tracing requires; `tests/unit/runtime/http/test_acquisition_control_worker.py` | Take the shared-store lease before R1/R5. The R8/R1-R5 source map identified a direct `control_plane_store.py` collision; sequencing R8 first keeps the bounded stale-generation fence change independent of R1's broader candidate/context work, after which R1/R5 rebase onto R8's committed head. One writer owns the guarded control-store invariant across known worker-owned writes. Reviewed v2 design `/Users/deniskopylov/.codex/scratch/e02-r2-r8-expanded-p40-handoff-v2-20260925.md@sha256:018aa2c7271e7d2338e2401be514475c02ca55f7e1360e753fc45eb8e871ba1d` and review `/Users/deniskopylov/.codex/scratch/e02-r2-r8-expanded-p40-handoff-v2-review-20260925.md@sha256:827869bd95dfdce8290f2fc9f7d90c106c00f4890c08ae56477b5de1ff3425e3` give `GO` for design, not behavior. Replace the per-store fence carrier with ContextVar across the existing `GuardedDependencyProxy` context-copy boundary and recompute persisted `running + owner + attempt + unexpired lease` at each protected mutation. `update_manifest_ref` is a pre-terminal escape; `advance_acquisition_action_head` is a second same-class escape requiring lease check, predecessor comparison, conditional insert and readback in one transaction, with fresh expiry at append and lease-loss distinct from predecessor conflict. Preserve rollback for nested `upsert_progress`/event/outbox writes; no blanket `upsert_progress` fence or running-only rule. The frozen 100 includes the worker test's two direct-service cases at each base, not a production-worker witness. Add the actual guarded `ControlWorker`: pause A, take over with B, then resume stale A through action-head and terminal mutations; stale work must be refused without changing B. Keep current-owner, pre-enqueue `requested` head, and post-completion readback controls. The marker-retaining ContextVar-removal probe must turn stale assertion red. `test_control_plane_store.py` and `test_acquisition_route_authority_sink.py` are outside the frozen 100; broker-admit each whole file at all four bases before editing. `test_dur_02.py` raw-store evidence is insufficient. Every behavior/removal probe remains `UNRUN`.
 | 2 | R1 + R5 | `runtime/http/services/control/generation_cycle.py`, `runtime/http/services/control_plane_store.py`, `runtime/quality/recursive_generation_cycle.py`, `runtime/quality/generation_cycle.py`, `runtime/quality/evaluation_modes.py`, and recursive epoch-gate tests | One candidate writer owns the listed runtime paths and shared tests; review candidate/authority bands together. After R8 hands off the shared store, R1/R5 own `control_plane_store.py` for `create_job` and projection behavior, rebasing on R8's committed head. Use existing hash-verified compiled-run/context references and the owner resolver; ordinary candidate work may carry a typed unknown. Decision-draft review `/Users/deniskopylov/.codex/scratch/e02-r2-decision-drafts-independent-review-20260925.md@sha256:fc7103792e6525d032101dba8208336f223d3f21c5e87118f5407bc66b21af4c` is conditional NO-GO until R5 routes `retrospective`/`measurement_audit` through existing DataTrust and limits EvalSafety to `sandbox_pilot`/`field_pilot`/`deployment`; no principal ruling or behavior result is inferred. N4 owner context is `not_established`: `_build_cycle_substrate_context_from_owner` uses a separate `.tmp/gy-s-composed-wmr-cas`, so runtime tenant-store custody and caller provenance are not proven. N7 post-growth owner context is also `not_established`; S8 authority stays blocked until a canonical post-growth witness is supplied. No GenerationCycleRun schema change belongs to this lease. This is the first shared `generation_cycle.py` source lease; finish before R2-History, then R13, then R6/R11/R12 runtime edits and R2-Currentness/Route. The R1 context owner must resolve/refresh `CycleSubstrateContext` for each exact active basis before R13's served cycle-index>0 witness: N4/N5 use that same basis-bound context, and any N8 EvalSafety context is explicitly bound to it. Root-only context cannot be reused for revised basis `B`; unavailable scope remains a typed candidate-band unknown.
 | 2 | R7 | connector registry/executor and acquisition validation/transport | Independent source lease; one writer owns the connected registry/executor path. No parallel health-probe or network edits. |
@@ -624,7 +933,7 @@ R2 narrowed-history P41 expansion: before editing `confidence_ledger.py` or `pro
 - Governed epochs and receipts are serialized by the root integrator. Reissue occurs only through an authorized transition; no restamping is permitted.
 - H/N/P repair edits begin only after both baseline waves and R-class write sets settle. Any later-added test file needs its own broker-admitted four-base pre-edit replay before source/test edits. Any collision becomes an explicit sequential lease.
 - LA-046's `compiler.py` + `generation_cycle.py` pair is a single serialized finding lease after R1/R5, R2-History, R13, R6, R11, R12-runtime, R4 and R2-Currentness/Route. Its property is requirement content/profile through the real N7 handoff; it does not inherit the R12 re-entry-identity or R13 world-growth/store-custody property. Replaying any newly admitted test must go through the baseline broker.
-- The baseline broker controls test process admission and exclusive native resources. The strict pre-first-repair Appendix A/B denominator is 21 unique test files × 4 pinned bases = 84 file/base cells: 62 completed, 20 verified `MISSING`, and 2 present/`UNRUN` normative-generation bridge cells that must be resolved before `BASELINES_DONE`. The 74 named Appendix A/B case outcomes are separately A=15 `PASS_TO_FAIL`, 2 `SAME`, 20 `UNRUN`; B=27 `PASS_TO_FAIL`, 10 `SAME`, 0 `UNRUN`. The 100-path / 400-cell inventory (32 initial + 68 add-ons) is an expanded historical queue, not the global first-repair gate. Its old 342 present / 58 missing counts are not current gate evidence. The broker controls any added class-specific replay; integration source/test files remain frozen until the strict gate closes.
+- The baseline broker controls test process admission and exclusive native resources. The historical strict pre-first-repair Appendix A/B denominator is 21 unique test files × 4 bases = 84 file/base cells, with Phase 0 as the fourth base: 62 completed, 20 verified `MISSING`, and 2 present/`UNRUN` normative-generation bridge cells. It is not the current-integration-head replay. `BASELINES_DONE` remains false until those present cells resolve. Denis's later lane-level instruction allows resource-bounded code continuation after affordable pre-edit cells run and remaining constrained cells receive exact `UNRUN` receipts; it neither changes this count nor treats `UNRUN` as a verdict. The 74 named Appendix A/B case outcomes remain separately A=15 `PASS_TO_FAIL`, 2 `SAME`, 20 `UNRUN`; B=27 `PASS_TO_FAIL`, 10 `SAME`, 0 `UNRUN`. The 100-path / 400-cell inventory (32 initial + 68 add-ons) is an expanded historical queue, not the global first-repair gate. Its old 342 present / 58 missing counts are not current gate evidence. The broker controls any added class-specific replay; active-lane source/test edits may use only the explicit principal-approved resource continuation, and post-fix evidence remains necessary before class closure.
 
 ## New reviewed P41 constraints and design boundaries (2026-09-25)
 

@@ -2738,10 +2738,54 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
     assert observation.acquisition_requirement.metadata["satisfaction_status"] == "unsatisfied"
 
 
+def test_source_time_limitation_can_accompany_the_bound_treatment_gap() -> None:
+    """N8 retains unknown source currentness without replacing its primary gap."""
+    candidate_id = "candidate_source_time_limitation"
+    base = ValuePortObservation(
+        status="value_blocked",
+        candidate_id=candidate_id,
+        authority_blockers=("treatment_assignment_not_owner_derived",),
+        reason="Treatment assignment remains unresolved.",
+        decision_grade="blocked",
+        acquisition_requirement=value_input_world_knowledge_requirement_gap(
+            claim_ref=f"value-claim:{candidate_id}"
+        ),
+    )
+    payload = base.model_dump(mode="python")
+    payload["authority_blockers"] = (
+        "treatment_assignment_not_owner_derived",
+        "source_update_time_not_established",
+    )
+
+    limited = ValuePortObservation.model_validate(payload)
+
+    assert limited.status == "value_blocked"
+    assert limited.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+        "source_update_time_not_established",
+    )
+    assert limited.acquisition_requirement == base.acquisition_requirement
+    assert limited.value_receipt is None
+
+    payload["authority_blockers"] = (
+        "treatment_assignment_not_owner_derived",
+        "unbound_runtime_hint",
+    )
+    with pytest.raises(ValueError, match="value_acquisition_requirement_not_canonical"):
+        ValuePortObservation.model_validate(payload)
+
+
 def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """An ordinary N8 call accepts the advisor receipt against recomputed context."""
+    from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        ActivatedAcquisitionObservationProjection,
+        CanonicalAcquisitionObservation,
+        ObservationProvenanceClass,
+    )
 
     candidate = _avg_income_candidate()
     problem = _avg_income_problem()
@@ -2778,12 +2822,63 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
         {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
     )
 
-    class SyntheticOwnerGateway:
-        def load_value_data_profile(self, **kwargs: object) -> ValueDataProfile:
-            assert kwargs["candidate"] is candidate
-            assert kwargs["problem"] is problem
-            assert kwargs["world_record"] is world
-            return profile
+    receipt_ref = CoreArtifactRef(
+        artifact_id=CoreArtifactID(_hash("1")),
+        kind="epoch.activated_overlay_admission_receipt",
+        media_type="application/json",
+    )
+    passport_ref = CoreArtifactRef(
+        artifact_id=CoreArtifactID(_hash("2")),
+        kind="epoch.acquisition_passport_snapshot",
+        media_type="application/json",
+    )
+    projection = ActivatedAcquisitionObservationProjection.issue(
+        receipt_ref=receipt_ref,
+        receipt_content_sha256=_hash("3"),
+        passport_ref=passport_ref,
+        passport_content_sha256=_hash("4"),
+        variable_id="avg_income",
+        epoch_id=1,
+        passport_id="fixture-passport",
+        admission_content_sha256=_hash("5"),
+        observations=(
+            CanonicalAcquisitionObservation(
+                observation_id="fixture-active-avg-income",
+                dataset_id="fixture-acquired-avg-income",
+                raw_variable="avg_income",
+                canonical_var="avg_income",
+                country_code="AM",
+                year=2024,
+                value=1.0,
+                condition_json='{"unit":"usd"}',
+                acquisition_method="fixture",
+                source_watermark="fixture",
+                dataset_version="1",
+                observation_class=ObservationProvenanceClass.OBSERVED,
+            ),
+        ),
+    )
+
+    def load_fixture_profile(
+        _gateway: RealValueOwnerGateway,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: object,
+    ) -> ValueDataProfile:
+        assert candidate is candidate_arg
+        assert problem is problem_arg
+        assert world_record is world_arg
+        return profile
+
+    candidate_arg = candidate
+    problem_arg = problem
+    world_arg = world
+    monkeypatch.setattr(
+        RealValueOwnerGateway,
+        "load_value_data_profile",
+        load_fixture_profile,
+    )
 
     accepted_contexts: list[str] = []
     verify_context = MethodSelectionReceipt.verify_selection_context
@@ -2802,11 +2897,17 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
         evaluation_context=_simulation_execution_context(
             candidate=candidate, simulation=simulation, problem=problem
         ),
-        owner_gateway=SyntheticOwnerGateway(),
+        owner_gateway=RealValueOwnerGateway(
+            repo_root=Path.cwd(),
+            activated_observation_projection=projection,
+        ),
     )(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)
 
     assert observation.status == "value_blocked"
-    assert observation.authority_blockers == ("treatment_assignment_not_owner_derived",)
+    assert observation.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+        "source_update_time_not_established",
+    )
     assert observation.method_selection_receipt is not None
     assert observation.method_selection_receipt.selection_authority == (
         "foundry_registry_advisor"

@@ -5383,7 +5383,7 @@
     {
       "module": "polisyos.ddm",
       "classification": "internal",
-      "facade_mode_expected": "eager_exports",
+      "facade_mode_expected": "lazy_facade",
       "facade_mode_observed": "lazy_facade",
       "owner": "team-scientist",
       "readme": "src/polisyos/ddm/README.md",

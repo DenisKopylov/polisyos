@@ -236,6 +236,25 @@ class FileSystemCAS:
     ) -> tuple[Path, Path]:
         """Return deterministic blob and selected-manifest paths for CAS tooling."""
         aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+        self._require_blob_owner(aid, operation="get_paths")
+        if profile_sha256 is not None:
+            self._require_manifest_view_owner(
+                aid,
+                profile_sha256,
+                operation="get_paths_manifest",
+            )
+        elif self._ownership_enforced:
+            manifest_path = self._manifest_path_for_ref(aid, None)
+            if manifest_path.is_file():
+                manifest = self._manifests.read(manifest_path)
+                _validate_manifest_identity(aid, manifest)
+                self._require_default_manifest_access(
+                    aid,
+                    manifest,
+                    operation="get_paths",
+                )
+            else:
+                self._require_artifact_owner(aid, operation="get_paths")
         blob, _default_manifest = self._paths(aid)
         return blob, self._manifest_path_for_ref(aid, profile_sha256)
 
@@ -261,6 +280,8 @@ class FileSystemCAS:
 
     def with_ambient_ownership_enforcement(self) -> FileSystemCAS:
         """Return a shared-CAS view that enforces ownership when a tenant scope exists."""
+        if self._ownership_enforced:
+            return self
         return FileSystemCAS(
             self.root,
             signing_config=self._signing_config,
@@ -377,6 +398,7 @@ class FileSystemCAS:
             return
         tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
         if tenant_id is None:
+            self._require_unclaimed_without_owner(artifact_id, operation=operation)
             return
         self._ownership_index.require_owner(
             artifact_id,
@@ -390,6 +412,7 @@ class FileSystemCAS:
             return
         tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
         if tenant_id is None:
+            self._require_unclaimed_without_owner(artifact_id, operation=operation)
             return
         self._ownership_index.require_blob_reader(
             artifact_id,
@@ -412,6 +435,7 @@ class FileSystemCAS:
             return
         tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
         if tenant_id is None:
+            self._require_unclaimed_without_owner(artifact_id, operation=operation)
             return
         self._ownership_index.require_view_owner(
             artifact_id,
@@ -420,6 +444,18 @@ class FileSystemCAS:
             cell_id=cell_id,
             operation=operation,
         )
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+    ) -> None:
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+            raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
 
     def _require_default_manifest_access(
         self,
@@ -508,6 +544,18 @@ class FileSystemCAS:
                 operation=f"write input manifest:{input_ref.role}",
             )
 
+    def _require_unclaimed_target_if_unscoped(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+    ) -> None:
+        if not self._ownership_enforced:
+            return
+        tenant_id, _cell_id = self._resolve_owner(required=self._ownership_requires_scope)
+        if tenant_id is None:
+            self._require_unclaimed_without_owner(artifact_id, operation=operation)
+
     def _ensure_default_signer(self) -> Ed25519Signer:
         if self._default_signer is not None:
             return self._default_signer
@@ -544,7 +592,9 @@ class FileSystemCAS:
         exists = blob.exists() and manifest.exists()
         if exists and self._ownership_enforced:
             tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
-            if tenant_id is not None:
+            if tenant_id is None:
+                exists = not self._ownership_index.has_any_tenant_claim(aid)
+            else:
                 exists = self._ownership_index.is_view_owned_by(
                     aid,
                     profile_sha256,
@@ -683,6 +733,7 @@ class FileSystemCAS:
         it differs, the imported view is stored under its exact profile selector.
         """
         aid, requested_profile, ref = _artifact_reference(artifact_id)
+        self._require_unclaimed_target_if_unscoped(aid, operation="import")
         if content_hash(data) != aid.hex:
             raise ArtifactIntegrityError(f"Blob sha256 mismatch for {aid}")
 
@@ -1075,6 +1126,7 @@ class FileSystemCAS:
         """Store raw bytes under their content hash and create the immutable manifest sidecar."""
         sha = content_hash(data)
         aid = ArtifactID.from_sha256_hex(sha)
+        self._require_unclaimed_target_if_unscoped(aid, operation="write")
         self._require_input_owners(opts)
         blob, _manp = self._paths(aid)
         blob.parent.mkdir(parents=True, exist_ok=True)
@@ -1300,6 +1352,12 @@ class FileSystemCAS:
         if set(staged_by_artifact) != set(artifact_refs):
             raise ArtifactIntegrityError("Staged artifact set does not match transfer inventory")
 
+        for artifact_ref in sorted(artifact_refs):
+            self._require_unclaimed_target_if_unscoped(
+                ArtifactID.model_validate(artifact_ref),
+                operation="import",
+            )
+
         locks: dict[int, threading.Lock] = {}
         for artifact_ref in sorted(artifact_refs):
             lock = self._artifact_lock(ArtifactID.model_validate(artifact_ref))
@@ -1394,6 +1452,36 @@ class FileSystemCAS:
                         ):
                             raise ArtifactOwnershipError(
                                 f"Manifest view for {artifact_id} is bound to a different tenant"
+                            )
+
+                    for raw_input_ref in manifest.inputs:
+                        input_ref = _coerce_input_ref(raw_input_ref)
+                        input_id = str(input_ref.artifact_id)
+                        staged_input_members = staged_by_artifact.get(input_id, set())
+                        if input_ref.manifest_profile_sha256 is None:
+                            default_member = (
+                                "artifacts/sha256/"
+                                f"{input_ref.artifact_id.hex[:2]}/"
+                                f"{input_ref.artifact_id.hex[2:4]}/"
+                                f"{input_ref.artifact_id.hex}.manifest.json"
+                            )
+                            input_view_is_staged = default_member in staged_input_members
+                        else:
+                            input_view_is_staged = any(
+                                _member_profile_sha256(member)
+                                == input_ref.manifest_profile_sha256
+                                for member in staged_input_members
+                                if member.endswith(".manifest.json")
+                            )
+                        if not input_view_is_staged:
+                            self._require_blob_owner(
+                                input_ref.artifact_id,
+                                operation=f"import input:{input_ref.role}",
+                            )
+                            self._require_manifest_view_owner(
+                                input_ref.artifact_id,
+                                input_ref.manifest_profile_sha256,
+                                operation=f"import input manifest:{input_ref.role}",
                             )
 
                     source_sig_member = manifest_member.removesuffix(".manifest.json") + ".sig"
@@ -1614,6 +1702,10 @@ class FileSystemCAS:
 
     def _iter_artifact_ids_lazy(self) -> Iterator[ArtifactID]:
         """Yield owned manifest IDs lazily for bounded batch operations."""
+        ownership_context_resolved = False
+        tenant_id: str | None = None
+        cell_id: str | None = None
+        claimed_artifact_ids: set[str] | None = None
         for manifest_path in self.base.rglob("*.manifest.json"):
             name = manifest_path.name
             if not name.endswith(".manifest.json"):
@@ -1623,10 +1715,20 @@ class FileSystemCAS:
                 continue
             artifact_id = ArtifactID.from_sha256_hex(hex64)
             if self._ownership_enforced:
-                tenant_id, cell_id = self._resolve_owner(
-                    required=self._ownership_requires_scope
-                )
-                if tenant_id is not None and not self._ownership_index.is_owned_by(
+                if not ownership_context_resolved:
+                    tenant_id, cell_id = self._resolve_owner(
+                        required=self._ownership_requires_scope
+                    )
+                    if tenant_id is None:
+                        claimed_artifact_ids = self._ownership_index.claimed_artifact_ids()
+                    ownership_context_resolved = True
+                if tenant_id is None:
+                    if (
+                        claimed_artifact_ids is not None
+                        and str(artifact_id) in claimed_artifact_ids
+                    ):
+                        continue
+                elif not self._ownership_index.is_owned_by(
                     artifact_id,
                     tenant_id=tenant_id,
                     cell_id=cell_id,

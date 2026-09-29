@@ -23,6 +23,7 @@ from typing import Any
 
 import yaml
 
+from tools.lib.fs import admitted_file_digest, admitted_is_file
 from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
@@ -385,8 +386,13 @@ def _parse_public_generated_artifact_families(path: Path) -> list[PublicGenerate
     return results
 
 
-def _parse_generated_artifacts(path: Path) -> list[GeneratedArtifactFamily]:
-    data = _read_toml(path)
+def _parse_generated_artifacts(path: Path | bytes) -> list[GeneratedArtifactFamily]:
+    """Parse generated-family records from an owner path or already-admitted bytes."""
+    data = (
+        tomllib.loads(path.decode("utf-8"))
+        if isinstance(path, bytes)
+        else _read_toml(path)
+    )
     families = data.get("family", [])
     results: list[GeneratedArtifactFamily] = []
     for item in families:
@@ -1408,9 +1414,14 @@ def _requires_default_generated_freshness(family: GeneratedArtifactFamily) -> bo
     )
 
 
-def _path_content_state(path: Path) -> str:
+def _path_content_state(path: Path, *, admitted_root: Path | None = None) -> str:
     if path.is_symlink():
         return f"symlink:{os.readlink(path)}"
+    if admitted_root is not None:
+        if not admitted_is_file(path, admitted_root):
+            return "missing" if not path.exists() else "non-file"
+        mode, hexdigest = admitted_file_digest(path, admitted_root)
+        return f"file:{mode:o}:{hexdigest}"
     if not path.exists():
         return "missing"
     if not path.is_file():
@@ -1452,7 +1463,10 @@ def _snapshot_git_visible_worktree(repo_root: Path) -> dict[str, str]:
         )
         if listed.returncode == 0:
             return {
-                relative: _path_content_state(worktree_root / relative)
+                relative: _path_content_state(
+                    worktree_root / relative,
+                    admitted_root=worktree_root,
+                )
                 for relative in listed.stdout.split("\0")
                 if relative
             }
@@ -1461,11 +1475,14 @@ def _snapshot_git_visible_worktree(repo_root: Path) -> dict[str, str]:
 
 
 def _snapshot_filesystem_tree(repo_root: Path) -> dict[str, str]:
-    return {
-        path.relative_to(repo_root).as_posix(): _path_content_state(path)
-        for path in repo_root.rglob("*")
-        if ".git" not in path.parts and (path.is_file() or path.is_symlink())
-    }
+    snapshot: dict[str, str] = {}
+    for path in repo_root.rglob("*"):
+        if ".git" in path.parts:
+            continue
+        relative = path.relative_to(repo_root).as_posix()
+        if path.is_symlink() or admitted_is_file(path, repo_root):
+            snapshot[relative] = _path_content_state(path, admitted_root=repo_root)
+    return snapshot
 
 
 def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:

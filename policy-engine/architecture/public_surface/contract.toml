@@ -358,7 +358,7 @@ notes = "Canonical shared calibration diagnostics, recalibration, and validation
 [[package]]
 module = "polisyos.ddm"
 classification = "internal"
-facade_mode = "eager_exports"
+facade_mode = "lazy_facade"
 owner = "team-scientist"
 readme = "src/polisyos/ddm/README.md"
 reference_doc = "docs/reference/public-surface.md"

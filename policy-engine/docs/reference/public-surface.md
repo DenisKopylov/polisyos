@@ -5405,7 +5405,7 @@ to_validation_report
 
 - Classification: `internal`
 - Supported entrypoints: `polisyos.ddm`
-- Facade policy: expected `eager_exports`, observed `lazy_facade`
+- Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-scientist`
 - README: `src/polisyos/ddm/README.md`
 - Reference doc: `docs/reference/public-surface.md`

@@ -533,6 +533,7 @@ class AcquisitionWorldGrowthBridge:
             receipt=activation,
             artifact_store=self.artifact_store,
             overlay=overlay,
+            authority=self.authority,
             epoch_deployment=self.epoch_deployment,
         )
         after = data_forge_read_api.catalog.project_catalog_acquisition_state(
@@ -712,6 +713,7 @@ class AcquisitionWorldGrowthBridge:
             receipt=growth.activation,
             artifact_store=self.artifact_store,
             overlay=overlay,
+            authority=self.authority,
             epoch_deployment=self.epoch_deployment,
         )
         if (
@@ -800,6 +802,36 @@ class AcquisitionWorldGrowthBridge:
             )
             if model is None:
                 raise ValueError("acquisition_reentry_model_unconfigured")
+            passport = acquisition_executor.AdmissionPassport.model_validate(
+                contracts.epoch.load_verified_epoch_statement(
+                    store=self.artifact_store,
+                    ref=growth.activation.passport_ref,
+                    expected_kind="epoch.acquisition_passport_snapshot",
+                )
+            )
+            overlay = data_forge_read_api.catalog.CatalogAcquisitionOverlay(
+                self.authority.baseline_path,
+                overlay_path,
+            )
+            observation_projection = (
+                overlay.read_activated_semantic_epoch_observations(
+                    receipt_ref=admitted.receipt_ref,
+                    artifact_store=self.artifact_store,
+                    passport=passport,
+                    authority=self.authority,
+                )
+            )
+            if (
+                growth.activation.overlay_admission_receipt_ref != admitted.receipt_ref
+                or growth.activation.passport_ref != observation_projection.passport_ref
+                or growth.activation.activation_state != observation_projection.activation_state
+                or growth.activation.passport_ref.kind != "epoch.acquisition_passport_snapshot"
+                or passport.passport_id != growth.passport_id
+                or passport.epoch_id != admitted.epoch_id
+                or observation_projection.epoch_id != admitted.epoch_id
+                or observation_projection.passport_id != admitted.passport_id
+            ):
+                raise ValueError("acquisition_world_growth_selected_observation_binding_mismatch")
             with fence.open("x") as stream:
                 stream.write(growth_refs[0])
                 stream.flush()
@@ -810,6 +842,7 @@ class AcquisitionWorldGrowthBridge:
                     source_cycle=closure.source_cycle,
                     problem=closure.design_problem_basis,
                     overlay_receipt=admitted,
+                    observation_projection=observation_projection,
                     baseline_path=self.authority.baseline_path,
                     overlay_path=overlay_path,
                     budget_state=BudgetState.model_validate(

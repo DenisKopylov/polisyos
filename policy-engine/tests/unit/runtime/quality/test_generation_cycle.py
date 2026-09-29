@@ -6210,6 +6210,12 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     source_cycle = source_run.cycles[0]
     scenario = _real_epoch_scenario(tmp_path / "epoch")
     _production, activated = _activate_real_epoch_scenario(scenario)
+    observation_projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
     calls: list[tuple[object, ...]] = []
 
     async def direct_cycle(
@@ -6257,6 +6263,7 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         source_cycle=source_cycle,
         problem=problem,
         overlay_receipt=activated,
+        observation_projection=observation_projection,
         baseline_path=scenario.authority.baseline_path,
         overlay_path=scenario.overlay.overlay_path,
         budget_state=_budget(),
@@ -6311,6 +6318,7 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
             source_cycle=source_cycle,
             problem=problem,
             overlay_receipt=activated,
+            observation_projection=observation_projection,
             baseline_path=scenario.authority.baseline_path,
             overlay_path=scenario.overlay.overlay_path,
             budget_state=_budget(),
@@ -6338,6 +6346,12 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
     source_cycle = source_run.cycles[0]
     scenario = _real_epoch_scenario(tmp_path / "epoch-a")
     _production, activated = _activate_real_epoch_scenario(scenario)
+    observation_projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
 
     async def forbidden_cycle(*args: Any, **kwargs: Any) -> Any:
         del args, kwargs
@@ -6349,6 +6363,7 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
         "source_cycle": source_cycle,
         "problem": problem,
         "overlay_receipt": activated,
+        "observation_projection": observation_projection,
         "baseline_path": scenario.authority.baseline_path,
         "overlay_path": scenario.overlay.overlay_path,
         "budget_state": _budget(),
@@ -6976,6 +6991,76 @@ async def test_generation_cycle_contract_mutations_turn_red(
         "scheduling_actions": 4,
         "terminal_kinds": 12,
     }
+
+
+def test_n9_verification_port_rejects_same_subject_stale_content_basis_and_maps_fail(
+    tmp_path: Path,
+) -> None:
+    p0 = contract._design_problem()
+    p1_payload = p0.model_dump(mode="python")
+    p1_payload["problem_statement"] = (
+        p0.problem_statement
+        + " Revised basis: prioritize critical supply-chain continuity."
+    )
+    p1 = DesignProblem.model_validate(p1_payload)
+
+    p0_binding = contract.N9DesignProblemBinding.from_problem(p0)
+    p1_binding = contract.N9DesignProblemBinding.from_problem(p1)
+    assert p0_binding.design_problem_id == p1_binding.design_problem_id
+    assert p0_binding.problem_content_hash != p1_binding.problem_content_hash
+    p0_scope = contract.confidence_risk_scope_for_problem(p0_binding)
+    p1_scope = contract.confidence_risk_scope_for_problem(p1_binding)
+    assert p0_scope != p1_scope
+
+    stale_factory = contract._OneShotVerificationSessionFactory(
+        REPO_ROOT,
+        tmp_path / "stale-p0",
+    )
+    stale_session = stale_factory(p0, ())
+    assert not stale_session.is_authority_session
+    assert stale_session.risk_scope == p0_scope
+
+    stale_port = CanonicalN9PromotionPort._for_verification(
+        repo_root=REPO_ROOT,
+        confidence_ledger_session=stale_session,
+    )
+    with pytest.raises(
+        ValueError,
+        match="confidence_ledger_scope_binding_mismatch",
+    ) as stale_error:
+        stale_port(summaries=(), problem=p1)
+
+    report = contract._replay_exception_report(
+        stale_error.value,
+        stage="live_n6_n9_replay",
+    )
+    assert report["status"] == "fail"
+    assert report["predicate_result"] == "fail"
+    assert report["issues"] == [
+        {
+            "code": "confidence_ledger_scope_binding_mismatch",
+            "stage": "live_n6_n9_replay",
+        }
+    ]
+
+    matching_factory = contract._OneShotVerificationSessionFactory(
+        REPO_ROOT,
+        tmp_path / "matching-p1",
+    )
+    matching_session = matching_factory(p1, ())
+    assert not matching_session.is_authority_session
+    assert matching_session.risk_scope == p1_scope
+
+    matching_port = CanonicalN9PromotionPort._for_verification(
+        repo_root=REPO_ROOT,
+        confidence_ledger_session=matching_session,
+    )
+    observation = matching_port(summaries=(), problem=p1)
+    assert observation.status == "not_promoted"
+    assert observation.reason == "verification_n9_sequence_non_consumer"
+    assert observation.receipts == ()
+    assert observation.certified_candidate_ids == ()
+
 
 def test_generation_cycle_contract_validator_fails_on_known_scope_mismatch(
     monkeypatch: pytest.MonkeyPatch,

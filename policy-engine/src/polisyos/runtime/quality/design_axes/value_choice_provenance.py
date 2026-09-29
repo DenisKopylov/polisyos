@@ -653,6 +653,7 @@ class NormativeValueScheduleOwner:
                 from polisyos.runtime.quality.generation_cycle import (
                     GENERATION_CYCLE_SCHEMA_VERSION,
                     GenerationCycleRun,
+                    validate_generation_cycle_run_history,
                 )
 
                 if (
@@ -662,12 +663,27 @@ class NormativeValueScheduleOwner:
                     raise ValueError(
                         "generation source schema does not match its historical manifest"
                     )
+                if raw != canon.to_canonical_bytes(
+                    payload, canon.CanonSpec(forbid_floats=False)
+                ):
+                    raise P20NormativeChoiceError(
+                        "p20_normative_generation_history_invalid",
+                        code="p20_normative_generation_history_invalid",
+                    )
                 TypeAdapter(
                     GenerationCycleRun.model_fields["schema_version"].annotation
                 ).validate_python(manifest_schema)
+                history_issues = validate_generation_cycle_run_history(payload)
+                if history_issues:
+                    raise P20NormativeChoiceError(
+                        "p20_normative_generation_history_invalid",
+                        code="p20_normative_generation_history_invalid",
+                    )
             elif manifest_schema != schema:
                 raise ValueError("artifact schema does not match the requested schema")
             return payload
+        except P20NormativeChoiceError:
+            raise
         except Exception as exc:
             raise P20NormativeChoiceError(
                 P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE,
@@ -1077,7 +1093,15 @@ class NormativeValueScheduleOwner:
                 schema=GENERATION_CYCLE_SCHEMA_VERSION,
             )
         )
-        if validate_generation_cycle_run(run, repo_root=self._repo_root):
+        source_issues = validate_generation_cycle_run(run, repo_root=self._repo_root)
+        historical_v1_currentness_unestablished = (
+            run.schema_version == "policyos.runtime.generation_cycle_controller.v1"
+            and len(source_issues) == 1
+            and source_issues[0].get("code") == "strangle_receipt_currentness_not_established"
+            and source_issues[0].get("reason") == "historical_deployment_identity_not_recorded"
+            and source_issues[0].get("census_verdict") == "UNRUN"
+        )
+        if source_issues and not historical_v1_currentness_unestablished:
             raise P20NormativeChoiceError("p20_normative_generation_source_invalid")
         case_id = run.cycles[0].revision_request.revised_problem.design_problem_id
         fronts = run.fronts.candidate_ids_by_front()
@@ -1088,11 +1112,28 @@ class NormativeValueScheduleOwner:
         result = None
         bundle_ref = None
         reason = input_limitation or "p20_normative_authorization_missing"
+        reason_codes: tuple[str, ...] | None = None
+        historical_v1_limitations: tuple[str, ...] = ()
+        if historical_v1_currentness_unestablished:
+            # Historical v1 bytes cannot establish deployment identity or represent
+            # source-store custody. Preserve their replayable history while keeping
+            # the S8 authority band blocked and the actual candidate fronts visible.
+            historical_v1_limitations = (
+                "strangle_receipt_currentness_not_established",
+                "historical_deployment_identity_not_recorded",
+                "generation_cycle_source_preservation_not_established",
+                "historical_v1_source_custody_not_represented",
+            )
         if run.terminal_status == "blocked":
             # A signed value schedule cannot reopen a blocked generation source.
             # Keep the unvalued fronts and the source-bound request visible, but
             # never call the S8 ranking owner for this run.
             reason = "p20_normative_generation_source_blocked"
+            if historical_v1_limitations:
+                reason_codes = (reason, *historical_v1_limitations)
+        elif historical_v1_currentness_unestablished:
+            reason_codes = historical_v1_limitations
+            reason = reason_codes[0]
         elif evidence is not None and input_limitation is None:
             try:
                 frontier = ParetoArchive.model_validate(
@@ -1138,7 +1179,7 @@ class NormativeValueScheduleOwner:
                 scope_ref=scope_ref,
                 frontier_ref=evidence.frontier_ref if evidence else binding.source_run_ref,
                 authorization_ref=evidence.authorization_ref if evidence else None,
-                reason_codes=(reason,),
+                reason_codes=reason_codes or (reason,),
                 requested_at=evaluated_at,
             ),
             ranking_bundle_ref=bundle_ref if authorized else None,

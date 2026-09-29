@@ -10166,7 +10166,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02's package/finding-record boundary. The N18 audit now records bounded finding-level evidence for this row but does not claim closure. Current status retained as partial. Residual and scope are stated in the row."
       },
-      "residual": "Commit 686ccf159d18e5514f99e13a83e6033029d2d398 integrates a reviewed, bounded Registry→VOI repair: the Pareto owner records typed missing/non-finite omissions and limited coverage, refuses to turn observed-axis unions into declared bases, and the VOI consumer withholds current frontier/dominated preference for partial, basis-limited, or historical views while a complete finite declared-basis control still ranks. Three complete files passed the bounded postpatch comparison (76 cases: 72 pass, 4 fail); all 66 common identities match prepatch (62 pass→pass, 4 fail→fail, zero pass→fail) and 10 new cases pass. The four remaining reds are not attributed: four-base P41 is UNRUN. Keep B111 partial. Residuals: ObjectiveStack still supplies numeric defaults (including zero) for absent measurements; the production registry caller supplies no source-bound OptimizerObjectiveSpec/basis and the registry has no served production constructor/caller; report, legacy-frontier, transfer/catalog and default-hierarchy consumers do not all carry this assessment; authentic historical v1 bytes and durable non-finite reload are not established; and duplicate occurrence identity is not durable. A distinct adjacent OPT-01 status defect excludes infeasible rows before Pareto comparison yet labels them dominated for VOI rejection; this is not the same eligible-input omission mechanism and is recorded as a bounded separate residual in the cited memo. Full four-base replay, served end-to-end and historical replay remain UNRUN.",
+      "residual": "Commit 686ccf159d18e5514f99e13a83e6033029d2d398 integrates a reviewed, bounded Registry→VOI repair: the Pareto owner records typed missing/non-finite omissions and limited coverage, refuses to turn observed-axis unions into declared bases, and the VOI consumer withholds current frontier/dominated preference for partial, basis-limited, or historical views while a complete finite declared-basis control still ranks. Three complete files passed the bounded postpatch comparison (76 cases: 72 pass, 4 fail); all 66 common identities match prepatch (62 pass→pass, 4 fail→fail, zero pass→fail) and 10 new cases pass. The four remaining reds are not attributed: four-base P41 is UNRUN. Commit a3b432027 then adds a reviewed sequence-local DTO integrity slice: unique/in-range omission positions within declared input_count, immutable omission collection, and a same-ref/distinct-position preserving control. Its owner file is 35/35 PASS, the marker-retaining removal is 2 red / 2 green, and the two-file importer comparison has the same 4 reds in both source states (no pass→fail in that cohort only). This is bounded input-position evidence; it does not establish identity against original evaluation bytes or sequence order. Keep B111 partial; Appendix C no_finding_level_record remains the historical record boundary. Residuals: ObjectiveStack still supplies numeric defaults (including zero) for absent measurements; the production registry caller supplies no source-bound OptimizerObjectiveSpec/basis and the registry has no served production constructor/caller; report, legacy-frontier, transfer/catalog and default-hierarchy consumers do not all carry this assessment; authentic historical v1 bytes and durable non-finite reload are not established; and durable occurrence identity across replay/reordering remains UNRUN. A distinct adjacent OPT-01 status defect excludes infeasible rows before Pareto comparison yet labels them dominated for VOI rejection; this is not the same eligible-input omission mechanism and is recorded as a bounded separate residual in the cited memo. Full four-base replay, served end-to-end and historical replay remain UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -10402,10 +10402,43 @@
           "No source-bound objective basis from existing OptimizerObjectiveSpec reaches production registry caller; production ParetoRegistry construction/caller absent in src.",
           "ObjectiveStack defaults absent metrics, including numeric zero; source truth and measured-zero distinction remain unestablished.",
           "Legacy frontier, transfer/catalog, report and default hierarchy paths do not all preserve or consume assessment; served end-to-end witness UNRUN.",
-          "No authentic committed historical v1 fixture; external historical bytes and durable non-finite reload remain UNRUN; duplicate occurrence identity is not durable.",
+          "No authentic committed historical v1 fixture; external historical bytes, durable non-finite reload, and durable occurrence identity across source-sequence replay or reordering remain UNRUN. Commit a3b432027 bounds input_index uniqueness/range to the supplied input_count and preserves repeated candidate refs at distinct positions, but it does not bind a position to original evaluation bytes or order.",
           "Adjacent distinct status residual: infeasible non-seed rows excluded before comparison can be labeled dominated and routed to VOI reject; see separate memo. Not the same omission class."
         ],
-        "adjacent_infeasible_voi_status_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/OPT01_INFEASIBLE_VOI_STATUS_MEMO.md@sha256:56d9a8d0061086d1aa2c665b5747fe982ef4dfaec2ad1cdf41ca1607a903309f"
+        "adjacent_infeasible_voi_status_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/OPT01_INFEASIBLE_VOI_STATUS_MEMO.md@sha256:56d9a8d0061086d1aa2c665b5747fe982ef4dfaec2ad1cdf41ca1607a903309f",
+        "sequence_local_dto_integrity_2026_09_29": {
+          "implementation_commit": "a3b432027c43c5af652415273bcbad01b83f8269",
+          "implementation_source_path_at_git_blob": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py@git-blob:5ac88b50c467d58bd44d76d3a7834aa0efe79940",
+          "test_path_at_git_blob": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:08d35ba1eb3705bc4677b247307ca533c3294b3d",
+          "independent_review_verdict": "GO for bounded two-file DTO-integrity slice; B111 remains partial",
+          "independent_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-index-integrity-20260929/B111_INDEPENDENT_CODE_REVIEW.md@sha256:0e891ec632014df66697ffc370f6c1fdde473f239142dc2281729c1c1ee2ae28",
+          "test_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b111-index-integrity-20260929/B111_INDEX_INTEGRITY_RECEIPT.md@sha256:9c754bb185fdf8ed850a6e12f2767b5b3e03bcf2cbbfa5565e5cbc995738118b",
+          "bounded_property": "ParetoInputAssessment rejects duplicate and out-of-range omission input_index values within declared input_count; the checked omission collection is immutable after validation. Same candidate_ref_id at distinct positions remains a legal separate occurrence.",
+          "results": {
+            "test_first": "Four selected cases before production edit: duplicate-index and out-of-range negatives plus post-validation append negative failed as expected; duplicate-ref preserving control passed.",
+            "owner_file": "tests/unit/scientist/methods/autotune/test_pareto.py: 35/35 PASS after repair; 35/35 PASS after byte-exact predicate restoration.",
+            "marker_retaining_removal": "With uniqueness/range predicate removed and tuple/schema/status markers retained, the two malformed-position cases fail; the immutability and duplicate-ref controls pass (2 red / 2 green).",
+            "adjacent_importer_comparison": "The same two importer files produced 49 cases, 45 pass / 4 fail, on both source versions; failure identity sets are identical. This is zero pass-to-fail for this cohort only, not four-base attribution."
+          },
+          "witness_junit_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-b111-index-integrity-20260929/red.junit.xml@sha256:687f6a1f75eb2a994d3e8fa302a5ba5de68c86efb5131595cc17548299c4cb8c",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-index-integrity-20260929/green.junit.xml@sha256:f2911ccee1af7d560e7581fe7cc4ce705074b3629f489b992cdbf7d2544996cd",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-index-integrity-20260929/removal.junit.xml@sha256:27bc6a21c9400a01483e2da7ee5d8dc6a19e2c91308bb7bc9f3b54aa76fe4c66",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-index-integrity-20260929/restored.junit.xml@sha256:b7b950c1f9adb3d5e29e3911848a0c62d7792c4c3152ff2dec4f9f0b093ad4f5",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-index-integrity-20260929/importers.junit.xml@sha256:44e21f681ae6d9012be809c76684d033f9b34446d1d4f2f281b7f14aa39aed43",
+            "/Users/deniskopylov/.codex/scratch/e02-b111-index-integrity-20260929/importers-old-source.junit.xml@sha256:aaff6d19804a1f755cadf2ff54f4e698b1fd1e35ac55094ce6e53cebd9368b87"
+          ],
+          "p37_p38": "P37: uniqueness/range are recomputed from the supplied DTO; association with original evaluation bytes/order is not_established. P38: a valid in-range position can still be reused against a reordered same-length input sequence and falsely refer to a different evaluation.",
+          "retained_status": "partial",
+          "appendix_c_status_retained": "no_finding_level_record",
+          "remaining_unrun_or_unestablished": [
+            "Full four-base P41 replay and attribution of the four persistent importer reds remain UNRUN.",
+            "Owner-issued source-bound objective basis, served ParetoRegistry construction/caller, and served end-to-end witness remain absent/unestablished.",
+            "Report, legacy-frontier, transfer/catalog and default-hierarchy consumers do not all preserve/consume typed coverage.",
+            "Authentic historical v1 bytes and durable historical/non-finite reload are unmeasured; sequence positions are not bound to original evaluation bytes or order.",
+            "The separate infeasible-as-dominated VOI status residual is not closed by this slice."
+          ]
+        }
       },
     "n_card_audit_2026_09_28": {
       "identity": "read-only N card/caller audit:B111",

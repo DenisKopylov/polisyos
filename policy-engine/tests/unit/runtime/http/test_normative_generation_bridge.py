@@ -481,6 +481,93 @@ def test_runtime_cas_adapter_reuses_ambient_owner_and_rejects_impostor(tmp_path)
         context.store.close()
 
 
+def test_s8_rejects_post_v1_field_from_raw_persisted_n6_bytes(tmp_path):
+    """S8 checks the persisted historical projection before Pydantic can drop fields."""
+    import copy
+
+    from polisyos.runtime.quality.generation_cycle import (
+        GENERATION_CYCLE_SCHEMA_VERSION,
+        GenerationCycleRun,
+        validate_generation_cycle_run,
+        validate_generation_cycle_run_history,
+    )
+    from tests.unit.runtime.quality.historical_artifacts import (
+        historical_generation_cycle_v1,
+    )
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    payload = historical_generation_cycle_v1()["generation_cycle_run"]
+    schema_version = payload["schema_version"]
+    put_options = artifacts.PutOptions(
+        kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(
+            name=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            version=schema_version,
+        ),
+    )
+    valid_ref = str(
+        store.put_json(payload, put_options, canon_spec=canon.CanonSpec(forbid_floats=False))
+        .artifact_id
+    )
+    owner = s8.NormativeValueScheduleOwner(
+        store=store,
+        trust=s8.NormativeAuthorityTrust(),
+        repo_root=None,
+    )
+    assert owner._read(
+        valid_ref,
+        kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+        schema=GENERATION_CYCLE_SCHEMA_VERSION,
+    ) == payload
+    canonical_raw = canon.to_canonical_bytes(
+        payload, canon.CanonSpec(forbid_floats=False)
+    )
+    assert store.get_bytes(valid_ref) == canonical_raw
+    assert validate_generation_cycle_run_history(payload) == ()
+    assert "strangle_receipt_currentness_not_established" in {
+        str(issue.get("code"))
+        for issue in validate_generation_cycle_run(GenerationCycleRun.model_validate(payload))
+    }
+
+    noncanonical_ref = str(store.put_bytes(canonical_raw + b" \n", put_options).artifact_id)
+    assert canon.from_canonical_bytes(store.get_bytes(noncanonical_ref)) == payload
+    with pytest.raises(
+        s8.P20NormativeChoiceError,
+        match="p20_normative_generation_history_invalid",
+    ):
+        owner._read(
+            noncanonical_ref,
+            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            schema=GENERATION_CYCLE_SCHEMA_VERSION,
+        )
+
+    mutated = copy.deepcopy(payload)
+    mutated["source_handoff_refs"] = []
+    assert GenerationCycleRun.model_validate(mutated).model_dump(mode="json") == payload
+    invalid_ref = str(
+        store.put_json(
+            mutated,
+            put_options,
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        ).artifact_id
+    )
+    binding = s8.NormativeGenerationBinding(
+        compiled_run_ref="sha256:" + "a" * 64,
+        source_run_ref=invalid_ref,
+        node_ref="fixture:n6-leaf",
+    )
+    with pytest.raises(
+        s8.P20NormativeChoiceError,
+        match="p20_normative_generation_history_invalid",
+    ):
+        owner._generation_disposition(
+            binding=binding,
+            evidence=None,
+            evaluated_at=datetime.now(UTC),
+        )
+
+
 def test_app_factory_passes_typed_deployment_trust_to_default_service(tmp_path, monkeypatch):
     from fastapi.testclient import TestClient
 

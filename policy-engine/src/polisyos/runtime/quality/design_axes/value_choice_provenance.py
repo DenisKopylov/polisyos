@@ -653,6 +653,7 @@ class NormativeValueScheduleOwner:
                 from polisyos.runtime.quality.generation_cycle import (
                     GENERATION_CYCLE_SCHEMA_VERSION,
                     GenerationCycleRun,
+                    validate_generation_cycle_run_history,
                 )
 
                 if (
@@ -662,12 +663,27 @@ class NormativeValueScheduleOwner:
                     raise ValueError(
                         "generation source schema does not match its historical manifest"
                     )
+                if raw != canon.to_canonical_bytes(
+                    payload, canon.CanonSpec(forbid_floats=False)
+                ):
+                    raise P20NormativeChoiceError(
+                        "p20_normative_generation_history_invalid",
+                        code="p20_normative_generation_history_invalid",
+                    )
                 TypeAdapter(
                     GenerationCycleRun.model_fields["schema_version"].annotation
                 ).validate_python(manifest_schema)
+                history_issues = validate_generation_cycle_run_history(payload)
+                if history_issues:
+                    raise P20NormativeChoiceError(
+                        "p20_normative_generation_history_invalid",
+                        code="p20_normative_generation_history_invalid",
+                    )
             elif manifest_schema != schema:
                 raise ValueError("artifact schema does not match the requested schema")
             return payload
+        except P20NormativeChoiceError:
+            raise
         except Exception as exc:
             raise P20NormativeChoiceError(
                 P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE,

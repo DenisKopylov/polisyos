@@ -1,5 +1,31 @@
 # E02-R2 write leases
 
+## R1 controlled N4 source identity in served candidate N5 (2026-09-30)
+
+One direct R1 writer may edit only
+`policy-engine/tests/unit/runtime/http/test_control_service_di.py` in the
+canonical `codex/e02-r2` worktree after root confirms this lease. This
+supersedes the wider two-test-file R1 served-source lease below for this
+controlled slice; `test_normative_generation_bridge.py` is not included.
+Root owns commits and integration. B111's Scientist paths and R13's N5
+runtime paths do not overlap; no second writer edits this test concurrently.
+
+Use the existing typed N4 port and GenerationSourceRepository on the served
+controlled-profile fixture. Capture the candidate actually passed to N5,
+reopen the same-run GenerationSourceHandoff, resolve it for the exact problem
+and cycle, and require a nonempty equal expected/retained identity set plus
+candidate ID and atom-content-hash equality. Keep the fixture's synthetic
+candidate lineage and profile `not_established`; this does not prove N5
+resolves source custody, production profile admission, real data/time, S8,
+N9, or publication. A marker-retaining source-link removal must make the
+persisted-custody assertion red, while ordinary no-owner candidate work and
+direct explicit-N4-without-context refusal remain. Current exact-head
+four-base P41 and removal runs are `UNRUN` below the 8 GiB disk floor. The
+writer may perform static checks, but no resource-bearing test until the
+floor and RAM reserve are satisfied. Independent review precedes commit.
+
+Design: `/Users/deniskopylov/.codex/scratch/e02-r1-controlled-owner-bridge-audit-20260930/R1_CONTROLLED_OWNER_BRIDGE_AUDIT.md@sha256:4d8735c6e7de6725a5a627210a88c194e64c3f05aa54729ffa0aaa4d94259541`.
+
 ## B111 registry-to-result assessment propagation (queued 2026-09-29; `e17d550bb`)
 
 After the R14 candidate below is reviewed and integrated or rejected, one

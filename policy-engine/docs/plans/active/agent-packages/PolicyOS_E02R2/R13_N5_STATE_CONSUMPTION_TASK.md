@@ -52,12 +52,22 @@ the WMR can change N5's numerical input. This is the P38 divergent case.
    authority. Keep the ordinary no-acquisition candidate path on its
    explicitly declared inputs. Owner-bound plan issuance is a separate
    capability/decision, with a versioned WMR transition if it adds a field.
+   `exec_plan_provenance` is a new typed N5 result/receipt field, not an
+   existing status to populate: today's result has free-form diagnostics,
+   while the N8 consumer admits only the existing
+   `simulation_only_k_sim_not_world_evidence` authority blocker. Version the
+   producer and historical reader, then make that consumer carry the new
+   limitation without refusing ordinary candidate computation. A same-graph
+   `ExecPlan` with different `order` is the plan-provenance P38 falsifier for
+   a future authority gate, not evidence that such a plan is admitted today.
 3. Persist the actual consumption in the content-bound N5 result: typed state
    snapshot wrapper ref, loaded state blob hash, graph/plan identities, and
    the typed `PolicySlotBinding` state path with the WMR's `state_slot_digest` relevant
    to the observed output. The binding DTO has no independent rule-version
    field today; any rule-version requirement remains an explicit owner premise.
-   New writes require a bumped result version; v1 artifacts must dispatch to
+   Persist `horizon_time_alignment=not_established` in that typed receipt
+   alongside plan provenance, not only in a note. New writes require a bumped
+   result version; v1 artifacts must dispatch to
    a historical DTO and receipt projection preserving their original payload
    semantics and bytes. A marker-only receipt does not establish that the
    engine used the state. Other N5 engines need their own owner-approved
@@ -90,6 +100,10 @@ as that bounded engineering result, not as proof that WDI changed the world.
   this route. WMR v1 records only graph refs and the registry bundle; the
   controlled slice therefore remains candidate-grade with explicit plan
   provenance `not_established`.
+- WMR valid-time scope and resolution do not yet align with N5's inclusive
+  integer horizon steps by a typed duration/unit rule. Keep horizon-to-WMR
+  time alignment `not_established` in the versioned result/receipt even in the
+  controlled profile; a successful numeric run does not prove period validity.
 - The core CAS/WMR owners must carry a selected manifest-view identity through
   persisted references before this route may claim multi-view replay. The
   current WMR v1 bare IDs do not establish it (existing R9/P07 class).
@@ -102,20 +116,27 @@ as that bounded engineering result, not as proof that WDI changed the world.
 
 - **Controlled positive:** two owner-produced WMR/Foundry state snapshots have
   different values at one declared `program_graph` slot while runtime hints,
-  graph, exact loaded plan and markers remain identical. The actual Foundry runner receives
-  the changed `base_state`, its numerical N5 output changes, and a reader
-  reopens the content-bound consumption receipt with the typed plan limitation.
-  Remove only the state-to-engine
-  handoff while leaving WMR/receipt markers; this test must turn red. A
+  graph, exact loaded plan and markers remain identical. The actual Foundry
+  runner receives the changed `base_state`, its numerical N5 output changes,
+  and a reader reopens the content-bound consumption receipt with typed plan
+  and time limitations. Remove only the state-to-engine handoff while leaving
+  WMR/receipt markers; this test must turn red. A
   no-acquisition candidate route remains usable.
+- **Authority control:** re-open the typed plan/time limitations at the actual
+  N8 consumer and at any N9/S8/publication path claimed by this slice;
+  demonstrate that they remain candidate-only. If a downstream path is not
+  reached in the controlled profile, mark that path `UNRUN` rather than
+  claiming its refusal.
 - **Served acquisition positive, later:** one admitted physical row changes
   the S1 payload, DataSnapshot, Foundry state, refreshed context, and N5 engine
   input under a current tenant/job lease. Its output stays candidate-grade
   while time/unit/SKG authority is limited; no S8/N9/publication follows.
-- **Negatives:** wrong physical row, same marker with changed payload bytes,
-  stale job lease, and foreign tenant all refuse before an N5 input claims the
-  changed state. A source with unsupported unit/time or no declared slot emits
-  a typed limitation and does not masquerade as the USD slot.
+- **Controlled negatives:** a foreign graph or tenant refuses before N5
+  claims the changed state; marker-retaining removal of the state handoff
+  turns the controlled positive red. Wrong physical row, same marker with
+  changed source bytes, stale job lease, and unsupported source unit/time
+  belong to the later served-acquisition lease. They must refuse or emit a
+  typed limitation there, never masquerade as the USD slot.
 
 The exact source/test write lease must be independently reviewed before code
 changes. The first lease should cover N5 request construction in
@@ -123,7 +144,8 @@ changes. The first lease should cover N5 request construction in
 readers and `execute_program_graph` write path needed to accept the injected
 `ArtifactStore` without unwrapping or rebuilding it, and N5's existing
 `runtime/quality/joint_simulation_horizon.py` runner and versioned result
-reader/persistence, and mirrored controlled-profile tests. DataState, WDI,
+reader/persistence, the N8 blocker consumer in `generation_cycle.py`, and
+mirrored controlled-profile tests. DataState, WDI,
 SKG, and served lease refresh are a separate follow-on after their owner
 contracts are known. The served acquisition tests belong in
 `tests/integration/core_runtime/test_acquisition_world_growth_chain.py` and

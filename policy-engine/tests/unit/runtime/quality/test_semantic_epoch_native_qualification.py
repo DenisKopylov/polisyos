@@ -58,6 +58,7 @@ def test_real_epoch_finalization_activation_and_native_readback(tmp_path: Path) 
         receipt=finalized.receipt,
         artifact_store=case.store,
         overlay=case.scenario.overlay,
+        authority=case.scenario.authority,
         epoch_deployment=case.deployment,
     )
     assert resolved.admitted_observation_count == 2
@@ -69,7 +70,39 @@ def test_real_epoch_finalization_activation_and_native_readback(tmp_path: Path) 
             receipt=finalized.receipt,
             artifact_store=case.store,
             overlay=case.scenario.overlay,
+            authority=case.scenario.authority,
         )
+
+
+def test_active_read_revalidates_current_source_authority_before_positive_use(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.runtime.quality.acquisition_executor import (
+        SemanticEpochAdmissionResolutionError,
+        resolve_activated_semantic_epoch_admission,
+    )
+    from tests._helpers.semantic_epoch_native import (
+        finalize_native_epoch_case,
+        make_native_epoch_case,
+    )
+
+    case = make_native_epoch_case(tmp_path)
+    finalized = finalize_native_epoch_case(case)
+
+    def authority_no_longer_resolves(_entry_id: str) -> object:
+        raise ValueError("the current authority owner is unavailable")
+
+    monkeypatch.setattr(case.scenario.authority, "resolve", authority_no_longer_resolves)
+    with pytest.raises(SemanticEpochAdmissionResolutionError) as refused:
+        resolve_activated_semantic_epoch_admission(
+            receipt=finalized.receipt,
+            artifact_store=case.store,
+            overlay=case.scenario.overlay,
+            authority=case.scenario.authority,
+            epoch_deployment=case.deployment,
+        )
+    assert refused.value.code == "basis_mismatch"
+    assert "acquisition_authority_unresolved" in refused.value.detail
 
 
 def test_production_wrapper_activates_the_actual_signed_live_epoch_basis(
@@ -90,6 +123,7 @@ def test_production_wrapper_activates_the_actual_signed_live_epoch_basis(
         receipt=activation,
         artifact_store=case.store,
         overlay=case.overlay,
+        authority=case.authority,
         epoch_deployment=case.deployment,
     )
     assert resolved.admitted_observation_count == 2

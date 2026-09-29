@@ -533,6 +533,7 @@ class AcquisitionWorldGrowthBridge:
             receipt=activation,
             artifact_store=self.artifact_store,
             overlay=overlay,
+            authority=self.authority,
             epoch_deployment=self.epoch_deployment,
         )
         after = data_forge_read_api.catalog.project_catalog_acquisition_state(
@@ -712,6 +713,7 @@ class AcquisitionWorldGrowthBridge:
             receipt=growth.activation,
             artifact_store=self.artifact_store,
             overlay=overlay,
+            authority=self.authority,
             epoch_deployment=self.epoch_deployment,
         )
         if (

@@ -117,6 +117,7 @@ def run_admission(
             overlay=read_api.catalog.CatalogAcquisitionOverlay(
                 request.baseline_path, request.overlay_path
             ),
+            authority=authority,
             epoch_deployment=deployment,
         )
         return receipt

@@ -3120,7 +3120,7 @@ class ControlPlaneService(
                 NormativeEvidenceHeadStrangleReceipt,
                 load_normative_generation_head,
                 normative_owner_for_runtime_store,
-                project_normative_run_disposition,
+                replay_normative_run_disposition,
             )
 
             try:
@@ -3156,20 +3156,21 @@ class ControlPlaneService(
                         self._normative_authority_trust,
                         repo_root=self._repo_root,
                     )
-                    historical = project_normative_run_disposition(
+                    historical_replay = replay_normative_run_disposition(
                         store=self._artifact_store,
                         owner=owner,
                         disposition_ref=head.disposition_ref,
                         compiled_run_ref=head.compiled_run_ref,
-                        evaluated_at=head.evaluated_at,
                     )
+                    historical = historical_replay.disposition
                     actual_evidence = {
                         node: leaf.evidence
                         for node, leaf in historical.leaf_dispositions.items()
                         if leaf.evidence is not None
                     }
                     if (
-                        historical.authorization_status != "authorized"
+                        not historical_replay.admission_authority_established
+                        or historical.authorization_status != "authorized"
                         or head.evidence.input_limitation is not None
                         or head.evidence.by_node != actual_evidence
                         or any(

@@ -4434,6 +4434,63 @@ async def test_missing_deployment_identity_does_not_refuse_candidate_computation
 
 
 @pytest.mark.asyncio
+async def test_inspect_generation_cycle_run_uses_one_confidence_ledger_observation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Strict currentness issues and the retained observation share one owner read."""
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        repo_root=REPO_ROOT,
+    ).run(_problem("single_n6_observation"), budget_state=_budget(), max_cycles=1)
+    recorded_identity = "policy-engine-deployment:sha256:" + "a" * 64
+    loaded_identity = "policy-engine-deployment:sha256:" + "b" * 64
+    run = run.model_copy(
+        update={
+            "deployment_identity_status": "established",
+            "deployment_identity": recorded_identity,
+            "deployment_identity_reason": None,
+        }
+    )
+    stale = generation_cycle_module.N6DeploymentCurrentnessObservation(
+        status="stale",
+        census_verdict="FAIL",
+        recorded_identity_status="established",
+        recorded_deployment_identity=recorded_identity,
+        loaded_identity_status="established",
+        loaded_deployment_identity=loaded_identity,
+        reason_code="generation_cycle_deployment_identity_mismatch",
+        unresolved_by_construction=(),
+    )
+    later_current = generation_cycle_module.N6DeploymentCurrentnessObservation(
+        status="current",
+        census_verdict="PASS",
+        recorded_identity_status="established",
+        recorded_deployment_identity=recorded_identity,
+        loaded_identity_status="established",
+        loaded_deployment_identity=recorded_identity,
+        reason_code="n6_currentness_established",
+        unresolved_by_construction=(),
+    )
+    observations = [stale, later_current]
+    calls: list[dict[str, object]] = []
+
+    def observe(**kwargs: object) -> generation_cycle_module.N6DeploymentCurrentnessObservation:
+        calls.append(dict(kwargs))
+        return observations[min(len(calls) - 1, 1)]
+
+    monkeypatch.setattr(generation_cycle_module, "observe_n6_deployment_currentness", observe)
+
+    inspection = generation_cycle_module.inspect_generation_cycle_run(run)
+
+    assert len(calls) == 1
+    assert inspection.currentness == stale
+    assert {
+        (issue["code"], issue.get("reason")) for issue in inspection.issues
+    } >= {("strangle_receipt_stale", "generation_cycle_deployment_identity_mismatch")}
+
+
+@pytest.mark.asyncio
 async def test_blocked_run_preserves_current_occurrence_and_basis_without_n9(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

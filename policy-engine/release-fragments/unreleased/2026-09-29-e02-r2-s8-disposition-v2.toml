@@ -1,0 +1,33 @@
+id = "2026-09-29-e02-r2-s8-disposition-v2"
+title = "Version S8 disposition currentness at admission"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "New S8 disposition artifacts preserve the frozen v1 projection with the exact N6 currentness observation used at admission, while current authority is evaluated separately."
+evidence = [
+  "tests/unit/runtime/quality/test_s8_blocked_generation_owner.py",
+  "tests/unit/runtime/http/test_normative_generation_bridge.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+]
+compatibility = "New writers emit the internal v2 envelope; readers replay historical v1 payloads without rewriting their bytes. A legacy v1 disposition has no recorded admission-currentness observation and cannot establish current S8 or evidence-head authority."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: runtime_quality.normative_generation_disposition CAS artifacts; HTTP disposition projection remains v1"
+migration = "Deploy a v2-capable reader before writing v2 envelopes. Retain all v1 and v2 CAS bytes. Do not down-convert v2, restamp v1, or treat currentness absent from v1 as current. See docs/how-to/normative-generation-disposition-v2-migration.md."
+api = "The public HTTP disposition projection and OpenAPI contract do not change."
+limitations = "A matching deployment identity or stored observation does not appoint the N6 census issuer. Historical v1 records and v2 records admitted while currentness was stale or not established remain blocked for current S8 authority until an authorized reissue."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/how-to/normative-generation-disposition-v2-migration.md"]
+runbook_docs = ["docs/how-to/normative-generation-disposition-v2-migration.md"]
+
+[[compatibility_change]]
+id = "s8-disposition-v2-envelope"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: normative_generation_disposition CAS records"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "V1 bytes remain replayable as history; no in-place rewrite or v1 retirement is scheduled."
+release_note = "New S8 disposition writes use a v2 envelope with frozen v1 projection and admission-currentness snapshot. V1-only readers must not consume newly written v2 records; legacy v1 currentness remains not_established."
+migration_docs = ["docs/how-to/normative-generation-disposition-v2-migration.md"]
+runbook_docs = ["docs/how-to/normative-generation-disposition-v2-migration.md"]

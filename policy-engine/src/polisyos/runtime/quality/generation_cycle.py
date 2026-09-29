@@ -6987,9 +6987,32 @@ def validate_generation_cycle_run(
 ) -> tuple[dict[str, Any], ...]:
     """Validate N6 semantics and require owner-issued currentness for authority."""
 
-    return _validate_generation_cycle_run(
-        run, require_currentness=True
+    return inspect_generation_cycle_run(run, repo_root=repo_root).issues
+
+
+@dataclass(frozen=True, slots=True)
+class GenerationCycleRunInspection:
+    """One strict N6 validation result and the exact currentness observation it used."""
+
+    issues: tuple[dict[str, Any], ...]
+    currentness: N6DeploymentCurrentnessObservation
+
+
+def inspect_generation_cycle_run(
+    run: GenerationCycleRun | Mapping[str, Any],
+    *,
+    repo_root: Path | None = None,
+) -> GenerationCycleRunInspection:
+    """Validate N6 once and return its single owner-read currentness observation."""
+
+    currentness = currentness_for_generation_cycle_run(run)
+    issues = _validate_generation_cycle_run(
+        run,
+        repo_root=repo_root,
+        require_currentness=True,
+        currentness_observation=currentness,
     )
+    return GenerationCycleRunInspection(issues=issues, currentness=currentness)
 
 
 def validate_generation_cycle_candidate_run(
@@ -7097,6 +7120,7 @@ def _validate_generation_cycle_run(
     repo_root: Path | None = None,
     current_strangle_receipt: StrangleReceipt | None = None,
     require_currentness: bool = True,
+    currentness_observation: N6DeploymentCurrentnessObservation | None = None,
 ) -> tuple[dict[str, Any], ...]:
     """Run intrinsic checks and, when requested, the typed identity question."""
 
@@ -7141,7 +7165,7 @@ def _validate_generation_cycle_run(
                         )
                 else:
                     issues.append({"code": "strangle_receipt_stale", "error": str(exc)})
-        observation = currentness_for_generation_cycle_run(run)
+        observation = currentness_observation or currentness_for_generation_cycle_run(run)
         if observation.status == "stale":
             issues.append(
                 {
@@ -11423,6 +11447,7 @@ __all__ = [
     "GenerationCycleFronts",
     "GenerationCycleRecord",
     "GenerationCycleRun",
+    "GenerationCycleRunInspection",
     "JointSimulationPort",
     "LoopVOIDecision",
     "N4GenerationPort",
@@ -11445,6 +11470,7 @@ __all__ = [
     "eligible_n9_source_for_run",
     "enforce_no_retry_without_new_grammar",
     "generation_cycle_terminal_state",
+    "inspect_generation_cycle_run",
     "inspect_n6_source_census",
     "is_value_panel_shape",
     "load_joint_simulation_result",

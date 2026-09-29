@@ -54,6 +54,7 @@ if TYPE_CHECKING:
         _DesignProblemGatewayClient,
         _SpanSupportVerifierClient,
     )
+    from polisyos.runtime.quality.confidence_ledger import N6DeploymentCurrentnessObservation
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_generation import (
         DesignGenerationOrganRun,
@@ -256,6 +257,25 @@ class NormativeRunDisposition(BaseModel):
     disposition_ref: str | None = Field(default=None, exclude=True)
 
 
+@dataclass(frozen=True, slots=True)
+class NormativeRunDispositionHistory:
+    """Immutable outer replay plus the persisted admission-currentness evidence per leaf."""
+
+    disposition: NormativeRunDisposition
+    admission_currentness_by_node: dict[
+        str, N6DeploymentCurrentnessObservation | None
+    ]
+
+    @property
+    def admission_authority_established(self) -> bool:
+        """Whether every historical leaf recorded currentness when it was admitted."""
+
+        return bool(self.admission_currentness_by_node) and all(
+            observation is not None and observation.status == "current"
+            for observation in self.admission_currentness_by_node.values()
+        )
+
+
 def normative_owner_for_runtime_store(
     store: object,
     trust: NormativeAuthorityTrust,
@@ -336,13 +356,20 @@ def _project_normative_composition(
     compiled_run_ref: str,
     leaf_refs: dict[str, str],
     evaluated_at: datetime,
+    historical: bool = False,
 ) -> NormativeRunDisposition:
     sources = _normative_generation_sources(store, compiled_run_ref, persist=False)
     if set(sources) != set(leaf_refs):
         raise P20NormativeChoiceError("p20_normative_compiled_leaf_population_mismatch")
     leaves = {}
     for node_ref, source in sources.items():
-        leaf = owner.project_generation_disposition(leaf_refs[node_ref], evaluated_at=evaluated_at)
+        leaf = (
+            owner.replay_generation_disposition(leaf_refs[node_ref])
+            if historical
+            else owner.project_generation_disposition(
+                leaf_refs[node_ref], evaluated_at=evaluated_at
+            )
+        )
         if leaf.generation_binding != source:
             raise P20NormativeChoiceError("p20_normative_compiled_leaf_binding_mismatch")
         leaves[node_ref] = leaf
@@ -425,6 +452,30 @@ def project_normative_run_disposition(
     evaluated_at: datetime,
 ) -> NormativeRunDisposition:
     """Recompute complete compiled membership and current S8 authority at every egress."""
+    replay = replay_normative_run_disposition(
+        store=store,
+        owner=owner,
+        disposition_ref=disposition_ref,
+        compiled_run_ref=compiled_run_ref,
+    )
+    current = _project_normative_composition(
+        store=store,
+        owner=owner,
+        compiled_run_ref=compiled_run_ref,
+        leaf_refs=replay.disposition.leaf_disposition_refs,
+        evaluated_at=evaluated_at,
+    )
+    return current.model_copy(update={"disposition_ref": disposition_ref})
+
+
+def replay_normative_run_disposition(
+    *,
+    store: artifacts.ArtifactStore,
+    owner: NormativeValueScheduleOwner,
+    disposition_ref: str,
+    compiled_run_ref: str,
+) -> NormativeRunDispositionHistory:
+    """Replay stored S8 history without sampling the live Confidence Ledger."""
     recorded = NormativeRunDisposition.model_validate(
         _read_normative_source(store, disposition_ref, kind=NORMATIVE_RUN_DISPOSITION_KIND)
     )
@@ -439,17 +490,18 @@ def project_normative_run_disposition(
         compiled_run_ref=compiled_run_ref,
         leaf_refs=recorded.leaf_disposition_refs,
         evaluated_at=next(iter(historical_times)),
+        historical=True,
     )
     if historical != recorded:
         raise P20NormativeChoiceError("p20_normative_composition_content_mismatch")
-    current = _project_normative_composition(
-        store=store,
-        owner=owner,
-        compiled_run_ref=compiled_run_ref,
-        leaf_refs=recorded.leaf_disposition_refs,
-        evaluated_at=evaluated_at,
+    currentness = {
+        node_ref: owner.generation_disposition_admission_currentness(leaf_ref)
+        for node_ref, leaf_ref in recorded.leaf_disposition_refs.items()
+    }
+    return NormativeRunDispositionHistory(
+        disposition=historical.model_copy(update={"disposition_ref": disposition_ref}),
+        admission_currentness_by_node=currentness,
     )
-    return current.model_copy(update={"disposition_ref": disposition_ref})
 
 
 class CompiledRecursiveGenerationCycleRun(BaseModel):

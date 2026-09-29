@@ -7,6 +7,7 @@ import json
 from collections.abc import Mapping, Sequence
 from collections.abc import Set as AbstractSet
 from contextvars import ContextVar
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal, Self, cast
 
@@ -14,6 +15,9 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, TypeAdapter, m
 
 from polisyos.core import artifacts, canon
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
+from polisyos.runtime.quality.confidence_ledger import (  # noqa: TC001 - Pydantic persisted envelope
+    N6DeploymentCurrentnessObservation,
+)
 from polisyos.runtime.quality.design_axes.blind_spot_firewalls import (
     P22MandateLegitimacyError,
 )
@@ -34,6 +38,9 @@ P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE = "p20_value_schedule_ref_unresolvable"
 NORMATIVE_AUTHORIZATION_SCHEMA_VERSION = "policyos.normative_authorization.v1"
 NORMATIVE_GENERATION_AUTHORIZATION_SCHEMA_VERSION = "policyos.normative_authorization.v2"
 NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION = "policyos.normative_generation_disposition.v1"
+NORMATIVE_GENERATION_DISPOSITION_V2_SCHEMA_VERSION = (
+    "policyos.normative_generation_disposition.v2"
+)
 NORMATIVE_GENERATION_DISPOSITION_KIND = "runtime_quality.normative_generation_disposition"
 NORMATIVE_GENERATION_SOURCE_KIND = "runtime_quality.normative_generation_source"
 NORMATIVE_AUTHORIZATION_KIND = "runtime_quality.normative_authorization"
@@ -548,6 +555,25 @@ class NormativeGenerationDisposition(_NormativeModel):
     )
 
 
+class _NormativeGenerationDispositionV2(_NormativeModel):
+    """Internal CAS envelope retaining a frozen v1 projection and its N6 admission read."""
+
+    schema_version: Literal[
+        "policyos.normative_generation_disposition.v2"
+    ] = NORMATIVE_GENERATION_DISPOSITION_V2_SCHEMA_VERSION
+    disposition_v1: NormativeGenerationDisposition
+    n6_currentness_at_admission: N6DeploymentCurrentnessObservation
+
+
+@dataclass(frozen=True, slots=True)
+class _LoadedNormativeGenerationDisposition:
+    """Typed v1/v2 CAS read; ``None`` means legacy currentness was never recorded."""
+
+    disposition: NormativeGenerationDisposition
+    n6_currentness_at_admission: N6DeploymentCurrentnessObservation | None
+    artifact_schema_version: str
+
+
 class _NormativeScheduleAdmission(_NormativeModel):
     schema_version: Literal["policyos.normative_schedule_admission.v1"] = (
         "policyos.normative_schedule_admission.v1"
@@ -688,6 +714,99 @@ class NormativeValueScheduleOwner:
             raise P20NormativeChoiceError(
                 P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE,
                 code=P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE,
+            ) from exc
+
+    def _read_generation_disposition_record(
+        self, ref: str
+    ) -> _LoadedNormativeGenerationDisposition:
+        """Read a frozen v1 leaf or its v2 envelope without consulting live owners."""
+
+        from polisyos.runtime.quality.generation_cycle import (
+            GENERATION_CYCLE_SCHEMA_VERSION,
+            GenerationCycleRun,
+        )
+
+        try:
+            artifact_id = artifacts.ArtifactID.model_validate(ref)
+            raw = self._store.get_bytes(artifact_id)
+            manifest = self._store.get_manifest(artifact_id)
+            if (
+                ref != f"sha256:{canon.content_hash(raw)}"
+                or manifest.kind != NORMATIVE_GENERATION_DISPOSITION_KIND
+                or manifest.artifact_schema is None
+                or manifest.artifact_schema.name != NORMATIVE_GENERATION_DISPOSITION_KIND
+            ):
+                raise ValueError("normative generation disposition manifest mismatch")
+            payload = canon.from_canonical_bytes(raw)
+            if not isinstance(payload, dict):
+                raise ValueError("normative generation disposition is not a mapping")
+            schema_version = manifest.artifact_schema.version
+            if schema_version == NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION:
+                disposition = NormativeGenerationDisposition.model_validate(payload)
+                if disposition.schema_version != schema_version:
+                    raise ValueError("normative generation disposition schema mismatch")
+                if raw != canon.to_canonical_bytes(
+                    disposition.model_dump(mode="json"), canon.CanonSpec(forbid_floats=False)
+                ):
+                    raise ValueError("normative generation disposition v1 projection mismatch")
+                currentness = None
+            elif schema_version == NORMATIVE_GENERATION_DISPOSITION_V2_SCHEMA_VERSION:
+                envelope = _NormativeGenerationDispositionV2.model_validate(payload)
+                if envelope.schema_version != schema_version:
+                    raise ValueError("normative generation disposition v2 schema mismatch")
+                if raw != canon.to_canonical_bytes(
+                    envelope.model_dump(mode="json"), canon.CanonSpec(forbid_floats=False)
+                ):
+                    raise ValueError("normative generation disposition v2 projection mismatch")
+                disposition = envelope.disposition_v1
+                currentness = envelope.n6_currentness_at_admission
+                if currentness.status == "current" and (
+                    currentness.reason_code != "n6_currentness_established"
+                    or currentness.census_verdict != "PASS"
+                    or currentness.unresolved_by_construction
+                ):
+                    raise ValueError("n6 currentness observation is not fully established")
+                if currentness.status != "current" and (
+                    disposition.authorization_status != "blocked"
+                    or disposition.ranked_recommendations
+                ):
+                    raise ValueError("noncurrent normative disposition carries authority")
+            else:
+                raise ValueError("normative generation disposition schema unsupported")
+
+            binding = disposition.generation_binding
+            source_payload = self._read(
+                binding.source_run_ref,
+                kind=NORMATIVE_GENERATION_SOURCE_KIND,
+                schema=GENERATION_CYCLE_SCHEMA_VERSION,
+            )
+            source_run = GenerationCycleRun.model_validate(source_payload)
+            case_id = (
+                source_run.cycles[0].revision_request.revised_problem.design_problem_id
+                if source_run.cycles
+                else None
+            )
+            if (
+                case_id != disposition.case_id
+                or source_run.fronts.candidate_ids_by_front() != disposition.candidate_fronts
+            ):
+                raise ValueError("normative generation disposition source binding mismatch")
+            if currentness is not None and (
+                currentness.recorded_identity_status != source_run.deployment_identity_status
+                or currentness.recorded_deployment_identity != source_run.deployment_identity
+            ):
+                raise ValueError("normative generation currentness source binding mismatch")
+            return _LoadedNormativeGenerationDisposition(
+                disposition=disposition,
+                n6_currentness_at_admission=currentness,
+                artifact_schema_version=schema_version,
+            )
+        except P20NormativeChoiceError:
+            raise
+        except Exception as exc:
+            raise P20NormativeChoiceError(
+                "p20_normative_generation_disposition_history_invalid",
+                code="p20_normative_generation_disposition_history_invalid",
             ) from exc
 
     @staticmethod
@@ -1018,52 +1137,129 @@ class NormativeValueScheduleOwner:
         | None = None,
     ) -> str:
         """Persist a source-derived leaf result; compiled membership is not asserted here."""
-        result = self._generation_disposition(
+        result, currentness = self._generation_disposition_with_observation(
             binding=binding,
             evidence=evidence,
             evaluated_at=evaluated_at,
             input_limitation=input_limitation,
         )
+        envelope = _NormativeGenerationDispositionV2(
+            disposition_v1=result,
+            n6_currentness_at_admission=currentness,
+        )
         return str(
             self._store.put_json(
-                result.model_dump(mode="json"),
+                envelope.model_dump(mode="json"),
                 artifacts.PutOptions(
                     kind=NORMATIVE_GENERATION_DISPOSITION_KIND,
                     media_type="application/json",
                     schema=artifacts.SchemaInfo(
                         name=NORMATIVE_GENERATION_DISPOSITION_KIND,
-                        version=NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION,
+                        version=NORMATIVE_GENERATION_DISPOSITION_V2_SCHEMA_VERSION,
                     ),
                 ),
             ).artifact_id
         )
 
+    def replay_generation_disposition(
+        self, disposition_ref: str
+    ) -> NormativeGenerationDisposition:
+        """Replay the persisted v1 leaf bytes without a live currentness or S8 read."""
+
+        return self._read_generation_disposition_record(disposition_ref).disposition
+
+    def generation_disposition_admission_currentness(
+        self, disposition_ref: str
+    ) -> N6DeploymentCurrentnessObservation | None:
+        """Return only the persisted admission read; legacy v1 records return ``None``."""
+
+        return self._read_generation_disposition_record(
+            disposition_ref
+        ).n6_currentness_at_admission
+
     def project_generation_disposition(
         self, disposition_ref: str, *, evaluated_at: datetime
     ) -> NormativeGenerationDisposition:
-        """Recompute persisted leaf content, then recheck current signature, scope and TTL."""
-        recorded = NormativeGenerationDisposition.model_validate(
-            self._read(
-                disposition_ref,
-                kind=NORMATIVE_GENERATION_DISPOSITION_KIND,
-                schema=NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION,
-            )
-        )
-        expected = self._generation_disposition(
-            binding=recorded.generation_binding,
-            evidence=recorded.evidence,
-            evaluated_at=recorded.admitted_at,
-            input_limitation=recorded.input_limitation,
-        )
-        if expected != recorded:
-            raise P20NormativeChoiceError("p20_normative_generation_disposition_mismatch")
+        """Replay history, then recheck current N6, signature, scope and TTL."""
+        record = self._read_generation_disposition_record(disposition_ref)
+        recorded = record.disposition
         if evaluated_at < recorded.admitted_at:
             raise P20NormativeChoiceError("p20_normative_generation_time_reversal")
-        return self._generation_disposition(
+        currentness_at_admission = record.n6_currentness_at_admission
+        if currentness_at_admission is None:
+            return self._blocked_generation_disposition_projection(
+                recorded,
+                reason_code="p20_normative_generation_admission_currentness_not_recorded",
+            )
+        if currentness_at_admission.status != "current":
+            return self._blocked_generation_disposition_projection(
+                recorded,
+                reason_code="p20_normative_generation_currentness_reissue_required",
+            )
+        projected, _currentness = self._generation_disposition_with_observation(
             binding=recorded.generation_binding,
             evidence=recorded.evidence,
             evaluated_at=evaluated_at,
             input_limitation=recorded.input_limitation,
+        )
+        return projected
+
+    def _blocked_generation_disposition_projection(
+        self,
+        recorded: NormativeGenerationDisposition,
+        *,
+        reason_code: str,
+    ) -> NormativeGenerationDisposition:
+        """Keep a typed candidate-facing limitation without granting authority."""
+
+        existing = recorded.decision_request
+        reason_codes = tuple(
+            dict.fromkeys(
+                (
+                    *(existing.reason_codes if existing is not None else ()),
+                    reason_code,
+                )
+            )
+        )
+        request = NormativeDecisionRequest(
+            case_id=recorded.case_id,
+            scope_ref=(
+                existing.scope_ref
+                if existing is not None
+                else (
+                    recorded.evidence.scope_ref
+                    if recorded.evidence is not None
+                    else f"unknown:value-scope:{recorded.generation_binding.source_run_ref}"
+                )
+            ),
+            frontier_ref=(
+                existing.frontier_ref
+                if existing is not None
+                else (
+                    recorded.evidence.frontier_ref
+                    if recorded.evidence is not None
+                    else recorded.generation_binding.source_run_ref
+                )
+            ),
+            authorization_ref=(
+                existing.authorization_ref
+                if existing is not None
+                else (
+                    recorded.evidence.authorization_ref
+                    if recorded.evidence is not None
+                    else None
+                )
+            ),
+            reason_codes=reason_codes,
+            requested_at=recorded.admitted_at,
+        )
+        return recorded.model_copy(
+            update={
+                "authorization_status": "blocked",
+                "ranked_recommendations": (),
+                "decision_request": request,
+                "ranking_bundle_ref": None,
+            }
         )
 
     def _generation_disposition(
@@ -1080,10 +1276,32 @@ class NormativeValueScheduleOwner:
         ]
         | None = None,
     ) -> NormativeGenerationDisposition:
+        result, _currentness = self._generation_disposition_with_observation(
+            binding=binding,
+            evidence=evidence,
+            evaluated_at=evaluated_at,
+            input_limitation=input_limitation,
+        )
+        return result
+
+    def _generation_disposition_with_observation(
+        self,
+        *,
+        binding: NormativeGenerationBinding,
+        evidence: NormativeGenerationEvidenceRefs | None,
+        evaluated_at: datetime,
+        input_limitation: Literal[
+            "p20_normative_evidence_invalid",
+            "p20_normative_evidence_node_mismatch",
+            "p20_normative_generation_disposition_missing",
+            "p20_normative_sidecar_replay_failed",
+        ]
+        | None = None,
+    ) -> tuple[NormativeGenerationDisposition, N6DeploymentCurrentnessObservation]:
         from polisyos.runtime.quality.generation_cycle import (
             GENERATION_CYCLE_SCHEMA_VERSION,
             GenerationCycleRun,
-            validate_generation_cycle_run,
+            inspect_generation_cycle_run,
         )
 
         run = GenerationCycleRun.model_validate(
@@ -1093,15 +1311,26 @@ class NormativeValueScheduleOwner:
                 schema=GENERATION_CYCLE_SCHEMA_VERSION,
             )
         )
-        source_issues = validate_generation_cycle_run(run, repo_root=self._repo_root)
+        inspection = inspect_generation_cycle_run(run, repo_root=self._repo_root)
+        source_issues = inspection.issues
+        currentness = inspection.currentness
+        currentness_issue_code = (
+            "strangle_receipt_stale"
+            if currentness.status == "stale"
+            else "strangle_receipt_currentness_not_established"
+        )
+        currentness_issue_only = (
+            len(source_issues) == 1
+            and source_issues[0].get("code") == currentness_issue_code
+            and source_issues[0].get("reason") == currentness.reason_code
+        )
         historical_v1_currentness_unestablished = (
             run.schema_version == "policyos.runtime.generation_cycle_controller.v1"
-            and len(source_issues) == 1
-            and source_issues[0].get("code") == "strangle_receipt_currentness_not_established"
-            and source_issues[0].get("reason") == "historical_deployment_identity_not_recorded"
-            and source_issues[0].get("census_verdict") == "UNRUN"
+            and currentness_issue_only
+            and currentness.reason_code == "historical_deployment_identity_not_recorded"
+            and currentness.census_verdict == "UNRUN"
         )
-        if source_issues and not historical_v1_currentness_unestablished:
+        if source_issues and not currentness_issue_only:
             raise P20NormativeChoiceError("p20_normative_generation_source_invalid")
         case_id = run.cycles[0].revision_request.revised_problem.design_problem_id
         fronts = run.fronts.candidate_ids_by_front()
@@ -1134,6 +1363,13 @@ class NormativeValueScheduleOwner:
         elif historical_v1_currentness_unestablished:
             reason_codes = historical_v1_limitations
             reason = reason_codes[0]
+        elif currentness_issue_only:
+            reason = currentness_issue_code
+            reason_codes = (
+                currentness_issue_code,
+                currentness.reason_code,
+                "p20_normative_generation_currentness_reissue_required",
+            )
         elif evidence is not None and input_limitation is None:
             try:
                 frontier = ParetoArchive.model_validate(
@@ -1164,27 +1400,30 @@ class NormativeValueScheduleOwner:
                     else ("p20_normative_payload_invalid")
                 )
         authorized = result is not None and result.authorization_status == "authorized"
-        return NormativeGenerationDisposition(
-            generation_binding=binding,
-            case_id=case_id,
-            candidate_fronts=fronts,
-            evidence=evidence,
-            input_limitation=input_limitation,
-            authorization_status="authorized" if authorized else "blocked",
-            ranked_recommendations=result.ranked_recommendations if authorized else (),
-            decision_request=None
-            if authorized
-            else NormativeDecisionRequest(
+        return (
+            NormativeGenerationDisposition(
+                generation_binding=binding,
                 case_id=case_id,
-                scope_ref=scope_ref,
-                frontier_ref=evidence.frontier_ref if evidence else binding.source_run_ref,
-                authorization_ref=evidence.authorization_ref if evidence else None,
-                reason_codes=reason_codes or (reason,),
-                requested_at=evaluated_at,
+                candidate_fronts=fronts,
+                evidence=evidence,
+                input_limitation=input_limitation,
+                authorization_status="authorized" if authorized else "blocked",
+                ranked_recommendations=result.ranked_recommendations if authorized else (),
+                decision_request=None
+                if authorized
+                else NormativeDecisionRequest(
+                    case_id=case_id,
+                    scope_ref=scope_ref,
+                    frontier_ref=evidence.frontier_ref if evidence else binding.source_run_ref,
+                    authorization_ref=evidence.authorization_ref if evidence else None,
+                    reason_codes=reason_codes or (reason,),
+                    requested_at=evaluated_at,
+                ),
+                ranking_bundle_ref=bundle_ref if authorized else None,
+                admitted_at=evaluated_at,
+                trust_epoch=self._trust.epoch,
             ),
-            ranking_bundle_ref=bundle_ref if authorized else None,
-            admitted_at=evaluated_at,
-            trust_epoch=self._trust.epoch,
+            currentness,
         )
 
 

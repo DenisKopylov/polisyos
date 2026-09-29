@@ -521,6 +521,107 @@ class OverlayAdmissionReceipt(epoch_contract.ActivatedOverlayAdmissionStatement)
     replayed: bool
 
 
+class ActivatedAcquisitionObservationRow(_StrictModel):
+    """One source-derived active observation with its canonical row digest."""
+
+    observation: CanonicalAcquisitionObservation
+    row_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _row_digest_is_recomputed(self) -> Self:
+        expected = content_sha256(self.observation.model_dump(mode="json"))
+        if self.row_content_sha256 != expected:
+            raise ValueError("activated_acquisition_observation_row_hash_mismatch")
+        return self
+
+
+class ActivatedAcquisitionObservationProjection(_StrictModel):
+    """Read-only view of observations bound to one fully revalidated active epoch."""
+
+    schema_version: Literal[
+        "polisyos.data_forge.activated_acquisition_observation_projection.v1"
+    ] = "polisyos.data_forge.activated_acquisition_observation_projection.v1"
+    receipt_ref: ArtifactRef
+    receipt_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    passport_ref: ArtifactRef
+    passport_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    variable_id: str = Field(min_length=1)
+    epoch_id: int = Field(gt=0)
+    passport_id: str = Field(min_length=1)
+    admission_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    activation_state: Literal["active"] = "active"
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    source_time_status: Literal["not_established"] = "not_established"
+    observations: tuple[ActivatedAcquisitionObservationRow, ...] = Field(min_length=1)
+    projection_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @classmethod
+    def issue(
+        cls,
+        *,
+        receipt_ref: ArtifactRef,
+        receipt_content_sha256: str,
+        passport_ref: ArtifactRef,
+        passport_content_sha256: str,
+        variable_id: str,
+        epoch_id: int,
+        passport_id: str,
+        admission_content_sha256: str,
+        observations: Sequence[CanonicalAcquisitionObservation],
+    ) -> Self:
+        """Build a content-bound read view after the overlay owner verified rows."""
+
+        projected_rows = tuple(
+            ActivatedAcquisitionObservationRow(
+                observation=observation,
+                row_content_sha256=content_sha256(observation.model_dump(mode="json")),
+            )
+            for observation in observations
+        )
+        row_ids = tuple(row.observation.observation_id for row in projected_rows)
+        if not row_ids or len(set(row_ids)) != len(row_ids):
+            raise OverlayAdmissionError(
+                "active_epoch_observation_content_mismatch",
+                "duplicate_or_missing_selected_observation",
+            )
+        payload = {
+            "schema_version": (
+                "polisyos.data_forge.activated_acquisition_observation_projection.v1"
+            ),
+            "receipt_ref": receipt_ref.model_dump(mode="json"),
+            "receipt_content_sha256": receipt_content_sha256,
+            "passport_ref": passport_ref.model_dump(mode="json"),
+            "passport_content_sha256": passport_content_sha256,
+            "variable_id": variable_id,
+            "epoch_id": epoch_id,
+            "passport_id": passport_id,
+            "admission_content_sha256": admission_content_sha256,
+            "activation_state": "active",
+            "predicate_provenance": "recomputed",
+            "source_time_status": "not_established",
+            "observations": [row.model_dump(mode="json") for row in projected_rows],
+        }
+        return cls(
+            **payload,
+            projection_content_sha256=content_sha256(payload),
+        )
+
+    @model_validator(mode="after")
+    def _projection_digest_is_recomputed(self) -> Self:
+        row_ids = tuple(row.observation.observation_id for row in self.observations)
+        if len(set(row_ids)) != len(row_ids):
+            raise ValueError("activated_acquisition_observation_projection_rows_ambiguous")
+        if any(
+            row.observation.canonical_var != self.variable_id
+            for row in self.observations
+        ):
+            raise ValueError("activated_acquisition_observation_projection_variable_mismatch")
+        payload = self.model_dump(mode="json", exclude={"projection_content_sha256"})
+        if self.projection_content_sha256 != content_sha256(payload):
+            raise ValueError("activated_acquisition_observation_projection_hash_mismatch")
+        return self
+
+
 class PendingOverlayAdmissionReceipt(epoch_contract.PendingOverlayAdmissionStatement):
     """Durable hidden-admission statement plus call-local replay metadata."""
 
@@ -1676,6 +1777,59 @@ class CatalogAcquisitionOverlay:
         authority: _CanonicalAuthority,
     ) -> OverlayAdmissionReceipt:
         """Resolve active admission against current source and physical owner rows."""
+
+        admission, _, _, _ = self._resolve_activated_semantic_epoch_admission(
+            receipt_ref=receipt_ref,
+            artifact_store=artifact_store,
+            passport=passport,
+            authority=authority,
+        )
+        return admission
+
+    def read_activated_semantic_epoch_observations(
+        self,
+        *,
+        receipt_ref: ArtifactRef,
+        artifact_store: _ArtifactStore,
+        passport: _Passport,
+        authority: _CanonicalAuthority,
+    ) -> ActivatedAcquisitionObservationProjection:
+        """Return only active observations that passed the full owner readback."""
+
+        admission, observations, passport_ref, passport_content_sha256 = (
+            self._resolve_activated_semantic_epoch_admission(
+                receipt_ref=receipt_ref,
+                artifact_store=artifact_store,
+                passport=passport,
+                authority=authority,
+            )
+        )
+        return ActivatedAcquisitionObservationProjection.issue(
+            receipt_ref=admission.receipt_ref,
+            receipt_content_sha256=admission.receipt_content_hash,
+            passport_ref=passport_ref,
+            passport_content_sha256=passport_content_sha256,
+            variable_id=str(passport.variable_id),
+            epoch_id=admission.epoch_id,
+            passport_id=admission.passport_id,
+            admission_content_sha256=admission.admission_content_sha256,
+            observations=observations,
+        )
+
+    def _resolve_activated_semantic_epoch_admission(
+        self,
+        *,
+        receipt_ref: ArtifactRef,
+        artifact_store: _ArtifactStore,
+        passport: _Passport,
+        authority: _CanonicalAuthority,
+    ) -> tuple[
+        OverlayAdmissionReceipt,
+        tuple[CanonicalAcquisitionObservation, ...],
+        ArtifactRef,
+        str,
+    ]:
+        """Resolve active admission against current source and physical owner rows."""
         value = _load_external_statement(
             artifact_store=artifact_store,
             ref=receipt_ref,
@@ -1879,11 +2033,16 @@ class CatalogAcquisitionOverlay:
             or self._require_baseline_unchanged().content_sha256 != statement.baseline_after_sha256
         ):
             raise OverlayAdmissionError("active_epoch_member_denominator_mismatch")
-        return OverlayAdmissionReceipt(
-            **statement.model_dump(mode="python"),
-            receipt_ref=receipt_ref,
-            receipt_content_hash=_overlay_statement_content_hash(statement),
-            replayed=True,
+        return (
+            OverlayAdmissionReceipt(
+                **statement.model_dump(mode="python"),
+                receipt_ref=receipt_ref,
+                receipt_content_hash=_overlay_statement_content_hash(statement),
+                replayed=True,
+            ),
+            expected_observations,
+            admitted.passport_ref,
+            passport_content_hash,
         )
 
     def resolve_native_membership(

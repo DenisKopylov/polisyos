@@ -94,6 +94,9 @@ _EXPORTS = {
     "CatalogAcquisitionOverlay": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "CatalogAcquisitionEpochProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "CatalogAcquisitionEventProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
+    "ActivatedAcquisitionObservationProjection": (
+        "polisyos.data_forge.domains.catalog.knowledge.overlay"
+    ),
     "CatalogAcquisitionPassportProjection": (
         "polisyos.data_forge.domains.catalog.knowledge.overlay"
     ),

@@ -6210,6 +6210,12 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     source_cycle = source_run.cycles[0]
     scenario = _real_epoch_scenario(tmp_path / "epoch")
     _production, activated = _activate_real_epoch_scenario(scenario)
+    observation_projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
     calls: list[tuple[object, ...]] = []
 
     async def direct_cycle(
@@ -6257,6 +6263,7 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         source_cycle=source_cycle,
         problem=problem,
         overlay_receipt=activated,
+        observation_projection=observation_projection,
         baseline_path=scenario.authority.baseline_path,
         overlay_path=scenario.overlay.overlay_path,
         budget_state=_budget(),
@@ -6311,6 +6318,7 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
             source_cycle=source_cycle,
             problem=problem,
             overlay_receipt=activated,
+            observation_projection=observation_projection,
             baseline_path=scenario.authority.baseline_path,
             overlay_path=scenario.overlay.overlay_path,
             budget_state=_budget(),
@@ -6338,6 +6346,12 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
     source_cycle = source_run.cycles[0]
     scenario = _real_epoch_scenario(tmp_path / "epoch-a")
     _production, activated = _activate_real_epoch_scenario(scenario)
+    observation_projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
 
     async def forbidden_cycle(*args: Any, **kwargs: Any) -> Any:
         del args, kwargs
@@ -6349,6 +6363,7 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
         "source_cycle": source_cycle,
         "problem": problem,
         "overlay_receipt": activated,
+        "observation_projection": observation_projection,
         "baseline_path": scenario.authority.baseline_path,
         "overlay_path": scenario.overlay.overlay_path,
         "budget_state": _budget(),

@@ -797,9 +797,9 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
                 "primary": {
                     "policy_value": source.primary["policy_value"].model_copy(
                         update={"value": float(index)}
-                    )
-                },
-            }
+                    ),
+                    },
+                }
         )
         registry.update("loop", candidate_hash=candidate_hash, evaluation=unassessed)
 
@@ -816,6 +816,7 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
 
     snapshot = registry.get_snapshot("loop")
     view = snapshot.view_assessments["global_feasible"]
+    projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     voi_snapshot = registry.to_voi_snapshot("loop")
 
     assert snapshot.schema_version == "2.0"
@@ -827,6 +828,15 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
     )
     assert view.missing_coordinate_ids_by_candidate_hash
     assert complete_hash in snapshot.frontiers["global_feasible"]
+    assert projection.assessment == view
+    assert projection.candidate_frontier_hashes == (complete_hash,)
+    assert projection.ranked_frontier_hashes == ()
+    assert set(projection.eligible_candidate_hashes) == {
+        complete_hash,
+        *missing_hashes,
+        empty_axes_hash,
+    }
+    assert set(projection.unassessed_candidate_hashes) == set(missing_hashes) | {empty_axes_hash}
     assert voi_snapshot.assessment_status == "partial"
     assert not voi_snapshot.frontier_candidate_hashes
     assert voi_snapshot.position_for(complete_hash) == "unassessed"
@@ -852,15 +862,19 @@ def test_pareto_registry_observed_axis_union_is_not_complete(tmp_path) -> None:
         )
         registry.update("observed-only", candidate_hash=candidate_hash, evaluation=evaluation)
 
-    assessment = registry.get_snapshot("observed-only").view_assessments[
-        "global_feasible"
-    ]
+    snapshot = registry.get_snapshot("observed-only")
+    assessment = snapshot.view_assessments["global_feasible"]
+    projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     voi_snapshot = registry.to_voi_snapshot("observed-only")
 
     assert assessment.status == "basis_limited"
     assert assessment.coverage_status == "complete"
     assert assessment.basis_scope.scope == "observed_axis_union"
     assert assessment.basis_scope.coordinate_ids == ["policy_value"]
+    assert projection.assessment == assessment
+    assert projection.ranked_frontier_hashes == ()
+    assert projection.eligible_candidate_hashes == tuple(sorted(candidate_hashes))
+    assert set(projection.unassessed_candidate_hashes) == set(candidate_hashes)
     assert set(voi_snapshot.unassessed_candidate_hashes) == set(candidate_hashes)
     assert not voi_snapshot.frontier_candidate_hashes
     assert all(voi_snapshot.position_for(item) == "unassessed" for item in candidate_hashes)
@@ -930,10 +944,14 @@ def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_con
 
     finite_snapshot = finite_registry.get_snapshot("finite-control")
     finite_assessment = finite_snapshot.view_assessments["global_feasible"]
+    finite_projection = finite_snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     finite_voi = finite_registry.to_voi_snapshot("finite-control")
     assert finite_assessment.status == "complete"
     assert finite_assessment.coverage_status == "complete"
     assert finite_snapshot.frontiers["global_feasible"] == [finite_hashes[1]]
+    assert set(finite_projection.ranked_frontier_hashes) == {finite_hashes[1]}
+    assert finite_projection.eligible_candidate_hashes == tuple(sorted(finite_hashes))
+    assert not finite_projection.unassessed_candidate_hashes
     assert finite_voi.position_for(finite_hashes[1]) == "frontier"
 
 
@@ -2312,7 +2330,11 @@ def test_search_controller_policy_mode_updates_registry(tmp_path) -> None:
 
     assert len(result.history) == 1
     assert result.history[0].policy_evaluation is not None
-    assert result.pareto_front
+    assert result.pareto_front == []
+    assert result.pareto_projection is not None
+    assert result.pareto_projection.assessment.status == "basis_limited"
+    assert result.pareto_projection.candidate_frontier_hashes
+    assert result.pareto_projection.unassessed_candidate_hashes
 
 
 def test_search_controller_accepts_policy_bundle_after_module_reload(tmp_path) -> None:
@@ -2364,7 +2386,11 @@ def test_search_controller_accepts_policy_bundle_after_module_reload(tmp_path) -
     assert len(result.history) == 1
     evaluation = result.history[0].policy_evaluation
     assert isinstance(evaluation, reloaded.PolicyEvaluationVector)
-    assert result.pareto_front
+    assert result.pareto_front == []
+    assert result.pareto_projection is not None
+    assert result.pareto_projection.assessment.status == "basis_limited"
+    assert result.pareto_projection.ranked_frontier_hashes == ()
+    assert len(result.pareto_projection.unassessed_candidate_hashes) == 1
     reopened = ParetoRegistry(root=tmp_path / "pareto_registry")
     entries = reopened.get_snapshot(result.search_id).entries
     assert len(entries) == 1

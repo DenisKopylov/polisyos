@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from polisyos.scientist.methods.search.contracts import ParetoViewProjection
+
 
 class GenerationTransition(str, Enum):
     """Typed transitions emitted by the candidate-generation boundary."""
@@ -53,6 +55,7 @@ class SearchRunState:
     budget_snapshot: dict[str, float] = field(default_factory=dict)
     policy_evaluation_errors: int = 0
     generation_transition: GenerationTransition | None = None
+    pareto_projection: ParetoViewProjection | None = None
 
     @property
     def history_size(self) -> int:

@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.governance.policy_spec import PolicySearchLevel
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
+from polisyos.scientist.methods.search.contracts import ParetoViewProjection
 from polisyos.scientist.methods.search.controller import SearchIteration, SearchResult, SearchStatus
 from polisyos.scientist.methods.search.lessons import (
     LessonCard,
@@ -22,7 +23,7 @@ from polisyos.scientist.methods.search.lessons import (
     LessonTrustLevel,
 )
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
 from polisyos.scientist.methods.search.stopping import MaxIterations
 from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 from polisyos.scientist.methods.search.strategies.codec import _get_path, _set_path
@@ -141,6 +142,7 @@ class HierarchicalSearchResult(BaseModel):
 
     state: HierarchicalSearchState
     shared_frontier: list[dict[str, Any]] = Field(default_factory=list)
+    pareto_projection: ParetoViewProjection | None = None
 
 
 class Phase2BoundsApplicability(BaseModel):
@@ -571,6 +573,9 @@ class HierarchicalSearchCoordinator:
                     },
                 )
             result.pareto_front = self._pareto_registry.as_legacy_frontier_payload(loop_id)
+            result.pareto_projection = self._pareto_registry.get_snapshot(
+                loop_id
+            ).project_view(ParetoView.GLOBAL_FEASIBLE)
         return result
 
     def run_narrative_search(
@@ -653,12 +658,18 @@ class HierarchicalSearchCoordinator:
                 bundles.append((structure.candidate_hash, bundle))
             state.narrative_variants = self.run_narrative_search(bundles)
 
-        shared_frontier = (
-            self._pareto_registry.as_legacy_frontier_payload(loop_id)
-            if self._pareto_registry is not None
-            else []
+        shared_frontier: list[dict[str, Any]] = []
+        pareto_projection = None
+        if self._pareto_registry is not None:
+            shared_frontier = self._pareto_registry.as_legacy_frontier_payload(loop_id)
+            pareto_projection = self._pareto_registry.get_snapshot(loop_id).project_view(
+                ParetoView.GLOBAL_FEASIBLE
+            )
+        return HierarchicalSearchResult(
+            state=state,
+            shared_frontier=shared_frontier,
+            pareto_projection=pareto_projection,
         )
-        return HierarchicalSearchResult(state=state, shared_frontier=shared_frontier)
 
     def _rollout_mutation_seeds(
         self,

@@ -27,14 +27,25 @@ from polisyos.lex import (
     LexPolicyBundleInput,
     LexProvisionDirective,
 )
+from polisyos.scientist.methods.search.contracts import (
+    ParetoBasisScope,
+    ParetoViewAssessment,
+    ParetoViewProjection,
+)
 from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+    ARTIFACT_POLICY_FRONTIER_REPORT_REF,
     HierarchicalPolicySearchAdapter,
     RunHierarchicalPolicySearchNode,
     _evaluate_candidate_payload,
+    _persist_frontier_report,
 )
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
+)
+from polisyos.scientist.policy_design.output import (
+    PolicyFrontierReport,
+    load_policy_frontier_report,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.policy_design.search import (
@@ -286,6 +297,181 @@ def test_run_hierarchical_policy_search_uses_branch_state_for_final_outputs(
 
     assert outcome.status == "ok"
     assert any("params.policy_candidate_schema" in write_paths for write_paths in calls)
+
+
+def test_no_registry_hierarchy_persists_candidates_without_global_frontier_claim(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+) -> None:
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="candidate_without_registry"
+    )
+    candidate_hash = candidate.candidate_hash()
+    search_result = SimpleNamespace(
+        state=SimpleNamespace(
+            structure_candidates=[
+                SimpleNamespace(
+                    structure_id="structure_without_registry",
+                    candidate=candidate,
+                    accepted=True,
+                    candidate_hash=candidate_hash,
+                    metadata={},
+                )
+            ],
+            parameter_search_results={},
+        ),
+        model_dump=lambda mode="json": {"status": "candidate_only"},
+    )
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._resolve_search_candidate",
+            return_value=candidate,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search.HierarchicalPolicySearchAdapter.run_search",
+            return_value=search_result,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._select_champion_candidate",
+            return_value=candidate,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_trinity_bundle",
+            return_value=artifact_ref_factory(kind="ir.trinity_bundle"),
+        ),
+    ):
+        outcome = RunHierarchicalPolicySearchNode().execute(execution_context, minimal_state)
+
+    assert outcome.status == "ok"
+    report_ref = outcome.state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF]
+    report = load_policy_frontier_report(execution_context.store, report_ref)
+    assert report.global_frontier == []
+    assert [item.candidate_hash for item in report.candidate_frontier] == [candidate_hash]
+    projection = report.view_projections["global_feasible"]
+    assert projection.assessment.status == "denominator_limited"
+    assert projection.assessment.basis_scope.scope == "not_established"
+    assert projection.eligible_candidate_hashes == ()
+    assert projection.assessment.input_count == 0
+    assert projection.candidate_frontier_hashes == ()
+    assert projection.unassessed_candidate_hashes == ()
+    assert report.eligibility_unknown_candidate_hashes == (candidate_hash,)
+
+    payload = report.model_dump(mode="json")
+    payload["eligibility_unknown_candidate_hashes"] = []
+    with pytest.raises(ValueError, match="Pareto denominator reconciliation status"):
+        PolicyFrontierReport.model_validate(payload)
+
+
+def test_hierarchical_report_limits_complete_rank_when_candidate_eligibility_is_unknown(
+    execution_context,
+    minimal_state,
+) -> None:
+    known = PolicyCandidateSchema.from_trinity_bundle(_bundle(), candidate_id="evaluated_candidate")
+    unknown = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="unevaluated_candidate"
+    )
+    known_hash = known.candidate_hash()
+    unknown_hash = unknown.candidate_hash()
+    complete = ParetoViewProjection(
+        view="global_feasible",
+        assessment=ParetoViewAssessment(
+            status="complete",
+            coverage_status="complete",
+            basis_scope=ParetoBasisScope(
+                scope="declared",
+                coordinate_ids=["policy_value"],
+                basis_ref="test:hierarchical-objective-basis",
+            ),
+            input_count=1,
+            assessed_count=1,
+        ),
+        eligible_candidate_hashes=(known_hash,),
+        candidate_frontier_hashes=(known_hash,),
+        ranked_frontier_hashes=(known_hash,),
+    )
+    known_record = SimpleNamespace(
+        structure_id="known",
+        candidate=known,
+        evaluation=SimpleNamespace(feasible=True, primary={}, constraint_statuses={}),
+        metadata={},
+    )
+    unknown_record = SimpleNamespace(
+        structure_id="unknown",
+        candidate=unknown,
+        evaluation=None,
+        metadata={},
+    )
+    search_result = SimpleNamespace(pareto_projection=complete)
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search"
+        "._iter_candidate_records",
+        return_value=[known_record, unknown_record],
+    ):
+        limited_ref = _persist_frontier_report(
+            execution_context,
+            state=minimal_state,
+            loop_id="unknown-eligibility",
+            search_result=search_result,
+        )
+    limited = load_policy_frontier_report(execution_context.store, limited_ref)
+    assert limited.global_frontier == []
+    assert {item.candidate_hash for item in limited.candidate_frontier} == {
+        known_hash,
+        unknown_hash,
+    }
+    assert limited.eligibility_unknown_candidate_hashes == (unknown_hash,)
+    limited_projection = limited.view_projections["global_feasible"]
+    assert limited_projection.assessment.status == "denominator_limited"
+    assert limited.source_feasible_candidate_hashes == (known_hash,)
+    assert limited_projection.eligible_candidate_hashes == (known_hash,)
+    assert limited_projection.unassessed_candidate_hashes == (known_hash,)
+    assert limited_projection.ranked_frontier_hashes == ()
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search"
+        "._iter_candidate_records",
+        return_value=[known_record],
+    ):
+        complete_ref = _persist_frontier_report(
+            execution_context,
+            state=minimal_state,
+            loop_id="known-eligibility",
+            search_result=search_result,
+        )
+    complete_report = load_policy_frontier_report(execution_context.store, complete_ref)
+    assert [item.candidate_hash for item in complete_report.global_frontier] == [known_hash]
+    assert complete_report.eligibility_unknown_candidate_hashes == ()
+    assert complete_report.view_projections["global_feasible"].assessment.status == "complete"
+
+    omitted_feasible_record = SimpleNamespace(
+        structure_id="omitted-feasible",
+        candidate=unknown,
+        evaluation=SimpleNamespace(feasible=True, primary={}, constraint_statuses={}),
+        metadata={},
+    )
+    with patch(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search"
+        "._iter_candidate_records",
+        return_value=[known_record, omitted_feasible_record],
+    ):
+        omitted_ref = _persist_frontier_report(
+            execution_context,
+            state=minimal_state,
+            loop_id="projection-omits-feasible-source",
+            search_result=search_result,
+        )
+    omitted = load_policy_frontier_report(execution_context.store, omitted_ref)
+    assert omitted.source_feasible_candidate_hashes == tuple(sorted((known_hash, unknown_hash)))
+    assert omitted.eligibility_unknown_candidate_hashes == ()
+    assert omitted.view_projections["global_feasible"].assessment.status == "denominator_limited"
+    assert omitted.global_frontier == []
+    assert {item.candidate_hash for item in omitted.candidate_frontier} == {
+        known_hash,
+        unknown_hash,
+    }
 
 
 def test_run_hierarchical_policy_search_rejects_runtime_legacy_inferred_bounds_config(

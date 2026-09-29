@@ -18,6 +18,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.scientist.methods.search.contracts import ParetoViewProjection
 from polisyos.scientist.methods.search.frontier import (
     FrontierPoint,
     dominates,
@@ -136,6 +137,7 @@ class SearchResult:
     stage_b_evaluations: int
     pareto_front: list[dict[str, Any]] = field(default_factory=list)
     telemetry: dict[str, Any] = field(default_factory=dict)
+    pareto_projection: ParetoViewProjection | None = None
 
 
 def _non_reentrant_run(
@@ -496,6 +498,7 @@ class SearchController:
             "registry_update": {"search_id": snapshot.search_id},
             "lesson_cards": [],
             "frontier_delta": deepcopy(snapshot.pareto_front),
+            "pareto_projection": snapshot.pareto_projection,
         }
 
     def _begin_native_run(self, initial_context: dict[str, Any]) -> datetime:
@@ -582,6 +585,7 @@ class SearchController:
             stage_a_evaluations=snapshot.stage_a_evaluations,
             stage_b_evaluations=snapshot.stage_b_evaluations,
             pareto_front=deepcopy(snapshot.pareto_front),
+            pareto_projection=snapshot.pareto_projection,
             telemetry=deepcopy(telemetry),
         )
 
@@ -1118,6 +1122,11 @@ class SearchController:
                 domain=(transfer_context.domain if transfer_context is not None else None),
                 transfer_context=transfer_context,
             )
+            from polisyos.scientist.methods.search.pareto_registry import ParetoView
+
+            self._run_state.pareto_projection = registry.get_snapshot(
+                self._search_id
+            ).project_view(ParetoView.GLOBAL_FEASIBLE)
             self._pareto_front = registry.as_legacy_frontier_payload(self._search_id)
             return
 

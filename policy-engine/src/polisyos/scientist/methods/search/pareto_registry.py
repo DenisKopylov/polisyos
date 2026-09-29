@@ -7,14 +7,19 @@ from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Literal
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, PromotionPolicy
 from polisyos.scientist.methods.autotune.pareto import ParetoPromoter
 from polisyos.scientist.methods.autotune.registry import default_search_registry_root
+from polisyos.scientist.methods.search.contracts import (
+    ParetoBasisScope,
+    ParetoViewAssessment,
+    ParetoViewProjection,
+)
 from polisyos.scientist.methods.search.transfer_context import (
     TransferAuditHop,
     TransferContext,
@@ -74,109 +79,6 @@ class ParetoRegistryEntry(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-class ParetoBasisScope(BaseModel):
-    """Describe whether a view's required objective basis is actually declared."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
-
-    scope: Literal["declared", "observed_axis_union", "not_established"]
-    coordinate_ids: list[str] = Field(default_factory=list)
-    basis_ref: str | None = Field(default=None, min_length=1)
-
-    @model_validator(mode="after")
-    def _validate_basis_scope(self) -> ParetoBasisScope:
-        """Keep declared, observed, and unknown bases structurally distinct."""
-        if any(not coordinate_id for coordinate_id in self.coordinate_ids):
-            raise ValueError("Pareto basis contains an empty coordinate id")
-        if len(set(self.coordinate_ids)) != len(self.coordinate_ids):
-            raise ValueError("Pareto basis repeats a coordinate id")
-        if self.scope == "declared" and (not self.coordinate_ids or not self.basis_ref):
-            raise ValueError("declared Pareto basis requires coordinates and a basis ref")
-        if self.scope == "observed_axis_union" and (
-            not self.coordinate_ids or self.basis_ref is not None
-        ):
-            raise ValueError("observed Pareto basis requires observed coordinates only")
-        if self.scope == "not_established" and (self.coordinate_ids or self.basis_ref):
-            raise ValueError("unestablished Pareto basis cannot carry coordinates or a ref")
-        return self
-
-
-class ParetoViewAssessment(BaseModel):
-    """Persist which eligible entries could be compared in one Pareto view."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    status: Literal[
-        "complete", "partial", "no_usable_inputs", "basis_limited", "legacy_limited"
-    ]
-    coverage_status: Literal["complete", "partial", "no_usable_inputs"] | None = None
-    basis_scope: ParetoBasisScope = Field(
-        default_factory=lambda: ParetoBasisScope(scope="not_established")
-    )
-    input_count: int = Field(ge=0)
-    assessed_count: int = Field(ge=0)
-    unassessed_candidate_hashes: list[str] = Field(default_factory=list)
-    missing_coordinate_ids_by_candidate_hash: dict[str, list[str]] = Field(
-        default_factory=dict
-    )
-    non_finite_coordinate_ids_by_candidate_hash: dict[str, list[str]] = Field(
-        default_factory=dict
-    )
-    unresolved_axis_contract_candidate_hashes: list[str] = Field(default_factory=list)
-
-    @model_validator(mode="after")
-    def _validate_coverage(self) -> ParetoViewAssessment:
-        """Bind the coverage count to explicit unassessed candidate identities."""
-        if self.coverage_status is None:
-            object.__setattr__(
-                self,
-                "coverage_status",
-                self.status
-                if self.status in {"complete", "partial", "no_usable_inputs"}
-                else "no_usable_inputs",
-            )
-        if (
-            self.basis_scope.scope != "declared"
-            and self.status in {"complete", "partial", "no_usable_inputs"}
-        ):
-            # V2 assessments written before basis scope existed are conservative
-            # on read: keep their measured coverage, but withhold basis authority.
-            object.__setattr__(self, "status", "basis_limited")
-        if self.assessed_count + len(self.unassessed_candidate_hashes) != self.input_count:
-            raise ValueError("Pareto view assessment does not cover every eligible entry")
-        if len(set(self.unassessed_candidate_hashes)) != len(self.unassessed_candidate_hashes):
-            raise ValueError("Pareto view assessment repeats an unassessed candidate")
-        unassessed = set(self.unassessed_candidate_hashes)
-        if not set(self.missing_coordinate_ids_by_candidate_hash) <= unassessed:
-            raise ValueError("missing-coordinate assessment names an assessed candidate")
-        if not set(self.non_finite_coordinate_ids_by_candidate_hash) <= unassessed:
-            raise ValueError("non-finite assessment names an assessed candidate")
-        if not set(self.unresolved_axis_contract_candidate_hashes) <= unassessed:
-            raise ValueError("unresolved-axis assessment names an assessed candidate")
-        if self.coverage_status == "complete" and (not self.input_count or unassessed):
-            raise ValueError("complete coverage requires nonempty assessed inputs")
-        if self.coverage_status == "partial" and (not self.assessed_count or not unassessed):
-            raise ValueError("partial view assessment requires both assessed and omitted inputs")
-        if self.coverage_status == "no_usable_inputs" and self.assessed_count:
-            raise ValueError("no_usable_inputs cannot contain assessed entries")
-        if self.status == "complete" and (
-            self.basis_scope.scope != "declared" or self.coverage_status != "complete"
-        ):
-            raise ValueError("complete view assessment requires complete coverage on a declared basis")
-        if self.status == "partial" and (
-            self.basis_scope.scope != "declared" or self.coverage_status != "partial"
-        ):
-            raise ValueError("partial view assessment requires partial coverage on a declared basis")
-        if self.status == "no_usable_inputs" and (
-            self.basis_scope.scope != "declared"
-            or self.coverage_status != "no_usable_inputs"
-        ):
-            raise ValueError("no_usable_inputs requires an established basis with no usable rows")
-        if self.status == "basis_limited" and self.basis_scope.scope == "declared":
-            raise ValueError("basis_limited requires an unestablished or observed-only basis")
-        return self
-
-
 class ParetoRegistrySnapshot(BaseModel):
     """Atomic per-run Pareto registry snapshot."""
 
@@ -192,6 +94,96 @@ class ParetoRegistrySnapshot(BaseModel):
     hypervolume_by_view: dict[str, float] = Field(default_factory=dict)
     view_assessments: dict[str, ParetoViewAssessment] = Field(default_factory=dict)
     objective_basis_by_view: dict[str, ParetoBasisScope] = Field(default_factory=dict)
+
+    def project_view(
+        self,
+        view: ParetoView,
+        *,
+        policy_family: str | None = None,
+    ) -> ParetoViewProjection:
+        """Project candidate membership without laundering incomplete assessment.
+
+        The stored view assessment remains the only source of ranking status.
+        Historical snapshots without that assessment can still inform candidate
+        computation, but their members are not represented as ranked.
+        """
+        view_key = _view_key(view, policy_family=policy_family)
+        identity_mismatch = any(
+            candidate_hash != entry.candidate_hash
+            for candidate_hash, entry in self.entries.items()
+        )
+        eligible_hashes = sorted(
+            candidate_hash
+            for candidate_hash, entry in self.entries.items()
+            if entry.evaluation.feasible
+            and not entry.seed_only
+            and (
+                view is not ParetoView.POLICY_FAMILY
+                or entry.policy_family == policy_family
+            )
+        )
+        eligible_set = set(eligible_hashes)
+        stored_frontier_hashes = self.frontiers.get(view_key, [])
+        malformed_frontier = (
+            len(set(stored_frontier_hashes)) != len(stored_frontier_hashes)
+            or not set(stored_frontier_hashes) <= eligible_set
+        )
+        candidate_frontier_hashes = (
+            ()
+            if malformed_frontier or identity_mismatch
+            else tuple(stored_frontier_hashes)
+        )
+        stored_assessment = self.view_assessments.get(view_key)
+        if stored_assessment is None:
+            assessment = ParetoViewAssessment(
+                status="legacy_limited",
+                coverage_status="no_usable_inputs",
+                basis_scope=ParetoBasisScope(scope="not_established"),
+                input_count=len(eligible_hashes),
+                assessed_count=0,
+                unassessed_candidate_hashes=eligible_hashes,
+            )
+        elif (
+            identity_mismatch
+            or malformed_frontier
+            or stored_assessment.input_count != len(eligible_hashes)
+            or not set(stored_assessment.unassessed_candidate_hashes) <= eligible_set
+        ):
+            # Snapshot membership and assessment denominator disagree. Preserve
+            # candidate identities as unassessed; do not repair the record here.
+            assessment = ParetoViewAssessment(
+                status="legacy_limited",
+                coverage_status="no_usable_inputs",
+                basis_scope=stored_assessment.basis_scope,
+                input_count=len(eligible_hashes),
+                assessed_count=0,
+                unassessed_candidate_hashes=eligible_hashes,
+            )
+            candidate_frontier_hashes = ()
+        else:
+            assessment = stored_assessment
+
+        if assessment.status == "complete":
+            unassessed_hashes: tuple[str, ...] = ()
+            ranked_hashes = candidate_frontier_hashes
+        elif assessment.status == "partial":
+            # Keep only rows explicitly omitted from a declared partial basis as
+            # unassessed; covered sub-front rows remain candidate-only.
+            unassessed_hashes = tuple(sorted(assessment.unassessed_candidate_hashes))
+            ranked_hashes = ()
+        else:
+            # An observed/legacy/unknown basis cannot make any eligible row a
+            # global rank, even if all current rows share observed coordinates.
+            unassessed_hashes = tuple(eligible_hashes)
+            ranked_hashes = ()
+        return ParetoViewProjection(
+            view=view_key,
+            assessment=assessment,
+            eligible_candidate_hashes=tuple(eligible_hashes),
+            candidate_frontier_hashes=candidate_frontier_hashes,
+            ranked_frontier_hashes=ranked_hashes,
+            unassessed_candidate_hashes=unassessed_hashes,
+        )
 
     def historical_v1_payload(self) -> dict[str, Any]:
         """Serialize the original persisted projection without v2 assessments."""
@@ -486,34 +478,18 @@ class ParetoRegistry:
 
     def to_voi_snapshot(self, loop_id: str) -> ParetoSnapshot:
         snapshot = self.get_snapshot(loop_id)
-        frontier = set(snapshot.frontiers.get(ParetoView.GLOBAL_FEASIBLE.value, []))
-        assessment = snapshot.view_assessments.get(ParetoView.GLOBAL_FEASIBLE.value)
-        eligible_hashes = {
-            key
-            for key, entry in snapshot.entries.items()
-            if entry.evaluation.feasible and not entry.seed_only
-        }
-        if assessment is None and snapshot.entries:
-            # Historical frontiers did not retain either coverage or basis, so
-            # no old membership can carry a current frontier preference.
-            frontier = set()
+        projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
+        frontier = set(projection.ranked_frontier_hashes)
+        unassessed = set(projection.unassessed_candidate_hashes)
+        assessment_status = projection.assessment.status
+        if assessment_status != "complete":
+            # VOI must not infer a rank among candidates when the declared
+            # comparison basis or the eligible denominator is incomplete.
             unassessed = {
-                key for key in eligible_hashes
+                candidate_hash
+                for candidate_hash, entry in snapshot.entries.items()
+                if entry.evaluation.feasible and not entry.seed_only
             }
-            assessment_status = "legacy_limited"
-        elif assessment is None:
-            unassessed = set()
-            assessment_status = "no_usable_inputs"
-        else:
-            if assessment.status != "complete":
-                # Partial sub-frontiers are useful for candidate computation,
-                # but no member is safe to label globally preferred while the
-                # admitted basis or any eligible row is unresolved.
-                frontier = set()
-                unassessed = set(eligible_hashes)
-            else:
-                unassessed = set(assessment.unassessed_candidate_hashes)
-            assessment_status = assessment.status
         frontier_entries = [
             snapshot.entries[candidate_hash]
             for candidate_hash in frontier
@@ -553,9 +529,11 @@ class ParetoRegistry:
         )
 
     def as_legacy_frontier_payload(self, loop_id: str) -> list[dict[str, Any]]:
-        frontier = self.get_frontier(loop_id, ParetoView.GLOBAL_FEASIBLE)
+        snapshot = self.get_snapshot(loop_id)
+        projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
         payload: list[dict[str, Any]] = []
-        for entry in frontier:
+        for candidate_hash in projection.ranked_frontier_hashes:
+            entry = snapshot.entries[candidate_hash]
             payload.append(
                 {
                     "candidate_hash": entry.candidate_hash,
@@ -927,9 +905,12 @@ def _frontier_distance_to_frontier(
 
 __all__ = [
     "FrontierDelta",
+    "ParetoBasisScope",
     "ParetoRegistry",
     "ParetoRegistryEntry",
     "ParetoRegistrySnapshot",
     "ParetoSeedBundle",
     "ParetoView",
+    "ParetoViewAssessment",
+    "ParetoViewProjection",
 ]

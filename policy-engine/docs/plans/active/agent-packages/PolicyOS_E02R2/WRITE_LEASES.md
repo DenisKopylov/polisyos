@@ -1281,6 +1281,24 @@ Root owns only `policy-engine/tests/unit/remediation/test_cas_01.py` for the B15
 
 The writer must enumerate 3,000 deterministic ArtifactIDs and returned lock identities, preserve same-ID live waiter exclusion, and read back distinct payload-derived IDs that collide on one stripe without aliasing bytes or manifests. In isolated scratch, marker-retaining removal of bounded residency and of same-key fencing must turn the exact witness red. A benign collision is a property-preserving control. No generated artifact or epoch is in the write set. Keep the 8 GiB disk floor and run no more than two light test process groups while R2/B111 writers are active. Review before integration, then repeat the four-base whole-file replay. B153 closure remains unclaimed until those receipts exist.
 
+**B153 exception-waiter follow-on (2026-09-29).** The first bounded lock
+witness is integrated and its complete current file passed 17/17 at the
+recorded `4be6d38e6` evidence cut. Root retains the same exclusive one-file
+test lease; the production CAS owner and all other files remain read-only.
+Add `test_exception_releases_same_id_lock_for_scoped_view_waiter` as the exact
+remaining source-card discriminator. Seed a default manifest, hold the first
+distinct-view writer inside the real same-ID CAS lock at a controlled I/O
+failure, observe the second distinct-view writer at its actual lock acquire
+attempt, then release the first to raise. Require the second to complete and
+read back its exact bytes and typed manifest; the failed first view must not
+be presented as persisted. A repeated same-profile put is the preserving
+control. A marker-retaining removal of the lock or of exception release must
+turn this test red. The four-base cells for the new selector are `UNRUN` until
+disk is above the 8 GiB floor; the existing 17/17 result is not a current-head
+or post-edit claim. Freeze the test and source during any run, then obtain
+independent review before treating B153 as closed. The detailed gap and
+receipts are in `BASELINES.md` under `B153 bounded progress`.
+
 ## B73 fresh-store checkpoint witness lease (2026-09-29)
 
 Root owns only `policy-engine/tests/integration/scientist/test_checkpoint_resume.py` for this RES-02/B73 witness. The `AsyncWorkflowExecutor` and checkpoint owners are read-only here. The strict pre-edit four-base whole-file replay at clean `4be6d38e6` is `raw/p41-custom-20260929T163814Z-57383/results.json@sha256:5ff7925882ee9f6cc7dedf16bba29f0441a3c65346857cc758984bed6508d782`: Execution, E02 and Main each pass their seven cases; integration passes nine, including two current-only cases, with no common pass-to-fail. The exact target is `test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer`.

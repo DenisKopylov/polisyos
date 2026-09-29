@@ -185,6 +185,10 @@ def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
         "R2_PRODUCT_ROOT": str(REPO_ROOT.resolve()),
         "R2_SITE_PACKAGES": str(site_packages.resolve()),
         "R2_HISTORY_FIXTURES": str(fixture_path),
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
         "JAX_PLATFORMS": "cpu",
     }
     result = subprocess.run(
@@ -298,25 +302,36 @@ except value_choice_provenance.P20NormativeChoiceError as exc:
     assert exc.code == "p20_normative_generation_history_invalid"
 else:
     raise AssertionError("S8 accepted noncanonical raw N6 source bytes")
-assert "strangle_receipt_currentness_not_established" in {
-    str(issue.get("code"))
-    for issue in validate_generation_cycle_run(GenerationCycleRun.model_validate(source))
-}
+source_run = GenerationCycleRun.model_validate(source)
+strict_issues = validate_generation_cycle_run(source_run)
+assert len(strict_issues) == 1
+assert strict_issues[0]["code"] == "strangle_receipt_currentness_not_established"
+assert strict_issues[0]["reason"] == "historical_deployment_identity_not_recorded"
+assert strict_issues[0]["census_verdict"] == "UNRUN"
 binding = value_choice_provenance.NormativeGenerationBinding(
     compiled_run_ref="sha256:" + "a" * 64,
     source_run_ref=valid_source_ref,
     node_ref="fixture:n6-leaf",
 )
-try:
-    owner._generation_disposition(
-        binding=binding,
-        evidence=None,
-        evaluated_at=datetime.now(UTC),
-    )
-except value_choice_provenance.P20NormativeChoiceError as exc:
-    assert str(exc) == "p20_normative_generation_source_invalid"
-else:
-    raise AssertionError("unissued deployment identity must keep S8 limited")
+disposition = owner._generation_disposition(
+    binding=binding,
+    evidence=None,
+    evaluated_at=datetime.now(UTC),
+)
+expected_reasons = (
+    "strangle_receipt_currentness_not_established",
+    "historical_deployment_identity_not_recorded",
+    "generation_cycle_source_preservation_not_established",
+    "historical_v1_source_custody_not_represented",
+)
+assert disposition.authorization_status == "blocked"
+assert disposition.ranked_recommendations == ()
+assert disposition.ranking_bundle_ref is None
+assert disposition.decision_request is not None
+assert disposition.decision_request.reason_codes == expected_reasons
+assert disposition.candidate_fronts == source_run.fronts.candidate_ids_by_front()
+assert any(disposition.candidate_fronts.values())
+assert disposition.compiled_membership_status == "not_established"
 
 mutated_v1 = copy.deepcopy(source)
 mutated_v1["source_handoff_refs"] = []

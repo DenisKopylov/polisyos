@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.ic_verification import ICVerificationCertificateRef
 from polisyos.core.contracts.scientist import (
     ChampionPolicyDossierRef,
@@ -51,8 +51,16 @@ from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactMinimalityMixin,
     artifact_functions_field,
 )
+from polisyos.scientist.methods.search.contracts import (
+    ParetoBasisScope,
+    ParetoViewAssessment,
+    ParetoViewProjection,
+)
 from polisyos.scientist.methods.search.judge_stack import JudgeVerdict, PolicyPromotionResult
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistrySnapshot
+from polisyos.scientist.methods.search.pareto_registry import (
+    ParetoRegistrySnapshot,
+    ParetoView,
+)
 from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
@@ -173,7 +181,7 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
     loop_id: str = Field(min_length=1)
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
@@ -183,8 +191,19 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
     )
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     global_frontier: list[PolicyFrontierEntry] = Field(default_factory=list)
+    candidate_frontier: list[PolicyFrontierEntry] = Field(default_factory=list)
     view_membership: dict[str, list[str]] = Field(default_factory=dict)
+    view_projections: dict[str, ParetoViewProjection] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    def historical_v1_payload(self) -> dict[str, Any]:
+        """Project the original persisted report shape for historical replay."""
+        if self.schema_version != "1.0":
+            raise ValueError("historical v1 serialization requires a v1 report")
+        payload = self.model_dump(mode="python", exclude_none=True)
+        payload.pop("candidate_frontier", None)
+        payload.pop("view_projections", None)
+        return payload
 
 
 class ChampionPolicyDossier(ArtifactMinimalityMixin):
@@ -345,6 +364,9 @@ class RejectedAlternativeEntry(BaseModel):
     policy_family: str | None = None
     reason: str = Field(min_length=1)
     near_frontier: bool = False
+    disposition: Literal[
+        "dominated", "dominated_near_frontier", "infeasible", "candidate_only", "unassessed"
+    ] = "dominated"
 
 
 class RejectedAlternativesSummary(ArtifactMinimalityMixin):
@@ -352,7 +374,7 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
     loop_id: str = Field(min_length=1)
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
@@ -361,6 +383,17 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
     )
     alternatives: list[RejectedAlternativeEntry] = Field(default_factory=list)
     dominant_rejection_reasons: list[str] = Field(default_factory=list)
+    view_projection: ParetoViewProjection | None = None
+
+    def historical_v1_payload(self) -> dict[str, Any]:
+        """Project the original persisted summary shape for historical replay."""
+        if self.schema_version != "1.0":
+            raise ValueError("historical v1 serialization requires a v1 summary")
+        payload = self.model_dump(mode="json", exclude_none=True)
+        payload.pop("view_projection", None)
+        for alternative in payload.get("alternatives", []):
+            alternative.pop("disposition", None)
+        return payload
 
 
 class ReplayableAuditBundle(ArtifactMinimalityMixin):
@@ -793,10 +826,20 @@ class PolicyArtifactBuilder:
     def _build_frontier_report(self, source: PolicyArtifactBuildInput) -> PolicyFrontierReport:
         snapshot = source.pareto_snapshot
         if snapshot is None:
-            return PolicyFrontierReport(loop_id=source.loop_id)
-        global_hashes = snapshot.frontiers.get("global_feasible", [])
+            return PolicyFrontierReport(
+                loop_id=source.loop_id,
+                view_projections={
+                    "global_feasible": _limited_pareto_projection("global_feasible")
+                },
+            )
+        projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
+        projected_hashes = (
+            projection.ranked_frontier_hashes
+            if projection.assessment.status == "complete"
+            else projection.candidate_frontier_hashes
+        )
         entries: list[PolicyFrontierEntry] = []
-        for candidate_hash in global_hashes:
+        for candidate_hash in projected_hashes:
             entry = snapshot.entries.get(candidate_hash)
             if entry is None:
                 continue
@@ -820,10 +863,35 @@ class PolicyArtifactBuilder:
                     metadata=dict(entry.metadata),
                 )
             )
+        all_projections = {
+            view.value: snapshot.project_view(view)
+            for view in (
+                ParetoView.GLOBAL_FEASIBLE,
+                ParetoView.EQUITY_AWARE,
+                ParetoView.LOW_RISK,
+                ParetoView.IMPLEMENTATION_SIMPLE,
+            )
+        }
+        for view_key in snapshot.frontiers:
+            if view_key.startswith(f"{ParetoView.POLICY_FAMILY.value}:"):
+                family = view_key.split(":", 1)[1]
+                all_projections[view_key] = snapshot.project_view(
+                    ParetoView.POLICY_FAMILY,
+                    policy_family=family,
+                )
         return PolicyFrontierReport(
             loop_id=snapshot.loop_id,
-            global_frontier=entries,
-            view_membership={key: list(value) for key, value in snapshot.frontiers.items()},
+            global_frontier=(
+                entries if projection.assessment.status == "complete" else []
+            ),
+            candidate_frontier=(
+                entries if projection.assessment.status != "complete" else []
+            ),
+            view_membership={
+                key: list(view_projection.ranked_frontier_hashes)
+                for key, view_projection in all_projections.items()
+            },
+            view_projections=all_projections,
             metadata={"hypervolume_by_view": dict(snapshot.hypervolume_by_view)},
         )
 
@@ -1068,8 +1136,12 @@ class PolicyArtifactBuilder:
     ) -> RejectedAlternativesSummary:
         snapshot = source.pareto_snapshot
         if snapshot is None:
-            return RejectedAlternativesSummary(loop_id=source.loop_id)
-        frontier = set(snapshot.frontiers.get("global_feasible", []))
+            return RejectedAlternativesSummary(
+                loop_id=source.loop_id,
+                view_projection=_limited_pareto_projection("global_feasible"),
+            )
+        projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
+        frontier = set(projection.ranked_frontier_hashes)
         alternatives: list[RejectedAlternativeEntry] = []
         reasons: list[str] = []
         for candidate_hash, entry in snapshot.entries.items():
@@ -1077,21 +1149,27 @@ class PolicyArtifactBuilder:
                 continue
             if candidate_hash in frontier:
                 continue
-            near_frontier = (
-                source.evaluation_vector is not None
-                and self._reporting_distance_from_selected(
-                    entry.evaluation,
-                    source.evaluation_vector,
+            if not entry.evaluation.feasible:
+                reason = "infeasible"
+                disposition = "infeasible"
+            elif projection.assessment.status != "complete":
+                if candidate_hash in projection.unassessed_candidate_hashes:
+                    reason = "unassessed"
+                    disposition = "unassessed"
+                else:
+                    reason = "candidate_only"
+                    disposition = "candidate_only"
+            else:
+                near_frontier = (
+                    source.evaluation_vector is not None
+                    and self._reporting_distance_from_selected(
+                        entry.evaluation,
+                        source.evaluation_vector,
+                    )
+                    <= 5.0
                 )
-                <= 5.0
-            )
-            reason = (
-                "infeasible"
-                if not entry.evaluation.feasible
-                else "dominated_near_frontier"
-                if near_frontier
-                else "dominated"
-            )
+                reason = "dominated_near_frontier" if near_frontier else "dominated"
+                disposition = reason
             reasons.append(reason)
             alternatives.append(
                 RejectedAlternativeEntry(
@@ -1099,13 +1177,15 @@ class PolicyArtifactBuilder:
                     candidate_id=entry.candidate_id,
                     policy_family=entry.policy_family,
                     reason=reason,
-                    near_frontier=reason == "dominated_near_frontier",
+                    near_frontier=disposition == "dominated_near_frontier",
+                    disposition=disposition,
                 )
             )
         return RejectedAlternativesSummary(
             loop_id=source.loop_id,
             alternatives=alternatives[:20],
             dominant_rejection_reasons=sorted(set(reasons)),
+            view_projection=projection,
         )
 
     def _reporting_distance_from_selected(
@@ -1538,6 +1618,27 @@ def load_policy_artifact_bundle(
     return _load_model(store, ref, PolicyArtifactBundle)
 
 
+def _limited_pareto_projection(
+    view: str,
+    *,
+    candidate_hashes: list[str] | tuple[str, ...] = (),
+) -> ParetoViewProjection:
+    """Represent an unavailable view as candidate-only with explicit unknowns."""
+    hashes = tuple(candidate_hashes)
+    return ParetoViewProjection(
+        view=view,
+        assessment=ParetoViewAssessment(
+            status="basis_limited",
+            coverage_status="no_usable_inputs",
+            basis_scope=ParetoBasisScope(scope="not_established"),
+            input_count=len(hashes),
+            assessed_count=0,
+            unassessed_candidate_hashes=list(hashes),
+        ),
+        unassessed_candidate_hashes=hashes,
+    )
+
+
 def _persist_model(
     store: FileSystemCAS,
     payload: BaseModel,
@@ -1547,8 +1648,12 @@ def _persist_model(
     ref_cls: type[ArtifactRef],
     inputs: list[InputRef] | None,
 ) -> ArtifactRef:
+    historical_projection = getattr(payload, "historical_v1_payload", None)
+    stored_payload: BaseModel | dict[str, Any] = payload
+    if payload.schema_version == "1.0" and callable(historical_projection):
+        stored_payload = historical_projection()
     ref = store.put_json(
-        payload,
+        stored_payload,
         PutOptions(
             kind=kind,
             media_type="application/json",
@@ -1561,8 +1666,21 @@ def _persist_model(
 
 
 def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls: type[BaseModel]) -> Any:
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
-    return model_cls.model_validate(payload)
+    raw = store.get_bytes(ref.artifact_id)
+    payload = from_canonical_bytes(raw)
+    model = model_cls.model_validate(payload)
+    historical_projection = getattr(model, "historical_v1_payload", None)
+    if (
+        isinstance(payload, dict)
+        and payload.get("schema_version") == "1.0"
+        and callable(historical_projection)
+        and to_canonical_bytes(
+            historical_projection(), CanonSpec(forbid_floats=False)
+        )
+        != raw
+    ):
+        raise ValueError("historical v1 policy artifact does not replay byte-exactly")
+    return model
 
 
 def _bundle_inputs(source: PolicyArtifactBuildInput) -> list[InputRef]:

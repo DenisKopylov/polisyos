@@ -1422,3 +1422,45 @@ heavy tests or fresh environment may start below the floor. Static lint and
 compile are allowed if free space remains stable. Freeze source before any
 test, run only the smallest informative checks once admitted, and obtain an
 independent patch review before root integration.
+
+## R2 outer v1 composition replay lease (2026-09-30)
+
+Root holds exactly these three paths for the next ordered R2 history slice:
+`policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`,
+`policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`, and
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`.
+The earlier R1 fixture lease was released at `32e036dc69`; the R13-W1 writer
+stopped with a clean separate candidate at `3c355bd0f` and owns none of these
+paths. No other candidate may edit them until root releases this lease. The
+source and two test blobs at clean pre-edit `acc4e7584` are respectively
+`a435a317c4050551ac9dd9f34a1ee41e75f64fce`,
+`4471c1a4a6c65d34606c017f36b1d55191d1528d`, and
+`f94ce5e006e93887dba28bb79ac1d2c6fcb5b4f4`.
+
+**Property and limit.** The existing outer `NormativeRunDisposition.v1`
+producer and historical reader must share one frozen v1 wire projection. The
+reader resolves raw CAS bytes and checks the ref hash, kind, schema name and
+version, internal v1 literal, typed payload, and exact v1 bytes before the
+existing leaf-membership/composition checks. Currentness remains a separate
+typed observation; historical replay grants no current S8/N9 authority. P38's
+divergent case is a decodable whitespace/key-order JSON variant with a valid
+new CAS ref and unchanged markers, or wrong outer manifest schema. P40 keeps
+this within R2's historical-replay class; P07 semantic rule-version replay
+remains a bounded residual. The reviewed design is
+`/Users/deniskopylov/.codex/scratch/e02r2-r2-next-slice-design-20260929.md@sha256:b1dacb9affe9426fca5af6a9ed96fd0e3fe2348c6191f9719147e3b29fb7d42c`
+and the independent bounded GO is
+`/Users/deniskopylov/.codex/scratch/e02r2-r2-next-slice-design-review-20260930.md@sha256:bcc2e1962ba2889f0d1453e0a4c28dd24ac1097990bf13682a798036b01f044b`.
+
+**Pre-edit P41 admission.** The two whole test files at four refs are eight
+slots. Git verifies three `MISSING` history-file slots (Execution, E02, Main)
+and five present slots (four bridge-file slots plus current history). All five
+present tests are `UNRUN` for this slice while disk is below Denis's 8 GiB
+floor; they are not inherited reds. Write the noncanonical and wrong-schema
+tests first, then owner code. A marker-retaining byte-guard removal must turn
+the noncanonical test red, while canonical v1 history replays without a live
+currentness call and fresh unknown-currentness projection stays blocked. The
+installed-wheel owner replay needs a valid compiled/leaf/outer fixture; a
+direct owner call in that child is not a served ControlPlaneService proof.
+Record any unavailable installed served witness as `UNRUN`. Do not edit N6,
+S8 leaf, RunLifecycle, generated families, epochs, plans or register. Static
+checks may run; no pytest/build below the disk floor.

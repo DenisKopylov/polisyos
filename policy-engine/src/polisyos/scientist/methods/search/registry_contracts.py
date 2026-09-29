@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.models import (
@@ -35,7 +35,13 @@ class ParetoRegistryContract(Protocol):
 
     def get_snapshot(self, loop_id: str) -> Any: ...
 
-    def update(self, loop_id: str, **kwargs: Any) -> Any: ...
+    def update(
+        self,
+        loop_id: str,
+        *,
+        policy_evaluation_status: Literal["valid", "unassessed", "invalid", "missing"],
+        **kwargs: Any,
+    ) -> Any: ...
 
     def get_seed_bundle(self, target_context: Any, *, max_seeds: int = 5) -> Any: ...
 

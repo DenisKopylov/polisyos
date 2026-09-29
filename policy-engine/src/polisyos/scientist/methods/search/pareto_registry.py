@@ -9,7 +9,8 @@ from enum import Enum
 from math import isfinite, isnan
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Literal
+from types import UnionType
+from typing import Any, Literal, Union, get_args, get_origin
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -32,10 +33,21 @@ from polisyos.scientist.methods.search.transfer_context import (
 )
 from polisyos.scientist.methods.search.voi_scheduler import ParetoSnapshot
 from polisyos.scientist.policy_design.objectives import (
+    ObjectiveChannelValue,
     PolicyEvaluationRankStatus,
     PolicyEvaluationVector,
     _normalize_policy_evaluation_vector,
     assess_policy_evaluation_rank,
+)
+
+_OBJECTIVE_CHANNEL_NUMERIC_FIELDS = frozenset(
+    field_name
+    for field_name, model_field in ObjectiveChannelValue.model_fields.items()
+    if model_field.annotation is float
+    or (
+        get_origin(model_field.annotation) in (Union, UnionType)
+        and float in get_args(model_field.annotation)
+    )
 )
 
 
@@ -69,7 +81,7 @@ class ParetoRegistryEntry(BaseModel):
     candidate_ref: ArtifactRef | None = None
     policy_family: str | None = None
     evaluation: PolicyEvaluationVector
-    policy_evaluation_status: Literal["valid", "unassessed", "invalid", "missing"] = "valid"
+    policy_evaluation_status: Literal["valid", "unassessed", "invalid", "missing"]
     policy_evaluation_error: str | None = None
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
@@ -372,7 +384,7 @@ class ParetoRegistry:
         source_loop_id: str | None = None,
         transfer_context: TransferContext | None = None,
         objective_basis_by_view: dict[str, ParetoBasisScope] | None = None,
-        policy_evaluation_status: Literal["valid", "unassessed", "invalid", "missing"] = "valid",
+        policy_evaluation_status: Literal["valid", "unassessed", "invalid", "missing"],
         policy_evaluation_error: str | None = None,
     ) -> FrontierDelta:
         evaluation = _normalize_policy_evaluation_vector(evaluation)
@@ -393,6 +405,8 @@ class ParetoRegistry:
                 ParetoRegistryEntry(
                     candidate_hash=candidate_hash,
                     evaluation=evaluation,
+                    policy_evaluation_status=policy_evaluation_status,
+                    policy_evaluation_error=policy_evaluation_error,
                 ),
             ).view_membership
         )
@@ -1070,7 +1084,7 @@ def _registry_json_default(value: Any) -> Any:
 
 
 def _encode_nonfinite_objective_values(payload: dict[str, Any]) -> None:
-    """Tag raw non-finite objective values while keeping schema 2.1 strict JSON."""
+    """Tag stored objective numeric fields while keeping schema 2.1 strict JSON."""
     entries = payload.get("entries", {})
     if not isinstance(entries, dict):
         raise ValueError("Pareto registry entries must be an object")
@@ -1085,20 +1099,21 @@ def _encode_nonfinite_objective_values(payload: dict[str, Any]) -> None:
             for channel in channels.values():
                 if not isinstance(channel, dict):
                     continue
-                value = channel.get("value")
-                if not isinstance(value, float) or isfinite(value):
-                    continue
-                kind = (
-                    "nan"
-                    if isnan(value)
-                    else "positive_infinity"
-                    if value > 0
-                    else "negative_infinity"
-                )
-                channel["value"] = {
-                    "$type": "raw_non_finite_objective_value",
-                    "kind": kind,
-                }
+                for field_name in _OBJECTIVE_CHANNEL_NUMERIC_FIELDS:
+                    value = channel.get(field_name)
+                    if not isinstance(value, float) or isfinite(value):
+                        continue
+                    kind = (
+                        "nan"
+                        if isnan(value)
+                        else "positive_infinity"
+                        if value > 0
+                        else "negative_infinity"
+                    )
+                    channel[field_name] = {
+                        "$type": "raw_non_finite_objective_value",
+                        "kind": kind,
+                    }
 
 
 def _decode_snapshot_json(payload_text: str) -> ParetoRegistrySnapshot:
@@ -1128,7 +1143,7 @@ def _decode_snapshot_json(payload_text: str) -> ParetoRegistrySnapshot:
 
 
 def _decode_nonfinite_objective_values(payload: dict[str, Any]) -> None:
-    """Decode only the schema 2.1 typed tags at objective-channel value leaves."""
+    """Decode schema 2.1 tags only at stored objective numeric-field leaves."""
     decoded_paths: set[tuple[str, ...]] = set()
     entries = payload.get("entries", {})
     for entry_id, entry in entries.items():
@@ -1140,27 +1155,35 @@ def _decode_nonfinite_objective_values(payload: dict[str, Any]) -> None:
             if not isinstance(channels, dict):
                 continue
             for channel_id, channel in channels.items():
-                if not isinstance(channel, dict) or "value" not in channel:
+                if not isinstance(channel, dict):
                     continue
-                value = channel["value"]
-                if not isinstance(value, dict) or "$type" not in value:
-                    continue
-                if set(value) != {"$type", "kind"} or value.get(
-                    "$type"
-                ) != "raw_non_finite_objective_value":
-                    raise ValueError("unsupported raw non-finite objective value tag")
-                kind = value.get("kind")
-                if kind == "nan":
-                    channel["value"] = float("nan")
-                elif kind == "positive_infinity":
-                    channel["value"] = float("inf")
-                elif kind == "negative_infinity":
-                    channel["value"] = float("-inf")
-                else:
-                    raise ValueError("unsupported raw non-finite objective value kind")
-                decoded_paths.add(
-                    ("entries", entry_id, "evaluation", group_name, channel_id, "value")
-                )
+                for field_name in _OBJECTIVE_CHANNEL_NUMERIC_FIELDS:
+                    value = channel.get(field_name)
+                    if not isinstance(value, dict) or "$type" not in value:
+                        continue
+                    if set(value) != {"$type", "kind"} or value.get(
+                        "$type"
+                    ) != "raw_non_finite_objective_value":
+                        raise ValueError("unsupported raw non-finite objective value tag")
+                    kind = value.get("kind")
+                    if kind == "nan":
+                        channel[field_name] = float("nan")
+                    elif kind == "positive_infinity":
+                        channel[field_name] = float("inf")
+                    elif kind == "negative_infinity":
+                        channel[field_name] = float("-inf")
+                    else:
+                        raise ValueError("unsupported raw non-finite objective value kind")
+                    decoded_paths.add(
+                        (
+                            "entries",
+                            entry_id,
+                            "evaluation",
+                            group_name,
+                            channel_id,
+                            field_name,
+                        )
+                    )
 
     def _validate_strict_values(value: Any, path: tuple[str, ...] = ()) -> None:
         if isinstance(value, dict):

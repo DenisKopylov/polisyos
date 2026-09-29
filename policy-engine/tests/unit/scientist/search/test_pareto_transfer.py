@@ -143,6 +143,7 @@ def test_publish_transfer_surface_produces_seed_only_bundle(tmp_path) -> None:
         "loop-source",
         candidate_hash=candidate.candidate_hash(),
         evaluation=evaluation,
+        policy_evaluation_status="valid",
         candidate_id=candidate.candidate_id,
         policy_family="core_family",
         seed_payload=candidate.model_dump(mode="json"),
@@ -168,6 +169,7 @@ def test_same_domain_seed_sorting_precedes_cross_domain(tmp_path) -> None:
         "loop-fiscal",
         candidate_hash=f"{candidate.candidate_hash()}::fiscal",
         evaluation=evaluation.model_copy(update={"candidate_id": "candidate_fiscal"}),
+        policy_evaluation_status="valid",
         candidate_id="candidate_fiscal",
         policy_family="core_family",
         seed_payload=candidate.model_dump(mode="json"),
@@ -182,6 +184,7 @@ def test_same_domain_seed_sorting_precedes_cross_domain(tmp_path) -> None:
         "loop-labor",
         candidate_hash=f"{candidate.candidate_hash()}::labor",
         evaluation=evaluation.model_copy(update={"candidate_id": "candidate_labor"}),
+        policy_evaluation_status="valid",
         candidate_id="candidate_labor",
         policy_family="core_family",
         seed_payload=candidate.model_dump(mode="json"),
@@ -216,7 +219,11 @@ def test_unassessed_nonfinite_vector_is_retained_locally_but_not_transferred(tmp
             "primary": {
                 **baseline.primary,
                 "policy_value": baseline.primary["policy_value"].model_copy(
-                    update={"value": float("nan")}
+                    update={
+                        "value": float("nan"),
+                        "weight": float("inf"),
+                        "threshold": float("-inf"),
+                    }
                 ),
             },
             "secondary": {
@@ -226,6 +233,8 @@ def test_unassessed_nonfinite_vector_is_retained_locally_but_not_transferred(tmp
                     kind=ObjectiveKind.SECONDARY,
                     value=float("inf"),
                     direction=ObjectiveDirection.MAXIMIZE,
+                    weight=float("nan"),
+                    threshold=float("inf"),
                 )
             },
             "penalties": {
@@ -256,6 +265,7 @@ def test_unassessed_nonfinite_vector_is_retained_locally_but_not_transferred(tmp
         source.run_id,
         candidate_hash=candidate_hash,
         evaluation=evaluation,
+        policy_evaluation_status="valid",
         candidate_id=candidate.candidate_id,
         policy_family="core_family",
         seed_payload=candidate.model_dump(mode="json"),
@@ -276,7 +286,23 @@ def test_unassessed_nonfinite_vector_is_retained_locally_but_not_transferred(tmp
         "$type": "raw_non_finite_objective_value",
         "kind": "nan",
     }
+    assert wire_evaluation["primary"]["policy_value"]["weight"] == {
+        "$type": "raw_non_finite_objective_value",
+        "kind": "positive_infinity",
+    }
+    assert wire_evaluation["primary"]["policy_value"]["threshold"] == {
+        "$type": "raw_non_finite_objective_value",
+        "kind": "negative_infinity",
+    }
     assert wire_evaluation["secondary"]["unstated_quality"]["value"] == {
+        "$type": "raw_non_finite_objective_value",
+        "kind": "positive_infinity",
+    }
+    assert wire_evaluation["secondary"]["unstated_quality"]["weight"] == {
+        "$type": "raw_non_finite_objective_value",
+        "kind": "nan",
+    }
+    assert wire_evaluation["secondary"]["unstated_quality"]["threshold"] == {
         "$type": "raw_non_finite_objective_value",
         "kind": "positive_infinity",
     }
@@ -287,7 +313,11 @@ def test_unassessed_nonfinite_vector_is_retained_locally_but_not_transferred(tmp
     assert candidate_hash in local.entries
     restored = local.entries[candidate_hash].evaluation
     assert math.isnan(restored.primary["policy_value"].value)
+    assert restored.primary["policy_value"].weight == float("inf")
+    assert restored.primary["policy_value"].threshold == float("-inf")
     assert restored.secondary["unstated_quality"].value == float("inf")
+    assert math.isnan(restored.secondary["unstated_quality"].weight)
+    assert restored.secondary["unstated_quality"].threshold == float("inf")
     assert restored.penalties["negative_infinity"].value == float("-inf")
     assert local.frontiers["global_feasible"] == []
     assert registry.get_seed_bundle(target, max_seeds=3).entries == []
@@ -302,10 +332,49 @@ def test_unassessed_nonfinite_vector_is_retained_locally_but_not_transferred(tmp
 
     malformed_wire["entries"][candidate_hash]["evaluation"]["secondary"][
         "unstated_quality"
-    ]["value"] = float("nan")
+    ]["weight"] = float("nan")
     snapshot_path.write_text(json.dumps(malformed_wire, allow_nan=True), encoding="utf-8")
     with pytest.raises(ValueError, match="non-standard JSON numeric token"):
         registry.get_snapshot(source.run_id)
+
+
+def test_nonobjective_metadata_is_not_accepted_as_a_nonfinite_tag(tmp_path) -> None:
+    registry = ParetoRegistry(tmp_path / "registry")
+    candidate = _candidate()
+    evaluation = _evaluation_vector(candidate)
+    candidate_hash = candidate.candidate_hash()
+    nonfinite_metadata_channel = evaluation.primary["policy_value"].model_copy(
+        update={"metadata": {"source_note": float("nan")}}
+    )
+    nonfinite_metadata = evaluation.model_copy(
+        update={"primary": {**evaluation.primary, "policy_value": nonfinite_metadata_channel}}
+    )
+
+    with pytest.raises(ValueError):
+        registry.update(
+            "metadata-nonfinite",
+            candidate_hash=candidate_hash,
+            evaluation=nonfinite_metadata,
+            policy_evaluation_status="valid",
+        )
+
+    registry.update(
+        "metadata-tag",
+        candidate_hash=candidate_hash,
+        evaluation=evaluation,
+        policy_evaluation_status="valid",
+    )
+
+    snapshot_path = registry._snapshot_path("metadata-tag")
+    wire = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    wire["entries"][candidate_hash]["evaluation"]["metadata"]["untrusted_numeric"] = {
+        "$type": "raw_non_finite_objective_value",
+        "kind": "nan",
+    }
+    snapshot_path.write_text(json.dumps(wire), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="unsupported typed tag outside objective channel value"):
+        registry.get_snapshot("metadata-tag")
 
 
 def test_legacy_v2_frontier_is_reassessed_before_projection_and_transfer(tmp_path) -> None:
@@ -341,6 +410,7 @@ def test_legacy_v2_frontier_is_reassessed_before_projection_and_transfer(tmp_pat
         source.run_id,
         candidate_hash=candidate_hash,
         evaluation=evaluation,
+        policy_evaluation_status="valid",
         candidate_id=candidate.candidate_id,
         policy_family="core_family",
         seed_payload=candidate.model_dump(mode="json"),

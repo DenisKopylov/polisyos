@@ -523,6 +523,7 @@ def test_policy_artifact_builder_round_trip(tmp_path) -> None:
                 candidate_hash=candidate.candidate_hash(),
                 candidate_id=candidate.candidate_id,
                 evaluation=evaluation,
+                policy_evaluation_status="valid",
                 policy_family="core_family",
             )
         },
@@ -601,6 +602,7 @@ def test_policy_artifact_builder_surfaces_degraded_evidence_channels(tmp_path) -
                 candidate_hash=candidate.candidate_hash(),
                 candidate_id=candidate.candidate_id,
                 evaluation=evaluation,
+                policy_evaluation_status="valid",
                 policy_family="core_family",
             )
         },
@@ -689,6 +691,7 @@ def test_partial_pareto_view_is_not_promoted_to_global_frontier(tmp_path) -> Non
                     candidate_hash=candidate_hash,
                     candidate_id=evaluation.candidate_id,
                     evaluation=evaluation,
+                    policy_evaluation_status="valid",
                 )
                 for candidate_hash, evaluation in (
                     (complete_hash, complete_evaluation),
@@ -774,11 +777,13 @@ def test_partial_pareto_view_is_not_promoted_to_global_frontier(tmp_path) -> Non
                     candidate_hash=complete_hash,
                     candidate_id="complete",
                     evaluation=complete_evaluation,
+                    policy_evaluation_status="valid",
                 ),
                 "sha256:" + "d" * 64: ParetoRegistryEntry(
                     candidate_hash="sha256:" + "d" * 64,
                     candidate_id="finite_low",
                     evaluation=finite_low,
+                    policy_evaluation_status="valid",
                 ),
             },
             objective_basis_by_view={"global_feasible": declared_basis},
@@ -797,6 +802,14 @@ def test_partial_pareto_view_is_not_promoted_to_global_frontier(tmp_path) -> Non
     assert finite_projection.ranked_frontier_hashes == (complete_hash,)
     assert finite_snapshot.hypervolume_by_view["global_feasible"] == pytest.approx(0.28)
     assert [item.candidate_hash for item in finite_report.global_frontier] == [complete_hash]
+
+
+def test_pareto_registry_entry_requires_explicit_evaluation_status() -> None:
+    with pytest.raises(ValidationError, match="policy_evaluation_status"):
+        ParetoRegistryEntry(
+            candidate_hash="sha256:" + "e" * 64,
+            evaluation=_evaluation_vector(_candidate()),
+        )
 
 
 def test_rejected_summary_rejects_partial_projection_that_drops_assessment_identity() -> None:

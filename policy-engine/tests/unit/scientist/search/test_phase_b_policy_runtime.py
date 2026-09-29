@@ -732,21 +732,31 @@ def test_pareto_registry_tracks_frontiers_and_voi_snapshot(tmp_path) -> None:
         "loop",
         candidate_hash="sha256:" + "a" * 64,
         evaluation=vector_a,
+        policy_evaluation_status="valid",
         candidate_id="candidate_b",
         objective_basis_by_view={
             "global_feasible": _declared_global_pareto_basis(),
         },
     )
     registry.update(
-        "loop", candidate_hash="sha256:" + "b" * 64, evaluation=vector_b, candidate_id="candidate_c"
+        "loop",
+        candidate_hash="sha256:" + "b" * 64,
+        evaluation=vector_b,
+        policy_evaluation_status="valid",
+        candidate_id="candidate_c",
     )
     registry.update(
-        "loop", candidate_hash="sha256:" + "c" * 64, evaluation=vector_c, candidate_id="candidate_d"
+        "loop",
+        candidate_hash="sha256:" + "c" * 64,
+        evaluation=vector_c,
+        policy_evaluation_status="valid",
+        candidate_id="candidate_d",
     )
     registry.update(
         "loop",
         candidate_hash="sha256:" + "d" * 64,
         evaluation=vector_bad,
+        policy_evaluation_status="valid",
         candidate_id="candidate_bad",
     )
 
@@ -787,6 +797,7 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
         "loop",
         candidate_hash=complete_hash,
         evaluation=complete,
+        policy_evaluation_status="valid",
         objective_basis_by_view={
             "global_feasible": _declared_global_pareto_basis(),
         },
@@ -805,15 +816,30 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
                     },
                 }
         )
-        registry.update("loop", candidate_hash=candidate_hash, evaluation=unassessed)
+        registry.update(
+            "loop",
+            candidate_hash=candidate_hash,
+            evaluation=unassessed,
+            policy_evaluation_status="valid",
+        )
 
     empty_axes_hash = "sha256:" + "0" * 64
     no_primary = template.model_copy(update={"candidate_id": "no_primary", "primary": {}})
     assert PolicyEvaluationVector().frontier_objectives("global_feasible") == {}
-    registry.update("loop", candidate_hash=empty_axes_hash, evaluation=no_primary)
+    registry.update(
+        "loop",
+        candidate_hash=empty_axes_hash,
+        evaluation=no_primary,
+        policy_evaluation_status="valid",
+    )
 
     no_axis_registry = ParetoRegistry(root=tmp_path / "no-axis")
-    no_axis_registry.update("empty", candidate_hash=empty_axes_hash, evaluation=no_primary)
+    no_axis_registry.update(
+        "empty",
+        candidate_hash=empty_axes_hash,
+        evaluation=no_primary,
+        policy_evaluation_status="valid",
+    )
     no_axis_assessment = no_axis_registry.get_snapshot("empty").view_assessments[
         "global_feasible"
     ]
@@ -876,6 +902,7 @@ def test_pareto_registry_mixed_full_vector_finite_and_invalid_rows_is_limited(tm
         "mixed-full-vector",
         candidate_hash=finite_hash,
         evaluation=finite,
+        policy_evaluation_status="valid",
         objective_basis_by_view={
             "global_feasible": _declared_global_pareto_basis(),
         },
@@ -884,6 +911,7 @@ def test_pareto_registry_mixed_full_vector_finite_and_invalid_rows_is_limited(tm
         "mixed-full-vector",
         candidate_hash=invalid_hash,
         evaluation=invalid,
+        policy_evaluation_status="valid",
     )
 
     snapshot = registry.get_snapshot("mixed-full-vector")
@@ -911,7 +939,12 @@ def test_pareto_registry_observed_axis_union_is_not_complete(tmp_path) -> None:
                 "primary": {"policy_value": template.primary["policy_value"]},
             }
         )
-        registry.update("observed-only", candidate_hash=candidate_hash, evaluation=evaluation)
+    registry.update(
+        "observed-only",
+        candidate_hash=candidate_hash,
+        evaluation=evaluation,
+        policy_evaluation_status="valid",
+    )
 
     snapshot = registry.get_snapshot("observed-only")
     assessment = snapshot.view_assessments["global_feasible"]
@@ -952,6 +985,7 @@ def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_con
             "missing-basis-axis",
             candidate_hash=candidate_hash,
             evaluation=evaluation,
+            policy_evaluation_status="valid",
             objective_basis_by_view={"global_feasible": declared_basis},
         )
 
@@ -994,6 +1028,7 @@ def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_con
             "finite-control",
             candidate_hash=candidate_hash,
             evaluation=evaluation,
+            policy_evaluation_status="valid",
             objective_basis_by_view={"global_feasible": declared_basis},
         )
 
@@ -2676,9 +2711,19 @@ def test_pareto_registry_rejects_malformed_owner_vector_before_write(tmp_path) -
     schema_valid_raw = PolicyEvaluationVector(candidate_id="candidate_b").model_dump(mode="json")
 
     with pytest.raises(ValueError):
-        registry.update("loop", candidate_hash="candidate_hash", evaluation=malformed)
+        registry.update(
+            "loop",
+            candidate_hash="candidate_hash",
+            evaluation=malformed,
+            policy_evaluation_status="valid",
+        )
     with pytest.raises(TypeError):
-        registry.update("loop", candidate_hash="candidate_hash", evaluation=schema_valid_raw)
+        registry.update(
+            "loop",
+            candidate_hash="candidate_hash",
+            evaluation=schema_valid_raw,
+            policy_evaluation_status="valid",
+        )
 
     assert registry.get_snapshot("loop").entries == {}
 

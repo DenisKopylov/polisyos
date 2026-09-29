@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 
+import pytest
+
 from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
 from polisyos.scientist.methods.search.pareto_registry import (
     ParetoRegistry,
@@ -192,6 +194,8 @@ def test_historical_registry_frontier_stays_unassessed_through_voi_scheduler(tmp
         candidate_hash=candidate_hash,
         candidate_id="legacy-candidate",
         evaluation=evaluation,
+        policy_evaluation_status="unassessed",
+        policy_evaluation_error="historical_status_not_recorded",
     )
     historical = ParetoRegistrySnapshot(
         schema_version="1.0",
@@ -233,6 +237,17 @@ def test_historical_registry_frontier_stays_unassessed_through_voi_scheduler(tmp
         current_basis_control.economics.expected_governance_value
     )
     assert decision.recommended_action == "advance"
+
+
+def test_pareto_registry_update_requires_explicit_evaluation_status(tmp_path) -> None:
+    registry = ParetoRegistry(root=tmp_path / "pareto")
+
+    with pytest.raises(TypeError, match="policy_evaluation_status"):
+        registry.update(
+            "missing-status",
+            candidate_hash="sha256:" + "c" * 64,
+            evaluation=PolicyEvaluationVector(),
+        )
 
 
 def test_voi_requests_retry_cheaper_on_high_timeout_risk_before_level4() -> None:

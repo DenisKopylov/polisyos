@@ -476,6 +476,7 @@ def test_parameter_search_uses_transfer_warm_start_without_mixing_seed_only_entr
         evaluation=_evaluation_vector(candidate).model_copy(
             update={"candidate_id": "seed_candidate"}
         ),
+        policy_evaluation_status="valid",
         candidate_id="seed_candidate",
         policy_family="core_family",
         seed_payload=candidate.model_dump(mode="json"),

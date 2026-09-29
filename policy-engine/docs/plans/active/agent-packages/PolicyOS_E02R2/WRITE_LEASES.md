@@ -11,7 +11,7 @@ entries below describe their historical snapshots, not current ownership.
 | Work | Exact writable surface | Current owner and boundary |
 |---|---|---|
 | R1 candidate-intent gate | Reused `codex/e02-r2-r1-candidate` worktree; `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py` and `policy-engine/tests/unit/runtime/http/test_control_service_di.py` | One direct candidate writer; root will review and integrate only a tested, independently reviewed slice. No other writer may edit these candidate files concurrently. |
-| R4 governed-check diagnosis | Scratch patch and memo only | Read-only candidate; no canonical or candidate-worktree source lease. |
+| R4 governed-check same-subject basis witness | `policy-engine/tests/unit/runtime/quality/test_generation_cycle.py` on canonical; root only | Independently reviewed V2 test patch is admitted for one focused test and marker-retaining owner-guard removal probe. N9 production owner/checker source remains read-only. Do not claim governed N6 currentness or N9 callback was reached by the typed `UNRUN` gate. |
 | R9 typed views and R13 selected-row-to-N5 | Read-only source census and scratch design memo | No code lease or authorization to duplicate an owner. |
 | P41 fixed-base replay | Pinned historical worktrees and scratch JUnit/receipts | One broker, at most four profiled light groups; no source edit in a tree under test. Integration-head cells wait for the next source freeze. |
 | Premises and reports | Scratch-only patch against the current package documents | One docs preparer, then an independent reviewer; root alone applies and commits on the canonical branch. `OPEN_PREMISES.md` is the separate durable source for missing data, contracts, owner appointments and decisions. |

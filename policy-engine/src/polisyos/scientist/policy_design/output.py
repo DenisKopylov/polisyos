@@ -181,7 +181,7 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("3.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "3.0"] = "3.0"
     loop_id: str = Field(min_length=1)
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
@@ -192,6 +192,8 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     global_frontier: list[PolicyFrontierEntry] = Field(default_factory=list)
     candidate_frontier: list[PolicyFrontierEntry] = Field(default_factory=list)
+    source_feasible_candidate_hashes: tuple[str, ...] | None = None
+    eligibility_unknown_candidate_hashes: tuple[str, ...] = ()
     view_membership: dict[str, list[str]] = Field(default_factory=dict)
     view_projections: dict[str, ParetoViewProjection] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -202,26 +204,74 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
             raise ValueError("historical v1 serialization requires a v1 report")
         payload = self.model_dump(mode="python", exclude_none=True)
         payload.pop("candidate_frontier", None)
+        payload.pop("source_feasible_candidate_hashes", None)
+        payload.pop("eligibility_unknown_candidate_hashes", None)
         payload.pop("view_projections", None)
-        return payload
-
-    def historical_v2_payload(self) -> dict[str, Any]:
-        """Project the v2 persisted report shape without the identity denominator."""
-        if self.schema_version != "2.0":
-            raise ValueError("historical v2 serialization requires a v2 report")
-        payload = self.model_dump(mode="python", exclude_none=True)
-        for projection in payload.get("view_projections", {}).values():
-            projection.pop("eligible_candidate_hashes", None)
         return payload
 
     @model_validator(mode="after")
     def _validate_projection_schema(self) -> PolicyFrontierReport:
         """Require the full eligible denominator in new persisted reports."""
-        if self.schema_version == "3.0" and any(
-            projection.eligible_candidate_hashes is None
-            for projection in self.view_projections.values()
-        ):
-            raise ValueError("v3 policy frontier projections require eligible candidate identities")
+        if self.schema_version == "3.0":
+            projection = self.view_projections.get("global_feasible")
+            if projection is None:
+                raise ValueError("v3 frontier report requires the global_feasible projection")
+            if self.source_feasible_candidate_hashes is None:
+                raise ValueError("v3 frontier report requires the source feasible denominator")
+            source_feasible = set(self.source_feasible_candidate_hashes)
+            unknown = set(self.eligibility_unknown_candidate_hashes)
+            eligible = set(projection.eligible_candidate_hashes)
+            if set(self.view_membership) != set(self.view_projections):
+                raise ValueError("v3 frontier report view membership must cover every projection")
+            for view_key, view_projection in self.view_projections.items():
+                members = self.view_membership[view_key]
+                if view_projection.view != view_key:
+                    raise ValueError("v3 frontier report projection key and view disagree")
+                if len(set(members)) != len(members) or set(members) != set(
+                    view_projection.ranked_frontier_hashes
+                ):
+                    raise ValueError(
+                        "v3 frontier report view membership disagrees with ranked identities"
+                    )
+                if (
+                    view_key != "global_feasible"
+                    and not set(view_projection.eligible_candidate_hashes) <= source_feasible
+                ):
+                    raise ValueError(
+                        "v3 frontier report view exceeds the source feasible denominator"
+                    )
+            if len(source_feasible) != len(self.source_feasible_candidate_hashes):
+                raise ValueError("frontier report repeats a source feasible candidate")
+            if len(unknown) != len(self.eligibility_unknown_candidate_hashes):
+                raise ValueError("frontier report repeats an eligibility-unknown candidate")
+            if source_feasible & unknown:
+                raise ValueError("source feasible and eligibility-unknown identities overlap")
+            denominator_limited = source_feasible != eligible or bool(unknown)
+            if denominator_limited != (projection.assessment.status == "denominator_limited"):
+                raise ValueError("Pareto denominator reconciliation status does not match source")
+            ranked = {entry.candidate_hash for entry in self.global_frontier}
+            candidate = {entry.candidate_hash for entry in self.candidate_frontier}
+            if ranked != set(projection.ranked_frontier_hashes):
+                raise ValueError(
+                    "global frontier entries do not match ranked projection identities"
+                )
+            expected_candidate = (
+                (
+                    set(projection.candidate_frontier_hashes) & source_feasible
+                    if projection.assessment.status != "complete"
+                    else set()
+                )
+                | (source_feasible - eligible)
+                | unknown
+            )
+            if candidate != expected_candidate:
+                raise ValueError(
+                    "candidate frontier entries do not bind eligible and eligibility-unknown identities"
+                )
+            if len(ranked) != len(self.global_frontier) or len(candidate) != len(
+                self.candidate_frontier
+            ):
+                raise ValueError("frontier report repeats a candidate identity")
         return self
 
 
@@ -393,7 +443,7 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("3.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "3.0"] = "3.0"
     loop_id: str = Field(min_length=1)
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
@@ -404,6 +454,45 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
     dominant_rejection_reasons: list[str] = Field(default_factory=list)
     view_projection: ParetoViewProjection | None = None
 
+    @model_validator(mode="after")
+    def _require_v3_projection(self) -> RejectedAlternativesSummary:
+        """Keep every current summary bound to its comparison denominator."""
+        if self.schema_version != "3.0":
+            return self
+        projection = self.view_projection
+        if projection is None or projection.view != "global_feasible":
+            raise ValueError("v3 rejected alternatives requires a global_feasible view projection")
+        eligible = set(projection.eligible_candidate_hashes)
+        unassessed = set(projection.unassessed_candidate_hashes)
+        ranked = set(projection.ranked_frontier_hashes)
+        seen: set[str] = set()
+        for alternative in self.alternatives:
+            candidate_hash = alternative.candidate_hash
+            if candidate_hash in seen or candidate_hash in ranked:
+                raise ValueError("v3 rejected alternative repeats or ranks a rejected identity")
+            seen.add(candidate_hash)
+            disposition = alternative.disposition
+            if alternative.near_frontier != (disposition == "dominated_near_frontier"):
+                raise ValueError(
+                    "v3 rejected alternative near-frontier flag disagrees with disposition"
+                )
+            if disposition in {"dominated", "dominated_near_frontier"}:
+                if projection.assessment.status != "complete":
+                    raise ValueError("v3 dominated disposition requires complete Pareto assessment")
+                if candidate_hash not in eligible:
+                    raise ValueError("v3 dominated disposition requires an eligible candidate")
+            elif disposition == "unassessed":
+                if candidate_hash not in unassessed:
+                    raise ValueError("v3 unassessed disposition requires an unassessed candidate")
+            elif disposition == "infeasible":
+                if candidate_hash in eligible:
+                    raise ValueError("v3 infeasible disposition names an eligible candidate")
+            elif candidate_hash in unassessed or (
+                projection.assessment.status == "complete" and candidate_hash in eligible
+            ):
+                raise ValueError("v3 candidate-only disposition contradicts Pareto assessment")
+        return self
+
     def historical_v1_payload(self) -> dict[str, Any]:
         """Project the original persisted summary shape for historical replay."""
         if self.schema_version != "1.0":
@@ -413,27 +502,6 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
         for alternative in payload.get("alternatives", []):
             alternative.pop("disposition", None)
         return payload
-
-    def historical_v2_payload(self) -> dict[str, Any]:
-        """Project the v2 persisted summary shape without the identity denominator."""
-        if self.schema_version != "2.0":
-            raise ValueError("historical v2 serialization requires a v2 summary")
-        payload = self.model_dump(mode="json", exclude_none=True)
-        projection = payload.get("view_projection")
-        if projection is not None:
-            projection.pop("eligible_candidate_hashes", None)
-        return payload
-
-    @model_validator(mode="after")
-    def _validate_projection_schema(self) -> RejectedAlternativesSummary:
-        """Require the full eligible denominator in new persisted summaries."""
-        if (
-            self.schema_version == "3.0"
-            and self.view_projection is not None
-            and self.view_projection.eligible_candidate_hashes is None
-        ):
-            raise ValueError("v3 rejected-alternative projection requires eligible candidate identities")
-        return self
 
 
 class ReplayableAuditBundle(ArtifactMinimalityMixin):
@@ -868,9 +936,8 @@ class PolicyArtifactBuilder:
         if snapshot is None:
             return PolicyFrontierReport(
                 loop_id=source.loop_id,
-                view_projections={
-                    "global_feasible": _limited_pareto_projection("global_feasible")
-                },
+                source_feasible_candidate_hashes=(),
+                view_projections={"global_feasible": _limited_pareto_projection("global_feasible")},
             )
         projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
         projected_hashes = (
@@ -921,12 +988,9 @@ class PolicyArtifactBuilder:
                 )
         return PolicyFrontierReport(
             loop_id=snapshot.loop_id,
-            global_frontier=(
-                entries if projection.assessment.status == "complete" else []
-            ),
-            candidate_frontier=(
-                entries if projection.assessment.status != "complete" else []
-            ),
+            source_feasible_candidate_hashes=projection.eligible_candidate_hashes,
+            global_frontier=(entries if projection.assessment.status == "complete" else []),
+            candidate_frontier=(entries if projection.assessment.status != "complete" else []),
             view_membership={
                 key: list(view_projection.ranked_frontier_hashes)
                 for key, view_projection in all_projections.items()
@@ -1192,6 +1256,9 @@ class PolicyArtifactBuilder:
             if not entry.evaluation.feasible:
                 reason = "infeasible"
                 disposition = "infeasible"
+            elif candidate_hash not in projection.eligible_candidate_hashes:
+                reason = "candidate_only"
+                disposition = "candidate_only"
             elif projection.assessment.status != "complete":
                 if candidate_hash in projection.unassessed_candidate_hashes:
                     reason = "unassessed"
@@ -1690,7 +1757,7 @@ def _persist_model(
     inputs: list[InputRef] | None,
 ) -> ArtifactRef:
     historical_projection = None
-    if payload.schema_version in {"1.0", "2.0"}:
+    if payload.schema_version == "1.0":
         historical_projection = getattr(
             payload,
             f"historical_v{payload.schema_version[0]}_payload",
@@ -1716,10 +1783,9 @@ def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls: type[BaseMode
     raw = store.get_bytes(ref.artifact_id)
     payload = from_canonical_bytes(raw)
     schema_version = payload.get("schema_version") if isinstance(payload, dict) else None
-    context = {"artifact_schema_version": schema_version} if schema_version else None
-    model = model_cls.model_validate(payload, context=context)
+    model = model_cls.model_validate(payload)
     historical_projection = None
-    if schema_version in {"1.0", "2.0"}:
+    if schema_version == "1.0":
         historical_projection = getattr(
             model,
             f"historical_v{schema_version[0]}_payload",
@@ -1728,12 +1794,11 @@ def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls: type[BaseMode
     if (
         isinstance(payload, dict)
         and callable(historical_projection)
-        and to_canonical_bytes(
-            historical_projection(), CanonSpec(forbid_floats=False)
-        )
-        != raw
+        and to_canonical_bytes(historical_projection(), CanonSpec(forbid_floats=False)) != raw
     ):
-        raise ValueError(f"historical v{schema_version[0]} policy artifact does not replay byte-exactly")
+        raise ValueError(
+            f"historical v{schema_version[0]} policy artifact does not replay byte-exactly"
+        )
     return model
 
 

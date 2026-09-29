@@ -70,16 +70,34 @@ Record:
 
 For `PolicyFrontierReport` and `RejectedAlternativesSummary`, follow the
 [IR migration guidance](../../ops/migrations/ir/README.md#scientist-frontier-artifact-v3).
-Before the first schema-v3 write, hold deployment until every consumer can read
-v3. This B111 slice adds no separate writer-disable switch, so the rollout must
-use a reader-only compatible release or a coordinated no-write interval before
-the v3 writer build is deployed. If neither can be established, hold release.
+The migration-class name `ir` and release-fragment value
+`persisted-artifact-format` are separate vocabularies for this change. Schema
+v2 was unissued and is rejected; the supported persisted dialects are v1 and
+v3, with v1 historical bytes replayed exactly.
 
-After any v3 bytes exist, do not downgrade a consumer to a strict v1/v2-only
-reader. Do not delete, rewrite, restamp, or reissue v3 or historical artifacts
-as a rollback substitute. Keep a v1/v2/v3-compatible reader available; if that
-cannot be maintained, hold affected consumers and repair forward before
-resuming promotion.
+Before the first v3 write, hold deployment until every consumer is confirmed
+v1/v3-capable. Use a reader-only compatible release or a coordinated no-write
+interval before deploying the v3 writer; this slice has no separate
+writer-disable switch. If that sequence cannot be established, hold release.
+After v3 bytes exist, do not downgrade any consumer to a strict v1-only reader.
+Keep v1/v3-capable readers available and repair forward, or hold affected
+consumers until compatibility is restored. Do not delete, rewrite, restamp, or
+reissue v3 or historical artifacts as a rollback substitute.
+
+The v3 DTO validator can check independently supplied source/unknown
+identities, but the ordinary `PolicyArtifactBuilder._build_frontier_report`
+path copies the registry projection into the source field and supplies no
+independent unknown set. That self-derived equality is not a served
+source-population reconciliation and cannot detect candidates omitted before
+registry projection. The external candidate-universe and deployed
+artifact/reader inventories are not established.
+
+The `ir_migration_review` contract has not accepted B111's no-rewrite
+compatibility path or resolved its IR-only operator-doc requirements for these
+Scientist DTOs. **Promotion remains held** until the migration owners accept
+the no-rewrite evidence contract and the required owner-bound inventory and
+compatibility evidence are recorded. A tracked-tree census or this
+documentation does not establish deployed-store contents or reader versions.
 
 ## Escalation Owner
 

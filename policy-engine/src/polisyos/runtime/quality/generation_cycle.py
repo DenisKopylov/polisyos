@@ -4619,14 +4619,11 @@ class GenerationCycleController:
                     terminal_status = "blocked"
                     blocked_reason = fake_reason
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
-            if (
-                n9_terminal_disposition(terminal_status)
-                is not N9TerminalDisposition.TERMINAL_BLOCKED
-                and cycle.voi_decision.next_action == "blocked"
-            ):
-                terminal_status = "blocked"
-                blocked_reason = cycle.voi_decision.reason
-                cycle = _blocked_cycle(cycle, reason=blocked_reason)
+            terminal_status, blocked_reason, cycle = _reconcile_blocked_voi_action(
+                cycle,
+                terminal_status=terminal_status,
+                blocked_reason=blocked_reason,
+            )
             acquisition_receipt: AcquisitionReceipt | None = None
             if n9_terminal_disposition(terminal_status) is not (
                 N9TerminalDisposition.TERMINAL_BLOCKED
@@ -4686,6 +4683,13 @@ class GenerationCycleController:
                 break
             current_problem = cycle.revision_request.revised_problem
             cycle_index += 1
+
+        if cycles:
+            terminal_status, blocked_reason, cycles[-1] = _reconcile_blocked_voi_action(
+                cycles[-1],
+                terminal_status=terminal_status,
+                blocked_reason=blocked_reason,
+            )
 
         source_receipt = self._source_preservation_receipt()
         source_refusal = _source_custody_authority_refusal(
@@ -6983,9 +6987,32 @@ def validate_generation_cycle_run(
 ) -> tuple[dict[str, Any], ...]:
     """Validate N6 semantics and require owner-issued currentness for authority."""
 
-    return _validate_generation_cycle_run(
-        run, require_currentness=True
+    return inspect_generation_cycle_run(run, repo_root=repo_root).issues
+
+
+@dataclass(frozen=True, slots=True)
+class GenerationCycleRunInspection:
+    """One strict N6 validation result and the exact currentness observation it used."""
+
+    issues: tuple[dict[str, Any], ...]
+    currentness: N6DeploymentCurrentnessObservation
+
+
+def inspect_generation_cycle_run(
+    run: GenerationCycleRun | Mapping[str, Any],
+    *,
+    repo_root: Path | None = None,
+) -> GenerationCycleRunInspection:
+    """Validate N6 once and return its single owner-read currentness observation."""
+
+    currentness = currentness_for_generation_cycle_run(run)
+    issues = _validate_generation_cycle_run(
+        run,
+        repo_root=repo_root,
+        require_currentness=True,
+        currentness_observation=currentness,
     )
+    return GenerationCycleRunInspection(issues=issues, currentness=currentness)
 
 
 def validate_generation_cycle_candidate_run(
@@ -7093,6 +7120,7 @@ def _validate_generation_cycle_run(
     repo_root: Path | None = None,
     current_strangle_receipt: StrangleReceipt | None = None,
     require_currentness: bool = True,
+    currentness_observation: N6DeploymentCurrentnessObservation | None = None,
 ) -> tuple[dict[str, Any], ...]:
     """Run intrinsic checks and, when requested, the typed identity question."""
 
@@ -7137,7 +7165,7 @@ def _validate_generation_cycle_run(
                         )
                 else:
                     issues.append({"code": "strangle_receipt_stale", "error": str(exc)})
-        observation = currentness_for_generation_cycle_run(run)
+        observation = currentness_observation or currentness_for_generation_cycle_run(run)
         if observation.status == "stale":
             issues.append(
                 {
@@ -10740,6 +10768,22 @@ def _blocked_cycle(cycle: GenerationCycleRecord, *, reason: str) -> GenerationCy
     )
 
 
+def _reconcile_blocked_voi_action(
+    cycle: GenerationCycleRecord,
+    *,
+    terminal_status: TerminalStatus,
+    blocked_reason: str | None,
+) -> tuple[TerminalStatus, str | None, GenerationCycleRecord]:
+    """Align the N6 run terminal with the final cycle action before N9."""
+
+    if n9_terminal_disposition(terminal_status) is N9TerminalDisposition.TERMINAL_BLOCKED:
+        return terminal_status, blocked_reason, cycle
+    if cycle.voi_decision.next_action != "blocked":
+        return terminal_status, blocked_reason, cycle
+    reason = cycle.voi_decision.reason
+    return "blocked", reason, _blocked_cycle(cycle, reason=reason)
+
+
 def _cycle_with_acquisition_routing_report(
     cycle: GenerationCycleRecord,
     *,
@@ -11403,6 +11447,7 @@ __all__ = [
     "GenerationCycleFronts",
     "GenerationCycleRecord",
     "GenerationCycleRun",
+    "GenerationCycleRunInspection",
     "JointSimulationPort",
     "LoopVOIDecision",
     "N4GenerationPort",
@@ -11425,6 +11470,7 @@ __all__ = [
     "eligible_n9_source_for_run",
     "enforce_no_retry_without_new_grammar",
     "generation_cycle_terminal_state",
+    "inspect_generation_cycle_run",
     "inspect_n6_source_census",
     "is_value_panel_shape",
     "load_joint_simulation_result",

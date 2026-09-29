@@ -3,7 +3,6 @@ from __future__ import annotations
 import math
 from datetime import UTC, datetime
 from decimal import Decimal
-from hashlib import sha256
 
 import pytest
 from pydantic import ValidationError
@@ -73,6 +72,7 @@ from polisyos.scientist.methods.search.pareto_registry import (
     ParetoRegistrySnapshot,
     ParetoView,
     ParetoViewAssessment,
+    ParetoViewProjection,
 )
 from polisyos.scientist.methods.search.readiness import (
     DecisionReadiness,
@@ -676,9 +676,7 @@ def test_partial_pareto_view_is_not_promoted_to_global_frontier(tmp_path) -> Non
             "candidate_id": "nonfinite",
             "primary": {
                 **template.primary,
-                "employment": employment.model_copy(
-                    update={"value": math.inf}
-                ),
+                "employment": employment.model_copy(update={"value": math.inf}),
             },
         }
     )
@@ -745,9 +743,7 @@ def test_partial_pareto_view_is_not_promoted_to_global_frontier(tmp_path) -> Non
     replayed_report = load_policy_frontier_report(store, report_ref)
     replayed_summary = load_rejected_alternatives_summary(store, summary_ref)
     assert replayed_report.global_frontier == []
-    assert [item.candidate_hash for item in replayed_report.candidate_frontier] == [
-        complete_hash
-    ]
+    assert [item.candidate_hash for item in replayed_report.candidate_frontier] == [complete_hash]
     assert replayed_report.view_projections["global_feasible"].assessment.status == "partial"
     assert {item.candidate_hash: item.disposition for item in replayed_summary.alternatives} == {
         complete_hash: "candidate_only",
@@ -765,9 +761,7 @@ def test_partial_pareto_view_is_not_promoted_to_global_frontier(tmp_path) -> Non
         update={
             "candidate_id": "finite_low",
             "primary": {
-                "policy_value": template.primary["policy_value"].model_copy(
-                    update={"value": 0.5}
-                ),
+                "policy_value": template.primary["policy_value"].model_copy(update={"value": 0.5}),
                 "employment": employment.model_copy(update={"value": 0.5}),
             },
         }
@@ -832,12 +826,12 @@ def test_rejected_summary_rejects_partial_projection_that_drops_assessment_ident
             }
         ],
         "view_projection": {
-                "view": "global_feasible",
-                "assessment": assessment.model_dump(mode="json"),
-                "eligible_candidate_hashes": [finite_hash, omitted_hash],
-                "candidate_frontier_hashes": [finite_hash],
-                "ranked_frontier_hashes": [],
-                "unassessed_candidate_hashes": [],
+            "view": "global_feasible",
+            "assessment": assessment.model_dump(mode="json"),
+            "eligible_candidate_hashes": [finite_hash, omitted_hash],
+            "candidate_frontier_hashes": [finite_hash],
+            "ranked_frontier_hashes": [],
+            "unassessed_candidate_hashes": [],
         },
     }
 
@@ -845,96 +839,114 @@ def test_rejected_summary_rejects_partial_projection_that_drops_assessment_ident
         RejectedAlternativesSummary.model_validate(summary_payload)
 
 
-def test_frontier_and_rejected_summary_v2_bytes_replay_after_projection_v3(tmp_path) -> None:
-    finite_hash = "sha256:" + "a" * 64
-    omitted_hash = "sha256:" + "b" * 64
-    projection_payload = {
-        "view": "global_feasible",
-        "assessment": {
-            "status": "partial",
-            "coverage_status": "partial",
-            "basis_scope": {
-                "scope": "declared",
-                "coordinate_ids": ["policy_value", "employment"],
-                "basis_ref": "test:b111.objective-basis.v1",
-            },
-            "input_count": 2,
-            "assessed_count": 1,
-            "unassessed_candidate_hashes": [omitted_hash],
-            "missing_coordinate_ids_by_candidate_hash": {omitted_hash: ["employment"]},
-            "non_finite_coordinate_ids_by_candidate_hash": {},
-            "unresolved_axis_contract_candidate_hashes": [],
-        },
-        "candidate_frontier_hashes": [finite_hash],
-        "ranked_frontier_hashes": [],
-        "unassessed_candidate_hashes": [omitted_hash],
-    }
-    report_payload = {
-        "artifact_functions": ["cross_run_learning", "routing"],
-        "candidate_frontier": [],
-        "generated_at": {
-            "_type": "datetime",
-            "iso_utc": "2026-09-29T12:00:00Z",
-        },
-        "global_frontier": [],
-        "loop_id": "b111-v2-replay",
-        "metadata": {},
-        "schema_version": "2.0",
-        "view_membership": {},
-        "view_projections": {"global_feasible": projection_payload},
-    }
-    summary_payload = {
-        "alternatives": [],
-        "artifact_functions": ["cross_run_learning"],
-        "dominant_rejection_reasons": [],
-        "loop_id": "b111-v2-replay",
-        "schema_version": "2.0",
-        "view_projection": projection_payload,
-    }
-    store = FileSystemCAS(tmp_path)
-    cases = (
-        (
-            report_payload,
-            "scientist.policy_frontier_report",
-            "polisyos.scientist.policy_design.PolicyFrontierReport",
-            "11f7ee0662a2c015852235fe0f5083f0e6d187feba1955be6162e72cbff5cd46",
-            load_policy_frontier_report,
+def test_v3_frontier_requires_global_projection_and_source_denominator() -> None:
+    """A v3 report cannot skip reconciliation while retaining the schema marker."""
+    limited_projection = ParetoViewProjection(
+        view="global_feasible",
+        assessment=ParetoViewAssessment(
+            status="basis_limited",
+            coverage_status="no_usable_inputs",
+            basis_scope=ParetoBasisScope(scope="not_established"),
+            input_count=0,
+            assessed_count=0,
         ),
-        (
-            summary_payload,
-            "scientist.rejected_alternatives_summary",
-            "polisyos.scientist.policy_design.RejectedAlternativesSummary",
-            "fe88161b4ac002640af9b7a1d965aaf7c778a26ffed059dcfd8b0b54c8e21c17",
-            load_rejected_alternatives_summary,
-        ),
+        eligible_candidate_hashes=(),
     )
 
-    for payload, kind, schema_name, expected_sha256, load in cases:
-        ref = store.put_json(
-            payload,
-            PutOptions(
-                kind=kind,
-                media_type="application/json",
-                schema=SchemaInfo(name=schema_name, version="2.0"),
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
+    with pytest.raises(ValidationError, match="global_feasible"):
+        PolicyFrontierReport(loop_id="unbound-v3")
+    with pytest.raises(ValidationError, match="source feasible denominator"):
+        PolicyFrontierReport(
+            loop_id="missing-source-denominator",
+            view_projections={"global_feasible": limited_projection},
         )
-        raw = store.get_bytes(ref.artifact_id)
-        assert sha256(raw).hexdigest() == expected_sha256
-
-        replayed = load(store, ref)
-
-        assert replayed.schema_version == "2.0"
-        projection = (
-            replayed.view_projections["global_feasible"]
-            if isinstance(replayed, PolicyFrontierReport)
-            else replayed.view_projection
+    with pytest.raises(ValidationError, match="view projection"):
+        RejectedAlternativesSummary(loop_id="unbound-summary-v3")
+    with pytest.raises(ValidationError, match="view membership"):
+        PolicyFrontierReport(
+            loop_id="stale-membership-v3",
+            source_feasible_candidate_hashes=(),
+            view_membership={"global_feasible": ["stale-rank"]},
+            view_projections={"global_feasible": limited_projection},
         )
-        assert projection.assessment.status == "partial"
-        assert projection.eligible_candidate_hashes is None
-        assert to_canonical_bytes(
-            replayed.historical_v2_payload(), CanonSpec(forbid_floats=False)
-        ) == raw
+
+    foreign_projection = ParetoViewProjection(
+        view="low_risk",
+        assessment=ParetoViewAssessment(
+            status="basis_limited",
+            coverage_status="no_usable_inputs",
+            basis_scope=ParetoBasisScope(scope="not_established"),
+            input_count=1,
+            assessed_count=0,
+            unassessed_candidate_hashes=["foreign-candidate"],
+        ),
+        eligible_candidate_hashes=("foreign-candidate",),
+        unassessed_candidate_hashes=("foreign-candidate",),
+    )
+    with pytest.raises(ValidationError, match="source feasible denominator"):
+        PolicyFrontierReport(
+            loop_id="foreign-view-v3",
+            source_feasible_candidate_hashes=(),
+            view_membership={"global_feasible": [], "low_risk": []},
+            view_projections={
+                "global_feasible": limited_projection,
+                "low_risk": foreign_projection,
+            },
+        )
+
+    complete = PolicyFrontierReport(
+        loop_id="bounded-v3",
+        source_feasible_candidate_hashes=(),
+        view_membership={"global_feasible": []},
+        view_projections={"global_feasible": limited_projection},
+    )
+    assert complete.view_projections["global_feasible"].eligible_candidate_hashes == ()
+    assert (
+        RejectedAlternativesSummary(
+            loop_id="bounded-summary-v3", view_projection=limited_projection
+        ).view_projection
+        == limited_projection
+    )
+    assert PolicyFrontierReport(schema_version="1.0", loop_id="historical-v1")
+    assert RejectedAlternativesSummary(schema_version="1.0", loop_id="historical-v1")
+
+
+def test_unissued_v2_frontier_and_summary_are_rejected() -> None:
+    # The integrated producer advances directly from the standing v1 format to
+    # v3. A draft v2 projection lacked the eligible-identity denominator.
+    for model_cls in (PolicyFrontierReport, RejectedAlternativesSummary):
+        with pytest.raises(ValidationError):
+            model_cls.model_validate({"schema_version": "2.0", "loop_id": "unissued-v2"})
+
+
+def test_v3_rejected_summary_cannot_call_unassessed_candidate_dominated() -> None:
+    projection = ParetoViewProjection(
+        view="global_feasible",
+        assessment=ParetoViewAssessment(
+            status="basis_limited",
+            coverage_status="no_usable_inputs",
+            basis_scope=ParetoBasisScope(scope="not_established"),
+            input_count=1,
+            assessed_count=0,
+            unassessed_candidate_hashes=["candidate-1"],
+        ),
+        eligible_candidate_hashes=("candidate-1",),
+        unassessed_candidate_hashes=("candidate-1",),
+    )
+    payload = {
+        "loop_id": "limited-summary",
+        "view_projection": projection.model_dump(mode="python"),
+        "alternatives": [
+            {"candidate_hash": "candidate-1", "reason": "dominated", "disposition": "dominated"}
+        ],
+    }
+
+    with pytest.raises(ValidationError, match="dominated.*complete"):
+        RejectedAlternativesSummary.model_validate(payload)
+
+    payload["alternatives"][0].update(reason="unassessed", disposition="unassessed")
+    result = RejectedAlternativesSummary.model_validate(payload)
+    assert result.alternatives[0].disposition == "unassessed"
 
 
 def test_policy_frontier_report_v1_serialization_is_byte_exact(tmp_path) -> None:
@@ -958,9 +970,10 @@ def test_policy_frontier_report_v1_serialization_is_byte_exact(tmp_path) -> None
     assert store.get_bytes(ref.artifact_id) == expected
     replayed = load_policy_frontier_report(store, ref)
     assert replayed.schema_version == "1.0"
-    assert to_canonical_bytes(
-        replayed.historical_v1_payload(), CanonSpec(forbid_floats=False)
-    ) == expected
+    assert (
+        to_canonical_bytes(replayed.historical_v1_payload(), CanonSpec(forbid_floats=False))
+        == expected
+    )
     manifest = store.get_manifest(ref.artifact_id)
     assert manifest.artifact_schema == SchemaInfo(
         name="polisyos.scientist.policy_design.PolicyFrontierReport",
@@ -983,9 +996,10 @@ def test_rejected_alternatives_v1_serialization_is_byte_exact(tmp_path) -> None:
     assert store.get_bytes(ref.artifact_id) == expected
     replayed = load_rejected_alternatives_summary(store, ref)
     assert replayed.schema_version == "1.0"
-    assert to_canonical_bytes(
-        replayed.historical_v1_payload(), CanonSpec(forbid_floats=False)
-    ) == expected
+    assert (
+        to_canonical_bytes(replayed.historical_v1_payload(), CanonSpec(forbid_floats=False))
+        == expected
+    )
     manifest = store.get_manifest(ref.artifact_id)
     assert manifest.artifact_schema == SchemaInfo(
         name="polisyos.scientist.policy_design.RejectedAlternativesSummary",

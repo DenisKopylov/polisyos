@@ -32,59 +32,59 @@ and runbook evidence are all present.
 
 ## Scientist Frontier Artifact v3 (B111)
 
-This migration-class guidance also covers the persisted Scientist policy-design
-artifacts `polisyos.scientist.policy_design.PolicyFrontierReport` and
-`polisyos.scientist.policy_design.RejectedAlternativesSummary`. The Scientist
-artifact owner defines their payload semantics; the `ir_migration_review`
-class gate governs persisted-schema compatibility evidence. This section does
-not cover or claim closure of `ParetoRegistrySnapshot` serialization.
+This migration-class guidance covers the persisted Scientist DTOs
+`polisyos.scientist.policy_design.PolicyFrontierReport` and
+`polisyos.scientist.policy_design.RejectedAlternativesSummary`. The
+`migration-contracts.toml` mapping classifies the change as `ir`; the release
+fragment uses `change_class = "persisted-artifact-format"`. Scientist owns the
+payload semantics and `team-ir` owns the migration-class/version contract.
+This does not cover `ParetoRegistrySnapshot` serialization.
 
-The default ordinary new-producer path emits schema `3.0`. Payloads explicitly
-versioned as `1.0` or `2.0` remain persistable through their historical
-serializers for replay. Each v3 Pareto projection carries
-`eligible_candidate_hashes`, the complete identity denominator used to bind
-assessment status to omitted candidates. The shared projection contract checks
-the denominator count and status-specific omission identities before either
-persisted artifact can be accepted. Artifact kinds and reference types are
-unchanged.
+The ordinary new-producer path writes schema `3.0`. These DTOs support v1 and
+v3; schema `2.0` was never issued by the integrated path and is unsupported
+and rejected. Historical v1 bytes retain their version-specific projection
+and are replayed byte-exactly. Do not rewrite, restamp, or reissue historical
+v1 artifacts. Each v3 Pareto projection's `eligible_candidate_hashes` is the
+identity set for that projection's assessment denominator. The v3
+`PolicyFrontierReport` validator checks explicitly supplied
+`source_feasible_candidate_hashes` and
+`eligibility_unknown_candidate_hashes` against the global projection; a
+supplied source mismatch or unknown identity requires `denominator_limited`.
+`RejectedAlternativesSummary` has its own v3 `view_projection` and does not
+carry those report-level fields.
 
-Updated readers accept v1, v2, and v3, preserving historical bytes through
-version-specific projections; v2 replay is bounded because v2 never stored the
-complete eligible identity denominator. Do not infer or backfill identities
-that are absent from historical bytes, and do not rewrite, restamp, or reissue
-those records. A strict reader from before this change rejects the v3
-schema/field and cannot safely consume newly written artifacts.
+The ordinary `PolicyArtifactBuilder._build_frontier_report` path has no
+independent source-feasible or unknown-eligibility input. It sets
+`source_feasible_candidate_hashes` from
+`projection.eligible_candidate_hashes` and leaves the unknown set at its empty
+default. Its report therefore validates a source set copied from the same
+projection; it does not perform an independent observed-source reconciliation
+and cannot detect an eligible candidate omitted before registry projection.
+A complete registry assessment is scoped to the identities the registry
+received and does not establish a complete upstream universe. With no
+registry, the report remains basis-limited and unranked. Treat external
+population completeness as `not_established` until an owner-bound input and
+bridge supply and reconcile it.
 
-### Rollout sequence
+### B111 rollout and promotion state
 
-1. Upgrade every consumer that reads either artifact kind to a reader that
-   accepts v1, v2, and v3. Keep existing v1/v2 records unchanged.
-2. Verify the public loaders, report and summary consumers, and hierarchy
-   producer against the compatibility fixtures and semantic tests listed in
-   `release-fragments/unreleased/2026-09-29-e02-r2-b111-frontier-v3.toml`.
-3. The B111 code slice adds no separate writer-disable switch. Do not assume
-   readers can be upgraded independently while the v3 writer stays active.
-   Before deploying this writer build, either stage a reader-only compatible
-   release or coordinate the rollout so no artifact is written until every
-   consumer can read v3. If neither sequence can be established, hold release.
-4. Record the `ir_migration_review` evidence and owner approval before
-   production promotion. This documentation and a passing focused test run do
-   not by themselves constitute promotion approval.
+Before the first v3 write, every consumer of either artifact kind must be
+confirmed able to read v1 and v3. Use a reader-only compatible release or a
+coordinated no-write interval before deploying the v3 writer. This slice adds
+no separate writer-disable switch. If consumer readiness or the no-write
+interval cannot be established, hold deployment. After v3 bytes exist, do not
+downgrade a consumer to a strict v1-only reader; keep v1/v3-capable readers
+available and repair forward. Never use deletion, rewriting, restamping, or
+reissuance as rollback.
 
-### Rollback and recovery
-
-- Before any v3 artifact is written, hold the rollout and keep the previous
-  writer active while remaining readers are upgraded.
-- Once v3 bytes exist, do not downgrade a consumer to a strict v1/v2-only
-  reader. There is no safe downgrade claim for that reader. Keep a
-  v1/v2/v3-capable reader available; if that cannot be maintained, stop the
-  affected consumers and hold promotion until a compatible reader is restored.
-- If the v3 writer itself must be stopped, keep readers capable of replaying
-  already-written v3 artifacts and repair the writer or consumer path forward.
-  Do not delete, rewrite, restamp, or reissue v3 or historical records as a
-  rollback substitute.
-
-This B111 slice remains partial. The persisted non-finite registry snapshot,
-source-bound objective basis, and fully served registry path remain separate
-residuals; no authoritative complete-frontier claim follows from this schema
-change.
+The current `ir_migration_review` contract calls for a deterministic migration
+helper, schema-catalog evidence, compatibility fixtures, and runbook evidence.
+This B111 path deliberately has no byte-rewrite helper, and the listed IR
+schema catalog/how-to describe IR schema types rather than these Scientist
+DTOs. The Scientist package README documents their payload semantics, but the
+class contract has not yet accepted that as a qualified no-rewrite evidence
+path or resolved the operator-doc mismatch. Therefore the gate is **not met**
+and production promotion remains **held** until `team-ir` and the Scientist
+artifact owner approve a compatible no-rewrite evidence contract and the
+required consumer/store inventory is supplied. Do not invent a migration helper
+solely to satisfy the current wording.

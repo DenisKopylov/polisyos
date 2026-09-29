@@ -95,6 +95,7 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
+    _normalize_policy_evaluation_vector,
 )
 from polisyos.scientist.policy_design.output import (
     PolicyFrontierEntry,
@@ -1043,12 +1044,10 @@ def _coerce_lex_bundle(payload: Any) -> LexPolicyBundleInput | None:
 
 
 def _coerce_policy_evaluation(payload: Any) -> PolicyEvaluationVector | None:
-    if payload is None:
-        return None
-    if isinstance(payload, PolicyEvaluationVector):
-        return payload
     try:
-        return PolicyEvaluationVector.model_validate(payload)
+        return _normalize_policy_evaluation_vector(
+            payload, allow_mapping=isinstance(payload, Mapping)
+        )
     except _POLICY_SEARCH_VALIDATION_ERRORS:
         return None
 
@@ -1103,7 +1102,8 @@ def _persist_frontier_report(
     if not records:
         return None
     entries_by_hash: dict[str, PolicyFrontierEntry] = {}
-    feasible_hashes: list[str] = []
+    evaluation_feasibility_by_hash: dict[str, set[bool]] = {}
+    missing_evaluation_hashes: set[str] = set()
     for record in records:
         candidate_hash = record.candidate.candidate_hash()
         view_membership: list[str] = []
@@ -1114,49 +1114,90 @@ def _persist_frontier_report(
             **dict(record.metadata),
         }
         if record.evaluation is not None:
-            if record.evaluation.feasible:
-                feasible_hashes.append(candidate_hash)
+            evaluation_feasibility_by_hash.setdefault(candidate_hash, set()).add(
+                record.evaluation.feasible
+            )
             primary_objectives = {
                 name: channel.value for name, channel in record.evaluation.primary.items()
             }
             constraint_statuses = {
                 name: status.value for name, status in record.evaluation.constraint_statuses.items()
             }
+        else:
+            missing_evaluation_hashes.add(candidate_hash)
         entries_by_hash[candidate_hash] = PolicyFrontierEntry(
-                candidate_hash=candidate_hash,
-                candidate_id=record.candidate.candidate_id,
-                policy_family=str(
-                    record.candidate.metadata.get("policy_family") or record.candidate.candidate_id
-                ),
-                view_membership=view_membership,
-                primary_objectives=primary_objectives,
-                constraint_statuses=constraint_statuses,
-                metadata=metadata,
-            )
+            candidate_hash=candidate_hash,
+            candidate_id=record.candidate.candidate_id,
+            policy_family=str(
+                record.candidate.metadata.get("policy_family") or record.candidate.candidate_id
+            ),
+            view_membership=view_membership,
+            primary_objectives=primary_objectives,
+            constraint_statuses=constraint_statuses,
+            metadata=metadata,
+        )
+    source_feasible_hashes = tuple(
+        sorted(
+            candidate_hash
+            for candidate_hash, feasible_states in evaluation_feasibility_by_hash.items()
+            if feasible_states == {True} and candidate_hash not in missing_evaluation_hashes
+        )
+    )
+    eligibility_unknown_hashes = tuple(
+        sorted(
+            candidate_hash
+            for candidate_hash in entries_by_hash
+            if candidate_hash in missing_evaluation_hashes
+            or len(evaluation_feasibility_by_hash[candidate_hash]) != 1
+        )
+    )
     projection = getattr(search_result, "pareto_projection", None)
     if projection is None:
-        candidate_hashes = sorted(entries_by_hash)
         projection = ParetoViewProjection(
             view="global_feasible",
             assessment=ParetoViewAssessment(
                 status="basis_limited",
                 coverage_status="no_usable_inputs",
                 basis_scope=ParetoBasisScope(scope="not_established"),
-                input_count=len(candidate_hashes),
+                input_count=len(source_feasible_hashes),
                 assessed_count=0,
-                unassessed_candidate_hashes=candidate_hashes,
+                unassessed_candidate_hashes=list(source_feasible_hashes),
             ),
-            eligible_candidate_hashes=tuple(candidate_hashes),
-            candidate_frontier_hashes=tuple(candidate_hashes),
-            unassessed_candidate_hashes=tuple(candidate_hashes),
+            eligible_candidate_hashes=source_feasible_hashes,
+            candidate_frontier_hashes=source_feasible_hashes,
+            unassessed_candidate_hashes=source_feasible_hashes,
         )
     elif isinstance(projection, dict):
         projection = ParetoViewProjection.model_validate(projection)
+    source_feasible = set(source_feasible_hashes)
+    eligible = set(projection.eligible_candidate_hashes)
+    if source_feasible != eligible or eligibility_unknown_hashes:
+        # Reconcile the complete source and registry denominators. Missing,
+        # conflicting, or unassessed records cannot support a global rank.
+        assessment = ParetoViewAssessment.model_validate(
+            {
+                **projection.assessment.model_dump(mode="python"),
+                "status": "denominator_limited",
+            }
+        )
+        projection = ParetoViewProjection(
+            view=projection.view,
+            assessment=assessment,
+            eligible_candidate_hashes=projection.eligible_candidate_hashes,
+            candidate_frontier_hashes=projection.candidate_frontier_hashes,
+            unassessed_candidate_hashes=projection.eligible_candidate_hashes,
+        )
     ranked_hashes = set(projection.ranked_frontier_hashes)
     for candidate_hash in ranked_hashes & set(entries_by_hash):
         entries_by_hash[candidate_hash].view_membership = ["global_feasible"]
     candidate_hashes = (
-        projection.candidate_frontier_hashes
+        tuple(
+            sorted(
+                (set(projection.candidate_frontier_hashes) & source_feasible)
+                | (source_feasible - eligible)
+                | set(eligibility_unknown_hashes)
+            )
+        )
         if projection.assessment.status != "complete"
         else ()
     )
@@ -1172,13 +1213,12 @@ def _persist_frontier_report(
             for candidate_hash in candidate_hashes
             if candidate_hash in entries_by_hash
         ],
+        source_feasible_candidate_hashes=source_feasible_hashes,
+        eligibility_unknown_candidate_hashes=eligibility_unknown_hashes,
         view_membership={"global_feasible": list(projection.ranked_frontier_hashes)},
         view_projections={"global_feasible": projection},
         metadata={
             "source": "c6c_hierarchical_policy_search",
-            "candidate_only_hashes": sorted(set(entries_by_hash) - ranked_hashes)
-            if projection.assessment.status != "complete"
-            else [],
         },
     )
     inputs = [InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()]

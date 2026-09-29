@@ -1,5 +1,29 @@
 # E02-R2 write leases
 
+## R14 existing-owner facade imports (2026-09-29; `8a1c76efa`)
+
+One direct R14 candidate writer may reuse a clean existing candidate worktree
+after verifying that its branch is attached and bringing it forward by an
+append-only merge. The exclusive source write set is exactly
+`policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py`,
+`policy-engine/src/polisyos/fabric/ingestion/ingestion_providers.py`,
+`policy-engine/src/polisyos/fabric/storage/tenant_cas.py`, and
+`policy-engine/src/polisyos/runtime/quality/design_problem.py`. Route the
+three tenant-context imports through the already supported
+`polisyos.core.security` facade and the one slot-pattern import through the
+already supported `polisyos.ir.api` facade. Do not change the owner exports,
+architecture contract, tests, generated families, or register in this slice.
+The R13 ingestion and qualified-outcome source leases are sequenced after
+this import-only candidate is reviewed and integrated or rejected; no other
+writer edits these four files meanwhile. Root alone integrates a reviewed
+candidate. Record the exact pre-edit and post-edit import edges, run the
+existing focused behavior controls, and require the architecture classifier
+to detect a temporary marker-retaining deep-import reintroduction before
+restoring the candidate byte-exactly. A classifier result is bounded to these
+four edges; the remaining guardrail findings retain their own provenance.
+Keep the source frozen during each run, use one process group for the focused
+tests, and preserve at least 8 GiB free disk and 25% free RAM.
+
 ## R7 current-source active-probe removal replay (2026-09-29; `0cf4afa19`)
 
 One direct R7 probe writer uses the clean attached, reused candidate worktree

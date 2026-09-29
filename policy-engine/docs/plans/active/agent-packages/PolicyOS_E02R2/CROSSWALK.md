@@ -383,3 +383,11 @@ B109 exact 2D/3D selectors are absent at execution/main and pass only at E02/Pha
 ## Latest R13 bounded store evidence (2026-09-27; no new finding-target edge)
 
 Commit `9192b5830` routes selected NCM resolution through the supplied runtime store. Its seven-case JUnit passed before the lint-only exception-name cleanup; exact committed-source replay remains `UNRUN`. The served N4 producer, nondefault manifest profile, and production overlay/passport/native-epoch chain remain unresolved. This does not satisfy B12's card-specific admitted-data impact discriminator; B12 remains partial and its existing `conflicts` relation to GY-N13b, Atlas DS15, and the active DS15 obligations is unchanged. Evidence: `/Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R13_N5_SEVEN_CASES.junit.xml@sha256:057175946beb0e69f3180e04e3055c4bc3ed88a7b879330fbac21a35bb2b1c97`; `generation_cycle.py@git-blob:920a4695ddecc4856471411ca6437f650e511170`.
+
+## Reproduced Data Forge input-lineage task relation (2026-09-29)
+
+| Proposed issue (not a B/LA row) | Relation | Target | Boundary |
+| --- | --- | --- | --- |
+| D3 optional-input lineage and resume currentness | touches code named by | LA-032 / UDF-05 input-inventory and binding frontier | Both concern the owner path for identifying input artifacts. The measured D3 case is a different discriminator: `employment_service` changes registered D3 outputs while the five recorded input refs stay equal. This does not establish LA-032 sibling-reader binding, discharge LA-032, close LA-031, or change any B/LA row status. |
+
+No exact GY task, Atlas slice, or standing debt-row operation is admitted for this new issue. Do not infer GY-D1/DS15 or another acquisition edge from shared Data Forge vocabulary. The relation above is a source/owner touch only; the proposed task remains open pending implementation and its closure witnesses.

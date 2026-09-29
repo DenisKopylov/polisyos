@@ -19531,11 +19531,11 @@
         "relation": "agreement_held_blocker_refined",
         "detail": "Appendix C held status retained. Current registry/source census and 17/17 bounded UDF tests refine the one residual to a data_record for selected caller/output parity; they do not establish finding-level closure or authorize retiring common.py."
       },
-      "residual": "One data_record blocker: produce one complete registry-to-output parity record for the five direct .common importers in the complete 11-file builders package. The current route map is sources.py for D0-P0/D1/D2, demography.py for D3, governance_handoff.py for D4, and release.py for D5; bindings_validation.py helpers feed sources.py, while builders/__init__.py owns the registry/facade. Compare bytes/content, diagnostics, warnings, and writes along each actual selected production stage. Current census and 17/17 bounded UDF tests do not execute every registered path, so they do not establish parity; common.py remains actively used. P38 limit: helper identity/serialization checks can pass while a registered D5 caller changes or omits output. No new D5 regression is asserted; full selected-caller parity remains UNRUN.",
+      "residual": "One data_record blocker remains: complete registered-caller parity for the five direct .common importers. D3 now has a bounded registered-output witness: 10/10 output names/byte hashes/semantic hashes/sizes match the historical fixture, with persisted-manifest, warnings, metrics, five unique inputs and writes checked. D4 is only a purpose-limited preserving control. D0/P0/D1/D2 through sources.py, D4 through governance_handoff.py, and D5 through release.py still lack parity records. Full selected-caller parity remains UNRUN; common.py remains actively used. P38 limit: helper tests and one D3 witness can stay green while an unmeasured D5 caller changes or omits output. No D5 regression is asserted.",
       "residual_owner": {
         "kind": "data_record",
         "name": "Ukraine builder migration owner — five importer registry/caller/output parity record",
-        "appointment_status": "The full 11-file/5-importer census and registry route map are recorded; output parity for the actual selected production callers is the single remaining data_record."
+        "appointment_status": "The 11-file/five-importer census and route map remain in force. D3 now has a reviewed bounded registered-output witness and post-edit four-base whole-file result; output parity for D0/P0/D1/D2, D4 and D5 remains the single data_record blocker."
       },
       "r_class": null,
       "p_triage": null,
@@ -19560,7 +19560,7 @@
         "finding_test_status": "PASS_BOUNDED",
         "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py@git-blob:97c1f1dca8db13dc6409919ca2cf81feea43d997",
         "blocker_path_scope": "Complete tracked builders package (11 Python files), five direct .common importers and all selected registry stage paths; remaining question is output parity, not whether common.py has callers.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one data_record blocker; current bounded UDF tests pass; complete selected-caller output parity and finding-level P41 remain UNRUN",
+        "held_audit_receipt_status": "current status held; one data_record blocker; D3 registered-output parity bounded and independently reviewed; D0/P0/D1/D2, D4 and D5 caller/output parity remain UNRUN",
         "held_review": {
           "identity": "current source/card and bounded-test review; finding-level closure remains UNRUN",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-udf-20260926/H_LA031_LA032_CLOSEOUT.md@sha256:b33568b619bf786772cb13387d33e19bd18d86c142bb63ab1411c9fd36f6ec7f#LA-031",
@@ -19606,6 +19606,18 @@
           "behavioral_verdict": "UNRUN",
           "reviewed_head_or_snapshot": "codex/e02-r2 HEAD 43d4f47838087476d9d26d78aeb244a6d1cd6d6c; read-only review; no tests run",
           "scope": "Read-only H closeout review at HEAD 43d4f478. The complete Ukraine builders package has 11 tracked Python files and five direct .common importers. The earlier 17/17 UDF suite is bounded helper/I/O evidence; registry-selected caller/output parity and four-base P41 remain UNRUN. No D5 regression is asserted."
+        },
+        "d3_bounded_witness": {
+          "identity": "D3 registered-output and persisted-manifest witness; D4 purpose-limited preserving control",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-la031-d3-implementation-20260929/LA031_D3_WITNESS_V2_REVIEW.md@sha256:7105f4c0e96c65be57688f4561ae93af65fbff8702d78c90eeae5dfa3fffbc78",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "D3 only: five unique declared inputs; ten exact expected outputs; persisted BuildRunManifest readback; 10/10 output names/content hashes/sizes and warnings, metrics, input count, and 16/16 created paths equal the historical fixture. D4 is a purpose-limited preserving control. LA-031 remains held because D0/P0/D1/D2, D4, and D5 selected-caller parity remains unmeasured.",
+          "test_blob": "policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py@git-blob:3c5b3111c6e4ee7446899871d1875b8aa6761ab5",
+          "post_edit_four_base": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T161900Z-53537/results.json@sha256:a9047ffad9989c8d0037489deac339616d572c5a8547af021d746b41d3c35c4a",
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-la031-d3-implementation-20260929/LA031_D3_WITNESS_V2_RECEIPT.md@sha256:4138f07c5f8cca6d2a7099feda819da1d79d4ff981ee178fcec8df6875014a4c",
+            "/Users/deniskopylov/.codex/scratch/e02-la031-d3-implementation-20260929/LA031_D3_WITNESS_V2_REVIEW_ADDENDUM.md@sha256:f958c09687fe5b7dc9a53ef21e8d90f0a5b4491b67d71559729b685d414bd97b"
+          ]
         }
       },
       "h13_remaining_audit_20260927": {

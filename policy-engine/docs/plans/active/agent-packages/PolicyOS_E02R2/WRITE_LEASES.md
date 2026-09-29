@@ -1,5 +1,26 @@
 # E02-R2 write leases
 
+## Sequential R2 historical N6 projector lease (2026-09-29)
+
+The R13 candidate writer has frozen `generation_cycle.py` at SHA-256
+`f974c1144b92fcf496cbb6947ea086ffc07b0d33ed862086ad9aca8dc905383f`
+and released that source path temporarily; no R13 test process is running.
+Root alone may edit the canonical branch's
+`policy-engine/src/polisyos/runtime/quality/generation_cycle.py` and mirrored
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`
+for R2's historical `ArtifactID` RootModel scalar-wire replay defect. The
+property is byte-exact persisted N6 history replay, including a non-null N5
+result reference, without a live checkout or authority/currentness upgrade.
+Root must run a failing behavioral test first, then a preserving historical
+control and a marker-retaining removal probe. The R13 writer keeps its current
+WIP in its separate candidate worktree but does not edit `generation_cycle.py`
+until root commits this R2 slice and the candidate merges canonical append-only.
+The two branches' tests must never edit either tree during an in-flight run.
+
+This lease is a temporary sequencing override to the R13 source lease below.
+R1 continues on its frozen candidate branch; its N6/N5 positive path is not
+claimed until the corrected history owner and guarded CAS replay are tested.
+
 ## Current R13 correction lease at `36bc65858` (2026-09-29)
 
 Root remains the sole writer of `codex/e02-r2`. Independent review found the

@@ -112,8 +112,12 @@ def _build_control_service(
     tmp_path,
     *,
     cycle_substrate_context_admission_owner=None,
+    ownership_enforced: bool = False,
 ) -> ControlPlaneService:
-    store = FileSystemCAS(tmp_path / ".polisyos")
+    store = FileSystemCAS(
+        tmp_path / ".polisyos",
+        ownership_enforced=ownership_enforced,
+    )
     resolver = RuntimeExecutionPolicyResolver(
         default_profile="dev",
         worker_backend="external",
@@ -2076,6 +2080,7 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         service = _build_control_service(
             tmp_path,
             cycle_substrate_context_admission_owner=source_owner,
+            ownership_enforced=True,
         )
         try:
             ncm_ref = persist_ncm_spec(
@@ -2325,11 +2330,12 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
             max_iterations=1,
         )
         claims = _fixture_claims()
-        launch = await service.launch_nl_run(
-            request,
-            principal=RuntimePrincipal.from_user_claims(claims),
-            authorization_proof=bound_nl_authorization_proof(claims, request),
-        )
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            launch = await service.launch_nl_run(
+                request,
+                principal=RuntimePrincipal.from_user_claims(claims),
+                authorization_proof=bound_nl_authorization_proof(claims, request),
+            )
         job = service._control_store.get_job(launch.job_id)
         assert job is not None and job.run_id is not None
         leased = service._control_store.lease_next_job(
@@ -2337,12 +2343,17 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
             lease_seconds=60,
         )
         assert leased is not None and leased.job_id == launch.job_id
-        with service._control_store.job_execution_fence(
-            job_id=leased.job_id,
-            worker_id=leased.lease_owner,
-            attempt=leased.attempt,
-        ):
-            service._process_control_job(leased)
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            assert get_current_tenant_id_or_none() == "tenant-fixture"
+            assert get_current_cell_id() == "cell-fixture"
+            with service._control_store.job_execution_fence(
+                job_id=leased.job_id,
+                worker_id=leased.lease_owner,
+                attempt=leased.attempt,
+            ):
+                assert get_current_tenant_id_or_none() == "tenant-fixture"
+                assert get_current_cell_id() == "cell-fixture"
+                service._process_control_job(leased)
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None and completed.state == "completed"
@@ -2380,10 +2391,12 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert verified_scope_observations[0].attempt == leased.attempt
         assert str(owner_refs[0].artifact_id) == progress["cycle_substrate_context_job_ref"]
 
-        context_artifact = CycleSubstrateContextJobArtifact.model_validate(
-            canon.from_canonical_bytes(
-                service._artifact_store.get_bytes(owner_refs[0].artifact_id)
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            context_payload_bytes = service._artifact_store.get_bytes(
+                owner_refs[0].artifact_id
             )
+        context_artifact = CycleSubstrateContextJobArtifact.model_validate(
+            canon.from_canonical_bytes(context_payload_bytes)
         )
         assert context_artifact.job_id == launch.job_id
         assert context_artifact.run_id == str(job.run_id)
@@ -2522,28 +2535,55 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
             "current_execution_job_record",
             reject_completed_lease_lookup,
         )
+        from polisyos.runtime.http.services.control import (
+            generation_cycle as control_generation_cycle_owner,
+        )
+
+        original_historical_n6_n5_replay = (
+            control_generation_cycle_owner.replay_historical_candidate_n6_n5
+        )
+        owner_replays = []
+
+        def observe_historical_n6_n5_replay(**kwargs):
+            replay = original_historical_n6_n5_replay(**kwargs)
+            owner_replays.append(replay)
+            return replay
+
+        monkeypatch.setattr(
+            control_generation_cycle_owner,
+            "replay_historical_candidate_n6_n5",
+            observe_historical_n6_n5_replay,
+        )
         with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
             status = service.get_job_status(launch.job_id)
         assert ("tenant-fixture", "cell-fixture") in guarded_read_scopes
         assert live_lease_reads == []
+        assert len(owner_replays) == 1
+        replay = owner_replays[0]
+        expected_leaf_schema_versions = tuple(
+            node.cycle_run.schema_version
+            for node in recursive_run.leaf_nodes
+            if node.cycle_run is not None
+        )
+        assert expected_leaf_schema_versions == (
+            "policyos.runtime.generation_cycle_controller.v3",
+        )
+        assert replay.n6_leaf_schema_versions == expected_leaf_schema_versions
+        assert replay.n6_leaf_schema_versions
+        assert set(replay.n5_result_artifact_ids) == set(expected_n5_world_hashes)
+        assert len(replay.n5_result_artifact_ids) == len(expected_n5_world_hashes) == 1
+        assert replay.n5_result_artifact_ids
         assert status.progress["execution_intent_band"] == "simulate_only_attempt"
-        if status.progress.get("limitation_code") == "candidate_n6_n5_owner_replay_failed":
-            # The current historical N6 owner rejects this fixture's typed
-            # ArtifactID/string wire projection. Keep the gap explicit: the
-            # served worker above exercised N5, but the completed reader cannot
-            # replay its source and must not claim that result from progress.
-            assert observed_n5_world_hashes == {}
-            assert "compiled_recursive_generation_cycle_ref" not in status.progress
-            assert status.progress["n5_status"] == "not_established"
-            assert status.progress["n5_world_model_custody_status"] == "not_established"
-        else:
-            # If the historical owner becomes replayable, the reader must bind
-            # every loaded N5 result to the WMR named by its N6 observation.
-            assert observed_n5_world_hashes == expected_n5_world_hashes
-            assert status.progress["compiled_recursive_generation_cycle_ref"] == (
-                owner_compiled_ref
-            )
-            assert status.progress["n5_status"] in {"completed", "partial"}
+        # A completed candidate replay must reconstruct N6/N5 from the
+        # immutable completion evidence, not leave the old typed limitation.
+        assert status.progress.get("limitation_code") != (
+            "candidate_n6_n5_owner_replay_failed"
+        )
+        assert observed_n5_world_hashes == expected_n5_world_hashes
+        assert status.progress["compiled_recursive_generation_cycle_ref"] == (
+            owner_compiled_ref
+        )
+        assert status.progress["n5_status"] in {"completed", "partial"}
         assert status.progress["n8_status"] == "not_run"
         assert status.progress["n9_status"] == "not_run"
         assert status.progress["s8_status"] == "not_run"
@@ -2553,6 +2593,38 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert "normative_disposition_ref" not in status.progress
         assert "ranked_recommendations" not in status.progress
         assert "promotion_refusal_reasons" not in status.progress
+
+        from polisyos.core.artifacts import ArtifactOwnershipError
+
+        foreign_owner_denials = []
+        original_get_manifest = raw_artifact_store.get_manifest
+
+        def observe_foreign_owner_denial(ref):
+            scope = (get_current_tenant_id_or_none(), get_current_cell_id())
+            try:
+                return original_get_manifest(ref)
+            except ArtifactOwnershipError:
+                if scope == ("tenant-foreign", "cell-foreign"):
+                    foreign_owner_denials.append(scope)
+                raise
+
+        monkeypatch.setattr(raw_artifact_store, "get_manifest", observe_foreign_owner_denial)
+        with (
+            tenant_scope(None, tenant_id="tenant-foreign", cell_id="cell-foreign"),
+            pytest.raises(ArtifactOwnershipError),
+        ):
+            original_historical_n6_n5_replay(
+                store=service._artifact_store,
+                compiled_run_ref=owner_compiled_ref,
+                expected_scope={
+                    "tenant_id": "tenant-fixture",
+                    "cell_id": "cell-fixture",
+                    "job_id": launch.job_id,
+                    "run_id": str(job.run_id),
+                },
+                expected_raw_request=problem.nl_provenance.raw_request,
+            )
+        assert foreign_owner_denials == [("tenant-foreign", "cell-foreign")]
 
         # If the persisted launch binding itself is malformed, no mutable stage
         # or authority projection may escape through the legacy P20 reader.

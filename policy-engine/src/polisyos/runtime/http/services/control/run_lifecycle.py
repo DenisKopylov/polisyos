@@ -3346,7 +3346,6 @@ class ControlPlaneService(
                     return self._project_replayed_simulate_only_result(
                         record=record,
                         payload=payload,
-                        intent_binding=intent_binding,
                         completion_progress=completion_progress,
                         compiled_ref=compiled_ref,
                     )
@@ -3502,136 +3501,34 @@ class ControlPlaneService(
         *,
         record: ControlJobRecord,
         payload: Mapping[str, Any],
-        intent_binding: Mapping[str, Any],
         completion_progress: Mapping[str, Any],
         compiled_ref: str,
     ) -> dict[str, Any]:
-        """Replay exact compiled N6 history and N5 CAS results for one candidate run."""
+        """Project historical candidate N6/N5 replay without current authority."""
         from polisyos.runtime.http.services.control.generation_cycle import (
-            CompiledRecursiveGenerationCycleRun,
-        )
-        from polisyos.runtime.quality.generation_cycle import (
-            _joint_simulation_port_outcome,
-            load_joint_simulation_result,
-            validate_generation_cycle_run_history,
+            replay_historical_candidate_n6_n5,
         )
 
-        if record.run_id is None or not compiled_ref.startswith("sha256:"):
-            raise RuntimeError("candidate_compiled_source_ref_not_established")
-        artifact_id = artifacts.ArtifactID.model_validate(compiled_ref)
-        if str(artifact_id) != compiled_ref:
-            raise RuntimeError("candidate_compiled_source_ref_not_canonical")
-        manifest = self._artifact_store.get_manifest(artifact_id)
-        compiled_schema = manifest.artifact_schema
-        if (
-            manifest.kind != "runtime.compiled_recursive_generation_cycle"
-            or manifest.media_type != "application/json"
-            or compiled_schema is None
-            or compiled_schema.name != "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
-            or compiled_schema.version != "1.0"
-        ):
-            raise RuntimeError("candidate_compiled_source_owner_profile_mismatch")
-        raw_bytes = self._artifact_store.get_bytes(artifact_id)
-        if (
-            manifest.byte_size != len(raw_bytes)
-            or manifest.integrity.sha256 != artifact_id.hex
-            or canonical_content_hash(raw_bytes, prefix=True) != compiled_ref
-        ):
-            raise RuntimeError("candidate_compiled_source_integrity_mismatch")
-        raw_compiled = from_canonical_bytes(raw_bytes)
-        if not isinstance(raw_compiled, Mapping):
-            raise RuntimeError("candidate_compiled_source_not_mapping")
-        compiled = CompiledRecursiveGenerationCycleRun.model_validate(raw_compiled)
-        source_context = compiled.design_problem.nl_provenance.source_context
         tenant_id, cell_id = _job_scope_identity(payload)
-        expected_source_identity = {
-            "tenant_id": tenant_id,
-            "cell_id": cell_id,
-            "job_id": record.job_id,
-            "run_id": record.run_id,
-        }
-        if any(source_context.get(key) != value for key, value in expected_source_identity.items()):
-            raise RuntimeError("candidate_compiled_problem_scope_mismatch")
-        if any(key in source_context for key in ("runtime_identity", "candidate_context")):
-            raise RuntimeError("candidate_compiled_problem_identity_carrier_forbidden")
-        if compiled.design_problem.nl_provenance.raw_request != payload.get("request"):
-            raise RuntimeError("candidate_compiled_problem_request_mismatch")
-
-        raw_recursive = raw_compiled.get("recursive_run")
-        raw_nodes = raw_recursive.get("nodes") if isinstance(raw_recursive, Mapping) else None
-        if not isinstance(raw_nodes, (list, tuple)):
-            raise RuntimeError("candidate_recursive_history_nodes_missing")
-        raw_nodes_by_ref = {
-            str(row.get("node_ref")): row for row in raw_nodes if isinstance(row, Mapping)
-        }
-        if len(raw_nodes_by_ref) != len(raw_nodes) or len(raw_nodes_by_ref) != len(
-            compiled.recursive_run.nodes
+        if (
+            record.run_id is None
+            or not isinstance(tenant_id, str)
+            or not tenant_id.strip()
+            or not isinstance(cell_id, str)
+            or not cell_id.strip()
+            or not isinstance(payload.get("request"), str)
         ):
-            raise RuntimeError("candidate_recursive_history_node_denominator_mismatch")
-
-        n5_outcomes: list[str] = []
-        n5_observation_count = 0
-        leaf_nodes = compiled.recursive_run.leaf_nodes
-        if not leaf_nodes:
-            raise RuntimeError("candidate_recursive_history_leaf_denominator_empty")
-        for node in leaf_nodes:
-            typed_run = node.cycle_run
-            raw_node = raw_nodes_by_ref.get(node.node_ref)
-            raw_run = raw_node.get("cycle_run") if isinstance(raw_node, Mapping) else None
-            if typed_run is None or not isinstance(raw_run, Mapping):
-                raise RuntimeError("candidate_recursive_history_leaf_missing")
-            history_issues = validate_generation_cycle_run_history(raw_run)
-            if history_issues:
-                raise RuntimeError("candidate_generation_cycle_history_not_replayable")
-            if not typed_run.cycles:
-                raise RuntimeError("candidate_generation_cycle_n5_denominator_empty")
-            for cycle in typed_run.cycles:
-                observation = cycle.simulation
-                n5_observation_count += 1
-                if observation.status == "simulation_pending_n5":
-                    if (
-                        observation.simulation_result_ref is not None
-                        or observation.simulation_ref is not None
-                    ):
-                        raise RuntimeError("candidate_pending_n5_has_result_reference")
-                    continue
-                if observation.simulation_result_ref is None or not observation.simulation_ref:
-                    raise RuntimeError("candidate_n5_result_reference_missing")
-                if (
-                    observation.k_world_ref_before is None
-                    or observation.k_world_ref_after != observation.k_world_ref_before
-                ):
-                    raise RuntimeError("candidate_n5_world_model_binding_not_established")
-                result = load_joint_simulation_result(
-                    observation.simulation_result_ref,
-                    store=self._artifact_store,
-                    expected_world_model_record_content_hash=observation.k_world_ref_before,
-                )
-                if result.receipt.payload_hash != observation.simulation_ref:
-                    raise RuntimeError("candidate_n5_receipt_binding_mismatch")
-                replayed_status, replayed_blockers = _joint_simulation_port_outcome(result)
-                if (
-                    replayed_status != observation.status
-                    or replayed_blockers != observation.authority_blockers
-                ):
-                    raise RuntimeError("candidate_n5_outcome_binding_mismatch")
-                n5_outcomes.append(replayed_status)
-
-        if n5_observation_count == 0:
-            raise RuntimeError("candidate_generation_cycle_n5_denominator_empty")
-        if len(n5_outcomes) == n5_observation_count:
-            n5_status = "completed"
-        elif n5_outcomes:
-            n5_status = "partial"
-        else:
-            n5_status = "not_run"
-        distinct_outcomes = tuple(dict.fromkeys(n5_outcomes))
-        simulation_status = (
-            distinct_outcomes[0]
-            if len(distinct_outcomes) == 1
-            else "mixed"
-            if distinct_outcomes
-            else "not_run"
+            raise RuntimeError("candidate_compiled_source_scope_not_established")
+        replay = replay_historical_candidate_n6_n5(
+            store=self._artifact_store,
+            compiled_run_ref=compiled_ref,
+            expected_scope={
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "job_id": record.job_id,
+                "run_id": record.run_id,
+            },
+            expected_raw_request=payload["request"],
         )
         if completion_progress.get("cycle_substrate_context_job_ref") is None:
             context_custody_limitation = "completed_cycle_substrate_context_ref_missing"
@@ -3650,9 +3547,9 @@ class ControlPlaneService(
             "candidate_result_limitation_code": context_custody_limitation,
             "limitation_code": context_custody_limitation,
             "run_id": record.run_id,
-            "compiled_recursive_generation_cycle_ref": compiled_ref,
-            "n5_status": n5_status,
-            "simulation_status": simulation_status,
+            "compiled_recursive_generation_cycle_ref": replay.compiled_run_ref,
+            "n5_status": replay.n5_status,
+            "simulation_status": replay.simulation_status,
             "n5_world_model_custody_status": "not_established",
             "n5_world_model_custody_limitation_code": context_custody_limitation,
             "n8_status": "not_run",

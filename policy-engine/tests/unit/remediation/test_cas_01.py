@@ -436,6 +436,8 @@ def test_exception_releases_same_id_lock_for_scoped_view_waiter(tmp_path: Path) 
     waiter_done = threading.Event()
     outcome_guard = threading.Lock()
     outcomes: dict[str, ArtifactRef | Exception] = {}
+    observed_ids: dict[str, ArtifactID] = {}
+    observed_locks: dict[str, object] = {}
     original_write_once = store._files.write_once
     original_artifact_lock = store._artifact_lock
 
@@ -448,34 +450,45 @@ def test_exception_releases_same_id_lock_for_scoped_view_waiter(tmp_path: Path) 
         return original_write_once(path, data)
 
     @contextmanager
-    def _observed_artifact_lock(artifact_id: ArtifactID):
-        lock = original_artifact_lock(artifact_id)
-        if threading.current_thread().name != "cas-waiting-view":
-            with lock:
-                yield
-            return
+    def _waiter_lock(lock):
         if lock.acquire(blocking=False):
             waiter_acquired_early.set()
         else:
             waiter_contended.set()
-            lock.acquire()
+            if not lock.acquire(timeout=3):
+                raise TimeoutError("same-ID waiter did not acquire after failed view")
         try:
             yield
         finally:
             lock.release()
+
+    def _observed_artifact_lock(artifact_id: ArtifactID):
+        lock = original_artifact_lock(artifact_id)
+        thread_name = threading.current_thread().name
+        if thread_name in {"cas-failed-view", "cas-waiting-view"}:
+            with outcome_guard:
+                observed_ids[thread_name] = artifact_id
+                observed_locks[thread_name] = lock
+        if thread_name == "cas-waiting-view":
+            return _waiter_lock(lock)
+        # The failed writer receives the actual production lock. Its exception
+        # release must come from the CAS owner's `with`, not this observer.
+        return lock
 
     store._files.write_once = _fail_first_view  # type: ignore[method-assign]
     store._artifact_lock = _observed_artifact_lock  # type: ignore[method-assign]
 
     def _writer(name: str, options: PutOptions) -> None:
         try:
-            outcome: ArtifactRef | Exception = store.put_bytes(PAYLOAD, options)
-        except Exception as exc:  # pragma: no cover - checked through outcomes below
-            outcome = exc
-        with outcome_guard:
-            outcomes[name] = outcome
-        if name == "cas-waiting-view":
-            waiter_done.set()
+            try:
+                outcome: ArtifactRef | Exception = store.put_bytes(PAYLOAD, options)
+            except Exception as exc:  # pragma: no cover - checked through outcomes below
+                outcome = exc
+            with outcome_guard:
+                outcomes[name] = outcome
+        finally:
+            if name == "cas-waiting-view":
+                waiter_done.set()
 
     failed_writer = threading.Thread(
         target=_writer,
@@ -498,12 +511,14 @@ def test_exception_releases_same_id_lock_for_scoped_view_waiter(tmp_path: Path) 
         assert not waiter_done.is_set()
     finally:
         release_first.set()
-        failed_writer.join(timeout=5)
+        failed_writer.join(timeout=6)
         if waiting_writer.ident is not None:
-            waiting_writer.join(timeout=5)
+            waiting_writer.join(timeout=6)
 
     assert not failed_writer.is_alive()
     assert not waiting_writer.is_alive()
+    assert observed_ids == {"cas-failed-view": aid, "cas-waiting-view": aid}
+    assert observed_locks["cas-failed-view"] is observed_locks["cas-waiting-view"]
     assert isinstance(outcomes.get("cas-failed-view"), OSError)
     assert str(outcomes["cas-failed-view"]) == "injected scoped-view write failure"
     waiting_ref = outcomes.get("cas-waiting-view")

@@ -23,10 +23,16 @@ four files meanwhile.
 
 R1's controlled-profile witness writer owns only a scratch patch to
 `policy-engine/tests/unit/runtime/http/test_control_service_di.py`. R14's
-runtime-contract writer owns only a scratch patch to
-`policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py` and
-`policy-engine/tests/repo_quality/tools/test_runtime_contract_measurement.py`.
-Neither may edit canonical files. Read-only P41 planning and the separate
+runtime-contract checker/test patch was reviewed and integrated at
+`6ad734ffc`; that two-file source lease is released. Its four-base touched-file
+replay found the test path Git-missing at execution/E02, Main 3/3 passing and
+integration 5/5 passing; all three shared Main selectors remain pass→pass.
+The complete manifest is
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T003439Z-60001/results.json@sha256:d0a7b3125a036aa5abc2c1cebe0af0f942c703369e04d55cf70e2cd464e68c8b`.
+R7/R8 marker-retaining probes now exclusively use the managed detached
+`e02-r7-r8-probes` worktree at `6ad734ffc`, with sequential mutation and exact
+source restoration; no mutant is committed. Neither candidate writer may edit
+canonical files. Read-only P41 planning and the separate
 `OPEN_PREMISES.md` blocker addenda hold no source lease. The complete R1
 control-service four-cell reconciliation is pinned in
 `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-single-base-control-service-20260929T000807Z-47844/reconciliation.json@sha256:c2cddee57b8d4d6c73a368a94f8d3bc09a1c980699bdf69016d0f66fb7fac782`;

@@ -7074,7 +7074,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02’s absence of a finding-level record. The bounded expected-red probe and integrated CAS reopen/resume evidence add a finding-level record; the wider durable-head matrix remains open, so status is partial."
       },
-      "residual": "At 3ec377af, source review confirms the built-in CAS tier path requires an atomic tier-completion hook and publishes merged state with full successful completion set. Historical receipts: clean-782 real-CAS expected-red reproduced state right=2 with completed_nodes=[left]; integrated candidate passed 11/11 focused and full checkpoint-resume 9/9. No 3ec test execution is claimed. Exact 3ec replay, four-base P41, broader fail-fast/continue durable-head behavior and arbitrary custom-hook atomicity remain UNRUN. Keep partial.",
+      "residual": "Commit 468a04893 adds a bounded local process boundary to the existing built-in CAS tier checkpoint test: a spawned child constructs a fresh FileSystemCAS, observes both merged peer effects with the complete completed-node frontier, then resumes without re-running either peer. The post-edit whole-file P41 at 468a04893 is 7/7 on each historical base and 9/9 at integration, with no shared pass-to-fail; this is one of the three B73 files, not the complete finding matrix. A marker-retaining incomplete-frontier mutant fails at the child-observed frontier. Keep partial: fail-fast/continue durable-head behavior, compensation, output-cache and seed references, arbitrary hook persistence, externally killed-writer recovery, and Temporal/Ray/external exactly-once semantics are not established.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -7307,6 +7307,35 @@
           "residual_owner": "RES-02 local checkpoint owner plus Temporal/Ray/activity distributed checkpoint route",
           "next_signal": "Run fail-fast/continue durable-head matrix across stop/reopen/resume and prove custom-hook persistence semantics; then exact current four-base P41.",
           "four_base_p41": "UNRUN"
+        },
+        "spawned_process_checkpoint_witness_2026_09_29": {
+          "identity": "test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer; spawned child resolves and resumes the persisted tier checkpoint",
+          "kind": "bounded_finding_level_behavioral_witness",
+          "integrated_commit": "468a04893ea67889dda8d1a9b993d498e7f63940",
+          "test_path_at_git_blob": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py@git-blob:1996aad67dfbcb99c341ebfba946986de6231720",
+          "pre_edit_p41_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T163814Z-57383/results.json@sha256:5ff7925882ee9f6cc7dedf16bba29f0441a3c65346857cc758984bed6508d782",
+          "post_edit_p41_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260929T165612Z-60922/results.json@sha256:5800dd60381c5656350d7435e1380e01c066be1e1c77c00d9f23a996fe65ee85",
+          "post_edit_p41_cells": {
+            "requested": 4,
+            "present": 4,
+            "execution_base": "7/7 PASS",
+            "e02_head": "7/7 PASS",
+            "main": "7/7 PASS",
+            "integration": "9/9 PASS",
+            "common_pass_to_fail": 0,
+            "current_only_case_identities": 2,
+            "current_only_status": "CASE_SET_CHANGED"
+          },
+          "spawned_selector_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-fresh-store-20260929/spawn-positive.xml@sha256:d7576936f2f0c70e68f58c044be0656b635397168e3077116ce3cee8035b7f85",
+          "whole_file_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-fresh-store-20260929/spawn-full-current.xml@sha256:d57362ac5294ef794697441c0607e7ddc21f865c9e1391fc8fce0881a05fb076",
+          "marker_retaining_removal_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-fresh-store-20260929/spawn-removal-v2.xml@sha256:ceb511348dea4489480e250d35a6a7fc969a2da0cbdd5532c4728b6207bc44ed",
+          "mutant_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-fresh-store-20260929/b73_partial_frontier_mutant.py@sha256:d8f80eca4debffddccd5604105d6b53ad4762c62ba607a333a93815e6562999a",
+          "independent_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-fresh-store-20260929/B73_SPAWNED_PROCESS_INDEPENDENT_REVIEW.md@sha256:0d142b1179f1420ede3923c8c92666b536f65ff0839475164cab5ed58db14f01",
+          "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b73-fresh-store-20260929/B73_FRESH_STORE_RECEIPT.md@sha256:9c3f8a06c2b394224ef6bf6c9b2a5e8ad2bfa5fa100c86f669144d2b66f36320",
+          "predicate": "A child process using a newly constructed CAS store observes state effects and completed-node frontier describing the same successful tier boundary, then resumes without invoking completed peers.",
+          "p38_divergence": "The writer process can retain correct in-memory state while a fresh reader would observe an incomplete durable frontier beside both peer effects; the child recomputes the predicate from the persisted CAS head and artifact.",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope_limit": "Simulated stop after publication and local multiprocessing spawn; does not kill the writer during publish or prove crash atomicity, distributed workers, arbitrary custom hooks, fail-fast/continue rollback, compensation, output-cache/seed semantics, or external exactly-once effects. B73 remains partial."
         }
       },
       "finding_test_status": "MIXED_BOUNDED",

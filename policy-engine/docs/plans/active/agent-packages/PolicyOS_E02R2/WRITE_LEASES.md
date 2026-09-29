@@ -1,5 +1,17 @@
 # E02-R2 write leases
 
+## R1 ordinary candidate world-build removal probe (2026-09-29)
+
+Root alone edits `policy-engine/tests/unit/runtime/http/test_control_service_di.py`
+on `codex/e02-r2` to guard the existing plain-request candidate test against
+an eager production WMR build. The test patches the canonical WMR owner to
+raise if ordinary no-context candidate routing reaches it, while preserving
+the existing typed candidate result and separate owner-admitted N5 positive.
+This is a bounded route-level removal probe, not proof of the WMR builder's
+independent compute budget or S8 authority. The R1 v2 sidecar candidate owns
+different files; B26 owns its separate three-file numerical slice. Freeze the
+canonical source/test tree during the focused run and keep the 8 GiB disk floor.
+
 ## Active bounded R2 historical S8 lease (2026-09-29; canonical `86bdf0e5b`)
 
 One direct R2 candidate writer owns only a scratch patch to

@@ -467,6 +467,7 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
     from polisyos.runtime.http.services.control.generation_cycle import (
         N4CandidateProposalExecution,
     )
+    from polisyos.runtime.quality import intervention_substrate
     from polisyos.runtime.quality.design_generation import DesignGenerationOrganRun
     from polisyos.scientist.orchestration.llm import factory as llm_factory
     from tests.unit.runtime.quality.test_generation_cycle import (
@@ -495,6 +496,15 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
         llm_factory,
         "create_traced_gateway_client",
         lambda **_kwargs: None,
+    )
+
+    def forbid_eager_world_build(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("ordinary_candidate_eager_world_build")
+
+    monkeypatch.setattr(
+        intervention_substrate,
+        "production_composed_world_model_record",
+        forbid_eager_world_build,
     )
 
     # This is the ordinary HTTP candidate boundary: no CycleSubstrateContext or

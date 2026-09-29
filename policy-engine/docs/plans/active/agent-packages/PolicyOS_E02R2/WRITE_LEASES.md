@@ -1,5 +1,27 @@
 # E02-R2 write leases
 
+## B109 exact same-group Pareto witness (2026-09-29; `4fd29d6e0`)
+
+One direct B109 writer reuses the clean attached worktree
+`/Users/deniskopylov/.codex/worktrees/e02-r7-r8-probes/polisyos` on
+`codex/e02-r2-r13-selected-row-candidate`, fast-forwards from the current
+`codex/e02-r2` branch append-only, and edits only
+`policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py`.
+The production comparator is not a permanent write target: its current weak
+comparison already has the intended property. Use the exact same-first-group
+3D pair, both permutations, duplicate and incomparable controls, and an
+independent minimize-direction control which asserts the lower raw cost wins.
+After a clean passing current test, temporarily change only the comparator's
+`<=` to `<` in the isolated candidate worktree, retain markers, require the
+new discriminator red with controls green, then reverse the patch byte-exactly.
+Record source/test blobs and JUnit hashes. Run one light test process at a time;
+freeze the candidate tree during each run. Do not touch canonical source, any
+generated family, or `production_data`; root alone integrates a reviewed
+candidate. Preserve at least 8 GiB free disk and 25% free RAM.
+
+Design: `/Users/deniskopylov/.codex/scratch/e02-nb109-pareto-design-20260929/NB109_PARETO_TEST_FIRST_PLAN.md@sha256:40d03bf0f8fb2d2a9804a27fdd8b9c1d648ecbe697cbd0e10fbf050e66f1b6b7`;
+independent review: `/Users/deniskopylov/.codex/scratch/e02-nb109-pareto-design-review-20260929.md@sha256:95d62e375fce364b5ebf3dc4fe83830e553a25a5853640e0e179ead1f8ed07ec`.
+
 ## R6 foreign-context N5 removal probe (2026-09-29; `58df9a932`)
 
 The R5 writer and five-selector R9 reader have finished in the clean reused

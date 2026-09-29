@@ -3,6 +3,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 
+import duckdb
 import pytest
 
 from polisyos.core import artifacts, canon
@@ -14,7 +15,10 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionService,
     AcquisitionActionServiceError,
 )
-from polisyos.runtime.quality.acquisition_executor import LiveAcquisitionExecutionError
+from polisyos.runtime.quality.acquisition_executor import (
+    LiveAcquisitionExecutionError,
+    SemanticEpochAdmissionResolutionError,
+)
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteClosureError
 from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
@@ -209,6 +213,100 @@ async def test_bridge_resume_reenters_after_current_source_passport_and_epoch(
     assert reentry.admitted_observation_count > 0
     assert reentry.semantic_epoch_ref == str(growth.activation.semantic_epoch_stamp.epoch_ref)
     assert reentry.semantic_epoch_production_receipt_content_hash
+
+
+@pytest.mark.asyncio
+async def test_served_resume_refuses_selected_value_drift_with_receipt_markers_retained(
+    tmp_path, monkeypatch
+):
+    install_fixture_wdi_cost_basis(monkeypatch)
+    control = _build_control_service(tmp_path / "control")
+    closure, _ = await persist_wdi_route(
+        control,
+        generation_cycle_repo_root=Path(__file__).resolve().parents[3],
+    )
+    case = make_wdi_port_case(tmp_path / "wdi", monkeypatch, control=control, closure=closure)
+    quarantined = case.port.execute(closure)
+    assert quarantined.disposition == "quarantined_no_growth"
+    case.appoint_native_policy()
+    case.port.prepare_route_execution(closure)
+    committed = case.port.execute(closure)
+    assert committed.disposition == "world_committed"
+    assert committed.admitted_observation_delta == 1
+
+    selected = case.bridge.selection(closure)
+    assert selected is not None
+    overlay_path, _ = case.bridge._paths(selected)
+    con = duckdb.connect(str(overlay_path), read_only=True)
+    try:
+        owner_markers = con.execute(
+            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ?",
+            [selected.epoch_id],
+        ).fetchone()
+        assert owner_markers is not None
+        member_key = con.execute(
+            "SELECT canonical_primary_key_bytes FROM acquisition_epoch_members "
+            "WHERE epoch_id = ? AND passport_id = ? AND table_name = 'ds_observations' "
+            "ORDER BY canonical_primary_key_hash LIMIT 1",
+            [selected.epoch_id, owner_markers[0]],
+        ).fetchone()
+        selected_member_count = con.execute(
+            "SELECT count(*) FROM acquisition_epoch_members "
+            "WHERE epoch_id = ? AND passport_id = ? AND table_name = 'ds_observations'",
+            [selected.epoch_id, owner_markers[0]],
+        ).fetchone()
+    finally:
+        con.close()
+    assert owner_markers[2] == committed.admitted_observation_delta == 1
+    assert member_key is not None
+    assert selected_member_count == (committed.admitted_observation_delta,)
+    member_text = bytes(member_key[0]).decode("ascii")
+    prefix = "ds_observations|observation_id="
+    assert member_text.startswith(prefix)
+    observation_id = bytes.fromhex(member_text.removeprefix(prefix)).decode("utf-8")
+
+    con = duckdb.connect(str(overlay_path))
+    try:
+        original_row = con.execute(
+            "SELECT observation_id, value FROM ds_observations WHERE observation_id = ?",
+            [observation_id],
+        ).fetchone()
+        assert original_row is not None
+        con.execute(
+            "UPDATE ds_observations SET value = ? WHERE observation_id = ?",
+            [float(original_row[1]) + 1.0, observation_id],
+        )
+    finally:
+        con.close()
+
+    con = duckdb.connect(str(overlay_path), read_only=True)
+    try:
+        assert con.execute(
+            "SELECT observation_id, value FROM ds_observations WHERE observation_id = ?",
+            [observation_id],
+        ).fetchone() == (observation_id, float(original_row[1]) + 1.0)
+        assert con.execute(
+            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ?",
+            [selected.epoch_id],
+        ).fetchone() == owner_markers
+        assert con.execute(
+            "SELECT count(*) FROM acquisition_epoch_members WHERE epoch_id = ? "
+            "AND table_name = 'ds_observations' AND canonical_primary_key_bytes = ?",
+            [selected.epoch_id, member_key[0]],
+        ).fetchone() == (1,)
+    finally:
+        con.close()
+
+    with pytest.raises(SemanticEpochAdmissionResolutionError) as refused:
+        case.bridge.resume(closure, committed.owner_receipt_refs)
+    assert refused.value.code == "basis_mismatch"
+    assert "active_epoch_observation_content_mismatch" in refused.value.detail
 
 
 @pytest.mark.asyncio

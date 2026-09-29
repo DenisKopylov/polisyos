@@ -1464,3 +1464,48 @@ direct owner call in that child is not a served ControlPlaneService proof.
 Record any unavailable installed served witness as `UNRUN`. Do not edit N6,
 S8 leaf, RunLifecycle, generated families, epochs, plans or register. Static
 checks may run; no pytest/build below the disk floor.
+
+## B111 downstream finite-admission amendment (2026-09-30)
+
+The first five-file B111 candidate at `915c04497a1404cf5024efccadb06a38303ca5d0`
+is a clean, attached branch, but its independent review is **NO-GO**:
+`/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111-independent-review.md@sha256:5c431d4186c7ad540ab303eefd51ca3f0e029fd1bd4f7d07a6cd3bcc88de997d`.
+This amendment keeps its five existing leased paths and gives the same writer
+exclusive access to three additional source owners:
+`policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py`,
+`policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py`,
+and `policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py`;
+and four mirrored test paths:
+`policy-engine/tests/unit/scientist/search/strategies/test_adapter.py`,
+`policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py`,
+`policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py`, and
+`policy-engine/tests/unit/scientist/search/test_pareto_transfer.py`.
+These seven added paths have candidate-HEAD blobs, in the order just listed:
+`fa68d647f511abd5851224ca66b00678ce4eda11`,
+`75b53531047e43e31dd4d12e6991ee03f6da7a79`,
+`ba4244c0c904224a0fa73cb8d4d10feb4e8acf37`,
+`01f309e3242a156c9b65df3fbb4efe29c026cf6c`,
+`e3e47990c5279e2378ab3aeb784854a08181b694`,
+`72714f78c14adcff1f5ec83f570eb188cccfd1bf`, and
+`43f738fab66ab5ee6b48cd013fea2f13a5b26fb6`.
+The writer merges current `codex/e02-r2` append-only before editing and stops
+on conflicts. No other writer may touch these twelve paths during this lease.
+
+**P40 bucket and acceptance.** Non-finite raw values entering champion choice,
+strategy training, or either registry intake are the same downstream-bypass
+class; repair the shared admission/consumption mechanism, not one caller.
+Present-but-malformed stage-B evaluation collapsing to the zero-evaluation
+fallback is a separate P04 status-lattice class. Reuse `SearchIteration`'s
+existing `missing`, `valid`, `invalid`, `unassessed` vocabulary and retain
+identity/reason; only truly absent evaluations may take the zero-evaluated
+fallback. The missing `rank_assessment` test fixture is a test-interface
+regression: supply a typed assessment, not a permissive runtime default.
+Exercise both production `ParetoRegistry.update` callers through its shared
+owner intake. A finite rank key with another non-finite raw objective channel
+must stay unassessed; an all-invalid set must produce no champion, frontier,
+or training row. Keep finite mixed and zero-evaluation controls. Avoid a new
+schema or status enum where the existing owner fields carry the distinction.
+The six touched whole test files at four refs are 24 P41 slots, **UNRUN** while
+free disk is below the 8 GiB floor; no inherited-red inference is authorized.
+Use only static checks until the floor is restored, then run focused witnesses
+and marker-retaining removal probes before a new independent code review.

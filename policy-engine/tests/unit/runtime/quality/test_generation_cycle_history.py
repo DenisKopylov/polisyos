@@ -193,14 +193,18 @@ import copy
 import json
 import os
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import polisyos
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core import artifacts
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.foundry.methods.catalog import dependency_authority
+from polisyos.runtime.quality.design_axes import value_choice_provenance
 from polisyos.runtime.quality import generation_cycle
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleRun,
+    validate_generation_cycle_run,
     validate_generation_cycle_run_history,
 )
 
@@ -251,6 +255,83 @@ for label, records in fixtures.items():
         assert validate_generation_cycle_run_history(payload) == (), label
         replayed_count += 1
 
+source = fixtures["v1"][0]
+schema_version = source["schema_version"]
+store = artifacts.FileSystemCAS(Path.cwd() / "s8-cas")
+owner = value_choice_provenance.NormativeValueScheduleOwner(
+    store=store,
+    trust=value_choice_provenance.NormativeAuthorityTrust(),
+    repo_root=None,
+)
+source_options = artifacts.PutOptions(
+    kind=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+    media_type="application/json",
+    schema=artifacts.SchemaInfo(
+        name=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+        version=schema_version,
+    ),
+)
+valid_source_ref = str(
+    store.put_json(source, source_options, canon_spec=spec).artifact_id
+)
+assert owner._read(
+    valid_source_ref,
+    kind=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+    schema=generation_cycle.GENERATION_CYCLE_SCHEMA_VERSION,
+) == source
+canonical_source_bytes = store.get_bytes(valid_source_ref)
+noncanonical_source_ref = str(
+    store.put_bytes(canonical_source_bytes + b" \\n", source_options).artifact_id
+)
+assert from_canonical_bytes(store.get_bytes(noncanonical_source_ref)) == source
+try:
+    owner._read(
+        noncanonical_source_ref,
+        kind=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+        schema=generation_cycle.GENERATION_CYCLE_SCHEMA_VERSION,
+    )
+except value_choice_provenance.P20NormativeChoiceError as exc:
+    assert exc.code == "p20_normative_generation_history_invalid"
+else:
+    raise AssertionError("S8 accepted noncanonical raw N6 source bytes")
+assert "strangle_receipt_currentness_not_established" in {
+    str(issue.get("code"))
+    for issue in validate_generation_cycle_run(GenerationCycleRun.model_validate(source))
+}
+binding = value_choice_provenance.NormativeGenerationBinding(
+    compiled_run_ref="sha256:" + "a" * 64,
+    source_run_ref=valid_source_ref,
+    node_ref="fixture:n6-leaf",
+)
+try:
+    owner._generation_disposition(
+        binding=binding,
+        evidence=None,
+        evaluated_at=datetime.now(UTC),
+    )
+except value_choice_provenance.P20NormativeChoiceError as exc:
+    assert str(exc) == "p20_normative_generation_source_invalid"
+else:
+    raise AssertionError("unissued deployment identity must keep S8 limited")
+
+mutated_v1 = copy.deepcopy(source)
+mutated_v1["source_handoff_refs"] = []
+assert GenerationCycleRun.model_validate(mutated_v1).model_dump(mode="json") == source
+invalid_source_ref = str(
+    store.put_json(mutated_v1, source_options, canon_spec=spec).artifact_id
+)
+invalid_binding = binding.model_copy(update={"source_run_ref": invalid_source_ref})
+try:
+    owner._generation_disposition(
+        binding=invalid_binding,
+        evidence=None,
+        evaluated_at=datetime.now(UTC),
+    )
+except value_choice_provenance.P20NormativeChoiceError as exc:
+    assert exc.code == "p20_normative_generation_history_invalid"
+else:
+    raise AssertionError("S8 accepted post-v1 persisted content after markers stayed intact")
+
 original = fixtures["v3"][0]
 mutated = copy.deepcopy(original)
 retained_run_id = mutated["run_id"]
@@ -262,7 +343,10 @@ issues = validate_generation_cycle_run_history(mutated)
 assert "generation_cycle_blocked_terminal_projection_mismatch" in {
     issue.get("code") for issue in issues
 }
-print(f"source_free_n6_history=v1,v2,v3 replayed={replayed_count} mutation=red")
+print(
+    f"source_free_n6_history=v1,v2,v3 replayed={replayed_count} "
+    "s8_raw_v1=red_currentness=limited unrelated_comment=valid"
+)
 """,
         ],
         cwd=outside,
@@ -274,7 +358,8 @@ print(f"source_free_n6_history=v1,v2,v3 replayed={replayed_count} mutation=red")
     )
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == (
-        "source_free_n6_history=v1,v2,v3 replayed=4 mutation=red"
+        "source_free_n6_history=v1,v2,v3 replayed=4 "
+        "s8_raw_v1=red_currentness=limited unrelated_comment=valid"
     )
 
     # Remove the import-boundary property while retaining every exported symbol.

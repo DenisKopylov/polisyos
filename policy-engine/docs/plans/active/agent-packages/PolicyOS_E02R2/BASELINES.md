@@ -1,5 +1,205 @@
 # Four-base P41 test baselines
 
+## R1/R13 queued owner-bridge files — bounded pre-edit admission (2026-09-28)
+
+The five queued whole test files require **5 × 4 = 20** four-base cells. A complete Git-tree census found **9 `MISSING`** and **11 present but `UNRUN`** cells at the pinned execution, E02-head, Main, and integration source snapshot `2cd18f45a`. Five historical JUnits remain cited as evidence, but the current environment/cell-identity reuse verifier accepts **0/11** present cells; none is treated as a current pass, fail, or inherited red. No candidate test was launched in this admission. The bounded record contains the exact file-by-base table and blob identities: `/Users/deniskopylov/.codex/scratch/e02-p41-r1-r13-unrun-20260928/ADMISSION.md@sha256:a1981fe4e90849bc1035754dcfe851497039163e6ef7032a928f7549cc3f0701`.
+
+| Complete test file under `tests/` | Execution | E02 head | Main | Integration `2cd18f45a` |
+|---|---|---|---|---|
+| `unit/runtime/http/test_control_service_di.py` | `UNRUN` | `UNRUN` | `UNRUN` | `UNRUN` |
+| `unit/runtime/http/test_cycle_substrate_job_execution_binding.py` | `MISSING` | `MISSING` | `MISSING` | `UNRUN` |
+| `unit/runtime/quality/test_epoch_deployment.py` | `MISSING` | `MISSING` | `UNRUN` | `UNRUN` |
+| `unit/runtime/quality/test_semantic_epoch_native_qualification.py` | `MISSING` | `MISSING` | `UNRUN` | `UNRUN` |
+| `integration/core_runtime/test_acquisition_world_growth_chain.py` | `MISSING` | `MISSING` | `UNRUN` | `UNRUN` |
+
+The preceding one-process P41 wave stopped at its 10-GiB scratch admission floor: minimum measured free scratch **9.93 GiB**, peak RSS **1,601,104 KiB**, minimum free RAM **48%**, and no swap growth. Its guarded execution trust-posture cell ended `UNRUN`, not fail. Receipt: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T185454Z-42604/results.json@sha256:13401c2cefa587e9e37ee2b69103b1b84e71fe54e75cd3a4d55179ffd5012378`. Under Denis's recorded contingency, R1/R13 engineering proceeds in isolated candidates; the full changed-file replay remains required after adequate scratch capacity is measured.
+
+## R1/R13 focused pre-edit P41 at `df5188a` (2026-09-28)
+
+The bounded denominator is **2 whole test files × 4 revisions = 8 cells**. Three
+exact whole-file JUnits completed and passed, three paths are verified `MISSING`
+from the historical Git trees, and two present cells are `UNRUN`. The exact
+`df5188a7435cbd0394da33979eab7482c754c249` integration commit differs from
+`d103d234cc114ef9a5b725de1d9a460b61ebeea0` in no `src/`, `tests/`, or `tools/`
+paths; the receipt nevertheless preserves its exact commit key.
+
+| Complete test file | E02 execution base `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | Integration `df5188a` |
+|---|---|---|---|---|
+| `tests/unit/runtime/http/test_control_service_di.py` | PASS, 30/30 | `UNRUN` after hard resource guard; no JUnit | PASS, 30/30 | `UNRUN`; scheduler paused after preceding guard; no JUnit |
+| `tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py` | `MISSING` | `MISSING` | `MISSING` | PASS, 1/1 |
+
+The three verified PASS JUnits are execution-base `test_control_service_di`
+(`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/cells/e02_execution_base/test_control_service_di-ded2d4e59426.junit.xml@sha256:13fd9b76b22cbecc89a673c3b0e1f0361fbd6251d4be0a3f14a10ccd13a034ca`), Main
+control-service (`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/cells/main/test_control_service_di-ded2d4e59426.junit.xml@sha256:c90b1b132c2c371684e838d07f015c16951186ff7d268e6cf338f45b6100c7e3`), and
+current cycle-substrate (`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/cells/integration_head/test_cycle_substrate_job_execution_binding-083e942aeb5e.junit.xml@sha256:2be1fabf7904143f5877a8ddcc4492c2ccdf7bace022737b438730f002268cf3`). The four selected Appendix-A tenant-scope identities in control-service remain unresolved because the E02-head and integration whole-file cells are `UNRUN`; this wave assigns no pass→fail owner and makes no R1/R13 closure claim.
+
+The harness exited 2 because its aggregate resource guard failed, not because
+any completed JUnit failed. The guard stopped E02-head control-service after
+35.86s when swap grew **1,409,883,832 bytes**, exceeding the **268,435,456-byte**
+limit; the later integration control-service cell was not dispatched. Summary:
+2 guarded cells, 1/5 present non-skipped cells with incomplete resource
+coverage, minimum free RAM **30%**, minimum scratch free **14,849,966,080 bytes**,
+peak process-group RSS **1,886,560 KiB**, peak process-group CPU **324.5%**, and
+no worker remained after completion. Receipt:
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T193429Z-52819/results.json@sha256:e27e0116ffbdea45968576b941094c38db374e4dea5d023fd4eafd4c0a4ce263`.
+The separate durable measurement note is
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/R1-R13-focused-wave-193429.md@sha256:744b6c6641bb1b9667368ab6e2cdb2c19b50bcc0f18f4bdb8ce0be745e4ebaa1`.
+
+## R1 cycle-substrate test — current strict pre-edit admission (2026-09-28)
+
+This separate proposed test file has a **4-cell** denominator at execution `78187878e`, E02 head `00d946c2b`, Main `5fd3ebcc1`, and integration `9bd9e8556`. The first three exact historical JUnits each report **22/22 pass** on test blob `e951dfdf7652ff930bfa381c890862e81f561d5c`; the current integration file has blob `5d4d75969f95757bf696758df00ef3064087c50b`, no exact JUnit, and is **UNRUN**. Historical receipts are evidence of those earlier runs only, not strict reuse in the current invocation: their manifests do not satisfy current numeric-thread/source-policy reuse admission, and they do not pin the current integration revision. No current pass/fail or regression attribution is inferred.
+
+| Complete test file | Execution `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | Current integration `9bd9e8556` |
+|---|---:|---:|---:|---:|
+| `tests/unit/runtime/quality/test_cycle_substrate.py` | historical PASS 22/22 | historical PASS 22/22 | historical PASS 22/22 | UNRUN (no exact JUnit) |
+
+Historical JUnits: execution `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T171600Z-23461/cells/e02_execution_base/test_cycle_substrate-b3b78e29536b.junit.xml@sha256:cf9999c77a01679f2031d2b935952ce2bc93daeeed97a6de40ddc52aa925317d`; E02 head `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T171600Z-23461/cells/e02_head/test_cycle_substrate-b3b78e29536b.junit.xml@sha256:a59eb00f32cdba298d1bafecf39547c0db2d2034c62cc33be6f29c05c2f5fd75`; Main `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-pre-repair-20260924T171600Z-23461/cells/main/test_cycle_substrate-b3b78e29536b.junit.xml@sha256:c82a47c668fb3bbc38cf5d9efd55065e0b19e20325808212399ddbcee4d654e6`. The full read-only Git-tree census and reuse decision are at `/Users/deniskopylov/.codex/scratch/e02-p41-preedit-admission-9bd9-20260928/admission.md@sha256:d7c6b2f6119505fe8893ff38069bd548a944d5e7c98ecbe84c98004ab6f9a00f`. The capture's machine census records `worktree_clean=false`; the capture did not retain path-level status.
+
+## R1 NL schema/parse repair — post-R1/R13 four-base P41 at `d103d234c` (2026-09-28)
+
+**Discrepancy first.** The whole-file replay completed **4/4 present cells** for
+`tests/unit/runtime/http/test_nl_pipeline_materialization.py`. Execution base
+`78187878e`, E02 head `00d946c2b`, and Main `5fd3ebcc1` each report **35 pass / 11
+fail (46 identities)**; integration `d103d234c` reports **37 pass / 12 fail (49
+identities)**. The manifest verdict is `RECORDED`, resource guard is `pass`,
+and no cell is `MISSING` or `UNRUN`. The strict Appendix-A/B selector chose
+**1/74** named identities (73 unselected); this is 4/84 cells, not the complete
+21-file Appendix matrix.
+
+| Complete file | E02 execution base | E02 head | Main | Integration `d103d234c` |
+|---|---:|---:|---:|---:|
+| `test_nl_pipeline_materialization.py` | 35 pass / 11 fail | 35 / 11 | 35 / 11 | 37 pass / 12 fail |
+
+The sole common pass→fail in each E02-base→integration and Main→integration
+comparison is the selected Appendix-B identity
+`test_plain_language_front_door_calls_real_design_problem_compiler`. It passes
+at all three earlier bases and fails at current with
+`cycle_substrate_context_not_established`. The other eleven failures—each
+`ValueError: existing authority identity mismatch`—are present with the same
+outcome at all four revisions, so none is a new pass→fail in this replay. Three
+current-only identities pass: `test_design_problem_front_door_rejects_explicit_legacy_schema_version`,
+`test_design_problem_front_door_rejects_missing_current_schema_version`, and
+`test_design_problem_provider_schema_matches_versioned_slot_grammar`.
+
+**Schema repair and P41 ownership.** The pre-fix P41 at `2a6501ecd` reported
+27/49 pass and 22/49 fail. Comparing its complete integration JUnit to the
+`d103d234c` current JUnit (same 49 identities and same test-module blob
+`b71914aca06ab0119ebdca1fcb03183f6ea8358d`) yields 10 failure→pass, 27
+pass→pass, 12 failure→failure, and 0 pass→failure: the ten schema/parse reds
+are recovered, while the N4 refusal remains. The exact four-base replay now
+confirms only that N4 case as a common pass→fail; its P41 owner attribution is
+still `UNRESOLVED`, because the test function AST is unchanged but the recorded
+case context differs and pytest plugin/fixture input closure is not statically
+resolved (`BODY_SAME_INPUT_CLOSURE_UNMEASURED`). Thus the remaining P41 gap is
+one unresolved input closure for this N4 selector, not a missing test cell.
+
+The slice in `33049f69f` derives the required `schema_version` from the unique
+`emit_design_problem` tool contract and reports malformed argument parsing
+before schema admission. Its factory suite separately passes 12/12 (JUnit: `/Users/deniskopylov/.codex/scratch/e02-r1-nl-schema-20260928/postapply-factory.xml@sha256:a7bf1d17e25d1fcbe67b5b89f86fc666f534bc1f754c421463b572852642de9a`). Denis's
+selected next engineering slice is a controlled, explicitly test-only
+owner-bound N4→N5 profile through the runtime tenant store. That bridge witness
+is not yet implemented or run. It proves handoff and custody mechanics only;
+it does not establish production DataState time or byte validity, confer S8
+authority, or close R1/B01–B03. Real-data N5 remains limited until its
+source-time contract is established, and S8 remains limited pending independent
+authority and trust evidence.
+
+Post-R1/R13 manifest:
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182622Z-29866/results.json@sha256:aa7609e634389ed6c4c3dc7afb140950199a2bf910b4080cdf7205cd403bfd29`.
+Post-R1/R13 integration JUnit:
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182622Z-29866/cells/integration_head/test_nl_pipeline_materialization-2034b09f13ed.junit.xml@sha256:a9f894f565360608816c5bd72b28660867b1c170f956a6d4ef237041cf10c77b`.
+Pre-fix four-base manifest:
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T173749Z-9849/results.json@sha256:a232a0750331e890ec05ccf58718c48795df3a94f9ebc294fa2e8724e4375524`;
+pre-fix integration JUnit:
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T173749Z-9849/cells/integration_head/test_nl_pipeline_materialization-2034b09f13ed.junit.xml@sha256:c34d5d635de6e7706db43404a5c309a0937f84ea38735e5b547a702c6e45721a`.
+
+## Corrected strict 21-file Appendix-A/B census at `d103d234c`
+
+The preliminary matrix memo labeled the four NL cells `PENDING` even though
+the exact four-base manifest at 18:34:37Z was already in its 18:36:54Z raw
+inventory. This was a receipt-selection error. The later verified manifest
+supersedes the older explicit-UNRUN rows for matching commits and test blobs.
+Corrected memo:
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/MEMO.md@sha256:518d034919ae0ccb5179578603c224b309cddcfa2399a0e5f8d5d044952d0faa`;
+complete cell matrix:
+`/Users/deniskopylov/.codex/scratch/e02-p41-current-matrix-d103-20260928/current_matrix.json@sha256:4c24c0b6126ca63e5c293364cbcd89004a4c12f746efb4075cb111413987ebdd`.
+The strict denominator remains 21 paths, 74 named cases, and 84 cells.
+
+| Exact revision | PASS cells | FAIL cells | MISSING | UNRUN | PENDING |
+|---|---:|---:|---:|---:|---:|
+| Execution base `78187878e` | 7 | 4 | 10 | 0 | 0 |
+| E02 head `00d946c2b` | 1 | 10 | 10 | 0 | 0 |
+| Main `5fd3ebcc1` | 16 | 5 | 0 | 0 | 0 |
+| Integration `d103d234c` | 0 | 1 | 0 | 20 | 0 |
+| **Total** | **24** | **20** | **20** | **20** | **0** |
+
+The four NL JUnits are exact-commit/test-blob verified and all four whole-file
+suites have failures. The d103 current column therefore has one completed-fail
+cell and 20 present-but-UNRUN cells. `MISSING` remains limited to the 10 Git-tree
+absences at each of the two older E02 revisions. The NL receipt is
+`policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182622Z-29866/results.json@sha256:aa7609e634389ed6c4c3dc7afb140950199a2bf910b4080cdf7205cd403bfd29`.
+Its selected Main→d103 test-level pass→fail remains attribution-`UNRESOLVED`; no
+ledger status promotion or class closure follows from this census. The separate
+`df5188a` two-file focused wave above does not enlarge the strict 84-cell
+matrix.
+
+## B198 welfare whole-file P41 at `8b7b532dd` (2026-09-28)
+
+**Discrepancy first.** The B198 test identity did not exist in the three historical files; the manifest records `CASE_SET_CHANGED`, not a historical pass. No common identity turns pass→fail. This custom replay selects zero of the 74 Appendix-A/B identities and does not complete the 84-cell strict Appendix A/B matrix (21 files × 4 pinned bases); the wider touched-file replay is a separate, still-incomplete scope.
+
+| Complete test file | E02 execution base | E02 head | Main | Integration | P41 interpretation |
+|---|---:|---:|---:|---:|---|
+| `test_propagate_welfare.py` | 7/7 pass | 7/7 pass | 7/7 pass | 8/8 pass | 4/4 present cells pass; zero common pass→fail; the new B198 identity is `CASE_SET_CHANGED` against older files. |
+
+Raw manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T153723Z-58057/results.json@sha256:b9cf91ec5fe04714faeea84146d4c807d7ba9fc6e995836e1c9fddea8a97b5b7`. Cell JUnit SHA-256 values: execution `9fe3142576e646fde009cdb413b532e85b8890a459def4e6ad5aeac774f941cf`; E02 head `3d587db13fe70e34f9c9ab473e174eb1e03ecc32a206fada70d1dcb297f803fe`; Main `4ca19511245a9fecf62ec822a331860e124803b1cacad7a5acd3c5360c0f3d69`; integration `66e253a936132f7b79a5086c2b45b953e4a8868477ac778a3c8b6b272fc622cd`. The one-process run peaked at 554,624 KiB RSS, zero swap growth, minimum free-memory 73%, and minimum scratch free space 16,711,831,552 bytes.
+
+Separate finding-specific candidate evidence: the five-file candidate JUnit reports 30/30 (`/Users/deniskopylov/.codex/scratch/E02R2_B198_504b9e749/b198-staged-30.junit.xml@sha256:84ab0cdc45a0d0034394661e131d7fe7168d418fa7db5642853c2932d63100e6`). Typed-scale removal and eligibility-removal each turn red with markers retained; restored source passes 1/1. Probe receipt: `/Users/deniskopylov/.codex/scratch/e02-b198-removal-probes-20260928/B198_MARKER_RETAINING_PROBES.md@sha256:1f37c4372c1fc3e59fa2030bd2fa5845375221dd31877a49d252677863bfe45b`. B198 closes bounded to the scalar typed-Normal source-card property; GE-entry-only reference/replay, GE matrix admission and CREDIBLE source-law semantics remain outside scope.
+
+The current row ledger moves B198 from partial to closed: 6 closed / 263 partial / 12 held / 1 open (282 total). Prior P41 addenda below retain their original snapshots.
+
+## Post-118d P41 and R2 evidence addendum (2026-09-28)
+
+The integration branch is `118d064d4758c6dd9547f84ebde2f35800ec50a4`. These selected waves add evidence but do not complete the required Appendix-A/B and touched-file four-base matrix. The ledger remains 282 rows with 5 closed, 264 partial, 12 held, and 1 open.
+
+### P41 wave 1: recursive epoch gate and deployment security
+
+The wave ran **2 complete test files × 4 pinned revisions = 8/8 cells**. The complete test-file denominators vary by revision; the P41 source census is **10,569 tracked Python paths across four worktrees** (execution base 2,552; E02 head 2,644; Main 2,630; integration head 2,743). The Appendix-A/B identity set has 74 named identities: this wave selected 3 and left 71 unselected. Integration execution was at `9a92e5d89be86260bd6f5ed28d031cfc70499961`; the later wave-2 review confirms the only intervening commit to `118d064d` changed `WRITE_LEASES.md`, and the recursive target test blob is identical. This is source/test-equivalent evidence for 118d, not a second runtime execution at that commit.
+
+| Complete test file | Execution base | E02 head | Main | Integration | P41 interpretation |
+|---|---:|---:|---:|---:|---|
+| `test_runtime_deployment_security.py` | 52/52 pass | 52/52 pass | 44/54 pass; 10 fail | 44/54 pass; same 10 fail | Main and integration have identical 44/54 outcomes and the same test blob, so there is no Main→integration outcome delta for these 10 red cases. But both E02 base→integration and E02 head→integration comparisons record 10 pass→fail outcomes. Attribution is UNRESOLVED for all ten: 9 BODY_SAME_INPUT_CLOSURE_UNMEASURED and 1 CASE_DEFINITION_CHANGED; the full input closure remains unmeasured. |
+| `test_recursive_generation_cycle_epoch_gate.py` | 5/7 pass | 7/11 pass | 5/7 pass | 22/29 pass | Selected R1 recursive cases are red at the integration source snapshot; source/test identity changed across comparisons, so owner attribution remains unresolved. |
+
+The selected R1 identity `test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle` passes at execution base, E02 head, and Main, then fails at integration. `test_http_recursive_route_without_owner_context_fails_closed_before_boundary_wmr` passes at E02 head and fails at integration; it is absent from Main's test identity set. These remain R1 evidence, not a finding that assigns their cause to a specific integration change. The selected R5 identity `test_non_simulation_leaf_requires_current_eval_safety_head` passes at execution base, Main, and integration, while failing at E02 head; it is recovered at the integration source/test snapshot, with the integration JUnit at /Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T125934Z-16379/cells/integration_head/test_recursive_generation_cycle_epoch_gate-cc12e99fac71.junit.xml@sha256:78c8873e5e88857355308eba56b54fccc3a0888c11cb2ddc8b2c763c509fb1df.
+
+P41 analysis: /Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-custom-20260928T125934Z-16379.analysis.md@sha256:4f68dbdecba11e56bd8b11b576bb1ca7e2a2d0bacd3f1ff36300a3d6f536d0fb. Source results: /Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T125934Z-16379/results.json@sha256:1302d9a2e963e8b0aa52450ba517aa47a345fe6ed40ccefc1a184cf329631eba. Current integration JUnit for the recursive file: /Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T125934Z-16379/cells/integration_head/test_recursive_generation_cycle_epoch_gate-cc12e99fac71.junit.xml@sha256:78c8873e5e88857355308eba56b54fccc3a0888c11cb2ddc8b2c763c509fb1df. Current integration JUnit for deployment security: /Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T125934Z-16379/cells/integration_head/test_runtime_deployment_security-f15a051c3464.junit.xml@sha256:c18194886fd079f0979bc0e7c8b65a626e4e864eeaac2184a7cac8f70410ae09.
+
+### P41 wave 2: ProgramGraph / R9 selected case
+
+This wave ran **1 complete test file × 4 pinned revisions = 4/4 cells** and selected **1 of 74** Appendix-A/B identities (73 unselected in this wave). `test_joint_simulation_horizon.py` outcomes were execution base 24/24 pass; E02 head 23/24 pass with one failure; Main 24/24 pass; integration head `118d064d` 26/26 pass. The selected Appendix-A case `test_program_graph_plan_loops_real_shared_state_executor` is pass→fail→pass across execution base → E02 head → integration, and Main passes. Two integration-only tests also pass. This is a restored passing ProgramGraph case on the current integration head; source changed in both intervals and same-input closure was not measured, so root-cause/owner attribution remains unresolved. It does not establish broad R9 closure.
+
+The four-cell artifacts and selected-case/source analysis are in /Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T131642Z-20491/results.json@sha256:3c2b642228ba45b7366130ffeb708781a6aae5161386b31187b739aceb27c976; independent P41 review is /Users/deniskopylov/.codex/scratch/e02-p41-wave2-20260928/R9_P41_REVIEW_RECEIPT_20260928.md@sha256:04ba3a55d2e93843447ad518781617e4ca15e69f360eb06b46b5d20c259cf91a.
+
+## R9 exact-view owner admission at `7dd9616dc` — bounded integrated evidence (2026-09-29)
+
+**Discrepancy first.** The tests below are exact-head runs at `7dd9616dce28ab0892a9e76148f001db8ed7245a`; they are not a four-base replay or R9 class closure. The independent candidate review was GO for the bounded durable-owner admission slice, and the reviewed candidate's `caching_store.py` and `test_caching_store.py` blobs match those at `7dd9616dc`.
+
+| Complete test suite at `7dd9616dc` | Result | JUnit `path@sha256` |
+|---|---:|---|
+| `tests/unit/core/artifacts/backends/test_caching_store.py` | 28/28 pass | `/Users/deniskopylov/.codex/scratch/e02-r9-integrated-20260929/cache-7dd.junit.xml@sha256:8fefa73ab21316d6c6563694a630d193638cc9bbf74a0bde413c2a1f0c5ee07e` |
+| Artifact-store configuration suite | 16/16 pass | `/Users/deniskopylov/.codex/scratch/e02-r9-integrated-20260929/config-7dd.junit.xml@sha256:5bbca1e99c98cd84a61e0f12427b8e42dce1338d7806ccded0fe0bf98a8bc13b` |
+| Fake-client S3/GCS suite | 11/11 pass | `/Users/deniskopylov/.codex/scratch/e02-r9-integrated-20260929/cloud-7dd.junit.xml@sha256:2c8e90e265a6ca972345c6e15e0e84ad76a56da7e621d000ce17071fae166f76` |
+
+**Property and falsifier.** For write-through exact-view operations (`has`, `get_bytes`, `get_manifest`, `verify`), the composite resolves the exact view through its durable manifest owner before local cache admission. The guard-proxy test uses an ambient-ownership-enforced filesystem owner: tenant A retains a cache-hit control without a remote blob fetch, while tenant B is refused before local cache access. Removing owner admission while retaining markers turns the tenant-B test red: cached bytes are returned and the refusal assertion fails (1/1 expected failure), `/Users/deniskopylov/.codex/scratch/e02-r9-cache-code-20260929/TENANT_GUARD_ALL_READS_REMOVAL2.xml@sha256:d0a7d5eee21d80f401f31ee119ac2f591509a59c8240e6e76d938505474e900f`; the restored preserving control is `/Users/deniskopylov/.codex/scratch/e02-r9-cache-code-20260929/TENANT_GUARD_ALL_READS_GREEN.xml@sha256:69bc2b459e918e811a51683fe94ec7e27ce3ea7a3a27c5d44cd1a0ae3fca6a97`. Independent review: `/Users/deniskopylov/.codex/scratch/e02-r9-cache-code-20260929/R9_CANDIDATE_INDEPENDENT_REVIEW.md@sha256:2f0b691c6d8ec839b96a7171939d4b8f8de9a3ca7b2fbc684e0afb61f7d26676`. Integrated blobs: `policy-engine/src/polisyos/core/artifacts/backends/caching_store.py@git-blob:2144bef821ae1c4a35d3e3b7ffaec1191269213a`; `policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py@git-blob:404f80fb7c7f1829bf167fce41e03f12585d284e`.
+
+**P37/P38 and residual.** The caller tenant is supplied by request context; the ambient filesystem owner recomputes ownership on exact-manifest resolution. Cloud IAM is not established. A local cache's view-presence check does not itself test caller authorization; the bounded proof depends on a durable owner that enforces tenant scope. This evidence does not establish an HTTP-served action, deployed S3/GCS tenant policy, cloud IAM, or selected detached-signature custody. The fake-client S3/GCS suite covers manifest views and integrity, not signing or deployed IAM. Detailed missing cloud contract, principal and owner-appointment premises remain in `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md@git-blob:c46212afdcf9374ea7ae372b0209d5ebab7db800`; no such premise is closed by these test results. Keep R9 partial; this receipt changes no finding status or ledger count.
+
+### R2 comment-sensitive historical replay removal probe
+
+The R2 removal probe is **PASS, bounded to the frozen `44a7441eb` source snapshot**. Reintroducing `StrangleReceipt.verify_current` makes the same frozen historical payload fail after one unrelated 27-byte source comment, with `generation_cycle_strangle_receipt_stale`; restoring the historical reader replays the same payload with the comment present. Its serial controls passed 4/4. Independent review is GO: /Users/deniskopylov/.codex/scratch/e02-r2-removal-probe-design-20260928/R2_EXECUTION_20260928/INDEPENDENT_REVIEW.md@sha256:75366c7cba841c3904662b921701d96a4dd5e7c25d78bc9a899b2aba835eff59; the review notes the self-hash in `final-summary.json` is stale while the separate artifact hash list is current, so use the receipt and review rather than that self-hash. Full receipt: /Users/deniskopylov/.codex/scratch/e02-r2-removal-probe-design-20260928/R2_EXECUTION_20260928/R2_REMOVAL_PROBE_RECEIPT.md@sha256:1de68eb45cff5063e1163f2f6887bd3bc519e1c810c670f09ebe01979af2bf93.
+
+This proves the comment-sensitive historical replay removal property for the tested fixture. It does **not** prove complete source-census behavior or canonical deployment identity. Packaged currentness, an authorized identity issuer/reissue, and the N6 source-census verifier remain typed **UNRUN**. No principal ruling or issuer appointment is inferred. The independently GO-reviewed R2 decision/register addendum remains a pending draft: /Users/deniskopylov/.codex/scratch/e02-r2-loaded-closure-investigation-20260928/R2_DECISION_REGISTER_ADDENDUM_DRAFT_v3.md@sha256:a75e97c9ddab48f35bba434c22017ffc07f8b954850ed36afbd18cd8e58cb888. B30 remains partial; this evidence does not close it or change the 282-row status counts.
+
 ## Exact `44a7441eb` integration-head supplement (2026-09-28)
 
 These are whole-file or exact-selector observations on committed source/test
@@ -1472,3 +1672,374 @@ The selected R2 final-target group passed 18/18 (0 failed, errored, or skipped).
 - Standalone governed GY-N6 `--check --output-format json`: exit 2, typed `UNRUN`, issue `generation_cycle_currentness_reissue_required`; source census complete at 2,696/2,696 Python files, no production callers, canonical identity `not_established`, and N9 callback attempts 0. Output: `/Users/deniskopylov/.codex/scratch/e02-r2-gy-n6-a591-20260928/check.out@sha256:2fadd0f9673cdac80001eb8d9edf4ee56a1d65c043126433015e50722b75c069`
 
 B30 remains partial. The production deployment-identity issuer and authorized reissue path, strict packaged currentness, positive N9 authority, and four-base P41 remain `UNRUN`. `BASELINES_DONE` remains unclaimed.
+
+
+## R1 Appendix-A selector proposal — code/test evidence at `267636d55ada385a08a4c9c3b6c02f58abb75685` (bounded; not four-base P41)
+
+**Revision split.** Documentation patch input commit: `e0c6623ed1730f0967b4f2f33811b6f19dc6363a`. The selector source and behavior receipt belong to code/test commit `267636d55ada385a08a4c9c3b6c02f58abb75685`; do not report these as one execution snapshot. The source blob is policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py@sha256:4849284f891af20a2c59ec8986e0773c0d22c95b8231cd26b002b0325ccb3aa8. Its replacement selector is `test_http_contextless_explicit_n4_refuses_before_n4`; it measures the served contextless refusal before N4 and does not establish direct-controller parity.
+
+The replacement selector passes and its marker-retaining refusal-guard removal turns red in /Users/deniskopylov/.codex/scratch/e02-r1-r13-http-intent-20260928/renamed-target.junit.xml@sha256:daba72e4868894223797f81e1f64a0b015e082d8d0a980ebf05f159e19827d4e and /Users/deniskopylov/.codex/scratch/e02-r1-r13-http-intent-20260928/guard-removal-probe.junit.xml@sha256:a65c57f5b0877f3e865629ca1275f8b91d5a13324177f2f42c0e960f6bd447ed. The separate three-scope preserving control `tests/unit/runtime/http/test_control_service_di.py::test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8` passes `[None]`, `[tenant_id]`, and `[cell_id]` in /Users/deniskopylov/.codex/scratch/e02-r1-r13-http-intent-20260928/renamed-target.junit.xml@sha256:daba72e4868894223797f81e1f64a0b015e082d8d0a980ebf05f159e19827d4e. The complete recursive-gate file is 27/29 in /Users/deniskopylov/.codex/scratch/e02-r1-r13-http-intent-20260928/integrated-recursive-c090.xml@sha256:6848a66c612ef1edbb3fd0952ded252004bc5f97de9efdf8419a9828ea35ebe6; failures are `test_recursive_constructor_denominator_has_no_unwrapped_n9_call` and `test_task_44_public_export_denominator_is_exact`, both static-denominator checks. Their owner is **UNRESOLVED**; strict P41 full-input closure is unmeasured. No Main failure or inherited-red claim is made.
+
+The code docstring labels the former combined selector “Retired,” but the principal Appendix-A identity change remains a proposal pending Denis. It is separate from his selected Option A. Direct-controller parity, the positive served owner-bound N4→N5→S8 path, and full four-base P41 remain `UNRUN`; no finding status or closure changes.
+
+
+## Fresh P41 Appendix A/B waves: R7/R10 and Main-to-integration (2026-09-28)
+
+**Denominator and snapshot.** `BASELINE_HARNESS.py@sha256:564b7139fc807ddc6b0941410f2253e93b1f01ed7170e0046336a5b3676baa24` defines 21 unique Appendix test files, 74 named identities (37 A and 37 B), and 84 required whole-file cells. Wave 140430 ran on integration commit `6ffa3e63d21b8f352e50129f7e6420ff399b8256`; the intervening commits through `e0c6623ed1730f0967b4f2f33811b6f19dc6363a` changed documentation only. Wave 141858 ran on `e0c6623ed1730f0967b4f2f33811b6f19dc6363a`. The patch-preparation snapshot was `376976d3c0a242f9b920a8a11ccc7bd4784506b6`; later HEAD `7e602156d9ea85df669f8d61abf857199b31484d` changes only coordination documentation (`WRITE_LEASES.md`) relative to that snapshot. The 6ffa→e0c and e0c→376 intervals also changed documentation only, so source/test bytes for 140430 are unchanged through 7e602; 141858 ran at e0c. Neither wave completes the 84-cell denominator.
+
+**140430, fresh with no reused cells.** Two complete files × four pinned revisions produced 8/8 completed cells. Each JUnit was re-read at its listed path; file existence, bytes, SHA-256, and parsed case totals match the result manifest.
+
+| Complete test file | Revision | Whole-file result | JUnit (`path@sha256`) |
+|---|---|---:|---|
+| `test_human_decision_service.py` | execution base | 77 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/e02_execution_base/test_human_decision_service-1d88e18a6e41.junit.xml@sha256:11d61665f101a077aa8431886d699e92f2564196cd0b870c65daa30671e606e4` |
+| same | E02 head | 76 pass / 1 fail | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/e02_head/test_human_decision_service-1d88e18a6e41.junit.xml@sha256:5f0b659f5af4076bb5bed4ac251caa0a8a2626285b42daca1e13a692c0eba65e` |
+| same | Main | 77 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/main/test_human_decision_service-1d88e18a6e41.junit.xml@sha256:2ecfd70a08209f19612eab43fa5fee42b4e29ef10e873da0fcef1d9e63cbe924` |
+| same | integration (`6ffa3e63d`) | 77 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/integration_head/test_human_decision_service-1d88e18a6e41.junit.xml@sha256:af8d715a8633cfe0fc139de173fa6fa585ca822fe5de8f046f54f12ede9204e8` |
+| `test_live_acquisition_executor.py` | execution base | 39 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/e02_execution_base/test_live_acquisition_executor-3b46dae31207.junit.xml@sha256:f2db7661e85644cec444497d36c0f10342bcafb64cccd57cba597493a5556c19` |
+| same | E02 head | 38 pass / 1 fail | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/e02_head/test_live_acquisition_executor-3b46dae31207.junit.xml@sha256:c792b76e77be12636fba3d79bd879c73f585a44c60bbce41f6b25b84e1fcd5da` |
+| same | Main | 42 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/main/test_live_acquisition_executor-3b46dae31207.junit.xml@sha256:6c23ee0b77e65f21dcef8321d1d9c9a7ccc49c34b85800f779214ccb7d2c69d2` |
+| same | integration (`6ffa3e63d`) | 49 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/integration_head/test_live_acquisition_executor-3b46dae31207.junit.xml@sha256:79bd4e3dbe3f92ae2cc7539a0b948fb2c436b70cbe1977430f5248aa1b4bbee7` |
+
+The selected A identity `test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport` is pass at execution base and fail at E02 head. Its test blob is identical on the two sides, but the harness leaves the test helper import target and pytest plugin fixture/collection behavior unresolved; source-owner attribution remains **UNRESOLVED**. The selected B human-decision hard-crash identity is pass/pass Main→integration. The selected B live-executor identity is also pass/pass Main→integration, but the test-file blob changed (`21a741caf97a9982864f8817f354749c9d006b41` → `820984b7ebbb1d00aac728d6d8dd087d29541899`), so this is not same-test-input evidence. Result manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/results.json@sha256:1fee7008f6548c8236a8d497fbdde82512917736362f535baf83bdc704153c86`.
+
+**141858, fresh with no reused cells.** The two requested files × four revisions yielded 8 matrix cells: four present Main/integration cells all pass, and four old-base cells are MISSING/UNRUN because both test files are absent from the pinned execution-base and E02-head Git trees. These are missing tests, not test failures; the reported harness exit 2 reflects the four missing cells. All four present JUnits were re-read and their exact paths, byte lengths, SHA-256 values, and parsed totals match the manifest.
+
+| Complete test file | Revision | Whole-file result | JUnit (`path@sha256`) |
+|---|---|---:|---|
+| `test_epoch_deployment.py` | Main | 24 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T141858Z-37976/cells/main/test_epoch_deployment-c7b5eca4827b.junit.xml@sha256:7002f4d4ba2a511ed7cd4973ecf2c13bd9bfb378fbb9881e9a3c449a6ffeaad1` |
+| same | integration (`e0c6623ed`) | 24 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T141858Z-37976/cells/integration_head/test_epoch_deployment-c7b5eca4827b.junit.xml@sha256:318f44f8ea7c5466ea1bb4aaa863c919152c233f3ad124099ef4fdbbbdfbc862` |
+| `test_promotion_safety.py` | Main | 14 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T141858Z-37976/cells/main/test_promotion_safety-233e0847e064.junit.xml@sha256:17b977d23d871240affbb658ff42621b2a6d4a0af38c33677d1c1785215680cc` |
+| same | integration (`e0c6623ed`) | 14 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T141858Z-37976/cells/integration_head/test_promotion_safety-233e0847e064.junit.xml@sha256:44c0492486960636046465c73e22c0422fc271959b22ca82c96c46be7a6fa1a7` |
+
+All four selected Appendix B identities pass at Main and integration: `test_configured_policy_exchange_reaches_native_verifier_limitation`; `test_privileged_native_verifier_is_operational_and_deployment_local`; `test_canonical_port_and_independent_reader_share_fixed_source_trust`; `test_signed_source_custody_never_establishes_promotion_policy[None]`. Result manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T141858Z-37976/results.json@sha256:0cd7b371a09609fccce689b7ca2c63df80c731f652335f86218d2efcf4e1efa2`.
+
+**Coverage limit.** Wave 140430 provides complete fresh four-base whole-file evidence for 2 of 21 paths (8/8 cells). Wave 141858 provides Main/integration-only whole-file evidence for two additional paths (4/8 cells); its four execution/E02 cells are MISSING/UNRUN because the modules are absent at those pinned trees. The combined waves therefore cover four paths but complete the four-base matrix for only two; Appendix A/B, the touched-file matrix, and class closure remain incomplete. Each wave used one resource-bearing process group; peak aggregate process-group RSS was 926,272 KiB and 779,184 KiB, with zero swap growth. These measurements describe those runs only.
+
+## Standalone architecture guardrails triage at `e0c6623ed` (2026-09-28; P41 incomplete)
+
+**Discrepancies first.** `uv run --offline polisyos-tools architecture guardrails check` ran alone at integration `e0c6623ed1730f0967b4f2f33811b6f19dc6363a` and exited **1**. The complete log has 1,446 lines; the script enumerated **111 emitted failure diagnostics**: one aggregate deep-import-baseline drift, 107 detailed deep-import edges, one DDM facade mismatch, and two generated-output mismatches. The 107 edges are instances in one deep-import family, not 107 separate classes. The baseline comparison is 3,330 tracked edges versus 3,409 expected (3,302 unchanged, 107 added, 28 removed).
+
+**Provenance reconciliation.** An earlier same-log `7683ebdb9` summary classified the 107 edges as 82 E02-inherited, 24 R2-only, and 1 Main/E02. A new exact three-way source-edge census supersedes only those provenance labels: 82 of 107 edges (42 files) are present in E02-head source, 25 of 107 (17 files) appear only in merge-composed source, and none is present in Main; there are 56 distinct files. The raw gate log and its diagnostic counts are unchanged. This source census does not replace a full command replay: whole-gate Main/E02 P41 remains **UNRUN**.
+
+The public-surface check reports `polisyos.ddm` expected `eager_exports`, observed `lazy_facade`. The registered inventory owner is `team-scientist`. Direct source comparison locates the facade change to E02: Main is eager, E02 and integration add lazy loading, while the binding contract and checker remain unchanged. This is source-origin evidence, not a whole-gate P41 result; Main/E02 command replay remains **UNRUN**.
+
+The two registered generated-family owners are `team-polisyos` for `runtime-openapi-snapshot` and `team-architecture` for `trust-claim-posture-register`. Their underlying output causes and aggregate P41 attribution are **UNRUN**: no predecessor gate replay or expected generated bytes were retained. The standalone Atlas status-retirement inventory gate was **UNRUN** because this command does not invoke it. No generated family or deep-import baseline was synced or regenerated.
+
+Raw gate log: `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/architecture-e0c6623-20260928.log@sha256:8bc0b6d1743e773b8cbae6dcb2920d46c17eb1ec57232a8045b6b94f168e6b16`. Complete edge-by-edge triage and P41 limitations: `/Users/deniskopylov/.codex/scratch/architecture_guardrails_triage_e0c6623_20260928.md@sha256:ed681324acb350905651141bdd9ac7c316f0ccdc48d2aa2f318fc90eb99a6443`.
+
+
+## Fresh P41 joint-simulation R9 wave at `4d4e1c7` (2026-09-28)
+
+**Discrepancy first.** The named Appendix-A selector `test_program_graph_plan_loops_real_shared_state_executor` passes at the E02 execution base and fails at the E02 head. The test function AST hash is unchanged, but the complete test module blob differs; pytest plugin fixture/collection behavior remains unresolved. This is a reproduced pass→fail observation, not an owner attribution: P41 source-owner attribution remains **UNRESOLVED**.
+
+The fresh no-reuse wave ran one complete file across the four pinned revisions (4/4 cells). `BASELINE_HARNESS.py` records 74 required Appendix-A/B identities; this wave selected one and left 73 unselected. The whole-file denominators differ: execution base 24, E02 head 24, Main 24, current integration head 26. The selected Appendix-A case is pass→fail from execution base to E02 head. Main and current integration share 24 cases, all pass on both; current has two additional passing cases. The selected ProgramGraph case passes on Main and current integration. Main and current integration test-file blobs differ; integration has two additional passing cases.
+
+| Complete test file | Revision | Whole-file result | JUnit (`path@sha256`) |
+|---|---|---:|---|
+| `test_joint_simulation_horizon.py` | execution base `78187878e` | 24/24 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T145057Z-48537/cells/e02_execution_base/test_joint_simulation_horizon-732b41114591.junit.xml@sha256:0ff6a802c3bc2abf8fe7995c0fde6228074b895b706c09b4c8fd7817826dbbae` |
+| same | E02 head `00d946c2b` | 23/24 pass; 1 fail | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T145057Z-48537/cells/e02_head/test_joint_simulation_horizon-732b41114591.junit.xml@sha256:46370b6666f778e576a3ce4ff042885596aacbee196c4748f32901c7866f1e68` |
+| same | Main `5fd3ebcc1` | 24/24 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T145057Z-48537/cells/main/test_joint_simulation_horizon-732b41114591.junit.xml@sha256:b479d49d41d12e1014bee19089061b661b623079ac048d55c19be5dd388cb93d` |
+| same | integration `4d4e1c7b5` | 26/26 pass | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T145057Z-48537/cells/integration_head/test_joint_simulation_horizon-732b41114591.junit.xml@sha256:d76e6ecd9255446a5d668ed7aa6146f32a9f508dbb7cac504e45a7876c71fda6` |
+
+Each JUnit's exact path, byte size, SHA-256 and parsed per-case identities/statuses were verified against the manifest: 4,394 bytes (execution), 7,690 bytes (E02), 4,394 bytes (Main), and 4,738 bytes (integration). Result manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T145057Z-48537/results.json@sha256:556f9d5d06af7dc4328a3d35b7d9f60a0c885cec7cd68724f5c177931c8f02e8`.
+
+The run used one worker and no reused cells. Peak aggregate process-group RSS was 890,320 KiB, minimum free system memory was 72%, swap growth was zero, and minimum scratch free space was 14,528,331,776 bytes. The Main timing pilot took 45.372 seconds under the explicit 1,800-second ceiling; the other cells used a measured 137-second alarm (3× Main duration) and completed without timing out. This bounded P41 wave does not close R9/CAS-01 or assign the observed E02 regression to an owning source change; the remaining Appendix identities and full touched-file matrix remain outstanding.
+
+
+## R7 health-probe provenance: source mechanism explained, P41 owner unresolved (2026-09-28)
+
+**Discrepancy first.** The fresh four-base P41 result still records the R7 selected case as pass on execution base → fail on E02 head, with `owner_attribution=UNRESOLVED`. The observed additional World Bank US GDP GET was captured by the test’s intercepted transport while socket connection calls were blocked; it was not a real Internet request. The case-diff input closure still leaves its helper/import and pytest-plugin/fixture collection behavior unresolved.
+
+The source-path review identifies a concrete mechanism for the extra intercepted request. E02 changed `policy-engine/src/polisyos/fabric/connectors/pool.py` from base Git blob `6672ef6bdf8f6ff1f60102f8adba3b000fc4d4b9` to E02-head blob `dedeee7949722e7b88b6010f7b46286c2c6f70bf`: the `_acquire_owned` path validates a newly created pooled connection when `validate_on_acquire` is true. The unchanged World Bank health check then requests `https://api.worldbank.org/v2/country/US/indicator/NY.GDP.MKTP.CD` before the authorized UKR indicator request. The test records that extra request through a monkeypatched `aiohttp.ClientSession._request`; its socket calls are blocked. Source-provenance memo: `/Users/deniskopylov/.codex/scratch/e02-p41-wave2-20260928/R7_WORLD_BANK_HEALTH_PROBE_PROVENANCE_20260928.md@sha256:f33dd8ea71e718634b56add85f31987cbda43a78717fda26df24793cd098fecf`.
+
+The bounded live-permit path skips that prefetch check: its pool predicate is `validate_on_acquire and live_acquire_permit is None`. At tested integration snapshot `6ffa3e63d`, the selected live-executor test asserts no health-check and only the expected UKR request, and passes. The `pool.py` and test-file bytes are unchanged at report HEAD `504b9e749`; current tracked snapshots are `policy-engine/src/polisyos/fabric/connectors/pool.py@sha256:e0066f511fe9b04fa0359b89987a4e3aced861263cdf0f1476abc3f3edffd2d7` and `policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py@sha256:c4a53992164180e62aab7dbae9b149bb3b9347fef99fa0e28c116373ac6587ed`. This witness covers the named governed live-permit path; it does not establish behavior of every pool/connector workflow.
+
+The fresh no-reuse P41 manifest is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/results.json@sha256:1fee7008f6548c8236a8d497fbdde82512917736362f535baf83bdc704153c86`. The selected test is `policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py::test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport`; its execution-base JUnit is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/e02_execution_base/test_live_acquisition_executor-3b46dae31207.junit.xml@sha256:f2db7661e85644cec444497d36c0f10342bcafb64cccd57cba597493a5556c19`, its E02-head JUnit is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/e02_head/test_live_acquisition_executor-3b46dae31207.junit.xml@sha256:c792b76e77be12636fba3d79bd879c73f585a44c60bbce41f6b25b84e1fcd5da`, and the tested integration whole-file JUnit is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T140430Z-32986/cells/integration_head/test_live_acquisition_executor-3b46dae31207.junit.xml@sha256:79bd4e3dbe3f92ae2cc7539a0b948fb2c436b70cbe1977430f5248aa1b4bbee7`.
+
+**Bounded conclusion.** The E02 pool change explains the specific extra intercepted GET, and the live-permit path prevents that probe in the tested integration snapshot. This source-level explanation does not rewrite the manifest’s P41 `UNRESOLVED` owner status: the complete transitive/native/runtime input closure was not enumerated. No class closure or broader no-egress claim follows.
+
+## R4 exact-head gate at `d55b0e00e` (2026-09-28; verdict remains UNRUN)
+
+**Discrepancy first.** The 4,057-byte standalone `--check` output is byte-identical (same SHA-256) to the previously recorded GY-N6 output at `44a7441eb`/`a59107f`. This rerun pins that same verdict to clean `d55b0e00e`; it adds no positive N9 evidence. The historical v2 run replay passes, but the required v3 currentness is not established.
+
+At `d55b0e00e`, `check_layer3_gy_generation_cycle_contract.py --check` ran as the sole gate invocation and returned typed `UNRUN`, exit 2, at `n6_source_census`. The explicit source denominator is complete at 2,696 `src/polisyos/**/*.py` paths, while the source verdict remains `UNRUN`, canonical identity is `not_established`, and `n6_census_issuer_not_appointed`; N9 callback/session counts are zero. The predicate does not pass and no current N9 scope comparison was reached. Raw output: `/Users/deniskopylov/.codex/scratch/e02-r4-next-code-20260928/R4_current_d55_check.log@sha256:2fadd0f9673cdac80001eb8d9edf4ee56a1d65c043126433015e50722b75c069`.
+
+R4 diagnosis: `/Users/deniskopylov/.codex/scratch/e02-r4-next-code-20260928/R4_CYC_NEXT_CODE_DIAGNOSIS.md@sha256:23663cfad35d762376e56dc28ab92319c0608ebe097994fd88ebbe0b76f1b3f7`. It finds the typed verdict and final-N9 active-basis binding already implemented; this gate supplies no class-closure evidence and authorizes no N6, promotion, ledger, or deployment-identity reissue.
+
+
+## R4 exact-head governed validator at `d103d234c` (2026-09-28; verdict remains UNRUN)
+
+**Discrepancy first.** The exact-head `check_layer3_gy_generation_cycle_contract.py --check --output-format json` invocation returned typed `UNRUN` / exit 2 at `n6_source_census`, with issue `generation_cycle_currentness_reissue_required`. Historical v2 replay passes, but current v3 reissue/currentness is not established; the gate did not reach N9.
+
+The declared source census is complete for its stated `src/polisyos/**/*.py` path denominator: 2,696/2,696 paths, path-set digest `763fbb6f1e82513e154fa76812a134878c660d44bb71d4e5d45e88a77e991749`, semantic census digest `c2464f5d3a9cca208557598c3503256aeb88fe2fc6439a5d0f5c02544a907896`. This is not a canonical deployment-identity receipt: `canonical_identity_binding=not_established`, reason `n6_census_issuer_not_appointed`. The declared scan reports no production callers and leaves `allowed_fixture_reachability_not_established` and `dynamic_attribute_dispatch` unresolved by construction. Historical inventory found two persisted candidate summaries and two generation-cycle records; live N9 callback attempts and session opens were both zero. The sole committed contract JSON was read and hashed, but its file-reader receipt explicitly excludes Python imports, Git/ref reads, subprocess reads, and external services.
+
+**Bounded result.** This records that the currentness-blocked invocation returns a typed verdict rather than crashing; it does not re-exercise the previously crashing N9 scope-mismatch path. It does not prove the contract passes, current N6 deployment identity, or final-basis N9 scope equality. No artifact or epoch was reissued, and R4 remains open on the appointed census/currentness path and a positive N9 witness. Raw standalone output: `/Users/deniskopylov/.codex/scratch/e02-r4-readonly-audit-20260928/R4_check_d103d234c.out@sha256:2fadd0f9673cdac80001eb8d9edf4ee56a1d65c043126433015e50722b75c069`.
+
+## Fresh P41 Appendix A/B waves at `90eb7e4f8` (2026-09-28)
+
+**Discrepancy first.** `test_human_decision_service.py::test_human_decision_hard_crash_reconciles_null_ref_signed_orphan_before_v2` passes on the E02 execution base (77/77) and fails on E02 head (76/77; one failing case). Its test-module blob and function AST match across that pair, but the harness records `BODY_SAME_INPUT_CLOSURE_UNMEASURED` because pytest fixture/plugin inputs remain unresolved. Main and current integration each pass 77/77. E02→current is `OTHER_OUTCOME_CHANGE` / `CASE_DEFINITION_CHANGED`: the module blob changes from `f0dde25d…` at E02 to `b167431f…` at Main/current. This Appendix-B identity is an R10 historical regression observation; current green does not establish repair, and R10 source-owner attribution remains **UNRESOLVED**.
+
+**Denominator and outcomes.** The complete Appendix census is 21 unique files × 4 pinned revisions = 84 whole-file cells and 74 named identities (37 A, 37 B). The two waves requested five distinct files (3 + 2), or 20 file/revision cells: 12 present (11 whole-file passes, one E02 service-file failure) and 8 verified `MISSING` because the files are absent from execution/E02 historical trees. Wave 1 has six passing Main/current cells and six old-base missing cells. Wave 2 has six present cells (service: execution 77/77, E02 76/77, Main 77/77, current 77/77; guarded custody: Main/current 2/2 each) and two old-base missing cells. All seven selected Appendix-B identities (5 + 2 of 74) are `SAME` Main→current. The waves do not complete the 84-cell matrix or change finding status.
+
+Both manifests record `measurement_verdict=RECORDED`, resource guard `pass`, and zero incomplete sampled cells. CLI exit 2 reflects verified missing cells counted as `UNRUN`, not a resource failure. Wave 154621 peaked at 912,672 KiB RSS, with 74% minimum free memory, zero swap growth, and 16,690,102,272 bytes minimum scratch free; wave 155410 peaked at 851,568 KiB, with the same free-memory floor, zero swap growth, and 16,350,871,552 bytes minimum scratch free. Raw manifests: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T154621Z-60433/results.json@sha256:514a805eb89a7fa7a8a122331a1c00abe120399c6bcd83af3b8bfe3e781adb99`; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T155410Z-62887/results.json@sha256:2f05c7234833a1717873bc3a9985ff9f6885414856e08a8a015b47ff588e567b`.
+
+
+## Completed four-base P41 waves at source snapshots through `e55012e22` (2026-09-28)
+
+The existing census remains 21 Appendix-A/B files × 4 revisions = 84 whole-file cells, with 74 named identities (37 A and 37 B). These seven completed manifests request 13 distinct files × 4 revisions = 52 cells: 45 are present and seven are verified `MISSING` in older Git trees. Four present `test_workflow_tracing.py` cells contain only one skip each; the harness classifies each as `UNRUN` under its all-skipped policy. `MISSING` and all-skipped `UNRUN` are separate from test failures. Selected-case counts below are per comparison, not additive distinct identities: the live-acquisition identity appears in both an A and a B comparison.
+
+All seven manifests record `measurement_verdict=RECORDED` and resource guard `pass`. The largest measured process-group RSS was 1,127,872 KiB; minimum free memory was 72%; swap growth was zero. The production data root was read-only and its manifest was identical across the measured refs: `/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`.
+
+### R14 planner and joint-simulation whole-file replay (integration snapshot `16a2ca314a32`)
+
+| Complete file | E02 execution base `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | Integration `16a2ca314` |
+|---|---:|---:|---:|---:|
+| `test_acquisition_planner.py` | 48 pass, 1 skip | 67 pass, 1 fail, 1 skip | 48 pass, 1 skip | 71 pass, 1 skip |
+| `test_joint_simulation_horizon.py` | 24 pass | 23 pass, 1 fail | 24 pass | 26 pass |
+
+The selected Appendix-A cases `test_generation_cycle_bootstrap_authority_is_strangled` and `test_program_graph_plan_loops_real_shared_state_executor` both record base→E02 `PASS_TO_FAIL`, with `owner_attribution=UNRESOLVED`. Both pass at the 16a2 integration snapshot, but E02→integration is `OTHER_OUTCOME_CHANGE`: the acquisition-planner case is `CASE_DEFINITION_CHANGED`; the ProgramGraph case is `BODY_SAME_INPUT_CLOSURE_UNMEASURED`. This is not a repair attribution or R14 closure. The integration execution is at 16a2, not e550.
+
+The complete 8-cell manifest and per-cell JUnit identities are in `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T162252Z-78897/results.json@sha256:62a10c59a6129675c400f0de15b7a0dc54a3f6f027ce12f2019661744c276e34`. The E02-red JUnits are `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T162252Z-78897/cells/e02_head/test_acquisition_planner-6074fc2b031e.junit.xml@sha256:19b72e98d76c2e57d572743af0f8401c8d36bb4637dbf107586e2932ae1d25f4` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T162252Z-78897/cells/e02_head/test_joint_simulation_horizon-732b41114591.junit.xml@sha256:94682348a52381ccbf0832b2a4db4c6f6b206a436a1c884cdb0ea313923c01f1`; integration JUnits are `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T162252Z-78897/cells/integration_head/test_acquisition_planner-6074fc2b031e.junit.xml@sha256:c9073712fa23060523eb2f742131a0f54cd9b6bbf48c06c7056d9cafa134933d` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T162252Z-78897/cells/integration_head/test_joint_simulation_horizon-732b41114591.junit.xml@sha256:c065c35bf0c99b0863f60d34123f0072c0e1e9a3f13cc403bc345e44e24bc307` in that manifest's `raw/` directory.
+
+### Runtime artifact-owner and default-builder custody tests
+
+| Complete file | `78187878e` | `00d946c2b` | `5fd3ebcc1` | Integration snapshot |
+|---|---:|---:|---:|---:|
+| `test_artifact_id_serialization_contract.py` | 5 pass | 5 pass | 5 pass | 5 pass at `16a2ca314` |
+| `test_builder_pinning.py` | 15 pass | 15 pass | 15 pass | 17 pass at `e55012e22` |
+
+These are distinct suites, not the same test run before and after a patch. The e550 builder-pinning file adds the default-store tenant witness: the store records tenant ownership, refuses foreign reads, and still permits unscoped candidate I/O. Its two e550-only cases are `test_default_store_records_tenant_owner_and_blocks_foreign_reads` and `test_default_store_keeps_unscoped_candidate_io_usable`. This supports the bounded default-workflow-store custody change in commit `e55012e22d7e41bc2957ca0b8f269baa2849e5bf`; it does not establish all R13 re-entry, every runtime CAS path, or ACQ-01 closure. The serialization-contract manifest is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T161911Z-78098/results.json@sha256:0ef343ba46b1ba279a8cf262357aaef42f5398eb4abd2c3852f4cc492b101547`; the builder-pinning manifest is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T162938Z-81584/results.json@sha256:c643790d90628cddb43fbb3190d644f04e0342b57e38f34d99cb967c1e5dffd2`. The e550 whole-file JUnit is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T162938Z-81584/cells/integration_head/test_builder_pinning-96d78b7e0308.junit.xml@sha256:5a1d52213c46e0c1a7dba447efc8ccdc521647d2f77141eb7b0c419794716a92`.
+
+### R10 historical availability and selected Main-to-e550 checks
+
+The two requested files `test_promotion_safety.py` and `test_human_decision_guarded_custody.py` have four requested execution/E02 cells recorded `MISSING` because those files are absent from both old Git trees; their four Main/e550 cells are present. Main and e550 each pass `test_promotion_safety.py` 14/14 and `test_human_decision_guarded_custody.py` 2/2. Three selected Appendix-B identities are `SAME` Main→e550: `test_guarded_store_custodies_record_and_recovers_signed_orphan[True]`, `test_canonical_port_and_independent_reader_share_fixed_source_trust`, and `test_signed_source_custody_never_establishes_promotion_policy[None]`. The missing old cells do not establish the old-base red or its repair. The manifest records `measurement_verdict=RECORDED`, resource guard `pass`; the runner's exit 2 reflects verified missing cells, not a test failure or resource failure.
+
+Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163700Z-84908/results.json@sha256:6986b5f717d41fefca5d4a5083f571f97ffab405cec157f97bf16c6106daf711`. Main/e550 JUnits for the guarded-store file are `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163700Z-84908/cells/main/test_human_decision_guarded_custody-9875bfb535af.junit.xml@sha256:3f6653185109f59c3088ae6ea258f792eb61ebc6d0166f3ec1fe2f8fe15d2cee` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163700Z-84908/cells/integration_head/test_human_decision_guarded_custody-9875bfb535af.junit.xml@sha256:5b6bd851e3436bde3710364359e5d8b5235315eaaf7364ef62ec3a0cc2823744`; Main/e550 promotion JUnits are `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163700Z-84908/cells/main/test_promotion_safety-233e0847e064.junit.xml@sha256:eff717e0f72b5c855bbde89619c3c4ecd348c91f40e0b678344e3ac0446da57a` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163700Z-84908/cells/integration_head/test_promotion_safety-233e0847e064.junit.xml@sha256:847b509a3c6b2de509677b712eddd0c801a105c337a311089cb2a179dea7c4b8`.
+
+### R13 importer pre-baseline and ownership-history availability at e550
+
+| Complete file | `78187878e` | `00d946c2b` | `5fd3ebcc1` | e550 |
+|---|---:|---:|---:|---:|
+| `test_engine_default_workflow_e1_7.py` | 1 pass | 1 fail | 1 pass | 1 pass |
+| `test_engine_default_workflow_p8.py` | 1 pass | 1 fail | 1 pass | 1 pass |
+| `test_policy_verified_workflow_e2e.py` | 1 pass | 1 pass | 1 pass | 1 pass |
+| `test_workflow_tracing.py` | 1 skip, `UNRUN` | 1 skip, `UNRUN` | 1 skip, `UNRUN` | 1 skip, `UNRUN` |
+
+The importer wave has 16/16 present cells. The two E02-only whole-file failures are measured outcomes; no source-owner attribution is made. The workflow-tracing cells stay `UNRUN` under the all-skipped policy, not green. Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163157Z-83283/results.json@sha256:09c4c28380c4a4878b0f3738204f5579a26b7f5024b6aea95210c479fdb8f8be`. The two E02-red JUnits are `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163157Z-83283/cells/e02_head/test_engine_default_workflow_e1_7-176251c2aff7.junit.xml@sha256:26f52a61dd0c31b994aa758231eae7e528c7fd3c795e1acf15796a80e47f8556` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163157Z-83283/cells/e02_head/test_engine_default_workflow_p8-23e8d69d2e3d.junit.xml@sha256:d24a3f9de4a4f3387d1d9682aeebf179705d34947342e7c6fea596f6e748bdde`; e550 JUnits are `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163157Z-83283/cells/integration_head/test_engine_default_workflow_e1_7-176251c2aff7.junit.xml@sha256:62456724620bb0f1629ffbfb84e2cbc354d7177392d9488a7c8ae79c134f6df9` and `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163157Z-83283/cells/integration_head/test_engine_default_workflow_p8-23e8d69d2e3d.junit.xml@sha256:cf0ace4493f839c14365de67fee7a50bbef28b3a7c5d47765cbac0f9f63b3b33`.
+
+The separate requested `test_ownership_history.py` is `MISSING` at the three old refs and passes 3/3 at e550. This is current-head evidence only for a file that cannot be replayed at those old refs. Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164030Z-86453/results.json@sha256:d62f6a797cd17a71800e4552c938d1ad28252ce5cf3fe250e4e9defa6991b3d5`; e550 JUnit: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164030Z-86453/cells/integration_head/test_ownership_history-7905cb035c2b.junit.xml@sha256:10e4ab772e1ea0e3aa43bd21a513b7d15e38818d0671482d895802ef1313ab46`.
+
+### R14 live-acquisition and deployment-security replay at e550
+
+| Complete file | `78187878e` | `00d946c2b` | `5fd3ebcc1` | e550 |
+|---|---:|---:|---:|---:|
+| `test_live_acquisition_executor.py` | 39 pass | 38 pass, 1 fail | 42 pass | 49 pass |
+| `test_runtime_deployment_security.py` | 52 pass | 52 pass | 44 pass, 10 fail | 44 pass, 10 fail |
+
+For live acquisition, `test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport` is selected A pass→fail from execution base to E02; the file blob is the same but helper/import and plugin/fixture input closure is unmeasured, so the owner remains `UNRESOLVED`. The selected B comparison Main→e550 is pass→pass; the complete test module changed and that green does not assign repair ownership. For deployment security, Main and e550 contain the same test-module blob and the same 10 failing outcomes. The selected Appendix-B `test_epoch_privileged_source_ports_are_captured_and_attested` passes in both. The ten whole-file reds are not called inherited: complete P41 changed-path/input-denominator proof is absent, so owner attribution is `UNRESOLVED`.
+
+Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163517Z-84196/results.json@sha256:4727fcfcf4fba2a291409eb25769293e953b3ae76e0b52fc3d1423ed339b323f`. Deciding JUnits: live-acquisition E02 `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163517Z-84196/cells/e02_head/test_live_acquisition_executor-3b46dae31207.junit.xml@sha256:def5b9d5d6d8b95173cf66791ea98b1423a78f3b659f945b8435fe2fedc445a8`, e550 `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163517Z-84196/cells/integration_head/test_live_acquisition_executor-3b46dae31207.junit.xml@sha256:2e69d6f6e23bc2b526ad2e561179d826ad90405d438d81a737d4ee69a23f9450`; deployment Main `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163517Z-84196/cells/main/test_runtime_deployment_security-f15a051c3464.junit.xml@sha256:339647e580f56b16b37a364c3717c278df79d2d2692d31ffaa6971a5074a5eba` and e550 `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T163517Z-84196/cells/integration_head/test_runtime_deployment_security-f15a051c3464.junit.xml@sha256:7088653a741798ba3d565178f2d3da5b60bef8a2695a7e8c25e0901347931e40`.
+
+## Served-R13 and R14 P41 follow-up at `be03695` / `bcc1c67` (2026-09-28)
+
+The three manifests contain 24 requested slots across five distinct test files. After deduplicating repeated tenant-custody observations at the execution/E02/Main refs and treating `be03695` and `bcc1c67` as source/test-equivalent integration snapshots, they cover 20 distinct file/source-snapshot pairs: 12 present and 8 verified `MISSING` at the old refs. Of the 12 present pairs, 10 have completed JUnit outcomes; two NL pairs are `UNRUN` because E02 stopped at the resource guard and current was not dispatched. All five requested files have at least one completed JUnit outcome; the completed execution-base and Main NL suites each report 35 pass and 11 fail. This is a subset of the full 21-file / 84-cell, 74-identity Appendix A/B denominator.
+
+The three manifests used the read-only production-data root `/Users/deniskopylov/polisyos/policy-engine/production_data`; its manifest hash is `9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`. Their resource outcomes are per-manifest and are not pooled: served-R13 and authority/custody are `pass`; NL/movement is `fail` for the resource guard. No finding or R-class closure or source-owner attribution follows from these runs.
+
+### Served R13 acquisition paths at `be03695e`
+
+| Complete file | E02 execution base `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | integration `be03695` |
+|---|---:|---:|---:|---:|
+| `test_acquisition_tenant_custody.py` | `MISSING` | `MISSING` | 1 pass | 3 pass |
+| `test_acquisition_world_growth_chain.py` | `MISSING` | `MISSING` | 5 pass | 9 pass |
+
+All four historical cells are `MISSING`, not test failures. Six selected Appendix-B outcomes (1 tenant-custody and 5 WDI-chain identities) are `SAME` Main→integration; no selected common case is pass→fail. The full integration test files and manifests show the added current cases, but do not supply old-base replay or a finding-level closure.
+
+Resource summary: `pass`, 4 sampled cells, peak process-group RSS 1,115,904 KiB, minimum free memory 72%, minimum scratch free space 13,813,596,160 bytes, zero swap growth. Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164605Z-87788/results.json@sha256:57960d9121f75f768b2cabfe4f943abf1b876140343d25a9c291444ba823fc28`.
+
+Main/integration JUnits: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164605Z-87788/cells/main/test_acquisition_tenant_custody-9b01084eee6d.junit.xml@sha256:062c620cc9ccf9e8c03cd81d0b6eb6a8a335aa8854589d3c03fd117e12bdb83b`; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164605Z-87788/cells/integration_head/test_acquisition_tenant_custody-9b01084eee6d.junit.xml@sha256:8a4e2844aa3817300b4456d47307fbc80f0da956c198e89beb53a161aea196e9`; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164605Z-87788/cells/main/test_acquisition_world_growth_chain-8d9c29ca3e74.junit.xml@sha256:edece20584e0c18eacc7d90435f144d34a2e14f6941c45cf0db7e65f0c92efeb`; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164605Z-87788/cells/integration_head/test_acquisition_world_growth_chain-8d9c29ca3e74.junit.xml@sha256:31ab042274b050244947b6d23635fdfe85504e57993ad17b67f0ec4817b82af4`.
+
+### R14 acquisition-movement and NL front-door replay at `be03695e`
+
+| Complete file | E02 execution base `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | integration `be03695` |
+|---|---:|---:|---:|---:|
+| `test_acquisition_movement_positive.py` | `MISSING` | `MISSING` | 2 pass | 3 pass |
+| `test_nl_pipeline_materialization.py` | 35 pass, 11 fail | `UNRUN` (resource guard) | 35 pass, 11 fail | `UNRUN` (not dispatched) |
+
+The two old acquisition-movement cells are `MISSING`. Its two selected Appendix-B cases pass on Main and integration (`SAME`): `test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board` and `test_remove_decisive_native_bytes_keeps_receipt_markers_but_retracts_board_movement`. The selected NL case `test_plain_language_front_door_calls_real_design_problem_compiler` passes on Main but is `UNRUN` on current, so there is no Main→current behavior comparison for it.
+
+The NL manifest is `measurement_verdict=RECORDED`, but the resource summary is `fail`: five cells sampled, two cells guarded by the hard limit, and one of six present non-skipped cells with incomplete resource coverage. The E02-head NL cell exited `-15` when process-group CPU reached 625.8% against the 600% hard limit; its suite status is `UNRUN` and its JUnit artifact is a zero-byte placeholder with no SHA-256, not a test receipt. The current NL cell is `UNRUN` because the scheduler paused after that guard and never dispatched it; it has no JUnit. These two statuses are distinct from `MISSING` and from the 11 test failures reported by the completed execution/Main runs.
+
+Resource summary: 5 sampled cells; peak aggregate CPU 626%, peak process-group CPU 625.8%, peak aggregate process-group RSS 4,207,504 KiB, peak process-group RSS 4,211,344 KiB, minimum free memory 50%, minimum scratch free space 13,706,076,160 bytes, zero swap growth; summary status `fail`. Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164707Z-88068/results.json@sha256:6c2441c2ee5e5e35b1152cc2bc141bc7028dbb1b50ff48b7c004b7e14fd5ba87`.
+
+Valid NL JUnits preserve the completed outcomes: execution `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164707Z-88068/cells/e02_execution_base/test_nl_pipeline_materialization-2034b09f13ed.junit.xml@sha256:108284c5d5a5d99b8dec909047dbcb0639974b9a4aebc86df367f75a57dc1750`; Main `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164707Z-88068/cells/main/test_nl_pipeline_materialization-2034b09f13ed.junit.xml@sha256:f08efad05d4f23c57b04ae488b6c7347615ba0b46c60007416fe6d8f622f811b`. Movement JUnits: Main `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164707Z-88068/cells/main/test_acquisition_movement_positive-1fab3debcfd4.junit.xml@sha256:bdf528c7df698c77cd4dbef6c4dc640320b0d03a166b224c8ff827edc8edeb96`; integration `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164707Z-88068/cells/integration_head/test_acquisition_movement_positive-1fab3debcfd4.junit.xml@sha256:e59d2b2939e87f67bfd4c5ae94a473ebda6585d814852a3d26cd30e4916fa514`.
+
+### Additional acquisition authority/custody pair at `bcc1c674`
+
+| Complete file | E02 execution base `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | integration `bcc1c674` |
+|---|---:|---:|---:|---:|
+| `test_acquisition_authority_provider.py` | `MISSING` | `MISSING` | 2 pass | 2 pass |
+| `test_acquisition_tenant_custody.py` | `MISSING` | `MISSING` | 1 pass | 3 pass |
+
+This run repeats `test_acquisition_tenant_custody.py` from the served-R13 manifest above; it is not a new distinct file/revision pair. Both files are absent from the old refs. The selected Appendix-B worker-replay case and tenant-custody case are `SAME` Main→integration; the latter is the repeated identity. This is current/Main evidence only.
+
+Resource summary: `pass`, 4 sampled cells, peak process-group RSS 1,113,520 KiB, minimum free memory 62%, minimum scratch free space 16,108,658,688 bytes, zero swap growth. Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T170111Z-92400/results.json@sha256:e1960c6e78f8b4879631c0e412ca9166e3afadf785e4e67a07dd8c806b16032b`.
+
+Main/integration JUnits: authority provider Main `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T170111Z-92400/cells/main/test_acquisition_authority_provider-87a11130d697.junit.xml@sha256:01453ebceb90ed6249347fef4ec9f8a649c7c2cc64604da315e3c74fc40ebf50`; integration `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T170111Z-92400/cells/integration_head/test_acquisition_authority_provider-87a11130d697.junit.xml@sha256:d320b37d5f95bf3b24ca646040b7ab2f6f30af3ab8e4f0284b75118eba37ded3`; tenant-custody Main `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T170111Z-92400/cells/main/test_acquisition_tenant_custody-9b01084eee6d.junit.xml@sha256:35e48e941ab765042f95222c7dd53ac34cf314e9df2b497c7ff4d4e2e0ac5114`; integration `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T170111Z-92400/cells/integration_head/test_acquisition_tenant_custody-9b01084eee6d.junit.xml@sha256:2b23c4cd3f1d40ef61a94b4089535479dce5cb37574ad684a96d6b2779e87761`.
+
+The be036 and bcc1 integration snapshots add documentation commits only relative to e550: a read-only path diff across `policy-engine/src` and `policy-engine/tests` is empty. Keep the source/test cutoff at e550 while identifying the exact P41 integration snapshots above. These supplements do not assign E02/Main failures to a code owner and do not close R13, R14, or a finding.
+
+
+## Numeric-thread-capped NL four-base P41 at `2a6501ecd` — discrepancies first (2026-09-28)
+
+**Discrepancy.** The four-base whole-file replay completed all 4/4 cells for `tests/unit/runtime/http/test_nl_pipeline_materialization.py`, with no `MISSING` or `UNRUN` cells. Execution base `78187878e`, E02 head `00d946c2b`, and Main `5fd3ebcc1` each report 35 passed / 11 failed (46 cases). Integration source/test head `2a6501ecd` reports 27 passed / 22 failed (49 cases). Of the 46 Main/current common identities, 24 are pass→pass, 11 pass→fail, and 11 fail→fail; three additional current-only schema/version cases pass: `test_design_problem_front_door_rejects_explicit_legacy_schema_version`; `test_design_problem_front_door_rejects_missing_current_schema_version`; `test_design_problem_provider_schema_matches_versioned_slot_grammar`. This is one of the complete 21 Appendix A/B files (4/84 whole-file cells) and one selected identity of 74 (`test_plain_language_front_door_calls_real_design_problem_compiler`, Appendix B).
+
+The selected Appendix-B identity is Main pass→current fail (`PASS_TO_FAIL`). The E02 execution-base, E02-head, and Main JUnits pass this identity; the current JUnit reports `cycle_substrate_context_not_established` because the HTTP composition rejects an explicit N4 producer without an owner-bound `CycleSubstrateContext`. The previous guard-stopped NL receipt at be036 left the current NL cell `UNRUN`; this replay now measures it.
+
+**Exact 11 new Main→current failures and observed messages.** The ten schema-signature rows are possible members of a new schema/fixture class, while the selected plain-language failure is an R1 signal. These are provisional symptom buckets only; every owner attribution remains unresolved.
+
+| Main-pass/current-fail test identity | Current JUnit reason | Provisional bucket |
+|---|---|---|
+| `test_design_problem_front_door_keeps_nontruncated_malformed_output_strict` | Assertion expected `design_problem_validation_failed`; received `design_problem_compiler_schema_version_mismatch`. | Possible new schema/fixture class; unresolved |
+| `test_nl_pipeline_bridges_scientist_trace_events_to_control_progress` | `DesignProblemAuthorityError: design_problem_compiler_schema_version_mismatch`: new compiler output must use current DesignProblem schema. | Possible new schema/fixture class; unresolved |
+| `test_nl_pipeline_can_run_simulated_llm_without_mock_fallback` | `DesignProblemAuthorityError: design_problem_compiler_schema_version_mismatch`: new compiler output must use current DesignProblem schema. | Possible new schema/fixture class; unresolved |
+| `test_nl_pipeline_marks_progress_failed_when_scientist_raises` | `DesignProblemAuthorityError: design_problem_compiler_schema_version_mismatch`: new compiler output must use current DesignProblem schema. | Possible new schema/fixture class; unresolved |
+| `test_nl_pipeline_passes_resolved_curated_dir_to_llm_data_need_extractor` | `DesignProblemAuthorityError: design_problem_compiler_schema_version_mismatch`: new compiler output must use current DesignProblem schema. | Possible new schema/fixture class; unresolved |
+| `test_nl_pipeline_promotes_formalizer_structured_schema_failure` | `DesignProblemAuthorityError: design_problem_compiler_schema_version_mismatch`: new compiler output must use current DesignProblem schema. | Possible new schema/fixture class; unresolved |
+| `test_nl_pipeline_propagates_scientist_workflow_failure` | `DesignProblemAuthorityError: design_problem_compiler_schema_version_mismatch`: new compiler output must use current DesignProblem schema. | Possible new schema/fixture class; unresolved |
+| `test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_network` | `DesignProblemAuthorityError: design_problem_compiler_schema_version_mismatch`: new compiler output must use current DesignProblem schema. | Possible new schema/fixture class; unresolved |
+| `test_nl_pipeline_surfaces_formalizer_schema_healing_in_variant_telemetry` | `DesignProblemAuthorityError: design_problem_compiler_schema_version_mismatch`: new compiler output must use current DesignProblem schema. | Possible new schema/fixture class; unresolved |
+| `test_nl_pipeline_updates_control_job_progress` | `DesignProblemAuthorityError: design_problem_compiler_schema_version_mismatch`: new compiler output must use current DesignProblem schema. | Possible new schema/fixture class; unresolved |
+| `test_plain_language_front_door_calls_real_design_problem_compiler` | `cycle_substrate_context_not_established`: HTTP composition rejects explicit N4 without owner-bound `CycleSubstrateContext`. | R1 signal; unresolved |
+
+For all eleven, the manifest records `case_input_equivalence=BODY_SAME_INPUT_CLOSURE_UNMEASURED`, with pytest plugin fixture/collection behavior not statically resolved, and `owner_attribution=UNRESOLVED`. The current module blob differs from Main. The three passing current-only cases add explicit legacy-schema rejection, missing-current-schema rejection, and provider versioned-slot grammar checks; they do not prove that the ten older callers are only stale fixtures. The distinction between R1 behavior and a new schema/fixture class remains unresolved pending complete source/input closure and independent review. No test-owner assumption is made.
+
+The prior resource-guarded measurement is `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T164707Z-88068/results.json@sha256:6c2441c2ee5e5e35b1152cc2bc141bc7028dbb1b50ff48b7c004b7e14fd5ba87`: it recorded E02-head NL `UNRUN` after the 600% CPU guard at 625.8%, then left current NL undispatched. In this run numeric thread controls were set to 1 (including BLAS, OpenMP, NumExpr, Torch and DuckDB), JAX was CPU-only, and one process group ran; the resource guard passed for all four cells. It yielded a complete measurement, but the changed current source snapshot and environment do not prove that the behavior differences are a backend-only effect or that the numeric cap caused the failures.
+
+Resource summary: `PASS`, 4/4 sampled, zero guarded/incomplete cells; one active process group; peak process-group CPU 208.6%, peak process-group RSS 3,424,000 KiB, minimum free memory 46%, minimum scratch free 15,763,345,408 bytes, zero swap growth. The production-data root was read-only at `/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`.
+
+Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T173749Z-9849/results.json@sha256:a232a0750331e890ec05ccf58718c48795df3a94f9ebc294fa2e8724e4375524`. JUnits (each re-read; byte size, SHA-256, XML and case counts matched the manifest):
+
+- Execution base: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T173749Z-9849/cells/e02_execution_base/test_nl_pipeline_materialization-2034b09f13ed.junit.xml@sha256:92690c2e01704938958eaf39e64706d1c7252560da44b50abd859689d9a78511`
+- E02 head: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T173749Z-9849/cells/e02_head/test_nl_pipeline_materialization-2034b09f13ed.junit.xml@sha256:89badf704aa6b6212029cda15c8e691a472cba673caf85b091c090fb86ed991f`
+- Main: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T173749Z-9849/cells/main/test_nl_pipeline_materialization-2034b09f13ed.junit.xml@sha256:897e6785ce3f2ae737c29e7085901f1f8c8233f33a0e88ec92a2238c3132c6be`
+- Integration head: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T173749Z-9849/cells/integration_head/test_nl_pipeline_materialization-2034b09f13ed.junit.xml@sha256:c34d5d635de6e7706db43404a5c309a0937f84ea38735e5b547a702c6e45721a`
+
+This run supplies one complete four-base file measurement. It does not close R1, attribute the eleven changes, or complete the 21-file/84-cell Appendix A/B matrix.
+
+## R8 post-repair four-base whole-file P41 at ba46429 — discrepancies first (2026-09-28)
+
+**Discrepancy.** The file exists at all four pinned revisions, but the test case set differs. Execution base 78187878e, E02 head 00d946c2b, and Main 5fd3ebcc1 use test blob d443c02d3bdcf5592b6725a3de87476f1efe96c3 and each collect two cases. Integration head ba46429ff26491ed1c6796cbc2b50fb47a6aaf76 uses test blob e4b22af9c7541b0a17708d4ec9ff736cc6436465 and collects seven. The harness records the five integration-only identities as CASE_SET_CHANGED against each of the three older revisions (15 pairwise classifications total; before=NOT_PRESENT, after=passed). These are added cases absent from the old test definitions, not file-level MISSING cells or pass-to-fail outcomes.
+
+The two identities common to all four JUnits both pass at every revision: test_worker_missing_durable_decision_fails_before_owner_effect and test_worker_loads_durable_decision_before_sealed_effect_and_terminal. The five added integration identities all pass there: test_stale_worker_cannot_write_after_guarded_store_takeover[raw-store-completion], [guarded-store-completion], [guarded-store-manifest], test_guarded_current_worker_can_update_manifest_and_complete, and test_stale_guarded_worker_terminal_evidence_does_not_advance_head_after_takeover. No outcome for these five is established on the historical code/test trees because those test cases are not present there.
+
+**Measured result.** All 4/4 file/revision cells are present and completed: execution 2/2 pass; E02 2/2 pass; Main 2/2 pass; integration 7/7 pass. There are zero missing or UNRUN cells in this requested file wave. This resolves the earlier post-repair whole-file P41 UNRUN for the file-per-revision case sets at the tested integration snapshot; it does not make the four test definitions identical.
+
+Manifest policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T180106Z-20826/results.json@sha256:36838660f0293b7ee484523e37622ee13f50f0d6852ef6fd8bb7ae9e814ccbc8. JUnits: execution policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T180106Z-20826/cells/e02_execution_base/test_acquisition_control_worker-9ec8600d8a36.junit.xml@sha256:51d05880a091792e4e7fe1d6d8653a75513d3fe5d18c762c1c7b74de14dfab93; E02 policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T180106Z-20826/cells/e02_head/test_acquisition_control_worker-9ec8600d8a36.junit.xml@sha256:527904e171d7844e5f865da1c652d719f46d13d595987cbea1c1a793058d10b6; Main policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T180106Z-20826/cells/main/test_acquisition_control_worker-9ec8600d8a36.junit.xml@sha256:2095b147b7cee9c403ea8a86ee66b54d48c8cd3de39128eb7603efafbb243e28; integration policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T180106Z-20826/cells/integration_head/test_acquisition_control_worker-9ec8600d8a36.junit.xml@sha256:cd6d6e6d2e92ce18d621df336442ccec3940f1939cfde6848887b81d296cd8ea. Manifest-declared and independently recomputed JUnit hashes agree.
+
+**Resource and scope.** The manifest records resource guard PASS: one peak process group, 100.1% peak CPU, 942,400 KiB peak group RSS, minimum free RAM 60%, minimum free scratch 14,911,000,576 bytes, and zero swap growth. Its postflight identity check passed on clean branch codex/e02-r2 at ba46429. This is one supplemental touched-file P41 wave; it does not change the strict Appendix A/B denominator or the 282 finding statuses.
+
+**R8 remains partial.** The current guarded stale-worker cases, preserving current-worker control, and served stale-head consumer all pass at integration, and the earlier marker-retaining ContextVar-removal probe remains evidence for the carrier property. The case-set difference means the five new behaviors are not replayed against old code. This receipt does not close R8's bounded residual: CAS/event bytes may be visible before lease-checked action-head admission; atomic publication, PostgreSQL FOR UPDATE, and broader Ray/Temporal behavior remain unestablished. Keep R8 partial and retain those residuals.
+
+## R13/P31 ownership-custody P41 at `d103d234c` — discrepancies first (2026-09-28)
+
+**Discrepancy.** This custom wave requested three whole files at four refs (12 cells), with zero of the 74 named Appendix A/B identities selected. Nine cells completed and passed; three are `MISSING`: `test_ownership_history.py` is absent from the E02 execution base (`78187878e`), E02 head (`00d946c2b`), and Main (`5fd3ebcc1`). Its current integration version (`d103d234c`) passes 18/18, but that new test file has no historical result. The manifest therefore exits 2 for incomplete matrix coverage; it reports no present `UNRUN` cell and no test failure.
+
+| Whole-file suite | Execution base | E02 head | Main | Integration `d103d234c` |
+|---|---:|---:|---:|---:|
+| `test_artifact_id_serialization_contract.py` | 5/5 pass | 5/5 pass | 5/5 pass | 10/10 pass |
+| `test_ownership_history.py` | `MISSING` | `MISSING` | `MISSING` | 18/18 pass |
+| `test_builder_pinning.py` | 15/15 pass | 15/15 pass | 15/15 pass | 23/23 pass |
+
+Direct JUnit identity intersection confirms all five historical serialization-contract identities and all 15 historical builder-pinning identities pass at each of the three old refs and at current. No common pass→nonpass is observed. Current adds five serialization and eight builder test identities; all 13 pass only on the current test definitions, so they are not historical regressions. The manifest records 39 pairwise `CASE_SET_CHANGED` rows (13 additions across three old→current comparisons). Its four pairwise `MISSING` classifications refer to the same absent history file; the 12-cell matrix has three absent historical cells.
+
+The `MISSING` status is source absence, not a failing test. This is a bounded current owner-custody witness; it does not establish historical behavior for the newly added `test_ownership_history.py` cases. The manifest records `appendix_case_result_count=0` and 74 unselected Appendix identities, so this receipt does not advance the strict 84-cell Appendix A/B matrix.
+
+Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/results.json@sha256:a0208c9d5d3fa7ba7ffec697b04a2f7125f4c52958ec4d739bc160699a526179`. JUnit bytes were reread and their SHA-256 values, XML case totals, and outcomes match the manifest:
+
+- Execution base: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/cells/e02_execution_base/test_artifact_id_serialization_contract-951ee2c849bf.junit.xml@sha256:b94dc751e4cd4536856d6ee8cc55b2fe85ebb38793f47d462dda6191287a8e27`; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/cells/e02_execution_base/test_builder_pinning-96d78b7e0308.junit.xml@sha256:8e5cc58bbfcc5c7561031d2fe2e07ed1f7db308f3e24c3bf0a390dc187f05b32`.
+- E02 head: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/cells/e02_head/test_artifact_id_serialization_contract-951ee2c849bf.junit.xml@sha256:1c85b83e7c45635ae1219ecdfbee381c9b76386da515c85cf1539a6a3223303d`; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/cells/e02_head/test_builder_pinning-96d78b7e0308.junit.xml@sha256:30b84fbd2fab4d5ad879732b82a450280d2b136a0ebbf77a5875f96a40c567df`.
+- Main: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/cells/main/test_artifact_id_serialization_contract-951ee2c849bf.junit.xml@sha256:ac23c51b8b0ef070cf75f7e708fb1c758aeb59cf0ade6e092f8fe7134adbb0d6`; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/cells/main/test_builder_pinning-96d78b7e0308.junit.xml@sha256:2af11b5ab754a3da0158bf72f9ab2c632d21a6680bf3aecd2dc774470416ffe1`.
+- Integration: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/cells/integration_head/test_artifact_id_serialization_contract-951ee2c849bf.junit.xml@sha256:8f17201d9c43b395d882d18350eaccf20a5412620f57a11ca5aa010f93d3427f`; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/cells/integration_head/test_ownership_history-7905cb035c2b.junit.xml@sha256:5ecd19c1381cf8fe1a95c95969316ad6dfa111d43e6eee147e089a6843c80b23`; `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T182540Z-29411/cells/integration_head/test_builder_pinning-96d78b7e0308.junit.xml@sha256:e995a3479f352977b27d97ff885a7ed49315683b65dda79612fd486970cf9ba6`.
+
+**Resource and input receipt.** Resource guard `PASS`, nine sampled cells, one peak process group, 100% peak process-group CPU, 782,368 KiB peak process-group RSS, 62% minimum free RAM, 14,337,966,080 bytes minimum scratch space, and zero swap growth. Production data was read-only at `/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`.
+
+**R13 disposition.** The integrated nine-file owner/importer set passes 122/122 (`/Users/deniskopylov/.codex/scratch/e02-r13-namespace-custody-20260928/integrated-nine-files.xml@sha256:3957fd27ced7a0383e5a25994a6fa4c3b099c7123070a0b93251da8bc96e289e`); the served tenant-custody witness passes 3/3 (`/Users/deniskopylov/.codex/scratch/e02-r13-namespace-custody-20260928/integrated-tenant-custody.xml@sha256:b928e9238a2227c83c457bcaeb34b5c66ddc44e2474b775d2204b37f103d817f`). Independent review is bounded GO for the owner-index slice only: `/Users/deniskopylov/.codex/scratch/e02-r13-namespace-custody-20260928/review-50624a401/R13_P31_INDEPENDENT_REVIEW_50624a401.md@sha256:f089b28b0c1dd4dfef89ddc65508f8b8426cd26b9363a48d1e2afe646425e6ac`.
+
+Keep R13 partial. A current source check finds no `FileSystemCAS(` construction in the three integrated target modules (`policy-engine/src/polisyos/runtime/quality/acquisition_planner.py@git-blob:04a0e6a1b4cece88ada46f134008c98cb8e1fe7b`, `policy-engine/src/polisyos/runtime/quality/generation_cycle.py@git-blob:7f65abaee87ec26b32dba31eada768fa2a1b3004`, and `policy-engine/src/polisyos/foundry/plugins/training_adapter.py@git-blob:5e5b6de213899c164e639eb5b67a76ca0af9e248`). The complete 2,696-file AST census records the original five E02 direct `FileSystemCAS` sites absent from those modules (`/Users/deniskopylov/.codex/scratch/e02-r13-root-store-census-20260928/receipt.md@sha256:9c4d6163ddf99c442d99049cffeb2577bef99261c8a083a24f7fd8c2d144b416`). This bounded constructor repair does not establish ACQ-01's canonical admission path: Data Forge overlay admission → passport → native-epoch qualification → fresh WMR/CycleSubstrateContext → N5 remains unproved. The reviewed boundary still includes direct raw-store `get_paths` access outside the enforced seam; lazy iteration uses a claim-set snapshot rather than a revocable read lease; stat identity is a proxy for byte equality of the ownership index and integrity sidecar; and the aggregate JSON index has O(N²) cumulative update work. This witness changes no finding status or ledger count.
+
+## R13/P31 epoch-store owner seam at `3ec377af6` — four-base P41 update, discrepancies first (2026-09-28)
+
+**Discrepancy.** The earlier focused integration receipts covered five selected cases and three whole files only at `3ec377af6`. A subsequent strict P41 wave now measures these same three test paths across four refs: 12 cells, 8 present and passing, 4 verified `MISSING`, and 0 present `UNRUN`. The missing cells are exactly the two newer runtime-quality files absent from both E02 execution base and E02 head; those files are present on Main and integration. This is not a complete 12-cell test replay, and it does not close R13 or ACQ-01.
+
+| Whole test file | E02 execution `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | Integration `3ec377af6` |
+|---|---:|---:|---:|---:|
+| `tests/unit/core/artifacts/test_artifact_store_protocol.py` | 8/8 pass | 8/8 pass | 8/8 pass | 9/9 pass |
+| `tests/unit/runtime/quality/test_epoch_deployment.py` | `MISSING` | `MISSING` | 24/24 pass | 27/27 pass |
+| `tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py` | `MISSING` | `MISSING` | 5/5 pass | 6/6 pass |
+| **Matrix** | **1 pass, 2 MISSING** | **1 pass, 2 MISSING** | **3/3 cells pass** | **3/3 cells pass** |
+
+Across the requested 12 cells, 8 completed JUnit cells all pass; the four `MISSING` cells are source absences, not failed tests. The case-set comparison records 7 `CASE_SET_CHANGED` and 6 `MISSING` comparison rows, with no `PASS_TO_FAIL`. The fixed Appendix A/B denominator is 74 named cases; this wave selected 2/74, both Appendix-B Main→integration outcomes `SAME`: `test_configured_policy_exchange_reaches_native_verifier_limitation` and `test_privileged_native_verifier_is_operational_and_deployment_local`. The remaining 72 identities were unselected in this wave.
+
+| Present cell | JUnit path@sha256 |
+|---|---|
+| Execution `test_artifact_store_protocol.py` | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/cells/e02_execution_base/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:a6d55e7186a745de4021bd2eafa82453fa46dd0e5467356db014672e0419878d` |
+| E02 head `test_artifact_store_protocol.py` | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/cells/e02_head/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:e0d44460521e17906bd0aab0f9db6cee0db3571e8b41d2fc4b2b8be1e3eb8cd3` |
+| Main `test_artifact_store_protocol.py` | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/cells/main/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:495f297a2f83af54114e4b58aaf48b0e97e433846b9bcbde78e4e1b7aed68be1` |
+| Main `test_epoch_deployment.py` | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/cells/main/test_epoch_deployment-c7b5eca4827b.junit.xml@sha256:d66dbfff6f5460cd5011ac9b7f1bffedba045845517f31eb604e2a32ea934a9d` |
+| Main `test_semantic_epoch_native_qualification.py` | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/cells/main/test_semantic_epoch_native_qualification-af2c76290290.junit.xml@sha256:108be07a3e3cdcbaad21624a0214a709fc315c08c3ddb5e9e4a681bddb726fe6` |
+| Integration `test_artifact_store_protocol.py` | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/cells/integration_head/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:ae165250cb5487ce7158b3640bf3d9808799a2e49169708eea5a6eaca469b5f7` |
+| Integration `test_epoch_deployment.py` | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/cells/integration_head/test_epoch_deployment-c7b5eca4827b.junit.xml@sha256:577d06a4bd191deedae35b57792108e8573661a06213e977c175c3c1e55869c4` |
+| Integration `test_semantic_epoch_native_qualification.py` | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/cells/integration_head/test_semantic_epoch_native_qualification-af2c76290290.junit.xml@sha256:9e04c95221ede5305320bb771fde6704ca7b70c14f3c0db374db1f37021400c0` |
+
+The focused integration selection remains **5/5**, and the three integration whole files remain **42/42**; the five selectors are included in the 42, not additional outcomes. Focused JUnit: `/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-integrated-3ec-20260928/five-selectors.junit.xml@sha256:693d475739ab7a7c17f623e1be9731d8e02d213f87d21305bdfae044145fe6ba`; whole-file JUnit: `/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-integrated-3ec-20260928/three-whole-files.junit.xml@sha256:2ef36fa25bf2d72533f57b6df795878e1de8adad5b078b3ce4a7e3ad00f444fd`.
+
+P41 manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/results.json@sha256:6a1c166411082b4aebf55240f8bbe3ae2f176a795fd1261cc1d6af91b60afc20`; durable matrix and resource memo: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T202903Z-70617/BASELINES.md@sha256:46f50cb1334b694e589cde3033efeec7d75212d9a7e68d7dd3858f1f70ac9b35`. Resource guard `PASS`: eight present process groups, one concurrent pytest group, 924,016 KiB peak group RSS, 100% peak group CPU, 71% minimum free memory, 14,494,998,528 bytes minimum scratch space, zero swap growth. Production data remained read-only at `/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`.
+
+**Bounded owner result.** The reviewed integration reuses one owner-resolved runtime `ArtifactStore`: epoch evidence reads route through the existing repository/accessor, and chronology binds the exact supplied object to both its persisted-proof writer and policy-store reader. The standalone fallback is created through `build_artifact_store(ArtifactStoreConfig(...))`, not a new `FileSystemCAS(root)`. The independent candidate review was GO for this bounded owner slice: `/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-candidate-262a85a7/REVIEW-95b747f6f.md@sha256:d11100becd56d76b305359b5de6a065013c55c89e196376ffac2c5a2cfeee2fd`.
+
+Integrated source blobs: `policy-engine/src/polisyos/core/artifacts/__init__.py@git-blob:1140ecc434355ba298f087b90e2bfccd27032d85`, `policy-engine/src/polisyos/runtime/quality/chronology_proof.py@git-blob:12d6a4e1bb5cccf2d8fbe578b5a3478b3ee457ac`, and `policy-engine/src/polisyos/runtime/quality/epoch_deployment.py@git-blob:83e6031f4ae0d74b48ee64c4deb75f15d0d753c0`.
+
+The candidate-stage marker-retaining removal probes turned red when runtime `_repository()` routing was removed (`/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-candidate-262a85a7/signed-repository-removal.junit.xml@sha256:1c827a12d853c20cd6738445207c1f4fde759612f7b37b18fd1e464ffe2d9e26`) and when `_policy_store_factory` was replaced with the raw deployment store (`/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-candidate-262a85a7/policy-store-removal.junit.xml@sha256:219eb18af7bcbe7cbfb4c3ac85b54680aaece171f140e5373a7ed988b4c87430`). These are candidate-review probes; they were not rerun after integration. Ruff passed on the six changed source/test files: `src/polisyos/core/artifacts/__init__.py`, `src/polisyos/runtime/quality/chronology_proof.py`, `src/polisyos/runtime/quality/epoch_deployment.py`, `tests/unit/core/artifacts/test_artifact_store_protocol.py`, `tests/unit/runtime/quality/test_epoch_deployment.py`, and `tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py`; output: `/Users/deniskopylov/.codex/scratch/e02-r13-owner-store-integrated-3ec-20260928/ruff-six-files.out@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18` (`All checks passed!`).
+
+**Property boundary and residual.** The witness establishes reuse of the exact runtime store object under composition. It does not independently establish tenant authorization: matching configured roots are not tenant identity; custody still depends on the production caller supplying the runtime-bound guarded store. The ACQ-01 overlay/passport/native-epoch → fresh WMR/CycleSubstrateContext → N5 path remains unproved. The reviewed raw `get_paths` bypass, non-revocable iterator lease boundary, stat-identity proxy, and O(N²) index-update limits remain as previously recorded. Keep R13 partial; this addendum changes no finding status or ledger count.
+
+## R13 one-base JUnits: 738-pinned and revision-unestablished results (2026-09-29)
+
+**Discrepancy first.** Four whole-file JUnits record 57/57 passing cases, but the source revision is not established for all of them. The run-scope receipt pins the overlay (40/40) and world-growth (9/9) suites—49/49 cases—to pre-edit commit `73815191cc86ec4266689b1ac6bbe1bb49819bea`. The combined activation/native JUnit records 8/8 passing cases, but neither its JUnit metadata nor the run-scope receipt authenticates its source revision; attribution for both files is `not_established`. The complete four-file × four-base P41 replay remains **UNRUN** in the retained record; an earlier three-file matrix is separately recorded above. These JUnits do not establish post-change behavior, historical outcomes for the eight unpinned cases, or R13 closure.
+
+| Whole test file | Cases | Source-revision attribution | JUnit `path@sha256` |
+|---|---:|---|---|
+| `tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py` | 40/40 pass | `73815191` (run receipt) | `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-pre-20260929/overlay-738-pre.junit.xml@sha256:99af271f0f9b6e6fc4b99a92fd97b368d7da9ec527e605bc850593999942b38d` |
+| `tests/integration/core_runtime/test_acquisition_world_growth_chain.py` | 9/9 pass | `73815191` (run receipt) | `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-pre-20260929/world-growth-738-pre.junit.xml@sha256:9d2bac83f39e02b0ddc1b7dd918ed3a41151d0441916261c1f09380b8fca80eb` |
+| `tests/unit/runtime/quality/test_acquisition_activation_readback.py` | 2/2 pass | `not_established` | `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-pre-20260929/activation-native-738-pre.junit.xml@sha256:d7db82b1451bb046b04ca8b023de79d5e828911bfa645c9d72e14aad71193854` |
+| `tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py` | 6/6 pass | `not_established` | `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-pre-20260929/activation-native-738-pre.junit.xml@sha256:d7db82b1451bb046b04ca8b023de79d5e828911bfa645c9d72e14aad71193854` |
+
+The run-scope receipt identifies only the first two suites as runs against `73815191`: `/Users/deniskopylov/.codex/scratch/e02-r13-selected-overlay-pre-20260929/TEMP_CLEANUP_RECEIPT.md@sha256:a60d566441b45ab40ab3e93f1858785e3378ecb6ca1eec24beee6ea776170894`. The activation/native JUnit contains eight passing cases but no authenticated revision field; its filename and timestamp do not establish a source revision. Keep R13 partial; these outcomes change no finding status or ledger count.
+
+## R1 importer 16-cell P41 at `bed508646` — discrepancies first (2026-09-28)
+
+**Discrepancies.** This bounded wave requested four whole files across execution `78187878e`, E02 head `00d946c2b`, Main `5fd3ebcc1`, and integration `bed508646516cb96599ff046564b374cdcf96699`: **16 cell slots**. Five cells completed with passing JUnit; two source paths are verified `MISSING`; one present cell ended as a worker-exception `UNRUN`; eight present cells were not dispatched after the worker exception. Counts: **5 PASS / 2 MISSING / 9 UNRUN** (one worker exception, eight scheduler-paused). There is no complete pairwise pass→fail result and no regression attribution.
+
+| Whole test file | Execution `78187878e` | E02 head `00d946c2b` | Main `5fd3ebcc1` | Integration `bed508646` | Test blob(s) by revision |
+|---|---:|---:|---:|---:|---|
+| `tests/unit/runtime/http/test_normative_evidence_intake.py` | 14/14 PASS | UNRUN (worker exception) | 14/14 PASS | UNRUN (scheduler paused) | `0759c8f87d0059bd485f72628db4bb85906f4a3e` all four |
+| `tests/unit/runtime/http/test_normative_generation_bridge.py` | UNRUN (scheduler paused) | UNRUN (scheduler paused) | 22/22 PASS | UNRUN (scheduler paused) | execution/Main `e7bcfb784ae4092e132ded364c638afc7a77e3af`; E02/integration `ef8ec18a438afe790a0b03f35f90b9e90d6288d4` |
+| `tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py` | MISSING | MISSING | 13/13 PASS | UNRUN (scheduler paused) | Main `ee88e300df544e58f886feafef7c193ab573e060`; integration `7db6d4b142ab594ba034381a3c0d1d7dc10779cd` |
+| `tests/unit/runtime/http/test_control_service_di.py` | UNRUN (scheduler paused) | UNRUN (scheduler paused) | 30/30 PASS | UNRUN (scheduler paused) | execution/Main `9fdf337bf89728c30f6dec08b521fd200a51cfd2`; E02 `4c100bb6d2c17cac8e3e61bee34519c338c075ec`; integration `5603d312b7bb4ecaa3f66c9b3e486fa116becaa5` |
+
+The worker exception was on the E02-head `test_normative_evidence_intake.py` cell (blob shared at all refs). Its traceback enters `_run_job`'s timeout branch with a planned timeout of **152 s**, then `os.killpg(process.pid, SIGTERM)` raises `PermissionError: [Errno 1] Operation not permitted`. The outer `OSError` handler calls the same termination helper again and raises the same exception. The row is `UNRUN` with no JUnit and loses `elapsed_seconds`, `returncode`, and `timed_out` (`None`); its recorded `timeout_basis` explicitly says whether the alarm fired is not established. This is a harness/process-cleanup failure, not a pytest assertion red. Eight later present cells carry the scheduler-paused reason from this worker failure.
+
+The 33 selected identities from the fixed 74-case Appendix A/B set are all `UNRUN`; 41 identities were unselected. In particular, the four selected `test_process_nl_job_enters_persisted_tenant_scope` variants have incomplete whole-file cells at both execution and E02 refs, so the original base→E02 behavior is unresolved. Main's passing JUnits do not establish integration behavior. No pass→fail ownership or R1 closure is inferred; this custom four-file wave does not replace or complete the strict 21-file / 84-cell matrix.
+
+| Completed PASS JUnit | JUnit path@sha256 |
+|---|---|
+| Execution `test_normative_evidence_intake.py` (14/14) | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T213314Z-92507/cells/e02_execution_base/test_normative_evidence_intake-4d86810bd76c.junit.xml@sha256:c8c19a924812eeba24b7f014f93610b4a5ac9d3d4d3f8190983193a4ab7cb7d6` |
+| Main `test_normative_evidence_intake.py` (14/14) | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T213314Z-92507/cells/main/test_normative_evidence_intake-4d86810bd76c.junit.xml@sha256:0be19fc29e9a083435fac332c184cc816bdc0bd8cfde74857ac7602692923d25` |
+| Main `test_normative_generation_bridge.py` (22/22) | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T213314Z-92507/cells/main/test_normative_generation_bridge-9dae4f3d1d13.junit.xml@sha256:1b438c55ffaabc8d9e2eaa2ebd589bbde7c2b029f1ee342f6a772e8b90cb774d` |
+| Main `test_evaluation_safety_promotion_bridge.py` (13/13) | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T213314Z-92507/cells/main/test_evaluation_safety_promotion_bridge-5564ba3198e1.junit.xml@sha256:0c6fe9bd35a2fd45c1e80f33bbfda878f3d19ebfeaab0c50e099c1a1a947647d` |
+| Main `test_control_service_di.py` (30/30) | `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T213314Z-92507/cells/main/test_control_service_di-ded2d4e59426.junit.xml@sha256:b1e40f3f258fa973185b1c3369c7598b7c9788c7abec8a17724a7f3e54ee78b0` |
+
+The resource summary is `UNRUN`, not PASS: five of 14 present cells have complete resource measurements, eight are scheduler-paused, and the worker-exception cell is incomplete. The sampled cells used one process group; maximum process-group CPU 100.8% (aggregate peak 101%), maximum RSS 1,018,432 KiB (aggregate peak 1,017,680 KiB), minimum free RAM 66%, minimum scratch free 15,581,560,832 bytes, and zero swap growth. Metrics describe only the five completed cells. Production data remained read-only at `/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`.
+
+Manifest: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T213314Z-92507/results.json@sha256:da21734cb758da1dc5d97be2431b3e3411277d899733251efa59c2510511a2b9`. P41 classification: incomplete execution evidence is `UNRUN`, not inherited; this receipt does not prove whether the test-tree input sets differ beyond the recorded blobs.

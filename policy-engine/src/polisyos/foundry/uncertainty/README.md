@@ -34,6 +34,6 @@ output metric uncertainty in Foundry simulations.
 
 ## Current State
 
-- Last updated: 2026-04-03
-- Files: 11 Python files
-- Exports: 9
+- Last updated: 2026-09-28
+- Files: 12 Python files in this package
+- Exports: 12 names declared in `__all__`

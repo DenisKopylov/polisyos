@@ -327,3 +327,68 @@ def measured_is_file(path: Path) -> bool:
 def measured_is_dir(path: Path) -> bool:
     """Probe directory presence without turning inaccessible parents into absence."""
     return _measured_path_kind(path, directory=True)
+
+
+class AdmittedPathError(ValueError):
+    """An attempted filesystem operation resolves outside its admitted root."""
+
+
+def resolve_admitted_path(path: Path, root: Path) -> Path:
+    """Resolve a path and require it to remain beneath the owner's admitted root."""
+    admitted_root = root.resolve()
+    resolved = path.resolve()
+    if not resolved.is_relative_to(admitted_root):
+        raise AdmittedPathError(
+            f"resolved path escapes admitted root: path={resolved}, root={admitted_root}"
+        )
+    return resolved
+
+
+def admitted_is_file(path: Path, root: Path) -> bool:
+    """Check file presence only after resolving beneath the admitted root."""
+    return measured_is_file(resolve_admitted_path(path, root))
+
+
+def admitted_is_dir(path: Path, root: Path) -> bool:
+    """Check directory presence only after resolving beneath the admitted root."""
+    return measured_is_dir(resolve_admitted_path(path, root))
+
+
+def admitted_read_bytes(path: Path, root: Path) -> bytes:
+    """Read exact bytes only after resolving beneath the admitted root."""
+    return measured_read_bytes(resolve_admitted_path(path, root))
+
+
+def admitted_read_text(path: Path, root: Path, *, encoding: str = "utf-8") -> str:
+    """Read decoded text only after resolving beneath the admitted root."""
+    return measured_read_text(resolve_admitted_path(path, root), encoding=encoding)
+
+
+def admitted_file_digest(path: Path, root: Path) -> tuple[int, str]:
+    """Stream a contained regular file and return its mode and SHA-256 digest."""
+    resolved = resolve_admitted_path(path, root)
+    digest = hashlib.sha256()
+    size = 0
+    try:
+        with resolved.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+                size += len(chunk)
+        mode = resolved.stat().st_mode & 0o777
+    except OSError as error:
+        _record_file_read(
+            resolved,
+            "read_stream",
+            status="unreadable",
+            error=type(error).__name__,
+        )
+        raise
+    hexdigest = digest.hexdigest()
+    _record_file_read(
+        resolved,
+        "read_stream",
+        status="read",
+        bytes=size,
+        sha256=hexdigest,
+    )
+    return mode, hexdigest

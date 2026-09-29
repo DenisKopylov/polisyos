@@ -187,6 +187,42 @@ async def test_simulated_gateway_exposes_deterministic_model_catalog() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "schema_version",
+    ["policyos.runtime.design_problem.v2", "policyos.runtime.design_problem.v3"],
+)
+async def test_simulated_gateway_emits_required_schema_version_from_tool_contract(
+    schema_version: str,
+) -> None:
+    client = SimulatedGatewayLLMClient(model="simulated-qwen")
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "emit_design_problem",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "schema_version": {"const": schema_version, "type": "string"}
+                    },
+                    "required": ["schema_version"],
+                },
+            },
+        }
+    ]
+
+    response = await client.generate(
+        user="Design a policy intervention.",
+        tools=tools,
+        tool_choice={"type": "function", "function": {"name": "emit_design_problem"}},
+    )
+
+    assert response.tool_calls is not None
+    assert len(response.tool_calls) == 1
+    assert response.tool_calls[0].arguments["schema_version"] == schema_version
+
+
+@pytest.mark.asyncio
 async def test_simulated_factory_injects_selected_model_into_preflight_catalog(monkeypatch):
     monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
     client = create_traced_gateway_client(

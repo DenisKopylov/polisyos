@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Literal
 
@@ -26,6 +26,7 @@ from polisyos.scientist.evidence.claims.posture import (
     SourceResolution,
     SupportPredicate,
 )
+from tools.lib.fs import admitted_is_dir, admitted_read_bytes, resolve_admitted_path
 
 _AUTHORITY_FIELD = "authoritative_for"
 _DENIED_FIELD = "may_not_use_for"
@@ -44,20 +45,28 @@ _SEMANTIC_METHODS = frozenset(
 )
 
 
-def walk_source_files(repo_root: Path) -> tuple[AdmittedSourceMember, ...]:
+def walk_source_files(
+    repo_root: Path,
+    *,
+    read_bytes: Callable[[Path, Path], bytes] | None = None,
+) -> tuple[AdmittedSourceMember, ...]:
     """Walk every Python file below ``repo_root/src`` without Git or clock input."""
     root = repo_root.resolve()
-    source_root = (root / "src").resolve()
-    if not source_root.is_dir() or not source_root.is_relative_to(root):
+    source_root = resolve_admitted_path(root / "src", root)
+    if not admitted_is_dir(source_root, root):
         raise ValueError("repo_root/src must be a contained directory")
     members: list[AdmittedSourceMember] = []
     for path in sorted(source_root.rglob("*.py"), key=lambda item: item.as_posix()):
         resolved = path.resolve()
-        if not resolved.is_file() or not resolved.is_relative_to(source_root):
+        if not resolved.is_relative_to(source_root) or not resolved.is_file():
             continue
         if "__pycache__" in resolved.parts:
             continue
-        raw = resolved.read_bytes()
+        raw = (
+            admitted_read_bytes(resolved, source_root)
+            if read_bytes is None
+            else read_bytes(resolved, source_root)
+        )
         raw.decode("utf-8")
         members.append(
             AdmittedSourceMember(
@@ -68,16 +77,25 @@ def walk_source_files(repo_root: Path) -> tuple[AdmittedSourceMember, ...]:
     return tuple(members)
 
 
-def derive_ast_sources(repo_root: Path) -> SourceDerivation:
+def derive_ast_sources(
+    repo_root: Path,
+    *,
+    read_bytes: Callable[[Path, Path], bytes] | None = None,
+) -> SourceDerivation:
     """Derive and content-bind the complete authority/denial candidate set with AST."""
     root = repo_root.resolve()
-    members = walk_source_files(root)
+    members = walk_source_files(root, read_bytes=read_bytes)
     rows: list[SourceInventoryRow] = []
     denied_raw_members: list[AdmittedSourceMember] = []
     denied_only_sites: list[LiteralSite] = []
+    source_root = (root / "src").resolve()
     for member in members:
         path = root / member.path
-        raw = path.read_bytes()
+        raw = (
+            admitted_read_bytes(path, source_root)
+            if read_bytes is None
+            else read_bytes(path, source_root)
+        )
         if _DENIED_FIELD.encode() in raw:
             denied_raw_members.append(member)
         if _AUTHORITY_FIELD.encode() not in raw:

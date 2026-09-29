@@ -143,6 +143,10 @@ def _design_problem() -> DesignProblem:
 class _TestControlJobRecord:
     job_id: str
     run_id: str | None
+    submitted_by: str | None = "fixture-actor"
+    state: str = "running"
+    lease_owner: str | None = "fixture-worker"
+    attempt: int = 1
 
 
 class _TestCurrentJobExecutionOwner:

@@ -32,10 +32,11 @@ class CachingArtifactStore:
 
     * **Blob reads**: try local first, fall back to remote (download to local on miss).
     * **Manifest reads**: resolve selector-free defaults at the durable owner (remote for
-      write-through stores, local for local-only stores); exact selected views may be served
-      from local storage.
+      write-through stores, local for local-only stores); exact write-through views are
+      admitted by the durable owner before a local cache hit.
     * **Writes**: write to local, then replicate to remote (if ``write_through``).
-    * **Verify**: selector-free defaults use the durable owner; selected views use a local hit.
+    * **Verify**: selector-free defaults use the durable owner; selected write-through views
+      use a local hit only after durable-owner admission.
     """
 
     def __init__(
@@ -60,6 +61,16 @@ class CachingArtifactStore:
         selected = ref or artifact_id
         if _is_selector_free_default(ref):
             return bool(self._default_manifest_owner().has(selected))
+        if self._write_through:
+            try:
+                _owner_manifest, owner_selected_ref = self._resolve_write_through_view(
+                    selected
+                )
+            except (FileNotFoundError, KeyError):
+                return False
+            if _has_manifest_view(self._local, owner_selected_ref):
+                return bool(self._local.has(owner_selected_ref))
+            return bool(self._remote.has(owner_selected_ref))
         if self._local.has(selected):
             return True
         return bool(self._remote.has(selected))
@@ -68,8 +79,25 @@ class CachingArtifactStore:
         aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
         selected = ref or artifact_id
         artifact_label = _artifact_label(aid)
+        owner_selected_ref: ArtifactRef | None = None
+        owner_default_ref: ArtifactRef | ArtifactID | None = None
+        if self._write_through:
+            # Resolve and admit the durable-owner view before consulting local bytes.
+            _owner_manifest, owner_selected_ref = self._resolve_write_through_view(selected)
+            if _is_selector_free_default(ref):
+                owner_default_ref = ref or aid
+            selected = owner_selected_ref
         try:
-            return bytes(self._local.get_bytes(selected))
+            if owner_selected_ref is not None and not _has_manifest_view(
+                self._local,
+                owner_selected_ref,
+            ):
+                logger.debug(
+                    "Local artifact cache miss for unadmitted manifest view %s",
+                    artifact_label,
+                )
+            else:
+                return bytes(self._local.get_bytes(selected))
         except (FileNotFoundError, KeyError):
             logger.debug("Local artifact cache miss for %s", artifact_label)
         except PermissionError:
@@ -115,6 +143,42 @@ class CachingArtifactStore:
                         candidate_signature_bytes = signature_reader(selected)
                     except FileNotFoundError:
                         candidate_signature_bytes = None
+                        default_manifest_reader = getattr(
+                            self._remote,
+                            "get_manifest_bytes",
+                            None,
+                        )
+                        if (
+                            owner_selected_ref is not None
+                            and owner_default_ref is not None
+                            and callable(default_manifest_reader)
+                        ):
+                            # Some owners sign the selector-free default and do
+                            # not duplicate its sidecar under the exact profile
+                            # selector. Reuse those exact signature bytes only
+                            # while the durable default still resolves to the
+                            # manifest bytes already pinned for this read. The
+                            # importer independently checks the signature's
+                            # manifest digest before persisting it.
+                            try:
+                                current_default_bytes = default_manifest_reader(
+                                    owner_default_ref
+                                )
+                            except (FileNotFoundError, KeyError):
+                                current_default_bytes = None
+                            if current_default_bytes == raw_manifest_bytes:
+                                try:
+                                    candidate_signature_bytes = signature_reader(
+                                        owner_default_ref
+                                    )
+                                except FileNotFoundError:
+                                    candidate_signature_bytes = None
+                            else:
+                                logger.warning(
+                                    "Not copying a default signature for %s: "
+                                    "the durable default no longer matches the pinned view",
+                                    artifact_label,
+                                )
                     if isinstance(candidate_signature_bytes, bytes):
                         signature_bytes = candidate_signature_bytes
                 imported_ref = exact_view_importer(
@@ -226,6 +290,18 @@ class CachingArtifactStore:
             # receives the writes defines the composite default; a local-only
             # store must not ask its deliberately unused remote for the manifest.
             return self._default_manifest_owner().get_manifest(selected)
+        if self._write_through:
+            owner_manifest, owner_selected_ref = self._resolve_write_through_view(selected)
+            if not _has_manifest_view(self._local, owner_selected_ref):
+                return owner_manifest
+            local_manifest = self._local.get_manifest(owner_selected_ref)
+            if _manifest_view_identity(local_manifest) != _manifest_view_identity(
+                owner_manifest
+            ):
+                raise ArtifactIntegrityError(
+                    "Local cache returned a different manifest view than the durable owner"
+                )
+            return local_manifest
         try:
             return self._local.get_manifest(selected)
         except (FileNotFoundError, KeyError):
@@ -273,9 +349,39 @@ class CachingArtifactStore:
         selected = ref or artifact_id
         if _is_selector_free_default(ref):
             return self._default_manifest_owner().verify(selected)
+        if self._write_through:
+            _owner_manifest, owner_selected_ref = self._resolve_write_through_view(selected)
+            if _has_manifest_view(self._local, owner_selected_ref):
+                return self._local.verify(owner_selected_ref)
+            return self._remote.verify(owner_selected_ref)
         if self._local.has(selected):
             return self._local.verify(selected)
         return self._remote.verify(selected)
+
+    def _resolve_write_through_view(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> tuple[ArtifactManifest, ArtifactRef]:
+        """Resolve an exact view through the durable owner before cache admission."""
+        aid, _profile_sha256, requested_ref = artifact_reference_parts(artifact_id)
+        owner_manifest = self._default_manifest_owner().get_manifest(artifact_id)
+        owner_ref = _manifest_view_ref(owner_manifest)
+        if owner_ref.artifact_id != aid or (
+            requested_ref is not None
+            and (
+                requested_ref.kind != owner_ref.kind
+                or requested_ref.media_type != owner_ref.media_type
+                or (
+                    requested_ref.manifest_profile_sha256 is not None
+                    and requested_ref.manifest_profile_sha256
+                    != owner_ref.manifest_profile_sha256
+                )
+            )
+        ):
+            raise ArtifactIntegrityError(
+                "Durable owner resolved a different selected manifest view"
+            )
+        return owner_manifest, owner_ref
 
     def _default_manifest_owner(self) -> ArtifactStore:
         """Return the owner whose writes define selector-free defaults."""
@@ -341,3 +447,24 @@ def _manifest_view_identity(manifest: ArtifactManifest) -> tuple[str, str, str, 
         manifest.media_type,
         ManifestLifecycle.profile_sha256(manifest),
     )
+
+
+def _manifest_view_ref(manifest: ArtifactManifest) -> ArtifactRef:
+    """Address one owner-resolved manifest profile without using its default alias."""
+    return ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=ManifestLifecycle.profile_sha256(manifest),
+    )
+
+
+def _has_manifest_view(store: ArtifactStore, ref: ArtifactRef) -> bool:
+    """Return whether the local cache admits this exact selected manifest view."""
+    profile_sha256 = ref.manifest_profile_sha256
+    if profile_sha256 is None:
+        return bool(store.has(ref))
+    exact_view_probe = getattr(store, "has_manifest_view", None)
+    if callable(exact_view_probe):
+        return bool(exact_view_probe(ref.artifact_id, profile_sha256))
+    return bool(store.has(ref))

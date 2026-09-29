@@ -15,6 +15,7 @@ import pytest
 import yaml
 
 from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
+from tools.lib import fs as filesystem
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FROZEN_AS_OF = date(2026, 9, 17)
@@ -707,6 +708,7 @@ def test_new_authority_producer_grows_register_without_register_edit(
 
 def test_producer_posture_metadata_is_strict_and_cannot_fabricate_support(
     tmp_path: Path,
+    capsys,
 ) -> None:
     """Accept only the closed candidate/planned grammar from both derivations."""
     repo = tmp_path / "repo"
@@ -726,6 +728,12 @@ def test_producer_posture_metadata_is_strict_and_cannot_fabricate_support(
         next(row for row in register.claims if row.subject == "example_claim").effective_state
         == "planned"
     )
+    cli_exit = checker.main(
+        ["--repo-root", str(repo), "--check-sources", "--json"]
+    )
+    cli_report = json.loads(capsys.readouterr().out)
+    assert cli_exit == 0
+    assert cli_report["verdict"] == "PASS"
 
     for forbidden in (
         '"effective_state": "supported"',
@@ -1362,6 +1370,7 @@ def test_machine_freshness_limitation_has_exact_cardinality(case: str) -> None:
 @pytest.mark.parametrize("case", ["literal_value", "new_occurrence"])
 def test_live_check_recomputes_denied_source_bytes_and_free_growth(
     tmp_path: Path,
+    capsys,
     case: str,
 ) -> None:
     """Keep MACHINE markers inert when the CI-owned filesystem bytes change."""
@@ -1380,6 +1389,8 @@ def test_live_check_recomputes_denied_source_bytes_and_free_growth(
         )
         == 0
     )
+    capsys.readouterr()
+    frozen_output = target.read_bytes()
 
     if case == "literal_value":
         source = repo / "src/polisyos/example.py"
@@ -1395,10 +1406,18 @@ def test_live_check_recomputes_denied_source_bytes_and_free_growth(
             encoding="utf-8",
         )
 
-    with pytest.raises(ValueError, match="DS11-GENERATED-DRIFT"):
-        checker.main(
-            ["--repo-root", str(repo), "--register-as-of", FROZEN_AS_OF.isoformat(), "--check"]
-        )
+    exit_code = checker.main(
+        ["--repo-root", str(repo), "--register-as-of", FROZEN_AS_OF.isoformat(), "--check", "--json"]
+    )
+    output = capsys.readouterr().out
+    report = json.loads(output)
+    assert exit_code == 1
+    assert "Traceback (most recent call last)" not in output
+    assert report["verdict"] == "FAIL"
+    assert report["measurement"]["complete_verdict"] is True
+    assert "DS11-GENERATED-DRIFT" in report["error"]
+    assert report["write_set"] == []
+    assert target.read_bytes() == frozen_output
     live, _ = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
     assert live.payload_digest != register.payload_digest
     if case == "new_occurrence":
@@ -1407,6 +1426,163 @@ def test_live_check_recomputes_denied_source_bytes_and_free_growth(
             and site.values == ("new_denied_purpose",)
             for site in live.ast_derivation.may_not_use_for_sites
         )
+
+
+@pytest.mark.parametrize(
+    ("owner", "failure_code", "input_path"),
+    [
+        (
+            "producer_metadata",
+            "DS11-PRODUCER-METADATA",
+            "src/polisyos/example.py",
+        ),
+        ("identity", "DS11-IDENTITY-BOUNDARY-CONTRACT", IDENTITY_PATH),
+        ("custody", "DS11-CUSTODY-APPOINTMENT-CONTRACT", DEBT_REGISTER_PATH),
+        ("accessibility", "DS11-ACCESSIBILITY-CONTRACT", A11Y_PATH),
+        (
+            "page_receipt",
+            "DS11-PAGE-A11Y-RECEIPT-CONTRACT",
+            f"{PAGE_RECEIPT_PATH}/receipt.json",
+        ),
+        (
+            "generated_family",
+            "DS11-GENERATED-FAMILY-CONTRACT",
+            GENERATED_MANIFEST_PATH,
+        ),
+    ],
+)
+@pytest.mark.parametrize("compact", [False, True])
+def test_cli_transports_present_owner_predicate_failures(
+    tmp_path: Path,
+    capsys,
+    owner: str,
+    failure_code: str,
+    input_path: str,
+    compact: bool,
+) -> None:
+    """Every registered owner rejects measured invalid evidence as FAIL, not UNRUN."""
+    checker = _checker()
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    mode = "--check-sources"
+    if owner == "producer_metadata":
+        probe = repo / "src/polisyos/example.py"
+        original = probe.read_text(encoding="utf-8")
+        malformed_duplicate = (
+            '\ntrust_claim_posture = {"schema_version": '
+            '"policyos.trust.producer_posture.v1", "subject": "example_claim", '
+            '"source_state": "planned", "owner": "team-example", '
+            '"closure_signal": "uv run pytest tests/example.py -q"}\n'
+        )
+        probe.write_text(original + malformed_duplicate + malformed_duplicate, encoding="utf-8")
+    elif owner == "identity":
+        identity = repo / IDENTITY_PATH
+        identity.write_text(
+            identity.read_text(encoding="utf-8").replace(
+                "## 1. The decision in one sentence",
+                "## 1. Removed identity heading",
+            ),
+            encoding="utf-8",
+        )
+    elif owner == "custody":
+        custody = repo / DEBT_REGISTER_PATH
+        custody.write_bytes(custody.read_bytes().replace(b"team-scientist", b"team-forged"))
+    elif owner == "accessibility":
+        _write_accessibility_document(repo)
+        accessibility = repo / A11Y_PATH
+        accessibility.write_bytes(accessibility.read_bytes() + b"Changed after its body digest.\n")
+    elif owner == "page_receipt":
+        receipt_root = _copy_page_receipt(repo)
+        receipt = receipt_root / "receipt.json"
+        payload = json.loads(receipt.read_text(encoding="utf-8"))
+        payload["raw_receipts"]["results_sha256"] = "0" * 64
+        receipt.write_text(json.dumps(payload), encoding="utf-8")
+    else:
+        manifest = _write_generated_manifest(repo)
+        manifest.write_text(
+            manifest.read_text(encoding="utf-8").replace(
+                'stale_output_behavior = "fail"',
+                'stale_output_behavior = "warn"',
+            ),
+            encoding="utf-8",
+        )
+        mode = "--write"
+
+    command = ["--repo-root", str(repo), mode]
+    if owner == "generated_family":
+        command.extend(["--output-root", str(repo), "--write-generated-reference"])
+    if compact:
+        command.append("--json")
+    exit_code = checker.main(command)
+    output = capsys.readouterr().out
+    report = json.loads(output)
+    assert exit_code == 1
+    assert "Traceback (most recent call last)" not in output
+    assert report["verdict"] == "FAIL"
+    assert report["failure_code"] == failure_code
+    assert report["measurement"]["complete_verdict"] is True
+    assert report["measurement"]["finding_coverage"].startswith("decisive predicate failure")
+    assert any(
+        item["path"] == input_path and item["operation"] == "read_bytes" and item["status"] == "read"
+        for item in report["measurement"]["inputs"]
+    )
+    if owner == "generated_family":
+        assert report["declared_outputs"] == [
+            checker._OUTPUT_PATH.as_posix(),
+            checker._GENERATED_REFERENCE_PATH.as_posix(),
+        ]
+        assert report["write_attempted"] is True
+        assert report["write_set_complete"] is False
+        assert report["write_set"] == ["apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"]
+    else:
+        assert report["write_attempted"] is False
+        assert report["write_set_complete"] is True
+        assert report["write_set"] == []
+
+
+@pytest.mark.parametrize("compact", [False, True])
+def test_cli_fails_before_reading_page_receipt_member_escaping_its_root(
+    tmp_path: Path,
+    capsys,
+    monkeypatch,
+    compact: bool,
+) -> None:
+    """A receipt symlink escape is a measured FAIL without reading outside bytes."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    receipt_root = _copy_page_receipt(repo)
+    escaped = tmp_path / "outside-results.json"
+    escaped.write_text('{"outside": true}', encoding="utf-8")
+    member = receipt_root / "run-1/results.json"
+    member.unlink()
+    member.symlink_to(escaped)
+
+    checker = _checker()
+    original_read = filesystem.measured_read_bytes
+    outside_reads: list[str] = []
+
+    def guarded_read(path: Path) -> bytes:
+        if path.resolve() == escaped.resolve():
+            outside_reads.append(str(path))
+            raise PermissionError("outside receipt member must not be read")
+        return original_read(path)
+
+    monkeypatch.setattr(filesystem, "measured_read_bytes", guarded_read)
+    command = ["--repo-root", str(repo), "--check-sources"]
+    if compact:
+        command.append("--json")
+    exit_code = checker.main(command)
+    output = capsys.readouterr().out
+    report = json.loads(output)
+
+    assert exit_code == 1
+    assert "Traceback (most recent call last)" not in output
+    assert report["verdict"] == "FAIL"
+    assert report["failure_code"] == "DS11-PAGE-A11Y-RECEIPT-CONTRACT"
+    assert report["failure_stage"] == "page_a11y_member_containment"
+    assert report["measurement"]["complete_verdict"] is True
+    assert outside_reads == []
+    assert escaped.read_text(encoding="utf-8") == '{"outside": true}'
 
 
 def test_nonperformance_verifiers_cannot_mint_grounded_performance(
@@ -1696,6 +1872,88 @@ def test_generated_family_probe_executes_the_declared_command(tmp_path: Path) ->
             source_root=tmp_path / "source",
             output_root=tmp_path / "probe",
         )
+
+
+@pytest.mark.parametrize(
+    "escape_side", ["expected", "candidate", "inside", "command_failed"]
+)
+def test_generated_family_probe_contains_both_byte_inputs_before_read(
+    tmp_path: Path, monkeypatch, escape_side: str
+) -> None:
+    """Reject same-byte links outside either admitted root; preserve the in-root control."""
+    checker = _checker()
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    _write_generated_manifest(repo)
+    relative = Path("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json")
+    expected = repo / relative
+    expected.parent.mkdir(parents=True, exist_ok=True)
+    outside = tmp_path / "outside-identical-output.json"
+    same_bytes = b'{"schema_version":"test"}\n'
+    outside.write_bytes(same_bytes)
+    if escape_side == "expected":
+        expected.symlink_to(outside)
+    else:
+        expected.write_bytes(same_bytes)
+
+    guardrails = _owner("tools.devx.architecture.guardrails")
+
+    def prepare_source(_repo: Path, destination: Path) -> None:
+        destination.mkdir(parents=True)
+
+    def run_command(command, **_kwargs):
+        if escape_side == "command_failed":
+            return type("Completed", (), {"returncode": 7})()
+        output = Path(command[command.index("--output-root") + 1])
+        candidate = output / relative
+        candidate.parent.mkdir(parents=True, exist_ok=True)
+        if escape_side == "candidate":
+            candidate.symlink_to(outside)
+        else:
+            candidate.write_bytes(same_bytes)
+        return type("Completed", (), {"returncode": 0})()
+
+    monkeypatch.setattr(guardrails, "_copy_isolated_probe_source", prepare_source)
+    monkeypatch.setattr(guardrails, "_snapshot_filesystem_tree", lambda _root: {})
+    monkeypatch.setattr(checker.shutil, "which", lambda *_args, **_kwargs: "/bin/true")
+    monkeypatch.setattr(checker.subprocess, "run", run_command)
+    original_read = filesystem.measured_read_bytes
+    reads: list[Path] = []
+
+    def record_read(path: Path) -> bytes:
+        reads.append(path.resolve())
+        return original_read(path)
+
+    monkeypatch.setattr(filesystem, "measured_read_bytes", record_read)
+    source_root = tmp_path / "source"
+    output_root = tmp_path / "probe"
+
+    if escape_side == "inside":
+        observed = checker.run_generated_family_output_probe(
+            repo, source_root=source_root, output_root=output_root
+        )
+        assert observed == (relative.as_posix(),)
+        assert expected.resolve() in reads
+        assert (output_root / relative).resolve() in reads
+    elif escape_side == "command_failed":
+        with pytest.raises(checker._PostureInspectionError) as failure:
+            checker.run_generated_family_output_probe(
+                repo, source_root=source_root, output_root=output_root
+            )
+        assert failure.value.stage == "generated_family_output_command"
+        assert outside.resolve() not in reads
+    else:
+        with pytest.raises(checker._PosturePredicateError) as failure:
+            checker.run_generated_family_output_probe(
+                repo, source_root=source_root, output_root=output_root
+            )
+        expected_stage = (
+            "generated_family_expected_containment"
+            if escape_side == "expected"
+            else "generated_family_candidate_containment"
+        )
+        assert failure.value.stage == expected_stage
+        assert outside.resolve() not in reads
 
 
 def test_live_generated_family_is_the_default_freshness_persistence_bridge() -> None:

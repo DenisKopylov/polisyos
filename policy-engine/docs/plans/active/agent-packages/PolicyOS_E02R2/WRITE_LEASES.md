@@ -1227,6 +1227,20 @@ The complete current-head `test_control_service_di.py` run at `0716402ea` has 41
 
 One R1 candidate writer may reuse the clean branch-attached `codex/e02-r2-r13-selected-row-candidate` worktree at `/Users/deniskopylov/.codex/worktrees/e02-r7-r8-probes/polisyos`, first merging current `codex/e02-r2` append-only. Its **only initial editable path** is `policy-engine/tests/unit/runtime/http/test_control_service_di.py`. Restore the failing test's legitimate owner context without changing a production gate, using the existing context producer/resolver and retaining exact problem/run/store bindings. First confirm the red; then run the protected positive, foreign/missing-context negative and no-owner candidate preserving control. If production code or any additional test path proves necessary, stop editing and request an exact lease amendment. No same-file concurrent writer exists; B26's three-file lease is disjoint. The candidate needs independent delta review before integration, and a source-corrected selector is not R1 class closure or four-base P41 closure.
 
+**Superseded at the 2026-09-29 current-head reconciliation.** Commit
+`fba37baf1` already changed that exact selector into a protected no-context
+refusal; commit `7a2fd5f45` added the ordinary candidate control. The complete
+Control file passed 41/41 at both `8ca88499f` and `7a2fd5f45`; the latter
+has a marker-retaining eager-WMR removal probe. `OPEN_PREMISES.md` records the
+protected refusal and the separate served candidate N4→N5 witness. Thus the
+one-file fixture lease above is **released**, and nobody should restore its
+old protected-positive expectation. Its historic 40/41 result at `0716402ea`
+remains a valid earlier observation, not a current red. The served
+persist→resolve and protected source/S8 authority witnesses plus final-blob
+four-base P41 remain open under R1; they require a fresh exact lease. The
+candidate branch's append-only merge `44e35ecd9` is clean and has the same
+tree as canonical `acc4de867`; it made no R1 test edit.
+
 ## B111 assessment-index integrity lease (2026-09-29)
 
 Root alone owns `policy-engine/src/polisyos/scientist/methods/autotune/pareto.py` and `policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py` for the reviewed two-file slice. The B109 test-only change and its 31/31 whole-file result at `0cf4afa19` are the pre-edit current evidence; the post-B109 four-base replay remains `UNRUN` under the resource continuation. No other writer may edit these files until root commits and releases this lease. The exact write set excludes registry, output report, generated families, objective basis, and governed artifacts.

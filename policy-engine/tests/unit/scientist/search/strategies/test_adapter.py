@@ -140,3 +140,37 @@ def test_adapter_keeps_malformed_policy_evaluation_out_of_strategy_training(
         "policy_evaluation_error": "policy_evaluation_parse_failed",
         "policy_candidate_id": "policy_candidate_7",
     }
+
+
+def test_adapter_preserves_unassessed_identity_and_reason_as_training_exclusion(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = RandomSearchStrategy(space=simple_space, seed=31)
+    adapter = StrategyAdapter(strategy=strategy, space=simple_space)
+    iteration = SearchIteration(
+        iteration=8,
+        candidate={
+            "candidate_id": "policy_candidate_8",
+            "x": 0.5,
+            "semantic": {"interventions": []},
+        },
+        objective_value=float("inf"),
+        objective_details=[],
+        is_promising=False,
+        stage_a_passed=True,
+        stage_b_result={"policy_evaluation": {"primary": {"policy_value": float("nan")}}},
+        duration_seconds=0.1,
+        policy_evaluation_status="unassessed",
+        policy_evaluation_error="secondary.quality.value:non_finite",
+    )
+
+    adapter.generate(history=[iteration], current_best=None, context={})
+
+    evaluation = adapter._evaluations[0]
+    assert evaluation.status is EvaluationStatus.STAGE_B_ERROR
+    assert not evaluation.is_valid
+    assert evaluation.metadata["policy_evaluation_status"] == "unassessed"
+    assert evaluation.metadata["policy_evaluation_error"] == (
+        "secondary.quality.value:non_finite"
+    )
+    assert evaluation.metadata["policy_candidate_id"] == "policy_candidate_8"

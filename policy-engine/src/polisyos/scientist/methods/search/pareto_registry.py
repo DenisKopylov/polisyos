@@ -6,9 +6,10 @@ import json
 from datetime import UTC, datetime
 from decimal import Decimal
 from enum import Enum
+from math import isfinite, isnan
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -68,6 +69,8 @@ class ParetoRegistryEntry(BaseModel):
     candidate_ref: ArtifactRef | None = None
     policy_family: str | None = None
     evaluation: PolicyEvaluationVector
+    policy_evaluation_status: Literal["valid", "unassessed", "invalid", "missing"] = "valid"
+    policy_evaluation_error: str | None = None
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
     seed_payload: dict[str, Any] | None = None
@@ -87,7 +90,7 @@ class ParetoRegistrySnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field(default="2.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(default="2.1", pattern=r"^\d+\.\d+$")
     loop_id: str = Field(min_length=1)
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
@@ -106,9 +109,9 @@ class ParetoRegistrySnapshot(BaseModel):
     ) -> ParetoViewProjection:
         """Project candidate membership without laundering incomplete assessment.
 
-        The stored view assessment remains the only source of ranking status.
-        Historical snapshots without that assessment can still inform candidate
-        computation, but their members are not represented as ranked.
+        Recheck recorded status and the complete numeric vector before exposing
+        any stored frontier member as ranked. Historical snapshots without an
+        evaluation status remain candidate evidence only.
         """
         view_key = _view_key(view, policy_family=policy_family)
         identity_mismatch = any(
@@ -137,6 +140,56 @@ class ParetoRegistrySnapshot(BaseModel):
             else tuple(stored_frontier_hashes)
         )
         stored_assessment = self.view_assessments.get(view_key)
+        basis_scope = (
+            self.objective_basis_by_view.get(view_key)
+            or (stored_assessment.basis_scope if stored_assessment is not None else None)
+            or ParetoBasisScope(scope="not_established")
+        )
+        required_channel_ids = tuple(
+            dict.fromkeys(
+                (
+                    "policy_value",
+                    "welfare",
+                    "employment",
+                    *basis_scope.coordinate_ids,
+                )
+            )
+        )
+        unrankable_hashes: set[str] = set()
+        missing_by_hash: dict[str, list[str]] = {}
+        non_finite_by_hash: dict[str, list[str]] = {}
+        if basis_scope.scope == "declared":
+            for candidate_hash in eligible_hashes:
+                entry = self.entries[candidate_hash]
+                if entry.policy_evaluation_status != "valid":
+                    unrankable_hashes.add(candidate_hash)
+                    continue
+                rank_assessment = _assess_registry_entry(
+                    entry,
+                    view_name=view_key,
+                    required_channel_ids=required_channel_ids,
+                )
+                if rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
+                    unrankable_hashes.add(candidate_hash)
+                    missing = sorted(
+                        issue.coordinate_id
+                        for issue in rank_assessment.invalid_coordinates
+                        if issue.reason == "missing"
+                    )
+                    non_finite = sorted(
+                        issue.coordinate_id
+                        for issue in rank_assessment.invalid_coordinates
+                        if issue.reason == "non_finite"
+                    )
+                    if missing:
+                        missing_by_hash[candidate_hash] = missing
+                    if non_finite:
+                        non_finite_by_hash[candidate_hash] = non_finite
+        candidate_frontier_hashes = tuple(
+            candidate_hash
+            for candidate_hash in candidate_frontier_hashes
+            if candidate_hash not in unrankable_hashes
+        )
         if stored_assessment is None:
             assessment = ParetoViewAssessment(
                 status="legacy_limited",
@@ -163,6 +216,50 @@ class ParetoRegistrySnapshot(BaseModel):
                 unassessed_candidate_hashes=eligible_hashes,
             )
             candidate_frontier_hashes = ()
+        elif unrankable_hashes:
+            unassessed = sorted(
+                set(stored_assessment.unassessed_candidate_hashes) | unrankable_hashes
+            )
+            if basis_scope.scope == "declared":
+                assessed_count = len(eligible_hashes) - len(unassessed)
+                coverage_status = (
+                    "no_usable_inputs"
+                    if assessed_count == 0
+                    else "partial"
+                    if unassessed
+                    else "complete"
+                )
+                status = (
+                    "no_usable_inputs"
+                    if coverage_status == "no_usable_inputs"
+                    else "partial"
+                    if coverage_status == "partial"
+                    else "complete"
+                )
+            else:
+                assessed_count = 0
+                unassessed = list(eligible_hashes)
+                coverage_status = "no_usable_inputs"
+                status = "basis_limited"
+            assessment = ParetoViewAssessment(
+                status=status,
+                coverage_status=coverage_status,
+                basis_scope=basis_scope,
+                input_count=len(eligible_hashes),
+                assessed_count=assessed_count,
+                unassessed_candidate_hashes=unassessed,
+                missing_coordinate_ids_by_candidate_hash={
+                    **stored_assessment.missing_coordinate_ids_by_candidate_hash,
+                    **missing_by_hash,
+                },
+                non_finite_coordinate_ids_by_candidate_hash={
+                    **stored_assessment.non_finite_coordinate_ids_by_candidate_hash,
+                    **non_finite_by_hash,
+                },
+                unresolved_axis_contract_candidate_hashes=list(
+                    stored_assessment.unresolved_axis_contract_candidate_hashes
+                ),
+            )
         else:
             assessment = stored_assessment
 
@@ -195,6 +292,19 @@ class ParetoRegistrySnapshot(BaseModel):
         payload = self.model_dump(mode="json", exclude_none=True)
         payload.pop("view_assessments", None)
         payload.pop("objective_basis_by_view", None)
+        for entry in payload.get("entries", {}).values():
+            entry.pop("policy_evaluation_status", None)
+            entry.pop("policy_evaluation_error", None)
+        return payload
+
+    def historical_v2_0_payload(self) -> dict[str, Any]:
+        """Serialize the historical v2.0 shape without fields added in schema 2.1."""
+        if self.schema_version != "2.0":
+            raise ValueError("historical v2.0 serialization requires a v2.0 snapshot")
+        payload = self.model_dump(mode="json", exclude_none=True)
+        for entry in payload.get("entries", {}).values():
+            entry.pop("policy_evaluation_status", None)
+            entry.pop("policy_evaluation_error", None)
         return payload
 
 
@@ -225,7 +335,7 @@ class ParetoRegistry:
         path = self._snapshot_path(loop_id)
         if not path.exists():
             return ParetoRegistrySnapshot(loop_id=loop_id)
-        return ParetoRegistrySnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        return _decode_snapshot_json(path.read_text(encoding="utf-8"))
 
     def get_frontier(
         self,
@@ -235,10 +345,10 @@ class ParetoRegistry:
         policy_family: str | None = None,
     ) -> list[ParetoRegistryEntry]:
         snapshot = self.get_snapshot(loop_id)
-        view_key = _view_key(view, policy_family=policy_family)
+        projection = snapshot.project_view(view, policy_family=policy_family)
         return [
             snapshot.entries[candidate_hash]
-            for candidate_hash in snapshot.frontiers.get(view_key, [])
+            for candidate_hash in projection.ranked_frontier_hashes
             if candidate_hash in snapshot.entries
         ]
 
@@ -262,6 +372,8 @@ class ParetoRegistry:
         source_loop_id: str | None = None,
         transfer_context: TransferContext | None = None,
         objective_basis_by_view: dict[str, ParetoBasisScope] | None = None,
+        policy_evaluation_status: Literal["valid", "unassessed", "invalid", "missing"] = "valid",
+        policy_evaluation_error: str | None = None,
     ) -> FrontierDelta:
         evaluation = _normalize_policy_evaluation_vector(evaluation)
         active_context = transfer_context or resolve_transfer_context(
@@ -292,6 +404,8 @@ class ParetoRegistry:
             or str(evaluation.metadata.get("policy_family") or "")
             or None,
             evaluation=evaluation,
+            policy_evaluation_status=policy_evaluation_status,
+            policy_evaluation_error=policy_evaluation_error,
             task_family=active_context.task_family,
             domain=active_context.domain,
             seed_payload=seed_payload,
@@ -337,15 +451,26 @@ class ParetoRegistry:
                 domain=active_context.domain,
             )
         )
-        frontier_hashes = local_snapshot.frontiers.get(ParetoView.GLOBAL_FEASIBLE.value, [])
+        local_projection = local_snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
+        frontier_hashes = local_projection.ranked_frontier_hashes
         catalog_entries = {
             key: value
             for key, value in existing_catalog.entries.items()
             if not key.startswith(f"{loop_id}:")
+            and _entry_is_transferable(value)
+        }
+        basis_payload = {
+            view_name: basis.model_dump(mode="json")
+            for view_name, basis in local_snapshot.objective_basis_by_view.items()
         }
         for candidate_hash in frontier_hashes:
             entry = local_snapshot.entries.get(candidate_hash)
-            if entry is None or not entry.evaluation.feasible or entry.seed_only:
+            if (
+                entry is None
+                or entry.policy_evaluation_status != "valid"
+                or not entry.evaluation.feasible
+                or entry.seed_only
+            ):
                 continue
             catalog_key = f"{loop_id}:{candidate_hash}"
             catalog_entries[catalog_key] = entry.model_copy(
@@ -355,6 +480,10 @@ class ParetoRegistry:
                     "source_loop_id": loop_id,
                     "published_at": local_snapshot.updated_at,
                     "seed_only": False,
+                    "metadata": {
+                        **entry.metadata,
+                        "pareto_rank_basis_by_view": basis_payload,
+                    },
                 }
             )
 
@@ -384,7 +513,11 @@ class ParetoRegistry:
         for namespace_context, path in self._iter_catalog_paths():
             snapshot = self._load_snapshot(path)
             for entry in snapshot.entries.values():
-                if entry.task_family != target_context.task_family or not entry.evaluation.feasible:
+                if (
+                    entry.task_family != target_context.task_family
+                    or not entry.evaluation.feasible
+                    or not _entry_is_transferable(entry)
+                ):
                     continue
                 source_context = TransferContext(
                     task_family=entry.task_family,
@@ -455,10 +588,13 @@ class ParetoRegistry:
         bundle = self.get_seed_bundle(target_context, max_seeds=max_seeds)
         warm_starts: list[dict[str, Any]] = []
         for entry in bundle.entries:
+            diagnostic_score = _diagnostic_policy_objective(entry.evaluation)
             warm_starts.append(
                 {
                     "candidate": dict(entry.seed_payload or {}),
-                    "objective_value": _diagnostic_policy_objective(entry.evaluation),
+                    "objective_value": (
+                        diagnostic_score if diagnostic_score is not None else float("inf")
+                    ),
                     "is_promising": bool(entry.evaluation.feasible),
                     "stage_b_result": {
                         "policy_evaluation": entry.evaluation.model_dump(mode="json"),
@@ -561,7 +697,9 @@ class ParetoRegistry:
         view_assessments: dict[str, ParetoViewAssessment] = {}
 
         feasible_entries = [
-            entry for entry in entries.values() if entry.evaluation.feasible and not entry.seed_only
+            entry
+            for entry in entries.values()
+            if entry.evaluation.feasible and not entry.seed_only
         ]
         (
             frontiers[ParetoView.GLOBAL_FEASIBLE.value],
@@ -642,7 +780,7 @@ class ParetoRegistry:
             )
 
         return ParetoRegistrySnapshot(
-            schema_version="2.0",
+            schema_version="2.1",
             loop_id=snapshot.loop_id,
             task_family=snapshot.task_family,
             domain=snapshot.domain,
@@ -681,19 +819,6 @@ class ParetoRegistry:
             entry.candidate_hash: entry.evaluation.frontier_objectives(view_name)
             for entry in ordered_entries
         }
-        non_finite_by_hash: dict[str, list[str]] = {}
-        unrankable_hashes: set[str] = set()
-        for entry in ordered_entries:
-            rank_assessment = assess_policy_evaluation_rank(
-                entry.evaluation,
-                rank_coordinates=_registry_rank_coordinates(entry.evaluation, view_name),
-                candidate_id=entry.candidate_id or entry.evaluation.candidate_id,
-            )
-            if rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
-                unrankable_hashes.add(entry.candidate_hash)
-                non_finite_by_hash[entry.candidate_hash] = sorted(
-                    {issue.coordinate_id for issue in rank_assessment.invalid_coordinates}
-                )
         axis_names = (
             list(declared_basis.coordinate_ids)
             if declared_basis is not None and declared_basis.scope == "declared"
@@ -705,6 +830,42 @@ class ParetoRegistry:
                 }
             )
         )
+        non_finite_by_hash: dict[str, list[str]] = {}
+        missing_by_hash: dict[str, list[str]] = {}
+        unrankable_hashes: set[str] = set()
+        required_channel_ids = tuple(
+            dict.fromkeys(("policy_value", "welfare", "employment", *axis_names))
+        )
+        for entry in ordered_entries:
+            if entry.policy_evaluation_status != "valid":
+                unrankable_hashes.add(entry.candidate_hash)
+                continue
+            rank_assessment = assess_policy_evaluation_rank(
+                entry.evaluation,
+                rank_coordinates=_registry_rank_coordinates(entry.evaluation, view_name),
+                required_channel_ids=required_channel_ids,
+                candidate_id=entry.candidate_id or entry.evaluation.candidate_id,
+            )
+            if rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
+                unrankable_hashes.add(entry.candidate_hash)
+                non_finite = sorted(
+                    {
+                        issue.coordinate_id
+                        for issue in rank_assessment.invalid_coordinates
+                        if issue.reason == "non_finite"
+                    }
+                )
+                missing = sorted(
+                    {
+                        issue.coordinate_id
+                        for issue in rank_assessment.invalid_coordinates
+                        if issue.reason == "missing"
+                    }
+                )
+                if non_finite:
+                    non_finite_by_hash[entry.candidate_hash] = non_finite
+                if missing:
+                    missing_by_hash[entry.candidate_hash] = missing
         basis_scope = declared_basis or (
             ParetoBasisScope(scope="observed_axis_union", coordinate_ids=axis_names)
             if axis_names
@@ -730,6 +891,7 @@ class ParetoRegistry:
                     input_count=len(ordered_entries),
                     assessed_count=0,
                     unassessed_candidate_hashes=hashes,
+                    missing_coordinate_ids_by_candidate_hash=missing_by_hash,
                     non_finite_coordinate_ids_by_candidate_hash=non_finite_by_hash,
                     unresolved_axis_contract_candidate_hashes=hashes,
                 ),
@@ -759,15 +921,17 @@ class ParetoRegistry:
         front_assessment = front.input_assessment
         if front_assessment is None:
             raise ValueError("v2 Pareto promoter omitted its input assessment")
-        missing_by_hash: dict[str, list[str]] = {}
         unassessed_hashes: list[str] = []
         for item in front_assessment.unassessed_evaluations:
             if item.input_index >= len(ordered_entries):
                 raise ValueError("Pareto assessment input index is outside the registry set")
             candidate_hash = ordered_entries[item.input_index].candidate_hash
             unassessed_hashes.append(candidate_hash)
-            if item.missing_coordinate_ids and candidate_hash not in unrankable_hashes:
-                missing_by_hash[candidate_hash] = item.missing_coordinate_ids
+            if item.missing_coordinate_ids:
+                missing_by_hash[candidate_hash] = sorted(
+                    set(missing_by_hash.get(candidate_hash, []))
+                    | set(item.missing_coordinate_ids)
+                )
             if item.non_finite_coordinate_ids:
                 non_finite_by_hash[candidate_hash] = sorted(
                     set(non_finite_by_hash.get(candidate_hash, []))
@@ -822,12 +986,20 @@ class ParetoRegistry:
                 indent=2,
                 ensure_ascii=False,
             ).encode("utf-8")
-        else:
+        elif snapshot.schema_version == "2.0":
             payload = json.dumps(
-                snapshot.model_dump(mode="python", exclude_none=True),
+                snapshot.historical_v2_0_payload(),
                 indent=2,
                 ensure_ascii=False,
-                allow_nan=True,
+            ).encode("utf-8")
+        else:
+            payload_dict = snapshot.model_dump(mode="python", exclude_none=True)
+            _encode_nonfinite_objective_values(payload_dict)
+            payload = json.dumps(
+                payload_dict,
+                indent=2,
+                ensure_ascii=False,
+                allow_nan=False,
                 default=_registry_json_default,
             ).encode("utf-8")
         with NamedTemporaryFile(
@@ -865,7 +1037,7 @@ class ParetoRegistry:
 
     @staticmethod
     def _load_snapshot(path: Path) -> ParetoRegistrySnapshot:
-        return ParetoRegistrySnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        return _decode_snapshot_json(path.read_text(encoding="utf-8"))
 
 
 def _benchmark_eval(
@@ -897,6 +1069,114 @@ def _registry_json_default(value: Any) -> Any:
     raise TypeError(f"Unsupported Pareto registry value: {type(value).__name__}")
 
 
+def _encode_nonfinite_objective_values(payload: dict[str, Any]) -> None:
+    """Tag raw non-finite objective values while keeping schema 2.1 strict JSON."""
+    entries = payload.get("entries", {})
+    if not isinstance(entries, dict):
+        raise ValueError("Pareto registry entries must be an object")
+    for entry in entries.values():
+        evaluation = entry.get("evaluation") if isinstance(entry, dict) else None
+        if not isinstance(evaluation, dict):
+            continue
+        for group_name in ("primary", "hard_constraints", "secondary", "penalties"):
+            channels = evaluation.get(group_name, {})
+            if not isinstance(channels, dict):
+                continue
+            for channel in channels.values():
+                if not isinstance(channel, dict):
+                    continue
+                value = channel.get("value")
+                if not isinstance(value, float) or isfinite(value):
+                    continue
+                kind = (
+                    "nan"
+                    if isnan(value)
+                    else "positive_infinity"
+                    if value > 0
+                    else "negative_infinity"
+                )
+                channel["value"] = {
+                    "$type": "raw_non_finite_objective_value",
+                    "kind": kind,
+                }
+
+
+def _decode_snapshot_json(payload_text: str) -> ParetoRegistrySnapshot:
+    """Read versioned registry snapshots, preserving legacy bytes and strict v2.1."""
+    payload = json.loads(payload_text)
+    if not isinstance(payload, dict):
+        raise ValueError("Pareto registry snapshot must be a JSON object")
+    schema_version = payload.get("schema_version", "1.0")
+    if schema_version not in {"1.0", "2.0", "2.1"}:
+        raise ValueError(f"Unsupported Pareto registry schema version: {schema_version}")
+    entries = payload.get("entries", {})
+    if not isinstance(entries, dict):
+        raise ValueError("Pareto registry entries must be an object")
+    if schema_version in {"1.0", "2.0"}:
+        for entry in entries.values():
+            if isinstance(entry, dict):
+                # Old versions did not record the evaluation status. Preserve
+                # their replayable observation while refusing to infer validity.
+                entry["policy_evaluation_status"] = "unassessed"
+                entry["policy_evaluation_error"] = "historical_status_not_recorded"
+    else:
+        for entry in entries.values():
+            if not isinstance(entry, dict) or "policy_evaluation_status" not in entry:
+                raise ValueError("schema 2.1 entries require policy evaluation status")
+        _decode_nonfinite_objective_values(payload)
+    return ParetoRegistrySnapshot.model_validate(payload)
+
+
+def _decode_nonfinite_objective_values(payload: dict[str, Any]) -> None:
+    """Decode only the schema 2.1 typed tags at objective-channel value leaves."""
+    decoded_paths: set[tuple[str, ...]] = set()
+    entries = payload.get("entries", {})
+    for entry_id, entry in entries.items():
+        evaluation = entry.get("evaluation") if isinstance(entry, dict) else None
+        if not isinstance(evaluation, dict):
+            continue
+        for group_name in ("primary", "hard_constraints", "secondary", "penalties"):
+            channels = evaluation.get(group_name, {})
+            if not isinstance(channels, dict):
+                continue
+            for channel_id, channel in channels.items():
+                if not isinstance(channel, dict) or "value" not in channel:
+                    continue
+                value = channel["value"]
+                if not isinstance(value, dict) or "$type" not in value:
+                    continue
+                if set(value) != {"$type", "kind"} or value.get(
+                    "$type"
+                ) != "raw_non_finite_objective_value":
+                    raise ValueError("unsupported raw non-finite objective value tag")
+                kind = value.get("kind")
+                if kind == "nan":
+                    channel["value"] = float("nan")
+                elif kind == "positive_infinity":
+                    channel["value"] = float("inf")
+                elif kind == "negative_infinity":
+                    channel["value"] = float("-inf")
+                else:
+                    raise ValueError("unsupported raw non-finite objective value kind")
+                decoded_paths.add(
+                    ("entries", entry_id, "evaluation", group_name, channel_id, "value")
+                )
+
+    def _validate_strict_values(value: Any, path: tuple[str, ...] = ()) -> None:
+        if isinstance(value, dict):
+            if "$type" in value and path not in decoded_paths:
+                raise ValueError("unsupported typed tag outside objective channel value")
+            for key, nested in value.items():
+                _validate_strict_values(nested, (*path, str(key)))
+        elif isinstance(value, list):
+            for index, nested in enumerate(value):
+                _validate_strict_values(nested, (*path, str(index)))
+        elif isinstance(value, float) and not isfinite(value) and path not in decoded_paths:
+            raise ValueError("non-standard JSON numeric token in schema 2.1 snapshot")
+
+    _validate_strict_values(payload)
+
+
 def _registry_rank_coordinates(
     evaluation: PolicyEvaluationVector,
     view_name: str,
@@ -906,21 +1186,57 @@ def _registry_rank_coordinates(
         f"frontier.{view_name}.{name}": float(value)
         for name, value in evaluation.frontier_objectives(view_name).items()
     }
+    coordinates["rank.feasible"] = 1.0 if evaluation.feasible else 0.0
+    coordinates["rank.negative_blocking_count"] = -float(len(evaluation.blocking_reasons))
     policy_value = evaluation.primary.get("policy_value")
     welfare = evaluation.primary.get("welfare")
     employment = evaluation.primary.get("employment")
-    coordinates.update(
-        {
-            "rank.feasible": 1.0 if evaluation.feasible else 0.0,
-            "rank.policy_value": float(policy_value.value) if policy_value is not None else 0.0,
-            "rank.welfare_plus_employment": (
-                (float(welfare.value) if welfare is not None else 0.0)
-                + (float(employment.value) if employment is not None else 0.0)
-            ),
-            "rank.negative_blocking_count": -float(len(evaluation.blocking_reasons)),
-        }
-    )
+    if policy_value is not None:
+        coordinates["rank.policy_value"] = float(policy_value.value)
+    if welfare is not None and employment is not None:
+        coordinates["rank.welfare_plus_employment"] = float(welfare.value) + float(
+            employment.value
+        )
     return coordinates
+
+
+def _assess_registry_entry(
+    entry: ParetoRegistryEntry,
+    *,
+    view_name: str,
+    required_channel_ids: tuple[str, ...],
+):
+    """Recompute the complete finite ranking predicate for one registry entry."""
+    return assess_policy_evaluation_rank(
+        entry.evaluation,
+        rank_coordinates=_registry_rank_coordinates(entry.evaluation, view_name),
+        required_channel_ids=required_channel_ids,
+        candidate_id=entry.candidate_id or entry.evaluation.candidate_id,
+    )
+
+
+def _entry_required_channel_ids(entry: ParetoRegistryEntry) -> tuple[str, ...]:
+    raw_basis = entry.metadata.get("pareto_rank_basis_by_view")
+    global_basis = raw_basis.get(ParetoView.GLOBAL_FEASIBLE.value) if isinstance(raw_basis, dict) else None
+    coordinates = (
+        global_basis.get("coordinate_ids", [])
+        if isinstance(global_basis, dict)
+        else []
+    )
+    basis_ids = tuple(str(value) for value in coordinates if isinstance(value, str))
+    return tuple(dict.fromkeys(("policy_value", "welfare", "employment", *basis_ids)))
+
+
+def _entry_is_transferable(entry: ParetoRegistryEntry) -> bool:
+    """Require current typed status and a complete finite vector at transfer intake."""
+    if entry.policy_evaluation_status != "valid" or not entry.evaluation.feasible:
+        return False
+    assessment = _assess_registry_entry(
+        entry,
+        view_name=ParetoView.GLOBAL_FEASIBLE.value,
+        required_channel_ids=_entry_required_channel_ids(entry),
+    )
+    return assessment.status is PolicyEvaluationRankStatus.RANKABLE
 
 
 def _placeholder_ref(candidate_hash: str) -> ArtifactRef:
@@ -938,14 +1254,14 @@ def _view_key(view: ParetoView, *, policy_family: str | None = None) -> str:
     return view.value
 
 
-def _diagnostic_policy_objective(evaluation: PolicyEvaluationVector) -> float:
+def _diagnostic_policy_objective(evaluation: PolicyEvaluationVector) -> float | None:
     objectives = evaluation.frontier_objectives(ParetoView.GLOBAL_FEASIBLE.value)
     if not objectives:
-        return float("inf")
+        return None
     score = -sum(float(value) for value in objectives.values())
     if not evaluation.feasible:
         score += 1_000_000.0 + (1000.0 * float(len(evaluation.blocking_reasons)))
-    return float(score)
+    return float(score) if isfinite(score) else None
 
 
 def _frontier_distance_to_frontier(

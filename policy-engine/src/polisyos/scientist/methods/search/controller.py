@@ -426,7 +426,7 @@ class SearchController:
         effective_details: list[ObjectiveValue] = [
             detail for detail in objective_details if isinstance(detail, ObjectiveValue)
         ]
-        if policy_resolution.status == "invalid":
+        if policy_resolution.status in {"invalid", "unassessed"}:
             self._run_state.policy_evaluation_errors += 1
             effective_objective = float("inf")
             effective_details = []
@@ -440,21 +440,40 @@ class SearchController:
         accepted = (
             bool(is_promising)
             and bool(stage_a_passed)
-            and policy_resolution.status != "invalid"
+            and policy_resolution.status not in {"invalid", "unassessed"}
             and (policy_evaluation is None or policy_evaluation.feasible)
             and verdict == "APPROVE"
         )
-        if stage_a_passed and not is_sentinel and policy_resolution.status != "invalid":
+        if stage_a_passed and not is_sentinel and policy_resolution.status not in {
+            "invalid",
+            "unassessed",
+        }:
             if effective_objective < self._best_objective:
                 self._best_objective = effective_objective
                 self._best_candidate = deepcopy(candidate)
-            if effective_details:
+            if policy_evaluation is not None or effective_details:
                 self._update_policy_or_legacy_frontier(
                     candidate=candidate,
                     objective_details=effective_details,
                     policy_evaluation=policy_evaluation,
                     stage_b_result=stage_b_result,
+                    policy_evaluation_status=policy_resolution.status,
+                    policy_evaluation_error=policy_resolution.reason,
                 )
+        elif (
+            stage_a_passed
+            and not is_sentinel
+            and policy_resolution.status == "unassessed"
+            and policy_evaluation is not None
+        ):
+            self._update_policy_or_legacy_frontier(
+                candidate=candidate,
+                objective_details=[],
+                policy_evaluation=policy_evaluation,
+                stage_b_result=stage_b_result,
+                policy_evaluation_status=policy_resolution.status,
+                policy_evaluation_error=policy_resolution.reason,
+            )
 
         record = SearchIteration(
             iteration=self._run_state.evaluation_iterations,
@@ -747,7 +766,7 @@ class SearchController:
                 stage_b_result,
             )
             policy_evaluation = policy_resolution.value
-            if policy_resolution.status == "invalid":
+            if policy_resolution.status in {"invalid", "unassessed"}:
                 self._run_state.policy_evaluation_errors += 1
             elif policy_evaluation is not None:
                 objective_value = policy_evaluation.legacy_scalar_proxy
@@ -758,7 +777,7 @@ class SearchController:
                 objective_details = self._config.objective.evaluate_detailed(sim_results)
 
             if (
-                policy_resolution.status != "invalid"
+                policy_resolution.status not in {"invalid", "unassessed"}
                 and not is_sentinel
                 and objective_value < self._best_objective
             ):
@@ -766,12 +785,27 @@ class SearchController:
                 self._best_candidate = deepcopy(candidate)
                 logger.info(f"Iteration {iteration}: New best objective = {objective_value:.6f}")
 
-            if not is_sentinel and policy_resolution.status != "invalid":
+            if not is_sentinel and policy_resolution.status not in {"invalid", "unassessed"}:
                 self._update_policy_or_legacy_frontier(
                     candidate=candidate,
                     objective_details=objective_details,
                     policy_evaluation=policy_evaluation,
                     stage_b_result=stage_b_result,
+                    policy_evaluation_status=policy_resolution.status,
+                    policy_evaluation_error=policy_resolution.reason,
+                )
+            elif (
+                not is_sentinel
+                and policy_resolution.status == "unassessed"
+                and policy_evaluation is not None
+            ):
+                self._update_policy_or_legacy_frontier(
+                    candidate=candidate,
+                    objective_details=[],
+                    policy_evaluation=policy_evaluation,
+                    stage_b_result=stage_b_result,
+                    policy_evaluation_status=policy_resolution.status,
+                    policy_evaluation_error=policy_resolution.reason,
                 )
 
         iter_duration = (datetime.now(UTC) - iter_start).total_seconds()
@@ -781,7 +815,7 @@ class SearchController:
             objective_value=objective_value,
             objective_details=deepcopy(objective_details),
             is_promising=stage_a_passed
-            and policy_resolution.status != "invalid"
+            and policy_resolution.status not in {"invalid", "unassessed"}
             and (policy_evaluation is None or policy_evaluation.feasible)
             and (stage_b_result or {}).get("feedback", {}).get("verdict") == "APPROVE",
             stage_a_passed=stage_a_passed,
@@ -930,7 +964,9 @@ class SearchController:
         try:
             from polisyos.scientist.policy_design.objectives import (
                 PolicyEvaluationBundle,
+                PolicyEvaluationRankStatus,
                 _normalize_policy_evaluation_vector,
+                assess_policy_evaluation_rank,
             )
             from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
         except _IMPORT_ERRORS as exc:
@@ -945,14 +981,39 @@ class SearchController:
                 reason="policy_objective_stack_unavailable",
             )
 
-        typed_error_reason: str | None = None
+        def _rank_resolution(evaluation: PolicyEvaluationVector) -> _PolicyEvaluationResolution:
+            value_axis = evaluation._first_value_axis()
+            candidate_id = candidate.get("candidate_id") or evaluation.candidate_id
+            assessment = assess_policy_evaluation_rank(
+                evaluation,
+                rank_coordinates={
+                    "rank.legacy_scalar_proxy": evaluation.legacy_scalar_proxy,
+                },
+                required_channel_ids=(
+                    (value_axis.name,) if value_axis is not None else ("policy_value",)
+                ),
+                candidate_id=None if candidate_id is None else str(candidate_id),
+            )
+            if assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
+                reason = ";".join(
+                    f"{issue.coordinate_id}:{issue.reason}"
+                    for issue in assessment.invalid_coordinates
+                )
+                return _PolicyEvaluationResolution(
+                    value=evaluation,
+                    status="unassessed",
+                    reason=reason or "policy_evaluation_rank_unassessed",
+                )
+            return _PolicyEvaluationResolution(value=evaluation, status="valid")
+
         if typed_vector_present:
             raw_vector = stage_b_result.get("policy_evaluation")
             try:
-                return _PolicyEvaluationResolution(
-                    value=_normalize_policy_evaluation_vector(raw_vector, allow_mapping=True),
-                    status="valid",
+                normalized = _normalize_policy_evaluation_vector(
+                    raw_vector,
+                    allow_mapping=True,
                 )
+                return _rank_resolution(normalized)
             except _SEARCH_DEGRADED_ERRORS as exc:
                 typed_error_reason = "policy_evaluation_parse_failed"
                 _search_degraded(
@@ -960,13 +1021,18 @@ class SearchController:
                     reason=typed_error_reason,
                     exc=exc,
                 )
+                return _PolicyEvaluationResolution(
+                    value=None,
+                    status="invalid",
+                    reason=typed_error_reason,
+                )
 
         objective_stack = self._config.policy_objective_stack
         if objective_stack is None:
             return _PolicyEvaluationResolution(
                 value=None,
                 status="invalid",
-                reason=typed_error_reason or "policy_evaluation_stack_unavailable",
+                reason="policy_evaluation_stack_unavailable",
             )
 
         raw_bundle = stage_b_result.get("policy_evaluation_bundle")
@@ -976,7 +1042,7 @@ class SearchController:
             return _PolicyEvaluationResolution(
                 value=None,
                 status="invalid",
-                reason=typed_error_reason or "policy_evaluation_bundle_missing",
+                reason="policy_evaluation_bundle_missing",
             )
         try:
             if isinstance(raw_bundle, PolicyEvaluationBundle):
@@ -1063,7 +1129,7 @@ class SearchController:
                     status="invalid",
                     reason="objective_stack_returned_invalid_vector",
                 )
-            return _PolicyEvaluationResolution(value=normalized, status="valid")
+            return _rank_resolution(normalized)
         except _SEARCH_DEGRADED_ERRORS as exc:
             _search_degraded(
                 operation="resolve_policy_evaluation",
@@ -1083,9 +1149,15 @@ class SearchController:
         objective_details: list[ObjectiveValue],
         policy_evaluation: PolicyEvaluationVector | None,
         stage_b_result: dict[str, Any] | None,
+        policy_evaluation_status: str,
+        policy_evaluation_error: str | None,
     ) -> None:
         registry = self._config.pareto_registry
-        if policy_evaluation is not None and registry is not None:
+        if policy_evaluation is not None:
+            if registry is None:
+                if policy_evaluation_status == "valid" and objective_details:
+                    self._update_pareto_front(candidate, objective_details)
+                return
             try:
                 from polisyos.scientist.methods.search.transfer_context import (
                     resolve_transfer_context,
@@ -1108,7 +1180,12 @@ class SearchController:
                 self._search_id,
                 candidate_hash=candidate_hash,
                 evaluation=policy_evaluation,
-                candidate_id=policy_evaluation.candidate_id,
+                policy_evaluation_status=policy_evaluation_status,
+                policy_evaluation_error=policy_evaluation_error,
+                candidate_id=(
+                    policy_evaluation.candidate_id
+                    or (str(candidate["candidate_id"]) if candidate.get("candidate_id") else None)
+                ),
                 candidate_ref=(stage_b_result or {}).get("candidate_ref"),
                 policy_family=(str(policy_evaluation.metadata.get("policy_family") or "") or None),
                 promotion_metadata={

@@ -772,6 +772,7 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
         update={
             "candidate_id": "complete",
             "primary": {
+                **template.primary,
                 "policy_value": template.primary["policy_value"].model_copy(
                     update={"value": 1.0}
                 ),
@@ -822,7 +823,7 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
     projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     voi_snapshot = registry.to_voi_snapshot("loop")
 
-    assert snapshot.schema_version == "2.0"
+    assert snapshot.schema_version == "2.1"
     assert view.status == "partial"
     assert view.input_count == 8
     assert view.assessed_count == 1
@@ -941,7 +942,10 @@ def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_con
         evaluation = template.model_copy(
             update={
                 "candidate_id": f"missing_employment_{index}",
-                "primary": {"policy_value": template.primary["policy_value"]},
+                "primary": {
+                    "policy_value": template.primary["policy_value"],
+                    "welfare": template.primary["welfare"],
+                },
             }
         )
         missing_registry.update(
@@ -976,6 +980,7 @@ def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_con
             update={
                 "candidate_id": f"finite_{index}",
                 "primary": {
+                    "welfare": template.primary["welfare"],
                     "policy_value": template.primary["policy_value"].model_copy(
                         update={"value": float(index + 1)}
                     ),
@@ -2444,6 +2449,13 @@ def test_search_controller_registry_intake_rejects_nonfinite_nonfrontier_channel
     view = snapshot.view_assessments["global_feasible"]
     candidate_hash = next(iter(snapshot.entries))
 
+    assert result.best_candidate is None
+    assert result.history[0].is_promising is False
+    assert result.history[0].policy_evaluation_status == "unassessed"
+    assert result.history[0].policy_evaluation_error is not None
+    assert "secondary.registry_only_quality.value:non_finite" in (
+        result.history[0].policy_evaluation_error
+    )
     assert snapshot.entries[candidate_hash].evaluation.secondary["registry_only_quality"].value != (
         snapshot.entries[candidate_hash].evaluation.secondary["registry_only_quality"].value
     )
@@ -2453,6 +2465,48 @@ def test_search_controller_registry_intake_rejects_nonfinite_nonfrontier_channel
     assert view.unassessed_candidate_hashes == [candidate_hash]
     assert "secondary.registry_only_quality.value" in (
         view.non_finite_coordinate_ids_by_candidate_hash[candidate_hash]
+    )
+
+
+def test_search_controller_without_registry_does_not_admit_unassessed_vector() -> None:
+    candidate = _candidate()
+    evaluation = _evaluation_vector(candidate)
+    invalid_channel = ObjectiveChannelValue(
+        name="nonfrontier_quality",
+        kind=ObjectiveKind.SECONDARY,
+        value=float("inf"),
+        direction=ObjectiveDirection.MAXIMIZE,
+    )
+    evaluation = evaluation.model_copy(
+        update={"secondary": {**evaluation.secondary, invalid_channel.name: invalid_channel}}
+    )
+
+    class StaticGenerator:
+        def generate(self, history, current_best, context):
+            return candidate.as_search_payload()
+
+    controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([]),
+        ),
+        candidate_generator=StaticGenerator(),
+        stage_a_evaluator=lambda *_: (0.0, True),
+        stage_b_evaluator=lambda *_: {
+            "policy_evaluation": evaluation.model_dump(mode="python"),
+            "feedback": {"verdict": "APPROVE"},
+        },
+    )
+
+    result = controller.run(initial_context={})
+
+    assert result.best_candidate is None
+    assert result.pareto_front == []
+    assert result.history[0].is_promising is False
+    assert result.history[0].policy_evaluation_status == "unassessed"
+    assert result.history[0].policy_evaluation_error is not None
+    assert "secondary.nonfrontier_quality.value:non_finite" in (
+        result.history[0].policy_evaluation_error
     )
 
 

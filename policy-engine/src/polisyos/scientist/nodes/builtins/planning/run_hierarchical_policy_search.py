@@ -1085,7 +1085,8 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
                 evaluation_status = "invalid"
                 evaluation_error = evaluation_error or "policy_evaluation_parse_failed"
             elif evaluation is not None and evaluation_status == "missing":
-                evaluation_status = "valid"
+                evaluation_status = "unassessed"
+                evaluation_error = evaluation_error or "policy_evaluation_status_missing"
             elif evaluation is None and evaluation_status == "valid":
                 evaluation_status = "invalid"
                 evaluation_error = evaluation_error or "policy_evaluation_unavailable"
@@ -1120,6 +1121,15 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
                     candidate=candidate,
                     feasible=feasible,
                 )
+                if (
+                    rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED
+                    and evaluation_status == "valid"
+                ):
+                    evaluation_status = "unassessed"
+                    evaluation_error = evaluation_error or ";".join(
+                        f"{issue.coordinate_id}:{issue.reason}"
+                        for issue in rank_assessment.invalid_coordinates
+                    )
             records.append(
                 _CandidateEvaluationRecord(
                     structure_id=structure_id,
@@ -1155,17 +1165,22 @@ def _candidate_rank_assessment(
     candidate: PolicyCandidateSchema,
     feasible: bool,
 ) -> PolicyEvaluationRankAssessment:
+    policy_value = _objective_value(evaluation, "policy_value")
     welfare = _objective_value(evaluation, "welfare")
     employment = _objective_value(evaluation, "employment")
+    rank_coordinates = {
+        "rank.feasible": 1.0 if feasible else 0.0,
+        "rank.negative_blocking_count": -float(len(evaluation.blocking_reasons)),
+    }
+    if policy_value is not None:
+        rank_coordinates["rank.policy_value"] = policy_value
+    if welfare is not None and employment is not None:
+        rank_coordinates["rank.welfare_plus_employment"] = welfare + employment
     return assess_policy_evaluation_rank(
         evaluation,
         candidate_id=candidate.candidate_id,
-        rank_coordinates={
-            "rank.feasible": 1.0 if feasible else 0.0,
-            "rank.policy_value": _objective_value(evaluation, "policy_value"),
-            "rank.welfare_plus_employment": welfare + employment,
-            "rank.negative_blocking_count": -float(len(evaluation.blocking_reasons)),
-        },
+        rank_coordinates=rank_coordinates,
+        required_channel_ids=("policy_value", "welfare", "employment"),
     )
 
 
@@ -1179,8 +1194,8 @@ def _rank_assessment_events(
             level="warn",
             code="policy_evaluation_rank_unassessed",
             message=(
-                "Candidate evaluation was excluded from champion ranking because its "
-                "objective or rank coordinates are non-finite."
+                "Candidate evaluation was excluded from champion ranking because one or "
+                "more required objective or rank coordinates are missing or non-finite."
             ),
             attrs={
                 "selection_status": selection_status,
@@ -1218,13 +1233,13 @@ def _evaluation_issue_events(
 def _objective_value(
     evaluation: PolicyEvaluationVector | None,
     name: str,
-) -> float:
+) -> float | None:
     if evaluation is None:
-        return 0.0
+        return None
     channel = evaluation.primary.get(name)
     if channel is None:
         channel = evaluation.secondary.get(name)
-    return 0.0 if channel is None else float(channel.higher_is_better)
+    return None if channel is None else float(channel.higher_is_better)
 
 
 def _coerce_policy_candidate(payload: Any) -> PolicyCandidateSchema | None:
@@ -1320,9 +1335,12 @@ def _persist_frontier_report(
         metadata = {
             "structure_id": record.structure_id,
             **dict(record.metadata),
+            "policy_evaluation_status": record.policy_evaluation_status,
+            "policy_evaluation_error": record.policy_evaluation_error,
         }
         if (
             record.evaluation is not None
+            and record.policy_evaluation_status == "valid"
             and record.rank_assessment is not None
             and record.rank_assessment.status is PolicyEvaluationRankStatus.RANKABLE
         ):
@@ -1337,7 +1355,10 @@ def _persist_frontier_report(
             }
         elif record.evaluation is not None:
             unassessed_rank_hashes.add(candidate_hash)
-            if record.rank_assessment is not None:
+            if (
+                record.policy_evaluation_status == "valid"
+                and record.rank_assessment is not None
+            ):
                 rank_assessments_by_hash.setdefault(candidate_hash, []).append(
                     record.rank_assessment.model_dump(mode="json")
                 )

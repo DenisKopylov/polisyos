@@ -56,9 +56,45 @@ def test_policy_rank_assessment_marks_non_finite_channels_and_derived_coordinate
     assert issues["rank.welfare_plus_employment"] == "non_finite"
 
 
+def test_policy_rank_assessment_marks_missing_required_axis_unassessed() -> None:
+    evaluation = _evaluation_vector(_candidate())
+
+    assessment = assess_policy_evaluation_rank(
+        evaluation,
+        rank_coordinates={"rank.policy_value": 1.0},
+        required_channel_ids=("employment",),
+    )
+
+    assert assessment.status is PolicyEvaluationRankStatus.UNASSESSED
+    assert assessment.candidate_id == evaluation.candidate_id
+    assert assessment.rank_key is None
+    assert {
+        (issue.coordinate_id, issue.reason) for issue in assessment.invalid_coordinates
+    } == {("objective.employment", "missing")}
+
+
+def _rankable_evaluation(candidate_id: str) -> PolicyEvaluationVector:
+    baseline = _evaluation_vector(_candidate())
+    primary = dict(baseline.primary)
+    primary.update(
+        {
+            name: ObjectiveChannelValue(
+                name=name,
+                kind=ObjectiveKind.PRIMARY,
+                value=value,
+                direction=ObjectiveDirection.MAXIMIZE,
+            )
+            for name, value in (("welfare", 1.0), ("employment", 1.0))
+        }
+    )
+    return baseline.model_copy(
+        update={"candidate_id": candidate_id, "primary": primary}
+    )
+
+
 def test_blueprint_ranking_excludes_non_finite_rows_independent_of_input_order() -> None:
     candidate = _candidate()
-    baseline = _evaluation_vector(candidate)
+    baseline = _rankable_evaluation("rankable_base")
     finite = baseline.model_copy(update={"candidate_id": "finite_candidate"})
     policy_value = baseline.primary["policy_value"]
     positive_infinity = baseline.model_copy(
@@ -111,7 +147,7 @@ def test_blueprint_ranking_excludes_non_finite_rows_independent_of_input_order()
 
 def test_blueprint_ranking_keeps_finite_winner_stable_under_permutation() -> None:
     candidate = _candidate()
-    baseline = _evaluation_vector(candidate)
+    baseline = _rankable_evaluation("rankable_base")
     lower = baseline.model_copy(
         update={
             "candidate_id": "lower_candidate",

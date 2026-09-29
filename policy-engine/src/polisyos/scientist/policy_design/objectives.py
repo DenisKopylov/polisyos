@@ -239,7 +239,7 @@ class PolicyEvaluationRankIssue(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     coordinate_id: str = Field(min_length=1)
-    reason: Literal["non_finite"]
+    reason: Literal["non_finite", "missing"]
 
 
 class PolicyEvaluationRankAssessment(BaseModel):
@@ -271,6 +271,7 @@ def assess_policy_evaluation_rank(
     evaluation: PolicyEvaluationVector,
     *,
     rank_coordinates: Mapping[str, float],
+    required_channel_ids: tuple[str, ...] = (),
     candidate_id: str | None = None,
 ) -> PolicyEvaluationRankAssessment:
     """Recompute whether every objective and rank coordinate is finite.
@@ -281,12 +282,14 @@ def assess_policy_evaluation_rank(
     Args:
         evaluation: Typed objective channels for one candidate.
         rank_coordinates: Ordered components of the consumer's actual rank key.
+        required_channel_ids: Objective names required by the consumer's configured
+            rank vector. Missing names are unassessed rather than zero-filled.
         candidate_id: Candidate identity from the consumer when the evaluation
             does not carry one.
 
     Returns:
         A rankable result carrying the finite key, or an unassessed result with
-        each non-finite coordinate and its reason.
+        each missing or non-finite coordinate and its reason.
     """
     invalid_coordinates: list[PolicyEvaluationRankIssue] = []
 
@@ -319,6 +322,24 @@ def assess_policy_evaluation_rank(
                 margin = channel.margin
                 if margin is not None:
                     _assess_coordinate(f"{coordinate_prefix}.margin", margin)
+
+    for channel_id in required_channel_ids:
+        if evaluation.channel(channel_id) is None:
+            invalid_coordinates.append(
+                PolicyEvaluationRankIssue(
+                    coordinate_id=f"objective.{channel_id}",
+                    reason="missing",
+                )
+            )
+
+    welfare = evaluation.primary.get("welfare")
+    employment = evaluation.primary.get("employment")
+    if welfare is not None and employment is not None:
+        _assess_coordinate(
+            "rank.welfare_plus_employment",
+            float(welfare.value) + float(employment.value),
+        )
+    _assess_coordinate("rank.legacy_scalar_proxy", evaluation.legacy_scalar_proxy)
 
     ordered_rank_coordinates = tuple(
         (coordinate_id, float(value)) for coordinate_id, value in rank_coordinates.items()

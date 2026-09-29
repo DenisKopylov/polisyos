@@ -115,3 +115,8 @@ def test_mo_uses_only_finite_valid_rows_and_counts_valid_warmup(
     assert len(batch) == 2
     assert all(item.source_strategy == "sobol_init" for item in batch)
     assert strategy._iteration == 2
+
+    second_finite = _make_eval(4, 3.0, 2.0, simple_space)
+    after_valid_warmup = strategy.suggest([invalid, finite, second_finite])
+    assert after_valid_warmup.source_strategy != "sobol_init"
+    assert strategy._iteration == 3

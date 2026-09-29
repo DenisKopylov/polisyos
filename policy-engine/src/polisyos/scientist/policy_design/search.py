@@ -543,6 +543,7 @@ class HierarchicalSearchCoordinator:
             stage_a_evaluator=stage_a_evaluator or _always_pass_stage_a,
             context=context,
             initial_evaluations=initial_evaluations,
+            objective_spec=objective_spec,
         )
         result.telemetry["optimizer_objectives"] = list(objective_spec.objective_names)
         result.telemetry["frontier_projection_names"] = list(
@@ -564,6 +565,8 @@ class HierarchicalSearchCoordinator:
                         or structure.candidate_hash
                     ),
                     evaluation=iteration.policy_evaluation,
+                    policy_evaluation_status=iteration.policy_evaluation_status,
+                    policy_evaluation_error=iteration.policy_evaluation_error,
                     candidate_id=iteration.policy_evaluation.candidate_id,
                     policy_family=structure.policy_family,
                     seed_payload=dict(iteration.candidate),
@@ -955,6 +958,7 @@ def _run_blueprint_parameter_search(
     stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]],
     context: dict[str, Any],
     initial_evaluations: list[dict[str, Any]],
+    objective_spec: OptimizerObjectiveSpec | None = None,
 ) -> SearchResult:
     start = datetime.now(UTC)
     stopping = MaxIterations(max_iterations)
@@ -993,9 +997,14 @@ def _run_blueprint_parameter_search(
             rank_assessment = _policy_rank_key(
                 policy_evaluation,
                 candidate_id=record.candidate.get("candidate_id"),
+                required_channel_ids=(
+                    tuple(objective_spec.objective_names) if objective_spec is not None else ()
+                ),
+                optimizer_spec=objective_spec,
             )
             if rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
                 record.objective_value = float("inf")
+                record.is_promising = False
                 record.policy_evaluation_status = "unassessed"
                 record.policy_evaluation_error = _rank_assessment_reason(rank_assessment)
                 unassessed_rank_assessments.append(rank_assessment)
@@ -1032,6 +1041,7 @@ def _run_blueprint_parameter_search(
         objective_value = float("inf")
         objective_details: list[Any] = []
         is_promising = False
+        rank_assessment: PolicyEvaluationRankAssessment | None = None
         if stage_a_passed:
             stage_b_count += 1
             stage_b_result = stage_b_evaluator(candidate, context)
@@ -1043,9 +1053,17 @@ def _run_blueprint_parameter_search(
                 rank_assessment = _policy_rank_key(
                     policy_evaluation,
                     candidate_id=candidate.get("candidate_id"),
+                    required_channel_ids=(
+                        tuple(objective_spec.objective_names)
+                        if objective_spec is not None
+                        else ()
+                    ),
+                    optimizer_spec=objective_spec,
                 )
                 if rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED:
                     objective_value = float("inf")
+                    evaluation_status = "unassessed"
+                    evaluation_error = _rank_assessment_reason(rank_assessment)
                     unassessed_rank_assessments.append(rank_assessment)
                 else:
                     objective_value = _diagnostic_policy_score(policy_evaluation)
@@ -1060,7 +1078,8 @@ def _run_blueprint_parameter_search(
             else:
                 objective_value = float("inf")
             is_promising = (
-                bool(stage_b_result)
+                evaluation_status == "valid"
+                and bool(stage_b_result)
                 and str((stage_b_result or {}).get("feedback", {}).get("verdict", "")).upper()
                 == "APPROVE"
             )
@@ -1076,18 +1095,8 @@ def _run_blueprint_parameter_search(
                 stage_b_result=stage_b_result,
                 duration_seconds=(datetime.now(UTC) - iter_start).total_seconds(),
                 policy_evaluation=policy_evaluation,
-                policy_evaluation_status=(
-                    "unassessed"
-                    if policy_evaluation is not None
-                    and rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED
-                    else evaluation_status
-                ),
-                policy_evaluation_error=(
-                    _rank_assessment_reason(rank_assessment)
-                    if policy_evaluation is not None
-                    and rank_assessment.status is PolicyEvaluationRankStatus.UNASSESSED
-                    else evaluation_error
-                ),
+                policy_evaluation_status=evaluation_status,
+                policy_evaluation_error=evaluation_error,
             )
         )
         iteration += 1
@@ -1160,7 +1169,7 @@ def _optimizer_objectives_for_iteration(
     iteration: SearchIteration,
     spec: OptimizerObjectiveSpec,
 ) -> list[ObjectiveValue]:
-    if iteration.policy_evaluation_status == "invalid":
+    if iteration.policy_evaluation_status in {"invalid", "unassessed"}:
         return []
     if iteration.policy_evaluation is None:
         return list(iteration.objective_details)
@@ -1175,7 +1184,9 @@ def _optimizer_objectives_from_policy_evaluation(
     values: list[ObjectiveValue] = []
     for name, direction in zip(spec.objective_names, spec.directions, strict=False):
         channel = evaluation.channel(name)
-        raw_value = float(channel.value) if channel is not None else 0.0
+        if channel is None:
+            continue
+        raw_value = float(channel.value)
         if infeasibility_penalty > 0.0:
             if direction is OptimizationDirection.MAXIMIZE:
                 raw_value -= infeasibility_penalty
@@ -1186,9 +1197,9 @@ def _optimizer_objectives_from_policy_evaluation(
                 name=name,
                 raw_value=raw_value,
                 direction=direction,
-                weight=float(channel.weight) if channel is not None else 1.0,
-                is_satisfied=True if channel is None else bool(channel.satisfied is not False),
-                threshold=channel.threshold if channel is not None else None,
+                weight=float(channel.weight),
+                is_satisfied=bool(channel.satisfied is not False),
+                threshold=channel.threshold,
             )
         )
     return values
@@ -1224,18 +1235,35 @@ def _policy_rank_key(
     evaluation: PolicyEvaluationVector,
     *,
     candidate_id: str | None = None,
+    required_channel_ids: tuple[str, ...] = (),
+    optimizer_spec: OptimizerObjectiveSpec | None = None,
 ) -> PolicyEvaluationRankAssessment:
-    objectives = evaluation.frontier_objectives("global_feasible")
+    rank_coordinates = {
+        "rank.feasible": 1.0 if evaluation.feasible else 0.0,
+        "rank.negative_blocking_count": -float(len(evaluation.blocking_reasons)),
+    }
+    for name in ("policy_value", "employment", "welfare"):
+        channel = evaluation.primary.get(name)
+        if channel is not None:
+            rank_coordinates[f"rank.{name}"] = float(channel.higher_is_better)
+    if optimizer_spec is not None:
+        for objective in _optimizer_objectives_from_policy_evaluation(
+            evaluation,
+            optimizer_spec,
+        ):
+            normalized = (
+                -objective.raw_value
+                if objective.direction is OptimizationDirection.MAXIMIZE
+                else objective.raw_value
+            )
+            rank_coordinates[f"optimizer.{objective.name}"] = normalized
     return assess_policy_evaluation_rank(
         evaluation,
         candidate_id=candidate_id,
-        rank_coordinates={
-            "rank.feasible": 1.0 if evaluation.feasible else 0.0,
-            "rank.policy_value": float(objectives.get("policy_value", 0.0)),
-            "rank.employment": float(objectives.get("employment", 0.0)),
-            "rank.welfare": float(objectives.get("welfare", 0.0)),
-            "rank.negative_blocking_count": -float(len(evaluation.blocking_reasons)),
-        },
+        rank_coordinates=rank_coordinates,
+        required_channel_ids=tuple(
+            dict.fromkeys(("policy_value", "employment", "welfare", *required_channel_ids))
+        ),
     )
 
 

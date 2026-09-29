@@ -75,6 +75,12 @@ from polisyos.scientist.policy_design.schema import (
     RolloutStep,
     TargetPopulationSpec,
 )
+from polisyos.scientist.policy_design.search import (
+    HierarchicalSearchConfig,
+    HierarchicalSearchCoordinator,
+    _optimizer_objectives_from_policy_evaluation,
+    _policy_rank_key,
+)
 
 
 def _bundle() -> TrinityBundle:
@@ -142,6 +148,59 @@ def _bundle() -> TrinityBundle:
                 )
             ],
         ),
+    )
+
+
+def test_optimizer_objective_producer_does_not_zero_fill_missing_configured_axis() -> None:
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="configured_axis_candidate"
+    )
+    coordinator = HierarchicalSearchCoordinator(
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            require_explicit_parameter_bounds=False,
+            allow_legacy_shadow_inferred_bounds=True,
+        )
+    )
+    spec = coordinator.build_optimizer_objective_spec(candidate)
+    evaluation = ObjectiveStack().evaluate(
+        PolicyEvaluationBundle(
+            candidate=candidate,
+            simulation_metrics={"policy_value": 1.0, "employment_rate": 0.7, "welfare": 2.0},
+        )
+    )
+    missing_axis = spec.objective_names[0]
+    missing_evaluation = evaluation.model_copy(
+        update={
+            group_name: {
+                name: channel
+                for name, channel in getattr(evaluation, group_name).items()
+                if name != missing_axis
+            }
+            for group_name in ("primary", "secondary", "penalties")
+        }
+    )
+
+    finite_objectives = _optimizer_objectives_from_policy_evaluation(evaluation, spec)
+    missing_objectives = _optimizer_objectives_from_policy_evaluation(missing_evaluation, spec)
+    finite_rank = _policy_rank_key(
+        evaluation,
+        required_channel_ids=tuple(spec.objective_names),
+        optimizer_spec=spec,
+    )
+    missing_rank = _policy_rank_key(
+        missing_evaluation,
+        required_channel_ids=tuple(spec.objective_names),
+        optimizer_spec=spec,
+    )
+
+    assert [item.name for item in finite_objectives] == spec.objective_names
+    assert missing_axis not in {item.name for item in missing_objectives}
+    assert finite_rank.status.value == "rankable"
+    assert missing_rank.status.value == "unassessed"
+    assert any(
+        issue.coordinate_id == f"objective.{missing_axis}" and issue.reason == "missing"
+        for issue in missing_rank.invalid_coordinates
     )
 
 

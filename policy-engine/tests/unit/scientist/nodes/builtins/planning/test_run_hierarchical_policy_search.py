@@ -163,6 +163,8 @@ def _hierarchical_result_with_evaluations(
             stage_b_result={"source": "finite_rank_test"},
             is_promising=True,
             objective_value=0.0,
+            policy_evaluation_status="valid",
+            policy_evaluation_error=None,
         )
         for index, (candidate, evaluation) in enumerate(evaluations)
     ]
@@ -376,6 +378,51 @@ def test_zero_evaluated_rows_keep_accepted_structure_fallback() -> None:
     assert selection.candidate is not None
     assert selection.candidate.candidate_id == "accepted_structure_fallback"
     assert selection.unassessed == ()
+
+
+def test_malformed_present_evaluation_does_not_take_zero_evaluated_fallback() -> None:
+    fallback = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="accepted_structure_fallback"
+    )
+    search_result = SimpleNamespace(
+        state=SimpleNamespace(
+            structure_candidates=[
+                SimpleNamespace(
+                    structure_id="accepted_structure",
+                    candidate=fallback,
+                    accepted=True,
+                )
+            ],
+            parameter_search_results={
+                "accepted_structure": SimpleNamespace(
+                    best_candidate=fallback.as_search_payload(),
+                    history=[
+                        SimpleNamespace(
+                            iteration=0,
+                            candidate=fallback.as_search_payload(),
+                            policy_evaluation=None,
+                            policy_evaluation_status="invalid",
+                            policy_evaluation_error="policy_evaluation_parse_failed",
+                            stage_b_result={
+                                "policy_evaluation": {"primary": "malformed"},
+                                "feedback": {"verdict": "APPROVE"},
+                            },
+                            is_promising=True,
+                            objective_value=0.0,
+                        )
+                    ],
+                )
+            },
+        )
+    )
+
+    selection = _select_champion_candidate(fallback, search_result)
+
+    assert selection.evaluated_record_count == 1
+    assert selection.candidate is None
+    assert selection.evaluation_issues == (
+        (fallback.candidate_id, "policy_evaluation_parse_failed"),
+    )
 
 
 def test_finite_champion_is_stable_under_candidate_permutation() -> None:
@@ -764,6 +811,7 @@ def test_hierarchical_report_limits_complete_rank_when_candidate_eligibility_is_
         candidate=known,
         evaluation=SimpleNamespace(feasible=True, primary={}, constraint_statuses={}),
         metadata={},
+        policy_evaluation_status="valid",
         rank_assessment=PolicyEvaluationRankAssessment(
             candidate_id=known.candidate_id,
             status=PolicyEvaluationRankStatus.RANKABLE,
@@ -775,6 +823,7 @@ def test_hierarchical_report_limits_complete_rank_when_candidate_eligibility_is_
         candidate=unknown,
         evaluation=None,
         metadata={},
+        policy_evaluation_status="missing",
     )
     search_result = SimpleNamespace(pareto_projection=complete)
 
@@ -824,6 +873,7 @@ def test_hierarchical_report_limits_complete_rank_when_candidate_eligibility_is_
         candidate=unknown,
         evaluation=SimpleNamespace(feasible=True, primary={}, constraint_statuses={}),
         metadata={},
+        policy_evaluation_status="valid",
         rank_assessment=PolicyEvaluationRankAssessment(
             candidate_id=unknown.candidate_id,
             status=PolicyEvaluationRankStatus.RANKABLE,
@@ -850,6 +900,38 @@ def test_hierarchical_report_limits_complete_rank_when_candidate_eligibility_is_
         known_hash,
         unknown_hash,
     }
+
+    invalid_status_record = SimpleNamespace(
+        structure_id="invalid-status",
+        candidate=unknown,
+        evaluation=SimpleNamespace(feasible=True, primary={}, constraint_statuses={}),
+        metadata={},
+        policy_evaluation_status="invalid",
+        policy_evaluation_error="policy_evaluation_parse_failed",
+        rank_assessment=PolicyEvaluationRankAssessment(
+            candidate_id=unknown.candidate_id,
+            status=PolicyEvaluationRankStatus.RANKABLE,
+            rank_key=(1.0,),
+        ),
+    )
+    with patch(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search"
+        "._iter_candidate_records",
+        return_value=[known_record, invalid_status_record],
+    ):
+        invalid_status_ref = _persist_frontier_report(
+            execution_context,
+            state=minimal_state,
+            loop_id="finite-vector-invalid-status",
+            search_result=search_result,
+        )
+    invalid_status_report = load_policy_frontier_report(execution_context.store, invalid_status_ref)
+    assert invalid_status_report.global_frontier == []
+    assert invalid_status_report.source_feasible_candidate_hashes == (known_hash,)
+    assert invalid_status_report.eligibility_unknown_candidate_hashes == (unknown_hash,)
+    assert invalid_status_report.view_projections["global_feasible"].assessment.status == (
+        "denominator_limited"
+    )
 
 
 def test_run_hierarchical_policy_search_rejects_runtime_legacy_inferred_bounds_config(

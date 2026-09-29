@@ -2554,9 +2554,8 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
         assert "ranked_recommendations" not in status.progress
         assert "promotion_refusal_reasons" not in status.progress
 
-        # If the persisted launch binding itself is malformed, the reader must
-        # leave the candidate-band sanitation path and recompute the actual P20
-        # projection; it may not preserve the forged green projection.
+        # If the persisted launch binding itself is malformed, no mutable stage
+        # or authority projection may escape through the legacy P20 reader.
         from polisyos.runtime.http.services.control import run_lifecycle as control_lifecycle
 
         binding_key = control_lifecycle._EXECUTION_INTENT_BINDING_KEY
@@ -2577,11 +2576,50 @@ async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
             "get_job_created_event_payload",
             read_corrupted_created_event,
         )
+        legacy_source_calls: list[str] = []
+
+        def reject_unverified_legacy_source(record):
+            legacy_source_calls.append(record.job_id)
+            raise ValueError("legacy_normative_source_not_admissible_without_intent")
+
+        monkeypatch.setattr(
+            service,
+            "_normative_owned_job_source",
+            reject_unverified_legacy_source,
+        )
         with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
             malformed_status = service.get_job_status(launch.job_id)
-        projection = malformed_status.progress["normative_disposition"]
-        assert projection["authorization_status"] == "blocked"
-        assert projection["ranked_recommendations"] == []
+        progress = malformed_status.progress
+        assert legacy_source_calls == []
+        assert progress["status"] == "not_established"
+        assert progress["execution_band"] == "not_established"
+        assert progress["execution_intent_band"] == "not_established"
+        assert progress["execution_intent_limitation_code"] == (
+            "nl_job_execution_intent_not_established"
+        )
+        assert progress["limitation_code"] == "nl_job_execution_intent_not_established"
+        assert progress["candidate_proposal_ref"] is None
+        for field in (
+            "candidate_computation_status",
+            "n4_status",
+            "n5_status",
+            "n8_status",
+            "n9_status",
+            "s8_status",
+            "normative_disposition_status",
+            "publication_status",
+        ):
+            assert progress[field] == "not_established"
+        for field in (
+            "compiled_recursive_generation_cycle_ref",
+            "normative_disposition",
+            "normative_disposition_ref",
+            "normative_head_ref",
+            "ranked_recommendations",
+            "authorization_status",
+            "promotion_refusal_reasons",
+        ):
+            assert field not in progress
 
     finally:
         service.close()

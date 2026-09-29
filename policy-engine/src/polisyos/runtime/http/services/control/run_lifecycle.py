@@ -3118,9 +3118,14 @@ class ControlPlaneService(
                     payload=replayed_payload,
                 )
             except (KeyError, OSError, RuntimeError, TypeError, ValueError):
-                # If persisted intent cannot be replayed, keep the normative
-                # reader's existing fail-closed path below.
+                # No authority or stage claim can be recovered from mutable
+                # progress when the persisted launch intent cannot be replayed.
                 intent_binding = None
+            if intent_binding is None:
+                return replace(
+                    record,
+                    progress=self._unestablished_execution_intent_progress(record),
+                )
             if (
                 intent_binding is not None
                 and intent_binding.get("admission_status") == "established"
@@ -3238,6 +3243,36 @@ class ControlPlaneService(
             )
             return replace(record, progress=progress)
         return record
+
+    @staticmethod
+    def _unestablished_execution_intent_progress(
+        record: ControlJobRecord,
+    ) -> dict[str, Any]:
+        """Project no mutable stage or authority claims when launch intent is unknown."""
+        limitation_code = "nl_job_execution_intent_not_established"
+        return {
+            "state": "completed",
+            "phase": "natural_language_run",
+            "status": "not_established",
+            "execution_band": "not_established",
+            "candidate_computation_status": "not_established",
+            "execution_intent_band": "not_established",
+            "execution_intent_limitation_code": limitation_code,
+            "limitation_code": limitation_code,
+            "candidate_result_limitation_code": limitation_code,
+            "proposal_persistence_status": "not_established",
+            "candidate_proposal_ref": None,
+            "n4_status": "not_established",
+            "n5_status": "not_established",
+            "n5_world_model_custody_status": "not_established",
+            "n5_world_model_custody_limitation_code": limitation_code,
+            "n8_status": "not_established",
+            "n9_status": "not_established",
+            "s8_status": "not_established",
+            "normative_disposition_status": "not_established",
+            "publication_status": "not_established",
+            "run_id": record.run_id,
+        }
 
     def _project_completed_candidate_band(
         self,

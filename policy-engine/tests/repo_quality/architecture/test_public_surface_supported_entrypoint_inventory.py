@@ -235,3 +235,10 @@ def test_generated_inventory_serializes_each_resolved_facade() -> None:
 
     assert runtime_quality["classification"] == "public_experimental"
     assert [row["module"] for row in runtime_quality["entrypoints"]] == ["polisyos.runtime.quality"]
+
+
+def test_ddm_facade_policy_matches_observed_lazy_boundary() -> None:
+    ddm = next(package for package in _inventory() if package.module == "polisyos.ddm")
+
+    assert ddm.facade_mode_expected == "lazy_facade"
+    assert ddm.facade_mode_observed == ddm.facade_mode_expected

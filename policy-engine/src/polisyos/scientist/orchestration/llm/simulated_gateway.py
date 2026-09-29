@@ -56,7 +56,10 @@ class SimulatedGatewayLLMClient:
         prompt = _prompt_text(system=system, user=user, messages=messages)
         tool_name = _selected_tool_name(tools=tools, tool_choice=tool_choice)
         if tool_name == "emit_design_problem":
-            arguments = _design_problem_payload(prompt)
+            arguments = _design_problem_payload(
+                prompt,
+                schema_version=_design_problem_schema_version(tools),
+            )
             self.calls.append(
                 {
                     "response_kind": "design_problem_tool",
@@ -138,6 +141,41 @@ def _selected_tool_name(
     return None
 
 
+def _design_problem_schema_version(
+    tools: list[dict[str, object]] | None,
+) -> str | None:
+    """Read the required DesignProblem version from its selected tool contract."""
+
+    matching_functions: list[dict[str, object]] = []
+    for tool in tools or []:
+        raw_function = tool.get("function")
+        if (
+            tool.get("type") == "function"
+            and isinstance(raw_function, dict)
+            and raw_function.get("name") == "emit_design_problem"
+        ):
+            matching_functions.append(raw_function)
+    if len(matching_functions) != 1:
+        return None
+
+    parameters = matching_functions[0].get("parameters")
+    if not isinstance(parameters, dict):
+        return None
+    required = parameters.get("required")
+    properties = parameters.get("properties")
+    if not isinstance(required, list) or "schema_version" not in required:
+        return None
+    if not isinstance(properties, dict):
+        return None
+    version_schema = properties.get("schema_version")
+    if not isinstance(version_schema, dict) or version_schema.get("type") != "string":
+        return None
+    schema_version = version_schema.get("const")
+    if not isinstance(schema_version, str) or not schema_version.strip():
+        return None
+    return schema_version
+
+
 def _prompt_text(
     *,
     system: str | None,
@@ -149,13 +187,17 @@ def _prompt_text(
     return "\n\n".join(part for part in (system or "", user or "") if part)
 
 
-def _design_problem_payload(prompt: str) -> dict[str, object]:
+def _design_problem_payload(
+    prompt: str,
+    *,
+    schema_version: str | None = None,
+) -> dict[str, object]:
     request, context = _extract_design_problem_request(prompt)
     jurisdiction = str(context.get("jurisdiction") or "UA")
     policy_time = str(context.get("policy_time") or context.get("as_of") or "2026-05-15")
     data_time = str(context.get("data_time") or "2024-2026")
     requested_outcome = str(context.get("desired_outcome") or "msme survival")
-    return {
+    payload: dict[str, object] = {
         "design_problem_id": "simulated_design_problem",
         "problem_statement": request,
         "domain": "social",
@@ -241,6 +283,9 @@ def _design_problem_payload(prompt: str) -> dict[str, object]:
             ]
         },
     }
+    if schema_version is not None:
+        payload["schema_version"] = schema_version
+    return payload
 
 
 def _extract_design_problem_request(prompt: str) -> tuple[str, dict[str, object]]:

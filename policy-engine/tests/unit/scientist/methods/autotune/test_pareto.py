@@ -13,7 +13,12 @@ from polisyos.scientist.methods.autotune.models import (
     MetricDirection,
     PromotionPolicy,
 )
-from polisyos.scientist.methods.autotune.pareto import ParetoFront, ParetoPromoter
+from polisyos.scientist.methods.autotune.pareto import (
+    ParetoFront,
+    ParetoInputAssessment,
+    ParetoPromoter,
+    ParetoUnassessedEvaluation,
+)
 
 _COUNTER = 0
 
@@ -129,6 +134,82 @@ class TestParetoFront:
 
         assert [member.candidate_ref_id for member in front.members] == [
             str(better.candidate_ref.artifact_id)
+        ]
+
+    @pytest.mark.parametrize(
+        ("points", "expected_indices"),
+        [
+            ([(1.0, 2.0, 1.0), (1.0, 1.0, 1.0)], [0]),
+            ([(1.0, 1.0, 1.0), (1.0, 2.0, 1.0)], [1]),
+        ],
+    )
+    def test_three_dimensional_same_first_group_uses_local_strict_dominance(
+        self,
+        points: list[tuple[float, ...]],
+        expected_indices: list[int],
+    ) -> None:
+        """The 3D local sweep removes equal-last-coordinate dominated points."""
+        promoter = ParetoPromoter(_policies("first", "second", "third"))
+
+        observed_indices = promoter._find_non_dominated(points)
+
+        assert _slow_non_dominated_points(points) == expected_indices
+        assert observed_indices == expected_indices
+        assert [points[index] for index in observed_indices] == [
+            points[index] for index in expected_indices
+        ]
+
+    def test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties(
+        self,
+    ) -> None:
+        """Equal records and incomparable same-group records both remain."""
+        promoter = ParetoPromoter(_policies("first", "second", "third"))
+        duplicate_points = [(1.0, 2.0, 1.0), (1.0, 2.0, 1.0)]
+        incomparable_points = [(1.0, 2.0, 1.0), (1.0, 1.0, 2.0)]
+
+        duplicate_indices = promoter._find_non_dominated(duplicate_points)
+        incomparable_indices = promoter._find_non_dominated(incomparable_points)
+
+        assert duplicate_indices == _slow_non_dominated_points(duplicate_points) == [0, 1]
+        assert [duplicate_points[index] for index in duplicate_indices] == duplicate_points
+        assert incomparable_indices == _slow_non_dominated_points(incomparable_points) == [0, 1]
+        assert [incomparable_points[index] for index in incomparable_indices] == incomparable_points
+
+    def test_three_dimensional_minimize_direction_keeps_lower_raw_cost(self) -> None:
+        """Minimization normalizes raw cost before applying the Pareto oracle."""
+        promoter = ParetoPromoter(
+            [
+                PromotionPolicy(
+                    loop_id="loop1",
+                    primary_metric="first",
+                    direction=MetricDirection.MAXIMIZE,
+                ),
+                PromotionPolicy(
+                    loop_id="loop1",
+                    primary_metric="cost",
+                    direction=MetricDirection.MINIMIZE,
+                ),
+                PromotionPolicy(
+                    loop_id="loop1",
+                    primary_metric="third",
+                    direction=MetricDirection.MAXIMIZE,
+                ),
+            ]
+        )
+        lower_raw_cost = _eval(first=1.0, cost=1.0, third=2.0)
+        higher_raw_cost = _eval(first=1.0, cost=2.0, third=1.0)
+        evaluations = [lower_raw_cost, higher_raw_cost]
+        normalized_points = [promoter._eval_objective_vector(evaluation) for evaluation in evaluations]
+
+        assert normalized_points == [(1.0, -1.0, 2.0), (1.0, -2.0, 1.0)]
+        expected_indices = _slow_non_dominated_points(normalized_points)
+        assert expected_indices == [0]
+        assert promoter._find_non_dominated(normalized_points) == expected_indices
+
+        front = promoter.compute_front(evaluations)
+
+        assert [member.candidate_ref_id for member in front.members] == [
+            str(lower_raw_cost.candidate_ref.artifact_id)
         ]
 
     def test_empty_evaluations(self):
@@ -514,10 +595,65 @@ class TestParetoFront:
         assert finite_control.input_assessment.status == "complete"
         assert finite_control.input_assessment.input_count == 2
         assert finite_control.input_assessment.assessed_count == 2
-        assert finite_control.input_assessment.unassessed_evaluations == []
+        assert finite_control.input_assessment.unassessed_evaluations == ()
         assert finite_control.model_dump(mode="json")["members"] == promoter.compute_front(
             [best, missing, non_finite, dominated]
         ).model_dump(mode="json")["members"]
+
+    @pytest.mark.parametrize("omission_indices", [(0, 0), (0, 2)])
+    def test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions(
+        self, omission_indices: tuple[int, int]
+    ) -> None:
+        """Counts alone cannot prove that each omitted input has its own position."""
+        payload = {
+            "status": "no_usable_inputs",
+            "input_count": 2,
+            "assessed_count": 0,
+            "unassessed_evaluations": [
+                {
+                    "input_index": index,
+                    "candidate_ref_id": f"candidate-{position}",
+                    "missing_coordinate_ids": ["score"],
+                }
+                for position, index in enumerate(omission_indices)
+            ],
+        }
+
+        with pytest.raises(ValueError, match="omission input_index"):
+            ParetoInputAssessment.model_validate(payload)
+
+    def test_validated_input_assessment_cannot_gain_an_omission_after_validation(self) -> None:
+        """A frozen assessment must keep its checked index partition intact."""
+        omission = ParetoUnassessedEvaluation(
+            input_index=1,
+            candidate_ref_id="candidate-missing",
+            missing_coordinate_ids=["score"],
+        )
+        assessment = ParetoInputAssessment(
+            status="partial", input_count=2, assessed_count=1, unassessed_evaluations=[omission]
+        )
+
+        with pytest.raises((AttributeError, TypeError)):
+            assessment.unassessed_evaluations.append(omission)
+        assert tuple(item.input_index for item in assessment.unassessed_evaluations) == (1,)
+        assert assessment.model_dump(mode="json")["unassessed_evaluations"][0]["input_index"] == 1
+
+    def test_duplicate_invalid_candidate_refs_keep_distinct_input_positions(self) -> None:
+        """Repeated evaluation identity is legal when positions are distinct."""
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        finite = _eval(acc=0.9, speed=0.8)
+        invalid = _eval(acc=math.nan, speed=0.7)
+
+        front = promoter.compute_front([finite, invalid, invalid])
+        assessment = front.input_assessment
+
+        assert [member.candidate_ref_id for member in front.members] == [
+            str(finite.candidate_ref.artifact_id)
+        ]
+        assert tuple(item.input_index for item in assessment.unassessed_evaluations) == (1, 2)
+        assert {item.candidate_ref_id for item in assessment.unassessed_evaluations} == {
+            str(invalid.candidate_ref.artifact_id)
+        }
 
     def test_invalid_reference_point_does_not_emit_non_finite_hypervolume(self):
         """Hypervolume refuses an invalid reference point instead of propagating it."""

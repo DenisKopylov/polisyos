@@ -310,8 +310,13 @@ class TestRunOrchestratedIngestion:
     def test_ingestion_dependencies_passed_through(self, tmp_path: Path) -> None:
         """Explicit ingestion dependencies should flow unchanged to the ingestion entrypoint."""
         from polisyos.fabric.ingestion import IngestionDependencies
+        from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
 
         cas_root = tmp_path / ".polisyos"
+        scope = TenantSidecarScope.for_base_root(
+            cas_root,
+            "00000000-0000-0000-0000-00000000000a",
+        )
 
         class _DummySpan:
             def __enter__(self) -> _DummySpan:
@@ -352,10 +357,72 @@ class TestRunOrchestratedIngestion:
                 cas_root=cas_root,
                 produce_snapshot=False,
                 ingestion_dependencies=deps,
+                sidecar_scope=scope,
             )
 
         assert mock_ingest.call_args is not None
         assert mock_ingest.call_args.kwargs["dependencies"] is deps
+        assert mock_ingest.call_args.kwargs["sidecar_scope"] is scope
+
+    def test_orchestrator_rejects_scope_root_or_tenant_mismatch_before_ingestion(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.fabric.ingestion import resolve_ingestion_dependencies
+        from polisyos.fabric.ingestion.ingestion_providers import IngestionStoreBindingError
+        from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
+
+        cas_root = tmp_path / "policy" / "tenants" / "00000000-0000-0000-0000-0000000000ff" / "cas"
+        store_factory_calls: list[Path] = []
+
+        def store_factory(root: Path) -> Any:
+            store_factory_calls.append(root)
+            raise AssertionError("scope mismatch must precede store resolution")
+
+        dependencies = resolve_ingestion_dependencies(store_factory=store_factory)
+        tenant_a_scope = TenantSidecarScope.for_base_root(
+            cas_root,
+            "00000000-0000-0000-0000-00000000000a",
+        )
+        wrong_root_scope = TenantSidecarScope.for_base_root(
+            cas_root / "different",
+            "00000000-0000-0000-0000-00000000000a",
+        )
+
+        with patch(
+            "polisyos.fabric.ingestion.run_connectors_ingestion",
+            return_value=None,
+        ) as mock_ingest:
+            with pytest.raises(IngestionStoreBindingError, match="base_root_mismatch"):
+                run_orchestrated_ingestion(
+                    connector_manifest={"datasets": []},
+                    source="test",
+                    license_name="open",
+                    cas_root=cas_root,
+                    produce_snapshot=False,
+                    ingestion_dependencies=dependencies,
+                    sidecar_scope=wrong_root_scope,
+                )
+
+            with tenant_scope(
+                None,
+                tenant_id="00000000-0000-0000-0000-00000000000b",
+                cell_id="cell-b",
+            ):
+                with pytest.raises(IngestionStoreBindingError, match="tenant_mismatch"):
+                    run_orchestrated_ingestion(
+                        connector_manifest={"datasets": []},
+                        source="test",
+                        license_name="open",
+                        cas_root=cas_root,
+                        produce_snapshot=False,
+                        ingestion_dependencies=dependencies,
+                        sidecar_scope=tenant_a_scope,
+                    )
+
+        mock_ingest.assert_not_called()
+        assert store_factory_calls == []
 
     def test_datasets_counted_from_dict_manifest(self, tmp_path: Path):
         """datasets_fetched should reflect the number of datasets in manifest dict."""

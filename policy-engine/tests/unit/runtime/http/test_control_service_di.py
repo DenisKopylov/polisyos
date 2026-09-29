@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import os
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -109,7 +110,11 @@ def _fixture_claims() -> UserIdentityClaims:
     )
 
 
-def _build_control_service(tmp_path) -> ControlPlaneService:
+def _build_control_service(
+    tmp_path,
+    *,
+    cycle_substrate_context_admission_owner=None,
+) -> ControlPlaneService:
     store = FileSystemCAS(tmp_path / ".polisyos")
     resolver = RuntimeExecutionPolicyResolver(
         default_profile="dev",
@@ -125,6 +130,9 @@ def _build_control_service(tmp_path) -> ControlPlaneService:
         retrieval_service=_NoOpRetrievalService(),
         policy_resolver=resolver,
         registry_providers=_build_registry_providers(),
+        cycle_substrate_context_admission_owner=(
+            cycle_substrate_context_admission_owner
+        ),
     )
 
 
@@ -459,6 +467,7 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
     from polisyos.runtime.http.services.control.generation_cycle import (
         N4CandidateProposalExecution,
     )
+    from polisyos.runtime.quality import intervention_substrate
     from polisyos.runtime.quality.design_generation import DesignGenerationOrganRun
     from polisyos.scientist.orchestration.llm import factory as llm_factory
     from tests.unit.runtime.quality.test_generation_cycle import (
@@ -487,6 +496,15 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
         llm_factory,
         "create_traced_gateway_client",
         lambda **_kwargs: None,
+    )
+
+    def forbid_eager_world_build(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("ordinary_candidate_eager_world_build")
+
+    monkeypatch.setattr(
+        intervention_substrate,
+        "production_composed_world_model_record",
+        forbid_eager_world_build,
     )
 
     # This is the ordinary HTTP candidate boundary: no CycleSubstrateContext or
@@ -523,17 +541,14 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        REPO_ROOT,
-        _budget,
-        _CgfGenerationPort,
-        _owner_catalog_prerequisite_issue,
-        _problem,
-    )
+    """Reject the old direct N4 fixture before it can mint protected epoch evidence.
 
-    owner_catalog_issue = _owner_catalog_prerequisite_issue(REPO_ROOT)
-    if owner_catalog_issue is not None:
-        pytest.skip(owner_catalog_issue)
+    Keep the pre-existing node ID for the 40/41 file replay. The former positive
+    assertion used an injected N4 port without a worker-issued VerifiedNLJobScope;
+    the served owner-bound N4→N5 positive lives in
+    ``test_served_simulate_only_replays_admitted_fixture_context_into_n5``.
+    """
+    from tests.unit.runtime.quality.test_generation_cycle import _problem
 
     app = create_runtime_api_app(cas_root=tmp_path / ".polisyos" / "cas")
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
@@ -546,35 +561,27 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     runtime = app.state.runtime_container.promotion_runtime
     problem = _problem(f"http_shared_open_world_context_{uuid4().hex}")
     verifier = _NeverCalledEvalSafetyVerifier()
-    recursive = build_default_recursive_generation_cycle_controller(
-        promotion_runtime=runtime,
-        eval_safety_verifier=verifier,
-        repo_root=REPO_ROOT,
-    )
-    assert recursive._promotion_runtime is runtime
-
-    recursive_budget = RecursiveCycleBudget(
-        max_depth=0,
-        max_nodes=1,
-        min_cycles_per_leaf=1,
-        max_cycles_per_leaf=1,
-    )
+    compile_calls = 0
+    n4_calls = 0
 
     async def compile_problem(**kwargs):
+        nonlocal compile_calls
         del kwargs
+        compile_calls += 1
         return problem
 
     class _CanonicalFixtureN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
-            self._delegate = _CgfGenerationPort()
 
         async def __call__(self, problem, *, cycle_index):
-            return await self._delegate(problem, cycle_index=cycle_index)
+            nonlocal n4_calls
+            del problem, cycle_index
+            n4_calls += 1
+            raise AssertionError("N4 must not run without owner-bound context")
 
-    def build_controller(**kwargs):
-        assert kwargs["promotion_runtime"] is runtime
-        return recursive
+    def refuse_controller(**_kwargs):
+        pytest.fail("recursive controller was built without owner-bound context")
 
     monkeypatch.setattr(
         generation_cycle_service,
@@ -584,55 +591,40 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     monkeypatch.setattr(
         generation_cycle_service,
         "build_default_recursive_generation_cycle_controller",
-        build_controller,
+        refuse_controller,
     )
-    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
-        raw_request=problem.nl_provenance.raw_request,
-        context={},
-        model_name="fixture-model",
-        compiler_gateway=object(),  # type: ignore[arg-type]
-        budget_state=_budget(),
-        recursive_budget=recursive_budget,
-        root_n4_generation_port=_CanonicalFixtureN4Port(),
-        promotion_runtime=runtime,
-        root_evaluation_context=_explicit_simulation_execution_context(problem),
-        eval_safety_verifier=verifier,
-        repo_root=REPO_ROOT,
-    )
+    try:
+        with pytest.raises(DesignProblemAuthorityError) as exc_info:
+            await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+                raw_request=problem.nl_provenance.raw_request,
+                context={},
+                model_name="fixture-model",
+                compiler_gateway=object(),  # type: ignore[arg-type]
+                budget_state=object(),  # type: ignore[arg-type]
+                recursive_budget=RecursiveCycleBudget(
+                    max_depth=0,
+                    max_nodes=1,
+                    min_cycles_per_leaf=1,
+                    max_cycles_per_leaf=1,
+                ),
+                root_n4_generation_port=_CanonicalFixtureN4Port(),
+                promotion_runtime=runtime,
+                root_evaluation_context=_explicit_simulation_execution_context(problem),
+                eval_safety_verifier=verifier,
+            )
 
-    leaf = compiled.recursive_run.leaf_nodes[0]
-    assert leaf.cycle_run is not None
-    assert leaf.cycle_run.promotion_port.receipts == ()
-    assert leaf.cycle_run.promotion_port.reason == (
-        "epoch_validity_refused:policy_admission_missing"
-    )
-    assert len(compiled.open_world_risk_limitations) == 1
-    assert compiled.open_world_risk_limitations[0].status == "not_established"
-    assert compiled.open_world_risk_limitations[0].code == ("deployment_scope_not_established")
-
-    subject_kind = "runtime.promotion.pre_n9_epoch_validity_subject"
-    subject_ids = tuple(
-        artifact_id
-        for artifact_id in runtime.store.iter_artifact_ids()
-        if runtime.store.get_manifest(artifact_id).kind == subject_kind
-    )
-    assert len(subject_ids) == 1
-    subject = __import__(
-        "polisyos.core.contracts.decision_validity",
-        fromlist=["PreN9EpochValiditySubjectStatement"],
-    ).PreN9EpochValiditySubjectStatement.model_validate_json(
-        runtime.store.get_bytes(subject_ids[0])
-    )
-    member = runtime.context_repository.resolve_bound_member(
-        bound_member_ref=subject.bound_member_ref
-    )
-    aggregate = runtime.context_repository.resolve_verified(
-        context_ref=member.statement.aggregate_context_ref
-    )
-    assert aggregate.context_ref == subject.owner_query_context_ref
-    replayed_epoch = runtime.resolve_verified_epoch_query(bound_member_ref=subject.bound_member_ref)
-    assert replayed_epoch.candidate.occurrence_ref == subject.candidate_occurrence_ref
-    assert replayed_epoch.qualification_failure_codes == ("policy_admission_missing",)
+        assert exc_info.value.code == "cycle_substrate_context_not_established"
+        assert compile_calls == 1
+        assert n4_calls == 0
+        subject_kind = "runtime.promotion.pre_n9_epoch_validity_subject"
+        subject_ids = tuple(
+            artifact_id
+            for artifact_id in runtime.store.iter_artifact_ids()
+            if runtime.store.get_manifest(artifact_id).kind == subject_kind
+        )
+        assert subject_ids == ()
+    finally:
+        await app.state.runtime_container.shutdown(app)
 
 
 @pytest.mark.asyncio
@@ -722,6 +714,7 @@ async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n
             grounding_port=_CurrentValidGrounding(),
             value_port=PendingN8ValuePort(),
             repo_root=REPO_ROOT,
+            promotion_runtime=runtime,
         )
         owner_run = recursive.run
 
@@ -732,6 +725,7 @@ async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n
             expected_terminal_status = "blocked" if action == "blocked" else "completed"
             assert leaf.cycle_run.terminal_status == expected_terminal_status
             assert leaf.cycle_run.promotion_port.receipts == ()
+            assert leaf.cycle_run.source_custody_limitation is None
 
             # Treat the served projection input as a re-hashed persisted artifact:
             # its real owner N6 run is preserved while an N9 receipt is grafted.
@@ -874,163 +868,95 @@ async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -
         service.close()
 
 
+@pytest.fixture(scope="module")
+def controlled_recursive_result(tmp_path_factory):
+    """Build one owner-bound result used only to probe candidate-intent rejection."""
+    with pytest.MonkeyPatch.context() as patches:
+        fixture = asyncio.run(
+            _run_controlled_simulate_only_job_fixture(
+                patches,
+                tmp_path_factory.mktemp("candidate-only-rejection-source"),
+            )
+        )
+        try:
+            return generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
+                canon.from_canonical_bytes(fixture.compiled_payload)
+            )
+        finally:
+            fixture.service.close()
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("normative_mode", ["missing", "authorized", "wrong_role", "wrong_source"])
 async def test_process_nl_job_enters_persisted_tenant_scope(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
     normative_mode: str,
+    controlled_recursive_result,
 ) -> None:
-    from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        REPO_ROOT,
-        _budget,
-        _CgfGenerationPort,
-        _problem,
-    )
-
+    """Candidate intent keeps tenant scope and cannot turn request evidence into S8."""
+    compiled_fixture = controlled_recursive_result
     service = _build_control_service(tmp_path)
     try:
-        monkeypatch.setattr(
-            promotion_sequence_module,
-            "_legacy_policy_promotion_callers",
-            lambda repo_root: (),
-        )
-        problem = _problem(f"worker_epoch_strangle_{uuid4().hex}")
-
-        async def compile_problem(**kwargs):
-            del kwargs
-            return problem
-
-        class _CanonicalFixtureN4Port(N4GenerationPort):
-            def __init__(self) -> None:
-                super().__init__(model_id="fixture-model")
-                self._delegate = _CgfGenerationPort()
-
-            async def __call__(self, problem, *, cycle_index):
-                return await self._delegate(problem, cycle_index=cycle_index)
-
-        monkeypatch.setattr(
-            generation_cycle_service,
-            "build_design_problem_from_nl_request",
-            compile_problem,
-        )
-        recursive_budget = RecursiveCycleBudget(
-            max_depth=0,
-            max_nodes=1,
-            min_cycles_per_leaf=1,
-            max_cycles_per_leaf=1,
-        )
-        compiled_fixture = (
-            await generation_cycle_service.compile_and_run_recursive_generation_cycle(
-                raw_request=problem.nl_provenance.raw_request,
-                context={},
-                model_name="fixture-model",
-                compiler_gateway=object(),  # type: ignore[arg-type]
-                budget_state=_budget(),
-                recursive_budget=recursive_budget,
-                root_n4_generation_port=_CanonicalFixtureN4Port(),
-                promotion_runtime=service._promotion_runtime,
-                root_evaluation_context=_explicit_simulation_execution_context(problem),
-                eval_safety_verifier=_NeverCalledEvalSafetyVerifier(),
-                repo_root=REPO_ROOT,
-            )
-        )
-
-        normative_context = {}
+        context = {}
         if normative_mode != "missing":
-            normative_context["normative_evidence"] = _signed_generation_evidence(
-                service, compiled_fixture, fault=normative_mode
+            context["normative_evidence"] = _signed_generation_evidence(
+                service,
+                compiled_fixture,
+                fault=normative_mode,
             )
         request = NaturalLanguageRunRequest(
-            request=problem.nl_provenance.raw_request,
+            request=compiled_fixture.design_problem.nl_provenance.raw_request,
             llm_model="simulated-qwen",
-            context=normative_context,
+            context=context,
         )
+        claims = _fixture_claims()
         launch = await service.launch_nl_run(
             request,
-            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-            authorization_proof=bound_nl_authorization_proof(
-                _fixture_claims(), request
-            ),
+            principal=RuntimePrincipal.from_user_claims(claims),
+            authorization_proof=bound_nl_authorization_proof(claims, request),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
 
-        async def _compile_worker_request(**kwargs):
+        async def return_recursive_result(**kwargs):
             assert get_current_tenant_id_or_none() == "tenant-fixture"
             assert get_current_cell_id() == "cell-fixture"
-            assert kwargs["raw_request"] == problem.nl_provenance.raw_request
+            assert kwargs["raw_request"] == request.request
             assert kwargs["execution_intent"] == "candidate_only"
-            assert kwargs["promotion_runtime"] is service._promotion_runtime
             assert service._promotion_runtime.store is service._artifact_store
             return compiled_fixture
 
-        monkeypatch.setattr(
-            generation_cycle_service,
-            "compile_and_run_recursive_generation_cycle",
-            _compile_worker_request,
-        )
+        def refuse_s8(**_kwargs):
+            pytest.fail("candidate-only compiled result entered the S8 resolver")
+
+        def refuse_publication(**_kwargs):
+            pytest.fail("candidate-only compiled result entered generation publication")
+
+        monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", return_recursive_result)
+        monkeypatch.setattr(service, "resolve_generation_value_choices", refuse_s8)
+        monkeypatch.setattr(service, "_publish_generation_run", refuse_publication)
 
         service._process_control_job(record)
 
         completed = service._control_store.get_job(launch.job_id)
-        assert completed is not None
-        assert completed.state == "completed"
-        assert completed.progress["promotion_refusal_reasons"] == [
-            "epoch_validity_refused:policy_admission_missing"
-        ]
-        compiled_ref = ArtifactID.model_validate(
-            completed.progress["compiled_recursive_generation_cycle_ref"]
-        )
-        assert service._artifact_store.get_manifest(compiled_ref).kind == (
-            "runtime.compiled_recursive_generation_cycle"
-        )
-        persisted = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
-            canon.from_canonical_bytes(service._artifact_store.get_bytes(compiled_ref))
-        )
-        leaf = persisted.recursive_run.leaf_nodes[0]
-        assert leaf.cycle_run is not None
-        assert leaf.cycle_run.promotion_port.reason == (
-            "epoch_validity_refused:policy_admission_missing"
-        )
-        # PA1: the real worker must persist an owner-replayable normative refusal.
-        assert completed.progress.get("normative_disposition_ref"), (
-            "default worker omitted the source-bound normative decision request"
-        )
-        status = service.get_job_status(launch.job_id)
-        disposition = status.progress["normative_disposition"]
-        projected_leaf = next(iter(disposition["leaf_dispositions"].values()))
-        assert projected_leaf["candidate_fronts"] == {
-            name: list(ids) for name, ids in leaf.cycle_run.fronts.candidate_ids_by_front().items()
-        }
-        assert projected_leaf["dominance_status"] == "not_established"
-        assert disposition["strangle_receipt"]["default_flipped"] is True
-        if normative_mode == "authorized":
-            assert disposition["authorization_status"] == "authorized"
-            assert disposition["ranked_recommendations"]
-            expired = service._current_normative_generation_projection(
-                disposition_ref=completed.progress["normative_disposition_ref"],
-                compiled_run_ref=str(compiled_ref),
-                evaluated_at=datetime.now(UTC) + timedelta(days=2),
-            )
-            assert expired["authorization_status"] == "blocked"
-            assert expired["ranked_recommendations"] == []
-            assert next(iter(expired["leaf_dispositions"].values()))["decision_request"][
-                "reason_codes"
-            ] == ["p20_normative_authorization_stale"]
-        else:
-            assert disposition["authorization_status"] == "blocked"
-            assert disposition["ranked_recommendations"] == []
-            expected = {
-                "missing": "p20_normative_authorization_missing",
-                "wrong_role": "p20_normative_authority_scope_mismatch",
-                "wrong_source": "p20_normative_generation_binding_mismatch",
-            }[normative_mode]
-            assert projected_leaf["decision_request"]["reason_codes"] == [expected]
+        assert completed is not None and completed.state == "completed"
+        progress = completed.progress
+        assert progress["status"] == "not_established"
+        assert progress["execution_band"] == "candidate"
+        assert progress["execution_intent_band"] == "candidate_only"
+        assert progress["candidate_computation_status"] == "not_established"
+        assert progress["limitation_code"] == "candidate_only_compiled_result_not_admitted"
+        assert progress["n5_status"] == "not_run"
+        assert progress["n8_status"] == "not_run"
+        assert progress["n9_status"] == "not_run"
+        assert progress["s8_status"] == "not_run"
+        assert progress["publication_status"] == "not_run"
+        assert "compiled_recursive_generation_cycle_ref" not in progress
+        assert "normative_disposition_ref" not in progress
+        assert "manifest_ref" not in progress
     finally:
         service.close()
-
 
 def _signed_generation_evidence(service, compiled, *, fault: str):
     """Explicit fixture principals permit selection only; this is no governed promotion."""
@@ -1793,6 +1719,444 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         assert service._promotion_runtime.store is service._artifact_store
     finally:
         service.close()
+
+
+async def _run_controlled_simulate_only_job_fixture(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> SimpleNamespace:
+    """Run the existing owner-bound simulate-only station for downstream tests."""
+    from polisyos.core.security import (
+        get_current_access_scope_or_none,
+        tenant_scope,
+    )
+    from polisyos.ir.analytics.ncm import persist_ncm_spec
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContext,
+        CycleSubstrateContextArtifactOwner,
+        CycleSubstrateContextJobArtifact,
+        CycleSubstrateContextOwnerError,
+        build_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        JointSimulationPort,
+        PendingN8ValuePort,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from tests.unit.runtime.http.test_control_job_execution_intent import (
+        _valid_intake_for_mode,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _CurrentValidGrounding,
+        _cyc01_owner_bound_n5_case,
+        _record_with_selected_ncm_ref,
+    )
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import (
+        _ncm_with_cross_term,
+    )
+
+    profile_id = "fixture.controlled.profile"
+
+    class _FixtureControlledProfileOwner:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+            self.context: CycleSubstrateContext | None = None
+
+        def admit_context(
+            self,
+            *,
+            target_world_scope_profile_id: str,
+            problem: DesignProblem,
+            job_id: str,
+            run_id: str,
+            tenant_id: str,
+            cell_id: str,
+        ) -> CycleSubstrateContext | None:
+            self.calls.append(
+                {
+                    "target_world_scope_profile_id": target_world_scope_profile_id,
+                    "problem": problem,
+                    "job_id": job_id,
+                    "run_id": run_id,
+                    "tenant_id": tenant_id,
+                    "cell_id": cell_id,
+                }
+            )
+            return self.context
+
+    source_owner = _FixtureControlledProfileOwner()
+    with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        service = _build_control_service(
+            tmp_path,
+            cycle_substrate_context_admission_owner=source_owner,
+        )
+        try:
+            ncm_ref = persist_ncm_spec(
+                service._artifact_store,
+                _ncm_with_cross_term(),
+            )
+            base_problem, base_context, base_candidate = _cyc01_owner_bound_n5_case()
+            problem_levers = [
+                lever.model_copy(update={"target_slot": "government.balance"})
+                for lever in base_problem.candidate_lever_space.candidate_levers
+            ]
+            problem = base_problem.model_copy(
+                update={
+                    "candidate_lever_space": base_problem.candidate_lever_space.model_copy(
+                        update={"candidate_levers": problem_levers}
+                    ),
+                    "schema_version": "policyos.runtime.design_problem.v2",
+                    "runtime_hints": {
+                        **base_problem.runtime_hints,
+                        "joint_simulation_baseline_state": {"firm_survival": 0.0},
+                    },
+                }
+            )
+            problem_ref = generation_cycle_service.gy_content_hash(
+                problem.model_dump(mode="json")
+            )
+            world_record = _record_with_selected_ncm_ref(
+                base_context.world_model_record,
+                str(ncm_ref.artifact_id),
+            )
+            context = build_cycle_substrate_context(
+                design_problem_ref=problem_ref,
+                domain=base_context.domain,
+                substrate_registry=base_context.substrate_registry,
+                selected_registry_entry_hashes=(
+                    base_context.selected_registry_entry_hashes
+                ),
+                world_model_record=world_record,
+                intervention_substrate=base_context.intervention_substrate,
+                candidate_levers=base_context.candidate_levers,
+                transport_context=base_context.transport_context,
+                source_pack_content_hash=base_context.source_pack_content_hash,
+                substrate_input_content_hash=base_context.substrate_input_content_hash,
+            )
+            source_owner.context = context
+            base_atom = base_candidate.intervention_atoms[1]
+            atom_draft = base_atom.model_copy(
+                update={
+                    "problem_frame_ref": problem_ref,
+                    "world_model_record_ref": world_record.world_model_record_id,
+                }
+            )
+            atom_draft = atom_draft.model_copy(
+                update={"content_hash": intervention_atom_content_hash(atom_draft)}
+            )
+            atom = InterventionAtomBinding.model_validate(
+                atom_draft.model_dump(mode="python")
+            )
+            candidate = SimpleNamespace(
+                candidate_id="candidate_fixture_controlled_profile",
+                atom=atom,
+                diversity_key=("fixture", "controlled", "profile", "n5"),
+                status="candidate_unverified",
+            )
+        except Exception:
+            service.close()
+            raise
+    owner_refs = []
+    owner_replays = []
+    verified_scope_observations = []
+    n5_port_observations = []
+    n5_engine_requests = []
+    compiler_calls = []
+    compiled_runs = []
+
+    async def compile_fixture_problem(**kwargs):
+        compiler_calls.append(kwargs)
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_fixture_problem,
+    )
+
+    original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
+    original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
+
+    def record_persist(owner, context, *, problem, verified_nl_job_scope=None):
+        assert owner._store is service._artifact_store
+        assert verified_nl_job_scope is not None
+        assert get_current_access_scope_or_none() is None
+        for changed_scope in (
+            verified_nl_job_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
+            verified_nl_job_scope.model_copy(
+                update={"attempt": verified_nl_job_scope.attempt + 1}
+            ),
+            verified_nl_job_scope.model_copy(update={"actor_subject": "foreign-actor"}),
+        ):
+            assert changed_scope._was_issued_by_verified_nl_execution_owner
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="cycle_substrate_context_job_verified_scope_mismatch",
+            ):
+                original_persist(
+                    owner,
+                    context,
+                    problem=problem,
+                    verified_nl_job_scope=changed_scope,
+                )
+        verified_scope_observations.append(verified_nl_job_scope)
+        ref = original_persist(
+            owner,
+            context,
+            problem=problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
+        owner_refs.append(ref)
+        return ref
+
+    def record_resolve(owner, ref, *, problem, verified_nl_job_scope=None):
+        assert owner._store is service._artifact_store
+        assert verified_nl_job_scope is not None
+        assert get_current_access_scope_or_none() is None
+        verified_scope_observations.append(verified_nl_job_scope)
+        artifact = original_resolve(
+            owner,
+            ref,
+            problem=problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
+        owner_replays.append(artifact)
+        return artifact
+
+    monkeypatch.setattr(
+        CycleSubstrateContextArtifactOwner,
+        "persist_for_current_job",
+        record_persist,
+    )
+    monkeypatch.setattr(
+        CycleSubstrateContextArtifactOwner,
+        "resolve_for_current_job",
+        record_resolve,
+    )
+
+    original_n5_port = JointSimulationPort.__call__
+    original_n5_engine = JointSimulationHorizonController.run
+
+    def record_n5_port(port, *, candidate, problem, cycle_index):
+        observation = original_n5_port(
+            port,
+            candidate=candidate,
+            problem=problem,
+            cycle_index=cycle_index,
+        )
+        n5_port_observations.append((problem, port._cycle_substrate_context, observation))
+        return observation
+
+    def record_n5_engine(controller, request):
+        n5_engine_requests.append(request)
+        return original_n5_engine(controller, request)
+
+    monkeypatch.setattr(JointSimulationPort, "__call__", record_n5_port)
+    monkeypatch.setattr(JointSimulationHorizonController, "run", record_n5_engine)
+
+    original_controller_builder = (
+        generation_cycle_service.build_default_recursive_generation_cycle_controller
+    )
+
+    def build_fixture_recursive_controller(**kwargs):
+        recursive = original_controller_builder(**kwargs)
+        original_run = recursive.run
+
+        async def run_with_fixture_generation(*args, **run_kwargs):
+            contexts = run_kwargs["cycle_substrate_contexts_by_node"]
+            assert contexts is not None and len(contexts) == 1
+            resolved_context = next(iter(contexts.values()))
+            class _FixtureGenerationPort:
+                def __init__(self) -> None:
+                    self.problems: list[object] = []
+
+                async def __call__(self, problem_for_cycle, *, cycle_index):
+                    del cycle_index
+                    self.problems.append(problem_for_cycle)
+                    return SimpleNamespace(
+                        status="generated",
+                        candidates=(candidate,),
+                        surrogate_rankings=(
+                            SimpleNamespace(
+                                candidate_id=candidate.candidate_id,
+                                score=0.8,
+                                voi_estimate=0.2,
+                                trust_level="search_guiding",
+                                promotion_allowed=False,
+                            ),
+                        ),
+                        grounding_dispositions=(),
+                    )
+
+            generator = _FixtureGenerationPort()
+
+            recursive._cycle_controller_factory = lambda _node_ref, _problem: (
+                GenerationCycleController(
+                    generation_port=generator,
+                    grounding_port=_CurrentValidGrounding(),
+                    value_port=PendingN8ValuePort(),
+                    repo_root=kwargs["repo_root"],
+                    model_id=kwargs["model_id"],
+                    cycle_substrate_context=resolved_context,
+                    promotion_runtime=recursive._promotion_runtime,
+                    artifact_store=recursive._artifact_store,
+                    eval_safety_verifier=recursive._eval_safety_verifier,
+                )
+            )
+            compiled = await original_run(*args, **run_kwargs)
+            compiled_runs.append(compiled)
+            return compiled
+
+        recursive.run = run_with_fixture_generation
+        return recursive
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_default_recursive_generation_cycle_controller",
+        build_fixture_recursive_controller,
+    )
+
+    service_transferred = False
+    try:
+        context_payload = {
+            "evaluation_safety_attempt": _valid_intake_for_mode(
+                "simulate_only"
+            ).model_dump(mode="json")
+        }
+        request = NaturalLanguageRunRequest(
+            request=problem.nl_provenance.raw_request,
+            llm_model="fixture-controlled-profile",
+            context=context_payload,
+            target_world_scope_profile_id=profile_id,
+            max_iterations=1,
+        )
+        claims = _fixture_claims()
+        launch = await service.launch_nl_run(
+            request,
+            principal=RuntimePrincipal.from_user_claims(claims),
+            authorization_proof=bound_nl_authorization_proof(claims, request),
+        )
+        job = service._control_store.get_job(launch.job_id)
+        assert job is not None and job.run_id is not None
+        leased = service._control_store.lease_next_job(
+            worker_id="r1-fixture-worker",
+            lease_seconds=60,
+        )
+        assert leased is not None and leased.job_id == launch.job_id
+        with service._control_store.job_execution_fence(
+            job_id=leased.job_id,
+            worker_id=leased.lease_owner,
+            attempt=leased.attempt,
+        ):
+            service._process_control_job(leased)
+
+        completed = service._control_store.get_job(launch.job_id)
+        assert completed is not None and completed.state == "completed"
+        progress = completed.progress
+        assert progress["status"] == "simulation_only"
+        assert progress["execution_intent_band"] == "simulate_only_attempt"
+        assert progress["s8_status"] == "not_run"
+        assert progress["publication_status"] == "not_run"
+        assert progress["cycle_substrate_context_job_ref"]
+        assert len(compiler_calls) == 1
+        assert compiler_calls[0]["nl_request"] == problem.nl_provenance.raw_request
+        assert len(source_owner.calls) == 1
+        admission_call = source_owner.calls[0]
+        assert admission_call["target_world_scope_profile_id"] == profile_id
+        assert admission_call["problem"] is problem
+        assert admission_call["job_id"] == launch.job_id
+        assert admission_call["run_id"] == str(job.run_id)
+        assert admission_call["tenant_id"] == "tenant-fixture"
+        assert admission_call["cell_id"] == "cell-fixture"
+        assert len(owner_refs) == len(owner_replays) == 1
+        assert len(verified_scope_observations) == 2
+        assert verified_scope_observations[0] is verified_scope_observations[1]
+        assert verified_scope_observations[0]._was_issued_by_verified_nl_execution_owner
+        assert verified_scope_observations[0].job_id == launch.job_id
+        assert verified_scope_observations[0].run_id == str(job.run_id)
+        assert verified_scope_observations[0].tenant_id == "tenant-fixture"
+        assert verified_scope_observations[0].cell_id == "cell-fixture"
+        assert verified_scope_observations[0].worker_id == leased.lease_owner
+        assert verified_scope_observations[0].attempt == leased.attempt
+        assert str(owner_refs[0].artifact_id) == progress["cycle_substrate_context_job_ref"]
+
+        context_artifact = CycleSubstrateContextJobArtifact.model_validate(
+            canon.from_canonical_bytes(
+                service._artifact_store.get_bytes(owner_refs[0].artifact_id)
+            )
+        )
+        assert context_artifact.job_id == launch.job_id
+        assert context_artifact.run_id == str(job.run_id)
+        assert context_artifact.tenant_id == "tenant-fixture"
+        assert context_artifact.cell_id == "cell-fixture"
+        assert context_artifact.problem == problem
+        assert context_artifact.context.content_hash == owner_replays[0].context.content_hash
+        assert context_artifact.profile_admission_status == "not_established"
+        assert context_artifact.s8_status == "blocked"
+        assert len(n5_port_observations) == len(n5_engine_requests) == 1
+        n5_problem, n5_context, n5_observation = n5_port_observations[0]
+        assert n5_problem == problem
+        assert n5_context.content_hash == context_artifact.context.content_hash
+        assert (
+            n5_observation.world_model_record.content_hash
+            == context_artifact.context.world_model_record.content_hash
+        )
+        assert n5_engine_requests[0].world_model_record.content_hash == (
+            context_artifact.context.world_model_record.content_hash
+        )
+        assert len(compiled_runs) == 1
+        recursive_run = compiled_runs[0]
+        assert len(recursive_run.leaf_nodes) == 1
+        leaf_run = recursive_run.leaf_nodes[0].cycle_run
+        assert leaf_run is not None
+        assert leaf_run.cycles
+        assert leaf_run.cycles[-1].simulation.status == "joint_simulated"
+        assert leaf_run.promotion_port.status == "not_promoted"
+        assert leaf_run.promotion_port.certified_candidate_ids == ()
+        assert leaf_run.promotion_port.receipts == ()
+        assert leaf_run.fronts.decision.candidate_ids == ()
+        assert all(not summary.certified_by_n9 for summary in leaf_run.candidate_summaries)
+        assert "n9_receipt_ref" not in progress
+        assert progress["normative_disposition_status"] == "not_run"
+        assert progress["s8_status"] == "not_run"
+        assert progress["publication_status"] == "not_run"
+
+        compiled_ref = ArtifactID.model_validate(
+            progress["compiled_recursive_generation_cycle_ref"]
+        )
+        fixture = SimpleNamespace(
+            service=service,
+            job=completed,
+            compiled_payload=service._artifact_store.get_bytes(compiled_ref),
+            compiled_ref=str(compiled_ref),
+            cycle_substrate_context_job_ref=progress[
+                "cycle_substrate_context_job_ref"
+            ],
+        )
+        service_transferred = True
+        return fixture
+
+    finally:
+        if not service_transferred:
+            service.close()
+
+
+@pytest.mark.asyncio
+async def test_served_simulate_only_replays_admitted_fixture_context_into_n5(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """A labeled fixture reaches N5 without establishing profile or S8 authority."""
+    fixture = await _run_controlled_simulate_only_job_fixture(monkeypatch, tmp_path)
+    fixture.service.close()
 
 
 @pytest.mark.asyncio

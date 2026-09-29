@@ -10,8 +10,12 @@ returns typed `not_established`; `inspect_packaged_deployment_identity()` return
 `UNRUN` with its input inventory and the unresolved issuer/census classes. A
 self-attested manifest or present lock file cannot turn that state into an
 authority admission. The existing checkout path still captures its loaded
-identity. Source:
-`src/polisyos/runtime/quality/confidence_ledger.py@sha256:63b3c9bbde5faf530da1466a563e76833c6d29682612d86ea008e8a08c3d7e4d`.
+identity. Historical candidate-source pin used for the leaf-overlay receipt:
+`src/polisyos/runtime/quality/confidence_ledger.py@sha256:63b3c9bbde5faf530da1466a563e76833c6d29682612d86ea008e8a08c3d7e4d`. This pin is not the current a5141d432 source.
+
+At the a514 read-only checkpoint, the same canonical owner was
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py@sha256:9a8945227abf9638f97740639ba9856e53ae08cf7b11cc7fd4ad064d280c62fd`. The integrated R2 owner at a877 is
+`policy-engine/src/polisyos/runtime/quality/confidence_ledger.py@sha256:cc09224f8ad20e94fdcd4d7fc26021da3aee0ee4ee44c2798bb97752403be3b2`; it records typed loaded-identity reason codes, but the source-free issuer remains absent: no production build/deploy owner admits a signed exact-package manifest, canonical lock and complete N6 route-census artifact. Keep packaged currentness `UNRUN`; the checkpoint is `/Users/deniskopylov/.codex/scratch/e02-r2-loaded-manifest-owner-design-20260927/R2_IMPLEMENTATION_BLOCKER.md@sha256:3a2900be1f4cab2ed92c780d95f48d5719b129dc35919bc0181eff1bd6636453`. The R2 bounded integration commit `a877f8abc918ff46f6db2a3f0ae64fb4d07fe856` passed the complete history file 26/26. The complete generation-cycle file was 145/149; compared with 154, 148 identities had zero pass→fail, five fail→pass, four fail→fail, and one new passing removal/control case. The four remaining reds at a877 were one N9 issuer and three R13 local re-entry cases; the test-double case passed 1/1 in follow-on commit `782652222`, but no whole-file rerun at 782 is claimed. Receipt `/Users/deniskopylov/.codex/scratch/e02-r2-integrated-154407-20260928/R2_INTEGRATION_RECEIPT.md@sha256:064aac803a3091a2296d67606a0820bbd24e925d33be6b01dd1499b25ce85e29`; history JUnit `/Users/deniskopylov/.codex/scratch/e02-r2-integrated-154407-20260928/history/test.junit.xml@sha256:bf2fac94bb6a40e11f5de981c0972b0ab2b8a7a793c0f48753b0dff7b8b519e7`. Packaged strict currentness, positive N9 and exact four-base replay remain `UNRUN`; R2 remains partial. The earlier 8/8 leaf-overlay receipt remains historical.
 
 The integrated focused run passed 8/8: five new installed-leaf overlay tests
 and three existing loaded-identity controls. JUnit:

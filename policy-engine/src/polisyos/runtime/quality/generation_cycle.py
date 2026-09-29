@@ -38,6 +38,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    RootModel,
     SerializerFunctionWrapHandler,
     model_serializer,
     model_validator,
@@ -80,8 +81,11 @@ from polisyos.pdc import (
 )
 from polisyos.runtime.http.errors import RuntimeDependencyError
 from polisyos.runtime.quality._generation_cycle_history_schema import (
+    FROZEN_DESIGN_PROBLEM_OUTCOME_FIELD_EDGES,
+    FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS,
     FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS,
     FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,
+    FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION,
     FROZEN_N6_HISTORY_SCHEMA,
 )
 from polisyos.runtime.quality.acquisition_planner import (
@@ -103,7 +107,10 @@ from polisyos.runtime.quality.confidence_ledger import (
     N6DeploymentCurrentnessObservation,
     observe_n6_deployment_currentness,
 )
-from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.design_problem import (
+    DesignProblem,
+    _QualifiedOutcomeOfInterestV3,
+)
 from polisyos.runtime.quality.evaluation_modes import (
     EvaluationMode as ValueEvaluationMode,
 )
@@ -169,6 +176,12 @@ if TYPE_CHECKING:
     )
 
 GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
+_GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION = (
+    "policyos.runtime.generation_cycle_controller.v4"
+)
+_GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS = frozenset(
+    {GENERATION_CYCLE_SCHEMA_VERSION, _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION}
+)
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v2"
 )
@@ -481,11 +494,31 @@ def _historical_generation_cycle_field_tree(
     if not isinstance(version_models, dict):
         raise ValueError("generation_cycle_history_schema_version_unmapped")
 
+    is_root_model = isinstance(value, RootModel)
+    if is_root_model:
+        # RootModel is a BaseModel, but its persisted JSON is its root value.
+        # Check the parsed value against the exact supplied wire before using
+        # the frozen owner graph's ordinary ``root`` field projection.
+        root_wire = value.model_dump(mode="json")
+        spec = CanonSpec(forbid_floats=False)
+        if to_canonical_bytes(root_wire, spec) != to_canonical_bytes(payload, spec):
+            raise ValueError("generation_cycle_history_root_wire_mismatch")
+        payload = {"root": payload}
     if isinstance(value, BaseModel):
         if not isinstance(payload, dict):
             raise ValueError("generation_cycle_history_typed_model_not_object")
         qualified_name = f"{type(value).__module__}.{type(value).__qualname__}"
-        shape = version_models.get(qualified_name)
+        historical_shape_owner = qualified_name
+        if isinstance(value, _QualifiedOutcomeOfInterestV3):
+            if (
+                design_problem_schema_version
+                != FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION
+            ):
+                raise ValueError("generation_cycle_history_typed_edge_drift")
+            historical_shape_owner = (
+                "polisyos.runtime.quality.design_problem.OutcomeOfInterest"
+            )
+        shape = version_models.get(historical_shape_owner)
         if not isinstance(shape, dict):
             raise ValueError("generation_cycle_history_typed_owner_unmapped")
 
@@ -514,7 +547,28 @@ def _historical_generation_cycle_field_tree(
                     for path, owner in shape["typed_model_edges"].get(field_name, ())
                 )
             )
-            if _historical_typed_model_edges(field.annotation) != expected_edges:
+            current_edges = _historical_typed_model_edges(field.annotation)
+            if isinstance(value, DesignProblem) and field_name == "outcome_of_interest":
+                legacy_outcome_edges = FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS[
+                    FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
+                ][0]
+                if (
+                    expected_edges != legacy_outcome_edges
+                    or current_edges != FROZEN_DESIGN_PROBLEM_OUTCOME_FIELD_EDGES
+                ):
+                    raise ValueError("generation_cycle_history_typed_edge_drift")
+                outcome = getattr(value, field_name)
+                outcome_edges = _historical_typed_model_edges(type(outcome))
+                allowed_outcome_edges = FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS.get(
+                    nested_design_problem_schema_version
+                    or FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION,
+                    FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS[
+                        FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
+                    ],
+                )
+                if outcome_edges not in allowed_outcome_edges:
+                    raise ValueError("generation_cycle_history_typed_edge_drift")
+            elif current_edges != expected_edges:
                 raise ValueError("generation_cycle_history_typed_edge_drift")
 
         frozen_field_vocabulary = shape.get("field_vocabulary")
@@ -524,8 +578,11 @@ def _historical_generation_cycle_field_tree(
             if field_name in excluded_fields:
                 continue
             field = current_fields[field_name]
+            pattern_schema_version = nested_design_problem_schema_version
+            if pattern_schema_version not in FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS:
+                pattern_schema_version = FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION
             frozen_pattern = FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS.get(
-                nested_design_problem_schema_version or "", {}
+                pattern_schema_version, {}
             ).get(qualified_name, {}).get(field_name)
             if frozen_pattern is not None and field_name in value.model_fields_set:
                 historical_value = getattr(value, field_name)
@@ -598,6 +655,10 @@ def _historical_generation_cycle_field_tree(
                 version=version,
                 design_problem_schema_version=nested_design_problem_schema_version,
             )
+        if is_root_model:
+            if set(result) != {"root"}:
+                raise ValueError("generation_cycle_history_root_owner_unmapped")
+            return result["root"]
         return result
 
     if isinstance(value, Mapping) and isinstance(payload, dict):
@@ -1195,7 +1256,13 @@ class ValuePortObservation(_StrictModel):
         if self.acquisition_requirement is not None:
             if self.candidate_id is None:
                 raise ValueError("value_acquisition_requirement_not_canonical")
-            if self.authority_blockers == ("treatment_assignment_not_owner_derived",):
+            if self.authority_blockers in {
+                ("treatment_assignment_not_owner_derived",),
+                (
+                    "treatment_assignment_not_owner_derived",
+                    "source_update_time_not_established",
+                ),
+            }:
                 expected = value_input_world_knowledge_requirement_gap(
                     claim_ref=f"value-claim:{self.candidate_id}"
                 )
@@ -1551,6 +1618,27 @@ class GenerationSourcePreservationReceipt(_StrictModel):
         return self
 
 
+class GenerationSourceCustodyLimitation(_StrictModel):
+    """Typed candidate limitation when the runtime source store is unavailable."""
+
+    schema_version: Literal[
+        "policyos.runtime.generation_source_custody_limitation.v1"
+    ] = "policyos.runtime.generation_source_custody_limitation.v1"
+    status: Literal["not_established"] = "not_established"
+    reason_code: Literal["source_store_unavailable"] = "source_store_unavailable"
+
+    @model_serializer(mode="wrap")
+    def _serialize_own_epoch(
+        self, handler: SerializerFunctionWrapHandler
+    ) -> dict[str, Any]:
+        payload = handler(self)
+        return {
+            "schema_version": payload["schema_version"],
+            "status": payload["status"],
+            "reason_code": payload["reason_code"],
+        }
+
+
 class AcquisitionOverlayReentryReceipt(_StrictModel):
     """Immutable proof of direct N6 re-entry over one active owner overlay."""
 
@@ -1812,6 +1900,7 @@ class GenerationCycleRun(_StrictModel):
         "policyos.runtime.generation_cycle_controller.v1",
         "policyos.runtime.generation_cycle_controller.v2",
         "policyos.runtime.generation_cycle_controller.v3",
+        "policyos.runtime.generation_cycle_controller.v4",
     ] = GENERATION_CYCLE_SCHEMA_VERSION
     run_id: str = Field(..., min_length=1)
     design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -1830,6 +1919,7 @@ class GenerationCycleRun(_StrictModel):
     synthetic: bool | None = None
     source_handoff_refs: tuple[str, ...] = ()
     source_preservation_receipt: GenerationSourcePreservationReceipt | None = None
+    source_custody_limitation: GenerationSourceCustodyLimitation | None = None
     deployment_identity_status: Literal["established", "not_established"] = "not_established"
     deployment_identity: str | None = Field(
         default=None,
@@ -1845,7 +1935,7 @@ class GenerationCycleRun(_StrictModel):
         schema_version = value.get("schema_version", GENERATION_CYCLE_SCHEMA_VERSION)
         identity_status = value.get("deployment_identity_status", "not_established")
         if (
-            schema_version == GENERATION_CYCLE_SCHEMA_VERSION
+            schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS
             and identity_status == "not_established"
             and "deployment_identity_reason" not in value
         ):
@@ -1868,12 +1958,20 @@ class GenerationCycleRun(_StrictModel):
             or self.deployment_identity_reason is not None
         ):
             raise ValueError("historical_generation_cannot_acquire_deployment_identity")
-        if self.schema_version.endswith(".v3"):
+        if self.schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS:
             if self.deployment_identity_status == "established":
                 if self.deployment_identity is None or self.deployment_identity_reason is not None:
                     raise ValueError("generation_cycle_deployment_identity_binding_mismatch")
             elif self.deployment_identity is not None or self.deployment_identity_reason is None:
                 raise ValueError("generation_cycle_deployment_identity_binding_mismatch")
+        limitation = self.source_custody_limitation
+        if self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION:
+            if limitation is None:
+                raise ValueError("generation_cycle_limited_v4_requires_source_limitation")
+            if self.source_preservation_receipt is not None:
+                raise ValueError("generation_cycle_source_limitation_has_preservation_receipt")
+        elif limitation is not None:
+            raise ValueError("generation_cycle_source_limitation_requires_v4")
         receipt = self.source_preservation_receipt
         if receipt is not None and (
             receipt.run_id != self.run_id
@@ -1884,10 +1982,13 @@ class GenerationCycleRun(_StrictModel):
         return self
 
     def verify_strangle_receipt(self, repo_root: Path | None = None) -> None:
-        """Require the owner-issued currentness observation at its consumer.
+        """Require the owner-issued deployment-currentness observation.
 
         ``repo_root`` is retained for call compatibility; persisted consumers do
-        not reopen or rescan a source checkout.
+        not reopen or rescan a source checkout. This check answers only the
+        loaded-code identity question. It does not establish source-store
+        custody; authority consumers must also use the full run validator or the
+        N9 source owner.
         """
 
         del repo_root
@@ -1905,6 +2006,16 @@ class GenerationCycleRun(_StrictModel):
 
     @model_serializer(mode="wrap")
     def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        if (
+            self.source_custody_limitation is not None
+            and self.schema_version != _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+        ):
+            raise ValueError("generation_cycle_source_limitation_requires_v4")
+        if (
+            self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+            and self.source_custody_limitation is None
+        ):
+            raise ValueError("generation_cycle_limited_v4_requires_source_limitation")
         payload = handler(self)
         if self.schema_version.endswith((".v1", ".v2")):
             version = self.schema_version.rsplit(".", 1)[-1]
@@ -1914,10 +2025,59 @@ class GenerationCycleRun(_StrictModel):
             if not isinstance(supplied, dict):
                 raise TypeError("historical_generation_payload_invalid")
             payload = supplied
+        elif self.schema_version == GENERATION_CYCLE_SCHEMA_VERSION:
+            # Keep every pre-existing v3 field/value while excluding the v4-only field.
+            payload.pop("source_custody_limitation", None)
+        elif self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION:
+            limitation = payload.pop("source_custody_limitation", None)
+            if not isinstance(limitation, dict):
+                raise TypeError("generation_cycle_limited_v4_projection_invalid")
+            v3_payload = dict(payload)
+            v3_payload["schema_version"] = GENERATION_CYCLE_SCHEMA_VERSION
+            v3_run = GenerationCycleRun.model_validate(v3_payload)
+            supplied = _historical_generation_cycle_field_tree(
+                v3_run, v3_payload, version="v3"
+            )
+            if not isinstance(supplied, dict):
+                raise TypeError("historical_generation_payload_invalid")
+            supplied["schema_version"] = self.schema_version
+            supplied["source_custody_limitation"] = limitation
+            payload = supplied
         if self.schema_version.endswith(".v1"):
             for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
                 payload.pop(key, None)
         return payload
+
+
+def _source_custody_authority_refusal(
+    limitation: GenerationSourceCustodyLimitation | None,
+    receipt: GenerationSourcePreservationReceipt | None,
+    *,
+    require_established: bool = True,
+) -> tuple[str, str] | None:
+    """Refuse known custody drift; require positive replay at authority gates."""
+
+    if limitation is not None:
+        if not require_established:
+            # The v4 limitation is explicit candidate evidence. N9 may consider
+            # the candidate, but strict consumers still require owner replay.
+            return None
+        return "generation_cycle_source_custody_not_established", limitation.reason_code
+    if receipt is None:
+        return "generation_cycle_source_preservation_not_established", "receipt_missing"
+    if receipt.status == "strangled" and (
+        receipt.issues
+        or not receipt.source_refs
+        or receipt.expected_identity_count <= 0
+        or receipt.expected_identity_count != receipt.retained_identity_count
+        or receipt.expected_identity_digest != receipt.retained_identity_digest
+    ):
+        return "generation_cycle_source_preservation_not_established", "receipt_incoherent"
+    if receipt.status == "drift" or (
+        require_established and receipt.status != "strangled"
+    ):
+        return "generation_cycle_source_preservation_not_established", receipt.status
+    return None
 
 
 class N9TerminalDisposition(str, Enum):
@@ -1957,6 +2117,13 @@ class N9EligibleRunSource:
             N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
         ):
             raise ValueError("generation_cycle_terminal_blocked_before_n9")
+        source_refusal = _source_custody_authority_refusal(
+            run.source_custody_limitation,
+            run.source_preservation_receipt,
+            require_established=False,
+        )
+        if source_refusal is not None:
+            raise GenerationCycleError(*source_refusal)
         if "terminal_status" not in run.model_fields_set:
             raise GenerationCycleError("generation_cycle_terminal_status_not_supplied")
         issues = validate_generation_cycle_candidate_run(run)
@@ -1983,12 +2150,14 @@ def eligible_n9_source_for_run(run: GenerationCycleRun) -> N9EligibleRunSource |
     through the history owner but cannot supply current N9 evidence. Candidate-
     band currentness may remain unknown because this validator does not require
     deployment authority; N9's own authority gates still decide whether any
-    candidate can be promoted.
+    candidate can be promoted. Current-schema blocked runs have no N9 source.
+    A nonblocked v4 limitation can supply candidate evidence only: it must carry
+    no N9 receipt or certification, and strict authority replay still refuses it.
     """
 
     if type(run) is not GenerationCycleRun:
         raise TypeError("n9_source_requires_typed_generation_cycle_run")
-    if run.schema_version != GENERATION_CYCLE_SCHEMA_VERSION:
+    if run.schema_version not in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS:
         raise GenerationCycleError(
             "generation_cycle_historical_run_not_current_n9_source",
             run.schema_version,
@@ -1997,16 +2166,24 @@ def eligible_n9_source_for_run(run: GenerationCycleRun) -> N9EligibleRunSource |
         N9TerminalDisposition.TERMINAL_BLOCKED
     ):
         return None
+    source_refusal = _source_custody_authority_refusal(
+        run.source_custody_limitation,
+        run.source_preservation_receipt,
+        require_established=False,
+    )
+    if source_refusal is not None:
+        raise GenerationCycleError(*source_refusal)
     return N9EligibleRunSource(run, _token=_N9_ELIGIBLE_SOURCE_TOKEN)
 
 
 def _historical_generation_cycle_run_projection(
     run: GenerationCycleRun,
 ) -> dict[str, Any]:
-    """Return the persisted projection for history replay without changing live v3 output."""
+    """Return the schema-owned persisted projection for historical N6 replay."""
 
     payload = run.model_dump(mode="json")
     if not run.schema_version.endswith(".v3"):
+        # The run model serializer already freezes v4 as its v3 core plus limitation.
         return payload
     projection = _historical_generation_cycle_field_tree(
         run, payload, version="v3"
@@ -3136,6 +3313,10 @@ class RealValueOwnerGateway:
     cycle_substrate_context: CycleSubstrateContext | None = None
     catalog_overlay_path: Path | None = None
     empirical_evidence_resolver: _S10EmpiricalEvidenceResolver | None = None
+    artifact_store: ArtifactStore | None = None
+    activated_observation_projection: (
+        data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+    ) = None
 
     def load_value_data_profile(
         self,
@@ -3195,6 +3376,8 @@ class RealValueOwnerGateway:
             owner_access_ref=owner_access_ref,
             overlay_path=self.catalog_overlay_path,
             scope_region=scope_region,
+            artifact_store=self.artifact_store,
+            activated_observation_projection=self.activated_observation_projection,
         )
         if profile is None:
             raise ValueOwnerAccessError(
@@ -3798,6 +3981,12 @@ class FoundryValuePort:
                 claim_ref=f"value-claim:{candidate_id}"
             ),
             world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            source_time_status=(
+                self._owner_gateway.activated_observation_projection.source_time_status
+                if isinstance(self._owner_gateway, RealValueOwnerGateway)
+                and self._owner_gateway.activated_observation_projection is not None
+                else None
+            ),
         )
 
     def _selection_inputs(self) -> dict[str, Any]:
@@ -4226,6 +4415,7 @@ class GenerationCycleController:
         self._low_grounding_threshold = low_grounding_threshold
         self._source_run_id: str | None = None
         self._source_repository: GenerationSourceRepository | None = None
+        self._source_custody_limitation: GenerationSourceCustodyLimitation | None = None
         self._source_handoff_refs: list[str] = []
         self._source_expected_identities: list[tuple[str, str, str]] = []
         self._source_issues: list[str] = []
@@ -4250,24 +4440,30 @@ class GenerationCycleController:
         root = (self._repo_root or Path.cwd()).resolve()
         self._source_run_id = run_id
         self._source_handoff_refs = []
+        self._source_custody_limitation = None
         self._source_expected_identities = []
         self._source_issues = []
         self._source_organs = []
         self._source_synthetic = True if self._authority_scope == "contract_testing" else None
         self._n7_candidate_bindings = {}
         try:
-            store = (
-                self._promotion_runtime.store if self._promotion_runtime is not None
-                else build_artifact_store(
+            store = self._artifact_store
+            if store is None and self._authority_scope == "contract_testing":
+                store = build_artifact_store(
                     ArtifactStoreConfig(
                         backend="filesystem",
-                        root=str(root / ".polisyos/runtime/generation_source"),
+                        root=str(root / ".tmp/n6-generation-source-cas"),
                     ),
                 )
-            )
-            self._source_repository = GenerationSourceRepository(store)
+            if store is None:
+                self._source_repository = None
+                self._source_custody_limitation = GenerationSourceCustodyLimitation()
+                self._source_issues.append("source_store_unavailable")
+            else:
+                self._source_repository = GenerationSourceRepository(store)
         except (OSError, ValueError):
             self._source_repository = None
+            self._source_custody_limitation = GenerationSourceCustodyLimitation()
             self._source_issues.append("source_store_unavailable")
         if self._grounding_run_budget is not None and self._grounding_run_budget.run_id == run_id:
             budget = self._grounding_run_budget
@@ -4311,6 +4507,9 @@ class GenerationCycleController:
             self._source_issues.extend(receipt.issues)
 
     def _source_preservation_receipt(self) -> GenerationSourcePreservationReceipt | None:
+        # Do not issue the v1 recomputation receipt when there is no owner store.
+        # A persisted reason needs a separately versioned run field; `None` is
+        # the current typed absence and must not imply that source bytes replayed.
         if self._source_repository is None or self._source_run_id is None:
             return None
         return self._source_repository.preservation_receipt(
@@ -4388,7 +4587,7 @@ class GenerationCycleController:
             identity_reason = (
                 None
                 if identity_status == "established"
-                else n6_currentness.reason_code
+                else n6_currentness.loaded_identity_reason_code
             )
         self._begin_source_run(run_id)
         current_problem = problem
@@ -4420,14 +4619,11 @@ class GenerationCycleController:
                     terminal_status = "blocked"
                     blocked_reason = fake_reason
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
-            if (
-                n9_terminal_disposition(terminal_status)
-                is not N9TerminalDisposition.TERMINAL_BLOCKED
-                and cycle.voi_decision.next_action == "blocked"
-            ):
-                terminal_status = "blocked"
-                blocked_reason = cycle.voi_decision.reason
-                cycle = _blocked_cycle(cycle, reason=blocked_reason)
+            terminal_status, blocked_reason, cycle = _reconcile_blocked_voi_action(
+                cycle,
+                terminal_status=terminal_status,
+                blocked_reason=blocked_reason,
+            )
             acquisition_receipt: AcquisitionReceipt | None = None
             if n9_terminal_disposition(terminal_status) is not (
                 N9TerminalDisposition.TERMINAL_BLOCKED
@@ -4488,6 +4684,17 @@ class GenerationCycleController:
             current_problem = cycle.revision_request.revised_problem
             cycle_index += 1
 
+        if cycles:
+            terminal_status, blocked_reason, cycles[-1] = _reconcile_blocked_voi_action(
+                cycles[-1],
+                terminal_status=terminal_status,
+                blocked_reason=blocked_reason,
+            )
+
+        source_receipt = self._source_preservation_receipt()
+        source_refusal = _source_custody_authority_refusal(
+            self._source_custody_limitation, source_receipt
+        )
         promotion_summaries = _current_candidate_summaries(tuple(summaries))
         promotion_basis_ref = _cycle_basis_ref(cycles[-1]) if cycles else None
         if n9_terminal_disposition(terminal_status) is (
@@ -4500,27 +4707,63 @@ class GenerationCycleController:
                     f"{blocked_reason or 'generation_cycle_blocked'}"
                 ),
             )
-        elif (
-            n6_currentness is None
-            or n6_currentness.status != "current"
-            or n6_currentness.census_verdict != "PASS"
-        ):
-            reason = (
-                n6_currentness.reason_code
-                if n6_currentness is not None
-                else "loaded_deployment_identity_owner_unavailable"
-            )
-            promotion = PromotionPortObservation(
-                status="not_promoted",
-                reason=f"generation_cycle_n6_census_not_established:{reason}",
-            )
         else:
-            promotion = self._promote_completed_generation(
-                summaries=promotion_summaries,
-                problem=last_cycle_problem,
-                design_problem_basis_ref=promotion_basis_ref,
-                deployment_identity=deployment_identity,
-            )
+            try:
+                pre_n9_currentness = observe_n6_deployment_currentness(
+                    recorded_identity_status=identity_status,
+                    recorded_deployment_identity=deployment_identity,
+                )
+            except Exception:
+                pre_n9_currentness = None
+            if source_refusal is not None and source_refusal[1] in {
+                "drift",
+                "receipt_incoherent",
+            }:
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"{source_refusal[0]}:{source_refusal[1]}",
+                )
+            elif pre_n9_currentness is None:
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=(
+                        "generation_cycle_n6_currentness_not_established:"
+                        "loaded_deployment_identity_owner_unavailable"
+                    ),
+                )
+            elif pre_n9_currentness.status == "stale":
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=(
+                        "generation_cycle_n6_deployment_identity_stale:"
+                        f"{pre_n9_currentness.reason_code}"
+                    ),
+                )
+            elif (
+                pre_n9_currentness.status != "current"
+                or pre_n9_currentness.census_verdict != "PASS"
+            ):
+                reason = (
+                    n6_currentness.reason_code
+                    if identity_status != "established" and n6_currentness is not None
+                    else pre_n9_currentness.reason_code
+                )
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"generation_cycle_n6_census_not_established:{reason}",
+                )
+            elif source_refusal is not None:
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"{source_refusal[0]}:{source_refusal[1]}",
+                )
+            else:
+                promotion = self._promote_completed_generation(
+                    summaries=promotion_summaries,
+                    problem=last_cycle_problem,
+                    design_problem_basis_ref=promotion_basis_ref,
+                    deployment_identity=deployment_identity,
+                )
         summaries = _apply_promotion_to_summaries(
             tuple(summaries),
             promotion,
@@ -4530,8 +4773,12 @@ class GenerationCycleController:
             promotion_evidence_resolver=self._promotion_evidence_resolver,
         )
         fronts = _derive_fronts(tuple(summaries))
-        source_receipt = self._source_preservation_receipt()
         run = GenerationCycleRun(
+            schema_version=(
+                _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+                if self._source_custody_limitation is not None
+                else GENERATION_CYCLE_SCHEMA_VERSION
+            ),
             run_id=run_id,
             design_problem_ref=design_problem_ref,
             terminal_denominator=_terminal_denominator(),
@@ -4555,6 +4802,7 @@ class GenerationCycleController:
             ),
             source_handoff_refs=tuple(self._source_handoff_refs),
             source_preservation_receipt=source_receipt,
+            source_custody_limitation=self._source_custody_limitation,
             deployment_identity_status=identity_status,
             deployment_identity=deployment_identity,
             deployment_identity_reason=identity_reason,
@@ -4568,6 +4816,9 @@ class GenerationCycleController:
         source_cycle: GenerationCycleRecord,
         problem: DesignProblem,
         overlay_receipt: data_forge_read_api.catalog.OverlayAdmissionReceipt,
+        observation_projection: (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        ),
         baseline_path: Path,
         overlay_path: Path,
         budget_state: BudgetState,
@@ -4617,6 +4868,19 @@ class GenerationCycleController:
         owner_receipt_type = data_forge_read_api.catalog.OverlayAdmissionReceipt
         if not isinstance(overlay_receipt, owner_receipt_type):
             raise GenerationCycleError("acquisition_reentry_overlay_receipt_invalid")
+        observation_projection_type = (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        )
+        if not isinstance(observation_projection, observation_projection_type):
+            raise GenerationCycleError("acquisition_reentry_observation_projection_invalid")
+        try:
+            observation_projection = observation_projection_type.model_validate(
+                observation_projection.model_dump(mode="json")
+            )
+        except Exception as exc:
+            raise GenerationCycleError(
+                "acquisition_reentry_observation_projection_invalid"
+            ) from exc
 
         selected_baseline_path = Path(baseline_path)
         selected_overlay_path = Path(overlay_path)
@@ -4670,6 +4934,20 @@ class GenerationCycleController:
             or missing_distributions != (passports[0].variable_id,)
         ):
             raise GenerationCycleError("acquisition_reentry_requirement_overlay_mismatch")
+        if (
+            observation_projection.receipt_ref != overlay_receipt.receipt_ref
+            or observation_projection.receipt_content_sha256
+            != overlay_receipt.receipt_content_hash
+            or observation_projection.epoch_id != overlay_receipt.epoch_id
+            or observation_projection.passport_id != overlay_receipt.passport_id
+            or observation_projection.admission_content_sha256
+            != overlay_receipt.admission_content_sha256
+            or observation_projection.activation_state != overlay_receipt.activation_state
+            or observation_projection.variable_id != passports[0].variable_id
+        ):
+            raise GenerationCycleError(
+                "acquisition_reentry_observation_projection_binding_mismatch"
+            )
         if (
             source_cycle.acquisition_cost_basis_record is not None
             and source_cycle.acquisition_cost_basis_record.missing_distribution
@@ -4729,6 +5007,8 @@ class GenerationCycleController:
                 repo_root=self._repo_root,
                 cycle_substrate_context=self._cycle_substrate_context,
                 catalog_overlay_path=selected_overlay_path,
+                artifact_store=self._artifact_store,
+                activated_observation_projection=observation_projection,
             ),
             cycle_substrate_context=self._cycle_substrate_context,
             **value_port_kwargs,
@@ -6199,12 +6479,14 @@ class GenerationCycleController:
             candidate_id=cycle.selected_candidate_ref,
             candidate_content_hash=cycle.selected_candidate_content_hash,
             prior_candidate=prior_candidate,
+            allow_grounding_unavailable=True,
         )
         if rederived is None:
             return (
                 cycle.model_copy(update={"acquisition_receipt": receipt_payload}),
                 cycle_summaries,
             )
+        grounding_unavailable = rederived.status == "grounding_unavailable"
         grounding = CandidateGroundingObservation(
             candidate_id=cycle.selected_candidate_ref,
             status=rederived.status,
@@ -6213,9 +6495,11 @@ class GenerationCycleController:
             evidence_refs=rederived.evidence_refs,
             current_valid=rederived.status == "current_valid",
             report_ref=rederived.report_ref,
-            grounding_source="cgf_firewall",
-            grounding_disposition="shadow_bound",
-            cgf_certificate_refs=rederived.evidence_refs,
+            grounding_source=(
+                "grounding_unavailable" if grounding_unavailable else "cgf_firewall"
+            ),
+            grounding_disposition=None if grounding_unavailable else "shadow_bound",
+            cgf_certificate_refs=() if grounding_unavailable else rederived.evidence_refs,
         )
         prior_summary = next(
             (
@@ -6378,6 +6662,7 @@ class GenerationCycleController:
                 except (OSError, ValueError, TypeError) as exc:
                     self._source_issues.append(f"source_persistence_refused:{type(exc).__name__}")
             else:
+                self._source_custody_limitation = GenerationSourceCustodyLimitation()
                 self._source_issues.append("source_store_unavailable")
         disposition_candidates = _disposition_candidates(
             result,
@@ -6702,9 +6987,32 @@ def validate_generation_cycle_run(
 ) -> tuple[dict[str, Any], ...]:
     """Validate N6 semantics and require owner-issued currentness for authority."""
 
-    return _validate_generation_cycle_run(
-        run, require_currentness=True
+    return inspect_generation_cycle_run(run, repo_root=repo_root).issues
+
+
+@dataclass(frozen=True, slots=True)
+class GenerationCycleRunInspection:
+    """One strict N6 validation result and the exact currentness observation it used."""
+
+    issues: tuple[dict[str, Any], ...]
+    currentness: N6DeploymentCurrentnessObservation
+
+
+def inspect_generation_cycle_run(
+    run: GenerationCycleRun | Mapping[str, Any],
+    *,
+    repo_root: Path | None = None,
+) -> GenerationCycleRunInspection:
+    """Validate N6 once and return its single owner-read currentness observation."""
+
+    currentness = currentness_for_generation_cycle_run(run)
+    issues = _validate_generation_cycle_run(
+        run,
+        repo_root=repo_root,
+        require_currentness=True,
+        currentness_observation=currentness,
     )
+    return GenerationCycleRunInspection(issues=issues, currentness=currentness)
 
 
 def validate_generation_cycle_candidate_run(
@@ -6731,10 +7039,13 @@ def validate_generation_cycle_candidate_run(
 def currentness_for_generation_cycle_run(
     run: GenerationCycleRun | Mapping[str, Any],
 ) -> N6DeploymentCurrentnessObservation:
-    """Ask the confidence-ledger owner whether this run is current.
+    """Ask the confidence-ledger owner whether this run's code identity is current.
 
     This lookup compares identity only. It never reads a repository checkout or
-    replays a persisted source-byte denominator.
+    replays a persisted source-byte denominator, and it does not establish
+    source-store custody. Authority consumers must compose the typed custody
+    limitation through ``validate_generation_cycle_run``; the N9 source carrier
+    admits explicitly limited candidates without certifying them.
     """
 
     try:
@@ -6809,6 +7120,7 @@ def _validate_generation_cycle_run(
     repo_root: Path | None = None,
     current_strangle_receipt: StrangleReceipt | None = None,
     require_currentness: bool = True,
+    currentness_observation: N6DeploymentCurrentnessObservation | None = None,
 ) -> tuple[dict[str, Any], ...]:
     """Run intrinsic checks and, when requested, the typed identity question."""
 
@@ -6819,33 +7131,59 @@ def _validate_generation_cycle_run(
             return ({"code": "generation_cycle_run_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []
     if require_currentness:
+        if run.schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS:
+            source_refusal = _source_custody_authority_refusal(
+                run.source_custody_limitation, run.source_preservation_receipt
+            )
+        else:
+            source_refusal = None
+        if source_refusal is not None:
+            issues.append(
+                {
+                    "code": source_refusal[0],
+                    "reason": source_refusal[1],
+                }
+            )
         if current_strangle_receipt is not None:
             try:
                 run.strangle_receipt._verify_against_current_receipt(
                     current_strangle_receipt
                 )
             except GenerationCycleError as exc:
-                issues.append({"code": "strangle_receipt_stale", "error": str(exc)})
-        else:
-            observation = currentness_for_generation_cycle_run(run)
-            if observation.status == "stale":
-                issues.append(
-                    {
-                        "code": "strangle_receipt_stale",
-                        "reason": observation.reason_code,
-                    }
-                )
-            elif observation.status != "current":
-                issues.append(
-                    {
-                        "code": "strangle_receipt_currentness_not_established",
-                        "reason": observation.reason_code,
-                        "census_verdict": observation.census_verdict,
-                        "unresolved_by_construction": (
-                            observation.unresolved_by_construction
-                        ),
-                    }
-                )
+                if exc.code == "generation_cycle_strangle_receipt_not_strangled":
+                    if current_strangle_receipt.status == "drift":
+                        issues.append(
+                            {"code": "single_pass_fixture_survives_as_production_cycle"}
+                        )
+                    else:
+                        issues.append(
+                            {
+                                "code": "strangle_receipt_not_established",
+                                "source_state": current_strangle_receipt.source_state,
+                                "parse_errors": current_strangle_receipt.parse_errors,
+                            }
+                        )
+                else:
+                    issues.append({"code": "strangle_receipt_stale", "error": str(exc)})
+        observation = currentness_observation or currentness_for_generation_cycle_run(run)
+        if observation.status == "stale":
+            issues.append(
+                {
+                    "code": "strangle_receipt_stale",
+                    "reason": observation.reason_code,
+                }
+            )
+        elif observation.status != "current":
+            issues.append(
+                {
+                    "code": "strangle_receipt_currentness_not_established",
+                    "reason": observation.reason_code,
+                    "census_verdict": observation.census_verdict,
+                    "unresolved_by_construction": (
+                        observation.unresolved_by_construction
+                    ),
+                }
+            )
     if run.engine_owner_ref != ENGINE_SIMPLE_OWNER_REF:
         issues.append({"code": "parallel_loop_engine_used"})
     expected_denominator = _terminal_denominator()
@@ -6853,7 +7191,17 @@ def _validate_generation_cycle_run(
         issues.append({"code": "terminal_denominator_not_derived"})
     if not run.cycles:
         issues.append({"code": "cycle_denominator_empty"})
-    if run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION:
+    if run.schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS:
+        if run.source_custody_limitation is not None and (
+            run.promotion_port.status != "not_promoted"
+            or run.promotion_port.certified_candidate_ids
+            or run.promotion_port.receipts
+            or run.promotion_port.strangle_receipt is not None
+            or run.promotion_port.pre_n9_open_world_gates
+            or run.fronts.decision.candidate_ids
+            or any(summary.certified_by_n9 for summary in run.candidate_summaries)
+        ):
+            issues.append({"code": "source_limited_generation_cycle_claims_n9_authority"})
         blocked_action_indexes = tuple(
             index
             for index, cycle in enumerate(run.cycles)
@@ -7072,8 +7420,6 @@ def _validate_generation_cycle_run(
                     "candidate_id": summary.candidate_id,
                 }
             )
-    if require_currentness and run.strangle_receipt.status != "strangled":
-        issues.append({"code": "single_pass_fixture_survives_as_production_cycle"})
     if run.value_port.status == "value_ready" and not run.value_port.value_ref:
         issues.append({"code": "fabricated_value_without_n8"})
     if (
@@ -7100,7 +7446,7 @@ def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalSt
             blocking_obligations=["cycle_denominator_empty"],
         )
     if (
-        run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION
+        run.schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS
         and n9_terminal_disposition(run.terminal_status)
         is N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
         and any(cycle.voi_decision.next_action == "blocked" for cycle in run.cycles)
@@ -7403,14 +7749,18 @@ def _n7_rederived_grounding_for_candidate(
     candidate_id: str,
     candidate_content_hash: str | None = None,
     prior_candidate: object | None = None,
+    allow_grounding_unavailable: bool = False,
 ) -> object | None:
     if not acquisition_receipt_has_verified_emission(receipt):
         return None
+    accepted_statuses = {"current_valid", "grounded_shadow"}
+    if allow_grounding_unavailable:
+        accepted_statuses.add("grounding_unavailable")
     row = next(
         (
             row
             for row in receipt.grounding_rederivations
-            if row.design_id == candidate_id and row.status in {"current_valid", "grounded_shadow"}
+            if row.design_id == candidate_id and row.status in accepted_statuses
         ),
         None,
     )
@@ -7423,9 +7773,13 @@ def _n7_rederived_grounding_for_candidate(
         return row
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 
+    if _candidate_id(prior_candidate) != candidate_id:
+        raise GenerationCycleError("n7_reentry_candidate_binding_mismatch")
     prior_atom = _object_get(prior_candidate, "atom")
     if not isinstance(prior_atom, InterventionAtomBinding):
         raise GenerationCycleError("n7_reentry_candidate_atom_not_canonical")
+    if prior_atom.content_hash != candidate_content_hash:
+        raise GenerationCycleError("n7_reentry_candidate_binding_mismatch")
     prior_target_world_slots = tuple(
         str(item)
         for item in _sequence(_object_get(prior_atom, "target_world_slots", ()))
@@ -7557,15 +7911,168 @@ def _load_value_data_profile_from_l1_dcat(
     owner_access_ref: str,
     overlay_path: Path | None = None,
     scope_region: str | None = None,
+    artifact_store: ArtifactStore | None = None,
+    activated_observation_projection: (
+        data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+    ) = None,
 ) -> ValueDataProfile | None:
     """Load deterministic owner rows without deriving an exposure assignment."""
 
     normalized_scope_region = _optional_text(scope_region)
     owner_row_limit = 20_000
-    scope_clause = "\n              AND country_code = ?" if normalized_scope_region else ""
     parameters: list[str] = [outcome]
+    observation_projection = None
+    registered_dataset_id: str | None = None
+    registered_canonical_unit: str | None = None
+    selected_wdi_observation_ids: tuple[str, ...] = ()
+    registered_measurement_units_by_id: dict[str, str] = {}
+    if activated_observation_projection is not None:
+        projection_type = (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        )
+        try:
+            observation_projection = projection_type.model_validate(
+                activated_observation_projection.model_dump(mode="json")
+            )
+        except Exception as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_invalid",
+                f"Data Forge active observation projection failed content validation: {exc}",
+                owner_access_ref=(
+                    f"{owner_access_ref}#activated-observation-projection"
+                ),
+            ) from exc
+        if artifact_store is None:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_passport_store_missing",
+                "N8 requires the runtime artifact store to resolve the active passport",
+                owner_access_ref=f"{owner_access_ref}#active-passport",
+            )
+        try:
+            passport_payload = core_contracts.epoch.load_verified_epoch_statement(
+                store=artifact_store,
+                ref=observation_projection.passport_ref,
+                expected_kind="epoch.acquisition_passport_snapshot",
+            )
+            from polisyos.fabric.data_plane import content_sha256
+            from polisyos.runtime.quality import acquisition_executor
+
+            passport = acquisition_executor.AdmissionPassport.model_validate(
+                passport_payload
+            )
+            passport_content_hash = content_sha256(passport_payload)
+        except Exception as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_passport_unresolved",
+                f"N8 could not verify the Data Forge active passport: {exc}",
+                owner_access_ref=f"{owner_access_ref}#active-passport",
+            ) from exc
+        if (
+            observation_projection.variable_id != outcome
+            or observation_projection.activation_state != "active"
+            or observation_projection.predicate_provenance != "recomputed"
+            or observation_projection.source_time_status != "not_established"
+            or passport_content_hash != observation_projection.passport_content_sha256
+            or passport.passport_id != observation_projection.passport_id
+            or passport.epoch_id != observation_projection.epoch_id
+            or passport.variable_id != outcome
+            or passport.registration.field_binding.canonical_variable != outcome
+            or passport.registration.field_binding != passport.field_binding
+            or getattr(passport.status, "value", passport.status)
+            not in {"admitted", "admitted_degraded"}
+        ):
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_binding_mismatch",
+                "Data Forge active projection does not bind the verified passport and N8 outcome",
+                owner_access_ref=(
+                    f"{owner_access_ref}#activated-observation-projection"
+                ),
+            )
+        registered_dataset_id = passport.registration.catalog_dataset_id
+        registered_canonical_unit = _optional_text(
+            passport.registration.field_binding.canonical_unit
+        )
+        if any(
+            row.observation.dataset_id != registered_dataset_id
+            for row in observation_projection.observations
+        ):
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_registration_mismatch",
+                "Data Forge active rows differ from their passport registration dataset",
+                owner_access_ref=(
+                    f"{owner_access_ref}#activated-observation-projection"
+                ),
+            )
+        if normalized_scope_region:
+            from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
+                iso2_to_iso3,
+                normalize_country_code,
+            )
+
+            try:
+                wdi_country_code = iso2_to_iso3(normalized_scope_region)
+            except Exception as exc:  # pragma: no cover - defensive owner-boundary guard.
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_country_scheme_not_established",
+                    f"The registered WDI source code for this scope is unresolved: {exc}",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                ) from exc
+            selected_ids: list[str] = []
+            for row in observation_projection.observations:
+                observation = row.observation
+                if observation.country_code == normalized_scope_region:
+                    continue
+                if normalize_country_code(observation.country_code) != normalized_scope_region:
+                    continue
+                live_source = passport.live_source_execution
+                live_authorization = (
+                    live_source.authorization if live_source is not None else None
+                )
+                if (
+                    passport.registration.connector_id != "worldbank.wdi"
+                    or passport.source_lane != "live_fetch"
+                    or live_authorization is None
+                    or live_authorization.connector_id
+                    != passport.registration.connector_id
+                    or live_authorization.profile_id
+                    != passport.registration.source_profile_id
+                    or live_authorization.request_variables
+                    != (passport.registration.request_dataset_id,)
+                    or observation.country_code
+                    not in passport.registration.country_codes
+                    or observation.country_code != wdi_country_code
+                ):
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_country_scheme_not_established",
+                        "Only the registered WDI ISO3 source code may bind to this ISO2 scope",
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    )
+                selected_ids.append(observation.observation_id)
+            if len(selected_ids) > owner_row_limit:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_too_large",
+                    "The active selected-member projection exceeds the bounded N8 row limit",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            selected_wdi_observation_ids = tuple(sorted(set(selected_ids)))
+    scope_clause = ""
     if normalized_scope_region:
         parameters.append(normalized_scope_region)
+        if selected_wdi_observation_ids:
+            placeholders = ", ".join("?" for _ in selected_wdi_observation_ids)
+            scope_clause = (
+                "\n              AND (country_code = ? OR observation_id IN ("
+                f"{placeholders}))"
+            )
+            parameters.extend(selected_wdi_observation_ids)
+        else:
+            scope_clause = "\n              AND country_code = ?"
     try:
         from polisyos.runtime.quality.substrate_registry import (
             default_substrate_catalog_paths,
@@ -7600,7 +8107,12 @@ def _load_value_data_profile_from_l1_dcat(
               value,
               dataset_id,
               observation_id,
-              condition_json
+              condition_json,
+              canonical_var,
+              country_code,
+              year,
+              survey_year,
+              wave
             FROM ds_observations
             WHERE canonical_var = ?
               AND value IS NOT NULL
@@ -7622,6 +8134,102 @@ def _load_value_data_profile_from_l1_dcat(
             ),
             owner_access_ref=f"{owner_access_ref}#row-cap",
         )
+    projected_rows_by_id: dict[str, tuple[object, ...]] = {}
+    if observation_projection is not None:
+        physical_rows_by_id: dict[str, list[tuple[object, ...]]] = {}
+        for raw_row in raw_rows:
+            physical_rows_by_id.setdefault(str(raw_row[4]), []).append(raw_row)
+        for projected in observation_projection.observations:
+            observation = projected.observation
+            projected_unit = observation.country_code
+            if normalized_scope_region:
+                if (
+                    observation.country_code != normalized_scope_region
+                    and observation.observation_id not in selected_wdi_observation_ids
+                ):
+                    continue
+                projected_unit = normalized_scope_region
+            physical_matches = physical_rows_by_id.get(observation.observation_id, [])
+            expected_physical = (
+                observation.observation_id,
+                observation.dataset_id,
+                observation.canonical_var,
+                observation.country_code,
+                observation.year,
+                observation.survey_year,
+                observation.wave,
+                observation.value,
+                observation.condition_json,
+            )
+            actual_physical = (
+                str(physical_matches[0][4]),
+                str(physical_matches[0][3]),
+                str(physical_matches[0][6]),
+                str(physical_matches[0][7]),
+                physical_matches[0][8],
+                physical_matches[0][9],
+                physical_matches[0][10],
+                physical_matches[0][2],
+                str(physical_matches[0][5]),
+            ) if len(physical_matches) == 1 else None
+            if actual_physical != expected_physical:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_drift",
+                    (
+                        "N8 query rows differ from the Data Forge verified active member "
+                        f"{observation.observation_id}"
+                    ),
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            period_id = (
+                observation.year
+                if observation.year is not None
+                else observation.survey_year
+                if observation.survey_year is not None
+                else observation.wave
+            )
+            if period_id is None:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_time_missing",
+                    "Data Forge active observation has no N8 panel coordinate",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            if observation.observation_id in selected_wdi_observation_ids:
+                if (
+                    registered_canonical_unit is None
+                    or passport.registration.field_binding.raw_unit
+                    != registered_canonical_unit
+                    or passport.registration.field_binding.unit_transform != "identity"
+                ):
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_unit_transform_not_applied",
+                        (
+                            "The selected WDI value cannot enter N8 unchanged without an "
+                            "identity unit binding"
+                        ),
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    )
+                registered_measurement_units_by_id[
+                    observation.observation_id
+                ] = registered_canonical_unit
+            projected_rows_by_id[observation.observation_id] = (
+                projected_unit,
+                int(period_id),
+                observation.value,
+                observation.dataset_id,
+                observation.observation_id,
+                observation.condition_json,
+            )
+    raw_rows = [
+        projected_rows_by_id.get(str(row[4]), tuple(row[:6]))
+        for row in raw_rows
+    ]
     if not raw_rows:
         return None
     grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = {}
@@ -7630,7 +8238,11 @@ def _load_value_data_profile_from_l1_dcat(
         if not math.isfinite(numeric_value):
             continue
         source_dataset_id = _optional_text(dataset_id) or ""
-        measurement_unit = _measurement_unit_from_condition_json(condition_json) or ""
+        measurement_unit = (
+            registered_measurement_units_by_id.get(str(observation_id))
+            or _measurement_unit_from_condition_json(condition_json)
+            or ""
+        )
         grouped.setdefault((str(unit), int(period)), []).append(
             (numeric_value, source_dataset_id, str(observation_id), measurement_unit)
         )
@@ -8874,12 +9486,16 @@ def _blocked_value_observation(
     acquisition_requirement: AcquisitionRequirementGap | None = None,
     world_model_record_content_hash: str | None = None,
     transport_receipt: ValueTransportReceipt | None = None,
+    source_time_status: Literal["not_established"] | None = None,
 ) -> ValuePortObservation:
+    authority_blockers = (code,)
+    if source_time_status == "not_established":
+        authority_blockers += ("source_update_time_not_established",)
     return ValuePortObservation(
         status="value_blocked",
         candidate_id=candidate_id,
         value_ref=None,
-        authority_blockers=(code,),
+        authority_blockers=authority_blockers,
         reason=reason,
         evaluation_mode=mode,
         selected_method_fqn=selected_method_fqn,
@@ -10152,6 +10768,22 @@ def _blocked_cycle(cycle: GenerationCycleRecord, *, reason: str) -> GenerationCy
     )
 
 
+def _reconcile_blocked_voi_action(
+    cycle: GenerationCycleRecord,
+    *,
+    terminal_status: TerminalStatus,
+    blocked_reason: str | None,
+) -> tuple[TerminalStatus, str | None, GenerationCycleRecord]:
+    """Align the N6 run terminal with the final cycle action before N9."""
+
+    if n9_terminal_disposition(terminal_status) is N9TerminalDisposition.TERMINAL_BLOCKED:
+        return terminal_status, blocked_reason, cycle
+    if cycle.voi_decision.next_action != "blocked":
+        return terminal_status, blocked_reason, cycle
+    reason = cycle.voi_decision.reason
+    return "blocked", reason, _blocked_cycle(cycle, reason=reason)
+
+
 def _cycle_with_acquisition_routing_report(
     cycle: GenerationCycleRecord,
     *,
@@ -10815,6 +11447,7 @@ __all__ = [
     "GenerationCycleFronts",
     "GenerationCycleRecord",
     "GenerationCycleRun",
+    "GenerationCycleRunInspection",
     "JointSimulationPort",
     "LoopVOIDecision",
     "N4GenerationPort",
@@ -10837,6 +11470,7 @@ __all__ = [
     "eligible_n9_source_for_run",
     "enforce_no_retry_without_new_grammar",
     "generation_cycle_terminal_state",
+    "inspect_generation_cycle_run",
     "inspect_n6_source_census",
     "is_value_panel_shape",
     "load_joint_simulation_result",

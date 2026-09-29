@@ -24,9 +24,7 @@ from tests.unit.runtime.http.control_service_test_support import (
 from tests.unit.runtime.http.test_control_service_di import (
     _build_control_service,
     _fixture_claims,
-)
-from tests.unit.runtime.http.test_control_service_di import (
-    test_process_nl_job_enters_persisted_tenant_scope as _worker_example,
+    _run_controlled_simulate_only_job_fixture,
 )
 
 
@@ -86,29 +84,22 @@ def test_unreadable_selected_run_is_ambiguous_and_cannot_change_safety(tmp_path,
 
 @pytest.fixture(scope="module")
 def produced_station(tmp_path_factory):
-    """Retain an existing actual control producer run for exact downstream source reads."""
-    captured = {}
-    service_type = _build_control_service.__globals__["ControlPlaneService"]
-    real_close = service_type.close
-    real_process = service_type._process_control_job
-
-    def keep_service(self):
-        captured["service"] = self
-
-    def process(self, job):
-        real_process(self, job)
-        if job.kind == "natural_language_run":
-            captured["source_run_id"] = job.run_id
-            captured["job_id"] = job.job_id
-
+    """Retain the owner-bound controlled-profile producer for exact source reads."""
     with pytest.MonkeyPatch.context() as patches:
-        patches.setattr(service_type, "close", keep_service)
-        patches.setattr(service_type, "_process_control_job", process)
-        asyncio.run(_worker_example(patches, tmp_path_factory.mktemp("near-miss-source"), "missing"))
+        fixture = asyncio.run(
+            _run_controlled_simulate_only_job_fixture(
+                patches,
+                tmp_path_factory.mktemp("controlled-profile-source"),
+            )
+        )
     try:
-        yield captured
+        yield {
+            "service": fixture.service,
+            "source_run_id": fixture.job.run_id,
+            "job_id": fixture.job.job_id,
+        }
     finally:
-        real_close(captured["service"])
+        fixture.service.close()
 
 
 def _attempt_from_produced_source(produced_station, *, candidate_hash=None, world_hash=None):

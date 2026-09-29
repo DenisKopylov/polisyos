@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import threading
 import warnings
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import pytest
 
+import polisyos.core.artifacts.ownership as ownership_module
 from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
@@ -13,6 +18,7 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.artifacts import ArtifactID as IRArtifactID
 from polisyos.ir.artifacts.contracts import StorePutOptions
 from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
@@ -73,6 +79,276 @@ def test_tenant_scoped_cas_keeps_canonical_content_hashes_without_cross_tenant_r
     assert ref_b.artifact_id == ref_a.artifact_id
     assert store_b.has(ref_a.artifact_id) is True
     assert store_b.get_bytes(ref_a.artifact_id) == store_a.get_bytes(ref_a.artifact_id)
+
+
+def test_ambient_cas_rejects_foreign_tenant_and_cell_claims(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
+    ref = None
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        ref = store.put_bytes(
+            b"tenant-a ambient artifact",
+            PutOptions(kind="test.ambient_payload", media_type="text/plain"),
+        )
+
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-a"):
+        assert store.has(ref.artifact_id) is False
+        with pytest.raises(ArtifactOwnershipError):
+            store.get_bytes(ref.artifact_id)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-b"):
+        assert store.has(ref.artifact_id) is False
+        with pytest.raises(ArtifactOwnershipError):
+            store.get_bytes(ref.artifact_id)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        assert store.get_bytes(ref.artifact_id) == b"tenant-a ambient artifact"
+
+
+def test_ambient_cas_unscoped_claim_check_covers_read_metadata_enumeration_and_paths(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
+    payload = b"tenant-owned selected-view artifact"
+    opts = PutOptions(kind="test.ambient_default", media_type="text/plain")
+    view_opts = PutOptions(kind="test.ambient_view", media_type="text/plain")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        default_ref = store.put_bytes(payload, opts)
+        view_ref = store.put_bytes(payload, view_opts)
+        assert view_ref.manifest_profile_sha256 is not None
+        archive = store.export_subgraph(
+            [view_ref],
+            tmp_path / "tenant-view.tar.gz",
+            compress=True,
+        )
+
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_bytes(default_ref.artifact_id)
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_manifest(default_ref.artifact_id)
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_manifest_bytes(view_ref)
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_signature(view_ref)
+    with pytest.raises(ArtifactOwnershipError):
+        store.get_paths(view_ref)
+    assert store.has(default_ref.artifact_id) is False
+    assert store.has_manifest_view(
+        view_ref.artifact_id,
+        view_ref.manifest_profile_sha256,
+    ) is False
+    assert default_ref.artifact_id not in store.iter_artifact_ids()
+    with pytest.raises(ArtifactOwnershipError):
+        store.export_subgraph(
+            [view_ref],
+            tmp_path / "unscoped-export.tar.gz",
+            compress=True,
+        )
+    assert not (tmp_path / "unscoped-export.tar.gz").exists()
+    assert archive.output_path.exists()
+
+
+def test_ambient_cas_unscoped_candidate_is_preserved_but_claimed_targets_and_inputs_are_denied(
+    tmp_path,
+) -> None:
+    shared_root = tmp_path / "shared"
+    store = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
+    owned_data = b"tenant-owned immutable target"
+    owned_opts = PutOptions(kind="test.owned_default", media_type="text/plain")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        owned_ref = store.put_bytes(owned_data, owned_opts)
+        owned_manifest_bytes = store.get_manifest_bytes(owned_ref)
+        owner_export = store.export_subgraph(
+            [owned_ref],
+            tmp_path / "owner-export.tar.gz",
+            compress=True,
+        )
+
+    candidate_ref = store.put_bytes(
+        b"unclaimed candidate bytes",
+        PutOptions(kind="test.candidate", media_type="text/plain"),
+    )
+    assert store.get_bytes(candidate_ref.artifact_id) == b"unclaimed candidate bytes"
+    assert store.has(candidate_ref.artifact_id)
+    assert candidate_ref.artifact_id in store.iter_artifact_ids()
+
+    with pytest.raises(ArtifactOwnershipError):
+        store.put_bytes(
+            owned_data,
+            PutOptions(kind="test.unscoped_second_view", media_type="text/plain"),
+        )
+    with pytest.raises(ArtifactOwnershipError):
+        store.put_bytes(
+            b"candidate with foreign lineage",
+            PutOptions(
+                kind="test.foreign_lineage",
+                media_type="text/plain",
+                inputs=[{"artifact_id": str(owned_ref.artifact_id), "role": "source"}],
+            ),
+        )
+    with pytest.raises(ArtifactOwnershipError):
+        store.import_exact_view(
+            owned_data,
+            owned_manifest_bytes,
+            artifact_id=owned_ref,
+        )
+    with pytest.raises(ArtifactOwnershipError):
+        store.import_subgraph(owner_export.output_path, verify_integrity=True)
+
+    archive_source = FileSystemCAS(tmp_path / "archive-source")
+    child = archive_source.put_bytes(
+        b"child with claimed input",
+        PutOptions(
+            kind="test.imported_child",
+            media_type="text/plain",
+            inputs=[{"artifact_id": str(owned_ref.artifact_id), "role": "source"}],
+        ),
+    )
+    child_export = archive_source.export_subgraph(
+        [child],
+        tmp_path / "child-export.tar.gz",
+        compress=True,
+    )
+    with pytest.raises(ArtifactOwnershipError):
+        store.import_subgraph(child_export.output_path, verify_integrity=True)
+    assert not store.has(child.artifact_id)
+
+
+def test_independent_tenant_writers_preserve_claims_and_ambient_reads_refuse(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    shared_root = tmp_path / "shared"
+    raw_store = FileSystemCAS(shared_root)
+    ambient = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
+    opts = PutOptions(kind="test.concurrent_claim", media_type="text/plain")
+    ref_a = raw_store.put_bytes(b"tenant A race payload", opts)
+    ref_b = raw_store.put_bytes(b"tenant B race payload", opts)
+    index_a = ownership_module.ArtifactOwnershipIndex(shared_root)
+    index_b = ownership_module.ArtifactOwnershipIndex(shared_root)
+    store_a = FileSystemCAS(
+        shared_root,
+        tenant_id="tenant-a",
+        ownership_index=index_a,
+    )
+    store_b = FileSystemCAS(
+        shared_root,
+        tenant_id="tenant-b",
+        ownership_index=index_b,
+    )
+    first_loaded = threading.Event()
+    release_first = threading.Event()
+    second_started = threading.Event()
+    second_loaded = threading.Event()
+    original_load = ownership_module.ArtifactOwnershipIndex._load_payload
+
+    def pause_first_snapshot(index: ownership_module.ArtifactOwnershipIndex):
+        payload = original_load(index)
+        if index is index_a:
+            first_loaded.set()
+            if not release_first.wait(timeout=5):
+                raise AssertionError("first ownership write was not released")
+        elif index is index_b:
+            second_loaded.set()
+        return payload
+
+    monkeypatch.setattr(
+        ownership_module.ArtifactOwnershipIndex,
+        "_load_payload",
+        pause_first_snapshot,
+    )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future_a = executor.submit(
+            index_a.record_owner,
+            ref_a.artifact_id,
+            tenant_id="tenant-a",
+        )
+        assert first_loaded.wait(timeout=5)
+
+        def claim_from_second_index() -> None:
+            second_started.set()
+            index_b.record_owner(ref_b.artifact_id, tenant_id="tenant-b")
+
+        future_b = executor.submit(claim_from_second_index)
+        assert second_started.wait(timeout=5)
+        second_loaded_before_commit = second_loaded.wait(timeout=1)
+        release_first.set()
+        future_a.result(timeout=5)
+        future_b.result(timeout=5)
+
+    assert not second_loaded_before_commit, (
+        "a second index instance read a stale claim snapshot before the first commit"
+    )
+    assert ref_a.artifact_id != ref_b.artifact_id
+    with pytest.raises(ArtifactOwnershipError):
+        ambient.get_bytes(ref_a.artifact_id)
+    with pytest.raises(ArtifactOwnershipError):
+        ambient.get_bytes(ref_b.artifact_id)
+    assert store_a.get_bytes(ref_a.artifact_id) == b"tenant A race payload"
+    assert store_b.get_bytes(ref_b.artifact_id) == b"tenant B race payload"
+
+
+def test_ambient_claim_cache_revalidates_after_separate_instance_claim(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    shared_root = tmp_path / "shared"
+    store_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+    ref_a = store_a.put_bytes(
+        b"tenant A cached claim",
+        PutOptions(kind="test.cache_claim", media_type="text/plain"),
+    )
+    ambient = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
+    index_path = shared_root / "artifacts" / "ownership" / "index.json"
+    signature_path = index_path.with_name("index.signature.json")
+    original_loader = ownership_module._load_json_file
+    parsed_paths: list[Path] = []
+
+    def counted_load(path: Path):
+        parsed_paths.append(path)
+        return original_loader(path)
+
+    monkeypatch.setattr(ownership_module, "_load_json_file", counted_load)
+
+    for _ in range(4):
+        with pytest.raises(ArtifactOwnershipError):
+            ambient.get_bytes(ref_a.artifact_id)
+
+    assert Counter(parsed_paths) == Counter({index_path: 1, signature_path: 1})
+
+    store_b = FileSystemCAS(shared_root, tenant_id="tenant-b")
+    ref_b = store_b.put_bytes(
+        b"tenant B newly claimed bytes",
+        PutOptions(kind="test.cache_claim", media_type="text/plain"),
+    )
+    parsed_paths.clear()
+
+    with pytest.raises(ArtifactOwnershipError):
+        ambient.get_bytes(ref_b.artifact_id)
+
+    assert Counter(parsed_paths) == Counter({index_path: 1, signature_path: 1})
+
+    index_bytes = index_path.read_bytes()
+    signature_bytes = signature_path.read_bytes()
+    index_replacement = index_path.with_name("index.replacement.json")
+    index_replacement.write_bytes(index_bytes)
+    index_replacement.replace(index_path)
+    parsed_paths.clear()
+
+    with pytest.raises(ArtifactOwnershipError):
+        ambient.get_bytes(ref_b.artifact_id)
+
+    assert Counter(parsed_paths) == Counter({index_path: 1, signature_path: 1})
+
+    signature_replacement = signature_path.with_name("signature.replacement.json")
+    signature_replacement.write_bytes(signature_bytes)
+    signature_replacement.replace(signature_path)
+    parsed_paths.clear()
+
+    with pytest.raises(ArtifactOwnershipError):
+        ambient.get_bytes(ref_b.artifact_id)
+
+    assert Counter(parsed_paths) == Counter({index_path: 1, signature_path: 1})
 
 
 def test_tenant_scoped_cas_accepts_ir_dict_lineage_inputs(tmp_path) -> None:

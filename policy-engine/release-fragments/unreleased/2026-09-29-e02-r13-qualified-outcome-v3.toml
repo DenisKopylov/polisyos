@@ -1,0 +1,77 @@
+id = "2026-09-29-e02-r13-qualified-outcome-v3"
+title = "Version current DesignProblem outcomes as v3"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime-quality"
+summary = "Current NL-compiled DesignProblems use v3 qualified outcome identifiers, and the Runtime API schema and generated TypeScript surfaces now describe that versioned output."
+evidence = [
+  "tests/unit/runtime/quality/test_design_problem.py",
+  "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+  "packages/runtime-api-client/README.md",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+]
+compatibility = "Current NL compilation requires DesignProblem v3, whose outcome identifier may be qualified. A strict consumer using the previous checked-in v2 OpenAPI snapshot rejects such a current output, so response validators must migrate. Persisted v1 and v2 payloads still validate under their original unqualified grammar. The API route paths and JavaScript methods are unchanged; the generated TypeScript shape only adds a schema arm."
+change_class = "persisted-artifact-format; schema-openapi-abi; js-package-api"
+surface_classification = "public_experimental: polisyos.runtime.quality.DesignProblem; public_stable: Runtime API OpenAPI schema; public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard generated API types"
+migration = "Regenerate the runtime API client and dashboard types before validating current NL-produced responses. Discriminate on schema_version: v1 and v2 preserve their unqualified grammar; only v3 accepts qualified outcome identifiers. Keep the explicit version when persisting or replaying a DesignProblem; do not downcast v3 to v2."
+api = "GET /api/v1/exports/governed-projections/depth-n-cycle-board and GET /api/v1/exports/governed-projections/{projection_id} can return a DesignProblem through DepthNDomainRunProjection. The operations and methods do not change; current v3-qualified output was rejected by the prior snapshot and is now represented in OpenAPI."
+limitations = "A qualified canonical identifier is syntax, not proof that the variable exists in the selected world model, that N5 accepted the candidate, or that an S8 authority action is admissible. The owner exporter also recomputed ten leaves of the default confidence-ledger example from its environment-derived DependencyTracker identity; this known example drift is not a receipt or epoch reissue, and no persisted receipt or epoch was restamped."
+generated_client_compatibility = "breaking_requires_consumer_action"
+public_surface_inventory_reviewed = true
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "design-problem-v3-current-output"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "public_experimental: persisted DesignProblem; current NL compiler output"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "No v1 or v2 retirement is scheduled; new NL-produced records require v3, while historical grammar remains version-bound."
+release_note = "Current NL-produced DesignProblems use v3 and may carry qualified outcome identifiers; persisted v1 and v2 records retain their strict historical grammar."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-openapi-design-problem-v3"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "public_stable: Runtime API depth-N Cycle Board DesignProblem response schema"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "2 minor releases; strict readers of the prior snapshot must migrate before validating v3-qualified output."
+release_note = "The Runtime API schema now documents the current v3 DesignProblem response, including qualified outcomes; strict readers of the former snapshot must migrate."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-api-client-design-problem-v3"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "2 minor releases; regenerate the additive type surface to keep strict output validation aligned with v3 responses."
+release_note = "Generated runtime client types add the qualified DesignProblem v3 schema arm without changing client methods or response object fields."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-dashboard-design-problem-v3-types"
+change_class = "js-package-api"
+impact = "additive"
+surface = "internal: runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "2 minor releases; regenerate generated types to match the runtime API snapshot."
+release_note = "Runtime dashboard generated types add the qualified DesignProblem v3 outcome arm; this changes types only and adds no dashboard behavior."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []

@@ -1,0 +1,33 @@
+id = "2026-09-29-e02-r2-b88-record-ref"
+title = "Replayable served ingestion record references"
+type = "fixed"
+component = "fabric-data-plane"
+owner = "team-runtime"
+summary = "Served record-mode ingestion returns the canonical artifact reference accepted unchanged by served replay."
+evidence = [
+  "tests/unit/runtime/http/test_b88_served_replay.py",
+  "tests/unit/fabric/data_plane/test_modes.py",
+]
+compatibility = "Record-mode responses now return a sha256-prefixed record_ref instead of bare hex. Pass the returned value unchanged to replay_ref. Previously issued record sessions remain stored by their original content address."
+change_class = "python-public-api"
+surface_classification = "public_stable: Runtime control ingestion API"
+migration = "Clients that stored only the bare digest should add the sha256: prefix when submitting it as replay_ref. New clients should retain the complete returned record_ref."
+api = "The record_ref response field is a canonical ArtifactID string; replay_ref accepts that value without conversion."
+limitations = "This records and replays the selected request and its evidence through the tenant-bound store. It does not establish publisher source-update time or all transport egress coverage."
+generated_client_compatibility = "declared_compatible"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b88-record-ref-canonical-id"
+change_class = "python-public-api"
+impact = "consumer_input_update"
+surface = "public_stable: Runtime control ingestion API"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "The served record_ref includes its sha256: prefix and can be passed unchanged as replay_ref."
+generated_client_compatibility = "declared_compatible"
+migration_docs = []
+runbook_docs = []

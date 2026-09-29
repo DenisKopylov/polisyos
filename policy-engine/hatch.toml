@@ -1,11 +1,15 @@
 [build.targets.wheel]
 packages = ["src/polisyos", "tools"]
 
+[build.targets.wheel.force-include]
+"architecture/production_quality/method_catalog_dependency_digest_domains.toml" = "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
+
 [build]
 directory = "_build/dist"
 
 [build.targets.sdist]
 include = [
+  "architecture/production_quality/method_catalog_dependency_digest_domains.toml",
   "src/polisyos",
   "benchmarks",
   "docs",

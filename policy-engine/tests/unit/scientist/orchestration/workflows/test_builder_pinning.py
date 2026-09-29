@@ -9,7 +9,8 @@ import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
 from polisyos.core.security.tenant_context import (
@@ -227,19 +228,164 @@ def test_resolve_store_keeps_content_addressed_filesystem_cas_under_tenant_scope
 
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         resolved = _resolve_store(store)
+        ref = resolved.put_bytes(
+            b"supplied tenant-a workflow artifact",
+            PutOptions(kind="scientist.supplied_store_custody", media_type="text/plain"),
+        )
+
+    assert resolved is not store
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            resolved.get_bytes(ref.artifact_id)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        assert resolved.get_bytes(ref.artifact_id) == b"supplied tenant-a workflow artifact"
+
+
+def test_resolve_store_normalizes_raw_filesystem_store_factory_under_tenant_scope(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        resolved = _resolve_store(None, store_factory=lambda: store)
+        ref = resolved.put_bytes(
+            b"factory tenant-a workflow artifact",
+            PutOptions(kind="scientist.factory_store_custody", media_type="text/plain"),
+        )
+
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            resolved.get_bytes(ref.artifact_id)
+
+
+def test_resolve_store_preserves_unscoped_supplied_filesystem_candidate(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+
+    resolved = _resolve_store(store)
+    ref = resolved.put_bytes(
+        b"unscoped supplied candidate",
+        PutOptions(kind="scientist.unscoped_candidate", media_type="text/plain"),
+    )
+
+    assert resolved is not store
+    assert resolved.get_bytes(ref.artifact_id) == b"unscoped supplied candidate"
+
+
+def test_resolve_store_unscoped_supplied_view_hides_existing_tenant_claims(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        tenant_store = _resolve_store(store)
+        ref = tenant_store.put_bytes(
+            b"supplied tenant-owned artifact",
+            PutOptions(kind="scientist.supplied_tenant_claim", media_type="text/plain"),
+        )
+
+    unscoped_store = _resolve_store(store)
+    with pytest.raises(ArtifactOwnershipError):
+        unscoped_store.get_bytes(ref.artifact_id)
+
+
+def test_resolve_store_preserves_strict_tenant_filesystem_view_identity(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path).for_tenant("tenant-a", "cell-a")
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        resolved = _resolve_store(store)
 
     assert resolved is store
+
+
+def test_resolve_store_normalizes_raw_filesystem_store_from_access_scope(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    access_scope = AccessScope(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        principal_type="user",
+        user_sub="alice",
+        roles=frozenset({PolicyOSRole.ADMIN}),
+        max_pii_tier=PIIAccessLevel.NONE,
+        mfa_verified=True,
+    )
+
+    token = set_current_access_scope(access_scope)
+    try:
+        resolved = _resolve_store(store)
+        ref = resolved.put_bytes(
+            b"access-scope workflow artifact",
+            PutOptions(kind="scientist.access_scope_store_custody", media_type="text/plain"),
+        )
+    finally:
+        reset_current_access_scope(token)
+
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            resolved.get_bytes(ref.artifact_id)
+
+
+def test_resolve_store_refuses_guarded_filesystem_store_without_owner_enforcement(
+    tmp_path,
+) -> None:
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
+    guarded_store = guard_runtime_cas(FileSystemCAS(tmp_path))
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        with pytest.raises(ArtifactOwnershipError, match="ownership enforcement"):
+            _resolve_store(guarded_store)
 
 
 def test_resolve_store_keeps_guarded_content_addressed_filesystem_cas_under_tenant_scope(
     tmp_path,
 ) -> None:
-    guarded_store = SimpleNamespace(_target=FileSystemCAS(tmp_path))
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
+    guarded_store = guard_runtime_cas(
+        FileSystemCAS(tmp_path).with_ambient_ownership_enforcement()
+    )
 
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         resolved = _resolve_store(guarded_store)
 
     assert resolved is guarded_store
+
+
+def test_default_store_records_tenant_owner_and_blocks_foreign_reads(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    import polisyos.scientist.orchestration.workflows.builder as builder
+
+    monkeypatch.setattr(builder, "DEFAULT_CAS_ROOT", tmp_path / "default-cas")
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        store = _resolve_store(None)
+        ref = store.put_bytes(
+            b"tenant-a default workflow artifact",
+            PutOptions(kind="scientist.default_store_custody", media_type="text/plain"),
+        )
+
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            store.get_bytes(ref.artifact_id)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        assert store.get_bytes(ref.artifact_id) == b"tenant-a default workflow artifact"
+
+
+def test_default_store_keeps_unscoped_candidate_io_usable(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    import polisyos.scientist.orchestration.workflows.builder as builder
+
+    monkeypatch.setattr(builder, "DEFAULT_CAS_ROOT", tmp_path / "default-cas")
+    store = _resolve_store(None)
+    ref = store.put_bytes(
+        b"unscoped candidate artifact",
+        PutOptions(kind="scientist.default_store_candidate", media_type="text/plain"),
+    )
+
+    assert store.get_bytes(ref.artifact_id) == b"unscoped candidate artifact"
 
 
 def test_artifact_ref_or_none_assertion_is_not_swallowed(

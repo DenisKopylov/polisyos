@@ -18,6 +18,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.scientist.methods.search.contracts import ParetoViewProjection
 from polisyos.scientist.methods.search.frontier import (
     FrontierPoint,
     dominates,
@@ -136,6 +137,7 @@ class SearchResult:
     stage_b_evaluations: int
     pareto_front: list[dict[str, Any]] = field(default_factory=list)
     telemetry: dict[str, Any] = field(default_factory=dict)
+    pareto_projection: ParetoViewProjection | None = None
 
 
 def _non_reentrant_run(
@@ -496,6 +498,7 @@ class SearchController:
             "registry_update": {"search_id": snapshot.search_id},
             "lesson_cards": [],
             "frontier_delta": deepcopy(snapshot.pareto_front),
+            "pareto_projection": snapshot.pareto_projection,
         }
 
     def _begin_native_run(self, initial_context: dict[str, Any]) -> datetime:
@@ -582,6 +585,7 @@ class SearchController:
             stage_a_evaluations=snapshot.stage_a_evaluations,
             stage_b_evaluations=snapshot.stage_b_evaluations,
             pareto_front=deepcopy(snapshot.pareto_front),
+            pareto_projection=snapshot.pareto_projection,
             telemetry=deepcopy(telemetry),
         )
 
@@ -926,7 +930,7 @@ class SearchController:
         try:
             from polisyos.scientist.policy_design.objectives import (
                 PolicyEvaluationBundle,
-                PolicyEvaluationVector,
+                _normalize_policy_evaluation_vector,
             )
             from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
         except _IMPORT_ERRORS as exc:
@@ -944,37 +948,17 @@ class SearchController:
         typed_error_reason: str | None = None
         if typed_vector_present:
             raw_vector = stage_b_result.get("policy_evaluation")
-            if isinstance(raw_vector, PolicyEvaluationVector):
-                return _PolicyEvaluationResolution(value=raw_vector, status="valid")
-            if hasattr(raw_vector, "model_dump"):
-                try:
-                    raw_vector = raw_vector.model_dump(mode="python")
-                except _SEARCH_DEGRADED_ERRORS as exc:
-                    typed_error_reason = "policy_evaluation_normalization_failed"
-                    _search_degraded(
-                        operation="resolve_policy_evaluation",
-                        reason=typed_error_reason,
-                        exc=exc,
-                    )
-            if isinstance(raw_vector, dict):
-                try:
-                    return _PolicyEvaluationResolution(
-                        value=PolicyEvaluationVector.model_validate(raw_vector),
-                        status="valid",
-                    )
-                except _SEARCH_DEGRADED_ERRORS as exc:
-                    typed_error_reason = "policy_evaluation_parse_failed"
-                    _search_degraded(
-                        operation="resolve_policy_evaluation",
-                        reason=typed_error_reason,
-                        exc=exc,
-                    )
-            elif typed_error_reason is None:
+            try:
+                return _PolicyEvaluationResolution(
+                    value=_normalize_policy_evaluation_vector(raw_vector, allow_mapping=True),
+                    status="valid",
+                )
+            except _SEARCH_DEGRADED_ERRORS as exc:
                 typed_error_reason = "policy_evaluation_parse_failed"
                 _search_degraded(
                     operation="resolve_policy_evaluation",
                     reason=typed_error_reason,
-                    exc=ValueError("policy_evaluation must be a typed vector or mapping"),
+                    exc=exc,
                 )
 
         objective_stack = self._config.policy_objective_stack
@@ -1055,13 +1039,31 @@ class SearchController:
 
         try:
             evaluation = objective_stack.evaluate(bundle)
-            if not isinstance(evaluation, PolicyEvaluationVector):
+            try:
+                normalized = _normalize_policy_evaluation_vector(evaluation)
+            except TypeError as exc:
+                _search_degraded(
+                    operation="resolve_policy_evaluation",
+                    reason="objective_stack_returned_untyped_result",
+                    exc=exc,
+                )
                 return _PolicyEvaluationResolution(
                     value=None,
                     status="invalid",
                     reason="objective_stack_returned_untyped_result",
                 )
-            return _PolicyEvaluationResolution(value=evaluation, status="valid")
+            except _SEARCH_DEGRADED_ERRORS as exc:
+                _search_degraded(
+                    operation="resolve_policy_evaluation",
+                    reason="objective_stack_returned_invalid_vector",
+                    exc=exc,
+                )
+                return _PolicyEvaluationResolution(
+                    value=None,
+                    status="invalid",
+                    reason="objective_stack_returned_invalid_vector",
+                )
+            return _PolicyEvaluationResolution(value=normalized, status="valid")
         except _SEARCH_DEGRADED_ERRORS as exc:
             _search_degraded(
                 operation="resolve_policy_evaluation",
@@ -1120,6 +1122,11 @@ class SearchController:
                 domain=(transfer_context.domain if transfer_context is not None else None),
                 transfer_context=transfer_context,
             )
+            from polisyos.scientist.methods.search.pareto_registry import ParetoView
+
+            self._run_state.pareto_projection = registry.get_snapshot(
+                self._search_id
+            ).project_view(ParetoView.GLOBAL_FEASIBLE)
             self._pareto_front = registry.as_legacy_frontier_payload(self._search_id)
             return
 

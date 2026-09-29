@@ -93,7 +93,9 @@ from polisyos.runtime.quality.generation_cycle import (
     _summary_with_value_observation,
     enforce_no_retry_without_new_grammar,
     generation_cycle_terminal_state,
+    validate_generation_cycle_candidate_run,
     validate_generation_cycle_run,
+    validate_generation_cycle_run_history,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import (
     GroundingDispositionKind,
@@ -714,6 +716,66 @@ class _AcquisitionGrounding:
         )
 
 
+class _N7ReentrySimulationPort:
+    """Record candidate-band N5 re-entry without manufacturing simulation evidence."""
+
+    def __init__(self) -> None:
+        self.calls: list[dict[str, Any]] = []
+
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> SimulationPortObservation:
+        del problem
+        atom = candidate.atom
+        call = {
+            "candidate_id": str(candidate.candidate_id),
+            "candidate_content_hash": str(atom.content_hash),
+            "target_world_slots": tuple(atom.target_world_slots),
+            "world_model_record_ref": str(atom.world_model_record_ref),
+            "cycle_index": cycle_index,
+        }
+        self.calls.append(call)
+        return SimulationPortObservation(
+            candidate_id=call["candidate_id"],
+            status="simulation_pending_n5",
+            authority_blockers=("n5_owner_wmr_unavailable",),
+            diagnostics={"candidate_reentry_probe": call},
+        )
+
+
+class _N7ReentryPendingValuePort(PendingN8ValuePort):
+    """Record N8 invocation while retaining its explicit pending outcome."""
+
+    def __init__(self) -> None:
+        self.calls: list[dict[str, Any]] = []
+
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> ValuePortObservation:
+        del problem
+        call = {
+            "candidate_id": str(candidate.candidate_id),
+            "simulation_status": simulation.status,
+            "cycle_index": cycle_index,
+        }
+        self.calls.append(call)
+        return ValuePortObservation(
+            status="value_pending_n8",
+            candidate_id=call["candidate_id"],
+            authority_blockers=("value_gate_pending_n8",),
+            reason="N8 owner is not established in the N7 candidate-band re-entry fixture.",
+        )
+
+
 class _EmptyGenerationPort:
     async def __call__(
         self,
@@ -915,6 +977,36 @@ def test_production_n9_port_is_canonical_and_contract_fake_remains_available() -
     )
     assert allowed.reason == "contract_fake_called"
     assert fake.call_count == 1
+
+
+def test_contract_testing_source_uses_explicit_local_store_control(tmp_path: Path) -> None:
+    """The custody rule keeps explicit local contract testing demonstrable."""
+    store = FileSystemCAS(tmp_path / "contract-source-cas")
+    controller = GenerationCycleController(
+        repo_root=tmp_path,
+        artifact_store=store,
+        authority_scope="contract_testing",
+    )
+
+    controller._begin_source_run("generation_cycle_contract_store_control")
+
+    assert controller._source_repository is not None
+    assert controller._source_repository.store is store
+
+
+def test_production_source_without_runtime_store_issues_no_recomputed_receipt(
+    tmp_path: Path,
+) -> None:
+    """Missing source custody never emits a receipt that claims replay took place."""
+    controller = GenerationCycleController(repo_root=tmp_path)
+
+    controller._begin_source_run("generation_cycle_missing_store_control")
+    receipt = controller._source_preservation_receipt()
+
+    assert controller._source_repository is None
+    assert receipt is None
+    assert controller._source_issues == ["source_store_unavailable"]
+    assert not (tmp_path / ".polisyos" / "runtime" / "generation_source").exists()
 
 
 class _MixedBindingAndDispositionPort:
@@ -2537,14 +2629,18 @@ def _record_with_selected_ncm_ref(record: Any, ncm_ref: str) -> Any:
     return type(record).model_validate(payload)
 
 
-def _owner_n5_case_with_selected_ncm_ref(ncm_ref: str) -> tuple[Any, Any, Any]:
+def _owner_n5_case_with_selected_ncm_ref(
+    ncm_ref: str,
+    *,
+    runtime_hints: dict[str, Any] | None = None,
+) -> tuple[Any, Any, Any]:
     """Build a content-valid owner context and candidate naming one selected NCM."""
 
     from polisyos.runtime.quality.intervention_atom_binding import (
         intervention_atom_content_hash,
     )
 
-    problem, context, candidate = _cyc01_owner_bound_n5_case()
+    problem, context, candidate = _cyc01_owner_bound_n5_case(runtime_hints=runtime_hints)
     world_record = _record_with_selected_ncm_ref(context.world_model_record, ncm_ref)
     context = build_cycle_substrate_context(
         design_problem_ref=context.design_problem_ref,
@@ -2655,6 +2751,105 @@ def test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_con
             expected.model_dump(mode="json")
         )
         assert not (repo_root / ".tmp" / "gy-s-composed-wmr-cas").exists()
+    finally:
+        store.close()
+
+
+@pytest.mark.asyncio
+async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
+    tmp_path: Path,
+) -> None:
+    """B26: the ordinary N6 run reaches N5, persists it, and N8 reads that exact result."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+
+    store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    hints = {
+        "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
+        "joint_simulation_baseline_state": {"firm_survival": 0.0},
+    }
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        runtime_hints=hints,
+    )
+
+    class _ControlledN4:
+        async def __call__(self, generated_problem: DesignProblem, *, cycle_index: int) -> Any:
+            assert generated_problem.design_problem_id == problem.design_problem_id
+            assert cycle_index == 0
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(candidate_id=candidate.candidate_id, score=0.9, voi_estimate=4.0),
+                ),
+            )
+
+    def limited_candidate_grounding(
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=candidate.candidate_id,
+            status="grounding_unavailable",
+            grounding_score=0.2,
+            issue_codes=("controlled_profile_grounding_unavailable",),
+            grounding_source="grounding_unavailable",
+        )
+
+    controller = GenerationCycleController(
+        generation_port=_ControlledN4(),
+        grounding_port=limited_candidate_grounding,
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+        authority_scope="contract_testing",
+    )
+    assert isinstance(controller._simulation_port, JointSimulationPort)
+    assert controller._simulation_port._artifact_store is store
+    assert controller._value_port.artifact_store is store
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            run = await controller.run(
+                problem,
+                budget_state=_budget(),
+                min_cycles=1,
+                max_cycles=1,
+            )
+            assert run.synthetic is True
+            cycle = run.cycles[0]
+            assert cycle.simulation.status == "joint_simulated"
+            assert cycle.simulation.simulation_result_ref is not None
+            assert cycle.value_port.status == "value_conditional"
+            assert cycle.value_port.evaluation_mode == "simulate_only"
+            assert cycle.value_port.decision_grade == "low"
+            assert "simulation_only_k_sim_not_world_evidence" in (
+                cycle.value_port.authority_blockers
+            )
+            persisted = load_joint_simulation_result(
+                cycle.simulation.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=(
+                    context.world_model_record.content_hash
+                ),
+                expected_atom_ids=tuple(
+                    atom.intervention_id for atom in candidate.intervention_atoms
+                ),
+                expected_selected_outcomes=("firm_survival",),
+            )
+
+        assert persisted.atom_ids == tuple(
+            atom.intervention_id for atom in candidate.intervention_atoms
+        )
+        assert persisted.selected_outcomes == ("firm_survival",)
+        assert persisted.world_model_record_content_hash == context.world_model_record.content_hash
+        assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)
     finally:
         store.close()
 
@@ -3962,7 +4157,12 @@ async def test_same_candidate_new_basis_preserves_history_and_current_front() ->
         for candidate_id in candidate_ids
     )
     assert front_ids == ("candidate_same_subject",)
-    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
+    assert validate_generation_cycle_candidate_run(run) == ()
+    strict_issue_codes = {
+        issue["code"] for issue in validate_generation_cycle_run(run, repo_root=REPO_ROOT)
+    }
+    assert "strangle_receipt_currentness_not_established" in strict_issue_codes
+    assert "single_pass_fixture_survives_as_production_cycle" not in strict_issue_codes
 
 
 
@@ -4025,7 +4225,9 @@ async def test_blocked_n6_preempts_deployment_identity_mismatch_and_keeps_candid
 
 
 @pytest.mark.asyncio
-async def test_nonblocked_candidate_source_preserves_canonical_identity_gate() -> None:
+async def test_nonblocked_candidate_source_preserves_canonical_identity_gate(
+    tmp_path: Path,
+) -> None:
     class _SchedulerStopController(GenerationCycleController):
         def decide_next_action(self, **kwargs: Any) -> Any:
             decision = super().decide_next_action(**kwargs)
@@ -4034,18 +4236,38 @@ async def test_nonblocked_candidate_source_preserves_canonical_identity_gate() -
             )
 
     problem = _problem("nonblocked_identity_gate_control")
-    run = await _SchedulerStopController(
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "runtime-store"))
+    controller = _SchedulerStopController(
         generation_port=_CounterexampleAwareGenerator(),
         grounding_port=_CurrentValidGrounding(),
         value_port=PendingN8ValuePort(),
         repo_root=REPO_ROOT,
-    ).run(
+        promotion_runtime=runtime,
+    )
+    run = await controller.run(
         problem,
         budget_state=_budget(),
         min_cycles=2,
         max_cycles=3,
     )
     assert run.terminal_status == "completed"
+    assert run.schema_version == generation_cycle_module.GENERATION_CYCLE_SCHEMA_VERSION
+    assert run.source_custody_limitation is None
+    assert "source_custody_limitation" not in run.model_dump(mode="json")
+    assert controller._source_repository is not None
+    assert controller._source_repository.store is runtime.store
+    assert run.cycles[-1].terminal_kind == "grounded_abstention"
+    assert run.cycles[-1].voi_decision.next_action == "stop"
+    reconciled_status, reconciled_reason, reconciled_cycle = (
+        generation_cycle_module._reconcile_blocked_voi_action(
+            run.cycles[-1],
+            terminal_status=run.terminal_status,
+            blocked_reason=run.blocked_reason,
+        )
+    )
+    assert reconciled_status == "completed"
+    assert reconciled_reason is None
+    assert reconciled_cycle is run.cycles[-1]
     n9_source = generation_cycle_module.eligible_n9_source_for_run(run)
     assert n9_source is not None
     assert n9_source.run is run
@@ -4071,6 +4293,90 @@ async def test_nonblocked_candidate_source_preserves_canonical_identity_gate() -
     assert matching_identity_control.reason == (
         "epoch_validity_refused:promotion_runtime_not_established"
     )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("loaded_identities", "expected_reason"),
+    [
+        (
+            ("a" * 64, "b" * 64),
+            "generation_cycle_n6_deployment_identity_stale:"
+            "generation_cycle_deployment_identity_mismatch",
+        ),
+        (
+            ("a" * 64, "a" * 64),
+            "generation_cycle_n6_census_not_established:"
+            "n6_census_issuer_not_appointed",
+        ),
+    ],
+    ids=("identity-changes-before-n9", "same-identity-census-remains-unrun"),
+)
+async def test_pre_n9_rechecks_canonical_identity_without_refusing_candidates(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    loaded_identities: tuple[str, str],
+    expected_reason: str,
+) -> None:
+    """The pre-N9 owner recheck blocks authority while retaining N6 candidates."""
+
+    observations = iter(
+        LoadedDeploymentIdentityObservation(
+            status="established",
+            deployment_identity=f"policy-engine-deployment:sha256:{identity}",
+        )
+        for identity in loaded_identities
+    )
+    capture_count = 0
+
+    def capture_loaded_identity() -> LoadedDeploymentIdentityObservation:
+        nonlocal capture_count
+        capture_count += 1
+        return next(observations)
+
+    monkeypatch.setattr(
+        confidence_ledger_module,
+        "capture_loaded_deployment_identity",
+        capture_loaded_identity,
+    )
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    n9_preparation: list[bool] = []
+    monkeypatch.setattr(
+        runtime,
+        "_prepare_completed_generation",
+        lambda **_kwargs: n9_preparation.append(True),
+    )
+
+    class _SchedulerStopController(GenerationCycleController):
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "stop", "reason": "ordinary_scheduler_stop"}
+            )
+
+    run = await _SchedulerStopController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_CurrentValidGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=REPO_ROOT,
+        promotion_runtime=runtime,
+    ).run(
+        _problem("pre_n9_identity_recheck"),
+        budget_state=_budget(),
+        min_cycles=2,
+        max_cycles=3,
+    )
+
+    assert capture_count == 2
+    assert run.terminal_status == "completed"
+    assert run.candidate_summaries
+    assert run.deployment_identity_status == "established"
+    assert run.deployment_identity == (
+        f"policy-engine-deployment:sha256:{loaded_identities[0]}"
+    )
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.reason == expected_reason
+    assert n9_preparation == []
 
 
 @pytest.mark.asyncio
@@ -4108,9 +4414,12 @@ async def test_missing_deployment_identity_does_not_refuse_candidate_computation
     assert run.deployment_identity_status == "not_established"
     assert run.deployment_identity is None
     assert run.deployment_identity_reason == "canonical_loaded_runtime_mismatch"
+    currentness = generation_cycle_module.currentness_for_generation_cycle_run(run)
+    assert currentness.reason_code == "historical_deployment_identity_not_recorded"
+    assert currentness.loaded_identity_reason_code == "canonical_loaded_runtime_mismatch"
     assert run.promotion_port.status == "not_promoted"
     assert run.promotion_port.reason == (
-        "confidence_ledger_refused:deployment_identity_not_established"
+        "generation_cycle_n6_census_not_established:loaded_deployment_identity_not_established"
     )
     assert n9_preparation == []
 
@@ -4122,6 +4431,63 @@ async def test_missing_deployment_identity_does_not_refuse_candidate_computation
     assert defaulted_run.deployment_identity_status == "not_established"
     assert defaulted_run.deployment_identity is None
     assert defaulted_run.deployment_identity_reason == "loaded_deployment_identity_not_supplied"
+
+
+@pytest.mark.asyncio
+async def test_inspect_generation_cycle_run_uses_one_confidence_ledger_observation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Strict currentness issues and the retained observation share one owner read."""
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        repo_root=REPO_ROOT,
+    ).run(_problem("single_n6_observation"), budget_state=_budget(), max_cycles=1)
+    recorded_identity = "policy-engine-deployment:sha256:" + "a" * 64
+    loaded_identity = "policy-engine-deployment:sha256:" + "b" * 64
+    run = run.model_copy(
+        update={
+            "deployment_identity_status": "established",
+            "deployment_identity": recorded_identity,
+            "deployment_identity_reason": None,
+        }
+    )
+    stale = generation_cycle_module.N6DeploymentCurrentnessObservation(
+        status="stale",
+        census_verdict="FAIL",
+        recorded_identity_status="established",
+        recorded_deployment_identity=recorded_identity,
+        loaded_identity_status="established",
+        loaded_deployment_identity=loaded_identity,
+        reason_code="generation_cycle_deployment_identity_mismatch",
+        unresolved_by_construction=(),
+    )
+    later_current = generation_cycle_module.N6DeploymentCurrentnessObservation(
+        status="current",
+        census_verdict="PASS",
+        recorded_identity_status="established",
+        recorded_deployment_identity=recorded_identity,
+        loaded_identity_status="established",
+        loaded_deployment_identity=recorded_identity,
+        reason_code="n6_currentness_established",
+        unresolved_by_construction=(),
+    )
+    observations = [stale, later_current]
+    calls: list[dict[str, object]] = []
+
+    def observe(**kwargs: object) -> generation_cycle_module.N6DeploymentCurrentnessObservation:
+        calls.append(dict(kwargs))
+        return observations[min(len(calls) - 1, 1)]
+
+    monkeypatch.setattr(generation_cycle_module, "observe_n6_deployment_currentness", observe)
+
+    inspection = generation_cycle_module.inspect_generation_cycle_run(run)
+
+    assert len(calls) == 1
+    assert inspection.currentness == stale
+    assert {
+        (issue["code"], issue.get("reason")) for issue in inspection.issues
+    } >= {("strangle_receipt_stale", "generation_cycle_deployment_identity_mismatch")}
 
 
 @pytest.mark.asyncio
@@ -4761,7 +5127,87 @@ async def test_default_production_n7_without_runtime_store_keeps_typed_limit(
     assert cycle.counterexample.diagnostic.code == (
         "n6.acquisition.n7_runtime_store_not_supplied"
     )
+    assert run.candidate_summaries
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert run.source_custody_limitation is not None
+    assert run.source_custody_limitation.status == "not_established"
+    assert run.source_custody_limitation.reason_code == "source_store_unavailable"
+    assert run.source_handoff_refs == ()
+    assert run.source_preservation_receipt is None
+    serialized = run.model_dump(mode="json")
+    assert serialized["schema_version"] == run.schema_version
+    assert serialized["source_custody_limitation"] == {
+        "schema_version": "policyos.runtime.generation_source_custody_limitation.v1",
+        "status": "not_established",
+        "reason_code": "source_store_unavailable",
+    }
+    replayed = GenerationCycleRun.model_validate(serialized)
+    assert replayed.model_dump(mode="json") == serialized
+    assert validate_generation_cycle_run_history(serialized) == ()
+    passing_source_root = tmp_path / "passing-source-census"
+    passing_source = passing_source_root / "src/polisyos/minimal.py"
+    passing_source.parent.mkdir(parents=True)
+    passing_source.write_text("def candidate_source():\n    return None\n", encoding="utf-8")
+    passing_strangle = StrangleReceipt.recompute(passing_source_root)
+    assert passing_strangle.status == "strangled"
+    matching_identity = "policy-engine-deployment:sha256:" + "a" * 64
+    current_observation = generation_cycle_module.N6DeploymentCurrentnessObservation(
+        status="current",
+        census_verdict="PASS",
+        recorded_identity_status="established",
+        recorded_deployment_identity=matching_identity,
+        loaded_identity_status="established",
+        loaded_deployment_identity=matching_identity,
+        reason_code="n6_currentness_established",
+        unresolved_by_construction=(),
+    )
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "observe_n6_deployment_currentness",
+        lambda **_kwargs: current_observation,
+    )
+    identity_current_limited = run.model_copy(
+        update={
+            "strangle_receipt": passing_strangle,
+            "deployment_identity_status": "established",
+            "deployment_identity": matching_identity,
+            "deployment_identity_reason": None,
+        }
+    )
+    assert generation_cycle_module.currentness_for_generation_cycle_run(
+        identity_current_limited
+    ).status == "current"
+    strict_issue_codes = {
+        issue["code"]
+        for issue in generation_cycle_module.validate_generation_cycle_run(
+            identity_current_limited
+        )
+    }
+    assert "generation_cycle_source_custody_not_established" in strict_issue_codes
+    if run.terminal_status == "blocked":
+        assert generation_cycle_module.eligible_n9_source_for_run(
+            identity_current_limited
+        ) is None
+    else:
+        candidate_source = generation_cycle_module.eligible_n9_source_for_run(
+            identity_current_limited
+        )
+        assert candidate_source is not None
+        assert candidate_source.run is identity_current_limited
+        assert candidate_source.promotion_port.receipts == ()
+    blocked_limited = identity_current_limited.model_copy(
+        update={"terminal_status": "blocked"}
+    )
+    assert generation_cycle_module.eligible_n9_source_for_run(blocked_limited) is None
+    assert controller._source_repository is None
+    assert controller._source_issues == ["source_store_unavailable"]
+    assert run.strangle_receipt.status == "not_established"
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.reason == (
+        "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+    )
     assert not (tmp_path / ".n7-live-cas").exists()
+    assert not (tmp_path / ".polisyos" / "runtime" / "generation_source").exists()
 
 
 @pytest.mark.asyncio
@@ -4788,10 +5234,114 @@ async def test_production_candidate_without_n7_receipt_is_not_refused() -> None:
     assert run.cycles[0].counterexample.diagnostic.code != (
         "n6.acquisition.n7_native_admission_not_established"
     )
+    assert run.source_custody_limitation is not None
+    assert run.source_custody_limitation.reason_code == "source_store_unavailable"
+    assert "generation_cycle_source_custody_not_established" in {
+        issue["code"] for issue in validate_generation_cycle_run(run)
+    }
+    candidate_source = generation_cycle_module.eligible_n9_source_for_run(run)
+    assert candidate_source is not None
+    assert candidate_source.run is run
+    assert candidate_source.promotion_port.status == "not_promoted"
+    assert candidate_source.promotion_port.receipts == ()
+
+    forged_port = run.promotion_port.model_copy(
+        update={"receipts": ({"candidate_id": "forged_n9"},)}
+    )
+    forged_run = run.model_copy(update={"promotion_port": forged_port})
+    with pytest.raises(GenerationCycleError) as refused:
+        generation_cycle_module.eligible_n9_source_for_run(forged_run)
+    assert refused.value.code == "generation_cycle_run_invalid_before_n9"
+
+
+def _assert_n7_reentered_in_candidate_band(
+    *,
+    run: GenerationCycleRun,
+    original_atom: InterventionAtomBinding,
+    simulation_port: _N7ReentrySimulationPort,
+    value_port: _N7ReentryPendingValuePort,
+    require_disjoint_source_and_target: bool = False,
+) -> None:
+    """Prove same-cycle dependent work runs while N7 supplies no CGF authority."""
+
+    assert len(run.cycles) == 1
+    cycle = run.cycles[0]
+    assert cycle.acquisition_receipt is not None
+    receipt = cycle.acquisition_receipt
+    assert receipt["source_cycle_index"] == cycle.cycle_index
+    assert receipt["reentry_cycle_index"] == cycle.cycle_index
+    assert receipt["status"] == "completed_no_results"
+    assert receipt["real_grounding_result_count"] == 0
+    assert receipt["no_result_costed_gap"] is True
+    assert receipt["useful_design_rate_after"] == receipt["useful_design_rate_before"]
+    write_outcomes = receipt["world_write_outcomes"]
+    assert len(write_outcomes) == 1
+    assert write_outcomes[0]["status"] == "written"
+    assert write_outcomes[0]["world_ref_after"] == receipt["grown_world_after_ref"]
+
+    # These behavioral signals must turn red if code keeps the receipt's
+    # same-cycle re-entry markers but skips the dependent N5 callback.
+    assert len(simulation_port.calls) == 2
+    initial, reentered = simulation_port.calls
+    assert initial["candidate_id"] == reentered["candidate_id"] == cycle.selected_candidate_ref
+    assert initial["cycle_index"] == reentered["cycle_index"] == cycle.cycle_index
+    assert initial["candidate_content_hash"] == original_atom.content_hash
+    assert initial["world_model_record_ref"] == original_atom.world_model_record_ref
+    assert reentered["target_world_slots"] == tuple(original_atom.target_world_slots)
+    assert reentered["world_model_record_ref"] == receipt["grown_world_after_ref"]
+    assert reentered["candidate_content_hash"] != initial["candidate_content_hash"]
+    assert cycle.selected_candidate_content_hash == reentered["candidate_content_hash"]
+    assert cycle.simulation.status == "simulation_pending_n5"
+
+    rows = [
+        row
+        for row in receipt["grounding_rederivations"]
+        if row["design_id"] == cycle.selected_candidate_ref
+    ]
+    assert len(rows) == 1
+    assert rows[0]["status"] == "grounding_unavailable"
+    assert rows[0]["issue_codes"] == ["generation_result_problem_scope_unestablished"]
+    assert cycle.grounding.status == "grounding_unavailable"
+    assert cycle.grounding.grounding_source == "grounding_unavailable"
+    assert cycle.grounding.grounding_disposition is None
+    assert cycle.grounding.cgf_certificate_refs == ()
+    assert cycle.grounding.evidence_refs == ()
+    assert cycle.terminal_kind == "a_spec_gap"
+    assert run.terminal_status == "completed"
+    assert run.blocked_reason is None
+
+    if require_disjoint_source_and_target:
+        source_slots = set(receipt["affected_region"]["source_slots"])
+        target_slots = set(reentered["target_world_slots"])
+        assert source_slots
+        assert target_slots
+        assert source_slots.isdisjoint(target_slots)
+
+    # N8 was called for the same same-cycle re-entry and kept pending. Neither
+    # pending result is an N5 simulation or N8 value authority receipt.
+    assert len(value_port.calls) == 2
+    assert value_port.calls[-1] == {
+        "candidate_id": cycle.selected_candidate_ref,
+        "simulation_status": "simulation_pending_n5",
+        "cycle_index": cycle.cycle_index,
+    }
+    assert cycle.value_port.status == "value_pending_n8"
+    assert run.promotion_port.status != "certified_current_valid"
+    assert run.promotion_port.receipts == ()
 
 
 @pytest.mark.asyncio
 async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() -> None:
+    class _ObserveActionsController(GenerationCycleController):
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+            self.action_decisions: list[Any] = []
+
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            self.action_decisions.append(decision)
+            return decision
+
     data_spec = _n7_data_requirement_spec()
     problem = _problem().model_copy(
         update={
@@ -4818,7 +5368,7 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
     atom = _canonical_n7_test_atom(
         problem,
         candidate_id="candidate_cycle_1",
-        target_world_slot="owner_panel_missing",
+        target_world_slot="policy_outcome_slot",
     )
     payload = _n7_owner_payload(
         acquired_family="owner_panel_missing",
@@ -4846,10 +5396,13 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
             capture_mode="local_substrate_owner",
         ),
     )
-    controller = GenerationCycleController(
+    simulation_probe = _N7ReentrySimulationPort()
+    value_probe = _N7ReentryPendingValuePort()
+    controller = _ObserveActionsController(
         generation_port=_CounterexampleAwareGenerator(first_atom=atom),
         grounding_port=_AcquisitionGrounding(),
-        value_port=PendingN8ValuePort(),
+        simulation_port=simulation_probe,
+        value_port=value_probe,
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
@@ -4862,12 +5415,135 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
     receipt = run.cycles[0].acquisition_receipt
     assert receipt["source_cycle_index"] == 0
     assert receipt["reentry_cycle_index"] == 0
-    assert receipt["real_grounding_result_count"] == 1
-    assert receipt["useful_design_rate_after"] > 0.0
-    assert run.cycles[0].terminal_kind == "grounded_abstention"
-    assert run.cycles[0].grounding.status == "grounded_shadow"
-    assert run.candidate_summaries[0].grounding_status == "grounded_shadow"
+    _assert_n7_reentered_in_candidate_band(
+        run=run,
+        original_atom=atom,
+        simulation_port=simulation_probe,
+        value_port=value_probe,
+        require_disjoint_source_and_target=True,
+    )
     assert run.acquisition_receipts == (receipt,)
+    assert len(controller.action_decisions) == 2
+    assert controller.action_decisions[-1].next_action == "escalate"
+    assert run.cycles[0].voi_decision.next_action == "escalate"
+    assert run.terminal_status == "completed"
+    assert run.blocked_reason is None
+    assert any(
+        summary.candidate_id == "candidate_cycle_1" for summary in run.candidate_summaries
+    )
+    assert run.fronts.decision.candidate_ids == ()
+    assert "candidate_cycle_1" in (
+        run.fronts.research.candidate_ids + run.fronts.quarantine.candidate_ids
+    )
+
+
+@pytest.mark.asyncio
+async def test_blocked_action_after_n7_reentry_is_terminal_before_n9() -> None:
+    class _BlockAfterReentryController(GenerationCycleController):
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+            self.action_decisions = 0
+
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            self.action_decisions += 1
+            if self.action_decisions == 1:
+                return decision.model_copy(
+                    update={"next_action": "advance", "reason": "test_initial_advance"}
+                )
+            return decision.model_copy(
+                update={"next_action": "blocked", "reason": "post_n7_blocked"}
+            )
+
+    data_spec = _n7_data_requirement_spec()
+    problem = _problem().model_copy(
+        update={
+            "runtime_hints": {
+                "n7_data_requirement_specs": (data_spec,),
+                "n7_world_snapshot": AcquisitionWorldSnapshot(
+                    world_ref="world://before/n6-n7",
+                    known_slots=("owner_panel_missing",),
+                    dependency_index={"owner_panel_missing": ("candidate_cycle_1",)},
+                    design_revalidation_stages={
+                        "candidate_cycle_1": (
+                            "identification",
+                            "calibration",
+                            "value_set",
+                            "grounding",
+                        )
+                    },
+                    substrate_registry=_n7_substrate_registry().model_dump(mode="json"),
+                ),
+                "n7_useful_design_rate_before": 0.0,
+            }
+        }
+    )
+    atom = _canonical_n7_test_atom(
+        problem,
+        candidate_id="candidate_cycle_1",
+        target_world_slot="policy_outcome_slot",
+    )
+    payload = _n7_owner_payload(
+        acquired_family="owner_panel_missing",
+        source_id="fabric.owner_panel_missing",
+        candidate_id="candidate_cycle_1",
+        candidate_content_hash=atom.content_hash,
+        target_world_slots=atom.target_world_slots,
+    )
+    artifact = AcquisitionOwnerArtifact.from_payload(
+        owner_component="fabric.ingestion",
+        requirement_ref=data_spec.requirement_id,
+        artifact_ref="fabric://recorded/owner-panel-missing",
+        payload=payload,
+        cost_usd=2.0,
+        quality={"capture": "real_owner_recording"},
+        rights={"license": "recorded-open"},
+        binding_refs=("candidate_cycle_1",),
+        journal_ref="journal://n7/owner-panel-missing/001",
+        capture_provenance=AcquisitionCaptureProvenance.from_owner_response(
+            owner_component="fabric.ingestion",
+            owner_endpoint="fabric.ingestion.acquire",
+            owner_request={"requirement_ref": data_spec.requirement_id},
+            owner_response=payload,
+            captured_at=datetime(2026, 7, 5, tzinfo=UTC),
+            capture_mode="local_substrate_owner",
+        ),
+    )
+    simulation_probe = _N7ReentrySimulationPort()
+    value_probe = _N7ReentryPendingValuePort()
+    controller = _BlockAfterReentryController(
+        generation_port=_CounterexampleAwareGenerator(first_atom=atom),
+        grounding_port=_AcquisitionGrounding(),
+        simulation_port=simulation_probe,
+        value_port=value_probe,
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={data_spec.requirement_id: artifact}
+        ),
+        authority_scope="contract_testing",
+    )
+
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+
+    assert controller.action_decisions == 2
+    assert run.cycles[0].acquisition_receipt is not None
+    assert len(simulation_probe.calls) == 2
+    assert (
+        simulation_probe.calls[-1]["world_model_record_ref"]
+        == run.cycles[0].acquisition_receipt["grown_world_after_ref"]
+    )
+    assert run.cycles[0].voi_decision.next_action == "blocked"
+    assert run.cycles[0].voi_decision.reason == "post_n7_blocked"
+    assert run.terminal_status == "blocked"
+    assert run.blocked_reason == "post_n7_blocked"
+    assert run.cycles[0].refinement_decision.decision == "block_candidate"
+    assert run.cycles[0].search_iteration.status == "blocked_no_retry"
+    assert any(
+        summary.candidate_id == "candidate_cycle_1" for summary in run.candidate_summaries
+    )
+    assert run.promotion_port.reason == "generation_cycle_blocked_before_n9:post_n7_blocked"
+    assert run.promotion_port.receipts == ()
+    assert generation_cycle_module.eligible_n9_source_for_run(run) is None
+    assert generation_cycle_terminal_state(run).kind.value == "recursive_blocked"
 
 
 @pytest.mark.asyncio
@@ -4917,10 +5593,13 @@ async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_ree
         ),
     )
     assert not any(key.startswith("n7_") for key in problem.runtime_hints)
+    simulation_probe = _N7ReentrySimulationPort()
+    value_probe = _N7ReentryPendingValuePort()
     controller = GenerationCycleController(
         generation_port=_CounterexampleAwareGenerator(first_atom=atom),
         grounding_port=_AcquisitionGrounding(),
-        value_port=PendingN8ValuePort(),
+        simulation_port=simulation_probe,
+        value_port=value_probe,
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
@@ -4929,15 +5608,13 @@ async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_ree
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
 
-    cycle = run.cycles[0]
-    assert cycle.acquisition_receipt is not None
-    assert cycle.acquisition_receipt["real_grounding_result_count"] == 1
-    assert cycle.terminal_kind != "acquisition_required"
-    assert cycle.terminal_kind == "grounded_abstention"
-    assert cycle.grounding.status == "grounded_shadow"
-    assert cycle.grounding.report_ref
-    assert run.candidate_summaries[0].grounding_status == "grounded_shadow"
-    assert run.candidate_summaries[0].front == "research"
+    _assert_n7_reentered_in_candidate_band(
+        run=run,
+        original_atom=atom,
+        simulation_port=simulation_probe,
+        value_port=value_probe,
+    )
+    assert run.candidate_summaries[0].front == "quarantine"
 
 
 @pytest.mark.asyncio
@@ -5836,6 +6513,12 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     source_cycle = source_run.cycles[0]
     scenario = _real_epoch_scenario(tmp_path / "epoch")
     _production, activated = _activate_real_epoch_scenario(scenario)
+    observation_projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
     calls: list[tuple[object, ...]] = []
 
     async def direct_cycle(
@@ -5845,8 +6528,10 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         budget_state: BudgetState,
         previous_cycle: object,
         value_port_override: object,
+        stable_design_problem_ref: str,
     ) -> tuple[object, tuple[CandidateSummary, ...]]:
         assert received_problem is problem
+        assert stable_design_problem_ref == source_run.design_problem_ref
         assert cycle_index == source_cycle.cycle_index + 1
         assert previous_cycle is source_cycle
         assert isinstance(
@@ -5881,6 +6566,7 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         source_cycle=source_cycle,
         problem=problem,
         overlay_receipt=activated,
+        observation_projection=observation_projection,
         baseline_path=scenario.authority.baseline_path,
         overlay_path=scenario.overlay.overlay_path,
         budget_state=_budget(),
@@ -5935,6 +6621,7 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
             source_cycle=source_cycle,
             problem=problem,
             overlay_receipt=activated,
+            observation_projection=observation_projection,
             baseline_path=scenario.authority.baseline_path,
             overlay_path=scenario.overlay.overlay_path,
             budget_state=_budget(),
@@ -5962,6 +6649,12 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
     source_cycle = source_run.cycles[0]
     scenario = _real_epoch_scenario(tmp_path / "epoch-a")
     _production, activated = _activate_real_epoch_scenario(scenario)
+    observation_projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
 
     async def forbidden_cycle(*args: Any, **kwargs: Any) -> Any:
         del args, kwargs
@@ -5973,6 +6666,7 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
         "source_cycle": source_cycle,
         "problem": problem,
         "overlay_receipt": activated,
+        "observation_projection": observation_projection,
         "baseline_path": scenario.authority.baseline_path,
         "overlay_path": scenario.overlay.overlay_path,
         "budget_state": _budget(),
@@ -6052,7 +6746,12 @@ async def test_honest_single_cycle_acquisition_terminal_validates() -> None:
 
     assert len(run.cycles) == 1
     assert run.cycles[0].terminal_kind == "acquisition_required"
-    assert validate_generation_cycle_run(run, repo_root=REPO_ROOT) == ()
+    assert validate_generation_cycle_candidate_run(run) == ()
+    strict_issue_codes = {
+        issue["code"] for issue in validate_generation_cycle_run(run, repo_root=REPO_ROOT)
+    }
+    assert "strangle_receipt_currentness_not_established" in strict_issue_codes
+    assert "single_pass_fixture_survives_as_production_cycle" not in strict_issue_codes
 
 
 @pytest.mark.asyncio
@@ -6287,7 +6986,11 @@ async def test_generation_run_carries_epoch_owner_into_decision_front_replay(
     )
     assert replayed.fronts.decision.candidate_ids == ()
     assert replayed.promotion_port.status == "not_promoted"
-    assert replayed.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
+    assert replayed.cycles
+    assert replayed.candidate_summaries
+    assert replayed.promotion_port.reason == (
+        "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+    )
 
 
 @pytest.mark.parametrize("epoch_evidence", ["valid", "missing_resolver", "corrupted_artifact"])
@@ -6591,6 +7294,76 @@ async def test_generation_cycle_contract_mutations_turn_red(
         "scheduling_actions": 4,
         "terminal_kinds": 12,
     }
+
+
+def test_n9_verification_port_rejects_same_subject_stale_content_basis_and_maps_fail(
+    tmp_path: Path,
+) -> None:
+    p0 = contract._design_problem()
+    p1_payload = p0.model_dump(mode="python")
+    p1_payload["problem_statement"] = (
+        p0.problem_statement
+        + " Revised basis: prioritize critical supply-chain continuity."
+    )
+    p1 = DesignProblem.model_validate(p1_payload)
+
+    p0_binding = contract.N9DesignProblemBinding.from_problem(p0)
+    p1_binding = contract.N9DesignProblemBinding.from_problem(p1)
+    assert p0_binding.design_problem_id == p1_binding.design_problem_id
+    assert p0_binding.problem_content_hash != p1_binding.problem_content_hash
+    p0_scope = contract.confidence_risk_scope_for_problem(p0_binding)
+    p1_scope = contract.confidence_risk_scope_for_problem(p1_binding)
+    assert p0_scope != p1_scope
+
+    stale_factory = contract._OneShotVerificationSessionFactory(
+        REPO_ROOT,
+        tmp_path / "stale-p0",
+    )
+    stale_session = stale_factory(p0, ())
+    assert not stale_session.is_authority_session
+    assert stale_session.risk_scope == p0_scope
+
+    stale_port = CanonicalN9PromotionPort._for_verification(
+        repo_root=REPO_ROOT,
+        confidence_ledger_session=stale_session,
+    )
+    with pytest.raises(
+        ValueError,
+        match="confidence_ledger_scope_binding_mismatch",
+    ) as stale_error:
+        stale_port(summaries=(), problem=p1)
+
+    report = contract._replay_exception_report(
+        stale_error.value,
+        stage="live_n6_n9_replay",
+    )
+    assert report["status"] == "fail"
+    assert report["predicate_result"] == "fail"
+    assert report["issues"] == [
+        {
+            "code": "confidence_ledger_scope_binding_mismatch",
+            "stage": "live_n6_n9_replay",
+        }
+    ]
+
+    matching_factory = contract._OneShotVerificationSessionFactory(
+        REPO_ROOT,
+        tmp_path / "matching-p1",
+    )
+    matching_session = matching_factory(p1, ())
+    assert not matching_session.is_authority_session
+    assert matching_session.risk_scope == p1_scope
+
+    matching_port = CanonicalN9PromotionPort._for_verification(
+        repo_root=REPO_ROOT,
+        confidence_ledger_session=matching_session,
+    )
+    observation = matching_port(summaries=(), problem=p1)
+    assert observation.status == "not_promoted"
+    assert observation.reason == "verification_n9_sequence_non_consumer"
+    assert observation.receipts == ()
+    assert observation.certified_candidate_ids == ()
+
 
 def test_generation_cycle_contract_validator_fails_on_known_scope_mismatch(
     monkeypatch: pytest.MonkeyPatch,
@@ -6916,6 +7689,76 @@ def test_generation_cycle_strangle_receipt_counts_new_production_caller(tmp_path
     assert receipt.production_single_pass_callers == (
         "src/polisyos/runtime/http/services/control/production_single_pass_probe.py:2",
     )
+
+
+@pytest.mark.asyncio
+async def test_n6_strangle_drift_is_distinguished_from_unknown_and_candidate_remains_available(
+    tmp_path: Path,
+) -> None:
+    """Known source drift blocks authority; absent census evidence stays UNRUN."""
+
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        repo_root=tmp_path,
+    ).run(_problem(), budget_state=_budget(), max_cycles=1)
+    assert run.cycles
+    assert run.candidate_summaries
+
+    unknown_receipt = StrangleReceipt.recompute(tmp_path)
+    assert unknown_receipt.status == "not_established"
+    unknown_run = run.model_copy(update={"strangle_receipt": unknown_receipt})
+    unknown_issues = generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
+        unknown_run,
+        current_strangle_receipt=unknown_receipt,
+    )
+    unknown_codes = {issue["code"] for issue in unknown_issues}
+    assert "strangle_receipt_not_established" in unknown_codes
+    assert "single_pass_fixture_survives_as_production_cycle" not in unknown_codes
+    assert "strangle_receipt_currentness_not_established" in unknown_codes
+    assert validate_generation_cycle_candidate_run(unknown_run) == ()
+
+    source = tmp_path / "src" / "polisyos" / "runtime" / "single_pass_probe.py"
+    source.parent.mkdir(parents=True)
+    marker_source = (
+        "def execute(loop):\n"
+        "    # run_fixture marker remains after removing the call\n"
+        "    marker = 'run_fixture'\n"
+        "    return loop.run_fixture('fixture_name')\n"
+    )
+    source.write_text(marker_source, encoding="utf-8")
+    drift_receipt = StrangleReceipt.recompute(tmp_path)
+    assert drift_receipt.status == "drift"
+    drift_run = run.model_copy(update={"strangle_receipt": drift_receipt})
+    drift_issues = generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
+        drift_run,
+        current_strangle_receipt=drift_receipt,
+    )
+    drift_codes = {issue["code"] for issue in drift_issues}
+    assert "single_pass_fixture_survives_as_production_cycle" in drift_codes
+    assert "strangle_receipt_not_established" not in drift_codes
+    # Candidate computation remains available; only strict authority is held.
+    assert validate_generation_cycle_candidate_run(drift_run) == ()
+
+    source.write_text(
+        marker_source.replace("return loop.run_fixture('fixture_name')", "return None"),
+        encoding="utf-8",
+    )
+    removed_property_receipt = StrangleReceipt.recompute(tmp_path)
+    assert removed_property_receipt.status == "strangled"
+    assert "run_fixture" in source.read_text(encoding="utf-8")
+    removed_property_run = run.model_copy(
+        update={"strangle_receipt": removed_property_receipt}
+    )
+    removed_property_issues = (
+        generation_cycle_module._validate_generation_cycle_run_with_current_source_receipt(
+            removed_property_run,
+            current_strangle_receipt=removed_property_receipt,
+        )
+    )
+    removed_property_codes = {issue["code"] for issue in removed_property_issues}
+    assert "single_pass_fixture_survives_as_production_cycle" not in removed_property_codes
+    assert "strangle_receipt_currentness_not_established" in removed_property_codes
 
 
 def test_generation_cycle_strangle_receipt_rechecks_comment_edit_on_later_invocation(
@@ -7419,4 +8262,10 @@ async def test_nonblocked_scheduler_stop_still_reaches_n9_owner(tmp_path: Path) 
     assert run.terminal_status == "completed"
     assert run.cycles[0].grounding.current_valid is True
     assert run.promotion_port.status == "not_promoted"
-    assert controller.promotion_calls == 1
+    assert controller.promotion_calls == 0
+    assert run.cycles
+    assert run.candidate_summaries
+    assert run.promotion_port.reason == (
+        "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+    )
+    assert validate_generation_cycle_candidate_run(run) == ()

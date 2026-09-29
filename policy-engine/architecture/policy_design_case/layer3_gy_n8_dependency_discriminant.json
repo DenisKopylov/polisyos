@@ -1,5 +1,5 @@
 {
-  "artifact_content_hash": "sha256:4dcf46b4810471ba8ecfe2931757e7c628fd5339e8044df7a246fe987cde84ec",
+  "artifact_content_hash": "sha256:ced8739518360327c8511bbf24b95a2c768920be0b4498c36ce8118ead7dd3f6",
   "authority_boundary": {
     "authoritative_for": [
       "dependency_environment_diagnosis"
@@ -25,20 +25,20 @@
   "produced_by": "tools.quality.validation.check_layer3_gy_value_gate_contract",
   "profile_discriminant": {
     "declaration_ref": {
-      "artifact_id": "sha256:c8bd2bdcef4791dc06685bbfa919aff2b0ff068f0603edded195e05d001d3e8e",
+      "artifact_id": "sha256:69470b1bc6f2309d2b09f622eec694a1b785496c47b2d0bf73c241425e99622d",
       "schema_version": "polisyos.foundry.dependency-profile.v1",
       "semantic_hash": {
         "domain": "dependency-profile-declaration",
-        "value": "sha256:211d8fdd5454db593208abc6a5e88b516509955e0b32059f0864cbf4392bb103"
+        "value": "sha256:68111652527fab3dbbbac34aa0a03a634edf6a644db4f28cc3c5592198fee9b5"
       }
     },
     "discriminant_ref": {
       "domain": "dependency-discriminant",
-      "value": "sha256:882a6fe3e61026f378d0f1e438ec59c7bad70c6cf6c2329c59bb558b0947c5dc"
+      "value": "sha256:80321a8ba4b85a42e59dceaa039a899a4323d79cbd59e87e56741f51b7826658"
     },
     "distribution_set": {
       "domain": "distribution-set",
-      "value": "sha256:d8396862971f145f94365299514fa865872535b0875ffbba2cbb71846b19671e"
+      "value": "sha256:6d81450ea4049d23d93e8b45ee1534b8d687ce8751ce6513183b3b245cd733de"
     },
     "extras": [
       "analytics",
@@ -49,9 +49,13 @@
     ],
     "lockfile_ref": {
       "domain": "uv-lock-blob",
-      "value": "sha256:d3ca8737e0ce78b1deade715174576cb5449b443d96180e7029d9999d0584572"
+      "value": "sha256:58b9b930d1b9b0b9eb38e49bde7c5af1f363c5f4176e4ddfe46a583a70863b27"
     },
     "marker_environment": [
+      [
+        "extra",
+        ""
+      ],
       [
         "implementation_name",
         "cpython"
@@ -68,7 +72,7 @@
     "profile_id": "n8-method-catalog-reconstruction-py314-uv0921-v1",
     "pyproject_ref": {
       "domain": "pyproject-blob",
-      "value": "sha256:803cbfb79c7727807db1c98d07413e8ef2f1b2a08929bd99bc2f8e638ee5142d"
+      "value": "sha256:baf32d20b223944a60e24e96833181586568eb90c5615f47bed321da4a7e0a9f"
     },
     "python_constraint": ">=3.14,<3.15",
     "resolved_distributions": [
@@ -229,7 +233,7 @@
         "name": "cffi",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:dab728b3ce35e22cb1823acd98223f5c0a16ca5e61d350eec836a5effa8a2f79"
+          "value": "sha256:ca4019da7721619c3e21956375ed5a570dd24ee26bf56fda1259685bbd782454"
         },
         "source_kind": "registry",
         "version": "2.0.0"
@@ -265,7 +269,7 @@
         "name": "click",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:ca13b4f6a887f11e557c3a43dcb6bcf75cfc9f224d60fe236d9b4eee14f9b89e"
+          "value": "sha256:dd9c5325e456a8e645518abf7c06c7b7734620a8ced643b08b92c68ef29be612"
         },
         "source_kind": "registry",
         "version": "8.3.1"
@@ -292,7 +296,7 @@
         "name": "cryptography",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:32004691356de2ef53eb5f28403b119d5e1da0d0d11a1cf897b93356c7f2be41"
+          "value": "sha256:5225226c75145e056e296c510bf2e9368b0387e924ce4653530d080a17ea1c9f"
         },
         "source_kind": "registry",
         "version": "46.0.4"
@@ -449,15 +453,6 @@
         },
         "source_kind": "registry",
         "version": "1.13.1"
-      },
-      {
-        "name": "hnswlib",
-        "selected_artifact": {
-          "domain": "selected-distribution-artifact",
-          "value": "sha256:69d3aecaf0ac014ac3ff9985b15a3711b126eaaea7c9c15f7947ba829bfd5bfd"
-        },
-        "source_kind": "registry",
-        "version": "0.8.0"
       },
       {
         "name": "httpcore",
@@ -652,7 +647,7 @@
         "name": "langsmith",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:382203e81485b1157ba3dd53eff7a8a1c53c7281a04b42b918671dbfcca6d18d"
+          "value": "sha256:15684b6274bb533d777aa49417fe9b08f3b3154565921415f902920d83d4fd6d"
         },
         "source_kind": "registry",
         "version": "0.6.0"
@@ -688,7 +683,7 @@
         "name": "loguru",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:8a772c41d3f7afc15b5d9b55b39736ca37e9ce9d2f8eeb5c123cb6d7d9ec2b6a"
+          "value": "sha256:b0d08b2a0bb40530bfba2c4ea159568e6d01d28260795dcb5a733f6f6f2d932f"
         },
         "source_kind": "registry",
         "version": "0.7.3"
@@ -715,7 +710,7 @@
         "name": "matplotlib",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:6aa197da3426c99546ada83998095eecb5cb83adda6556222690327c8d12ab2c"
+          "value": "sha256:a9515a1ec4ba8182e91b551d4a48c8d855b8a6e70a4935f22099458dc0440b43"
         },
         "source_kind": "registry",
         "version": "3.10.8"
@@ -796,9 +791,9 @@
         "name": "odfpy",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:2cd2d2279bb029d60f30eb2f02004ebfde6edf0cff81837fb4d0f36dbe3f4682"
+          "value": "sha256:7e809d1d93b07425561a78504744ed2b3f2e43b9ca3c1a4df08814fffea9aece"
         },
-        "source_kind": "registry",
+        "source_kind": "path",
         "version": "1.4.1"
       },
       {
@@ -976,10 +971,10 @@
         "name": "pillow",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:912c4caab91257464b6664656a363d8b71a851985dc3fb472a3aa209a71c16e4"
+          "value": "sha256:e6f2e99105019c71a3c9ccb353f9a67b0e8afc61b3751c47e7e814b7e3a9d70d"
         },
         "source_kind": "registry",
-        "version": "10.4.0"
+        "version": "12.3.0"
       },
       {
         "name": "platformdirs",
@@ -994,7 +989,7 @@
         "name": "policy-engine",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:6c5b4d521a6153e7019f49d9c668a8e1ad7f0a7c62e9a1ef483a1b21b46bc5ec"
+          "value": "sha256:4f97993aa5a33188161ec2eef838411cb36e10ffefa7c6532aca4cd7270da5e9"
         },
         "source_kind": "editable",
         "version": "0.1.0"
@@ -1156,10 +1151,10 @@
         "name": "regex",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:31b5ea707881ebcd4bb868f562297097096b864ea23ff66ee065131db7c8371e"
+          "value": "sha256:8b0b02f9469a18700824723f5263a7b677be499a5889ffd1dd7c2ca4eda038f8"
         },
         "source_kind": "registry",
-        "version": "2024.11.6"
+        "version": "2026.9.3"
       },
       {
         "name": "requests",
@@ -1273,7 +1268,7 @@
         "name": "tiktoken",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:09c2d54e3f600949a69d342edac567d08632557f8d31aa6912e5b53cbebcf6a6"
+          "value": "sha256:3745bbe5ab0c8f9b8928d9a91bd05c4e62d4dbda52f5c03220f4394798ba43cc"
         },
         "source_kind": "registry",
         "version": "0.12.0"
@@ -1291,7 +1286,7 @@
         "name": "tqdm",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
-          "value": "sha256:d6e18c503e94984b17d1579da67afc321f3b20a3edc561ca9a962517b353f684"
+          "value": "sha256:7a347dbc0e9d922eb46dc3eced272c62ef748ec1b7b4338677261ff8b666c216"
         },
         "source_kind": "registry",
         "version": "4.67.3"
@@ -1369,6 +1364,15 @@
         "version": "2026.2.0"
       },
       {
+        "name": "xarray-einstats",
+        "selected_artifact": {
+          "domain": "selected-distribution-artifact",
+          "value": "sha256:7f9f9fa64b0fa75f483dce46fcea10d859dae1041b3509dfbbb3139b65dfcd14"
+        },
+        "source_kind": "registry",
+        "version": "0.10.0"
+      },
+      {
         "name": "xlrd",
         "selected_artifact": {
           "domain": "selected-distribution-artifact",
@@ -1422,5 +1426,5 @@
   },
   "rule_version": "polisyos.foundry.dependency_discriminant.v1",
   "schema_version": "polisyos.foundry.n8_dependency_discriminant.v1",
-  "source_freeze": "3ffb6ad5ed95d316656bc19946018a4eec52bc3b"
+  "source_freeze": "32442a2fe41a3b8daa74b6350a256ac06f4239cf"
 }

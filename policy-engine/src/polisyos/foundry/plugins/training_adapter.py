@@ -17,13 +17,11 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from math import isfinite
-from pathlib import Path
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
@@ -485,7 +483,6 @@ class EconomicsTrainingAdapter:
         config: TrainingConfig,
         *,
         seed: int,
-        output_dir: Path | None = None,
         artifact_store: ArtifactStore | None = None,
     ) -> AdapterTrainingOutcome:
         """Run the existing native optimizer and persist/read back its artifact."""
@@ -525,18 +522,12 @@ class EconomicsTrainingAdapter:
             )
 
         artifact_refs: tuple[ArtifactRef, ArtifactRef] | None = None
-        cas = artifact_store
-        if cas is None and output_dir is not None:
-            cas = build_artifact_store(
-                ArtifactStoreConfig(
-                    backend="filesystem",
-                    root=str(output_dir / "artifacts"),
-                )
+        if artifact_store is not None:
+            artifact_refs = store_policy_artifact(
+                artifact_store, _artifact_for_cas(artifact)
             )
-        if cas is not None:
-            artifact_refs = store_policy_artifact(cas, _artifact_for_cas(artifact))
             trained_policy, _ = load_policy_artifact(
-                cas,
+                artifact_store,
                 artifact_refs[1],
                 actor,
                 DeterminismTier.STRICT_CPU,

@@ -73,6 +73,26 @@ a downstream compatibility surface, not a second owner.
   [`../../apps/runtime-reference-shell/app.js`](../../apps/runtime-reference-shell/app.js),
   ad hoc JS/TS API consumers, and frontend contract drift verification
 
+## DesignProblem v3 outcomes
+
+Current NL-compiled `DesignProblem` records use
+`policyos.runtime.design_problem.v3`. A v3 `outcome_of_interest.target_variable`
+may name a qualified canonical variable such as `government.balance`. The
+schema version is load-bearing: persisted v1 and v2 records keep their
+unqualified outcome grammar and must not be rewritten or interpreted as v3.
+
+The Runtime API's governed depth-N Cycle Board can carry a `DesignProblem`
+through its `DepthNDomainRunProjection`. Consumers that validate this response
+against the previous OpenAPI snapshot must regenerate the client and accept
+qualified outcomes only when `schema_version` is v3. Route paths and methods do
+not change. A qualified identifier is a syntax-level reference; it does not
+prove that the variable is present in the selected world model or that an
+acquisition, N5, or authority gate accepted it.
+
+Regenerate the public TypeScript client from the checked-in OpenAPI snapshot
+with the owner command in [Common Commands](#common-commands); do not edit the
+generated types by hand.
+
 ## Common Commands
 
 - `corepack pnpm --filter @polisyos/runtime-api-client run lint`

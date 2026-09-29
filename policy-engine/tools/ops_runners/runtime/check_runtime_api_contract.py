@@ -88,6 +88,10 @@ def _check_openapi_drift(*, repo_root: Path, openapi_path: Path, max_diff_lines:
     return violations
 
 
+class _RuntimeClientInspectionUnavailableError(RuntimeError):
+    """The package-owned runtime client generator did not produce an inspectable family."""
+
+
 def _check_runtime_client_family_drift(
     *, repo_root: Path, openapi_path: Path
 ) -> list[str]:
@@ -123,11 +127,11 @@ def _check_runtime_client_family_drift(
         )
         if result.returncode != 0:
             detail = result.stderr.strip() or result.stdout.strip()
-            violations.append(
-                "Runtime API client generation failed during family drift check"
+            raise _RuntimeClientInspectionUnavailableError(
+                "Runtime API client generation exited with return code "
+                f"{result.returncode} during family drift check"
                 + (f": {detail}" if detail else ".")
             )
-            return violations
 
         observed = {
             path.relative_to(output_root).as_posix()

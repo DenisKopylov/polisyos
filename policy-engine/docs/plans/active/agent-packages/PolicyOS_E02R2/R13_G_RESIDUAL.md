@@ -16,15 +16,18 @@ language.
 ## What exists at this head
 
 The served control lifecycle already carries the right store owner: the runtime
-container constructs `PromotionRuntime` with `runtime_api_context.store`, and
-`ControlPlaneService.compile_and_run_recursive_generation_cycle` passes that
-runtime into the HTTP generation-cycle composition. But
-`_build_cycle_substrate_context_from_owner` receives only `repo_root`; the
-composed-world-model owner then creates a new `FileSystemCAS` beneath that root.
-The NCM consumer independently reconstructs the same local CAS. The two paths
-therefore agree only when their filesystem roots happen to resolve alike.
+container constructs `PromotionRuntime` with its artifact store, and the
+generation-cycle controller binds N5 to that exact store. N5 resolves the NCM
+through that store; it no longer reconstructs the local composed-WMR CAS.
+There is no served owner-context builder that calls the composed-WMR producer.
+Without a `CycleSubstrateContext`, the served N4 port returns a typed owner
+context limitation; with a context, it consumes the WMR already bound there.
+The remaining fallback producer in `intervention_substrate` still creates a
+root-local CAS for direct helper calls, but injecting a store only there would
+not exercise the served path.
 
-The owner also caches by repository root alone (`lru_cache(maxsize=4)`). Its
+The fallback composed-WMR helper also caches by repository root alone
+(`lru_cache(maxsize=4)`). Its
 workspace is shared at `.tmp/gy-s-composed-wmr-world`; the data-state builder
 writes `fabric-world.duckdb` and a `fabric-world` snapshot there. Neither cache
 key nor workspace binds the active tenant/cell, selected scope profile, or
@@ -32,14 +35,14 @@ current data epoch. A per-request temporary workspace cannot simply be deleted
 after the build because `FabricWorldRef.snapshot_root` is persisted in the
 WMR.
 
-The NCM half has no production writer to connect. A complete tracked-source
+The NCM half has no production writer to connect. An earlier tracked-source
 walk of `policy-engine/src/polisyos` covered 2,905 tracked paths, including
 2,695 Python files. The census found two `NCMSpec(` spellings (the class
 declaration and one construction in `_twin_network_from_ncm`, which transforms
 an already-existing model), one `persist_ncm_spec(` spelling (its definition,
 with zero source callers), and one data-state WMR builder call (the definition
 plus its call from the composed-WMR owner). That call omits `ncm_refs`, so the
-served record has no NCM reference and N5 returns
+resulting fallback WMR has no NCM reference; if selected, N5 returns
 `joint_simulation_ncm_spec_missing` for the NCM resource. The existing
 `NCMEngineMethod` consumes an `NCMQueryData.ncm_spec`; it does not produce the
 owner model.
@@ -50,21 +53,22 @@ The reference contract cannot preserve a selected view today. Core
 tuple of strings. Extending that hashed WMR shape requires a schema-version
 bump and a historical serializer that keeps prior WMR projections byte-exact.
 
-The source census was produced by walking the complete output of
-`git ls-files -z -- policy-engine/src/polisyos` and counting matches in every
-tracked `.py` file.
-The earlier AST census and producer/reader trace are in
+An updated AST census parsed **2,696/2,696** tracked Python source files with
+zero parse errors. It found one call to the existing DataState WMR builder,
+inside the root-CAS fallback, and no served caller that builds a WMR from the
+active runtime store. The exact caller trace and denominator are in
+`/Users/deniskopylov/.codex/scratch/e02-r13-composed-wmr-design-20260928/R13_G_IMPLEMENTATION_BLOCKER_20260928.md@sha256:819401acd0c57f8bace1f37a38b00f6338e04ba3bdeeaf27a0e64613b7db4681`.
+The earlier 2,695-Python-file source census above is a historical snapshot,
+not the current caller denominator. Its producer/reader trace is in
 `/Users/deniskopylov/.codex/scratch/e02-r13-d-exact-store-20260926/R13G_NCM_OWNER_ATOMIC_MOVE.md@sha256:79e89a93c6683546fb5ef4a3352cdb2ccfb800d1bb8d76fcbb97bdd64f89188c`.
 
 ## Why this remains one residual
 
-Changing only `_resolve_joint_simulation_ncm` would leave the WMR writer's
-references in the old local CAS. Changing only the writer would leave N5
-reopening a different store. Injecting a store into both while retaining the
-root-only cache still permits a record built for another tenant or data epoch
-to be reused. Removing that cache and choosing a short-lived workspace without
-persisting the Fabric snapshot would make later WMR replay depend on a vanished
-path. Finally, a hand-constructed NCM fixture can test persistence mechanics,
+Changing only the fallback WMR writer would leave the served path without a
+caller. If a future served owner calls it, its root-only cache can reuse a
+record built for another tenant or data epoch. A short-lived workspace without
+persisting the Fabric snapshot would make later WMR replay depend on a
+vanished path. A hand-constructed NCM fixture can test persistence mechanics,
 but it cannot stand in for a production owner that derives and admits an NCM
 against the selected world.
 
@@ -80,16 +84,18 @@ and `bridge_missing`.
 ## P37 / P38
 
 - **P37:** the runtime container supplies `PromotionRuntime.store`, and the
-  N5 controller checks store object identity. The WMR cache identity, current
-  tenant/cell, scope profile, data epoch, and selected NCM manifest are
+  N5 controller checks store object identity and resolves through that store.
+  The WMR producer identity, current tenant/cell, scope profile, data epoch,
+  and selected NCM manifest are
   `not_established` at this owner boundary. A root path or a SHA-shaped string
   is not the owner predicate.
-- **P38:** the property is that N5 consumes the exact owner-admitted NCM view
-  from the current runtime scope. The implementation instead opens a
-  root-reconstructed `FileSystemCAS` and loads by artifact ID. A divergent case
-  is the same root path behind two guarded store instances, or two manifest
-  views over identical bytes: path equality and blob identity still agree while
-  tenant custody or the selected typed view differs.
+- **P38:** the property is a problem-bound WMR and NCM from the current runtime
+  scope. N5's store read is already exact; the fallback WMR helper tests only
+  whether a cached fixed-UA build exists for a repository root. A divergent
+  case is another tenant or jurisdiction sharing that root: the helper can
+  return the same WMR although its scope and custody differ. The served path
+  does not currently call that helper, so this divergence is a bounded residual
+  rather than a demonstrated served escape.
 
 The current absence remains a typed N5 result, not a positive NCM capability.
 R13-D's three-tenant served N4 candidate control passed at its recorded head;
@@ -120,8 +126,8 @@ This residual does not replace or resolve the R13 principal decision draft in
 
 ## Evidence references
 
-- Current R13-D implementation: `generation_cycle.py@sha256:a40239a067ade9336b0edec3fbbe2ee3c09223cb42031bea39900b60385a1c42`;
-  its NCM reader still reconstructs `.tmp/gy-s-composed-wmr-cas`.
+- Current N5 implementation: `generation_cycle.py@sha256:9939e9b12dd7ebecdc172fb8108dc2bbe9384a0e0cec58faf44f21e55fbe804c`;
+  the NCM reader uses its runtime-supplied store.
 - Composed WMR owner: `intervention_substrate.py@sha256:1783a4ecfd67e0010e4e4ccc5c19a022da5786e517c70f356cd5f639cbc726df`.
 - Data-state builder/workspace: `data_state_substrate.py@sha256:b29a8cab49c2a01312b27246cebc88829dbf1f0fa3e80f38bb13b76c0de80de4`.
 - Hashed WMR contract: `world_model_record.py@sha256:de9aab34f6afc17d2db695f22f86952c5494a5307da08f9e2216a8df92f1e823`;

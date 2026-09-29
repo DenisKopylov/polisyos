@@ -6,7 +6,7 @@ import pytest
 
 from polisyos.ir.kernel.time_semantics import TimeSemantics
 from polisyos.runtime.quality.assurance_case import build_policy_intent_envelope
-from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.design_problem import DesignProblem, OutcomeOfInterest
 
 
 def _sha(char: str) -> str:
@@ -185,6 +185,109 @@ def test_design_problem_v2_accepts_canonical_qualified_slot_and_v1_control() -> 
     assert legacy.candidate_lever_space.candidate_levers[0].target_slot == (
         "credit_access"
     )
+
+
+def test_v2_projection_decoder_remains_supported_after_v3_becomes_current() -> None:
+    """Explicit v2 projections remain reconstructable after the current bump."""
+
+    problem = _design_problem(schema_version="policyos.runtime.design_problem.v2")
+    projected = DesignProblem._from_projection_payload(
+        problem.model_dump(mode="json")
+    )
+    assert projected == problem
+
+
+def test_design_problem_v3_accepts_qualified_outcome_without_widening_v1_v2() -> None:
+    """Only v3 problems can bind qualified canonical outcome identifiers."""
+
+    payload = _design_problem().model_dump(mode="json")
+    payload["outcome_of_interest"]["target_variable"] = "government.balance"
+    for schema_version in (
+        "policyos.runtime.design_problem.v1",
+        "policyos.runtime.design_problem.v2",
+        "policyos.runtime.design_problem.legacy-import",
+    ):
+        payload["schema_version"] = schema_version
+        with pytest.raises(ValueError):
+            DesignProblem.model_validate(payload)
+
+    payload["schema_version"] = "policyos.runtime.design_problem.v3"
+    problem = DesignProblem.model_validate(payload)
+    assert problem.outcome_of_interest.target_variable == "government.balance"
+    assert problem.schema_version == "policyos.runtime.design_problem.v3"
+
+
+def test_design_problem_outcome_json_schema_matches_versioned_runtime_grammar() -> None:
+    """The exported DesignProblem schema applies the same parent-version grammar."""
+
+    from jsonschema import Draft202012Validator
+
+    schema = DesignProblem.model_json_schema()
+    validator = Draft202012Validator(schema)
+    for schema_version, target_variable, expected in (
+        ("policyos.runtime.design_problem.v1", "firm_survival", True),
+        ("policyos.runtime.design_problem.v1", "government.balance", False),
+        ("policyos.runtime.design_problem.v2", "firm_survival", True),
+        ("policyos.runtime.design_problem.v2", "government.balance", False),
+        ("policyos.runtime.design_problem.v3", "firm_survival", True),
+        ("policyos.runtime.design_problem.v3", "government.balance", True),
+        ("policyos.runtime.design_problem.legacy-import", "government.balance", False),
+    ):
+        payload = _design_problem().model_dump(mode="json")
+        payload["schema_version"] = schema_version
+        payload["outcome_of_interest"]["target_variable"] = target_variable
+        assert validator.is_valid(payload) is expected, (schema_version, target_variable)
+
+    for schema_version, target_slot, expected in (
+        ("policyos.runtime.design_problem.v1", "credit_access", True),
+        ("policyos.runtime.design_problem.v1", "government.balance", False),
+        ("policyos.runtime.design_problem.v2", "credit_access", True),
+        ("policyos.runtime.design_problem.v2", "government.balance", True),
+        ("policyos.runtime.design_problem.v3", "credit_access", True),
+        ("policyos.runtime.design_problem.v3", "government.balance", True),
+        ("policyos.runtime.design_problem.legacy-import", "government.balance", False),
+    ):
+        payload = _design_problem().model_dump(mode="json")
+        payload["schema_version"] = schema_version
+        payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
+            target_slot
+        )
+        assert validator.is_valid(payload) is expected, (schema_version, target_slot)
+
+
+def test_standalone_outcome_of_interest_remains_unqualified() -> None:
+    """The nested v3 capability does not widen the standalone outcome contract."""
+
+    from jsonschema import Draft202012Validator
+
+    payload = {
+        "target_variable": "government.balance",
+        "metric_id": "government_balance",
+        "estimand": "cash balance after acquisition",
+        "direction": "maximize",
+    }
+    with pytest.raises(ValueError):
+        OutcomeOfInterest.model_validate(payload)
+    assert not Draft202012Validator(OutcomeOfInterest.model_json_schema()).is_valid(payload)
+
+    valid = OutcomeOfInterest.model_validate(
+        {
+            **payload,
+            "target_variable": "government_balance",
+        }
+    )
+    forged_instance = valid.model_copy(
+        update={"target_variable": "government.balance"}
+    )
+    with pytest.raises(ValueError):
+        OutcomeOfInterest.model_validate(forged_instance)
+
+    problem_payload = _design_problem(
+        schema_version="policyos.runtime.design_problem.v3"
+    ).model_dump(mode="python")
+    problem_payload["outcome_of_interest"] = forged_instance
+    with pytest.raises(ValueError):
+        DesignProblem.model_validate(problem_payload)
 
 
 def test_design_problem_unknown_historical_schema_keeps_legacy_slot_grammar() -> None:

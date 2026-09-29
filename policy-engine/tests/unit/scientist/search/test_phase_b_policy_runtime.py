@@ -7,6 +7,7 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import BaseModel
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -796,9 +797,9 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
                 "primary": {
                     "policy_value": source.primary["policy_value"].model_copy(
                         update={"value": float(index)}
-                    )
-                },
-            }
+                    ),
+                    },
+                }
         )
         registry.update("loop", candidate_hash=candidate_hash, evaluation=unassessed)
 
@@ -815,6 +816,7 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
 
     snapshot = registry.get_snapshot("loop")
     view = snapshot.view_assessments["global_feasible"]
+    projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     voi_snapshot = registry.to_voi_snapshot("loop")
 
     assert snapshot.schema_version == "2.0"
@@ -826,6 +828,15 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
     )
     assert view.missing_coordinate_ids_by_candidate_hash
     assert complete_hash in snapshot.frontiers["global_feasible"]
+    assert projection.assessment == view
+    assert projection.candidate_frontier_hashes == (complete_hash,)
+    assert projection.ranked_frontier_hashes == ()
+    assert set(projection.eligible_candidate_hashes) == {
+        complete_hash,
+        *missing_hashes,
+        empty_axes_hash,
+    }
+    assert set(projection.unassessed_candidate_hashes) == set(missing_hashes) | {empty_axes_hash}
     assert voi_snapshot.assessment_status == "partial"
     assert not voi_snapshot.frontier_candidate_hashes
     assert voi_snapshot.position_for(complete_hash) == "unassessed"
@@ -851,15 +862,19 @@ def test_pareto_registry_observed_axis_union_is_not_complete(tmp_path) -> None:
         )
         registry.update("observed-only", candidate_hash=candidate_hash, evaluation=evaluation)
 
-    assessment = registry.get_snapshot("observed-only").view_assessments[
-        "global_feasible"
-    ]
+    snapshot = registry.get_snapshot("observed-only")
+    assessment = snapshot.view_assessments["global_feasible"]
+    projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     voi_snapshot = registry.to_voi_snapshot("observed-only")
 
     assert assessment.status == "basis_limited"
     assert assessment.coverage_status == "complete"
     assert assessment.basis_scope.scope == "observed_axis_union"
     assert assessment.basis_scope.coordinate_ids == ["policy_value"]
+    assert projection.assessment == assessment
+    assert projection.ranked_frontier_hashes == ()
+    assert projection.eligible_candidate_hashes == tuple(sorted(candidate_hashes))
+    assert set(projection.unassessed_candidate_hashes) == set(candidate_hashes)
     assert set(voi_snapshot.unassessed_candidate_hashes) == set(candidate_hashes)
     assert not voi_snapshot.frontier_candidate_hashes
     assert all(voi_snapshot.position_for(item) == "unassessed" for item in candidate_hashes)
@@ -929,10 +944,14 @@ def test_pareto_registry_declared_basis_omissions_stay_unassessed_and_finite_con
 
     finite_snapshot = finite_registry.get_snapshot("finite-control")
     finite_assessment = finite_snapshot.view_assessments["global_feasible"]
+    finite_projection = finite_snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     finite_voi = finite_registry.to_voi_snapshot("finite-control")
     assert finite_assessment.status == "complete"
     assert finite_assessment.coverage_status == "complete"
     assert finite_snapshot.frontiers["global_feasible"] == [finite_hashes[1]]
+    assert set(finite_projection.ranked_frontier_hashes) == {finite_hashes[1]}
+    assert finite_projection.eligible_candidate_hashes == tuple(sorted(finite_hashes))
+    assert not finite_projection.unassessed_candidate_hashes
     assert finite_voi.position_for(finite_hashes[1]) == "frontier"
 
 
@@ -2311,7 +2330,11 @@ def test_search_controller_policy_mode_updates_registry(tmp_path) -> None:
 
     assert len(result.history) == 1
     assert result.history[0].policy_evaluation is not None
-    assert result.pareto_front
+    assert result.pareto_front == []
+    assert result.pareto_projection is not None
+    assert result.pareto_projection.assessment.status == "basis_limited"
+    assert result.pareto_projection.candidate_frontier_hashes
+    assert result.pareto_projection.unassessed_candidate_hashes
 
 
 def test_search_controller_accepts_policy_bundle_after_module_reload(tmp_path) -> None:
@@ -2361,8 +2384,130 @@ def test_search_controller_accepts_policy_bundle_after_module_reload(tmp_path) -
     result = controller.run(initial_context={})
 
     assert len(result.history) == 1
-    assert result.history[0].policy_evaluation is not None
-    assert result.pareto_front
+    evaluation = result.history[0].policy_evaluation
+    assert isinstance(evaluation, reloaded.PolicyEvaluationVector)
+    assert result.pareto_front == []
+    assert result.pareto_projection is not None
+    assert result.pareto_projection.assessment.status == "basis_limited"
+    assert result.pareto_projection.ranked_frontier_hashes == ()
+    assert len(result.pareto_projection.unassessed_candidate_hashes) == 1
+    reopened = ParetoRegistry(root=tmp_path / "pareto_registry")
+    entries = reopened.get_snapshot(result.search_id).entries
+    assert len(entries) == 1
+    persisted = next(iter(entries.values())).evaluation
+    assert isinstance(persisted, PolicyEvaluationVector)
+    assert persisted.model_dump(mode="json") == evaluation.model_dump(mode="json")
+
+
+def test_search_controller_revalidates_reloaded_objective_result() -> None:
+    stale_vector_cls = PolicyEvaluationVector
+    sys.modules.pop("polisyos.scientist.policy_design.objectives", None)
+    reloaded = importlib.import_module("polisyos.scientist.policy_design.objectives")
+    assert reloaded.PolicyEvaluationVector is not stale_vector_cls
+
+    class ForeignVector(BaseModel):
+        candidate_id: str = "candidate_b"
+
+    class ReturningStack:
+        def __init__(self, result: object) -> None:
+            self.result = result
+
+        def evaluate(self, bundle: object) -> object:
+            return self.result
+
+    config = SearchConfig(
+        stopping=MaxIterations(1),
+        objective=CompositeObjective([]),
+        policy_objective_stack=ReturningStack(reloaded.PolicyEvaluationVector()),
+    )
+    controller = SearchController(
+        config=config,
+        candidate_generator=MagicMock(),
+        stage_a_evaluator=MagicMock(),
+        stage_b_evaluator=MagicMock(),
+    )
+    stage_b_result = {"policy_evaluation_bundle": reloaded.PolicyEvaluationBundle()}
+
+    ordinary = controller._resolve_policy_evaluation_with_status({}, stage_b_result)
+    assert ordinary.status == "valid"
+    assert isinstance(ordinary.value, reloaded.PolicyEvaluationVector)
+
+    config.policy_objective_stack = ReturningStack(
+        stale_vector_cls.model_construct(primary={"value": "not-a-channel"})
+    )
+    malformed = controller._resolve_policy_evaluation_with_status({}, stage_b_result)
+    assert malformed.status == "invalid"
+    assert malformed.value is None
+    assert malformed.reason == "objective_stack_returned_invalid_vector"
+
+    for untyped in ({"candidate_id": "candidate_b"}, ForeignVector()):
+        config.policy_objective_stack = ReturningStack(untyped)
+        rejected = controller._resolve_policy_evaluation_with_status({}, stage_b_result)
+        assert rejected.status == "invalid"
+        assert rejected.value is None
+        assert rejected.reason == "objective_stack_returned_untyped_result"
+
+
+def test_policy_vector_consumers_revalidate_across_module_reload() -> None:
+    design_search = importlib.import_module("polisyos.scientist.policy_design.search")
+    runtime_support = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.decide.policy_runtime_support"
+    )
+    hierarchical_search = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search"
+    )
+    sys.modules.pop("polisyos.scientist.policy_design.objectives", None)
+    current = importlib.import_module("polisyos.scientist.policy_design.objectives")
+    vector = current.PolicyEvaluationVector(
+        candidate_id="candidate_b",
+        primary={
+            "policy_value": current.ObjectiveChannelValue(
+                name="policy_value",
+                kind="primary",
+                value=11.0,
+                direction="maximize",
+                source="measured_panel",
+                metadata={"basis": "exact"},
+            )
+        },
+        feasible=False,
+        blocking_reasons=["hard_constraint"],
+    )
+
+    class ForeignVector(BaseModel):
+        candidate_id: str = "candidate_b"
+
+    for parse in (
+        design_search._coerce_policy_evaluation,
+        runtime_support._parse_policy_evaluation,
+        hierarchical_search._coerce_policy_evaluation,
+    ):
+        restored = parse(vector)
+        assert restored is not None
+        assert restored.candidate_id == "candidate_b"
+        assert restored.primary["policy_value"].source == "measured_panel"
+        assert restored.primary["policy_value"].metadata == {"basis": "exact"}
+        assert restored.feasible is False
+        assert restored.blocking_reasons == ["hard_constraint"]
+
+        serialized = parse(vector.model_dump(mode="json"))
+        assert serialized is not None
+        assert serialized.primary["policy_value"].source == "measured_panel"
+        assert serialized.feasible is False
+        assert parse(ForeignVector()) is None
+
+
+def test_pareto_registry_rejects_malformed_owner_vector_before_write(tmp_path) -> None:
+    registry = ParetoRegistry(root=tmp_path / "pareto_registry")
+    malformed = PolicyEvaluationVector.model_construct(primary={"value": "not-a-channel"})
+    schema_valid_raw = PolicyEvaluationVector(candidate_id="candidate_b").model_dump(mode="json")
+
+    with pytest.raises(ValueError):
+        registry.update("loop", candidate_hash="candidate_hash", evaluation=malformed)
+    with pytest.raises(TypeError):
+        registry.update("loop", candidate_hash="candidate_hash", evaluation=schema_valid_raw)
+
+    assert registry.get_snapshot("loop").entries == {}
 
 
 def test_direct_policy_runtime_workflow_engine_cannot_bypass_eval_safety_owner(

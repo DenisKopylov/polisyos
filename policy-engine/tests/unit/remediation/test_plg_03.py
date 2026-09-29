@@ -16,6 +16,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.agent_sim import ActorCritic, TrainingConfig, build_temporal_observations
 from polisyos.foundry.plugins.api import PolisySimulator, TrainingResult
 from polisyos.foundry.plugins.cli import cmd_train
@@ -156,10 +157,16 @@ def test_training_uses_supplied_tenant_store_for_persist_and_readback(
         return policy, {"loss_history": [0.25]}, trained_artifact
 
     monkeypatch.setattr(
-        training_adapter_module, "train_actor_critic_with_artifact", stub_native_training
+        training_adapter_module,
+        "train_actor_critic_with_artifact",
+        stub_native_training,
     )
-    monkeypatch.setattr(training_adapter_module, "_parameter_delta", lambda *args: jnp.array(1.0))
-    monkeypatch.setattr(training_adapter_module, "_action_delta", lambda *args: jnp.array(1.0))
+    monkeypatch.setattr(
+        training_adapter_module, "_parameter_delta", lambda *args: jnp.array(1.0)
+    )
+    monkeypatch.setattr(
+        training_adapter_module, "_action_delta", lambda *args: jnp.array(1.0)
+    )
     monkeypatch.setattr(
         EconomicsTrainingAdapter,
         "run",
@@ -226,6 +233,60 @@ def test_training_uses_supplied_tenant_store_for_persist_and_readback(
     assert foreign_store.has(manifest_ref) is False
     with pytest.raises(ArtifactOwnershipError):
         foreign_store.get_bytes(manifest_ref)
+
+
+def test_output_dir_training_persists_under_the_active_tenant_owner(
+    simulator: PolisySimulator,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The output-dir composition path records and enforces the ambient owner."""
+
+    from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
+    from polisyos.foundry.plugins import training_adapter as training_adapter_module
+
+    simulator.initialize(seed=7)
+    config = _small_config()
+
+    def stub_native_training(policy, _initial_state, _config, **kwargs):
+        trained_artifact = AgentPolicyArtifact.from_trained_policy(
+            policy,
+            run_id="ambient-tenant-store-test",
+            steps=1,
+            loss=0.25,
+            fingerprint=EnvironmentFingerprint.capture(kwargs["tier"], kwargs["seed"]),
+        )
+        return policy, {"loss_history": [0.25]}, trained_artifact
+
+    monkeypatch.setattr(
+        training_adapter_module, "train_actor_critic_with_artifact", stub_native_training
+    )
+    monkeypatch.setattr(training_adapter_module, "_parameter_delta", lambda *args: jnp.array(1.0))
+    monkeypatch.setattr(training_adapter_module, "_action_delta", lambda *args: jnp.array(1.0))
+    monkeypatch.setattr(
+        EconomicsTrainingAdapter,
+        "run",
+        lambda self, *args, **kwargs: (simulator.get_state(), []),
+    )
+
+    output_dir = tmp_path / "tenant-training-output"
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        result = simulator.train(
+            n_episodes=config.n_episodes,
+            training_config=config,
+            seed=7,
+            output_dir=output_dir,
+        )
+
+    assert result.status == "trained"
+    assert result.artifact_refs is not None
+    shared_store = FileSystemCAS(output_dir / "artifacts")
+    ownership = shared_store.ownership_evidence(tenant_id="tenant-a", cell_id="cell-a")
+    assert ownership["tenant_artifact_count"] == 2
+
+    foreign_store = shared_store.for_tenant("tenant-b", cell_id="cell-b")
+    with pytest.raises(ArtifactOwnershipError):
+        foreign_store.get_bytes(result.artifact_refs[1])
 
 
 def test_load_payload_reads_non_default_selected_view_for_shared_blob(

@@ -12,6 +12,7 @@ excluded — they belong to separate, optional protocols if needed.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
@@ -82,6 +83,16 @@ class ArtifactStore(Protocol):
 
     def iter_artifact_ids(self) -> list[ArtifactID]:  # pragma: no cover - protocol
         """List artifact IDs known to the backend."""
+        ...
+
+
+@runtime_checkable
+class RootedArtifactStore(ArtifactStore, Protocol):
+    """Artifact store that also exposes its backing root for local sidecars."""
+
+    @property
+    def root(self) -> Path:  # pragma: no cover - protocol
+        """Return the configured backing root used by this store."""
         ...
 
 

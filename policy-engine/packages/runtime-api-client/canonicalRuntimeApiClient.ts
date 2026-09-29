@@ -1639,6 +1639,9 @@ export type WelfareBundleRef =
 export type WorkflowRunRequest =
   RuntimeApiComponents["schemas"]["WorkflowRunRequest"];
 
+export type _QualifiedOutcomeOfInterestV3 =
+  RuntimeApiComponents["schemas"]["_QualifiedOutcomeOfInterestV3"];
+
 export type polisyos__core__artifacts__ids__ArtifactID =
   RuntimeApiComponents["schemas"]["polisyos__core__artifacts__ids__ArtifactID"];
 

@@ -58,6 +58,139 @@ def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
     assert violations == []
 
 
+def test_checked_in_openapi_design_problem_schema_preserves_v1_v2_and_admits_v3() -> None:
+    """The published snapshot accepts qualified outcomes only under DesignProblem v3."""
+
+    from copy import deepcopy
+
+    from jsonschema import Draft202012Validator
+    from referencing import Registry, Resource
+    from referencing.jsonschema import DRAFT202012
+
+    from polisyos.runtime.quality.design_problem import DesignProblem
+
+    repository_root = Path(__file__).resolve().parents[4]
+    openapi = json.loads(
+        (repository_root / "schemas/runtime_api_v1.openapi.json").read_text(encoding="utf-8")
+    )
+    openapi_uri = "https://policyos.example/runtime-api/openapi.json"
+
+    def _validator(snapshot: dict[str, Any]) -> Draft202012Validator:
+        registry = Registry().with_resource(
+            openapi_uri,
+            Resource.from_contents(snapshot, default_specification=DRAFT202012),
+        )
+        return Draft202012Validator(
+            {"$ref": f"{openapi_uri}#/components/schemas/DesignProblem"},
+            registry=registry,
+        )
+
+    problem = DesignProblem.model_validate(
+        {
+            "design_problem_id": "dp_openapi_contract",
+            "problem_statement": "Assess a policy intervention.",
+            "domain": "social",
+            "nl_provenance": {
+                "raw_request": "Assess a policy intervention.",
+                "source_surface": "runtime.control.nl_request",
+                "source_context": {},
+            },
+            "authority_profile": {
+                "requester_authority": "research",
+                "requested_authority_level": "research",
+                "mandate": "Research mandate.",
+            },
+            "jurisdiction_time": {
+                "region": "UA",
+                "valid_time": "2026-09-29",
+                "as_of": "2026-09-29",
+                "policy_time": "2026-09-29",
+                "data_time": "2025-2026",
+                "time_semantics": {
+                    "frequency": "Q",
+                    "start_date": "2025-01-01",
+                    "step_count": 4,
+                },
+            },
+            "objectives": [
+                {
+                    "objective_id": "survival",
+                    "description": "Increase survival.",
+                    "metric_id": "survival_rate",
+                    "direction": "maximize",
+                }
+            ],
+            "stakeholders": [
+                {"stakeholder_id": "households", "name": "Households", "role": "beneficiary"}
+            ],
+            "outcome_of_interest": {
+                "target_variable": "firm_survival",
+                "metric_id": "survival_rate",
+                "estimand": "P(firm_survival | do(credit_access))",
+                "direction": "maximize",
+            },
+            "candidate_lever_space": {
+                "allowed_operator_kinds": ["credit_guarantee"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "credit_access",
+                        "operator_kind": "credit_guarantee",
+                        "instrument": "credit guarantee",
+                        "target_slot": "credit_access",
+                    }
+                ],
+            },
+            "evidence_acquisition_needs": {
+                "needs": [
+                    {
+                        "need_id": "survival_panel",
+                        "question": "Measure survival.",
+                        "required_for": "outcome_of_interest",
+                        "status": "required",
+                        "source_hint": "measurement_root",
+                    }
+                ]
+            },
+        }
+    ).model_dump(mode="json")
+    validator = _validator(openapi)
+
+    for schema_version in (
+        "policyos.runtime.design_problem.v1",
+        "policyos.runtime.design_problem.v2",
+    ):
+        legacy_payload = {
+            **problem,
+            "schema_version": schema_version,
+        }
+        assert validator.is_valid(legacy_payload), schema_version
+
+        dotted_legacy_payload = {
+            **legacy_payload,
+            "outcome_of_interest": {
+                **problem["outcome_of_interest"],
+                "target_variable": "government.balance",
+            },
+        }
+        assert not validator.is_valid(dotted_legacy_payload), schema_version
+
+    v3_payload = {
+        **problem,
+        "schema_version": "policyos.runtime.design_problem.v3",
+        "outcome_of_interest": {
+            **problem["outcome_of_interest"],
+            "target_variable": "government.balance",
+        },
+    }
+    assert validator.is_valid(v3_payload)
+
+    without_v3_outcome_arm = deepcopy(openapi)
+    without_v3_outcome_arm["components"]["schemas"]["DesignProblem"]["properties"][
+        "outcome_of_interest"
+    ]["anyOf"] = [{"$ref": "#/components/schemas/OutcomeOfInterest"}]
+    assert not _validator(without_v3_outcome_arm).is_valid(v3_payload)
+
+
 def test_epoch_validity_batch_success_example_matches_its_wire_contract() -> None:
     schema = export_runtime_openapi_schema()
     operation = schema["paths"]["/api/v1/control/decision-validity/epoch-batches"]["post"]

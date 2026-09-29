@@ -58,6 +58,23 @@ _OBSERVATION_DECISIVE_COLUMNS = frozenset(
         "value",
     }
 )
+_OBSERVATION_TIME_COLUMNS = ("year", "survey_year", "wave")
+_OBSERVATION_PROJECTION_COLUMNS = (
+    "observation_id",
+    "dataset_id",
+    "raw_variable",
+    "canonical_var",
+    "country_code",
+    "year",
+    "survey_year",
+    "wave",
+    "value",
+    "condition_json",
+    "acquisition_method",
+    "source_watermark",
+    "dataset_version",
+)
+_OBSERVATION_READ_CHUNK_SIZE = 128
 _OVERLAY_AUDIT_TABLES = (
     "acquisition_overlay_metadata",
     "acquisition_epochs",
@@ -416,12 +433,193 @@ class CanonicalAcquisitionObservation(_StrictModel):
         return self
 
 
+def _observation_projection_value(
+    observation: CanonicalAcquisitionObservation | Mapping[str, object],
+    column: str,
+) -> object:
+    if isinstance(observation, Mapping):
+        return observation[column]
+    return getattr(observation, column)
+
+
+def _observation_projection_columns(
+    available_columns: Sequence[str],
+    observations: Sequence[CanonicalAcquisitionObservation | Mapping[str, object]],
+    *,
+    error_code: str,
+) -> tuple[str, ...]:
+    """Require storage for every decisive and populated source coordinate."""
+
+    available = set(available_columns)
+    if not observations:
+        raise OverlayAdmissionError(error_code, "observations_missing")
+    required = set(_OBSERVATION_DECISIVE_COLUMNS)
+    populated_time = {
+        column
+        for column in _OBSERVATION_TIME_COLUMNS
+        if any(_observation_projection_value(row, column) is not None for row in observations)
+    }
+    required.update(populated_time)
+    if any(_observation_projection_value(row, "condition_json") != "{}" for row in observations):
+        required.add("condition_json")
+    missing = sorted(required - available)
+    if missing:
+        raise OverlayAdmissionError(error_code, ",".join(missing))
+    if not populated_time:
+        raise OverlayAdmissionError(error_code, "time_coordinate_missing")
+    return tuple(column for column in _OBSERVATION_PROJECTION_COLUMNS if column in available)
+
+
+def _verify_observation_projection_rows(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    observations: Sequence[CanonicalAcquisitionObservation],
+    schema_error_code: str,
+    content_error_code: str,
+) -> None:
+    """Compare every derived row against native storage in bounded key batches."""
+
+    available_columns = tuple(
+        str(column[1]) for column in con.execute("PRAGMA table_info('ds_observations')").fetchall()
+    )
+    columns = _observation_projection_columns(
+        available_columns,
+        observations,
+        error_code=schema_error_code,
+    )
+    observation_id_index = columns.index("observation_id")
+    for start in range(0, len(observations), _OBSERVATION_READ_CHUNK_SIZE):
+        batch = observations[start : start + _OBSERVATION_READ_CHUNK_SIZE]
+        observation_ids = tuple(row.observation_id for row in batch)
+        if len(set(observation_ids)) != len(observation_ids):
+            raise OverlayAdmissionError(content_error_code, "duplicate_observation_id")
+        placeholders = ", ".join("?" for _ in observation_ids)
+        stored_rows = con.execute(
+            f"SELECT {', '.join(columns)} FROM ds_observations "  # noqa: S608
+            f"WHERE observation_id IN ({placeholders})",
+            list(observation_ids),
+        ).fetchall()
+        stored_by_id = {
+            str(values[observation_id_index]): values for values in stored_rows
+        }
+        if len(stored_rows) != len(batch) or len(stored_by_id) != len(batch):
+            raise OverlayAdmissionError(content_error_code, "observation_row_denominator_mismatch")
+        for expected in batch:
+            stored = stored_by_id.get(expected.observation_id)
+            if stored is None or any(
+                stored[index] != _observation_projection_value(expected, column)
+                for index, column in enumerate(columns)
+            ):
+                raise OverlayAdmissionError(content_error_code, expected.observation_id)
+
+
 class OverlayAdmissionReceipt(epoch_contract.ActivatedOverlayAdmissionStatement):
     """Durable active statement plus call-local replay metadata."""
 
     receipt_ref: ArtifactRef
     receipt_content_hash: str = Field(pattern=_SHA256_PATTERN)
     replayed: bool
+
+
+class ActivatedAcquisitionObservationRow(_StrictModel):
+    """One source-derived active observation with its canonical row digest."""
+
+    observation: CanonicalAcquisitionObservation
+    row_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _row_digest_is_recomputed(self) -> Self:
+        expected = content_sha256(self.observation.model_dump(mode="json"))
+        if self.row_content_sha256 != expected:
+            raise ValueError("activated_acquisition_observation_row_hash_mismatch")
+        return self
+
+
+class ActivatedAcquisitionObservationProjection(_StrictModel):
+    """Read-only view of observations bound to one fully revalidated active epoch."""
+
+    schema_version: Literal[
+        "polisyos.data_forge.activated_acquisition_observation_projection.v1"
+    ] = "polisyos.data_forge.activated_acquisition_observation_projection.v1"
+    receipt_ref: ArtifactRef
+    receipt_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    passport_ref: ArtifactRef
+    passport_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    variable_id: str = Field(min_length=1)
+    epoch_id: int = Field(gt=0)
+    passport_id: str = Field(min_length=1)
+    admission_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    activation_state: Literal["active"] = "active"
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    source_time_status: Literal["not_established"] = "not_established"
+    observations: tuple[ActivatedAcquisitionObservationRow, ...] = Field(min_length=1)
+    projection_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @classmethod
+    def issue(
+        cls,
+        *,
+        receipt_ref: ArtifactRef,
+        receipt_content_sha256: str,
+        passport_ref: ArtifactRef,
+        passport_content_sha256: str,
+        variable_id: str,
+        epoch_id: int,
+        passport_id: str,
+        admission_content_sha256: str,
+        observations: Sequence[CanonicalAcquisitionObservation],
+    ) -> Self:
+        """Build a content-bound read view after the overlay owner verified rows."""
+
+        projected_rows = tuple(
+            ActivatedAcquisitionObservationRow(
+                observation=observation,
+                row_content_sha256=content_sha256(observation.model_dump(mode="json")),
+            )
+            for observation in observations
+        )
+        row_ids = tuple(row.observation.observation_id for row in projected_rows)
+        if not row_ids or len(set(row_ids)) != len(row_ids):
+            raise OverlayAdmissionError(
+                "active_epoch_observation_content_mismatch",
+                "duplicate_or_missing_selected_observation",
+            )
+        payload = {
+            "schema_version": (
+                "polisyos.data_forge.activated_acquisition_observation_projection.v1"
+            ),
+            "receipt_ref": receipt_ref.model_dump(mode="json"),
+            "receipt_content_sha256": receipt_content_sha256,
+            "passport_ref": passport_ref.model_dump(mode="json"),
+            "passport_content_sha256": passport_content_sha256,
+            "variable_id": variable_id,
+            "epoch_id": epoch_id,
+            "passport_id": passport_id,
+            "admission_content_sha256": admission_content_sha256,
+            "activation_state": "active",
+            "predicate_provenance": "recomputed",
+            "source_time_status": "not_established",
+            "observations": [row.model_dump(mode="json") for row in projected_rows],
+        }
+        return cls(
+            **payload,
+            projection_content_sha256=content_sha256(payload),
+        )
+
+    @model_validator(mode="after")
+    def _projection_digest_is_recomputed(self) -> Self:
+        row_ids = tuple(row.observation.observation_id for row in self.observations)
+        if len(set(row_ids)) != len(row_ids):
+            raise ValueError("activated_acquisition_observation_projection_rows_ambiguous")
+        if any(
+            row.observation.canonical_var != self.variable_id
+            for row in self.observations
+        ):
+            raise ValueError("activated_acquisition_observation_projection_variable_mismatch")
+        payload = self.model_dump(mode="json", exclude={"projection_content_sha256"})
+        if self.projection_content_sha256 != content_sha256(payload):
+            raise ValueError("activated_acquisition_observation_projection_hash_mismatch")
+        return self
 
 
 class PendingOverlayAdmissionReceipt(epoch_contract.PendingOverlayAdmissionStatement):
@@ -1182,6 +1380,29 @@ class CatalogAcquisitionOverlay:
             registration=registration,
             observation_class=observation_class,
         )
+        existing = _existing_epoch(self.overlay_path, epoch_id)
+        schema_con = duckdb.connect(str(self.overlay_path), read_only=True)
+        try:
+            observation_columns = tuple(
+                str(column[1])
+                for column in schema_con.execute(
+                    "PRAGMA table_info('ds_observations')"
+                ).fetchall()
+            )
+            _observation_projection_columns(
+                observation_columns,
+                rows,
+                error_code="overlay_observation_schema_incomplete",
+            )
+            if existing is not None:
+                _verify_observation_projection_rows(
+                    schema_con,
+                    observations=rows,
+                    schema_error_code="overlay_observation_schema_incomplete",
+                    content_error_code="overlay_observation_content_conflict",
+                )
+        finally:
+            schema_con.close()
         admission_projection = {
             "schema_version": OVERLAY_SCHEMA_VERSION,
             "epoch_id": epoch_id,
@@ -1198,7 +1419,6 @@ class CatalogAcquisitionOverlay:
         }
         admission_hash = content_sha256(admission_projection)
         effective_authority_score = _effective_authority_score(passport)
-        existing = _existing_epoch(self.overlay_path, epoch_id)
         if existing is not None:
             if existing[0] != admission_hash:
                 raise OverlayAdmissionError("epoch_content_conflict", str(epoch_id))
@@ -1553,8 +1773,63 @@ class CatalogAcquisitionOverlay:
         *,
         receipt_ref: ArtifactRef,
         artifact_store: _ArtifactStore,
+        passport: _Passport,
+        authority: _CanonicalAuthority,
     ) -> OverlayAdmissionReceipt:
-        """Resolve active admission against CAS, owner records and physical rows."""
+        """Resolve active admission against current source and physical owner rows."""
+
+        admission, _, _, _ = self._resolve_activated_semantic_epoch_admission(
+            receipt_ref=receipt_ref,
+            artifact_store=artifact_store,
+            passport=passport,
+            authority=authority,
+        )
+        return admission
+
+    def read_activated_semantic_epoch_observations(
+        self,
+        *,
+        receipt_ref: ArtifactRef,
+        artifact_store: _ArtifactStore,
+        passport: _Passport,
+        authority: _CanonicalAuthority,
+    ) -> ActivatedAcquisitionObservationProjection:
+        """Return only active observations that passed the full owner readback."""
+
+        admission, observations, passport_ref, passport_content_sha256 = (
+            self._resolve_activated_semantic_epoch_admission(
+                receipt_ref=receipt_ref,
+                artifact_store=artifact_store,
+                passport=passport,
+                authority=authority,
+            )
+        )
+        return ActivatedAcquisitionObservationProjection.issue(
+            receipt_ref=admission.receipt_ref,
+            receipt_content_sha256=admission.receipt_content_hash,
+            passport_ref=passport_ref,
+            passport_content_sha256=passport_content_sha256,
+            variable_id=str(passport.variable_id),
+            epoch_id=admission.epoch_id,
+            passport_id=admission.passport_id,
+            admission_content_sha256=admission.admission_content_sha256,
+            observations=observations,
+        )
+
+    def _resolve_activated_semantic_epoch_admission(
+        self,
+        *,
+        receipt_ref: ArtifactRef,
+        artifact_store: _ArtifactStore,
+        passport: _Passport,
+        authority: _CanonicalAuthority,
+    ) -> tuple[
+        OverlayAdmissionReceipt,
+        tuple[CanonicalAcquisitionObservation, ...],
+        ArtifactRef,
+        str,
+    ]:
+        """Resolve active admission against current source and physical owner rows."""
         value = _load_external_statement(
             artifact_store=artifact_store,
             ref=receipt_ref,
@@ -1579,7 +1854,8 @@ class CatalogAcquisitionOverlay:
         con = open_catalog_read_session(self.baseline_path, overlay_path=self.overlay_path)
         try:
             rows = con.execute(
-                "SELECT epoch_activation_state, admitted_observation_count, "
+                "SELECT epoch_activation_state, admission_content_sha256, "
+                "admitted_observation_count, "
                 "pending_overlay_receipt_ref, semantic_epoch_production_receipt_ref, "
                 "activated_overlay_receipt_ref, admitted_boundary_evidence_ref "
                 "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
@@ -1594,9 +1870,9 @@ class CatalogAcquisitionOverlay:
                 receipt_ref,
                 statement.admitted_boundary_evidence_ref,
             )
-            if int(row[1]) != statement.admitted_observation_count or any(
+            if int(row[2]) != statement.admitted_observation_count or any(
                 raw is None or json.loads(str(raw)) != ref.model_dump(mode="json")
-                for raw, ref in zip(row[2:], expected_refs, strict=True)
+                for raw, ref in zip(row[3:], expected_refs, strict=True)
             ):
                 raise OverlayAdmissionError("active_epoch_receipt_binding_mismatch")
             for ref, expected in (
@@ -1610,6 +1886,98 @@ class CatalogAcquisitionOverlay:
                     raise OverlayAdmissionError("active_epoch_owner_copy_drift")
         finally:
             con.close()
+
+        admitted_mapping = epoch_contract.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=statement.admitted_boundary_evidence_ref,
+            expected_kind="epoch.admitted_acquisition_boundary_evidence",
+        )
+        admitted = epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(
+            admitted_mapping
+        )
+        passport_mapping = epoch_contract.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=admitted.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+        passport_payload = _model_json(passport)
+        passport_content_hash = content_sha256(passport_mapping)
+        if (
+            admitted.epoch_id != statement.epoch_id
+            or admitted.passport_ref.kind != "epoch.acquisition_passport_snapshot"
+            or admitted.passport_content_hash != passport_content_hash
+            or passport_mapping != passport_payload
+            or admitted.pending_overlay_receipt_ref != statement.pending_overlay_receipt_ref
+            or admitted.prepared_epoch_ref != statement.prepared_semantic_epoch_ref
+            or admitted.semantic_epoch_stamp != statement.semantic_epoch_stamp
+            or passport.epoch_id != statement.epoch_id
+            or passport.passport_id != statement.passport_id
+            or passport.semantic_epoch_stamp != statement.semantic_epoch_stamp
+        ):
+            raise OverlayAdmissionError("active_epoch_passport_binding_mismatch")
+        passport_rows = duckdb.connect(str(self.overlay_path), read_only=True)
+        try:
+            native_passports = passport_rows.execute(
+                "SELECT passport_content_sha256, passport_json FROM acquisition_passports "
+                "WHERE epoch_id = ? AND passport_id = ?",
+                [statement.epoch_id, statement.passport_id],
+            ).fetchall()
+            if (
+                len(native_passports) != 1
+                or str(native_passports[0][0]) != passport_content_hash
+                or json.loads(str(native_passports[0][1])) != passport_mapping
+            ):
+                raise OverlayAdmissionError("active_epoch_passport_owner_copy_drift")
+        finally:
+            passport_rows.close()
+
+        source_body = _validate_passport_owner_evidence(
+            passport,
+            artifact_store=artifact_store,
+            authority=authority,
+        )
+        observation_class = ObservationProvenanceClass(_enum_value(passport.observation_class))
+        if observation_class in {
+            ObservationProvenanceClass.DERIVED,
+            ObservationProvenanceClass.MODEL_OUTPUT,
+        }:
+            raise OverlayAdmissionError("active_epoch_observation_class_not_observed")
+        if _enum_value(passport.status) not in {"admitted", "admitted_degraded"}:
+            raise OverlayAdmissionError("active_epoch_passport_not_admitted")
+        registration = passport.registration
+        expected_observations = derive_canonical_observations(
+            source_body,
+            passport=passport,
+            registration=registration,
+        )
+        _validate_observations(
+            expected_observations,
+            passport=passport,
+            registration=registration,
+            observation_class=observation_class,
+        )
+        admission_projection = {
+            "schema_version": OVERLAY_SCHEMA_VERSION,
+            "epoch_id": statement.epoch_id,
+            "passport": passport_payload,
+            "registration": registration.model_dump(mode="json"),
+            "observations": [row.model_dump(mode="json") for row in expected_observations],
+            "semantic_boundary_candidate_ref": (
+                passport.semantic_boundary_candidate_ref.model_dump(mode="json")
+            ),
+            "semantic_epoch_stamp": passport.semantic_epoch_stamp.model_dump(mode="json"),
+            "prepared_semantic_epoch_ref": (
+                passport.prepared_semantic_epoch_ref.model_dump(mode="json")
+            ),
+        }
+        expected_admission_hash = content_sha256(admission_projection)
+        if (
+            expected_admission_hash != str(row[1])
+            or expected_admission_hash != pending.admission_content_sha256
+            or len(expected_observations) != statement.admitted_observation_count
+        ):
+            raise OverlayAdmissionError("active_epoch_admission_content_mismatch")
+
         native = duckdb.connect(str(self.overlay_path), read_only=True)
         try:
             _attach_read_only(native, self.baseline_path, alias="baseline")
@@ -1626,6 +1994,34 @@ class CatalogAcquisitionOverlay:
                 statement.admitted_observation_count
             ):
                 raise OverlayAdmissionError("active_epoch_observation_count_mismatch")
+            key_spec = _derive_baseline_primary_key_spec(native)
+            expected_member_rows: set[tuple[bytes, str]] = set()
+            for observation in expected_observations:
+                key_bytes = _canonical_primary_key_bytes(
+                    table="ds_observations",
+                    columns=key_spec["ds_observations"],
+                    values={"observation_id": observation.observation_id},
+                )
+                expected_member_rows.add(
+                    (key_bytes, f"sha256:{hashlib.sha256(key_bytes).hexdigest()}")
+                )
+            observed_member_count = 0
+            for member in member_rows:
+                if str(member[0]) != "ds_observations":
+                    continue
+                observed_member_count += 1
+                member_key = (bytes(member[1]), str(member[2]))
+                if member_key not in expected_member_rows:
+                    raise OverlayAdmissionError("active_epoch_observation_content_mismatch")
+            if observed_member_count != len(expected_member_rows):
+                raise OverlayAdmissionError("active_epoch_observation_content_mismatch")
+
+            _verify_observation_projection_rows(
+                native,
+                observations=expected_observations,
+                schema_error_code="active_epoch_observation_projection_incomplete",
+                content_error_code="active_epoch_observation_content_mismatch",
+            )
         finally:
             native.close()
         member_keys, member_hash = _existing_member_denominator(
@@ -1637,11 +2033,16 @@ class CatalogAcquisitionOverlay:
             or self._require_baseline_unchanged().content_sha256 != statement.baseline_after_sha256
         ):
             raise OverlayAdmissionError("active_epoch_member_denominator_mismatch")
-        return OverlayAdmissionReceipt(
-            **statement.model_dump(mode="python"),
-            receipt_ref=receipt_ref,
-            receipt_content_hash=_overlay_statement_content_hash(statement),
-            replayed=True,
+        return (
+            OverlayAdmissionReceipt(
+                **statement.model_dump(mode="python"),
+                receipt_ref=receipt_ref,
+                receipt_content_hash=_overlay_statement_content_hash(statement),
+                replayed=True,
+            ),
+            expected_observations,
+            admitted.passport_ref,
+            passport_content_hash,
         )
 
     def resolve_native_membership(
@@ -4251,12 +4652,11 @@ def _insert_schema_projected_rows(
         str(row[1]) for row in con.execute(f"PRAGMA table_info('{table}')").fetchall()
     )
     if table == "ds_observations":
-        missing = sorted(_OBSERVATION_DECISIVE_COLUMNS - set(available))
-        if missing or not {"year", "survey_year", "wave"} & set(available):
-            raise OverlayAdmissionError(
-                "overlay_observation_schema_incomplete",
-                ",".join(missing or ["year|survey_year|wave"]),
-            )
+        _observation_projection_columns(
+            available,
+            rows,
+            error_code="overlay_observation_schema_incomplete",
+        )
     columns = tuple(column for column in available if all(column in row for row in rows))
     if not columns:
         raise OverlayAdmissionError("overlay_schema_projection_empty", table)

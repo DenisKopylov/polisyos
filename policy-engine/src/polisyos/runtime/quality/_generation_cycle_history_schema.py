@@ -16,21 +16,64 @@ import json
 from typing import Final
 
 _LEGACY_TARGET_SLOT_PATTERN: Final = r"[a-z][a-z0-9_]*"
+_QUALIFIED_TARGET_SLOT_PATTERN: Final = r"[a-z][a-z0-9_.]*"
 FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION: Final = "policyos.runtime.design_problem.v1"
 FROZEN_DESIGN_PROBLEM_V2_SCHEMA_VERSION: Final = "policyos.runtime.design_problem.v2"
+FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION: Final = "policyos.runtime.design_problem.v3"
 
-# The v1 grammar predates DesignProblem's v2 canonical slot grammar. It is
-# separate from the graph census because the frozen CandidateLever annotation
-# was only ``str`` and therefore omitted its regex. V2 uses the current typed
-# CandidateLever grammar. Other historical string labels retain the original
-# unconstrained ``str`` semantics and add no frozen slot pattern.
+# DesignProblem's slot/outcome patterns are separate from the N6 graph census:
+# v1's CandidateLever field was plain ``str`` in that frozen graph, and the
+# standalone outcome DTO's strict grammar must not be widened with nested v3.
 FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS: Final = {
     FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION: {
         "polisyos.runtime.quality.design_problem.CandidateLever": {
             "target_slot": _LEGACY_TARGET_SLOT_PATTERN,
         },
+        "polisyos.runtime.quality.design_problem.OutcomeOfInterest": {
+            "target_variable": _LEGACY_TARGET_SLOT_PATTERN,
+        },
     },
-    FROZEN_DESIGN_PROBLEM_V2_SCHEMA_VERSION: {},
+    FROZEN_DESIGN_PROBLEM_V2_SCHEMA_VERSION: {
+        "polisyos.runtime.quality.design_problem.OutcomeOfInterest": {
+            "target_variable": _LEGACY_TARGET_SLOT_PATTERN,
+        },
+    },
+    FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION: {
+        "polisyos.runtime.quality.design_problem.OutcomeOfInterest": {
+            "target_variable": _LEGACY_TARGET_SLOT_PATTERN,
+        },
+        "polisyos.runtime.quality.design_problem._QualifiedOutcomeOfInterestV3": {
+            "target_variable": _QUALIFIED_TARGET_SLOT_PATTERN,
+        },
+    },
+}
+
+# The immutable N6 v1/v2/v3 JSON graph still records the original single
+# OutcomeOfInterest edge. DesignProblem v3 adds one explicit qualified child
+# owner. The history serializer checks the live field annotation against this
+# frozen v3 union and checks the actual child owner against the parent-version
+# variants below; old v1/v2 payloads remain restricted to the original owner.
+_DESIGN_PROBLEM_OUTCOME_OWNER: Final = (
+    "polisyos.runtime.quality.design_problem.OutcomeOfInterest"
+)
+_DESIGN_PROBLEM_V3_OUTCOME_OWNER: Final = (
+    "polisyos.runtime.quality.design_problem._QualifiedOutcomeOfInterestV3"
+)
+FROZEN_DESIGN_PROBLEM_OUTCOME_FIELD_EDGES: Final = (
+    (("union:0",), _DESIGN_PROBLEM_OUTCOME_OWNER),
+    (("union:1",), _DESIGN_PROBLEM_V3_OUTCOME_OWNER),
+)
+FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS: Final = {
+    FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION: (
+        (((), _DESIGN_PROBLEM_OUTCOME_OWNER),),
+    ),
+    FROZEN_DESIGN_PROBLEM_V2_SCHEMA_VERSION: (
+        (((), _DESIGN_PROBLEM_OUTCOME_OWNER),),
+    ),
+    FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION: (
+        (((), _DESIGN_PROBLEM_OUTCOME_OWNER),),
+        (((), _DESIGN_PROBLEM_V3_OUTCOME_OWNER),),
+    ),
 }
 
 _FROZEN_SCHEMA_JSON: Final = (

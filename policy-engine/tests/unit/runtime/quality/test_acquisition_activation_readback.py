@@ -17,7 +17,10 @@ def test_active_owner_readback_uses_physical_membership_and_does_not_activate_pe
     scenario = _real_epoch_scenario(tmp_path)
     _, activated = _activate_real_epoch_scenario(scenario)
     resolved = scenario.overlay.read_activated_semantic_epoch_admission(
-        receipt_ref=activated.receipt_ref, artifact_store=scenario.store
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
     )
     assert resolved.admitted_observation_count == activated.admitted_observation_count == 2
     assert resolved.receipt_ref == activated.receipt_ref
@@ -32,7 +35,10 @@ def test_active_owner_readback_uses_physical_membership_and_does_not_activate_pe
         con.close()
     with pytest.raises(RuntimeError):
         scenario.overlay.read_activated_semantic_epoch_admission(
-            receipt_ref=activated.receipt_ref, artifact_store=scenario.store
+            receipt_ref=activated.receipt_ref,
+            artifact_store=scenario.store,
+            passport=scenario.passport,
+            authority=scenario.authority,
         )
 
 
@@ -77,7 +83,10 @@ def test_legacy_positive_activation_preserves_bytes_without_native_qualification
         artifact_store=scenario.store,
     )
     reread = scenario.overlay.read_activated_semantic_epoch_admission(
-        receipt_ref=active.receipt_ref, artifact_store=scenario.store
+        receipt_ref=active.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
     )
     assert reread.semantic_epoch_production_receipt_ref == ref
     assert scenario.store.get_bytes(ref.artifact_id) == raw
@@ -106,4 +115,5 @@ def test_legacy_positive_activation_preserves_bytes_without_native_qualification
             receipt=receipt,
             artifact_store=scenario.store,
             overlay=scenario.overlay,
+            authority=scenario.authority,
         )

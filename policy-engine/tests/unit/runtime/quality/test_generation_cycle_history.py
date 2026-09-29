@@ -6,7 +6,12 @@ import copy
 import hashlib
 import json
 import os
+import shutil
 import subprocess
+import sys
+import sysconfig
+import time
+import zipfile
 from collections.abc import Mapping, Sequence
 from functools import cache
 from pathlib import Path
@@ -16,6 +21,7 @@ import pytest
 from pydantic import BaseModel
 
 from polisyos.core import canon
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import generation_cycle as generation
@@ -23,7 +29,10 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionActionRecord,
     AcquisitionStrategy,
 )
-from polisyos.runtime.quality.design_problem import CandidateLever
+from polisyos.runtime.quality.design_problem import (
+    CandidateLever,
+    DesignProblem,
+)
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleRun,
     StrangleReceipt,
@@ -56,6 +65,371 @@ def _n6_runs(
         for index, child in enumerate(value):
             rows.extend(_n6_runs(child, path=path, pointer=f"{pointer}/{index}"))
     return rows
+
+
+def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
+    tmp_path: Path,
+    record_property: Any,
+) -> None:
+    """Replay pinned histories from an actual wheel without checkout imports."""
+
+    v1 = historical_generation_cycle_v1()["generation_cycle_run"]
+    v2_path = (
+        REPO_ROOT
+        / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+    )
+    v2_document = json.loads(v2_path.read_text(encoding="utf-8"))
+    v2 = v2_document["generation_cycle_run"]
+    v3 = [payload for _name, payload in _v3_history_fixtures()]
+    fixtures = {"v1": [v1], "v2": [v2], "v3": v3}
+
+    uv_executable = shutil.which("uv")
+    assert uv_executable is not None, "uv is required to build the local wheel offline"
+    wheelhouse = tmp_path / "wheelhouse"
+    wheelhouse.mkdir()
+    build_environment = os.environ.copy()
+    build_environment["UV_OFFLINE"] = "1"
+    build_environment["UV_PYTHON_DOWNLOADS"] = "never"
+    started = time.monotonic()
+    build_result = subprocess.run(
+        [
+            uv_executable,
+            "--offline",
+            "build",
+            "--wheel",
+            "--out-dir",
+            str(wheelhouse),
+        ],
+        cwd=REPO_ROOT,
+        env=build_environment,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=600,
+    )
+    record_property("wheel_build_wall_seconds", round(time.monotonic() - started, 3))
+    record_property(
+        "wheel_build_command",
+        "uv --offline build --wheel --out-dir <pytest-tmp>/wheelhouse",
+    )
+    assert build_result.returncode == 0, (
+        build_result.stdout + "\n" + build_result.stderr
+    )
+    wheels = tuple(sorted(wheelhouse.glob("*.whl")))
+    assert len(wheels) == 1, f"expected one wheel, found {len(wheels)}"
+    wheel_path = wheels[0]
+    registry_member = (
+        "polisyos/foundry/methods/catalog/_resources/"
+        "method_catalog_dependency_digest_domains.toml"
+    )
+    snapshot_member = "polisyos/foundry/methods/catalog/snapshot.py"
+    canonical_registry = (
+        REPO_ROOT
+        / "architecture/production_quality"
+        / "method_catalog_dependency_digest_domains.toml"
+    ).read_bytes()
+    site_packages = tmp_path / "site-packages"
+    site_packages.mkdir()
+    with zipfile.ZipFile(wheel_path) as archive:
+        members = tuple(archive.namelist())
+        assert members.count(registry_member) == 1
+        assert not any("layer3_gx_pinned_request.json" in member for member in members)
+        assert snapshot_member in members
+        wheel_registry = archive.read(registry_member)
+        assert wheel_registry == canonical_registry
+        python_module_count = sum(
+            member.startswith("polisyos/") and member.endswith(".py")
+            for member in members
+        )
+        assert python_module_count >= 1
+        archive.extractall(site_packages)
+    with wheel_path.open("rb") as wheel_file:
+        wheel_sha256 = hashlib.file_digest(wheel_file, "sha256").hexdigest()
+    record_property("built_wheel_sha256", wheel_sha256)
+    record_property("wheel_python_module_count", python_module_count)
+    record_property(
+        "wheel_registry_sha256", hashlib.sha256(wheel_registry).hexdigest()
+    )
+
+    unrelated_source = site_packages / "polisyos/lex/simulator/report.py"
+    assert unrelated_source.is_file()
+    unrelated_source.write_bytes(
+        unrelated_source.read_bytes()
+        + b"\n# unrelated edit must not stale old history\n"
+    )
+    decoy_registry = (
+        tmp_path
+        / "architecture/production_quality"
+        / "method_catalog_dependency_digest_domains.toml"
+    )
+    decoy_registry.parent.mkdir(parents=True, exist_ok=True)
+    decoy_registry.write_text("not the packaged runtime registry\n", encoding="utf-8")
+
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    fixture_path = outside / "n6-history.json"
+    fixture_path.write_text(json.dumps(fixtures), encoding="utf-8")
+    configured_paths = sysconfig.get_paths()
+    dependency_paths = tuple(
+        dict.fromkeys(
+            configured_paths[key]
+            for key in ("purelib", "platlib")
+            if Path(configured_paths[key]).is_dir()
+        )
+    )
+    environment = {
+        "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+        "PYTHONPATH": os.pathsep.join((str(site_packages), *dependency_paths)),
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "R2_PRODUCT_ROOT": str(REPO_ROOT.resolve()),
+        "R2_SITE_PACKAGES": str(site_packages.resolve()),
+        "R2_HISTORY_FIXTURES": str(fixture_path),
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu",
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-S",
+            "-c",
+            """
+import copy
+import json
+import os
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+import polisyos
+from polisyos.core import artifacts
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.foundry.methods.catalog import dependency_authority
+from polisyos.runtime.quality.design_axes import value_choice_provenance
+from polisyos.runtime.quality import generation_cycle
+from polisyos.runtime.quality.generation_cycle import (
+    GenerationCycleRun,
+    validate_generation_cycle_run,
+    validate_generation_cycle_run_history,
+)
+
+product_root = Path(os.environ["R2_PRODUCT_ROOT"]).resolve()
+site_packages = Path(os.environ["R2_SITE_PACKAGES"]).resolve()
+package_root = (site_packages / "polisyos").resolve()
+assert Path(polisyos.__file__).resolve().parent == package_root
+assert GenerationCycleRun.__module__ == "polisyos.runtime.quality.generation_cycle"
+registry_path = Path(dependency_authority._DIGEST_REGISTRY_PATH).resolve()
+expected_registry_path = (
+    package_root
+    / "foundry/methods/catalog/_resources"
+    / "method_catalog_dependency_digest_domains.toml"
+)
+assert registry_path == expected_registry_path
+assert registry_path.is_file()
+for module_name, module in tuple(sys.modules.items()):
+    if module_name == "polisyos" or module_name.startswith("polisyos."):
+        origin = getattr(getattr(module, "__spec__", None), "origin", None)
+        if origin and origin.endswith(".py"):
+            assert Path(origin).resolve().is_relative_to(package_root), (
+                module_name,
+                origin,
+            )
+for entry in sys.path:
+    if not entry:
+        continue
+    resolved = Path(entry).resolve()
+    assert not resolved.is_relative_to(product_root / "src"), entry
+    assert not resolved.is_relative_to(product_root / "tests"), entry
+    assert not resolved.is_relative_to(product_root / "architecture"), entry
+
+fixture_path = Path(os.environ["R2_HISTORY_FIXTURES"])
+fixtures = json.loads(fixture_path.read_text(encoding="utf-8"))
+expected = {"v1": ".v1", "v2": ".v2", "v3": ".v3"}
+spec = CanonSpec(forbid_floats=False)
+replayed_count = 0
+for label, records in fixtures.items():
+    assert records and label in expected
+    for payload in records:
+        assert payload["schema_version"].endswith(expected[label])
+        run = GenerationCycleRun.model_validate(payload)
+        projection = generation_cycle._historical_generation_cycle_run_projection(run)
+        assert (
+            to_canonical_bytes(projection, spec)
+            == to_canonical_bytes(payload, spec)
+        ), label
+        assert validate_generation_cycle_run_history(payload) == (), label
+        replayed_count += 1
+
+source = fixtures["v1"][0]
+schema_version = source["schema_version"]
+store = artifacts.FileSystemCAS(Path.cwd() / "s8-cas")
+owner = value_choice_provenance.NormativeValueScheduleOwner(
+    store=store,
+    trust=value_choice_provenance.NormativeAuthorityTrust(),
+    repo_root=None,
+)
+source_options = artifacts.PutOptions(
+    kind=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+    media_type="application/json",
+    schema=artifacts.SchemaInfo(
+        name=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+        version=schema_version,
+    ),
+)
+valid_source_ref = str(
+    store.put_json(source, source_options, canon_spec=spec).artifact_id
+)
+assert owner._read(
+    valid_source_ref,
+    kind=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+    schema=generation_cycle.GENERATION_CYCLE_SCHEMA_VERSION,
+) == source
+canonical_source_bytes = store.get_bytes(valid_source_ref)
+noncanonical_source_ref = str(
+    store.put_bytes(canonical_source_bytes + b" \\n", source_options).artifact_id
+)
+assert from_canonical_bytes(store.get_bytes(noncanonical_source_ref)) == source
+try:
+    owner._read(
+        noncanonical_source_ref,
+        kind=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
+        schema=generation_cycle.GENERATION_CYCLE_SCHEMA_VERSION,
+    )
+except value_choice_provenance.P20NormativeChoiceError as exc:
+    assert exc.code == "p20_normative_generation_history_invalid"
+else:
+    raise AssertionError("S8 accepted noncanonical raw N6 source bytes")
+source_run = GenerationCycleRun.model_validate(source)
+strict_issues = validate_generation_cycle_run(source_run)
+assert len(strict_issues) == 1
+assert strict_issues[0]["code"] == "strangle_receipt_currentness_not_established"
+assert strict_issues[0]["reason"] == "historical_deployment_identity_not_recorded"
+assert strict_issues[0]["census_verdict"] == "UNRUN"
+binding = value_choice_provenance.NormativeGenerationBinding(
+    compiled_run_ref="sha256:" + "a" * 64,
+    source_run_ref=valid_source_ref,
+    node_ref="fixture:n6-leaf",
+)
+disposition = owner._generation_disposition(
+    binding=binding,
+    evidence=None,
+    evaluated_at=datetime.now(UTC),
+)
+expected_reasons = (
+    "strangle_receipt_currentness_not_established",
+    "historical_deployment_identity_not_recorded",
+    "generation_cycle_source_preservation_not_established",
+    "historical_v1_source_custody_not_represented",
+)
+assert disposition.authorization_status == "blocked"
+assert disposition.ranked_recommendations == ()
+assert disposition.ranking_bundle_ref is None
+assert disposition.decision_request is not None
+assert disposition.decision_request.reason_codes == expected_reasons
+assert disposition.candidate_fronts == source_run.fronts.candidate_ids_by_front()
+assert any(disposition.candidate_fronts.values())
+assert disposition.compiled_membership_status == "not_established"
+
+mutated_v1 = copy.deepcopy(source)
+mutated_v1["source_handoff_refs"] = []
+assert GenerationCycleRun.model_validate(mutated_v1).model_dump(mode="json") == source
+invalid_source_ref = str(
+    store.put_json(mutated_v1, source_options, canon_spec=spec).artifact_id
+)
+invalid_binding = binding.model_copy(update={"source_run_ref": invalid_source_ref})
+try:
+    owner._generation_disposition(
+        binding=invalid_binding,
+        evidence=None,
+        evaluated_at=datetime.now(UTC),
+    )
+except value_choice_provenance.P20NormativeChoiceError as exc:
+    assert exc.code == "p20_normative_generation_history_invalid"
+else:
+    raise AssertionError("S8 accepted post-v1 persisted content after markers stayed intact")
+
+original = fixtures["v3"][0]
+mutated = copy.deepcopy(original)
+retained_run_id = mutated["run_id"]
+retained_receipt = copy.deepcopy(mutated["strangle_receipt"])
+mutated["cycles"][-1]["refinement_decision"]["decision"] = "stop"
+assert mutated["run_id"] == retained_run_id
+assert mutated["strangle_receipt"] == retained_receipt
+issues = validate_generation_cycle_run_history(mutated)
+assert "generation_cycle_blocked_terminal_projection_mismatch" in {
+    issue.get("code") for issue in issues
+}
+print(
+    f"source_free_n6_history=v1,v2,v3 replayed={replayed_count} "
+    "s8_raw_v1=red_currentness=limited unrelated_comment=valid"
+)
+""",
+        ],
+        cwd=outside,
+        env=environment,
+        text=True,
+        capture_output=True,
+        check=False,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == (
+        "source_free_n6_history=v1,v2,v3 replayed=4 "
+        "s8_raw_v1=red_currentness=limited unrelated_comment=valid"
+    )
+
+    # Remove the import-boundary property while retaining every exported symbol.
+    # Both former module-scope GX reads must make an otherwise valid wheel import
+    # fail when the repository's pinned-case fixture is absent.
+    eager_reads = (
+        (
+            "runtime/quality/construct_registry.py",
+            "REPO_ROOT = Path(__file__).resolve().parents[4]\n",
+            "PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)\n",
+        ),
+        (
+            "runtime/quality/design_axes/substrate_acquisition.py",
+            "REPO_ROOT = Path(__file__).resolve().parents[5]\n",
+            "S3_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)\n",
+        ),
+    )
+    for relative_path, anchor, eager_read in eager_reads:
+        module_path = site_packages / "polisyos" / relative_path
+        original = module_path.read_text(encoding="utf-8")
+        assert original.count(anchor) == 1
+        assert eager_read not in original
+        try:
+            module_path.write_text(
+                original.replace(anchor, anchor + eager_read, 1),
+                encoding="utf-8",
+            )
+            negative = subprocess.run(
+                [
+                    sys.executable,
+                    "-S",
+                    "-c",
+                    "from polisyos.runtime.quality import generation_cycle",
+                ],
+                cwd=outside,
+                env=environment,
+                text=True,
+                capture_output=True,
+                check=False,
+                timeout=120,
+            )
+            assert negative.returncode != 0, relative_path
+            expected_request = (
+                tmp_path
+                / "architecture/policy_design_case/layer3_gx_pinned_request.json"
+            )
+            assert "FileNotFoundError" in negative.stderr
+            assert str(expected_request) in negative.stderr
+            assert module_path.name in negative.stderr
+        finally:
+            module_path.write_text(original, encoding="utf-8")
 
 
 def _v3_history_fixtures() -> tuple[tuple[str, dict[str, Any]], ...]:
@@ -263,6 +637,123 @@ def test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot() -> Non
         assert (
             problem["candidate_lever_space"]["candidate_levers"][0]["target_slot"]
             == "government.balance"
+        )
+
+
+def test_v3_history_accepts_nested_design_problem_v3_qualified_outcome() -> None:
+    """A new nested v3 problem replays with its exact qualified outcome owner."""
+
+    _fixture_name, payload = _v3_history_fixtures()[0]
+    for cycle in payload["cycles"]:
+        problem = cycle["revision_request"]["revised_problem"]
+        problem["schema_version"] = "policyos.runtime.design_problem.v3"
+        problem["outcome_of_interest"]["target_variable"] = "government.balance"
+
+    run = GenerationCycleRun.model_validate(payload)
+    projection = generation._historical_generation_cycle_run_projection(run)
+    spec = canon.CanonSpec(forbid_floats=False)
+    assert canon.to_canonical_bytes(projection, spec) == canon.to_canonical_bytes(
+        payload, spec
+    )
+    assert all(
+        cycle["revision_request"]["revised_problem"]["outcome_of_interest"][
+            "target_variable"
+        ]
+        == "government.balance"
+        for cycle in projection["cycles"]
+    )
+
+
+@pytest.mark.parametrize(
+    "schema_version",
+    [
+        "policyos.runtime.design_problem.v1",
+        "policyos.runtime.design_problem.v2",
+        "policyos.runtime.design_problem.v3",
+    ],
+)
+def test_history_rejects_qualified_outcome_without_v3_nested_owner(
+    schema_version: str,
+) -> None:
+    """A version marker alone cannot give the strict outcome owner v3 syntax."""
+
+    _fixture_name, payload = _v3_history_fixtures()[0]
+    run = GenerationCycleRun.model_validate(payload)
+
+    def replace_old_outcome(value: object) -> tuple[object, bool]:
+        if isinstance(value, DesignProblem):
+            outcome = value.outcome_of_interest.model_copy(
+                update={"target_variable": "government.balance"}
+            )
+            return (
+                value.model_copy(
+                    update={
+                        "schema_version": schema_version,
+                        "outcome_of_interest": outcome,
+                    }
+                ),
+                True,
+            )
+        if isinstance(value, BaseModel):
+            for field_name in type(value).model_fields:
+                replacement, changed = replace_old_outcome(getattr(value, field_name))
+                if changed:
+                    return value.model_copy(update={field_name: replacement}), True
+        if isinstance(value, (tuple, list)):
+            items = list(value)
+            for index, item in enumerate(items):
+                replacement, changed = replace_old_outcome(item)
+                if changed:
+                    items[index] = replacement
+                    return (tuple(items) if isinstance(value, tuple) else items), True
+        return value, False
+
+    forged, changed = replace_old_outcome(run)
+    assert changed
+    assert isinstance(forged, GenerationCycleRun)
+    assert forged.schema_version == run.schema_version
+    assert forged.strangle_receipt.status == run.strangle_receipt.status
+    with pytest.raises(
+        ValueError, match="generation_cycle_history_field_pattern_out_of_epoch"
+    ):
+        generation._historical_generation_cycle_run_projection(forged)
+
+
+def test_v3_history_projects_n5_artifact_root_model_as_scalar_wire() -> None:
+    """A valid N5 result ref replays through the frozen typed v3 graph."""
+
+    artifact_id = ArtifactID.from_sha256_hex("a" * 64)
+    observation = generation.SimulationPortObservation(
+        candidate_id="candidate_a",
+        status="joint_simulated",
+        simulation_result_ref=ArtifactRef(
+            artifact_id=artifact_id,
+            kind="runtime_quality.simulation_result",
+            media_type="application/json",
+        ),
+    )
+    wire = observation.model_dump(mode="json", exclude_unset=True)
+    assert wire["simulation_result_ref"]["artifact_id"] == str(artifact_id)
+
+    projected = generation._historical_generation_cycle_field_tree(
+        observation, wire, version="v3"
+    )
+    spec = canon.CanonSpec(forbid_floats=False)
+    assert canon.to_canonical_bytes(projected, spec) == canon.to_canonical_bytes(
+        wire, spec
+    )
+
+    malformed = copy.deepcopy(wire)
+    malformed["simulation_result_ref"]["artifact_id"] = "sha256:broken"
+    with pytest.raises(ValueError):
+        generation.SimulationPortObservation.model_validate(malformed)
+
+    noncanonical = copy.deepcopy(wire)
+    noncanonical["simulation_result_ref"]["artifact_id"] = "sha256:" + "A" * 64
+    normalized = generation.SimulationPortObservation.model_validate(noncanonical)
+    with pytest.raises(ValueError, match="generation_cycle_history_root_wire_mismatch"):
+        generation._historical_generation_cycle_field_tree(
+            normalized, noncanonical, version="v3"
         )
 
 

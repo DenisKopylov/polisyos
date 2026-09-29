@@ -28,11 +28,12 @@ output metric uncertainty in Foundry simulations.
 | `QuasiMCSampler`                | Quasi-Monte-Carlo sampler for sampling-based propagation. |
 | `aggregate_envelopes()`         | Combines multiple envelopes into one.                     |
 | `compute_first_order_indices()` | Sensitivity helper for variance attribution.              |
+| `extract_std()`                 | Extracts scale from a typed parametric fit or legacy interval. |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
 
 ## Current State
 
-- Last updated: 2026-04-03
-- Files: 11 Python files
-- Exports: 9
+- Last updated: 2026-09-28
+- Files: 12 Python files in this package
+- Exports: 12 names declared in `__all__`

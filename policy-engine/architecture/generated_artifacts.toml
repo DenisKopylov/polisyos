@@ -2078,7 +2078,7 @@ outputs = [
   "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json",
 ]
 regenerate_commands = [
-  "uv run python tools/quality/validation/check_layer3_gy_value_gate_contract.py --write-dependency-discriminant architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json --write --expected-source-freeze 3ffb6ad5ed95d316656bc19946018a4eec52bc3b",
+  "uv run python tools/quality/validation/check_layer3_gy_value_gate_contract.py --write-dependency-discriminant architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json --write --expected-source-freeze 32442a2fe41a3b8daa74b6350a256ac06f4239cf",
 ]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever the Foundry dependency profile/distribution closure, its frozen source bytes, or the exact N8 value-gate contract bytes change."
@@ -2093,7 +2093,7 @@ check_command = [
   "--check-dependency-discriminant",
   "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json",
   "--expected-source-freeze",
-  "3ffb6ad5ed95d316656bc19946018a4eec52bc3b",
+  "32442a2fe41a3b8daa74b6350a256ac06f4239cf",
 ]
 
 [[family]]

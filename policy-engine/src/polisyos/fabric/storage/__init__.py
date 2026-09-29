@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 from polisyos.fabric.storage.port import StoragePort
 from polisyos.fabric.storage.tenant_cas import (
     TenantScopedCAS,
+    TenantSidecarScope,
     infer_tenant_id_from_cas_root,
     resolve_cas_store,
     tenant_scoped_cas_root,
@@ -21,6 +22,7 @@ __all__ = [
     "InMemoryStorageAdapter",
     "StoragePort",
     "TenantScopedCAS",
+    "TenantSidecarScope",
     "infer_tenant_id_from_cas_root",
     "resolve_cas_store",
     "tenant_scoped_cas_root",

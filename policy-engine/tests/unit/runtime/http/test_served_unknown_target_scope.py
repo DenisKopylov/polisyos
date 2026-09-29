@@ -23,15 +23,23 @@ def test_unknown_target_scope_selector_is_typed_input_not_authority() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("profile_id", "profile_status", "payload_schema_version"),
+    ("profile_id", "profile_status", "payload_schema_version", "simulate_only"),
     [
         pytest.param(
             "future-profile-v2",
             "profile_admission_missing",
             "1.1",
+            False,
             id="unknown-profile",
         ),
-        pytest.param(None, "profile_not_requested", "1.0", id="omitted-profile"),
+        pytest.param(None, "profile_not_requested", "1.0", False, id="omitted-profile"),
+        pytest.param(
+            "future-profile-v2",
+            "profile_admission_missing",
+            "1.1",
+            True,
+            id="simulate-only-unknown-profile",
+        ),
     ],
 )
 async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_world(
@@ -40,6 +48,7 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
     profile_id: str | None,
     profile_status: str,
     payload_schema_version: str,
+    simulate_only: bool,
 ) -> None:
     """The persisted selector must not fall through to the fixed UA WMR."""
     import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
@@ -109,10 +118,19 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
 
     service = fixtures._build_control_service(tmp_path)
     try:
+        intent_context = _intent_context(as_of="2026-05-12")
+        if simulate_only:
+            from tests.unit.runtime.http.test_control_job_execution_intent import (
+                _valid_intake_for_mode,
+            )
+
+            intent_context["evaluation_safety_attempt"] = _valid_intake_for_mode(
+                "simulate_only"
+            ).model_dump(mode="json")
         request_fields: dict[str, object] = {
             "request": raw_request,
             "llm_model": model_id,
-            "context": _intent_context(as_of="2026-05-12"),
+            "context": intent_context,
         }
         if profile_id is not None:
             request_fields["target_world_scope_profile_id"] = profile_id
@@ -159,6 +177,16 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
         assert completed.progress["target_world_model_record_ref"] is None
         assert completed.progress["n5_status"] == "not_run"
         assert completed.progress["s8_status"] == "not_run"
+        if simulate_only:
+            assert completed.progress["execution_intent_band"] == "simulate_only_attempt"
+            assert completed.progress["simulation_status"] == "simulation_unavailable"
+            assert completed.progress["simulation_limitation_code"] == (
+                "cycle_substrate_context_not_established"
+            )
+            assert "compiled_recursive_generation_cycle_ref" not in completed.progress
+        else:
+            assert completed.progress["execution_intent_band"] == "candidate_only"
+            assert "simulation_status" not in completed.progress
         assert completed.progress["candidate_proposal_ref"]
         proposal = generation_source.GenerationSourceRepository(
             service._artifact_store
@@ -173,6 +201,14 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
         assert proposal.problem.nl_provenance.raw_request == raw_request
         assert proposal.proposal.trinity_bundle.policy_spec.interventions
         assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
+        if simulate_only:
+            assert proposal.schema_version.endswith(".v2")
+            assert proposal.simulation_disposition.status == "simulation_unavailable"
+            assert proposal.simulation_disposition.reason_code == (
+                "cycle_substrate_context_not_established"
+            )
+        else:
+            assert proposal.schema_version.endswith(".v1")
     finally:
         service.close()
 

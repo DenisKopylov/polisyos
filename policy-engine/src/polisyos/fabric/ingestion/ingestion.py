@@ -40,7 +40,11 @@ from polisyos.fabric.evidence import (
 from polisyos.fabric.ingestion.ingestion_providers import (
     ArtifactStoreFactory,
     IngestionDependencies,
+    IngestionStoreBindingError,
+    resolve_ingestion_cache_namespace,
     resolve_ingestion_dependencies,
+    resolve_ingestion_sidecar_scope,
+    resolve_ingestion_store,
 )
 from polisyos.fabric.provenance.core import (
     ActivityType,
@@ -52,6 +56,7 @@ from polisyos.fabric.provenance.core import (
     ProvenanceEntity,
 )
 from polisyos.fabric.provenance.lineage import FabricLineageTracker
+from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
 if TYPE_CHECKING:
@@ -839,6 +844,7 @@ def run_connectors_ingestion(
     metrics: MetricsRegistry | None = None,
     store_factory: ArtifactStoreFactory | None = None,
     dependencies: IngestionDependencies | None = None,
+    sidecar_scope: TenantSidecarScope | None = None,
     raw_result_sink: PreTransformFetchResultSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
@@ -867,6 +873,16 @@ def run_connectors_ingestion(
         tracer_factory=get_tracer,
         metrics_factory=get_metrics,
     )
+    if cas_root is not None:
+        resolved_sidecar_scope = resolve_ingestion_sidecar_scope(
+            Path(cas_root),
+            sidecar_scope=sidecar_scope,
+        )
+    elif sidecar_scope is not None:
+        raise IngestionStoreBindingError("ingestion_sidecar_scope_requires_cas_root")
+    else:
+        resolved_sidecar_scope = None
+
     with resolved_dependencies.tracer.start_as_current_span(
         FABRIC_TRACE_NAMES["data_plane_ingest"],
         attributes={
@@ -876,7 +892,13 @@ def run_connectors_ingestion(
         },
     ) as span:
         cas_store = (
-            resolved_dependencies.store_factory(Path(cas_root)) if cas_root is not None else None
+            resolve_ingestion_store(
+                Path(cas_root),
+                resolved_dependencies,
+                sidecar_scope=resolved_sidecar_scope,
+            )
+            if cas_root is not None
+            else None
         )
         if cas_store is None:
             logger.warning(
@@ -884,11 +906,26 @@ def run_connectors_ingestion(
             )
 
         cache_registry = _build_cache_registry(spec.cache_policy)
+        if cas_store is not None and resolved_sidecar_scope is None:
+            raise RuntimeError("ingestion_sidecar_scope_missing")
+        resolved_cache_namespace = (
+            resolve_ingestion_cache_namespace(
+                cache_namespace,
+                sidecar_scope=resolved_sidecar_scope,
+            )
+            if cas_store is not None and resolved_sidecar_scope is not None
+            else cache_namespace
+        )
         cache_store = (
             ConnectorCacheStore(
                 cas_store,
                 cache_registry,
-                namespace=(cache_namespace if cache_namespace is not None else "connector_cache"),
+                namespace=(resolved_cache_namespace or "connector_cache"),
+                tenant_id=(
+                    resolved_sidecar_scope.tenant_id
+                    if resolved_sidecar_scope is not None
+                    else None
+                ),
                 metrics=resolved_dependencies.metrics,
                 tracer=resolved_dependencies.tracer,
             )

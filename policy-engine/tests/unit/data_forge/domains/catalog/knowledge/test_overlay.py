@@ -22,6 +22,7 @@ from polisyos.runtime.quality.acquisition_executor import (
     ObservationProvenanceClass,
     build_admission_passport,
 )
+from tests.unit.runtime.quality import test_acquisition_executor as acquisition_executor_tests
 from tests.unit.runtime.quality.test_acquisition_executor import (
     _activate_real_epoch_scenario,
     _fixture,
@@ -45,6 +46,64 @@ def _admit(overlay, *, passport, store, authority):
         artifact_store=store,
         authority=authority,
     )
+
+
+def _scenario_with_raw_rows(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    rows: list[dict[str, object]],
+):
+    """Build the normal served scenario around one explicit source-row set."""
+
+    fixture = acquisition_executor_tests._fixture
+
+    build_entry = acquisition_executor_tests.catalog_read_api.build_authority_entry
+
+    def entry_with_condition_column(*args, **kwargs):
+        columns = tuple(kwargs["schema_columns"])
+        if not any(column.name == "condition_json" for column in columns):
+            kwargs["schema_columns"] = tuple(
+                sorted(
+                    (
+                        *columns,
+                        acquisition_executor_tests.catalog_read_api.AuthoritySchemaColumn(
+                            name="condition_json",
+                            logical_types=("object",),
+                            nullable=False,
+                        ),
+                    ),
+                    key=lambda column: column.name,
+                )
+            )
+        return build_entry(*args, **kwargs)
+
+    def selected_fixture(root: Path):
+        return fixture(root, rows=rows, source_rows=rows)
+
+    monkeypatch.setattr(acquisition_executor_tests, "_fixture", selected_fixture)
+    monkeypatch.setattr(
+        acquisition_executor_tests.catalog_read_api,
+        "build_authority_entry",
+        entry_with_condition_column,
+    )
+    return _real_epoch_scenario(tmp_path)
+
+
+def _condition_rows() -> list[dict[str, object]]:
+    return [
+        {
+            "country_code": "UA",
+            "year": 2024,
+            "distress_score": 0.42,
+            "condition_json": {"cohort": "alpha"},
+        },
+        {
+            "country_code": "UA",
+            "year": 2025,
+            "distress_score": 0.51,
+            "condition_json": {"cohort": "beta"},
+        },
+    ]
 
 
 def _downgrade_to_authentic_v1(scenario) -> str:
@@ -689,6 +748,393 @@ def test_overlay_reconciles_stamp_against_complete_owner_denominator(
     assert receipt.status == "unresolved"
     assert receipt.assessments[0].binding_status == "invalid"
     assert receipt.assessments[0].failure_code == "acquisition_candidate_binding_mismatch"
+
+
+def test_active_owner_readback_refuses_value_drift_with_receipt_markers_retained(
+    tmp_path: Path,
+) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+    _, activated = _activate_real_epoch_scenario(scenario)
+    sibling = _second_real_epoch_scenario(scenario, epoch_id=2)
+    baseline_identity = scenario.overlay._require_baseline_unchanged()
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        owner_markers = con.execute(
+            "SELECT admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
+            [scenario.passport.epoch_id, scenario.passport.passport_id],
+        ).fetchone()
+        member_markers = tuple(
+            con.execute(
+                "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
+                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                "ORDER BY table_name, canonical_primary_key_hash",
+                [scenario.passport.epoch_id, scenario.passport.passport_id],
+            ).fetchall()
+        )
+        sibling_markers = tuple(
+            con.execute(
+                "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
+                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                "ORDER BY table_name, canonical_primary_key_hash",
+                [sibling.passport.epoch_id, sibling.passport.passport_id],
+            ).fetchall()
+        )
+    finally:
+        con.close()
+    assert owner_markers is not None
+    prefix = "ds_observations|observation_id="
+
+    def observation_ids(members: tuple[tuple[object, ...], ...]) -> tuple[str, ...]:
+        return tuple(
+            bytes.fromhex(bytes(row[1]).decode("ascii").removeprefix(prefix)).decode("utf-8")
+            for row in members
+            if row[0] == "ds_observations"
+        )
+
+    selected_ids = observation_ids(member_markers)
+    sibling_ids = observation_ids(sibling_markers)
+    assert selected_ids
+    assert sibling_ids
+    assert set(selected_ids).isdisjoint(sibling_ids)
+    observation_id = selected_ids[0]
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        original_row = con.execute(
+            "SELECT observation_id, value FROM ds_observations WHERE observation_id = ?",
+            [observation_id],
+        ).fetchone()
+        sibling_rows = tuple(
+            con.execute(
+                "SELECT observation_id, value FROM ds_observations "
+                "WHERE observation_id IN (?, ?) ORDER BY observation_id",
+                sibling_ids[:2],
+            ).fetchall()
+        )
+    finally:
+        con.close()
+    assert original_row is not None
+    assert original_row[0] in selected_ids
+    assert len(sibling_rows) == len(sibling_ids)
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path))
+    try:
+        con.execute(
+            "UPDATE ds_observations SET value = ? WHERE observation_id = ?",
+            [float(original_row[1]) + 1.0, observation_id],
+        )
+    finally:
+        con.close()
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        assert con.execute(
+            "SELECT observation_id, value FROM ds_observations WHERE observation_id = ?",
+            [observation_id],
+        ).fetchone() == (observation_id, float(original_row[1]) + 1.0)
+        assert con.execute(
+            "SELECT admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
+            [scenario.passport.epoch_id, scenario.passport.passport_id],
+        ).fetchone() == owner_markers
+        assert tuple(
+            con.execute(
+                "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
+                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                "ORDER BY table_name, canonical_primary_key_hash",
+                [scenario.passport.epoch_id, scenario.passport.passport_id],
+            ).fetchall()
+        ) == member_markers
+        assert tuple(
+            con.execute(
+                "SELECT observation_id, value FROM ds_observations "
+                "WHERE observation_id IN (?, ?) ORDER BY observation_id",
+                sibling_ids[:2],
+            ).fetchall()
+        ) == sibling_rows
+    finally:
+        con.close()
+    assert scenario.overlay._require_baseline_unchanged() == baseline_identity
+
+    with pytest.raises(OverlayAdmissionError, match="active_epoch_observation_content_mismatch"):
+        scenario.overlay.read_activated_semantic_epoch_admission(
+            receipt_ref=activated.receipt_ref,
+            artifact_store=scenario.store,
+            passport=scenario.passport,
+            authority=scenario.authority,
+        )
+
+
+def test_active_observation_projection_binds_selected_rows_and_rejects_row_drift(
+    tmp_path: Path,
+) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+    _, activated = _activate_real_epoch_scenario(scenario)
+
+    projection = scenario.overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
+
+    assert projection.activation_state == "active"
+    assert projection.epoch_id == scenario.passport.epoch_id
+    assert projection.passport_id == scenario.passport.passport_id
+    assert projection.admission_content_sha256 == activated.admission_content_sha256
+    assert projection.source_time_status == "not_established"
+    observations = tuple(row.observation for row in projection.observations)
+    assert tuple(row.value for row in observations) == (0.42, 0.51)
+    assert tuple(row.country_code for row in observations) == ("UA", "UA")
+    assert tuple(row.year for row in observations) == (2024, 2025)
+    assert len({row.observation_id for row in observations}) == 2
+    assert all(
+        row.row_content_sha256
+        == overlay_module.content_sha256(observation.model_dump(mode="json"))
+        for row, observation in zip(projection.observations, observations, strict=True)
+    )
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        owner_markers = con.execute(
+            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ?",
+            [scenario.passport.epoch_id],
+        ).fetchone()
+    finally:
+        con.close()
+    assert owner_markers is not None
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path))
+    try:
+        con.execute(
+            "UPDATE ds_observations SET value = ? WHERE observation_id = ?",
+            [0.43, observations[0].observation_id],
+        )
+    finally:
+        con.close()
+
+    with pytest.raises(
+        OverlayAdmissionError,
+        match="active_epoch_observation_content_mismatch",
+    ):
+        scenario.overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=activated.receipt_ref,
+            artifact_store=scenario.store,
+            passport=scenario.passport,
+            authority=scenario.authority,
+        )
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        assert con.execute(
+            "SELECT passport_id, admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ?",
+            [scenario.passport.epoch_id],
+        ).fetchone() == owner_markers
+    finally:
+        con.close()
+
+
+def test_active_owner_readback_refuses_unrepresented_year_and_condition_with_markers_retained(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    scenario = _scenario_with_raw_rows(tmp_path, monkeypatch, _condition_rows())
+    _, activated = _activate_real_epoch_scenario(scenario)
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        owner_markers = con.execute(
+            "SELECT admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
+            [scenario.passport.epoch_id, scenario.passport.passport_id],
+        ).fetchone()
+        member_markers = tuple(
+            con.execute(
+                "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
+                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                "ORDER BY table_name, canonical_primary_key_hash",
+                [scenario.passport.epoch_id, scenario.passport.passport_id],
+            ).fetchall()
+        )
+    finally:
+        con.close()
+    assert owner_markers is not None
+    assert sum(str(member[0]) == "ds_observations" for member in member_markers) == 2
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path))
+    try:
+        con.execute("ALTER TABLE ds_observations DROP COLUMN year")
+        con.execute("ALTER TABLE ds_observations DROP COLUMN condition_json")
+    finally:
+        con.close()
+
+    with pytest.raises(
+        OverlayAdmissionError,
+        match="active_epoch_observation_projection_incomplete",
+    ):
+        scenario.overlay.read_activated_semantic_epoch_admission(
+            receipt_ref=activated.receipt_ref,
+            artifact_store=scenario.store,
+            passport=scenario.passport,
+            authority=scenario.authority,
+        )
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        assert con.execute(
+            "SELECT admission_content_sha256, admitted_observation_count, "
+            "pending_overlay_receipt_ref, admitted_boundary_evidence_ref, "
+            "semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+            "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
+            [scenario.passport.epoch_id, scenario.passport.passport_id],
+        ).fetchone() == owner_markers
+        assert tuple(
+            con.execute(
+                "SELECT table_name, canonical_primary_key_bytes, canonical_primary_key_hash "
+                "FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                "ORDER BY table_name, canonical_primary_key_hash",
+                [scenario.passport.epoch_id, scenario.passport.passport_id],
+            ).fetchall()
+        ) == member_markers
+    finally:
+        con.close()
+
+
+def test_admission_refuses_populated_year_and_condition_missing_from_owner_schema(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    scenario = _scenario_with_raw_rows(tmp_path, monkeypatch, _condition_rows())
+    reduced = CatalogAcquisitionOverlay(
+        scenario.authority.baseline_path,
+        tmp_path / "reduced-overlay.duckdb",
+    )
+    reduced.initialize()
+    con = duckdb.connect(str(reduced.overlay_path))
+    try:
+        con.execute("ALTER TABLE ds_observations DROP COLUMN year")
+        con.execute("ALTER TABLE ds_observations DROP COLUMN condition_json")
+    finally:
+        con.close()
+
+    with pytest.raises(OverlayAdmissionError, match="overlay_observation_schema_incomplete"):
+        _admit(
+            reduced,
+            passport=scenario.passport,
+            store=scenario.store,
+            authority=scenario.authority,
+        )
+
+    con = duckdb.connect(str(reduced.overlay_path), read_only=True)
+    try:
+        assert con.execute("SELECT count(*) FROM acquisition_epochs").fetchone() == (0,)
+        assert con.execute("SELECT count(*) FROM acquisition_epoch_members").fetchone() == (0,)
+        assert con.execute("SELECT count(*) FROM ds_observations").fetchone() == (0,)
+    finally:
+        con.close()
+
+
+def test_admission_preserves_populated_year_and_condition_in_reduced_owner_schema(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    scenario = _scenario_with_raw_rows(tmp_path, monkeypatch, _condition_rows())
+    reduced = CatalogAcquisitionOverlay(
+        scenario.authority.baseline_path,
+        tmp_path / "reduced-preserving-overlay.duckdb",
+    )
+    reduced.initialize()
+    con = duckdb.connect(str(reduced.overlay_path))
+    try:
+        # survey_year is null for every source row, so this reduced schema still
+        # faithfully represents all populated temporal and condition values.
+        con.execute("ALTER TABLE ds_observations DROP COLUMN survey_year")
+    finally:
+        con.close()
+
+    receipt = _admit(
+        reduced,
+        passport=scenario.passport,
+        store=scenario.store,
+        authority=scenario.authority,
+    )
+    assert receipt.admitted_observation_count == 2
+    con = duckdb.connect(str(reduced.overlay_path), read_only=True)
+    try:
+        assert tuple(
+            con.execute(
+                "SELECT year, condition_json, value FROM ds_observations "
+                "ORDER BY condition_json"
+            ).fetchall()
+        ) == (
+            (2024, '{"cohort":"alpha"}', 0.42),
+            (2025, '{"cohort":"beta"}', 0.51),
+        )
+    finally:
+        con.close()
+
+
+def test_active_owner_readback_checks_observations_across_projection_chunk_boundary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rows = [
+        {
+            "country_code": "UA",
+            "year": 2024,
+            "distress_score": 0.2 + (index % 60) / 100,
+            "condition_json": {"case": f"{index:03d}"},
+        }
+        for index in range(129)
+    ]
+    scenario = _scenario_with_raw_rows(tmp_path, monkeypatch, rows)
+    _, activated = _activate_real_epoch_scenario(scenario)
+    resolved = scenario.overlay.read_activated_semantic_epoch_admission(
+        receipt_ref=activated.receipt_ref,
+        artifact_store=scenario.store,
+        passport=scenario.passport,
+        authority=scenario.authority,
+    )
+    assert resolved.admitted_observation_count == 129
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        boundary_row = con.execute(
+            "SELECT observation_id, value FROM ds_observations WHERE condition_json = ?",
+            ['{"case":"128"}'],
+        ).fetchone()
+    finally:
+        con.close()
+    assert boundary_row is not None
+    con = duckdb.connect(str(scenario.overlay.overlay_path))
+    try:
+        con.execute(
+            "UPDATE ds_observations SET value = ? WHERE observation_id = ?",
+            [float(boundary_row[1]) + 0.01, boundary_row[0]],
+        )
+    finally:
+        con.close()
+    with pytest.raises(
+        OverlayAdmissionError,
+        match="active_epoch_observation_content_mismatch",
+    ):
+        scenario.overlay.read_activated_semantic_epoch_admission(
+            receipt_ref=activated.receipt_ref,
+            artifact_store=scenario.store,
+            passport=scenario.passport,
+            authority=scenario.authority,
+        )
 
 
 def test_v1_table_migrates_transactionally_to_nullable_v2_columns(

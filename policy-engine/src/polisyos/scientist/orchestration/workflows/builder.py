@@ -14,7 +14,11 @@ from typing import TYPE_CHECKING, cast
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    with_ambient_ownership_enforcement_if_supported,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext, new_run_id
@@ -114,15 +118,16 @@ _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 
 
 def _build_default_store() -> ArtifactStore:
-    """Build the default workflow artifact store via the backend factory seam."""
+    """Build the default workflow store with backend-supported ambient custody."""
+    store = build_artifact_store(
+        ArtifactStoreConfig(
+            backend="filesystem",
+            root=str(DEFAULT_CAS_ROOT),
+        )
+    )
     return cast(
         "ArtifactStore",
-        build_artifact_store(
-            ArtifactStoreConfig(
-                backend="filesystem",
-                root=str(DEFAULT_CAS_ROOT),
-            )
-        ),
+        with_ambient_ownership_enforcement_if_supported(store),
     )
 
 
@@ -166,15 +171,37 @@ def _maybe_enforce_quota(*, quota_registry: QuotaRegistry | None = None) -> Quot
 
 def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
     """Wrap store with namespace isolation if tenant context is active."""
+    access_scope = get_current_access_scope_or_none()
     tenant_id = get_current_tenant_id_or_none()
+    if tenant_id is None and access_scope is not None:
+        tenant_id = access_scope.tenant_id
+    cell_id = get_current_cell_id()
+    if cell_id is None and access_scope is not None:
+        cell_id = access_scope.cell_id
+    from polisyos.core import artifacts
+
+    if isinstance(store, artifacts.FileSystemCAS):
+        return cast(
+            "ArtifactStore",
+            with_ambient_ownership_enforcement_if_supported(store),
+        )
+
+    target = getattr(store, "_target", None)
+    if isinstance(target, artifacts.FileSystemCAS):
+        if not target._ownership_enforced:
+            raise artifacts.ArtifactOwnershipError(
+                "Guarded filesystem artifact store requires ownership enforcement"
+            )
+        return store
+
     if tenant_id is None:
         return store
+
     if _is_content_addressed_filesystem_store(store):
         return store
     try:
         from polisyos.core.security import NamespacedArtifactStore
 
-        cell_id = get_current_cell_id()
         return cast(
             "ArtifactStore",
             NamespacedArtifactStore(inner=store, tenant_id=tenant_id, cell_id=cell_id),
@@ -186,11 +213,11 @@ def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
 def _is_content_addressed_filesystem_store(store: ArtifactStore) -> bool:
     """Return true when namespace prefixes would corrupt content-addressed CAS IDs."""
     try:
-        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core import artifacts
     except _WORKFLOW_BUILDER_IMPORT_ERRORS:  # pragma: no cover - optional dependency guard
         return False
     target = getattr(store, "_target", store)
-    return isinstance(target, FileSystemCAS)
+    return isinstance(target, artifacts.FileSystemCAS)
 
 
 def _maybe_create_provenance_dag(run_id: str) -> object | None:

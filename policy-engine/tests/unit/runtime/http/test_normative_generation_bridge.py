@@ -14,29 +14,39 @@ from polisyos.runtime.http.services.control import generation_cycle as bridge
 from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
 from tests.unit.runtime.http.test_control_service_di import (
     _build_control_service,
+    _run_controlled_simulate_only_job_fixture,
     _signed_generation_evidence,
-)
-from tests.unit.runtime.http.test_control_service_di import (
-    test_process_nl_job_enters_persisted_tenant_scope as _worker_example,
 )
 
 
 @pytest.fixture(scope="module")
 def compiled_payload(tmp_path_factory):
-    """Capture a real generated fixture run at the existing production worker boundary."""
-    captured = {}
-    service_type = _build_control_service.__globals__["ControlPlaneService"]
-    original = service_type.resolve_generation_value_choices
-
-    def capture(self, **kwargs):
-        ref = artifacts.ArtifactID.model_validate(kwargs["compiled_run_ref"])
-        captured["source"] = canon.from_canonical_bytes(self._artifact_store.get_bytes(ref))
-        return original(self, **kwargs)
-
+    """Capture the existing owner-bound N4→N5 control worker source."""
     with pytest.MonkeyPatch.context() as patches:
-        patches.setattr(service_type, "resolve_generation_value_choices", capture)
-        asyncio.run(_worker_example(patches, tmp_path_factory.mktemp("pa1-worker"), "missing"))
-    return captured["source"]
+        fixture = asyncio.run(
+            _run_controlled_simulate_only_job_fixture(
+                patches,
+                tmp_path_factory.mktemp("controlled-profile-n5"),
+            )
+        )
+        try:
+            return canon.from_canonical_bytes(fixture.compiled_payload)
+        finally:
+            fixture.service.close()
+
+
+def test_compiled_payload_is_controlled_profile_candidate_n5(compiled_payload):
+    """The normative owner fixture must come from the admitted N4→N5 station."""
+    compiled = bridge.CompiledRecursiveGenerationCycleRun.model_validate(compiled_payload)
+
+    assert compiled.cycle_substrate_context_ref is not None
+    assert compiled.recursive_run.leaf_nodes
+    for leaf in compiled.recursive_run.leaf_nodes:
+        assert leaf.cycle_run is not None
+        assert leaf.cycle_run.cycles
+        assert leaf.cycle_run.cycles[-1].simulation.status == "joint_simulated"
+        assert leaf.cycle_run.promotion_port.status == "not_promoted"
+        assert leaf.cycle_run.promotion_port.certified_candidate_ids == ()
 
 
 @pytest.fixture
@@ -288,6 +298,122 @@ def test_signed_frontier_must_bind_actual_source_not_same_candidate_names(statio
     )
 
 
+def test_legacy_v1_composition_replays_without_currentness_or_authority(station, monkeypatch):
+    """A historical v1 claim replays byte-for-byte but cannot carry present authority."""
+    from polisyos.runtime.quality import generation_cycle as n6
+
+    service, compiled, source_ref = station
+    now = datetime.now(UTC)
+    owner = bridge.normative_owner_for_runtime_store(
+        service._artifact_store,
+        service._normative_authority_trust,
+        repo_root=service._repo_root,
+    )
+    node = compiled.recursive_run.leaf_nodes[0]
+    run = node.cycle_run
+    assert run is not None
+    evidence = bridge.NormativeRunEvidenceRefs.model_validate(
+        _signed_generation_evidence(service, compiled, fault="authorized")
+    ).by_node[node.node_ref]
+    binding = s8.NormativeGenerationBinding(
+        compiled_run_ref=source_ref,
+        source_run_ref="sha256:" + canon.content_hash(
+            canon.to_canonical_bytes(run.model_dump(mode="json"), canon.CanonSpec(forbid_floats=False))
+        ),
+        node_ref=node.node_ref,
+    )
+    leaf = s8.NormativeGenerationDisposition(
+        generation_binding=binding,
+        case_id=run.cycles[0].revision_request.revised_problem.design_problem_id,
+        candidate_fronts=run.fronts.candidate_ids_by_front(),
+        evidence=evidence,
+        authorization_status="authorized",
+        ranked_recommendations=(run.candidate_summaries[0].candidate_id,),
+        admitted_at=now,
+        trust_epoch=service._normative_authority_trust.epoch,
+    )
+    leaf_ref = service._artifact_store.put_json(
+        leaf.model_dump(mode="json"),
+        artifacts.PutOptions(
+            kind=s8.NORMATIVE_GENERATION_DISPOSITION_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=s8.NORMATIVE_GENERATION_DISPOSITION_KIND,
+                version=s8.NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    outer = bridge.NormativeRunDisposition(
+        compiled_run_ref=source_ref,
+        leaf_disposition_refs={node.node_ref: str(leaf_ref.artifact_id)},
+        leaf_dispositions={node.node_ref: leaf},
+        authorization_status="authorized",
+        ranked_recommendations=leaf.ranked_recommendations,
+        strangle_receipt=bridge.NormativeRunStrangleReceipt(
+            compiled_run_ref=source_ref,
+            source_node_refs=(node.node_ref,),
+            disposition_node_refs=(node.node_ref,),
+        ),
+    )
+    outer_ref = _put_sidecar(service, outer.model_dump(mode="json"))
+    outer_bytes = service._artifact_store.get_bytes(
+        artifacts.ArtifactID.model_validate(outer_ref)
+    )
+    currentness_calls: list[dict[str, object]] = []
+
+    def unexpected_currentness_read(**kwargs: object) -> n6.N6DeploymentCurrentnessObservation:
+        currentness_calls.append(dict(kwargs))
+        raise AssertionError("historical replay must not query live currentness")
+
+    monkeypatch.setattr(n6, "observe_n6_deployment_currentness", unexpected_currentness_read)
+    replay = bridge.replay_normative_run_disposition(
+        store=service._artifact_store,
+        owner=owner,
+        disposition_ref=outer_ref,
+        compiled_run_ref=source_ref,
+    )
+    assert replay.disposition.model_dump(mode="json") == outer.model_dump(mode="json")
+    assert not replay.admission_authority_established
+    assert currentness_calls == []
+
+    projected = bridge.project_normative_run_disposition(
+        store=service._artifact_store,
+        owner=owner,
+        disposition_ref=outer_ref,
+        compiled_run_ref=source_ref,
+        evaluated_at=now,
+    )
+    assert projected.authorization_status == "blocked"
+    assert projected.ranked_recommendations == ()
+    assert (
+        "p20_normative_generation_admission_currentness_not_recorded"
+        in projected.leaf_dispositions[node.node_ref].decision_request.reason_codes
+    )
+    assert service._artifact_store.get_bytes(artifacts.ArtifactID.model_validate(outer_ref)) == (
+        outer_bytes
+    )
+    assert currentness_calls == []
+
+    # Removal probe: route historical replay through the current projector while
+    # retaining the same v1 refs/markers. It must detect the history/current delta.
+    with monkeypatch.context() as removed_history_boundary:
+        removed_history_boundary.setattr(
+            owner,
+            "replay_generation_disposition",
+            lambda ref: owner.project_generation_disposition(ref, evaluated_at=now),
+        )
+        with pytest.raises(
+            s8.P20NormativeChoiceError,
+            match="p20_normative_composition_content_mismatch",
+        ):
+            bridge.replay_normative_run_disposition(
+                store=service._artifact_store,
+                owner=owner,
+                disposition_ref=outer_ref,
+                compiled_run_ref=source_ref,
+            )
+
+
 @pytest.mark.parametrize("sidecar_ref", [None, "sha256:" + "f" * 64])
 def test_missing_or_unresolved_sidecar_preserves_current_source_fronts(station, sidecar_ref):
     service, compiled, source_ref = station
@@ -479,6 +605,93 @@ def test_runtime_cas_adapter_reuses_ambient_owner_and_rejects_impostor(tmp_path)
             bridge.normative_owner_for_runtime_store(Fake(), s8.NormativeAuthorityTrust())
     finally:
         context.store.close()
+
+
+def test_s8_rejects_post_v1_field_from_raw_persisted_n6_bytes(tmp_path):
+    """S8 checks the persisted historical projection before Pydantic can drop fields."""
+    import copy
+
+    from polisyos.runtime.quality.generation_cycle import (
+        GENERATION_CYCLE_SCHEMA_VERSION,
+        GenerationCycleRun,
+        validate_generation_cycle_run,
+        validate_generation_cycle_run_history,
+    )
+    from tests.unit.runtime.quality.historical_artifacts import (
+        historical_generation_cycle_v1,
+    )
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    payload = historical_generation_cycle_v1()["generation_cycle_run"]
+    schema_version = payload["schema_version"]
+    put_options = artifacts.PutOptions(
+        kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(
+            name=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            version=schema_version,
+        ),
+    )
+    valid_ref = str(
+        store.put_json(payload, put_options, canon_spec=canon.CanonSpec(forbid_floats=False))
+        .artifact_id
+    )
+    owner = s8.NormativeValueScheduleOwner(
+        store=store,
+        trust=s8.NormativeAuthorityTrust(),
+        repo_root=None,
+    )
+    assert owner._read(
+        valid_ref,
+        kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+        schema=GENERATION_CYCLE_SCHEMA_VERSION,
+    ) == payload
+    canonical_raw = canon.to_canonical_bytes(
+        payload, canon.CanonSpec(forbid_floats=False)
+    )
+    assert store.get_bytes(valid_ref) == canonical_raw
+    assert validate_generation_cycle_run_history(payload) == ()
+    assert "strangle_receipt_currentness_not_established" in {
+        str(issue.get("code"))
+        for issue in validate_generation_cycle_run(GenerationCycleRun.model_validate(payload))
+    }
+
+    noncanonical_ref = str(store.put_bytes(canonical_raw + b" \n", put_options).artifact_id)
+    assert canon.from_canonical_bytes(store.get_bytes(noncanonical_ref)) == payload
+    with pytest.raises(
+        s8.P20NormativeChoiceError,
+        match="p20_normative_generation_history_invalid",
+    ):
+        owner._read(
+            noncanonical_ref,
+            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            schema=GENERATION_CYCLE_SCHEMA_VERSION,
+        )
+
+    mutated = copy.deepcopy(payload)
+    mutated["source_handoff_refs"] = []
+    assert GenerationCycleRun.model_validate(mutated).model_dump(mode="json") == payload
+    invalid_ref = str(
+        store.put_json(
+            mutated,
+            put_options,
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        ).artifact_id
+    )
+    binding = s8.NormativeGenerationBinding(
+        compiled_run_ref="sha256:" + "a" * 64,
+        source_run_ref=invalid_ref,
+        node_ref="fixture:n6-leaf",
+    )
+    with pytest.raises(
+        s8.P20NormativeChoiceError,
+        match="p20_normative_generation_history_invalid",
+    ):
+        owner._generation_disposition(
+            binding=binding,
+            evidence=None,
+            evaluated_at=datetime.now(UTC),
+        )
 
 
 def test_app_factory_passes_typed_deployment_trust_to_default_service(tmp_path, monkeypatch):

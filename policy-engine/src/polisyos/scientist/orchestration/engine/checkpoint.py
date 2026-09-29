@@ -2081,6 +2081,7 @@ def resume_from_checkpoint(
     from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
     from polisyos.scientist.orchestration.engine.executor import (
         WorkflowExecutionResult,
+        WorkflowExecutionStatus,
         WorkflowReport,
     )
     from polisyos.scientist.orchestration.engine.runner.config import (
@@ -2243,7 +2244,7 @@ def resume_from_checkpoint(
                     workflow_id=workflow_spec.workflow_id,
                     run_id=run_id,
                     error_policy=workflow_spec.error_policy,
-                    status="ok",
+                    status=WorkflowExecutionStatus.OK.value,
                     nodes=[],
                 ),
             )

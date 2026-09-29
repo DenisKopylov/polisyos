@@ -952,7 +952,11 @@ if TYPE_CHECKING:
     from typing import Literal, Protocol
 
     from polisyos.core import contracts as core_contracts
-    from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.core.artifacts.protocol import (
+        ArtifactStore,
+        AsyncArtifactStore,
+        RootedArtifactStore,
+    )
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
@@ -970,6 +974,8 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
     )
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ExecutionIntent,
@@ -1004,6 +1010,18 @@ if TYPE_CHECKING:
             *,
             strict_identity: bool | None = None,
         ) -> artifacts.SignatureVerificationResult: ...
+
+    class _CycleSubstrateContextAdmissionOwner(Protocol):
+        def admit_context(
+            self,
+            *,
+            target_world_scope_profile_id: str,
+            problem: DesignProblem,
+            job_id: str,
+            run_id: str,
+            tenant_id: str,
+            cell_id: str,
+        ) -> CycleSubstrateContext | None: ...
 
 
 # ---------------------------------------------------------------------------
@@ -1933,6 +1951,8 @@ class ControlPlaneService(
         evaluation_safety_promotion_source_slot: EvaluationSafetyPromotionSourceSlot | None = None,
         published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
         normative_authority_trust: NormativeAuthorityTrust | None = None,
+        cycle_substrate_context_admission_owner: _CycleSubstrateContextAdmissionOwner
+        | None = None,
     ) -> None:
         from polisyos.fabric.retrieval import RetrievalService
 
@@ -1945,6 +1965,13 @@ class ControlPlaneService(
         self._normative_authority_trust = normative_authority_trust or NormativeAuthorityTrust()
         if type(self._normative_authority_trust) is not NormativeAuthorityTrust:
             raise TypeError("normative_deployment_trust_must_be_typed")
+        if cycle_substrate_context_admission_owner is not None and not callable(
+            getattr(cycle_substrate_context_admission_owner, "admit_context", None)
+        ):
+            raise ValueError("cycle_substrate_context_admission_owner_invalid")
+        self._cycle_substrate_context_admission_owner = (
+            cycle_substrate_context_admission_owner
+        )
         self._metrics = metrics if metrics is not None else _default_runtime_metrics()
         self._tracer = tracer if tracer is not None else _default_runtime_tracer()
         self._policy_resolver = policy_resolver or RuntimeExecutionPolicyResolver.from_env()
@@ -2177,11 +2204,16 @@ class ControlPlaneService(
         model_name: str,
         trusted_source_context: Mapping[str, object | None] | None = None,
         execution_intent: ExecutionIntent | None = None,
+        n4_proposal_only: bool = False,
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
         recursive_budget_resolution: RecursiveBudgetResolution | None = None,
         target_world_scope_profile_id: str | None = None,
+        cycle_substrate_context_resolver: Callable[
+            [DesignProblem], CycleSubstrateContext | None
+        ]
+        | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
     ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
         """Run the HTTP composition through its container-owned epoch strangle."""
@@ -2196,11 +2228,13 @@ class ControlPlaneService(
             trusted_source_context=trusted_source_context,
             model_name=model_name,
             execution_intent=execution_intent,
+            n4_proposal_only=n4_proposal_only,
             compiler_gateway=compiler_gateway,
             budget_state=budget_state,
             recursive_budget=recursive_budget,
             recursive_budget_resolution=recursive_budget_resolution,
             target_world_scope_profile_id=target_world_scope_profile_id,
+            cycle_substrate_context_resolver=cycle_substrate_context_resolver,
             root_evaluation_context=root_evaluation_context,
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,
@@ -3086,7 +3120,7 @@ class ControlPlaneService(
                 NormativeEvidenceHeadStrangleReceipt,
                 load_normative_generation_head,
                 normative_owner_for_runtime_store,
-                project_normative_run_disposition,
+                replay_normative_run_disposition,
             )
 
             try:
@@ -3122,20 +3156,21 @@ class ControlPlaneService(
                         self._normative_authority_trust,
                         repo_root=self._repo_root,
                     )
-                    historical = project_normative_run_disposition(
+                    historical_replay = replay_normative_run_disposition(
                         store=self._artifact_store,
                         owner=owner,
                         disposition_ref=head.disposition_ref,
                         compiled_run_ref=head.compiled_run_ref,
-                        evaluated_at=head.evaluated_at,
                     )
+                    historical = historical_replay.disposition
                     actual_evidence = {
                         node: leaf.evidence
                         for node, leaf in historical.leaf_dispositions.items()
                         if leaf.evidence is not None
                     }
                     if (
-                        historical.authorization_status != "authorized"
+                        not historical_replay.admission_authority_established
+                        or historical.authorization_status != "authorized"
                         or head.evidence.input_limitation is not None
                         or head.evidence.by_node != actual_evidence
                         or any(
@@ -3948,7 +3983,62 @@ class ControlPlaneService(
                 or not isinstance(authorization_receipt, Mapping)
             ):
                 raise ValueError(failure_code)
-            return binding.model_dump(mode="json")
+            replayed_binding = binding.model_dump(mode="json")
+            profile_id = payload.get("target_world_scope_profile_id")
+            if (
+                binding.admission_status == "established"
+                and binding.intent_band == "simulate_only_attempt"
+                and binding.canonical_mode == "simulate_only"
+                and binding.actor_authenticated is True
+                and isinstance(profile_id, str)
+                and profile_id.strip()
+                and isinstance(binding.tenant_id, str)
+                and binding.tenant_id.strip()
+                and isinstance(binding.cell_id, str)
+                and binding.cell_id.strip()
+            ):
+                from polisyos.runtime.quality.cycle_substrate import (
+                    _VERIFIED_NL_EXECUTION_OWNER_ISSUER,
+                    VerifiedNLJobScope,
+                )
+
+                current_job = self._control_store.current_execution_job_record()
+                if (
+                    current_job.job_id != job.job_id
+                    or current_job.run_id != job.run_id
+                    or current_job.state != "running"
+                    or not isinstance(current_job.lease_owner, str)
+                    or not current_job.lease_owner.strip()
+                    or current_job.lease_owner != job.lease_owner
+                    or current_job.attempt != job.attempt
+                ):
+                    raise ValueError(failure_code)
+                verified_scope = VerifiedNLJobScope.model_validate(
+                    {
+                        "job_id": current_job.job_id,
+                        "run_id": str(current_job.run_id),
+                        "tenant_id": binding.tenant_id,
+                        "cell_id": binding.cell_id,
+                        "worker_id": current_job.lease_owner,
+                        "attempt": current_job.attempt,
+                        "admission_status": binding.admission_status,
+                        "intent_band": binding.intent_band,
+                        "canonical_mode": binding.canonical_mode,
+                        "route_id": binding.route_id,
+                        "route_action": binding.route_action,
+                        "admission_surface": binding.admission_surface,
+                        "actor_subject": binding.actor_subject,
+                        "actor_authenticated": True,
+                        "intent_digest": binding.intent_digest,
+                    }
+                )
+                object.__setattr__(
+                    verified_scope,
+                    "_issuer",
+                    _VERIFIED_NL_EXECUTION_OWNER_ISSUER,
+                )
+                replayed_binding["_verified_nl_job_scope"] = verified_scope
+            return replayed_binding
         except Exception as exc:
             if isinstance(exc, RuntimeError) and str(exc) == failure_code:
                 raise
@@ -3957,6 +4047,7 @@ class ControlPlaneService(
     def _process_control_job(self, job: ControlJobRecord) -> None:
         payload: dict[str, Any] = {}
         execution_intent_binding: dict[str, Any] | None = None
+        cycle_substrate_context_job_ref: str | None = None
         try:
             if not job.payload_ref:
                 raise RuntimeError("control job payload ref is missing")
@@ -4179,6 +4270,79 @@ class ControlPlaneService(
                             if value is not None
                         }
                     )
+                    cycle_substrate_context_resolver = None
+                    profile_id = payload.get("target_world_scope_profile_id")
+                    admission_owner = self._cycle_substrate_context_admission_owner
+                    bound_tenant_id = execution_intent_binding.get("tenant_id")
+                    bound_cell_id = execution_intent_binding.get("cell_id")
+                    if (
+                        intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                        and admission_owner is not None
+                        and isinstance(profile_id, str)
+                        and profile_id.strip()
+                        and isinstance(bound_tenant_id, str)
+                        and bound_tenant_id.strip()
+                        and isinstance(bound_cell_id, str)
+                        and bound_cell_id.strip()
+                        and job.run_id is not None
+                    ):
+                        from polisyos.runtime.quality.cycle_substrate import (
+                            CycleSubstrateContext,
+                            CycleSubstrateContextArtifactOwner,
+                            VerifiedNLJobScope,
+                        )
+
+                        verified_nl_job_scope = execution_intent_binding.get(
+                            "_verified_nl_job_scope"
+                        )
+                        if (
+                            type(verified_nl_job_scope) is not VerifiedNLJobScope
+                            or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+                        ):
+                            raise RuntimeError(
+                                "cycle_substrate_context_verified_worker_scope_not_established"
+                            )
+
+                        def resolve_cycle_substrate_context(
+                            problem: DesignProblem,
+                        ) -> CycleSubstrateContext | None:
+                            nonlocal cycle_substrate_context_job_ref
+                            admitted_context = admission_owner.admit_context(
+                                target_world_scope_profile_id=profile_id,
+                                problem=problem,
+                                job_id=job.job_id,
+                                run_id=str(job.run_id),
+                                tenant_id=bound_tenant_id,
+                                cell_id=bound_cell_id,
+                            )
+                            if admitted_context is None:
+                                return None
+                            if type(admitted_context) is not CycleSubstrateContext:
+                                raise RuntimeError(
+                                    "cycle_substrate_context_admission_owner_returned_untyped"
+                                )
+                            context_owner = CycleSubstrateContextArtifactOwner(
+                                store=self._artifact_store,
+                                control_store=self._control_store,
+                            )
+                            context_ref = context_owner.persist_for_current_job(
+                                admitted_context,
+                                problem=problem,
+                                verified_nl_job_scope=verified_nl_job_scope,
+                            )
+                            replayed = context_owner.resolve_for_current_job(
+                                context_ref,
+                                problem=problem,
+                                verified_nl_job_scope=verified_nl_job_scope,
+                            )
+                            if replayed.context.content_hash != admitted_context.content_hash:
+                                raise RuntimeError(
+                                    "cycle_substrate_context_job_replay_changed_content"
+                                )
+                            cycle_substrate_context_job_ref = str(context_ref.artifact_id)
+                            return replayed.context
+
+                        cycle_substrate_context_resolver = resolve_cycle_substrate_context
                     from polisyos.runtime.http.services.control.generation_cycle import (
                         _resolve_http_recursive_budget,
                     )
@@ -4193,6 +4357,14 @@ class ControlPlaneService(
                             context=compiler_context,
                             model_name=model_name,
                             execution_intent=execution_intent,
+                            # simulate_only defaults to the N4 proposal lane. A
+                            # configured typed profile owner may supply a
+                            # problem-bound context after compilation; absent
+                            # that owner or an admitted context, N4 remains a
+                            # candidate limitation and never grants S8 authority.
+                            n4_proposal_only=(
+                                intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            ),
                             compiler_gateway=None,
                             budget_state=BudgetState.model_validate(
                                 {
@@ -4209,10 +4381,11 @@ class ControlPlaneService(
                             ),
                             recursive_budget_resolution=recursive_budget_resolution,
                             target_world_scope_profile_id=(
-                                payload.get("target_world_scope_profile_id")
-                                if isinstance(payload.get("target_world_scope_profile_id"), str)
+                                profile_id
+                                if isinstance(profile_id, str)
                                 else None
                             ),
+                            cycle_substrate_context_resolver=cycle_substrate_context_resolver,
                             root_evaluation_context=(
                                 evaluation_safety.execution_context
                                 if evaluation_safety is not None
@@ -4297,6 +4470,15 @@ class ControlPlaneService(
                                 },
                                 artifact_refs=[str(capability_manifest_ref)],
                             )
+                            simulation_failure = (
+                                {
+                                    "simulation_status": "not_run",
+                                    "simulation_limitation_code": limitation_code,
+                                }
+                                if intent_band
+                                is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                                else {}
+                            )
                             progress = {
                                 "state": "completed",
                                 "phase": "natural_language_run",
@@ -4318,6 +4500,7 @@ class ControlPlaneService(
                                 "n8_status": "not_run",
                                 "n9_status": "not_run",
                                 "s8_status": "not_run",
+                                **simulation_failure,
                                 **target_scope_progress,
                             }
                             if event_id is None:
@@ -4335,6 +4518,8 @@ class ControlPlaneService(
                         from polisyos.runtime.quality.generation_source import (
                             GenerationSourceRepository,
                             N4CandidateProposalLocator,
+                            N4CandidateProposalSimulationDisposition,
+                            N4CandidateProposalSimulationRecord,
                         )
 
                         run_id = str(job.run_id or payload.get("run_id") or "")
@@ -4374,6 +4559,11 @@ class ControlPlaneService(
                             )
                             return
                         repository = GenerationSourceRepository(self._artifact_store)
+                        simulation_disposition = (
+                            N4CandidateProposalSimulationDisposition()
+                            if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            else None
+                        )
                         proposal_ref = repository.persist_candidate_proposal(
                             job_id=job.job_id,
                             run_id=run_id,
@@ -4382,6 +4572,7 @@ class ControlPlaneService(
                             raw_request=raw_request,
                             problem=compiled.design_problem,
                             proposal=proposal_result,
+                            simulation_disposition=simulation_disposition,
                         )
                         proposal_locator = N4CandidateProposalLocator(
                             artifact_ref=proposal_ref
@@ -4394,6 +4585,24 @@ class ControlPlaneService(
                             cell_id=cell_id,
                             raw_request=raw_request,
                         )
+                        if (
+                            intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            and not isinstance(
+                                proposal_record, N4CandidateProposalSimulationRecord
+                            )
+                        ):
+                            raise RuntimeError(
+                                "simulate_only_n4_proposal_disposition_missing"
+                            )
+                        if (
+                            intent_band is not ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            and isinstance(
+                                proposal_record, N4CandidateProposalSimulationRecord
+                            )
+                        ):
+                            raise RuntimeError(
+                                "non_simulation_job_received_simulation_disposition"
+                            )
                         progress = {
                             "state": "completed",
                             "phase": "natural_language_run",
@@ -4419,6 +4628,15 @@ class ControlPlaneService(
                             "s8_status": proposal_record.s8_status,
                             **target_scope_progress,
                         }
+                        if isinstance(
+                            proposal_record, N4CandidateProposalSimulationRecord
+                        ):
+                            progress["simulation_status"] = (
+                                proposal_record.simulation_disposition.status
+                            )
+                            progress["simulation_limitation_code"] = (
+                                proposal_record.simulation_disposition.reason_code
+                            )
                         self._control_store.complete_job(
                             job_id=job.job_id,
                             run_id=run_id,
@@ -4455,6 +4673,76 @@ class ControlPlaneService(
                             ],
                         )
                         return
+                    if intent_band in {
+                        ExecutionIntentBand.CANDIDATE_ONLY,
+                        ExecutionIntentBand.DATA_TRUST_REQUIRED,
+                    }:
+                        # Both bands invoke candidate-only N4. A recursive result
+                        # from an adapter is not evidence that the requested band
+                        # was upgraded; terminate before N5, S8, or publication.
+                        limitation = "candidate_only_compiled_result_not_admitted"
+                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        event_id = self._emit_runtime_diagnostic_event(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "capability_manifest_ref": str(capability_manifest_ref),
+                                "execution_band": "candidate",
+                                "candidate_computation_status": "not_established",
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": limitation,
+                                "limitation_code": limitation,
+                                "n4_status": "not_established",
+                                "downstream_stages": {
+                                    "n5": "not_run",
+                                    "n8": "not_run",
+                                    "n9": "not_run",
+                                    "s8": "not_run",
+                                    "publication": "not_run",
+                                },
+                            },
+                            artifact_refs=[str(capability_manifest_ref)],
+                        )
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": "not_established",
+                            "execution_band": "candidate",
+                            "candidate_computation_status": "not_established",
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": limitation,
+                            "limitation_code": limitation,
+                            "stage": "candidate_only_result_rejected",
+                            "n4_status": "not_established",
+                            "run_id": run_id,
+                            "candidate_proposal_ref": None,
+                            "runtime_diagnostic_event_status": (
+                                "persisted" if event_id is not None else "not_established"
+                            ),
+                            "n5_status": "not_run",
+                            "n8_status": "not_run",
+                            "n9_status": "not_run",
+                            "s8_status": "not_run",
+                            "publication_status": "not_run",
+                        }
+                        if event_id is None:
+                            progress[
+                                "runtime_diagnostic_event_limitation_code"
+                            ] = "diagnostic_event_owner_scope_not_established"
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        return
                     if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT:
                         compiled_ref = self._put_json_artifact(
                             compiled.model_dump(mode="json"),
@@ -4477,6 +4765,15 @@ class ControlPlaneService(
                             "s8_status": "not_run",
                             "publication_status": "not_run",
                             "run_id": run_id,
+                            **(
+                                {
+                                    "cycle_substrate_context_job_ref": (
+                                        cycle_substrate_context_job_ref
+                                    )
+                                }
+                                if cycle_substrate_context_job_ref is not None
+                                else {}
+                            ),
                         }
                         self._control_store.complete_job(
                             job_id=job.job_id,
@@ -4508,6 +4805,11 @@ class ControlPlaneService(
                             artifact_refs=[
                                 str(capability_manifest_ref),
                                 compiled_ref,
+                                *(
+                                    [cycle_substrate_context_job_ref]
+                                    if cycle_substrate_context_job_ref is not None
+                                    else []
+                                ),
                             ],
                         )
                         return
@@ -5406,11 +5708,17 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> IngestResponse:
         """Execute connector ingestion and return refs/status for produced artifacts."""
+        from polisyos.core.artifacts import ArtifactOwnershipError
         from polisyos.fabric.ingestion import (
             ConnectorManifestSpec,
             DatasetFetchSpec,
             IngestionDependencies,
         )
+        from polisyos.fabric.ingestion.ingestion_providers import (
+            IngestionStoreBindingError,
+        )
+        from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
+        from polisyos.runtime.http.errors import forbidden
 
         datasets = [
             DatasetFetchSpec(
@@ -5460,10 +5768,26 @@ class ControlPlaneService(
             if profile:
                 connection_config = resolve_connection_config(profile)
 
+        def _served_ingestion_store(root: Path) -> RootedArtifactStore:
+            requested_root = Path(root).resolve()
+            service_root = Path(self._cas_root).resolve()
+            store_root = getattr(self._artifact_store, "root", None)
+            if (
+                requested_root != service_root
+                or not isinstance(store_root, (str, Path))
+                or Path(store_root).resolve() != service_root
+            ):
+                raise IngestionStoreBindingError(
+                    "served_ingestion_store_root_mismatch"
+                )
+            return cast("RootedArtifactStore", self._artifact_store)
+
+        sidecar_scope = TenantSidecarScope.from_current_context(self._cas_root)
         ingestion_dependencies = IngestionDependencies(
             registry=cast("Any", self._registry_providers.connectors),
             tracer=self._tracer,
             metrics=self._metrics,
+            store_factory=_served_ingestion_store,
         )
 
         mode = request.execution_mode
@@ -5484,6 +5808,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
             elif request.record_mode:
                 from polisyos.fabric.data_plane.modes import run_record_mode
@@ -5496,6 +5821,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
             elif mode == "streaming_windowed":
                 from polisyos.fabric.data_plane.modes import run_streaming_windowed
@@ -5508,6 +5834,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
             elif mode == "batch_incremental":
                 from polisyos.fabric.data_plane.modes import run_batch_incremental
@@ -5520,6 +5847,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
             else:
                 from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
@@ -5532,6 +5860,7 @@ class ControlPlaneService(
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
                 )
 
             # Post-ingestion: produce input bindings if requested
@@ -5567,6 +5896,11 @@ class ControlPlaneService(
                 record_ref=record_ref,
                 input_bindings_ref=input_bindings_ref,
             )
+        except ArtifactOwnershipError as exc:
+            raise forbidden(
+                "Ingestion artifact is not accessible in the current tenant scope",
+                code="ingestion_artifact_ownership_denied",
+            ) from exc
         except (LookupError, OSError, RuntimeError, TypeError, ValueError) as exc:
             logger.exception("Data ingestion failed: %s", exc)
             return IngestResponse(

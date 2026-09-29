@@ -2095,11 +2095,13 @@ def resolve_activated_semantic_epoch_admission(
     receipt: ActivatedSemanticEpochAdmissionReceipt,
     artifact_store: ArtifactStore,
     overlay: data_forge_read_api.catalog.CatalogAcquisitionOverlay,
+    authority: _CanonicalAuthority,
     epoch_deployment: EpochDeployment | None = None,
 ) -> data_forge_read_api.catalog.OverlayAdmissionReceipt:
-    """Read exact active owner state and replay its native qualification evidence.
+    """Revalidate current source owners and replay native qualification evidence.
 
-    The returned count comes from the catalog's reconciled physical membership.
+    The returned count comes from the catalog's reconciled physical membership,
+    with source observations rederived through the current authority owner.
     Reading never activates a pending epoch; missing native verifier custody
     cannot be replaced by a positive statement stored in CAS.
     """
@@ -2137,16 +2139,44 @@ def resolve_activated_semantic_epoch_admission(
         receipt = ActivatedSemanticEpochAdmissionReceipt.model_validate(
             receipt.model_dump(mode="python")
         )
-        activated = overlay.read_activated_semantic_epoch_admission(
-            receipt_ref=receipt.overlay_admission_receipt_ref,
-            artifact_store=artifact_store,
-        )
         production = read(
             receipt.semantic_epoch_production_receipt_ref, SemanticEpochProductionReceipt
         )
+        if not isinstance(production, SemanticEpochProductionReceipt):
+            raise ValueError("activation production receipt type differs")
+        admitted = read(
+            production.admitted_boundary_evidence_ref,
+            epoch_contract.AdmittedAcquisitionBoundaryEvidence,
+        )
+        if not isinstance(admitted, epoch_contract.AdmittedAcquisitionBoundaryEvidence):
+            raise ValueError("activation admitted boundary evidence type differs")
+        passport_mapping = epoch_contract.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=admitted.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+        passport = AdmissionPassport.model_validate(passport_mapping)
         if (
-            not isinstance(production, SemanticEpochProductionReceipt)
-            or production.status not in {"appended", "no_change"}
+            admitted.passport_ref != receipt.passport_ref
+            or admitted.passport_content_hash != content_sha256(passport_mapping)
+            or admitted.prepared_epoch_ref != receipt.prepared_epoch_ref
+            or admitted.pending_overlay_receipt_ref != receipt.pending_overlay_receipt_ref
+            or admitted.native_membership_receipt_ref != receipt.native_membership_receipt_ref
+            or admitted.semantic_denominator_receipt_ref != receipt.semantic_denominator_receipt_ref
+            or admitted.semantic_projection_verification_receipt_ref
+            != receipt.semantic_projection_verification_receipt_ref
+            or admitted.semantic_epoch_stamp != receipt.semantic_epoch_stamp
+            or passport.epoch_id != admitted.epoch_id
+        ):
+            raise ValueError("activated admission passport owner binding differs")
+        activated = overlay.read_activated_semantic_epoch_admission(
+            receipt_ref=receipt.overlay_admission_receipt_ref,
+            artifact_store=artifact_store,
+            passport=passport,
+            authority=authority,
+        )
+        if (
+            production.status not in {"appended", "no_change"}
             or production.chronology_projection_ref is None
             or epoch_deployment is None
             or activated.semantic_epoch_stamp != receipt.semantic_epoch_stamp
@@ -2161,10 +2191,6 @@ def resolve_activated_semantic_epoch_admission(
             or production.admitted_boundary_evidence_ref != activated.admitted_boundary_evidence_ref
         ):
             raise ValueError("activation production or native owner binding differs")
-        admitted = read(
-            activated.admitted_boundary_evidence_ref,
-            epoch_contract.AdmittedAcquisitionBoundaryEvidence,
-        )
         for field in (
             "passport_ref",
             "prepared_epoch_ref",

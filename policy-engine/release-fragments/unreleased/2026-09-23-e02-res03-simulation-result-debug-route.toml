@@ -1,0 +1,36 @@
+id = "2026-09-23-e02-res03-simulation-result-debug-route"
+title = "Add candidate simulation-result debug route"
+type = "added"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "Expose a verified simulation-result candidate through the Runtime API debug surface."
+evidence = [
+  "src/polisyos/runtime/http/routes/debug.py",
+  "tests/integration/scientist/test_res_03_real_simulation_route.py",
+  "schemas/runtime_api_v1.openapi.json",
+  "architecture/public_surface/contract.toml",
+  "architecture/public_surface/inventory.json",
+]
+compatibility = "The additive GET route returns a typed projection marked projection_class=candidate_reference_only and authority_status=non_authority; it adds no promotion or publication authority."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime HTTP API"
+migration = "Downstream clients generated before this route should regenerate; the checked-in canonical client already exposes it. Consumers must preserve its candidate-only, non-authority status."
+api = "GET /api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result returns a tenant-scoped SimulationResultCandidateResponse with an integrity-verified artifact reference, projection_class=candidate_reference_only, and authority_status=non_authority."
+limitations = "Integrity verification and tenant scoping do not authorize promotion or publication of the simulation result."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "res-03-candidate-simulation-result-debug-route"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: Runtime API debug candidate-result route"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "The Runtime API debug surface exposes a verified simulation-result candidate while retaining its explicit non-authority status."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []

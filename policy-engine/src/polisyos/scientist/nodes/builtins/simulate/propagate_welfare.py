@@ -26,6 +26,7 @@ from polisyos.core.contracts.foundry import (
     SimulationResultRef,
 )
 from polisyos.foundry.calibration.report import CalibrationReport
+from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.ir.analytics.dependence_structure import (
     DependenceStructure,
@@ -61,16 +62,21 @@ from polisyos.ir.registry.refs import (
     UncertaintyEnvelopeRef,
     WelfareSampleBundleRef,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_WELFARE_BUNDLE_REF,
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.phase3 import ensure_social_weight_manifest_artifact
 
 logger = get_logger(__name__)
@@ -86,6 +92,7 @@ _ERROR_DEPENDENCE_SPEC_INVALID = "ERROR_DEPENDENCE_SPEC_INVALID"
 _ERROR_INTERVAL_SEMANTICS_INVALID = "ERROR_INTERVAL_SEMANTICS_INVALID"
 _ERROR_MONTE_CARLO_NOT_CONVERGED = "ERROR_MONTE_CARLO_NOT_CONVERGED"
 _ERROR_WELFARE_OUTPUT_NONFINITE = "ERROR_WELFARE_OUTPUT_NONFINITE"
+_ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID = "ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID"
 _ERROR_CHANNEL_DECOMPOSITION_CONFIG_INVALID = "ERROR_CHANNEL_DECOMPOSITION_CONFIG_INVALID"
 _ERROR_CHANNEL_DECOMPOSITION_BUILD_FAILED = "ERROR_CHANNEL_DECOMPOSITION_BUILD_FAILED"
 
@@ -1955,6 +1962,11 @@ def _resolve_bundle_status(
         if status is WelfareStatus.OK:
             status = WelfareStatus.DEGRADED
 
+    if any(not envelope.gate_eligible for envelope in used_input_envelopes.values()):
+        warnings.append("input_uncertainty_not_gate_eligible")
+        if status is WelfareStatus.OK:
+            status = WelfareStatus.DEGRADED
+
     return warnings, status
 
 
@@ -2709,13 +2721,18 @@ def _sample_from_envelope(rng: np.random.Generator, env: UncertaintyEnvelope) ->
 
 
 def _extract_std(env: UncertaintyEnvelope) -> float:
-    lower, upper = float(env.confidence_interval[0]), float(env.confidence_interval[1])
-    width = max(upper - lower, 0.0)
-    if env.distribution_family == DistributionFamily.NORMAL and env.confidence_level is not None:
-        z = NormalDist().inv_cdf((1.0 + float(env.confidence_level)) / 2.0)
-        if z > 0.0:
-            return width / (2.0 * z)
-    return width / (2.0 * (3.0**0.5))
+    try:
+        return _extract_typed_std(env)
+    except (OverflowError, TypeError, ValueError) as exc:
+        param_name = env.metadata.get("param_name")
+        raise _fail_error(
+            _ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID,
+            "Welfare input uncertainty does not declare a usable scale",
+            details={
+                "param_name": param_name if isinstance(param_name, str) else "unknown",
+                "reason": str(exc),
+            },
+        ) from exc
 
 
 def _mul_interval(

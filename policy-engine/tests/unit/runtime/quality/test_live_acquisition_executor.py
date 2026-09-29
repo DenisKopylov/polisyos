@@ -70,6 +70,8 @@ from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority 
 )
 
 _ATTEMPT_ID = "n13b-worldbank-government-balance-001"
+_TENANT_WDI = "00000000-0000-0000-0000-00000000000a"
+_TENANT_FOREIGN = "00000000-0000-0000-0000-00000000000b"
 _CONNECTOR_ID = "worldbank.wdi"
 _PROFILE_ID = "worldbank_wdi"
 _INDICATOR_ID = "GC.BAL.CASH.GD.ZS"
@@ -1477,7 +1479,7 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
 
     cas_root = tmp_path / "cas"
     store = FileSystemCAS(cas_root).with_ambient_ownership_enforcement()
-    with tenant_scope(None, tenant_id="tenant-wdi", cell_id="cell-wdi"):
+    with tenant_scope(None, tenant_id=_TENANT_WDI, cell_id="cell-wdi"):
         evidence = execute_live_catalog_acquisition(
             authority=authority,
             entry_id=entry.entry_id,
@@ -1496,7 +1498,7 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
     assert evidence.call_count == 1
     assert evidence.variable_count == 1
     assert evidence.transport_trace.raw_evidence_ref == evidence.raw_evidence_ref
-    with tenant_scope(None, tenant_id="tenant-wdi", cell_id="cell-wdi"):
+    with tenant_scope(None, tenant_id=_TENANT_WDI, cell_id="cell-wdi"):
         reopened = authority.resolve_live_source_execution(
             entry.entry_id,
             evidence,
@@ -1504,10 +1506,11 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
         )
         assert reopened.row_count == 2
 
-    foreign_store = FileSystemCAS(cas_root).for_tenant("tenant-other", "cell-other")
-    with tenant_scope(None, tenant_id="tenant-other", cell_id="cell-other"):
-        with pytest.raises(ArtifactOwnershipError):
-            foreign_store.get_bytes(evidence.raw_artifact_id)
+    foreign_store = FileSystemCAS(cas_root).for_tenant(_TENANT_FOREIGN, "cell-other")
+    with tenant_scope(None, tenant_id=_TENANT_FOREIGN, cell_id="cell-other"), pytest.raises(
+        ArtifactOwnershipError
+    ):
+        foreign_store.get_bytes(evidence.raw_artifact_id)
 
 
 def test_live_executor_recomputes_full_authorization_before_issuing_pool_permit(

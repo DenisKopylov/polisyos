@@ -784,6 +784,117 @@ async def test_design_problem_front_door_keeps_nontruncated_malformed_output_str
 
 
 @pytest.mark.asyncio
+async def test_plain_language_front_door_calls_real_design_problem_compiler(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Compile plain language, then return typed N4 limitation without recursive authority."""
+
+    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        N4CandidateProposalExecution,
+    )
+    from polisyos.runtime.quality.design_generation import (
+        DesignGenerationOrganRun,
+        GenerationDiversityReport,
+        GenerationUnderAResult,
+        ModelProfilePreflight,
+    )
+    from polisyos.runtime.quality.generation_cycle import gy_content_hash
+    from polisyos.runtime.quality.promotion_sequence import PromotionRuntime
+    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT, _budget
+
+    raw_request = (
+        "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap."
+    )
+    model_id = "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"
+    gateway = _FakeDesignProblemGateway(
+        models=[model_id],
+        arguments=_design_problem_tool_args(),
+    )
+    span_support = _DeterministicSpanSupportClient()
+    n4_inputs: list[tuple[DesignProblem, str, Path | None]] = []
+
+    async def terminal_n4(
+        problem: DesignProblem,
+        *,
+        model_id: str,
+        repo_root: Path | None = None,
+        **_: Any,
+    ) -> DesignGenerationOrganRun:
+        n4_inputs.append((problem, model_id, repo_root))
+        return DesignGenerationOrganRun(
+            result=GenerationUnderAResult(
+                status="generation_unavailable",
+                design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+                model_id=model_id,
+                preflight=ModelProfilePreflight(
+                    status="gateway_unavailable",
+                    model_id=model_id,
+                    supported_model_ids=(model_id,),
+                    reason="candidate_front_door_fixture_terminal",
+                ),
+                diversity_report=GenerationDiversityReport(
+                    min_required=1,
+                    candidate_count=0,
+                    unique_diversity_key_count=0,
+                ),
+            )
+        )
+
+    def recursive_path_is_forbidden(**_: Any) -> object:
+        raise AssertionError("candidate_only_front_door_entered_recursive_controller")
+
+    monkeypatch.setattr(
+        "polisyos.runtime.quality.design_generation.generate_design_candidate_proposal_under_a",
+        terminal_n4,
+    )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_default_recursive_generation_cycle_controller",
+        recursive_path_is_forbidden,
+    )
+
+    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+        raw_request=raw_request,
+        context=_intent_context(as_of="2026-05-12"),
+        model_name=model_id,
+        execution_intent="candidate_only",
+        compiler_gateway=gateway,
+        span_support_client=span_support,
+        budget_state=_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        ),
+        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas")),
+        eval_safety_verifier=object(),  # type: ignore[arg-type]
+        root_evaluation_context=None,
+        repo_root=REPO_ROOT,
+    )
+
+    assert isinstance(compiled, N4CandidateProposalExecution)
+    assert compiled.design_problem.nl_provenance.raw_request == raw_request
+    assert compiled.target_world_scope_status == "not_established"
+    assert compiled.target_world_model_record_ref is None
+    assert len(n4_inputs) == 1
+    problem, n4_model_id, n4_repo_root = n4_inputs[0]
+    assert problem == compiled.design_problem
+    assert problem.outcome_of_interest.target_variable == "firm_survival"
+    assert n4_model_id == model_id
+    assert n4_repo_root == REPO_ROOT
+    assert isinstance(compiled.proposal, DesignGenerationOrganRun)
+    assert compiled.proposal.result.status == "generation_unavailable"
+    assert compiled.proposal.result.candidates == ()
+    assert gateway.generate_calls
+    assert gateway.generate_calls[0]["tools"][0]["function"]["name"] == "emit_design_problem"
+    assert span_support.calls
+
+
+@pytest.mark.asyncio
 async def test_plain_language_front_door_compiles_hashed_qualified_v3_problem() -> None:
     raw_request = (
         "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap, "

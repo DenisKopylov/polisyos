@@ -28,6 +28,36 @@ Design: `/Users/deniskopylov/.codex/scratch/e02-r1-controlled-owner-bridge-audit
 
 ## B111 registry-to-result assessment propagation (queued 2026-09-29; `e17d550bb`)
 
+### Independent-review expansion (2026-09-30)
+
+The first candidate at `d11775516` is **NO-GO** under independent review
+`/Users/deniskopylov/.codex/scratch/e02-r2-b111-candidate-20260928/B111-independent-review-final.md@sha256:1ee4143adc6741b3e9ea3c2651d65e014d3196a749ff98ed3a65e2b5f583ee56`.
+Its source lease also includes
+`policy-engine/src/polisyos/scientist/policy_design/objectives.py`, the shared
+typed rank-assessment owner. The writer may extend only these mirrored tests:
+`policy-engine/tests/unit/scientist/search/test_contracts.py`,
+`policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py`,
+`policy-engine/tests/unit/scientist/search/test_pareto_transfer.py`,
+`policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py`,
+`policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_design.py`,
+`policy-engine/tests/unit/scientist/policy_design/test_phase_b_hierarchical_search.py`,
+and `policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py`.
+No second B111 writer shares the candidate worktree. The same P40 class is
+typed-but-unadmitted evaluation crossing best/acceptance/frontier/report
+boundaries. Fix the shared assessment and route both SearchController paths,
+the configured-objective producer, direct registry intake, hierarchy report,
+and registry-free legacy front through it. Preserve the distinct P04 rule:
+only genuinely absent typed data may use the legacy scalar path; present
+invalid/unassessed data may not. Strict JSON must retain non-finite invalid
+observations through a typed owner codec, without bare NaN/Infinity tokens or
+historical restamping. Review the expanded candidate independently before
+root cherry-picks any commit. The 8 GiB disk floor currently leaves tests and
+four-base P41 `UNRUN`; static checks may proceed. Mixed finite/unassessed
+input must still select a finite assessed candidate with typed partial
+coverage; all-invalid input emits no champion or global frontier. A
+registry-free legacy list has no coverage status and remains candidate-only
+until an owner-backed assessed projection replaces it.
+
 After the R14 candidate below is reviewed and integrated or rejected, one
 direct B111 writer may reuse its clean existing candidate worktree. Root alone
 integrates the reviewed B111 candidate. The exclusive permanent source write

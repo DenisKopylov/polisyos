@@ -2098,3 +2098,55 @@ The landed _read at policy-engine/src/polisyos/runtime/quality/design_axes/value
 The independent review accepts only the stated exact-source removal/restoration witnesses at 6ad734ffc2e2244a953c2029ed186f42757de50f. R7 scope baseline/restored cases pass 3/3, while removing scope comparisons gives 1 failure / 2 passes; the authorized transport and ordinary control remain green. In the separate R7 active-probe mutant, baseline/restored is 3/3 and the unauthorized World Bank US request appears before the authorized UKR request; that mutant suite is 2 failures / 1 pass. For R8, the thread-local mutant gives 3 stale-worker failures / 1 current-worker pass, baseline/restored 4/4. The R8 tests establish the guard-boundary refusal predicate but, because assertions fail early, do not establish the resulting persisted head/job state. These are source-pinned probes, not four-base P41, and do not close R7/R8 across all callers or external/distributed stores.
 
 Independent review /Users/deniskopylov/.codex/scratch/e02-r7-r8-independent-receipt-review-20260929.md@sha256:954da6b1e2876136f15f9e326ec9627e3746b3f6468ddd032072ca92ed4f1b17; reviewed probe receipt /Users/deniskopylov/.codex/scratch/e02-r7-r8-exact-probe-6ad-20260929/FINAL_PROBE_RECEIPT.md@sha256:57188ac878c2009fbb0c1db9e035e587078f9e7eb24fe4c6ca420bea73ba3b8b. The R7/R8 source blobs at 686 match the probed source blobs: acquisition_executor.py@git-blob:399fc8d459ebb71169ded1da375e59c9dc24ecea and control_plane_store.py@git-blob:d4b2f0ca048160e9d0c97b8f205c167cded306ca. No finding status or ledger count changes.
+
+## P41 deployment-security fixed-base whole-file replay (2026-09-29)
+
+### Scope and denominator
+
+`policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py` was run as a whole file on the three fixed bases. This is 3 of the 63 fixed-base Appendix A/B file-reference slots, where the complete denominator is 21 files × 3 refs (`execution`, `e02`, `main`). The full enumerated path set is in `p41_next_appendix_candidates_after_execution_security.json` SHA-256 `bdbb6ba245dd9d1fcf18e294d6892dbc8bfa360c71b9b1e14376bf4175a60ca1`. The updated fixed-base census is **20 Git-verified MISSING + 21 whole-file suite PASS + 9 whole-file suite FAIL + 13 PRESENT/UNRUN = 63 slots**. `MISSING` is path absence at that pinned Git tree, not a behavioral pass.
+
+The fourth base, current integration, remains **UNRUN** for this file while R1/R13 source work is active. The integration commit and test blob are intentionally not pinned here; do not schedule its cell until the parent explicitly releases the final source-freeze gate.
+
+### Four-base row
+
+| Base | Commit | Test blob | Whole-file suite result | Measurement | Receipt | JUnit |
+|---|---|---|---|---|---|---|
+| execution | `78187878ee188ff6d27442ba1498bd094da9785b` | `c2f4accccb09405f1f81dcc469a6b356e6530007` | 52 passed / 0 failed / 0 errors / 0 skipped of 52 | `PASS` | `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/p41-execution-security-profile-20260929T015338Z-97591.json@bd1fe51fc438973165d06bd4c3e56a42526ca0a8162861495f0891483664ee23` | `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/p41-execution-security-profile-20260929T015338Z-97591/cells/e02_execution_base/test_runtime_deployment_security-f15a051c3464.junit.xml@64014c6cd88bbe41213971788de146a459670ae8b2a23c407279b58d3c58cf49` |
+| e02 | `00d946c2b7d052522be092f9c70eb9902f6521c2` | `c2f4accccb09405f1f81dcc469a6b356e6530007` | 52 passed / 0 failed / 0 errors / 0 skipped of 52 | `PASS` | `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/p41-e02-head-security-profile-20260929T022338Z-12396.json@f152434fe7f78dad9a06f22ec57e3af1051c25ed40fdacc86a036900e2214e06` | `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/p41-e02-head-security-profile-20260929T022338Z-12396/cells/e02_head/test_runtime_deployment_security-f15a051c3464.junit.xml@1908a38af1970103174a90b6c923aa7681ea78858b8e1208d0ba4b4d298f3f3a` |
+| main | `5fd3ebcc15637e98bbd4938de5d62ee5004504a8` | `aa8d8bad3537b1ef16e43f8f0816112e9c8cec73` | 44 passed / 10 failed / 0 errors / 0 skipped of 54 | `PASS` | `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/p41-main-security-profile-20260929T023656Z-22509.json@cf8895c5a9c8c41a36d2cc8c5243c81f962af4dbf841ced5ba99bf4a94fb1500` | `/Users/deniskopylov/.codex/scratch/e02-closeout-gap-audit-20260929/p41-main-security-profile-20260929T023656Z-22509/cells/main/test_runtime_deployment_security-f15a051c3464.junit.xml@812075c6290b56d846d600e49ddaae605e5e7b04812954f9611a995879c4106a` |
+| current integration | pending final source freeze | pending final source freeze | UNRUN | not measured | no receipt | no JUnit |
+
+### Fixed-base evidence and environment
+
+All three completed cells are fresh whole-file executions; none reused a previous suite outcome. Each used the same P41 harness SHA-256 `3fed06adce5aa59ff6e8d9c63eb4405cb720607bd8a7b2fddbc7309afb4fdc48`, selected the exact test path above, and verified checkout-local import origins against the pinned checkout. Runtime was Python 3.14.0 / pytest 9.0.2, with JAX CPU and single-thread numeric controls. Production data was linked read-only from `/Users/deniskopylov/polisyos/policy-engine/production_data`; manifest SHA-256 `9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`. All had one process group and zero swap growth.
+
+| Base | Elapsed | Peak process-group RSS | Minimum free RAM | Minimum disk free | Swap growth | Postflight checkout |
+|---|---:|---:|---:|---:|---:|---|
+| execution | 60.500s | 1,117,952 KiB | 66% | 12,201,684,992 bytes | 0 bytes | `78187878ee188ff6d27442ba1498bd094da9785b`; `## docs/raw-evidence-ignore` |
+| e02 | 60.447s | 1,118,496 KiB | 65% | 11,929,100,288 bytes | 0 bytes | `00d946c2b7d052522be092f9c70eb9902f6521c2`; `## codex/safe-workspace` |
+| main | 65.497s | 1,107,536 KiB | 66% | 11,706,675,200 bytes | 0 bytes | `5fd3ebcc15637e98bbd4938de5d62ee5004504a8`; `## main...origin/main` |
+
+### Main-base reds and common-name comparisons
+
+Main at `5fd3ebcc15637e98bbd4938de5d62ee5004504a8` returned measurement PASS, while the suite status was FAIL: 44/54 passed and 10 failed. All 10 failing Main selectors have identical JUnit names among the 52 Execution/E02 cases, and each of those names passed on both Execution and E02. Record these as 10 **common-name pass→fail observations** across the fixed-base results. Main uses test blob `aa8d8bad3537b1ef16e43f8f0816112e9c8cec73`; Execution/E02 use blob `c2f4accccb09405f1f81dcc469a6b356e6530007`. Main also has two additional JUnit identities. Since the test source/input blob differs, runtime/source attribution for the observed name-level changes is **UNRESOLVED**; do not infer that R2 introduced them or treat them as test-source-identical regressions. They are observed Main-baseline reds, not universal environment failures.
+
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_runtime_deployment_security_cannot_mix_collaborators_across_documents` — AssertionError: Regex pattern did not match.
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[identity_method]` — TypeError: deployment security factory attestation is invalid
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[principal_grants]` — TypeError: deployment security factory attestation is invalid
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[opa_method]` — TypeError: deployment security factory attestation is invalid
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[cell_method]` — TypeError: deployment security factory attestation is invalid
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[step_up_method]` — TypeError: deployment security factory attestation is invalid
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[identity_jwks_cache]` — TypeError: deployment security factory attestation is invalid
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[step_up_jwks_client]` — TypeError: deployment security factory attestation is invalid
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[opa_decision_cache]` — TypeError: deployment security factory attestation is invalid
+- `tests.unit.runtime.http.test_runtime_deployment_security::test_non_development_runtime_revalidates_same_object_authority_before_request[opa_session]` — TypeError: deployment security factory attestation is invalid
+
+### Exact input/receipt references
+
+| Base | Receipt SHA-256 | JUnit SHA-256 | Stdout SHA-256 | Stderr SHA-256 |
+|---|---|---|---|---|
+| execution | `bd1fe51fc438973165d06bd4c3e56a42526ca0a8162861495f0891483664ee23` | `64014c6cd88bbe41213971788de146a459670ae8b2a23c407279b58d3c58cf49` | `d99f36523964df7fb41a446af3c9de7b69c772c19f49634eb3ae3acce44ba130` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| e02 | `f152434fe7f78dad9a06f22ec57e3af1051c25ed40fdacc86a036900e2214e06` | `1908a38af1970103174a90b6c923aa7681ea78858b8e1208d0ba4b4d298f3f3a` | `8dccd78b29febdf950b634d534ccaaaa2ce801135215aa87ca93ade511533a25` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| main | `cf8895c5a9c8c41a36d2cc8c5243c81f962af4dbf841ced5ba99bf4a94fb1500` | `812075c6290b56d846d600e49ddaae605e5e7b04812954f9611a995879c4106a` | `f07578d70bff4bf32e1ceccfc0966d484ddd58a33569b7ffdaad005b289857f8` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+
+Complete JSON row and source citations: `P41_SECURITY_FOUR_BASE_ADDENDUM.json` SHA-256 `41e6f48ffda9e302d8c55499524679c647b3f21132d9560f5e3c4615f1b822d9`. The underlying full 21-file fixed-base inventory remains preserved unchanged at `p41_next_appendix_candidates_after_execution_security.json`; this addendum records only the two later admitted outcomes and the current integration hold.

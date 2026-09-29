@@ -3431,6 +3431,30 @@
         "tests_run_by_audit": false,
         "four_base_replay": "UNRUN",
         "finding_scope": "Basis/population binding and PromotionRuntime preparation have witnesses; no fresh owner-issued CycleSubstrateContext carries changed evidence through real N5. Full current four-base replay UNRUN."
+      },
+      "current_head_behavioral_audit_20260929": {
+        "identity": "B27/B28 focused current-head behavioral replay",
+        "target_head": "5b44f523b02f077d31108892b4ae5f8a61a82cb9",
+        "behavioral_verdict": "MIXED_BOUNDED",
+        "suite_result": "3 passed; 0 failed; 0 errors; 0 skipped; one focused pytest process",
+        "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-current-20260929/B27_B28_current_selectors.junit.xml@sha256:7afba9769d9ac3008eb984b74e122ef3f13ed437ea243aa5a9125991a2b85f06",
+        "audit_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-current-20260929/B27_B28_BEHAVIORAL_AUDIT.md@sha256:6b8bff678239dc2e75d1eae4a8066031da59d21fb3118a1745d84a685432f2e5",
+        "four_base_p41": "UNRUN",
+        "status_retained": "partial",
+        "appendix_c_status_retained": "no_finding_level_record",
+        "selector_results": [
+          {
+            "identity": "test_served_simulate_only_replays_admitted_fixture_context_into_n5",
+            "result": "PASS",
+            "limit": "One fixture-owned root context reaches one N5 request and returns joint_simulated; exactly one cycle, so no revised-basis reissue is exercised."
+          },
+          {
+            "identity": "test_same_candidate_new_basis_preserves_history_and_current_front",
+            "result": "PASS",
+            "limit": "Two-cycle local history/front control has no served CycleSubstrateContext owner; it is not a B27 second-cycle positive."
+          }
+        ],
+        "revised_basis_second_n5_context": "UNRUN"
       }
     },
     {
@@ -3614,6 +3638,31 @@
         "tests_run_by_audit": false,
         "four_base_replay": "UNRUN",
         "finding_scope": "Occurrence/history/current-front projection is tested; persisted downstream signed N9/OWR/epoch readback is not bound to the second occurrence. Full current four-base replay UNRUN."
+      },
+      "current_head_behavioral_audit_20260929": {
+        "identity": "B27/B28 focused current-head behavioral replay",
+        "target_head": "5b44f523b02f077d31108892b4ae5f8a61a82cb9",
+        "behavioral_verdict": "MIXED_BOUNDED",
+        "suite_result": "3 passed; 0 failed; 0 errors; 0 skipped; one focused pytest process",
+        "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-current-20260929/B27_B28_current_selectors.junit.xml@sha256:7afba9769d9ac3008eb984b74e122ef3f13ed437ea243aa5a9125991a2b85f06",
+        "audit_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-n-cyc03-current-20260929/B27_B28_BEHAVIORAL_AUDIT.md@sha256:6b8bff678239dc2e75d1eae4a8066031da59d21fb3118a1745d84a685432f2e5",
+        "four_base_p41": "UNRUN",
+        "status_retained": "partial",
+        "appendix_c_status_retained": "no_finding_level_record",
+        "selector_results": [
+          {
+            "identity": "test_same_candidate_new_basis_preserves_history_and_current_front",
+            "result": "PASS",
+            "limit": "Two distinct same-subject history occurrences and one current-front ID; local path."
+          },
+          {
+            "identity": "test_nonblocked_latest_occurrence_reaches_runtime_or_types_currentness_unrun",
+            "result": "PASS_VIA_UNRUN",
+            "limit": "N6 currentness was not_established / UNRUN / n6_census_issuer_not_appointed; no promotion-runtime or N9-positive branch ran."
+          }
+        ],
+        "accepted_n9_second_occurrence_readback": "UNRUN",
+        "owr_epoch_binding_to_second_occurrence": "UNRUN"
       }
     },
     {

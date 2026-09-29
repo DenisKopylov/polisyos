@@ -531,17 +531,14 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        REPO_ROOT,
-        _budget,
-        _CgfGenerationPort,
-        _owner_catalog_prerequisite_issue,
-        _problem,
-    )
+    """Reject the old direct N4 fixture before it can mint protected epoch evidence.
 
-    owner_catalog_issue = _owner_catalog_prerequisite_issue(REPO_ROOT)
-    if owner_catalog_issue is not None:
-        pytest.skip(owner_catalog_issue)
+    Keep the pre-existing node ID for the 40/41 file replay. The former positive
+    assertion used an injected N4 port without a worker-issued VerifiedNLJobScope;
+    the served owner-bound N4→N5 positive lives in
+    ``test_served_simulate_only_replays_admitted_fixture_context_into_n5``.
+    """
+    from tests.unit.runtime.quality.test_generation_cycle import _problem
 
     app = create_runtime_api_app(cas_root=tmp_path / ".polisyos" / "cas")
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
@@ -554,35 +551,27 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     runtime = app.state.runtime_container.promotion_runtime
     problem = _problem(f"http_shared_open_world_context_{uuid4().hex}")
     verifier = _NeverCalledEvalSafetyVerifier()
-    recursive = build_default_recursive_generation_cycle_controller(
-        promotion_runtime=runtime,
-        eval_safety_verifier=verifier,
-        repo_root=REPO_ROOT,
-    )
-    assert recursive._promotion_runtime is runtime
-
-    recursive_budget = RecursiveCycleBudget(
-        max_depth=0,
-        max_nodes=1,
-        min_cycles_per_leaf=1,
-        max_cycles_per_leaf=1,
-    )
+    compile_calls = 0
+    n4_calls = 0
 
     async def compile_problem(**kwargs):
+        nonlocal compile_calls
         del kwargs
+        compile_calls += 1
         return problem
 
     class _CanonicalFixtureN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
-            self._delegate = _CgfGenerationPort()
 
         async def __call__(self, problem, *, cycle_index):
-            return await self._delegate(problem, cycle_index=cycle_index)
+            nonlocal n4_calls
+            del problem, cycle_index
+            n4_calls += 1
+            raise AssertionError("N4 must not run without owner-bound context")
 
-    def build_controller(**kwargs):
-        assert kwargs["promotion_runtime"] is runtime
-        return recursive
+    def refuse_controller(**_kwargs):
+        pytest.fail("recursive controller was built without owner-bound context")
 
     monkeypatch.setattr(
         generation_cycle_service,
@@ -592,55 +581,40 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     monkeypatch.setattr(
         generation_cycle_service,
         "build_default_recursive_generation_cycle_controller",
-        build_controller,
+        refuse_controller,
     )
-    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
-        raw_request=problem.nl_provenance.raw_request,
-        context={},
-        model_name="fixture-model",
-        compiler_gateway=object(),  # type: ignore[arg-type]
-        budget_state=_budget(),
-        recursive_budget=recursive_budget,
-        root_n4_generation_port=_CanonicalFixtureN4Port(),
-        promotion_runtime=runtime,
-        root_evaluation_context=_explicit_simulation_execution_context(problem),
-        eval_safety_verifier=verifier,
-        repo_root=REPO_ROOT,
-    )
+    try:
+        with pytest.raises(DesignProblemAuthorityError) as exc_info:
+            await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+                raw_request=problem.nl_provenance.raw_request,
+                context={},
+                model_name="fixture-model",
+                compiler_gateway=object(),  # type: ignore[arg-type]
+                budget_state=object(),  # type: ignore[arg-type]
+                recursive_budget=RecursiveCycleBudget(
+                    max_depth=0,
+                    max_nodes=1,
+                    min_cycles_per_leaf=1,
+                    max_cycles_per_leaf=1,
+                ),
+                root_n4_generation_port=_CanonicalFixtureN4Port(),
+                promotion_runtime=runtime,
+                root_evaluation_context=_explicit_simulation_execution_context(problem),
+                eval_safety_verifier=verifier,
+            )
 
-    leaf = compiled.recursive_run.leaf_nodes[0]
-    assert leaf.cycle_run is not None
-    assert leaf.cycle_run.promotion_port.receipts == ()
-    assert leaf.cycle_run.promotion_port.reason == (
-        "epoch_validity_refused:policy_admission_missing"
-    )
-    assert len(compiled.open_world_risk_limitations) == 1
-    assert compiled.open_world_risk_limitations[0].status == "not_established"
-    assert compiled.open_world_risk_limitations[0].code == ("deployment_scope_not_established")
-
-    subject_kind = "runtime.promotion.pre_n9_epoch_validity_subject"
-    subject_ids = tuple(
-        artifact_id
-        for artifact_id in runtime.store.iter_artifact_ids()
-        if runtime.store.get_manifest(artifact_id).kind == subject_kind
-    )
-    assert len(subject_ids) == 1
-    subject = __import__(
-        "polisyos.core.contracts.decision_validity",
-        fromlist=["PreN9EpochValiditySubjectStatement"],
-    ).PreN9EpochValiditySubjectStatement.model_validate_json(
-        runtime.store.get_bytes(subject_ids[0])
-    )
-    member = runtime.context_repository.resolve_bound_member(
-        bound_member_ref=subject.bound_member_ref
-    )
-    aggregate = runtime.context_repository.resolve_verified(
-        context_ref=member.statement.aggregate_context_ref
-    )
-    assert aggregate.context_ref == subject.owner_query_context_ref
-    replayed_epoch = runtime.resolve_verified_epoch_query(bound_member_ref=subject.bound_member_ref)
-    assert replayed_epoch.candidate.occurrence_ref == subject.candidate_occurrence_ref
-    assert replayed_epoch.qualification_failure_codes == ("policy_admission_missing",)
+        assert exc_info.value.code == "cycle_substrate_context_not_established"
+        assert compile_calls == 1
+        assert n4_calls == 0
+        subject_kind = "runtime.promotion.pre_n9_epoch_validity_subject"
+        subject_ids = tuple(
+            artifact_id
+            for artifact_id in runtime.store.iter_artifact_ids()
+            if runtime.store.get_manifest(artifact_id).kind == subject_kind
+        )
+        assert subject_ids == ()
+    finally:
+        await app.state.runtime_container.shutdown(app)
 
 
 @pytest.mark.asyncio

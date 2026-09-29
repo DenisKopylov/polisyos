@@ -4,6 +4,12 @@ The latest exact-revision P41 receipt is the bounded two-file wave at `df5188a74
 
 ## Discrepancies first
 
+### R9 exact-view owner admission at `7dd9616dc`
+
+**Discrepancy first.** The integrated exact-view owner-admission slice has bounded independent GO and whole-file runs at its pinned commit: 28/28 cache, 16/16 configuration, and 11/11 fake-client S3/GCS. Removing owner admission while retaining markers turns the guarded tenant-B test red; the preserving tenant-A cache-hit control passes. Exact receipts and hashes are in the R9 subsection of `BASELINES.md`.
+
+The proof is limited to a guarded composite whose durable filesystem owner enforces tenant scope. It does not establish a served HTTP action, deployed S3/GCS tenant authorization or IAM, or detached-signature custody through cloud backends. The missing cloud contract/owner appointment and evidence premises remain in `OPEN_PREMISES.md`; R9 stays partial, with no finding or ledger status change. These are results at `7dd9616dc`; no later source snapshot is claimed.
+
 ### Strict P41 census selection mismatch at d103
 
 The preliminary matrix had four incorrect NL `PENDING` labels: its selected

@@ -1,5 +1,26 @@
 # E02-R2 write leases
 
+## Current coordination at `ff83c89ac` (2026-09-30)
+
+Root is the only writer to `codex/e02-r2`; its tree is clean after the R14 N8
+candidate slice (`226884f53`) and the reproduced R9 premise (`ff83c89ac`).
+The older lease sections below are historical. Current candidate ownership is:
+
+| Candidate | Scratch-only write set | Integration sequence |
+|---|---|---|
+| R9 CAS atomic custody | Core CAS store/index/protocol, raw-path callers, mirrored CAS tests | Design v1 received independent NO-GO because signed index writes can tear; revised design and red tests are in progress. No production patch is admitted yet. |
+| R13 selected-view handoff | Foundry contracts/snapshots/bindings, WMR v1 admission and N5, mirrored tests | Revise v2 after independent NO-GO; preserve candidate typed refs and refuse at the WMR v1 boundary if a selected view cannot be represented. Sequence any Core CAS change after R9. |
+| R1 source-bound fixture | `tests/unit/runtime/http/test_control_service_di.py` | Scratch diff frozen after a 121-second CG5 index timeout; source-bound N4→N5 and R2 shared setup remain unverified. A separate performance design is read-only. |
+| R2 outer-v1 fixture | `tests/unit/runtime/http/test_normative_generation_bridge.py` | Scratch design may decouple historical readback from R1's expensive N4 fixture; no authority claim from a direct-only reader. |
+| R11 then R14 documentation | `BASELINES.md`, `FINAL_REPORT.md`, B26 ledger row | R11 source-only consumer census patch is reviewed/integrated first; R14 N8 code receipt follows on its new HEAD. Both keep 282 ledger rows and B26 partial. |
+
+No canonical test runs while disk free is below the agreed 8-GiB floor. The
+R14 whole generation-cycle file at the `226884f53` source has 158/161 passes;
+the three failures have unresolved P41 attribution, so that run is not a green
+whole-file receipt. The R9 preclaim read probe is a **passing characterization
+of a leak**, not a security-closure test. Candidate writers must not treat it
+as a green guard.
+
 ## R14/B26 static-NCM measured interaction with incomplete horizon (2026-09-30)
 
 The R13/B12 owner-WMR/N5 source and test slice was committed at `a3fb7bc0f`;

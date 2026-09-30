@@ -22,6 +22,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common import logger as common_logger
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.ownership import (
+    OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1,
+    OWNERSHIP_INDEX_SCHEMA_VERSION,
+)
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.human_decision_contracts import (
     HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,
@@ -204,6 +208,10 @@ class HumanDecisionUnavailableError(ValueError):
 
 class HumanDecisionPersistenceError(RuntimeError):
     """Signal that record custody did not complete end to end."""
+
+    def __init__(self, message: str, *, code: str = "DS9-APPROVAL-PERSISTENCE-FAILED") -> None:
+        self.code = code
+        super().__init__(message)
 
 
 class HumanDecisionOperationalResolutionError(ValueError):
@@ -816,6 +824,13 @@ class HumanDecisionAuthoritySinkProtocol(Protocol):
     ) -> _ReservationRecord: ...
 
     def reconcile_orphan_reservation(self, **kwargs: object) -> _ReservationRecord: ...
+
+    def ownership_evidence(
+        self,
+        *,
+        tenant_id: str | None,
+        cell_id: str | None,
+    ) -> Mapping[str, object]: ...
 
     def write_authority_artifact(
         self,
@@ -2108,6 +2123,11 @@ class HumanDecisionService:
             or packet.scorecard_digest is None
         ):
             raise HumanDecisionOperationalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+        self._require_v2_approval_owner_format(
+            tenant_id=tenant_id,
+            cell_id=None,
+            for_issuance=False,
+        )
         inputs = self.resolve_production_approval_inputs(
             tenant_id=tenant_id,
             run_id=run_id,
@@ -2152,6 +2172,11 @@ class HumanDecisionService:
             or packet.run_id != write_context.run_id
         ):
             raise HumanDecisionPersistenceError("production approval packet binding changed")
+        self._require_v2_approval_owner_format(
+            tenant_id=write_context.tenant_id,
+            cell_id=write_context.cell_id,
+            for_issuance=True,
+        )
         signer = self._custody.signer
         verifier = self._custody.verifier
         signer_identity = self._custody.signer_identity
@@ -2232,6 +2257,64 @@ class HumanDecisionService:
             custody_signer_identity=signer_identity,
             custody_key_id=signer.key_id,
         )
+
+    def _require_v2_approval_owner_format(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str | None,
+        for_issuance: bool,
+    ) -> None:
+        """Gate operational V2 approvals against the runtime owner's live format.
+
+        V2 issuance is unavailable on any owner-backed store: writing the packet
+        itself records an owner claim and can publish pointer generation. A
+        pre-write format check cannot close that transition atomically.
+        """
+
+        unresolved_code = "DS9-APPROVAL-OWNER-BINDING-UNRESOLVED"
+        requires_v3_code = "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
+        try:
+            evidence = self._sink.ownership_evidence(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+        except Exception as exc:
+            if for_issuance:
+                raise HumanDecisionPersistenceError(
+                    unresolved_code,
+                    code=unresolved_code,
+                ) from exc
+            raise HumanDecisionOperationalResolutionError(unresolved_code) from exc
+
+        schema_version = evidence.get("schema_version")
+        index_format = evidence.get("ownership_index_format")
+        supported_schema_versions = {
+            "policyos.artifact_ownership_index.v1",
+            OWNERSHIP_INDEX_SCHEMA_VERSION,
+        }
+        if schema_version not in supported_schema_versions:
+            if for_issuance:
+                raise HumanDecisionPersistenceError(unresolved_code, code=unresolved_code)
+            raise HumanDecisionOperationalResolutionError(unresolved_code)
+        if index_format not in {
+            None,
+            "ephemeral_empty_v2",
+            OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1,
+        }:
+            if for_issuance:
+                raise HumanDecisionPersistenceError(unresolved_code, code=unresolved_code)
+            raise HumanDecisionOperationalResolutionError(unresolved_code)
+
+        if for_issuance:
+            raise HumanDecisionPersistenceError(
+                requires_v3_code,
+                code=requires_v3_code,
+            )
+        # V2 has no reader that independently resolves the scoped owner claims
+        # represented by its digest markers. No recognized owner format can
+        # upgrade those markers into operational currentness.
+        raise HumanDecisionOperationalResolutionError(requires_v3_code)
 
     def resolve_gateway_adapter(
         self,

@@ -10,7 +10,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from itertools import combinations, permutations
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -1248,7 +1248,10 @@ def test_production_record_reservation_admits_one_live_winner(tmp_path: Path) ->
     assert _human_decision_record_ids(fixture.base.store) == {first.record_ref}
 
 
-def test_signed_packet_stale_replayed_or_wrong_consumer_is_rejected(tmp_path: Path) -> None:
+def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitute(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     fixture = _signed_current_production_gate_fixture(tmp_path)
     contracts = _contracts()
     created = _create_record_with_bound_mutation(
@@ -1281,12 +1284,91 @@ def test_signed_packet_stale_replayed_or_wrong_consumer_is_rejected(tmp_path: Pa
         evaluated_at=NOW,
         _seal=approval._RESOLVER_SEAL,
     )
-    packet = approval.build_resolved_production_approval_packet(authority)
-    receipt = fixture.base.service._persist_production_decision_packet(
-        packet,
-        write_context=fixture.base.write_context,
+    owner_before = fixture.base.store.ownership_evidence(tenant_id="tenant-a")
+    assert owner_before["ownership_index_format"] == "pointer_generation_v1"
+    packet = approval.build_resolved_production_approval_packet(
+        authority,
+        artifact_ownership=owner_before,
     )
-    resolved = fixture.base.service.resolve_production_decision_packet(
+
+    # Construct a valid historical V2 fixture through the existing writer while
+    # bypassing only this candidate guard. The packet write itself advances the
+    # owner pointer, which is the transition the production issuer must refuse.
+    with monkeypatch.context() as setup_patch:
+        setup_patch.setattr(
+            _service_module().HumanDecisionService,
+            "_require_v2_approval_owner_format",
+            lambda self, **_kwargs: None,
+        )
+        receipt = fixture.base.service._persist_production_decision_packet(
+            packet,
+            write_context=fixture.base.write_context,
+        )
+
+    owner_after = fixture.base.store.ownership_evidence(tenant_id="tenant-a")
+    assert owner_before["ownership_index_digest"] != owner_after["ownership_index_digest"]
+    assert packet.evidence_refs["artifact_ownership_index"] == owner_before["ownership_index_digest"]
+    assert packet.evidence_refs["artifact_ownership_index_signature"] == (
+        owner_before["ownership_index_signature_digest"]
+    )
+
+    sink_type = type(fixture.base.service._sink)
+    original_reader = sink_type.ownership_evidence
+    owner_states = (
+        {
+            "schema_version": "policyos.artifact_ownership_index.v2",
+            "ownership_index_format": "ephemeral_empty_v2",
+        },
+        {"schema_version": "policyos.artifact_ownership_index.v1"},
+        owner_after,
+    )
+    for evidence in owner_states:
+        monkeypatch.setattr(
+            sink_type,
+            "ownership_evidence",
+            lambda _sink, *, tenant_id, cell_id, evidence=evidence: {
+                **evidence,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+            },
+        )
+        with pytest.raises(
+            _service_module().HumanDecisionOperationalResolutionError,
+        ) as owner_error:
+            fixture.base.service.resolve_production_decision_packet(
+                packet_ref=receipt.packet_ref,
+                tenant_id="tenant-a",
+                run_id="run-gy-pa2",
+                expected_consumer="polisyos.runtime.quality.agent_action_authority",
+                expected_audience="polisyos-runtime",
+                evaluated_at=NOW,
+            )
+        assert owner_error.value.code == "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
+    monkeypatch.setattr(sink_type, "ownership_evidence", original_reader)
+
+    # Historical bytes and their custody signature remain readable even though
+    # the operational currentness resolver refuses this V2 packet.
+    from polisyos.runtime.quality.approval import ProductionApprovalPacket
+
+    historical_bytes = fixture.base.service._sink.get_artifact_bytes(receipt.packet_ref)
+    assert ProductionApprovalPacket.model_validate(
+        from_canonical_bytes(historical_bytes)
+    ) == packet
+    assert fixture.base.service._sink.verify_artifact_signature(
+        receipt.packet_ref,
+        fixture.base.service.custody.verifier,
+        strict_identity=True,
+    ).ok
+
+    # Removal probe: keep both historical digest markers intact, remove only
+    # the central owner-format gate, and show the operational reader accepts
+    # the otherwise-valid signed V2 packet despite the stale marker.
+    monkeypatch.setattr(
+        _service_module().HumanDecisionService,
+        "_require_v2_approval_owner_format",
+        lambda self, **_kwargs: None,
+    )
+    unguarded = fixture.base.service.resolve_production_decision_packet(
         packet_ref=receipt.packet_ref,
         tenant_id="tenant-a",
         run_id="run-gy-pa2",
@@ -1294,35 +1376,111 @@ def test_signed_packet_stale_replayed_or_wrong_consumer_is_rejected(tmp_path: Pa
         expected_audience="polisyos-runtime",
         evaluated_at=NOW,
     )
-    assert resolved.packet_ref == receipt.packet_ref
-
-    attempts = (
-        {
-            "run_id": "run-replayed-elsewhere",
-            "expected_consumer": "polisyos.runtime.quality.agent_action_authority",
-            "evaluated_at": NOW,
-        },
-        {
-            "run_id": "run-gy-pa2",
-            "expected_consumer": "polisyos.scientist.decision_compiler",
-            "evaluated_at": NOW,
-        },
-        {
-            "run_id": "run-gy-pa2",
-            "expected_consumer": "polisyos.runtime.quality.agent_action_authority",
-            "evaluated_at": cast("datetime", packet.valid_until) + timedelta(seconds=1),
-        },
+    assert unguarded.packet_ref == receipt.packet_ref
+    assert unguarded.packet.evidence_refs["artifact_ownership_index"] == (
+        owner_before["ownership_index_digest"]
     )
-    for attempt in attempts:
-        with pytest.raises(
-            _service_module().HumanDecisionOperationalResolutionError,
-        ):
-            fixture.base.service.resolve_production_decision_packet(
-                packet_ref=receipt.packet_ref,
-                tenant_id="tenant-a",
-                expected_audience="polisyos-runtime",
-                **attempt,
+    assert unguarded.packet.evidence_refs["artifact_ownership_index_signature"] == (
+        owner_before["ownership_index_signature_digest"]
+    )
+
+
+def test_v2_packet_issuer_refuses_empty_legacy_and_pointer_owner_states(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    contracts = _contracts()
+    created = _create_record_with_bound_mutation(
+        fixture.base.service,
+        contracts.HumanDecisionCreateCommand(
+            gate_input=fixture.gate_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement="I accept accountability for this production approval.",
+            dissent_statement="No dissent after reviewing all required evidence.",
+        ),
+        bound_permission=fixture.base.bound_permission,
+        write_context=fixture.base.write_context,
+    )
+    inputs = fixture.base.service.resolve_production_approval_inputs(
+        tenant_id="tenant-a",
+        run_id="run-gy-pa2",
+        scorecard_ref=fixture.scorecard_ref,
+        scorecard_binding_digest=fixture.scorecard_binding_digest,
+        production_basis_ref=fixture.basis_ref,
+        human_decision_record_ref=created.record_ref,
+        evaluated_at=NOW,
+    )
+    from polisyos.runtime.quality import approval
+
+    authority = approval._ResolvedProductionApprovalAuthority(
+        inputs=inputs,
+        expected_consumer="polisyos.runtime.quality.agent_action_authority",
+        expected_audience="polisyos-runtime",
+        evaluated_at=NOW,
+        _seal=approval._RESOLVER_SEAL,
+    )
+    owner_evidence = fixture.base.store.ownership_evidence(tenant_id="tenant-a")
+    packet = approval.build_resolved_production_approval_packet(
+        authority,
+        artifact_ownership=owner_evidence,
+    )
+    packets_before = _production_approval_packet_ids(fixture.base.store)
+
+    owner_states = (
+        {
+            "schema_version": "policyos.artifact_ownership_index.v2",
+            "ownership_index_format": "ephemeral_empty_v2",
+        },
+        {"schema_version": "policyos.artifact_ownership_index.v1"},
+        owner_evidence,
+    )
+    sink_type = type(fixture.base.service._sink)
+    original_reader = sink_type.ownership_evidence
+    for evidence in owner_states:
+        monkeypatch.setattr(
+            sink_type,
+            "ownership_evidence",
+            lambda _sink, *, tenant_id, cell_id, evidence=evidence: {
+                **evidence,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+            },
+        )
+        with pytest.raises(_service_module().HumanDecisionPersistenceError) as refusal:
+            fixture.base.service._persist_production_decision_packet(
+                packet,
+                write_context=fixture.base.write_context,
             )
+        assert refusal.value.code == "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
+        assert _production_approval_packet_ids(fixture.base.store) == packets_before
+    monkeypatch.setattr(sink_type, "ownership_evidence", original_reader)
+
+    def fail_owner_lookup(self, **_kwargs: object) -> None:
+        raise RuntimeError("simulated owner evidence outage")
+
+    monkeypatch.setattr(sink_type, "ownership_evidence", fail_owner_lookup)
+    with pytest.raises(_service_module().HumanDecisionPersistenceError) as lookup_error:
+        fixture.base.service._persist_production_decision_packet(
+            packet,
+            write_context=fixture.base.write_context,
+        )
+    assert lookup_error.value.code == "DS9-APPROVAL-OWNER-BINDING-UNRESOLVED"
+    assert _production_approval_packet_ids(fixture.base.store) == packets_before
+    monkeypatch.setattr(sink_type, "ownership_evidence", original_reader)
+
+    # Candidate-band artifact writes still use the same runtime-supplied store.
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+
+    candidate_ref = fixture.base.store.put_bytes(
+        b"ordinary candidate artifact",
+        ArtifactWriteOptions(
+            kind="runtime.candidate_evidence",
+            media_type="application/octet-stream",
+        ),
+    )
+    assert fixture.base.store.has(candidate_ref.artifact_id)
 
 
 def test_production_packet_without_custody_signature_is_typed_refusal(

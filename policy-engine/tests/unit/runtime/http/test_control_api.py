@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import json
 from datetime import UTC, datetime
 from types import SimpleNamespace
@@ -894,6 +895,116 @@ class TestProductionApproval:
             store.get_manifest(artifact_id).kind != "runtime.production_approval_packet"
             for artifact_id in store.iter_artifact_ids()
         )
+
+    def test_served_v2_approval_refuses_pointer_owner_without_packet_artifact(
+        self,
+        runtime_api_env,
+        tmp_path,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        from polisyos.runtime.quality.approval import build_production_approval_packet
+
+        client, cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ADMIN,
+            case_id="production-approval-pointer-v2-refusal",
+        )
+        run_id = runtime_api_env["core_run_id"]
+        evidence_bundle = tmp_path / "quality-evidence-pointer-refusal"
+        scorecard = _production_approval_scorecard(
+            run_id=run_id,
+            evidence_bundle_path=str(evidence_bundle),
+        )
+        scorecard_ref = _persist_scorecard(runtime_api_env, scorecard)
+        _align_secure_artifact_ownership(
+            runtime_api_env,
+            client=client,
+            cell_id=cell_id,
+            artifact_ids=(scorecard_ref,),
+        )
+        store = FileSystemCAS(runtime_api_env["cas_root"])
+        packet_ids_before = {
+            str(artifact_id)
+            for artifact_id in store.iter_artifact_ids()
+            if store.get_manifest(artifact_id).kind == "runtime.production_approval_packet"
+        }
+
+        base_packet = build_production_approval_packet(scorecard=scorecard)
+        packet = base_packet.model_copy(
+            update={
+                "schema_version": "policyos.production_approval_packet.v2",
+                "tenant_id": runtime_api_env["tenant_a"],
+                "run_id": run_id,
+                "production_basis_ref": _sha("b"),
+                "production_basis_digest": _sha("b"),
+                "human_decision_record_ref": _sha("c"),
+                "human_decision_record_digest": _sha("c"),
+                "decision_request_ref": "operations://approval/request",
+                "decision_request_digest": _sha("d"),
+                "governed_action_key": _sha("e"),
+                "valid_from": datetime(2026, 9, 1, tzinfo=UTC),
+                "valid_until": datetime(2027, 9, 1, tzinfo=UTC),
+                "verifier_epoch": "test-pointer-v2-blocked",
+                "expected_consumer": "polisyos.runtime.production_approval",
+                "expected_audience": "polisyos-runtime",
+                "scorecard_producer_identity": "institution://quality/test",
+                "production_basis_producer_identity": "institution://operations/test",
+                "rule_version_ref": "policyos.test.approval.v1",
+                "limitations": (),
+            }
+        )
+
+        routes = importlib.import_module("polisyos.runtime.http.routes.runs")
+
+        class _RouteResolverProbe:
+            def authorize_issuance(self, _value):
+                return object()
+
+            def persist_authorized_packet(self, _authority, candidate_packet, *, write_context):
+                service = client.app.state.runtime_container.human_decision_service
+                return service._persist_production_decision_packet(
+                    candidate_packet,
+                    write_context=write_context,
+                )
+
+        monkeypatch.setattr(
+            routes,
+            "resolve_production_approval_resolver",
+            lambda _request: _RouteResolverProbe(),
+        )
+        monkeypatch.setattr(
+            routes,
+            "build_resolved_production_approval_packet",
+            lambda *_args, **_kwargs: packet,
+        )
+
+        with client:
+            owner_evidence = client.app.state.runtime_container.runtime_api_context.store.ownership_evidence(
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=cell_id,
+            )
+            assert owner_evidence["ownership_index_format"] == "pointer_generation_v1"
+            response = client.post(
+                f"/api/v1/runs/{run_id}/production-approval",
+                headers=_with_fresh_step_up(client, headers),
+                json={
+                    "quality_scorecard_ref": scorecard_ref,
+                    "production_basis_ref": _sha("b"),
+                    "production_basis_digest": _sha("b"),
+                    "human_decision_record_ref": _sha("c"),
+                    "human_decision_record_digest": _sha("c"),
+                },
+            )
+
+        assert response.status_code == 503
+        assert response.json()["code"] == "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
+        packet_ids_after = {
+            str(artifact_id)
+            for artifact_id in store.iter_artifact_ids()
+            if store.get_manifest(artifact_id).kind == "runtime.production_approval_packet"
+        }
+        assert packet_ids_after == packet_ids_before
+        assert not (evidence_bundle / "production_approval_packet.json").exists()
 
     def test_persisted_control_progress_does_not_bypass_producer_trust(
         self,

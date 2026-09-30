@@ -1,9 +1,9 @@
 # E02-R2 write leases
 
-## Current coordination at `e8d2f00d4` (2026-09-30)
+## Current coordination after `b4c3de789` (2026-09-30)
 
-Root is the only writer to `codex/e02-r2`; the tree was clean after the R2
-historical-reader tests (`e8d2f00d4`).
+Root is the only writer to `codex/e02-r2`; the tree was clean after the bounded
+R13 selected-view handoff (`b4c3de789`).
 The older lease sections below are historical. Current candidate ownership is:
 
 | Candidate | Scratch-only write set | Integration sequence |
@@ -12,8 +12,9 @@ The older lease sections below are historical. Current candidate ownership is:
 | R9 ownership evidence consumers | `runtime/http/routes/runs.py`, `runtime/http/services/debug.py`, `runtime/quality/approval.py`, mirrored consumer tests and evidence docs | Separate scratch writer freezes a versioned pointer/generation/embedded-signature projection. It cannot land before the ownership evidence API and historical serializers agree; no `ownership.py` or `store.py` edits in this candidate. |
 | R9 artifact lease | `core/artifacts/store.py`, a focused lease helper if needed, CAS access tests, then named raw-path callers | Separate scratch writer. Root sequences this after ownership persistence and preserves the already-integrated R10 typed-error catch; review both against the original race/removal witnesses. |
 | R10 malformed-ref verdict | `core/artifacts/store.py`, signing tests | Bounded patch integrated at `d823f271a`; Ruff/AST pass, pytest and removal probe UNRUN below the disk floor. Generic signed-store capability remains a separate recorded premise. |
-| R13 selected-view handoff | Foundry contracts/snapshots/bindings, substrate-registry loader, WMR v1 admission and N5, mirrored tests | V3 scratch patch is frozen under independent review. Preserve candidate typed refs and refuse at the WMR v1 boundary if a selected view cannot be represented; the NL projection sibling is a named P40 residual under review. No Core CAS file is leased to this writer. |
-| R1 source-bound fixture | `tests/unit/runtime/http/test_control_service_di.py` | Scratch diff frozen after a 121-second CG5 index timeout; source-bound N4→N5 and R2 shared setup remain unverified. Performance premise is recorded at `3c5f19353`. |
+| R13 selected-view handoff | Foundry contracts/snapshots/bindings, substrate-registry loader, WMR v1 admission and N5, mirrored tests | Bounded slice integrated at `b4c3de789`; this lease is released. Ruff has only five inherited diagnostics across the 11 touched files; AST and diff checks pass; behavioral tests and removal probe remain UNRUN below the disk floor. No R13 class closure. |
+| R13 NL selected-view projection | `runtime/http/services/control/nl_pipeline.py` and its mirrored materialization tests only | Scratch writer follows the independent same-class P31/P40 sibling trace. Preserve tenant-selected refs through both production materializers, including report/fallback refs; keep WMR v1 refusal when exact selected view cannot be recorded. No Core CAS or Foundry edit is leased. |
+| R1 source-bound fixture | `tests/unit/runtime/http/test_control_service_di.py` only | Scratch writer may resume the controlled owner-bound N4→N5 profile. The earlier 121-second CG5 timeout proves no positive. Production source needs an explicit further lease after cause measurement. Performance premise is recorded at `3c5f19353`. |
 | R2 outer-v1 fixture | `tests/unit/runtime/http/test_normative_generation_bridge.py` | Direct historical-reader supplement integrated at `e8d2f00d4`; Ruff/AST pass, pytest UNRUN; no served authority claim. |
 | R14 documentation | `BASELINES.md`, `FINAL_REPORT.md`, B26 ledger row | R11 source-only census and R14 N8 2/2 plus 158/161 evidence are integrated at `22221a26c`. Keep 282 ledger rows and B26 partial. |
 

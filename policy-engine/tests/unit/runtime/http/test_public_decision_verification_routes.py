@@ -1,7 +1,10 @@
 """Exercise PUBLIC verification through the actual runtime app boundary."""
 
+import json
+from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from polisyos.runtime.http.app import create_runtime_api_app
@@ -29,6 +32,144 @@ def test_public_verification_does_not_make_private_run_routes_public(tmp_path: P
     with TestClient(app) as client:
         response = client.get("/api/v1/runs")
     assert response.status_code == 401
+
+
+def test_served_verifier_denies_signature_intent_and_counterfactual_tracks_gate(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """A pending signature is not unsigned, and only its affected surface is denied."""
+    from polisyos.core.artifacts import KeyPair
+
+    pair = KeyPair.generate()
+    private = tmp_path / "report-private.pem"
+    private.write_bytes(pair.private_pem())
+    private.chmod(0o600)
+    (tmp_path / "report-public.pem").write_bytes(pair.public_pem())
+    config = tmp_path / "report-issuer.json"
+    config.write_text(
+        json.dumps(
+            {
+                "issuer_id": "r9-transaction-test-issuer",
+                "private_key_path": "report-private.pem",
+                "trusted_keys": [
+                    {
+                        "public_key_path": "report-public.pem",
+                        "issuer_id": "r9-transaction-test-issuer",
+                        "purposes": ["public_decision_verification_record"],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("POLISYOS_PUBLIC_VERIFICATION_CONFIG", str(config))
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        allow_fixture_identity=False,
+    )
+    service = app.state.runtime_container.public_decision_verification_service
+    service._store = service._store.for_tenant("tenant-r9", cell_id="cell-r9")
+    store = service._store
+    record_id = service.issue(
+        decision_id="decision-r9",
+        public_document={"title": "ordinary candidate report"},
+        issued_at=datetime(2026, 10, 1, tzinfo=UTC),
+    )
+    index_entry = json.loads((service._index_root / f"{record_id}.json").read_bytes())
+    from polisyos.core.artifacts import ArtifactID
+
+    record_ref = ArtifactID.model_validate(index_entry["record_artifact_ref"])
+    signature = store.get_signature(record_ref)
+    assert signature is not None
+    expected_signature_bytes = store.get_signature_bytes(record_ref)
+    expected_record_blob = store.get_bytes(record_ref)
+    signature_path = store._sig_path(record_ref)
+    signature_path.chmod(0o600)
+    signature_path.unlink()
+
+    publish_member = store._publish_transaction_member
+
+    def publish_then_interrupt(stage_path, final_path, *, expected_sha256):
+        result = publish_member(
+            stage_path,
+            final_path,
+            expected_sha256=expected_sha256,
+        )
+        if final_path == signature_path:
+            raise RuntimeError("simulated signature publication interruption")
+        return result
+
+    monkeypatch.setattr(store, "_publish_transaction_member", publish_then_interrupt)
+    with pytest.raises(RuntimeError, match="signature publication interruption"):
+        store.put_signature(record_ref, signature)
+
+    ownership = store._ownership_index
+    pending = ownership._read_transaction_intent(record_ref)
+    assert pending is not None
+    assert pending["status"] == "pending"
+    assert pending["mode"] == "signature"
+    assert pending["affected"]["signature_profiles"] == ["default"]
+    assert pending["claims"]["default_owner"] is True
+    assert ownership.is_owned_by(
+        record_ref,
+        tenant_id="tenant-r9",
+        cell_id="cell-r9",
+    )
+    assert ownership._load_snapshot().generation_sha256 is not None
+    assert store.get_bytes(record_ref) == expected_record_blob
+    assert store.get_manifest_bytes(record_ref)
+    assert signature_path.read_bytes() == expected_signature_bytes
+
+    # Candidate-band work on another artifact remains usable under a
+    # signature-only pending intent.
+    from polisyos.core.artifacts import ArtifactWriteOptions
+
+    candidate_bytes = b"unrelated candidate remains available"
+    candidate_ref = store.put_bytes(
+        candidate_bytes,
+        ArtifactWriteOptions(kind="r9.candidate.control", media_type="application/octet-stream"),
+    )
+    assert store.get_bytes(candidate_ref) == candidate_bytes
+
+    with TestClient(app) as client:
+        refused = client.get(
+            "/api/v1/public-decisions/verification",
+            params={"record_id": record_id},
+        )
+        assert refused.status_code == 200
+        refused_body = refused.json()
+        assert refused_body["report_authentication"] == "invalid"
+        assert "record_evidence_unavailable" in refused_body["reason_codes"]
+        assert "record_signature_missing" not in refused_body["reason_codes"]
+        assert refused_body["public_document"] is None
+
+        # Removal probe: preserve the signed blob, manifest, signature,
+        # pending intent, issued index, and owner-generation markers; remove
+        # only the intent predicate. The served consumer then admits it.
+        with monkeypatch.context() as removal:
+            removal.setattr(
+                ownership,
+                "require_no_pending_transaction",
+                lambda *args, **kwargs: None,
+            )
+            counterfactual = client.get(
+                "/api/v1/public-decisions/verification",
+                params={"record_id": record_id},
+            ).json()
+        assert counterfactual["report_authentication"] == "verified"
+        assert counterfactual["public_document"] == {"title": "ordinary candidate report"}
+
+        monkeypatch.setattr(store, "_publish_transaction_member", publish_member)
+        store.put_signature(record_ref, signature)
+        assert ownership._read_transaction_intent(record_ref) is None
+        assert store.get_signature_bytes(record_ref) == expected_signature_bytes
+        recovered = client.get(
+            "/api/v1/public-decisions/verification",
+            params={"record_id": record_id},
+        ).json()
+        assert recovered["report_authentication"] == "verified"
 
 
 def _configure_verification_issuer(tmp_path, monkeypatch):

@@ -129,6 +129,53 @@ def test_same_stream_row_growth_does_not_resolve_non_data_refusal(tmp_path):
     assert dict(before.component_bindings)[CENSUS] != dict(after.component_bindings)[CENSUS]
 
 
+def test_projection_binds_verified_member_receipts_from_one_stream_pass(
+    tmp_path,
+    monkeypatch,
+):
+    bridge = importlib.import_module("polisyos.runtime.quality.non_data_acquisition")
+    from polisyos.core.artifacts import ArtifactWriteOptions
+
+    bindings = {}
+    store = bridge._ProjectionCAS(tmp_path, bindings, writable=True)
+    payload = b"projection-stream-member" * 150_000
+    artifact_ref = store.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind="r9.projection.stream_control",
+            media_type="application/octet-stream",
+        ),
+    )
+    receipts = []
+    copy_member_to = store.copy_member_to
+
+    def collect_receipt(artifact_id, member, destination):
+        receipt = copy_member_to(artifact_id, member, destination)
+        receipts.append(receipt)
+        return receipt
+
+    monkeypatch.setattr(store, "copy_member_to", collect_receipt)
+    assert store.get_bytes(artifact_ref) == payload
+    assert len(receipts) == 1
+    blob_receipt = receipts.pop()
+    assert blob_receipt.member.endswith(".blob")
+    blob_relative = (
+        f"{bridge.NON_DATA_PROJECTION_FAMILY}/cas/{blob_receipt.member}"
+    )
+    assert bindings[blob_relative] == f"sha256:{blob_receipt.sha256}"
+
+    manifest = store.get_manifest(artifact_ref)
+    assert manifest.artifact_id == artifact_ref.artifact_id
+    assert len(receipts) == 1
+    manifest_receipt = receipts.pop()
+    assert manifest_receipt.member.endswith(".manifest.json")
+    manifest_relative = (
+        f"{bridge.NON_DATA_PROJECTION_FAMILY}/cas/{manifest_receipt.member}"
+    )
+    assert bindings[manifest_relative] == f"sha256:{manifest_receipt.sha256}"
+    assert store.unresolved_dependency is False
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [("missing_link", "owner:changed"), ("generated_at", "2026-09-14"), ("note", "é")],

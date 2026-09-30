@@ -1139,7 +1139,7 @@ class FileSystemCAS:
             or len(signature_specs) != 1
             or signature_specs[0]["selector"] != signature_selector
             or signature_specs[0]["signature_sha256"]
-            != "sha256:" + hashlib.sha256(signature_bytes).hexdigest()
+            != content_hash(signature_bytes, prefix=True)
         ):
             raise ArtifactTransactionPendingError(
                 artifact_id,
@@ -1157,7 +1157,7 @@ class FileSystemCAS:
             None if signature_selector == "default" else signature_selector,
         )
         manifest_bytes = manifest_path.read_bytes()
-        if hashlib.sha256(manifest_bytes).hexdigest() != view_spec["manifest_sha256"]:
+        if content_hash(manifest_bytes, prefix=True) != view_spec["manifest_sha256"]:
             raise ArtifactTransactionPendingError(
                 artifact_id,
                 surface=f"signature:{signature_selector}",
@@ -1222,9 +1222,7 @@ class FileSystemCAS:
             )
             pending = self._ownership_index._read_transaction_intent(aid)
             if pending is not None:
-                if pending["status"] == "committed" and (
-                    self._ownership_index._intent_completion_is_recomputed(pending)
-                ):
+                if self._ownership_index._committed_intent_matches_current_state(pending):
                     self._ownership_index.remove_transaction_intent(aid, lease=lease)
                     self._remove_transaction_stage(pending["operation_id"])
                 elif pending["mode"] == "signature":
@@ -1291,7 +1289,7 @@ class FileSystemCAS:
                     f"Artifact {aid} signature write requires its current tenant owner"
                 )
             operation_id = uuid.uuid4().hex
-            signature_sha256 = "sha256:" + hashlib.sha256(signature_bytes).hexdigest()
+            signature_sha256 = content_hash(signature_bytes, prefix=True)
             intent: dict[str, Any] = {
                 "schema_version": _TRANSACTION_INTENT_SCHEMA_V3,
                 "status": "pending",
@@ -1305,7 +1303,7 @@ class FileSystemCAS:
                     {
                         "selector": signature_selector,
                         "manifest_profile_sha256": self._manifests.profile_sha256(manifest),
-                        "manifest_sha256": "sha256:" + hashlib.sha256(manifest_bytes).hexdigest(),
+                        "manifest_sha256": content_hash(manifest_bytes, prefix=True),
                         "manifest_stage": None,
                     }
                 ],
@@ -1629,7 +1627,7 @@ class FileSystemCAS:
         if len(selected) != 1 or selected[0]["manifest_profile_sha256"] != profile_sha256:
             raise ArtifactTransactionPendingError(artifact_id, surface="artifact")
         selected_spec = selected[0]
-        manifest_sha256 = "sha256:" + hashlib.sha256(manifest_bytes).hexdigest()
+        manifest_sha256 = content_hash(manifest_bytes, prefix=True)
         default_specs = [view for view in views if view["selector"] == "default"]
         if len(default_specs) > 1 or len(views) != 1 + len(default_specs):
             raise ArtifactTransactionPendingError(artifact_id, surface="artifact")
@@ -1778,9 +1776,7 @@ class FileSystemCAS:
             )
             prior_intent = self._ownership_index._read_transaction_intent(aid)
             if prior_intent is not None:
-                if prior_intent["status"] == "committed":
-                    if not self._ownership_index._intent_completion_is_recomputed(prior_intent):
-                        raise ArtifactTransactionPendingError(aid, surface="artifact")
+                if self._ownership_index._committed_intent_matches_current_state(prior_intent):
                     self._ownership_index.remove_transaction_intent(aid, lease=lease)
                     self._remove_transaction_stage(prior_intent["operation_id"])
                 else:
@@ -1882,8 +1878,7 @@ class FileSystemCAS:
                         "manifest_profile_sha256": (
                             default_profile_sha256 or profile_sha256
                         ),
-                        "manifest_sha256": "sha256:"
-                        + hashlib.sha256(expected_default_bytes).hexdigest(),
+                        "manifest_sha256": content_hash(expected_default_bytes, prefix=True),
                         "manifest_stage": default_stage_rel,
                     }
                 )
@@ -1892,8 +1887,7 @@ class FileSystemCAS:
                 {
                     "selector": profile_sha256,
                     "manifest_profile_sha256": profile_sha256,
-                    "manifest_sha256": "sha256:"
-                    + hashlib.sha256(expected_view_bytes).hexdigest(),
+                    "manifest_sha256": content_hash(expected_view_bytes, prefix=True),
                     "manifest_stage": view_stage_rel,
                 }
             )
@@ -2696,7 +2690,7 @@ class FileSystemCAS:
                         else:
                             manifest_data = source_bytes
                             manifest = source_manifest
-                        digest = "sha256:" + hashlib.sha256(manifest_data).hexdigest()
+                        digest = content_hash(manifest_data, prefix=True)
                         entry = {
                             "selector": selector,
                             "path": target_path,
@@ -2746,7 +2740,7 @@ class FileSystemCAS:
                             "selector": selector,
                             "path": signature_path,
                             "data": signature_bytes,
-                            "sha256": "sha256:" + hashlib.sha256(signature_bytes).hexdigest(),
+                            "sha256": content_hash(signature_bytes, prefix=True),
                             "needs_stage": not signature_path.exists(),
                         }
                         existing_signature = desired_signatures.get(selector)
@@ -2904,9 +2898,11 @@ class FileSystemCAS:
                     "request_sha256": "",
                 }
                 prior = self._ownership_index._read_transaction_intent(artifact_id)
-                if prior is not None and prior["status"] == "committed":
-                    if not self._ownership_index._intent_completion_is_recomputed(prior):
-                        raise ArtifactTransactionPendingError(artifact_id, surface="artifact")
+                committed_prior = (
+                    prior is not None
+                    and self._ownership_index._committed_intent_matches_current_state(prior)
+                )
+                if committed_prior:
                     self._ownership_index.remove_transaction_intent(
                         artifact_id,
                         lease=leases[artifact_id.hex],

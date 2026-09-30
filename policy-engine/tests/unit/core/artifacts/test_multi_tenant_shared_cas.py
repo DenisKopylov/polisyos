@@ -6,6 +6,7 @@ import hashlib
 import json
 import multiprocessing
 import os
+import sys
 import threading
 from copy import deepcopy
 from dataclasses import replace
@@ -52,9 +53,16 @@ def _read_in_second_process(
 ) -> None:
     store = FileSystemCAS(Path(root)).with_ambient_ownership_enforcement()
     store_origin = str(Path(store_module.__file__).resolve())
+    test_module_origin = str(Path(__file__).resolve())
     ready.set()
     if not attempt.wait(timeout=5):
-        outcome.put({"error": "attempt_timeout", "store_origin": store_origin})
+        outcome.put(
+            {
+                "error": "attempt_timeout",
+                "store_origin": store_origin,
+                "test_module_origin": test_module_origin,
+            }
+        )
         finished.set()
         return
     try:
@@ -62,11 +70,16 @@ def _read_in_second_process(
             {
                 "payload": store.get_bytes(ArtifactID.model_validate(artifact_id)),
                 "store_origin": store_origin,
+                "test_module_origin": test_module_origin,
             }
         )
     except BaseException as exc:
         outcome.put(
-            {"error": f"{type(exc).__name__}:{exc}", "store_origin": store_origin}
+            {
+                "error": f"{type(exc).__name__}:{exc}",
+                "store_origin": store_origin,
+                "test_module_origin": test_module_origin,
+            }
         )
     finally:
         finished.set()
@@ -203,6 +216,14 @@ def test_second_process_reader_waits_on_the_canonical_root_stripe(
         "PYTHONPATH",
         os.pathsep.join(part for part in (test_import_root, existing_pythonpath) if part),
     )
+    # Spawn serializes this parent's sys.path into the child. Pytest's
+    # importlib mode collected this file as `core.artifacts...`, so put the
+    # actual candidate tests/unit root on that path before Process.start().
+    monkeypatch.setattr(
+        sys,
+        "path",
+        [test_import_root, *(part for part in sys.path if part != test_import_root)],
+    )
     process.start()
     try:
         assert ready.wait(timeout=10)
@@ -222,8 +243,85 @@ def test_second_process_reader_waits_on_the_canonical_root_stripe(
     assert process.exitcode == 0
     child_result = outcome.get(timeout=1)
     expected_source_root = Path(__file__).resolve().parents[4] / "src" / "polisyos"
+    expected_test_root = Path(__file__).resolve().parents[2]
     assert Path(child_result["store_origin"]).is_relative_to(expected_source_root)
+    assert Path(child_result["test_module_origin"]).is_relative_to(expected_test_root)
     assert child_result["payload"] == payload
+
+
+def test_signature_only_pending_publication_is_denied_and_exact_retry_recovers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.artifacts import Ed25519Signer, KeyPair
+
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root).for_tenant("tenant-a", cell_id="cell-a")
+    payload = b"signature sidecar publication is an independent affected surface"
+    artifact_ref = writer.put_bytes(payload, _options())
+    pair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(pair.private_pem())
+    signature = writer.sign_artifact(artifact_ref, signer, signer_identity="r9-test")
+    signature_bytes = writer.get_signature_bytes(artifact_ref)
+    signature_path = writer._sig_path(
+        artifact_ref.artifact_id,
+        artifact_ref.manifest_profile_sha256,
+    )
+    signature_path.chmod(0o600)
+    signature_path.unlink()
+
+    publish_member = writer._publish_transaction_member
+
+    def publish_then_interrupt(
+        stage_path: Path | None,
+        final_path: Path,
+        *,
+        expected_sha256: str,
+    ) -> bool:
+        result = publish_member(
+            stage_path,
+            final_path,
+            expected_sha256=expected_sha256,
+        )
+        if final_path == signature_path:
+            raise RuntimeError("simulated interruption after signature member publication")
+        return result
+
+    monkeypatch.setattr(writer, "_publish_transaction_member", publish_then_interrupt)
+    with pytest.raises(RuntimeError, match="after signature member publication"):
+        writer.put_signature(artifact_ref, signature)
+
+    index = writer._ownership_index
+    pending = index._read_transaction_intent(artifact_ref.artifact_id)
+    assert pending is not None
+    assert pending["status"] == "pending"
+    assert pending["mode"] == "signature"
+    assert pending["blob_stage"] is None
+    assert pending["views"][0]["manifest_stage"] is None
+    assert pending["affected"]["signature_profiles"] == ["default"]
+    assert pending["claims"]["default_owner"] is True
+    assert index.is_owned_by(
+        artifact_ref.artifact_id,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    assert signature_path.read_bytes() == signature_bytes
+    assert writer.get_bytes(artifact_ref) == payload
+    assert writer.get_manifest_bytes(artifact_ref)
+
+    # The intent denies the signature selector, not ordinary candidate work.
+    candidate = writer.put_bytes(b"unrelated candidate remains readable", _options())
+    assert writer.get_bytes(candidate) == b"unrelated candidate remains readable"
+
+    with pytest.raises(ArtifactOwnershipError) as refusal:
+        writer.get_signature_bytes(artifact_ref)
+    assert getattr(refusal.value, "code", None) == "artifact_transaction_pending"
+
+    # A same-request retry consumes the pinned signature intent and exact bytes.
+    monkeypatch.setattr(writer, "_publish_transaction_member", publish_member)
+    writer.put_signature(artifact_ref, signature)
+    assert index._read_transaction_intent(artifact_ref.artifact_id) is None
+    assert writer.get_signature_bytes(artifact_ref) == signature_bytes
 
 
 def test_nested_distinct_artifact_lease_fails_without_deadlock(tmp_path: Path) -> None:

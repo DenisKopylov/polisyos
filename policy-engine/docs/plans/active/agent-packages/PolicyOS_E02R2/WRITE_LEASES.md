@@ -18,6 +18,32 @@ The older lease sections below are historical. Current candidate ownership is:
 | R2 outer-v1 fixture | `tests/unit/runtime/http/test_normative_generation_bridge.py` | Direct historical-reader supplement integrated at `e8d2f00d4`; Ruff/AST pass, pytest UNRUN; no served authority claim. |
 | R14 documentation | `BASELINES.md`, `FINAL_REPORT.md`, B26 ledger row | R11 source-only census and R14 N8 2/2 plus 158/161 evidence are integrated at `22221a26c`. Keep 282 ledger rows and B26 partial. |
 
+## R10 signed-source verifier capability (2026-09-30)
+
+One direct scratch-only writer may prepare a candidate against the current clean
+`codex/e02-r2` branch. Root remains the sole canonical writer. The exact source
+write set is `policy-engine/src/polisyos/core/artifacts/protocol.py`,
+`core/artifacts/__init__.py`, `runtime/http/resilience.py`,
+`runtime/http/dependencies.py`, `runtime/http/container.py`,
+`runtime/http/services/control/run_lifecycle.py`,
+`runtime/quality/open_world_risk.py`, `runtime/quality/promotion_sequence.py`,
+and `runtime/quality/promotion_safety.py`; the exact mirrored tests are
+`policy-engine/tests/unit/runtime/quality/test_promotion_safety.py` and
+`policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py`.
+No active writer owns these files. The independently reviewed design is
+`/Users/deniskopylov/.codex/scratch/E02R2-R10-signed-store-capability-design-rev2-20260930.md@sha256:940dcd2dc19bbdbae2993c83ea1b7b168b101431da33bfebf5f4cb7eac661e6b`.
+Its review is
+`/Users/deniskopylov/.codex/scratch/E02R2-R10-signed-store-design-review-rev2-delta-20260930.md@sha256:e739b2a94e3ff5c82d895be9de3230a2689d6148e76a59e95af2996ad8cf3cc8`.
+The verifier must use the exact guarded runtime store, normalize a string ID
+before any CAS read, bind the returned verifier ID to the request, and preserve
+historical v1 request bytes through a schema-dispatched reader and serializer.
+The served witness must distinguish same-tenant/same-cell signature custody
+from cross-tenant and cross-cell refusal without granting promotion authority.
+Unsupported backends remain a typed limitation. Source and tests require
+independent patch review and focused behavioral verification before integration;
+full four-base P41 remains a separate requirement. No generated or governed
+artifact, plan, or debt-register write is leased.
+
 No canonical test runs while disk free is below the agreed 8-GiB floor. The
 R14 whole generation-cycle file at the `226884f53` source has 158/161 passes;
 the three failures have unresolved P41 attribution, so that run is not a green

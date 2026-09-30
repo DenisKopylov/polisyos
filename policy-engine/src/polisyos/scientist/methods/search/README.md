@@ -29,10 +29,17 @@ logic used by policy-design and promotion workflows.
 
 The registry's typed `view_assessments` supplies assessment status for each
 projection; `eligible_candidate_hashes` identifies that projection's
-assessment denominator. The v3 `PolicyFrontierReport` DTO validator checks
-caller-supplied source-feasible and unknown-eligibility identities against the
-projection. However, the ordinary `PolicyArtifactBuilder._build_frontier_report`
-path sets the report's source identities from the same projection and leaves
+assessment denominator. The v3 `PolicyFrontierReport` DTO validator compares
+the supplied source-feasible set with the global projection's eligible
+identities, checks for duplicates within each supplied set and overlap
+between the source-feasible and unknown sets, and requires the projection
+assessment status to be `denominator_limited` exactly when the source-feasible
+set differs from
+projected eligible identities or the supplied unknown set is nonempty. It
+does not check unknown identities for projection membership or independently
+reconcile them against the projection. However, the ordinary
+`PolicyArtifactBuilder._build_frontier_report` path sets the report's source
+identities from the same projection and leaves
 the unknown set empty. That self-derived equality is not an independent source
 observation: it cannot detect a candidate omitted before registry projection
 or establish upstream population completeness. The independent producer input

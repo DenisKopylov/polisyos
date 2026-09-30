@@ -144,6 +144,7 @@ changed-byte removal proof`. No appointment is inferred.
 `tests/unit/runtime/quality/test_generation_cycle_run_history.py::test_candidate_computation_preserves_unknown_deployment_currentness`.
 Require packaged positive, marker-retaining byte-removal negative, candidate non-refusal control,
 source-free historical replay, and full touched-file four-base replay before changing status.
+- **Additional source-census P38 falsifier (proposed, not authored/run):** `tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_census_rejects_production_entry_through_allowed_fixture_helper`. Preserve the allowed `decompose_fixture -> run_fixture` helper and census markers, add only a production-entry call to that helper, and require the source/build gate to fail or return `UNRUN`; keep a direct-alias control and ordinary candidate-computation control. The existing direct-alias removal test does not cover this transitive allowed-helper escape. Evidence: `/Users/deniskopylov/.codex/scratch/e02-r2-currentness-repair-design-20260930T0608Z.md@sha256:f698b7ff0b4dc96dd1a1cc61e8760481e13989095eb46d61d90c1f35024d33ba.
 
 - Residual roles: package-build producer (appointment pending), confidence-ledger verifier, N6
 census/bridge owner and N9 signer owner; these are roles, not appointments.

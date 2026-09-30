@@ -3017,11 +3017,11 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02’s original lack of a finding-level record; the earlier 14/14 audit remains historical. Integrated cd9e935e5 adds bounded 21/21 controller evidence, a one-step served N5-to-N8 witness, and an expected-red horizon-removal falsifier. N8 remains an internal value port and drops checked-order/horizon scope; no current typed HTTP/audit consumer exposes these facts, so B26 stays partial. The proposed read-time per-job projection is described in the served bridge memo."
       },
-      "residual": "At integrated head cd9e935e5, SIM-03 passes 21/21, including a triple-only non-additive residual, a complete additive three-atom control, missing-pair and incomplete-horizon negatives, and a four-atom cancellation bounded as aggregate order-3+ rather than additive. The one-step persisted N5-to-default-N8 witness and horizon-removal falsifier pass; the five pass-to-fail results at intermediate 053df9bc5 are restored. The current one-file P41 measured E02 head 14/14 and integration 21/21 (14 shared PASS-to-PASS, seven added PASS, zero removed, zero PASS-to-FAIL); execution-base and Main cells are Git-MISSING. Keep partial: N8 is an internal value port that retains a reference to N5 but drops numeric_interaction, checked_interaction_orders, interaction_evidence_issues, and residuals; no current typed HTTP/audit consumer exposes these facts. The next slice is a new typed, tenant-bound per-job N5 interaction-diagnostics read-time projection using the owner-recorded compiled run and verified N5 loader, with checked orders and requested-versus-observed horizon plus typed incomplete verdict, retaining candidate-only/simulate_only limits. It needs a bounded new lease and served negative, additive-control, removal, and non-refusal witnesses. The wider seven-importer P41 remains incomplete. Synthetic low-grade K_sim output is candidate evidence, not source-grounded world evidence or S8, promotion, or publication authority.",
+      "residual": "At integrated head cd9e935e5, SIM-03 passes 21/21, including the additive/non-additive controls and incomplete pair/horizon negatives; historical N8 served evidence remains as cited below. At 602c40817, N8 additionally validates the complete authority_blockers set from its already content-bound N5 packet, unions the allowlisted blockers into its internal candidate value result, and produces typed value_blocked for malformed or unknown persisted blockers before EvalSafety/value-owner calls. Focused N8 selectors pass 7/7; a marker-retaining unknown-blocker removal run is red and the restored control passes. B26 remains partial: N8 still lacks a typed tenant-bound HTTP/audit consumer exposing observed steps, requested horizon, checked interaction orders, and residuals, and no served positive through CanonicalN9PromotionPort is established. The whole test_generation_cycle.py file at 602c40817 is 166/167; the sole red is test_post_n9_packet_binds_exact_subject_and_gate_receipt, whose attribution is not_established pending exact immediate-parent replay at 59a4ea890ab367f92a1217a60c2c0a417d3a1a3d. Full four-base P41 remains UNRUN. Synthetic low-grade K_sim is candidate evidence, not source-grounded world evidence or S8, promotion, or publication authority.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
-        "name": "N5 interaction-residual producer; N8 is an internal value port only; typed per-job HTTP/audit diagnostics consumer not established"
+        "name": "N5 interaction-residual producer; N8 internal persisted-blocker reconciliation now present; typed per-job HTTP/audit diagnostics consumer not established"
       },
       "r_class": null,
       "p_triage": null,
@@ -3188,7 +3188,65 @@
           "authority_limit": "The served fixture is synthetic, low-grade simulate_only/K_sim candidate evidence. It is not source-grounded world evidence and grants no S8, promotion or publication authority.",
           "tests_run_by_this_audit": false
         }
-      },
+      ,
+        "current_integrated_n8_reconciliation_2026_09_30": {
+          "identity": "B26 N8 persisted-blocker reconciliation at 602c40817",
+          "source_commit": "602c40817dc517269cbbdb654ca25700486f3519",
+          "source_test_blobs": [
+            "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@git-blob:c0b840d9bed75c920b29381bcf81c7f9cb7550f6",
+            "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@git-blob:04db24608c478d3553db428bb9031c75b38c1b5b"
+          ],
+          "behavioral_verdict": "PASS_BOUNDED",
+          "finding_status_retained": "partial",
+          "focused_clean": {
+            "result": "7 passed, 0 failed, 0 errors",
+            "identities": [
+              "test_n8_recovers_persisted_blocker_after_lossy_simulation_projection",
+              "test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[unknown-persisted-blocker]",
+              "test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[malformed-blocker-container]",
+              "test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[malformed-blocker-item]",
+              "test_generation_cycle_serves_persisted_n5_into_default_n8_value_port",
+              "test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evalsafety",
+              "test_program_graph_v2_blocker_removal_stays_out_of_eval_safety"
+            ],
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/b26-n8-persisted-blocker-reconciliation-candidate-20260930/B26_N8_FOCUSED_CLEAN.junit.xml@sha256:64007bda3ed71631531c19493a8b42342b171ecaa33a2bb925b5aaca40fbec8d"
+          },
+          "property_removal": {
+            "identity": "test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[unknown-persisted-blocker]",
+            "result": "1 expected red with persisted blocker and receipt markers retained after disabling allowlist rejection",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/b26-n8-persisted-blocker-reconciliation-candidate-20260930/B26_N8_MARKER_MUTANT.junit.xml@sha256:9403b9758e1d51460a99a44ffa2d97b4bb0edd83134770856fb722e0a2115af3"
+          },
+          "restored_control": {
+            "result": "1 passed after restoration",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/b26-n8-persisted-blocker-reconciliation-candidate-20260930/B26_N8_RESTORED_CONTROL.junit.xml@sha256:68091b8814b5b5534275f0f2b68b04ce4f0c2c10a80e6619dffc6e34bf74e47d"
+          },
+          "first_overlapping_edit_run": {
+            "result": "4/4, excluded from evidence because an unrelated source edit overlapped execution",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/b26-n8-persisted-blocker-reconciliation-candidate-20260930/B26_N8_FOCUSED.junit.xml@sha256:372942332bbc5bec52c9d8f1b39fe3c946cecec6522b29dc2588535a954022db"
+          },
+          "whole_file": {
+            "test_path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+            "result": "166 passed, 1 failed, 0 errors",
+            "red_identity": "test_post_n9_packet_binds_exact_subject_and_gate_receipt",
+            "red_interpretation": "The selector is a meaningful exact-custody check under a test-only verifier appointment, not a production promotion positive. This run stops before exact-ref assertions because the reused worktree ignored ledger root is v7 while current N9 expects v8; tmp_path isolates the PromotionRuntime CAS, not the repo-local Confidence Ledger. Append-only refusal is consistent with stale currentness, and the path does not call B26 N8. A matched fresh-state selector replay at the exact immediate parent 59a4ea890ab367f92a1217a60c2c0a417d3a1a3d and current commit remains UNRUN; owner attribution stays not_established, neither inherited nor B26 regression.",
+            "rca_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b26-post-n9-red-rca-20260930.md@sha256:0d07940374d8db293fa892a0f9a1135b61cd6f671eebf164773fdb322754a1ab",
+            "slice_base": "59a4ea890ab367f92a1217a60c2c0a417d3a1a3d",
+            "owner_attribution": "not_established",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/b26-n8-persisted-blocker-reconciliation-candidate-20260930/B26_N8_WHOLE_602c408.junit.xml@sha256:785f572e4db49afdb7cd687c89d6888e86eadbd36fcc553840494d3d70ed773b"
+          },
+          "residual": {
+            "status": "partial",
+            "missing_capability": "typed tenant-bound per-job HTTP/audit consumer for observed steps, requested horizon, checked interaction orders, and residuals; served positive through CanonicalN9PromotionPort remains not_established",
+            "four_base_p41": "UNRUN",
+            "authority_limit": "candidate-only low-grade simulate_only; no source-grounded world, S8, promotion, or publication authority"
+          },
+          "ruff": {
+            "result": "three existing scoped diagnostics: B009, S608, PT007; base source diagnostics and test parametrization location confirmed against exact immediate parent 59a4ea890ab367f92a1217a60c2c0a417d3a1a3d; no new finding intersects the changed hunks",
+            "clean_lint_claim": false
+          },
+          "independent_review": "/Users/deniskopylov/.codex/scratch/b26-n8-persisted-blocker-reconciliation-candidate-20260930/INDEPENDENT_CODE_REVIEW.md@sha256:34b7174c7405c3116ccaaefc39e4d97c4c638a147d7a312bfe936b583677cd25",
+          "scope": "Internal N8 persisted-blocker integrity only. Does not expose diagnostics externally or close B26."
+        }},
       "finding_test_status": "PASS_BOUNDED",
       "r2_ledger_reconciliation_additions": [
         {

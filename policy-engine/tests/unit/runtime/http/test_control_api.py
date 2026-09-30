@@ -1778,12 +1778,16 @@ def test_list_connectors_and_profiles_are_producer_backed(
         lambda *args, **kwargs: (connector_entry,),
     )
 
+    tenant_id = runtime_api_env["tenant_a"]
+    cell_id = runtime_api_env["cell_a"]
+
     def artifacts_of_kind(kind: str) -> tuple[object, ...]:
-        return tuple(
-            artifact_id
-            for artifact_id in store.iter_artifact_ids()
-            if store.get_manifest(artifact_id).kind == kind
-        )
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            return tuple(
+                artifact_id
+                for artifact_id in store.iter_artifact_ids()
+                if store.get_manifest(artifact_id).kind == kind
+            )
 
     with runtime_api_env["client"] as client:
         connectors = client.get("/api/v1/control/data/connectors")
@@ -1824,14 +1828,32 @@ def test_list_connectors_and_profiles_are_producer_backed(
             profile_ids[0],
             receipt_ids[0],
         )
-        receipt = SourceProfileOwnerReceipt.model_validate_json(store.get_bytes(receipt_id))
-        receipt_manifest_inputs = tuple(
-            (row.role, str(row.artifact_id))
-            for row in store.get_manifest(receipt_id).inputs
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            receipt = SourceProfileOwnerReceipt.model_validate_json(store.get_bytes(receipt_id))
+            receipt_manifest_inputs = tuple(
+                (row.role, str(row.artifact_id))
+                for row in store.get_manifest(receipt_id).inputs
+            )
+            connector_snapshot_bytes = store.get_bytes(connector_id)
+            connector_snapshot = from_canonical_bytes(connector_snapshot_bytes)
+            profile_snapshot = from_canonical_bytes(store.get_bytes(profile_id))
+
+        owner_evidence_ids = frozenset(
+            str(artifact_id) for artifact_id in (*connector_ids, *profile_ids, *receipt_ids)
         )
-        connector_snapshot_bytes = store.get_bytes(connector_id)
-        connector_snapshot = from_canonical_bytes(connector_snapshot_bytes)
-        profile_snapshot = from_canonical_bytes(store.get_bytes(profile_id))
+        # An ownerless inventory omits these known records; it cannot prove absence.
+        assert owner_evidence_ids.isdisjoint(
+            str(artifact_id) for artifact_id in store.iter_artifact_ids()
+        )
+        with (
+            tenant_scope(
+                None,
+                tenant_id=runtime_api_env["tenant_b"],
+                cell_id=cell_id,
+            ),
+            pytest.raises(ArtifactOwnershipError),
+        ):
+            store.get_manifest(connector_id)
 
     assert response.status_code == 200
     assert packet.results
@@ -1840,7 +1862,9 @@ def test_list_connectors_and_profiles_are_producer_backed(
     assert all(item.execution_result.state == "not_established" for item in packet.results)
     assert all(item.authority_result.state == "bridge_missing" for item in packet.results)
     assert all(item.authoritative_for == () for item in packet.results)
-    assert "source:producer_missing" not in packet.frontier.incompleteness_reasons
+    # Keep assertion output to typed reason codes, not the full candidate frontier.
+    frontier_reason_codes = tuple(packet.frontier.incompleteness_reasons)
+    assert "source:producer_missing" not in frontier_reason_codes
 
     assert receipt.connector_snapshot_ref == str(connector_id)
     assert receipt.connector_snapshot_digest == str(connector_id)

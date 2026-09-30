@@ -2145,3 +2145,45 @@ Resource allocation: R9 at most one light test process; R1 starts with static
 checks and test authoring, requesting root admission before a runtime wave. Root
 may run one B61 group and one CYC-05 group. Native threads are capped at one.
 Disk floor stays 8 GiB; no source mutation or commit during canonical jobs.
+
+### R9 signature-corruption fixture repair — 2026-10-01
+
+The publication candidate is integrated as `f34f17c137a1450105aa9068a29dff261c98a8d0`
+and `8298a843f2091f5c4416f9663816e7796081a740`. Its sole writer reuses
+`codex/e02-r2-r9-publication` at append-only merge
+`f651729061465f9d1be1001824d1086f3db57f1e`; the worktree is active and must
+not be retired. Root remains the sole canonical writer.
+
+The fixed write set is four existing test paths:
+
+- `policy-engine/tests/_helpers/artifacts.py`
+- `policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py`
+- `policy-engine/tests/unit/runtime/http/test_public_decision_verification.py`
+- `policy-engine/tests/unit/runtime/http/test_public_export.py`
+
+The integrated phase-1 replay found a fault-injection defect: immutable
+`put_signature` refuses the attempted corruption before the verifier assertion.
+The complete 58-file R9 Python census identifies six existing-signature mutation
+sites across these three consumer files; five inject corruption and one tests
+ignored unsigned hints. Census:
+`/Users/deniskopylov/.codex/scratch/e02-r9-transaction-prep-894631fca-20260930/R9_CURRENT_INTEGRATED_PHASE1_20261001/PHASE1_TRIAGE.md@sha256:6a345a563174bb155129e5bd34028a7f60a70b84a17009f47c350d073666d408`.
+This is one fixture class (P40), not six production fixes.
+Use one helper in the existing helper owner, with an explicit pytest `tmp_root`,
+resolved CAS/signature-path containment, the existing signature serializer and
+selected-view-preserving reference normalization. Overwrite only an existing
+temporary signature sidecar, preserving and restoring its mode. Keep production
+immutability and all semantic verifier assertions. ArtifactID/string inputs
+retain default-view semantics. The unsigned-hint preserving control must publish
+its signature with those hints at the first authorized fixture write, before
+immutability applies, and keep its verified/record-derived identity assertions.
+Raw corruption cannot witness that control because it also stales the owner's
+byte digest. Do not repair a corrupted owner claim to force verification.
+No production source, API, schema, new helper
+module, data-tree write, unlink, or receipt restamp is authorized by this lease.
+
+Acceptance: whole-file replay of the three consumers plus the immutable-write
+positive/control cohort, including selected-view corruption and wrong-root
+refusal through the consumers. Independent review precedes integration. This
+four-path set has zero intersection with R1's 20-path lease. Tests run only on
+frozen inputs with root admission; resource and four-base attribution limits
+remain explicit. R9 finding status is unchanged.

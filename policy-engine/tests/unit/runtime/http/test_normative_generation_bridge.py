@@ -876,7 +876,7 @@ def test_historical_v1_leaf_replays_without_a_live_source_checkout(tmp_path, mon
     """Direct owner replay reads persisted history while current authority stays blocked."""
     from polisyos.runtime.quality import generation_cycle as n6
 
-    store, owner, leaf, _outer, _payload, _outer_ref, leaf_ref = (
+    _store, owner, leaf, _outer, _payload, _outer_ref, leaf_ref = (
         _persist_direct_historical_outer_fixture(tmp_path)
     )
 
@@ -884,21 +884,18 @@ def test_historical_v1_leaf_replays_without_a_live_source_checkout(tmp_path, mon
         raise AssertionError("historical leaf replay must not inspect the live deployment")
 
     monkeypatch.setattr(n6, "inspect_generation_cycle_run", live_currentness_is_not_historical_replay)
-    try:
-        assert owner.replay_generation_disposition(leaf_ref) == leaf
-        assert owner.generation_disposition_admission_currentness(leaf_ref) is None
+    assert owner.replay_generation_disposition(leaf_ref) == leaf
+    assert owner.generation_disposition_admission_currentness(leaf_ref) is None
 
-        current = owner.project_generation_disposition(
-            leaf_ref, evaluated_at=datetime.now(UTC)
-        )
-        assert current.authorization_status == "blocked"
-        assert current.decision_request is not None
-        assert (
-            "p20_normative_generation_admission_currentness_not_recorded"
-            in current.decision_request.reason_codes
-        )
-    finally:
-        store.close()
+    current = owner.project_generation_disposition(
+        leaf_ref, evaluated_at=datetime.now(UTC)
+    )
+    assert current.authorization_status == "blocked"
+    assert current.decision_request is not None
+    assert (
+        "p20_normative_generation_admission_currentness_not_recorded"
+        in current.decision_request.reason_codes
+    )
 
 
 def test_outer_v1_wire_reader_checks_exact_bytes_and_manifest_profile(tmp_path, monkeypatch):
@@ -914,38 +911,35 @@ def test_outer_v1_wire_reader_checks_exact_bytes_and_manifest_profile(tmp_path, 
             version=bridge.NORMATIVE_RUN_DISPOSITION_V1_SCHEMA,
         ),
     )
-    try:
-        recorded = bridge._read_normative_run_disposition_v1(store, outer_ref)
-        assert bridge._normative_run_disposition_v1_payload(recorded) == payload
-        assert recorded.authorization_status == outer.authorization_status == "blocked"
-        raw = store.get_bytes(artifacts.ArtifactID.model_validate(outer_ref))
+    recorded = bridge._read_normative_run_disposition_v1(store, outer_ref)
+    assert bridge._normative_run_disposition_v1_payload(recorded) == payload
+    assert recorded.authorization_status == outer.authorization_status == "blocked"
+    raw = store.get_bytes(artifacts.ArtifactID.model_validate(outer_ref))
 
-        same_value_ref = str(store.put_bytes(raw + b" \n", options).artifact_id)
-        assert canon.from_canonical_bytes(store.get_bytes(same_value_ref)) == payload
+    same_value_ref = str(store.put_bytes(raw + b" \n", options).artifact_id)
+    assert canon.from_canonical_bytes(store.get_bytes(same_value_ref)) == payload
+    with pytest.raises(
+        bridge.P20NormativeChoiceError,
+        match="outer_v1_bytes_mismatch",
+    ):
+        bridge._read_normative_run_disposition_v1(store, same_value_ref)
+
+    original_get_manifest = store.get_manifest
+    wrong_schema = artifacts.SchemaInfo(
+        name=bridge.NORMATIVE_RUN_DISPOSITION_KIND,
+        version="policyos.normative_generation_composition.v0",
+    )
+
+    def manifest_with_wrong_schema(artifact_id):
+        manifest = original_get_manifest(artifact_id)
+        if str(artifact_id) == outer_ref:
+            return manifest.model_copy(update={"artifact_schema": wrong_schema})
+        return manifest
+
+    with monkeypatch.context() as changed_manifest:
+        changed_manifest.setattr(store, "get_manifest", manifest_with_wrong_schema)
         with pytest.raises(
             bridge.P20NormativeChoiceError,
-            match="outer_v1_bytes_mismatch",
+            match="outer_v1_schema_mismatch",
         ):
-            bridge._read_normative_run_disposition_v1(store, same_value_ref)
-
-        original_get_manifest = store.get_manifest
-        wrong_schema = artifacts.SchemaInfo(
-            name=bridge.NORMATIVE_RUN_DISPOSITION_KIND,
-            version="policyos.normative_generation_composition.v0",
-        )
-
-        def manifest_with_wrong_schema(artifact_id):
-            manifest = original_get_manifest(artifact_id)
-            if str(artifact_id) == outer_ref:
-                return manifest.model_copy(update={"artifact_schema": wrong_schema})
-            return manifest
-
-        with monkeypatch.context() as changed_manifest:
-            changed_manifest.setattr(store, "get_manifest", manifest_with_wrong_schema)
-            with pytest.raises(
-                bridge.P20NormativeChoiceError,
-                match="outer_v1_schema_mismatch",
-            ):
-                bridge._read_normative_run_disposition_v1(store, outer_ref)
-    finally:
-        store.close()
+            bridge._read_normative_run_disposition_v1(store, outer_ref)

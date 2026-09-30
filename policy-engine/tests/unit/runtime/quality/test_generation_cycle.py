@@ -3228,7 +3228,10 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
     """B26: the ordinary N6 run reaches N5, persists it, and N8 reads that exact result."""
 
     from polisyos.core.security.tenant_context import tenant_scope
-    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        simulation_evaluation_input_ref,
+    )
 
     store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
     hints = {
@@ -3292,12 +3295,20 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
             cycle = run.cycles[0]
             assert cycle.simulation.status == "joint_simulated"
             assert cycle.simulation.simulation_result_ref is not None
+            simulation_blockers = cycle.simulation.authority_blockers
+            assert "interaction_evidence_incomplete" not in simulation_blockers
             assert cycle.value_port.status == "value_conditional"
             assert cycle.value_port.evaluation_mode == "simulate_only"
             assert cycle.value_port.decision_grade == "low"
+            value_blockers = cycle.value_port.authority_blockers
+            assert "interaction_evidence_incomplete" not in value_blockers
             assert "simulation_only_k_sim_not_world_evidence" in (
                 cycle.value_port.authority_blockers
             )
+            assert simulation_evaluation_input_ref(
+                cycle.simulation,
+                artifact_store=store,
+            ) is not None
             persisted = load_joint_simulation_result(
                 cycle.simulation.simulation_result_ref,
                 store=store,
@@ -3316,6 +3327,125 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
         assert persisted.selected_outcomes == ("firm_survival",)
         assert persisted.world_model_record_content_hash == context.world_model_record.content_hash
         assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)
+    finally:
+        store.close()
+
+
+@pytest.mark.asyncio
+async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evalsafety(
+    tmp_path: Path,
+) -> None:
+    """The served N6 path keeps partial N5 value candidate-only through N8."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        simulation_evaluation_input_ref,
+        simulation_value_execution_context,
+    )
+
+    store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    hints = {
+        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_baseline_state": {"firm_survival": 0.0},
+    }
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        runtime_hints=hints,
+    )
+
+    class _ControlledN4:
+        async def __call__(self, generated_problem: DesignProblem, *, cycle_index: int) -> Any:
+            assert generated_problem.design_problem_id == problem.design_problem_id
+            assert cycle_index == 0
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(candidate_id=candidate.candidate_id, score=0.9, voi_estimate=4.0),
+                ),
+            )
+
+    def limited_candidate_grounding(
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=candidate.candidate_id,
+            status="grounding_unavailable",
+            grounding_score=0.2,
+            issue_codes=("controlled_profile_grounding_unavailable",),
+            grounding_source="grounding_unavailable",
+        )
+
+    controller = GenerationCycleController(
+        generation_port=_ControlledN4(),
+        grounding_port=limited_candidate_grounding,
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+        authority_scope="contract_testing",
+    )
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            run = await controller.run(
+                problem,
+                budget_state=_budget(),
+                min_cycles=1,
+                max_cycles=1,
+            )
+            assert run.promotion_port.status == "not_promoted"
+            assert run.promotion_port.receipts == ()
+            cycle = run.cycles[0]
+            simulation = cycle.simulation
+            assert simulation.status == "joint_simulated"
+            assert simulation.simulation_result_ref is not None
+            assert "interaction_evidence_incomplete" in simulation.authority_blockers
+
+            persisted = load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=context.world_model_record.content_hash,
+                expected_atom_ids=tuple(
+                    atom.intervention_id for atom in candidate.intervention_atoms
+                ),
+                expected_selected_outcomes=("firm_survival",),
+            )
+            assert set(persisted.interaction_terms[0].by_step) == {0}
+            observed_interaction = persisted.interaction_terms[0].by_step[0]
+            assert abs(observed_interaction) > 1e-6
+            packet = persisted.promotion_ready_value_packet
+            persisted_blockers = set(packet["authority_blockers"])
+            assert "interaction_evidence_incomplete" in persisted_blockers
+
+            value = cycle.value_port
+            assert value.status == "value_conditional"
+            assert value.evaluation_mode == "simulate_only"
+            assert value.decision_grade == "low"
+            assert value.value_ref == str(simulation.simulation_result_ref.artifact_id)
+            assert "interaction_evidence_incomplete" in value.authority_blockers
+            assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
+            assert value.value_receipt is None
+            assert value.method_selection_receipt is None
+
+            # This narrow N8 candidate allowance does not widen the EvalSafety
+            # intake predicate that feeds promotion authority.
+            assert simulation_evaluation_input_ref(simulation, artifact_store=store) is None
+            with pytest.raises(
+                ValueError,
+                match="eval_safety_simulation_input_unresolved",
+            ):
+                simulation_value_execution_context(
+                    candidate=candidate,
+                    simulation=simulation,
+                    problem=problem,
+                    artifact_store=store,
+                )
     finally:
         store.close()
 

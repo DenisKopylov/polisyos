@@ -225,6 +225,12 @@ _SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
         *WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS,
     }
 )
+# N8 may retain incomplete N5 measurements as low-grade candidate evidence.
+# Keep this separate from the EvalSafety intake allowlist above: an incomplete
+# interaction horizon cannot become a promotion input.
+_N8_CANDIDATE_SIMULATION_LIMITATIONS = frozenset(
+    {*_SIMULATION_AUTHORITY_LIMITATIONS, "interaction_evidence_incomplete"}
+)
 _N6_STOP_TERMINAL_KINDS = frozenset(
     {
         SearchTerminalKind.FRONTIER_STABLE.value,
@@ -1287,7 +1293,7 @@ class ValuePortObservation(_StrictModel):
             if self.value_ref is None:
                 raise ValueError("value_conditional_requires_simulation_ref")
             if not self.authority_blockers or not set(self.authority_blockers).issubset(
-                _SIMULATION_AUTHORITY_LIMITATIONS
+                _N8_CANDIDATE_SIMULATION_LIMITATIONS
             ):
                 raise ValueError("value_conditional_requires_simulation_limitation")
             if self.evaluation_mode != "simulate_only":
@@ -4428,7 +4434,7 @@ def _conditional_simulation_value_observation(
     blockers = set(simulation.authority_blockers)
     if (
         simulation.status != "joint_simulated"
-        or not blockers.issubset(_SIMULATION_AUTHORITY_LIMITATIONS)
+        or not blockers.issubset(_N8_CANDIDATE_SIMULATION_LIMITATIONS)
         or simulation.simulation_result_ref is None
     ):
         return None

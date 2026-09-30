@@ -1,18 +1,20 @@
 # E02-R2 write leases
 
-## Current coordination at `ff83c89ac` (2026-09-30)
+## Current coordination at `74511e746` (2026-09-30)
 
-Root is the only writer to `codex/e02-r2`; its tree is clean after the R14 N8
-candidate slice (`226884f53`) and the reproduced R9 premise (`ff83c89ac`).
+Root is the only writer to `codex/e02-r2`; the tree was clean after the R10
+caller-census premise (`74511e746`).
 The older lease sections below are historical. Current candidate ownership is:
 
 | Candidate | Scratch-only write set | Integration sequence |
 |---|---|---|
-| R9 CAS atomic custody | Core CAS store/index/protocol, raw-path callers, mirrored CAS tests | Design v1 received independent NO-GO because signed index writes can tear; revised design and red tests are in progress. No production patch is admitted yet. |
-| R13 selected-view handoff | Foundry contracts/snapshots/bindings, WMR v1 admission and N5, mirrored tests | Revise v2 after independent NO-GO; preserve candidate typed refs and refuse at the WMR v1 boundary if a selected view cannot be represented. Sequence any Core CAS change after R9. |
+| R9 ownership persistence | `core/artifacts/ownership.py`, `_atomic_write.py`, ownership-history tests | V2 immutable-generation design is under independent review. Scratch implementation only; no production patch admitted. |
+| R9 artifact lease | `core/artifacts/store.py`, a focused lease helper if needed, CAS access tests, then named raw-path callers | Separate scratch writer. Root sequences this after ownership persistence and reviews both against the original race/removal witnesses. |
+| R10 malformed-ref verdict | `core/artifacts/store.py`, signing tests | Scratch writer prepares a bounded patch; root sequences it after R9's store patch because the source file overlaps. Generic signed-store capability remains a separate recorded premise. |
+| R13 selected-view handoff | Foundry contracts/snapshots/bindings, substrate-registry loader, WMR v1 admission and N5, mirrored tests | Revise v2 after independent NO-GO; preserve candidate typed refs through every producer and refuse at the WMR v1 boundary if a selected view cannot be represented. No Core CAS file is leased to this writer. |
 | R1 source-bound fixture | `tests/unit/runtime/http/test_control_service_di.py` | Scratch diff frozen after a 121-second CG5 index timeout; source-bound N4→N5 and R2 shared setup remain unverified. A separate performance design is read-only. |
-| R2 outer-v1 fixture | `tests/unit/runtime/http/test_normative_generation_bridge.py` | Scratch design may decouple historical readback from R1's expensive N4 fixture; no authority claim from a direct-only reader. |
-| R11 then R14 documentation | `BASELINES.md`, `FINAL_REPORT.md`, B26 ledger row | R11 source-only consumer census patch is reviewed/integrated first; R14 N8 code receipt follows on its new HEAD. Both keep 282 ledger rows and B26 partial. |
+| R2 outer-v1 fixture | `tests/unit/runtime/http/test_normative_generation_bridge.py` | Direct historical-reader supplement has independent GO but execution is UNRUN under the disk floor; no served authority claim. |
+| R14 documentation | `BASELINES.md`, `FINAL_REPORT.md`, B26 ledger row | R11 source-only census is integrated; R14 N8 2/2 and 158/161 evidence patch awaits independent review. Keep 282 ledger rows and B26 partial. |
 
 No canonical test runs while disk free is below the agreed 8-GiB floor. The
 R14 whole generation-cycle file at the `226884f53` source has 158/161 passes;

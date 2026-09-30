@@ -42,14 +42,20 @@ This does not cover `ParetoRegistrySnapshot` serialization.
 
 The ordinary new-producer path writes schema `3.0`. These DTOs support v1 and
 v3; schema `2.0` was never issued by the integrated path and is unsupported
-and rejected. Historical v1 bytes retain their version-specific projection
-and are replayed byte-exactly. Do not rewrite, restamp, or reissue historical
-v1 artifacts. Each v3 Pareto projection's `eligible_candidate_hashes` is the
-identity set for that projection's assessment denominator. The v3
-`PolicyFrontierReport` validator checks explicitly supplied
-`source_feasible_candidate_hashes` and
-`eligibility_unknown_candidate_hashes` against the global projection; a
-supplied source mismatch or unknown identity requires `denominator_limited`.
+and rejected. The bounded compatibility tests round-trip synthetic v1 golden
+payloads byte-exactly through the version-specific projection. An authentic
+committed historical v1 fixture corpus is `not_established`, and complete
+historical 1.0 snapshot replay remains UNRUN. Do not rewrite, restamp, or
+reissue historical v1 artifacts. Each v3 Pareto projection's
+`eligible_candidate_hashes` is the identity set for that projection's
+assessment denominator. The v3 `PolicyFrontierReport` validator compares the
+supplied source set with projected eligible identities, checks for duplicates
+within the source and unknown sets and overlap between those sets, and
+requires the projection
+assessment status to be `denominator_limited` when the supplied source set
+differs from projected eligible identities or the supplied unknown set is
+nonempty. It does not authenticate or independently reconcile unknown
+identities.
 `RejectedAlternativesSummary` has its own v3 `view_projection` and does not
 carry those report-level fields.
 

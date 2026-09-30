@@ -9,7 +9,7 @@ evidence = [
   "tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
   "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
 ]
-compatibility = "The supported persisted dialects are v1 and v3: ordinary new producers write v3, and historical v1 payloads retain byte-exact replay. Schema 2.0 was unissued and is rejected. Strict v1-only readers cannot consume v3 and must be upgraded before any v3 write."
+compatibility = "The supported persisted dialects are v1 and v3: ordinary new producers write v3; bounded compatibility tests round-trip synthetic v1 golden payloads byte-exactly; an authentic committed historical v1 fixture corpus is `not_established`, and complete historical 1.0 snapshot replay remains UNRUN. Schema 2.0 was unissued for `PolicyFrontierReport` and `RejectedAlternativesSummary` and is rejected for those two report DTO kinds. Strict v1-only readers cannot consume v3 and must be upgraded before any v3 write."
 change_class = "persisted-artifact-format"
 surface_classification = "internal: persisted Scientist policy-design frontier and rejected-alternative artifacts"
 migration = "B111 adds no byte-rewrite helper or separate writer-disable switch. Before the first v3 write, confirm every consumer is v1/v3-capable using a reader-only compatible release or coordinated no-write interval. Preserve v1 bytes. After v3 exists, do not downgrade consumers or rewrite, restamp, delete, or reissue artifacts; retain compatible readers and repair forward. The current ir_migration_review owner contract has not accepted this no-rewrite path, so production promotion remains held."

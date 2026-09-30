@@ -291,9 +291,10 @@ class SimulationTrajectory(_StrictModel):
 
 @dataclass(frozen=True, slots=True)
 class _InteractionCoverage:
-    """One request-wide, engine-qualified census reused by every projection."""
+    """Request-wide scope census with observed and complete evidence separated."""
 
     by_scope: Mapping[tuple[str, tuple[str, ...]], SimulationTrajectory]
+    complete_scopes: frozenset[tuple[str, tuple[str, ...]]]
     issues: tuple[str, ...]
     expected_steps: tuple[int, ...]
 
@@ -367,15 +368,15 @@ def _checked_interaction_orders(
 ) -> tuple[int, ...]:
     """Return interaction orders fully backed by the executed trajectory set."""
     atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
-    scope_index = coverage.by_scope
+    complete_scopes = coverage.complete_scopes
     checked: list[int] = []
     complete_individuals = all(
-        ("individual", (atom_id,)) in scope_index for atom_id in atom_ids
+        ("individual", (atom_id,)) in complete_scopes for atom_id in atom_ids
     )
     if complete_individuals:
         checked.append(1)
     complete_pairs = all(
-        ("pairwise", tuple(pair)) in scope_index
+        ("pairwise", tuple(pair)) in complete_scopes
         for pair in itertools.combinations(atom_ids, 2)
     )
     if complete_individuals and complete_pairs:
@@ -384,7 +385,7 @@ def _checked_interaction_orders(
         len(atom_ids) == 3
         and complete_individuals
         and complete_pairs
-        and ("joint", atom_ids) in scope_index
+        and ("joint", atom_ids) in complete_scopes
     ):
         checked.append(3)
     return tuple(checked)
@@ -411,6 +412,7 @@ def _interaction_coverage(
     if len(set(atom_ids)) != len(atom_ids):
         issues.append("requested_atom_ids_not_unique")
     index: dict[tuple[str, tuple[str, ...]], SimulationTrajectory] = {}
+    complete_scopes: set[tuple[str, tuple[str, ...]]] = set()
     for key in sorted(expected):
         matches = observed.get(key, [])
         if len(matches) != 1:
@@ -422,9 +424,10 @@ def _interaction_coverage(
             continue
         trajectory = matches[0]
         point_steps = tuple(point.step for point in trajectory.points)
-        if len(point_steps) != len(set(point_steps)) or set(point_steps) != set(expected_steps):
+        if len(point_steps) != len(set(point_steps)):
             issues.append("horizon_incomplete:" + key[0] + ":" + ",".join(key[1]))
             continue
+        horizon_complete = set(point_steps) == set(expected_steps)
         valid_points = True
         for point in trajectory.points:
             for outcome in request.selected_outcomes:
@@ -446,10 +449,15 @@ def _interaction_coverage(
             issues.append("selected_outcome_incomplete:" + key[0] + ":" + ",".join(key[1]))
             continue
         index[key] = trajectory
+        if horizon_complete:
+            complete_scopes.add(key)
+        else:
+            issues.append("horizon_incomplete:" + key[0] + ":" + ",".join(key[1]))
     for key in observed.keys() - expected:
         issues.append("trajectory_scope_unrequested:" + key[0] + ":" + ",".join(key[1]))
     return _InteractionCoverage(
         by_scope=index,
+        complete_scopes=frozenset(complete_scopes),
         issues=tuple(sorted(issues)),
         expected_steps=tuple(expected_steps),
     )
@@ -1101,6 +1109,9 @@ class JointSimulationHorizonController:
             interaction_evidence_issues=interaction_evidence_issues,
             aggregate_order_three_plus=len(request.intervention_atoms) >= 4,
         )
+        authority_blockers = ["simulation_only_k_sim_not_world_evidence"]
+        if interaction_evidence_issues:
+            authority_blockers.append("interaction_evidence_incomplete")
         value_packet = {
             "world_model_record_ref": request.world_model_record_ref,
             "world_model_record_content_hash": request.world_model_record.content_hash,
@@ -1109,7 +1120,7 @@ class JointSimulationHorizonController:
                 item.method_fqn for item in decisions if item.method_fqn is not None
             ],
             "comparator_refs_status": "not_established",
-            "authority_blockers": ["simulation_only_k_sim_not_world_evidence"],
+            "authority_blockers": authority_blockers,
             "uncertainty_kind": "K_sim",
         }
         world_credal_state_after = _json_ready(request.world_credal_state_before)
@@ -2416,11 +2427,19 @@ def _interaction_terms(
         for outcome in request.selected_outcomes:
             by_step: dict[int, float] = {}
             for step in coverage.expected_steps:
+                if (
+                    step not in pair_by_step
+                    or step not in left_by_step
+                    or step not in right_by_step
+                ):
+                    continue
                 by_step[step] = (
                     pair_by_step[step].effect[outcome]
                     - left_by_step[step].effect[outcome]
                     - right_by_step[step].effect[outcome]
                 )
+            if not by_step:
+                continue
             terms.append(
                 InteractionTerm(
                     atom_ids=pair,

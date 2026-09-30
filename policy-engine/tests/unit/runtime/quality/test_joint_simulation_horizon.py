@@ -611,9 +611,18 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
 
     assert result.uncertainty_kind == "K_sim"
     assert result.world_credal_state_after == result.world_credal_state_before
-    assert result.promotion_ready_value_packet["authority_blockers"] == [
-        "simulation_only_k_sim_not_world_evidence"
-    ]
+    authority_blockers = result.promotion_ready_value_packet["authority_blockers"]
+    assert "simulation_only_k_sim_not_world_evidence" in authority_blockers
+    assert "interaction_evidence_incomplete" in authority_blockers
+    assert (
+        "interaction_evidence_incomplete"
+        in result.feedback_classification.limitations
+    )
+    assert result.feedback_classification.checked_interaction_orders == ()
+    assert any(
+        issue.startswith("horizon_incomplete:")
+        for issue in result.diagnostics["interaction_evidence_issues"]
+    )
     assert result.engine_decisions[0].engine_kind == "ncm_parallel_worlds"
     assert result.engine_decisions[0].decision == "selected"
     assert result.engine_decisions[0].method_fqn.endswith("ncm_engine@1.0.0")

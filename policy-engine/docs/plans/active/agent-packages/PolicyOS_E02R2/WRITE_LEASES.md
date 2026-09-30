@@ -1,12 +1,53 @@
 # E02-R2 write leases
 
+## R14/B26 static-NCM measured interaction with incomplete horizon (2026-09-30)
+
+The R13/B12 owner-WMR/N5 source and test slice was committed at `a3fb7bc0f`;
+its exclusive lease on `joint_simulation_horizon.py` and its dedicated test
+paths is released. Root may next integrate the independently reviewed R14/B26
+candidate in `policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py`,
+`policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py`,
+and `policy-engine/tests/unit/remediation/test_sim_03.py`. No other writer owns
+these files. The historical four-base NCM selector passed before the B26
+coverage change and is red on the clean current head; it belongs to B26's
+SIM-03 horizon-completeness class, not acquisition or N5 WMR state custody.
+The property is to retain numerical interaction evidence for observed steps
+while explicitly marking the unobserved requested horizon incomplete; checked
+interaction orders must use complete scopes only. Require a base-passing
+selector restored, a marker-retaining removal red, and a complete one-step
+preserving control. This lease gives no authority to claim a full horizon from
+one static step and no new data/epoch artifact may be reissued.
+
+## R9/CAS owner-first default-view access (2026-09-30)
+
+Root alone may integrate the independently reviewed scratch candidate touching
+`policy-engine/src/polisyos/core/artifacts/store.py`,
+`policy-engine/src/polisyos/core/artifacts/protocol.py`,
+`policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py`,
+and `policy-engine/tests/unit/runtime/quality/test_multi_tenant_shared_cas.py`.
+No other writer holds these files. The owner-first design is
+`/Users/deniskopylov/.codex/scratch/e02-r9-cas-has-owner-first-design-20260930.md@sha256:ac85d35fb10a99ddf86f838437393bc05a6c4381086246e198ca6b404b222a75`.
+The property is that a tenant without the default-view claim cannot cause a
+default manifest read via `has`, `get_manifest`, or `get_paths`; it can use a
+separately admitted view through its exact `ArtifactRef`. A reader spy must
+make a bare-ID read fail without touching the foreign sidecar, while the exact
+view succeeds. This is the second R9 typed-view-ownership finding under P40,
+not a one-call-site fix. The reviewer must classify the CAS writer's
+write-time existing-sidecar read before integration, since it could be the
+same owner-first class one level deeper. No snapshot owner source is leased
+here; the separate R13 snapshot lease below carries that typed ref end-to-end.
+
 ## R13/B12 snapshot typed-view custody expansion (2026-09-30)
 
 Root alone writes the canonical branch. After the first guarded-store probe
 found a foreign-tenant sidecar read and a lost manifest-view selector, the
 R13/B12 snapshot write set expands to
-`policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py`
-and `policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py`.
+`policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py`,
+`policy-engine/src/polisyos/core/contracts/foundry.py`,
+`policy-engine/src/polisyos/runtime/quality/generation_cycle.py`,
+`policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py`, and
+the exact N5 snapshot importer selectors in
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle.py`.
 The scratch candidate writer and independent reviewer have read-only access
 to the canonical tree and may prepare patches outside it. No other writer
 holds these two files. The design is pinned in
@@ -22,6 +63,16 @@ prove foreign access is denied. A marker-retaining selector-removal probe must
 turn red, while a current typed view and a historical default view both remain
 readable by their owners. This is the second P40 finding of the same class,
 so widen the mechanism, then bound any remaining residual by its falsifier.
+Current exact-view lineage requires `StateSnapshot` schema 2.2 and an old 2.1
+reader branch: a v2.1 payload could contain a selected `state_ref` while its
+signed lineage edge named only the blob ID. Historical bytes must still replay.
+The N5 bound-state gate presently hard-codes schema 2.1 and rejects selected
+state refs, so it is in the same versioned handoff write set. It must verify
+the exact current view and full 2.2 lineage through the supplied store without
+granting any authority from a selector or accepting a foreign wrapper view.
+The wrapper WMR ref remains ID-only and its selected-view limitation stays
+typed under OP-R9-SELECTED-VIEW-REPLAY; this lease does not appoint a new WMR
+producer or resolve that separate persisted-ref schema.
 No governed receipt, epoch, generated family, plan or debt register is leased.
 
 ## R13/B12 controlled WMR state consumption by N5 (2026-09-30)

@@ -483,7 +483,16 @@ def test_static_ncm_multi_step_horizon_is_limited_not_additive(
         for trajectory in result.trajectories
     )
     assert result.feedback_classification.numeric_interaction == "unsupported"
-    assert "interaction_evidence_incomplete" in result.feedback_classification.limitations
+    assert (
+        "interaction_evidence_incomplete"
+        in result.feedback_classification.limitations
+    )
+    assert (
+        "interaction_evidence_incomplete"
+        in result.promotion_ready_value_packet["authority_blockers"]
+    )
+    assert result.feedback_classification.checked_interaction_orders == ()
+    assert result.interaction_terms[0].by_step == {0: 0.0}
     assert "eligible_joint_engine_missing" not in result.feedback_classification.limitations
     assert any(
         issue.startswith("horizon_incomplete:")
@@ -515,6 +524,10 @@ def test_static_ncm_single_step_horizon_remains_additive(
     assert result.engine_decisions[0].decision == "selected"
     assert result.feedback_classification.numeric_interaction == "additive"
     assert result.feedback_classification.checked_interaction_orders == (1, 2)
+    assert (
+        "interaction_evidence_incomplete"
+        not in result.promotion_ready_value_packet["authority_blockers"]
+    )
 
 
 def test_four_atom_cancellation_is_bounded_aggregate_not_additive(

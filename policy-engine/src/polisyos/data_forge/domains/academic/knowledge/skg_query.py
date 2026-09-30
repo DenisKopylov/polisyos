@@ -2,20 +2,30 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
-from dataclasses import dataclass, replace
+from contextlib import suppress
+from dataclasses import dataclass, field, replace
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from threading import Lock
+from typing import Any, Literal, cast
 
 import duckdb
 import numpy as np
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.logger import get_logger
+
+# Pydantic resolves PreparedSKGReadReceipt.original_output_refs at runtime.
+from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.data_forge.domains.academic.knowledge.canonical_resolver import (
     CanonicalVariableResolver,
     ResolutionResult,
+)
+from polisyos.data_forge.domains.academic.knowledge.skg_identity_bridge import (
+    SourceSnapshot,
 )
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     EVIDENCE_WEIGHTS,
@@ -24,6 +34,7 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
 )
 from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
     ConfidenceLayerVintage,
+    _confidence_layer_vintage_for_sha256,
     confidence_layer_vintage,
     require_forwardable_confidence,
 )
@@ -46,6 +57,64 @@ from polisyos.ir.analytics.literature import (
 )
 
 logger = get_logger(__name__)
+
+_PREPARED_READ_SCHEMA_VERSION = "academic.skg_source_binding.v2"
+_SKG_QUERY_VERSION = "skg-query-read.v2"
+
+
+def _file_sha256(path: Path) -> str:
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def _source_file_identity(path: Path) -> tuple[int, int, int, int, int]:
+    """Return filesystem identity and change times for a source-stability check."""
+    stat = path.stat()
+    return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
+
+
+class _PreparedSourceConnection:
+    """Track successful SELECT/WITH execution on the bound read-only SKG connection."""
+
+    def __init__(self, connection: duckdb.DuckDBPyConnection) -> None:
+        self._connection = connection
+        self._query_fingerprints: list[str] = []
+        self._lock = Lock()
+
+    def execute(self, *args: object, **kwargs: object) -> _PreparedSourceConnection:
+        statement = args[0] if args else kwargs.get("query")
+        result = self._connection.execute(*args, **kwargs)
+        if isinstance(statement, str) and _is_select_or_with_query(statement):
+            fingerprint = hashlib.sha256(statement.encode("utf-8")).hexdigest()
+            with self._lock:
+                self._query_fingerprints.append(fingerprint)
+        del result
+        return self
+
+    def query_execution_marker(self) -> int:
+        """Return the count of successful SELECT/WITH statements on this connection."""
+        with self._lock:
+            return len(self._query_fingerprints)
+
+    def query_fingerprints_since(self, marker: int) -> tuple[str, ...]:
+        """Return successful query fingerprints since the connection marker."""
+        with self._lock:
+            return tuple(self._query_fingerprints[marker:])
+
+    def close(self) -> None:
+        """End the pinned read transaction and close the DuckDB connection."""
+        with suppress(duckdb.Error):
+            self._connection.execute("ROLLBACK")
+        self._connection.close()
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._connection, name)
+
+
+def _is_select_or_with_query(statement: str) -> bool:
+    """Recognize SELECT/WITH statements; this does not prove row use or output dependence."""
+    keyword = statement.lstrip().split(maxsplit=1)[0].casefold() if statement.strip() else ""
+    return keyword in {"select", "with"}
 
 
 @dataclass(frozen=True)
@@ -136,15 +205,161 @@ class GroundedCausalPriorResolution:
     transport_confidence: float | None = None
 
 
+class PreparedSKGReadReceipt(BaseModel):
+    """Candidate receipt for bound-connection query execution, not semantic row use."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["scientist.skg_cache_read_receipt.v3"] = (
+        "scientist.skg_cache_read_receipt.v3"
+    )
+    purpose: Literal["candidate_cache_reuse"] = "candidate_cache_reuse"
+    run_id: str
+    node_id: str
+    cache_key: str = Field(pattern=r"^[0-9a-f]{64}$")
+    current_source_snapshot_ref: str
+    current_source_snapshot_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_binding_schema_version: str = _PREPARED_READ_SCHEMA_VERSION
+    original_source_snapshot_ref: str
+    original_source_snapshot_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    selector_version: str
+    query_version: str = _SKG_QUERY_VERSION
+    original_prepared_at: datetime
+    current_prepared_at: datetime
+    read_evidence_scope: Literal["bound_connection_query_execution_only"]
+    output_dependency: Literal["not_established"] = "not_established"
+    time_semantics: Literal["read_transaction_opened_at"] = "read_transaction_opened_at"
+    original_output_refs: tuple[ArtifactRef, ...] = ()
+    authority_band: Literal["candidate"] = "candidate"
+    source_snapshot_authenticity: Literal["not_established"] = "not_established"
+
+
 class SKGQuery:
     """Read-only query API for SKG tables in academic DuckDB."""
 
     def __init__(self, db_path: Path, index_dir: Path) -> None:
         self._db_path = Path(db_path)
         self._store = ScholarKnowledgeStore(db_path, index_dir)
-        self._con = duckdb.connect(str(db_path), read_only=True)
+        self._con: duckdb.DuckDBPyConnection | _PreparedSourceConnection = duckdb.connect(
+            str(db_path), read_only=True
+        )
         self._resolver: CanonicalVariableResolver | None = None
         self._transport_confidence_floor: float | None = None
+        self._prepared_source_sha256: str | None = None
+        self._prepared_confidence_vintage: ConfidenceLayerVintage | None = None
+
+    @classmethod
+    def _from_connection(
+        cls,
+        *,
+        db_path: Path,
+        index_dir: Path,
+        connection: duckdb.DuckDBPyConnection | _PreparedSourceConnection,
+        source_sha256: str,
+        confidence_vintage: ConfidenceLayerVintage | None,
+    ) -> SKGQuery:
+        """Build a query facade over one owner-held source transaction."""
+        query = cls.__new__(cls)
+        query._db_path = Path(db_path)
+        query._con = connection
+        query._store = ScholarKnowledgeStore._from_connection(
+            cast("duckdb.DuckDBPyConnection", connection)
+        )
+        query._store._db_path = query._db_path
+        query._store._index_dir = Path(index_dir)
+        query._resolver = None
+        query._transport_confidence_floor = None
+        query._prepared_source_sha256 = source_sha256
+        query._prepared_confidence_vintage = confidence_vintage
+        return query
+
+    @classmethod
+    def prepare_read(
+        cls,
+        *,
+        db_path: Path,
+        index_dir: Path,
+    ) -> PreparedSKGRead:
+        """Bind cacheable SKG work to one read-only transaction and exact source bytes.
+
+        The source is never copied. A streaming file digest binds the complete
+        database bytes while this read-only transaction is open, and the same
+        connection is retained for the node's actual queries.
+        """
+        resolved_path = Path(db_path).resolve()
+        if not resolved_path.is_file():
+            raise FileNotFoundError("skg_prepared_read_source_missing")
+        wal_path = resolved_path.with_name(resolved_path.name + ".wal")
+        if wal_path.exists():
+            raise ValueError("skg_prepared_read_source_wal_unbound")
+        source_identity_before_hash = _source_file_identity(resolved_path)
+        source_sha256 = _file_sha256(resolved_path)
+        source_identity_after_hash = _source_file_identity(resolved_path)
+        if (
+            source_identity_after_hash != source_identity_before_hash
+            or wal_path.exists()
+        ):
+            raise ValueError("skg_prepared_read_source_changed_during_binding")
+        connection: duckdb.DuckDBPyConnection | None = None
+        try:
+            connection = duckdb.connect(str(resolved_path), read_only=True)
+            connection.execute("BEGIN TRANSACTION")
+            connection.execute("SELECT current_database()").fetchone()
+            prepared_at = datetime.now(UTC)
+            source_file_identity = _source_file_identity(resolved_path)
+            if (
+                source_file_identity != source_identity_after_hash or wal_path.exists()
+            ):
+                raise ValueError("skg_prepared_read_source_changed_during_binding")
+            confidence_vintage = _confidence_layer_vintage_for_sha256(source_sha256)
+
+            relation_rows = connection.execute(
+                "SELECT table_name FROM information_schema.tables "
+                "WHERE table_catalog=current_database() AND table_schema='main' "
+                "AND table_name='ac_skg_versions'"
+            ).fetchall()
+            version_id: int | None = None
+            if relation_rows:
+                version_row = connection.execute(
+                    "SELECT MAX(version_id) FROM main.ac_skg_versions"
+                ).fetchone()
+                if version_row is not None and version_row[0] is not None:
+                    version_id = int(version_row[0])
+
+            snapshot_ref = (
+                f"duckdb://{resolved_path}#v{version_id}"
+                if version_id is not None
+                else f"duckdb://{resolved_path}"
+            )
+            source_snapshot = SourceSnapshot(
+                path=resolved_path,
+                reference=snapshot_ref,
+                sha256=source_sha256,
+            )
+            tracked_connection = _PreparedSourceConnection(connection)
+            query = cls._from_connection(
+                db_path=resolved_path,
+                index_dir=Path(index_dir).resolve(),
+                connection=tracked_connection,
+                source_sha256=source_sha256,
+                confidence_vintage=confidence_vintage,
+            )
+            connection = None
+            return PreparedSKGRead(
+                query=query,
+                source_snapshot=source_snapshot,
+                source_file_identity=source_file_identity,
+                source_binding_schema_version=_PREPARED_READ_SCHEMA_VERSION,
+                query_version=_SKG_QUERY_VERSION,
+                prepared_at=prepared_at,
+                confidence_vintage=confidence_vintage,
+            )
+        except Exception:
+            if connection is not None:
+                with suppress(duckdb.Error):
+                    connection.execute("ROLLBACK")
+                connection.close()
+            raise
 
     @staticmethod
     def confidence_layer_vintage(db_path: Path | str) -> ConfidenceLayerVintage | None:
@@ -156,9 +371,19 @@ class SKGQuery:
         """Refuse known historical confidence; no restriction is not a currentness proof."""
         require_forwardable_confidence(db_path)
 
-    def _confidence_connection(self) -> duckdb.DuckDBPyConnection:
+    def _confidence_connection(
+        self,
+    ) -> duckdb.DuckDBPyConnection | _PreparedSourceConnection:
         """Guard the shared intake of confidence, weights and confidence-derived bounds."""
-        self.require_forwardable_confidence(self._db_path)
+        if self._prepared_source_sha256 is None:
+            self.require_forwardable_confidence(self._db_path)
+        elif self._prepared_confidence_vintage is not None:
+            raise ValueError(
+                json.dumps(
+                    {"confidence_layer_vintage": self._prepared_confidence_vintage.to_payload()},
+                    sort_keys=True,
+                )
+            )
         return self._con
 
     def query_prior(
@@ -2771,8 +2996,84 @@ class SKGQuery:
         return result
 
     def close(self) -> None:
-        self._store.close()
+        if self._prepared_source_sha256 is None:
+            self._store.close()
         self._con.close()
+
+
+@dataclass
+class PreparedSKGRead:
+    """One owner-held, read-only source transaction shared by cache lookup and miss."""
+
+    query: SKGQuery = field(repr=False, compare=False)
+    source_snapshot: SourceSnapshot
+    source_file_identity: tuple[int, int, int, int, int]
+    source_binding_schema_version: str
+    query_version: str
+    prepared_at: datetime
+    confidence_vintage: ConfidenceLayerVintage | None = None
+    _closed: bool = field(default=False, init=False, repr=False, compare=False)
+
+    def query_execution_marker(self) -> int:
+        """Return a marker for successful SELECT/WITH queries on the prepared connection."""
+        connection = self.query._con
+        if not isinstance(connection, _PreparedSourceConnection):
+            raise RuntimeError("prepared_skg_read_connection_owner_missing")
+        return connection.query_execution_marker()
+
+    def query_fingerprints_since(self, marker: int) -> tuple[str, ...]:
+        """Return successful SELECT/WITH fingerprints since marker."""
+        connection = self.query._con
+        if not isinstance(connection, _PreparedSourceConnection):
+            raise RuntimeError("prepared_skg_read_connection_owner_missing")
+        return connection.query_fingerprints_since(marker)
+
+    @property
+    def db_path(self) -> Path:
+        """The owner-selected source location carried by the existing snapshot type."""
+        return self.source_snapshot.path
+
+    @property
+    def source_snapshot_ref(self) -> str:
+        """Return the owner-selected snapshot reference without rewriting it."""
+        return self.source_snapshot.reference
+
+    @property
+    def source_snapshot_sha256(self) -> str:
+        """Return the recomputed full-file digest bound by the source owner."""
+        return self.source_snapshot.sha256
+
+    def cache_binding(self, *, selector_version: str) -> dict[str, str]:
+        """Return the exact source-byte identity added to the cache key."""
+        return {
+            "source_binding_schema_version": self.source_binding_schema_version,
+            "query_version": self.query_version,
+            "selector_version": selector_version,
+            "source_snapshot_ref": self.source_snapshot_ref,
+            "source_snapshot_sha256": self.source_snapshot_sha256,
+        }
+
+    def source_generation_matches(self) -> bool:
+        """Check that the database file generation stayed stable for this read."""
+        wal_path = self.db_path.with_name(self.db_path.name + ".wal")
+        try:
+            return (
+                _source_file_identity(self.db_path) == self.source_file_identity
+                and not wal_path.exists()
+            )
+        except OSError:
+            return False
+
+    def matches_path(self, path: Path | str) -> bool:
+        """Check that a consumer asks the prepared reader for its bound source path."""
+        return Path(path).resolve() == self.db_path
+
+    def close(self) -> None:
+        """End the source transaction and close the owned read-only connection once."""
+        if self._closed:
+            return
+        self._closed = True
+        self.query.close()
 
 
 __all__ = [

@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
+from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.foundry.methods.catalog.causal.invariance_tests import (
     build_environment_audit_report,
 )
@@ -34,6 +36,9 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeSpec,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METADATA = ComponentMetadata(
@@ -159,8 +164,31 @@ class BuildLiteraturePriorNode:
     def spec(self) -> NodeSpec:
         return _SPEC
 
+    def prepare_cache_input(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+    ) -> PreparedSKGRead | None:
+        """Bind cache lookup to the selected SKG source database."""
+        del ctx
+        if not _resolve_variables(state):
+            return None
+        db_path_raw = state.params.get("skg_db_path")
+        if not isinstance(db_path_raw, str) or not db_path_raw.strip():
+            return None
+        db_path = Path(db_path_raw)
+        index_dir_raw = state.params.get("skg_index_dir")
+        index_dir = Path(str(index_dir_raw)) if index_dir_raw else db_path.parent
+        return SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
+
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if ARTIFACT_LITERATURE_PRIOR_REF in state.artifacts_index:
+        db_path_raw = state.params.get("skg_db_path")
+        has_current_skg_source = isinstance(db_path_raw, str) and bool(db_path_raw.strip())
+        if (
+            ARTIFACT_LITERATURE_PRIOR_REF in state.artifacts_index
+            and ctx.prepared_skg_read is None
+            and not has_current_skg_source
+        ):
             return NodeOutcome(status="ok", state=state)
 
         variables = _resolve_variables(state)
@@ -200,7 +228,11 @@ class BuildLiteraturePriorNode:
                     else None
                 ),
             )
-            result = BuildLiteraturePrior.pure_step(request, params={})
+            result = BuildLiteraturePrior.pure_step(
+                request,
+                params={},
+                prepared_read=ctx.prepared_skg_read,
+            )
         except _LITERATURE_PRIOR_EXECUTION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",

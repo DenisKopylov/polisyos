@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.cross_graph import (
@@ -40,10 +41,6 @@ from polisyos.scientist.cross_graph.feedback import (
     load_benchmark_suite,
     write_need_backlog,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.evidence.sources import (
     build_path_source_status,
     merge_evidence_sources_payload,
@@ -57,6 +54,14 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_GRAPH_PRIOR_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
+    from polisyos.scientist.cross_graph.compiler import CrossGraphEvidenceConfig
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_compile_cross_graph_evidence@1.0.0"),
@@ -117,10 +122,40 @@ class CompileCrossGraphEvidenceNode:
     def spec(self) -> NodeSpec:
         return _SPEC
 
-    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF in state.artifacts_index:
-            return NodeOutcome(status="ok", state=state)
+    def prepare_cache_input(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+    ) -> PreparedSKGRead | None:
+        """Bind cache lookup to the source database selected by cross-graph config."""
+        del ctx
+        config_payload = state.params.get("cross_graph_evidence_config")
+        if (
+            state.inputs.get(INPUT_TRINITY_BUNDLE_REF) is None
+            or str(state.params.get("governance_profile", "")).strip().lower() == "fast"
+            or not isinstance(config_payload, dict)
+            or not bool(config_payload.get("enabled", True))
+        ):
+            return None
+        try:
+            from polisyos.scientist.cross_graph.compiler import CrossGraphEvidenceConfig
 
+            evidence_sources = normalize_evidence_sources_config(state.params, config_payload)
+            config = CrossGraphEvidenceConfig.model_validate(
+                merge_evidence_sources_payload(config_payload, evidence_sources)
+            )
+        except (TypeError, ValueError, ValidationError):
+            return None
+        db_path_raw = str(config.academic_db_path or "").strip()
+        if not db_path_raw:
+            return None
+        db_path = Path(db_path_raw)
+        index_dir = Path(config.academic_index_dir) if config.academic_index_dir else db_path.parent
+        if not index_dir.exists():
+            index_dir = db_path.parent
+        return SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         config_payload = state.params.get("cross_graph_evidence_config")
         evidence_sources = normalize_evidence_sources_config(state.params, config_payload)
@@ -220,6 +255,8 @@ class CompileCrossGraphEvidenceNode:
                 )
             )
 
+        owned_prepared_read: PreparedSKGRead | None = None
+        prepared_read = ctx.prepared_skg_read
         try:
             if trinity_ref is None:
                 profile = CrossGraphEvidenceProfile(
@@ -242,6 +279,20 @@ class CompileCrossGraphEvidenceNode:
                     notes=["policy_request_only_mode"],
                 )
             else:
+                if prepared_read is None and config.academic_db_path:
+                    db_path = Path(config.academic_db_path)
+                    index_dir = (
+                        Path(config.academic_index_dir)
+                        if config.academic_index_dir
+                        else db_path.parent
+                    )
+                    if not index_dir.exists():
+                        index_dir = db_path.parent
+                    owned_prepared_read = SKGQuery.prepare_read(
+                        db_path=db_path,
+                        index_dir=index_dir,
+                    )
+                    prepared_read = owned_prepared_read
                 payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
                 bundle = TrinityBundle.model_validate(payload)
                 literature_prior = (
@@ -261,6 +312,7 @@ class CompileCrossGraphEvidenceNode:
                         if literature_prior_ref is not None
                         else None
                     ),
+                    prepared_skg_read=prepared_read,
                 )
         except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
             profile = CrossGraphEvidenceProfile(
@@ -283,6 +335,9 @@ class CompileCrossGraphEvidenceNode:
                 target_context=target_context,
                 notes=["cross_graph_compile_failed"],
             )
+        finally:
+            if owned_prepared_read is not None:
+                owned_prepared_read.close()
 
         profile = _augment_with_graph_prior(ctx, profile, state)
         extra_events: list[NodeEvent] = []

@@ -2,11 +2,24 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+import pytest
+from pydantic import BaseModel, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.ir.artifacts import ArtifactID as IRArtifactID
+from polisyos.ir.registry.refs import ContextAdaptiveParameterBundleRef
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
+)
+from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state, snapshot_state
+from polisyos.scientist.orchestration.engine.state_branching import (
+    StateMutation,
+    branch_state,
+    mutation_journal_from_operations,
+    snapshot_state,
+)
+from polisyos.scientist.orchestration.engine.state_merge import merge_parallel_outcomes
 
 
 class _BranchNestedModel(BaseModel):
@@ -134,3 +147,73 @@ def test_snapshot_state_deep_clones_mutable_state_surfaces() -> None:
 
     assert base_state.params["nested"]["items"] == ["base"]
     assert base_state.causal_method_params["method"]["thresholds"] == [0.1]
+
+
+def test_cache_replay_normalizes_specialized_artifact_refs() -> None:
+    """Replay preserves the core state ref after a typed IR-ref journal round trip."""
+    base_state = ExperimentState(run_id="R_specialized_ref_replay")
+    branch = branch_state(base_state, write_paths=("artifacts_index",))
+    ref = ContextAdaptiveParameterBundleRef(
+        artifact_id=f"sha256:{'b' * 64}",
+    )
+
+    branch.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = ref
+    recorded = branch.journal.operations[-1]
+    serialized = recorded.model_dump(mode="python")
+    reloaded = StateMutation.model_validate(serialized)
+    replay_journal = mutation_journal_from_operations((reloaded,))
+    outcome = NodeOutcome(status="ok", state=branch.state)
+
+    merged = merge_parallel_outcomes(
+        base_state,
+        {"resolve": outcome},
+        {
+            "resolve": [
+                f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}",
+            ],
+        },
+        mutation_journals={"resolve": replay_journal},
+    )
+
+    assert merged.applied
+    replayed_ref = merged.state.artifacts_index[
+        ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+    ]
+    assert isinstance(replayed_ref, ArtifactRef)
+    assert str(replayed_ref.artifact_id) == str(ref.artifact_id)
+
+
+def test_artifacts_index_rejects_malformed_specialized_ref_before_journaling() -> None:
+    """Invalid typed refs fail before state or cache mutation is recorded."""
+    base_state = ExperimentState(run_id="R_malformed_specialized_ref")
+    branch = branch_state(base_state, write_paths=("artifacts_index",))
+    malformed_ref = ContextAdaptiveParameterBundleRef.model_construct(
+        artifact_id=IRArtifactID.model_construct(root="not-a-sha256-id"),
+        kind="ir.context_adaptive_parameter_bundle",
+        media_type="application/json",
+    )
+
+    with pytest.raises(ValidationError):
+        branch.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = (
+            malformed_ref
+        )
+
+    assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in branch.state.artifacts_index
+    assert branch.journal.operations == []
+
+
+def test_artifact_shaped_json_remains_json_outside_artifacts_index() -> None:
+    """Ordinary JSON is not promoted to artifact authority based on field shape."""
+    base_state = ExperimentState(run_id="R_artifact_shaped_json")
+    branch = branch_state(base_state, write_paths=("params",))
+    payload = {
+        "artifact_id": f"sha256:{'c' * 64}",
+        "kind": "ir.context_adaptive_parameter_bundle",
+        "media_type": "application/json",
+    }
+
+    branch.state.params["caller_payload"] = payload
+
+    mutation = branch.journal.operations[-1]
+    assert mutation.value_kind == "json"
+    assert mutation.value == payload

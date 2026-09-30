@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -22,6 +23,9 @@ from polisyos.scientist.methods.discovery.priors import (
     PriorKnowledgeBundle,
     PriorKnowledgeSupport,
 )
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
 
 
 class PriorMinerConfig(BaseModel):
@@ -51,7 +55,12 @@ class PriorMiner:
     def config(self) -> PriorMinerConfig:
         return self._config
 
-    def mine(self, bundle: GraphPriorBundle) -> PriorKnowledgeBundle:
+    def mine(
+        self,
+        bundle: GraphPriorBundle,
+        *,
+        prepared_read: PreparedSKGRead | None = None,
+    ) -> PriorKnowledgeBundle:
         target_edge_keys = _target_edge_keys(bundle)
         academic_status = build_path_source_status(
             EvidenceSourceKind.ACADEMIC,
@@ -92,11 +101,18 @@ class PriorMiner:
 
         index_dir = str(self._config.academic_index_dir or "").strip() or None
         query: SKGQuery | None = None
+        owns_query = False
         try:
-            query = SKGQuery(
-                db_path=Path(db_path),
-                index_dir=Path(index_dir or "."),
-            )
+            if prepared_read is not None:
+                if not prepared_read.matches_path(db_path):
+                    raise ValueError("prepared_skg_read_source_path_mismatch")
+                query = prepared_read.query
+            else:
+                query = SKGQuery(
+                    db_path=Path(db_path),
+                    index_dir=Path(index_dir or "."),
+                )
+                owns_query = True
             variables = sorted(
                 {node for edge_key in target_edge_keys for node in _edge_nodes(edge_key)}
             )
@@ -128,7 +144,7 @@ class PriorMiner:
                 },
             )
         finally:
-            if query is not None:
+            if owns_query and query is not None:
                 query.close()
 
         support_rows: list[PriorKnowledgeSupport] = []

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, ClassVar
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from polisyos.core.observability import DeterminismTier
 from polisyos.data_forge.read_api.academic import SKGQuery
@@ -21,6 +22,9 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import LiteraturePriorBuildData
 from polisyos.ir.analytics.literature import LiteratureCausalPrior, LiteratureEdgePrior
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
 
 
 def _build_prior_metadata(
@@ -153,6 +157,8 @@ class BuildLiteraturePrior:
     def pure_step(
         state: LiteraturePriorBuildData | Mapping[str, Any],
         params: Mapping[str, Any],
+        *,
+        prepared_read: PreparedSKGRead | None = None,
     ) -> dict[str, Any]:
         payload = (
             state
@@ -191,8 +197,19 @@ class BuildLiteraturePrior:
             index_dir = db_path.rsplit("/", 1)[0] if "/" in db_path else "."
 
         query: SKGQuery | None = None
+        owned_read: PreparedSKGRead | None = None
         try:
-            vintage = SKGQuery.confidence_layer_vintage(db_path)
+            if prepared_read is None:
+                owned_read = SKGQuery.prepare_read(
+                    db_path=Path(db_path),
+                    index_dir=Path(index_dir),
+                )
+                active_read = owned_read
+            else:
+                if not prepared_read.matches_path(db_path):
+                    raise ValueError("prepared_skg_read_source_path_mismatch")
+                active_read = prepared_read
+            vintage = active_read.confidence_vintage
             if vintage is not None:
                 prior, _ = _build_empty_prior(
                     variables=payload.variables,
@@ -214,7 +231,7 @@ class BuildLiteraturePrior:
                     "literature_prior_graph": prior.to_causal_graph_model(nodes=payload.variables),
                     "warnings": warnings,
                 }
-            query = SKGQuery(db_path=db_path, index_dir=index_dir)
+            query = active_read.query
             rows = query.query_prior_for_variables(
                 payload.variables,
                 min_confidence=min_confidence,
@@ -245,8 +262,8 @@ class BuildLiteraturePrior:
                 "warnings": warnings,
             }
         finally:
-            if query is not None:
-                query.close()
+            if owned_read is not None:
+                owned_read.close()
 
         edges: list[LiteratureEdgePrior] = []
         for row in rows:

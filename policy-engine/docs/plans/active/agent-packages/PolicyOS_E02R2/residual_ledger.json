@@ -3300,7 +3300,52 @@
         "comparison_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-p41-inventory-20260930/R14_P41_INVENTORY.md@sha256:43f36ac1659f52b775f0bb932929878dc466e29d8acba48d2f2eb3f3163b3be1"
       },
       "p41_four_base": "Clean exact-ebc whole-file cells pass 28/28 and 21/21, with zero common pass-to-fail outcomes in historical identity comparisons. The complete 344-file / 1,376-cell touched-test matrix remains outstanding.",
-      "remaining_residual": "N8 does not expose the incomplete-interaction blocker and observed-step/requested-horizon details through a typed external consumer. The N8/served projection follow-up is in flight. Keep B26 partial; no candidate K_sim evidence grants world grounding, S8, promotion, or publication authority."
+      "remaining_residual": "N8 now carries interaction_evidence_incomplete only as low-grade simulate_only candidate value_conditional; the EvalSafety authority allowlist remains unchanged. The candidate/control selectors pass, while the whole generation_cycle file has three failures without a base replay, so attribution is unresolved. The not_promoted observation does not reach canonical N9 because the fixture lacks PromotionRuntime; a real CanonicalN9PromotionPort witness remains open. N8 still does not expose observed-step/requested-horizon/checked-order/residual details through a typed external consumer. Keep B26 partial; no candidate K_sim evidence grants world grounding, S8, promotion, or publication authority."
+    },
+    "current_r14_n8_candidate_2026_09_30": {
+      "identity": "R14/B26 N8 candidate-only retention of incomplete N5 interaction evidence",
+      "status_retained": "partial",
+      "source_commit": "226884f533e82d9e69c3d660b4a410c255c2c30a",
+      "current_head": "74511e7465dd6e7795a5ade1acf202aca6abf42f",
+      "source_test_blobs": {
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "git-blob:da3263257eae65074d9d91e182d1679a58221d35",
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "git-blob:1bbf9ad385e90af07925fa8ac6eea4ab2c2c64d6"
+      },
+      "source_test_identity_limit": "The focused and whole-file JUnits were produced on the patch-applied source/test tree before commit. The source/test blobs match the committed code at 226884f and remained unchanged at 1cf25c7; the JUnit files themselves do not carry a source digest.",
+      "property": "A content-verified partial N5 result may remain candidate evidence at N8 as value_conditional only for simulate_only mode and low grade, retaining interaction_evidence_incomplete. The EvalSafety authority limitation set remains unchanged; the result does not become an EvalSafety input or promotion receipt.",
+      "review": {
+        "verdict": "GO; human review required",
+        "memo_path_at_sha": "/Users/deniskopylov/.codex/state/plugins/codex-security/scans/e02-r14-n8-candidate-limitation-20260930/artifacts-3218a7fbad9eee9466d9dc13ed474862e722da7e1ca7bf0444a205dd33474fe2/artifacts/R14_N8_CANDIDATE_LIMITATION_REVIEW.md@sha256:7a03830a8351ffc28f8f5058e00e8d46363ecba7c88991d9260bc9cccd8fba36",
+        "patch_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-n8-candidate-limitation-20260930/R14_N8_CANDIDATE_LIMITATION.patch@sha256:2ccaebc974cd6eb51fe9dc2d70f4c63f0a439db172a7f8db5b1dc2c38f903922",
+        "scope": "Same candidate-to-authority separation class, one consumer deeper. Reviewer ran no tests."
+      },
+      "design_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-n8-candidate-limitation-20260930/R14_N8_CANDIDATE_LIMITATION_DESIGN.md@sha256:b7b48d3fcfaa15c57d12257ba45ec06a0aba4fd955a5301cafa17eabd7ef1f02",
+      "focused_two_selectors": {
+        "identity": "test_generation_cycle_serves_persisted_n5_into_default_n8_value_port; test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evalsafety",
+        "result": "2/2 PASS",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-n8-candidate-limitation-20260930/N8_canonical_952_two_selectors.junit.xml@sha256:a1ca0bb6c7d86dc8002ae034e5ca32b3dce70afebc9b257ea605b9c00310d880"
+      },
+      "candidate_and_preserving_control": {
+        "result": "2/2 PASS; partial candidate and complete one-step control",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-n8-candidate-limitation-20260930/N8_candidate_and_control.junit.xml@sha256:0e7f0ce056d618c2c10b225dfd5945cf2859ec0e0960d4abfa2780373c56cb9d"
+      },
+      "marker_retaining_removal": {
+        "result": "Expected red on source removal: value_blocked instead of value_conditional",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-n8-candidate-limitation-20260930/N8_candidate_red_pre_patch.junit.xml@sha256:54ab24cf19da38813dbdc1e5deccf48ed48b45ea172ddc094753d839032dad61"
+      },
+      "whole_generation_cycle_file": {
+        "denominator": "161 testcases; 158 pass, 3 fail",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-n8-candidate-limitation-20260930/N8_canonical_952_whole_generation_cycle.junit.xml@sha256:295d626d20cdda44789a87c0f005eefa502de89702f57128f68308f77d76cb97",
+        "failures": [
+          {"identity": "test_post_n9_packet_binds_exact_subject_and_gate_receipt", "observed": "confidence_ledger_refused", "attribution": "unresolved; no four-base replay"},
+          {"identity": "test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits", "observed": "tenant get_paths ArtifactOwnershipError", "attribution": "unresolved; no four-base replay"},
+          {"identity": "test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red", "observed": "tenant get_paths ArtifactOwnershipError", "attribution": "unresolved; no four-base replay"}
+        ],
+        "p41": "UNRUN; do not classify these failures as inherited or assign them to a base/head transition without replay."
+      },
+      "ruff": "Three diagnostics also exist at base 952c5b6: B009 and S608 in generation_cycle.py, PT007 in test_generation_cycle.py; no new diagnostic reported. Full-file format check would reformat existing lines, with no format delta in changed hunks.",
+      "n9_witness_limit": "The not_promoted observation comes from a contract-testing controller without PromotionRuntime and returns before CanonicalN9PromotionPort; it is not a direct N9 refusal witness. Source guards support the boundary, but a future served path must enter the real canonical port with an N9-entry witness and one-step control.",
+      "remaining_residual": "B26 remains partial. N8 preserves the typed limitation in low-grade candidate output but does not expose requested/observed horizon, checked orders, or residuals through a typed external per-job diagnostic surface."
     }
     },
     {

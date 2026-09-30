@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import os
 import secrets
@@ -71,16 +72,17 @@ def main() -> None:
     # by the browser's signature-corruption probe. No filesystem path crosses
     # the fixture metadata/API boundary.
     store = artifacts.FileSystemCAS(verification_root / "cas")
-    record_ref = artifacts.ArtifactRef.model_validate(entry["record_artifact_ref"])
+    record_ref = artifacts.ArtifactID.model_validate(entry["record_artifact_ref"])
+    blob_buffer = io.BytesIO()
+    record_blob_receipt = store.copy_member_to(record_ref, "blob", blob_buffer)
     signature_path = store._sig_path(
-        record_ref.artifact_id,
-        record_ref.manifest_profile_sha256,
+        record_ref,
     )
     original_signature = store.get_signature_bytes(record_ref)
     original_mode = signature_path.stat().st_mode & 0o777
     fixture_token = secrets.token_urlsafe(24)
 
-    async def mutate_signature(action: str, request: Request) -> dict[str, bool]:
+    async def mutate_signature(action: str, request: Request) -> dict[str, object]:
         if not secrets.compare_digest(
             request.headers.get("x-policyos-fixture-token", ""),
             fixture_token,
@@ -96,7 +98,18 @@ def main() -> None:
             signature_path.chmod(original_mode)
         else:
             raise HTTPException(status_code=404)
-        return {"ok": True}
+        after_buffer = io.BytesIO()
+        after_receipt = store.copy_member_to(record_ref, "blob", after_buffer)
+        if (
+            after_receipt.sha256 != record_blob_receipt.sha256
+            or after_receipt.byte_size != record_blob_receipt.byte_size
+        ):
+            raise RuntimeError("fixture_signature_mutation_changed_record_blob")
+        return {
+            "ok": True,
+            "record_blob_sha256": after_receipt.sha256,
+            "record_blob_byte_size": after_receipt.byte_size,
+        }
 
     app.add_api_route(
         "/__test__/signature/{action}",
@@ -107,6 +120,8 @@ def main() -> None:
     metadata = {
         "record_id": record_id,
         "title": title,
+        "record_blob_sha256": record_blob_receipt.sha256,
+        "record_blob_byte_size": record_blob_receipt.byte_size,
         "fixture_control_url": f"http://127.0.0.1:{args.port}/__test__/signature",
         "fixture_token": fixture_token,
     }

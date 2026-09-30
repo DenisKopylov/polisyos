@@ -821,6 +821,13 @@ class ArtifactOwnershipIndex:
             for profile in claims["view_owners"]
         )
 
+    def _committed_intent_matches_current_state(self, document: dict[str, Any]) -> bool:
+        """Require the same durable intent to be committed and still fully recomputed."""
+        return (
+            document["status"] == "committed"
+            and self._intent_completion_is_recomputed(document)
+        )
+
     def require_no_pending_transaction(
         self,
         artifact_id: ArtifactID | str,
@@ -833,28 +840,26 @@ class ArtifactOwnershipIndex:
         document = self._read_transaction_intent(aid)
         if document is None:
             return
-        if document["status"] == "committed":
-            if self._intent_completion_is_recomputed(document):
-                return
-        elif (
-            document["owner"] is not None
-            and self._intent_completion_is_recomputed(document)
-        ):
-            # A tenant generation is the independent completion signal.
+        if self._committed_intent_matches_current_state(document):
             return
+        # Pending is deny-only: an owner row can predate this request, so matching
+        # bytes and claims cannot complete a different operation on its behalf.
         affected = document["affected"]
-        selected_signature = signature_profile or "default"
+        signature_is_affected = (
+            signature_profile is not None
+            and signature_profile in affected["signature_profiles"]
+        )
         if (
             affected["ambient_artifact"]
             or (
                 manifest_profile_sha256 is not None
                 and manifest_profile_sha256 in affected["manifest_profiles"]
             )
-            or selected_signature in affected["signature_profiles"]
+            or signature_is_affected
         ):
             surface = (
-                f"signature:{selected_signature}"
-                if selected_signature in affected["signature_profiles"]
+                f"signature:{signature_profile}"
+                if signature_is_affected
                 else manifest_profile_sha256 or "artifact"
             )
             raise ArtifactTransactionPendingError(aid, surface=surface)

@@ -19,6 +19,8 @@ test("real verification service authenticates a report and rejects the same reco
   const metadata = JSON.parse(await readFile(metadataPath, "utf8")) as {
     record_id: string;
     title: string;
+    record_blob_sha256: string;
+    record_blob_byte_size: number;
     fixture_control_url: string;
     fixture_token: string;
   };
@@ -72,6 +74,16 @@ test("real verification service authenticates a report and rejects the same reco
       { headers: fixtureHeaders },
     );
     expect(damaged.ok()).toBeTruthy();
+    const damagedControl = (await damaged.json()) as {
+      ok: boolean;
+      record_blob_sha256: string;
+      record_blob_byte_size: number;
+    };
+    expect(damagedControl.ok).toBeTruthy();
+    expect(damagedControl.record_blob_sha256).toBe(metadata.record_blob_sha256);
+    expect(damagedControl.record_blob_byte_size).toBe(
+      metadata.record_blob_byte_size,
+    );
     const damagedResponse = realVerdict();
     await page.reload();
     const rejected = await (await damagedResponse).json();
@@ -95,5 +107,17 @@ test("real verification service authenticates a report and rejects the same reco
       { headers: { "x-policyos-fixture-token": metadata.fixture_token } },
     );
     expect(restored.ok()).toBeTruthy();
+    const restoredControl = (await restored.json()) as {
+      ok: boolean;
+      record_blob_sha256: string;
+      record_blob_byte_size: number;
+    };
+    expect(restoredControl.ok).toBeTruthy();
+    expect(restoredControl.record_blob_sha256).toBe(
+      metadata.record_blob_sha256,
+    );
+    expect(restoredControl.record_blob_byte_size).toBe(
+      metadata.record_blob_byte_size,
+    );
   }
 });

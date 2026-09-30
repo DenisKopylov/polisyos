@@ -108,26 +108,6 @@ def _run_bounded(
     return results, length_hint, cancelled
 
 
-def put_signature(
-    *,
-    artifact_id: ArtifactID,
-    signature: DetachedSignature,
-    sig_path_for_artifact: Callable[[ArtifactID], Path],
-    atomic_write: Callable[[Path, bytes], None],
-) -> Path:
-    """Persist one detached signature sidecar after binding validation."""
-    if signature.artifact_id != str(artifact_id):
-        raise ValueError("signature artifact_id mismatch")
-    path = sig_path_for_artifact(artifact_id)
-    payload = signature.model_dump_json(
-        by_alias=True,
-        exclude_none=True,
-        indent=2,
-    ).encode("utf-8")
-    atomic_write(path, payload)
-    return path
-
-
 def get_signature(
     *,
     artifact_id: ArtifactID,

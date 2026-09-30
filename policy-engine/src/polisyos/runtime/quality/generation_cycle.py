@@ -1907,8 +1907,8 @@ class N6SourceCensusGateResult(_StrictModel):
     deployment identity, a persisted N6 receipt, or current authority evidence.
     """
 
-    schema_version: Literal["policyos.runtime.generation_cycle.n6_source_census.v2"] = (
-        "policyos.runtime.generation_cycle.n6_source_census.v2"
+    schema_version: Literal["policyos.runtime.generation_cycle.n6_source_census.v3"] = (
+        "policyos.runtime.generation_cycle.n6_source_census.v3"
     )
     source_verdict: Literal["pass", "fail", "UNRUN"]
     source_scope: Literal["src/polisyos"] = "src/polisyos"
@@ -1916,8 +1916,8 @@ class N6SourceCensusGateResult(_StrictModel):
     denominator_file_count: int = Field(ge=0)
     denominator_complete: bool
     denominator_path_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
-    census_rule: Literal["n6_direct_and_alias_census_v2"] = (
-        "n6_direct_and_alias_census_v2"
+    census_rule: Literal["n6_direct_and_alias_census_v3"] = (
+        "n6_direct_and_alias_census_v3"
     )
     semantic_census_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     production_callers: tuple[str, ...] = ()
@@ -11564,9 +11564,11 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
     """Run the standalone source/deploy-time N6 census gate.
 
     Inputs are every discovered ``src/polisyos/**/*.py`` path, its relative-path
-    denominator, and direct/aliased ``run_fixture`` references. Read or parse
-    failures and dynamic attribute dispatch yield UNRUN. This source-only gate
-    never establishes a packaged identity or current authority.
+    denominator, and direct/aliased ``run_fixture`` references. Positive
+    direct/alias callers yield ``fail``; a no-hit scan yields ``UNRUN`` because
+    complete production roots and transitive reachability are not established.
+    Read/parse failures and dynamic dispatch remain additional UNRUN reasons.
+    This source-only gate never establishes a packaged identity or current authority.
     """
 
     root = repo_root.resolve()
@@ -11688,6 +11690,9 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
             elif isinstance(node.func, ast.Name) and node.func.id == "run_fixture":
                 unresolved.add("unbound_run_fixture_name")
 
+    if not callers:
+        # A direct/alias negative is not a complete production-root reachability proof.
+        unresolved.add("n6_production_reachability_completeness_not_established")
     ordered_callers = tuple(sorted(callers))
     ordered_unresolved = tuple(sorted(unresolved))
     if ordered_callers:
@@ -11697,7 +11702,7 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
     else:
         source_verdict = "pass"
     semantic_payload = {
-        "rule": "n6_direct_and_alias_census_v2",
+        "rule": "n6_direct_and_alias_census_v3",
         "denominator_path_sha256": denominator_digest,
         "source_file_count": len(paths),
         "denominator_complete": denominator_complete,

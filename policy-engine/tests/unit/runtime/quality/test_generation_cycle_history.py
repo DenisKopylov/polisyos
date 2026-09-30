@@ -1149,7 +1149,10 @@ def test_source_comment_preserves_actual_v1_v2_history(
         original, canon.CanonSpec(forbid_floats=False)
     )
     census_before = generation.inspect_n6_source_census(tmp_path)
-    assert census_before.source_verdict == "pass"
+    assert census_before.source_verdict == "UNRUN"
+    assert "n6_production_reachability_completeness_not_established" in (
+        census_before.unresolved_by_construction
+    )
     assert validate_generation_cycle_run_history(original) == ()
     current_before = generation.currentness_for_generation_cycle_run(original)
     assert current_before.status == "not_established"
@@ -1159,7 +1162,10 @@ def test_source_comment_preserves_actual_v1_v2_history(
         b"def unrelated_report():\n    return 'unchanged'\n# unrelated source comment\n"
     )
     census_after = generation.inspect_n6_source_census(tmp_path)
-    assert census_after.source_verdict == "pass"
+    assert census_after.source_verdict == "UNRUN"
+    assert "n6_production_reachability_completeness_not_established" in (
+        census_after.unresolved_by_construction
+    )
     assert census_after.semantic_census_sha256 == census_before.semantic_census_sha256
     assert census_after.denominator_path_sha256 == census_before.denominator_path_sha256
     current_after = generation.currentness_for_generation_cycle_run(original)
@@ -1228,11 +1234,15 @@ def test_source_census_gate_is_behavioral_and_denominator_complete(tmp_path: Pat
         encoding="utf-8",
     )
     clean = generation.inspect_n6_source_census(tmp_path)
-    assert clean.source_verdict == "pass"
+    assert clean.source_verdict == "UNRUN"
+    assert clean.schema_version == "policyos.runtime.generation_cycle.n6_source_census.v3"
+    assert clean.census_rule == "n6_direct_and_alias_census_v3"
     assert clean.denominator_file_count == 1
     assert clean.denominator_complete is True
     assert clean.denominator_pattern == "src/polisyos/**/*.py"
-    assert clean.unresolved_by_construction == ()
+    assert clean.unresolved_by_construction == (
+        "n6_production_reachability_completeness_not_established",
+    )
     assert clean.authority_currentness == "UNRUN"
     assert clean.canonical_identity_binding == "not_established"
 
@@ -1290,6 +1300,15 @@ def test_source_census_gate_is_behavioral_and_denominator_complete(tmp_path: Pat
     assert alias.production_callers == ("src/polisyos/runtime/quality/cycle.py:3",)
 
     source.write_text(
+        "from polisyos.runtime.quality.workspace.loop import WorkspaceLoop\n"
+        "def cycle(owner):\n    return WorkspaceLoop.run_fixture(owner)\n",
+        encoding="utf-8",
+    )
+    direct = generation.inspect_n6_source_census(tmp_path)
+    assert direct.source_verdict == "fail"
+    assert direct.production_callers == ("src/polisyos/runtime/quality/cycle.py:3",)
+
+    source.write_text(
         "class Unrelated:\n    def run_fixture(self):\n        return None\n"
         "def cycle(obj, name):\n    return getattr(obj, name)()\n",
         encoding="utf-8",
@@ -1338,35 +1357,63 @@ def test_source_census_scan_time_directory_error_marks_denominator_incomplete(
     )
 
 
-def test_candidate_census_removal_red_and_unrelated_dispatch_control(tmp_path: Path) -> None:
-    """Removing the real call while keeping markers changes the census verdict."""
+def test_candidate_census_removal_stays_unrun_and_unrelated_control(tmp_path: Path) -> None:
+    """Removing a helper edge with markers intact cannot produce a green result."""
 
-    source = tmp_path / "src/polisyos/runtime/quality/cycle.py"
+    source = tmp_path / "src/polisyos/runtime/quality/workspace/loop.py"
     source.parent.mkdir(parents=True)
-    markers = "# direct_ast_symbol_census_v1\n# generation_cycle_strangle_gate\n"
-    source.write_text(
-        "from polisyos.runtime.quality.workspace.loop import WorkspaceLoop as CycleOwner\n"
-        "def cycle(owner):\n    CycleOwner.run_fixture(owner)\n" + markers,
-        encoding="utf-8",
+    markers = "\n# direct_ast_symbol_census_v1\n# generation_cycle_strangle_gate\n"
+    helper_call = "        return self.run_fixture()\n"
+    helper_source = (
+        "class WorkspaceLoop:\n"
+        "    def run_fixture(self):\n        return None\n"
+        "    def decompose_fixture(self):\n"
+        + helper_call
+        + "    def run(self):\n        return self.decompose_fixture()\n"
+        + markers
     )
-    with_call = generation.inspect_n6_source_census(tmp_path)
-    assert with_call.source_verdict == "fail"
+    source.write_text(helper_source, encoding="utf-8")
 
-    source.write_text(
-        "from polisyos.runtime.quality.workspace.loop import WorkspaceLoop as CycleOwner\n"
-        "def cycle(owner):\n    return None\n" + markers,
-        encoding="utf-8",
+    recognized_helper_route = generation.inspect_n6_source_census(tmp_path)
+    assert recognized_helper_route.source_verdict == "UNRUN"
+    assert recognized_helper_route.production_callers == ()
+    assert "allowed_fixture_reachability_not_established" in (
+        recognized_helper_route.unresolved_by_construction
     )
-    without_call = generation.inspect_n6_source_census(tmp_path)
-    assert without_call.source_verdict == "pass"
-    assert without_call.denominator_complete is True
-    assert without_call.authority_currentness == "UNRUN"
+    assert "n6_production_reachability_completeness_not_established" in (
+        recognized_helper_route.unresolved_by_construction
+    )
 
-    source.write_text(
-        "class Unrelated:\n    def run_fixture(self):\n        return None\n"
-        "def cycle():\n    return Unrelated().run_fixture()\n" + markers,
+    removed_helper_call = helper_source.replace(helper_call, "        return None\n", 1)
+    source.write_text(removed_helper_call, encoding="utf-8")
+    after_removal = generation.inspect_n6_source_census(tmp_path)
+    assert after_removal.source_verdict == "UNRUN"
+    assert after_removal.production_callers == ()
+    assert "n6_production_reachability_completeness_not_established" in (
+        after_removal.unresolved_by_construction
+    )
+    assert "allowed_fixture_reachability_not_established" not in (
+        after_removal.unresolved_by_construction
+    )
+    retained_source = source.read_text(encoding="utf-8")
+    assert "def run_fixture(self)" in retained_source
+    assert markers.strip() in retained_source
+    assert "return self.run_fixture()" not in retained_source
+    assert after_removal.denominator_complete is True
+    assert after_removal.authority_currentness == "UNRUN"
+
+    unrelated = tmp_path / "src/polisyos/runtime/quality/fixture_control.py"
+    unrelated.write_text(
+        "class UnrelatedFixture:\n"
+        "    def run_fixture(self):\n        return None\n"
+        "def call_fixture(owner):\n    return owner.safe_fixture()\n"
+        + markers,
         encoding="utf-8",
     )
-    unrelated = generation.inspect_n6_source_census(tmp_path)
-    assert unrelated.source_verdict == "UNRUN"
-    assert unrelated.authority_currentness == "UNRUN"
+    unrelated_control = generation.inspect_n6_source_census(tmp_path)
+    assert unrelated_control.source_verdict == "UNRUN"
+    assert unrelated_control.production_callers == ()
+    assert unrelated_control.unresolved_by_construction == (
+        "n6_production_reachability_completeness_not_established",
+    )
+    assert unrelated_control.authority_currentness == "UNRUN"

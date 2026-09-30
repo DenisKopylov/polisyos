@@ -2,27 +2,70 @@
 
 from __future__ import annotations
 
+import base64
 import fcntl
 import hashlib
 import json
+import re
 import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from polisyos.core.canon.canon_json import CanonSpec, to_canonical_bytes
 
-from ._atomic_write import AtomicFileWriter
+from ._atomic_write import (
+    AtomicFileDurabilityError,
+    AtomicFileWriter,
+    ensure_directory_durable,
+    fsync_directory,
+)
 from .ids import ArtifactID
 
 OWNERSHIP_INDEX_SCHEMA_VERSION = "policyos.artifact_ownership_index.v2"
 OWNERSHIP_SIGNATURE_SCHEMA_VERSION = "policyos.artifact_ownership_index_signature.v2"
+OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION = "policyos.artifact_ownership_index_pointer.v1"
+OWNERSHIP_INDEX_GENERATION_SCHEMA_VERSION = "policyos.artifact_ownership_index_generation.v1"
+OWNERSHIP_EVIDENCE_SCHEMA_VERSION_V3 = "policyos.artifact_ownership_evidence.v3"
+OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1 = "pointer_generation_v1"
 _OWNERSHIP_INDEX_SCHEMA_VERSION_V1 = "policyos.artifact_ownership_index.v1"
 _OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V1 = "policyos.artifact_ownership_index_signature.v1"
 OWNERSHIP_MODE_SHARED_CAS = "shared_immutable_cas"
 _FileIdentity = tuple[int, ...] | None
+_HEX_SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
+
+
+class _DuplicateJSONKeyError(ValueError):
+    """Raised when an ownership index document contains ambiguous JSON keys."""
+
+
+@dataclass(frozen=True)
+class _OwnershipSnapshot:
+    """One validated ownership view and the exact bytes needed to migrate it."""
+
+    payload: dict[str, Any]
+    signature: dict[str, Any] | None
+    source_format: str
+    persisted: bool
+    legacy_index_bytes: bytes | None = None
+    legacy_signature_bytes: bytes | None = None
+    generation_sha256: str | None = None
+    generation_path: Path | None = None
+    pointer_sha256: str | None = None
+    payload_sha256: str | None = None
+    signature_sha256: str | None = None
+
+
+class OwnershipIndexPublicationIndeterminateError(RuntimeError):
+    """A pointer was replaced but its durable directory sync was not confirmed."""
+
+    def __init__(self, generation_sha256: str, observed_generation_sha256: str | None) -> None:
+        super().__init__("ownership_index_publication_indeterminate")
+        self.generation_sha256 = generation_sha256
+        self.observed_generation_sha256 = observed_generation_sha256
 
 
 class ArtifactOwnershipError(PermissionError):
@@ -99,7 +142,7 @@ class ArtifactOwnershipIndex:
         self.signature_path = self.directory / "index.signature.json"
         self._lock_path = self.directory / "index.lock"
         self._lock = threading.Lock()
-        self._claim_file_identities: tuple[_FileIdentity, _FileIdentity] | None = None
+        self._claim_file_identities: tuple[_FileIdentity, ...] | None = None
         self._claim_ids_cache: frozenset[str] | None = None
 
     def record_owner(
@@ -126,8 +169,6 @@ class ArtifactOwnershipIndex:
                 )
                 for record in records
             ):
-                if not self.signature_path.exists():
-                    self._write_payload(payload)
                 return
             record: dict[str, Any] = {
                 "tenant_id": normalized_tenant,
@@ -362,10 +403,7 @@ class ArtifactOwnershipIndex:
         with self._lock:
             for _attempt in range(3):
                 before = self._current_file_identities()
-                if (
-                    self._claim_ids_cache is not None
-                    and before == self._claim_file_identities
-                ):
+                if self._claim_ids_cache is not None and before == self._claim_file_identities:
                     return self._claim_ids_cache
 
                 payload = self._load_payload()
@@ -383,11 +421,28 @@ class ArtifactOwnershipIndex:
 
     def _current_file_identities(
         self,
-    ) -> tuple[_FileIdentity, _FileIdentity]:
+    ) -> tuple[_FileIdentity, ...]:
+        pointer = _load_json_file(self.path)
+        generation_identity: _FileIdentity = None
+        if (
+            isinstance(pointer, dict)
+            and pointer.get("schema_version") == OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION
+        ):
+            generation_sha256 = pointer.get("generation_sha256")
+            if isinstance(generation_sha256, str) and _HEX_SHA256.fullmatch(generation_sha256):
+                generation_path = self._generation_path(generation_sha256)
+                generation_identity = self._file_identity(generation_path)
         return (
             self._file_identity(self.path),
             self._file_identity(self.signature_path),
+            generation_identity,
         )
+
+    def _generation_path(self, generation_sha256: str) -> Path:
+        if not _HEX_SHA256.fullmatch(generation_sha256):
+            raise ValueError("ownership_index_pointer_invalid")
+        generation_hex = generation_sha256.removeprefix("sha256:")
+        return self.directory / "generations" / f"{generation_hex}.json"
 
     @staticmethod
     def _file_identity(path: Path) -> _FileIdentity:
@@ -410,7 +465,7 @@ class ArtifactOwnershipIndex:
     @contextmanager
     def _cross_instance_write_lock(self) -> Iterator[None]:
         """Serialize ownership-index read/modify/write across instances and processes."""
-        self.directory.mkdir(parents=True, exist_ok=True)
+        ensure_directory_durable(self.directory)
         with self._lock_path.open("a+b") as lock_file:
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
             try:
@@ -469,21 +524,21 @@ class ArtifactOwnershipIndex:
         cell_id: str | None = None,
     ) -> dict[str, Any]:
         """Return evidence metadata suitable for canary/debug bundles."""
-        with self._lock, self._cross_instance_write_lock():
-            payload = self._load_payload()
-            if not self.path.exists():
-                self._write_payload(payload)
+        with self._lock:
+            snapshot = self._load_snapshot()
+            payload = snapshot.payload
             artifacts = _artifacts_mapping(payload)
             blob_readers = _blob_readers_mapping(payload)
-            digest = _digest_payload(payload)
-            signature = self._signature_payload(payload, digest=digest)
+            digest = snapshot.payload_sha256 or _digest_payload(payload)
+            signature = snapshot.signature or self._signature_payload(payload, digest=digest)
         evidence: dict[str, Any] = {
             "mode": OWNERSHIP_MODE_SHARED_CAS,
             "schema_version": str(payload["schema_version"]),
             "ownership_index_path": str(self.path),
             "ownership_index_digest": digest,
-            "ownership_index_signature_path": str(self.signature_path),
-            "ownership_index_signature_digest": _digest_payload(signature),
+            "ownership_index_signature_digest": (
+                snapshot.signature_sha256 or _digest_payload(signature)
+            ),
             "artifact_count": len(artifacts),
             "blob_reader_claim_count": sum(len(records) for records in blob_readers.values()),
             "manifest_view_claim_count": sum(
@@ -493,6 +548,56 @@ class ArtifactOwnershipIndex:
                 if isinstance(record.get("manifest_profile_sha256"), str)
             ),
         }
+        if snapshot.source_format in {
+            _OWNERSHIP_INDEX_SCHEMA_VERSION_V1,
+            OWNERSHIP_INDEX_SCHEMA_VERSION,
+        }:
+            evidence["ownership_index_signature_path"] = str(self.signature_path)
+        if snapshot.source_format == OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION:
+            if (
+                snapshot.generation_sha256 is None
+                or snapshot.generation_path is None
+                or snapshot.pointer_sha256 is None
+            ):
+                raise ValueError("ownership_index_generation_invalid")
+            evidence.update(
+                {
+                    "ownership_evidence_schema_version": (OWNERSHIP_EVIDENCE_SCHEMA_VERSION_V3),
+                    "ownership_index_format": (OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1),
+                    "ownership_index_pointer_schema_version": (
+                        OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION
+                    ),
+                    "ownership_index_pointer_sha256": snapshot.pointer_sha256,
+                    "ownership_index_generation_schema_version": (
+                        OWNERSHIP_INDEX_GENERATION_SCHEMA_VERSION
+                    ),
+                    "ownership_index_generation_path": str(snapshot.generation_path),
+                    "ownership_index_generation_sha256": snapshot.generation_sha256,
+                    "ownership_index_signature_locator": {
+                        "container_ref": snapshot.generation_sha256,
+                        "member": "signature",
+                    },
+                    "ownership_index_pre_v3_history_status": (
+                        self._pre_v3_history_status(snapshot.generation_sha256)
+                    ),
+                }
+            )
+        elif snapshot.source_format == "ephemeral_empty_v2":
+            evidence.update(
+                {
+                    "ownership_evidence_schema_version": (OWNERSHIP_EVIDENCE_SCHEMA_VERSION_V3),
+                    "ownership_index_format": "ephemeral_empty_v2",
+                    "ownership_index_persisted": False,
+                    "ownership_index_signature_path": None,
+                    "ownership_index_pointer_schema_version": None,
+                    "ownership_index_pointer_sha256": None,
+                    "ownership_index_generation_schema_version": None,
+                    "ownership_index_generation_path": None,
+                    "ownership_index_generation_sha256": None,
+                    "ownership_index_signature_locator": None,
+                    "ownership_index_pre_v3_history_status": "no_pre_v3_pair",
+                }
+            )
         if tenant_id:
             normalized_tenant = _normal_tenant_id(tenant_id)
             normalized_cell = _normal_cell_id(cell_id)
@@ -513,17 +618,83 @@ class ArtifactOwnershipIndex:
             )
         return evidence
 
+    def _pre_v3_history_status(self, generation_sha256: str) -> str:
+        """Classify only the pre-v3 history proven by the retained parent chain."""
+        visited: set[str] = set()
+        current_sha256 = generation_sha256
+        while True:
+            if current_sha256 in visited or _HEX_SHA256.fullmatch(current_sha256) is None:
+                return "pre_v3_history_unresolved"
+            visited.add(current_sha256)
+            try:
+                generation_bytes = self._generation_path(current_sha256).read_bytes()
+                if _sha256_bytes(generation_bytes) != current_sha256:
+                    return "pre_v3_history_unresolved"
+                generation = _decode_json(
+                    generation_bytes,
+                    reject_duplicate_keys=True,
+                )
+                self._parse_generation(generation)
+            except (
+                OSError,
+                UnicodeDecodeError,
+                json.JSONDecodeError,
+                TypeError,
+                ValueError,
+            ):
+                return "pre_v3_history_unresolved"
+
+            if generation["legacy_source"] is not None:
+                return "current_pair_captured; earlier_overwritten_generations_unresolved"
+            parent_sha256 = generation["parent_generation_sha256"]
+            if parent_sha256 is None:
+                return "no_pre_v3_pair"
+            current_sha256 = parent_sha256
+
     def _load_payload(self) -> dict[str, Any]:
-        if not self.path.exists():
+        return self._load_snapshot().payload
+
+    def _load_snapshot(self) -> _OwnershipSnapshot:
+        try:
+            index_bytes = self.path.read_bytes()
+        except FileNotFoundError:
             if self.signature_path.exists():
-                raise ValueError("ownership_index_signature_invalid")
-            return {
-                "schema_version": OWNERSHIP_INDEX_SCHEMA_VERSION,
-                "mode": OWNERSHIP_MODE_SHARED_CAS,
-                "artifacts": {},
-                "blob_readers": {},
-            }
-        raw = _load_json_file(self.path)
+                raise ValueError("ownership_index_signature_invalid") from None
+            return _OwnershipSnapshot(
+                payload={
+                    "schema_version": OWNERSHIP_INDEX_SCHEMA_VERSION,
+                    "mode": OWNERSHIP_MODE_SHARED_CAS,
+                    "artifacts": {},
+                    "blob_readers": {},
+                },
+                signature=None,
+                source_format="ephemeral_empty_v2",
+                persisted=False,
+            )
+        try:
+            raw = _decode_json(index_bytes, reject_duplicate_keys=True)
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+            raise ValueError("ownership_index_document_invalid") from None
+        if isinstance(raw, dict) and raw.get("schema_version") == (
+            OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION
+        ):
+            return self._load_generation_snapshot(index_bytes)
+        try:
+            signature_bytes = self.signature_path.read_bytes()
+        except FileNotFoundError:
+            raise ValueError("ownership_index_signature_invalid") from None
+        return self._parse_legacy_pair(index_bytes, signature_bytes)
+
+    def _parse_legacy_pair(
+        self,
+        index_bytes: bytes,
+        signature_bytes: bytes,
+    ) -> _OwnershipSnapshot:
+        try:
+            raw = _decode_json(index_bytes, reject_duplicate_keys=True)
+            signature = _decode_json(signature_bytes, reject_duplicate_keys=True)
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+            raise ValueError("ownership_index_signature_invalid") from None
         if not isinstance(raw, dict):
             raise ValueError("ownership_index_signature_invalid")
         schema_version = raw.get("schema_version")
@@ -532,7 +703,6 @@ class ArtifactOwnershipIndex:
             raw["schema_version"] = _OWNERSHIP_INDEX_SCHEMA_VERSION_V1
             schema_version = _OWNERSHIP_INDEX_SCHEMA_VERSION_V1
         if schema_version == _OWNERSHIP_INDEX_SCHEMA_VERSION_V1:
-            # Preserve the v1 projection in memory without writing it back.
             raw.setdefault("mode", OWNERSHIP_MODE_SHARED_CAS)
             raw.setdefault("artifacts", {})
             if "blob_readers" in raw or not set(raw).issubset(
@@ -562,29 +732,262 @@ class ArtifactOwnershipIndex:
                 _blob_readers_mapping(raw)
         except (TypeError, ValueError):
             raise ValueError("ownership_index_signature_invalid") from None
-        signature = _load_json_file(self.signature_path)
         expected_signature = self._signature_payload(raw, digest=_digest_payload(raw))
         if not isinstance(signature, dict) or signature != expected_signature:
             raise ValueError("ownership_index_signature_invalid")
-        return raw
+        return _OwnershipSnapshot(
+            payload=raw,
+            signature=signature,
+            source_format=str(schema_version),
+            persisted=True,
+            legacy_index_bytes=index_bytes,
+            legacy_signature_bytes=signature_bytes,
+            payload_sha256=_digest_payload(raw),
+            signature_sha256=_digest_payload(signature),
+        )
+
+    def _load_generation_snapshot(self, pointer_bytes: bytes) -> _OwnershipSnapshot:
+        try:
+            pointer = _decode_json(pointer_bytes, reject_duplicate_keys=True)
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+            raise ValueError("ownership_index_pointer_invalid") from None
+        if (
+            not isinstance(pointer, dict)
+            or set(pointer) != {"schema_version", "mode", "generation_sha256"}
+            or pointer.get("schema_version") != OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION
+            or pointer.get("mode") != OWNERSHIP_MODE_SHARED_CAS
+            or not isinstance(pointer.get("generation_sha256"), str)
+            or _HEX_SHA256.fullmatch(pointer["generation_sha256"]) is None
+        ):
+            raise ValueError("ownership_index_pointer_invalid")
+        generation_sha256 = pointer["generation_sha256"]
+        generation_path = self._generation_path(generation_sha256)
+        try:
+            generation_bytes = generation_path.read_bytes()
+            if _sha256_bytes(generation_bytes) != generation_sha256:
+                raise ValueError("ownership_index_generation_invalid")
+            generation = _decode_json(generation_bytes, reject_duplicate_keys=True)
+            snapshot = self._parse_generation(generation)
+        except (
+            OSError,
+            UnicodeDecodeError,
+            json.JSONDecodeError,
+            TypeError,
+            ValueError,
+        ):
+            raise ValueError("ownership_index_generation_invalid") from None
+        return _OwnershipSnapshot(
+            payload=snapshot.payload,
+            signature=snapshot.signature,
+            source_format=OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION,
+            persisted=True,
+            generation_sha256=generation_sha256,
+            generation_path=generation_path,
+            pointer_sha256=_sha256_bytes(pointer_bytes),
+            payload_sha256=snapshot.payload_sha256,
+            signature_sha256=snapshot.signature_sha256,
+        )
+
+    def _parse_generation(self, generation: Any) -> _OwnershipSnapshot:
+        expected_fields = {
+            "schema_version",
+            "mode",
+            "parent_generation_sha256",
+            "payload",
+            "payload_sha256",
+            "signature",
+            "legacy_source",
+        }
+        if (
+            not isinstance(generation, dict)
+            or set(generation) != expected_fields
+            or generation.get("schema_version") != OWNERSHIP_INDEX_GENERATION_SCHEMA_VERSION
+            or generation.get("mode") != OWNERSHIP_MODE_SHARED_CAS
+        ):
+            raise ValueError("ownership_index_generation_invalid")
+        parent_generation_sha256 = generation.get("parent_generation_sha256")
+        if parent_generation_sha256 is not None and (
+            not isinstance(parent_generation_sha256, str)
+            or _HEX_SHA256.fullmatch(parent_generation_sha256) is None
+        ):
+            raise ValueError("ownership_index_generation_invalid")
+
+        payload = generation.get("payload")
+        self._validate_v2_payload(payload)
+        payload_sha256 = generation.get("payload_sha256")
+        if (
+            not isinstance(payload_sha256, str)
+            or _HEX_SHA256.fullmatch(payload_sha256) is None
+            or _digest_payload(payload) != payload_sha256
+        ):
+            raise ValueError("ownership_index_generation_invalid")
+        signature = generation.get("signature")
+        expected_signature = self._signature_payload(payload, digest=payload_sha256)
+        if not isinstance(signature, dict) or signature != expected_signature:
+            raise ValueError("ownership_index_generation_invalid")
+
+        legacy_source = generation.get("legacy_source")
+        if legacy_source is not None:
+            if parent_generation_sha256 is not None:
+                raise ValueError("ownership_index_generation_invalid")
+            legacy_snapshot = self._validate_legacy_source(legacy_source)
+            self._validate_legacy_claims_preserved(legacy_snapshot.payload, payload)
+        return _OwnershipSnapshot(
+            payload=payload,
+            signature=signature,
+            source_format=OWNERSHIP_INDEX_GENERATION_SCHEMA_VERSION,
+            persisted=True,
+            payload_sha256=payload_sha256,
+            signature_sha256=_digest_payload(signature),
+        )
+
+    def _validate_v2_payload(self, payload: Any) -> None:
+        required_fields = {"schema_version", "mode", "artifacts", "blob_readers"}
+        if (
+            not isinstance(payload, dict)
+            or set(payload) != required_fields
+            or payload.get("schema_version") != OWNERSHIP_INDEX_SCHEMA_VERSION
+            or payload.get("mode") != OWNERSHIP_MODE_SHARED_CAS
+        ):
+            raise ValueError("ownership_index_generation_invalid")
+        try:
+            _artifacts_mapping(payload)
+            _blob_readers_mapping(payload)
+        except (TypeError, ValueError):
+            raise ValueError("ownership_index_generation_invalid") from None
+
+    def _validate_legacy_source(self, legacy_source: Any) -> _OwnershipSnapshot:
+        fields = {
+            "index_bytes_base64",
+            "index_bytes_sha256",
+            "signature_bytes_base64",
+            "signature_bytes_sha256",
+        }
+        if not isinstance(legacy_source, dict) or set(legacy_source) != fields:
+            raise ValueError("ownership_index_generation_invalid")
+        try:
+            index_bytes = base64.b64decode(legacy_source["index_bytes_base64"], validate=True)
+            signature_bytes = base64.b64decode(
+                legacy_source["signature_bytes_base64"], validate=True
+            )
+        except (TypeError, ValueError):
+            raise ValueError("ownership_index_generation_invalid") from None
+        if (
+            base64.b64encode(index_bytes).decode("ascii") != legacy_source["index_bytes_base64"]
+            or base64.b64encode(signature_bytes).decode("ascii")
+            != legacy_source["signature_bytes_base64"]
+            or _sha256_bytes(index_bytes) != legacy_source["index_bytes_sha256"]
+            or _sha256_bytes(signature_bytes) != legacy_source["signature_bytes_sha256"]
+        ):
+            raise ValueError("ownership_index_generation_invalid")
+        return self._parse_legacy_pair(index_bytes, signature_bytes)
+
+    @staticmethod
+    def _validate_legacy_claims_preserved(
+        legacy_payload: dict[str, Any],
+        generation_payload: dict[str, Any],
+    ) -> None:
+        """Require migration to retain every row admitted by the exact old pair."""
+        for field, get_mapping in (
+            ("artifacts", _artifacts_mapping),
+            ("blob_readers", _blob_readers_mapping),
+        ):
+            legacy_rows_by_id = get_mapping(legacy_payload)
+            generation_rows_by_id = get_mapping(generation_payload)
+            for artifact_id, legacy_rows in legacy_rows_by_id.items():
+                remaining_rows = list(generation_rows_by_id.get(artifact_id, []))
+                for legacy_row in legacy_rows:
+                    try:
+                        remaining_rows.remove(legacy_row)
+                    except ValueError:
+                        raise ValueError(
+                            f"ownership_index_generation_{field}_history_lost"
+                        ) from None
 
     def _write_payload(self, payload: dict[str, Any]) -> None:
         self._invalidate_claim_cache()
-        payload["schema_version"] = OWNERSHIP_INDEX_SCHEMA_VERSION
-        payload["mode"] = OWNERSHIP_MODE_SHARED_CAS
-        payload.setdefault("artifacts", {})
-        payload.setdefault("blob_readers", {})
-        AtomicFileWriter.write_atomic(self.path, _json_bytes(payload))
-        digest = _digest_payload(payload)
-        AtomicFileWriter.write_atomic(
-            self.signature_path,
-            _json_bytes(self._signature_payload(payload, digest=digest)),
+        previous = self._load_snapshot()
+        next_payload = dict(payload)
+        next_payload["schema_version"] = OWNERSHIP_INDEX_SCHEMA_VERSION
+        next_payload["mode"] = OWNERSHIP_MODE_SHARED_CAS
+        next_payload.setdefault("artifacts", {})
+        next_payload.setdefault("blob_readers", {})
+        self._validate_v2_payload(next_payload)
+
+        payload_sha256 = _digest_payload(next_payload)
+        signature = self._signature_payload(next_payload, digest=payload_sha256)
+        if previous.source_format == OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION:
+            parent_generation_sha256 = previous.generation_sha256
+            legacy_source: dict[str, str] | None = None
+        elif previous.persisted:
+            if previous.legacy_index_bytes is None or previous.legacy_signature_bytes is None:
+                raise ValueError("ownership_index_signature_invalid")
+            parent_generation_sha256 = None
+            legacy_source = {
+                "index_bytes_base64": base64.b64encode(previous.legacy_index_bytes).decode("ascii"),
+                "index_bytes_sha256": _sha256_bytes(previous.legacy_index_bytes),
+                "signature_bytes_base64": base64.b64encode(previous.legacy_signature_bytes).decode(
+                    "ascii"
+                ),
+                "signature_bytes_sha256": _sha256_bytes(previous.legacy_signature_bytes),
+            }
+        else:
+            parent_generation_sha256 = None
+            legacy_source = None
+
+        generation = {
+            "schema_version": OWNERSHIP_INDEX_GENERATION_SCHEMA_VERSION,
+            "mode": OWNERSHIP_MODE_SHARED_CAS,
+            "parent_generation_sha256": parent_generation_sha256,
+            "payload": next_payload,
+            "payload_sha256": payload_sha256,
+            "signature": signature,
+            "legacy_source": legacy_source,
+        }
+        generation_bytes = _json_bytes(generation)
+        generation_sha256 = _sha256_bytes(generation_bytes)
+        generation_path = self._generation_path(generation_sha256)
+        generations_directory = generation_path.parent
+        ensure_directory_durable(generations_directory)
+        created = AtomicFileWriter.write_once(
+            generation_path,
+            generation_bytes,
+            durable_parent=True,
         )
+        if not created:
+            try:
+                existing_bytes = generation_path.read_bytes()
+            except OSError:
+                raise ValueError("ownership_index_generation_invalid") from None
+            if existing_bytes != generation_bytes:
+                raise ValueError("ownership_index_generation_invalid")
+            fsync_directory(generations_directory)
+
+        pointer = {
+            "schema_version": OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION,
+            "mode": OWNERSHIP_MODE_SHARED_CAS,
+            "generation_sha256": generation_sha256,
+        }
+        pointer_bytes = _json_bytes(pointer)
+        try:
+            AtomicFileWriter.write_atomic(self.path, pointer_bytes, durable_parent=True)
+        except AtomicFileDurabilityError as exc:
+            if not exc.replaced:
+                raise
+            observed_generation_sha256: str | None = None
+            try:
+                observed = self._load_snapshot()
+                observed_generation_sha256 = observed.generation_sha256
+            except (OSError, TypeError, ValueError):
+                pass
+            raise OwnershipIndexPublicationIndeterminateError(
+                generation_sha256,
+                observed_generation_sha256,
+            ) from exc
+        self._invalidate_claim_cache()
 
     def _signature_payload(self, payload: dict[str, Any], *, digest: str) -> dict[str, Any]:
-        index_schema_version = str(
-            payload.get("schema_version") or OWNERSHIP_INDEX_SCHEMA_VERSION
-        )
+        index_schema_version = str(payload.get("schema_version") or OWNERSHIP_INDEX_SCHEMA_VERSION)
         if index_schema_version == _OWNERSHIP_INDEX_SCHEMA_VERSION_V1:
             signature_schema_version = _OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V1
         elif index_schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
@@ -693,17 +1096,44 @@ def _json_bytes(payload: dict[str, Any]) -> bytes:
     return (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
+def _sha256_bytes(data: bytes) -> str:
+    return "sha256:" + hashlib.sha256(data).hexdigest()
+
+
+def _decode_json(data: bytes, *, reject_duplicate_keys: bool = False) -> Any:
+    text = data.decode("utf-8")
+    if not reject_duplicate_keys:
+        return json.loads(text)
+
+    def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        value: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in value:
+                raise _DuplicateJSONKeyError("duplicate_json_key")
+            value[key] = item
+        return value
+
+    return json.loads(text, object_pairs_hook=unique_object)
+
+
 def _load_json_file(path: Path) -> Any:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
+        return _decode_json(path.read_bytes(), reject_duplicate_keys=True)
+    except (FileNotFoundError, UnicodeDecodeError, json.JSONDecodeError):
         return None
+    except _DuplicateJSONKeyError:
+        raise ValueError("ownership_index_document_invalid") from None
 
 
 __all__ = [
+    "OWNERSHIP_EVIDENCE_SCHEMA_VERSION_V3",
+    "OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1",
+    "OWNERSHIP_INDEX_GENERATION_SCHEMA_VERSION",
+    "OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION",
     "OWNERSHIP_INDEX_SCHEMA_VERSION",
     "OWNERSHIP_MODE_SHARED_CAS",
     "OWNERSHIP_SIGNATURE_SCHEMA_VERSION",
     "ArtifactOwnershipError",
     "ArtifactOwnershipIndex",
+    "OwnershipIndexPublicationIndeterminateError",
 ]

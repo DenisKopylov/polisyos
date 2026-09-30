@@ -4456,6 +4456,29 @@ class FoundryValuePort:
         return record, "built", None
 
 
+def _validated_n8_candidate_simulation_blockers(
+    value_packet: object,
+) -> tuple[frozenset[str] | None, str | None]:
+    """Validate the complete persisted N5 blocker set for candidate-only use."""
+
+    if not isinstance(value_packet, Mapping):
+        return None, "n8_persisted_value_packet_invalid"
+    raw_blockers = value_packet.get("authority_blockers", ())
+    if not isinstance(raw_blockers, Sequence) or isinstance(
+        raw_blockers, str | bytes | bytearray
+    ):
+        return None, "n8_persisted_blocker_set_invalid"
+    blockers: set[str] = set()
+    for blocker in raw_blockers:
+        if not isinstance(blocker, str) or not blocker.strip():
+            return None, "n8_persisted_blocker_item_invalid"
+        blockers.add(blocker)
+    persisted_blockers = frozenset(blockers)
+    if not persisted_blockers.issubset(_N8_CANDIDATE_SIMULATION_LIMITATIONS):
+        return None, "n8_persisted_blocker_not_candidate_allowlisted"
+    return persisted_blockers, None
+
+
 def _conditional_simulation_value_observation(
     *,
     candidate: object,
@@ -4524,14 +4547,29 @@ def _conditional_simulation_value_observation(
             candidate_id=candidate_id,
             world_model_record_content_hash=world_hash,
         )
-    if not blockers and result.state_consumption is None:
+    persisted_blockers, blocker_error = _validated_n8_candidate_simulation_blockers(
+        result.promotion_ready_value_packet
+    )
+    if blocker_error is not None or persisted_blockers is None:
+        return _blocked_value_observation(
+            code=blocker_error or "n8_persisted_blocker_set_invalid",
+            reason=(
+                "N8 refuses persisted N5 blockers that are malformed or outside "
+                "the candidate limitation set."
+            ),
+            mode="simulate_only",
+            started=started,
+            candidate_id=candidate_id,
+            world_model_record_content_hash=world_hash,
+        )
+    if not blockers and not persisted_blockers and result.state_consumption is None:
         # A verified historical v1 input can continue to EvalSafety. A v2
         # result must carry its persisted limitations through this path.
         return None
     if result.state_consumption is not None:
-        persisted_limitations = set(result.state_consumption.authority_limitations)
-        if not persisted_limitations.issubset(blockers) or not persisted_limitations.issubset(
-            result.promotion_ready_value_packet.get("authority_blockers", ())
+        state_limitations = set(result.state_consumption.authority_limitations)
+        if not state_limitations.issubset(blockers) or not state_limitations.issubset(
+            persisted_blockers
         ):
             return _blocked_value_observation(
                 code="n8_state_consumption_limitation_mismatch",
@@ -4541,7 +4579,7 @@ def _conditional_simulation_value_observation(
                 candidate_id=candidate_id,
                 world_model_record_content_hash=world_hash,
             )
-        blockers.update(persisted_limitations)
+    blockers.update(persisted_blockers)
     return ValuePortObservation(
         status="value_conditional",
         candidate_id=candidate_id,

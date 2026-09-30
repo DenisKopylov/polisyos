@@ -3618,6 +3618,286 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
         store.close()
 
 
+@pytest.mark.asyncio
+async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
+    tmp_path: Path,
+) -> None:
+    """N8 retains verified packet blockers omitted by an injected N5 port projection."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        simulation_evaluation_input_ref,
+        simulation_value_execution_context,
+    )
+
+    store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    hints = {
+        "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+        "joint_simulation_baseline_state": {"firm_survival": 0.0},
+    }
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        runtime_hints=hints,
+    )
+
+    class _ControlledN4:
+        async def __call__(self, generated_problem: DesignProblem, *, cycle_index: int) -> Any:
+            assert generated_problem.design_problem_id == problem.design_problem_id
+            assert cycle_index == 0
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(candidate_id=candidate.candidate_id, score=0.9, voi_estimate=4.0),
+                ),
+            )
+
+    def limited_candidate_grounding(
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=candidate.candidate_id,
+            status="grounding_unavailable",
+            grounding_score=0.2,
+            issue_codes=("controlled_profile_grounding_unavailable",),
+            grounding_source="grounding_unavailable",
+        )
+
+    producer = JointSimulationPort(
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+
+    class _LossySimulationPort:
+        def __init__(self) -> None:
+            self.original_authority_blockers: tuple[str, ...] = ()
+
+        def __call__(
+            self,
+            *,
+            candidate: object,
+            problem: DesignProblem,
+            cycle_index: int,
+        ) -> SimulationPortObservation:
+            observation = producer(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+            )
+            self.original_authority_blockers = observation.authority_blockers
+            return observation.model_copy(
+                update={
+                    "authority_blockers": tuple(
+                        blocker
+                        for blocker in observation.authority_blockers
+                        if blocker != "interaction_evidence_incomplete"
+                    )
+                }
+            )
+
+    lossy_port = _LossySimulationPort()
+    controller = GenerationCycleController(
+        generation_port=_ControlledN4(),
+        grounding_port=limited_candidate_grounding,
+        simulation_port=lossy_port,
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+        authority_scope="contract_testing",
+    )
+    assert controller._simulation_port is lossy_port
+    assert controller._value_port.artifact_store is store
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            run = await controller.run(
+                problem,
+                budget_state=_budget(),
+                min_cycles=1,
+                max_cycles=1,
+            )
+            assert run.promotion_port.status == "not_promoted"
+            assert run.promotion_port.receipts == ()
+            cycle = run.cycles[0]
+            simulation = cycle.simulation
+            assert simulation.status == "joint_simulated"
+            assert simulation.simulation_result_ref is not None
+            assert "interaction_evidence_incomplete" in lossy_port.original_authority_blockers
+            assert "interaction_evidence_incomplete" not in simulation.authority_blockers
+
+            persisted = load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=context.world_model_record.content_hash,
+                expected_atom_ids=tuple(
+                    atom.intervention_id for atom in candidate.intervention_atoms
+                ),
+                expected_selected_outcomes=("firm_survival",),
+            )
+            assert set(persisted.interaction_terms[0].by_step) == {0}
+            assert abs(persisted.interaction_terms[0].by_step[0]) > 1e-6
+            assert "interaction_evidence_incomplete" in set(
+                persisted.promotion_ready_value_packet["authority_blockers"]
+            )
+
+            value = cycle.value_port
+            assert value.status == "value_conditional"
+            assert value.evaluation_mode == "simulate_only"
+            assert value.decision_grade == "low"
+            assert "interaction_evidence_incomplete" in value.authority_blockers
+            assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
+            assert value.value_receipt is None
+            assert value.method_selection_receipt is None
+            assert simulation_evaluation_input_ref(
+                simulation,
+                artifact_store=store,
+            ) is None
+            with pytest.raises(
+                ValueError,
+                match="eval_safety_simulation_input_unresolved",
+            ):
+                simulation_value_execution_context(
+                    candidate=candidate,
+                    simulation=simulation,
+                    problem=problem,
+                    artifact_store=store,
+                )
+    finally:
+        store.close()
+
+
+@pytest.mark.parametrize(
+    ("persisted_blockers", "expected_blocker"),
+    [
+        pytest.param(
+            ["n8_future_persisted_blocker"],
+            "n8_persisted_blocker_not_candidate_allowlisted",
+            id="unknown-persisted-blocker",
+        ),
+        pytest.param(
+            {"malformed": "container"},
+            "n8_persisted_blocker_set_invalid",
+            id="malformed-blocker-container",
+        ),
+        pytest.param(
+            [None],
+            "n8_persisted_blocker_item_invalid",
+            id="malformed-blocker-item",
+        ),
+    ],
+)
+def test_n8_types_unknown_or_malformed_content_bound_persisted_blockers(
+    tmp_path: Path,
+    persisted_blockers: object,
+    expected_blocker: str,
+) -> None:
+    """Unknown or malformed signed N5 blockers stop before EvalSafety and value owners."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        build_content_bound_simulation_receipt,
+    )
+
+    witness = _owner_program_graph_n5_witness(
+        tmp_path,
+        income_values=(1000.0, 2000.0),
+    )
+
+    class _UnexpectedCallProbe:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def __getattr__(self, method_name: str) -> Any:
+            self.calls.append(method_name)
+            raise AssertionError(f"unexpected downstream call: {method_name}")
+
+    owner_probe = _UnexpectedCallProbe()
+    eval_safety_probe = _UnexpectedCallProbe()
+    try:
+        payload = copy.deepcopy(witness.result.content_bound_payload())
+        packet = dict(payload["promotion_ready_value_packet"])
+        if isinstance(persisted_blockers, dict):
+            assert witness.result.state_consumption is not None
+            raw_blockers: object = {
+                **dict.fromkeys(
+                    witness.result.state_consumption.authority_limitations,
+                    "retained-for-loader-handshake",
+                ),
+                **persisted_blockers,
+            }
+        else:
+            assert isinstance(persisted_blockers, list)
+            raw_blockers = [
+                *packet.get("authority_blockers", ()),
+                *persisted_blockers,
+            ]
+        packet["authority_blockers"] = raw_blockers
+        payload["promotion_ready_value_packet"] = packet
+        receipt = build_content_bound_simulation_receipt(
+            engine_kind=witness.result.receipt.engine_kind,
+            payload=payload,
+            diagnostics=payload["diagnostics"],
+        )
+        persisted_result = type(witness.result).model_validate(
+            {
+                **payload,
+                "receipt": receipt.model_dump(mode="json"),
+            }
+        )
+        persisted_result._content_payload = payload
+
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            result_ref = generation_cycle_module.persist_joint_simulation_result(
+                persisted_result,
+                store=witness.store,
+            )
+            loaded = generation_cycle_module.load_joint_simulation_result(
+                result_ref,
+                store=witness.store,
+                expected_world_model_record_content_hash=(
+                    witness.context.world_model_record.content_hash
+                ),
+            )
+            assert loaded.promotion_ready_value_packet["authority_blockers"] == raw_blockers
+            simulation = witness.simulation.model_copy(
+                update={
+                    "simulation_ref": receipt.payload_hash,
+                    "simulation_result_ref": result_ref,
+                }
+            )
+            value = generation_cycle_module._DefaultSimulationBoundFoundryValuePort(
+                repo_root=REPO_ROOT,
+                cycle_substrate_context=witness.context,
+                artifact_store=witness.store,
+                owner_gateway=owner_probe,
+                eval_safety_verifier=eval_safety_probe,
+            )(
+                candidate=witness.candidate,
+                simulation=simulation,
+                problem=witness.problem,
+                cycle_index=0,
+            )
+
+        assert value.status == "value_blocked"
+        assert value.authority_blockers == (expected_blocker,)
+        assert value.evaluation_mode == "simulate_only"
+        assert value.decision_grade == "blocked"
+        assert value.value_ref is None
+        assert value.value_receipt is None
+        assert value.method_selection_receipt is None
+        assert owner_probe.calls == []
+        assert eval_safety_probe.calls == []
+    finally:
+        witness.store.close()
+
+
 def test_joint_port_blocks_context_selected_ncm_owned_by_another_tenant(tmp_path: Path) -> None:
     """The served N5 path cannot read a selected NCM outside the active tenant scope."""
 

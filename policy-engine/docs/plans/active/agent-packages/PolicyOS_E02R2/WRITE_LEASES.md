@@ -1,5 +1,25 @@
 # E02-R2 write leases
 
+## Current coordination after `f1696abca` (2026-09-30)
+
+Root is the only writer to `codex/e02-r2`; the canonical worktree is clean at
+this coordination cut. Candidate writers edit scratch copies only. The older
+tables below record earlier leases and are superseded where they differ.
+
+| Work | Scratch write set | Integration order |
+| --- | --- | --- |
+| B26 N8 blocker reconciliation | Released in `602c40817`: `generation_cycle.py` and `test_generation_cycle.py`. | Seven focused selectors pass, the marker-retaining removal probe fails as intended, and the restored control passes. Whole file is 166/167; the N9 red has unresolved exact-parent P41 attribution. B26 remains partial. |
+| B26 receipt and ledger | `PolicyOS_E02R2/BASELINES.md`, `FINAL_REPORT.md`, `OPEN_PREMISES.md`, B26 row in `RESIDUAL_LEDGER.md` and `residual_ledger.json` only. | Scratch patch awaits a correction to the exact `59a4ea890` P41 parent and independent delta review. Root applies it after review. |
+| R14 worker/store custody | `core/security/tenant_context.py`, `runtime/http/services/control_plane_store.py`, `runtime/http/services/control_worker.py`; `test_tenant_context.py`, `test_control_plane_store.py`, `test_control_worker_custody.py`. | Scratch writer is repairing type-strict event/row equality and actor binding after independent review. This prerequisite cannot be integrated or claimed complete without the lifecycle producer and pre-CAS consumer below. |
+| R14 lifecycle custody | `runtime/http/services/control/run_lifecycle.py`, `runtime/http/services/acquisition_action_service.py`, `runtime/quality/workspace/loop.py`; mirrored `test_control_api.py`, `test_control_job_execution_intent.py`, `test_workspace_loop_transition.py`, and acquisition worker tests. | Separate scratch writer consumes the written R14 scope interface. Root reviews and integrates the core and lifecycle parts as one frozen class wave, then runs served workflow/NL/unknown-scope witnesses. No shared source or test path with the core writer. |
+| R1 EvalSafety source fixture | `test_evaluation_safety_admission.py` and `test_evaluation_safety_promotion_bridge.py` only. | A scratch test writer is widening the shared principal fixture after a P40 review. Preserve the missing-principal refusal and do not mistake these component tests for the served N4→N5→S8 capability. |
+| Held and no-record audits | Read-only E02 cards, package records, current source/tests. | Four direct auditors are preparing finding-level dispositions; they have no canonical writer lease. |
+
+No generated family, governed receipt, plan, or debt-register edit is leased.
+The production-data tree remains read-only. A canonical test run freezes all
+canonical paths for its full duration; scratch writers must never patch that
+tree. The agreed disk floor is 8 GiB, and Trash is never emptied by this lane.
+
 ## Current leases after `893743e62` (2026-09-30)
 
 Root alone writes `codex/e02-r2`. The branch is clean at this coordination

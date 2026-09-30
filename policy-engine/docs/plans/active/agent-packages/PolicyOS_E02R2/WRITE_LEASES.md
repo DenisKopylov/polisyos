@@ -1,5 +1,23 @@
 # E02-R2 write leases
 
+## Current leases after `893743e62` (2026-09-30)
+
+Root alone writes `codex/e02-r2`. The branch is clean at this coordination
+cut. Earlier sections below retain their historical decisions and file sets.
+
+| Work | Scratch writer's exact file set | Integration order |
+| --- | --- | --- |
+| R10 guarded signature verifier | Released at `fe246c65b`; the eleven source and test paths below are committed. | The receipt writer may prepare `BASELINES.md` and `FINAL_REPORT.md` in scratch. Root applies reviewed documentation after code. The served worker custody combination remains open under R14. |
+| R14 discovery snapshot reader | Released at `8cedf3311`; `test_control_api.py` is committed. | Its one remaining whole-file red is the separate worker handoff class. No other writer has this test file until the worker lease is reviewed. |
+| R2 bounded N6 source census | Released at `893743e62`; `generation_cycle.py` and `test_generation_cycle_history.py` are committed. | The positive detector still fails, a negative scan is `UNRUN`, and historical replay remains source-free. B26 may next write `generation_cycle.py` only after its own review. |
+| B26 N8 persisted blocker reconciliation | `generation_cycle.py`, `test_generation_cycle.py` only; scratch writer is active, with no canonical write. | Root integrates after independent patch review. This uses the released R2 source path and must preserve the R2 census. |
+| R14 worker tenant/cell custody | Proposed: `core/security/tenant_context.py`, `runtime/http/services/control_worker.py`, `runtime/http/services/control_plane_store.py`, `runtime/http/services/control/run_lifecycle.py`; mirrored worker, store, intent, and control API tests. | Design is being widened after a second same-class review finding. No code writer or canonical lease until it covers every worker identity producer, unknown-scope refresh, and the early NL manifest read. |
+
+The B26 and R14 worker source sets do not overlap. `test_control_api.py` is
+reserved for the R14 worker slice; `generation_cycle.py` is reserved for B26.
+Generated families, governed receipts, plans, and the debt register have no
+writer lease. Test runs freeze the canonical tree for their full duration.
+
 ## Current coordination after `b4c3de789` (2026-09-30)
 
 Root is the only writer to `codex/e02-r2`; the tree was clean after the bounded

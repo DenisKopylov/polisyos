@@ -1248,11 +1248,80 @@ def test_production_record_reservation_admits_one_live_winner(tmp_path: Path) ->
     assert _human_decision_record_ids(fixture.base.store) == {first.record_ref}
 
 
+def _write_nonempty_v2_owner_pair(
+    root: Path,
+    *,
+    artifact_refs: tuple[str, ...],
+) -> tuple[Any, dict[str | None, dict[str, Any]], bytes, bytes]:
+    """Persist and read a nonempty local-integrity V2 owner pair."""
+    import hashlib
+
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.ownership import (
+        OWNERSHIP_INDEX_SCHEMA_VERSION,
+        OWNERSHIP_MODE_SHARED_CAS,
+        ArtifactOwnershipIndex,
+    )
+    from polisyos.core.canon.canon_json import to_canonical_bytes
+
+    index = ArtifactOwnershipIndex(root)
+    index.path.parent.mkdir(parents=True)
+    artifacts = {
+        str(ArtifactID.model_validate(artifact_ref)): [
+            {
+                "tenant_id": "tenant-a",
+                "claimed_at": "2024-01-01T00:00:00+00:00",
+                "writer": "r9-v2-service-test",
+            },
+            {
+                "tenant_id": "tenant-a",
+                "cell_id": "cell-a",
+                "claimed_at": "2024-01-01T00:00:00+00:00",
+                "writer": "r9-v2-service-test",
+            },
+        ]
+        for artifact_ref in artifact_refs
+    }
+    payload: dict[str, Any] = {
+        "schema_version": OWNERSHIP_INDEX_SCHEMA_VERSION,
+        "mode": OWNERSHIP_MODE_SHARED_CAS,
+        "artifacts": artifacts,
+        "blob_readers": {},
+    }
+    index_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
+    index.path.write_bytes(index_bytes)
+    index_digest = "sha256:" + hashlib.sha256(
+        to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
+    ).hexdigest()
+    signature = index._signature_payload(payload, digest=index_digest)
+    signature_bytes = (json.dumps(signature, indent=2, sort_keys=True) + "\n").encode()
+    index.signature_path.write_bytes(signature_bytes)
+
+    evidence_by_cell = {
+        None: index.evidence(tenant_id="tenant-a"),
+        "cell-a": index.evidence(tenant_id="tenant-a", cell_id="cell-a"),
+    }
+    for evidence in evidence_by_cell.values():
+        assert evidence["schema_version"] == OWNERSHIP_INDEX_SCHEMA_VERSION
+        assert "ownership_index_format" not in evidence
+        assert evidence["artifact_count"] == len(artifacts) > 0
+        assert evidence["tenant_artifact_count"] == len(artifacts) > 0
+    assert index.path.read_bytes() == index_bytes
+    assert index.signature_path.read_bytes() == signature_bytes
+    return index, evidence_by_cell, index_bytes, signature_bytes
+
+
 def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitute(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     fixture = _signed_current_production_gate_fixture(tmp_path)
+    v2_index, v2_evidence_by_cell, v2_index_bytes, v2_signature_bytes = (
+        _write_nonempty_v2_owner_pair(
+            tmp_path / "independent-v2-owner-pair",
+            artifact_refs=(fixture.scorecard_ref, fixture.basis_ref),
+        )
+    )
     contracts = _contracts()
     created = _create_record_with_bound_mutation(
         fixture.base.service,
@@ -1319,6 +1388,7 @@ def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitut
             "schema_version": "policyos.artifact_ownership_index.v2",
             "ownership_index_format": "ephemeral_empty_v2",
         },
+        v2_evidence_by_cell[None],
         {"schema_version": "policyos.artifact_ownership_index.v1"},
         owner_after,
     )
@@ -1364,6 +1434,15 @@ def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitut
     # the central owner-format gate, and show the operational reader accepts
     # the otherwise-valid signed V2 packet despite the stale marker.
     monkeypatch.setattr(
+        sink_type,
+        "ownership_evidence",
+        lambda _sink, *, tenant_id, cell_id: {
+            **v2_evidence_by_cell[None],
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+        },
+    )
+    monkeypatch.setattr(
         _service_module().HumanDecisionService,
         "_require_v2_approval_owner_format",
         lambda self, **_kwargs: None,
@@ -1383,6 +1462,8 @@ def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitut
     assert unguarded.packet.evidence_refs["artifact_ownership_index_signature"] == (
         owner_before["ownership_index_signature_digest"]
     )
+    assert v2_index.path.read_bytes() == v2_index_bytes
+    assert v2_index.signature_path.read_bytes() == v2_signature_bytes
 
 
 def test_v2_packet_issuer_refuses_empty_legacy_and_pointer_owner_states(
@@ -1390,6 +1471,12 @@ def test_v2_packet_issuer_refuses_empty_legacy_and_pointer_owner_states(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     fixture = _signed_current_production_gate_fixture(tmp_path)
+    v2_index, v2_evidence_by_cell, v2_index_bytes, v2_signature_bytes = (
+        _write_nonempty_v2_owner_pair(
+            tmp_path / "independent-v2-owner-pair",
+            artifact_refs=(fixture.scorecard_ref, fixture.basis_ref),
+        )
+    )
     contracts = _contracts()
     created = _create_record_with_bound_mutation(
         fixture.base.service,
@@ -1433,6 +1520,7 @@ def test_v2_packet_issuer_refuses_empty_legacy_and_pointer_owner_states(
             "schema_version": "policyos.artifact_ownership_index.v2",
             "ownership_index_format": "ephemeral_empty_v2",
         },
+        v2_evidence_by_cell["cell-a"],
         {"schema_version": "policyos.artifact_ownership_index.v1"},
         owner_evidence,
     )
@@ -1481,6 +1569,9 @@ def test_v2_packet_issuer_refuses_empty_legacy_and_pointer_owner_states(
         ),
     )
     assert fixture.base.store.has(candidate_ref.artifact_id)
+    assert fixture.base.store.get_bytes(candidate_ref) == b"ordinary candidate artifact"
+    assert v2_index.path.read_bytes() == v2_index_bytes
+    assert v2_index.signature_path.read_bytes() == v2_signature_bytes
 
 
 def test_production_packet_without_custody_signature_is_typed_refusal(

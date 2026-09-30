@@ -1,0 +1,6229 @@
+"""Control Plane service — bridges HTTP layer to scientist/fabric."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import time
+import uuid
+from collections.abc import Mapping
+from contextlib import AbstractContextManager, contextmanager, nullcontext
+from dataclasses import dataclass, replace
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+
+from opentelemetry.context import attach, detach
+from pydantic import BaseModel, ConfigDict, Field
+
+from polisyos.common.logger import get_logger
+from polisyos.core import artifacts, registry, run
+from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.manifest import (
+    ArtifactGovernanceInfo,
+    ArtifactManifest,
+    ArtifactRef,
+    ProducerInfo,
+    SchemaInfo,
+)
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import (
+    CanonSpec,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
+from polisyos.core.canon import (
+    content_hash as canonical_content_hash,
+)
+from polisyos.core.contracts import (
+    CapabilityDiscoveryRequest,
+    CapabilityDiscoveryResponse,
+    SearchRequest,
+)
+from polisyos.core.contracts.control import (
+    BindingProfileInfo,
+    BindingProfilesListResponse,
+    CacheStatusResponse,
+    ConnectorInfo,
+    ConnectorsListResponse,
+    ControlJobResponse,
+    ControlOutboxEventInfo,
+    ControlOutboxEventsResponse,
+    ControlWorkerLeaseInfo,
+    ControlWorkersResponse,
+    DataDiscoverRequest,
+    DataDiscoverResponse,
+    DataPreviewRequest,
+    DataPreviewResponse,
+    DataResolveRequest,
+    DataResolveResponse,
+    DecisionValidityEventRequest,
+    DecisionValidityEventResponse,
+    DecisionValidityLifecycleSummary,
+    DecisionValidityPendingReview,
+    DecisionValiditySummaryResponse,
+    EpochValidityBatchRequest,
+    EpochValidityBatchResponse,
+    ExecutionProfile,
+    IndexStatsResponse,
+    IngestRequest,
+    IngestResponse,
+    ModelProfileInfo,
+    ModelProfilesListResponse,
+    NaturalLanguageRunRequest,
+    PolicyFlags,
+    PromotionCandidatesResponse,
+    PromotionDecisionRequest,
+    PromotionDecisionResponse,
+    RunLaunchResponse,
+    SourceProfileInfo,
+    SourceProfilesListResponse,
+    WorkflowRunRequest,
+)
+from polisyos.core.contracts.decision_validity import (
+    DecisionDependencyEvent,
+    DecisionTriggerRecord,
+    DecisionTriggerType,
+    DecisionValidityStatus,
+)
+from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.core.security import tenant_scope
+from polisyos.runtime.http.errors import conflict, forbidden, unprocessable_entity
+from polisyos.runtime.http.execution_policy import (
+    ExecutionProfileError,
+    PolicyFlagForbiddenError,
+    ResolvedExecutionPolicy,
+    RuntimeExecutionPolicyResolver,
+    RuntimePrincipal,
+    build_capability_manifest_payload,
+)
+from polisyos.runtime.http.resilience import (
+    guard_runtime_cas,
+    guard_runtime_control_store,
+    run_guarded_dependency_operation,
+)
+from polisyos.runtime.http.services.adapters.core_run import (
+    derive_core_run_dir,
+    load_terminal_core_run_source,
+)
+from polisyos.runtime.http.services.control.admission import (
+    _record_control_plane_job_admission_metric,
+    _record_control_plane_job_execution_metric,
+)
+from polisyos.runtime.http.services.control.artifacts import (
+    DIAGNOSTIC_EVENT_ARTIFACT_KIND,
+    AuthorityArtifactWriteResult,
+    _artifact_ref_from_summary_payload,
+    _make_artifact_ref,
+    _resolve_curated_dir,
+    write_runtime_authority_artifact,
+)
+from polisyos.runtime.http.services.control.capabilities import CapabilityManifestMixin
+from polisyos.runtime.http.services.control.evaluation_safety import (
+    EvaluationSafetyAdmissionVerifier,
+    EvaluationSafetyAttemptAuthorities,
+    EvaluationSafetyDecisionEvidence,
+    EvaluationSafetyPersistenceContext,
+    EvaluationSafetyPersistenceService,
+    EvaluationSafetyPromotionSourceContext,
+    EvaluationSafetyPromotionSourceSlot,
+    EvaluationSafetyReplayMaterial,
+    PersistedEvaluationSafetyAttempt,
+    PersistedEvaluationSafetyProjection,
+)
+from polisyos.runtime.http.services.control.lex_pipeline import LexPipelineMixin
+from polisyos.runtime.http.services.control.nl_pipeline import NaturalLanguageRunMixin
+from polisyos.runtime.http.services.control.response_shapes import (
+    _decision_validity_dedupe_payload,
+)
+from polisyos.runtime.http.services.control.workspace_loop_transition import (
+    ControlPlaneWorkspaceLoopTransitionMixin,
+    _WorkflowExecutionNonAuthorityError,
+)
+from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionRouteLoopReceipt,
+    AcquisitionRoutePhaseReceipt,
+)
+from polisyos.runtime.quality.authority import GovernanceMetadata, SameInputClosure
+from polisyos.runtime.quality.authority_reconciliation import (
+    AuthorityReconciliationReport,
+    reconcile_authority_ref,
+)
+from polisyos.runtime.quality.design_axes.value_choice_provenance import (
+    NormativeAuthorityTrust,
+    P20NormativeChoiceError,
+)
+from polisyos.runtime.quality.diagnostic_events import (
+    DIAGNOSTIC_EVENT_SCHEMA_NAME,
+    DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+    SERIOUS_EXECUTION_PROFILES,
+    DiagnosticEvent,
+)
+from polisyos.runtime.quality.epoch_validity_cascade import (
+    persist_advisory_perturbation_event,
+)
+from polisyos.runtime.quality.evaluation_modes import (
+    EvaluationMode,
+    ExecutionIntentBand,
+    resolve_evaluation_mode,
+    resolve_execution_intent_band,
+)
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyAppointmentResolution,
+    EvalSafetyAuthorityResolution,
+    EvaluationAttemptIntake,
+    EvaluationExecutionContext,
+    evaluation_execution_context_hash,
+)
+from polisyos.runtime.quality.event_log import (
+    DiagnosticEventPayloadPolicy,
+    RuntimeDiagnosticEventLog,
+)
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+from polisyos.runtime.quality.source_truth import (
+    SourceTruthContractError,
+    detect_source_truth_conflict,
+)
+from polisyos.scientist import (
+    ClaimLifecycleBridgeAdvanced,
+    EpochClaimLifecycleBridgeService,
+    build_default_claim_ledger_owner,
+    build_epoch_claim_lifecycle_bridge,
+)
+from polisyos.scientist.governance.continuous import (
+    PublicSignaturePopulationProvider,
+    PublishedSignatureCustodyResult,
+    PublishedSignatureCustodyWatcher,
+    resolve_governance_monitor_event,
+)
+from polisyos.scientist.orchestration.llm.provider_verification import run_provider_preflight
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
+
+from .._control_contracts import (
+    _DATA_SOURCE_KEYS,
+    _OPTIONAL_INPUT_KEYS,
+    _build_api_meta,
+    _coerce_control_job_kind,
+    _coerce_optional_execution_profile,
+    _coerce_retrieval_mode,
+    _dedupe_models,
+    _is_multimodel_enabled,
+    _resolve_data_source,
+)
+from ..control_plane_store import (
+    AcquisitionActionHeadRecord,
+    ControlJobRecord,
+    ControlPlaneStore,
+    HumanDecisionRecoveryFence,
+    HumanDecisionReservationRecord,
+    HumanDecisionReservationResult,
+    HumanDecisionWriteFence,
+)
+from ..control_worker import ControlWorker
+
+logger = get_logger(__name__)
+_SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
+_EVALUATION_SAFETY_ATTEMPT_KEY = "evaluation_safety_attempt"
+_EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY = "_polisyos_eval_safety_execution_context"
+_EXECUTION_INTENT_BINDING_KEY = "execution_intent_binding"
+# These request keys can assert owner scope; the worker supplies them from its
+# replay-validated actor/job binding or omits them when that binding is unknown.
+_NL_JOB_OWNER_CONTEXT_KEYS = frozenset(
+    {"tenant_id", "cell_id", "job_id", "run_id", "runtime_identity"}
+)
+_EXECUTION_INTENT_BINDING_SCHEMA = "polisyos.runtime.control_execution_intent.v2"
+_NL_AUTHORIZATION_RECEIPT_KEY = "nl_authorization_receipt"
+_NL_REQUEST_SNAPSHOT_KEY = "nl_request_snapshot"
+_NL_REQUEST_SNAPSHOT_SCHEMA = "polisyos.runtime.control_nl_request_snapshot.v1"
+_NL_REQUEST_SNAPSHOT_DIGEST_PROFILE = (
+    "polisyos.runtime.authorization.nl_request_snapshot.canonical_json.v1"
+)
+_NL_ROUTE_ID = "POST /api/v1/control/runs/nl"
+_NL_ROUTE_ACTION = "control.launch_nl_run"
+
+
+def _nl_request_body_bytes(request: NaturalLanguageRunRequest) -> bytes:
+    """Serialize a typed request deterministically for non-HTTP owner tests."""
+    return json.dumps(
+        request.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+
+
+def _validate_nl_request_json_values(request: NaturalLanguageRunRequest) -> None:
+    """Reject values the runtime's canonical JSON owner cannot represent."""
+    from polisyos.runtime.http.resource_binding import _digest_payload
+
+    _digest_payload(request.model_dump(mode="python"))
+
+
+def _nl_request_snapshot_content_hash(snapshot: Mapping[str, Any]) -> str:
+    """Hash the pinned JSON request snapshot profile, including finite numbers."""
+    if (
+        snapshot.get("schema_version") != _NL_REQUEST_SNAPSHOT_SCHEMA
+        or snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE
+    ):
+        raise ValueError("nl_authorized_request_snapshot_digest_profile_invalid")
+    from polisyos.runtime.http.resource_binding import _digest_payload
+
+    return _digest_payload(dict(snapshot))
+
+
+_EPOCH_VALIDITY_INTAKE_FAILURE_CODES = frozenset(
+    {
+        "verifier_not_configured",
+        "ref_unresolved",
+        "content_hash_mismatch",
+        "signature_unverified",
+        "authority_purpose_mismatch",
+        "query_context_mismatch",
+        "dependency_denominator_unresolved",
+        "target_denominator_mismatch",
+        "verifier_provenance_untrusted",
+        "epoch_pending_verification_binding_mismatch",
+        "epoch_completed_verification_binding_mismatch",
+        "decision_validity_epoch_receipt_unresolved",
+        "epoch_transition_signer_not_established",
+        "epoch_transition_exact_evidence_unavailable",
+        "epoch_transition_disposition_unresolved",
+        "epoch_denominator_reconciliation_unavailable",
+        "epoch_denominator_reconciliation_unresolved",
+        "epoch_denominator_reconciliation_ambiguous",
+        "epoch_denominator_reconciliation_admission_conflict",
+        "epoch_denominator_membership_mismatch",
+    }
+)
+_MONITOR_TRIGGER_BY_SOURCE_CLASS: dict[str, DecisionTriggerType] = {
+    "incident": DecisionTriggerType.POST_DEPLOYMENT_REFUTATION,
+    "appeal": DecisionTriggerType.EXPERT_REVIEW,
+    "correction": DecisionTriggerType.DATA_INVALIDATION,
+    "retraction": DecisionTriggerType.SOURCE_INVALIDATION,
+    "legal_change": DecisionTriggerType.LAW_CHANGE,
+    "discovered_bias": DecisionTriggerType.CONTEXT_PROFILE_DRIFT,
+}
+
+
+class _ControlExecutionIntentBinding(BaseModel):
+    """Strict durable binding between an NL request, its route, and its owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["polisyos.runtime.control_execution_intent.v2"]
+    intent_band: Literal[
+        "candidate_only",
+        "simulate_only_attempt",
+        "data_trust_required",
+        "eval_safety_required",
+        "not_established",
+    ]
+    admission_status: Literal["established", "not_established"]
+    canonical_mode: EvaluationMode | None
+    mode_token_hash: str | None
+    attempt_id: str | None
+    attempt_content_hash: str | None
+    route_id: Literal["POST /api/v1/control/runs/nl"]
+    route_action: Literal["control.launch_nl_run"]
+    actor_subject: str = Field(min_length=1)
+    actor_authenticated: bool
+    actor_roles: tuple[str, ...]
+    authorization_receipt: dict[str, Any] | None
+    admission_surface: Literal["served_route"]
+    tenant_id: str | None
+    cell_id: str | None
+    job_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    intent_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+def _build_nl_authorization_receipt(
+    bound_permission: object,
+    *,
+    request_id: str | None,
+    request: NaturalLanguageRunRequest,
+    request_body_bytes: bytes,
+    request_query_bytes: bytes,
+    normalized_llm_models: list[str],
+) -> dict[str, Any]:
+    """Project the sealed route proof into a replayable owner-derived receipt."""
+    from polisyos.runtime.http.authorization import (
+        ActionPermissionVerification,
+        BoundActionPermissionVerification,
+        ResourceBindingSource,
+    )
+    from polisyos.runtime.http.permissions import RuntimePermission
+    from polisyos.runtime.http.resource_binding import (
+        BindingAuthority,
+        BoundAuthorizationResource,
+        _canonical_json,
+        _digest_payload,
+        _parse_json_object,
+    )
+    from polisyos.runtime.quality.agent_action_authority import (
+        AgentActionPermissionSnapshot,
+        agent_action_content_hash,
+        agent_action_permission_hash,
+    )
+
+    if type(bound_permission) is not BoundActionPermissionVerification:
+        raise ValueError("nl_route_authorization_proof_not_established")
+    verification = bound_permission.verification
+    resource = bound_permission.bound_resource
+    requirement = verification.requirement
+    spec = requirement.resource_binding
+    if (
+        type(verification) is not ActionPermissionVerification
+        or type(resource) is not BoundAuthorizationResource
+        or resource.requirement is not requirement
+        or requirement.permission is not RuntimePermission.RUNS_LAUNCH
+        or spec.source is not ResourceBindingSource.TENANT_COLLECTION
+        or spec.resource_kind != "runtime.run_collection.nl"
+        or any(
+            getattr(spec, field_name) not in (None, (), False)
+            for field_name in (
+                "path_parameter",
+                "path_selector_parameters",
+                "query_selector_parameters",
+                "body_field",
+                "parent_field",
+                "selector_fields",
+                "required_selector_fields",
+                "required_selector_alternatives",
+                "parent_required",
+                "allow_empty_body",
+            )
+        )
+        or resource.authority is not BindingAuthority.TENANT_COLLECTION
+        or resource.tenant_id != verification.tenant_id
+        or not verification.tenant_id.strip()
+        or requirement.permission not in verification.granted_permissions
+        or resource.resolved_context is not None
+        or resource.canonical_selectors
+        != (("tenant_id", _canonical_json(verification.tenant_id)),)
+    ):
+        raise ValueError("nl_route_authorization_proof_binding_mismatch")
+
+    expected_resource_digest = _digest_payload(
+        {
+            "binding_version": "runtime.authorization.resource.v1",
+            "permission": requirement.permission.value,
+            "resource_kind": spec.resource_kind,
+            "authority": resource.authority.value,
+            "tenant_id": resource.tenant_id,
+            "body_sha256": resource.body_sha256,
+            "query_sha256": resource.query_sha256,
+            "selectors": resource.canonical_selectors,
+            "resolved_context_sha256": None,
+        }
+    )
+    if (
+        resource.resource_digest != expected_resource_digest
+        or resource.body_sha256
+        != "sha256:" + hashlib.sha256(request_body_bytes).hexdigest()
+        or resource.query_sha256
+        != "sha256:" + hashlib.sha256(request_query_bytes).hexdigest()
+    ):
+        raise ValueError("nl_route_authorization_resource_digest_mismatch")
+    _parse_json_object(request_body_bytes)
+    try:
+        parsed_request = NaturalLanguageRunRequest.model_validate_json(request_body_bytes)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("nl_route_authorization_request_body_invalid") from exc
+    if parsed_request.model_dump(mode="json") != request.model_dump(mode="json"):
+        raise ValueError("nl_route_authorization_request_body_mismatch")
+    request_snapshot = {
+        "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+        "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
+        "request": request.model_dump(mode="json"),
+        "normalized_llm_models": list(normalized_llm_models),
+    }
+    snapshot = AgentActionPermissionSnapshot(
+        subject=verification.subject,
+        tenant_id=verification.tenant_id,
+        jwt_id=verification.jwt_id,
+        roles=tuple(sorted(role.value for role in verification.roles)),
+        authorization_source=verification.authorization_source,
+        required_permission=requirement.permission.value,
+        granted_permissions=tuple(
+            sorted(permission.value for permission in verification.granted_permissions)
+        ),
+        resource_digest=resource.resource_digest,
+        resource_kind=resource.resource_kind,
+        resource_authority=resource.authority.value,
+        body_sha256=resource.body_sha256,
+        query_sha256=resource.query_sha256,
+    )
+    permission_hash = agent_action_permission_hash(bound_permission)
+    if agent_action_content_hash(snapshot) != permission_hash:
+        raise ValueError("nl_route_authorization_snapshot_mismatch")
+    receipt_payload: dict[str, Any] = {
+        "schema_version": "polisyos.runtime.nl_route_authorization_receipt.v1",
+        "route_id": _NL_ROUTE_ID,
+        "request_id": request_id,
+        "permission_snapshot": snapshot.model_dump(mode="json"),
+        "permission_proof_hash": permission_hash,
+        "request_content_hash": _nl_request_snapshot_content_hash(request_snapshot),
+        "resource": {
+            "resource_id": resource.resource_id,
+            "resource_digest": resource.resource_digest,
+            "resource_kind": resource.resource_kind,
+            "authority": resource.authority.value,
+            "tenant_id": resource.tenant_id,
+            "body_sha256": resource.body_sha256,
+            "query_sha256": resource.query_sha256,
+            "selectors": [list(pair) for pair in resource.canonical_selectors],
+        },
+    }
+    receipt_payload["receipt_digest"] = canonical_content_hash(
+        to_canonical_bytes(receipt_payload),
+        prefix=True,
+    )
+    return receipt_payload
+
+
+def _build_control_execution_intent_binding(
+    payload: Mapping[str, Any],
+    *,
+    job_id: str,
+    run_id: str,
+    actor: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Build a replayable, typed binding for the served NL launch intent."""
+    raw_context = payload.get("context")
+    context_is_valid = raw_context is None or isinstance(raw_context, Mapping)
+    context = raw_context if isinstance(raw_context, Mapping) else {}
+    has_attempt = not context_is_valid or _EVALUATION_SAFETY_ATTEMPT_KEY in context
+    raw_attempt = (
+        context.get(_EVALUATION_SAFETY_ATTEMPT_KEY) if context_is_valid else raw_context
+    )
+    raw_mode = (
+        raw_attempt.get("requested_mode_token")
+        if isinstance(raw_attempt, Mapping)
+        and isinstance(raw_attempt.get("requested_mode_token"), str)
+        else None
+    )
+    mode_resolution = resolve_evaluation_mode(raw_mode)
+    canonical_mode = mode_resolution.canonical_mode
+    intent_band = resolve_execution_intent_band(
+        attempt_present=has_attempt,
+        mode_resolution=mode_resolution,
+    ).value
+    raw_authorization_receipt = payload.get(_NL_AUTHORIZATION_RECEIPT_KEY)
+    authorization_receipt = (
+        _validate_nl_authorization_receipt(raw_authorization_receipt)
+        if raw_authorization_receipt is not None
+        else None
+    )
+    _validate_nl_request_snapshot(
+        payload,
+        authorization_receipt if isinstance(authorization_receipt, Mapping) else None,
+    )
+    admission_status = (
+        "established"
+        if isinstance(authorization_receipt, Mapping)
+        else "not_established"
+    )
+
+    attempt_content_hash = (
+        canonical_content_hash(to_canonical_bytes(raw_attempt), prefix=True)
+        if has_attempt
+        else None
+    )
+    attempt_id = (
+        raw_attempt.get("attempt_id")
+        if isinstance(raw_attempt, Mapping)
+        and isinstance(raw_attempt.get("attempt_id"), str)
+        else None
+    )
+    if has_attempt:
+        # The caller's derived resolution is not an authority source. Recompute it
+        # from the exact requested token, then require the full typed intake shape.
+        if not isinstance(raw_attempt, Mapping) or mode_resolution.status != "accepted":
+            admission_status = "not_established"
+        else:
+            intake_payload = dict(raw_attempt)
+            intake_payload["mode_resolution"] = mode_resolution.model_dump(mode="json")
+            try:
+                parsed_attempt = EvaluationAttemptIntake.model_validate(intake_payload)
+            except Exception:
+                admission_status = "not_established"
+            else:
+                attempt_id = parsed_attempt.attempt_id
+                if (
+                    not bool(actor.get("authenticated"))
+                    or not isinstance(actor.get("subject"), str)
+                    or not str(actor.get("subject")).strip()
+                    or not isinstance(actor.get("tenant_id"), str)
+                    or not str(actor.get("tenant_id")).strip()
+                    or not isinstance(actor.get("cell_id"), str)
+                    or not str(actor.get("cell_id")).strip()
+                ):
+                    admission_status = "not_established"
+                if not isinstance(authorization_receipt, Mapping):
+                    admission_status = "not_established"
+
+    actor_roles = actor.get("roles")
+    normalized_roles = tuple(
+        sorted(role for role in actor_roles if isinstance(role, str))
+        if isinstance(actor_roles, (list, tuple, set, frozenset))
+        else ()
+    )
+    digest_payload: dict[str, Any] = {
+        "schema_version": _EXECUTION_INTENT_BINDING_SCHEMA,
+        "intent_band": intent_band,
+        "admission_status": admission_status,
+        "canonical_mode": canonical_mode,
+        "mode_token_hash": mode_resolution.source_token_hash if has_attempt else None,
+        "attempt_id": attempt_id,
+        "attempt_content_hash": attempt_content_hash,
+        "route_id": _NL_ROUTE_ID,
+        "route_action": _NL_ROUTE_ACTION,
+        "actor_subject": str(actor.get("subject") or "anonymous"),
+        "actor_authenticated": bool(actor.get("authenticated")),
+        "actor_roles": normalized_roles,
+        "tenant_id": (
+            actor.get("tenant_id")
+            if isinstance(actor.get("tenant_id"), str)
+            and actor["tenant_id"].strip()
+            and actor["tenant_id"].casefold() != "tenant-unknown"
+            else None
+        ),
+        "cell_id": (
+            actor.get("cell_id")
+            if isinstance(actor.get("cell_id"), str)
+            and actor["cell_id"].strip()
+            and actor["cell_id"].casefold() != "cell-unknown"
+            else None
+        ),
+        "job_id": job_id,
+        "run_id": run_id,
+        "authorization_receipt": (
+            dict(authorization_receipt)
+            if isinstance(authorization_receipt, Mapping)
+            else None
+        ),
+        "admission_surface": "served_route",
+    }
+    digest = canonical_content_hash(to_canonical_bytes(digest_payload), prefix=True)
+    return _ControlExecutionIntentBinding(
+        **digest_payload,
+        intent_digest=digest,
+    ).model_dump(mode="json")
+
+
+def _validate_nl_authorization_receipt(receipt: object) -> dict[str, Any]:
+    """Recompute the NL route's permission snapshot and tenant binding receipt."""
+    from polisyos.runtime.http.permissions import RuntimePermission
+    from polisyos.runtime.http.resource_binding import _canonical_json, _digest_payload
+    from polisyos.runtime.quality.agent_action_authority import (
+        AgentActionPermissionSnapshot,
+        agent_action_content_hash,
+    )
+
+    if not isinstance(receipt, Mapping):
+        raise ValueError("nl_route_authorization_receipt_missing")
+    try:
+        receipt_data = dict(receipt)
+        if (
+            set(receipt_data)
+            != {
+                "schema_version",
+                "route_id",
+                "request_id",
+                "permission_snapshot",
+                "permission_proof_hash",
+                "request_content_hash",
+                "resource",
+                "receipt_digest",
+            }
+            or receipt_data.get("schema_version")
+            != "polisyos.runtime.nl_route_authorization_receipt.v1"
+            or receipt_data.get("route_id") != _NL_ROUTE_ID
+            or not isinstance(receipt_data.get("request_id"), str)
+            or not str(receipt_data["request_id"]).strip()
+        ):
+            raise ValueError("nl_route_authorization_receipt_identity_mismatch")
+        snapshot = AgentActionPermissionSnapshot.model_validate(
+            receipt_data.get("permission_snapshot")
+        )
+        request_content_hash = receipt_data.get("request_content_hash")
+        if (
+            not isinstance(request_content_hash, str)
+            or len(request_content_hash) != 71
+            or not request_content_hash.startswith("sha256:")
+            or any(char not in "0123456789abcdef" for char in request_content_hash[7:])
+        ):
+            raise ValueError("nl_route_authorization_request_hash_invalid")
+        resource = receipt_data.get("resource")
+        if not isinstance(resource, Mapping):
+            raise ValueError("nl_route_authorization_resource_missing")
+        if set(resource) != {
+            "resource_id",
+            "resource_digest",
+            "resource_kind",
+            "authority",
+            "tenant_id",
+            "body_sha256",
+            "query_sha256",
+            "selectors",
+        }:
+            raise ValueError("nl_route_authorization_resource_shape_invalid")
+        selector_rows = resource.get("selectors")
+        expected_selectors = [["tenant_id", _canonical_json(snapshot.tenant_id)]]
+        if (
+            snapshot.required_permission != RuntimePermission.RUNS_LAUNCH.value
+            or RuntimePermission.RUNS_LAUNCH.value not in snapshot.granted_permissions
+            or snapshot.resource_kind != "runtime.run_collection.nl.tenant_collection"
+            or snapshot.resource_authority != "tenant_collection"
+            or resource.get("resource_kind") != snapshot.resource_kind
+            or resource.get("authority") != snapshot.resource_authority
+            or resource.get("tenant_id") != snapshot.tenant_id
+            or resource.get("body_sha256") != snapshot.body_sha256
+            or resource.get("query_sha256") != snapshot.query_sha256
+            or selector_rows != expected_selectors
+            or not isinstance(resource.get("resource_id"), str)
+            or not str(resource["resource_id"]).startswith(
+                "urn:polisyos:runtime-authorization-resource:v1:"
+            )
+        ):
+            raise ValueError("nl_route_authorization_resource_binding_mismatch")
+        resource_digest = _digest_payload(
+            {
+                "binding_version": "runtime.authorization.resource.v1",
+                "permission": RuntimePermission.RUNS_LAUNCH.value,
+                "resource_kind": "runtime.run_collection.nl",
+                "authority": "tenant_collection",
+                "tenant_id": snapshot.tenant_id,
+                "body_sha256": snapshot.body_sha256,
+                "query_sha256": snapshot.query_sha256,
+                "selectors": (tuple(expected_selectors[0]),),
+                "resolved_context_sha256": None,
+            }
+        )
+        if (
+            resource.get("resource_digest") != resource_digest
+            or not str(resource["resource_id"]).endswith(resource_digest)
+            or snapshot.resource_digest != resource_digest
+        ):
+            raise ValueError("nl_route_authorization_resource_digest_mismatch")
+        permission_hash = agent_action_content_hash(snapshot)
+        if receipt_data.get("permission_proof_hash") != permission_hash:
+            raise ValueError("nl_route_authorization_permission_hash_mismatch")
+        digest_payload = {
+            key: value for key, value in receipt_data.items() if key != "receipt_digest"
+        }
+        expected_receipt_digest = canonical_content_hash(
+            to_canonical_bytes(digest_payload),
+            prefix=True,
+        )
+        if receipt_data.get("receipt_digest") != expected_receipt_digest:
+            raise ValueError("nl_route_authorization_receipt_digest_mismatch")
+        return receipt_data
+    except (TypeError, ValueError, KeyError) as exc:
+        if isinstance(exc, ValueError) and str(exc).startswith("nl_route_authorization_"):
+            raise
+        raise ValueError("nl_route_authorization_receipt_invalid") from exc
+
+
+def _validate_nl_request_snapshot(
+    payload: Mapping[str, Any],
+    authorization_receipt: Mapping[str, Any] | None,
+) -> None:
+    """Reconcile the authorized typed request snapshot with the executable payload."""
+    raw_snapshot = payload.get(_NL_REQUEST_SNAPSHOT_KEY)
+    if not isinstance(raw_snapshot, Mapping) or set(raw_snapshot) != {
+        "schema_version",
+        "digest_profile",
+        "request",
+        "normalized_llm_models",
+    }:
+        raise ValueError("nl_authorized_request_snapshot_missing")
+    if raw_snapshot.get("schema_version") != _NL_REQUEST_SNAPSHOT_SCHEMA:
+        raise ValueError("nl_authorized_request_snapshot_schema_invalid")
+    if raw_snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE:
+        raise ValueError("nl_authorized_request_snapshot_digest_profile_invalid")
+    raw_request = raw_snapshot.get("request")
+    normalized_models = raw_snapshot.get("normalized_llm_models")
+    if (
+        not isinstance(raw_request, Mapping)
+        or not isinstance(normalized_models, list)
+        or not normalized_models
+        or any(not isinstance(model, str) or not model.strip() for model in normalized_models)
+    ):
+        raise ValueError("nl_authorized_request_snapshot_shape_invalid")
+    try:
+        request = NaturalLanguageRunRequest.model_validate(dict(raw_request))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("nl_authorized_request_snapshot_invalid") from exc
+    request_values = request.model_dump(mode="json")
+    snapshot = {
+        "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+        "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
+        "request": request_values,
+        "normalized_llm_models": list(normalized_models),
+    }
+    if request_values != dict(raw_request):
+        raise ValueError("nl_authorized_request_snapshot_not_canonical")
+    if authorization_receipt is not None and authorization_receipt.get(
+        "request_content_hash"
+    ) != _nl_request_snapshot_content_hash(snapshot):
+        raise ValueError("nl_authorized_request_snapshot_receipt_mismatch")
+    expected_payload = {
+        "request": request.request,
+        "context": dict(request.context),
+        "domain_hint": request.domain_hint,
+        "data_source": (
+            request.data_source.model_dump(mode="json")
+            if request.data_source is not None
+            else None
+        ),
+        "target_world_scope_profile_id": request.target_world_scope_profile_id,
+        "max_iterations": request.max_iterations,
+        "llm_models": list(normalized_models),
+        "max_parallel_models": request.max_parallel_models,
+        "run_budget_usd": request.run_budget_usd,
+        "per_model_budget_usd": request.per_model_budget_usd,
+        "checkpoint_policy": request.checkpoint_policy,
+        "execution_plan_ref": request.execution_plan_ref,
+        "execution_plan": request.execution_plan,
+        "stop_criteria": request.stop_criteria,
+        "governance_constraints": request.governance_constraints,
+        "expected_outputs": request.expected_outputs,
+    }
+    for field_name, expected_value in expected_payload.items():
+        observed_value = payload.get(field_name)
+        if field_name == "checkpoint_policy" and isinstance(observed_value, Mapping):
+            observed_value = dict(observed_value)
+        if observed_value != expected_value:
+            raise ValueError("nl_authorized_request_payload_mismatch")
+
+
+def _default_runtime_metrics() -> MetricsRegistry:
+    return get_metrics()
+
+
+def _default_runtime_tracer() -> PolicyOSTracer:
+    return get_tracer()
+
+
+def _clean_runtime_text(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _job_scope_identity(
+    payload: Mapping[str, Any] | None,
+) -> tuple[str | None, str | None]:
+    """Return only tenant and cell identities actually supplied by the job owner."""
+
+    if not isinstance(payload, Mapping):
+        return None, None
+    raw_tenant_id = payload.get("tenant_id")
+    raw_cell_id = payload.get("cell_id")
+    tenant_id = _clean_runtime_text(raw_tenant_id) if isinstance(raw_tenant_id, str) else None
+    cell_id = _clean_runtime_text(raw_cell_id) if isinstance(raw_cell_id, str) else None
+    if tenant_id is not None and tenant_id.casefold() == "tenant-unknown":
+        tenant_id = None
+    if cell_id is not None and cell_id.casefold() == "cell-unknown":
+        cell_id = None
+    return (
+        tenant_id,
+        cell_id,
+    )
+
+
+class _ControlEvaluationSafetyAuthorityResolver:
+    """Fail-closed authority resolver; it appoints and verifies nothing."""
+
+    def resolve(self, artifact_ref: EvalSafetyArtifactRef) -> EvalSafetyAuthorityResolution:
+        return EvalSafetyAuthorityResolution(
+            status="blocked",
+            artifact_ref=artifact_ref,
+            blocker_codes=("polisyos.eval_safety.authority_unresolved@1.0.0",),
+            predicate_provenance=("not_established",),
+            resolved_at=datetime.now(UTC),
+        )
+
+
+class _ControlEvaluationSafetyAppointmentResolver:
+    """Fail-closed appointment resolver; institutional absence stays explicit."""
+
+    def resolve(self, appointment_ref: EvalSafetyArtifactRef) -> EvalSafetyAppointmentResolution:
+        return EvalSafetyAppointmentResolution(
+            status="blocked",
+            appointment_ref=appointment_ref,
+            appointment=None,
+            blocker_codes=("polisyos.eval_safety.verifier_unappointed@1.0.0",),
+            predicate_provenance=("not_established",),
+            verified_at=datetime.now(UTC),
+        )
+
+
+class _ControlEvaluationSafetyVerifierRegistry:
+    """Empty open registry; unknown contract IDs fail closed without branching."""
+
+    def resolve(self, evidence_contract_id: str) -> None:
+        del evidence_contract_id
+        return None
+
+
+class _ControlEvaluationSafetyCurrentStateResolver:
+    """Immediate exact-context replay cache, never an authority producer."""
+
+    def __init__(self) -> None:
+        self._material_by_context: dict[
+            tuple[str, str, str | None], EvaluationSafetyReplayMaterial
+        ] = {}
+
+    @staticmethod
+    def _key(context: EvaluationExecutionContext) -> tuple[str, str, str | None]:
+        certificate_id = (
+            context.eval_safety_certificate_ref.artifact_id
+            if context.eval_safety_certificate_ref is not None
+            else None
+        )
+        return (
+            str(evaluation_execution_context_hash(context)),
+            context.intake_ref.artifact_id,
+            certificate_id,
+        )
+
+    def register(
+        self,
+        *,
+        context: EvaluationExecutionContext,
+        material: EvaluationSafetyReplayMaterial,
+    ) -> None:
+        if (
+            material.intake_ref != context.intake_ref
+            or material.certificate_ref != context.eval_safety_certificate_ref
+        ):
+            raise ValueError("evaluation_safety_current_state_binding_mismatch")
+        self._material_by_context[self._key(context)] = material
+
+    def resolve(self, context: EvaluationExecutionContext) -> EvaluationSafetyReplayMaterial | None:
+        material = self._material_by_context.get(self._key(context))
+        if material is None:
+            return None
+        expected_head = (
+            material.revision_nodes[-1].revision_ref if material.revision_nodes else None
+        )
+        if expected_head != context.eval_safety_revision_head_ref:
+            return None
+        return material
+
+
+@dataclass(frozen=True, slots=True)
+class _ControlEvaluationSafetyResult:
+    """One container-owned attempt result before any evaluator can run."""
+
+    persisted: PersistedEvaluationSafetyAttempt
+    projection: PersistedEvaluationSafetyProjection
+    execution_context: EvaluationExecutionContext | None
+
+    @property
+    def blocked(self) -> bool:
+        return self.persisted.decision.safety.status == "blocked"
+
+
+@dataclass(frozen=True, slots=True)
+class PublishedSignatureCustodyLifecyclePublication:
+    """Narrow internal publication result for advisory signature-custody maintenance.
+
+    This deliberately does not reuse the HTTP monitor response because custody
+    staleness is not an epoch perturbation and therefore has no epoch-advisory
+    receipt to expose.
+    """
+
+    event_id: str
+    dedupe_key: str
+    affected_packets: list[str]
+    affected_statuses: dict[str, int]
+    monitor_event_ref: ArtifactRef
+    lifecycle_bridge_result_ref: ArtifactRef
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+    from typing import Literal, Protocol
+
+    from polisyos.core import contracts as core_contracts
+    from polisyos.core.artifacts.protocol import (
+        ArtifactStore,
+        AsyncArtifactStore,
+        RootedArtifactStore,
+    )
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
+    from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+        N4CandidateProposalExecution,
+        NormativeEvidenceSubmissionRequest,
+        NormativeEvidenceSubmissionResponse,
+        NormativeRunDisposition,
+        NormativeRunEvidenceRefs,
+        RecursiveBudgetResolution,
+    )
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _DesignProblemGatewayClient,
+    )
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        ExecutionIntent,
+        RecursiveCycleBudget,
+    )
+    from polisyos.scientist import BudgetState
+
+    from ...step_up import StepUpReplayStore
+    from ..control_registry_providers import ControlRegistryProviders
+    from ..scenario_heads import ScenarioHeadStore
+    from .capability_discovery import CapabilityDiscoveryService
+
+    class _HumanDecisionSignedArtifactStore(Protocol):
+        def get_manifest_bytes(self, artifact_id: artifacts.ArtifactID | str) -> bytes: ...
+
+        def get_signature(
+            self, artifact_id: artifacts.ArtifactID | str
+        ) -> artifacts.DetachedSignature | None: ...
+
+        def sign_artifact(
+            self,
+            artifact_id: artifacts.ArtifactID,
+            signer: artifacts.Ed25519Signer,
+            *,
+            signer_identity: str | None = None,
+        ) -> artifacts.DetachedSignature: ...
+
+        def verify_signature(
+            self,
+            artifact_id: artifacts.ArtifactID,
+            verifier: artifacts.Ed25519Verifier,
+            *,
+            strict_identity: bool | None = None,
+        ) -> artifacts.SignatureVerificationResult: ...
+
+    class _CycleSubstrateContextAdmissionOwner(Protocol):
+        def admit_context(
+            self,
+            *,
+            target_world_scope_profile_id: str,
+            problem: DesignProblem,
+            job_id: str,
+            run_id: str,
+            tenant_id: str,
+            cell_id: str,
+        ) -> CycleSubstrateContext | None: ...
+
+
+# ---------------------------------------------------------------------------
+# Service
+# ---------------------------------------------------------------------------
+
+
+class AcquisitionRouteLoopAuthoritySink:
+    """Persist and advance verified acquisition route phase heads."""
+
+    __slots__ = ("_artifact_store", "_control_store", "_event_log")
+
+    def __init__(
+        self,
+        *,
+        artifact_store: object,
+        event_log: RuntimeDiagnosticEventLog,
+        control_store: ControlPlaneStore,
+    ) -> None:
+        for capability in ("has", "get_bytes", "get_manifest", "put_json"):
+            if not callable(getattr(artifact_store, capability, None)):
+                raise TypeError("acquisition sink requires guarded CAS capabilities")
+        self._artifact_store = artifact_store
+        self._event_log = event_log
+        self._control_store = control_store
+
+    def get_head(
+        self,
+        receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+    ) -> AcquisitionActionHeadRecord | None:
+        """Read the latest exact durable action head for a phase identity."""
+
+        return self._control_store.get_acquisition_action_head(
+            tenant_id=receipt.tenant_id,
+            cell_id=receipt.cell_id,
+            run_id=receipt.run_id,
+            source_job_id=receipt.source_job_id,
+            route_id=receipt.route_id,
+            action_generation=receipt.action_generation,
+        )
+
+    def resolve_action_generation(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        job_id: str,
+    ) -> int:
+        """Reuse one job's generation or select a successor to verified quarantine.
+
+        This read does not reserve a generation. The existing unique predecessor
+        insert fences competing requests before either can execute an effect.
+        """
+
+        heads = self._control_store.list_acquisition_action_heads(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            route_id=route_id,
+        )
+        same_job = tuple(head for head in heads if head.job_id == job_id)
+        if len(same_job) > 1:
+            raise ValueError("acquisition_action_job_generation_ambiguous")
+        if same_job:
+            self._verified_generation_head(same_job[0])
+            return same_job[0].action_generation
+        if not heads:
+            return 1
+        latest = max(heads, key=lambda head: head.action_generation)
+        receipt = self._verified_generation_head(latest)
+        if (
+            not isinstance(receipt, AcquisitionRouteLoopReceipt)
+            or receipt.terminal_outcome != "quarantined_no_growth"
+        ):
+            raise ValueError("acquisition_action_generation_not_reopenable")
+        return latest.action_generation + 1
+
+    def _verified_generation_head(
+        self,
+        head: AcquisitionActionHeadRecord,
+    ) -> AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt:
+        """Resolve the typed owner receipt and reconcile its exact durable event."""
+
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=head.receipt_ref,
+            expected_tenant_id=head.tenant_id,
+            expected_cell_id=head.cell_id,
+            expected_run_id=head.run_id,
+            expected_job_id=head.job_id,
+        )
+        manifest = self._artifact_store.get_manifest(head.receipt_ref)
+        if manifest.kind == "runtime_quality.acquisition_route_loop_receipt":
+            receipt_type = AcquisitionRouteLoopReceipt
+            schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
+        elif manifest.kind == "runtime_quality.acquisition_route_phase_receipt":
+            receipt_type = AcquisitionRoutePhaseReceipt
+            schema_name = "polisyos.runtime.AcquisitionRoutePhaseReceipt"
+        else:
+            raise ValueError("acquisition_action_head_receipt_kind_invalid")
+        receipt = receipt_type.model_validate(
+            from_canonical_bytes(self._artifact_store.get_bytes(head.receipt_ref))
+        )
+        schema = manifest.artifact_schema
+        if (
+            head.receipt_ref != head.receipt_sha256
+            or report.durable_event_id != head.durable_event_id
+            or schema is None
+            or schema.name != schema_name
+            or schema.version != "1.0"
+            or manifest.producer.component != "polisyos.runtime.acquisition_route_loop"
+            or any(
+                getattr(receipt, field) != getattr(head, field)
+                for field in (
+                    "tenant_id",
+                    "cell_id",
+                    "run_id",
+                    "source_job_id",
+                    "route_id",
+                    "action_generation",
+                    "job_id",
+                    "coarse_phase",
+                    "receipt_phase",
+                    "recovery_state",
+                    "predecessor_receipt_ref",
+                )
+            )
+        ):
+            raise ValueError("acquisition_action_head_binding_mismatch")
+        return receipt
+
+    def persist_phase(
+        self,
+        receipt: AcquisitionRoutePhaseReceipt,
+    ) -> AcquisitionActionHeadRecord:
+        """Write, reconcile, read back, and then advance one exact phase head."""
+
+        typed = AcquisitionRoutePhaseReceipt.model_validate(receipt)
+        return self._persist_receipt(
+            typed,
+            artifact_kind="runtime_quality.acquisition_route_phase_receipt",
+            schema_name="polisyos.runtime.AcquisitionRoutePhaseReceipt",
+            event_type="polisyos.runtime.acquisition.route_phase.v1",
+            event_suffix=typed.receipt_phase,
+            receipt_type=AcquisitionRoutePhaseReceipt,
+            receipt_label="phase",
+        )
+
+    def persist_terminal(
+        self,
+        receipt: AcquisitionRouteLoopReceipt,
+    ) -> AcquisitionActionHeadRecord:
+        """Write and expose a terminal head only after exact loop-receipt readback."""
+
+        typed = AcquisitionRouteLoopReceipt.model_validate(receipt)
+        return self._persist_receipt(
+            typed,
+            artifact_kind="runtime_quality.acquisition_route_loop_receipt",
+            schema_name="polisyos.runtime.AcquisitionRouteLoopReceipt",
+            event_type="polisyos.runtime.acquisition.route_loop.v1",
+            event_suffix="loop_terminal",
+            receipt_type=AcquisitionRouteLoopReceipt,
+            receipt_label="loop",
+        )
+
+    def _persist_receipt(
+        self,
+        typed: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+        *,
+        artifact_kind: str,
+        schema_name: str,
+        event_type: str,
+        event_suffix: str,
+        receipt_type: type[AcquisitionRoutePhaseReceipt] | type[AcquisitionRouteLoopReceipt],
+        receipt_label: str,
+    ) -> AcquisitionActionHeadRecord:
+        """Persist one strict receipt family before advancing its shared action head."""
+
+        current = self.get_head(typed)
+        if (current is None and typed.predecessor_receipt_ref is not None) or (
+            current is not None and typed.predecessor_receipt_ref != current.receipt_ref
+        ):
+            raise ValueError("acquisition_action_predecessor_conflict")
+        payload = typed.model_dump(mode="json")
+        canon_spec = CanonSpec(forbid_floats=False)
+        generated_at = typed.generated_at.isoformat()
+        input_refs = (
+            (typed.predecessor_receipt_ref,) if typed.predecessor_receipt_ref is not None else ()
+        )
+        result = write_runtime_authority_artifact(
+            self._artifact_store,
+            self._event_log,
+            payload,
+            ArtifactWriteOptions(
+                kind=artifact_kind,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=schema_name,
+                    version="1.0",
+                ),
+                producer=ProducerInfo(
+                    component="polisyos.runtime.acquisition_route_loop",
+                    version="2026.08.28+ds15-c02",
+                ),
+                governance=ArtifactGovernanceInfo(classification="internal"),
+                inputs=[],
+            ),
+            evidence_id=typed.receipt_id,
+            evidence_class="authority_bearing",
+            authority_role="producer_authority",
+            provenance_kind="runtime_emitted",
+            owner="team-runtime-quality",
+            reader_contract="runtime.acquisition_route_loop.reader",
+            reader_contract_version="1.0",
+            tenant_id=typed.tenant_id,
+            cell_id=typed.cell_id,
+            run_id=typed.run_id,
+            job_id=typed.job_id,
+            trace_id=f"trace-{typed.job_id}",
+            span_id=f"span-{typed.receipt_phase}",
+            parent_span_id=None,
+            requested_execution_profile="governed",
+            effective_execution_profile="governed",
+            phase="acquisition_route_loop",
+            generated_at=generated_at,
+            as_of_time=generated_at,
+            same_input_closure={
+                "closure_id": f"acquisition-route:{typed.receipt_id}",
+                "status": "closed",
+                "run_id": typed.run_id,
+                "job_id": typed.job_id,
+                "tenant_id": typed.tenant_id,
+                "cell_id": typed.cell_id,
+                "evidence_input_refs": input_refs,
+                "closure_sha256": typed.route_id,
+            },
+            input_refs=input_refs,
+            effective_mode_ref=typed.route_id,
+            degradation_ledger_ref=None,
+            semantic_binding_ref=typed.cost_basis_hash,
+            validation_status="pass",
+            blocking_status=(
+                "blocking"
+                if typed.recovery_state == "reentry_recovery_required"
+                else "non_blocking"
+            ),
+            governance=GovernanceMetadata(
+                classification="internal",
+                authority_boundary="runtime.acquisition_route_loop",
+                pii="none",
+                retention_policy="runtime-quality-90d",
+                review_status="runtime_verified",
+                override_policy="no_override",
+                approval_policy="pa2_ds9_decision_required",
+            ),
+            event_id=f"evt_acquisition_{typed.action_generation}_{event_suffix}",
+            event_source="polisyos.runtime.quality.acquisition_route_loop",
+            event_type=event_type,
+            event_subject=(
+                f"run/{typed.run_id}/job/{typed.job_id}/acquisition/{typed.receipt_phase}"
+            ),
+            state_before=(current.receipt_phase if current is not None else None),
+            state_after=typed.receipt_phase,
+            canon_spec=canon_spec,
+        )
+        receipt_ref = str(result.cas_ref.artifact_id)
+        if result.payload_sha256 != receipt_ref.removeprefix("sha256:"):
+            raise RuntimeError(f"acquisition_{receipt_label}_payload_hash_mismatch")
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=receipt_ref,
+            expected_tenant_id=typed.tenant_id,
+            expected_cell_id=typed.cell_id,
+            expected_run_id=typed.run_id,
+            expected_job_id=typed.job_id,
+        )
+        loaded = receipt_type.model_validate(
+            from_canonical_bytes(self._artifact_store.get_bytes(receipt_ref))
+        )
+        manifest = self._artifact_store.get_manifest(receipt_ref)
+        schema = manifest.artifact_schema
+        if (
+            loaded != typed
+            or report.durable_event_id is None
+            or manifest.kind != artifact_kind
+            or schema is None
+            or schema.name != schema_name
+            or schema.version != "1.0"
+        ):
+            raise RuntimeError(f"acquisition_{receipt_label}_readback_failed")
+        head = self._control_store.advance_acquisition_action_head(
+            tenant_id=typed.tenant_id,
+            cell_id=typed.cell_id,
+            run_id=typed.run_id,
+            source_job_id=typed.source_job_id,
+            route_id=typed.route_id,
+            action_generation=typed.action_generation,
+            expected_head_generation=(current.head_generation if current is not None else 0),
+            receipt_ref=receipt_ref,
+            receipt_sha256=receipt_ref,
+            durable_event_id=report.durable_event_id,
+            coarse_phase=typed.coarse_phase,
+            receipt_phase=typed.receipt_phase,
+            recovery_state=typed.recovery_state,
+            job_id=typed.job_id,
+            predecessor_receipt_ref=typed.predecessor_receipt_ref,
+        )
+        if self.get_head(typed) != head:
+            raise RuntimeError("acquisition_action_head_readback_failed")
+        return head
+
+
+_CustodyResult = TypeVar("_CustodyResult")
+
+
+class HumanDecisionAuthoritySink:
+    """Narrow persistence boundary for custodied human-decision records."""
+
+    __slots__ = ("_artifact_store", "_event_log", "_reservation_store")
+
+    def __init__(
+        self,
+        *,
+        artifact_store: ArtifactStore,
+        event_log: RuntimeDiagnosticEventLog,
+        reservation_store: ControlPlaneStore,
+    ) -> None:
+        self._artifact_store = artifact_store
+        self._event_log = event_log
+        self._reservation_store = reservation_store
+
+    def run_custody_operation(self, operation: Callable[[], _CustodyResult]) -> _CustodyResult:
+        """Keep a whole fenced operation on the guarded transaction owner."""
+
+        return run_guarded_dependency_operation(self._reservation_store, operation)
+
+    def reserve_action(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        binding_sha256: str,
+        now: datetime,
+        lease_seconds: int,
+        record_valid_until: datetime,
+    ) -> HumanDecisionReservationResult:
+        """Reserve the sole live generation for an exact governed action."""
+
+        return self._reservation_store.reserve_human_decision_action(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            binding_sha256=binding_sha256,
+            now=now,
+            lease_seconds=lease_seconds,
+            record_valid_until=record_valid_until,
+        )
+
+    def get_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+    ) -> HumanDecisionReservationRecord | None:
+        """Derive the newest immutable reservation generation."""
+
+        return self._reservation_store.get_human_decision_reservation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+        )
+
+    def get_reservation_generation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_version: int,
+    ) -> HumanDecisionReservationRecord | None:
+        """Read one exact reservation generation."""
+
+        return self._reservation_store.get_human_decision_reservation_generation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_version=reservation_version,
+        )
+
+    def hold_write_fence(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        binding_sha256: str,
+        acquired_at: datetime,
+        expected_record_valid_until: datetime,
+    ) -> AbstractContextManager[HumanDecisionWriteFence]:
+        """Hold the exact reservation through record/event finalization."""
+
+        return self._reservation_store.hold_human_decision_write_fence(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+            binding_sha256=binding_sha256,
+            acquired_at=acquired_at,
+            expected_record_valid_until=expected_record_valid_until,
+        )
+
+    def hold_recovery_fence(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+    ) -> AbstractContextManager[HumanDecisionRecoveryFence]:
+        """Hold one exact null-ref generation through CAS/event restoration."""
+
+        return self._reservation_store.hold_human_decision_recovery_fence(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+        )
+
+    def mark_recovery_required(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        record_ref: str | None = None,
+        record_sha256: str | None = None,
+        durable_event_id: str | None = None,
+    ) -> HumanDecisionReservationRecord:
+        """Freeze a partial generation pending independent reconciliation."""
+
+        return self._reservation_store.mark_human_decision_recovery_required(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+            record_ref=record_ref,
+            record_sha256=record_sha256,
+            durable_event_id=durable_event_id,
+        )
+
+    def reconcile_orphan_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        verifier: artifacts.Ed25519Verifier,
+        expected_signer_identity: str,
+        expected_key_id: str,
+        expected_cell_id: str | None,
+        expected_run_id: str,
+        expected_job_id: str,
+        reconciled_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Make a signed/event-reconciled orphan historical without deleting it."""
+
+        from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+            HUMAN_DECISION_RECORD_V2,
+            HumanDecisionRecord,
+        )
+
+        reservation = self.get_reservation_generation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_version=reservation_version,
+        )
+        if (
+            reservation is None
+            or reservation.reservation_id != reservation_id
+            or reservation.state != "recovery_required"
+            or reservation.record_ref is None
+            or reservation.record_ref != reservation.record_sha256
+            or reservation.durable_event_id is None
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        manifest = self.get_artifact_manifest(reservation.record_ref)
+        schema = manifest.artifact_schema
+        if (
+            manifest.kind != "runtime_quality.agent_action_human_decision"
+            or schema is None
+            or schema.name != "polisyos.runtime.HumanDecisionRecord"
+            or schema.version != "2.0"
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        signature = self.verify_artifact_signature(
+            reservation.record_ref,
+            verifier,
+            strict_identity=True,
+        )
+        if (
+            not signature.ok
+            or signature.signer_identity != expected_signer_identity
+            or signature.key_id != expected_key_id
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        report = self.reconcile_authority_artifact(
+            reservation.record_ref,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=expected_cell_id,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+        )
+        if report.durable_event_id != reservation.durable_event_id:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        record = HumanDecisionRecord.model_validate(
+            from_canonical_bytes(self.get_artifact_bytes(reservation.record_ref))
+        )
+        if (
+            record.schema_version != HUMAN_DECISION_RECORD_V2
+            or record.tenant_id != tenant_id
+            or record.run_id != expected_run_id
+            or record.governed_action_key != governed_action_key
+            or record.reservation_id != reservation_id
+            or record.reservation_version != reservation_version
+            or record.binding_sha256 != reservation.binding_sha256
+            or record.custody_signer_identity != expected_signer_identity
+            or record.custody_key_id != expected_key_id
+            or record.valid_until != reservation.record_valid_until
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        return self._reservation_store._reconcile_orphan_human_decision_reservation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+            reconciled_at=reconciled_at,
+        )
+
+    def reconcile_null_ref_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        verifier: artifacts.Ed25519Verifier,
+        expected_signer_identity: str,
+        expected_key_id: str,
+        expected_cell_id: str | None,
+        expected_run_id: str,
+        expected_job_id: str,
+        reconciled_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Discover and reconcile one signed orphan whose SQL refs rolled back."""
+
+        def _restore() -> HumanDecisionReservationRecord:
+            from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+                HUMAN_DECISION_RECORD_V2,
+                HumanDecisionRecord,
+            )
+
+            if getattr(self._event_log, "_store", None) is not self._reservation_store:
+                raise RuntimeError("human-decision recovery requires the shared control store")
+            with self.hold_recovery_fence(
+                tenant_id=tenant_id,
+                governed_action_key=governed_action_key,
+                reservation_id=reservation_id,
+                reservation_version=reservation_version,
+            ) as fence:
+                matches: list[tuple[str, ArtifactManifest, Mapping[str, Any]]] = []
+                for artifact_id in self._artifact_store.iter_artifact_ids():
+                    try:
+                        manifest = self._artifact_store.get_manifest(artifact_id)
+                    except Exception as exc:
+                        raise RuntimeError(
+                            "human-decision recovery CAS manifest scan failed"
+                        ) from exc
+                    if manifest.kind != "runtime_quality.agent_action_human_decision":
+                        continue
+                    try:
+                        payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+                    except Exception as exc:
+                        raise RuntimeError("human-decision recovery CAS readback failed") from exc
+                    if not isinstance(payload, Mapping):
+                        raise RuntimeError("human-decision record payload is not an object")
+                    if (
+                        payload.get("reservation_id") == reservation_id
+                        and payload.get("reservation_version") == reservation_version
+                    ):
+                        matches.append((str(artifact_id), manifest, payload))
+                if len(matches) != 1:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                record_ref, manifest, payload = matches[0]
+                schema = manifest.artifact_schema
+                if (
+                    schema is None
+                    or schema.name != "polisyos.runtime.HumanDecisionRecord"
+                    or schema.version != "2.0"
+                ):
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                try:
+                    record = HumanDecisionRecord.model_validate(payload)
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED") from exc
+                reservation = fence.reservation
+                if (
+                    record.schema_version != HUMAN_DECISION_RECORD_V2
+                    or record.tenant_id != tenant_id
+                    or record.run_id != expected_run_id
+                    or record.governed_action_key != governed_action_key
+                    or record.reservation_id != reservation_id
+                    or record.reservation_version != reservation_version
+                    or record.binding_sha256 != reservation.binding_sha256
+                    or record.valid_until != reservation.record_valid_until
+                    or record.custody_signer_identity != expected_signer_identity
+                    or record.custody_key_id != expected_key_id
+                ):
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                signature = self.verify_artifact_signature(
+                    record_ref,
+                    verifier,
+                    strict_identity=True,
+                )
+                if (
+                    not signature.ok
+                    or signature.signer_identity != expected_signer_identity
+                    or signature.key_id != expected_key_id
+                ):
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                authority = manifest.authority
+                if authority is None:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                event_ref = artifacts.ArtifactID.model_validate(authority.diagnostic_event_ref)
+                event_manifest = self._artifact_store.get_manifest(event_ref)
+                event_schema = event_manifest.artifact_schema
+                if (
+                    event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+                    or event_schema is None
+                    or event_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+                    or event_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+                ):
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                try:
+                    event = DiagnosticEvent.model_validate(
+                        from_canonical_bytes(self._artifact_store.get_bytes(event_ref))
+                    )
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED") from exc
+                if (
+                    event.payload_ref != record_ref
+                    or event.tenant_id != tenant_id
+                    or event.run_id != expected_run_id
+                    or event.job_id != expected_job_id
+                    or (expected_cell_id is not None and event.cell_id != expected_cell_id)
+                ):
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                self._event_log.append(
+                    event,
+                    payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
+                )
+                report = self.reconcile_authority_artifact(
+                    record_ref,
+                    expected_tenant_id=tenant_id,
+                    expected_cell_id=expected_cell_id,
+                    expected_run_id=expected_run_id,
+                    expected_job_id=expected_job_id,
+                )
+                if report.durable_event_id != event.event_id:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                return fence.reconcile_orphan(
+                    record_ref=record_ref,
+                    record_sha256=record_ref,
+                    durable_event_id=event.event_id,
+                    reconciled_at=reconciled_at,
+                )
+
+        return self.run_custody_operation(_restore)
+
+    def reconcile_empty_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        reconciled_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Reconcile only after independently proving no record artifact exists."""
+
+        reservation = self.get_reservation_generation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_version=reservation_version,
+        )
+        if (
+            reservation is None
+            or reservation.reservation_id != reservation_id
+            or reservation.state != "recovery_required"
+            or reservation.record_ref is not None
+            or reservation.record_sha256 is not None
+            or reservation.durable_event_id is not None
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        for artifact_id in self._artifact_store.iter_artifact_ids():
+            try:
+                manifest = self._artifact_store.get_manifest(artifact_id)
+            except Exception as exc:
+                raise RuntimeError("human-decision reconciliation CAS scan failed") from exc
+            if manifest.kind != "runtime_quality.agent_action_human_decision":
+                continue
+            try:
+                payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+            except Exception as exc:
+                raise RuntimeError("human-decision reconciliation readback failed") from exc
+            if not isinstance(payload, Mapping):
+                raise RuntimeError("human-decision record payload is not an object")
+            if (
+                payload.get("reservation_id") == reservation_id
+                and payload.get("reservation_version") == reservation_version
+            ):
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        return self._reservation_store._reconcile_empty_human_decision_reservation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+            reconciled_at=reconciled_at,
+        )
+
+    def write_authority_artifact(
+        self,
+        payload: object,
+        options: ArtifactWriteOptions,
+        *,
+        authority_fields: Mapping[str, object],
+    ) -> AuthorityArtifactWriteResult:
+        """Persist through the existing CAS plus durable diagnostic event chain."""
+
+        return write_runtime_authority_artifact(
+            self._artifact_store,
+            self._event_log,
+            payload,
+            options,
+            **dict(authority_fields),
+        )
+
+    def reconcile_authority_artifact(
+        self,
+        artifact_ref: str,
+        *,
+        expected_tenant_id: str | None,
+        expected_cell_id: str | None,
+        expected_run_id: str | None,
+        expected_job_id: str | None,
+    ) -> AuthorityReconciliationReport:
+        """Prove one CAS authority record has its durable diagnostic event."""
+
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=artifact_ref,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+        )
+        artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
+        manifest = self._artifact_store.get_manifest(artifact_id)
+        authority = manifest.authority
+        if authority is None:
+            raise ValueError("human-decision authority manifest linkage is absent")
+        event_id = artifacts.ArtifactID.model_validate(authority.diagnostic_event_ref)
+        event_manifest = self._artifact_store.get_manifest(event_id)
+        event_schema = event_manifest.artifact_schema
+        if (
+            event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+            or event_schema is None
+            or event_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+            or event_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+        ):
+            raise ValueError("human-decision diagnostic event artifact changed")
+        event = DiagnosticEvent.model_validate(
+            from_canonical_bytes(self._artifact_store.get_bytes(event_id))
+        )
+        durable_records = self._event_log.list_events(
+            event_id=event.event_id,
+            run_id=expected_run_id,
+            job_id=expected_job_id,
+            limit=100,
+        )
+        if (
+            report.durable_event_id != event.event_id
+            or event.payload_ref != artifact_ref
+            or not any(getattr(record, "event", None) == event for record in durable_records)
+        ):
+            raise ValueError("human-decision diagnostic event binding changed")
+        return report
+
+    def has_artifact(self, artifact_ref: str) -> bool:
+        """Return whether an exact content ref is present."""
+
+        return bool(self._artifact_store.has(artifacts.ArtifactID.model_validate(artifact_ref)))
+
+    def get_artifact_bytes(self, artifact_ref: str) -> bytes:
+        """Return exact CAS bytes for verification and model readback."""
+
+        return self._artifact_store.get_bytes(artifacts.ArtifactID.model_validate(artifact_ref))
+
+    def get_artifact_manifest(self, artifact_ref: str) -> ArtifactManifest:
+        """Return the exact CAS manifest for schema admission."""
+
+        return self._artifact_store.get_manifest(artifacts.ArtifactID.model_validate(artifact_ref))
+
+    def get_artifact_manifest_bytes(self, artifact_ref: str) -> bytes:
+        """Return manifest bytes bound by detached signatures."""
+
+        return self._signed_artifact_store().get_manifest_bytes(
+            artifacts.ArtifactID.model_validate(artifact_ref)
+        )
+
+    def get_artifact_signature(self, artifact_ref: str) -> artifacts.DetachedSignature | None:
+        """Return an existing detached signature without synthesizing one."""
+
+        return self._signed_artifact_store().get_signature(
+            artifacts.ArtifactID.model_validate(artifact_ref)
+        )
+
+    def sign_artifact(
+        self,
+        artifact_ref: str,
+        signer: artifacts.Ed25519Signer,
+        *,
+        signer_identity: str,
+    ) -> artifacts.DetachedSignature:
+        """Sign one exact artifact only when no sidecar exists."""
+
+        store = self._signed_artifact_store()
+        artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
+        if store.get_signature(artifact_id) is not None:
+            raise ValueError("human-decision artifact already has a signature")
+        return store.sign_artifact(
+            artifact_id,
+            signer,
+            signer_identity=signer_identity,
+        )
+
+    def verify_artifact_signature(
+        self,
+        artifact_ref: str,
+        verifier: artifacts.Ed25519Verifier,
+        *,
+        strict_identity: bool = True,
+    ) -> artifacts.SignatureVerificationResult:
+        """Verify exact bytes, manifest, key trust, and signer identity."""
+
+        return self._signed_artifact_store().verify_signature(
+            artifacts.ArtifactID.model_validate(artifact_ref),
+            verifier,
+            strict_identity=strict_identity,
+        )
+
+    def _signed_artifact_store(self) -> _HumanDecisionSignedArtifactStore:
+        required_methods = (
+            "get_manifest_bytes",
+            "get_signature",
+            "sign_artifact",
+            "verify_signature",
+        )
+        if any(
+            not callable(getattr(self._artifact_store, method_name, None))
+            for method_name in required_methods
+        ):
+            raise RuntimeError("human-decision signed artifact store is unavailable")
+        return cast(
+            "_HumanDecisionSignedArtifactStore",
+            cast("object", self._artifact_store),
+        )
+
+
+class ControlPlaneService(
+    ControlPlaneWorkspaceLoopTransitionMixin,
+    CapabilityManifestMixin,
+    LexPipelineMixin,
+    NaturalLanguageRunMixin,
+):
+    """Bridge HTTP control requests to durable jobs and domain pipelines."""
+
+    @staticmethod
+    def build_decision_validity_owner(store: ArtifactStore) -> DecisionValidityService:
+        """Build the canonical Decision Validity owner over ``store``."""
+        from polisyos.runtime.quality.epoch_transition_verification import (
+            build_epoch_decision_validity_owner,
+        )
+
+        return build_epoch_decision_validity_owner(store=store)
+
+    @staticmethod
+    def is_decision_validity_owner(candidate: object) -> bool:
+        """Return whether ``candidate`` is the canonical owner service type."""
+        return isinstance(candidate, DecisionValidityService)
+
+    def __init__(
+        self,
+        *,
+        cas_root: Path,
+        core_runs_root: Path,
+        metrics: MetricsRegistry | None = None,
+        tracer: PolicyOSTracer | None = None,
+        artifact_store: ArtifactStore | None = None,
+        async_artifact_store: AsyncArtifactStore | None = None,
+        control_store: ControlPlaneStore | None = None,
+        retrieval_service: RetrievalService | None = None,
+        policy_resolver: RuntimeExecutionPolicyResolver | None = None,
+        registry_providers: ControlRegistryProviders | None = None,
+        decision_validity_service: DecisionValidityService | None = None,
+        epoch_certificate_issuance_owner: DecisionPacketEpochIssuanceOwner | None = None,
+        promotion_runtime: PromotionRuntime | None = None,
+        epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService | None = None,
+        evaluation_safety_persistence_service: EvaluationSafetyPersistenceService | None = None,
+        evaluation_safety_promotion_source_slot: EvaluationSafetyPromotionSourceSlot | None = None,
+        published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
+        normative_authority_trust: NormativeAuthorityTrust | None = None,
+        cycle_substrate_context_admission_owner: _CycleSubstrateContextAdmissionOwner
+        | None = None,
+    ) -> None:
+        from polisyos.fabric.retrieval import RetrievalService
+
+        self._cas_root = cas_root
+        self._core_runs_root = core_runs_root
+        # The source checkout is a separate trust input from the CAS root.  It
+        # is resolved from this owner module, never inferred from the CAS or
+        # process cwd, and is passed to source-bound receipt consumers.
+        self._repo_root = Path(__file__).resolve().parents[6]
+        self._normative_authority_trust = normative_authority_trust or NormativeAuthorityTrust()
+        if type(self._normative_authority_trust) is not NormativeAuthorityTrust:
+            raise TypeError("normative_deployment_trust_must_be_typed")
+        if cycle_substrate_context_admission_owner is not None and not callable(
+            getattr(cycle_substrate_context_admission_owner, "admit_context", None)
+        ):
+            raise ValueError("cycle_substrate_context_admission_owner_invalid")
+        self._cycle_substrate_context_admission_owner = (
+            cycle_substrate_context_admission_owner
+        )
+        self._metrics = metrics if metrics is not None else _default_runtime_metrics()
+        self._tracer = tracer if tracer is not None else _default_runtime_tracer()
+        self._policy_resolver = policy_resolver or RuntimeExecutionPolicyResolver.from_env()
+        self._capability_discovery_service: CapabilityDiscoveryService | None = None
+        if registry_providers is None:
+            raise ValueError(
+                "ControlPlaneService requires typed registry_providers from the "
+                "runtime composition root"
+            )
+        self._registry_providers = registry_providers
+        self._owns_artifact_store = artifact_store is None
+        if artifact_store is None:
+            store_config = ArtifactStoreConfig.from_env().model_copy(update={"root": str(cas_root)})
+            self._artifact_store = cast(
+                "ArtifactStore",
+                guard_runtime_cas(
+                    build_artifact_store(
+                        store_config,
+                        metrics=self._metrics,
+                        tracer=self._tracer,
+                    )
+                ),
+            )
+        else:
+            self._artifact_store = artifact_store
+        self._async_artifact_store = async_artifact_store or ensure_async_artifact_store(
+            self._artifact_store
+        )
+
+        self._owns_control_store = control_store is None
+        if control_store is None:
+            self._control_store = cast(
+                "ControlPlaneStore",
+                guard_runtime_control_store(
+                    ControlPlaneStore(
+                        backend=self._policy_resolver.state_store_backend,
+                        sqlite_path=self._resolve_control_sqlite_path(),
+                        postgres_dsn=self._policy_resolver.postgres_dsn,
+                    )
+                ),
+            )
+        else:
+            self._control_store = control_store
+        if evaluation_safety_persistence_service is not None and not isinstance(
+            evaluation_safety_persistence_service,
+            EvaluationSafetyPersistenceService,
+        ):
+            raise ValueError("evaluation_safety_persistence_owner_invalid")
+        if evaluation_safety_persistence_service is None:
+            self._diagnostic_event_log = RuntimeDiagnosticEventLog(
+                store=self._control_store,
+                artifact_store=self._artifact_store,
+            )
+            self._evaluation_safety_persistence_service = EvaluationSafetyPersistenceService(
+                artifact_store=self._artifact_store,
+                event_log=self._diagnostic_event_log,
+            )
+        else:
+            supplied_event_log = evaluation_safety_persistence_service._event_log
+            if (
+                evaluation_safety_persistence_service._artifact_store is not self._artifact_store
+                or supplied_event_log._store is not self._control_store
+                or supplied_event_log._artifact_store is not self._artifact_store
+            ):
+                raise ValueError("evaluation_safety_persistence_owner_mismatch")
+            self._diagnostic_event_log = supplied_event_log
+            self._evaluation_safety_persistence_service = evaluation_safety_persistence_service
+        self._evaluation_safety_state_resolver = _ControlEvaluationSafetyCurrentStateResolver()
+        self._evaluation_safety_authority_resolver = _ControlEvaluationSafetyAuthorityResolver()
+        self._evaluation_safety_appointment_resolver = _ControlEvaluationSafetyAppointmentResolver()
+        self._evaluation_safety_verifier_registry = _ControlEvaluationSafetyVerifierRegistry()
+        self._evaluation_safety_admission_verifier = EvaluationSafetyAdmissionVerifier(
+            persistence_service=self._evaluation_safety_persistence_service,
+            current_state_resolver=self._evaluation_safety_state_resolver,
+            authority_resolver=self._evaluation_safety_authority_resolver,
+            appointment_resolver=self._evaluation_safety_appointment_resolver,
+            verifier_registry=self._evaluation_safety_verifier_registry,
+        )
+        self._evaluation_safety_decision_evidence: dict[
+            tuple[str, str], EvaluationSafetyDecisionEvidence
+        ] = {}
+        self._human_decision_sink = HumanDecisionAuthoritySink(
+            artifact_store=self._artifact_store,
+            event_log=self._diagnostic_event_log,
+            reservation_store=self._control_store,
+        )
+        self._acquisition_route_sink = AcquisitionRouteLoopAuthoritySink(
+            artifact_store=self._artifact_store,
+            event_log=self._diagnostic_event_log,
+            control_store=self._control_store,
+        )
+        self._acquisition_job_handler: (
+            Callable[[ControlJobRecord, dict[str, Any]], dict[str, Any]] | None
+        ) = None
+        if decision_validity_service is not None and not isinstance(
+            decision_validity_service, DecisionValidityService
+        ):
+            raise ValueError("decision_validity_owner_invalid")
+        self._decision_validity_service = (
+            decision_validity_service or self.build_decision_validity_owner(self._artifact_store)
+        )
+        if epoch_certificate_issuance_owner is not None:
+            from polisyos.runtime.quality.epoch_certificate_issuance import (
+                DecisionPacketEpochIssuanceOwner,
+            )
+
+            if (
+                type(epoch_certificate_issuance_owner) is not DecisionPacketEpochIssuanceOwner
+                or epoch_certificate_issuance_owner.store is not self._artifact_store
+            ):
+                raise ValueError("epoch_certificate_issuance_owner_mismatch")
+        self._epoch_certificate_issuance_owner = epoch_certificate_issuance_owner
+        if promotion_runtime is not None and not isinstance(promotion_runtime, PromotionRuntime):
+            raise ValueError("promotion_runtime_owner_invalid")
+        self._promotion_runtime = promotion_runtime or PromotionRuntime(
+            store=self._artifact_store,
+            completed_epoch_batches=self._decision_validity_service,
+        )
+        if (
+            self._promotion_runtime.store is not self._artifact_store
+            or self._promotion_runtime.epoch_n9_evidence_resolver._completed_batches
+            is not self._decision_validity_service
+        ):
+            raise ValueError("promotion_runtime_decision_validity_owner_mismatch")
+        source_slot = (
+            evaluation_safety_promotion_source_slot or EvaluationSafetyPromotionSourceSlot()
+        )
+        if type(source_slot) is not EvaluationSafetyPromotionSourceSlot:
+            raise TypeError("evaluation_safety_promotion_source_slot_must_be_typed")
+        if epoch_claim_lifecycle_bridge is None:
+            claim_owner = build_default_claim_ledger_owner(store=self._artifact_store)
+            self._epoch_claim_lifecycle_bridge = build_epoch_claim_lifecycle_bridge(
+                completed_batches=self._decision_validity_service,
+                claim_owner=claim_owner,
+                artifacts=self._artifact_store,
+            )
+        else:
+            if not isinstance(epoch_claim_lifecycle_bridge, EpochClaimLifecycleBridgeService):
+                raise ValueError("epoch_claim_lifecycle_bridge_owner_invalid")
+            if (
+                epoch_claim_lifecycle_bridge.artifacts is not self._artifact_store
+                or epoch_claim_lifecycle_bridge.completed_batches
+                is not self._decision_validity_service
+                or getattr(epoch_claim_lifecycle_bridge.claim_owner, "store", None)
+                is not self._artifact_store
+            ):
+                raise ValueError("epoch_claim_lifecycle_bridge_owner_store_mismatch")
+            self._epoch_claim_lifecycle_bridge = epoch_claim_lifecycle_bridge
+
+        self._published_signature_custody_watcher = PublishedSignatureCustodyWatcher(
+            store=self._artifact_store,
+            population_provider=published_signature_population_provider,
+            lifecycle_publisher=self.publish_published_signature_custody_event,
+        )
+
+        self._retrieval_catalog = None
+        if retrieval_service is None:
+            from polisyos.data_forge.read_api import catalog as catalog_read_api
+            from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+
+            curated_dir = _resolve_curated_dir()
+            catalog_paths = default_substrate_catalog_paths(self._repo_root)
+            self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
+                catalog_paths.l1_dcat_path,
+                catalog_paths.l1_dcat_path.parent,
+                overlay_path=catalog_read_api.default_acquisition_overlay_path(self._repo_root),
+            )
+            self._retrieval = RetrievalService(
+                curated_dir=curated_dir,
+                artifact_store=self._artifact_store,
+                dataset_catalog=self._retrieval_catalog,
+                providers=self._build_retrieval_providers(),
+            )
+        else:
+            self._retrieval = retrieval_service
+        from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceBridgeRepository
+
+        self._evaluation_safety_promotion_sources = EvaluationSafetyPromotionSourceContext(
+            slot=source_slot,
+            control_store=self._control_store,
+            core_runs_root=self._core_runs_root,
+            promotion_runtime=self._promotion_runtime,
+            promotion_evidence_resolver=N9PromotionEvidenceBridgeRepository(
+                store=self._artifact_store,
+                measurement_catalog=self._promotion_runtime.promotion_evidence_source.measurement_catalog,
+                measurement_providers=(
+                    self._promotion_runtime.promotion_evidence_source.measurement_providers
+                ),
+                promotion_safety_source_trust=self._promotion_runtime.promotion_safety_source_trust,
+            ),
+        )
+        self._worker: ControlWorker | None = None
+        if self._policy_resolver.worker_backend == "embedded":
+            self._worker = ControlWorker(
+                store=self._control_store,
+                handler=self._process_control_job,
+                maintenance_callback=self.run_published_signature_custody_maintenance,
+            )
+            self._worker.start()
+
+    @property
+    def scenario_head_store(self) -> ScenarioHeadStore:
+        """Expose the narrow durable scenario-head authority to the runtime container."""
+        return cast("ScenarioHeadStore", self._control_store)
+
+    def reconcile_epoch_validity_for_subject(
+        self,
+        *,
+        subject_ref: core_contracts.ArtifactRef,
+    ) -> (
+        core_contracts.PersistedEpochValidityGateEvidence
+        | core_contracts.EpochValidityGateNonReceipt
+    ):
+        """Delegate one pre-N9 gate to the exact container-owned runtime."""
+
+        return self._promotion_runtime.epoch_validity_gate.reconcile_before_n9(
+            subject_ref=subject_ref
+        )
+
+    def run_published_signature_custody_maintenance(self) -> PublishedSignatureCustodyResult:
+        """Run the container-composed published-signature watcher without an HTTP request."""
+
+        return self._published_signature_custody_watcher.scan_once()
+
+    async def compile_and_run_recursive_generation_cycle(
+        self,
+        *,
+        raw_request: str,
+        context: Mapping[str, object],
+        model_name: str,
+        trusted_source_context: Mapping[str, object | None] | None = None,
+        execution_intent: ExecutionIntent | None = None,
+        n4_proposal_only: bool = False,
+        compiler_gateway: _DesignProblemGatewayClient | None,
+        budget_state: BudgetState,
+        recursive_budget: RecursiveCycleBudget,
+        recursive_budget_resolution: RecursiveBudgetResolution | None = None,
+        target_world_scope_profile_id: str | None = None,
+        cycle_substrate_context_resolver: Callable[
+            [DesignProblem], CycleSubstrateContext | None
+        ]
+        | None = None,
+        root_evaluation_context: EvaluationExecutionContext | None = None,
+    ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
+        """Run the HTTP composition through its container-owned epoch strangle."""
+
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            compile_and_run_recursive_generation_cycle,
+        )
+
+        return await compile_and_run_recursive_generation_cycle(
+            raw_request=raw_request,
+            context=context,
+            trusted_source_context=trusted_source_context,
+            model_name=model_name,
+            execution_intent=execution_intent,
+            n4_proposal_only=n4_proposal_only,
+            compiler_gateway=compiler_gateway,
+            budget_state=budget_state,
+            recursive_budget=recursive_budget,
+            recursive_budget_resolution=recursive_budget_resolution,
+            target_world_scope_profile_id=target_world_scope_profile_id,
+            cycle_substrate_context_resolver=cycle_substrate_context_resolver,
+            root_evaluation_context=root_evaluation_context,
+            eval_safety_verifier=self._evaluation_safety_admission_verifier,
+            promotion_runtime=self._promotion_runtime,
+            repo_root=self._repo_root,
+        )
+
+    @property
+    def step_up_replay_store(self) -> StepUpReplayStore:
+        """Expose the narrow durable one-use assertion store."""
+        return cast("StepUpReplayStore", self._control_store)
+
+    def resolve_generation_value_choices(
+        self,
+        *,
+        compiled_run_ref: str,
+        evidence: NormativeRunEvidenceRefs | None = None,
+        evaluated_at: datetime,
+    ) -> NormativeRunDisposition:
+        """Persist and replay current source-bound S8 choices through the deployment owner."""
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            normative_owner_for_runtime_store,
+            produce_normative_run_disposition,
+        )
+
+        owner = normative_owner_for_runtime_store(
+            self._artifact_store,
+            self._normative_authority_trust,
+            repo_root=self._repo_root,
+        )
+        return produce_normative_run_disposition(
+            store=self._artifact_store,
+            owner=owner,
+            compiled_run_ref=compiled_run_ref,
+            evidence=evidence,
+            evaluated_at=evaluated_at,
+        )
+
+    def _normative_owned_job_source(self, record: ControlJobRecord) -> tuple[str, str]:
+        """Bind the job source to the immutable outputs of its canonical owned run."""
+        if record.run_id is None:
+            raise ValueError("normative_evidence_job_run_missing")
+        terminal = load_terminal_core_run_source(
+            store=self._artifact_store,
+            core_runs_root=self._core_runs_root,
+            run_id=record.run_id,
+        )
+        outputs = terminal.manifest.outputs
+        compiled = [
+            str(ref.artifact_id)
+            for ref in outputs
+            if ref.kind == "runtime.compiled_recursive_generation_cycle"
+        ]
+        normative = [
+            str(ref.artifact_id)
+            for ref in outputs
+            if ref.kind == "runtime.normative_generation_composition"
+        ]
+        if (
+            terminal.manifest.status != "ok"
+            or len(outputs) != 2
+            or len(compiled) != 1
+            or len(normative) != 1
+        ):
+            raise ValueError("normative_evidence_owned_run_source_mismatch")
+        return compiled[0], normative[0]
+
+    def submit_normative_evidence(
+        self,
+        *,
+        run_id: str,
+        submission: NormativeEvidenceSubmissionRequest,
+        request_id: str | None = None,
+    ) -> NormativeEvidenceSubmissionResponse:
+        """Admit post-source evidence for the exact owned job and atomically attach its head."""
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            NORMATIVE_GENERATION_HEAD_KIND,
+            NORMATIVE_GENERATION_HEAD_SCHEMA,
+            NormativeEvidenceHeadStrangleReceipt,
+            NormativeEvidenceSubmissionResponse,
+            NormativeGenerationHead,
+            NormativeRunEvidenceRefs,
+        )
+
+        record = self._control_store.get_job(submission.job_id)
+        if record is None or record.run_id != run_id:
+            raise ValueError("normative_evidence_job_run_mismatch")
+        if record.kind != "natural_language_run" or record.state != "completed":
+            raise ValueError("normative_evidence_job_not_completed")
+        compiled_ref, original_ref = self._normative_owned_job_source(record)
+        now = datetime.now(UTC)
+        evidence = submission.evidence
+        if compiled_ref != record.progress.get("compiled_recursive_generation_cycle_ref"):
+            evidence = NormativeRunEvidenceRefs(
+                input_limitation="p20_normative_sidecar_replay_failed"
+            )
+        disposition = self.resolve_generation_value_choices(
+            compiled_run_ref=compiled_ref, evidence=evidence, evaluated_at=now
+        )
+        if disposition.disposition_ref is None:
+            raise RuntimeError("normative_evidence_disposition_not_persisted")
+        status: Literal["admitted", "refused", "conflict"] = "refused"
+        if disposition.authorization_status == "authorized":
+            head = NormativeGenerationHead(
+                job_id=record.job_id,
+                run_id=run_id,
+                compiled_run_ref=compiled_ref,
+                previous_head_ref=submission.expected_prior_head_ref,
+                disposition_ref=disposition.disposition_ref,
+                evidence=submission.evidence,
+                evaluated_at=now,
+                strangle_receipt=NormativeEvidenceHeadStrangleReceipt(
+                    original_disposition_ref=original_ref,
+                    current_disposition_ref=disposition.disposition_ref,
+                ),
+            )
+            persisted_head = self._artifact_store.put_json(
+                head.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind=NORMATIVE_GENERATION_HEAD_KIND,
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name=NORMATIVE_GENERATION_HEAD_KIND,
+                        version=NORMATIVE_GENERATION_HEAD_SCHEMA,
+                    ),
+                ),
+            )
+            head_ref = str(persisted_head.artifact_id)
+            status = (
+                "admitted"
+                if self._control_store.append_normative_evidence_head(
+                    job_id=record.job_id,
+                    run_id=run_id,
+                    compiled_run_ref=compiled_ref,
+                    expected_prior_head_ref=submission.expected_prior_head_ref,
+                    head_ref=head_ref,
+                )
+                else "conflict"
+            )
+        if status != "admitted":
+            self._control_store.append_event(
+                job_id=record.job_id,
+                event_type="normative_evidence_" + status,
+                payload={
+                    "job_id": record.job_id,
+                    "run_id": run_id,
+                    "compiled_run_ref": compiled_ref,
+                    "expected_prior_head_ref": submission.expected_prior_head_ref,
+                    "attempted_disposition_ref": disposition.disposition_ref,
+                    "evidence": submission.evidence.model_dump(mode="json"),
+                    "evaluated_at": now.isoformat(),
+                },
+            )
+        current = self._current_normative_job_record(record)
+        return NormativeEvidenceSubmissionResponse(
+            status=status,
+            head_ref=current.progress.get("normative_head_ref"),
+            attempted_disposition_ref=disposition.disposition_ref,
+            job=current.to_response(request_id=request_id),
+        )
+
+    def _current_normative_generation_projection(
+        self,
+        *,
+        disposition_ref: str | None,
+        compiled_run_ref: str | None,
+        evaluated_at: datetime,
+        refusal_reason: str | None = None,
+    ) -> dict[str, object]:
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            NormativeRunEvidenceRefs,
+            normative_owner_for_runtime_store,
+            project_normative_run_disposition,
+        )
+
+        try:
+            if refusal_reason is not None:
+                raise P20NormativeChoiceError(refusal_reason)
+            if disposition_ref is None or compiled_run_ref is None:
+                raise P20NormativeChoiceError("p20_normative_generation_disposition_missing")
+            owner = normative_owner_for_runtime_store(
+                self._artifact_store,
+                self._normative_authority_trust,
+                repo_root=self._repo_root,
+            )
+            return project_normative_run_disposition(
+                store=self._artifact_store,
+                owner=owner,
+                disposition_ref=disposition_ref,
+                compiled_run_ref=compiled_run_ref,
+                evaluated_at=evaluated_at,
+            ).model_dump(mode="json")
+        except (ValueError, TypeError, OSError, KeyError) as exc:
+            reason = (
+                str(exc)
+                if isinstance(exc, P20NormativeChoiceError)
+                else "p20_normative_current_replay_unavailable"
+            )
+            if compiled_run_ref is not None:
+                try:
+                    refusal = self.resolve_generation_value_choices(
+                        compiled_run_ref=compiled_run_ref,
+                        evidence=NormativeRunEvidenceRefs(
+                            input_limitation=(
+                                "p20_normative_generation_disposition_missing"
+                                if disposition_ref is None and refusal_reason is None
+                                else "p20_normative_sidecar_replay_failed"
+                            )
+                        ),
+                        evaluated_at=evaluated_at,
+                    )
+                    return {
+                        **refusal.model_dump(mode="json"),
+                        "refusal_disposition_ref": refusal.disposition_ref,
+                        "reason_codes": [reason],
+                    }
+                except (ValueError, TypeError, OSError, KeyError):
+                    pass
+            return {
+                "authorization_status": "blocked",
+                "ranked_recommendations": [],
+                "reason_codes": [reason],
+                "source_status": "not_established",
+                "candidate_fronts": None,
+            }
+
+    @property
+    def human_decision_sink(self) -> HumanDecisionAuthoritySink:
+        """Expose only the custodied human-decision persistence boundary."""
+
+        return self._human_decision_sink
+
+    @property
+    def acquisition_route_sink(self) -> AcquisitionRouteLoopAuthoritySink:
+        """Expose the sole durable acquisition action-head authority."""
+
+        return self._acquisition_route_sink
+
+    def bind_acquisition_job_handler(
+        self,
+        handler: Callable[[ControlJobRecord, dict[str, Any]], dict[str, Any]],
+    ) -> None:
+        """Bind one container-composed acquisition worker bridge."""
+
+        if not callable(handler):
+            raise TypeError("acquisition job handler must be callable")
+        if self._acquisition_job_handler is not None:
+            raise RuntimeError("acquisition job handler is already bound")
+        self._acquisition_job_handler = handler
+
+    def enqueue_acquisition_job(
+        self,
+        *,
+        job_id: str,
+        run_id: str,
+        payload: dict[str, Any],
+        request_id: str | None = None,
+        principal: RuntimePrincipal | None = None,
+    ) -> ControlJobRecord:
+        """Persist one deterministic acquisition payload and queue it for the generic worker."""
+
+        existing = self._control_store.get_job(job_id)
+        if existing is not None:
+            if existing.kind != "acquisition" or existing.run_id != run_id:
+                raise RuntimeError("acquisition_job_identity_conflict")
+            return existing
+        policy = self._resolve_execution_policy(
+            requested_profile=None,
+            policy_flags=PolicyFlags(),
+            principal=principal,
+        )
+        return self._enqueue_job(
+            job_id=job_id,
+            job_kind="acquisition",
+            run_id=run_id,
+            pipeline_id=None,
+            payload=payload,
+            policy=policy,
+            request_id=request_id,
+        )
+
+    @property
+    def execution_policy_resolver(self) -> RuntimeExecutionPolicyResolver:
+        """Expose the policy owner needed by container-only capability composition."""
+        return self._policy_resolver
+
+    def bind_capability_discovery_service(self, service: CapabilityDiscoveryService) -> None:
+        """Bind the sole container-composed discovery owner once."""
+        if self._capability_discovery_service is not None:
+            raise RuntimeError("capability discovery service is already bound")
+        for provider in self._registry_providers.capability_discovery_providers:
+            bind_artifact_store = getattr(provider, "bind_artifact_store", None)
+            if callable(bind_artifact_store):
+                bind_artifact_store(self._artifact_store)
+        self._capability_discovery_service = service
+
+    def close(self) -> None:
+        """Stop embedded workers and release durable control-plane resources."""
+        if self._worker is not None:
+            self._worker.stop()
+        retrieval_catalog_close = cast(
+            "Callable[[], None] | None", getattr(self._retrieval_catalog, "close", None)
+        )
+        if callable(retrieval_catalog_close):
+            retrieval_catalog_close()
+        control_store_close = cast(
+            "Callable[[], None] | None", getattr(self._control_store, "close", None)
+        )
+        artifact_store_close = cast(
+            "Callable[[], None] | None", getattr(self._artifact_store, "close", None)
+        )
+        if self._owns_control_store and callable(control_store_close):
+            control_store_close()
+        if self._owns_artifact_store and callable(artifact_store_close):
+            artifact_store_close()
+
+    def _resolve_control_sqlite_path(self) -> Path:
+        path = Path(self._policy_resolver.sqlite_path)
+        if path.is_absolute():
+            return path
+        return self._cas_root.parent / path
+
+    def _build_retrieval_providers(self) -> RetrievalProviders:
+        from polisyos.fabric.retrieval import RetrievalProviders
+
+        return RetrievalProviders(
+            registry=cast("ConnectorRegistry", self._registry_providers.connectors),
+            profiles=cast("SourceProfileRegistry", self._registry_providers.source_profiles),
+            tracer=self._tracer,
+            metrics=self._metrics,
+        )
+
+    def _resolve_execution_policy(
+        self,
+        *,
+        requested_profile: ExecutionProfile | None,
+        policy_flags: PolicyFlags,
+        principal: RuntimePrincipal | None,
+    ) -> ResolvedExecutionPolicy:
+        try:
+            policy = self._policy_resolver.resolve(
+                requested_profile=requested_profile,
+                policy_flags=policy_flags,
+                principal=principal,
+            )
+            self._validate_policy_runtime_compatibility(policy)
+            return policy
+        except ExecutionProfileError as exc:
+            raise unprocessable_entity(str(exc), code=exc.code) from exc
+        except PolicyFlagForbiddenError as exc:
+            raise forbidden(str(exc), code=exc.code) from exc
+
+    def _validate_policy_runtime_compatibility(
+        self,
+        policy: ResolvedExecutionPolicy,
+    ) -> None:
+        if policy.external_worker_required and self._policy_resolver.worker_backend != "external":
+            raise ExecutionProfileError(
+                "durable_worker_required",
+                (
+                    f"Execution profile {policy.effective_profile!r} requires "
+                    "POLISYOS_CONTROL_WORKER_BACKEND=external."
+                ),
+            )
+        if policy.postgres_required and self._policy_resolver.state_store_backend != "postgres":
+            raise ExecutionProfileError(
+                "durable_state_store_required",
+                (
+                    f"Execution profile {policy.effective_profile!r} requires a "
+                    "PostgreSQL-backed control-plane state store."
+                ),
+            )
+        if policy.postgres_required and not self._policy_resolver.postgres_dsn:
+            raise ExecutionProfileError(
+                "durable_state_store_required",
+                (
+                    f"Execution profile {policy.effective_profile!r} requires "
+                    "POLISYOS_CONTROL_POSTGRES_DSN."
+                ),
+            )
+
+    def _put_json_artifact(
+        self,
+        payload: object,
+        *,
+        kind: str,
+        schema_name: str,
+        schema_version: str = "1.0",
+    ) -> str:
+        ref = self._artifact_store.put_json(
+            payload,
+            ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(name=schema_name, version=schema_version),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        return str(ref.artifact_id)
+
+    def _persist_job_payload(
+        self,
+        *,
+        job_kind: str,
+        payload: dict[str, Any],
+    ) -> str:
+        schema_version = (
+            "1.1"
+            if job_kind == "natural_language_run"
+            and "target_world_scope_profile_id" in payload
+            else "1.0"
+        )
+        return self._put_json_artifact(
+            payload,
+            kind=f"runtime.control_job_payload.{job_kind}",
+            schema_name="polisyos.runtime.ControlJobPayload",
+            schema_version=schema_version,
+        )
+
+    def _build_job_telemetry(self, *, request_id: str | None) -> dict[str, Any] | None:
+        telemetry: dict[str, Any] = {}
+        if request_id:
+            telemetry["request_id"] = request_id
+        telemetry["runtime_trace"] = {
+            "trace_id": f"trace_{uuid.uuid4().hex}",
+            "span_id": f"span_{uuid.uuid4().hex[:16]}",
+            "parent_span_id": None,
+        }
+        carrier: dict[str, str] = {}
+        inject_context = getattr(self._tracer, "inject_context", None)
+        if callable(inject_context):
+            inject_context(carrier)
+        if carrier:
+            telemetry["trace_context"] = carrier
+        return telemetry or None
+
+    def _enrich_job_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        request_id: str | None,
+    ) -> dict[str, Any]:
+        enriched_payload = dict(payload)
+        telemetry = self._build_job_telemetry(request_id=request_id)
+        if telemetry is not None:
+            enriched_payload["_telemetry"] = telemetry
+        return enriched_payload
+
+    def _job_trace_context(
+        self,
+        *,
+        job_id: str,
+        payload: Mapping[str, Any] | None = None,
+        parent_span_id: str | None = None,
+    ) -> dict[str, str | None]:
+        telemetry = payload.get("_telemetry") if isinstance(payload, Mapping) else None
+        runtime_trace = telemetry.get("runtime_trace") if isinstance(telemetry, Mapping) else None
+        trace_id = None
+        span_id = None
+        stored_parent_span_id = None
+        if isinstance(runtime_trace, Mapping):
+            trace_id = runtime_trace.get("trace_id")
+            span_id = runtime_trace.get("span_id")
+            stored_parent_span_id = runtime_trace.get("parent_span_id")
+        return {
+            "trace_id": str(trace_id or f"trace_{job_id}"),
+            "span_id": f"span_{uuid.uuid4().hex[:16]}",
+            "parent_span_id": str(parent_span_id or span_id or stored_parent_span_id or "") or None,
+        }
+
+    def _emit_runtime_diagnostic_event(
+        self,
+        *,
+        job_id: str,
+        run_id: str | None,
+        execution_profile: str,
+        phase: str,
+        event_type: str,
+        state_before: str | None = None,
+        state_after: str | None = None,
+        payload: Mapping[str, Any] | None = None,
+        event_payload: Mapping[str, Any] | None = None,
+        artifact_refs: list[str] | tuple[str, ...] | None = None,
+        input_refs: list[str] | tuple[str, ...] | None = None,
+        blocking_status: str | None = None,
+        authority_bearing_payload: bool = False,
+        producer_component: str = "polisyos.runtime.control",
+        parent_span_id: str | None = None,
+    ) -> str | None:
+        """Emit a durable runtime diagnostic event and return its event id."""
+
+        trace = self._job_trace_context(
+            job_id=job_id,
+            payload=payload,
+            parent_span_id=parent_span_id,
+        )
+        tenant_id, cell_id = _job_scope_identity(payload)
+        if tenant_id is None or cell_id is None:
+            return None
+        event = DiagnosticEvent(
+            event_id=f"evt_{uuid.uuid4().hex[:24]}",
+            event_source="polisyos.runtime.control",
+            event_type=event_type,
+            event_time=datetime.now(UTC).replace(microsecond=0),
+            event_subject=f"run/{run_id or 'run-unknown'}/job/{job_id}/phase/{phase}",
+            schema_name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
+            schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+            trace_id=str(trace["trace_id"]),
+            span_id=str(trace["span_id"]),
+            parent_span_id=(str(trace["parent_span_id"]) if trace.get("parent_span_id") else None),
+            run_id=str(run_id or "run-unknown"),
+            job_id=job_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            producer_component=producer_component,
+            producer_version="2026.05.15+hds-phase2.2",
+            execution_profile=execution_profile,
+            phase=phase,
+            state_before=state_before,
+            state_after=state_after,
+            payload_ref=None,
+            artifact_refs=tuple(artifact_refs or ()),
+            input_refs=tuple(input_refs or ()),
+            blocking_status=blocking_status,
+            redaction_policy_ref="redaction-policy/runtime-diagnostics-v1",
+            duplicate_of=None,
+            dedupe_key=None,
+            sampling_decision="always_record",
+            sampling_rate=1.0,
+        )
+        try:
+            record = self._diagnostic_event_log.append(
+                event,
+                payload=event_payload,
+                payload_policy=DiagnosticEventPayloadPolicy(
+                    authority_bearing=authority_bearing_payload
+                ),
+            )
+        except Exception as exc:  # pragma: no cover - diagnostics cannot mask dev jobs
+            if execution_profile.strip().casefold() in SERIOUS_EXECUTION_PROFILES:
+                raise RuntimeError(
+                    f"runtime_diagnostic_event_persistence_failed:{job_id}:{phase}"
+                ) from exc
+            logger.debug(
+                "Failed to persist runtime diagnostic event for job %s phase %s: %s",
+                job_id,
+                phase,
+                exc,
+            )
+            return None
+        return str(record.event.event_id)
+
+    def _attach_job_actor_scope(
+        self,
+        payload: dict[str, Any],
+        *,
+        policy: ResolvedExecutionPolicy,
+    ) -> dict[str, Any]:
+        scoped_payload = dict(payload)
+        tenant_id = policy.actor.get("tenant_id")
+        cell_id = policy.actor.get("cell_id")
+        if isinstance(tenant_id, str) and tenant_id:
+            scoped_payload["tenant_id"] = tenant_id
+        if isinstance(cell_id, str) and cell_id:
+            scoped_payload["cell_id"] = cell_id
+        return scoped_payload
+
+    @contextmanager
+    def _job_tenant_scope(self, payload: dict[str, Any]) -> Iterator[None]:
+        tenant_id, cell_id = _job_scope_identity(payload)
+        if tenant_id is None:
+            with nullcontext():
+                yield
+            return
+        with tenant_scope(
+            None,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        ):
+            yield
+
+    @contextmanager
+    def _control_job_span(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: dict[str, Any],
+    ) -> Iterator[None]:
+        telemetry = payload.get("_telemetry") if isinstance(payload, dict) else None
+        request_id = None
+        token = None
+        if isinstance(telemetry, dict):
+            request_id = telemetry.get("request_id")
+            carrier = telemetry.get("trace_context")
+            extract_context = getattr(self._tracer, "extract_context", None)
+            if isinstance(carrier, dict) and carrier and callable(extract_context):
+                token = attach(
+                    cast(
+                        "Any",
+                        extract_context({str(key): str(value) for key, value in carrier.items()}),
+                    )
+                )
+        queue_lag_seconds = max(
+            (datetime.now(UTC) - job.created_at).total_seconds(),
+            0.0,
+        )
+        started = time.perf_counter()
+        status = "success"
+        with self._tracer.start_as_current_span(
+            "runtime.control.job.execute",
+            attributes={
+                "runtime.control.job_id": job.job_id,
+                "runtime.control.job_kind": job.kind,
+                "runtime.control.run_id": job.run_id or "",
+                "runtime.control.pipeline_id": job.pipeline_id or "",
+                "runtime.control.request_id": str(request_id or ""),
+            },
+        ):
+            try:
+                yield
+            except Exception:
+                status = "error"
+                raise
+            finally:
+                _record_control_plane_job_execution_metric(
+                    metrics=self._metrics,
+                    job_kind=job.kind,
+                    status=status,
+                    duration_seconds=time.perf_counter() - started,
+                    queue_lag_seconds=queue_lag_seconds,
+                )
+                if token is not None:
+                    detach(token)
+
+    def _persist_capability_manifest(
+        self,
+        *,
+        policy: ResolvedExecutionPolicy,
+        job_id: str,
+        run_id: str | None,
+        pipeline_id: str | None,
+        payload_ref: str | None,
+        observed_fallbacks: list[str] | None = None,
+    ) -> str:
+        payload = build_capability_manifest_payload(
+            policy=policy,
+            job_id=job_id,
+            run_id=run_id,
+            pipeline_id=pipeline_id,
+            payload_ref=payload_ref,
+            observed_fallbacks=observed_fallbacks,
+        )
+        return self._put_json_artifact(
+            payload,
+            kind="runtime.capability_manifest",
+            schema_name="polisyos.runtime.CapabilityManifest",
+        )
+
+    def _enqueue_job(
+        self,
+        *,
+        job_id: str,
+        job_kind: str,
+        run_id: str | None,
+        pipeline_id: str | None,
+        payload: dict[str, Any],
+        policy: ResolvedExecutionPolicy,
+        request_id: str | None = None,
+    ) -> ControlJobRecord:
+        started = time.perf_counter()
+        payload = self._attach_job_actor_scope(payload, policy=policy)
+        payload = self._enrich_job_payload(payload, request_id=request_id)
+        initially_refused = False
+        if job_kind == "natural_language_run":
+            payload[_EXECUTION_INTENT_BINDING_KEY] = (
+                _build_control_execution_intent_binding(
+                    payload,
+                    job_id=job_id,
+                    run_id=str(run_id or ""),
+                    actor=policy.actor,
+                )
+            )
+            initially_refused = (
+                payload[_EXECUTION_INTENT_BINDING_KEY]["admission_status"]
+                != "established"
+            )
+        try:
+            payload_ref = self._persist_job_payload(job_kind=job_kind, payload=payload)
+            capability_manifest_ref = self._persist_capability_manifest(
+                policy=policy,
+                job_id=job_id,
+                run_id=run_id,
+                pipeline_id=pipeline_id,
+                payload_ref=payload_ref,
+            )
+            record = self._control_store.create_job(
+                job_id=job_id,
+                kind=_coerce_control_job_kind(job_kind),
+                run_id=run_id,
+                pipeline_id=pipeline_id,
+                requested_execution_profile=policy.requested_profile,
+                effective_execution_profile=policy.effective_profile,
+                policy_flags=policy.policy_flags.model_dump(mode="json"),
+                capability_manifest_ref=capability_manifest_ref,
+                payload_ref=payload_ref,
+                submitted_by=str(policy.actor.get("subject") or "anonymous"),
+                creation_event_payload=(
+                    {
+                        "job_id": job_id,
+                        "run_id": run_id,
+                        "job_kind": job_kind,
+                        "payload_ref": payload_ref,
+                        "capability_manifest_ref": capability_manifest_ref,
+                        _EXECUTION_INTENT_BINDING_KEY: payload[
+                            _EXECUTION_INTENT_BINDING_KEY
+                        ],
+                        "intent_digest": payload[
+                            _EXECUTION_INTENT_BINDING_KEY
+                        ]["intent_digest"],
+                    }
+                    if job_kind == "natural_language_run"
+                    else None
+                ),
+                initial_state="failed" if initially_refused else "pending",
+                initial_error_message=(
+                    "nl_job_execution_intent_not_established" if initially_refused else None
+                ),
+                initial_progress=(
+                    {
+                        "state": "failed",
+                        "phase": "job_admission",
+                        "status": "not_established",
+                        "failure_code": "nl_job_execution_intent_not_established",
+                        "execution_intent_binding": payload[
+                            _EXECUTION_INTENT_BINDING_KEY
+                        ],
+                    }
+                    if initially_refused
+                    else None
+                ),
+            )
+            diagnostic_event_ids = [
+                event_id
+                for event_id in (
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job_id,
+                        run_id=run_id,
+                        execution_profile=policy.effective_profile,
+                        phase="job_admission",
+                        event_type="polisyos.runtime.diagnostic.cas_write.v1",
+                        state_after="payload_persisted",
+                        payload=payload,
+                        event_payload={
+                            "artifact_ref": payload_ref,
+                            "artifact_kind": f"runtime.control_job_payload.{job_kind}",
+                            "projection_authority": "runtime_event_only",
+                        },
+                        artifact_refs=[payload_ref],
+                        authority_bearing_payload=(
+                            policy.effective_profile in _SERIOUS_EXECUTION_PROFILES
+                        ),
+                    ),
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job_id,
+                        run_id=run_id,
+                        execution_profile=policy.effective_profile,
+                        phase="job_admission",
+                        event_type="polisyos.runtime.diagnostic.cas_write.v1",
+                        state_after="capability_manifest_persisted",
+                        payload=payload,
+                        event_payload={
+                            "artifact_ref": capability_manifest_ref,
+                            "artifact_kind": "runtime.capability_manifest",
+                            "projection_authority": "runtime_event_only",
+                        },
+                        artifact_refs=[capability_manifest_ref],
+                        input_refs=[payload_ref],
+                        authority_bearing_payload=(
+                            policy.effective_profile in _SERIOUS_EXECUTION_PROFILES
+                        ),
+                    ),
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job_id,
+                        run_id=run_id,
+                        execution_profile=policy.effective_profile,
+                        phase="job_admission",
+                        event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                        state_after="failed" if initially_refused else "pending",
+                        payload=payload,
+                        event_payload={
+                            "job_kind": job_kind,
+                            "pipeline_id": pipeline_id,
+                            "failure_code": (
+                                "nl_job_execution_intent_not_established"
+                                if initially_refused
+                                else None
+                            ),
+                            "projection_authority": "progress_reference_only",
+                        },
+                    ),
+                )
+                if event_id is not None
+            ]
+            if diagnostic_event_ids:
+                progress_state = "failed" if initially_refused else "pending"
+                progress = (
+                    {
+                        **record.progress,
+                        "state": "failed",
+                        "diagnostic_event_ids": diagnostic_event_ids,
+                        "diagnostic_event_authority": "progress_reference_only",
+                    }
+                    if initially_refused
+                    else {
+                        "state": "pending",
+                        "phase": "job_admission",
+                        "diagnostic_event_ids": diagnostic_event_ids,
+                        "diagnostic_event_authority": "progress_reference_only",
+                    }
+                )
+                self._control_store.update_progress_state(
+                    job_id=job_id,
+                    state=progress_state,
+                    progress=progress,
+                    error_message=(
+                        "nl_job_execution_intent_not_established" if initially_refused else None
+                    ),
+                )
+            if self._worker is not None:
+                self._worker.wake()
+        except Exception:
+            _record_control_plane_job_admission_metric(
+                metrics=self._metrics,
+                job_kind=job_kind,
+                effective_profile=policy.effective_profile,
+                status="error",
+                duration_seconds=time.perf_counter() - started,
+            )
+            raise
+        _record_control_plane_job_admission_metric(
+            metrics=self._metrics,
+            job_kind=job_kind,
+            effective_profile=policy.effective_profile,
+            status="success",
+            duration_seconds=time.perf_counter() - started,
+        )
+        return record
+
+    def get_job_status(
+        self,
+        job_id: str,
+        *,
+        request_id: str | None = None,
+    ) -> ControlJobResponse:
+        """Return durable job state or raise `KeyError` so the route renders a 404 problem."""
+        record = self._control_store.get_job(job_id)
+        if record is None:
+            raise KeyError(job_id)
+        if (
+            record.state == "completed"
+            and record.progress.get("authority_path") == "workspace_loop"
+        ):
+            proof_payload = record.progress.get("production_loop_run_proof")
+            endpoint = "/api/v1/control/runs"
+            if isinstance(proof_payload, Mapping):
+                endpoint = str(proof_payload.get("endpoint") or endpoint)
+            self._finalize_workspace_loop_run_proof(job_id=job_id, endpoint=endpoint)
+            record = self._control_store.get_job(job_id) or record
+        return self._current_normative_job_record(record).to_response(request_id=request_id)
+
+    def _current_normative_job_record(self, record: ControlJobRecord) -> ControlJobRecord:
+        """Replay normative authority once for every outward job-record reader."""
+        if record.kind == "natural_language_run" and record.state == "completed":
+            progress = dict(record.progress)
+            stored_disposition_ref = progress.get("normative_disposition_ref")
+            stored_compiled_ref = progress.get("compiled_recursive_generation_cycle_ref")
+            copied_head_ref = progress.pop("normative_head_ref", None)
+            progress.pop("normative_head_strangle_receipt", None)
+            progress.pop("normative_head_limitation", None)
+            disposition_ref: str | None = None
+            compiled_ref: str | None = None
+            refusal_reason: str | None = None
+            from polisyos.runtime.http.services.control.generation_cycle import (
+                NormativeEvidenceHeadStrangleReceipt,
+                load_normative_generation_head,
+                normative_owner_for_runtime_store,
+                replay_normative_run_disposition,
+            )
+
+            try:
+                compiled_ref, original_disposition_ref = self._normative_owned_job_source(record)
+                progress["compiled_recursive_generation_cycle_ref"] = compiled_ref
+                if stored_compiled_ref != compiled_ref:
+                    raise ValueError("normative_head_owned_source_mismatch")
+                event = self._control_store.get_normative_evidence_head(record.job_id)
+                if event is None:
+                    if (
+                        copied_head_ref is not None
+                        or stored_disposition_ref != original_disposition_ref
+                    ):
+                        raise ValueError("normative_admitted_head_missing")
+                    disposition_ref = original_disposition_ref
+                else:
+                    head = load_normative_generation_head(self._artifact_store, event["head_ref"])
+                    expected = {
+                        "head_ref": event["head_ref"],
+                        "previous_head_ref": head.previous_head_ref,
+                        "job_id": record.job_id,
+                        "run_id": record.run_id,
+                        "compiled_run_ref": compiled_ref,
+                    }
+                    if event != expected or (head.job_id, head.run_id, head.compiled_run_ref) != (
+                        record.job_id,
+                        record.run_id,
+                        compiled_ref,
+                    ):
+                        raise ValueError("normative_head_source_binding_mismatch")
+                    owner = normative_owner_for_runtime_store(
+                        self._artifact_store,
+                        self._normative_authority_trust,
+                        repo_root=self._repo_root,
+                    )
+                    historical_replay = replay_normative_run_disposition(
+                        store=self._artifact_store,
+                        owner=owner,
+                        disposition_ref=head.disposition_ref,
+                        compiled_run_ref=head.compiled_run_ref,
+                    )
+                    historical = historical_replay.disposition
+                    actual_evidence = {
+                        node: leaf.evidence
+                        for node, leaf in historical.leaf_dispositions.items()
+                        if leaf.evidence is not None
+                    }
+                    if (
+                        not historical_replay.admission_authority_established
+                        or historical.authorization_status != "authorized"
+                        or head.evidence.input_limitation is not None
+                        or head.evidence.by_node != actual_evidence
+                        or any(
+                            leaf.admitted_at != head.evaluated_at
+                            for leaf in historical.leaf_dispositions.values()
+                        )
+                        or head.strangle_receipt
+                        != NormativeEvidenceHeadStrangleReceipt(
+                            original_disposition_ref=original_disposition_ref,
+                            current_disposition_ref=head.disposition_ref,
+                        )
+                    ):
+                        raise ValueError("normative_head_evidence_binding_mismatch")
+                    disposition_ref = head.disposition_ref
+                    progress["normative_head_ref"] = event["head_ref"]
+                    progress["normative_disposition_ref"] = disposition_ref
+                    progress["normative_head_strangle_receipt"] = head.strangle_receipt.model_dump(
+                        mode="json"
+                    )
+            except (ValueError, TypeError, OSError, KeyError) as exc:
+                # The canonical source survives projection/head failure. Mutable progress
+                # never supplies authority when the immutable owner cannot resolve it.
+                refusal_reason = str(exc)
+                progress["normative_head_limitation"] = refusal_reason
+            projection = self._current_normative_generation_projection(
+                disposition_ref=disposition_ref,
+                compiled_run_ref=compiled_ref,
+                evaluated_at=datetime.now(UTC),
+                refusal_reason=refusal_reason,
+            )
+            progress["normative_disposition"] = projection
+            progress["normative_disposition_ref"] = projection.get(
+                "refusal_disposition_ref", disposition_ref
+            )
+            return replace(record, progress=progress)
+        return record
+
+    def get_latest_job_for_run(self, run_id: str) -> ControlJobRecord | None:
+        """Return the newest durable control job attached to one runtime run."""
+        record = self._control_store.get_latest_job_by_run(run_id)
+        return self._current_normative_job_record(record) if record is not None else None
+
+    def record_production_approval_packet(
+        self,
+        *,
+        run_id: str,
+        approval_packet_ref: str,
+        decision: str,
+        scorecard: Mapping[str, Any] | None = None,
+        approval_packet: Mapping[str, Any] | None = None,
+    ) -> None:
+        """Attach a persisted approval packet ref to the latest run control progress."""
+        record = self.get_latest_job_for_run(run_id)
+        if record is None:
+            return
+
+        progress = dict(record.progress)
+        existing_scorecard = progress.get("quality_scorecard")
+        if scorecard is not None:
+            progress_scorecard: dict[str, Any] = dict(scorecard)
+        elif isinstance(existing_scorecard, Mapping):
+            progress_scorecard = dict(existing_scorecard)
+        else:
+            progress_scorecard = {}
+        if isinstance(existing_scorecard, Mapping):
+            progress_scorecard.update(dict(existing_scorecard))
+
+        evidence_refs = progress_scorecard.get("evidence_refs")
+        if not isinstance(evidence_refs, Mapping):
+            evidence_refs = {}
+        evidence_refs = dict(evidence_refs)
+        evidence_refs["approval_packet_ref"] = approval_packet_ref
+        evidence_refs.setdefault("approval_packet", approval_packet_ref)
+
+        existing_projection = dict(progress_scorecard)
+        existing_decision = existing_projection.get("approval_decision") or existing_projection.get(
+            "decision"
+        )
+        conflict = None
+        if (
+            existing_projection.get("approval_packet_ref") is not None
+            or existing_decision is not None
+        ):
+            try:
+                conflict = detect_source_truth_conflict(
+                    field_family="approval_readiness_public_status",
+                    authoritative_source="runtime.approval_packet",
+                    authoritative_surface="runtime.approval",
+                    authoritative_values={
+                        "approval_packet_ref": approval_packet_ref,
+                        "decision": decision,
+                    },
+                    conflicting_source="runtime.dashboard",
+                    conflicting_surface="runtime.dashboard",
+                    conflicting_values={
+                        "approval_packet_ref": existing_projection.get("approval_packet_ref"),
+                        "decision": existing_decision,
+                    },
+                    fields=("approval_packet_ref", "decision"),
+                    downstream_impact=(
+                        "Dashboard progress projection would disagree with the persisted packet."
+                    ),
+                )
+            except SourceTruthContractError:
+                conflict = None
+        if conflict is not None:
+            existing_conflicts = progress_scorecard.get("source_truth_conflicts")
+            progress_scorecard["source_truth_conflicts"] = [
+                *(existing_conflicts if isinstance(existing_conflicts, list) else []),
+                conflict,
+            ]
+
+        progress_scorecard["approval_packet_ref"] = approval_packet_ref
+        progress_scorecard["approval_decision"] = decision
+        # A stored packet is a historical projection. Every operational consumer
+        # must re-run the concrete resolver against the signed packet and inputs.
+        progress_scorecard["approval_ready"] = False
+        progress_scorecard["approval_state"] = (
+            "approval_projection_only"
+            if decision in {"approved", "approved_with_override"}
+            else "approval_blocked"
+        )
+        progress_scorecard["approval_currentness"] = "resolver_required"
+        progress_scorecard["approval_projection_only"] = True
+        progress_scorecard["evidence_refs"] = evidence_refs
+        if approval_packet is not None:
+            packet_payload = dict(approval_packet)
+            progress_scorecard["approval_packet"] = packet_payload
+            eligibility = packet_payload.get("eligibility")
+            if isinstance(eligibility, Mapping):
+                progress_scorecard["approval_eligibility"] = dict(eligibility)
+                reasons = eligibility.get("reasons")
+                if isinstance(reasons, list):
+                    progress_scorecard["approval_reasons"] = list(reasons)
+
+        progress["quality_scorecard"] = progress_scorecard
+        progress["approval_packet_ref"] = approval_packet_ref
+        progress["approval_decision"] = decision
+        progress_evidence_refs = progress.get("evidence_refs")
+        progress_evidence_refs = (
+            dict(progress_evidence_refs) if isinstance(progress_evidence_refs, Mapping) else {}
+        )
+        progress_evidence_refs["approval_packet_ref"] = approval_packet_ref
+        progress["evidence_refs"] = {
+            **progress_evidence_refs,
+        }
+        approval_event_id = self._emit_runtime_diagnostic_event(
+            job_id=record.job_id,
+            run_id=run_id,
+            execution_profile=record.effective_execution_profile,
+            phase="approval_packet",
+            event_type="polisyos.runtime.diagnostic.approval_decision.v1",
+            state_after=decision,
+            payload=record.progress,
+            event_payload={
+                "approval_packet_ref": approval_packet_ref,
+                "decision": decision,
+                "projection_authority": "progress_reference_only",
+            },
+            artifact_refs=[approval_packet_ref],
+            authority_bearing_payload=True,
+        )
+        if approval_event_id is not None:
+            progress.setdefault("diagnostic_event_ids", [])
+            if isinstance(progress["diagnostic_event_ids"], list):
+                progress["diagnostic_event_ids"].append(approval_event_id)
+            progress["diagnostic_event_authority"] = "progress_reference_only"
+        self._control_store.upsert_progress(job_id=record.job_id, progress=progress)
+
+    def list_control_workers(
+        self,
+        *,
+        active_only: bool = True,
+        request_id: str | None = None,
+    ) -> ControlWorkersResponse:
+        """Return active/all worker leases from the control-plane store."""
+        workers = self._control_store.list_worker_leases(active_only=active_only)
+        return ControlWorkersResponse(
+            meta=_build_api_meta(request_id),
+            active_only=active_only,
+            workers=[
+                ControlWorkerLeaseInfo(
+                    worker_id=item.worker_id,
+                    state=item.state,
+                    backend=item.backend,
+                    active_job_id=item.active_job_id,
+                    metadata=dict(item.metadata),
+                    heartbeat_at=item.heartbeat_at,
+                    lease_expires_at=item.lease_expires_at,
+                    created_at=item.created_at,
+                    updated_at=item.updated_at,
+                )
+                for item in workers
+            ],
+        )
+
+    def list_control_outbox(
+        self,
+        *,
+        state: str | None = "pending",
+        limit: int = 100,
+        request_id: str | None = None,
+    ) -> ControlOutboxEventsResponse:
+        """Return durable outbox events filtered by state and capped to 500 rows."""
+        events = self._control_store.list_outbox_events(state=state, limit=limit)
+        return ControlOutboxEventsResponse(
+            meta=_build_api_meta(request_id),
+            state=state,
+            limit=max(1, min(int(limit), 500)),
+            events=[
+                ControlOutboxEventInfo(
+                    event_id=item.event_id,
+                    topic=item.topic,
+                    event_key=item.event_key,
+                    state=item.state,
+                    job_id=item.job_id,
+                    run_id=item.run_id,
+                    payload=dict(item.payload),
+                    created_at=item.created_at,
+                    published_at=item.published_at,
+                    attempt=item.attempt,
+                    error_message=item.error_message,
+                )
+                for item in events
+            ],
+        )
+
+    @staticmethod
+    def _derive_decision_validity_dedupe_key(
+        request: DecisionValidityEventRequest,
+        *,
+        dependency_keys: list[str],
+    ) -> str:
+        return uuid.uuid5(
+            uuid.NAMESPACE_URL,
+            _decision_validity_dedupe_payload(request, dependency_keys=dependency_keys),
+        ).hex
+
+    def _load_payload_ref(self, payload_ref: str) -> dict[str, Any]:
+        from polisyos.core.canon import from_canonical_bytes
+
+        payload = from_canonical_bytes(
+            self._artifact_store.get_bytes(
+                _make_artifact_ref(payload_ref, kind="runtime.payload").artifact_id
+            )
+        )
+        if not isinstance(payload, dict):
+            raise RuntimeError("Control job payload must decode to a JSON object")
+        return dict(payload)
+
+    def _refresh_capability_manifest(
+        self,
+        *,
+        job: ControlJobRecord,
+        observed_fallbacks: list[str] | None = None,
+    ) -> str:
+        payload: dict[str, Any] = {}
+        if job.payload_ref:
+            try:
+                payload = self._load_payload_ref(job.payload_ref)
+            except Exception as exc:
+                logger.debug(
+                    "Failed to load payload scope while refreshing capability manifest for %s: %s",
+                    job.job_id,
+                    exc,
+                )
+        policy = self._policy_resolver.resolve(
+            requested_profile=job.requested_execution_profile,
+            policy_flags=PolicyFlags.model_validate(job.policy_flags),
+            principal=RuntimePrincipal(
+                subject=job.submitted_by or "control-plane",
+                tenant_id=(
+                    payload.get("tenant_id") if isinstance(payload.get("tenant_id"), str) else None
+                ),
+                cell_id=payload.get("cell_id") if isinstance(payload.get("cell_id"), str) else None,
+                roles=frozenset({"system"}),
+                authenticated=True,
+            ),
+        )
+        manifest_ref = self._persist_capability_manifest(
+            policy=policy,
+            job_id=job.job_id,
+            run_id=job.run_id,
+            pipeline_id=job.pipeline_id,
+            payload_ref=job.payload_ref,
+            observed_fallbacks=observed_fallbacks,
+        )
+        self._control_store.update_manifest_ref(
+            job_id=job.job_id,
+            capability_manifest_ref=manifest_ref,
+        )
+        return manifest_ref
+
+    def _hydrate_state_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        job: ControlJobRecord,
+        capability_manifest_ref: str,
+    ) -> dict[str, Any]:
+        state_payload = dict(payload)
+        state_payload["control_job_id"] = job.job_id
+        state_payload["execution_profile"] = job.effective_execution_profile
+        state_payload["capability_manifest_ref"] = _make_artifact_ref(
+            capability_manifest_ref,
+            kind="runtime.capability_manifest",
+        )
+        return state_payload
+
+    def _evaluation_safety_persistence_context(
+        self,
+        *,
+        intake: EvaluationAttemptIntake,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+    ) -> EvaluationSafetyPersistenceContext:
+        trace = self._job_trace_context(job_id=job.job_id, payload=payload)
+        tenant_id, cell_id = _job_scope_identity(payload)
+        if tenant_id is None:
+            code = "evaluation_safety_tenant_scope_not_established"
+            raise _WorkflowExecutionNonAuthorityError(
+                code,
+                progress={
+                    "state": "failed",
+                    "runtime_state": "blocked",
+                    "phase": "evaluation_safety",
+                    "status": "not_established",
+                    "execution_band": "authority",
+                    "limitation_code": code,
+                    "authority_path": "evaluation_safety",
+                    "authority_result": "blocked",
+                    "eval_safety_blocker_codes": [code],
+                    "runtime_diagnostic_event_status": "not_established",
+                    "runtime_diagnostic_event_limitation_code": (
+                        "diagnostic_event_owner_scope_not_established"
+                    ),
+                },
+            )
+        run_id = str(job.run_id or payload.get("run_id") or "run-unknown")
+        input_refs = tuple(ref.artifact_id for ref in intake.evaluation_input_refs)
+        closure_payload = {
+            "attempt_id": intake.attempt_id,
+            "run_id": run_id,
+            "job_id": job.job_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "evidence_input_refs": input_refs,
+        }
+        mode_ref = canonical_content_hash(
+            to_canonical_bytes(intake.mode_resolution.model_dump(mode="json")),
+            prefix=True,
+        )
+        return EvaluationSafetyPersistenceContext(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            job_id=job.job_id,
+            trace_id=str(trace["trace_id"]),
+            span_id=str(trace["span_id"]),
+            parent_span_id=(str(trace["parent_span_id"]) if trace.get("parent_span_id") else None),
+            requested_execution_profile=(
+                job.requested_execution_profile or job.effective_execution_profile
+            ),
+            effective_execution_profile=job.effective_execution_profile,
+            phase="evaluation_safety",
+            generated_at=intake.requested_at,
+            as_of_time=intake.requested_at,
+            same_input_closure=SameInputClosure(
+                closure_id=f"eval-safety:{intake.attempt_id}",
+                status="closed",
+                run_id=run_id,
+                job_id=job.job_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                effective_mode_ref=mode_ref,
+                evidence_input_refs=input_refs,
+                closure_sha256=canonical_content_hash(to_canonical_bytes(closure_payload)),
+            ),
+            effective_mode_ref=mode_ref,
+            governance=GovernanceMetadata(
+                classification="internal",
+                authority_boundary="runtime",
+                pii="none",
+                retention_policy="runtime-quality-90d",
+                review_status="runtime_verified",
+                override_policy="no_override",
+                approval_policy="runtime_owner_required",
+            ),
+        )
+
+    def _admit_evaluation_safety_attempt(
+        self,
+        *,
+        extension_payload: Mapping[str, Any],
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+    ) -> _ControlEvaluationSafetyResult | None:
+        if _EVALUATION_SAFETY_ATTEMPT_KEY not in extension_payload:
+            return None
+        intake = EvaluationAttemptIntake.model_validate(
+            extension_payload[_EVALUATION_SAFETY_ATTEMPT_KEY]
+        )
+        persistence_context = self._evaluation_safety_persistence_context(
+            intake=intake,
+            job=job,
+            payload=payload,
+        )
+        authorities = EvaluationSafetyAttemptAuthorities(
+            mode_basis_ref=None,
+            mode_basis=None,
+            pack_ref=None,
+            pack=None,
+            semantic_facet_denominator_receipt_ref=None,
+            facet_registry=None,
+            facet_denominator=None,
+            authority_resolver=self._evaluation_safety_authority_resolver,
+            appointment_resolver=self._evaluation_safety_appointment_resolver,
+            verifier_registry=self._evaluation_safety_verifier_registry,
+            evidence=(),
+            classification_offer=None,
+            classification=None,
+            certificate_issue_cause_ref=None,
+        )
+        persisted = self._evaluation_safety_persistence_service.compose_and_persist_attempt(
+            intake=intake,
+            authorities=authorities,
+            context=persistence_context,
+            evaluated_at=intake.requested_at,
+            promotion_sources=self._evaluation_safety_promotion_sources,
+        )
+        if persisted.promotion_source_resolution_ref is not None:
+            self._emit_runtime_diagnostic_event(
+                job_id=job.job_id,
+                run_id=job.run_id,
+                execution_profile=job.effective_execution_profile,
+                phase="evaluation_safety",
+                event_type="polisyos.runtime.diagnostic.producer_execution.v1",
+                payload=payload,
+                event_payload={
+                    "producer": "promotion_classification_source_resolution",
+                    "source_resolution_ref": persisted.promotion_source_resolution_ref,
+                    "projection_authority": "informational_projection_only",
+                },
+                artifact_refs=[persisted.promotion_source_resolution_ref],
+            )
+        evidence_key = (
+            persisted.owner_evidence.decision_ref.artifact_id,
+            persisted.owner_evidence.decision_ref.content_hash,
+        )
+        self._evaluation_safety_decision_evidence[evidence_key] = persisted.owner_evidence
+        reduction = self._evaluation_safety_persistence_service.reduce_decisions(
+            evidence=tuple(self._evaluation_safety_decision_evidence.values())
+        )
+        projection = self._evaluation_safety_persistence_service.persist_metrics_projection(
+            reduction=reduction,
+            context=persistence_context,
+            generated_at=intake.requested_at,
+        )
+        safety = persisted.decision.safety
+        execution_context: EvaluationExecutionContext | None = None
+        if safety.status == "passed" and safety.evaluation_mode is not None:
+            revision_head = (
+                persisted.revision_nodes[-1].revision_ref if persisted.revision_nodes else None
+            )
+            execution_context = EvaluationExecutionContext(
+                intake_ref=persisted.intake_ref,
+                evaluator_owner_id=intake.evaluator_owner_id,
+                design_problem_ref=intake.design_problem_ref,
+                evaluation_mode=safety.evaluation_mode,
+                candidate_ref=intake.candidate_ref,
+                world_model_record_ref=intake.world_model_record_ref,
+                target_population_scope_ref=intake.target_population_scope_ref,
+                rule_version=(
+                    intake.requested_rule_version or "policyos.runtime.eval-safety.simulate-only.v1"
+                ),
+                intended_start_at=intake.intended_start_at,
+                evaluation_input_refs=intake.evaluation_input_refs,
+                evaluation_input_provenance=intake.evaluation_input_provenance,
+                eval_safety_certificate_ref=persisted.certificate_ref,
+                eval_safety_revision_head_ref=revision_head,
+            )
+            replay_material = EvaluationSafetyReplayMaterial(
+                intake_ref=persisted.intake_ref,
+                request_ref=persisted.request_ref,
+                mode_basis_ref=None,
+                mode_basis=None,
+                pack_ref=None,
+                pack=None,
+                facet_registry=None,
+                facet_denominator=None,
+                authority_resolver=self._evaluation_safety_authority_resolver,
+                appointment_resolver=self._evaluation_safety_appointment_resolver,
+                verifier_registry=self._evaluation_safety_verifier_registry,
+                evidence=(),
+                classification=None,
+                decision_ref=persisted.decision_ref,
+                certificate_ref=persisted.certificate_ref,
+                revision_nodes=persisted.revision_nodes,
+                decision_evaluated_at=safety.evaluated_at,
+                revalidated_at=safety.evaluated_at,
+            )
+            self._evaluation_safety_state_resolver.register(
+                context=execution_context,
+                material=replay_material,
+            )
+        return _ControlEvaluationSafetyResult(
+            persisted=persisted,
+            projection=projection,
+            execution_context=execution_context,
+        )
+
+    def _blocked_evaluation_safety_progress(
+        self,
+        *,
+        result: _ControlEvaluationSafetyResult,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        run_id = str(job.run_id or payload.get("run_id") or "run-unknown")
+        run_dir = derive_core_run_dir(self._core_runs_root, run_id)
+        projection_ref = ArtifactRef(
+            artifact_id=artifacts.ArtifactID.model_validate(
+                result.projection.projection_ref.artifact_id
+            ),
+            kind=result.projection.projection_ref.artifact_type,
+            media_type="application/json",
+        )
+        blocker_codes = list(result.persisted.decision.safety.blocker_codes)
+        if run_dir.exists():
+            terminal_source = load_terminal_core_run_source(
+                store=self._artifact_store,
+                core_runs_root=self._core_runs_root,
+                run_id=run_id,
+            )
+            if terminal_source.manifest.status != "error" or terminal_source.manifest.outputs != [
+                projection_ref
+            ]:
+                raise ValueError("evaluation_safety_terminal_manifest_mismatch")
+            manifest_ref = terminal_source.manifest_ref
+        else:
+            registry_bundle = registry.build_default_registry_bundle(
+                self._artifact_store
+            ).bundle_ref
+            run_context = run.RunContext.start(
+                self._artifact_store,
+                registry_bundle,
+                producer=artifacts.ProducerInfo(
+                    component="polisyos.runtime.http.control.evaluation_safety",
+                    version="1.0.0",
+                ),
+                run_dir=run_dir,
+                run_id=run_id,
+                tenant_id=_clean_runtime_text(payload.get("tenant_id")),
+                cell_id=_clean_runtime_text(payload.get("cell_id")),
+            )
+            run_context.add_output(projection_ref)
+            manifest_ref = run_context.finalize(
+                status="error",
+                errors=[
+                    {
+                        "code": "evaluation_safety_attempt_blocked",
+                        "blocker_codes": blocker_codes,
+                    }
+                ],
+            )
+        projection = result.projection.projection
+        progress = dict(job.progress)
+        artifacts_index = progress.get("artifacts_index")
+        artifacts_index = dict(artifacts_index) if isinstance(artifacts_index, Mapping) else {}
+        artifacts_index.update(
+            {
+                "eval_safety_projection_ref": result.projection.projection_ref.artifact_id,
+                "eval_safety_promotion_source_resolution_ref": (
+                    result.persisted.promotion_source_resolution_ref
+                ),
+                "manifest_ref": str(manifest_ref.artifact_id),
+            }
+        )
+        progress.update(
+            {
+                "state": "failed",
+                "runtime_state": "blocked",
+                "phase": "evaluation_safety",
+                "run_id": run_id,
+                "authority_path": "evaluation_safety",
+                "authority_result": "blocked",
+                "eval_safety_projection_ref": (result.projection.projection_ref.artifact_id),
+                "eval_safety_disposition": result.persisted.decision.safety.status,
+                "eval_safety_promotion_source_resolution_ref": (
+                    result.persisted.promotion_source_resolution_ref
+                ),
+                "eval_safety_blocker_codes": blocker_codes,
+                "eval_safety_counters": {
+                    "unsafe_attempt_blocked_count": (projection.unsafe_attempt_blocked_count),
+                    "near_miss_count": projection.near_miss_count,
+                    "near_miss_classification_status": (projection.near_miss_classification_status),
+                    "reconciliation_status": projection.reconciliation_status,
+                },
+                "manifest_ref": str(manifest_ref.artifact_id),
+                "artifacts_index": artifacts_index,
+            }
+        )
+        return progress
+
+    def _finish_blocked_evaluation_safety_attempt(
+        self,
+        *,
+        result: _ControlEvaluationSafetyResult,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+        capability_manifest_ref: str,
+    ) -> None:
+        progress = self._blocked_evaluation_safety_progress(
+            result=result,
+            job=job,
+            payload=payload,
+        )
+        self._control_store.fail_job(
+            job_id=job.job_id,
+            error_message="evaluation_safety_attempt_blocked",
+            capability_manifest_ref=capability_manifest_ref,
+            progress=progress,
+        )
+        self._emit_runtime_diagnostic_event(
+            job_id=job.job_id,
+            run_id=job.run_id,
+            execution_profile=job.effective_execution_profile,
+            phase="evaluation_safety",
+            event_type="polisyos.runtime.diagnostic.blocker.v1",
+            state_before="running",
+            state_after="failed",
+            payload=payload,
+            event_payload={
+                "job_kind": job.kind,
+                "blocker_codes": progress["eval_safety_blocker_codes"],
+                "projection_authority": "informational_projection_only",
+            },
+            artifact_refs=[
+                progress["eval_safety_projection_ref"],
+                progress["manifest_ref"],
+            ],
+            blocking_status="blocking",
+        )
+
+    def _publish_generation_run(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+        compiled_run_ref: str,
+        normative_disposition_ref: str,
+    ) -> str:
+        """Publish the candidate computation through the existing owned core-run index."""
+        run_id = str(job.run_id or "")
+        tenant_id = _clean_runtime_text(payload.get("tenant_id"))
+        cell_id = _clean_runtime_text(payload.get("cell_id"))
+        if not run_id or not tenant_id or run_id != payload.get("run_id"):
+            raise ValueError("normative_generation_run_identity_unbound")
+        outputs = [
+            ArtifactRef(
+                artifact_id=artifacts.ArtifactID.model_validate(ref),
+                kind=kind,
+                media_type="application/json",
+            )
+            for ref, kind in (
+                (compiled_run_ref, "runtime.compiled_recursive_generation_cycle"),
+                (normative_disposition_ref, "runtime.normative_generation_composition"),
+            )
+        ]
+        run_dir = derive_core_run_dir(self._core_runs_root, run_id)
+        if run_dir.exists():
+            terminal = load_terminal_core_run_source(
+                store=self._artifact_store,
+                core_runs_root=self._core_runs_root,
+                run_id=run_id,
+            )
+            if (
+                terminal.manifest.status != "ok"
+                or terminal.manifest.outputs != outputs
+                or terminal.manifest.tenant_id != tenant_id
+                or terminal.manifest.cell_id != cell_id
+            ):
+                raise ValueError("normative_generation_terminal_source_mismatch")
+            return str(terminal.manifest_ref.artifact_id)
+        registry_bundle = registry.build_default_registry_bundle(self._artifact_store).bundle_ref
+        context = run.RunContext.start(
+            self._artifact_store,
+            registry_bundle,
+            producer=artifacts.ProducerInfo(
+                component="polisyos.runtime.http.control.candidate_generation",
+                version="1.0.0",
+            ),
+            run_dir=run_dir,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        for output in outputs:
+            context.add_output(output)
+        # Core `ok` records completed computation only. The two outputs retain
+        # candidate-only generation and independently replayed normative authority.
+        manifest = context.finalize(status="ok")
+        terminal = load_terminal_core_run_source(
+            store=self._artifact_store, core_runs_root=self._core_runs_root, run_id=run_id
+        )
+        if terminal.manifest_ref != manifest or terminal.manifest.outputs != outputs:
+            raise ValueError("normative_generation_terminal_readback_failed")
+        return str(manifest.artifact_id)
+
+    def _require_nl_job_execution_intent_binding(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Reconcile intent, actor, row, event, capability manifest, and outbox."""
+        failure_code = "nl_job_execution_intent_not_established"
+        try:
+            if not job.capability_manifest_ref or not job.payload_ref or not job.run_id:
+                raise ValueError(failure_code)
+            event = self._control_store.get_job_created_event_payload(job.job_id)
+            outbox = self._control_store.get_job_created_outbox_event(job.job_id)
+            payload_binding = payload.get(_EXECUTION_INTENT_BINDING_KEY)
+            event_binding = event.get(_EXECUTION_INTENT_BINDING_KEY)
+            capability_manifest = self._load_payload_ref(job.capability_manifest_ref)
+            actor = capability_manifest.get("actor")
+            if not isinstance(actor, Mapping):
+                raise ValueError(failure_code)
+            expected_binding = _build_control_execution_intent_binding(
+                payload,
+                job_id=job.job_id,
+                run_id=job.run_id,
+                actor=actor,
+            )
+            if not isinstance(payload_binding, Mapping):
+                raise ValueError(failure_code)
+            binding = _ControlExecutionIntentBinding.model_validate_json(
+                json.dumps(payload_binding, sort_keys=True)
+            )
+            binding_payload = binding.model_dump(mode="json", exclude={"intent_digest"})
+            recomputed_digest = canonical_content_hash(
+                to_canonical_bytes(binding_payload),
+                prefix=True,
+            )
+            payload_tenant_id, payload_cell_id = _job_scope_identity(payload)
+            expected_outbox_payload = {
+                "job_id": job.job_id,
+                "job_kind": job.kind,
+                "run_id": job.run_id,
+                "pipeline_id": job.pipeline_id,
+                "effective_execution_profile": job.effective_execution_profile,
+                **event,
+            }
+            manifest_actor_roles = actor.get("roles")
+            normalized_manifest_roles = tuple(
+                sorted(role for role in manifest_actor_roles if isinstance(role, str))
+                if isinstance(manifest_actor_roles, (list, tuple, set, frozenset))
+                else ()
+            )
+            authorization_receipt = binding.authorization_receipt
+            authorization_snapshot = (
+                authorization_receipt.get("permission_snapshot")
+                if isinstance(authorization_receipt, Mapping)
+                else None
+            )
+            if (
+                outbox is None
+                or outbox.topic != "control.job.created"
+                or outbox.event_key != f"{job.job_id}:job_created"
+                or outbox.job_id != job.job_id
+                or outbox.run_id != job.run_id
+                or outbox.state not in {"pending", "published"}
+                or outbox.payload != expected_outbox_payload
+                or not isinstance(event_binding, Mapping)
+                or event.get("job_id") != job.job_id
+                or event.get("run_id") != job.run_id
+                or event.get("job_kind") != "natural_language_run"
+                or event.get("payload_ref") != job.payload_ref
+                or event.get("capability_manifest_ref") != job.capability_manifest_ref
+                or event.get("intent_digest") != binding.intent_digest
+                or payload.get("run_id") != job.run_id
+                or event_binding != dict(payload_binding)
+                or dict(payload_binding) != expected_binding
+                or binding.intent_digest != recomputed_digest
+                or capability_manifest.get("job_id") != job.job_id
+                or capability_manifest.get("run_id") != job.run_id
+                or capability_manifest.get("pipeline_id") != job.pipeline_id
+                or capability_manifest.get("payload_ref") != job.payload_ref
+                or binding.actor_subject != job.submitted_by
+                or binding.actor_subject != actor.get("subject")
+                or binding.actor_authenticated is not actor.get("authenticated")
+                or binding.actor_roles != normalized_manifest_roles
+                or binding.tenant_id != actor.get("tenant_id")
+                or binding.cell_id != actor.get("cell_id")
+                or payload_tenant_id != binding.tenant_id
+                or payload_cell_id != binding.cell_id
+                or binding.route_id != _NL_ROUTE_ID
+                or binding.route_action != _NL_ROUTE_ACTION
+                or binding.admission_surface != "served_route"
+                or (
+                    isinstance(authorization_receipt, Mapping)
+                    and (
+                        not isinstance(authorization_snapshot, Mapping)
+                        or authorization_snapshot.get("subject") != binding.actor_subject
+                        or authorization_snapshot.get("tenant_id") != binding.tenant_id
+                        or tuple(authorization_snapshot.get("roles", ()))
+                        != binding.actor_roles
+                    )
+                )
+                or not isinstance(authorization_receipt, Mapping)
+            ):
+                raise ValueError(failure_code)
+            replayed_binding = binding.model_dump(mode="json")
+            profile_id = payload.get("target_world_scope_profile_id")
+            if (
+                binding.admission_status == "established"
+                and binding.intent_band == "simulate_only_attempt"
+                and binding.canonical_mode == "simulate_only"
+                and binding.actor_authenticated is True
+                and isinstance(profile_id, str)
+                and profile_id.strip()
+                and isinstance(binding.tenant_id, str)
+                and binding.tenant_id.strip()
+                and isinstance(binding.cell_id, str)
+                and binding.cell_id.strip()
+            ):
+                from polisyos.runtime.quality.cycle_substrate import (
+                    _VERIFIED_NL_EXECUTION_OWNER_ISSUER,
+                    VerifiedNLJobScope,
+                )
+
+                current_job = self._control_store.current_execution_job_record()
+                if (
+                    current_job.job_id != job.job_id
+                    or current_job.run_id != job.run_id
+                    or current_job.state != "running"
+                    or not isinstance(current_job.lease_owner, str)
+                    or not current_job.lease_owner.strip()
+                    or current_job.lease_owner != job.lease_owner
+                    or current_job.attempt != job.attempt
+                ):
+                    raise ValueError(failure_code)
+                verified_scope = VerifiedNLJobScope.model_validate(
+                    {
+                        "job_id": current_job.job_id,
+                        "run_id": str(current_job.run_id),
+                        "tenant_id": binding.tenant_id,
+                        "cell_id": binding.cell_id,
+                        "worker_id": current_job.lease_owner,
+                        "attempt": current_job.attempt,
+                        "admission_status": binding.admission_status,
+                        "intent_band": binding.intent_band,
+                        "canonical_mode": binding.canonical_mode,
+                        "route_id": binding.route_id,
+                        "route_action": binding.route_action,
+                        "admission_surface": binding.admission_surface,
+                        "actor_subject": binding.actor_subject,
+                        "actor_authenticated": True,
+                        "intent_digest": binding.intent_digest,
+                    }
+                )
+                object.__setattr__(
+                    verified_scope,
+                    "_issuer",
+                    _VERIFIED_NL_EXECUTION_OWNER_ISSUER,
+                )
+                replayed_binding["_verified_nl_job_scope"] = verified_scope
+            return replayed_binding
+        except Exception as exc:
+            if isinstance(exc, RuntimeError) and str(exc) == failure_code:
+                raise
+            raise RuntimeError(failure_code) from exc
+
+    def _process_control_job(self, job: ControlJobRecord) -> None:
+        payload: dict[str, Any] = {}
+        execution_intent_binding: dict[str, Any] | None = None
+        cycle_substrate_context_job_ref: str | None = None
+        try:
+            if not job.payload_ref:
+                raise RuntimeError("control job payload ref is missing")
+            payload = self._load_payload_ref(job.payload_ref)
+            if job.kind == "natural_language_run":
+                execution_intent_binding = self._require_nl_job_execution_intent_binding(
+                    job=job,
+                    payload=payload,
+                )
+                if (
+                    execution_intent_binding["admission_status"] != "established"
+                    or execution_intent_binding["intent_band"] == "not_established"
+                ):
+                    raise RuntimeError("nl_job_execution_intent_not_established")
+            with self._control_job_span(job=job, payload=payload), self._job_tenant_scope(payload):
+                self._emit_runtime_diagnostic_event(
+                    job_id=job.job_id,
+                    run_id=job.run_id,
+                    execution_profile=job.effective_execution_profile,
+                    phase="job_execution",
+                    event_type="polisyos.runtime.diagnostic.producer_execution.v1",
+                    state_before=job.state,
+                    state_after="running",
+                    payload=payload,
+                    event_payload={
+                        "job_kind": job.kind,
+                        "attempt": job.attempt,
+                        "projection_authority": "runtime_event_only",
+                        **(
+                            {
+                                "execution_intent_band": execution_intent_binding[
+                                    "intent_band"
+                                ],
+                                "execution_intent_limitation_code": (
+                                    "data_trust_owner_not_established"
+                                    if execution_intent_binding["intent_band"]
+                                    == ExecutionIntentBand.DATA_TRUST_REQUIRED.value
+                                    else None
+                                ),
+                            }
+                            if execution_intent_binding is not None
+                            else {}
+                        ),
+                    },
+                )
+                if job.kind == "workflow_run":
+                    capability_manifest_ref = (
+                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    )
+                    state_payload = self._hydrate_state_payload(
+                        payload["state_payload"],
+                        job=job,
+                        capability_manifest_ref=capability_manifest_ref,
+                    )
+                    evaluation_safety = self._admit_evaluation_safety_attempt(
+                        extension_payload=cast(
+                            "Mapping[str, Any]", state_payload.get("params") or {}
+                        ),
+                        job=job,
+                        payload=payload,
+                    )
+                    if evaluation_safety is not None and evaluation_safety.blocked:
+                        self._finish_blocked_evaluation_safety_attempt(
+                            result=evaluation_safety,
+                            job=job,
+                            payload=payload,
+                            capability_manifest_ref=capability_manifest_ref,
+                        )
+                        return
+                    if (
+                        evaluation_safety is not None
+                        and evaluation_safety.execution_context is not None
+                    ):
+                        state_payload[_EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY] = (
+                            evaluation_safety.execution_context.model_dump(mode="json")
+                        )
+                    progress = self._execute_workflow_control_transition(
+                        state_payload,
+                        payload["checkpoint_policy"],
+                        job=job,
+                        endpoint="/api/v1/control/runs",
+                        http_request_id=str(
+                            (payload.get("_telemetry") or {}).get("request_id")
+                            or f"control-job:{job.job_id}"
+                        ),
+                    )
+                    self._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=job.run_id,
+                        capability_manifest_ref=capability_manifest_ref,
+                        progress=progress,
+                    )
+                    terminal_record = self._control_store.get_job(job.job_id)
+                    terminal_state = (
+                        terminal_record.state if terminal_record is not None else "completed"
+                    )
+                    if terminal_state == "completed":
+                        self._finalize_workspace_loop_run_proof(
+                            job_id=job.job_id,
+                            endpoint="/api/v1/control/runs",
+                        )
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job.job_id,
+                        run_id=job.run_id,
+                        execution_profile=job.effective_execution_profile,
+                        phase="job_execution",
+                        event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                        state_before="running",
+                        state_after=terminal_state,
+                        payload=payload,
+                        event_payload={"job_kind": job.kind},
+                        blocking_status="blocking" if terminal_state == "failed" else None,
+                    )
+                    return
+                if job.kind == "natural_language_run":
+                    from decimal import Decimal
+
+                    from polisyos.common import async_tools
+                    from polisyos.runtime.quality.recursive_generation_cycle import (
+                        RecursiveCycleBudget,
+                    )
+                    from polisyos.scientist import BudgetState
+
+                    capability_manifest_ref = (
+                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    )
+                    intent_band = ExecutionIntentBand(
+                        str(execution_intent_binding["intent_band"])
+                    )
+                    evaluation_safety = None
+                    if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED:
+                        evaluation_safety = self._admit_evaluation_safety_attempt(
+                            extension_payload=cast(
+                                "Mapping[str, Any]", payload.get("context") or {}
+                            ),
+                            job=job,
+                            payload=payload,
+                        )
+                        if evaluation_safety is not None and evaluation_safety.blocked:
+                            self._finish_blocked_evaluation_safety_attempt(
+                                result=evaluation_safety,
+                                job=job,
+                                payload=payload,
+                                capability_manifest_ref=capability_manifest_ref,
+                            )
+                            return
+                    if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED:
+                        if evaluation_safety is None:
+                            raise RuntimeError(
+                                "nl_job_execution_intent_not_established"
+                            )
+                        if evaluation_safety.execution_context is None:
+                            raise RuntimeError(
+                                "eval_safety_execution_context_not_established"
+                            )
+                        execution_intent = evaluation_safety.execution_context.evaluation_mode
+                        if (
+                            execution_intent_binding.get("canonical_mode") != execution_intent
+                        ):
+                            raise RuntimeError(
+                                "nl_job_execution_intent_not_established"
+                            )
+                    elif intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT:
+                        if execution_intent_binding.get("canonical_mode") != "simulate_only":
+                            raise RuntimeError("nl_job_execution_intent_not_established")
+                        execution_intent = "simulate_only"
+                    elif intent_band in {
+                        ExecutionIntentBand.CANDIDATE_ONLY,
+                        ExecutionIntentBand.DATA_TRUST_REQUIRED,
+                    }:
+                        if intent_band is ExecutionIntentBand.CANDIDATE_ONLY and (
+                            execution_intent_binding.get("canonical_mode") is not None
+                        ):
+                            raise RuntimeError("nl_job_execution_intent_not_established")
+                        if intent_band is ExecutionIntentBand.DATA_TRUST_REQUIRED and (
+                            execution_intent_binding.get("canonical_mode")
+                            not in {"retrospective", "measurement_audit"}
+                        ):
+                            raise RuntimeError("nl_job_execution_intent_not_established")
+                        execution_intent = "candidate_only"
+                    else:
+                        raise RuntimeError("nl_job_execution_intent_not_established")
+                    execution_intent_limitation = (
+                        "data_trust_owner_not_established"
+                        if intent_band is ExecutionIntentBand.DATA_TRUST_REQUIRED
+                        else None
+                    )
+                    model_rows = payload.get("llm_models")
+                    model_name = (
+                        str(model_rows[0]) if isinstance(model_rows, list) and model_rows else ""
+                    )
+                    if not model_name:
+                        raise RuntimeError("llm_model_unconfigured")
+                    raw_candidate_context = payload.get("context")
+                    candidate_context = (
+                        dict(raw_candidate_context)
+                        if isinstance(raw_candidate_context, Mapping)
+                        else {}
+                    )
+                    candidate_context = {
+                        key: value
+                        for key, value in candidate_context.items()
+                        if key not in _NL_JOB_OWNER_CONTEXT_KEYS
+                    }
+                    trusted_source_context: dict[str, object | None] = {
+                        "tenant_id": execution_intent_binding.get("tenant_id"),
+                        "cell_id": execution_intent_binding.get("cell_id"),
+                        "job_id": str(job.job_id),
+                        "run_id": str(job.run_id),
+                    }
+                    compiler_context: dict[str, object] = dict(candidate_context)
+                    # Persisted request context retains the submitted values. The
+                    # compiler sees only non-identity candidate inputs; scope IDs
+                    # enter through the replay-validated job/actor binding below.
+                    compiler_context["candidate_context"] = dict(candidate_context)
+                    compiler_context.update(
+                        {
+                            key: value
+                            for key, value in trusted_source_context.items()
+                            if value is not None
+                        }
+                    )
+                    cycle_substrate_context_resolver = None
+                    profile_id = payload.get("target_world_scope_profile_id")
+                    admission_owner = self._cycle_substrate_context_admission_owner
+                    bound_tenant_id = execution_intent_binding.get("tenant_id")
+                    bound_cell_id = execution_intent_binding.get("cell_id")
+                    if (
+                        intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                        and admission_owner is not None
+                        and isinstance(profile_id, str)
+                        and profile_id.strip()
+                        and isinstance(bound_tenant_id, str)
+                        and bound_tenant_id.strip()
+                        and isinstance(bound_cell_id, str)
+                        and bound_cell_id.strip()
+                        and job.run_id is not None
+                    ):
+                        from polisyos.runtime.quality.cycle_substrate import (
+                            CycleSubstrateContext,
+                            CycleSubstrateContextArtifactOwner,
+                            VerifiedNLJobScope,
+                        )
+
+                        verified_nl_job_scope = execution_intent_binding.get(
+                            "_verified_nl_job_scope"
+                        )
+                        if (
+                            type(verified_nl_job_scope) is not VerifiedNLJobScope
+                            or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+                        ):
+                            raise RuntimeError(
+                                "cycle_substrate_context_verified_worker_scope_not_established"
+                            )
+
+                        def resolve_cycle_substrate_context(
+                            problem: DesignProblem,
+                        ) -> CycleSubstrateContext | None:
+                            nonlocal cycle_substrate_context_job_ref
+                            admitted_context = admission_owner.admit_context(
+                                target_world_scope_profile_id=profile_id,
+                                problem=problem,
+                                job_id=job.job_id,
+                                run_id=str(job.run_id),
+                                tenant_id=bound_tenant_id,
+                                cell_id=bound_cell_id,
+                            )
+                            if admitted_context is None:
+                                return None
+                            if type(admitted_context) is not CycleSubstrateContext:
+                                raise RuntimeError(
+                                    "cycle_substrate_context_admission_owner_returned_untyped"
+                                )
+                            context_owner = CycleSubstrateContextArtifactOwner(
+                                store=self._artifact_store,
+                                control_store=self._control_store,
+                            )
+                            context_ref = context_owner.persist_for_current_job(
+                                admitted_context,
+                                problem=problem,
+                                verified_nl_job_scope=verified_nl_job_scope,
+                            )
+                            replayed = context_owner.resolve_for_current_job(
+                                context_ref,
+                                problem=problem,
+                                verified_nl_job_scope=verified_nl_job_scope,
+                            )
+                            if replayed.context.content_hash != admitted_context.content_hash:
+                                raise RuntimeError(
+                                    "cycle_substrate_context_job_replay_changed_content"
+                                )
+                            cycle_substrate_context_job_ref = str(context_ref.artifact_id)
+                            return replayed.context
+
+                        cycle_substrate_context_resolver = resolve_cycle_substrate_context
+                    from polisyos.runtime.http.services.control.generation_cycle import (
+                        _resolve_http_recursive_budget,
+                    )
+
+                    max_cycles, recursive_budget_resolution = _resolve_http_recursive_budget(
+                        payload.get("max_iterations")
+                    )
+                    budget_usd = Decimal(str(payload.get("run_budget_usd") or "5"))
+                    compiled = async_tools.run_coro_sync(
+                        self.compile_and_run_recursive_generation_cycle(
+                            raw_request=str(payload.get("request") or ""),
+                            context=compiler_context,
+                            model_name=model_name,
+                            execution_intent=execution_intent,
+                            # simulate_only defaults to the N4 proposal lane. A
+                            # configured typed profile owner may supply a
+                            # problem-bound context after compilation; absent
+                            # that owner or an admitted context, N4 remains a
+                            # candidate limitation and never grants S8 authority.
+                            n4_proposal_only=(
+                                intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            ),
+                            compiler_gateway=None,
+                            budget_state=BudgetState.model_validate(
+                                {
+                                    "limits": {
+                                        "run": {"key": "run", "max_usd": budget_usd},
+                                    }
+                                }
+                            ),
+                            recursive_budget=RecursiveCycleBudget(
+                                max_depth=0,
+                                max_nodes=1,
+                                min_cycles_per_leaf=1,
+                                max_cycles_per_leaf=max_cycles,
+                            ),
+                            recursive_budget_resolution=recursive_budget_resolution,
+                            target_world_scope_profile_id=(
+                                profile_id
+                                if isinstance(profile_id, str)
+                                else None
+                            ),
+                            cycle_substrate_context_resolver=cycle_substrate_context_resolver,
+                            root_evaluation_context=(
+                                evaluation_safety.execution_context
+                                if evaluation_safety is not None
+                                else None
+                            ),
+                            trusted_source_context=trusted_source_context,
+                        ),
+                        timeout_seconds=max(120.0, 120.0 * max_cycles),
+                    )
+                    from polisyos.runtime.http.services.control.generation_cycle import (
+                        N4CandidateProposalExecution,
+                    )
+
+                    if isinstance(compiled, N4CandidateProposalExecution):
+                        from polisyos.runtime.quality.design_generation import (
+                            DesignGenerationOrganRun,
+                        )
+
+                        target_scope_progress = {
+                            "target_world_scope_profile_id": (
+                                compiled.target_world_scope_profile_id
+                            ),
+                            "target_world_scope_status": compiled.target_world_scope_status,
+                            "target_world_scope_profile_status": (
+                                compiled.target_world_scope_profile_status
+                            ),
+                            "target_world_scope_authority": "not_established",
+                            "target_world_scope_currentness": "not_established",
+                            "target_world_model_record_ref": (
+                                compiled.target_world_model_record_ref
+                            ),
+                        }
+
+                        proposal_result = compiled.proposal
+                        if isinstance(proposal_result, DesignGenerationOrganRun):
+                            generation_status = proposal_result.result.status
+                            limitation_code_by_status = {
+                                "generation_unavailable": "n4_generation_unavailable",
+                                "preflight_rejected": "n4_model_preflight_rejected",
+                            }
+                            limitation_code = limitation_code_by_status.get(
+                                generation_status
+                            )
+                            if limitation_code is None:
+                                raise RuntimeError(
+                                    "n4_candidate_proposal_terminal_status_invalid"
+                                )
+
+                            run_id = str(job.run_id or payload.get("run_id") or "")
+                            event_id = self._emit_runtime_diagnostic_event(
+                                job_id=job.job_id,
+                                run_id=run_id,
+                                execution_profile=job.effective_execution_profile,
+                                phase="job_execution",
+                                event_type=(
+                                    "polisyos.runtime.diagnostic.phase_transition.v1"
+                                ),
+                                state_before="running",
+                                state_after="completed",
+                                payload=payload,
+                                event_payload={
+                                    "job_kind": job.kind,
+                                    "capability_manifest_ref": str(
+                                        capability_manifest_ref
+                                    ),
+                                    "execution_band": "candidate",
+                                    "candidate_computation_status": (
+                                        "not_established"
+                                    ),
+                                    "execution_intent_band": intent_band.value,
+                                    "execution_intent_limitation_code": (
+                                        execution_intent_limitation
+                                    ),
+                                    "limitation_code": limitation_code,
+                                    "n4_status": generation_status,
+                                    "downstream_stages": {
+                                        "n5": "not_run",
+                                        "n8": "not_run",
+                                        "n9": "not_run",
+                                        "s8": "not_run",
+                                    },
+                                },
+                                artifact_refs=[str(capability_manifest_ref)],
+                            )
+                            simulation_failure = (
+                                {
+                                    "simulation_status": "not_run",
+                                    "simulation_limitation_code": limitation_code,
+                                }
+                                if intent_band
+                                is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                                else {}
+                            )
+                            progress = {
+                                "state": "completed",
+                                "phase": "natural_language_run",
+                                "status": "not_established",
+                                "execution_band": "candidate",
+                                "candidate_computation_status": "not_established",
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": execution_intent_limitation,
+                                "proposal_persistence_status": "not_run",
+                                "limitation_code": limitation_code,
+                                "stage": "n4_proposal_only",
+                                "n4_status": generation_status,
+                                "run_id": run_id,
+                                "candidate_proposal_ref": None,
+                                "runtime_diagnostic_event_status": (
+                                    "persisted" if event_id is not None else "not_established"
+                                ),
+                                "n5_status": "not_run",
+                                "n8_status": "not_run",
+                                "n9_status": "not_run",
+                                "s8_status": "not_run",
+                                **simulation_failure,
+                                **target_scope_progress,
+                            }
+                            if event_id is None:
+                                progress[
+                                    "runtime_diagnostic_event_limitation_code"
+                                ] = "diagnostic_event_owner_scope_not_established"
+                            self._control_store.complete_job(
+                                job_id=job.job_id,
+                                run_id=run_id,
+                                capability_manifest_ref=str(capability_manifest_ref),
+                                progress=progress,
+                            )
+                            return
+
+                        from polisyos.runtime.quality.generation_source import (
+                            GenerationSourceRepository,
+                            N4CandidateProposalLocator,
+                            N4CandidateProposalSimulationDisposition,
+                            N4CandidateProposalSimulationRecord,
+                        )
+
+                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        raw_request = str(payload.get("request") or "")
+                        tenant_id, cell_id = _job_scope_identity(payload)
+                        if tenant_id is None or cell_id is None:
+                            scope_limiter = (
+                                "candidate_proposal_owner_scope_not_established"
+                            )
+                            progress = {
+                                "state": "completed",
+                                "phase": "natural_language_run",
+                                "status": "not_established",
+                                "execution_band": "candidate",
+                                "candidate_computation_status": "completed",
+                                "proposal_persistence_status": "not_established",
+                                "limitation_code": scope_limiter,
+                                "runtime_diagnostic_event_status": "not_established",
+                                "runtime_diagnostic_event_limitation_code": (
+                                    "diagnostic_event_owner_scope_not_established"
+                                ),
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": execution_intent_limitation,
+                                "run_id": run_id,
+                                "candidate_proposal_ref": None,
+                                "n5_status": "not_run",
+                                "n8_status": "not_run",
+                                "n9_status": "not_run",
+                                "s8_status": "not_run",
+                                **target_scope_progress,
+                            }
+                            self._control_store.complete_job(
+                                job_id=job.job_id,
+                                run_id=run_id,
+                                capability_manifest_ref=str(capability_manifest_ref),
+                                progress=progress,
+                            )
+                            return
+                        repository = GenerationSourceRepository(self._artifact_store)
+                        simulation_disposition = (
+                            N4CandidateProposalSimulationDisposition()
+                            if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            else None
+                        )
+                        proposal_ref = repository.persist_candidate_proposal(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            tenant_id=tenant_id,
+                            cell_id=cell_id,
+                            raw_request=raw_request,
+                            problem=compiled.design_problem,
+                            proposal=proposal_result,
+                            simulation_disposition=simulation_disposition,
+                        )
+                        proposal_locator = N4CandidateProposalLocator(
+                            artifact_ref=proposal_ref
+                        )
+                        proposal_record = repository.load_candidate_proposal_for_served_job(
+                            proposal_locator,
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            tenant_id=tenant_id,
+                            cell_id=cell_id,
+                            raw_request=raw_request,
+                        )
+                        if (
+                            intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            and not isinstance(
+                                proposal_record, N4CandidateProposalSimulationRecord
+                            )
+                        ):
+                            raise RuntimeError(
+                                "simulate_only_n4_proposal_disposition_missing"
+                            )
+                        if (
+                            intent_band is not ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                            and isinstance(
+                                proposal_record, N4CandidateProposalSimulationRecord
+                            )
+                        ):
+                            raise RuntimeError(
+                                "non_simulation_job_received_simulation_disposition"
+                            )
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": (
+                                "not_established"
+                                if execution_intent_limitation is not None
+                                else proposal_record.status
+                            ),
+                            "execution_band": proposal_record.execution_band,
+                            "limitation_code": (
+                                execution_intent_limitation or proposal_record.limitation_code
+                            ),
+                            "candidate_proposal_limitation_code": proposal_record.limitation_code,
+                            "candidate_computation_status": "completed",
+                            "stage": proposal_record.stage,
+                            "run_id": run_id,
+                            "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": execution_intent_limitation,
+                            "n5_status": proposal_record.n5_status,
+                            "n8_status": proposal_record.n8_status,
+                            "n9_status": proposal_record.n9_status,
+                            "s8_status": proposal_record.s8_status,
+                            **target_scope_progress,
+                        }
+                        if isinstance(
+                            proposal_record, N4CandidateProposalSimulationRecord
+                        ):
+                            progress["simulation_status"] = (
+                                proposal_record.simulation_disposition.status
+                            )
+                            progress["simulation_limitation_code"] = (
+                                proposal_record.simulation_disposition.reason_code
+                            )
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        self._emit_runtime_diagnostic_event(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "capability_manifest_ref": str(capability_manifest_ref),
+                                "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
+                                "execution_band": proposal_record.execution_band,
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": execution_intent_limitation,
+                                "limitation_code": proposal_record.limitation_code,
+                                "downstream_stages": {
+                                    "n5": proposal_record.n5_status,
+                                    "n8": proposal_record.n8_status,
+                                    "n9": proposal_record.n9_status,
+                                    "s8": proposal_record.s8_status,
+                                },
+                            },
+                            artifact_refs=[
+                                str(capability_manifest_ref),
+                                str(proposal_ref.artifact_id),
+                            ],
+                        )
+                        return
+                    if intent_band in {
+                        ExecutionIntentBand.CANDIDATE_ONLY,
+                        ExecutionIntentBand.DATA_TRUST_REQUIRED,
+                    }:
+                        # Both bands invoke candidate-only N4. A recursive result
+                        # from an adapter is not evidence that the requested band
+                        # was upgraded; terminate before N5, S8, or publication.
+                        limitation = "candidate_only_compiled_result_not_admitted"
+                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        event_id = self._emit_runtime_diagnostic_event(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "capability_manifest_ref": str(capability_manifest_ref),
+                                "execution_band": "candidate",
+                                "candidate_computation_status": "not_established",
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": limitation,
+                                "limitation_code": limitation,
+                                "n4_status": "not_established",
+                                "downstream_stages": {
+                                    "n5": "not_run",
+                                    "n8": "not_run",
+                                    "n9": "not_run",
+                                    "s8": "not_run",
+                                    "publication": "not_run",
+                                },
+                            },
+                            artifact_refs=[str(capability_manifest_ref)],
+                        )
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": "not_established",
+                            "execution_band": "candidate",
+                            "candidate_computation_status": "not_established",
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": limitation,
+                            "limitation_code": limitation,
+                            "stage": "candidate_only_result_rejected",
+                            "n4_status": "not_established",
+                            "run_id": run_id,
+                            "candidate_proposal_ref": None,
+                            "runtime_diagnostic_event_status": (
+                                "persisted" if event_id is not None else "not_established"
+                            ),
+                            "n5_status": "not_run",
+                            "n8_status": "not_run",
+                            "n9_status": "not_run",
+                            "s8_status": "not_run",
+                            "publication_status": "not_run",
+                        }
+                        if event_id is None:
+                            progress[
+                                "runtime_diagnostic_event_limitation_code"
+                            ] = "diagnostic_event_owner_scope_not_established"
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        return
+                    if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT:
+                        compiled_ref = self._put_json_artifact(
+                            compiled.model_dump(mode="json"),
+                            kind="runtime.compiled_recursive_generation_cycle",
+                            schema_name=(
+                                "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
+                            ),
+                        )
+                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": "simulation_only",
+                            "execution_band": "candidate",
+                            "candidate_computation_status": "completed",
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": None,
+                            "compiled_recursive_generation_cycle_ref": compiled_ref,
+                            "normative_disposition_status": "not_run",
+                            "s8_status": "not_run",
+                            "publication_status": "not_run",
+                            "run_id": run_id,
+                            **(
+                                {
+                                    "cycle_substrate_context_job_ref": (
+                                        cycle_substrate_context_job_ref
+                                    )
+                                }
+                                if cycle_substrate_context_job_ref is not None
+                                else {}
+                            ),
+                        }
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        self._emit_runtime_diagnostic_event(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type=(
+                                "polisyos.runtime.diagnostic.phase_transition.v1"
+                            ),
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "execution_band": "candidate",
+                                "execution_intent_band": intent_band.value,
+                                "candidate_computation_status": "completed",
+                                "normative_disposition_status": "not_run",
+                                "s8_status": "not_run",
+                                "publication_status": "not_run",
+                                "projection_authority": "runtime_event_only",
+                            },
+                            artifact_refs=[
+                                str(capability_manifest_ref),
+                                compiled_ref,
+                                *(
+                                    [cycle_substrate_context_job_ref]
+                                    if cycle_substrate_context_job_ref is not None
+                                    else []
+                                ),
+                            ],
+                        )
+                        return
+                    compiled_ref = self._put_json_artifact(
+                        compiled.model_dump(mode="json"),
+                        kind="runtime.compiled_recursive_generation_cycle",
+                        schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    )
+                    from polisyos.runtime.http.services.control.generation_cycle import (
+                        parse_normative_run_evidence,
+                    )
+
+                    normative_raw = (payload.get("context") or {}).get("normative_evidence")
+                    normative = self.resolve_generation_value_choices(
+                        compiled_run_ref=compiled_ref,
+                        evidence=parse_normative_run_evidence(normative_raw),
+                        evaluated_at=datetime.now(UTC),
+                    )
+                    refusal_reasons = tuple(
+                        receipt.reason
+                        for leaf in compiled.recursive_run.leaf_nodes
+                        if leaf.cycle_run is not None
+                        for receipt in (leaf.cycle_run.promotion_port,)
+                        if receipt.reason is not None
+                    )
+                    manifest_ref = self._publish_generation_run(
+                        job=job,
+                        payload=payload,
+                        compiled_run_ref=compiled_ref,
+                        normative_disposition_ref=str(normative.disposition_ref),
+                    )
+                    progress = {
+                        "state": "completed",
+                        "phase": "natural_language_run",
+                        "manifest_ref": manifest_ref,
+                        "run_id": str(job.run_id or payload.get("run_id") or ""),
+                        "compiled_recursive_generation_cycle_ref": compiled_ref,
+                        "recursive_budget_resolution": recursive_budget_resolution.model_dump(
+                            mode="json"
+                        ),
+                        "normative_disposition_ref": normative.disposition_ref,
+                        "normative_disposition": normative.model_dump(mode="json"),
+                        "promotion_refusal_reasons": list(refusal_reasons),
+                    }
+                    self._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        capability_manifest_ref=str(capability_manifest_ref),
+                        progress=progress,
+                    )
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job.job_id,
+                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        execution_profile=job.effective_execution_profile,
+                        phase="job_execution",
+                        event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                        state_before="running",
+                        state_after="completed",
+                        payload=payload,
+                        event_payload={
+                            "job_kind": job.kind,
+                            "capability_manifest_ref": str(capability_manifest_ref),
+                            "compiled_recursive_generation_cycle_ref": compiled_ref,
+                            "recursive_budget_resolution": recursive_budget_resolution.model_dump(
+                                mode="json"
+                            ),
+                            "normative_disposition_ref": normative.disposition_ref,
+                            "epoch_strangle_disposition": (
+                                "candidate_only_typed_negative"
+                                if refusal_reasons
+                                else "candidate_only"
+                            ),
+                        },
+                        artifact_refs=[
+                            str(capability_manifest_ref),
+                            compiled_ref,
+                            str(normative.disposition_ref),
+                        ],
+                    )
+                    return
+                if job.kind == "lex_pipeline":
+                    capability_manifest_ref = (
+                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    )
+                    self._run_lex_pipeline_job(
+                        job=job,
+                        payload=payload,
+                        capability_manifest_ref=capability_manifest_ref,
+                    )
+                    return
+                if job.kind == "acquisition":
+                    handler = self._acquisition_job_handler
+                    if handler is None:
+                        raise RuntimeError("acquisition_job_handler_missing")
+                    capability_manifest_ref = (
+                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    )
+                    progress = handler(job, payload)
+                    self._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        capability_manifest_ref=capability_manifest_ref,
+                        progress=progress,
+                    )
+                    artifact_refs = [capability_manifest_ref]
+                    terminal_receipt_ref = progress.get("terminal_receipt_ref")
+                    if isinstance(terminal_receipt_ref, str):
+                        artifact_refs.append(terminal_receipt_ref)
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job.job_id,
+                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        execution_profile=job.effective_execution_profile,
+                        phase="job_execution",
+                        event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                        state_before="running",
+                        state_after="completed",
+                        payload=payload,
+                        event_payload={
+                            "job_kind": job.kind,
+                            "receipt_phase": progress.get("receipt_phase"),
+                        },
+                        artifact_refs=artifact_refs,
+                    )
+                    return
+                raise RuntimeError(f"Unsupported control job kind: {job.kind}")
+        except Exception as exc:
+            logger.exception("Control job %s failed: %s", job.job_id, exc)
+            progress = (
+                dict(exc.progress) if isinstance(exc, _WorkflowExecutionNonAuthorityError) else None
+            )
+            self._emit_runtime_diagnostic_event(
+                job_id=job.job_id,
+                run_id=job.run_id,
+                execution_profile=job.effective_execution_profile,
+                phase="job_execution",
+                event_type="polisyos.runtime.diagnostic.blocker.v1",
+                state_before=job.state,
+                state_after="failed",
+                payload=payload,
+                event_payload={
+                    "job_kind": job.kind,
+                    "error": str(exc)[:500],
+                    "projection_authority": "runtime_event_only",
+                },
+                blocking_status="blocking",
+            )
+            self._control_store.fail_job(
+                job_id=job.job_id,
+                capability_manifest_ref=job.capability_manifest_ref,
+                error_message=str(exc),
+                progress=progress,
+            )
+
+    def _collect_lex_progress(
+        self,
+        *,
+        output_dir: Path | None,
+        state: str,
+        existing: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        progress = dict(existing or {})
+        if output_dir is not None:
+            progress["output_dir"] = str(output_dir)
+        progress["state"] = state
+        progress_summary: dict[str, int] = dict(progress.get("progress_summary") or {})
+        if output_dir is not None and str(output_dir):
+            try:
+                from polisyos.data_forge.read_api.legal import ProgressTracker
+
+                progress_path = output_dir / "progress.jsonl"
+                if progress_path.exists():
+                    tracker = ProgressTracker(progress_path)
+                    progress_summary = tracker.summary()
+            except (AttributeError, OSError, TypeError, ValueError) as exc:
+                logger.debug("Failed to read lex pipeline progress from %s: %s", output_dir, exc)
+        progress["progress_summary"] = progress_summary
+        return progress
+
+    # ---- Workflow launch ---------------------------------------------------
+
+    def launch_workflow_run(
+        self,
+        request: WorkflowRunRequest,
+        *,
+        request_id: str | None = None,
+        principal: RuntimePrincipal | None = None,
+    ) -> RunLaunchResponse:
+        """Persist a workflow payload/capability manifest and queue a durable `workflow_run` job.
+
+        Raises:
+            RuntimeHTTPError: If profile resolution fails or no data source ref is
+                present in `request.data_source`.
+        """
+        from polisyos.core.run.context import new_run_id
+
+        run_id = new_run_id()
+        job_id = uuid.uuid4().hex
+        policy = self._resolve_execution_policy(
+            requested_profile=request.execution_profile,
+            policy_flags=request.policy_flags,
+            principal=principal,
+        )
+
+        # Build inputs dict
+        inputs: dict[str, Any] = {}
+
+        # Data source (required)
+        ds_key, ds_value = _resolve_data_source(request.data_source)
+        inputs[ds_key] = _make_artifact_ref(ds_value, kind=_DATA_SOURCE_KEYS[ds_key])
+
+        # Optional refs
+        for field_name, kind in _OPTIONAL_INPUT_KEYS.items():
+            value = getattr(request, field_name, None)
+            if value:
+                inputs[field_name] = _make_artifact_ref(value, kind=kind)
+
+        state_payload: dict[str, Any] = {
+            "run_id": run_id,
+            "inputs": inputs,
+            "params": dict(request.params),
+        }
+        payload = {
+            "run_id": run_id,
+            "state_payload": state_payload,
+            "checkpoint_policy": request.checkpoint_policy,
+        }
+        self._enqueue_job(
+            job_id=job_id,
+            job_kind="workflow_run",
+            run_id=run_id,
+            pipeline_id=None,
+            payload=payload,
+            policy=policy,
+            request_id=request_id,
+        )
+
+        return RunLaunchResponse(
+            meta=_build_api_meta(request_id),
+            status="accepted",
+            run_id=run_id,
+            job_id=job_id,
+            effective_execution_profile=policy.effective_profile,
+            message=f"Workflow run {run_id} accepted and queued for durable execution.",
+        )
+
+    def publish_decision_validity_event(
+        self,
+        request: DecisionValidityEventRequest,
+        *,
+        request_id: str | None = None,
+    ) -> DecisionValidityEventResponse:
+        """Record a decision-dependency event and enqueue one deduplicated outbox notification."""
+        if request.monitor_event_ref is not None:
+            return self._publish_monitor_decision_validity_event(
+                request.monitor_event_ref,
+                request_id=request_id,
+            )
+        dependency_keys = [item.strip() for item in request.dependency_keys if str(item).strip()]
+        dedupe_key = request.dedupe_key or self._derive_decision_validity_dedupe_key(
+            request,
+            dependency_keys=dependency_keys,
+        )
+        event = DecisionDependencyEvent(
+            event_id=f"decision_evt_{uuid.uuid4().hex[:16]}",
+            dedupe_key=dedupe_key,
+            occurred_at=request.occurred_at or datetime.now(UTC).replace(microsecond=0),
+            trigger_type=request.trigger_type,
+            status=request.status,
+            reason=request.reason,
+            dependency_keys=dependency_keys,
+            source_ref=request.source_ref,
+            payload=dict(request.payload),
+        )
+        try:
+            evaluations = self._decision_validity_service.record_dependency_event(event=event)
+        except ValueError as exc:
+            if str(exc) != "semantic_epoch_dependency_requires_owner_batch":
+                raise
+            raise unprocessable_entity(
+                "Semantic-epoch dependencies require the owner-verified batch intake.",
+                code="semantic_epoch_dependency_requires_owner_batch",
+            ) from exc
+        affected_statuses: dict[str, int] = {}
+        affected_packets: list[str] = []
+        for evaluation in evaluations:
+            status = evaluation.status.value
+            affected_statuses[status] = affected_statuses.get(status, 0) + 1
+            if (
+                evaluation.decision_packet_ref
+                and evaluation.decision_packet_ref not in affected_packets
+            ):
+                affected_packets.append(evaluation.decision_packet_ref)
+        self._control_store.enqueue_outbox_event(
+            topic="control.decision_validity.event_published",
+            event_key=dedupe_key,
+            payload={
+                "event_id": event.event_id,
+                "dedupe_key": dedupe_key,
+                "trigger_type": event.trigger_type.value,
+                "status": event.status.value,
+                "reason": event.reason,
+                "dependency_keys": list(event.dependency_keys),
+                "source_ref": event.source_ref,
+                "affected_packets": affected_packets,
+                "affected_statuses": affected_statuses,
+            },
+        )
+        return DecisionValidityEventResponse(
+            meta=_build_api_meta(request_id),
+            event_id=event.event_id,
+            dedupe_key=dedupe_key,
+            affected_packets=affected_packets,
+            affected_statuses=affected_statuses,
+            message=(
+                f"Decision validity event {event.event_id} accepted for "
+                f"{len(affected_packets)} packet(s)."
+            ),
+        )
+
+    def _publish_monitor_decision_validity_event(
+        self,
+        monitor_event_ref: ArtifactRef,
+        *,
+        request_id: str | None,
+        published_signature_custody: bool = False,
+    ) -> DecisionValidityEventResponse | PublishedSignatureCustodyLifecyclePublication:
+        """Content-bind the monitor arm before deriving any lifecycle consequence."""
+
+        try:
+            persisted = resolve_governance_monitor_event(
+                self._artifact_store,
+                monitor_event_ref,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "The governance monitor event could not be resolved exactly.",
+                code="monitor_event_unresolvable",
+            ) from exc
+        event = persisted.event
+        perturbation = event.perturbation
+        if perturbation is None and not published_signature_custody:
+            raise unprocessable_entity(
+                "The monitor event does not carry a typed epoch perturbation.",
+                code="monitor_event_perturbation_missing",
+            )
+        if event.observed_epoch_ref is None and not published_signature_custody:
+            raise unprocessable_entity(
+                "The monitor event does not bind the epoch in which it was observed.",
+                code="monitor_event_epoch_binding_missing",
+            )
+        if published_signature_custody and (
+            perturbation is not None
+            or event.scope.get("custody_subject") != "published_signature"
+            or event.metadata.get("published_signature_custody") != "advisory"
+        ):
+            raise unprocessable_entity(
+                "The custody watcher event is not an advisory published-signature signal.",
+                code="published_signature_custody_event_invalid",
+            )
+
+        try:
+            bridge = self._epoch_claim_lifecycle_bridge.bridge_monitor_event(
+                monitor_event_ref=monitor_event_ref,
+                actor_id="runtime.control.decision_validity.monitor_event",
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "The monitor event could not be bound to the packet claim lifecycle.",
+                code="monitor_event_lifecycle_bridge_rejected",
+            ) from exc
+        if bridge.monitor_event != persisted:
+            raise unprocessable_entity(
+                "The lifecycle bridge resolved different monitor bytes.",
+                code="monitor_event_lifecycle_bridge_rejected",
+            )
+        advisory_event_ref: ArtifactRef | None = None
+        if not published_signature_custody:
+            try:
+                advisory_event_ref = persist_advisory_perturbation_event(
+                    store=self._artifact_store,
+                    persisted_monitor_event=persisted,
+                )
+            except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise unprocessable_entity(
+                    "The monitor event could not be bound to the epoch advisory stream.",
+                    code="monitor_event_epoch_advisory_rejected",
+                ) from exc
+
+        source_class = (
+            "published_signature_custody"
+            if published_signature_custody
+            else perturbation.source_class
+        )
+        trigger = DecisionTriggerRecord(
+            trigger_type=(
+                DecisionTriggerType.POST_DEPLOYMENT_REFUTATION
+                if published_signature_custody
+                else _MONITOR_TRIGGER_BY_SOURCE_CLASS[source_class]
+            ),
+            status=(
+                DecisionValidityStatus.WARNING
+                if event.advisory_posture == "annotation_only"
+                else DecisionValidityStatus.REVIEW_REQUIRED
+            ),
+            reason=event.reason,
+            source_ref=str(monitor_event_ref.artifact_id),
+            details={
+                "monitor_event_ref": monitor_event_ref.model_dump(mode="json"),
+                "source_class": source_class,
+                "observed_epoch_ref": event.observed_epoch_ref,
+                "advisory_event_ref": (
+                    advisory_event_ref.model_dump(mode="json")
+                    if advisory_event_ref is not None
+                    else None
+                ),
+            },
+        )
+        evaluation = self._decision_validity_service.mark_packet_trigger(
+            packet_ref=str(event.decision_packet_ref.artifact_id),
+            trigger=trigger,
+        )
+        dedupe_key = f"monitor:{monitor_event_ref.artifact_id}"
+        affected_packets = [str(event.decision_packet_ref.artifact_id)]
+        affected_statuses = {evaluation.status.value: 1}
+        self._control_store.enqueue_outbox_event(
+            topic=(
+                "control.decision_validity.published_signature_custody"
+                if published_signature_custody
+                else "control.decision_validity.monitor_event_published"
+            ),
+            event_key=dedupe_key,
+            payload={
+                "event_id": event.event_id,
+                "dedupe_key": dedupe_key,
+                "monitor_event_ref": monitor_event_ref.model_dump(mode="json"),
+                "lifecycle_bridge_result_ref": bridge.result_ref.model_dump(mode="json"),
+                "advisory_event_ref": (
+                    advisory_event_ref.model_dump(mode="json")
+                    if advisory_event_ref is not None
+                    else None
+                ),
+                "source_class": source_class,
+                "affected_packets": affected_packets,
+                "affected_statuses": affected_statuses,
+            },
+        )
+        if published_signature_custody:
+            return PublishedSignatureCustodyLifecyclePublication(
+                event_id=event.event_id,
+                dedupe_key=dedupe_key,
+                affected_packets=affected_packets,
+                affected_statuses=affected_statuses,
+                monitor_event_ref=monitor_event_ref,
+                lifecycle_bridge_result_ref=bridge.result_ref,
+            )
+        return DecisionValidityEventResponse(
+            meta=_build_api_meta(request_id),
+            event_id=event.event_id,
+            dedupe_key=dedupe_key,
+            affected_packets=affected_packets,
+            affected_statuses=affected_statuses,
+            monitor_event_ref=monitor_event_ref,
+            lifecycle_bridge_result_ref=bridge.result_ref,
+            advisory_event_ref=advisory_event_ref,
+            message=(
+                f"Governance monitor event {event.event_id} was content-bound to "
+                "the claim lifecycle and epoch advisory stream."
+            ),
+        )
+
+    def publish_published_signature_custody_event(
+        self,
+        monitor_event_ref: ArtifactRef,
+    ) -> PublishedSignatureCustodyLifecyclePublication:
+        """Bridge one persisted advisory signature-custody event into lifecycle and outbox state."""
+
+        result = self._publish_monitor_decision_validity_event(
+            monitor_event_ref,
+            request_id=None,
+            published_signature_custody=True,
+        )
+        if not isinstance(result, PublishedSignatureCustodyLifecyclePublication):
+            raise RuntimeError("published_signature_custody_publication_type_mismatch")
+        return result
+
+    def admit_epoch_validity_batch(
+        self,
+        request: EpochValidityBatchRequest,
+        *,
+        request_id: str | None = None,
+    ) -> EpochValidityBatchResponse:
+        """Delegate the two-field request to the container-owned owner intake."""
+
+        try:
+            receipt = self._decision_validity_service.admit_epoch_validity_batch(
+                transition_artifact_ref=request.transition_artifact_ref,
+                requested_query_context_ref=request.requested_query_context_ref,
+            )
+        except ValueError as exc:
+            code = str(exc)
+            if code == "batch_pending":
+                raise conflict("An epoch validity batch is already pending.", code=code) from exc
+            if code not in _EPOCH_VALIDITY_INTAKE_FAILURE_CODES:
+                raise
+            raise unprocessable_entity(
+                "The epoch validity batch failed owner verification.",
+                code=code,
+            ) from exc
+        except RuntimeError as exc:
+            if str(exc) not in {
+                "decision_validity_owner_state_corrupt",
+                "decision_validity_epoch_receipt_unresolved",
+            }:
+                raise
+            raise unprocessable_entity(
+                "The Decision Validity owner state could not be verified.",
+                code="decision_validity_owner_state_corrupt",
+            ) from exc
+        completed_evidence = (
+            self._decision_validity_service.resolve_completed_epoch_batch_evidence_by_id(
+                batch_id=receipt.batch_id
+            )
+        )
+        claim_bridge_result_refs: list[ArtifactRef] = []
+        for packet_id in receipt.affected_packet_refs:
+            packet_manifest = self._artifact_store.get_manifest(packet_id)
+            bridge_result = self._epoch_claim_lifecycle_bridge.bridge_completed_batch(
+                batch_receipt_ref=completed_evidence.batch_receipt_ref,
+                decision_packet_ref=ArtifactRef(
+                    artifact_id=packet_manifest.artifact_id,
+                    kind=packet_manifest.kind,
+                    media_type=packet_manifest.media_type,
+                ),
+                requested_query_context_ref=receipt.requested_query_context_ref,
+            )
+            if isinstance(bridge_result, ClaimLifecycleBridgeAdvanced):
+                claim_bridge_result_refs.append(bridge_result.bridge_result.bridge_result_ref)
+        return EpochValidityBatchResponse(
+            meta=_build_api_meta(request_id),
+            batch_id=receipt.batch_id,
+            state=receipt.state,
+            transition=receipt.transition_artifact_ref,
+            completion_receipt=receipt,
+            affected_packet_refs=receipt.affected_packet_refs,
+            claim_bridge_result_refs=tuple(claim_bridge_result_refs),
+        )
+
+    def get_decision_validity_summary(
+        self,
+        packet_ref: str,
+        *,
+        run_id: str | None = None,
+        request_id: str | None = None,
+    ) -> DecisionValiditySummaryResponse:
+        """Read the latest decision-validity lifecycle summary for a decision packet ref."""
+        summary = self._decision_validity_service.get_summary(packet_ref)
+        lifecycle_payload = dict(summary.get("lifecycle") or {})
+        return DecisionValiditySummaryResponse(
+            meta=_build_api_meta(request_id),
+            run_id=run_id,
+            decision_packet_ref=_make_artifact_ref(
+                packet_ref,
+                kind="scientist.decision_packet",
+            ),
+            status=summary["status"],
+            lifecycle_status=summary["status"],
+            checked_at=summary["checked_at"],
+            reasons=list(summary.get("reasons") or []),
+            triggers=list(summary.get("triggers") or []),
+            review_required=bool(summary.get("review_required")),
+            supersedes_decision_ref=_artifact_ref_from_summary_payload(
+                summary.get("supersedes_decision_ref"),
+                kind="scientist.decision_packet",
+            ),
+            superseded_by_ref=_artifact_ref_from_summary_payload(
+                summary.get("superseded_by_ref"),
+                kind="scientist.decision_packet",
+            ),
+            evaluation_ref=_artifact_ref_from_summary_payload(
+                summary.get("evaluation_ref"),
+                kind="scientist.decision_validity_evaluation",
+            ),
+            decision_lineage_key=str(summary.get("decision_lineage_key") or packet_ref),
+            recommended_action=str(summary.get("recommended_action") or "none"),
+            lifecycle=DecisionValidityLifecycleSummary(
+                status=summary["status"],
+                events=list(lifecycle_payload.get("events") or []),
+                transitions=list(lifecycle_payload.get("transitions") or []),
+                pending_reviews=[
+                    DecisionValidityPendingReview.model_validate(item)
+                    for item in (lifecycle_payload.get("pending_reviews") or [])
+                ],
+                scheduled_jobs=list(lifecycle_payload.get("scheduled_jobs") or []),
+                reissue_candidates=[
+                    _make_artifact_ref(
+                        candidate["artifact_id"],
+                        kind="scientist.decision_reissue_plan",
+                    )
+                    for candidate in (lifecycle_payload.get("reissue_candidates") or [])
+                    if isinstance(candidate, dict) and isinstance(candidate.get("artifact_id"), str)
+                ],
+                latest_transition_at=lifecycle_payload.get("latest_transition_at"),
+            ),
+        )
+
+    def reissue_run(
+        self,
+        run_id: str,
+        *,
+        request_id: str | None = None,
+        principal: RuntimePrincipal | None = None,
+    ) -> dict[str, str | None]:
+        """Prepare a human-gated reissue payload and enqueue the replacement workflow run."""
+        from ..feedback import FeedbackService
+        from ..run_index import RunIndexService
+
+        run_index = RunIndexService(
+            store=self._artifact_store,
+            core_runs_root=self._core_runs_root,
+        )
+        run = run_index.get_run(run_id)
+        policy = self._resolve_execution_policy(
+            requested_profile=_coerce_optional_execution_profile(run.details.execution_profile),
+            policy_flags=PolicyFlags(),
+            principal=principal,
+        )
+        feedback = FeedbackService(store=self._artifact_store, run_index=run_index)
+        prepared = feedback.prepare_reissue(run)
+        job_id = uuid.uuid4().hex
+        payload = {
+            "run_id": prepared.reissued_run_id,
+            "state_payload": prepared.state_payload,
+            "checkpoint_policy": "strict",
+        }
+        self._enqueue_job(
+            job_id=job_id,
+            job_kind="workflow_run",
+            run_id=prepared.reissued_run_id,
+            pipeline_id=None,
+            payload=payload,
+            policy=policy,
+            request_id=request_id,
+        )
+        return {
+            "job_id": job_id,
+            "run_id": prepared.reissued_run_id,
+            "effective_execution_profile": policy.effective_profile,
+            "monitoring_report_ref": prepared.monitoring_report_ref,
+            "compare_report_ref": prepared.compare_report_ref,
+            "reissue_plan_ref": prepared.reissue_plan_ref,
+            "message": (
+                f"Reissue for run {run_id} accepted as {prepared.reissued_run_id} "
+                "and queued for durable execution."
+            ),
+        }
+
+    def _run_legacy_scientist_workflow(self, state_payload: dict[str, Any]) -> None:
+        from polisyos.scientist.api import run_experiment
+
+        execution_payload = dict(state_payload)
+        raw_context = execution_payload.pop(
+            _EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY,
+            None,
+        )
+        execution_context = (
+            EvaluationExecutionContext.model_validate(raw_context)
+            if raw_context is not None
+            else None
+        )
+        run_experiment(
+            execution_payload,
+            store=self._artifact_store,
+            epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
+            eval_safety_execution_context=execution_context,
+            eval_safety_verifier=(
+                self._evaluation_safety_admission_verifier
+                if execution_context is not None
+                else None
+            ),
+        )
+
+    # ---- NL launch (agent circuit) ----------------------------------------
+
+    async def launch_nl_run(
+        self,
+        request: NaturalLanguageRunRequest,
+        *,
+        request_id: str | None = None,
+        principal: RuntimePrincipal | None = None,
+        authorization_proof: object | None = None,
+        authorization_request_body: bytes | None = None,
+        authorization_query_bytes: bytes = b"",
+    ) -> RunLaunchResponse:
+        """Queue a natural-language agent run and apply execution-policy fallback constraints."""
+        from polisyos.core.run.context import new_run_id
+
+        if authorization_proof is None:
+            raise ValueError("nl_route_authorization_proof_not_established")
+        _validate_nl_request_json_values(request)
+        run_id = new_run_id()
+        job_id = uuid.uuid4().hex
+        request_id = request_id or f"control-job:{job_id}"
+        policy = self._resolve_execution_policy(
+            requested_profile=request.execution_profile,
+            policy_flags=request.policy_flags,
+            principal=principal,
+        )
+        requested_models = _dedupe_models(list(request.llm_models or []))
+        if request.llm_model and request.llm_model not in requested_models:
+            requested_models.insert(0, request.llm_model)
+        if not _is_multimodel_enabled() and len(requested_models) > 1:
+            requested_models = requested_models[:1]
+        if not requested_models:
+            raise unprocessable_entity(
+                "Natural-language production runs require a configured LLM model.",
+                code="llm_model_unconfigured",
+            )
+        request_snapshot = {
+            "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+            "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
+            "request": request.model_dump(mode="json"),
+            "normalized_llm_models": list(requested_models),
+        }
+        request_body_bytes = (
+            authorization_request_body
+            if authorization_request_body is not None
+            else _nl_request_body_bytes(request)
+        )
+        authorization_receipt = (
+            _build_nl_authorization_receipt(
+                authorization_proof,
+                request_id=request_id,
+                request=request,
+                request_body_bytes=request_body_bytes,
+                request_query_bytes=authorization_query_bytes,
+                normalized_llm_models=requested_models,
+            )
+            if authorization_proof is not None
+            else None
+        )
+        if authorization_receipt is not None:
+            permission_snapshot = authorization_receipt.get("permission_snapshot")
+            if not isinstance(permission_snapshot, Mapping) or (
+                permission_snapshot.get("subject") != policy.actor.get("subject")
+                or permission_snapshot.get("tenant_id") != policy.actor.get("tenant_id")
+                or tuple(permission_snapshot.get("roles", ()))
+                != tuple(sorted(policy.actor.get("roles", ())))
+            ):
+                raise ValueError("nl_route_authorization_actor_binding_mismatch")
+        provider_preflight_payload: dict[str, Any] | None = None
+        if requested_models and policy.effective_profile in {"research", "governed", "production"}:
+            preflight_report = await run_provider_preflight(models=requested_models)
+            provider_preflight_payload = preflight_report.model_dump(mode="json")
+            if preflight_report.status == "failed":
+                preflight_ref = self._put_json_artifact(
+                    provider_preflight_payload,
+                    kind="runtime.provider_preflight_report",
+                    schema_name="polisyos.runtime.ProviderPreflightReport",
+                )
+                capability_manifest_ref = self._persist_capability_manifest(
+                    policy=policy,
+                    job_id=job_id,
+                    run_id=run_id,
+                    pipeline_id=None,
+                    payload_ref=None,
+                )
+                self._control_store.create_job(
+                    job_id=job_id,
+                    kind="natural_language_run",
+                    run_id=run_id,
+                    pipeline_id=None,
+                    requested_execution_profile=policy.requested_profile,
+                    effective_execution_profile=policy.effective_profile,
+                    policy_flags=policy.policy_flags.model_dump(mode="json"),
+                    capability_manifest_ref=capability_manifest_ref,
+                    payload_ref=None,
+                    submitted_by=str(policy.actor.get("subject") or "anonymous"),
+                )
+                failure = dict(preflight_report.failure or {})
+                failure.setdefault("code", "llm_provider_preflight_failed")
+                failure.setdefault("layer", "llm_gateway")
+                failure.setdefault("phase", "provider_preflight")
+                failure.setdefault("message", "LLM provider preflight failed.")
+                failure.setdefault("retryable", bool(preflight_report.retryable))
+                failure.setdefault("run_id", run_id)
+                failure.setdefault("job_id", job_id)
+                artifact_refs = failure.get("artifact_refs")
+                if not isinstance(artifact_refs, dict):
+                    artifact_refs = {}
+                artifact_refs["provider_preflight_ref"] = preflight_ref
+                failure["artifact_refs"] = artifact_refs
+                self._control_store.fail_job(
+                    job_id=job_id,
+                    error_message=str(failure.get("message") or "LLM provider preflight failed."),
+                    capability_manifest_ref=capability_manifest_ref,
+                    progress={
+                        "state": "failed",
+                        "phase": "provider_preflight",
+                        "run_id": run_id,
+                        "provider_preflight_ref": preflight_ref,
+                        "provider_preflight": provider_preflight_payload,
+                        "failure": failure,
+                    },
+                )
+                return RunLaunchResponse(
+                    meta=_build_api_meta(request_id),
+                    status="rejected",
+                    run_id=run_id,
+                    job_id=job_id,
+                    effective_execution_profile=policy.effective_profile,
+                    message=(
+                        f"Natural-language run {run_id} was rejected by LLM provider "
+                        "preflight. Inspect the control job failure envelope."
+                    ),
+                )
+        nl_payload = {
+            "run_id": run_id,
+            "request": request.request,
+            "context": dict(request.context),
+            "domain_hint": request.domain_hint,
+            "data_source": request.data_source.model_dump(mode="json")
+            if request.data_source
+            else None,
+            **(
+                {"target_world_scope_profile_id": request.target_world_scope_profile_id}
+                if request.target_world_scope_profile_id is not None
+                else {}
+            ),
+            "max_iterations": request.max_iterations,
+            "llm_models": requested_models,
+            "max_parallel_models": request.max_parallel_models,
+            "run_budget_usd": request.run_budget_usd,
+            "per_model_budget_usd": request.per_model_budget_usd,
+            "checkpoint_policy": request.checkpoint_policy,
+            "execution_plan_ref": request.execution_plan_ref,
+            "execution_plan": request.execution_plan,
+            "stop_criteria": request.stop_criteria,
+            "governance_constraints": request.governance_constraints,
+            "expected_outputs": request.expected_outputs,
+            "provider_preflight": provider_preflight_payload,
+        }
+        nl_payload[_NL_REQUEST_SNAPSHOT_KEY] = request_snapshot
+        if authorization_receipt is not None:
+            nl_payload[_NL_AUTHORIZATION_RECEIPT_KEY] = authorization_receipt
+        queued_job = self._enqueue_job(
+            job_id=job_id,
+            job_kind="natural_language_run",
+            run_id=run_id,
+            pipeline_id=None,
+            payload=nl_payload,
+            policy=policy,
+            request_id=request_id,
+        )
+        if queued_job.state == "failed":
+            return RunLaunchResponse(
+                meta=_build_api_meta(request_id),
+                status="rejected",
+                run_id=run_id,
+                job_id=job_id,
+                effective_execution_profile=policy.effective_profile,
+                message=(
+                    "Natural-language run was refused because its execution intent "
+                    "or route authorization could not be established."
+                ),
+            )
+
+        models_label = ", ".join(requested_models)
+        if len(requested_models) > 1:
+            mode_label = (
+                f"{len(requested_models)} model variants "
+                f"(parallel={max(1, min(request.max_parallel_models, len(requested_models)))})"
+            )
+        elif requested_models:
+            mode_label = "single model"
+        else:  # pragma: no cover - guarded by llm_model_unconfigured above.
+            raise AssertionError("llm_model_unconfigured")
+
+        return RunLaunchResponse(
+            meta=_build_api_meta(request_id),
+            status="accepted",
+            run_id=run_id,
+            job_id=job_id,
+            effective_execution_profile=policy.effective_profile,
+            message=(
+                f"Natural-language run {run_id} accepted. "
+                f"Agent circuit was queued in {mode_label}: {models_label}."
+            ),
+        )
+
+    # ---- Data ingestion ---------------------------------------------------
+
+    def run_data_ingestion(
+        self,
+        request: IngestRequest,
+        *,
+        request_id: str | None = None,
+    ) -> IngestResponse:
+        """Execute connector ingestion and return refs/status for produced artifacts."""
+        from polisyos.core.artifacts import ArtifactOwnershipError
+        from polisyos.fabric.ingestion import (
+            ConnectorManifestSpec,
+            DatasetFetchSpec,
+            IngestionDependencies,
+        )
+        from polisyos.fabric.ingestion.ingestion_providers import (
+            IngestionStoreBindingError,
+        )
+        from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
+        from polisyos.runtime.http.errors import forbidden
+
+        datasets = [
+            DatasetFetchSpec(
+                connector_id=ds.connector_id,
+                dataset_id=ds.dataset_id,
+                filters=ds.filters,
+                date_start=ds.date_start,
+                date_end=ds.date_end,
+            )
+            for ds in request.datasets
+        ]
+        if request.fetch_plans:
+            datasets.extend(
+                DatasetFetchSpec(
+                    connector_id=plan.connector_id,
+                    dataset_id=plan.dataset_id,
+                    filters=plan.filters,
+                    date_start=plan.date_start,
+                    date_end=plan.date_end,
+                )
+                for plan in request.fetch_plans
+            )
+
+        manifest = ConnectorManifestSpec(
+            datasets=datasets,
+            cache_policy=request.cache_policy if request.cache_policy != "default" else None,
+        )
+
+        # Resolve connection profile → ConnectionConfig
+        connection_config = None
+        connection_profile_id = request.connection_profile
+        if not connection_profile_id:
+            profile_ids = {plan.profile_id for plan in request.fetch_plans if plan.profile_id}
+            if len(profile_ids) == 1:
+                connection_profile_id = next(iter(profile_ids))
+            elif len(profile_ids) > 1:
+                logger.warning(
+                    "Multiple profile_ids in fetch_plans; using connector defaults. "
+                    "Provide connection_profile for deterministic credentials."
+                )
+
+        if connection_profile_id:
+            from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+
+            profile_reg = self._registry_providers.source_profiles
+            profile = profile_reg.get(connection_profile_id)
+            if profile:
+                connection_config = resolve_connection_config(profile)
+
+        def _served_ingestion_store(root: Path) -> RootedArtifactStore:
+            requested_root = Path(root).resolve()
+            service_root = Path(self._cas_root).resolve()
+            store_root = getattr(self._artifact_store, "root", None)
+            if (
+                requested_root != service_root
+                or not isinstance(store_root, (str, Path))
+                or Path(store_root).resolve() != service_root
+            ):
+                raise IngestionStoreBindingError(
+                    "served_ingestion_store_root_mismatch"
+                )
+            return cast("RootedArtifactStore", self._artifact_store)
+
+        sidecar_scope = TenantSidecarScope.from_current_context(self._cas_root)
+        ingestion_dependencies = IngestionDependencies(
+            registry=cast("Any", self._registry_providers.connectors),
+            tracer=self._tracer,
+            metrics=self._metrics,
+            store_factory=_served_ingestion_store,
+        )
+
+        mode = request.execution_mode
+        if request.replay_ref is not None:
+            mode = "replay"
+        record_ref: str | None = None
+        try:
+            # Record/replay takes priority over execution mode dispatch
+            if request.replay_ref is not None:
+                from polisyos.fabric.data_plane.modes import run_replay_mode
+
+                result = run_replay_mode(
+                    connector_manifest=manifest,
+                    source=request.source,
+                    license_name=request.license_name,
+                    cas_root=self._cas_root,
+                    replay_ref=request.replay_ref,
+                    connection_config=connection_config,
+                    produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
+                )
+            elif request.record_mode:
+                from polisyos.fabric.data_plane.modes import run_record_mode
+
+                result, record_ref = run_record_mode(
+                    connector_manifest=manifest,
+                    source=request.source,
+                    license_name=request.license_name,
+                    cas_root=self._cas_root,
+                    connection_config=connection_config,
+                    produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
+                )
+            elif mode == "streaming_windowed":
+                from polisyos.fabric.data_plane.modes import run_streaming_windowed
+
+                result = run_streaming_windowed(
+                    connector_manifest=manifest,
+                    source=request.source,
+                    license_name=request.license_name,
+                    cas_root=self._cas_root,
+                    connection_config=connection_config,
+                    produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
+                )
+            elif mode == "batch_incremental":
+                from polisyos.fabric.data_plane.modes import run_batch_incremental
+
+                result = run_batch_incremental(
+                    connector_manifest=manifest,
+                    source=request.source,
+                    license_name=request.license_name,
+                    cas_root=self._cas_root,
+                    connection_config=connection_config,
+                    produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
+                )
+            else:
+                from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
+
+                result = run_orchestrated_ingestion(
+                    connector_manifest=manifest,
+                    source=request.source,
+                    license_name=request.license_name,
+                    cas_root=self._cas_root,
+                    connection_config=connection_config,
+                    produce_snapshot=request.produce_data_snapshot,
+                    ingestion_dependencies=ingestion_dependencies,
+                    sidecar_scope=sidecar_scope,
+                )
+
+            # Post-ingestion: produce input bindings if requested
+            input_bindings_ref: str | None = None
+            if request.produce_input_bindings and request.binding_profile_id:
+                input_bindings_ref = self._produce_input_bindings(
+                    binding_profile_id=request.binding_profile_id,
+                    data_snapshot_ref=(
+                        str(result.data_snapshot_ref.artifact_id.hex)
+                        if result.data_snapshot_ref
+                        else None
+                    ),
+                )
+
+            return IngestResponse(
+                meta=_build_api_meta(request_id),
+                status="completed",
+                evidence_bundle_ref=(
+                    str(result.evidence_bundle_ref.artifact_id.hex)
+                    if result.evidence_bundle_ref
+                    else None
+                ),
+                data_snapshot_ref=(
+                    str(result.data_snapshot_ref.artifact_id.hex)
+                    if result.data_snapshot_ref
+                    else None
+                ),
+                datasets_fetched=result.datasets_fetched,
+                message=f"Successfully ingested {result.datasets_fetched} dataset(s).",
+                warnings=result.warnings,
+                cursor_ref=result.cursor_ref,
+                mode_effective=result.mode_effective or mode,
+                record_ref=record_ref,
+                input_bindings_ref=input_bindings_ref,
+            )
+        except ArtifactOwnershipError as exc:
+            raise forbidden(
+                "Ingestion artifact is not accessible in the current tenant scope",
+                code="ingestion_artifact_ownership_denied",
+            ) from exc
+        except (LookupError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            logger.exception("Data ingestion failed: %s", exc)
+            return IngestResponse(
+                meta=_build_api_meta(request_id),
+                status="failed",
+                datasets_fetched=0,
+                message=f"Ingestion failed: {exc}",
+                mode_effective=mode,
+            )
+
+    def data_resolve(
+        self,
+        request: DataResolveRequest,
+        *,
+        request_id: str | None = None,
+    ) -> DataResolveResponse:
+        """Resolve `DataNeed[]` into concrete fetch plans via the retrieval service."""
+        result = self._retrieval.resolve(request)
+        return DataResolveResponse(
+            meta=_build_api_meta(request_id),
+            mode=_coerce_retrieval_mode(result.mode),
+            fetch_plans=result.fetch_plans,
+            candidates=result.candidates,
+            warnings=result.warnings,
+        )
+
+    def data_discover(
+        self,
+        request: DataDiscoverRequest,
+        *,
+        request_id: str | None = None,
+    ) -> DataDiscoverResponse:
+        """Run bounded discovery over connector metadata and return ranked candidates."""
+        result = self._retrieval.discover(
+            data_needs=request.data_needs,
+            max_sources_per_query=request.max_sources_per_query,
+            max_discovery_calls_per_source=request.max_discovery_calls_per_source,
+            max_candidates_total=request.max_candidates_total,
+            time_budget_ms=request.time_budget_ms,
+            cost_budget_usd=request.cost_budget_usd,
+        )
+        return DataDiscoverResponse(
+            meta=_build_api_meta(request_id),
+            candidates=result.candidates,
+            docs_fetched_total=result.docs_fetched_total,
+            index_stats=self._retrieval.get_index_stats(),
+            warnings=result.warnings,
+        )
+
+    def data_preview(
+        self,
+        request: DataPreviewRequest,
+        *,
+        request_id: str | None = None,
+    ) -> DataPreviewResponse:
+        """Preview one fetch plan through quality/retrieval fallback semantics."""
+        result = self._retrieval.preview(
+            request.fetch_plan,
+            allow_fallback=request.allow_fallback,
+        )
+        return DataPreviewResponse(
+            meta=_build_api_meta(request_id),
+            preview=result.preview,
+        )
+
+    def search_data_catalog(
+        self,
+        *,
+        metric_query: str,
+        geography: str | None = None,
+        limit: int = 25,
+        request_id: str | None = None,
+    ) -> CapabilityDiscoveryResponse:
+        """Delegate the legacy dataset address to canonical capability discovery."""
+        budget: dict[str, object] = {"top_k": limit}
+        if geography is not None:
+            budget["geography"] = geography
+        return self.search_capabilities(
+            CapabilityDiscoveryRequest(
+                search=SearchRequest(
+                    request_id=request_id or f"catalog:{uuid.uuid4().hex}",
+                    query_text=metric_query,
+                    construct_refs=(metric_query,),
+                    intent="capability_discovery",
+                    required_layers=("L1",),
+                    authority_purpose="review_capability_candidates",
+                    allowed_modes=("exact", "alias", "lexical", "semantic"),
+                    budget=budget,
+                    rule_version="policyos.runtime.http.capability_discovery.v1",
+                ),
+                resource_kinds=("dataset",),
+                audience="REVIEWER",
+            ),
+            request_id=request_id,
+        )
+
+    def search_capabilities(
+        self,
+        request: CapabilityDiscoveryRequest,
+        *,
+        request_id: str | None = None,
+    ) -> CapabilityDiscoveryResponse:
+        """Search through the sole injected owner and persist the exact response packet."""
+        service = self._capability_discovery_service
+        if service is None:
+            raise RuntimeError("capability discovery service is not bound")
+        response = service.search(request, meta=_build_api_meta(request_id))
+        self._put_json_artifact(
+            response.model_dump(mode="json"),
+            kind="runtime.capability_discovery_response",
+            schema_name="polisyos.core.contracts.CapabilityDiscoveryResponse",
+        )
+        return response
+
+    def get_data_index_stats(self, *, request_id: str | None = None) -> IndexStatsResponse:
+        """Return retrieval index statistics for `/control/data/index/stats`."""
+        return IndexStatsResponse(
+            meta=_build_api_meta(request_id),
+            stats=self._retrieval.get_index_stats(),
+        )
+
+    def list_promotion_candidates(
+        self,
+        *,
+        request_id: str | None = None,
+    ) -> PromotionCandidatesResponse:
+        """Return current PromotionLane candidates from the retrieval service."""
+        return PromotionCandidatesResponse(
+            meta=_build_api_meta(request_id),
+            candidates=self._retrieval.list_promotion_candidates(),
+        )
+
+    def approve_promotion_candidate(
+        self,
+        promotion_id: str,
+        request: PromotionDecisionRequest,
+        *,
+        request_id: str | None = None,
+    ) -> PromotionDecisionResponse:
+        """Approve one promotion candidate and report whether source bindings changed."""
+        updated = self._retrieval.approve_promotion(promotion_id, reason=request.reason)
+        status = "approved" if updated else "rejected"
+        return PromotionDecisionResponse(
+            meta=_build_api_meta(request_id),
+            promotion_id=promotion_id,
+            status=status,
+            message=(
+                "Promotion candidate approved and source bindings updated."
+                if updated
+                else "Promotion candidate not found."
+            ),
+            binding_updated=updated,
+        )
+
+    def reject_promotion_candidate(
+        self,
+        promotion_id: str,
+        request: PromotionDecisionRequest,
+        *,
+        request_id: str | None = None,
+    ) -> PromotionDecisionResponse:
+        """Reject one promotion candidate and preserve an audit-friendly response shape."""
+        updated = self._retrieval.reject_promotion(promotion_id, reason=request.reason)
+        return PromotionDecisionResponse(
+            meta=_build_api_meta(request_id),
+            promotion_id=promotion_id,
+            status="rejected",
+            message=(
+                "Promotion candidate rejected." if updated else "Promotion candidate not found."
+            ),
+            binding_updated=False,
+        )
+
+    def _produce_input_bindings(
+        self,
+        *,
+        binding_profile_id: str,
+        data_snapshot_ref: str | None,
+    ) -> str | None:
+        """Resolve binding profile and persist rules as a CAS artifact."""
+        from polisyos.fabric.connectors.bindings.resolver import persist_binding_rules_artifact
+
+        registry = self._registry_providers.binding_profiles
+        profile = registry.get(binding_profile_id)
+        if profile is None:
+            logger.warning("Binding profile '%s' not found", binding_profile_id)
+            return None
+
+        store = self._artifact_store
+        ref = persist_binding_rules_artifact(
+            store,
+            profile,
+            data_snapshot_ref=data_snapshot_ref,
+        )
+        return str(ref.artifact_id.hex)
+
+    # ---- Connectors listing -----------------------------------------------
+
+    def list_connectors(self, *, request_id: str | None = None) -> ConnectorsListResponse:
+        """List discovered Fabric connectors and available source profiles per family."""
+        registry = self._registry_providers.connectors
+        profile_reg = self._registry_providers.source_profiles
+        infos: list[ConnectorInfo] = []
+
+        for entry in registry.query_entries():
+            meta = entry.metadata
+            family_profiles = profile_reg.list_by_family(meta.namespace)
+            infos.append(
+                ConnectorInfo(
+                    connector_id=meta.fully_qualified_id,
+                    namespace=meta.namespace,
+                    version=meta.version,
+                    known_datasets=sorted(entry.known_datasets),
+                    loaded=entry.loaded,
+                    last_health_check=entry.last_health_check,
+                    available_profiles=[p.profile_id for p in family_profiles],
+                )
+            )
+
+        return ConnectorsListResponse(
+            meta=_build_api_meta(request_id),
+            connectors=infos,
+        )
+
+    # ---- Source profiles --------------------------------------------------
+
+    def list_source_profiles(self, *, request_id: str | None = None) -> SourceProfilesListResponse:
+        """List source profiles and mark whether each connector family is currently available."""
+        profile_reg = self._registry_providers.source_profiles
+        connector_reg = self._registry_providers.connectors
+
+        # Determine which connector families are registered
+        registered_families: set[str] = set()
+        for entry in connector_reg.query_entries():
+            registered_families.add(entry.metadata.namespace)
+
+        profiles = profile_reg.list_all()
+        infos = [
+            SourceProfileInfo(
+                profile_id=p.profile_id,
+                display_name=p.display_name,
+                description=p.description,
+                connector_family=p.connector_family,
+                base_url=p.base_url,
+                auth_policy=p.auth_policy,
+                tags=p.tags,
+                source_organization=p.source_organization,
+                estimated_datasets=p.estimated_datasets,
+                connector_available=(p.connector_family in registered_families),
+            )
+            for p in profiles
+        ]
+
+        return SourceProfilesListResponse(
+            meta=_build_api_meta(request_id),
+            profiles=infos,
+        )
+
+    # ---- LLM model profiles -----------------------------------------------
+
+    def list_model_profiles(self, *, request_id: str | None = None) -> ModelProfilesListResponse:
+        """List registered LLM model profiles and pricing/capability metadata."""
+        profile_reg = self._registry_providers.model_profiles
+        profiles = profile_reg.list_all()
+        infos = [
+            ModelProfileInfo(
+                profile_id=p.profile_id,
+                display_name=p.display_name,
+                description=p.description,
+                provider=p.provider,
+                model_id=p.model_id,
+                base_url=p.base_url,
+                tags=p.tags,
+                capabilities=p.capabilities,
+                input_cost_per_mtoken_usd=p.input_cost_per_mtoken_usd,
+                output_cost_per_mtoken_usd=p.output_cost_per_mtoken_usd,
+                enabled=p.enabled,
+            )
+            for p in profiles
+        ]
+        return ModelProfilesListResponse(
+            meta=_build_api_meta(request_id),
+            profiles=infos,
+        )
+
+    # ---- Binding profiles -------------------------------------------------
+
+    def list_binding_profiles(
+        self, *, request_id: str | None = None
+    ) -> BindingProfilesListResponse:
+        """List input-binding profiles exposed to control-plane ingestion requests."""
+        registry = self._registry_providers.binding_profiles
+        profiles = registry.list_all()
+        infos = [
+            BindingProfileInfo(
+                profile_id=p.profile_id,
+                display_name=p.display_name,
+                description=p.description,
+                schema_family=p.schema_family,
+                strategy=p.strategy,
+                rule_count=len(p.rules),
+                expected_columns=p.expected_columns,
+                tags=p.tags,
+            )
+            for p in profiles
+        ]
+        return BindingProfilesListResponse(
+            meta=_build_api_meta(request_id),
+            profiles=infos,
+        )
+
+    # ---- Cache status -----------------------------------------------------
+
+    def get_cache_status(self, *, request_id: str | None = None) -> CacheStatusResponse:
+        """Return a cache status placeholder until ConnectorCacheStore-backed stats are wired."""
+        # CacheStore uses SQLite; for now return a basic response
+        # Production version should query ConnectorCacheStore
+        return CacheStatusResponse(
+            meta=_build_api_meta(request_id),
+            total_entries=0,
+            total_size_bytes=0,
+            entries=[],
+        )
+
+
+__all__ = ["ControlPlaneService"]

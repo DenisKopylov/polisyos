@@ -3241,6 +3241,66 @@
       "tests_run_by_this_audit": false,
       "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt-sim-cards-callers-20260928.md@sha256:fe4ef416564e7b0fe8ac4c7371540292ce5f5e163068b32731ef0805d9bbc921#B26",
       "scope": "Read-only card and caller review. No tests rerun, verdict upgraded, or served/P41 residual discharged."
+    },
+    "current_r14_ncm_partial_horizon_2026_09_30": {
+      "identity": "R14/B26 static-NCM observed interaction under incomplete requested horizon",
+      "source_commit": "ebc00a015dc6f2fb8ad0ae948403274405bfe7e9",
+      "historical_file_outcomes": {
+        "test_joint_simulation_horizon.py": "The exact real-NCM selector passes at Execution, E02 head, Main, and prior integration. Whole-file results: 24/24, 23/24 (one unrelated failure), 24/24, and 26/26 respectively.",
+        "test_sim_03.py": "Execution and Main exact paths are Git-MISSING; E02 head 14/14; prior integration cd9e935e5 21/21."
+      },
+      "historical_inventory_receipt": "/Users/deniskopylov/.codex/scratch/e02-r14-p41-inventory-20260930/R14_P41_INVENTORY.md@sha256:43f36ac1659f52b775f0bb932929878dc466e29d8acba48d2f2eb3f3163b3be1",
+      "status_retained": "partial",
+      "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L517-L530",
+      "source_blob": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py@git-blob:b6f1341396d492fbce04b1ac39ac4cae81f65de6",
+      "test_blobs": [
+        "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py@git-blob:9504676c5501e8a8e8909fac04c5b567c918b5ba",
+        "policy-engine/tests/unit/remediation/test_sim_03.py@git-blob:37e14aaa0b02e2e88089b2c45f2ecbaba48dadf3"
+      ],
+      "run_worktree_limit": "Unrelated provisional R13 snapshot source/test edits were present during the initial focused and combined runs; B26 source/test blobs matched source_commit. Those runs are not clean whole-tree evidence. The broker later reran both complete files on a clean ebc00a015 worktree, recorded separately below.",
+      "focused_tests": {
+        "worktree_scope": "Initial focused run; unrelated provisional R13 snapshot source/test edits were present, while the B26 source/test blobs matched ebc. Clean full-file JUnits below include the same selectors.",
+        "result": "3/3 PASS, exit 0",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-ncm-interaction-design-20260930/r14-focused-canonical.junit.xml@sha256:91615ef66545a8fe1c8cc7ddb9ebc371ee3d5065ba658a041b4d2a395061791d",
+        "identities": [
+          "test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt",
+          "test_static_ncm_multi_step_horizon_is_limited_not_additive",
+          "test_static_ncm_single_step_horizon_remains_additive"
+        ]
+      },
+      "initial_combined_whole_files_dirty_run": {
+        "denominator": "2 whole files; 49 tests total (28 + 21)",
+        "result": "49/49 PASS, exit 0; unrelated provisional R13 snapshot edits were present; superseded by clean exact-head runs.",
+        "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-ncm-interaction-design-20260930/r14-whole-files-canonical.junit.xml@sha256:82504830636c0ebc73b0f05bb6edc1afaed0b0e9b47f7409531d7769d4988d62"
+      },
+      "clean_exact_ebc_whole_files": {
+        "denominator": "2 whole files; 49 tests total (28 + 21)",
+        "result": "49/49 PASS, exit 0; zero failure/error/skip on clean ebc00a015.",
+        "junit_paths_at_sha": [
+          "/Users/deniskopylov/.codex/scratch/e02-r14-exact-ebc-p41-20260930/cells/integration_head/test_joint_simulation_horizon.junit.xml@sha256:857f7e78c019849382501dbcf4c483f97feeb0229d8e8dfdec7b6cbd5537e504",
+          "/Users/deniskopylov/.codex/scratch/e02-r14-exact-ebc-p41-20260930/cells/integration_head/test_sim_03.junit.xml@sha256:725b7bd82e66204c64ac94953bb429979a7df116b2f3fd75e07ed99caff3d9b9"
+        ]
+      },
+      "marker_retaining_removal": {
+        "instrument_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-ncm-interaction-design-20260930/R14_NCM_INTERACTION_MARKER_REMOVAL_PROBE.py@sha256:c96b8012d2928f1b0e358a9553d587b583a0c9a42972508553e9ef03a5e20ae3",
+        "mutant_result": "Expected red, exit 1: step-0 interaction disappears while selected NCM decision, trajectories, receipt, and incomplete-horizon markers remain.",
+        "mutant_log_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-ncm-interaction-design-20260930/r14-removal-mutant.log@sha256:faa2d5796b78faa92079ced2f5d9b91c5ee03fa66eff09ec6190468c5343228d",
+        "preserving_control_result": "exit 0; PRESERVING_CONTROL=PASS",
+        "preserving_control_log_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-ncm-interaction-design-20260930/r14-preserving-control.log@sha256:cc979f6025c787f7828eb78f0986e8db201cd0398b2095ec4c13baf38976adc5"
+      },
+      "executed_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-ncm-interaction-design-20260930/R14_EXECUTED_RECEIPT.md@sha256:b201e6e8ed980ea5eef62753cade613d2972d3dc39f11a6c05070e9e55ac495a",
+      "independent_review": "GO bounded to N5; reviewer response is in the task-agent message and no separate review artifact was issued.",
+      "environment_limit": "One test process group. Exact ebc JUnit environment had LANG=en_US.UTF-8 and LC_ALL unset while the historical harness uses LANG=C.UTF-8 and LC_ALL=C.UTF-8; exact environment equality is not established. Exact-cell RSS and swap growth were not measured.",
+      "four_base_cell_inventory": {
+        "denominator": "2 files × 4 refs = 8 cells",
+        "test_joint_simulation_horizon.py": "4/4 paths present; 0 MISSING; 0 UNRUN; one current clean ebc cell newly executed.",
+        "test_sim_03.py": "2/4 present; 2 Git-MISSING; 0 UNRUN; one current clean ebc cell newly executed.",
+        "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-exact-ebc-p41-20260930/R14_EBC_CELLS.json@sha256:80730562dc051a9dc9d9bc61f6396c898f6ef7299e0875822d799671c82b4c33",
+        "comparison_result": "The broker compared per-test identities; zero common passed-to-failed outcomes. Joint E02 has 23 pass-to-pass plus one fail-to-pass and four ebc-only passes; SIM-03 E02 has 14 pass-to-pass plus seven ebc-only passes. Prior integration SIM-03 identities remain 21/21 passing.",
+        "comparison_receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-p41-inventory-20260930/R14_P41_INVENTORY.md@sha256:43f36ac1659f52b775f0bb932929878dc466e29d8acba48d2f2eb3f3163b3be1"
+      },
+      "p41_four_base": "Clean exact-ebc whole-file cells pass 28/28 and 21/21, with zero common pass-to-fail outcomes in historical identity comparisons. The complete 344-file / 1,376-cell touched-test matrix remains outstanding.",
+      "remaining_residual": "N8 does not expose the incomplete-interaction blocker and observed-step/requested-horizon details through a typed external consumer. The N8/served projection follow-up is in flight. Keep B26 partial; no candidate K_sim evidence grants world grounding, S8, promotion, or publication authority."
     }
     },
     {

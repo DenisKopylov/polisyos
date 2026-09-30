@@ -1,5 +1,35 @@
 # Four-base P41 test baselines
 
+## B61 four-base replay at cb4c6b82e (2026-10-01)
+
+### Discrepancies and result
+
+The fixed denominator is **13 named whole test files × 4 pinned revisions = 52 cells**. The harness recorded **49 present whole-file PASS cells** and **3 verified MISSING cells encoded as UNRUN**; these are the same three cells, not an additional three UNRUN jobs. Exit code **2** is the harness result for verified missing paths. Among executed cells there were **393 passing cases, 0 failures, 0 errors, 0 skips**: `78187878e` 89/89, `00d946c2b` 94/94, `5fd3ebcc1` 89/89, current integration `cb4c6b82ec55` 121/121.
+
+The only absent historical test is `policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py`; `git cat-file -e <revision>:<path>` returned 128 at each of `78187878e`, `00d946c2b`, and `5fd3ebcc1`. Those cells had no pytest command and no JUnit. The file exists at current integration and passes 17/17. Thus these three cells are **not inherited failures** and have no historical outcome to compare.
+
+### Identity comparison against current integration
+
+Comparison uses exact JUnit testcase keys. `Common` counts the identities present and passing at both endpoints. `Current-only / earlier-only` counts changed identities in common file paths; current-only whole-file cases are separate. Each pair has **0 pass→fail** among shared identities.
+
+| Baseline → current | Common passing identities | Current-only / earlier-only identities in common files | Current-only whole files/cases | Pass→fail |
+|---|---:|---:|---:|---:|
+| `78187878e` → `cb4c6b82ec55` | 88 | 16 / 1 | 1 / 17 | 0 |
+| `00d946c2b` → `cb4c6b82ec55` | 94 | 10 / 0 | 1 / 17 | 0 |
+| `5fd3ebcc1` → `cb4c6b82ec55` | 88 | 16 / 1 | 1 / 17 | 0 |
+
+All six pairwise endpoint comparisons, including execution-base↔E02 and E02↔main, have 0 changed outcomes for shared exact testcase keys. The complete pairwise per-case set-change enumeration and exact **four-column, 13-file whole-suite table** are already in the owner-rendered raw matrix below; this supplement does not duplicate them.
+
+### Receipts and execution context
+
+- Machine results: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260930T221819Z-30338/results.json` — SHA-256 `1156fd7cc57bb7e9b16384a259b10d18b298cf248d75b51ae29aa9127b83b12c`.
+- Owner-rendered full matrix, per-file counts, missing-cell identities and per-case diff rows: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260930T221819Z-30338/BASELINES.md` — SHA-256 `3d9d1af733c18f95d6cb9b61975395d22fd87701ca2343a4e190aadc6397669f`.
+- Invocation: `/Users/deniskopylov/.codex/scratch/e02-b61-fourbase-cb4-20260930T221653Z/COMMAND.json` — SHA-256 `4a90088e76547cdda40de22633a9212513906cfc3590904d6336b1e0bca31d25`.
+- Frozen inputs v4: `/Users/deniskopylov/.codex/scratch/e02-b61-cyc05-integrated-1366-20261001/FROZEN_INPUTS.v4.json` — SHA-256 `b1e5740c2713811153d6982950e2e29985fc07fde764a363d24b8f18a3a3158e`. All 13 test-file bytes matched at preflight. The only mismatch was a receipt-only text file committed between the freeze base and matrix head; it was not an executable/test input.
+- Shared Python 3.14 / pytest 9.0.2, checkout-local import origins, numeric thread limits 1, `JAX_PLATFORMS=cpu`, dotenv disabled, read-only production data with manifest SHA-256 `9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`. Observed peak: 1 pytest group, 804240 KiB RSS, 100% CPU; minimum free memory 49%; swap growth 0; minimum scratch free bytes 9236594688. Harness resource verdict PASS.
+- Postflight: `codex/e02-r2` at `cb4c6b82ec55f131caa5604125fd04502f264a05`, clean; no canonical source/test changes occurred during the matrix.
+- Root independently checked all 49 JUnit hashes and testcase outcomes, the three Git-absent paths and all six endpoint comparisons: `/Users/deniskopylov/.codex/scratch/E02R2_B61_P41_ROOT_RECONCILIATION_20261001.json@sha256:9d1fa728a15c1bc39af1ce0063649100968d64ad41b5839a47098f57d8a99c7f`.
+
 ## R14/B26 static-NCM partial-horizon interaction at `ebc00a015` (2026-09-30)
 
 **Discrepancy first.** The regression is a B26/SIM-03 horizon-completeness defect found during R14 integration, not an original E02 Appendix-A failure. The exact real-NCM selector passed at the four historical refs. The complete `test_joint_simulation_horizon.py` outcomes were 24/24 at Execution, 23/24 at E02 head (one unrelated failure), 24/24 at Main, and 26/26 at prior integration `2a6501ecd`; separately, the exact `test_sim_03.py` path was Git-MISSING at Execution and Main, and passed 14/14 at E02 head and 21/21 at integration `cd9e935e5`. The selector then failed on clean pre-repair integration `bedc23d74` at `interaction_terms[0]`. The three focused selectors and an initial combined 49-case run passed in the canonical worktree while unrelated provisional R13 snapshot source/test edits were present; the N5 source and both B26 test blobs matched `ebc00a015`. The broker then reran both complete files on the clean `ebc00a015` tree: `test_joint_simulation_horizon.py` passed 28/28 and `test_sim_03.py` passed 21/21. Those clean JUnits below are the current integration-head cells; the earlier dirty-tree runs and probe receipts are retained with their scope stated. The current two-file denominator is 8 cells: `test_joint_simulation_horizon.py` has 4/4 paths present with 0 MISSING/UNRUN (one newly run clean ebc cell), while `test_sim_03.py` has 2/4 present, 2 Git-MISSING, 0 UNRUN (one newly run clean ebc cell). Inventory: `/Users/deniskopylov/.codex/scratch/e02-r14-exact-ebc-p41-20260930/R14_EBC_CELLS.json@sha256:80730562dc051a9dc9d9bc61f6396c898f6ef7299e0875822d799671c82b4c33`. The broker parsed per-test identities and found zero common `passed -> failed` outcomes across the historical-to-ebc comparisons; the lone E02-head joint-file failure is `failed -> passed`, and SIM-03 has 14 shared passes plus seven added ebc passes. Exact paths, outcomes, and Git-MISSING cells are in `/Users/deniskopylov/.codex/scratch/e02-r14-p41-inventory-20260930/R14_P41_INVENTORY.md@sha256:43f36ac1659f52b775f0bb932929878dc466e29d8acba48d2f2eb3f3163b3be1`. This does not complete the wider 344-file / 1,376-cell touched-test matrix. The clean ebc runs used one process group and left 11,411,868 KiB free, above the 8-GiB floor; exact-cell RSS and swap growth were not measured. The manual launch locale differed from the historical harness (`LANG=en_US.UTF-8`, `LC_ALL` unset versus C/C.UTF-8), so exact environment equality is not established.

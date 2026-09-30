@@ -144,6 +144,20 @@ def _record_bytes(root: Path, path: Path, bindings: dict[str, str]) -> bytes:
     return raw
 
 
+def _record_member_bytes(
+    root: Path,
+    relative: str,
+    raw: bytes,
+    bindings: dict[str, str],
+) -> bytes:
+    _confined(root, relative)
+    identity = _sha256(raw)
+    if relative in bindings and bindings[relative] != identity:
+        raise ValueError("non_data_projection_source_changed_during_read")
+    bindings[relative] = identity
+    return raw
+
+
 class _ProjectionCAS(artifacts.FileSystemCAS):
     """Use the canonical CAS while recording each consulted byte dependency."""
 
@@ -165,10 +179,18 @@ class _ProjectionCAS(artifacts.FileSystemCAS):
     def _record(self, artifact_id: artifacts.ArtifactID | str, index: int) -> None:
         try:
             identity = artifacts.ArtifactID.model_validate(artifact_id)
-            path = self.get_paths(identity)[index]
-            # A symlink within the governed root must not escape this CAS either.
-            path.resolve().relative_to(self.root.resolve())
-            _record_bytes(self.governed_root, path, self.bindings)
+            member = "blob" if index == 0 else "manifest"
+            relative = self._member_name(identity, member, None)
+            with self.open_member(identity, member) as stream:
+                chunks: list[bytes] = []
+                while chunk := stream.read(1024 * 1024):
+                    chunks.append(chunk)
+            _record_member_bytes(
+                self.governed_root,
+                relative,
+                b"".join(chunks),
+                self.bindings,
+            )
         except (OSError, ValueError):
             self.unresolved_dependency = True
             raise

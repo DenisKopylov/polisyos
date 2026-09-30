@@ -351,7 +351,8 @@ def _build_cas_payload(
         for ref in [*exit_payload_refs, duplicate_a, unreferenced]
     ]
     tampered_ref = report_ids[0]
-    blob_path, manifest_path = store.get_paths(tampered_ref)
+    # The isolated fixture deliberately bypasses the owner API to prove detection of raw tamper.
+    blob_path, manifest_path = store._paths(tampered_ref)
     original = blob_path.read_bytes()
     blob_path.write_bytes(original + b"\nmutation")
     tamper_report = verify_filesystem_artifact(

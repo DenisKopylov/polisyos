@@ -918,7 +918,7 @@ def test_corrupt_existing_evidence_bytes_fail_closed_at_gateway(
         observations=(True, True),
         threshold=1.0,
     )
-    blob_path, _manifest_path = store.get_paths(evidence_ref.artifact_id)
+    blob_path, _manifest_path = store._paths(evidence_ref.artifact_id)
     blob_path.write_bytes(b'{"schema_version":"1.0","corrupt":true}')
     _assert_gateway_blocked(
         expected_code="empirical_evidence_ref_integrity_mismatch",

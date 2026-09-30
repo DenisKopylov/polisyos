@@ -195,9 +195,6 @@ class TenantScopedCAS:
     def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
         return self._cas.get_manifest(artifact_id)
 
-    def get_paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
-        return cast("tuple[Path, Path]", cast("Any", self._cas).get_paths(artifact_id))
-
     def iter_artifact_ids(self) -> list[ArtifactID]:
         return cast("list[ArtifactID]", self._cas.iter_artifact_ids())
 

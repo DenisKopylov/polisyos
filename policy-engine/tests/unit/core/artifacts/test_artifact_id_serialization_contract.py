@@ -132,15 +132,11 @@ def test_view_only_tenant_never_reads_foreign_default_manifest(tmp_path, monkeyp
         direct_read_refused = True
     default_reads_after_get_manifest = tuple(default_reads)
 
-    paths_read_refused = False
-    try:
-        store_b.get_paths(ref_a.artifact_id)
-    except ArtifactOwnershipError:
-        paths_read_refused = True
-    default_reads_after_get_paths = tuple(default_reads)
+    raw_path_api_absent = not hasattr(store_b, "get_paths")
+    default_reads_after_path_api_check = tuple(default_reads)
 
     exact_view_available = store_b.has(ref_b)
-    exact_view_paths = store_b.get_paths(ref_b)
+    exact_view_manifest = store_b.get_manifest(ref_b)
 
     owner_reads = []
     original_owner_read = store_a._manifests.read
@@ -159,11 +155,11 @@ def test_view_only_tenant_never_reads_foreign_default_manifest(tmp_path, monkeyp
     assert default_reads_after_has == ()
     assert direct_read_refused is True
     assert default_reads_after_get_manifest == ()
-    assert paths_read_refused is True
-    assert default_reads_after_get_paths == ()
+    assert raw_path_api_absent is True
+    assert default_reads_after_path_api_check == ()
     assert exact_view_available is True
     assert selected_reads
-    assert exact_view_paths[1] == selected_path
+    assert exact_view_manifest.kind == view_opts.kind
     assert repeated_default_ref.manifest_profile_sha256 is None
     assert owner_reads
     assert default_path.read_bytes() == default_bytes_before
@@ -297,8 +293,7 @@ def test_ambient_cas_unscoped_claim_check_covers_read_metadata_enumeration_and_p
         store.get_manifest_bytes(view_ref)
     with pytest.raises(ArtifactOwnershipError):
         store.get_signature(view_ref)
-    with pytest.raises(ArtifactOwnershipError):
-        store.get_paths(view_ref)
+    assert not hasattr(store, "get_paths")
     assert store.has(default_ref.artifact_id) is False
     assert store.has_manifest_view(
         view_ref.artifact_id,

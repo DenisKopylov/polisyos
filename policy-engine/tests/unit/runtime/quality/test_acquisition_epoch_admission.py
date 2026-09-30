@@ -183,7 +183,7 @@ def test_cli_rejects_corrupt_persisted_receipt(admission_request, capsys, monkey
 
     def corrupt_after_production(**kwargs):
         receipt = original(**kwargs)
-        blob_path, _ = store.get_paths(receipt.receipt_ref.artifact_id)
+        blob_path, _ = store._paths(receipt.receipt_ref.artifact_id)
         blob_path.write_bytes(b"present-but-fake")
         return receipt
 

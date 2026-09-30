@@ -4447,7 +4447,7 @@ def test_canonical_store_blob_manifest_or_signature_corruption_fails_before_pars
 
     monkeypatch.setattr(authority_module, "load_strict_foundry_statement", parsing_spy)
     record_id = authority_module._strict_artifact_id(clean_binding.statement.record_ref)
-    blob_path, manifest_path = fixture.store.get_paths(record_id)
+    blob_path, manifest_path = fixture.store._paths(record_id)
     blob_raw = blob_path.read_bytes()
     manifest_raw = manifest_path.read_bytes()
     try:

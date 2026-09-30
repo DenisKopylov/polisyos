@@ -9,14 +9,15 @@ import re
 import shutil
 import tarfile
 import tempfile
+from contextlib import suppress
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path, PurePosixPath
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, BinaryIO, Protocol
 
 from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
 
-from ._integrity_ops import ArtifactIntegrityError, validate_read_integrity
+from ._integrity_ops import ArtifactIntegrityError, validate_manifest_identity
 from ._manifest_lifecycle import ManifestLifecycle
 from .ids import ArtifactID
 from .manifest import ArtifactManifest, ArtifactRef, artifact_reference_parts
@@ -29,6 +30,7 @@ from .signing import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
+    from contextlib import AbstractContextManager
 
 _CAS_EXPORT_MEMBER_RE = re.compile(
     r"^artifacts/sha256/[0-9a-f]{2}/[0-9a-f]{2}/[0-9a-f]{64}"
@@ -45,6 +47,23 @@ class IntegrityVerificationReport(Protocol):
     """Minimal integrity report protocol used by import verification helpers."""
 
     ok: bool
+
+
+class CASMemberReceipt(Protocol):
+    """Verified digest and size for one owner-streamed CAS member."""
+
+    member: str
+    sha256: str
+    byte_size: int
+
+
+class CASMemberStream(Protocol):
+    """Bounded read surface for one CAS member while its owner lease is held."""
+
+    size: int
+    receipt: CASMemberReceipt
+
+    def read(self, size: int = -1) -> bytes: ...
 
 
 @dataclass(frozen=True)
@@ -73,8 +92,13 @@ class ImportReport:
 
 def _member_digest(path: Path) -> tuple[str, int]:
     """Return the content binding for one exported member."""
-    data = path.read_bytes()
-    return hashlib.sha256(data).hexdigest(), len(data)
+    digest = hashlib.sha256()
+    byte_size = 0
+    with path.open("rb") as stream:
+        while chunk := stream.read(1024 * 1024):
+            digest.update(chunk)
+            byte_size += len(chunk)
+    return digest.hexdigest(), byte_size
 
 
 def _inventory_payload(
@@ -272,7 +296,7 @@ def _stage_member(
     *,
     staging_root: Path,
     safe_path: PurePosixPath,
-    data: bytes,
+    data: BinaryIO,
     allowed_members: set[str] | None,
     bindings: dict[str, tuple[str, int]],
     binding_failures: set[str],
@@ -288,16 +312,30 @@ def _stage_member(
     if allowed_members is not None and member not in allowed_members:
         return
 
-    actual_sha, actual_size = hashlib.sha256(data).hexdigest(), len(data)
+    destination = staging_root / Path(*safe_path.parts)
+    _reject_symlink_components(destination, staging_root, member=member)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    _reject_symlink_components(destination, staging_root, member=member)
+    descriptor = os.open(
+        destination,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+        0o600,
+    )
+    digest = hashlib.sha256()
+    actual_size = 0
+    with os.fdopen(descriptor, "wb") as sink:
+        while chunk := data.read(1024 * 1024):
+            sink.write(chunk)
+            digest.update(chunk)
+            actual_size += len(chunk)
+        sink.flush()
+        os.fsync(sink.fileno())
+    actual_sha = digest.hexdigest()
     expected_binding = bindings.get(member)
     if expected_binding is not None and expected_binding != (actual_sha, actual_size):
         artifact_id = artifact_id_from_member(member)
         if artifact_id is not None:
             binding_failures.add(str(artifact_id))
-
-    destination = staging_root / Path(*safe_path.parts)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_bytes(data)
     total_bytes[0] += actual_size
     artifact_id = artifact_id_from_member(member)
     if artifact_id is not None:
@@ -363,13 +401,19 @@ def _validate_staged_manifest_views(
     )
     if not blob_path.is_file() or blob_path.is_symlink():
         raise ArtifactIntegrityError(f"Transfer is missing the immutable blob for {artifact_id}")
-    blob_bytes = blob_path.read_bytes()
+    blob_sha, blob_size = _member_digest(blob_path)
+    if blob_sha != artifact_id.hex:
+        raise ArtifactIntegrityError(f"Transfer blob hash mismatch for {artifact_id}")
     for member in manifest_members:
         manifest_path = staging_root / Path(*PurePosixPath(member).parts)
         if not manifest_path.is_file() or manifest_path.is_symlink():
             raise ArtifactIntegrityError(f"Transfer is missing manifest view {member}")
         manifest = ArtifactManifest.model_validate_json(manifest_path.read_bytes())
-        validate_read_integrity(artifact_id, blob_bytes, manifest)
+        validate_manifest_identity(artifact_id, manifest)
+        if manifest.byte_size != blob_size:
+            raise ArtifactIntegrityError(
+                f"Transfer manifest byte size mismatch for {artifact_id}"
+            )
         profile_sha256 = member_profile_sha256(member)
         if profile_sha256 is not None and ManifestLifecycle.profile_sha256(manifest) != (
             profile_sha256
@@ -412,7 +456,7 @@ def _validate_staged_signatures(
                 raise ValueError("signature blob binding target is missing")
             if not manifest_path.is_file() or manifest_path.is_symlink():
                 raise ValueError("signature manifest binding target is missing")
-            blob_sha = hashlib.sha256(blob_path.read_bytes()).hexdigest()
+            blob_sha, _blob_size = _member_digest(blob_path)
             manifest_sha = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
             if signature.statement.blob_sha256 != blob_sha:
                 raise ValueError("signature blob_sha256 does not match staged blob")
@@ -424,15 +468,16 @@ def _validate_staged_signatures(
 
 def export_subgraph(
     *,
-    root: Path,
-    get_paths: Callable[[ArtifactID | ArtifactRef], tuple[Path, Path]],
-    get_sig_path: Callable[[ArtifactID | ArtifactRef], Path],
+    open_member: Callable[
+        [ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]
+    ],
+    member_name: Callable[[ArtifactID | ArtifactRef, str], str],
     artifact_ids: Iterable[ArtifactID | ArtifactRef | str],
     target: Path,
     compress: bool = True,
     include_manifests: bool = True,
 ) -> ExportReport:
-    """Export a CAS subgraph to a tarball or directory using the stable ABI."""
+    """Export selected CAS members through their owner-held streaming reads."""
     missing_artifacts: list[str] = []
     missing_manifests: list[str] = []
     total_bytes = 0
@@ -452,14 +497,43 @@ def export_subgraph(
     exported_views: set[tuple[str, str]] = set()
     added_members: set[str] = set()
 
-    def add_archive_member(tar: tarfile.TarFile, path: Path, member: str) -> int:
-        if member in added_members:
+    def add_archive_member(
+        tar: tarfile.TarFile,
+        request: ArtifactID | ArtifactRef,
+        kind: str,
+    ) -> int:
+        name = member_name(request, kind)
+        if name in added_members:
             return 0
-        tar.add(path, arcname=member, recursive=False)
-        member_binding = _member_digest(path)
-        member_bindings[member] = member_binding
-        added_members.add(member)
-        return member_binding[1]
+        with open_member(request, kind) as stream:
+            info = tarfile.TarInfo(name=name)
+            info.size = stream.size
+            info.mtime = 0
+            tar.addfile(info, stream)
+        receipt = stream.receipt
+        member_bindings[name] = (receipt.sha256.removeprefix("sha256:"), receipt.byte_size)
+        added_members.add(name)
+        return receipt.byte_size
+
+    def copy_directory_member(
+        staging_root: Path,
+        request: ArtifactID | ArtifactRef,
+        kind: str,
+    ) -> int:
+        name = member_name(request, kind)
+        if name in added_members:
+            return 0
+        destination = staging_root / Path(*PurePosixPath(name).parts)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with open_member(request, kind) as stream, destination.open("wb") as sink:
+            while payload := stream.read(1024 * 1024):
+                sink.write(payload)
+            sink.flush()
+            os.fsync(sink.fileno())
+        receipt = stream.receipt
+        member_bindings[name] = (receipt.sha256.removeprefix("sha256:"), receipt.byte_size)
+        added_members.add(name)
+        return receipt.byte_size
 
     if compress:
         archive_path = normalize_archive_path(target)
@@ -467,25 +541,21 @@ def export_subgraph(
         with tarfile.open(archive_path, "w:gz", format=tarfile.PAX_FORMAT) as tar:
             for request in requests:
                 artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
-                blob_path, manifest_path = get_paths(request)
-                if not blob_path.exists():
+                try:
+                    total_bytes += add_archive_member(tar, request, "blob")
+                except FileNotFoundError:
                     missing_artifacts.append(str(artifact_id))
                     continue
-                arc_blob = str(blob_path.relative_to(root))
-                total_bytes += add_archive_member(tar, blob_path, arc_blob)
 
                 manifest_available = False
                 if include_manifests:
-                    if not manifest_path.exists():
-                        missing_manifests.append(str(artifact_id))
-                    else:
-                        arc_manifest = str(manifest_path.relative_to(root))
-                        total_bytes += add_archive_member(tar, manifest_path, arc_manifest)
+                    try:
+                        total_bytes += add_archive_member(tar, request, "manifest")
                         manifest_available = True
-                sig_path = get_sig_path(request)
-                if sig_path.exists():
-                    arc_sig = str(sig_path.relative_to(root))
-                    total_bytes += add_archive_member(tar, sig_path, arc_sig)
+                    except FileNotFoundError:
+                        missing_manifests.append(str(artifact_id))
+                with suppress(FileNotFoundError):
+                    total_bytes += add_archive_member(tar, request, "signature")
                 exported_ids.add(str(artifact_id))
                 if manifest_available:
                     exported_views.add((str(artifact_id), profile_sha256 or "default"))
@@ -513,43 +583,21 @@ def export_subgraph(
         try:
             for request in requests:
                 artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
-                blob_path, manifest_path = get_paths(request)
-                if not blob_path.exists():
+                try:
+                    total_bytes += copy_directory_member(staging_root, request, "blob")
+                except FileNotFoundError:
                     missing_artifacts.append(str(artifact_id))
                     continue
-                arc_blob = str(blob_path.relative_to(root))
-                if arc_blob not in added_members:
-                    dst_blob = staging_root / blob_path.relative_to(root)
-                    dst_blob.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(blob_path, dst_blob)
-                    member_bindings[arc_blob] = _member_digest(dst_blob)
-                    total_bytes += member_bindings[arc_blob][1]
-                    added_members.add(arc_blob)
 
                 manifest_available = False
                 if include_manifests:
-                    if not manifest_path.exists():
-                        missing_manifests.append(str(artifact_id))
-                    else:
-                        arc_manifest = str(manifest_path.relative_to(root))
-                        if arc_manifest not in added_members:
-                            dst_manifest = staging_root / manifest_path.relative_to(root)
-                            dst_manifest.parent.mkdir(parents=True, exist_ok=True)
-                            shutil.copy2(manifest_path, dst_manifest)
-                            member_bindings[arc_manifest] = _member_digest(dst_manifest)
-                            total_bytes += member_bindings[arc_manifest][1]
-                            added_members.add(arc_manifest)
+                    try:
+                        total_bytes += copy_directory_member(staging_root, request, "manifest")
                         manifest_available = True
-                sig_path = get_sig_path(request)
-                if sig_path.exists():
-                    arc_sig = str(sig_path.relative_to(root))
-                    if arc_sig not in added_members:
-                        dst_sig = staging_root / sig_path.relative_to(root)
-                        dst_sig.parent.mkdir(parents=True, exist_ok=True)
-                        shutil.copy2(sig_path, dst_sig)
-                        member_bindings[arc_sig] = _member_digest(dst_sig)
-                        total_bytes += member_bindings[arc_sig][1]
-                        added_members.add(arc_sig)
+                    except FileNotFoundError:
+                        missing_manifests.append(str(artifact_id))
+                with suppress(FileNotFoundError):
+                    total_bytes += copy_directory_member(staging_root, request, "signature")
                 exported_ids.add(str(artifact_id))
                 if manifest_available:
                     exported_views.add((str(artifact_id), profile_sha256 or "default"))
@@ -583,7 +631,6 @@ def export_subgraph(
         missing_artifacts=missing_artifacts,
         missing_manifests=missing_manifests,
     )
-
 
 def import_subgraph(
     *,
@@ -654,21 +701,22 @@ def import_subgraph(
                 if safe_path == PurePosixPath("export_manifest.json"):
                     continue
                 member = safe_path.as_posix()
+                _reject_symlink_components(path, source, member=member)
                 if allowed_members is not None and member not in allowed_members:
                     skipped_entries.append(member)
                     continue
-                data = path.read_bytes()
-                _stage_member(
-                    staging_root=staging_root,
-                    safe_path=safe_path,
-                    data=data,
-                    allowed_members=allowed_members,
-                    bindings=bindings,
-                    binding_failures=binding_failures,
-                    seen_members=seen_members,
-                    imported_artifacts=imported_artifacts,
-                    total_bytes=total_bytes,
-                )
+                with path.open("rb") as stream:
+                    _stage_member(
+                        staging_root=staging_root,
+                        safe_path=safe_path,
+                        data=stream,
+                        allowed_members=allowed_members,
+                        bindings=bindings,
+                        binding_failures=binding_failures,
+                        seen_members=seen_members,
+                        imported_artifacts=imported_artifacts,
+                        total_bytes=total_bytes,
+                    )
                 staged_members.add(member)
         else:
             with tarfile.open(source, "r:*") as tar:
@@ -691,18 +739,17 @@ def import_subgraph(
                         skipped_entries.append(member.name)
                         continue
                     with extracted:
-                        data = extracted.read()
-                    _stage_member(
-                        staging_root=staging_root,
-                        safe_path=safe_path,
-                        data=data,
-                        allowed_members=allowed_members,
-                        bindings=bindings,
-                        binding_failures=binding_failures,
-                        seen_members=seen_members,
-                        imported_artifacts=imported_artifacts,
-                        total_bytes=total_bytes,
-                    )
+                        _stage_member(
+                            staging_root=staging_root,
+                            safe_path=safe_path,
+                            data=extracted,
+                            allowed_members=allowed_members,
+                            bindings=bindings,
+                            binding_failures=binding_failures,
+                            seen_members=seen_members,
+                            imported_artifacts=imported_artifacts,
+                            total_bytes=total_bytes,
+                        )
                     staged_members.add(member_name)
 
         if allowed_members is not None:

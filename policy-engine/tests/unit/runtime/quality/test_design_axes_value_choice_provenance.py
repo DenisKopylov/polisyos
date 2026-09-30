@@ -958,7 +958,7 @@ def test_schedule_bytes_remain_bound_after_a_valid_signature(tmp_path: Path) -> 
         store.get_bytes(harness["kwargs"]["authorization_ref"])
     )
     ref = artifacts.ArtifactID.model_validate(authorization["source_schedule_ref"])
-    blob_path, _ = store.get_paths(ref)
+    blob_path, _ = store._paths(ref)
     blob_path.write_bytes(blob_path.read_bytes().replace(b'"approved"', b'"rejected"'))
     result, _ = harness["owner"].recommend(**harness["kwargs"])
     assert result.ranked_recommendations == ()

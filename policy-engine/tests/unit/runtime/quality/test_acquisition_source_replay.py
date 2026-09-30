@@ -143,7 +143,7 @@ def test_same_replayer_and_request_cannot_reuse_old_seal_after_input_drift(captu
         ref = artifacts.ArtifactRef.model_validate(
             artifact.payload["owner_response"]["resolution_ref"]
         )
-        blob, _ = owner._store.get_paths(ref.artifact_id)
+        blob, _ = owner._store._paths(ref.artifact_id)
         blob.write_bytes(b"{}")
     _assert_unverified_refusal(_replay(gap, problem, world, artifact, owner))
 

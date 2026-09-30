@@ -71,7 +71,7 @@ def test_resolve_dependency_graph_reports_corruption(store: FileSystemCAS) -> No
         kind="test.root",
         inputs=[InputRef(artifact_id=child.artifact_id, role="child")],
     )
-    blob_path, _ = store.get_paths(child.artifact_id)
+    blob_path, _ = store._paths(child.artifact_id)
     blob_path.write_bytes(b"corrupted")
 
     graph = resolve_dependency_graph(store, root.artifact_id)

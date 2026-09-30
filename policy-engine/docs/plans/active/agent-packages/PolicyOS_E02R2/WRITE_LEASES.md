@@ -1794,3 +1794,29 @@ no R2 code lease is opened from that red. The compute budget remains at most
 four or five resource-bearing processes, with numerical/native jobs serialized
 when they contend. The agreed disk floor is 8 GiB; no active job copies
 `production_data` or creates a fresh environment.
+
+## R2 source-census reachability lease after `6722e2a30` (2026-09-30)
+
+The R14 N8 source slice was committed as `226884f53`, followed by the R13
+selected-view handoff at `b4c3de789`. The later R13 NL selector-loss review
+declared a bounded class residual and made no source edit; its candidate lease
+on `runtime/quality/generation_cycle.py` is released. No other active writer
+owns that file. The R2 census writer has exclusive scratch-candidate access to
+`policy-engine/src/polisyos/runtime/quality/generation_cycle.py` and
+`policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py`.
+The writer must request a lease amendment before editing another path. Root
+remains the sole writer to `codex/e02-r2`.
+
+The scoped property is that no production N6 entry can reach
+`WorkspaceLoop.run_fixture`, including through an allowed fixture helper.
+Extend the existing source/build-time census through its owner rather than
+restoring per-run source hashing. A marker-retaining production-to-helper
+mutation must make the three-valued gate fail or return `UNRUN`; an isolated
+fixture-only helper stays allowed, and ordinary candidate computation must not
+require a live source checkout. The census must declare its complete input
+denominator and unresolved dynamic dispatch. The installed-package issuer,
+canonical deployment identity and historical replay are separate R2 residuals;
+this lease cannot claim them closed. The touched test file's four-base
+whole-file replay remains required for closure; resource-limited cells are
+recorded as `UNRUN`, not inferred green. Independent review precedes root
+integration, and no source or test tree is edited during a running test.

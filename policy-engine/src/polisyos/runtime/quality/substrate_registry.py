@@ -1247,8 +1247,11 @@ def load_substrate_registry(
     """Load a persisted registry, optionally checking its direct lineage."""
 
     artifacts = core.artifacts
-    artifact_id = ref.artifact_id if isinstance(ref, artifacts.ArtifactRef) else ref
-    manifest = store.get_manifest(artifact_id)
+    if isinstance(ref, artifacts.ArtifactRef | artifacts.ArtifactID):
+        read_ref = ref
+    else:
+        read_ref = ArtifactID.model_validate(ref)
+    manifest = store.get_manifest(read_ref)
     if isinstance(ref, artifacts.ArtifactRef) and ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND:
         raise SubstrateRegistryError("substrate_registry_ref_kind_invalid")
     if (
@@ -1271,7 +1274,7 @@ def load_substrate_registry(
         )
         if actual_inputs != expected:
             raise SubstrateRegistryError("substrate_registry_manifest_inputs_mismatch")
-    payload = core.canon.from_canonical_bytes(store.get_bytes(artifact_id))
+    payload = core.canon.from_canonical_bytes(store.get_bytes(read_ref))
     return SubstrateRegistry.model_validate(payload)
 
 

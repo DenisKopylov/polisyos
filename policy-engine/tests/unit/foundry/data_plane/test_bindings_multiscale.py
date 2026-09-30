@@ -6,11 +6,17 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts.manifest import (
+    InputRef,
+    SchemaInfo,
+    WarningRecord,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import FoundryInputBindingRule
+from polisyos.core.contracts.foundry import FoundryInputBindingRule, StateSnapshot
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
@@ -422,6 +428,172 @@ def test_build_input_bindings_materializes_multiscale_state(tmp_path) -> None:
     }.issubset(set(result.applied_binding_ids))
 
 
+def test_build_input_bindings_preserves_selected_inner_state_blob_view(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A v2.2 selected state-blob view is valid inside a default snapshot wrapper."""
+    import polisyos.foundry.data_plane.bindings as bindings_module
+
+    store = FileSystemCAS(tmp_path / "cas")
+    payload_ref = _put_json(
+        store,
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    data_snapshot_ref = _put_json(
+        store,
+        DataSnapshot(data_ref=payload_ref),
+        kind="fabric.data_snapshot",
+    )
+    registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+    original_put_state_snapshot = bindings_module.put_state_snapshot
+    selected_blob_refs = []
+
+    def _put_snapshot_with_selected_inner_blob(*args, **kwargs):
+        default_wrapper_ref = original_put_state_snapshot(*args, **kwargs)
+        wrapper_bytes = store.get_bytes(default_wrapper_ref)
+        snapshot = StateSnapshot.model_validate_json(wrapper_bytes)
+        default_blob_ref = snapshot.state_ref
+        blob_bytes = store.get_bytes(default_blob_ref)
+        selected_blob_ref = store.put_bytes(
+            blob_bytes,
+            PutOptions(
+                kind=default_blob_ref.kind,
+                media_type=default_blob_ref.media_type,
+                inputs=[
+                    InputRef(
+                        artifact_id=data_snapshot_ref.artifact_id,
+                        role="fixture.selected_state_blob_view",
+                    )
+                ],
+            ),
+        )
+        assert selected_blob_ref.manifest_profile_sha256 is not None
+        selected_blob_refs.append(selected_blob_ref)
+        lineage_inputs = list(snapshot.lineage_inputs or [])
+        lineage_inputs[-1] = input_ref_from_artifact_ref(
+            selected_blob_ref,
+            role="state_blob",
+        )
+        selected_snapshot = snapshot.model_copy(
+            update={
+                "state_ref": selected_blob_ref,
+                "lineage_inputs": lineage_inputs,
+            }
+        )
+        return store.put_json(
+            selected_snapshot,
+            PutOptions(
+                kind=default_wrapper_ref.kind,
+                media_type=default_wrapper_ref.media_type,
+                schema=SchemaInfo(
+                    name="polisyos.core.StateSnapshot",
+                    version="2.2.0",
+                ),
+                inputs=lineage_inputs,
+            ),
+        )
+
+    monkeypatch.setattr(
+        bindings_module,
+        "put_state_snapshot",
+        _put_snapshot_with_selected_inner_blob,
+    )
+
+    result = build_input_bindings(
+        store,
+        data_snapshot_ref=data_snapshot_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        rules=None,
+    )
+    persisted_snapshot = StateSnapshot.model_validate_json(
+        store.get_bytes(result.bound_state_snapshot_ref.artifact_id)
+    )
+    state = load_state_snapshot(store, snapshot_ref=result.bound_state_snapshot_ref)
+
+    assert selected_blob_refs
+    assert persisted_snapshot.state_ref.manifest_profile_sha256 is not None
+    assert result.bound_state_snapshot_ref.manifest_profile_sha256 is None
+    assert state.cells is not None
+    assert np.allclose(np.asarray(state.cells.population), np.asarray([1000.0, 850.0, 400.0]))
+
+
+def test_build_input_bindings_preserves_selected_snapshot_wrapper_view(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Candidate bindings retain a selected wrapper for the WMR owner to admit."""
+    import polisyos.foundry.data_plane.bindings as bindings_module
+    from polisyos.foundry.data_plane.bindings import load_input_bindings
+
+    store = FileSystemCAS(tmp_path / "cas")
+    payload_ref = _put_json(
+        store,
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    data_snapshot_ref = _put_json(
+        store,
+        DataSnapshot(data_ref=payload_ref),
+        kind="fabric.data_snapshot",
+    )
+    registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+    original_put_state_snapshot = bindings_module.put_state_snapshot
+    selected_wrapper_refs = []
+
+    def _put_snapshot_with_selected_wrapper(*args, **kwargs):
+        default_wrapper_ref = original_put_state_snapshot(*args, **kwargs)
+        wrapper_bytes = store.get_bytes(default_wrapper_ref)
+        manifest = store.get_manifest(default_wrapper_ref)
+        selected_wrapper_ref = store.put_bytes(
+            wrapper_bytes,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                inputs=manifest.inputs,
+                warnings=[
+                    WarningRecord(
+                        code="fixture.selected_manifest_view",
+                        msg="The wrapper has an alternate typed manifest view.",
+                    )
+                ],
+            ),
+        )
+        assert selected_wrapper_ref.manifest_profile_sha256 is not None
+        selected_wrapper_refs.append(selected_wrapper_ref)
+        return selected_wrapper_ref
+
+    monkeypatch.setattr(
+        bindings_module,
+        "put_state_snapshot",
+        _put_snapshot_with_selected_wrapper,
+    )
+
+    result = build_input_bindings(
+        store,
+        data_snapshot_ref=data_snapshot_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        rules=None,
+    )
+    bindings = load_input_bindings(store, result.input_bindings_ref)
+    state = load_state_snapshot(store, snapshot_ref=result.bound_state_snapshot_ref)
+
+    assert selected_wrapper_refs
+    assert result.bound_state_snapshot_ref.manifest_profile_sha256 == (
+        selected_wrapper_refs[0].manifest_profile_sha256
+    )
+    assert bindings.bound_state_snapshot_ref.manifest_profile_sha256 == (
+        selected_wrapper_refs[0].manifest_profile_sha256
+    )
+    assert store.get_manifest(result.input_bindings_ref).inputs[-1].manifest_profile_sha256 == (
+        selected_wrapper_refs[0].manifest_profile_sha256
+    )
+    assert state.cells is not None
+    assert np.allclose(np.asarray(state.cells.population), np.asarray([1000.0, 850.0, 400.0]))
+
+
 def _put_arrow_payload(store: FileSystemCAS):
     """Persist a real Arrow IPC stream with nested Foundry source paths."""
     pa = pytest.importorskip("pyarrow")
@@ -628,3 +800,85 @@ def test_build_input_bindings_rejects_json_manifest_when_snapshot_ref_claims_arr
                 rules=_arrow_binding_rules(),
             ),
         )
+
+
+def test_build_input_bindings_preserves_selected_data_and_registry_views(
+    tmp_path: Path,
+) -> None:
+    """Data and registry selectors survive binding payload, report, and lineage."""
+    from polisyos.foundry.data_plane.bindings import load_input_bindings
+
+    store = FileSystemCAS(tmp_path / "cas")
+    payload_ref = _put_json(
+        store,
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+        kind="fabric.synthetic_multiscale_payload",
+    )
+    data_snapshot_ref = _put_json(
+        store,
+        DataSnapshot(data_ref=payload_ref),
+        kind="fabric.data_snapshot",
+    )
+    registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+
+    def _selected_view(ref, *, warning_code: str):
+        manifest = store.get_manifest(ref)
+        return store.put_bytes(
+            store.get_bytes(ref),
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                inputs=manifest.inputs,
+                warnings=[
+                    WarningRecord(
+                        code=warning_code,
+                        msg="The fixture selects an alternate manifest profile.",
+                    )
+                ],
+            ),
+        )
+
+    selected_data_snapshot_ref = _selected_view(
+        data_snapshot_ref,
+        warning_code="fixture.selected_data_snapshot_view",
+    )
+    selected_registry_bundle_ref = _selected_view(
+        registry_bundle_ref,
+        warning_code="fixture.selected_registry_bundle_view",
+    )
+    assert selected_data_snapshot_ref.manifest_profile_sha256 is not None
+    assert selected_registry_bundle_ref.manifest_profile_sha256 is not None
+
+    built = build_input_bindings(
+        store,
+        data_snapshot_ref=selected_data_snapshot_ref,
+        registry_bundle_ref=selected_registry_bundle_ref,
+    )
+    persisted = load_input_bindings(store, built.input_bindings_ref)
+    report = json.loads(store.get_bytes(built.input_binding_report_ref))
+
+    assert persisted.data_snapshot_ref.manifest_profile_sha256 == (
+        selected_data_snapshot_ref.manifest_profile_sha256
+    )
+    assert persisted.registry_bundle_ref.manifest_profile_sha256 == (
+        selected_registry_bundle_ref.manifest_profile_sha256
+    )
+    binding_manifest_inputs = store.get_manifest(built.input_bindings_ref).inputs
+    assert any(
+        ref.role == "input.data_snapshot_ref"
+        and ref.manifest_profile_sha256 == selected_data_snapshot_ref.manifest_profile_sha256
+        for ref in binding_manifest_inputs
+    )
+    assert any(
+        ref.role == "input.registry_bundle_ref"
+        and ref.manifest_profile_sha256 == selected_registry_bundle_ref.manifest_profile_sha256
+        for ref in binding_manifest_inputs
+    )
+    assert report["schema_version"] == "1.1"
+    assert report["data_snapshot_ref"]["manifest_profile_sha256"] == (
+        selected_data_snapshot_ref.manifest_profile_sha256
+    )
+    assert report["registry_bundle_ref"]["manifest_profile_sha256"] == (
+        selected_registry_bundle_ref.manifest_profile_sha256
+    )

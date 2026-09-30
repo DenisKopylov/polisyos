@@ -21,7 +21,13 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.serialization import to_python_data
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import ValueOuterSet
@@ -599,8 +605,8 @@ def build_input_bindings(
         raise ValueError("; ".join(errors))
 
     snapshot_inputs = [
-        InputRef(artifact_id=data_snapshot_ref.artifact_id, role="input.data_snapshot_ref"),
-        InputRef(artifact_id=registry_bundle_ref.artifact_id, role="input.registry_bundle_ref"),
+        input_ref_from_artifact_ref(data_snapshot_ref, role="input.data_snapshot_ref"),
+        input_ref_from_artifact_ref(registry_bundle_ref, role="input.registry_bundle_ref"),
     ]
     bound_snapshot_ref = put_state_snapshot(
         store,
@@ -608,7 +614,9 @@ def build_input_bindings(
         step=int(np.asarray(materialized_state.step).item()),
         inputs=snapshot_inputs,
     )
-    bound_state_snapshot_ref = StateSnapshotRef(artifact_id=bound_snapshot_ref.artifact_id)
+    bound_state_snapshot_ref = StateSnapshotRef.model_validate(
+        bound_snapshot_ref.model_dump(mode="python")
+    )
 
     bindings_notes = list(notes or [])
     if snapshot.data_ref.kind == "foundry.state_snapshot":
@@ -633,24 +641,34 @@ def build_input_bindings(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.FoundryInputBindings", version="1.0"),
             inputs=[
-                InputRef(artifact_id=data_snapshot_ref.artifact_id, role="input.data_snapshot_ref"),
-                InputRef(
-                    artifact_id=registry_bundle_ref.artifact_id,
+                input_ref_from_artifact_ref(data_snapshot_ref, role="input.data_snapshot_ref"),
+                input_ref_from_artifact_ref(
+                    registry_bundle_ref,
                     role="input.registry_bundle_ref",
                 ),
-                InputRef(
-                    artifact_id=bound_state_snapshot_ref.artifact_id,
+                input_ref_from_artifact_ref(
+                    bound_state_snapshot_ref,
                     role="artifact.bound_state_snapshot_ref",
+                ),
+                *(
+                    [
+                        input_ref_from_artifact_ref(
+                            quality_report_ref or snapshot.quality_report_ref,
+                            role="input.quality_report_ref",
+                        )
+                    ]
+                    if quality_report_ref or snapshot.quality_report_ref
+                    else []
                 ),
             ],
         ),
     )
 
     report_payload = {
-        "schema_version": "1.0",
-        "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
-        "registry_bundle_ref": str(registry_bundle_ref.artifact_id),
-        "bound_state_snapshot_ref": str(bound_state_snapshot_ref.artifact_id),
+        "schema_version": "1.1",
+        "data_snapshot_ref": data_snapshot_ref.model_dump(mode="json"),
+        "registry_bundle_ref": registry_bundle_ref.model_dump(mode="json"),
+        "bound_state_snapshot_ref": bound_state_snapshot_ref.model_dump(mode="json"),
         "rule_count": len(effective_rules),
         "applied_binding_ids": list(applied_ids),
         "warning_count": len(warnings),
@@ -662,24 +680,41 @@ def build_input_bindings(
         PutOptions(
             kind="foundry.input_binding_report",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.FoundryInputBindingReport", version="1.0"),
+            schema=SchemaInfo(name="polisyos.core.FoundryInputBindingReport", version="1.1"),
             inputs=[
-                InputRef(
-                    artifact_id=bindings_ref_payload.artifact_id,
+                input_ref_from_artifact_ref(
+                    bindings_ref_payload,
                     role="artifact.input_bindings_ref",
                 ),
-                InputRef(
-                    artifact_id=bound_state_snapshot_ref.artifact_id,
+                input_ref_from_artifact_ref(
+                    bound_state_snapshot_ref,
                     role="artifact.bound_state_snapshot_ref",
+                ),
+                input_ref_from_artifact_ref(data_snapshot_ref, role="input.data_snapshot_ref"),
+                input_ref_from_artifact_ref(
+                    registry_bundle_ref,
+                    role="input.registry_bundle_ref",
+                ),
+                *(
+                    [
+                        input_ref_from_artifact_ref(
+                            quality_report_ref or snapshot.quality_report_ref,
+                            role="input.quality_report_ref",
+                        )
+                    ]
+                    if quality_report_ref or snapshot.quality_report_ref
+                    else []
                 ),
             ],
         ),
     )
 
     return InputBindingsBuildResult(
-        input_bindings_ref=FoundryInputBindingsRef(artifact_id=bindings_ref_payload.artifact_id),
-        input_binding_report_ref=FoundryInputBindingReportRef(
-            artifact_id=report_ref_payload.artifact_id
+        input_bindings_ref=FoundryInputBindingsRef.model_validate(
+            bindings_ref_payload.model_dump(mode="python")
+        ),
+        input_binding_report_ref=FoundryInputBindingReportRef.model_validate(
+            report_ref_payload.model_dump(mode="python")
         ),
         bound_state_snapshot_ref=bound_state_snapshot_ref,
         applied_binding_ids=applied_ids,
@@ -701,7 +736,7 @@ def load_input_bindings(
         Parsed `FoundryInputBindings` model.
     """
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return FoundryInputBindings.model_validate(payload)
 
 
@@ -841,7 +876,7 @@ def inject_feedback_state(
 
 def _load_data_snapshot(store: FileSystemCAS, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
     _reconcile_artifact_ref(store, data_snapshot_ref, label="data snapshot")
-    payload = from_canonical_bytes(store.get_bytes(data_snapshot_ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(data_snapshot_ref))
     return DataSnapshot.model_validate(payload)
 
 
@@ -937,7 +972,7 @@ def _reconcile_artifact_ref(
 ) -> ArtifactManifest:
     """Require a typed artifact reference to agree with its immutable manifest."""
 
-    manifest = store.get_manifest(ref.artifact_id)
+    manifest = store.get_manifest(ref)
     if ref.kind != manifest.kind:
         raise ValueError(f"{label} kind mismatch between typed ref and CAS manifest")
     if ref.media_type != manifest.media_type:
@@ -964,7 +999,7 @@ def _load_binding_payload(store: FileSystemCAS, snapshot: DataSnapshot) -> Any:
         if manifest.media_type != _JSON_MEDIA_TYPE:
             raise ValueError("foundry.state_snapshot media type must be application/json")
         return {}
-    payload = store.get_bytes(data_ref.artifact_id)
+    payload = store.get_bytes(data_ref)
     if manifest.media_type == _JSON_MEDIA_TYPE:
         return from_canonical_bytes(payload)
     if manifest.media_type == _ARROW_MEDIA_TYPE:
@@ -1397,4 +1432,4 @@ def _path_exists(payload: Any, path: str) -> bool:
 
 
 def _ensure_artifact_readable(store: FileSystemCAS, ref: ArtifactRef) -> None:
-    store.get_manifest(ref.artifact_id)
+    store.get_manifest(ref)

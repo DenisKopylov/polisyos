@@ -3033,19 +3033,35 @@ class JointSimulationPort:
         )
         if request.world_model_record.foundry_binding_ref.state_slot_digest != expected_slot_digest:
             raise WorldModelRecordError("n5_wmr_state_slot_digest_mismatch")
-        snapshot_manifest = self._artifact_store.get_manifest(snapshot_ref)
+        # WMR v1 binds the snapshot wrapper by bare ID, so keep this wrapper
+        # view selectorless. The v2.2 wrapper payload then binds its exact state
+        # blob view transitively through the immutable manifest lineage.
+        snapshot_manifest = self._artifact_store.get_manifest(snapshot_ref.artifact_id)
         snapshot = StateSnapshot.model_validate(
-            from_canonical_bytes(self._artifact_store.get_bytes(snapshot_ref))
+            from_canonical_bytes(self._artifact_store.get_bytes(snapshot_ref.artifact_id))
         )
+        supported_snapshot_schemas = {"2.1": "2.1.0", "2.2": "2.2.0"}
+        expected_snapshot_schema = supported_snapshot_schemas.get(snapshot.schema_version)
+        state_blob_ref = snapshot.state_ref
+        if snapshot.schema_version == "2.1":
+            # Historical N5 and the v2.1 loader consume only the default view.
+            if snapshot.state_ref.manifest_profile_sha256 is not None:
+                raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
+            state_blob_ref = snapshot.state_ref.artifact_id
+        state_blob_manifest = self._artifact_store.get_manifest(state_blob_ref)
         if (
-            snapshot_manifest.kind != "foundry.state_snapshot"
+            expected_snapshot_schema is None
+            or snapshot_manifest.kind != "foundry.state_snapshot"
             or snapshot_manifest.media_type != "application/json"
             or snapshot_manifest.artifact_schema
-            != SchemaInfo(name="polisyos.core.StateSnapshot", version="2.1.0")
-            or snapshot.schema_version != "2.1"
-            or snapshot.state_ref.manifest_profile_sha256 is not None
+            != SchemaInfo(
+                name="polisyos.core.StateSnapshot",
+                version=expected_snapshot_schema,
+            )
             or snapshot.state_ref.kind != "foundry.state_blob"
             or snapshot.state_ref.media_type != "application/x-npz"
+            or state_blob_manifest.kind != "foundry.state_blob"
+            or state_blob_manifest.media_type != "application/x-npz"
         ):
             raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
         expected_lineage = (
@@ -3059,6 +3075,24 @@ class JointSimulationPort:
             for item in (snapshot.lineage_inputs or ())
         )
         if actual_lineage != expected_lineage:
+            raise WorldModelRecordError("n5_bound_state_lineage_mismatch")
+        if snapshot.schema_version == "2.2":
+            state_blob_edge = snapshot.lineage_inputs[-1] if snapshot.lineage_inputs else None
+            if (
+                snapshot_manifest.inputs != snapshot.lineage_inputs
+                or state_blob_edge is None
+                or state_blob_edge.manifest_profile_sha256
+                != snapshot.state_ref.manifest_profile_sha256
+                or any(
+                    item.manifest_profile_sha256 is not None
+                    for item in snapshot.lineage_inputs[:-1]
+                )
+            ):
+                raise WorldModelRecordError("n5_bound_state_lineage_mismatch")
+        elif (
+            snapshot.lineage_inputs is None
+            or snapshot.lineage_inputs[-1].manifest_profile_sha256 is not None
+        ):
             raise WorldModelRecordError("n5_bound_state_lineage_mismatch")
         bound_state = load_state_snapshot(self._artifact_store, snapshot_ref=snapshot_ref)
         registry_ref = CASArtifactRef(

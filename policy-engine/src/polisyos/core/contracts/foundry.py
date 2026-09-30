@@ -1482,9 +1482,10 @@ class WelfareBoundReport(BaseModel):
 class StateSnapshot(BaseModel):
     """Reference bundle for a materialized execution state at a simulation step.
 
-    ``lineage_inputs`` is the ordered manifest input list for schema 2.1
-    snapshots.  ``None`` is reserved for legacy 2.0 payloads whose lineage was
-    recorded only in the immutable manifest sidecar.
+    ``lineage_inputs`` is the ordered manifest input list.  Version 2.1
+    preserves its historical bare state-blob edge; version 2.2 binds the exact
+    selected state-blob view.  ``None`` is reserved for legacy 2.0 payloads whose
+    lineage was recorded only in the immutable manifest sidecar.
     """
 
     model_config = ConfigDict(extra="forbid")

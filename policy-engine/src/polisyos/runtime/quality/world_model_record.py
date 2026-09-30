@@ -28,6 +28,7 @@ from polisyos.core.artifacts import (
     InputRef,
     PutOptions,
     SchemaInfo,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import (
@@ -176,6 +177,23 @@ class _FabricQueryFrame(Protocol):
         ...
 
 
+def _reject_selected_manifest_views_for_wmr_v1(
+    refs: Mapping[str, ArtifactRef | None],
+) -> None:
+    """Refuse selected CAS views before WMR v1 narrows typed refs to bare IDs."""
+
+    selected = sorted(
+        label
+        for label, ref in refs.items()
+        if ref is not None and ref.manifest_profile_sha256 is not None
+    )
+    if selected:
+        raise WorldModelRecordError(
+            "selected_manifest_view_not_expressible_by_wmr_v1",
+            ", ".join(selected),
+        )
+
+
 def build_world_model_record(
     store: FileSystemCAS,
     *,
@@ -273,6 +291,11 @@ def build_world_model_record(
     )
     resolved_fabric_world_ref = _resolve_fabric_world_ref(fabric_world_ref)
     _resolve_skg_causal_prior_ref(skg_causal_prior_ref)
+    substrate_registry_input_ref = (
+        substrate_registry_artifact_ref
+        if isinstance(substrate_registry_artifact_ref, ArtifactRef)
+        else None
+    )
     substrate_registry_ref = _resolve_substrate_registry_ref(
         store,
         substrate_registry,
@@ -329,6 +352,27 @@ def build_world_model_record(
             ),
         ),
     )
+    if substrate_registry_ref.registry_artifact_ref is not None:
+        substrate_registry_view_ref = substrate_registry_input_ref or ArtifactRef(
+            artifact_id=substrate_registry_ref.registry_artifact_ref,
+            kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+            media_type="application/json",
+        )
+    else:
+        substrate_registry_view_ref = None
+    _reject_selected_manifest_views_for_wmr_v1(
+        {
+            "input.data_snapshot_ref": data_snapshot_ref,
+            # ModelSpec v1 stores the registry as a bare ID, so this reconstructed
+            # ref is explicitly default-view-only.
+            "input.registry_bundle_ref": registry_content.bundle_ref,
+            "artifact.model_spec_ref": model_spec_ref,
+            "artifact.input_bindings_ref": input_bindings.input_bindings_ref,
+            "artifact.bound_state_snapshot_ref": input_bindings.bound_state_snapshot_ref,
+            "artifact.input_binding_report_ref": input_bindings.input_binding_report_ref,
+            "input.substrate_registry_ref": substrate_registry_view_ref,
+        }
+    )
     state_slot_digest = gy_content_hash(
         {
             "bound_state_snapshot_ref": str(input_bindings.bound_state_snapshot_ref.artifact_id),
@@ -384,22 +428,26 @@ def build_world_model_record(
         **fields,
     )
     record_inputs = [
-        InputRef(artifact_id=data_snapshot_ref.artifact_id, role="input.data_snapshot_ref"),
-        InputRef(artifact_id=registry_bundle_ref.artifact_id, role="input.registry_bundle_ref"),
-        InputRef(artifact_id=model_spec_ref.artifact_id, role="input.model_spec_ref"),
-        InputRef(
-            artifact_id=input_bindings.input_bindings_ref.artifact_id,
+        input_ref_from_artifact_ref(data_snapshot_ref, role="input.data_snapshot_ref"),
+        input_ref_from_artifact_ref(registry_content.bundle_ref, role="input.registry_bundle_ref"),
+        input_ref_from_artifact_ref(model_spec_ref, role="input.model_spec_ref"),
+        input_ref_from_artifact_ref(
+            input_bindings.input_bindings_ref,
             role="artifact.input_bindings_ref",
         ),
-        InputRef(
-            artifact_id=input_bindings.bound_state_snapshot_ref.artifact_id,
+        input_ref_from_artifact_ref(
+            input_bindings.bound_state_snapshot_ref,
             role="artifact.bound_state_snapshot_ref",
         ),
+        input_ref_from_artifact_ref(
+            input_bindings.input_binding_report_ref,
+            role="artifact.input_binding_report_ref",
+        ),
     ]
-    if substrate_registry_ref.registry_artifact_ref is not None:
+    if substrate_registry_view_ref is not None:
         record_inputs.append(
-            InputRef(
-                artifact_id=substrate_registry_ref.registry_artifact_ref,
+            input_ref_from_artifact_ref(
+                substrate_registry_view_ref,
                 role="input.substrate_registry_ref",
             )
         )
@@ -542,7 +590,7 @@ def load_world_model_record(store: FileSystemCAS, ref: ArtifactRef | str) -> Wor
 def _load_data_snapshot(store: FileSystemCAS, ref: ArtifactRef) -> DataSnapshot:
     from polisyos.core.contracts import DataSnapshot
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return DataSnapshot.model_validate(payload)
 
 
@@ -851,19 +899,22 @@ def _load_substrate_registry_artifact_ref(
             ):
                 raise ValueError("substrate registry artifact kind or media type is invalid")
             artifact_id = ArtifactID.model_validate(str(ref.artifact_id))
+            profile_sha256 = ref.manifest_profile_sha256
         elif isinstance(ref, str):
             artifact_id = ArtifactID.model_validate(ref)
+            profile_sha256 = None
         else:
             raise TypeError("substrate registry artifact ref must be ArtifactRef or sha256 string")
         normalized = ArtifactRef(
             artifact_id=artifact_id,
             kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
             media_type="application/json",
+            manifest_profile_sha256=profile_sha256,
         )
         loaded = (
-            SubstrateRegistry.model_validate(loaded_registry.model_dump(mode="json"))
-            if loaded_registry is not None
-            else load_substrate_registry(store, normalized)
+            load_substrate_registry(store, normalized)
+            if loaded_registry is None or normalized.manifest_profile_sha256 is not None
+            else SubstrateRegistry.model_validate(loaded_registry.model_dump(mode="json"))
         )
     except Exception as exc:
         raise WorldModelRecordError(

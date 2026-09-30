@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef, WarningRecord
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.runtime.quality import data_state_substrate
 from polisyos.runtime.quality import substrate_registry as substrate_module
@@ -715,3 +715,29 @@ def test_generation_and_data_state_cannot_call_global_latest_schema_regime() -> 
                 if node.func.attr in forbidden:
                     calls.add((relative, node.func.attr))
     assert calls == set()
+
+
+def test_substrate_registry_loader_reads_the_selected_manifest_view(tmp_path: Path) -> None:
+    """A selected registry ref is resolved as that view, not as the default ID."""
+    registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    store = FileSystemCAS(tmp_path / "cas")
+    default_ref = persist_substrate_registry(store, registry)
+    manifest = store.get_manifest(default_ref)
+    selected_ref = store.put_bytes(
+        store.get_bytes(default_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+            warnings=[
+                WarningRecord(
+                    code="fixture.selected_registry_view",
+                    msg="This registry has a selected manifest profile.",
+                )
+            ],
+        ),
+    )
+    assert selected_ref.manifest_profile_sha256 is not None
+
+    assert load_substrate_registry(store, selected_ref) == registry

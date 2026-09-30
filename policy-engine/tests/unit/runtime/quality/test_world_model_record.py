@@ -7,7 +7,7 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import SchemaInfo, WarningRecord
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -1048,3 +1048,136 @@ def test_world_model_record_source_does_not_create_parallel_world_store() -> Non
     assert "class WorldStore" not in source
     assert "class WorldStateEngine" not in source
     assert not list(src_root.rglob("gy_n3_*.py"))
+
+
+@pytest.mark.parametrize(
+    "selected_boundary",
+    ["data_snapshot", "bound_state_snapshot"],
+)
+def test_wmr_v1_refuses_selected_views_before_record_persistence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    selected_boundary: str,
+) -> None:
+    """Candidate refs survive, but WMR v1 refuses views it can only name by ID."""
+    import polisyos.runtime.quality.world_model_record as world_model_module
+
+    store = FileSystemCAS(tmp_path / "cas")
+    _write_fabric_world_snapshot(tmp_path)
+    default_data_snapshot_ref = _data_snapshot_ref(store)
+    registry_bundle = build_default_registry_bundle(store)
+    manifest = store.get_manifest(default_data_snapshot_ref)
+    selected_data_snapshot_ref = store.put_bytes(
+        store.get_bytes(default_data_snapshot_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+            warnings=[
+                WarningRecord(
+                    code="fixture.selected_data_snapshot_view",
+                    msg="This input has a selected manifest profile.",
+                )
+            ],
+        ),
+    )
+    assert selected_data_snapshot_ref.manifest_profile_sha256 is not None
+
+    selected_ref = selected_data_snapshot_ref
+    data_snapshot_ref = default_data_snapshot_ref
+    selected_role = "input.data_snapshot_ref"
+    if selected_boundary == "data_snapshot":
+        data_snapshot_ref = selected_data_snapshot_ref
+    else:
+        import polisyos.foundry.data_plane.bindings as bindings_module
+
+        original_put_state_snapshot = bindings_module.put_state_snapshot
+        selected_wrapper_refs = []
+
+        def _put_selected_wrapper(*args, **kwargs):
+            default_wrapper_ref = original_put_state_snapshot(*args, **kwargs)
+            wrapper_bytes = store.get_bytes(default_wrapper_ref)
+            wrapper_manifest = store.get_manifest(default_wrapper_ref)
+            selected_wrapper_ref = store.put_bytes(
+                wrapper_bytes,
+                PutOptions(
+                    kind=wrapper_manifest.kind,
+                    media_type=wrapper_manifest.media_type,
+                    schema=wrapper_manifest.artifact_schema,
+                    inputs=wrapper_manifest.inputs,
+                    warnings=[
+                        WarningRecord(
+                            code="fixture.selected_snapshot_wrapper_view",
+                            msg="The wrapper has a selected manifest profile.",
+                        )
+                    ],
+                ),
+            )
+            selected_wrapper_refs.append(selected_wrapper_ref)
+            return selected_wrapper_ref
+
+        monkeypatch.setattr(
+            bindings_module,
+            "put_state_snapshot",
+            _put_selected_wrapper,
+        )
+        selected_role = "artifact.bound_state_snapshot_ref"
+
+    model_spec = _model_spec(default_data_snapshot_ref, registry_bundle.bundle_ref)
+    writes: list[tuple[str, object, object]] = []
+    original_put_json = store.put_json
+
+    def _record_writes(payload, options, *args, **kwargs):
+        ref = original_put_json(payload, options, *args, **kwargs)
+        writes.append((options.kind, payload, ref))
+        return ref
+
+    monkeypatch.setattr(store, "put_json", _record_writes)
+
+    with pytest.raises(WorldModelRecordError) as exc_info:
+        build_world_model_record(
+            store,
+            fabric_world_ref=_fabric_ref(tmp_path),
+            data_forge_snapshot_binding_path=_write_data_forge_binding(tmp_path),
+            data_snapshot_ref=data_snapshot_ref,
+            model_spec=model_spec,
+            skg_causal_prior_ref=_skg_ref(tmp_path),
+            substrate_registry=_substrate_registry(),
+            region_or_jurisdiction="UA-30",
+            population_scope="wartime_msme",
+            policy_domain="fiscal_credit",
+            valid_time_scope="2026-05-24/2026-12-31",
+            tx_time_scope="2026-05-24T12:00:00+00:00",
+            resolution="firm_month",
+            branch_mode=BranchMode.OBSERVED,
+            policy_slot_ids=("agents.income", "government.balance"),
+            producer_ref="test.world_model_record_builder",
+            required_substrate_families=("firm_fundamentals",),
+        )
+
+    assert exc_info.value.code == "selected_manifest_view_not_expressible_by_wmr_v1"
+    binding_writes = [item for item in writes if item[0] == "foundry.input_bindings"]
+    assert len(binding_writes) == 1
+    binding_ref = binding_writes[0][2]
+    bindings = binding_writes[0][1]
+    if selected_boundary == "data_snapshot":
+        actual_selected_ref = bindings.data_snapshot_ref
+        assert actual_selected_ref.manifest_profile_sha256 == (
+            selected_ref.manifest_profile_sha256
+        )
+    else:
+        actual_selected_ref = bindings.bound_state_snapshot_ref
+        assert actual_selected_ref.manifest_profile_sha256 is not None
+        selected_ref = actual_selected_ref
+    assert any(item[0] == "foundry.input_binding_report" for item in writes)
+    assert not any(
+        item[0] == world_model_module.WORLD_MODEL_RECORD_ARTIFACT_KIND
+        for item in writes
+    )
+    binding_inputs = store.get_manifest(binding_ref).inputs
+    assert any(
+        item.role == selected_role
+        and item.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+        for item in binding_inputs
+    )

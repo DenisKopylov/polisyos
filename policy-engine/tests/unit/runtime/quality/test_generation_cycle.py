@@ -2731,6 +2731,8 @@ def _owner_program_graph_n5_witness(
     *,
     income_values: tuple[float, float],
     problem_seed: DesignProblem | None = None,
+    select_state_blob_view: bool = False,
+    monkeypatch: pytest.MonkeyPatch | None = None,
 ) -> _OwnerProgramGraphN5Witness:
     """Build an owner WMR and consume its state through the ordinary N5 builder.
 
@@ -2738,9 +2740,14 @@ def _owner_program_graph_n5_witness(
     Callers must close the guarded artifact store.
     """
 
+    from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+    from polisyos.core.artifacts.store import PutOptions
     from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.core.contracts.foundry import StateSnapshot
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.foundry.data_plane import bindings as bindings_module
+    from polisyos.foundry.execute._internal.models import load_model
     from polisyos.runtime.http.resilience import guard_runtime_cas
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
     from polisyos.runtime.quality.world_model_record import build_world_model_record
@@ -2753,6 +2760,65 @@ def _owner_program_graph_n5_witness(
         FileSystemCAS(tmp_path / "owner-runtime-cas").with_ambient_ownership_enforcement()
     )
     try:
+        if select_state_blob_view:
+            if monkeypatch is None:
+                raise AssertionError("selected-view fixture needs a scoped monkeypatch")
+            original_put_snapshot = bindings_module.put_state_snapshot
+
+            def _put_snapshot_with_selected_blob_view(
+                supplied_store: Any,
+                *,
+                state: Any,
+                step: int | None = None,
+                inputs: list[Any] | None = None,
+            ) -> Any:
+                default_snapshot_ref = original_put_snapshot(
+                    supplied_store, state=state, step=step, inputs=inputs
+                )
+                default_snapshot = load_model(
+                    supplied_store, default_snapshot_ref, StateSnapshot
+                )
+                blob_bytes = supplied_store.get_bytes(
+                    default_snapshot.state_ref.artifact_id
+                )
+                context_inputs = list(default_snapshot.lineage_inputs or ())[:-1]
+                selected_blob_ref = supplied_store.put_bytes(
+                    blob_bytes,
+                    PutOptions(
+                        kind="foundry.state_blob",
+                        media_type="application/x-npz",
+                        inputs=context_inputs,
+                    ),
+                )
+                if selected_blob_ref.manifest_profile_sha256 is None:
+                    raise AssertionError("test fixture did not create a selected state-blob view")
+                selected_edge = input_ref_from_artifact_ref(
+                    selected_blob_ref, role="state_blob"
+                )
+                lineages = [*context_inputs, selected_edge]
+                selected_snapshot = default_snapshot.model_copy(
+                    update={
+                        "state_ref": selected_blob_ref,
+                        "lineage_inputs": lineages,
+                    }
+                )
+                return supplied_store.put_json(
+                    selected_snapshot,
+                    PutOptions(
+                        kind="foundry.state_snapshot",
+                        media_type="application/json",
+                        schema=SchemaInfo(
+                            name="polisyos.core.StateSnapshot", version="2.2.0"
+                        ),
+                        inputs=lineages,
+                    ),
+                )
+
+            monkeypatch.setattr(
+                bindings_module,
+                "put_state_snapshot",
+                _put_snapshot_with_selected_blob_view,
+            )
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
             graph_plan = _program_graph_plan(case_root, store=store).model_copy(
                 update={"variable_map": {"firm_survival": "agents.income"}}
@@ -3127,6 +3193,108 @@ def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits
     finally:
         low.store.close()
         high.store.close()
+
+
+def test_owner_program_graph_n5_consumes_selected_state_blob_view(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """N5 replays a v2.2 selected state-blob view bound by its wrapper lineage."""
+
+    from polisyos.core.contracts.foundry import StateSnapshot
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.foundry.execute._internal.models import load_model
+    from polisyos.foundry.execute._internal.snapshots import load_state_snapshot
+
+    witness = _owner_program_graph_n5_witness(
+        tmp_path,
+        income_values=(1000.0, 2000.0),
+        select_state_blob_view=True,
+        monkeypatch=monkeypatch,
+    )
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            snapshot = load_model(
+                witness.store,
+                witness.world_model_build.bound_state_snapshot_ref,
+                StateSnapshot,
+            )
+            wrapper_manifest = witness.store.get_manifest(
+                witness.world_model_build.bound_state_snapshot_ref.artifact_id
+            )
+            replayed = load_state_snapshot(
+                witness.store,
+                snapshot_ref=witness.world_model_build.bound_state_snapshot_ref,
+            )
+
+        assert snapshot.schema_version == "2.2"
+        assert snapshot.state_ref.manifest_profile_sha256 is not None
+        assert snapshot.lineage_inputs is not None
+        assert snapshot.lineage_inputs[-1].manifest_profile_sha256 == (
+            snapshot.state_ref.manifest_profile_sha256
+        )
+        assert wrapper_manifest.inputs == snapshot.lineage_inputs
+        assert witness.simulation.status == "joint_simulated"
+        assert witness.result.state_consumption is not None
+        assert witness.result.state_consumption.state_blob_content_hash == str(
+            snapshot.state_ref.artifact_id
+        )
+        assert tuple(float(value) for value in replayed.agents.income) == pytest.approx(
+            (1000.0, 2000.0)
+        )
+    finally:
+        witness.store.close()
+
+
+def test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """N5 refuses a bare state_ref when the v2.2 lineage still selects its view."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.world_model_record import WorldModelRecordError
+
+    witness = _owner_program_graph_n5_witness(
+        tmp_path,
+        income_values=(1000.0, 2000.0),
+        select_state_blob_view=True,
+        monkeypatch=monkeypatch,
+    )
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            request = witness.port._build_joint_simulation_request(
+                candidate=witness.candidate,
+                problem=witness.problem,
+            )
+        snapshot_id = str(
+            witness.world_model_build.bound_state_snapshot_ref.artifact_id
+        )
+        original_get_bytes = witness.store.get_bytes
+        altered_once = False
+
+        def _remove_state_ref_selector_for_n5_once(ref: Any) -> bytes:
+            nonlocal altered_once
+            data = original_get_bytes(ref)
+            artifact_id = getattr(ref, "artifact_id", ref)
+            if str(artifact_id) != snapshot_id or altered_once:
+                return data
+            altered_once = True
+            payload = canon.from_canonical_bytes(data)
+            # Keep the state_ref, its ID, the v2.2 schema marker, and the exact
+            # selected lineage edge. Remove only the selector being checked.
+            payload["state_ref"].pop("manifest_profile_sha256", None)
+            return canon.to_canonical_bytes(payload)
+
+        monkeypatch.setattr(witness.store, "get_bytes", _remove_state_ref_selector_for_n5_once)
+        with (
+            tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),
+            pytest.raises(WorldModelRecordError, match="n5_bound_state_lineage_mismatch"),
+        ):
+            witness.port._bound_program_plan(request, request.engine_plan[0])
+        assert altered_once
+    finally:
+        witness.store.close()
 
 
 def test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red(

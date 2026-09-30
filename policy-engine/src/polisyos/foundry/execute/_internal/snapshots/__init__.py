@@ -16,13 +16,12 @@ import numpy as np
 from pydantic import BaseModel
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute._internal.models import artifact_id, load_model
+from polisyos.foundry.execute._internal.models import artifact_input_ref, load_model
 
 __all__ = [
     "export_seed_state_npz",
@@ -60,8 +59,14 @@ def load_state_snapshot(
     """Load state snapshot."""
     snapshot = load_model(store, snapshot_ref, StateSnapshot)
     _validate_snapshot_lineage(store, snapshot_ref=snapshot_ref, snapshot=snapshot)
+    # v2.0/v2.1 persisted the state-blob edge by bare artifact ID. Preserve
+    # that historical projection even when the payload happens to contain a
+    # newer selected-view marker. Only v2.2 binds reads to the exact view.
+    state_blob_ref: ArtifactRef | ArtifactID = snapshot.state_ref
+    if snapshot.schema_version in {"2.0", "2.1"}:
+        state_blob_ref = snapshot.state_ref.artifact_id
     try:
-        data = store.get_bytes(snapshot.state_ref.artifact_id)
+        data = store.get_bytes(state_blob_ref)
     except ArtifactIntegrityError as exc:
         raise ValueError(f"Snapshot checksum mismatch: {exc}") from exc
     _validate_snapshot_blob(snapshot, data)
@@ -88,25 +93,48 @@ def _validate_snapshot_lineage(
     snapshot_ref: ArtifactRef | ArtifactID | str,
     snapshot: StateSnapshot,
 ) -> None:
-    """Fail closed when a v2.1 wrapper payload disagrees with its manifest lineage."""
+    """Validate historical bare lineage or the current exact-view lineage."""
     if snapshot.schema_version == "2.0":
         return
-    if snapshot.schema_version != "2.1":
+    if snapshot.schema_version not in {"2.1", "2.2"}:
         raise ValueError(f"Unsupported StateSnapshot schema_version: {snapshot.schema_version}")
     if snapshot.lineage_inputs is None:
-        raise ValueError("StateSnapshot 2.1 payload missing lineage_inputs")
-    expected_state_blob = InputRef(
-        artifact_id=snapshot.state_ref.artifact_id,
-        role="state_blob",
-    )
+        raise ValueError(
+            f"StateSnapshot {snapshot.schema_version} payload missing lineage_inputs"
+        )
+
+    if snapshot.schema_version == "2.1":
+        # Historical 2.1 records serialized the state_ref object but bound the
+        # manifest edge and reader to its bare artifact ID. Do not reinterpret
+        # those persisted bytes as exact-view authority.
+        expected_state_blob = InputRef(
+            artifact_id=snapshot.state_ref.artifact_id, role="state_blob"
+        )
+        manifest_ref: ArtifactRef | ArtifactID | str = (
+            snapshot_ref.artifact_id
+            if isinstance(snapshot_ref, ArtifactRef)
+            else snapshot_ref
+        )
+        schema_version = "2.1.0"
+    else:
+        expected_state_blob = artifact_input_ref(snapshot.state_ref, role="state_blob")
+        manifest_ref = snapshot_ref
+        schema_version = "2.2.0"
+
     if not snapshot.lineage_inputs or snapshot.lineage_inputs[-1] != expected_state_blob:
-        raise ValueError("StateSnapshot 2.1 lineage must end with state_blob")
-    manifest = store.get_manifest(artifact_id(snapshot_ref))
-    expected_schema = SchemaInfo(name="polisyos.core.StateSnapshot", version="2.1.0")
+        raise ValueError(
+            f"StateSnapshot {snapshot.schema_version} lineage must end with state_blob"
+        )
+    manifest = store.get_manifest(manifest_ref)
+    expected_schema = SchemaInfo(name="polisyos.core.StateSnapshot", version=schema_version)
     if manifest.artifact_schema != expected_schema:
-        raise ValueError("StateSnapshot 2.1 manifest schema does not match payload")
+        raise ValueError(
+            f"StateSnapshot {snapshot.schema_version} manifest schema does not match payload"
+        )
     if manifest.inputs != snapshot.lineage_inputs:
-        raise ValueError("StateSnapshot 2.1 lineage does not match manifest inputs")
+        raise ValueError(
+            f"StateSnapshot {snapshot.schema_version} lineage does not match manifest inputs"
+        )
 
 
 def put_state_snapshot(
@@ -136,8 +164,9 @@ def put_state_snapshot(
             f"{blob_ref.artifact_id.hex} != {checksum}"
         )
     snapshot_inputs = list(inputs or [])
-    snapshot_inputs.append(InputRef(artifact_id=blob_ref.artifact_id, role="state_blob"))
+    snapshot_inputs.append(artifact_input_ref(blob_ref, role="state_blob"))
     snapshot = StateSnapshot(
+        schema_version="2.2",
         state_ref=blob_ref,
         step=step,
         format_version=_SNAPSHOT_FORMAT_VERSION,
@@ -152,7 +181,7 @@ def put_state_snapshot(
         PutOptions(
             kind="foundry.state_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.1.0"),
+            schema=SchemaInfo(name="polisyos.core.StateSnapshot", version="2.2.0"),
             inputs=snapshot_inputs,
         ),
     )
@@ -382,91 +411,7 @@ def _put_snapshot_blob_two_phase(
     data: bytes,
     options: PutOptions,
 ) -> ArtifactRef:
-    blob_ref = _reuse_legacy_snapshot_blob(store, data, options)
-    if blob_ref is None:
-        blob_ref = store.put_bytes(data, options)
-    if not store.has(blob_ref.artifact_id):
+    blob_ref = store.put_bytes(data, options)
+    if not store.has(blob_ref):
         raise ValueError(f"Snapshot blob was not fully persisted: {blob_ref.artifact_id}")
     return blob_ref
-
-
-def _reuse_legacy_snapshot_blob(
-    store: FileSystemCAS,
-    data: bytes,
-    options: PutOptions,
-) -> ArtifactRef | None:
-    """Reuse one verified legacy raw snapshot without relaxing generic CAS rules.
-
-    Older snapshot writers persisted contextual lineage directly on the raw
-    ``foundry.state_blob`` manifest.  That profile is immutable, so the
-    snapshot boundary may read it only when every profile field except the
-    historical non-empty ``inputs`` matches the current content-only profile.
-    Any absent or malformed sidecar, integrity failure, or other profile
-    mismatch remains on the ordinary strict ``put_bytes`` path.
-    """
-    if (
-        options.kind != "foundry.state_blob"
-        or options.media_type != "application/x-npz"
-        or options.inputs
-    ):
-        return None
-
-    artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(data).hexdigest())
-    _blob_path, manifest_path = store.get_paths(artifact_id)
-    if not manifest_path.exists():
-        # ``get_manifest`` enforces tenant ownership before checking the
-        # sidecar path.  A new content-addressed blob is therefore reported as
-        # unowned by a tenant-scoped view rather than missing.  Inspecting only
-        # the deterministic sidecar path lets the normal put path create and
-        # claim a genuinely absent artifact.
-        return None
-    try:
-        manifest = store.get_manifest(artifact_id)
-    except (FileNotFoundError, ArtifactOwnershipError):
-        # The probe is advisory: an explicit immutable re-put may claim the
-        # same content ID for another tenant.  Let ``put_bytes`` validate the
-        # complete persisted profile and record that owner; it still fails
-        # closed for a legacy profile that is not compatible with this write.
-        return None
-
-    if not _matches_legacy_snapshot_profile(
-        manifest,
-        data_size=len(data),
-        options=options,
-    ):
-        return None
-
-    # get_bytes verifies manifest identity, byte size, and the actual digest;
-    # the old sidecar is never rewritten or treated as current lineage.
-    store.get_bytes(artifact_id)
-    return ArtifactRef(
-        artifact_id=artifact_id,
-        kind=options.kind,
-        media_type=options.media_type,
-    )
-
-
-def _matches_legacy_snapshot_profile(
-    manifest: ArtifactManifest,
-    *,
-    data_size: int,
-    options: PutOptions,
-) -> bool:
-    """Return whether only the historical raw-blob inputs differ."""
-    if not manifest.inputs:
-        return False
-
-    expected = {
-        "kind": options.kind,
-        "media_type": options.media_type,
-        "byte_size": data_size,
-        "artifact_schema": options.schema,
-        "canon": options.canon,
-        "producer": options.producer,
-        "env": options.env,
-        "governance": options.governance,
-        "tenant_context": options.tenant_context,
-        "same_input_closure": options.same_input_closure,
-        "authority": options.authority,
-    }
-    return all(getattr(manifest, field) == value for field, value in expected.items())

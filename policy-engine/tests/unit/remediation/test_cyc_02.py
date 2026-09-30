@@ -70,6 +70,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tests.unit.runtime.quality.test_generation_cycle import (
     _cyc01_owner_bound_n5_case,
+    _owner_program_graph_n5_witness,
     _problem,
 )
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
@@ -438,11 +439,12 @@ def _recursive_parent_request(
 def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> None:
     """K_sim limits authority, but does not make the real N5 input disappear."""
 
-    _problem, _context, _candidate, simulation, _produced, _store = _real_n5_observation(
+    _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
         tmp_path
     )
 
-    input_ref = simulation_evaluation_input_ref(simulation)
+    assert simulation_evaluation_input_ref(simulation) is None
+    input_ref = simulation_evaluation_input_ref(simulation, artifact_store=store)
 
     assert input_ref is not None
     assert simulation.simulation_result_ref is not None
@@ -621,6 +623,90 @@ def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
         and outcome in candidate_trajectory.points[0].effect
     )
     assert effect == produced_trajectory.points[0].effect[outcome]
+
+
+def test_program_graph_v2_blocker_removal_stays_out_of_eval_safety(
+    tmp_path: Path,
+) -> None:
+    """Persisted ProgramGraph limits survive removal of N5 display markers."""
+
+    witness = _owner_program_graph_n5_witness(
+        tmp_path,
+        income_values=(1000.0, 2000.0),
+    )
+    verifier_calls: list[str] = []
+    value_owner_calls: list[str] = []
+
+    class _InvocationSpy:
+        def __init__(self, calls: list[str]) -> None:
+            self._calls = calls
+
+        def __getattr__(self, name: str) -> Any:
+            def record_call(*args: Any, **kwargs: Any) -> Any:
+                del args, kwargs
+                self._calls.append(name)
+                raise AssertionError(f"unexpected callback: {name}")
+
+            return record_call
+
+    try:
+        simulation = witness.simulation
+        assert simulation.simulation_result_ref is not None
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            persisted = load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=witness.store,
+                expected_world_model_record_content_hash=(
+                    witness.world_model_build.record.content_hash
+                ),
+            )
+
+        assert persisted.schema_version == "policyos.runtime.joint_simulation_horizon.v2"
+        selected_program_graph = tuple(
+            decision
+            for decision in persisted.engine_decisions
+            if decision.engine_kind == "program_graph"
+            and decision.decision == "selected"
+        )
+        assert len(selected_program_graph) == 1
+        state_consumption = persisted.state_consumption
+        assert state_consumption is not None
+        assert state_consumption.authority_limitations
+        assert set(state_consumption.authority_limitations).issubset(
+            simulation.authority_blockers
+        )
+        assert set(state_consumption.authority_limitations).issubset(
+            persisted.promotion_ready_value_packet.get("authority_blockers", ())
+        )
+
+        # Keep the signed v2 bytes and their limitation markers while removing
+        # only the observation-side display of those limitations.
+        unmarked = simulation.model_copy(update={"authority_blockers": ()})
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            assert simulation_evaluation_input_ref(
+                unmarked, artifact_store=witness.store
+            ) is None
+            observation = _DefaultSimulationBoundFoundryValuePort(
+                repo_root=tmp_path,
+                cycle_substrate_context=witness.context,
+                artifact_store=witness.store,
+                eval_safety_verifier=_InvocationSpy(verifier_calls),
+                owner_gateway=_InvocationSpy(value_owner_calls),
+            )(
+                candidate=witness.candidate,
+                simulation=unmarked,
+                problem=witness.problem,
+                cycle_index=0,
+            )
+
+        assert observation.status == "value_blocked"
+        assert observation.authority_blockers == (
+            "n8_state_consumption_limitation_mismatch",
+        )
+        assert verifier_calls == []
+        assert value_owner_calls == []
+    finally:
+        witness.store.close()
 
 
 class _GenericDefaultN5Store(FileSystemCAS):
@@ -871,10 +957,13 @@ async def test_recursive_parent_without_store_refuses_before_n5_execution(
     # changing production validation or claiming a served whole-parent witness.
     monkeypatch.setattr(
         recursive_generation_cycle_module,
-        "validate_generation_cycle_run",
+        "validate_generation_cycle_candidate_run",
         lambda *_args, **_kwargs: (),
     )
 
+    # The two leaf intents are explicit candidate-only computations. The
+    # contract-testing factory has no N9 authority owner, so implicit intent
+    # resolution would refuse before this test reaches the parent N5 store gate.
     with pytest.raises(
         RecursiveGenerationCycleError,
         match="recursive_n5_runtime_store_not_established",
@@ -894,6 +983,10 @@ async def test_recursive_parent_without_store_refuses_before_n5_execution(
             joint_simulation_requests_by_node={root: request},
             subdesign_contracts_by_node={
                 root: _recursive_subdesigns(parent_ref=root, child_refs=child_refs)
+            },
+            execution_intents_by_node={
+                child_refs[0]: "candidate_only",
+                child_refs[1]: "candidate_only",
             },
         )
 

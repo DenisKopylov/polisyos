@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from decimal import Decimal
 from pathlib import Path
@@ -75,6 +76,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationControllerPolicy,
     JointSimulationHorizonController,
     JointSimulationRequest,
+    JointSimulationResult,
     ProofReceiptError,
     build_content_bound_simulation_receipt,
     verify_simulation_receipt,
@@ -563,7 +565,7 @@ def _program_graph_plan(
         PutOptions(
             kind="foundry.program_graph",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.2"),
+            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.2.0"),
         ),
     )
     exec_plan_ref = store.put_json(
@@ -574,7 +576,7 @@ def _program_graph_plan(
         PutOptions(
             kind="foundry.exec_plan",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.2"),
+            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.2.0"),
         ),
     )
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
@@ -633,6 +635,70 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
     assert result.feedback_classification.numeric_interaction == "non_additive"
 
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
+
+
+def test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff(
+    tmp_path: Path,
+) -> None:
+    """Historical v1 N5 bytes replay without acquiring the later state field."""
+
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    result = JointSimulationHorizonController().run(_request())
+    assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v1"
+    assert result.state_consumption is None
+
+    store = FileSystemCAS(tmp_path / "n5-v1-replay-cas")
+    try:
+        first_ref = persist_joint_simulation_result(result, store=store)
+        first_bytes = store.get_bytes(first_ref)
+        first_payload = from_canonical_bytes(first_bytes)
+        first_manifest = store.get_manifest(first_ref)
+
+        assert first_payload["schema_version"] == (
+            "policyos.runtime.joint_simulation_horizon.v1"
+        )
+        assert "state_consumption" not in first_payload
+        assert first_manifest.artifact_schema is not None
+        assert first_manifest.artifact_schema.version == "1.0.0"
+
+        replayed = load_joint_simulation_result(
+            first_ref,
+            store=store,
+            expected_world_model_record_content_hash=result.world_model_record_content_hash,
+        )
+        assert replayed.schema_version == result.schema_version
+        assert replayed.state_consumption is None
+        assert replayed.content_bound_payload() == result.content_bound_payload()
+
+        replayed_ref = persist_joint_simulation_result(replayed, store=store)
+        assert replayed_ref.artifact_id == first_ref.artifact_id
+        assert store.get_bytes(replayed_ref) == first_bytes
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
+
+
+def test_committed_v1_joint_result_keeps_original_receipt_projection() -> None:
+    """Replay the one tracked v1 result projection without adding v2 fields."""
+
+    fixture_path = (
+        Path(__file__).resolve().parents[4]
+        / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+    )
+    embedded = json.loads(fixture_path.read_text(encoding="utf-8"))[
+        "recursive_runs"
+    ][0]["nodes"][2]["joint_simulation"]
+    payload = {key: value for key, value in embedded.items() if key != "receipt"}
+    assert "state_consumption" not in payload
+    parsed = JointSimulationResult.model_validate(embedded)
+    assert parsed.schema_version == "policyos.runtime.joint_simulation_horizon.v1"
+    verify_simulation_receipt(parsed.receipt, payload)
 
 
 @pytest.mark.parametrize(

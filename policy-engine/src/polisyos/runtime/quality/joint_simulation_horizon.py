@@ -43,6 +43,13 @@ from polisyos.runtime.quality.world_model_record import (
 )
 
 JOINT_SIMULATION_HORIZON_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
+JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION = (
+    "policyos.runtime.joint_simulation_horizon.v2"
+)
+WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS = (
+    "exec_plan_provenance_not_established",
+    "horizon_time_alignment_not_established",
+)
 
 EngineKind = Literal[
     "program_graph",
@@ -636,7 +643,10 @@ class FeedbackClassification(_StrictModel):
 class SimulationProofReceipt(_StrictModel):
     """Content-bound K_sim proof/calibration receipt for a real simulation run."""
 
-    schema_version: Literal["policyos.runtime.joint_simulation_horizon.v1"] = (
+    schema_version: Literal[
+        "policyos.runtime.joint_simulation_horizon.v1",
+        "policyos.runtime.joint_simulation_horizon.v2",
+    ] = (
         JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
     )
     receipt_id: str = Field(..., pattern=r"^joint_sim_receipt_[a-f0-9]{16}$")
@@ -656,10 +666,37 @@ class SimulationProofReceipt(_StrictModel):
     calibration_status: SimulationCalibrationStatus = "content_bound_run_receipt"
 
 
+class WorldStateConsumptionRecord(_StrictModel):
+    """Exact WMR state and controlled plan consumed by one candidate N5 run."""
+
+    world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    input_bindings_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    bound_state_snapshot_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    state_blob_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    state_slot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    selected_slot_paths: tuple[str, ...] = Field(min_length=1)
+    program_graph_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    exec_plan_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    exec_plan_manifest_profile_sha256: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    exec_plan_provenance: Literal["not_established"] = "not_established"
+    horizon_time_alignment: Literal["not_established"] = "not_established"
+
+    @property
+    def authority_limitations(self) -> tuple[str, str]:
+        """Return the two limitations that N8 must retain as candidate facts."""
+
+        return WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS
+
+
 class JointSimulationResult(_StrictModel):
     """N5 output artifact consumed by value gating, VOI, audit, and dashboards."""
 
-    schema_version: Literal["policyos.runtime.joint_simulation_horizon.v1"] = (
+    schema_version: Literal[
+        "policyos.runtime.joint_simulation_horizon.v1",
+        "policyos.runtime.joint_simulation_horizon.v2",
+    ] = (
         JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
     )
     world_model_record_ref: str
@@ -681,9 +718,23 @@ class JointSimulationResult(_StrictModel):
     refinement_decisions: tuple[dict[str, Any], ...] = ()
     promotion_ready_value_packet: dict[str, Any] = Field(default_factory=dict)
     diagnostics: dict[str, Any] = Field(default_factory=dict)
+    state_consumption: WorldStateConsumptionRecord | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     receipt: SimulationProofReceipt
 
     _content_payload: dict[str, Any] = PrivateAttr(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _versioned_state_consumption(self) -> JointSimulationResult:
+        if self.receipt.schema_version != self.schema_version:
+            raise ValueError("joint_simulation_receipt_schema_mismatch")
+        if self.schema_version == JOINT_SIMULATION_HORIZON_SCHEMA_VERSION:
+            if "state_consumption" in self.model_fields_set:
+                raise ValueError("joint_simulation_v1_cannot_claim_state_consumption")
+        elif self.state_consumption is None:
+            raise ValueError("joint_simulation_v2_state_consumption_missing")
+        return self
 
     def content_bound_payload(self) -> dict[str, Any]:
         """Return the exact payload that the receipt must content-bind."""
@@ -736,6 +787,14 @@ def build_content_bound_simulation_receipt(
     """Build a deterministic receipt over real trajectory, metrics, and diagnostics."""
 
     payload_dict = _json_ready(payload)
+    schema_version = payload_dict.get(
+        "schema_version", JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
+    )
+    if schema_version not in {
+        JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
+    }:
+        raise ProofReceiptError("receipt_schema_version_unsupported")
     diagnostics_dict = _json_ready(diagnostics)
     trajectory_hash = gy_content_hash(
         payload_dict.get("trajectory", payload_dict.get("trajectories", ()))
@@ -770,6 +829,7 @@ def build_content_bound_simulation_receipt(
         }
     )
     return SimulationProofReceipt(
+        schema_version=schema_version,
         receipt_id=f"joint_sim_receipt_{payload_hash.removeprefix('sha256:')[:16]}",
         engine_kind=engine_kind,
         payload_hash=payload_hash,
@@ -781,6 +841,43 @@ def build_content_bound_simulation_receipt(
         authoritative_for=authoritative_for,
         calibration_status=calibration_status,
     )
+
+
+def bind_world_state_consumption(
+    result: JointSimulationResult,
+    consumption: WorldStateConsumptionRecord,
+) -> JointSimulationResult:
+    """Content-bind the state actually installed into the candidate N5 plan."""
+
+    if result.schema_version != JOINT_SIMULATION_HORIZON_SCHEMA_VERSION:
+        raise ProofReceiptError("state_consumption_requires_v1_engine_result")
+    verify_simulation_receipt(result.receipt, result.content_bound_payload())
+    if result.world_model_record_content_hash != consumption.world_model_record_content_hash:
+        raise ProofReceiptError("state_consumption_world_mismatch")
+    if not any(
+        item.engine_kind == "program_graph" and item.decision == "selected"
+        for item in result.engine_decisions
+    ) or not result.trajectories:
+        raise ProofReceiptError("state_consumption_program_run_missing")
+    payload = deepcopy(result.content_bound_payload())
+    payload["schema_version"] = JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION
+    payload["state_consumption"] = consumption.model_dump(mode="json", exclude_none=True)
+    packet = dict(payload["promotion_ready_value_packet"])
+    packet["authority_blockers"] = list(
+        dict.fromkeys((*packet.get("authority_blockers", ()), *consumption.authority_limitations))
+    )
+    payload["promotion_ready_value_packet"] = packet
+    receipt = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind,
+        payload=payload,
+        diagnostics=payload["diagnostics"],
+    )
+    bound = JointSimulationResult.model_validate(
+        {**payload, "receipt": receipt.model_dump(mode="json")}
+    )
+    bound._content_payload = payload
+    verify_simulation_receipt(bound.receipt, bound.content_bound_payload())
+    return bound
 
 
 def verify_simulation_receipt(

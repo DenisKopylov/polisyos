@@ -2506,6 +2506,7 @@ def test_joint_port_accepts_label_drift_after_atom_world_resolution() -> None:
 def _cyc01_owner_bound_n5_case(
     *,
     runtime_hints: dict[str, Any] | None = None,
+    problem_seed: DesignProblem | None = None,
 ) -> tuple[DesignProblem, CycleSubstrateContext, object]:
     """Build canonical atom/context inputs without granting an NCM source."""
 
@@ -2522,9 +2523,9 @@ def _cyc01_owner_bound_n5_case(
     }
     if runtime_hints:
         hints.update(runtime_hints)
-    problem = _problem(f"cyc_n5_owner_boundary_{uuid4().hex}").model_copy(
-        update={"runtime_hints": hints}
-    )
+    if problem_seed is None:
+        problem_seed = _problem(f"cyc_n5_owner_boundary_{uuid4().hex}")
+    problem = problem_seed.model_copy(update={"runtime_hints": hints})
     registry = _lane0_registry(
         domain=problem.domain,
         source_id="l2_cyc:serializable_n5_builder.duckdb",
@@ -2671,6 +2672,196 @@ def _owner_n5_case_with_selected_ncm_ref(
     return problem, context, candidate
 
 
+@dataclass(frozen=True)
+class _OwnerProgramGraphN5Witness:
+    """Reusable persisted WMR/ProgramGraph witness for N5 and N8 tests."""
+
+    store: Any
+    problem: DesignProblem
+    context: CycleSubstrateContext
+    candidate: object
+    simulation: SimulationPortObservation
+    result: Any
+    world_model_build: Any
+    port: JointSimulationPort
+
+
+def _rebind_owner_cycle_record(
+    context: CycleSubstrateContext,
+    candidate: object,
+    world_record: Any,
+) -> tuple[CycleSubstrateContext, object]:
+    """Rebind a fixture's owner context and atoms to a WMR built from real state."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
+
+    rebound_context = build_cycle_substrate_context(
+        design_problem_ref=context.design_problem_ref,
+        domain=context.domain,
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=world_record,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=context.candidate_levers,
+        transport_context=context.transport_context,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=context.substrate_input_content_hash,
+    )
+    atoms = []
+    for atom in getattr(candidate, "intervention_atoms", ()):
+        rebound = atom.model_copy(
+            update={"world_model_record_ref": world_record.world_model_record_id}
+        )
+        rebound = rebound.model_copy(
+            update={"content_hash": intervention_atom_content_hash(rebound)}
+        )
+        atoms.append(type(atom).model_validate(rebound.model_dump(mode="python")))
+    rebound_candidate = SimpleNamespace(
+        candidate_id=candidate.candidate_id,
+        atom=atoms[0],
+        intervention_atoms=tuple(atoms),
+    )
+    return rebound_context, rebound_candidate
+
+
+def _owner_program_graph_n5_witness(
+    tmp_path: Path,
+    *,
+    income_values: tuple[float, float],
+    problem_seed: DesignProblem | None = None,
+) -> _OwnerProgramGraphN5Witness:
+    """Build an owner WMR and consume its state through the ordinary N5 builder.
+
+    The returned persisted result can also be passed to the N8 consumer tests.
+    Callers must close the guarded artifact store.
+    """
+
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.world_model_record import build_world_model_record
+    from tests.unit.runtime.quality import test_world_model_record as world_fixture
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _program_graph_plan
+
+    case_root = tmp_path / "owner-program-graph-world"
+    case_root.mkdir(parents=True, exist_ok=True)
+    store = guard_runtime_cas(
+        FileSystemCAS(tmp_path / "owner-runtime-cas").with_ambient_ownership_enforcement()
+    )
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            graph_plan = _program_graph_plan(case_root, store=store).model_copy(
+                update={"variable_map": {"firm_survival": "agents.income"}}
+            )
+            raw_plan = graph_plan.model_dump(mode="python")
+            # EnginePlan excludes runtime refs from model_dump; retain the refs
+            # needed by the ordinary owner request builder.
+            raw_plan.update(
+                {
+                    "program_graph_ref": graph_plan.program_graph_ref,
+                    "exec_plan_ref": graph_plan.exec_plan_ref,
+                }
+            )
+            runtime_hints = {
+                "joint_simulation_budget_ref": "budget://e02-r13-owner-program-graph/n5",
+                "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
+                # Candidate-only comparator: the low WMR has mean income
+                # (1000 + 2000) / 2 = 1500, and this fixture maps the outcome
+                # to agents.income. Keep the reference fixed across both runs;
+                # it is a controlled comparison point, not observed evidence.
+                "joint_simulation_baseline_state": {"firm_survival": 1500.0},
+                "joint_simulation_resource": "program_graph",
+                "joint_simulation_engine_plan": raw_plan,
+                "joint_simulation_variable_map": {"firm_survival": "agents.income"},
+            }
+            problem, seed_context, seed_candidate = _cyc01_owner_bound_n5_case(
+                runtime_hints=runtime_hints,
+                problem_seed=problem_seed,
+            )
+
+            world_fixture._write_fabric_world_snapshot(case_root)
+            payload = copy.deepcopy(world_fixture.FABRIC_PAYLOAD)
+            payload["agents"]["income"] = list(income_values)
+            payload_ref = world_fixture._put_json(
+                store,
+                payload,
+                kind="fabric.world_payload",
+            )
+            data_snapshot_ref = world_fixture._put_json(
+                store,
+                DataSnapshot(
+                    data_ref=payload_ref,
+                    stats={"snapshot_id": world_fixture.SNAPSHOT_ID},
+                    notes=[f"snapshot_id:{world_fixture.SNAPSHOT_ID}"],
+                ),
+                kind="fabric.data_snapshot",
+            )
+            registry_bundle = build_default_registry_bundle(store)
+            model_spec = world_fixture._model_spec(
+                data_snapshot_ref,
+                registry_bundle.bundle_ref,
+            )
+            world_model_build = build_world_model_record(
+                store,
+                fabric_world_ref=world_fixture._fabric_ref(case_root),
+                data_forge_snapshot_binding_path=world_fixture._write_data_forge_binding(
+                    case_root
+                ),
+                data_snapshot_ref=data_snapshot_ref,
+                model_spec=model_spec,
+                skg_causal_prior_ref=world_fixture._skg_ref(case_root),
+                substrate_registry=seed_context.substrate_registry,
+                region_or_jurisdiction="UA-30",
+                population_scope="wartime_msme",
+                policy_domain="fiscal_credit",
+                valid_time_scope="2026-05-24/2026-12-31",
+                tx_time_scope="2026-05-24T12:00:00+00:00",
+                resolution="firm_month",
+                branch_mode=world_fixture.BranchMode.OBSERVED,
+                policy_slot_ids=("agents.income", "government.balance"),
+                producer_ref="test.cycle_owner_program_graph_n5",
+                program_graph_refs=(str(graph_plan.program_graph_ref.artifact_id),),
+            )
+            context, candidate = _rebind_owner_cycle_record(
+                seed_context,
+                seed_candidate,
+                world_model_build.record,
+            )
+            port = JointSimulationPort(
+                repo_root=REPO_ROOT,
+                cycle_substrate_context=context,
+                artifact_store=store,
+            )
+            simulation = port(candidate=candidate, problem=problem, cycle_index=0)
+            if simulation.simulation_result_ref is None:
+                raise AssertionError(
+                    "owner-built ProgramGraph N5 did not persist a result: "
+                    f"{simulation.authority_blockers!r}"
+                )
+            result = load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=world_model_build.record.content_hash,
+            )
+        return _OwnerProgramGraphN5Witness(
+            store=store,
+            problem=problem,
+            context=context,
+            candidate=candidate,
+            simulation=simulation,
+            result=result,
+            world_model_build=world_model_build,
+            port=port,
+        )
+    except Exception:
+        store.close()
+        raise
+
+
 def _runtime_ncm_fixture_store(
     tmp_path: Path, *, schema_version: str = "1.0"
 ) -> tuple[Any, Any, str]:
@@ -2753,6 +2944,281 @@ def test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_con
         assert not (repo_root / ".tmp" / "gy-s-composed-wmr-cas").exists()
     finally:
         store.close()
+
+
+def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
+    tmp_path: Path,
+) -> None:
+    """An unbound PG plan cannot suppress a later WMR-selected NCM plan."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        EnginePlan,
+        JointSimulationHorizonController,
+        JointSimulationRequest,
+    )
+
+    store, _expected, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    unbound_store = FileSystemCAS(tmp_path / "unbound-program-store")
+    request_seen: list[JointSimulationRequest] = []
+    try:
+        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(ncm_ref)
+        owner_port = JointSimulationPort(
+            repo_root=tmp_path / "empty-repo",
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            owner_request = owner_port._build_joint_simulation_request(
+                candidate=candidate,
+                problem=problem,
+            )
+
+        assert len(owner_request.engine_plan) == 1
+        assert owner_request.engine_plan[0].engine_kind == "ncm_parallel_worlds"
+        unbound_program_plan = EnginePlan(
+            engine_kind="program_graph",
+            objective_ref="objective://firm_survival",
+            eligibility_conditions=("acyclic", "state_transition"),
+            program_store=unbound_store,
+            program_base_state=object(),
+        )
+        ordered_request = owner_request.model_copy(
+            update={
+                "engine_plan": (unbound_program_plan, *owner_request.engine_plan),
+                "baseline_state": {"firm_survival": 0.0},
+            }
+        )
+        served_problem = problem.model_copy(
+            update={"runtime_hints": {"joint_simulation_request": ordered_request}}
+        )
+        canonical_controller = JointSimulationHorizonController()
+
+        class _RecordingController:
+            def run(self, concrete_request: JointSimulationRequest) -> object:
+                request_seen.append(concrete_request)
+                return canonical_controller.run(concrete_request)
+
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            observation = JointSimulationPort(
+                controller=_RecordingController(),
+                repo_root=tmp_path / "empty-repo",
+                artifact_store=store,
+            )(
+                candidate=candidate,
+                problem=served_problem,
+                cycle_index=0,
+            )
+
+        assert observation.status == "joint_simulated"
+        assert len(request_seen) == 1
+        assert request_seen[0].engine_plan[0].program_store is None
+        assert request_seen[0].engine_plan[0].program_base_state is None
+        assert [
+            (item["engine_kind"], item["decision"])
+            for item in observation.diagnostics["engine_decisions"]
+        ] == [
+            ("program_graph", "unsupported"),
+            ("ncm_parallel_worlds", "selected"),
+        ]
+    finally:
+        for backing_store in (unbound_store, store):
+            close = getattr(backing_store, "close", None)
+            if callable(close):
+                close()
+
+
+def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits(
+    tmp_path: Path,
+) -> None:
+    """The ordinary owner request builder consumes different WMR state at N5."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    low = _owner_program_graph_n5_witness(
+        tmp_path / "low",
+        income_values=(1000.0, 2000.0),
+    )
+    high = _owner_program_graph_n5_witness(
+        tmp_path / "high",
+        income_values=(4000.0, 8000.0),
+        problem_seed=low.problem,
+    )
+    try:
+        assert gy_content_hash(low.problem.model_dump(mode="json")) == gy_content_hash(
+            high.problem.model_dump(mode="json")
+        )
+        assert low.context.design_problem_ref == high.context.design_problem_ref
+        assert low.candidate.candidate_id == high.candidate.candidate_id
+        assert low.simulation.status == high.simulation.status == "joint_simulated"
+        assert low.result.schema_version == high.result.schema_version == (
+            "policyos.runtime.joint_simulation_horizon.v2"
+        )
+        assert low.result.horizon == high.result.horizon
+        assert low.result.selected_outcomes == high.result.selected_outcomes
+
+        persisted_limitation_codes = {
+            "exec_plan_provenance_not_established",
+            "horizon_time_alignment_not_established",
+        }
+        values = []
+        for witness, expected_income in (
+            (low, (1000.0, 2000.0)),
+            (high, (4000.0, 8000.0)),
+        ):
+            state_record = witness.result.state_consumption
+            assert state_record is not None
+            assert state_record.exec_plan_provenance == "not_established"
+            assert state_record.horizon_time_alignment == "not_established"
+            assert state_record.world_model_record_content_hash == (
+                witness.world_model_build.record.content_hash
+            )
+            assert state_record.input_bindings_ref == (
+                witness.world_model_build.record.foundry_binding_ref.input_bindings_ref
+            )
+            assert state_record.bound_state_snapshot_ref == str(
+                witness.world_model_build.bound_state_snapshot_ref.artifact_id
+            )
+            assert state_record.state_slot_digest == (
+                witness.world_model_build.record.foundry_binding_ref.state_slot_digest
+            )
+            assert state_record.program_graph_ref in (
+                witness.world_model_build.record.simulation_model_ref.program_graph_refs
+            )
+            actual_income = tuple(
+                float(value)
+                for value in witness.world_model_build.bound_global_state.agents.income
+            )
+            assert actual_income == pytest.approx(expected_income)
+            assert persisted_limitation_codes.issubset(
+                witness.result.promotion_ready_value_packet["authority_blockers"]
+            )
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                value = generation_cycle_module._DefaultSimulationBoundFoundryValuePort(
+                    repo_root=REPO_ROOT,
+                    cycle_substrate_context=witness.context,
+                    artifact_store=witness.store,
+                )(
+                    candidate=witness.candidate,
+                    simulation=witness.simulation,
+                    problem=witness.problem,
+                    cycle_index=0,
+                )
+            assert value.status == "value_conditional"
+            assert value.evaluation_mode == "simulate_only"
+            assert value.decision_grade == "low"
+            assert persisted_limitation_codes.issubset(value.authority_blockers)
+            joint = witness.result.trajectory_for(
+                "joint",
+                ("income_subsidy", "balance_grant"),
+            )
+            values.append(joint.points[-1].outcomes["firm_survival"])
+
+        assert low.result.state_consumption.state_blob_content_hash != (
+            high.result.state_consumption.state_blob_content_hash
+        )
+        assert low.result.state_consumption.program_graph_ref == (
+            high.result.state_consumption.program_graph_ref
+        )
+        assert low.result.state_consumption.exec_plan_ref == (
+            high.result.state_consumption.exec_plan_ref
+        )
+        assert values[0] != pytest.approx(values[1])
+    finally:
+        low.store.close()
+        high.store.close()
+
+
+def test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Removing only the state assignment makes behavior fail while markers stay."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    original = JointSimulationPort._bound_program_plan
+    common_state: list[Any] = []
+
+    def without_state_handoff(
+        self: JointSimulationPort,
+        request: Any,
+        plan: Any,
+    ) -> tuple[Any, Any]:
+        owner_plan, consumption = original(self, request, plan)
+        assert owner_plan.program_base_ref is not None
+        assert owner_plan.program_base_state is not None
+        if not common_state:
+            common_state.append(owner_plan.program_base_state)
+        return owner_plan.model_copy(
+            update={"program_base_state": common_state[0]}
+        ), consumption
+
+    monkeypatch.setattr(JointSimulationPort, "_bound_program_plan", without_state_handoff)
+    low = _owner_program_graph_n5_witness(
+        tmp_path / "low",
+        income_values=(1000.0, 2000.0),
+    )
+    high = _owner_program_graph_n5_witness(
+        tmp_path / "high",
+        income_values=(4000.0, 8000.0),
+        problem_seed=low.problem,
+    )
+    try:
+        first = low.result.state_consumption
+        second = high.result.state_consumption
+        assert first is not None and second is not None
+        assert first.world_model_record_content_hash == low.context.world_model_record.content_hash
+        assert second.world_model_record_content_hash == high.context.world_model_record.content_hash
+        assert first.bound_state_snapshot_ref != second.bound_state_snapshot_ref
+        assert first.state_blob_content_hash != second.state_blob_content_hash
+        assert first.state_slot_digest != second.state_slot_digest
+        assert first.program_graph_ref == second.program_graph_ref
+        assert first.exec_plan_ref == second.exec_plan_ref
+
+        def joint_outcome(witness: _OwnerProgramGraphN5Witness) -> float:
+            return witness.result.trajectory_for(
+                "joint",
+                ("income_subsidy", "balance_grant"),
+            ).points[-1].outcomes["firm_survival"]
+
+        # The first owner-resolved state is reused for both calls. The second
+        # run retains its WMR markers, but its behavioral input is wrong.
+        with pytest.raises(AssertionError):
+            assert joint_outcome(low) != pytest.approx(joint_outcome(high))
+    finally:
+        low.store.close()
+        high.store.close()
+
+    ncm_store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path / "ncm-control")
+    try:
+        # Match the canonical _request() fixture: firm_survival is a probability
+        # with an explicit unit-survival reference of 1.0. This is a candidate-
+        # only NCM control comparator, not observed or promotion evidence.
+        ncm_control_hints = {
+            "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+            "joint_simulation_baseline_state": {"firm_survival": 1.0},
+        }
+        problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+            ncm_ref,
+            runtime_hints=ncm_control_hints,
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            control = JointSimulationPort(
+                repo_root=REPO_ROOT,
+                cycle_substrate_context=context,
+                artifact_store=ncm_store,
+            )(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=0,
+            )
+        assert control.status == "joint_simulated"
+        assert control.diagnostics["engine_decisions"][-1]["engine_kind"] == (
+            "ncm_parallel_worlds"
+        )
+    finally:
+        ncm_store.close()
 
 
 @pytest.mark.asyncio

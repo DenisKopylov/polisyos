@@ -1,19 +1,50 @@
 # E02-R2 write leases
 
+## R13/B12 snapshot typed-view custody expansion (2026-09-30)
+
+Root alone writes the canonical branch. After the first guarded-store probe
+found a foreign-tenant sidecar read and a lost manifest-view selector, the
+R13/B12 snapshot write set expands to
+`policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py`
+and `policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py`.
+The scratch candidate writer and independent reviewer have read-only access
+to the canonical tree and may prepare patches outside it. No other writer
+holds these two files. The design is pinned in
+`/Users/deniskopylov/.codex/scratch/e02-r13-snapshot-tenant-custody-design-v2-20260930.md@sha256:58615a63d385579bc1eaf87cd470de5cd0ebeea7f0643f9ace40dbe05ca3c5d6`.
+
+The single property is that an owner-written snapshot uses the runtime-supplied
+tenant store and retains its exact typed CAS view through the state-blob write,
+lineage, wrapper, and readback. The first `has(ArtifactID)` patch is not an
+accepted fix: it can read a foreign default manifest and loses the selector.
+Use the CAS's `put_bytes` typed-view admission; do not inspect raw paths or
+construct a second store. Retain the old default manifest byte-exactly and
+prove foreign access is denied. A marker-retaining selector-removal probe must
+turn red, while a current typed view and a historical default view both remain
+readable by their owners. This is the second P40 finding of the same class,
+so widen the mechanism, then bound any remaining residual by its falsifier.
+No governed receipt, epoch, generated family, plan or debt register is leased.
+
 ## R13/B12 controlled WMR state consumption by N5 (2026-09-30)
 
-Root may write exactly four files in the clean attached `codex/e02-r2`
+Root may write the following source and test files in the clean attached `codex/e02-r2`
 integration worktree after independent design review:
 `policy-engine/src/polisyos/runtime/quality/generation_cycle.py`,
 `policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py`,
 `policy-engine/tests/unit/runtime/quality/test_generation_cycle.py`, and
-`policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py`.
+`policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py`, and
+`policy-engine/tests/unit/remediation/test_cyc_02.py`.
 No other writer holds these paths; R2's temporal lease on the first file was
 released at `977943ed9`. The reviewed design target is
 `/Users/deniskopylov/.codex/scratch/e02-r13-candidate-n5-lease-design-20260930/R13_N5_CANDIDATE_LEASE_DESIGN.md@sha256:e6eeaca2d66ab36de409e4072ceb0663f147391b6fa98bc5a8bc35047d390fc6`.
 
 The property is numerical consumption of the WMR-bound Foundry StateSnapshot
 through the injected tenant store by the existing ProgramGraph N5 runner.
+The remediation test is in this lease because the v1 EvalSafety helper now
+requires the injected store to verify a persisted N5 result before naming its
+schema. Its synthetic no-store call failed on 2026-09-30 while the two
+independent N5 controls passed; the test must supply its existing real store.
+The same file may pin the v2 stripped-blocker refusal. This amends only the
+test surface; no authority producer or historical receipt is reissued.
 Require a WMR-listed graph, load and compare the controlled candidate plan,
 override caller-provided state/store runtime fields, and persist a versioned,
 typed content-bound consumption record. Plan provenance and horizon time

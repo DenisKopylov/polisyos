@@ -431,9 +431,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "not_measured",
-        "detail": "R1/R5 now give bounded owner-object and served candidate-band results, but the card-level ordinary request → actual N5 result-derived context path is still unmeasured. Keep current partial status; no finding-level verdict is inferred. The R1 031e witness is bounded N4 candidate work only and does not measure the card’s served N5 result-derived-context discriminator; the finding-level relation remains not_measured."
+        "detail": "Appendix C partial remains. One selected R5 identity is recorded pass\u2192fail at the execution/Main/integration vs E02-head snapshots, but the exact test-body input closure is `BODY_SAME_INPUT_CLOSURE_UNMEASURED` and owner attribution is `UNRESOLVED`. `BASELINES.md` line 237 records the selected outcomes; its full-file four-base row at line 955 says `UNRUN`. Preserve the internal table discrepancy and raw observations without assigning E02 causation. The later bounded 28/28 repair/removal evidence does not resolve historical ownership. Current expanded three-mode replay and B01's separate served N4\u2192N5 result-derived-context criterion remain unmeasured; keep B01 partial."
       },
-      "residual": "The ordinary served candidate band is now exercised: R5 persists a plain-language N4 candidate without requiring N6/S8 or publication, and protected non-simulation intent still requires current EvalSafety. R1 adds a context artifact owner bound to the guarded current job. The remaining B01 discriminator is the same served request reaching allowed N5 computation with an actual N5 result-derived context from a compatible candidate-grade WMR; explicit N4 without a context still refuses. The source builder exists for UA/fiscal_credit/2021–2023, but the current served social/2024–2026/credit_access problem is incompatible and no tenant-store WMR or positive HTTP→N5→CAS chain is established. Keep candidate work available with typed unknown scope; retain authority gates. Finding-level four-base replay remains UNRUN. The untested time relation is the same R1/P38 scope-binding class one level deeper under P40, not a new interval-specific class; widen the generic owner predicate instead of patching one fixture. Bounded R1 evidence at code commit 031e2133c: a served persisted `simulate_only_attempt` with no CycleSubstrateContext takes the N4-only route, persists and reopens a content-bound `N4CandidateProposalSimulationRecord.v2`, and records `simulation_unavailable/cycle_substrate_context_not_established` with N5/N8/N9/S8 `not_run`. This does not establish B01’s allowed N5 computation with a context derived from an actual N5 result. A positive served N4→N5→S8 path over compatible tenant-store WMR/context and currentness remains unestablished.",
+      "residual": "The selected R5 identity `test_non_simulation_leaf_requires_current_eval_safety_head` has a recorded pass\u2192fail outcome across execution base/Main/integration versus E02 head, but its input closure is `BODY_SAME_INPUT_CLOSURE_UNMEASURED` and owner attribution is `UNRESOLVED`. `BASELINES.md` line 237 records the selected outcome, while line 955 marks the full-file E02 base\u2192head cell `UNRUN`; preserve this as a table-denominator discrepancy, not a causal E02 regression. The later bounded 28/28 R5 owner wave and marker-retaining removal receipt show the gate repaired at that snapshot, not who introduced the earlier red. The current expanded three-mode whole-file/four-base replay remains `UNRUN`. B01's separate discriminator is still a served request reaching allowed N5 with context derived from the actual N5 result over compatible candidate-grade WMR; current tenant-bound data/profile production is not established. Keep protected authority gated and ordinary candidate work available with a typed unknown. No status change or current P41 causal attribution is claimed. Limitation: source snapshot identity not independently recoverable for the bounded R1 031e run_lifecycle.py input; its unverified file pin is omitted, and no replacement hash is asserted. This does not remove the separate R5 selected JUnit/receipt observation: same-input closure remains BODY_SAME_INPUT_CLOSURE_UNMEASURED and owner attribution remains UNRESOLVED.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "Runtime HTTP composition and generation-cycle owner; AcquisitionWorldGrowthBridge owner for canonical post-growth/store witness",
@@ -511,7 +511,7 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_SERVED_CONTEXT_HANDOFF_V2_INDEPENDENT_REVIEW.md@sha256:c95848c9fd3f7660d59931bcd7e4020d1512d00ffb51d0de73107b1e28ce06ae",
           "candidate_patch_sha256": "df25bb63b13754ca8ee5b561074213a70a653e64a9efeadcc4fef959e3abff0a",
           "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
-          "scope": "The reviewed V2 is an optional context-handoff injection seam, not a production profile resolver or initial served bridge. Its source search found 0/2,907 tracked policy-engine/src files with the named CycleSubstrateContextCandidateSource / cycle_substrate_context_candidate_source / resolve_candidate_context providers. This does not mean no WMR producer exists: a fixed Ukraine/fiscal-credit DataState→WMR producer is separately present, but it does not select a capability-neutral profile or bind the served job handoff. Candidate tests, marker-retaining removal, ordinary no-resolver front-door control and four-base replay are UNRUN. P40: same R1 class one level deeper; stop instance callbacks/scope patches. The missing closure capability is an appointed profile source binding selection to current data/epoch and installed in served composition. See the owner census and distinct time-scope review in the row refs."
+          "scope": "The reviewed V2 is an optional context-handoff injection seam, not a production profile resolver or initial served bridge. Its source search found 0/2,907 tracked policy-engine/src files with the named CycleSubstrateContextCandidateSource / cycle_substrate_context_candidate_source / resolve_candidate_context providers. This does not mean no WMR producer exists: a fixed Ukraine/fiscal-credit DataState\u2192WMR producer is separately present, but it does not select a capability-neutral profile or bind the served job handoff. Candidate tests, marker-retaining removal, ordinary no-resolver front-door control and four-base replay are UNRUN. P40: same R1 class one level deeper; stop instance callbacks/scope patches. The missing closure capability is an appointed profile source binding selection to current data/epoch and installed in served composition. See the owner census and distinct time-scope review in the row refs."
         },
         "r1_time_scope_candidate_independent_review_2026_09_27": {
           "identity": "R1 generic DataState time-scope candidate independent review at a5141d432",
@@ -519,7 +519,7 @@
           "review_verdict": "BLOCK",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-candidate-n5-patches-20260927/time-guard/R1_TIME_SCOPE_CANDIDATE_INDEPENDENT_REVIEW.md@sha256:7195aaee03de64908a9b356ef3e88dfaea898ebae281b1963a099c606e070a42",
           "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
-          "scope": "The proposed generic check compares request data_time with WorldModelRecord.valid_time_scope, which has a different generic bitemporal role; it can refuse valid retrospective candidate work and hard-refuses unknown/unparsed time. It is not an evidence-based source-coverage predicate, has no served production caller, and does not close the selector→profile producer/bridge gap. The reviewer classifies this as the same R1 class one level deeper under P40; do not add parser cases. This is a review of an unapplied patch; author-reported RED/GREEN is not an independent removal receipt. Four-base replay remains UNRUN."
+          "scope": "The proposed generic check compares request data_time with WorldModelRecord.valid_time_scope, which has a different generic bitemporal role; it can refuse valid retrospective candidate work and hard-refuses unknown/unparsed time. It is not an evidence-based source-coverage predicate, has no served production caller, and does not close the selector\u2192profile producer/bridge gap. The reviewer classifies this as the same R1 class one level deeper under P40; do not add parser cases. This is a review of an unapplied patch; author-reported RED/GREEN is not an independent removal receipt. Four-base replay remains UNRUN."
         },
         "r1_world_profile_owner_census_a514_2026_09_27": {
           "identity": "R1 world-profile owner and served-path census at a5141d432",
@@ -527,37 +527,48 @@
           "review_verdict": "PASS_BOUNDED_SOURCE_CENSUS",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_WORLD_PROFILE_OWNER_CENSUS_A514.md@sha256:200bebc024648c6b5e78254d5241f9f8465802b8c20caf09c189db6b1ca6286e",
           "source_head": "a5141d432912efc5611129ce0b22d13a30762dfc",
-          "scope": "Read-only census: 3,447 tracked src/tools paths (2,907 src, 540 tools), 3,141 tracked Python files parsed with zero syntax errors; no imports/tests/production_data reads. A fixed Ukraine/fiscal-credit DataState→WMR producer is present, while capability-neutral profile admission/selection is producer_missing and initial served job-scoped context handoff is bridge_missing. The separate exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so the census does not prove a served fallback or product regression. Reachability of the exported API path by a production caller is under investigation. The producer also sets time-scope metadata without applying those bounds in inspected queries. Static source/callgraph evidence only; no behavior or closure claim."
+          "scope": "Read-only census: 3,447 tracked src/tools paths (2,907 src, 540 tools), 3,141 tracked Python files parsed with zero syntax errors; no imports/tests/production_data reads. A fixed Ukraine/fiscal-credit DataState\u2192WMR producer is present, while capability-neutral profile admission/selection is producer_missing and initial served job-scoped context handoff is bridge_missing. The separate exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so the census does not prove a served fallback or product regression. Reachability of the exported API path by a production caller is under investigation. The producer also sets time-scope metadata without applying those bounds in inspected queries. Static source/callgraph evidence only; no behavior or closure claim."
         },
-          "r1_031e_served_candidate_fallback": {
-            "identity": "R1 served no-context simulate-only N4 proposal fallback at 031e2133c",
-            "kind": "bounded_served_candidate_proposal_without_simulation",
-            "code_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
-            "behavioral_verdict": "PASS_BOUNDED",
-            "scope": "The served persisted simulate_only_attempt route with no CycleSubstrateContext runs N4, persists and reopens N4CandidateProposalSimulationRecord.v2, and carries simulation_unavailable/cycle_substrate_context_not_established. N5/N8/N9/S8 remain not_run. A valid owner-bound context is refused by the N4-only selector, and a separate direct N5 context-preserving control passes. This is bounded candidate computation, not a positive N4→N5→S8 witness. B01/B02/B03 remain partial; finding-level four-base P41 remains UNRUN.",
-            "p41_comparison": {
-              "base_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
-              "cohort_count": 7,
-              "common_identity_count": 144,
-              "common_pass_to_nonpass_count": 0,
-              "limitation": "Exact same-environment pre-R1 comparison for the listed cohorts; not the full four-base 21-file matrix.",
-              "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/R1_POST_STRUCTURAL_P41.json@sha256:01573aee7a89896bcbce52cc977b3501cf3dacafdb2da4234d4ee636b44f2aed"
-            },
-            "witness_refs": [
-              "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:28dee83c603e010888d416a310d8e4b2276b77a647a892261c2a77e3efeea4dd",
-              "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@sha256:002677e63e29d95ab69e849dde878a50ebcce451e6ca203ca6953e6ae877fae6",
-              "policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:dcc2c980d29ea6de31c1d4965210d91adb4d70d0814860a1250d5a79cea6c756",
-              "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py@sha256:ca1962deb13e2906f10af43451d84e61171497d2a1df552b04e61c2849068348",
-              "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py@sha256:f6dfe33b0e7de0b69d4222614e737372d9b37af19d2528d2f56b997e96add1bd",
-              "policy-engine/tests/unit/runtime/quality/test_generation_source.py@sha256:c8740402393c919a2a8dec52c96cf63ab454a192685b1e6dd5307bf4a37a52d9",
-              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/intent-final.junit.xml@sha256:b7b41469a93900b5025f41583fb40ca487202b7b8280a649220d12bb81cc59d2",
-              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/http.junit.xml@sha256:597ebccf595c7e72b11b81c29373773952c04c5a1511778320eeff98402f06c8",
-              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/nl-acq.junit.xml@sha256:6f18bc2b29bbc8fe7d56f878152081fc800d66f406dd597346f2902f33656eb6",
-              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/source.junit.xml@sha256:d68b72024d5bb6e7d8b307bbf5dc69cc134096475f13d9f66c2772cbc4ef3a9f",
-              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/context-conflict.junit.xml@sha256:67175c8407d7d424b927ce6acde926aa36adbe706ed17596662c9822a62bac00",
-              "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/epoch-context.junit.xml@sha256:9f95fc444264dfab5b11713fa00b7ee1ad04b48d689ebe2474be86d9ca4548cd"
-            ]
-          }
+        "r1_031e_served_candidate_fallback": {
+          "identity": "R1 served no-context simulate-only N4 proposal fallback at 031e2133c",
+          "kind": "bounded_served_candidate_proposal_without_simulation",
+          "code_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "The served persisted simulate_only_attempt route with no CycleSubstrateContext runs N4, persists and reopens N4CandidateProposalSimulationRecord.v2, and carries simulation_unavailable/cycle_substrate_context_not_established. N5/N8/N9/S8 remain not_run. A valid owner-bound context is refused by the N4-only selector, and a separate direct N5 context-preserving control passes. This is bounded candidate computation, not a positive N4\u2192N5\u2192S8 witness. B01/B02/B03 remain partial; finding-level four-base P41 remains UNRUN. Source snapshot identity not independently recoverable for the unverified run_lifecycle.py file pin; no replacement hash is asserted.",
+          "p41_comparison": {
+            "base_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
+            "cohort_count": 7,
+            "common_identity_count": 144,
+            "common_pass_to_nonpass_count": 0,
+            "limitation": "Exact same-environment pre-R1 comparison for the listed cohorts; not the full four-base 21-file matrix.",
+            "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/R1_POST_STRUCTURAL_P41.json@sha256:01573aee7a89896bcbce52cc977b3501cf3dacafdb2da4234d4ee636b44f2aed"
+          },
+          "witness_refs": [
+            "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:28dee83c603e010888d416a310d8e4b2276b77a647a892261c2a77e3efeea4dd",
+            "policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:dcc2c980d29ea6de31c1d4965210d91adb4d70d0814860a1250d5a79cea6c756",
+            "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py@sha256:ca1962deb13e2906f10af43451d84e61171497d2a1df552b04e61c2849068348",
+            "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py@sha256:f6dfe33b0e7de0b69d4222614e737372d9b37af19d2528d2f56b997e96add1bd",
+            "policy-engine/tests/unit/runtime/quality/test_generation_source.py@sha256:c8740402393c919a2a8dec52c96cf63ab454a192685b1e6dd5307bf4a37a52d9",
+            "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/intent-final.junit.xml@sha256:b7b41469a93900b5025f41583fb40ca487202b7b8280a649220d12bb81cc59d2",
+            "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/http.junit.xml@sha256:597ebccf595c7e72b11b81c29373773952c04c5a1511778320eeff98402f06c8",
+            "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/nl-acq.junit.xml@sha256:6f18bc2b29bbc8fe7d56f878152081fc800d66f406dd597346f2902f33656eb6",
+            "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/source.junit.xml@sha256:d68b72024d5bb6e7d8b307bbf5dc69cc134096475f13d9f66c2772cbc4ef3a9f",
+            "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/context-conflict.junit.xml@sha256:67175c8407d7d424b927ce6acde926aa36adbe706ed17596662c9822a62bac00",
+            "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/epoch-context.junit.xml@sha256:9f95fc444264dfab5b11713fa00b7ee1ad04b48d689ebe2474be86d9ca4548cd"
+          ]
+        },
+        "r5_p41_attribution_reconciliation": {
+          "kind": "selected_outcome_with_unresolved_input_closure_and_table_discrepancy",
+          "identity": "test_non_simulation_leaf_requires_current_eval_safety_head",
+          "observed_outcome": "PASS_TO_FAIL in the selected E02-base\u2192E02-head result set; pass at execution/Main/integration and fail at E02 head",
+          "input_equivalence": "BODY_SAME_INPUT_CLOSURE_UNMEASURED",
+          "owner_attribution": "UNRESOLVED",
+          "selected_result_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260928T125934Z-16379/results.json@sha256:1302d9a2e963e8b0aa52450ba517aa47a345fe6ed40ccefc1a184cf329631eba#L138-L147",
+          "analysis_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-baselines/p41-custom-20260928T125934Z-16379.analysis.md@sha256:4f68dbdecba11e56bd8b11b576bb1ca7e2a2d0bacd3f1ff36300a3d6f536d0fb#L42-L48",
+          "baseline_selected_narrative_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@git-blob:5d7661b50e4328bd301f6127a50db7fae36648b8#L237",
+          "baseline_full_file_p41_row_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@git-blob:5d7661b50e4328bd301f6127a50db7fae36648b8#L955",
+          "disposition": "Treat the selected pass/fail as an observation with unresolved ownership. The full-file matrix cell remains UNRUN. The bounded later repair does not prove E02 introduced the failure."
+        }
       }
     },
     {
@@ -678,7 +689,7 @@
             "kind": "bounded_served_candidate_proposal_without_simulation",
             "code_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
             "behavioral_verdict": "PASS_BOUNDED",
-            "scope": "The served persisted simulate_only_attempt route with no CycleSubstrateContext runs N4, persists and reopens N4CandidateProposalSimulationRecord.v2, and carries simulation_unavailable/cycle_substrate_context_not_established. N5/N8/N9/S8 remain not_run. A valid owner-bound context is refused by the N4-only selector, and a separate direct N5 context-preserving control passes. This is bounded candidate computation, not a positive N4→N5→S8 witness. B01/B02/B03 remain partial; finding-level four-base P41 remains UNRUN.",
+            "scope": "The served persisted simulate_only_attempt route with no CycleSubstrateContext runs N4, persists and reopens N4CandidateProposalSimulationRecord.v2, and carries simulation_unavailable/cycle_substrate_context_not_established. N5/N8/N9/S8 remain not_run. A valid owner-bound context is refused by the N4-only selector, and a separate direct N5 context-preserving control passes. This is bounded candidate computation, not a positive N4→N5→S8 witness. B01/B02/B03 remain partial; finding-level four-base P41 remains UNRUN. Source snapshot identity not independently recoverable for the unverified run_lifecycle.py file pin; no replacement hash is asserted.",
             "p41_comparison": {
               "base_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
               "cohort_count": 7,
@@ -689,8 +700,7 @@
             },
             "witness_refs": [
               "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:28dee83c603e010888d416a310d8e4b2276b77a647a892261c2a77e3efeea4dd",
-              "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@sha256:002677e63e29d95ab69e849dde878a50ebcce451e6ca203ca6953e6ae877fae6",
-              "policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:dcc2c980d29ea6de31c1d4965210d91adb4d70d0814860a1250d5a79cea6c756",
+                "policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:dcc2c980d29ea6de31c1d4965210d91adb4d70d0814860a1250d5a79cea6c756",
               "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py@sha256:ca1962deb13e2906f10af43451d84e61171497d2a1df552b04e61c2849068348",
               "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py@sha256:f6dfe33b0e7de0b69d4222614e737372d9b37af19d2528d2f56b997e96add1bd",
               "policy-engine/tests/unit/runtime/quality/test_generation_source.py@sha256:c8740402393c919a2a8dec52c96cf63ab454a192685b1e6dd5307bf4a37a52d9",
@@ -822,7 +832,7 @@
             "kind": "bounded_served_candidate_proposal_without_simulation",
             "code_commit": "031e2133c56b5dd55b53c4b0c02b45d0b4ee0e3c",
             "behavioral_verdict": "PASS_BOUNDED",
-            "scope": "The served persisted simulate_only_attempt route with no CycleSubstrateContext runs N4, persists and reopens N4CandidateProposalSimulationRecord.v2, and carries simulation_unavailable/cycle_substrate_context_not_established. N5/N8/N9/S8 remain not_run. A valid owner-bound context is refused by the N4-only selector, and a separate direct N5 context-preserving control passes. This is bounded candidate computation, not a positive N4→N5→S8 witness. B01/B02/B03 remain partial; finding-level four-base P41 remains UNRUN.",
+            "scope": "The served persisted simulate_only_attempt route with no CycleSubstrateContext runs N4, persists and reopens N4CandidateProposalSimulationRecord.v2, and carries simulation_unavailable/cycle_substrate_context_not_established. N5/N8/N9/S8 remain not_run. A valid owner-bound context is refused by the N4-only selector, and a separate direct N5 context-preserving control passes. This is bounded candidate computation, not a positive N4→N5→S8 witness. B01/B02/B03 remain partial; finding-level four-base P41 remains UNRUN. Source snapshot identity not independently recoverable for the unverified run_lifecycle.py file pin; no replacement hash is asserted.",
             "p41_comparison": {
               "base_head": "9e0bb0d342ae704f17773ca2c815ef620a309af3",
               "cohort_count": 7,
@@ -833,8 +843,7 @@
             },
             "witness_refs": [
               "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py@sha256:28dee83c603e010888d416a310d8e4b2276b77a647a892261c2a77e3efeea4dd",
-              "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py@sha256:002677e63e29d95ab69e849dde878a50ebcce451e6ca203ca6953e6ae877fae6",
-              "policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:dcc2c980d29ea6de31c1d4965210d91adb4d70d0814860a1250d5a79cea6c756",
+                "policy-engine/src/polisyos/runtime/quality/generation_source.py@sha256:dcc2c980d29ea6de31c1d4965210d91adb4d70d0814860a1250d5a79cea6c756",
               "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py@sha256:ca1962deb13e2906f10af43451d84e61171497d2a1df552b04e61c2849068348",
               "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py@sha256:f6dfe33b0e7de0b69d4222614e737372d9b37af19d2528d2f56b997e96add1bd",
               "policy-engine/tests/unit/runtime/quality/test_generation_source.py@sha256:c8740402393c919a2a8dec52c96cf63ab454a192685b1e6dd5307bf4a37a52d9",
@@ -4649,9 +4658,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "not_measured",
-        "detail": "Residual transcribed; current behavior not independently measured."
+        "detail": "Appendix C partial remains. The v2 core4 stale-worker test failed before its barrier on an unissued direct fixture; after the fixture was moved to owner-issued admission, the v3 whole worker file passed 7/7 including stale guarded takeover and current-worker control. This is a bounded integrated-head witness only; the full four-base replay and broader atomic/distributed semantics remain UNRUN."
       },
-      "residual": "The B38 property is a DUR-02 owner/attempt lease fence that must reject a stale worker through the production `GuardedDependencyProxy`; a raw-store-only test is insufficient. Add the guarded-store stale-worker negative and current-owner positive. Separate residual: external Ray/Temporal exactly-once remains unverified.",
+      "residual": "At the v3 frozen integrated candidate, the complete `test_acquisition_control_worker.py` file passed 7/7, including the guarded stale-worker terminal-evidence barrier and current-worker control; the earlier v2 4/7 result did not reach the barrier because its direct fixture lacked issued admission. This is bounded current-head evidence, not a four-base P41 result. Keep B38 partial until the frozen four-base whole-file replay is complete. Broader atomic publication across CAS, event and action head, PostgreSQL FOR UPDATE, and external Ray/Temporal exactly-once semantics remain unestablished.",
       "residual_owner": {
         "kind": "external_institution",
         "name": "Live Ray/Temporal and exactly-once owners",
@@ -4685,6 +4694,14 @@
           "candidate_test_identity": "proposed:B38_stale_worker_refused_through_guarded_store",
           "behavioral_verdict": "UNRUN",
           "scope": "Card property and distinguishing seam recorded from the source card and supplied read-only audit. The candidate identity is not a test receipt unless explicitly labeled as an accepted prior receipt; current four-base replay remains UNRUN."
+        },
+        "r14_integrated_worker_file_v3": {
+          "kind": "whole_file_bounded_behavioral_run",
+          "identity": "tests.unit.runtime.http.test_acquisition_control_worker whole file",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-integrated-2122-20260930/reconciliation.junit.xml@sha256:c8d2aa547ede2c4d2a480a914c00f15ecba354f0562ad4ebf28f12f4ac7461d6",
+          "frozen_inputs_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r14-integrated-2122-20260930/FROZEN_INPUTS.v3.json@sha256:1f8994544d7320f23974172f8b6c4d6b8951375a5069c7620642af447edc5eda",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "Whole file passed 7/7 in the v3 54-case reconciliation wave. Includes guarded stale-worker terminal barrier and current-worker control. Not a four-base P41 replay; broader atomic publication and Ray/Temporal semantics remain unestablished."
         }
       }
     },
@@ -6350,9 +6367,9 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held retained. Complete current-source census confirms the resolver reads selected SKG bytes before recording version/ref and keys idempotency from declared path state. Reusable SourceSnapshot exists elsewhere but does not wrap this live query. One data_record remains; no behavior test or P41 is claimed."
+        "detail": "Appendix C held remains. The v2 prepared-read candidate's three local state-reference replay selectors pass, but the reviewer found source-identity bypasses: current existing-reference fast paths can return an old artifact while WorkflowExecutor attaches the current prepared-read event. The direct review was chat-only and is recorded as an orchestrator reconciliation receipt. The earlier real executor/cache candidate run was 12/13. Same-path mutation/removal and current four-base tests remain UNRUN; no stale production hit is asserted."
       },
-      "residual": "One data_record blocker: the SKG source owner must supply an immutable snapshot/read-handle identity binding the exact bytes consumed by ResolveParametersNode and its cache key. The complete 2,696-file source census found a separate SourceSnapshot bridge but it is explicitly not_established and not accepted by this resolver; the version/ref is read after query selection and does not bind the same-run bytes. Same-path mutation, removal, preserving control and P41 remain UNRUN.",
+      "residual": "One data_record/source-binding blocker remains. The scratch prepared-read candidate proposes a snapshot, selector/query binding and cache-input preparation, but the v2 reviewer found three existing-ref fast paths in BuildLiteraturePriorNode, CompileCrossGraphEvidenceNode and ResolveParametersNode that omit the same source-read identity; WorkflowExecutor can then attach a newly prepared read to an old output. The v2 candidate's local typed StateMutation replay passed 3/3, which does not exercise those paths; its earlier real executor/cache witness was 12 passed / 1 failed on specialized-ref reconstruction. The direct review returned NO-GO (chat-only receipt linked in OPEN_PREMISES.md). Close only after same-path source mutation tests exercise each live shortcut, keep the exact consumed bytes bound to the returned artifact, and a no-change cache-hit control passes. No production stale hit or P41 result is claimed.",
       "residual_owner": {
         "kind": "data_record",
         "name": "SKG source owner and ResolveParametersNode run-scope binding",
@@ -15634,9 +15651,9 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_with_repaired_owner_behavior_and_refined_residual",
-        "detail": "Appendix C held status is retained. The owner-level Monte Carlo/report defect has bounded behavioral, removal/control, importer, and compatibility evidence after commit b347c3326765f4d5be8e9e0daaaac59386d92ed0. The historical 12c 515/485 gate-eligible result is kept only as a pre-repair snapshot. The remaining finding is one served/source-bound simulation-evaluator to shared verified authority-intake capability; no finding-level closure or full four-base replay is claimed."
+        "detail": "Appendix C held remains. Post-b347 owner-level report behavior has bounded tests/removal/control, but no served source/deployment-bound simulation evaluator feeds per-draw support into one verified authority intake. A separate welfare loop source inspection found non-finite outputs skipped and only valid count persisted; its mixed-outcome consumer behavior is untested and is recorded as a question inside the card-level uncertainty/provenance residual, not a second blocker."
       },
-      "residual": "One smallest missing capability remains: a served simulation evaluator must produce source/deployment-bound per-draw support, carry it through the persisted Monte Carlo result/report/envelope, and feed one shared verified authority intake consumed by ConfidencePass, normative arbitration, and decision-packet enrichment. The only current production PropagationDispatcher caller is PropagateUncertaintyNode.execute; it constructs an affine sensitivity function over frozen base metrics and does not call the simulation evaluator (caller census covers all 2,696 tracked policy-engine/src/**/*.py files). Adaptive-width stopping remains candidate-only because there is no anytime-valid Monte Carlo confidence-sequence rule; this is a bounded admission limitation, not a second blocker for the fixed-draw repair. Full four-base P41 replay and production reader/history replay remain UNRUN. Preserve successful values as candidate evidence; the unreconciled served authority path must not treat them as admissible.",
+      "residual": "The one smallest missing capability remains a served simulation evaluator that produces source/deployment-bound per-draw support, persists it with report/envelope lineage, and feeds the shared verified authority intake used by ConfidencePass, normative arbitration and decision-packet enrichment. The only current production PropagationDispatcher caller is PropagateUncertaintyNode.execute, which uses affine sensitivity over frozen base metrics rather than a simulation evaluator. Existing welfare propagation is a separate Monte Carlo path: it skips draws with non-finite welfare/PE/GE outputs and can return when mc_min_valid_samples is met; the persisted report records valid_draw_count and the sample bundle stores successful draws, but attempted/failed draw identities and reasons are not carried. This source observation still needs a behavioral mixed-valid/invalid selector and consumer trace; it is not yet a demonstrated bias or authority bypass and does not add a second blocker. No caller-bound source/deployment evidence, served verifier intake, or full four-base P41 is established.",
       "residual_owner": {
         "kind": "smallest_missing_capability",
         "name": "Served simulation evaluator → source/deployment-bound per-draw support → shared verified authority intake for ConfidencePass, normative arbitration, and decision-packet enrichment",
@@ -15929,9 +15946,9 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. The residual is refined to the persisted tie-group-to-field projection and the unestablished served Calibrator-to-report-persistence route. A registered PropagateWelfareNode consumer exists and reads report envelope refs or inline envelopes; no production Calibrator construction or put_calibration_report call establishes the served route. No new behavioral or P41 closure is claimed."
+        "detail": "Appendix C held remains. The bounded design is GO, but current scratch candidate vertical execution failed report reopen on non-statistical confidence-level semantics; a later run failed a strict literal float equality at the analytical covariance. Those are candidate outcomes, not E02 pass-to-fail evidence. The registered welfare consumer exists, but the complete source census still finds no production Calibrator construction or persisted report writer call. No current algorithm, CAS round-trip or served-path pass is claimed."
       },
-      "residual": "The persisted tie-group-to-field projection is absent: CalibrationReport must preserve the mapping from optimizer group coordinates to named fields, and the existing uncertainty adapter must project covariance/Hessian axes before the registered welfare consumer uses the report. PropagateWelfareNode is a real registered consumer of report envelope refs/inline envelopes. However, the complete current production-source census finds no Calibrator(...) invocation or put_calibration_report call, so the served Calibrator → persisted CalibrationReport → welfare route is not established. The existing tied/untied probe is bounded; marker-retaining removal, persisted report CAS round-trip, served route, and P41 remain UNRUN.",
+      "residual": "The persisted tied-group-to-field projection remains the required algorithm: CalibrationReport must preserve optimizer-group coordinates and named-field mapping, and the uncertainty adapter must compute the mapped covariance/Hessian axes before the existing welfare consumer uses the report. The GO-reviewed design is not yet verified. The isolated candidate vertical selector reached Calibrator.run and put_calibration_report but failed reopening because non-statistical envelopes violated confidence_level=None; a later candidate run reached an exact-float assertion with 0.002499999944... versus 0.0025. These scratch candidate failures are not base-passing E02 regressions; numerical comparisons need an analytical tolerance that still detects the wrong covariance. A registered PropagateWelfareNode consumer exists, but no production Calibrator(...) invocation or put_calibration_report call establishes the served writer route. Marker-retaining removal, persisted reopen, served route and P41 remain unverified.",
       "residual_owner": {
         "kind": "smallest_missing_capability",
         "name": "Foundry calibration report / uncertainty adapter owner — persisted group-to-field projection",
@@ -20012,9 +20029,9 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held status retained. Current registry/source census and 17/17 bounded UDF tests refine the one residual to a data_record for selected caller/output parity; they do not establish finding-level closure or authorize retiring common.py."
+        "detail": "Appendix C held remains. Five direct .common importers and registered-stage parity remain the single data_record. The reviewed D3 candidate has bounded 10/10 output byte/semantic digest parity, a 5/5 test-file run and a marker-retaining removal red; registered D0/P0/D1/D2/D4/D5 parity remains unmeasured. No D5 regression is asserted and common.py remains live."
       },
-      "residual": "One data_record blocker remains: complete registered-caller parity for the five direct .common importers. D3 now has a bounded registered-output witness: 10/10 output names/byte hashes/semantic hashes/sizes match the historical fixture, with persisted-manifest, warnings, metrics, five unique inputs and writes checked. D4 is only a purpose-limited preserving control. D0/P0/D1/D2 through sources.py, D4 through governance_handoff.py, and D5 through release.py still lack parity records. Full selected-caller parity remains UNRUN; common.py remains actively used. P38 limit: helper tests and one D3 witness can stay green while an unmeasured D5 caller changes or omits output. No D5 regression is asserted.",
+      "residual": "One data_record blocker remains: parity evidence across the five direct .common importers and actual registered stages. The bounded D3 V2 candidate matches 10/10 output names/bytes/semantic hashes/sizes, with a 5/5 current test-file run and reviewed marker-retaining D3 output mutation red. This does not establish D0/P0, D1, D2, D4 or D5 parity for content/bytes, diagnostics, warnings and writes; D4's preserving control is not its parity witness. The complete builders package is 11 tracked Python files with five direct importers (__init__.py, bindings_validation.py, demography.py, release.py, sources.py). `common.py` remains actively used. No D5 regression is asserted. Run the real build_stage registry routes to produce the parity record before changing remaining owners; four-base replay for any landed edit remains required.",
       "residual_owner": {
         "kind": "data_record",
         "name": "Ukraine builder migration owner — five importer registry/caller/output parity record",
@@ -20148,9 +20165,9 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "held_blocker_refined",
-        "detail": "Appendix C held status retained. One missing production bridge/inventory capability remains. A complete owner census found reusable records and digest primitives, but no connection from them to the demographic composite and sibling readers. J0681 13/13 remains accepted for the composite layout-selection sub-result only."
+        "detail": "Appendix C held remains. The public-facade probe reproduces a sibling-reader mixed-layout result while the composite refuses the same root; a legacy-only layout is a preserving control. A complete source/tool caller census finds no production consumer of the four reader APIs, so a served consumer is part of the missing capability. Reusable Data Forge digest/inventory primitives exist but are not connected to this demographic read path."
       },
-      "residual": "One smallest_missing_capability blocker: extend an existing Data Forge input/read owner to persist one demographic source inventory (selected member paths, exact content digests, and declared layout/data/schema version) and make the composite loader plus load_reconciled_targets, load_transition_priors, and optional load_donor_pool consume that same record through an actual public read_api consumer with replayable history. Complete census found reusable ArtifactRecord/BuildRunManifest.inputs, SourceSnapshotManifest/NormalizedArtifactManifest, and GenerationBasis (member digests/rule version); none is connected to these readers, and Ukraine stage/release receipts bind outputs rather than source inventory. The complete product-source census found no call site of the four readers beyond definitions and re-exports, so a served caller is not established in-repo; this is part of the missing bridge, not a separate blocker and not a claim that generic producer primitives do not exist. The scratch public-facade counterexample produced new targets [20] with legacy priors [[0.5]] while the composite refused the mixed layout; a legacy-only root produced targets [10]. P38 limit: composite layout tests can pass while sibling readers bypass the selector. E02 J0681 13/13 remains bounded; shared inventory/readback, path/byte/version mutation, preserving control, served consumer and historical replay remain UNRUN.",
+      "residual": "One smallest_missing_capability blocker remains: extend an existing Data Forge input/read owner to persist one demographic source inventory with selected member paths, exact byte digests and declared layout/data/schema version, and make the composite plus load_reconciled_targets, load_transition_priors and optional load_donor_pool consume and replay that same record through an actual public read_api consumer. Existing ArtifactRecord/BuildRunManifest, SourceSnapshotManifest/NormalizedArtifactManifest and GenerationBasis primitives exist but are not connected to these readers. The public-facade probe returned new targets [20] and legacy priors [[0.5]] from sibling readers while the composite refused the mixed root; a legacy-only control returned targets [10]. Complete source/tool census found no tracked production caller, so do not describe this as a served end-to-end capability. P38: composite layout tests can pass while siblings bypass the selector. Shared inventory, byte/path/version mutation, preserving control, served consumer and historical replay remain UNRUN.",
       "residual_owner": {
         "kind": "smallest_missing_capability",
         "name": "Ukraine demography read owner — shared source-inventory/replay bridge across composite and sibling readers",

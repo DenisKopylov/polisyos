@@ -13120,13 +13120,13 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "aligned_refined",
-        "detail": "Appendix C's partial status is retained. The current witness closes bounded subproperties: actual returned-lock identity residency for 3,000 IDs, deterministic same-ID waiter exclusion, and distinct bytes/manifests for two IDs sharing one stripe; the existing two-writer successful-profile control checks same-ID returned views against persisted metadata, but its second-thread event fires before put_bytes and does not establish critical-section contention. The remaining B153 acceptance gap is a controlled same-ID waiter for a different scoped view after the holder's write raises: prove the exception releases the lock and the waiter persists/readbacks only its own correct view. The local process boundary is the source-card scope; cross-process locking is not required or claimed."
+        "detail": "Appendix C partial status is retained and refined. The source card is explicitly per-FileSystemCAS-instance. The fixed-pool mechanism, 3,000-ID bound, same-ID exclusion, collision/readback behavior, and scoped-view waiter progress after an exception now have bounded current-head evidence. The exception-release selector passes with the production lock behavior and turns red under a marker-retaining success-only-release mutation. No cross-process or distributed lock is required or claimed. Keep the finding partial because representative long-lived production workload and production RSS/throughput effects are not measured, and the added selector has no four-base replay. This does not close the broader R9 consumer/backend/custody class."
       },
-      "residual": "Partial; bounded subproperties are verified. One FileSystemCAS instance returns only locks from its initial pool for 3,000 deterministic ArtifactIDs; a same-ID waiter cannot enter before release; colliding distinct IDs retain separate bytes/manifests; and the two-writer successful-profile control checks two returned metadata profiles against persisted manifests; it does not deterministically establish that the second writer reached or blocked on _artifact_lock. The complete test file passes 17/17 at 4be6d38e6 and selected-file P41 has E02 5/5 and integration 17/17; Execution/Main are MISSING because this test path is absent. Two marker-retaining lock-removal mutants are red. The acceptance residual is not fully closed: no test makes a same-key holder's CAS write raise while a writer for a different scoped manifest view is waiting, then proves the exception releases the lock and the waiter succeeds with exact persisted-view readback. Proposed selector (not authored or run): tests/unit/remediation/test_cas_01.py::test_exception_releases_same_id_lock_for_scoped_view_waiter. This does not require or claim cross-process/distributed locking, production RSS savings, or broader R9 closure.",
+      "residual": "Partial; one FileSystemCAS instance has a fixed returned-lock pool that remains bounded across 3,000 deterministic IDs; same-ID exclusion, collision byte/manifest readback, and recovery of a distinct scoped-view writer after a holder exception are verified. The targeted selector's normal control passes 1/1; a marker-retaining mutation that omits release on exceptional exit fails 1/1 at the waiting-writer outcome. The complete test file passes 18/18 at 14091ba031c7ab9b10cc677aef8068dc72018063. B153's source-card scope is process-local to one CAS instance; no cross-process service is required. Remaining evidence: a named representative long-lived production workload and measured production RSS/throughput effects; the added selector is current-head evidence only, not a four-base replay. No broader R9 consumer/backend/custody closure is claimed.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "FileSystemCAS lock owner and tests/unit/remediation/test_cas_01.py witness owner",
-        "appointment_status": "The production fixed-pool mechanism and bounded evidence are verified; the same-key exception-release/scoped-view waiter discriminator remains to be authored and reviewed. No individual appointment is claimed."
+        "appointment_status": "The fixed-pool mechanism and same-ID exceptional scoped-view waiter discriminator are authored, independently reviewed, and verified at current head. Remaining measurement work is representative long-lived single-process production workload and RSS/throughput effects if those savings are claimed. Owner role is identified; no individual appointment is claimed, and no distributed-lock owner is required by this finding."
       },
       "r_class": null,
       "p_triage": {
@@ -13134,28 +13134,28 @@
         "disposition": "engineering",
         "owner": "FileSystemCAS lock owner and tests/unit/remediation/test_cas_01.py witness owner",
         "blocker_kind": null,
-        "next_step": "Add and review tests/unit/remediation/test_cas_01.py::test_exception_releases_same_id_lock_for_scoped_view_waiter (proposed, not authored/run): make the first same-ID scoped-view writer hold the real CAS write path behind a controlled hook; synchronize on the distinct-view writer's actual acquire attempt for the same lock/stripe (a thread-start event before put_bytes is insufficient); then make the holder raise. Assert the declared error, waiter completion, and exact persisted byte/manifest view readback. Preserve a same-profile green control. Then run the complete touched-file four-base replay. Do not claim distributed locking.",
-        "scope": "P118 engineering work has a bounded B153 witness; the finding remains partial until the same-key exception-release/scoped-view waiter criterion is measured.",
+        "next_step": "If claiming deployed resource savings, identify a representative long-lived single-process CAS workload and measure per-instance lock-pool residency plus throughput/RSS effects. The exception-release/scoped-view behavioral discriminator is already witnessed. Record any remaining four-base attribution for the added selector; do not build a distributed lock service for this source-card scope or infer wider R9 closure.",
+        "scope": "The B153 bounded in-process mechanism and exception-release acceptance now have current-head behavioral evidence. Partial status remains for the unmeasured representative production workload/resource effect and current-only attribution of the added selector.",
         "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:46b9c6a91b12195bd128aab09b16f526504d3029#B153"
       },
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "bounded_whole_file_p41_behavioral_witness",
-          "identity": "B153 fixed-pool cardinality, same-ID waiter exclusion, collision readback; exception-release scoped-view waiter remains missing",
-          "path_at_sha": "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:5eb281d878ad9f6fb52c167ec79151551cd81899#test_lock_registry_is_bounded_without_evicting_active_waiters;test_colliding_lock_stripe_keeps_distinct_cas_bytes_and_manifests",
+          "kind": "bounded_current_head_behavioral_witness",
+          "identity": "B153 complete CAS-01 test file and same-ID scoped-view waiter after exceptional writer exit; control plus marker-retaining removal",
+          "path_at_sha": "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:aaf39987f1898f6bf5a4157dc0bec73867b30888#test_exception_releases_same_id_lock_for_scoped_view_waiter; /Users/deniskopylov/.codex/scratch/e02-b153-removal-probe-20260930/B153_removal_probe.receipt.json@sha256:ee6ddcfa8431373eec69a99a7d5a6996de71d6c8669dc6cde718fab7745e526a",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "Verified partial evidence only; the B153 card acceptance of a same-ID waiter after a scoped writer exception remains UNRUN. No distributed/cross-process lock claim.",
+          "scope": "Complete file 18/18 at current HEAD; exact selector normal control passes and verifies scoped-view readback; exception-release removal mutant turns red at waiting-writer outcome. One FileSystemCAS instance only. No long-lived production workload/RSS measure or four-base replay of the added selector.",
           "package_test_selector_groups": []
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN",
+        "finding_test_status": "PASS_BOUNDED",
         "card_discriminator_review": {
           "identity": "B153 exact source-card discriminator and P38 seam",
           "source_card_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L3977-L3988",
-          "candidate_test_identity": "tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters; tests/unit/remediation/test_cas_01.py::test_colliding_lock_stripe_keeps_distinct_cas_bytes_and_manifests; tests/unit/remediation/test_cas_01.py::test_concurrent_writers_publish_only_the_persisted_first_writer_profile",
+          "candidate_test_identity": "tests/unit/remediation/test_cas_01.py::test_exception_releases_same_id_lock_for_scoped_view_waiter; tests/unit/remediation/test_cas_01.py complete-file current-head replay",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "Per-instance lock residency, direct same-ID waiter exclusion, and distinct collision readback are observed. A two-writer successful-profile control checks two returned same-ID metadata views against persisted manifests, but its second-thread event fires immediately before put_bytes and does not prove deterministic lock contention. Exception-release with a waiting distinct scoped view remains untested."
+          "scope": "The test exercises a real same-ID waiter for a distinct scoped manifest view, injects failure in the first writer while it holds the CAS lock, and verifies that the waiter completes with exact persisted-view readback. Its marker-retaining success-only-release mutation is red at the waiter outcome; the control is green. The source-card process-local scope is satisfied. Long-lived production workload/RSS and four-base attribution remain unmeasured."
         },
         "b153_lock_stripes_addendum": {
           "identity": "B153 lock-striping source and witness audit",
@@ -13236,6 +13236,37 @@
             "long-lived production workload/cardinality",
             "measured RSS savings",
             "full R9 consumer/backend/custody closure"
+          ]
+        },
+        "b153_exception_release_probe_20260930": {
+          "identity": "B153 scoped-view waiter proceeds after a same-ID writer exception; removal probe and current complete-file run",
+          "requested_code_checkpoint": "edf4aa31158c1a0457d5b9bf6d649f623bdcb8cd",
+          "selector_run_checkout_head": "0d28bf278ad32c27a49a2404a7eaf094947857a3",
+          "whole_file_run_checkout_head": "14091ba031c7ab9b10cc677aef8068dc72018063",
+          "test_source_blob": "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:aaf39987f1898f6bf5a4157dc0bec73867b30888",
+          "store_source_blob": "policy-engine/src/polisyos/core/artifacts/store.py@git-blob:fb0bd79c7f546ab9c946ff707d5e7b0b918da6d8",
+          "selector": "tests/unit/remediation/test_cas_01.py::test_exception_releases_same_id_lock_for_scoped_view_waiter",
+          "normal_control": {
+            "result": "1 passed",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b153-removal-probe-20260930/control-final.junit.xml@sha256:cc94ff2fca84696829b97120cd88fce481fbadeb080d271192750744cd6c1826"
+          },
+          "marker_retaining_removal_probe": {
+            "mutation": "Wrap the same striped lock with identical acquire/release/identity, but omit release on exceptional context exit; test markers and production method body are unchanged.",
+            "result": "1 failed as expected at the waiting-writer ArtifactRef outcome assertion after same-ID lock acquisition times out.",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b153-removal-probe-20260930/mutant-final.junit.xml@sha256:a88d7646a44b628b3dea4a35027cfa0a1fe0308ce1701445bcd83ee56071e642"
+          },
+          "complete_file_current_head": {
+            "result": "18 passed; 0 failed; 0 errors; 0 skipped",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b153-removal-probe-20260930/B153_full_file.junit.xml@sha256:c2bae2c94e33d9a2bd826abf8f8f0cdb06975bbc2c282dc05d53de79d41bbfc8"
+          },
+          "receipt_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b153-removal-probe-20260930/B153_removal_probe.receipt.json@sha256:ee6ddcfa8431373eec69a99a7d5a6996de71d6c8669dc6cde718fab7745e526a",
+          "independent_provenance_review_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-b153-removal-probe-20260930/B153_receipt_correction_review.md@sha256:cbc24af8f27573a9b0d9c68d8d92f7801ae2f4e7c141a942272956ebf305f687",
+          "source_card_scope": "One FileSystemCAS instance; process-local.",
+          "remaining": [
+            "representative long-lived production workload/cardinality and production RSS/throughput effects are not measured",
+            "the added selector has no four-base replay",
+            "broader R9 consumer/backend/custody closure is not claimed",
+            "cross-process/distributed locking is not required by B153"
           ]
         }
       },

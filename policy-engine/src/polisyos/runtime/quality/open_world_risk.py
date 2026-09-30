@@ -1257,10 +1257,14 @@ class PromotionRuntime:
         semantic_epoch_service: SemanticEpochService | None = None,
         promotion_safety_source_trust: PromotionSafetySourceTrust | None = None,
         promotion_evidence_source: N9PromotionEvidenceSource | None = None,
+        signature_verifier: artifacts.SignatureVerifyingArtifactStore | None = None,
     ) -> None:
         from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceSource
 
         self.store = store
+        if signature_verifier is not None and signature_verifier.guarded_store is not store:
+            raise ValueError("promotion_signature_verifier_store_mismatch")
+        self.signature_verifier = signature_verifier
         self._promotion_evidence_source = (
             promotion_evidence_source
             if promotion_evidence_source is not None

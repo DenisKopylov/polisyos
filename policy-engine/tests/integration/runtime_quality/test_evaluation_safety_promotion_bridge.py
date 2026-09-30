@@ -290,12 +290,19 @@ def test_authoritative_classifier_rejects_foreign_mode_with_identical_candidate_
 def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     produced_station, monkeypatch,
 ):
+    from threading import Event
+
+    from polisyos.core import artifacts
     from polisyos.core.contracts.control import NaturalLanguageRunRequest
     from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
+    from polisyos.runtime.http.resilience import build_guarded_signature_verifier
     from polisyos.runtime.http.services.control import evaluation_safety as adapter
     from polisyos.runtime.http.services.control import generation_cycle as generation
+    from polisyos.runtime.http.services.control_worker import ControlWorker
     from polisyos.runtime.quality import evaluation_safety as es
+    from polisyos.runtime.quality import promotion_safety as safety
     from polisyos.runtime.quality import promotion_sequence as n9
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
         _positive_epoch_admitted_batch,
@@ -314,17 +321,92 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     assert leaf.cycle_run.deployment_identity_status == "established"
     deployment_identity = leaf.cycle_run.deployment_identity
     assert deployment_identity is not None
-    value = _value_receipt().model_copy(update={
-        "candidate_id": summary.candidate_id, "evaluation_mode": "field_pilot",
-    })
-    # Appoint only the test epoch verifier; N9 and its promotion refusal run unchanged.
+    value = _value_receipt().model_copy(
+        update={"candidate_id": summary.candidate_id, "evaluation_mode": "field_pilot"}
+    )
+    key = artifacts.KeyPair.generate()
+    signer_identity = "source-owner://worker-r10-test"
+    trust = safety.PromotionSafetySourceTrust(
+        principals=(
+            safety.PromotionSafetySourcePrincipal(
+                identity=signer_identity, public_key_pem=key.public_pem().decode()
+            ),
+        )
+    )
+    signature_calls = []
+    original_verify_signature = service._artifact_store.verify_signature
+
+    def record_signature_verification(artifact_id, verifier, *, strict_identity=None):
+        signature_calls.append(artifact_id)
+        return original_verify_signature(
+            artifact_id, verifier, strict_identity=strict_identity
+        )
+
+    monkeypatch.setattr(service._artifact_store, "verify_signature", record_signature_verification)
+    signature_verifier = build_guarded_signature_verifier(
+        backend="filesystem", guarded_store=service._artifact_store
+    )
+    assert signature_verifier is not None
+    previous_runtime = service._promotion_runtime
+    promotion_runtime = PromotionRuntime(
+        store=service._artifact_store,
+        completed_epoch_batches=service._decision_validity_service,
+        promotion_safety_source_trust=trust,
+        promotion_evidence_source=previous_runtime.promotion_evidence_source,
+        signature_verifier=signature_verifier,
+    )
+    service._promotion_runtime = promotion_runtime
+    n9_repository = n9.N9PromotionEvidenceBridgeRepository(
+        store=service._artifact_store,
+        measurement_catalog=promotion_runtime.promotion_evidence_source.measurement_catalog,
+        measurement_providers=promotion_runtime.promotion_evidence_source.measurement_providers,
+        promotion_safety_source_trust=trust,
+        signature_verifier=signature_verifier,
+    )
+    service._evaluation_safety_promotion_sources = replace(
+        service._evaluation_safety_promotion_sources,
+        promotion_runtime=promotion_runtime,
+        promotion_evidence_resolver=n9_repository,
+    )
+
+    def source_context(candidate_summary, design_problem):
+        promotion_input = n9.CanonicalPromotionInput(
+            design_problem_binding=n9.N9DesignProblemBinding.from_problem(design_problem),
+            candidate_summary=candidate_summary,
+            value_receipt=value,
+        )
+        source_evidence = safety.PromotionSafetyCandidateEvidence(
+            scope=n9._promotion_safety_scope(promotion_input)
+        )
+        source_ref = service._artifact_store.put_json(
+            source_evidence.model_dump(mode="json"),
+            artifacts.PutOptions(
+                kind=safety.PROMOTION_SAFETY_CANDIDATE_KIND,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(
+                    name=safety.PROMOTION_SAFETY_CANDIDATE_KIND,
+                    version=safety.PROMOTION_SAFETY_CANDIDATE_SCHEMA,
+                ),
+            ),
+        )
+        service._artifact_store.sign_artifact(
+            source_ref.artifact_id,
+            artifacts.Ed25519Signer(key.private_key),
+            signer_identity=signer_identity,
+        )
+        return {
+            "value_receipt": value,
+            "promotion_safety_source_refs": (str(source_ref.artifact_id),),
+        }
+
+    # Appoint only the test epoch verifier; the canonical N9 source verifier runs unchanged.
     admitted = _positive_epoch_admitted_batch(
-        runtime=service._promotion_runtime, problem=compiled.design_problem, summaries=(summary,),
+        runtime=promotion_runtime, problem=compiled.design_problem, summaries=(summary,),
     )
     monkeypatch.setattr(n9, "_legacy_policy_promotion_callers", lambda _root: ())
     observation = n9.CanonicalN9PromotionPort(
-        promotion_runtime=service._promotion_runtime, repo_root=REPO_ROOT,
-        context_provider=lambda _summary, _problem: {"value_receipt": value},
+        promotion_runtime=promotion_runtime, repo_root=REPO_ROOT,
+        context_provider=source_context,
     )(
         admitted_batch=admitted,
         problem=compiled.design_problem,
@@ -356,6 +438,28 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
         return revised
 
     monkeypatch.setattr(generation, "compile_and_run_recursive_generation_cycle", compiled_owner_output)
+
+    def process_job_with_worker(job_id):
+        finished = Event()
+        worker = ControlWorker(
+            store=service._control_store,
+            handler=lambda job: _process_job_for_worker(job, job_id, finished),
+            poll_interval_s=0.05,
+            worker_id=f"r10-worker-{uuid4().hex[:8]}",
+        )
+        worker.start()
+        try:
+            worker.wake()
+            assert finished.wait(timeout=20), f"ControlWorker did not finish job {job_id}"
+        finally:
+            worker.stop(timeout=5)
+
+    def _process_job_for_worker(job, expected_job_id, finished):
+        try:
+            service._process_control_job(job)
+        finally:
+            if job.job_id == expected_job_id:
+                finished.set()
     request = NaturalLanguageRunRequest(
         request=compiled.design_problem.nl_provenance.raw_request,
         llm_model="simulated-qwen",
@@ -366,7 +470,7 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
         authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
     ))
     source_job = service._control_store.get_job(source.job_id)
-    service._process_control_job(source_job)
+    process_job_with_worker(source.job_id)
     completed = service._control_store.get_job(source.job_id)
     assert completed.state == "completed"
     selected = {"service": service, "source_run_id": source_job.run_id, "job_id": source.job_id}
@@ -391,7 +495,8 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
 
     monkeypatch.setattr(adapter, "verify_near_miss_classification", verify)
     monkeypatch.setattr(service._evaluation_safety_persistence_service, "compose_and_persist_attempt", compose)
-    service._process_control_job(service._control_store.get_job(launch.job_id))
+    signature_calls.clear()
+    process_job_with_worker(launch.job_id)
     terminal = service._control_store.get_job(launch.job_id)
     resolution = _resolution(service, terminal)
     assert calls, "real canonical classifier was never reached from persisted source"
@@ -411,6 +516,8 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     assert result.decision.near_miss is False
     assert result.decision.safety.status == "blocked"
     assert terminal.progress["eval_safety_counters"]["near_miss_count"] == 0
+    assert signature_calls, "ControlWorker did not re-enter canonical N9 source verification"
+    assert all(type(artifact_id) is artifacts.ArtifactID for artifact_id in signature_calls)
 
     # The genuine prior source still exists, but is outside this deployment's selector.
     assert service._artifact_store.get_bytes(compiled_ref)
@@ -422,7 +529,7 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
         slot=EvaluationSafetyPromotionSourceSlot(),
     )
     prior_calls = tuple(calls)
-    service._process_control_job(service._control_store.get_job(outside_launch.job_id))
+    process_job_with_worker(outside_launch.job_id)
     outside_terminal = service._control_store.get_job(outside_launch.job_id)
     outside = _resolution(service, outside_terminal)
     assert tuple(calls) == prior_calls
@@ -432,3 +539,175 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     assert "outside_deployment_selected_source_runs" in outside["unresolved_by_construction"]
     assert outside["classification"] == "not_established"
     assert outside_terminal.progress["eval_safety_counters"]["near_miss_count"] == 0
+
+
+def test_n9_repository_signature_capability_preserves_guarded_tenant_cell_custody(
+    tmp_path, monkeypatch
+):
+    """The N9 repository cannot replay requests or sources outside their CAS scope."""
+    from polisyos.core import artifacts
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
+    from polisyos.runtime.http.resilience import (
+        build_guarded_signature_verifier,
+        guard_runtime_cas,
+    )
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.quality import promotion_safety as safety
+    from polisyos.runtime.quality import promotion_sequence as sequence
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+    from tests.unit.runtime.http import test_control_service_di as control_fixtures
+    from tests.unit.runtime.quality.test_promotion_sequence import (
+        _problem_binding,
+        _summary,
+        _value_receipt,
+    )
+
+    tenant_a, tenant_b = "tenant-r10-a", "tenant-r10-b"
+    cell_a, cell_b = "cell-r10-a", "cell-r10-b"
+    store_calls = {"get_bytes": 0, "get_manifest": 0, "verify_signature": 0}
+    verifier_ids = []
+    raw_store = artifacts.FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
+    for method_name in store_calls:
+        original = getattr(raw_store, method_name)
+
+        def observe(*args, _name=method_name, _original=original, **kwargs):
+            store_calls[_name] += 1
+            if _name == "verify_signature":
+                verifier_ids.append(args[0])
+            return _original(*args, **kwargs)
+
+        monkeypatch.setattr(raw_store, method_name, observe)
+    guarded_store = guard_runtime_cas(raw_store)
+    signature_verifier = build_guarded_signature_verifier(
+        backend="filesystem", guarded_store=guarded_store
+    )
+    assert signature_verifier is not None
+
+    key = artifacts.KeyPair.generate()
+    signer_identity = "source-owner://served-test"
+    trust = safety.PromotionSafetySourceTrust(
+        principals=(
+            safety.PromotionSafetySourcePrincipal(
+                identity=signer_identity, public_key_pem=key.public_pem().decode()
+            ),
+        )
+    )
+    with tenant_scope(None, tenant_id=tenant_a, cell_id=cell_a):
+        decision_validity = ControlPlaneService.build_decision_validity_owner(guarded_store)
+        promotion_runtime = PromotionRuntime(
+            store=guarded_store,
+            completed_epoch_batches=decision_validity,
+            promotion_safety_source_trust=trust,
+            signature_verifier=signature_verifier,
+        )
+        resolver = RuntimeExecutionPolicyResolver(
+            default_profile="dev",
+            worker_backend="external",
+            state_store_backend="sqlite",
+            sqlite_path=str(tmp_path / "control.sqlite3"),
+            postgres_dsn=None,
+        )
+        service = ControlPlaneService(
+            cas_root=tmp_path / "cas",
+            core_runs_root=tmp_path / "runs",
+            artifact_store=guarded_store,
+            retrieval_service=control_fixtures._NoOpRetrievalService(),
+            policy_resolver=resolver,
+            registry_providers=control_fixtures._build_registry_providers(),
+            decision_validity_service=decision_validity,
+            promotion_runtime=promotion_runtime,
+        )
+        try:
+            original = sequence.CanonicalPromotionInput(
+                design_problem_binding=_problem_binding(),
+                candidate_summary=_summary(),
+                value_receipt=_value_receipt().model_copy(
+                    update={"evaluation_mode": "field_pilot"}
+                ),
+            )
+            scope = sequence._promotion_safety_scope(original)
+            candidate = safety.PromotionSafetyCandidateEvidence(
+                scope=scope, evidence_refs=("urn:test:r10-uppercase-control",)
+            )
+            source = guarded_store.put_json(
+                candidate.model_dump(mode="json"),
+                artifacts.PutOptions(
+                    kind=safety.PROMOTION_SAFETY_CANDIDATE_KIND,
+                    media_type="application/json",
+                    schema=artifacts.SchemaInfo(
+                        name=safety.PROMOTION_SAFETY_CANDIDATE_KIND,
+                        version=safety.PROMOTION_SAFETY_CANDIDATE_SCHEMA,
+                    ),
+                ),
+            )
+            guarded_store.sign_artifact(
+                source.artifact_id,
+                artifacts.Ed25519Signer(key.private_key),
+                signer_identity=signer_identity,
+            )
+            canonical_ref = str(source.artifact_id)
+            uppercase_ref = f"sha256:{canonical_ref.removeprefix('sha256:').upper()}"
+            repository = service._evaluation_safety_promotion_sources.promotion_evidence_resolver
+
+            bound = sequence._bind_production_promotion_evidence(
+                original,
+                context={"promotion_safety_source_refs": (uppercase_ref,)},
+                repository=repository,
+            )
+            positive = repository.resolve_promotion_safety(promotion_input=bound)
+            assert positive.custody_status == "verified"
+            assert positive.source_attempts[0].source_ref == uppercase_ref
+            assert positive.source_attempts[0].status == "candidate_custody_verified"
+            assert positive.source_attempts[0].signature_verification_outcome == "verified"
+            assert positive.promotion_authority_status == "not_established"
+            assert all(type(artifact_id) is artifacts.ArtifactID for artifact_id in verifier_ids)
+            assert all(str(artifact_id) == canonical_ref for artifact_id in verifier_ids)
+            for name in store_calls:
+                store_calls[name] = 0
+
+            for tenant_id, cell_id in ((tenant_b, cell_a), (tenant_a, cell_b)):
+                with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                    verifier_calls_before_scope = store_calls["verify_signature"]
+                    # The request itself belongs to tenant A / cell A. Its
+                    # refusal is earlier than source verification, so do not
+                    # claim the repository reached a foreign source attempt.
+                    foreign = repository.resolve_promotion_safety(promotion_input=bound)
+                    assert foreign.custody_status == "not_established"
+                    assert foreign.source_attempts == ()
+                    assert any(
+                        row.status == "unreadable"
+                        for row in foreign.inputs_read
+                    )
+                    assert foreign.promotion_authority_status == "not_established"
+
+                    # Exercise the same owner-bound source read separately so
+                    # this negative reaches the guarded CAS seam. Ownership
+                    # refusal occurs before a signature verifier call.
+                    attempt = repository._promotion_safety._source_attempt(
+                        canonical_ref, scope
+                    )
+                    assert attempt.status != "candidate_custody_verified"
+                    assert attempt.signer_identity is None
+                    assert any(row.status == "unreadable" for row in attempt.inputs_read)
+                    assert store_calls["verify_signature"] == verifier_calls_before_scope
+
+                    # The optional capability itself still delegates through
+                    # the guarded store and returns a typed refusal here.
+                    verifier_calls_before = store_calls["verify_signature"]
+                    verifier_result = signature_verifier.verify_signature(
+                        source.artifact_id,
+                        artifacts.Ed25519Verifier(strict_identity=True),
+                    )
+                    assert verifier_result.status == artifacts.SignatureVerificationStatus.ERROR
+                    assert verifier_result.artifact_id == canonical_ref
+                    assert store_calls["verify_signature"] == verifier_calls_before + 1
+
+            for name in store_calls:
+                store_calls[name] = 0
+            malformed = repository._promotion_safety._source_attempt("malformed-ref", scope)
+            assert malformed.signature_verification_outcome == "malformed_reference"
+            assert malformed.inputs_read == ()
+            assert store_calls == {"get_bytes": 0, "get_manifest": 0, "verify_signature": 0}
+        finally:
+            service.close()

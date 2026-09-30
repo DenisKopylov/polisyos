@@ -241,6 +241,7 @@ class RuntimeServiceContainer:
             promotion_runtime = PromotionRuntime(
                 store=runtime_api_context.store,
                 completed_epoch_batches=decision_validity_service,
+                signature_verifier=runtime_api_context.signature_verifier,
             )
         else:
             if not isinstance(overrides.control_service, ControlPlaneService):
@@ -251,6 +252,8 @@ class RuntimeServiceContainer:
                 or overrides.control_service._decision_validity_service
                 is not decision_validity_service
                 or promotion_runtime.store is not runtime_api_context.store
+                or promotion_runtime.signature_verifier
+                is not runtime_api_context.signature_verifier
                 or promotion_runtime.epoch_n9_evidence_resolver._completed_batches
                 is not decision_validity_service
                 or overrides.control_service._epoch_claim_lifecycle_bridge

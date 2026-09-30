@@ -12,9 +12,11 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import artifacts, canon
+from polisyos.runtime.http.errors import RuntimeDependencyError
 
 PROMOTION_SAFETY_REQUEST_KIND = "runtime.promotion_safety_request"
-PROMOTION_SAFETY_REQUEST_SCHEMA = "policyos.runtime.promotion_safety_request.v1"
+PROMOTION_SAFETY_REQUEST_HISTORY_V1_SCHEMA = "policyos.runtime.promotion_safety_request.v1"
+PROMOTION_SAFETY_REQUEST_SCHEMA = "policyos.runtime.promotion_safety_request.v2"
 PROMOTION_SAFETY_CANDIDATE_KIND = "runtime.promotion_safety_candidate_evidence"
 PROMOTION_SAFETY_CANDIDATE_SCHEMA = "policyos.runtime.promotion_safety_candidate_evidence.v1"
 PROMOTION_SAFETY_REQUEST_TYPE = "PromotionSafetyRequest"
@@ -105,12 +107,56 @@ class PromotionSafetySourceAttempt(_StrictModel):
     ]
     signer_identity: str | None = None
     inputs_read: tuple[PromotionSafetyRead, ...]
+    signature_verification_outcome: Literal[
+        "malformed_reference",
+        "capability_unavailable",
+        "backend_unavailable",
+        "verifier_raised",
+        "result_artifact_id_mismatch",
+        "signature_rejected",
+        "verified",
+    ] | None = None
+
+
+class _LegacyPromotionSafetySourceAttemptV1(_StrictModel):
+    """Frozen attempt projection written by request schema v1."""
+
+    source_ref: str
+    status: Literal[
+        "candidate_custody_verified",
+        "source_unresolved",
+        "source_content_invalid",
+        "source_scope_mismatch",
+        "source_signature_unverified",
+    ]
+    signer_identity: str | None = None
+    inputs_read: tuple[PromotionSafetyRead, ...]
+
+
+class _LegacyPromotionSafetyRequestV1(_StrictModel):
+    """Historical v1 request shape retained for exact replay only."""
+
+    schema_version: Literal["policyos.runtime.promotion_safety_request.v1"] = (
+        PROMOTION_SAFETY_REQUEST_HISTORY_V1_SCHEMA
+    )
+    scope: PromotionSafetyScope
+    acceptance_slot: PromotionSafetyAcceptanceSlot = Field(
+        default_factory=PromotionSafetyAcceptanceSlot
+    )
+    source_refs: tuple[str, ...] = ()
+    source_input_error: str | None = None
+    source_trust_content_hash: str
+    source_attempts: tuple[_LegacyPromotionSafetySourceAttemptV1, ...] = ()
+    inputs_read: tuple[PromotionSafetyRead, ...] = ()
+    unresolved_by_construction: tuple[str, ...] = _UNRESOLVED
+    authoritative_for: Literal["promotion_request_custody"] = "promotion_request_custody"
+    promotion_authority_status: Literal["not_established"] = "not_established"
 
 
 class PromotionSafetyRequest(_StrictModel):
     """Persisted promotion-purpose request and complete attempted source population."""
 
-    schema_version: Literal["policyos.runtime.promotion_safety_request.v1"] = (
+    schema_version: Literal["policyos.runtime.promotion_safety_request.v2"] = (
         PROMOTION_SAFETY_REQUEST_SCHEMA
     )
     scope: PromotionSafetyScope
@@ -147,13 +193,32 @@ def _projection_hash(value: BaseModel) -> str:
     return _hash(canon.to_canonical_bytes(value.model_dump(mode="json")))
 
 
+def _historical_v1_request_projection(request: PromotionSafetyRequest) -> dict[str, object]:
+    """Serialize current request state using the immutable v1 persisted shape."""
+    payload = request.model_dump(mode="json")
+    payload["schema_version"] = PROMOTION_SAFETY_REQUEST_HISTORY_V1_SCHEMA
+    attempts = payload.get("source_attempts")
+    if isinstance(attempts, list):
+        for attempt in attempts:
+            if isinstance(attempt, dict):
+                attempt.pop("signature_verification_outcome", None)
+    return _LegacyPromotionSafetyRequestV1.model_validate(payload).model_dump(mode="json")
+
+
 class PromotionSafetyOwner:
     """Persist and replay requests through the existing CAS and signature verifier."""
 
     def __init__(
-        self, *, store: artifacts.ArtifactStore, trust: PromotionSafetySourceTrust | None = None
+        self,
+        *,
+        store: artifacts.ArtifactStore,
+        trust: PromotionSafetySourceTrust | None = None,
+        signature_verifier: artifacts.SignatureVerifyingArtifactStore | None = None,
     ) -> None:
         self._store = store
+        if signature_verifier is not None and signature_verifier.guarded_store is not store:
+            raise ValueError("promotion_safety_signature_verifier_store_mismatch")
+        self._signature_verifier = signature_verifier
         self._trust = trust if trust is not None else PromotionSafetySourceTrust()
         if type(self._trust) is not PromotionSafetySourceTrust:
             raise TypeError("promotion_safety_trust_must_be_owner_configured")
@@ -167,47 +232,63 @@ class PromotionSafetyOwner:
                 raise ValueError("promotion_safety_source_key_alias")
             self._principals[key_id] = principal.identity
 
-    def _read(self, ref: str, *, kind: str, schema: str, reads: list[PromotionSafetyRead]) -> bytes:
+    def _read(
+        self,
+        artifact_id: artifacts.ArtifactID,
+        *,
+        presented_ref: str,
+        kind: str,
+        schemas: tuple[str, ...],
+        reads: list[PromotionSafetyRead],
+    ) -> tuple[bytes, str]:
         operation: Literal["blob", "parsed_manifest"] = "blob"
+        canonical_ref = str(artifact_id)
         try:
-            raw = self._store.get_bytes(ref)
+            raw = self._store.get_bytes(artifact_id)
             reads.append(
                 PromotionSafetyRead(
-                    source_ref=ref, operation="blob", status="read", content_hash=_hash(raw)
+                    source_ref=presented_ref,
+                    operation="blob",
+                    status="read",
+                    content_hash=_hash(raw),
                 )
             )
             operation = "parsed_manifest"
-            manifest = self._store.get_manifest(ref)
+            manifest = self._store.get_manifest(artifact_id)
             reads.append(
                 PromotionSafetyRead(
-                    source_ref=ref,
+                    source_ref=presented_ref,
                     operation=operation,
                     status="read",
                     content_hash=_projection_hash(manifest),
                     detail="canonical_parsed_manifest_projection_not_raw_manifest_bytes",
                 )
             )
-        except (OSError, ValueError, TypeError, KeyError) as exc:
+        except (RuntimeDependencyError, OSError, ValueError, TypeError, KeyError) as exc:
             reads.append(
                 PromotionSafetyRead(
-                    source_ref=ref,
+                    source_ref=presented_ref,
                     operation=operation,
                     status="unreadable",
                     detail=type(exc).__name__,
                 )
             )
             raise
+        schema = manifest.artifact_schema
+        schema_version = schema.version if schema is not None else ""
         if (
-            _hash(raw) != ref
-            or str(manifest.artifact_id) != ref
+            _hash(raw) != canonical_ref
+            or str(manifest.artifact_id) != canonical_ref
             or manifest.byte_size != len(raw)
-            or manifest.integrity.sha256 != ref.removeprefix("sha256:")
+            or manifest.integrity.sha256 != artifact_id.hex
             or manifest.kind != kind
             or manifest.media_type != "application/json"
-            or manifest.artifact_schema != artifacts.SchemaInfo(name=kind, version=schema)
+            or schema is None
+            or schema.name != kind
+            or schema_version not in schemas
         ):
             raise ValueError("promotion_safety_content_or_manifest_mismatch")
-        return raw
+        return raw, schema_version
 
     def _source_attempt(
         self, ref: str, scope: PromotionSafetyScope
@@ -215,11 +296,33 @@ class PromotionSafetyOwner:
         reads: list[PromotionSafetyRead] = []
         status = "source_unresolved"
         signer = None
+        outcome: Literal[
+            "malformed_reference",
+            "capability_unavailable",
+            "backend_unavailable",
+            "verifier_raised",
+            "result_artifact_id_mismatch",
+            "signature_rejected",
+            "verified",
+        ] | None = None
         try:
-            raw = self._read(
-                ref,
+            requested_id = artifacts.ArtifactID.model_validate(ref)
+        except (ValueError, TypeError):
+            outcome = "malformed_reference"
+            return PromotionSafetySourceAttempt(
+                source_ref=ref,
+                status=status,
+                signer_identity=None,
+                inputs_read=(),
+                signature_verification_outcome=outcome,
+            )
+
+        try:
+            raw, _schema_version = self._read(
+                requested_id,
+                presented_ref=ref,
                 kind=PROMOTION_SAFETY_CANDIDATE_KIND,
-                schema=PROMOTION_SAFETY_CANDIDATE_SCHEMA,
+                schemas=(PROMOTION_SAFETY_CANDIDATE_SCHEMA,),
                 reads=reads,
             )
             status = "source_content_invalid"
@@ -228,8 +331,8 @@ class PromotionSafetyOwner:
                 status = "source_scope_mismatch"
             else:
                 status = "source_signature_unverified"
-                verify = getattr(self._store, "verify_signature", None)
-                if not callable(verify):
+                if self._signature_verifier is None:
+                    outcome = "capability_unavailable"
                     reads.append(
                         PromotionSafetyRead(
                             source_ref=ref,
@@ -239,27 +342,85 @@ class PromotionSafetyOwner:
                         )
                     )
                 else:
-                    result = verify(ref, self._verifier, strict_identity=True)
-                    reads.append(
-                        PromotionSafetyRead(
-                            source_ref=ref,
-                            operation="signature_verification",
-                            status="read",
-                            detail=f"current_exact_blob_manifest_sidecar:{result.status.value}",
+                    try:
+                        result = self._signature_verifier.verify_signature(
+                            requested_id, self._verifier, strict_identity=True
                         )
-                    )
-                    if (
-                        result.status is artifacts.SignatureVerificationStatus.VALID
-                        and result.signer_identity is not None
-                        and self._principals.get(result.key_id or "") == result.signer_identity
-                    ):
-                        signer = result.signer_identity
-                        status = "candidate_custody_verified"
+                    except (RuntimeDependencyError, OSError, TimeoutError, ConnectionError):
+                        outcome = "backend_unavailable"
+                        reads.append(
+                            PromotionSafetyRead(
+                                source_ref=ref,
+                                operation="signature_verification",
+                                status="unreadable",
+                                detail=outcome,
+                            )
+                        )
+                    except Exception:
+                        outcome = "verifier_raised"
+                        reads.append(
+                            PromotionSafetyRead(
+                                source_ref=ref,
+                                operation="signature_verification",
+                                status="unreadable",
+                                detail=outcome,
+                            )
+                        )
+                    else:
+                        if not isinstance(result, artifacts.SignatureVerificationResult):
+                            outcome = "verifier_raised"
+                            reads.append(
+                                PromotionSafetyRead(
+                                    source_ref=ref,
+                                    operation="signature_verification",
+                                    status="unreadable",
+                                    detail=outcome,
+                                )
+                            )
+                        else:
+                            if result.artifact_id != str(requested_id):
+                                outcome = "result_artifact_id_mismatch"
+                                detail = outcome
+                            elif (
+                                result.status is artifacts.SignatureVerificationStatus.VALID
+                                and result.signer_identity is not None
+                                and self._principals.get(result.key_id or "")
+                                == result.signer_identity
+                            ):
+                                signer = result.signer_identity
+                                status = "candidate_custody_verified"
+                                outcome = "verified"
+                                detail = (
+                                    "current_exact_blob_manifest_sidecar:"
+                                    f"{result.status.value}"
+                                )
+                            else:
+                                outcome = "signature_rejected"
+                                detail = (
+                                    "current_exact_blob_manifest_sidecar:"
+                                    f"{result.status.value}"
+                                )
+                            reads.append(
+                                PromotionSafetyRead(
+                                    source_ref=ref,
+                                    operation="signature_verification",
+                                    status="read",
+                                    detail=detail,
+                                )
+                            )
+        except (RuntimeDependencyError, TimeoutError, ConnectionError):
+            outcome = "backend_unavailable"
+            if reads and all(item.status == "read" for item in reads):
+                status = "source_content_invalid"
         except (OSError, ValueError, TypeError, KeyError):
             if reads and all(item.status == "read" for item in reads):
                 status = "source_content_invalid"
         return PromotionSafetySourceAttempt(
-            source_ref=ref, status=status, signer_identity=signer, inputs_read=tuple(reads)
+            source_ref=ref,
+            status=status,
+            signer_identity=signer,
+            inputs_read=tuple(reads),
+            signature_verification_outcome=outcome,
         )
 
     def _request(
@@ -311,19 +472,29 @@ class PromotionSafetyOwner:
     def resolve(
         self, *, request_ref: str, scope: PromotionSafetyScope
     ) -> PromotionSafetyResolution:
-        """Resolve bytes, rebind scope and repeat source verification before custody is consumed."""
+        """Replay a schema-versioned request and reverify every source reference."""
         reads: list[PromotionSafetyRead] = []
         limitation = "promotion_safety_request_unresolved"
         attempts: tuple[PromotionSafetySourceAttempt, ...] = ()
         unresolved = _UNRESOLVED
         try:
-            raw = self._read(
-                request_ref,
+            request_id = artifacts.ArtifactID.model_validate(request_ref)
+            raw, request_schema = self._read(
+                request_id,
+                presented_ref=request_ref,
                 kind=PROMOTION_SAFETY_REQUEST_KIND,
-                schema=PROMOTION_SAFETY_REQUEST_SCHEMA,
+                schemas=(
+                    PROMOTION_SAFETY_REQUEST_SCHEMA,
+                    PROMOTION_SAFETY_REQUEST_HISTORY_V1_SCHEMA,
+                ),
                 reads=reads,
             )
-            request = PromotionSafetyRequest.model_validate_json(raw)
+            if request_schema == PROMOTION_SAFETY_REQUEST_SCHEMA:
+                request: PromotionSafetyRequest | _LegacyPromotionSafetyRequestV1 = (
+                    PromotionSafetyRequest.model_validate_json(raw)
+                )
+            else:
+                request = _LegacyPromotionSafetyRequestV1.model_validate_json(raw)
             if request.scope != scope:
                 limitation = "promotion_safety_request_scope_mismatch"
             else:
@@ -335,18 +506,23 @@ class PromotionSafetyOwner:
                 reads.extend(current.inputs_read)
                 attempts = current.source_attempts
                 unresolved = current.unresolved_by_construction
-                if current != request:
+                if request_schema == PROMOTION_SAFETY_REQUEST_HISTORY_V1_SCHEMA:
+                    current_v1 = _historical_v1_request_projection(current)
+                    replay_matches = canon.to_canonical_bytes(current_v1) == raw
+                else:
+                    replay_matches = current == request
+                if not replay_matches:
                     limitation = "promotion_safety_request_source_drift"
                 else:
                     return PromotionSafetyResolution(
                         custody_status="verified",
-                        request_ref=request_ref,
+                        request_ref=str(request_id),
                         limitation_code="promotion_safety_policy_and_authority_not_established",
                         source_attempts=attempts,
                         inputs_read=tuple(reads),
                         unresolved_by_construction=unresolved,
                     )
-        except (OSError, ValueError, TypeError, KeyError):
+        except (RuntimeDependencyError, OSError, ValueError, TypeError, KeyError):
             pass
         if any(row.status == "unreadable" for row in reads):
             unresolved = (*unresolved, "request_or_source_evidence_unreadable")

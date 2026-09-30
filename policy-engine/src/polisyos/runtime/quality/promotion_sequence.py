@@ -742,10 +742,13 @@ class N9PromotionEvidenceBridgeRepository:
         measurement_catalog: catalog_api.DatasetCatalogGraph | None = None,
         measurement_providers: RetrievalProviders | None = None,
         promotion_safety_source_trust: PromotionSafetySourceTrust | None = None,
+        signature_verifier: core_artifacts.SignatureVerifyingArtifactStore | None = None,
     ) -> None:
         self._store = store
         self._promotion_safety = PromotionSafetyOwner(
-            store=store, trust=promotion_safety_source_trust
+            store=store,
+            trust=promotion_safety_source_trust,
+            signature_verifier=signature_verifier,
         )
         self._measurement_catalog = measurement_catalog
         self._measurement_providers = measurement_providers
@@ -3680,6 +3683,7 @@ class CanonicalN9PromotionPort:
             N9PromotionEvidenceBridgeRepository(
                 store=promotion_runtime.store,
                 promotion_safety_source_trust=promotion_runtime.promotion_safety_source_trust,
+                signature_verifier=promotion_runtime.signature_verifier,
                 measurement_catalog=measurement_catalog,
                 measurement_providers=measurement_providers,
             )
@@ -3913,6 +3917,7 @@ def _run_n9_promotion_port_batch(
         N9PromotionEvidenceBridgeRepository(
             store=promotion_runtime.store,
             promotion_safety_source_trust=promotion_runtime.promotion_safety_source_trust,
+            signature_verifier=promotion_runtime.signature_verifier,
             measurement_catalog=measurement_catalog,
             measurement_providers=measurement_providers,
         )

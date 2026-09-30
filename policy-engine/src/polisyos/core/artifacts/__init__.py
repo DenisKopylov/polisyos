@@ -39,7 +39,7 @@ from .manifest import (
     input_ref_from_artifact_ref,
 )
 from .ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
-from .protocol import ArtifactStore, AsyncArtifactStore
+from .protocol import ArtifactStore, AsyncArtifactStore, SignatureVerifyingArtifactStore
 from .registry import RegistryBundle
 from .signing import (
     ArtifactSigner,
@@ -104,6 +104,7 @@ __all__ = [
     "SignatureStatement",
     "SignatureVerificationResult",
     "SignatureVerificationStatus",
+    "SignatureVerifyingArtifactStore",
     "SigningConfig",
     "VerificationReport",
     "WarningRecord",

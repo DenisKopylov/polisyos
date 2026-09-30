@@ -9,15 +9,23 @@ import sqlite3
 import threading
 from concurrent.futures import (
     CancelledError as FutureCancelledError,
+)
+from concurrent.futures import (
     ThreadPoolExecutor,
+)
+from concurrent.futures import (
     TimeoutError as FutureTimeoutError,
 )
 from dataclasses import dataclass
 from functools import wraps
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.protocol import ArtifactStore, SignatureVerifyingArtifactStore
+    from polisyos.core.artifacts.signing import Ed25519Verifier, SignatureVerificationResult
 
 from polisyos.common.async_tools import get_shared_executor
 from polisyos.fabric.connectors.resilience.circuit_breaker import (
@@ -284,6 +292,40 @@ class GuardedDependencyProxy:
             self._guard.close()
 
 
+@dataclass(frozen=True)
+class _GuardedStoreSignatureVerifier:
+    """Expose signature verification through the exact guarded CAS handle."""
+
+    guarded_store: ArtifactStore
+
+    def verify_signature(
+        self,
+        artifact_id: ArtifactID,
+        verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        store = cast("SignatureVerifyingArtifactStore", self.guarded_store)
+        return store.verify_signature(
+            artifact_id, verifier, strict_identity=strict_identity
+        )
+
+
+def build_guarded_signature_verifier(
+    *, backend: str, guarded_store: ArtifactStore
+) -> SignatureVerifyingArtifactStore | None:
+    """Select filesystem signature verification without unwrapping its guard.
+
+    Other configured backends do not currently own a detached-signature
+    verifier and therefore remain explicitly unavailable. Callers that inject
+    their own store must supply a separately typed capability.
+    """
+
+    if backend != "filesystem":
+        return None
+    return _GuardedStoreSignatureVerifier(guarded_store=guarded_store)
+
+
 def run_guarded_dependency_operation[T](dependency: object, operation: Callable[[], T]) -> T:
     """Keep a complete operation within its configured dependency guard."""
 
@@ -359,6 +401,7 @@ __all__ = [
     "AsyncDependencyGuard",
     "BlockingDependencyGuard",
     "GuardedDependencyProxy",
+    "build_guarded_signature_verifier",
     "build_runtime_opa_async_guard",
     "guard_runtime_cas",
     "guard_runtime_control_store",

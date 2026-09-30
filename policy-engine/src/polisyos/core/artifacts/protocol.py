@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from ._integrity_ops import VerificationReport
     from .ids import ArtifactID
     from .manifest import ArtifactManifest, ArtifactRef
+    from .signing import Ed25519Verifier, SignatureVerificationResult
     from .write_contract import ArtifactWriteOptions
 
 
@@ -83,6 +84,31 @@ class ArtifactStore(Protocol):
 
     def iter_artifact_ids(self) -> list[ArtifactID]:  # pragma: no cover - protocol
         """List artifact IDs known to the backend."""
+        ...
+
+
+class SignatureVerifyingArtifactStore(Protocol):
+    """Optional signature verification bound to one composed artifact store.
+
+    Implementations expose their exact guarded store handle so composition can
+    reject a verifier that would read through a parallel or less-custodied path.
+    This capability is intentionally separate from the backend-neutral
+    ``ArtifactStore`` contract.
+    """
+
+    @property
+    def guarded_store(self) -> ArtifactStore:  # pragma: no cover - protocol
+        """Return the exact store whose reads are guarded by this verifier."""
+        ...
+
+    def verify_signature(
+        self,
+        artifact_id: ArtifactID,
+        verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:  # pragma: no cover - protocol
+        """Verify the signed snapshot for one normalized artifact ID."""
         ...
 
 

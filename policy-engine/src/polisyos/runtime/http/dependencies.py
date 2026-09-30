@@ -23,7 +23,7 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
 from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
 
 from .errors import forbidden, service_unavailable, unauthorized
-from .resilience import guard_runtime_cas
+from .resilience import build_guarded_signature_verifier, guard_runtime_cas
 from .services.artifact_inspector import ArtifactInspectorService
 from .services.attractors import AttractorAnalysisService
 from .services.bureaucratic_rendering import BureaucraticRenderingService
@@ -47,7 +47,11 @@ if TYPE_CHECKING:
 
     from fastapi import Request
 
-    from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.core.artifacts.protocol import (
+        ArtifactStore,
+        AsyncArtifactStore,
+        SignatureVerifyingArtifactStore,
+    )
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.runtime.http.services.acquisition_action_service import (
         AcquisitionActionService,
@@ -85,6 +89,7 @@ class RuntimeApiContext:
     lineage_max_depth: int
     lineage_max_nodes: int
     allow_unscoped_artifacts: bool = False
+    signature_verifier: SignatureVerifyingArtifactStore | None = None
 
 
 def build_runtime_api_context(
@@ -106,6 +111,9 @@ def build_runtime_api_context(
     store = cast(
         "ArtifactStore",
         guard_runtime_cas(ambient_store),
+    )
+    signature_verifier = build_guarded_signature_verifier(
+        backend=store_config.backend, guarded_store=store
     )
     index_store = cast(
         "ArtifactStore",
@@ -177,6 +185,7 @@ def build_runtime_api_context(
         lineage_max_depth=lineage_max_depth,
         lineage_max_nodes=lineage_max_nodes,
         allow_unscoped_artifacts=allow_unscoped_artifacts,
+        signature_verifier=signature_verifier,
     )
 
 

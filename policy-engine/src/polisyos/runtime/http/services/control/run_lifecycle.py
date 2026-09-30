@@ -99,6 +99,7 @@ from polisyos.runtime.http.execution_policy import (
     build_capability_manifest_payload,
 )
 from polisyos.runtime.http.resilience import (
+    build_guarded_signature_verifier,
     guard_runtime_cas,
     guard_runtime_control_store,
     run_guarded_dependency_operation,
@@ -1999,6 +2000,7 @@ class ControlPlaneService(
             )
         self._registry_providers = registry_providers
         self._owns_artifact_store = artifact_store is None
+        signature_verifier = None
         if artifact_store is None:
             store_config = ArtifactStoreConfig.from_env().model_copy(update={"root": str(cas_root)})
             self._artifact_store = cast(
@@ -2010,6 +2012,9 @@ class ControlPlaneService(
                         tracer=self._tracer,
                     )
                 ),
+            )
+            signature_verifier = build_guarded_signature_verifier(
+                backend=store_config.backend, guarded_store=self._artifact_store
             )
         else:
             self._artifact_store = artifact_store
@@ -2105,6 +2110,7 @@ class ControlPlaneService(
         self._promotion_runtime = promotion_runtime or PromotionRuntime(
             store=self._artifact_store,
             completed_epoch_batches=self._decision_validity_service,
+            signature_verifier=signature_verifier,
         )
         if (
             self._promotion_runtime.store is not self._artifact_store
@@ -2177,6 +2183,7 @@ class ControlPlaneService(
                     self._promotion_runtime.promotion_evidence_source.measurement_providers
                 ),
                 promotion_safety_source_trust=self._promotion_runtime.promotion_safety_source_trust,
+                signature_verifier=self._promotion_runtime.signature_verifier,
             ),
         )
         self._worker: ControlWorker | None = None

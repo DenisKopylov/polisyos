@@ -1,5 +1,30 @@
 # E02-R2 write leases
 
+## B197 cumulative covariance checkpoint after R14 (2026-09-30)
+
+Root integrates only the reviewed immutable B197 revision 6, revision 8 and
+revision 9 patches, in that order; these revision names are not the R9 CAS
+regression class. The exact changed source set is
+`foundry/calibration/{calibrator,report,uncertainty_adapter}.py`,
+`foundry/uncertainty/covariance.py` and
+`scientist/nodes/builtins/simulate/propagate_welfare.py`. The four changed tests
+are `tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py`,
+`tests/unit/foundry/uncertainty/test_covariance.py`,
+`tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py` and
+`tests/unit/remediation/test_cal_06.py`; the unchanged
+`tests/unit/foundry/calibration/test_calibrator_mvp.py` is a required control.
+The last test-path addition is included before any canonical edit.
+
+The integration companion is `PolicyOS_E02R2/B197_COVARIANCE_RECEIPT.md`.
+The fresh deciding wave freezes the five source/four test paths and their
+companions. It must prove shared Delta/MC covariance meaning, v1 historical
+bytes, tied-Normal positives and typed partial for unsupported non-Normal
+Pearson dependence. It withholds covariance-derived credible intervals and
+samples; independently produced marginal `robust_outer` bounds remain.
+Configured/served Calibrator orchestration and producer authenticity stay
+unestablished. No source edit during the wave, no optional revision-7 mirror,
+no public-surface, plan, debt-register or production-data edit is leased.
+
 ## R14 integrated witness reconciliation (2026-09-30)
 
 Root owns the existing R14 paths plus these three companions:

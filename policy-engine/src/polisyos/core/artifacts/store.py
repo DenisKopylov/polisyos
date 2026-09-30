@@ -957,7 +957,15 @@ class FileSystemCAS:
                     artifact_id=artifact_id,
                     message="Malformed artifact ID",
                 )
-        aid, _profile_sha256, ref = _artifact_reference(artifact_id)
+        try:
+            aid, _profile_sha256, ref = _artifact_reference(artifact_id)
+        except ValidationError:
+            supplied_id = getattr(artifact_id, "artifact_id", artifact_id)
+            return SignatureVerificationResult(
+                status=SignatureVerificationStatus.ERROR,
+                artifact_id=str(supplied_id),
+                message="Malformed artifact reference",
+            )
         selected: ArtifactID | ArtifactRef = ref or aid
         return _verify_signature(
             artifact_id=aid,

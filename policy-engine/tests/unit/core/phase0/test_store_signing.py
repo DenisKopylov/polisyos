@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.signing import (
     Ed25519Signer,
     Ed25519Verifier,
@@ -116,6 +117,63 @@ def test_verify_signature_rejects_malformed_string_before_cas_reads(
     assert result.status == SignatureVerificationStatus.ERROR
     assert result.artifact_id == artifact_id
     assert read_attempts == []
+
+
+def test_verify_signature_rejects_malformed_artifact_ref_before_cas_reads(
+    monkeypatch, tmp_path: Path
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    ref = store.put_bytes(
+        b"artifact",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    )
+    malformed_ref: ArtifactRef = ref.model_copy(
+        update={"artifact_id": "not-an-artifact-id"}
+    )
+    read_attempts: list[str] = []
+
+    def record_forbidden_read(*_args: object, **_kwargs: object) -> None:
+        read_attempts.append("read")
+        raise AssertionError("malformed artifact refs must be rejected before CAS reads")
+
+    for method_name in (
+        "_load_verified_snapshot",
+        "verify",
+        "get_signature",
+        "get_bytes",
+        "get_manifest_bytes",
+    ):
+        monkeypatch.setattr(store, method_name, record_forbidden_read)
+
+    result = store.verify_signature(malformed_ref, Ed25519Verifier())
+
+    assert result.status == SignatureVerificationStatus.ERROR
+    assert result.artifact_id == "not-an-artifact-id"
+    assert result.message == "Malformed artifact reference"
+    assert read_attempts == []
+
+
+def test_verify_signature_preserves_selected_ref_and_id_controls(tmp_path: Path) -> None:
+    store, signer, verifier = _make_signed_store(tmp_path)
+    ref = store.put_bytes(
+        b"selected view controls",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    )
+    manifest = store.get_manifest(ref.artifact_id)
+    profile_sha256 = store._manifests.profile_sha256(manifest)
+    selected_ref = ref.model_copy(update={"manifest_profile_sha256": profile_sha256})
+
+    store.sign_artifact(ref, signer, signer_identity="test")
+    store.sign_artifact(selected_ref, signer, signer_identity="test")
+
+    selected_result = store.verify_signature(selected_ref, verifier)
+    typed_id_result = store.verify_signature(ref.artifact_id, verifier)
+    string_id_result = store.verify_signature(str(ref.artifact_id), verifier)
+
+    assert selected_result.status == SignatureVerificationStatus.VALID
+    assert selected_result.ok
+    assert typed_id_result.status == SignatureVerificationStatus.VALID
+    assert string_id_result.status == SignatureVerificationStatus.VALID
 
 
 def test_verify_signature_string_normalization_is_required_before_snapshot_load(

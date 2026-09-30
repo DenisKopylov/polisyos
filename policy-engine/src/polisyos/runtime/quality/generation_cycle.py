@@ -24,7 +24,8 @@ import os
 import re
 import stat
 import time
-from collections.abc import Awaitable, Mapping, Sequence
+from collections.abc import Awaitable, Callable, Mapping, Sequence
+from contextlib import suppress
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -169,6 +170,10 @@ if TYPE_CHECKING:
     from polisyos.foundry import MethodRouteConstraint
     from polisyos.pdc import ArtifactEnvelope
     from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationContextHandoff,
+        CandidateSimulationN5InputV2,
+    )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
@@ -2573,72 +2578,107 @@ class JointSimulationPort:
         candidate: object,
         problem: DesignProblem,
         cycle_index: int,
+        candidate_simulation_input: CandidateSimulationN5InputV2 | None = None,
     ) -> SimulationPortObservation:
         """Run N5 from a supplied request or the data-only request builder."""
 
         candidate_id = _candidate_id(candidate)
-        factory = problem.runtime_hints.get("joint_simulation_request_factory")
         request = None
-        if callable(factory):
-            request = factory(candidate=candidate, problem=problem, cycle_index=cycle_index)
-        elif problem.runtime_hints.get("joint_simulation_request") is not None:
-            request = problem.runtime_hints["joint_simulation_request"]
-        elif self._request_builder_is_requested(problem):
+        if candidate_simulation_input is not None:
             try:
-                request = self._build_joint_simulation_request(
+                request = self._build_candidate_simulation_request(
                     candidate=candidate,
                     problem=problem,
+                    input_record=candidate_simulation_input,
                 )
             except (TypeError, ValueError, WorldModelRecordError) as exc:
-                code = str(getattr(exc, "code", None) or "joint_simulation_request_invalid")
-                blocked_world_model_record: WorldModelRecord | None = None
-                if self._cycle_substrate_context is not None:
-                    try:
-                        blocked_world_model_record = self._context_world_model_record(
-                            candidate=candidate,
-                            problem=problem,
-                        )
-                    except (TypeError, ValueError):
-                        blocked_world_model_record = None
-                blocked_diagnostics: dict[str, Any] = {
-                    "port": "N5",
-                    "reason": code,
-                    "world_model_source": (
-                        "cycle_substrate_context"
-                        if self._cycle_substrate_context is not None
-                        else "real_substrate_registry_boundary"
-                    ),
-                    "request_builder": "runtime_quality_joint_simulation_port",
-                    "request_builder_error": str(exc),
-                }
-                if blocked_world_model_record is not None:
-                    blocked_diagnostics.update(
-                        {
-                            "world_model_record_id": (
-                                blocked_world_model_record.world_model_record_id
-                            ),
-                            "world_model_record_content_hash": (
-                                blocked_world_model_record.content_hash
-                            ),
-                        }
+                code = str(getattr(exc, "code", None) or "candidate_simulation_n5_input_invalid")
+                world_record = None
+                with suppress(TypeError, ValueError):
+                    world_record = self._context_world_model_record(
+                        candidate=candidate,
+                        problem=problem,
                     )
                 return SimulationPortObservation(
                     candidate_id=candidate_id,
                     status="simulation_blocked",
                     authority_blockers=(code,),
-                    diagnostics=blocked_diagnostics,
+                    diagnostics={
+                        "port": "N5",
+                        "reason": code,
+                        "request_builder": "configured_candidate_simulation_profile",
+                        "request_builder_error": str(exc),
+                    },
                     k_world_ref_before=(
-                        blocked_world_model_record.content_hash
-                        if blocked_world_model_record is not None
-                        else None
+                        world_record.content_hash if world_record is not None else None
                     ),
                     k_world_ref_after=(
-                        blocked_world_model_record.content_hash
-                        if blocked_world_model_record is not None
-                        else None
+                        world_record.content_hash if world_record is not None else None
                     ),
-                    world_model_record=blocked_world_model_record,
+                    world_model_record=world_record,
                 )
+        else:
+            factory = problem.runtime_hints.get("joint_simulation_request_factory")
+            if callable(factory):
+                request = factory(candidate=candidate, problem=problem, cycle_index=cycle_index)
+            elif problem.runtime_hints.get("joint_simulation_request") is not None:
+                request = problem.runtime_hints["joint_simulation_request"]
+            elif self._request_builder_is_requested(problem):
+                try:
+                    request = self._build_joint_simulation_request(
+                        candidate=candidate,
+                        problem=problem,
+                    )
+                except (TypeError, ValueError, WorldModelRecordError) as exc:
+                    code = str(getattr(exc, "code", None) or "joint_simulation_request_invalid")
+                    blocked_world_model_record: WorldModelRecord | None = None
+                    if self._cycle_substrate_context is not None:
+                        try:
+                            blocked_world_model_record = self._context_world_model_record(
+                                candidate=candidate,
+                                problem=problem,
+                            )
+                        except (TypeError, ValueError):
+                            blocked_world_model_record = None
+                    blocked_diagnostics: dict[str, Any] = {
+                        "port": "N5",
+                        "reason": code,
+                        "world_model_source": (
+                            "cycle_substrate_context"
+                            if self._cycle_substrate_context is not None
+                            else "real_substrate_registry_boundary"
+                        ),
+                        "request_builder": "runtime_quality_joint_simulation_port",
+                        "request_builder_error": str(exc),
+                    }
+                    if blocked_world_model_record is not None:
+                        blocked_diagnostics.update(
+                            {
+                                "world_model_record_id": (
+                                    blocked_world_model_record.world_model_record_id
+                                ),
+                                "world_model_record_content_hash": (
+                                    blocked_world_model_record.content_hash
+                                ),
+                            }
+                        )
+                    return SimulationPortObservation(
+                        candidate_id=candidate_id,
+                        status="simulation_blocked",
+                        authority_blockers=(code,),
+                        diagnostics=blocked_diagnostics,
+                        k_world_ref_before=(
+                            blocked_world_model_record.content_hash
+                            if blocked_world_model_record is not None
+                            else None
+                        ),
+                        k_world_ref_after=(
+                            blocked_world_model_record.content_hash
+                            if blocked_world_model_record is not None
+                            else None
+                        ),
+                        world_model_record=blocked_world_model_record,
+                    )
         if request is None:
             world_record = None
             world_error_code: str | None = None
@@ -3297,6 +3337,163 @@ class JointSimulationPort:
                 hints.get("joint_simulation_world_credal_state_before"),
                 "joint_simulation_world_credal_state_before",
             ),
+        )
+
+    def _build_candidate_simulation_request(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        input_record: CandidateSimulationN5InputV2,
+    ) -> JointSimulationRequest:
+        """Build N5 strictly from the persisted server profile and exact N4 source."""
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationN5InputV2,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            _cycle_job_v1_design_problem_ref,
+            _cycle_job_v1_profile_selection_ref,
+            revalidate_cycle_substrate_context,
+        )
+        from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
+        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+        from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan
+
+        if type(input_record) is not CandidateSimulationN5InputV2:
+            raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
+        if type(candidate) is not ShadowGeneratedCandidate:
+            raise WorldModelRecordError("candidate_simulation_n4_source_untyped")
+        if self._cycle_substrate_context is None:
+            raise WorldModelRecordError("candidate_simulation_context_missing")
+        if self._artifact_store is None:
+            raise WorldModelRecordError("n5_runtime_store_not_established")
+        handoff = self._candidate_simulation_handoff
+        if handoff is None:
+            raise WorldModelRecordError("candidate_simulation_context_handoff_missing")
+        if (
+            input_record.job_id != handoff.job_id
+            or input_record.run_id != handoff.run_id
+            or input_record.tenant_id != handoff.tenant_id
+            or input_record.cell_id != handoff.cell_id
+            or input_record.context_job_ref != handoff.context_job_ref
+            or input_record.profile_config_ref != handoff.profile_config_ref
+            or input_record.profile.content_hash != handoff.profile.content_hash
+        ):
+            raise WorldModelRecordError("candidate_simulation_n5_job_binding_mismatch")
+        problem_ref = _cycle_job_v1_design_problem_ref(problem)
+        if (
+            _cycle_job_v1_profile_selection_ref(problem)
+            != input_record.profile.profile_selection_ref
+        ):
+            raise WorldModelRecordError(
+                "candidate_simulation_n5_profile_selection_ref_mismatch"
+            )
+        context = revalidate_cycle_substrate_context(self._cycle_substrate_context)
+        materialization = input_record.materialization
+        if (
+            context.content_hash != handoff.context.content_hash
+            or context.design_problem_ref != problem_ref
+            or materialization.context_hash != context.content_hash
+            or materialization.profile_hash != input_record.profile.content_hash
+            or materialization.context_job_ref != handoff.context_job_ref
+            or materialization.problem_ref != problem_ref
+        ):
+            raise WorldModelRecordError("candidate_simulation_n5_context_binding_mismatch")
+        if (
+            candidate.candidate_id != input_record.original_candidate_id
+            or candidate.atom.content_hash != input_record.original_n4_atom_hash
+            or candidate.atom.content_hash != input_record.original_candidate_hash
+            or materialization.candidate_id != candidate.candidate_id
+            or materialization.original_atom_hash != candidate.atom.content_hash
+        ):
+            raise WorldModelRecordError("candidate_simulation_n5_candidate_binding_mismatch")
+        source_repository = GenerationSourceRepository(self._artifact_store)
+        source = source_repository.load(input_record.n4_source_ref, run_id=input_record.run_id)
+        if (
+            source.problem != problem
+            or source.cycle_substrate_context is None
+            or source.cycle_substrate_context.content_hash != context.content_hash
+            or not any(
+                item.candidate_id == candidate.candidate_id
+                and item.atom.content_hash == candidate.atom.content_hash
+                for item in source.generation_result.candidates
+            )
+        ):
+            raise WorldModelRecordError("candidate_simulation_n5_n4_source_membership_mismatch")
+        if (
+            context.intervention_substrate is None
+            or input_record.profile.context_inputs.intervention_substrate is None
+            or context.intervention_substrate.content_hash
+            != input_record.profile.context_inputs.intervention_substrate.content_hash
+        ):
+            raise WorldModelRecordError("candidate_simulation_n5_l6_owner_mismatch")
+        derived_atom = materialization.derived_n5_atom
+        if type(derived_atom) is not InterventionAtomBinding:
+            raise WorldModelRecordError("candidate_simulation_n5_derived_atom_untyped")
+        rule = input_record.profile.rule
+        if (
+            derived_atom.status != "candidate_unverified"
+            or derived_atom.operator_kind.trinity_kind != rule.operator_kind
+            or derived_atom.target_world_slots != (rule.target_world_slot,)
+            or derived_atom.causal_do_expr.write_variables != (rule.target_world_slot,)
+        ):
+            raise WorldModelRecordError("candidate_simulation_n5_derived_atom_binding_mismatch")
+        node = derived_atom.to_node_intervention()
+        if (
+            len(node.assignments) != 1
+            or node.assignments[0].variable != rule.target_world_slot
+            or type(node.assignments[0].value) is not int
+            or node.assignments[0].value != materialization.value
+            or node.assignments[0].value_expr is not None
+            or materialization.value < rule.minimum
+            or materialization.value > rule.maximum
+        ):
+            raise WorldModelRecordError("candidate_simulation_n5_assignment_mismatch")
+        world_record = self._context_world_model_record(candidate=candidate, problem=problem)
+        slot = world_record.slot_binding(rule.target_world_slot)
+        if (
+            materialization.world_model_record_hash != world_record.content_hash
+            or slot is None
+            or not slot.state_path
+            or slot.unit is None
+            or slot.unit != rule.unit_id
+        ):
+            raise WorldModelRecordError("candidate_simulation_n5_world_slot_binding_mismatch")
+        outcome = _value_outcome_variable(candidate, problem)
+        if not outcome or outcome != input_record.outcome_variable:
+            raise WorldModelRecordError("candidate_simulation_n5_outcome_binding_mismatch")
+        if outcome not in input_record.n5.baseline_state:
+            raise WorldModelRecordError("candidate_simulation_n5_outcome_baseline_missing")
+        ncm_spec = self._resolve_joint_simulation_ncm(
+            problem=problem,
+            world_record=world_record,
+        )
+        variable_map = self._joint_simulation_variable_map(
+            atoms=(derived_atom,),
+            outcome=outcome,
+            raw_hint=None,
+        )
+        plan = EnginePlan(
+            engine_kind=input_record.n5.engine_kind,
+            objective_ref=f"objective://{outcome}",
+            eligibility_conditions=("acyclic", "counterfactual_do_worlds"),
+            ncm_spec=ncm_spec,
+            variable_map=variable_map,
+        )
+        return JointSimulationRequest(
+            world_model_record_ref=world_record.world_model_record_id,
+            world_model_record=world_record,
+            intervention_atoms=(derived_atom,),
+            selected_outcomes=(outcome,),
+            horizon=input_record.n5.horizon,
+            engine_plan=(plan,),
+            baseline_state=dict(input_record.n5.baseline_state),
+            comparator_refs=input_record.n5.comparator_refs,
+            budget_ref=input_record.n5.budget_ref,
+            seed=input_record.n5.seed,
+            replications=input_record.n5.replications,
         )
 
     @staticmethod
@@ -4532,7 +4729,7 @@ def _conditional_simulation_value_observation(
         )
     outcome = _value_outcome_variable(candidate, problem)
     atom_ids = tuple(
-        str(getattr(atom, "intervention_id"))
+        str(atom.intervention_id)
         for atom in (getattr(candidate, "intervention_atoms", ()) or ())
         if getattr(atom, "intervention_id", None)
     )
@@ -4816,6 +5013,8 @@ class GenerationCycleController:
         promotion_runtime: PromotionRuntime | None = None,
         artifact_store: ArtifactStore | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+        candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None,
+        candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
         observation_to_contract_manifest: object = _OBSERVATION_MANIFEST_UNSUPPLIED,
         observation_family: str | None = None,
         authority_scope: Literal["production", "contract_testing"] = "production",
@@ -4911,6 +5110,19 @@ class GenerationCycleController:
         )
         self._repo_root = repo_root
         self._cycle_substrate_context = cycle_substrate_context
+        self._candidate_simulation_handoff = candidate_simulation_handoff
+        self._candidate_simulation_currentness_resolver = (
+            candidate_simulation_currentness_resolver
+        )
+        if candidate_simulation_handoff is not None:
+            if (
+                cycle_substrate_context is None
+                or cycle_substrate_context.content_hash
+                != candidate_simulation_handoff.context.content_hash
+            ):
+                raise ValueError("generation_cycle_candidate_handoff_context_mismatch")
+            if candidate_simulation_currentness_resolver is None:
+                raise ValueError("generation_cycle_candidate_handoff_currentness_missing")
         self._generated_at = generated_at
         self._high_proxy_threshold = high_proxy_threshold
         self._low_grounding_threshold = low_grounding_threshold
@@ -7295,10 +7507,40 @@ class GenerationCycleController:
                 },
             )
             value = ValuePortObservation(
-                status="value_blocked",
+                status=(
+                    "value_pending_n8"
+                    if self._candidate_simulation_handoff is not None
+                    else "value_blocked"
+                ),
                 candidate_id=candidate_id,
-                authority_blockers=(reason,),
-                reason=f"N6 VOI scheduler blocked the next stage: {reason}.",
+                authority_blockers=(
+                    ("candidate_scenario_n5_only",)
+                    if self._candidate_simulation_handoff is not None
+                    else (reason,)
+                ),
+                reason=(
+                    "candidate_scenario_n5_only"
+                    if self._candidate_simulation_handoff is not None
+                    else f"N6 VOI scheduler blocked the next stage: {reason}."
+                ),
+            )
+            return {
+                **state,
+                "simulation": simulation,
+                "value_port": value,
+                "execution_schedule": schedule,
+            }
+        if self._candidate_simulation_handoff is not None:
+            simulation = self._run_configured_candidate_scenario_n5(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+            )
+            value = ValuePortObservation(
+                status="value_pending_n8",
+                candidate_id=candidate_id,
+                authority_blockers=("candidate_scenario_n5_only",),
+                reason="candidate_scenario_n5_only",
             )
             return {
                 **state,
@@ -7324,6 +7566,223 @@ class GenerationCycleController:
             "value_port": value,
             "execution_schedule": schedule,
         }
+
+    def _run_configured_candidate_scenario_n5(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> SimulationPortObservation:
+        """Run one exact configured N5 candidate scenario and preserve its v1 source."""
+
+        from polisyos.ir.linker import link_trinity
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationN5InputV2,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
+        from polisyos.runtime.quality.intervention_substrate import (
+            intervention_generation_registry_bundle,
+            materialize_candidate_scenario_action,
+        )
+
+        candidate_id = _candidate_id(candidate)
+        handoff = self._candidate_simulation_handoff
+        if type(handoff) is not CandidateSimulationContextHandoff:
+            return self._candidate_scenario_refusal(
+                candidate_id=candidate_id,
+                code="candidate_simulation_context_handoff_unavailable",
+                status="simulation_pending_n5",
+            )
+        if type(candidate) is not ShadowGeneratedCandidate:
+            return self._candidate_scenario_refusal(
+                candidate_id=candidate_id,
+                code="candidate_simulation_real_n4_atom_required",
+                status="simulation_pending_n5",
+            )
+        repository = self._source_repository
+        if repository is None or self._source_run_id is None:
+            return self._candidate_scenario_refusal(
+                candidate_id=candidate_id,
+                code="candidate_simulation_n4_source_store_unavailable",
+                status="simulation_pending_n5",
+            )
+        source: object | None = None
+        source_ref: str | None = None
+        for candidate_ref in reversed(self._source_handoff_refs):
+            try:
+                loaded = repository.load(candidate_ref, run_id=self._source_run_id)
+            except (OSError, RuntimeError, TypeError, ValueError):
+                continue
+            if loaded.cycle_index == cycle_index:
+                source = loaded
+                source_ref = candidate_ref
+                break
+        if source is None or source_ref is None:
+            return self._candidate_scenario_refusal(
+                candidate_id=candidate_id,
+                code="candidate_simulation_n4_source_not_persisted",
+                status="simulation_pending_n5",
+            )
+        try:
+            if source.trinity_bundle is None:
+                raise ValueError("candidate_simulation_trinity_source_missing")
+            candidate_sources = tuple(
+                item
+                for item in source.candidate_sources
+                if item.candidate_id == candidate_id
+            )
+            if len(candidate_sources) != 1:
+                raise ValueError("candidate_simulation_n4_candidate_source_ambiguous")
+            source_item = candidate_sources[0]
+            interventions = tuple(
+                item
+                for item in source.trinity_bundle.policy_spec.interventions
+                if item.intervention_id == source_item.intervention_id
+            )
+            if len(interventions) != 1:
+                raise ValueError("candidate_simulation_trinity_intervention_ambiguous")
+            if self._repo_root is None:
+                raise ValueError("candidate_simulation_linker_registry_owner_missing")
+            registries = intervention_generation_registry_bundle(self._repo_root)
+            linked_bundle, link_report = link_trinity(
+                source.trinity_bundle,
+                registries,
+                allow_extra_params=True,
+                strict=True,
+            )
+            if not link_report.ok:
+                raise ValueError("candidate_simulation_linker_write_set_not_established")
+            linked_rows = tuple(
+                item
+                for item in linked_bundle.bindings.interventions
+                if item.intervention_id == source_item.intervention_id
+            )
+            if len(linked_rows) != 1:
+                raise ValueError("candidate_simulation_linked_intervention_ambiguous")
+            if handoff.context.intervention_substrate is None:
+                raise ValueError("candidate_simulation_l6_bundle_missing")
+            intervention = interventions[0]
+            materialization = materialize_candidate_scenario_action(
+                handoff.context.intervention_substrate,
+                profile=handoff.profile,
+                candidate=candidate,
+                intervention=intervention,
+                linked_intervention=linked_rows[0],
+                problem=problem,
+                context=handoff.context,
+                context_job_ref=handoff.context_job_ref,
+                source_handoff_ref=source_ref,
+                source_handoff=source,
+            )
+            outcome = _value_outcome_variable(candidate, problem)
+            if not outcome:
+                raise ValueError("candidate_simulation_outcome_not_established")
+            profile_ref = candidate_simulation_profile_ref(handoff.profile)
+            input_payload = {
+                "schema_version": "policyos.runtime.candidate_simulation.n5_input.v2",
+                "authority_purpose": "candidate_scenario_n5_only",
+                "source_role": "runtime-config:candidate-simulation",
+                "profile": handoff.profile,
+                "profile_config_ref": profile_ref,
+                "n4_source_ref": source_ref,
+                "context_job_ref": handoff.context_job_ref,
+                "job_id": handoff.job_id,
+                "run_id": handoff.run_id,
+                "tenant_id": handoff.tenant_id,
+                "cell_id": handoff.cell_id,
+                "original_candidate_id": candidate.candidate_id,
+                "original_candidate_hash": candidate.atom.content_hash,
+                "original_n4_atom_hash": candidate.atom.content_hash,
+                "outcome_variable": outcome,
+                "materialization": materialization,
+                "n5": handoff.profile.n5,
+            }
+            hash_payload = CandidateSimulationN5InputV2.model_construct(
+                **input_payload,
+                content_hash="sha256:" + "0" * 64,
+            ).model_dump(mode="json", exclude={"content_hash"})
+            input_record = CandidateSimulationN5InputV2.model_validate(
+                {
+                    **input_payload,
+                    "content_hash": gy_content_hash(hash_payload),
+                }
+            )
+            input_ref = repository.persist_candidate_simulation_input_v2(
+                input_record=input_record
+            )
+            currentness_resolver = self._candidate_simulation_currentness_resolver
+            if currentness_resolver is None or currentness_resolver() is not True:
+                raise ValueError("candidate_simulation_worker_lease_not_current")
+            if type(self._simulation_port) is not JointSimulationPort:
+                raise ValueError("candidate_simulation_canonical_n5_port_not_established")
+            simulation = self._simulation_port(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+                candidate_simulation_input=input_record,
+            )
+            if simulation.status != "joint_simulated":
+                return simulation.model_copy(
+                    update={
+                        "diagnostics": {
+                            **simulation.diagnostics,
+                            "candidate_simulation_n5_input_ref": input_ref,
+                            "candidate_simulation_context_job_ref": handoff.context_job_ref,
+                            "candidate_simulation_profile_ref": profile_ref,
+                            "candidate_simulation_purpose": "candidate_scenario_n5_only",
+                        }
+                    }
+                )
+            execution_ref = repository.persist_candidate_simulation_execution_v2(
+                input_ref=input_ref,
+                simulation=simulation,
+                handoff=handoff,
+            )
+            return simulation.model_copy(
+                update={
+                    "diagnostics": {
+                        **simulation.diagnostics,
+                        "candidate_simulation_n5_input_ref": input_ref,
+                        "candidate_simulation_execution_ref": execution_ref,
+                        "candidate_simulation_context_job_ref": handoff.context_job_ref,
+                        "candidate_simulation_profile_ref": profile_ref,
+                        "candidate_simulation_purpose": "candidate_scenario_n5_only",
+                    }
+                }
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            code = str(getattr(exc, "code", None) or "candidate_simulation_n5_admission_failed")
+            return self._candidate_scenario_refusal(
+                candidate_id=candidate_id,
+                code=code,
+                status="simulation_blocked",
+                detail=str(exc),
+            )
+
+    @staticmethod
+    def _candidate_scenario_refusal(
+        *,
+        candidate_id: str,
+        code: str,
+        status: Literal["simulation_pending_n5", "simulation_blocked"],
+        detail: str | None = None,
+    ) -> SimulationPortObservation:
+        """Return a typed N5 refusal with explicit configured-candidate scope."""
+
+        return SimulationPortObservation(
+            candidate_id=candidate_id,
+            status=status,
+            authority_blockers=(code,),
+            diagnostics={
+                "port": "N5",
+                "reason": code,
+                "request_builder": "configured_candidate_simulation_profile",
+                "detail": detail,
+            },
+        )
 
     def _revise_node(self, state: dict[str, Any]) -> dict[str, Any]:
         problem = state["problem"]
@@ -7389,6 +7848,16 @@ class GenerationCycleController:
             prior_terminal_kind=terminal_kind,
             budget_state=state["budget_state"],
         )
+        if self._candidate_simulation_handoff is not None:
+            next_action = LoopVOIDecision(
+                candidate_id=candidate_id,
+                terminal_kind=terminal_kind,
+                scheduler_action="candidate_scenario_n5_only",
+                scheduler_reason="candidate_scenario_n5_only",
+                priority=float(getattr(state.get("execution_schedule"), "priority", 0.0)),
+                next_action="blocked",
+                reason="candidate_scenario_n5_only",
+            )
         decision = _refinement_decision(
             problem=problem,
             cycle_index=cycle_index,

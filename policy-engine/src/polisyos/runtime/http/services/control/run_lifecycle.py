@@ -6,7 +6,7 @@ import hashlib
 import json
 import time
 import uuid
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from contextlib import AbstractContextManager, contextmanager
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -1028,7 +1028,6 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
     )
-    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
     from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -1069,13 +1068,13 @@ if TYPE_CHECKING:
         def admit_context(
             self,
             *,
-            target_world_scope_profile_id: str,
             problem: DesignProblem,
             job_id: str,
             run_id: str,
             tenant_id: str,
             cell_id: str,
-        ) -> CycleSubstrateContext | None: ...
+            target_world_scope_profile_id: str | None = None,
+        ) -> object | None: ...
 
 
 # ---------------------------------------------------------------------------
@@ -2291,9 +2290,10 @@ class ControlPlaneService(
         recursive_budget_resolution: RecursiveBudgetResolution | None = None,
         target_world_scope_profile_id: str | None = None,
         cycle_substrate_context_resolver: Callable[
-            [DesignProblem], CycleSubstrateContext | None
+            [DesignProblem], object | None
         ]
         | None = None,
+        candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
     ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
         """Run the HTTP composition through its container-owned epoch strangle."""
@@ -2315,6 +2315,9 @@ class ControlPlaneService(
             recursive_budget_resolution=recursive_budget_resolution,
             target_world_scope_profile_id=target_world_scope_profile_id,
             cycle_substrate_context_resolver=cycle_substrate_context_resolver,
+            candidate_simulation_currentness_resolver=(
+                candidate_simulation_currentness_resolver
+            ),
             root_evaluation_context=root_evaluation_context,
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,
@@ -4591,14 +4594,11 @@ class ControlPlaneService(
             ):
                 raise ValueError(failure_code)
             replayed_binding = binding.model_dump(mode="json")
-            profile_id = payload.get("target_world_scope_profile_id")
             if (
                 binding.admission_status == "established"
                 and binding.intent_band == "simulate_only_attempt"
                 and binding.canonical_mode == "simulate_only"
                 and binding.actor_authenticated is True
-                and isinstance(profile_id, str)
-                and profile_id.strip()
                 and isinstance(binding.tenant_id, str)
                 and binding.tenant_id.strip()
                 and isinstance(binding.cell_id, str)
@@ -4939,21 +4939,36 @@ class ControlPlaneService(
                         }
                     )
                     cycle_substrate_context_resolver = None
+                    candidate_simulation_currentness_resolver = None
                     profile_id = payload.get("target_world_scope_profile_id")
                     admission_owner = self._cycle_substrate_context_admission_owner
+                    from polisyos.runtime.quality.cycle_substrate import (
+                        ConfiguredCandidateSimulationContextAdmissionOwner,
+                    )
+
+                    configured_candidate_owner = (
+                        type(admission_owner)
+                        is ConfiguredCandidateSimulationContextAdmissionOwner
+                    )
                     bound_tenant_id = execution_scope.tenant_id
                     bound_cell_id = execution_scope.cell_id
                     if (
                         intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
                         and admission_owner is not None
-                        and isinstance(profile_id, str)
-                        and profile_id.strip()
+                        and (
+                            configured_candidate_owner
+                            or (isinstance(profile_id, str) and profile_id.strip())
+                        )
                         and isinstance(bound_tenant_id, str)
                         and bound_tenant_id.strip()
                         and isinstance(bound_cell_id, str)
                         and bound_cell_id.strip()
                         and job.run_id is not None
                     ):
+                        from polisyos.runtime.quality.candidate_simulation import (
+                            CandidateSimulationContextHandoff,
+                            CandidateSimulationContextOffer,
+                        )
                         from polisyos.runtime.quality.cycle_substrate import (
                             CycleSubstrateContext,
                             CycleSubstrateContextArtifactOwner,
@@ -4973,18 +4988,33 @@ class ControlPlaneService(
 
                         def resolve_cycle_substrate_context(
                             problem: DesignProblem,
-                        ) -> CycleSubstrateContext | None:
+                        ) -> object | None:
                             nonlocal cycle_substrate_context_job_ref
-                            admitted_context = admission_owner.admit_context(
-                                target_world_scope_profile_id=profile_id,
-                                problem=problem,
-                                job_id=job.job_id,
-                                run_id=str(job.run_id),
-                                tenant_id=bound_tenant_id,
-                                cell_id=bound_cell_id,
-                            )
-                            if admitted_context is None:
+                            if configured_candidate_owner:
+                                admitted = admission_owner.admit_context(
+                                    problem=problem,
+                                    job_id=job.job_id,
+                                    run_id=str(job.run_id),
+                                    tenant_id=bound_tenant_id,
+                                    cell_id=bound_cell_id,
+                                )
+                            else:
+                                admitted = admission_owner.admit_context(
+                                    target_world_scope_profile_id=profile_id,
+                                    problem=problem,
+                                    job_id=job.job_id,
+                                    run_id=str(job.run_id),
+                                    tenant_id=bound_tenant_id,
+                                    cell_id=bound_cell_id,
+                                )
+                            if admitted is None:
                                 return None
+                            offer = (
+                                admitted
+                                if type(admitted) is CandidateSimulationContextOffer
+                                else None
+                            )
+                            admitted_context = offer.context if offer is not None else admitted
                             if type(admitted_context) is not CycleSubstrateContext:
                                 raise RuntimeError(
                                     "cycle_substrate_context_admission_owner_returned_untyped"
@@ -5008,6 +5038,35 @@ class ControlPlaneService(
                                     "cycle_substrate_context_job_replay_changed_content"
                                 )
                             cycle_substrate_context_job_ref = str(context_ref.artifact_id)
+                            if offer is not None:
+                                handoff = CandidateSimulationContextHandoff(
+                                    context=replayed.context,
+                                    context_job_ref=cycle_substrate_context_job_ref,
+                                    profile=offer.profile,
+                                    profile_config_ref=offer.profile_config_ref,
+                                    job_id=job.job_id,
+                                    run_id=str(job.run_id),
+                                    tenant_id=bound_tenant_id,
+                                    cell_id=bound_cell_id,
+                                )
+
+                                def assert_candidate_simulation_currentness() -> bool:
+                                    current = context_owner.resolve_for_current_job(
+                                        context_ref,
+                                        problem=problem,
+                                        verified_nl_job_scope=verified_nl_job_scope,
+                                    )
+                                    return (
+                                        current.content_hash == replayed.content_hash
+                                        and str(context_ref.artifact_id)
+                                        == handoff.context_job_ref
+                                    )
+
+                                nonlocal candidate_simulation_currentness_resolver
+                                candidate_simulation_currentness_resolver = (
+                                    assert_candidate_simulation_currentness
+                                )
+                                return handoff
                             return replayed.context
 
                         cycle_substrate_context_resolver = resolve_cycle_substrate_context
@@ -5054,6 +5113,9 @@ class ControlPlaneService(
                                 else None
                             ),
                             cycle_substrate_context_resolver=cycle_substrate_context_resolver,
+                            candidate_simulation_currentness_resolver=(
+                                candidate_simulation_currentness_resolver
+                            ),
                             root_evaluation_context=(
                                 evaluation_safety.execution_context
                                 if evaluation_safety is not None

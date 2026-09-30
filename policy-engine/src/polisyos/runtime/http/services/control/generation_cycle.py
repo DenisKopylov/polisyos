@@ -730,9 +730,10 @@ async def compile_and_run_recursive_generation_cycle(
     span_support_client: _SpanSupportVerifierClient | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
     cycle_substrate_context_resolver: Callable[
-        [DesignProblem], CycleSubstrateContext | None
+        [DesignProblem], object | None
     ]
     | None = None,
+    candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
     root_n4_generation_port: N4GenerationPort | None = None,
     target_world_scope_profile_id: str | None = None,
     promotion_runtime: PromotionRuntime | None = None,
@@ -878,8 +879,18 @@ async def compile_and_run_recursive_generation_cycle(
             "compiled DesignProblem does not preserve the caller's raw request",
         )
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None
     if cycle_substrate_context_resolver is not None:
-        cycle_substrate_context = cycle_substrate_context_resolver(problem)
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+        )
+
+        resolved_context = cycle_substrate_context_resolver(problem)
+        if type(resolved_context) is CandidateSimulationContextHandoff:
+            candidate_simulation_handoff = resolved_context
+            cycle_substrate_context = resolved_context.context
+        else:
+            cycle_substrate_context = resolved_context
         if cycle_substrate_context is not None:
             from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
 
@@ -1005,6 +1016,17 @@ async def compile_and_run_recursive_generation_cycle(
         recursive_budget=recursive_budget,
         cycle_substrate_contexts_by_node=(
             {root_ref: cycle_substrate_context} if cycle_substrate_context is not None else None
+        ),
+        candidate_simulation_handoffs_by_node=(
+            {root_ref: candidate_simulation_handoff}
+            if candidate_simulation_handoff is not None
+            else None
+        ),
+        candidate_simulation_currentness_resolvers_by_node=(
+            {root_ref: candidate_simulation_currentness_resolver}
+            if candidate_simulation_handoff is not None
+            and candidate_simulation_currentness_resolver is not None
+            else None
         ),
         n4_generation_ports_by_node=(
             {root_ref: root_n4_generation_port} if root_n4_generation_port is not None else None

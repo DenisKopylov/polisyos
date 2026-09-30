@@ -121,6 +121,7 @@ def create_runtime_api_app(
     tracer_factory: Callable[[], Any] | None = None,
     container_overrides: RuntimeContainerOverrides | None = None,
     normative_authority_trust: NormativeAuthorityTrust | None = None,
+    candidate_simulation_profiles: tuple[Any, ...] = (),
     enable_csrf_protection: bool | None = None,
     step_up_verifier: StepUpAssertionVerifier | None = None,
     step_up_replay_store: StepUpReplayStore | None = None,
@@ -228,6 +229,7 @@ def create_runtime_api_app(
             tracer_factory=tracer_factory,
             overrides=container_overrides or RuntimeContainerOverrides(),
             normative_authority_trust=(normative_authority_trust or NormativeAuthorityTrust()),
+            candidate_simulation_profiles=candidate_simulation_profiles,
         ),
         deployment_policy=deployment_policy,
         runtime_security=RuntimeSecurityConfig(

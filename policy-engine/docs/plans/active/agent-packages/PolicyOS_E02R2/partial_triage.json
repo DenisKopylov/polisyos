@@ -87,23 +87,23 @@
       "finding_id": "B12",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "AcquisitionWorldGrowthBridge and in-cycle acquisition owner",
+      "owner": "AcquisitionWorldGrowthBridge and served DataState/WMR/N5 consumer owners",
       "blocker_kind": null,
       "e02_residual": "ACQ-01: local FileTabular custody only, not live acquisition; REQ-01 stage + ACQ-01 local FileTabular fixture only",
-      "next_step": "Confine the local FileTabular/acq01_route rebuild to an explicitly typed, non-authoritative demonstration. Restore the served WDI path through AcquisitionWorldGrowthBridge using the runtime-supplied tenant-bound store, and verify tenant custody through re-entry. Production ACQ-01 remains producer_missing until a real producer handshake admits the overlay, passport and native epoch, followed by a served same-case witness.",
+      "next_step": "Under the R13 P40 stop, this is the same world-growth class one level deeper: widen the canonical admission-to-DataState/WMR-to-N5 bridge rather than patching another route instance. Wire the served WorldBank WDI execution port → AcquisitionWorldGrowthBridge with its runtime-supplied artifact store and overlay/passport/native-epoch admission. Under a controlled compatible profile, admit a changed value, resolve refreshed same-case DataState/WMR, and assert the dependent N5 calculation changes. Removal probe: retain admission/passport/epoch markers but omit the DataState/WMR refresh or resolve the prior basis; the calculation-change assertion must turn red. Positive control: unchanged input/profile preserves the result, and ordinary candidate work remains available with a typed unknown when source time is not established. Keep B12 partial; do not claim a real-source time contract or S8 authority.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#B12",
       "direct_relations": [
-        {
-          "relation": "conflicts",
-          "target": "GY-N13b",
-          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-N13b"
-        },
-        {
-          "relation": "conflicts",
-          "target": "Atlas DS15",
-          "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725#DS15"
-        }
-      ],
+  {
+    "relation": "touches code named by",
+    "target": "GY-N13b",
+    "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@git-blob:9d510e2ee43fd017028542f180008cd2c2aacb37#GY-N13b"
+  },
+  {
+    "relation": "touches code named by",
+    "target": "Atlas DS15",
+    "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@git-blob:21002cfb2805f718ef7e906e8df1c4ecb30c015d#DS15"
+  }
+],
       "e02_residual_source_refs": [
         {
           "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
@@ -116,16 +116,17 @@
         }
       ],
       "production_residual": {
-        "status": "producer_missing",
-        "detail": "The complete tracked-path census found no production ACQ-01 route producer; only the test fixture emits the structured acq01_route payload. The local route is not production world growth."
-      },
-      "classification_rationale": "Bucket a covers engineering available now: fence the local route as typed non-authoritative demonstration and restore/verify served WDI custody. The production producer remains an explicit producer_missing residual.",
+  "status": "bridge_missing",
+  "detail": "The literal acq01_route payload-field query finds only the legacy route/test seam; it is not a census of production world growth. The served WDI execution port constructs AcquisitionWorldGrowthBridge with the runtime-supplied artifact store; its integration witness admits overlay/passport/native-epoch evidence and re-enters the same case. The witness stops at N5 refusal before a dependent calculation because the admitted observation is not connected to refreshed DataState/WMR/N5 context. Source-time semantics remain not_established; the missing capability is the downstream bridge, not the WDI producer or merely a semantic test."
+},
+      "classification_rationale": "Bucket a remains appropriate: wire the admitted observation through refreshed same-case DataState/WMR into the N5 request, then prove the dependent calculation changes. Under R13 P40 this is the same world-growth class one level deeper; do not patch another route instance. Retain an admission-marker removal probe and unchanged-profile positive control. Source-time semantics remain typed not_established; no S8 authority is claimed.",
       "acquisition_route_census_ref": [
-        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e#L5023",
-        "policy-engine/tests/unit/remediation/test_acq_01.py@sha256:8daaca527ee5a89bddf3d96aa9e28221a0380d38c677d4895fc4bc659df4346a#L813",
-        "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@sha256:6a7f4b696a4300bdfb7af617519f4138c47d9df3fe045eab9644541a8d5f6da6#L743",
-        "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@sha256:45e89b65fdee4039f58f310190abfce25e9345746f5e5f009c42c903ce8b0eeb#L184"
-      ]
+  "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@git-blob:d6d47bbd9b68f106e98f5f353314c7a223d157f9#L6558-L6580",
+  "policy-engine/tests/unit/remediation/test_acq_01.py@git-blob:0adde186e16225cf91103a98e5dda56b796eda40#L815-L816",
+  "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@git-blob:e6ab979ae4d828f1515178f2b6f3a54a64af1782#L763-L776",
+  "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@git-blob:885ad811d797ba4d6b2492a1ebdb59b894415e79#L195-L205",
+  "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py@git-blob:dc399ca758b9fdc282dafcf43c451ff686b512e4#L744-L787"
+]
     },
     {
       "finding_id": "LA-046",
@@ -147,18 +148,7 @@
         "policy-engine/tests/unit/remediation/test_acq_01.py@sha256:8daaca527ee5a89bddf3d96aa9e28221a0380d38c677d4895fc4bc659df4346a#L179",
         "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py@sha256:89ee3d1c8a51470ed82c1985ef36a92bcd361139036cab21c6fba6de23a91467#L980"
       ],
-      "direct_relations": [
-        {
-          "relation": "touches code named by",
-          "target": "GY-N13b",
-          "source_ref": "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md@sha256:5d06f4cc55541fb28030ec4f6c75f2a10537df53c60f792df84de118d0aeb4c5#GY-N13b"
-        },
-        {
-          "relation": "touches code named by",
-          "target": "Atlas DS15",
-          "source_ref": "policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md@sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725#DS15"
-        }
-      ],
+      "direct_relations": [],
       "e02_residual_source_refs": [
         {
           "path": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-CURRENT-RECONCILIATION-DELTA-20260921.md",
@@ -2219,10 +2209,10 @@
       "finding_id": "LA-040",
       "bucket": "a",
       "disposition": "engineering",
-      "owner": "Lex store owner",
+      "owner": "Data Forge legal batch embedder owner; shared generation-basis identity owner",
       "blocker_kind": null,
       "e02_residual": "EMB-03: lex store still consumes legacy",
-      "next_step": "Move the live Lex store consumer to the canonical embedding artifact and prove legacy bytes are not read on the served path.",
+      "next_step": "Through build_local_embeddings_and_indexes, route per-row reuse through the existing data_forge.kernel.io.generation_basis owner. Bind submitted text content, text-projection/rule version, verified model revision, and current membership/withdrawal into reuse identity and the published index generation. Discriminator: same ID/new text, same-dimension model revision, changed projection, deletion/withdrawal, and missing/corrupt basis must not reuse stale vectors or stale membership; full rebuild must match current rows. Removal probe: retain cache IDs/counters and manifest markers but remove the content/profile/membership binding; stale reuse must make the test red. Positive control: unchanged text, projection, model, and membership reuses the same vector with exact ID-to-label ordering. Keep EMB-03 Lex reader migration separate.",
       "finding_source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#LA-040",
       "e02_residual_source_refs": [
         {
@@ -2893,15 +2883,16 @@
     },
     "enumeration": "git ls-files -z at basis_commit; count tracked .py by policy-engine/src/, policy-engine/tests/, policy-engine/tools/",
     "producer_query": "git grep -n -E '\"acq01_route\"[[:space:]]*:' -- tracked Python files under policy-engine/src, tests, tools",
-    "producer_result": "No tracked production ACQ-01 route producer. The structured acq01_route payload field is emitted only by a test fixture. Production source contains a local N7 route-context rebuild helper, not an admitted production producer.",
-    "production_status": "producer_missing",
-    "served_wdi_status": "Canonical AcquisitionWorldGrowthBridge is wired by the served WDI execution port and receives the runtime-supplied artifact store.",
+    "producer_result": "The literal acq01_route payload-field query finds the legacy route/test seam and local helper, but does not measure the served world-growth path. The served WorldBank WDI execution port constructs AcquisitionWorldGrowthBridge with the runtime-supplied artifact store and admits an overlay/passport/native-epoch row through re-entry. The downstream edge from that observation to refreshed DataState/WMR/N5 context is missing; the current witness reaches N5 without the required simulation request/data bundle.",
+    "production_status": "served_world_growth_producer_present; bridge_missing_from_admitted_observation_to_refreshed_DataState_WMR_N5_context",
+    "served_wdi_status": "Canonical AcquisitionWorldGrowthBridge is wired by the served WDI execution port and receives the runtime-supplied artifact store. Its observation is not wired into refreshed DataState/WMR/N5 context; source-time semantics remain not_established.",
     "source_refs": [
-      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@sha256:8ea492a13d35847d048dff8db87c1ed8711611741a2f9b1f96ba821da0f6e33e#L5023",
-      "policy-engine/tests/unit/remediation/test_acq_01.py@sha256:8daaca527ee5a89bddf3d96aa9e28221a0380d38c677d4895fc4bc659df4346a#L813",
-      "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@sha256:6a7f4b696a4300bdfb7af617519f4138c47d9df3fe045eab9644541a8d5f6da6#L743",
-      "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@sha256:45e89b65fdee4039f58f310190abfce25e9345746f5e5f009c42c903ce8b0eeb#L184"
-    ]
+  "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@git-blob:d6d47bbd9b68f106e98f5f353314c7a223d157f9#L6558-L6580",
+  "policy-engine/tests/unit/remediation/test_acq_01.py@git-blob:0adde186e16225cf91103a98e5dda56b796eda40#L815-L816",
+  "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@git-blob:e6ab979ae4d828f1515178f2b6f3a54a64af1782#L763-L776",
+  "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@git-blob:885ad811d797ba4d6b2492a1ebdb59b894415e79#L195-L205",
+  "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py@git-blob:dc399ca758b9fdc282dafcf43c451ff686b512e4#L744-L787"
+]
   },
   "decision_draft_count": 13,
   "classification_review_20260927": {

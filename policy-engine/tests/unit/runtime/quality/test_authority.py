@@ -413,7 +413,7 @@ def test_eval_safety_surface_rejects_removed_packet_with_boundary_intact(
         ),
     }
 
-    blob_path, _manifest_path = artifact_store.get_paths(exact_artifact_id)
+    blob_path, _manifest_path = artifact_store._paths(exact_artifact_id)
     blob_path.write_bytes(b'{"authority_boundary":"corrupt-cas-control"}')
     corrupt_cas_decision = decide(exact_artifact_id)
 

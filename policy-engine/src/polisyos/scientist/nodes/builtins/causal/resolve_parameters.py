@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
@@ -33,6 +33,9 @@ from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_resolve_parameters@1.0.0"),
@@ -91,6 +94,48 @@ class ResolveParametersNode:
     def spec(self) -> NodeSpec:
         return _SPEC
 
+    def prepare_cache_input(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+    ) -> PreparedSKGRead | None:
+        """Bind cache lookup to the selected SKG source database."""
+        del ctx
+        if (
+            _resolve_target_context(state) is None
+            or not _resolve_required_parameters(state)
+            or _resolve_causal_graph_ref(state) is None
+        ):
+            return None
+        db_path_raw = state.params.get("skg_db_path")
+        if not isinstance(db_path_raw, str) or not db_path_raw.strip():
+            return None
+        db_path = Path(db_path_raw)
+        index_dir_raw = state.params.get("skg_index_dir")
+        index_dir = Path(str(index_dir_raw)) if index_dir_raw else db_path.parent
+        return SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
+
+    def validate_cache_hit(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        cached_outcome: NodeOutcome,
+    ) -> bool:
+        """Re-run B60 request and graph binding checks before replaying a cached bundle."""
+        bundle_ref = cached_outcome.state.artifacts_index.get(
+            ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+        )
+        if bundle_ref is None:
+            return False
+        return _bundle_matches_request(
+            ctx,
+            bundle_ref,
+            target_context=_resolve_target_context(state),
+            simulation_domain=str(state.params.get("domain", "unknown")),
+            required_parameters=_resolve_required_parameters(state),
+            graph_ref=_resolve_causal_graph_ref(state),
+        )
+
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         existing_bundle_ref = state.artifacts_index.get(
             ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
@@ -101,18 +146,24 @@ class ResolveParametersNode:
         simulation_domain = str(state.params.get("domain", "unknown"))
         graph_ref = _resolve_causal_graph_ref(state)
 
-        # A stored ref is only a reuse candidate.  Validate it against the
-        # request before accepting the already-produced state.  The
-        # no-request path remains a cheap replay path, but only for a
-        # structurally valid bundle; a stale or missing ref must not turn into
-        # a false ``ok`` merely because its key is present.
-        if existing_bundle_ref is not None and _bundle_matches_request(
-            ctx,
-            existing_bundle_ref,
-            target_context=target_context,
-            simulation_domain=simulation_domain,
-            required_parameters=required_parameters,
-            graph_ref=graph_ref,
+        # A source-unbound bundle can only be reused when this invocation has
+        # no current SKG source to consume.  Once an owner-prepared or
+        # configured source is present, recompute because v1.0 bundle records
+        # do not persist a selector-read binding.
+        skg_path_raw = state.params.get("skg_db_path")
+        has_current_skg_source = isinstance(skg_path_raw, str) and bool(skg_path_raw.strip())
+        if (
+            existing_bundle_ref is not None
+            and ctx.prepared_skg_read is None
+            and not has_current_skg_source
+            and _bundle_matches_request(
+                ctx,
+                existing_bundle_ref,
+                target_context=target_context,
+                simulation_domain=simulation_domain,
+                required_parameters=required_parameters,
+                graph_ref=graph_ref,
+            )
         ):
             return NodeOutcome(status="ok", state=state)
 
@@ -162,7 +213,14 @@ class ResolveParametersNode:
         unsupported: list[str] = []
         cross_graph_profile = _resolve_cross_graph_profile(ctx, state)
 
-        skg_query = SKGQuery(db_path=db_path, index_dir=index_dir)
+        prepared_read = ctx.prepared_skg_read
+        owns_prepared_read = False
+        if prepared_read is None:
+            prepared_read = SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
+            owns_prepared_read = True
+        elif not prepared_read.matches_path(db_path):
+            return _skip(state, "Prepared SKG source path does not match this selector request.")
+        skg_query = prepared_read.query
         try:
             selector = ParameterSelector(skg_query)
             for parameter_name in required_parameters:
@@ -181,7 +239,8 @@ class ResolveParametersNode:
             skg_version_id = skg_query.latest_skg_version_id()
             skg_snapshot_ref = skg_query.skg_snapshot_ref(version_id=skg_version_id) or ""
         finally:
-            skg_query.close()
+            if owns_prepared_read:
+                prepared_read.close()
 
         bundle = ContextAdaptiveParameterBundle(
             target_context=target_context,

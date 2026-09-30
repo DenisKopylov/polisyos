@@ -3173,7 +3173,7 @@ def test_n9_replays_current_measurement_source_at_admission(fabric_measurement_o
             owner.store.get_bytes(core_artifacts.ArtifactID(envelope.payload_ref))
         )
         source_ref = core_artifacts.ArtifactRef.model_validate(payload["payload_ref"])
-        owner.store.get_paths(source_ref.artifact_id)[0].unlink()
+        owner.store._paths(source_ref.artifact_id)[0].unlink()
     after = run_canonical_promotion_sequence(
         current,
         confidence_ledger_session=_ledger_session(binding=current.design_problem_binding),
@@ -3488,7 +3488,7 @@ def test_measurement_root_data_snapshot_rejects_missing_or_corrupt_payload_custo
         providers=owner.providers,
     )
     result_ref = _assert_fetch_payload_custody_contract(owner, evidence)
-    payload_blob, payload_manifest = owner.store.get_paths(result_ref.artifact_id)
+    payload_blob, payload_manifest = owner.store._paths(result_ref.artifact_id)
     if corruption == "missing_payload_blob":
         payload_blob.unlink()
     else:

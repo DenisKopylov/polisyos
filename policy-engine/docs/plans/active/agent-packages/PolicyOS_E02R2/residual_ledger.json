@@ -15946,23 +15946,23 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held remains. The bounded design is GO, but current scratch candidate vertical execution failed report reopen on non-statistical confidence-level semantics; a later run failed a strict literal float equality at the analytical covariance. Those are candidate outcomes, not E02 pass-to-fail evidence. The registered welfare consumer exists, but the complete source census still finds no production Calibrator construction or persisted report writer call. No current algorithm, CAS round-trip or served-path pass is claimed."
+        "detail": "Appendix C held remains. The previous algorithm-absent/tied-group projection explanation is superseded by the bounded canonical V2 internal witness at commit 28ea3bb56bc4e751bf1303615d79219b56d7a24c: the complete five-file whole-file denominator passes 58/58, Ruff passes, and the origin audit passes. The internal Calibrator-to-persisted-v2-report-to-reopen-to-welfare path is verified. The configured/served Calibrator producer and independently admitted producer provenance remain unestablished; this is the one smallest capability blocker. No finding-level closure, current authority, or four-base P41 result is claimed. Historical scratch candidate diagnostics remain as historical evidence, not current canonical results: an earlier vertical candidate failed report reopen because non-statistical intervals conflicted with confidence_level=None, and a later candidate run failed a strict float assertion (0.002499999944... versus 0.0025). Their design and test records remain at /Users/deniskopylov/.codex/scratch/e02r2-b197-design-20260930/B197_TIED_COVARIANCE_DESIGN_FINAL_DELTA_REVIEW.md@sha256:0e419102a7be07a4735db780b9f5bb5508c4bfff7ad01916516db3be6faa0af6; /Users/deniskopylov/.codex/scratch/e02r2-b197-algorithm-candidate-independent-20260930/b197-tied-vertical-analytical-rerun3.junit.xml@sha256:0959ea1c1067292c71fdb2499307bee0ac48543fab86a595b861e61e602f279b; /Users/deniskopylov/.codex/scratch/e02r2-b197-algorithm-candidate-independent-20260930/b197-tied-vertical-null-preserving-rerun.junit.xml@sha256:d954614da865ed117c8779496a706bb8ae64a2b2f114024260c63b705033ea87; /Users/deniskopylov/.codex/scratch/e02r2-b197-algorithm-candidate-independent-20260930/B197_IMPORT_TIME_UNRUN.md@sha256:28bd5a1e41a41512a89cbf369dcbdc7567e5976299322546adbdc65295023e30. A complete read-only source/config census at frozen commit 28ea3bb56bc4e751bf1303615d79219b56d7a24c found no production Calibrator/CalibratorInputs construction and no put_calibration_report caller. It found a served pre-existing report-ref intake, not a producer, and a reachable policy_design shared-key mismatch between Foundry V2 CalibrationReport and the distinct FunnelCalibrationReport parser. The mismatch is a typed-boundary defect to falsify; it is not evidence of authority emission. Census: /Users/deniskopylov/.codex/scratch/e02r2-b197-algorithm-candidate-independent-20260930/B197_V2_SERVED_PRODUCER_CENSUS_28EA3BB5_20261001.md@sha256:6d7887d881c037c2291cb2c7f463f9dd1188f1ae4c00228c3f8fac32e5669a4e."
       },
-      "residual": "The persisted tied-group-to-field projection remains the required algorithm: CalibrationReport must preserve optimizer-group coordinates and named-field mapping, and the uncertainty adapter must compute the mapped covariance/Hessian axes before the existing welfare consumer uses the report. The GO-reviewed design is not yet verified. The isolated candidate vertical selector reached Calibrator.run and put_calibration_report but failed reopening because non-statistical envelopes violated confidence_level=None; a later candidate run reached an exact-float assertion with 0.002499999944... versus 0.0025. These scratch candidate failures are not base-passing E02 regressions; numerical comparisons need an analytical tolerance that still detects the wrong covariance. A registered PropagateWelfareNode consumer exists, but no production Calibrator(...) invocation or put_calibration_report call establishes the served writer route. Marker-retaining removal, persisted reopen, served route and P41 remain unverified.",
+      "residual": "The internal tied-coordinate covariance path is implemented and verified through Calibrator → persisted v2 CalibrationReport → reopen → existing welfare consumer. The canonical five-file whole-file run is 58/58 PASS; Ruff passes nine changed Python files and the origin audit inspected 816 product modules, five test modules, 18 test/support modules, and 12 frozen inputs with zero foreign origins or changed frozen inputs. The remaining single smallest capability is a configured/served Calibrator producer with independently admitted source/graph/plan provenance entering existing report persistence, followed by consumer-specific typed intake that resolves manifest kind/schema and payload. A served report-ref field accepts a pre-existing ref; the census found no production Calibrator construction or report-writer call. In policy_design the same INPUT_CALIBRATION_REPORT_REF reaches Foundry V2 propagation nodes and a distinct FunnelCalibrationReport parser; keep those models separate. The census does not establish an authority leak, an authority-bearing default served route, or institutionally authorized real source data. Keep B197 held. Marker-retaining removal, four-base P41, served sibling PropagateUncertaintyNode behavior, public uncertainty authority, and production-scale measurement remain unestablished. The separately computed robust_interval remains a marginal-bound output; the mixed-marginal limitation withholds covariance-derived credible intervals and Monte Carlo samples.",
       "residual_owner": {
         "kind": "smallest_missing_capability",
-        "name": "Foundry calibration report / uncertainty adapter owner — persisted group-to-field projection",
-        "appointment_status": "The group-to-field projection is absent. A registered welfare consumer exists, but the production Calibrator-to-persisted-report writer route is not established; behavioral proof remains UNRUN."
+        "name": "Configured/served Calibrator producer with independently admitted source/graph/plan provenance and consumer-specific typed report-kind admission through existing CalibrationReport v2 persistence and welfare owners",
+        "appointment_status": "The internal Calibrator → persisted v2 report → reopen → welfare path has the bounded 58/58 canonical witness; the source/config census did not rerun that witness. The complete frozen census found no production Calibrator/CalibratorInputs construction or put_calibration_report caller. A served report-ref intake supplies a pre-existing ref and assigns kind from the request without resolving manifest/payload. In policy_design the same input key reaches Foundry V2 propagation and a FunnelCalibrationReport parser. The remaining capability is one configured/served producer with admitted source/graph/plan provenance and consumer-specific kind/schema admission. This is a typed-boundary risk, not evidence of authority emission; institutionally authorized real targets remain not_established."
       },
       "r_class": null,
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "current_owner_function_probe_with_preserving_control",
-          "identity": "B197 tied-coordinate projection and untied-field preserving control (two cases)",
+          "identity": "Historical B197 tied/untied owner-function probe at the pre-28ea snapshot",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B197",
           "behavioral_verdict": "PARTIAL",
-          "scope": "Read-only two-case call to CalibrationReport and envelopes_from_calibration: tied A.rate/B.rate group produced zero field envelopes; untied control produced both fields. No full Calibrator optimization, CAS reopen, or served welfare call ran. The fresh census finds a registered welfare consumer but no production Calibrator(...) invocation or put_calibration_report call. P38 divergence: the adapter uses exact field/group-name equality as a proxy for an explicit mapping, so tied coordinates yield no field envelopes despite group covariance and named fields. Census is source-only; dynamic/external callers and behavior remain UNRUN.",
+          "scope": "Historical two-case read-only probe: tied A.rate/B.rate produced zero field envelopes and the untied control produced both fields. It did not run the full Calibrator optimization, persist/reopen a report, or call the served welfare route. Its exact-name/group projection limitation describes the pre-28ea source and is superseded for the internal path by commit 28ea3bb56bc4e751bf1303615d79219b56d7a24c and the canonical bounded witness. Retain the historical refs unchanged; do not treat this PARTIAL probe as current behavior or as evidence of the remaining configured/served producer.",
           "package_test_selector_groups": [],
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5",
@@ -15976,39 +15976,39 @@
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
         "finding_test_status": "PARTIAL",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@git-blob:d547b27f4f64091ea399c7bf7d8c6f557504c774",
-        "blocker_path_scope": "Persisted tie-group-to-field mapping through CalibrationReport and uncertainty adapter. The registered PropagateWelfareNode consumer exists; current production-source census finds no Calibrator(...) invocation or put_calibration_report call establishing its served writer/report route. B198 is not evidence for this property.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; held status retained; one smallest_missing_capability; tied-group failure and untied control reproduced; served persisted welfare bridge and P41 remain UNRUN",
+        "blocker_path_at_sha": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py@git-blob:00ede8ba8383e7531bfbfcb05a5dc17e09cd9d0a",
+        "blocker_path_scope": "The pinned uncertainty adapter implements the internal tied-group-to-field/covariance projection; the old algorithm blocker is superseded by the bounded 58/58 internal witness. The remaining single capability is a configured/served producer with independently admitted source/graph/plan provenance plus consumer-specific typed report intake resolving stored kind/schema. Census found the existing report-ref intake is not a producer, and the same policy_design key reaches Foundry V2 consumers and a distinct Funnel parser. This is a reachable type-boundary mismatch, not an observed authority emission. The default served route is WorkspaceLoop; the legacy-shadow run_experiment path is candidate-only. Four-base P41 remains UNRUN.",
+        "held_audit_receipt_status": "historical_read_only_H_audit_complete; historical tied/untied probe and candidate failures preserved; internal projection and persisted reopen superseded as blockers by commit 28ea3bb56bc4e751bf1303615d79219b56d7a24c and receipt 9019cb605e10d07149e7a5415e104ed42394d059e7ab4f9b76c3184c6dc28c89; current read-only census confirms no configured production producer or report-writer caller and identifies shared-key Foundry-vs-Funnel typed intake mismatch; B197 remains held on one configured/served producer/provenance/kind-admission capability; the census did not re-run the internal 58/58 witness; marker-removing falsifier and four-base P41 remain unestablished; no authority leak is inferred",
         "held_review": {
-          "identity": "B197 current tied/untied behavioral probe, source census and owner-first path review",
+          "identity": "Historical B197 tied/untied behavior and source census review (pre-28ea snapshot)",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B197",
           "behavioral_verdict": "PARTIAL",
-          "scope": "Tied group emits no field envelopes, untied control emits both; no full optimization, persistence/reopen, or served welfare path."
+          "scope": "Historical H review: tied group emitted no field envelopes and untied control emitted both, without full optimization, persistence/reopen, or served welfare execution. Commit 28ea and the current bounded receipt supersede the first two gaps for the internal path only; configured/served producer provenance, marker-retaining removal, and four-base P41 remain unestablished."
         },
         "h14_source_review": {
-          "identity": "H14 source-owner capability map:B197",
+          "identity": "Historical H14 source-owner capability map:B197 (pre-28ea read-only snapshot)",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-owner-capability-map-20260925.md@sha256:161e74547c489f9ad8b33e21983c82ae691d576e04c4b57038926d9a4134b844#B197",
           "behavioral_verdict": "UNRUN",
-          "scope": "Read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4; not a behavioral witness. P41 and all proposed behavioral/removal/control checks remain UNRUN."
+          "scope": "Historical read-only source/owner-path review at integration head 6f3d21234ca20d65b48f31fbcef6815e9e9ddad4. Its behavioral/removal/P41 checks were UNRUN at that snapshot. The later canonical internal report/reopen/welfare path is bounded by commit 28ea and its receipt; this does not establish the configured/served producer or provenance."
         },
         "independent_design_source": {
           "identity": "B197 tied-group design",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b197-tied-group-design-20260925.md@sha256:10f814f76b010740a2a1d8717d4be3766f85cf1ed1af40c80f1d8ed51178bbb6",
           "behavioral_verdict": "UNRUN",
-          "scope": "Source/design only; served caller not established."
+          "scope": "Historical source/design-only evidence before implementation; it did not establish a served caller. The canonical internal witness at commit 28ea supersedes its algorithm/persistence gap, not the configured/served producer/provenance residual."
         },
         "independent_card_audit": {
           "identity": "h_card_audit:B197",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-card-audit-20260925.md@sha256:7494aef144f90255f1ff7b14449923ba1eb663664c3cdbdc9594578e9604da9c#B197",
           "behavioral_verdict": "UNRUN",
-          "scope": "Read-only finding-card/source and behavior-test review; proposed selectors are not run receipts. Overall finding-level P41 replay remains UNRUN."
+          "scope": "Historical read-only card/source review; its proposed selectors were not receipts and the audit did not run finding-level P41. Preserve as historical evidence. The later canonical internal witness does not establish configured/served producer provenance or four-base currentness."
         },
         "h_n_review_disposition": [
           "smallest_missing_capability",
-          "Establish the production Calibrator/report-persistence caller, then persist optimizer tied-group coordinate→field/covariance projection through CalibrationReport and the existing uncertainty adapter to the registered welfare consumer."
+          "The internal tied-group projection and Calibrator → persisted v2 report → reopen → welfare path are now implemented and verified at commit 28ea. The one remaining smallest capability is a configured/served Calibrator producer with independently admitted source provenance through those existing owners."
         ],
         "current_hn_review": {
-          "identity": "E02-R2 H/N current evidence reconciliation:B197",
+          "identity": "Historical E02-R2 H/N evidence reconciliation:B197 (pre-28ea source snapshot)",
           "classification_at_review": "held",
           "behavioral_verdict": "PARTIAL",
           "review_report_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-calibration-20260926/B194_B197_CLOSEOUT.md@sha256:4fe75dccff3c0e737abe1cebe75cddafaca06fdb888054f2cd48c69463950cd5#B197",
@@ -16021,24 +16021,24 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/H_CLASS_CLOSEOUT_AUDIT.md@sha256:1476d58fa542a3430643b51b7272aefad283fd813d3511ce798e7c3feb5a12a5#B197",
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/current_owner_census.out@sha256:05f9927e34cf78755b9e93053c7e004e79b501e8f8bf0be8d4bddbef63c07b14"
           ],
-          "scope": "The complete source census covers 2,696 product Python files and 2,732 test Python files. Only Calibrator.run calls envelopes_from_calibration in production; no served Calibrator construction/report persistence/welfare composition exists in the source census. Tied group gives []; untied control gives both fields. Missing projection is one capability; external/dynamic caller remains not_established."
+          "scope": "Historical complete source census over 2,696 product Python files and 2,732 test Python files: only Calibrator.run called envelopes_from_calibration in that snapshot; it found no served construction/report-persistence/welfare composition. Its tied/untied probe and absence-of-internal-path conclusion are superseded by commit 28ea and the 58/58 canonical witness. The configured/served producer with admitted provenance remains unestablished; external/dynamic caller coverage and P41 remain not established."
         },
         "current_frontier_recheck": {
-              "identity": "2026-09-28 H frontier recheck:B197",
-              "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-h-frontier-recheck-20260928-head-2a6501e/H_FRONTIER_RECHECK.md@sha256:995e99c672fa2c581c2a3ff014b9fb0417e6d55f63230bf264cffc4965c828bd#B197",
-              "source_census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-h-frontier-recheck-20260928-head-2a6501e/repo_source_census.json@sha256:57849155f5286663f1bfcf741919d269efbb8cd40239f5c605af0c9e3d13cbba",
-              "reviewed_head": "codex/e02-r2 2a6501ecd0c6c27d3a865bc13ca46054799a8d25",
-              "behavioral_verdict": "UNRUN",
-              "appendix_c_status": "held",
-              "appendix_c_relation": "agreement_held_blocker_refined; no status disagreement",
-              "scope": "The complete tracked production-source census covers 4,370 first-party source files (3,151 Python/stub; 1,219 other code; 0 Python parse errors). It finds a registered PropagateWelfareNode consumer but no production Calibrator(...) invocation or put_calibration_report call. Existing two-case tied/untied probe is historical bounded evidence. P37 persisted projection-to-consumer predicate is not_established; P38 exact field/group-name equality rejects tied A.rate/B.rate backed by shared_rate covariance. No behavioral or four-base run was performed."
-      },
-      "latest_h14_source_review": {
-          "identity": "2026-09-27 H-class current-source closeout review:B197",
+          "identity": "2026-09-28 H frontier recheck:B197",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-h-frontier-recheck-20260928-head-2a6501e/H_FRONTIER_RECHECK.md@sha256:995e99c672fa2c581c2a3ff014b9fb0417e6d55f63230bf264cffc4965c828bd#B197",
+          "source_census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-h-frontier-recheck-20260928-head-2a6501e/repo_source_census.json@sha256:57849155f5286663f1bfcf741919d269efbb8cd40239f5c605af0c9e3d13cbba",
+          "reviewed_head": "codex/e02-r2 2a6501ecd0c6c27d3a865bc13ca46054799a8d25",
+          "behavioral_verdict": "UNRUN",
+          "appendix_c_status": "held",
+          "appendix_c_relation": "agreement_held_blocker_refined; no status disagreement",
+          "scope": "Historical complete tracked-source census at the recorded 2026-09-28 snapshot (4,370 source files; 3,151 Python/stub and 1,219 other code, zero parse errors). It found a registered welfare consumer but no production Calibrator writer and recorded the pre-fix exact-name projection divergence. Commit 28ea and the canonical receipt supersede the internal projection/persisted-path gap. The configured/served producer with admitted provenance, marker-removing witness, and four-base P41 remain unestablished; this historical audit itself ran no behavioral or four-base test."
+        },
+        "latest_h14_source_review": {
+          "identity": "Historical 2026-09-27 H-class source review:B197 (pre-28ea)",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/H_CLASS_CLOSEOUT_AUDIT.md@sha256:1476d58fa542a3430643b51b7272aefad283fd813d3511ce798e7c3feb5a12a5#B197",
           "behavioral_verdict": "UNRUN",
           "reviewed_head_or_snapshot": "codex/e02-r2 HEAD 43d4f47838087476d9d26d78aeb244a6d1cd6d6c; read-only review; no tests run",
-          "scope": "Current H source review at HEAD 43d4f478: a two-case owner probe produced zero field envelopes for a tied group and both fields for an untied preserving control. No full optimizer, report CAS round-trip, served Calibrator-to-welfare path, marker-retaining removal probe, or four-base P41 was run in this audit.",
+          "scope": "Historical source review at HEAD 43d4f478: it recorded a two-case tied/untied probe and did not run full optimization, report CAS round-trip, served path, marker removal or P41. The internal projection and persist/reopen path are superseded as blockers by commit 28ea and its receipt; configured/served producer provenance and four-base P41 remain unestablished.",
           "witness_refs": [
             "/Users/deniskopylov/.codex/scratch/e02-r2-h-b194-b197-b201-b202-20260927/current_owner_census.out@sha256:05f9927e34cf78755b9e93053c7e004e79b501e8f8bf0be8d4bddbef63c07b14"
           ]
@@ -16049,15 +16049,38 @@
           "status_before": "held",
           "status_after": "held",
           "blocker_kind": "smallest_missing_capability",
-          "named_blocker": "Production Calibrator → persisted CalibrationReport carrying optimizer group-to-field projection → existing PropagateWelfareNode consumer.",
-          "owner_refinement": "The registered welfare consumer exists; no production Calibrator construction or put_calibration_report caller establishes the served writer route.",
-          "residual_refinement": "Persist the optimizer-produced group-to-field/Jacobian mapping and project covariance axes in the existing report/adapter. Removal, report round-trip, served path, and P41 remain UNRUN.",
+          "named_blocker": "Historical blocker at that review: production Calibrator → persisted CalibrationReport with group-to-field projection → welfare consumer. The internal projection/persistence path is now witnessed at commit 28ea; the current remaining capability is a configured/served Calibrator producer with independently admitted provenance through the existing owners.",
+          "owner_refinement": "Historical census found the registered welfare consumer but no production Calibrator construction/report writer. The later canonical receipt establishes the internal path only; configured/served producer and source provenance remain unestablished.",
+          "residual_refinement": "Historical mapping/persistence residual is superseded internally by the 58/58 commit-28ea witness. Current residual is the configured/served Calibrator producer with independently admitted provenance. Marker-removal, sibling consumer disposition, public authority and four-base P41 remain unestablished.",
           "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/H_HELD_CURRENT_HEAD_AUDIT.md@sha256:f6f5aef58794a1abc01d03431d62449d7f517c33e182dd293c17e1e437c46099",
           "census_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-held-current-949347-20260928/current_owner_census.json@sha256:d07d4fe93496080be027fb03b5f2517e34e679636918b089e12b8e31a12569fb",
           "source_path_delta_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h-ledger-patch-3ec377af-20260928/source_path_delta.json@sha256:60f0e79362217b1d1480cf0755e434dd47587d60bdb6ada22a6366492875d552",
           "behavioral_verdict": "UNRUN",
           "current_recheck_tests_run": false,
-          "four_base_p41": "UNRUN"
+          "four_base_p41": "UNRUN",
+          "identity": "Historical held-current-head recheck (2026-09-28; pre-28ea)"
+        },
+        "canonical_bounded_internal_persistence_v2": {
+          "kind": "canonical_bounded_internal_calibrator_persistence_reopen_consumer_witness",
+          "identity": "B197 canonical V2 five-file Calibrator/report/CAS/welfare whole-file run at commit 28ea3bb56bc4e751bf1303615d79219b56d7a24c",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B197_COVARIANCE_RECEIPT.md@sha256:9019cb605e10d07149e7a5415e104ed42394d059e7ab4f9b76c3184c6dc28c89",
+          "behavioral_verdict": "PASS_BOUNDED_INTERNAL",
+          "scope": "Actual internal Calibrator → persisted v2 CalibrationReport → reopen → existing welfare consumer. Complete five-file denominator: adapter 10, covariance 10, welfare 25, CAL-06 remediation 6, unchanged Calibrator MVP 7; 58/58 PASS, zero FAIL/ERROR/SKIP, Ruff passes nine changed Python files, 17.99 sec, peak RSS 1,106,313,216 bytes, zero swaps. Origin audit: 816 product modules, 5 test modules, 18 test/support modules, 12 frozen inputs; zero foreign origins and zero changed frozen inputs. The reviewer notes the frozen receipt pre-run self-digest differs from the post-run tracked receipt digest; all tested source/test inputs match commit 28ea, and this receipt self-update is disclosed. This is bounded internal behavior only: configured/served Calibrator producer and independently admitted producer provenance remain unestablished; no finding closure, public authority or four-base P41 is inferred. The separate 2026-10-01 source/config census cites this exact receipt as prior internal evidence and did not re-run or revalidate its tests; its source-wiring conclusion is limited to absence of a configured production producer and the shared policy_design report-kind boundary.",
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-b197-integrated-ccc5-20260930/b197-v2-whole.junit.xml@sha256:0f7d73bc1f2ebc12effd10b2a26edde70f978050344278b21ad44810e822db6a",
+            "/Users/deniskopylov/.codex/scratch/e02-b197-integrated-ccc5-20260930/b197-v2-whole.origins.json@sha256:5be147c68ff5f7e475734d2e98f9fc00303f5746ed7bdad7ffc785000a8f86a1",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B197_COVARIANCE_RECEIPT.md@sha256:9019cb605e10d07149e7a5415e104ed42394d059e7ab4f9b76c3184c6dc28c89",
+            "/Users/deniskopylov/.codex/scratch/e02r2-findings-record-patch-20260930/INDEPENDENT_REVIEW_V4_20261001.md@sha256:816a92e0969526460cc0fa5b38ee4a4707af8e934ee34e877efe4d50ddf5e512"
+          ]
+        },
+        "served_producer_census_20261001": {
+          "kind": "read_only_source_config_and_served_wiring_census",
+          "identity": "B197 configured/served producer census at frozen commit 28ea3bb56bc4e751bf1303615d79219b56d7a24c",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02r2-b197-algorithm-candidate-independent-20260930/B197_V2_SERVED_PRODUCER_CENSUS_28EA3BB5_20261001.md@sha256:6d7887d881c037c2291cb2c7f463f9dd1188f1ae4c00228c3f8fac32e5669a4e",
+          "behavioral_verdict": "SOURCE_CENSUS_NO_PRODUCTION_PRODUCER; TESTS_NOT_RUN",
+          "scope": "Complete tracked src/polisyos denominator 2,906 paths: AST-parsed 2,696 production Python files with zero parse failures; searched 272/272 declared deployment/config paths. No production Calibrator/CalibratorInputs construction or put_calibration_report caller. Existing served WorkflowRunRequest.calibration_report_ref carries an already-created artifact ref and assigns kind from request without manifest/payload binding; default served transition is WorkspaceLoop, and legacy-shadow run_experiment is candidate-only. Internal policy_design shares INPUT_CALIBRATION_REPORT_REF between B197 Foundry V2 propagation consumers and RunPolicyBlueprintRuntimeNode, which parses the distinct FunnelCalibrationReport kind/schema. This establishes a reachable typed intake mismatch, not a produced B197 report or authority emission. The census did not run tests, inspect live data/runtime, or revalidate the separate internal 58/58 witness; institutionally authorized real targets and source/graph/plan provenance remain not_established.",
+          "property": "A persisted report may proceed only to a typed consumer whose resolved stored manifest kind/schema and payload agree with that consumer; request labels and shared state-key names are not proof.",
+          "falsifier": "Proposed and UNRUN: use persisted Foundry V2, Funnel, and unknown-kind refs through policy_design and prove only compatible typed consumers proceed; V2 is never parsed as Funnel, Funnel is never admitted as B197 uncertainty, and unknown/mismatched kind is withheld. Remove manifest kind/schema resolution while keeping request kind/status markers and require the behavioral selector to turn red. Preserve valid compatible-report and no-report ordinary-candidate controls."
         }
       },
       "h13_remaining_audit_20260927": {
@@ -16067,18 +16090,18 @@
         "audit_disposition": "held",
         "typed_blocker": {
           "kind": "smallest_missing_capability",
-          "owner": "Foundry calibration report / uncertainty adapter owner — persisted group-to-field projection",
-          "source_audit_blocker": "smallest_missing_capability: Persisted typed tie-group-to-field projection carried from calibration owner through report/CAS and uncertainty adapter to a served welfare consumer."
+          "owner": "Historical blocker owner: Foundry calibration report / uncertainty adapter — persisted group-to-field projection; this projection is now internally implemented and witnessed at commit 28ea.",
+          "source_audit_blocker": "Historical smallest_missing_capability: persist typed tie-group-to-field projection through report/CAS and adapter to a served welfare consumer. Commit 28ea and the canonical receipt supersede the internal algorithm/persistence part; current residual is a configured/served Calibrator producer with independently admitted provenance."
         },
         "behavioral_test_status": "UNRUN in this read-only audit",
-        "scope": "Exact source-card discriminator and current owner/source review; cited earlier receipts are historical, not fresh current-head tests."
+        "scope": "Historical 2026-09-27 source audit for the exact source-card discriminator. Its read-only behavior status was UNRUN; later 28ea evidence establishes the bounded internal projection and persisted consumer path, not configured/served producer provenance or four-base P41."
       },
       "h_current_add75_audit_20260927": {
         "audit_head": "add75e473aa04063436d094ae358ac4066c7da8d",
         "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4",
         "current_status": "held",
         "blocker_kind": "smallest_missing_capability",
-        "disposition": "Persist a typed group-to-field covariance projection from the calibration owner through report/CAS and uncertainty adapter to an identified served welfare consumer.",
+        "disposition": "Historical disposition requested a typed group-to-field projection through report/CAS/adapter to a served welfare consumer. Commit 28ea and the canonical 58/58 receipt supersede the internal projection/persistence blocker. The current smallest missing capability is a configured/served Calibrator producer with independently admitted provenance through these owners.",
         "tracked_source_python_files": 2696,
         "tracked_test_python_files": 2736,
         "ast_parse_errors": 0,

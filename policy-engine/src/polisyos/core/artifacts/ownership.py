@@ -6,10 +6,13 @@ import base64
 import fcntl
 import hashlib
 import json
+import os
 import re
+import shutil
 import threading
-from collections.abc import Iterator
-from contextlib import contextmanager
+import weakref
+from collections.abc import Iterable, Iterator
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -36,6 +39,27 @@ _OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V1 = "policyos.artifact_ownership_index_sign
 OWNERSHIP_MODE_SHARED_CAS = "shared_immutable_cas"
 _FileIdentity = tuple[int, ...] | None
 _HEX_SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
+_TRANSACTION_INTENT_SCHEMA_V1 = "policyos.artifact_ownership_transaction_intent.v1"
+_TRANSACTION_INTENT_SCHEMA = "policyos.artifact_ownership_transaction_intent.v2"
+_TRANSACTION_INTENT_SCHEMA_V3 = "policyos.artifact_ownership_transaction_intent.v3"
+_TRANSACTION_INTENT_FIELDS_V1 = frozenset(
+    {
+        "schema_version",
+        "status",
+        "mode",
+        "operation_id",
+        "artifact_id",
+        "owner",
+        "blob_sha256",
+        "blob_stage",
+        "views",
+        "claims",
+        "affected",
+        "request_sha256",
+    }
+)
+_TRANSACTION_INTENT_FIELDS = _TRANSACTION_INTENT_FIELDS_V1 | {"manifest_created_at"}
+_TRANSACTION_INTENT_FIELDS_V3 = _TRANSACTION_INTENT_FIELDS | {"signatures"}
 
 
 class _DuplicateJSONKeyError(ValueError):
@@ -70,6 +94,237 @@ class OwnershipIndexPublicationIndeterminateError(RuntimeError):
 
 class ArtifactOwnershipError(PermissionError):
     """Raised when a tenant attempts to access an artifact it does not own."""
+
+
+class ArtifactTransactionPendingError(ArtifactOwnershipError):
+    """A requested artifact surface has an unresolved publication transaction."""
+
+    code = "artifact_transaction_pending"
+
+    def __init__(self, artifact_id: ArtifactID, *, surface: str) -> None:
+        self.artifact_id = artifact_id
+        self.surface = surface
+        super().__init__(
+            f"artifact_transaction_pending: {artifact_id} publication surface {surface} "
+            "has not been reconciled with the current owner generation"
+        )
+
+
+@dataclass(frozen=True)
+class _ArtifactTransactionLease:
+    """Opaque proof that one root/artifact transaction boundary is held."""
+
+    coordinator: _RootTransactionCoordinator
+    artifact_hex: str
+    exclusive: bool
+    nonce: object
+
+
+class _WriterPreferringRWLock:
+    """Small writer-preferring gate for root-wide snapshots and ordinary operations."""
+
+    def __init__(self) -> None:
+        self._condition = threading.Condition(threading.Lock())
+        self._readers = 0
+        self._writer_active = False
+        self._waiting_writers = 0
+
+    @contextmanager
+    def shared(self) -> Iterator[None]:
+        with self._condition:
+            while self._writer_active or self._waiting_writers:
+                self._condition.wait()
+            self._readers += 1
+        try:
+            yield
+        finally:
+            with self._condition:
+                self._readers -= 1
+                if self._readers == 0:
+                    self._condition.notify_all()
+
+    @contextmanager
+    def exclusive(self) -> Iterator[None]:
+        with self._condition:
+            self._waiting_writers += 1
+            try:
+                while self._writer_active or self._readers:
+                    self._condition.wait()
+                self._writer_active = True
+            finally:
+                self._waiting_writers -= 1
+        try:
+            yield
+        finally:
+            with self._condition:
+                self._writer_active = False
+                self._condition.notify_all()
+
+
+class _RootTransactionCoordinator:
+    """Coordinate bounded in-process and cross-process CAS lock stripes per root."""
+
+    STRIPE_COUNT = 64
+
+    def __init__(self, root: Path) -> None:
+        self.root = root
+        self.transaction_root = root / "artifacts" / "ownership" / "transactions"
+        self.lock_directory = self.transaction_root / "locks"
+        self.root_lock_path = self.transaction_root / "root.lock"
+        ensure_directory_durable(self.transaction_root)
+        ensure_directory_durable(self.lock_directory)
+        AtomicFileWriter.write_once(self.root_lock_path, b"", durable_parent=True)
+        self._root_gate = _WriterPreferringRWLock()
+        self._artifact_locks = tuple(
+            threading.RLock() for _ in range(self.STRIPE_COUNT)
+        )
+        self._active = threading.local()
+        self._stage_recovery_lock = threading.Lock()
+        self._stage_recovery_complete = False
+
+    def _stripe(self, artifact_id: ArtifactID) -> int:
+        return int(artifact_id.hex, 16) % self.STRIPE_COUNT
+
+    @contextmanager
+    def _lock_file(self, path: Path, operation: int) -> Iterator[object]:
+        ensure_directory_durable(path.parent)
+        AtomicFileWriter.write_once(path, b"", durable_parent=True)
+        lock_file = path.open("a+b")
+        try:
+            fcntl.flock(lock_file.fileno(), operation)
+            yield lock_file
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            lock_file.close()
+
+    @contextmanager
+    def root_exclusive(self) -> Iterator[None]:
+        """Hold the permanent root barrier exclusively for bounded maintenance."""
+        with self._root_gate.exclusive(), self._lock_file(
+            self.root_lock_path,
+            fcntl.LOCK_EX,
+        ):
+            yield
+
+    @contextmanager
+    def artifact_lease(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> Iterator[_ArtifactTransactionLease]:
+        """Hold root-shared then one stable artifact stripe in lock-order sequence."""
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+        existing = active.get(artifact_id.hex)
+        if existing is not None:
+            if exclusive and not existing.exclusive:
+                raise RuntimeError("artifact_transaction_lock_upgrade_not_supported")
+            yield existing
+            return
+        if active:
+            raise RuntimeError("artifact_transaction_nested_distinct_id_not_supported")
+
+        stripe = self._stripe(artifact_id)
+        stripe_path = self.lock_directory / f"stripe-{stripe:02d}.lock"
+        file_operation = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+        with (
+            self._root_gate.shared(),
+            self._lock_file(self.root_lock_path, fcntl.LOCK_SH),
+            self._artifact_locks[stripe],
+            self._lock_file(stripe_path, file_operation),
+        ):
+            lease = _ArtifactTransactionLease(
+                coordinator=self,
+                artifact_hex=artifact_id.hex,
+                exclusive=exclusive,
+                nonce=object(),
+            )
+            active[artifact_id.hex] = lease
+            try:
+                yield lease
+            finally:
+                active.pop(artifact_id.hex, None)
+
+    @contextmanager
+    def artifact_leases(
+        self,
+        artifact_ids: Iterable[ArtifactID],
+        *,
+        exclusive: bool,
+    ) -> Iterator[dict[str, _ArtifactTransactionLease]]:
+        """Hold a deterministic set of artifact stripes under one root lease."""
+        ids = tuple({artifact_id.hex: artifact_id for artifact_id in artifact_ids}.values())
+        stripes = sorted({self._stripe(artifact_id) for artifact_id in ids})
+        active = getattr(self._active, "leases", None)
+        if active is None:
+            active = {}
+            self._active.leases = active
+        if active:
+            if all(artifact_id.hex in active for artifact_id in ids):
+                leases = {artifact_id.hex: active[artifact_id.hex] for artifact_id in ids}
+                if exclusive and any(not lease.exclusive for lease in leases.values()):
+                    raise RuntimeError("artifact_transaction_lock_upgrade_not_supported")
+                yield leases
+                return
+            raise RuntimeError("artifact_transaction_nested_batch_not_supported")
+
+        operation = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+        leases: dict[str, _ArtifactTransactionLease] = {}
+        with self._root_gate.shared(), ExitStack() as stack:
+            stack.enter_context(self._lock_file(self.root_lock_path, fcntl.LOCK_SH))
+            for stripe in stripes:
+                stack.enter_context(self._artifact_locks[stripe])
+                stripe_path = self.lock_directory / f"stripe-{stripe:02d}.lock"
+                stack.enter_context(self._lock_file(stripe_path, operation))
+            for artifact_id in ids:
+                lease = _ArtifactTransactionLease(
+                    coordinator=self,
+                    artifact_hex=artifact_id.hex,
+                    exclusive=exclusive,
+                    nonce=object(),
+                )
+                active[artifact_id.hex] = lease
+                leases[artifact_id.hex] = lease
+            try:
+                yield leases
+            finally:
+                for artifact_id in ids:
+                    active.pop(artifact_id.hex, None)
+
+    def validate_lease(
+        self,
+        lease: _ArtifactTransactionLease,
+        artifact_id: ArtifactID,
+        *,
+        exclusive: bool,
+    ) -> None:
+        active = getattr(self._active, "leases", {})
+        if (
+            lease.coordinator is not self
+            or lease.artifact_hex != artifact_id.hex
+            or (exclusive and not lease.exclusive)
+            or active.get(artifact_id.hex) is not lease
+        ):
+            raise RuntimeError("artifact_transaction_lease_invalid")
+
+
+_COORDINATOR_REGISTRY_LOCK = threading.Lock()
+_COORDINATORS: weakref.WeakValueDictionary[str, _RootTransactionCoordinator] = (
+    weakref.WeakValueDictionary()
+)
+
+
+def _coordinator_for_root(root: Path) -> _RootTransactionCoordinator:
+    key = str(root)
+    with _COORDINATOR_REGISTRY_LOCK:
+        coordinator = _COORDINATORS.get(key)
+        if coordinator is None:
+            coordinator = _RootTransactionCoordinator(root)
+            _COORDINATORS[key] = coordinator
+        return coordinator
 
 
 def _utc_now() -> str:
@@ -136,7 +391,10 @@ class ArtifactOwnershipIndex:
     """
 
     def __init__(self, root: Path) -> None:
-        self.root = Path(root)
+        requested_root = Path(root)
+        ensure_directory_durable(requested_root)
+        self.root = requested_root.resolve(strict=True)
+        self._coordinator = _coordinator_for_root(self.root)
         self.directory = self.root / "artifacts" / "ownership"
         self.path = self.directory / "index.json"
         self.signature_path = self.directory / "index.signature.json"
@@ -145,6 +403,601 @@ class ArtifactOwnershipIndex:
         self._claim_file_identities: tuple[_FileIdentity, ...] | None = None
         self._claim_ids_cache: frozenset[str] | None = None
 
+    @property
+    def transaction_root(self) -> Path:
+        """Return the private operational journal root for this CAS owner."""
+        return self._coordinator.transaction_root
+
+    def _transaction_intent_path(self, artifact_id: ArtifactID) -> Path:
+        return (
+            self.transaction_root
+            / "intents"
+            / artifact_id.hex[:2]
+            / f"{artifact_id.hex}.json"
+        )
+
+    def _read_transaction_intent(self, artifact_id: ArtifactID) -> dict[str, Any] | None:
+        path = self._transaction_intent_path(artifact_id)
+        if self._path_has_symlink_component(path):
+            raise ArtifactTransactionPendingError(artifact_id, surface="artifact")
+        try:
+            raw = self._read_private_file_no_follow(path)
+        except FileNotFoundError:
+            return None
+        except OSError:
+            raise ArtifactTransactionPendingError(artifact_id, surface="artifact") from None
+        try:
+            document = _decode_json(raw, reject_duplicate_keys=True)
+            self._validate_transaction_intent(document, artifact_id)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError, TypeError):
+            raise ArtifactTransactionPendingError(artifact_id, surface="artifact") from None
+        return document
+
+    def _validate_transaction_intent(
+        self,
+        document: Any,
+        artifact_id: ArtifactID,
+    ) -> None:
+        if not isinstance(document, dict):
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+        schema_version = document.get("schema_version")
+        legacy_v1 = schema_version == _TRANSACTION_INTENT_SCHEMA_V1
+        legacy_v2 = schema_version == _TRANSACTION_INTENT_SCHEMA
+        expected_fields = (
+            _TRANSACTION_INTENT_FIELDS_V1
+            if legacy_v1
+            else _TRANSACTION_INTENT_FIELDS
+            if legacy_v2
+            else _TRANSACTION_INTENT_FIELDS_V3
+        )
+        if set(document) != expected_fields:
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+        allowed_modes = {"publish"} if legacy_v1 or legacy_v2 else {
+            "publish",
+            "import",
+            "signature",
+        }
+        if (
+            schema_version
+            not in {
+                _TRANSACTION_INTENT_SCHEMA_V1,
+                _TRANSACTION_INTENT_SCHEMA,
+                _TRANSACTION_INTENT_SCHEMA_V3,
+            }
+            or document["status"] not in {"pending", "committed"}
+            or document["mode"] not in allowed_modes
+            or document["artifact_id"] != str(artifact_id)
+            or not isinstance(document["operation_id"], str)
+            or re.fullmatch(r"[0-9a-f]{32}", document["operation_id"]) is None
+            or not isinstance(document["blob_sha256"], str)
+            or _HEX_SHA256.fullmatch(document["blob_sha256"]) is None
+            or not isinstance(document["request_sha256"], str)
+            or _HEX_SHA256.fullmatch(document["request_sha256"]) is None
+        ):
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+
+        owner = document["owner"]
+        if owner is not None and (
+            not isinstance(owner, dict)
+            or set(owner) != {"tenant_id", "cell_id"}
+            or not isinstance(owner["tenant_id"], str)
+            or not owner["tenant_id"].strip()
+            or (owner["cell_id"] is not None and not isinstance(owner["cell_id"], str))
+        ):
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+
+        self._validate_transaction_stage_path(document["blob_stage"], document["operation_id"])
+        views = document["views"]
+        if not isinstance(views, list) or not views:
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+        selectors: set[str] = set()
+        for view in views:
+            if (
+                not isinstance(view, dict)
+                or set(view)
+                != {
+                    "selector",
+                    "manifest_profile_sha256",
+                    "manifest_sha256",
+                    "manifest_stage",
+                }
+                or (
+                    view["selector"] != "default"
+                    and not _HEX_SHA256.fullmatch(str(view["selector"]))
+                )
+                or not isinstance(view["manifest_profile_sha256"], str)
+                or _HEX_SHA256.fullmatch(view["manifest_profile_sha256"]) is None
+                or not isinstance(view["manifest_sha256"], str)
+                or _HEX_SHA256.fullmatch(view["manifest_sha256"]) is None
+            ):
+                raise ValueError("artifact_ownership_transaction_intent_invalid")
+            selector = view["selector"]
+            if (
+                selector in selectors
+                or (selector != "default" and selector != view["manifest_profile_sha256"])
+            ):
+                raise ValueError("artifact_ownership_transaction_intent_invalid")
+            selectors.add(selector)
+            self._validate_transaction_stage_path(
+                view["manifest_stage"],
+                document["operation_id"],
+            )
+
+        signatures = document.get("signatures", [])
+        if not isinstance(signatures, list):
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+        signature_selectors: set[str] = set()
+        for signature in signatures:
+            if (
+                not isinstance(signature, dict)
+                or set(signature) != {"selector", "signature_sha256", "signature_stage"}
+                or (
+                    signature["selector"] != "default"
+                    and not _HEX_SHA256.fullmatch(str(signature["selector"]))
+                )
+                or not isinstance(signature["signature_sha256"], str)
+                or _HEX_SHA256.fullmatch(signature["signature_sha256"]) is None
+            ):
+                raise ValueError("artifact_ownership_transaction_intent_invalid")
+            selector = signature["selector"]
+            if selector in signature_selectors:
+                raise ValueError("artifact_ownership_transaction_intent_invalid")
+            signature_selectors.add(selector)
+            self._validate_transaction_stage_path(
+                signature["signature_stage"],
+                document["operation_id"],
+            )
+
+        mode = document["mode"]
+        if (
+            (mode == "signature" and len(signatures) != 1)
+            or (
+                mode == "signature"
+                and signatures[0]["signature_stage"] is None
+            )
+            or (
+                mode == "signature"
+                and (
+                    document["blob_stage"] is not None
+                    or any(view["manifest_stage"] is not None for view in views)
+                )
+            )
+        ):
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+
+        claims = document["claims"]
+        if (
+            not isinstance(claims, dict)
+            or set(claims) != {"default_owner", "blob_reader", "view_owners"}
+            or type(claims["default_owner"]) is not bool
+            or type(claims["blob_reader"]) is not bool
+            or not isinstance(claims["view_owners"], list)
+            or any(
+                not isinstance(profile, str) or _HEX_SHA256.fullmatch(profile) is None
+                for profile in claims["view_owners"]
+            )
+            or len(set(claims["view_owners"])) != len(claims["view_owners"])
+        ):
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+        affected = document["affected"]
+        if (
+            not isinstance(affected, dict)
+            or set(affected) != {"ambient_artifact", "manifest_profiles", "signature_profiles"}
+            or type(affected["ambient_artifact"]) is not bool
+            or not isinstance(affected["manifest_profiles"], list)
+            or not isinstance(affected["signature_profiles"], list)
+            or any(
+                not isinstance(profile, str) or _HEX_SHA256.fullmatch(profile) is None
+                for profile in affected["manifest_profiles"]
+            )
+            or any(
+                not isinstance(selector, str)
+                or (selector != "default" and _HEX_SHA256.fullmatch(selector) is None)
+                for selector in affected["signature_profiles"]
+            )
+            or len(set(affected["manifest_profiles"]))
+            != len(affected["manifest_profiles"])
+            or len(set(affected["signature_profiles"]))
+            != len(affected["signature_profiles"])
+        ):
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+
+        if owner is None:
+            if claims["default_owner"] or claims["blob_reader"] or claims["view_owners"]:
+                raise ValueError("artifact_ownership_transaction_intent_invalid")
+        else:
+            profiles = {view["manifest_profile_sha256"] for view in views}
+            if not set(claims["view_owners"]).issubset(profiles):
+                raise ValueError("artifact_ownership_transaction_intent_invalid")
+        profiles = {view["manifest_profile_sha256"] for view in views}
+        view_selectors = {view["selector"] for view in views}
+        staged_signature_selectors = {
+            signature["selector"]
+            for signature in signatures
+            if signature["signature_stage"] is not None
+        }
+        if (
+            not signature_selectors.issubset(view_selectors)
+            or (mode == "signature" and affected["manifest_profiles"])
+            or (mode == "signature" and affected["ambient_artifact"])
+            or not set(affected["manifest_profiles"]).issubset(profiles)
+            or (document["blob_stage"] is not None and not affected["ambient_artifact"])
+            or any(
+                view["manifest_stage"] is not None
+                and not (
+                    affected["ambient_artifact"]
+                    if view["selector"] == "default"
+                    else view["manifest_profile_sha256"] in affected["manifest_profiles"]
+                )
+                for view in views
+            )
+            or staged_signature_selectors != set(affected["signature_profiles"])
+        ):
+            raise ValueError("artifact_ownership_transaction_intent_invalid")
+
+        if not legacy_v1:
+            created_at = document["manifest_created_at"]
+            if not isinstance(created_at, str):
+                raise ValueError("artifact_ownership_transaction_intent_invalid")
+            try:
+                parsed_created_at = datetime.fromisoformat(created_at)
+            except ValueError as exc:
+                raise ValueError("artifact_ownership_transaction_intent_invalid") from exc
+            if parsed_created_at.tzinfo is None or parsed_created_at.utcoffset() is None:
+                raise ValueError("artifact_ownership_transaction_intent_invalid")
+
+        digest = (
+            self._transaction_request_digest_v1(document)
+            if legacy_v1
+            else self._transaction_request_digest(document)
+        )
+        if digest != document["request_sha256"]:
+            raise ValueError("artifact_ownership_transaction_intent_digest_mismatch")
+
+    def _validate_transaction_stage_path(self, value: Any, operation_id: str) -> None:
+        if value is None:
+            return
+        if not isinstance(value, str):
+            raise ValueError("artifact_ownership_transaction_stage_path_invalid")
+        relative = Path(value)
+        expected_prefix = Path("artifacts/ownership/transactions/stage")
+        if (
+            relative.is_absolute()
+            or ".." in relative.parts
+            or relative.parts[: len(expected_prefix.parts)] != expected_prefix.parts
+            or len(relative.parts) != len(expected_prefix.parts) + 2
+            or relative.parts[len(expected_prefix.parts)] != operation_id
+        ):
+            raise ValueError("artifact_ownership_transaction_stage_path_invalid")
+
+    def _path_has_symlink_component(self, path: Path) -> bool:
+        try:
+            relative = path.relative_to(self.root)
+        except ValueError:
+            return True
+        current = self.root
+        for component in relative.parts:
+            current = current / component
+            if current.is_symlink():
+                return True
+        return False
+
+    @staticmethod
+    def _transaction_request_digest(document: dict[str, Any]) -> str:
+        views = [
+            {
+                "selector": view["selector"],
+                "manifest_profile_sha256": view["manifest_profile_sha256"],
+                **(
+                    {"manifest_sha256": view["manifest_sha256"]}
+                    if document.get("schema_version") == _TRANSACTION_INTENT_SCHEMA_V3
+                    else {}
+                ),
+            }
+            for view in document["views"]
+        ]
+        request = {
+            "mode": document["mode"],
+            "artifact_id": document["artifact_id"],
+            "owner": document["owner"],
+            "blob_sha256": document["blob_sha256"],
+            "views": views,
+            "claims": document["claims"],
+            "affected": document["affected"],
+        }
+        if "signatures" in document:
+            request["signatures"] = [
+                {
+                    "selector": signature["selector"],
+                    "signature_sha256": signature["signature_sha256"],
+                }
+                for signature in document["signatures"]
+            ]
+        return _digest_payload(request)
+
+    @staticmethod
+    def _transaction_request_digest_v1(document: dict[str, Any]) -> str:
+        views = [
+            {
+                "selector": view["selector"],
+                "manifest_profile_sha256": view["manifest_profile_sha256"],
+                "manifest_sha256": view["manifest_sha256"],
+            }
+            for view in document["views"]
+        ]
+        request = {
+            "mode": document["mode"],
+            "artifact_id": document["artifact_id"],
+            "owner": document["owner"],
+            "blob_sha256": document["blob_sha256"],
+            "views": views,
+            "claims": document["claims"],
+            "affected": document["affected"],
+        }
+        return _digest_payload(request)
+
+    def _intent_completion_is_recomputed(self, document: dict[str, Any]) -> bool:
+        artifact_id = ArtifactID.model_validate(document["artifact_id"])
+        directory = (
+            self.root
+            / "artifacts"
+            / "sha256"
+            / artifact_id.hex[:2]
+            / artifact_id.hex[2:4]
+        )
+        blob_path = directory / f"{artifact_id.hex}.blob"
+        try:
+            if self._path_has_symlink_component(blob_path):
+                return False
+            if _file_sha256(blob_path) != document["blob_sha256"]:
+                return False
+            for view in document["views"]:
+                selector = view["selector"]
+                if selector == "default":
+                    manifest_path = directory / f"{artifact_id.hex}.manifest.json"
+                else:
+                    profile_hex = selector.removeprefix("sha256:")
+                    manifest_path = (
+                        directory / f"{artifact_id.hex}.view.{profile_hex}.manifest.json"
+                    )
+                if self._path_has_symlink_component(manifest_path):
+                    return False
+                if _file_sha256(manifest_path) != view["manifest_sha256"]:
+                    return False
+            for signature in document.get("signatures", []):
+                selector = signature["selector"]
+                suffix = (
+                    ".sig"
+                    if selector == "default"
+                    else f".view.{selector.removeprefix('sha256:')}.sig"
+                )
+                signature_path = directory / f"{artifact_id.hex}{suffix}"
+                if self._path_has_symlink_component(signature_path):
+                    return False
+                if _file_sha256(signature_path) != signature["signature_sha256"]:
+                    return False
+        except OSError:
+            return False
+
+        owner = document["owner"]
+        claims = document["claims"]
+        if owner is None:
+            if claims["default_owner"] or claims["blob_reader"] or claims["view_owners"]:
+                return False
+            try:
+                return not self.has_any_tenant_claim(artifact_id)
+            except (OSError, ValueError, TypeError):
+                return False
+
+        try:
+            # All expected rows must be present in one validated owner generation.
+            payload = self._load_snapshot().payload
+            owner_records = _artifacts_mapping(payload).get(str(artifact_id), [])
+            blob_reader_records = _blob_readers_mapping(payload).get(str(artifact_id), [])
+        except (OSError, ValueError, TypeError):
+            return False
+        tenant_id = owner["tenant_id"]
+        cell_id = owner["cell_id"]
+        if claims["default_owner"] and not any(
+            _record_matches_owner(record, tenant_id=tenant_id, cell_id=cell_id)
+            for record in owner_records
+        ):
+            return False
+        if claims["blob_reader"] and not any(
+            _record_matches_owner(record, tenant_id=tenant_id, cell_id=cell_id)
+            for record in blob_reader_records
+        ):
+            return False
+        return all(
+            any(
+                _record_matches_view_owner(
+                    record,
+                    manifest_profile_sha256=profile,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+                for record in owner_records
+            )
+            for profile in claims["view_owners"]
+        )
+
+    def _committed_intent_matches_current_state(self, document: dict[str, Any]) -> bool:
+        """Require the same durable intent to be committed and still fully recomputed."""
+        return (
+            document["status"] == "committed"
+            and self._intent_completion_is_recomputed(document)
+        )
+
+    def require_no_pending_transaction(
+        self,
+        artifact_id: ArtifactID | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+        signature_profile: str | None = None,
+    ) -> None:
+        """Deny reads of only the surfaces affected by an unresolved operation."""
+        aid = _coerce_artifact_id(artifact_id)
+        document = self._read_transaction_intent(aid)
+        if document is None:
+            return
+        if self._committed_intent_matches_current_state(document):
+            return
+        # Pending is deny-only: an owner row can predate this request, so matching
+        # bytes and claims cannot complete a different operation on its behalf.
+        affected = document["affected"]
+        signature_is_affected = (
+            signature_profile is not None
+            and signature_profile in affected["signature_profiles"]
+        )
+        if (
+            affected["ambient_artifact"]
+            or (
+                manifest_profile_sha256 is not None
+                and manifest_profile_sha256 in affected["manifest_profiles"]
+            )
+            or signature_is_affected
+        ):
+            surface = (
+                f"signature:{signature_profile}"
+                if signature_is_affected
+                else manifest_profile_sha256 or "artifact"
+            )
+            raise ArtifactTransactionPendingError(aid, surface=surface)
+
+    def write_transaction_intent(
+        self,
+        artifact_id: ArtifactID,
+        document: dict[str, Any],
+        *,
+        lease: _ArtifactTransactionLease,
+    ) -> Path:
+        """Durably write the deny-only intent while the matching artifact lease is held."""
+        self._coordinator.validate_lease(lease, artifact_id, exclusive=True)
+        self._validate_transaction_intent(document, artifact_id)
+        path = self._transaction_intent_path(artifact_id)
+        ensure_directory_durable(path.parent)
+        AtomicFileWriter.write_atomic(path, _json_bytes(document), durable_parent=True)
+        return path
+
+    def remove_transaction_intent(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        lease: _ArtifactTransactionLease,
+    ) -> None:
+        """Durably remove a reconciled intent without changing owner authority."""
+        self._coordinator.validate_lease(lease, artifact_id, exclusive=True)
+        path = self._transaction_intent_path(artifact_id)
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            return
+        fsync_directory(path.parent)
+
+    def recover_orphan_stages(self) -> None:
+        """Remove stage directories that no durable intent can still reference."""
+        coordinator = self._coordinator
+        with coordinator._stage_recovery_lock:
+            if coordinator._stage_recovery_complete:
+                return
+            with coordinator.root_exclusive():
+                self._recover_orphan_stages_locked()
+            coordinator._stage_recovery_complete = True
+
+    def _recover_orphan_stages_locked(self) -> None:
+        stage_root = self.transaction_root / "stage"
+        intent_root = self.transaction_root / "intents"
+        if (
+            self._path_has_symlink_component(stage_root)
+            or self._path_has_symlink_component(intent_root)
+        ):
+            return
+        if not stage_root.is_dir():
+            return
+        referenced: set[str] = set()
+        try:
+            intent_paths = self._walk_private_regular_files(intent_root)
+            if intent_paths is None:
+                return
+            for intent_path in intent_paths:
+                if intent_path.suffix != ".json":
+                    continue
+                document = _decode_json(
+                    self._read_private_file_no_follow(intent_path),
+                    reject_duplicate_keys=True,
+                )
+                artifact_text = (
+                    document.get("artifact_id") if isinstance(document, dict) else None
+                )
+                artifact_id = ArtifactID.model_validate(artifact_text)
+                self._validate_transaction_intent(document, artifact_id)
+                if intent_path != self._transaction_intent_path(artifact_id):
+                    return
+                operation_id = document["operation_id"]
+                if document["blob_stage"] is not None:
+                    referenced.add(operation_id)
+                if (
+                    any(view["manifest_stage"] is not None for view in document["views"])
+                    or any(
+                        signature["signature_stage"] is not None
+                        for signature in document.get("signatures", [])
+                    )
+                ):
+                    referenced.add(operation_id)
+        except (OSError, ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError):
+            return
+
+        removed_any = False
+        for stage_path in stage_root.iterdir():
+            if stage_path.is_symlink() or not stage_path.is_dir():
+                continue
+            if stage_path.name in referenced:
+                continue
+            if self._walk_private_regular_files(stage_path) is None:
+                continue
+            shutil.rmtree(stage_path)
+            removed_any = True
+        if removed_any:
+            fsync_directory(stage_root)
+
+    def _walk_private_regular_files(self, root: Path) -> tuple[Path, ...] | None:
+        """List a private tree without following symlinks or special files."""
+        if self._path_has_symlink_component(root):
+            return None
+        if not root.exists():
+            return ()
+        files: list[Path] = []
+        pending = [root]
+        try:
+            while pending:
+                directory = pending.pop()
+                for child in directory.iterdir():
+                    if child.is_symlink():
+                        return None
+                    if child.is_dir():
+                        pending.append(child)
+                    elif child.is_file():
+                        files.append(child)
+                    else:
+                        return None
+        except OSError:
+            return None
+        return tuple(files)
+
+    @staticmethod
+    def _read_private_file_no_follow(path: Path) -> bytes:
+        """Read one private journal file without following a final symlink."""
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        try:
+            chunks: list[bytes] = []
+            while True:
+                chunk = os.read(descriptor, 65536)
+                if not chunk:
+                    return b"".join(chunks)
+                chunks.append(chunk)
+        finally:
+            os.close(descriptor)
+
     def record_owner(
         self,
         artifact_id: ArtifactID | str,
@@ -152,9 +1005,22 @@ class ArtifactOwnershipIndex:
         tenant_id: str,
         cell_id: str | None = None,
         writer: str | None = None,
+        _lease: _ArtifactTransactionLease | None = None,
     ) -> None:
         """Upsert one tenant ownership claim for an immutable CAS artifact."""
         aid = _coerce_artifact_id(artifact_id)
+        if _lease is None:
+            with self._coordinator.artifact_lease(aid, exclusive=True) as lease:
+                self.require_no_pending_transaction(aid)
+                self.record_owner(
+                    aid,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    writer=writer,
+                    _lease=lease,
+                )
+            return
+        self._coordinator.validate_lease(_lease, aid, exclusive=True)
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
         with self._lock, self._cross_instance_write_lock():
@@ -197,9 +1063,22 @@ class ArtifactOwnershipIndex:
         tenant_id: str,
         cell_id: str | None = None,
         writer: str | None = None,
+        _lease: _ArtifactTransactionLease | None = None,
     ) -> None:
         """Admit a tenant to shared payload bytes without granting default-view access."""
         aid = _coerce_artifact_id(artifact_id)
+        if _lease is None:
+            with self._coordinator.artifact_lease(aid, exclusive=True) as lease:
+                self.require_no_pending_transaction(aid)
+                self.record_blob_reader(
+                    aid,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    writer=writer,
+                    _lease=lease,
+                )
+            return
+        self._coordinator.validate_lease(_lease, aid, exclusive=True)
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
         with self._lock, self._cross_instance_write_lock():
@@ -285,9 +1164,26 @@ class ArtifactOwnershipIndex:
         tenant_id: str,
         cell_id: str | None = None,
         writer: str | None = None,
+        _lease: _ArtifactTransactionLease | None = None,
     ) -> None:
         """Admit one tenant to one exact manifest view of a shared blob."""
         aid = _coerce_artifact_id(artifact_id)
+        if _lease is None:
+            with self._coordinator.artifact_lease(aid, exclusive=True) as lease:
+                self.require_no_pending_transaction(
+                    aid,
+                    manifest_profile_sha256=manifest_profile_sha256,
+                )
+                self.record_view_owner(
+                    aid,
+                    manifest_profile_sha256,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    writer=writer,
+                    _lease=lease,
+                )
+            return
+        self._coordinator.validate_lease(_lease, aid, exclusive=True)
         _validate_profile_sha256(manifest_profile_sha256)
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
@@ -381,6 +1277,54 @@ class ArtifactOwnershipIndex:
         payload = self._load_payload()
         records = _artifacts_mapping(payload).get(str(aid), [])
         return [dict(record) for record in records]
+
+    def _transaction_claims_for(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        tenant_id: str | None,
+        cell_id: str | None,
+        manifest_profile_sha256: str,
+    ) -> dict[str, Any]:
+        """Capture exact existing claim rows for one already-authorized transaction."""
+        if tenant_id is None:
+            return {"default_owner": False, "blob_reader": False, "view_owners": []}
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+        payload = self._load_snapshot().payload
+        owner_records = _artifacts_mapping(payload).get(str(artifact_id), [])
+        blob_reader_records = _blob_readers_mapping(payload).get(str(artifact_id), [])
+        return {
+            "default_owner": any(
+                _record_matches_owner(
+                    record,
+                    tenant_id=normalized_tenant,
+                    cell_id=normalized_cell,
+                )
+                for record in owner_records
+            ),
+            "blob_reader": any(
+                _record_matches_owner(
+                    record,
+                    tenant_id=normalized_tenant,
+                    cell_id=normalized_cell,
+                )
+                for record in blob_reader_records
+            ),
+            "view_owners": (
+                [manifest_profile_sha256]
+                if any(
+                    _record_matches_view_owner(
+                        record,
+                        manifest_profile_sha256=manifest_profile_sha256,
+                        tenant_id=normalized_tenant,
+                        cell_id=normalized_cell,
+                    )
+                    for record in owner_records
+                )
+                else []
+            ),
+        }
 
     def has_any_tenant_claim(self, artifact_id: ArtifactID | str) -> bool:
         """Return whether any tenant claim covers this artifact or its blob.
@@ -1098,6 +2042,17 @@ def _json_bytes(payload: dict[str, Any]) -> bytes:
 
 def _sha256_bytes(data: bytes) -> str:
     return "sha256:" + hashlib.sha256(data).hexdigest()
+
+
+def _file_sha256(path: Path) -> str | None:
+    try:
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return "sha256:" + digest.hexdigest()
+    except OSError:
+        return None
 
 
 def _decode_json(data: bytes, *, reject_duplicate_keys: bool = False) -> Any:

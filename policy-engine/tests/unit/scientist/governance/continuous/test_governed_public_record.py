@@ -375,7 +375,7 @@ def test_exact_unsigned_sidecar_fields_cannot_change_after_issuance(case):
         decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
     )
     binding = configured.resolve_custody_binding(record_id)
-    blob_path, _ = configured.store.get_paths(binding.signature_ref.artifact_id)
+    blob_path, _ = configured.store._paths(binding.signature_ref.artifact_id)
     signature_path = blob_path.with_suffix(".sig")
     sidecar = json.loads(signature_path.read_bytes())
     sidecar["signer_identity"] = "an unsigned substitution"

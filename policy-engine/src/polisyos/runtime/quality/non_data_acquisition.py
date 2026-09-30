@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import os
 import sys
@@ -17,7 +18,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -39,6 +40,9 @@ from polisyos.runtime.quality.acquisition_planner import (
     persist_acquisition_planner_report,
     plan_evidence_acquisition,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import ArtifactMemberReceipt
 
 CENSUS_PATH = "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json"
 NON_DATA_PROJECTION_FAMILY = "architecture/policy_design_case/gy_aq1_non_data_projection"
@@ -144,6 +148,19 @@ def _record_bytes(root: Path, path: Path, bindings: dict[str, str]) -> bytes:
     return raw
 
 
+def _record_member_receipt(
+    root: Path,
+    relative: str,
+    receipt: ArtifactMemberReceipt,
+    bindings: dict[str, str],
+) -> None:
+    _confined(root, relative)
+    identity = "sha256:" + receipt.sha256
+    if relative in bindings and bindings[relative] != identity:
+        raise ValueError("non_data_projection_source_changed_during_read")
+    bindings[relative] = identity
+
+
 class _ProjectionCAS(artifacts.FileSystemCAS):
     """Use the canonical CAS while recording each consulted byte dependency."""
 
@@ -162,28 +179,35 @@ class _ProjectionCAS(artifacts.FileSystemCAS):
             _confined(self.governed_root, path.relative_to(self.governed_root).as_posix())
         return paths
 
-    def _record(self, artifact_id: artifacts.ArtifactID | str, index: int) -> None:
+    def _read_member(
+        self,
+        artifact_id: artifacts.ArtifactID | ArtifactRef | str,
+        member: Literal["blob", "manifest"],
+    ) -> bytes:
+        output = io.BytesIO()
+        receipt = self.copy_member_to(artifact_id, member, output)
+        relative = f"{NON_DATA_PROJECTION_FAMILY}/cas/{receipt.member}"
+        _record_member_receipt(self.governed_root, relative, receipt, self.bindings)
+        return output.getvalue()
+
+    def get_bytes(self, artifact_id: artifacts.ArtifactID | ArtifactRef | str) -> bytes:
         try:
-            identity = artifacts.ArtifactID.model_validate(artifact_id)
-            path = self.get_paths(identity)[index]
-            # A symlink within the governed root must not escape this CAS either.
-            path.resolve().relative_to(self.root.resolve())
-            _record_bytes(self.governed_root, path, self.bindings)
+            return self._read_member(artifact_id, "blob")
         except (OSError, ValueError):
             self.unresolved_dependency = True
             raise
 
-    def get_bytes(self, artifact_id: artifacts.ArtifactID | str) -> bytes:
-        self._record(artifact_id, 0)
-        raw = super().get_bytes(artifact_id)
-        self._record(artifact_id, 0)
-        return raw
-
-    def get_manifest(self, artifact_id: artifacts.ArtifactID | str) -> ArtifactManifest:
-        self._record(artifact_id, 1)
-        manifest = super().get_manifest(artifact_id)
-        self._record(artifact_id, 1)
-        return manifest
+    def get_manifest(
+        self,
+        artifact_id: artifacts.ArtifactID | ArtifactRef | str,
+    ) -> ArtifactManifest:
+        try:
+            return ArtifactManifest.model_validate_json(
+                self._read_member(artifact_id, "manifest")
+            )
+        except (OSError, ValueError):
+            self.unresolved_dependency = True
+            raise
 
 
 def _read_census(root: Path, bindings: dict[str, str]) -> dict[str, object]:

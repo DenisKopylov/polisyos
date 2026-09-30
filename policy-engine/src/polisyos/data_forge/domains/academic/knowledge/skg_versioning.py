@@ -99,6 +99,24 @@ def confidence_layer_vintage(db_path: Path | str) -> ConfidenceLayerVintage | No
             raise OSError("snapshot changed during vintage binding")
     except OSError as exc:
         raise ValueError("confidence_layer_vintage: ambiguous snapshot bytes") from exc
+    return _confidence_layer_vintage_for_sha256(digest)
+
+
+def _confidence_layer_vintage_for_sha256(
+    digest: str,
+) -> ConfidenceLayerVintage | None:
+    """Classify a digest already recomputed by the source-byte owner.
+
+    This private helper lets a caller that already streamed the source bytes
+    reuse the established historical-snapshot rule without reopening and
+    hashing the same database a second time.
+    """
+    try:
+        digest_bytes = bytes.fromhex(digest)
+    except ValueError as exc:
+        raise ValueError("confidence_layer_vintage: malformed source digest") from exc
+    if len(digest_bytes) != 32:
+        raise ValueError("confidence_layer_vintage: malformed source digest")
     if digest != _HISTORICAL_SNAPSHOT_SHA256:
         return None
     return ConfidenceLayerVintage(snapshot_sha256=digest)

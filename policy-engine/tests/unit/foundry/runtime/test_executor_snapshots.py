@@ -135,7 +135,7 @@ def test_tenant_scoped_snapshot_creation_accepts_absent_blob(tmp_path) -> None:
     )
 
     snapshot = load_model(store, snapshot_ref, StateSnapshot)
-    blob_path, manifest_path = store.get_paths(snapshot.state_ref.artifact_id)
+    blob_path, manifest_path = store._paths(snapshot.state_ref.artifact_id)
     assert blob_path.is_file()
     assert manifest_path.is_file()
 
@@ -322,7 +322,7 @@ def test_state_snapshot_2_2_readback_rejects_manifest_lineage_mismatch(tmp_path)
     ]
     snapshot_ref = put_state_snapshot(store, state=state, step=7, inputs=inputs)
     manifest = store.get_manifest(snapshot_ref.artifact_id)
-    _blob_path, manifest_path = store.get_paths(snapshot_ref.artifact_id)
+    _blob_path, manifest_path = store._paths(snapshot_ref.artifact_id)
     manifest_path.write_bytes(
         ManifestLifecycle.to_bytes(
             manifest.model_copy(
@@ -348,7 +348,7 @@ def test_state_snapshot_2_2_readback_rejects_manifest_schema_mismatch(tmp_path) 
     state = GlobalState.empty(n_agents=1, n_firms=1)
     snapshot_ref = put_state_snapshot(store, state=state, step=7)
     manifest = store.get_manifest(snapshot_ref.artifact_id)
-    _blob_path, manifest_path = store.get_paths(snapshot_ref.artifact_id)
+    _blob_path, manifest_path = store._paths(snapshot_ref.artifact_id)
     manifest_path.write_bytes(
         ManifestLifecycle.to_bytes(
             manifest.model_copy(
@@ -618,7 +618,7 @@ def test_legacy_state_blob_profile_mismatch_gets_tenant_owned_view(
     prior_foreign_manifest_bytes = foreign_store.get_manifest_bytes(
         foreign_blob_ref.artifact_id
     )
-    foreign_default_manifest_path = foreign_store.get_paths(foreign_blob_ref.artifact_id)[1]
+    foreign_default_manifest_path = foreign_store._paths(foreign_blob_ref.artifact_id)[1]
     prewrite_foreign_manifest_reads: list[Any] = []
     write_started = False
     original_manifest_read = tenant_store._manifests.read
@@ -688,7 +688,7 @@ def test_legacy_state_blob_profile_mismatch_gets_tenant_owned_view(
 def test_corrupt_legacy_state_blob_fails_closed(tmp_path) -> None:
     state = GlobalState.empty(n_agents=1, n_firms=1)
     store, legacy_ref, _legacy_inputs = _seed_legacy_state_blob(tmp_path, state)
-    blob_path, _manifest_path = store.get_paths(legacy_ref.artifact_id)
+    blob_path, _manifest_path = store._paths(legacy_ref.artifact_id)
     blob_path.write_bytes(b"corrupt legacy state blob")
 
     with pytest.raises(ArtifactIntegrityError, match="Blob sha256 mismatch"):
@@ -701,7 +701,7 @@ def test_load_state_snapshot_rejects_corrupt_blob_checksum(tmp_path) -> None:
     snapshot_ref = put_state_snapshot(store, state=state, step=0)
     snapshot = load_model(store, snapshot_ref, StateSnapshot)
 
-    blob_path, _manifest_path = store.get_paths(snapshot.state_ref.artifact_id)
+    blob_path, _manifest_path = store._paths(snapshot.state_ref.artifact_id)
     blob_path.write_bytes(b"not a valid snapshot blob")
 
     with pytest.raises(ValueError, match="Snapshot checksum mismatch"):

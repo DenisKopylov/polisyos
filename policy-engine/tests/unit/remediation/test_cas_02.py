@@ -41,7 +41,7 @@ def _options() -> PutOptions:
 
 def _artifact_member_paths(store: FileSystemCAS, artifact_id: ArtifactID) -> set[str]:
     """Return the persisted ABI members for one artifact, excluding export metadata."""
-    blob_path, manifest_path = store.get_paths(artifact_id)
+    blob_path, manifest_path = store._paths(artifact_id)
     return {
         path.relative_to(store.root).as_posix()
         for path in (blob_path, manifest_path, store._sig_path(artifact_id))
@@ -60,7 +60,7 @@ def _disk_member_paths(root: Path) -> set[str]:
 
 def _blob_member(store: FileSystemCAS, artifact_id: ArtifactID) -> str:
     """Return the stable archive name of an artifact blob."""
-    blob_path, _ = store.get_paths(artifact_id)
+    blob_path, _ = store._paths(artifact_id)
     return blob_path.relative_to(store.root).as_posix()
 
 
@@ -70,7 +70,7 @@ def _copy_artifact_members(
     export_root: Path,
 ) -> None:
     """Add an already valid artifact's members to an export directory."""
-    blob_path, manifest_path = source_store.get_paths(artifact_id)
+    blob_path, manifest_path = source_store._paths(artifact_id)
     for source_path in (blob_path, manifest_path):
         relative = source_path.relative_to(source_store.root)
         destination = export_root / relative
@@ -480,7 +480,7 @@ def test_import_rejects_symlinked_owned_member_without_unlinking_external_file(
         tmp_path / "symlink-member.tar.gz",
     )
     target = FileSystemCAS(tmp_path / "target")
-    blob_path, _ = target.get_paths(source_ref.artifact_id)
+    blob_path, _ = target._paths(source_ref.artifact_id)
     blob_path.parent.mkdir(parents=True, exist_ok=True)
     external = tmp_path / "external-blob.txt"
     external.write_bytes(b"keep-external")

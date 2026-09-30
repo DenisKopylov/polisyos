@@ -288,7 +288,7 @@ def test_profile_configuration_cannot_self_admit_or_cross_scope(
     elif mutation == "foreign_query":
         query = str(_ref("another-query").artifact_id)
     else:
-        blob, _ = store.get_paths(profile_ref.artifact_id)
+        blob, _ = store._paths(profile_ref.artifact_id)
         blob.rename(blob.with_suffix(".unavailable"))
     owner = _module().build_epoch_deployment(config)
     with pytest.raises(ValueError):

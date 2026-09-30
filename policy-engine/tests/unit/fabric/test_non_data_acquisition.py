@@ -295,7 +295,7 @@ def test_tampered_persisted_receipt_cannot_be_read_as_valid(tmp_path):
     module, store, runtime = make_runtime(tmp_path)
     request = candidate_request(module, runtime)
     result = runtime.acquire(request, at=datetime(2026, 9, 10, tzinfo=UTC))
-    blob, _ = store.get_paths(ArtifactID.model_validate(result.artifact_ref))
+    blob, _ = store._paths(ArtifactID.model_validate(result.artifact_ref))
     payload = json.loads(blob.read_text())
     payload["authority_granted"] = True
     blob.write_text(json.dumps(payload))

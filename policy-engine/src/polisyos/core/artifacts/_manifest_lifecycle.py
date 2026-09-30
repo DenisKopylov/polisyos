@@ -13,16 +13,12 @@ from .manifest import ArtifactManifest, IntegrityInfo, _coerce_input_ref
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from ._atomic_write import AtomicFileWriter
     from .ids import ArtifactID
     from .write_contract import ArtifactWriteOptions
 
 
 class ManifestLifecycle:
     """Build, serialize, and validate immutable artifact manifest sidecars."""
-
-    def __init__(self, files: AtomicFileWriter) -> None:
-        self._files = files
 
     @staticmethod
     def build(
@@ -90,9 +86,6 @@ class ManifestLifecycle:
             manifest.model_dump(mode="json", by_alias=True, exclude_none=True),
             sort_keys=True,
         )
-
-    def write_once(self, path: Path, manifest: ArtifactManifest) -> bool:
-        return self._files.write_once(path, self.to_bytes(manifest))
 
     @staticmethod
     def profile_mismatches(

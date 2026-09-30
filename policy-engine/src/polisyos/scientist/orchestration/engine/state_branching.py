@@ -23,6 +23,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _MISSING = object()
@@ -140,7 +141,7 @@ class StateMutation(BaseModel):
 
 
 def _mutation_value_kind(value: Any) -> StateMutationValueKind:
-    if isinstance(value, ArtifactRef):
+    if isinstance(value, (ArtifactRef, ArtifactRefModel)):
         return "artifact_ref"
     return "json"
 
@@ -458,6 +459,13 @@ def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
     _set_child(parent, parts[-1], value)
 
 
+def _normalize_artifacts_index_ref(path: tuple[str, ...], value: Any) -> Any:
+    """Normalize typed IR refs at the artifacts-index mutation boundary."""
+    if path != ("artifacts_index",) or not isinstance(value, ArtifactRefModel):
+        return value
+    return ArtifactRef.model_validate(value.model_dump(mode="python"))
+
+
 class _TrackedDict(dict[str, Any]):
     """Dict view that records concrete writes/deletes against a branch journal."""
 
@@ -483,6 +491,7 @@ class _TrackedDict(dict[str, Any]):
 
     def __setitem__(self, key: str, value: Any) -> None:
         previous = self.get(key, _MISSING)
+        value = _normalize_artifacts_index_ref(self._mutation_path, value)
         wrapped = _wrap_mutable_value(
             value,
             (*self._mutation_path, str(key)),

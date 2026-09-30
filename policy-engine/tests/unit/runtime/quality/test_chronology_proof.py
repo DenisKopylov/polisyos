@@ -893,7 +893,7 @@ def test_reader_replays_versioned_historical_manifest_projection(
     historical = manifest.model_copy(
         update={"manifest_schema_version": schema_version}
     )
-    _, sidecar = case.store.get_paths(ref.artifact_id)
+    _, sidecar = case.store._paths(ref.artifact_id)
     sidecar.write_bytes(ManifestLifecycle.to_bytes(historical))
 
     observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
@@ -935,7 +935,7 @@ def test_reader_rejects_historical_manifest_canon_drift(
     historical_with_canon_drift = manifest.model_copy(
         update={"manifest_schema_version": schema_version, "canon": None}
     )
-    _, sidecar = case.store.get_paths(ref.artifact_id)
+    _, sidecar = case.store._paths(ref.artifact_id)
     sidecar.write_bytes(ManifestLifecycle.to_bytes(historical_with_canon_drift))
 
     observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
@@ -972,7 +972,7 @@ def test_reader_present_corruption_is_not_absence(tmp_path: Path) -> None:
     case = _seed_case(tmp_path / "cas")
     persisted = _persist(case)
     assert isinstance(persisted, contract.PersistedChronologyProof)
-    blob_path, _ = case.store.get_paths(persisted.artifact_ref.artifact_id)
+    blob_path, _ = case.store._paths(persisted.artifact_ref.artifact_id)
     blob_path.write_bytes(b"present-but-corrupt")
 
     observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
@@ -992,7 +992,7 @@ def test_reader_does_not_treat_audit_sidecar_as_a_green_input(tmp_path: Path) ->
     case = _seed_case(tmp_path / "cas")
     persisted = _persist(case)
     assert isinstance(persisted, contract.PersistedChronologyProof)
-    sidecar_blob, _ = case.store.get_paths(persisted.verifier_result_ref.artifact_id)
+    sidecar_blob, _ = case.store._paths(persisted.verifier_result_ref.artifact_id)
     sidecar_blob.write_bytes(b"substituted-audit-only-sidecar")
 
     observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
@@ -1238,7 +1238,7 @@ def test_present_but_corrupt_owner_source_rejects_before_proof_write(
         "query_context": receipt.query_context_identity.artifact_ref,
         "native_member": receipt.member_identities[0].native_artifact_ref,
     }
-    blob, _ = case.store.get_paths(refs[source_role].artifact_id)
+    blob, _ = case.store._paths(refs[source_role].artifact_id)
     blob.write_bytes(f"corrupt-{source_role}".encode())
     counting = _CountingStore(case.store)
 

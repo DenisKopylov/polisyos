@@ -17,9 +17,6 @@ from polisyos.pdc import (
     assert_ring2_verifier_provenance,
     gy_content_hash,
 )
-from polisyos.runtime.http.services.control.generation_cycle import (
-    _build_cycle_substrate_context_from_owner,
-)
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     _search_exit_binding_hash,
     derive_recursive_design_graph,
@@ -279,22 +276,6 @@ def test_generation_cycle_receipt_replay_binds_bounded_limitations(tmp_path: Pat
         changed_limitations.verify_current(tmp_path)
 
 
-def test_http_owner_context_requires_explicit_source_root() -> None:
-    """HTTP source-owner preparation must not inspect the process cwd."""
-
-    problem = _problem("cyc_05_http_rootless_context")
-    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
-
-    assert (
-        _build_cycle_substrate_context_from_owner(
-            problem=problem,
-            problem_ref=problem_ref,
-            repo_root=None,
-        )
-        is None
-    )
-
-
 @pytest.mark.asyncio
 async def test_http_rejects_injected_controller_source_root_mismatch(
     tmp_path: Path,
@@ -306,7 +287,9 @@ async def test_http_rejects_injected_controller_source_root_mismatch(
     root_b = tmp_path / "checkout-b"
     root_a.mkdir()
     root_b.mkdir()
-    problem = _problem("cyc_05_controller_root_mismatch")
+    problem, cycle_substrate_context, _ = _cyc01_owner_bound_n5_case(
+        problem_seed=_problem("cyc_05_controller_root_mismatch"),
+    )
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
     verifier = object()
     controller = build_default_recursive_generation_cycle_controller(
@@ -328,11 +311,6 @@ async def test_http_rejects_injected_controller_source_root_mismatch(
         "build_design_problem_from_nl_request",
         compile_problem,
     )
-    monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
-    )
     monkeypatch.setattr(controller, "run", fail_if_controller_runs)
 
     with pytest.raises(DesignProblemAuthorityError) as exc_info:
@@ -340,6 +318,8 @@ async def test_http_rejects_injected_controller_source_root_mismatch(
             raw_request=problem.nl_provenance.raw_request,
             context={},
             model_name="fixture-model",
+            execution_intent="simulate_only",
+            cycle_substrate_context=cycle_substrate_context,
             compiler_gateway=object(),  # type: ignore[arg-type]
             controller=controller,
             budget_state=_budget(),

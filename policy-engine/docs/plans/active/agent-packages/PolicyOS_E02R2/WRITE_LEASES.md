@@ -2068,3 +2068,80 @@ The complete gate triage found a fourth new edge in the already leased
 `runtime/quality/workspace/loop.py`; its existing context readers also use the
 security facade. The V18 log contains 118 unique findings, not three; exact
 slice-base provenance for the other findings remains unestablished.
+
+## Current coding coordination — 2026-10-01
+
+R14 is committed at `ccc5c9f9b409cba4d540a74aa0b1b6466f175326`; B197
+algorithm integration is committed at `28ea3bb56bc4e751bf1303615d79219b56d7a24c`
+with 58/58 whole-file passes. Root remains the only canonical writer.
+
+### R1 configured candidate scenario
+
+Writer: direct R1 candidate agent, branch `codex/e02-r2-r1-candidate-scenario`,
+worktree `/Users/deniskopylov/.codex/worktrees/e02-r2-r1-candidate-scenario/polisyos`.
+Its base is the B197 checkpoint; its environment and production-data path are
+symlinks to existing owners, with no duplicated data or dependency installation.
+Design V2: `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_CONFIGURED_CANDIDATE_SCENARIO_EXTENSION_PLAN_V2.md@sha256:073be2e197c6f929404f58b99ca6e1af1d73d591eb7222b73b830c4e0ccaa746`.
+Independent coding GO: `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_CONFIGURED_CANDIDATE_SCENARIO_V2_DELTA_REVIEW.md@sha256:fc9b06cba545ec2812fe044b161cd1b955f33f74bc4ff2d72259737ab2d61af0`.
+
+Exact source/test lease (11 source, 9 test paths; new DTO and
+served test are explicitly included):
+
+- `policy-engine/src/polisyos/runtime/quality/candidate_simulation.py`
+- `policy-engine/src/polisyos/runtime/http/app.py`
+- `policy-engine/src/polisyos/runtime/http/container.py`
+- `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`
+- `policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`
+- `policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py`
+- `policy-engine/src/polisyos/runtime/quality/cycle_substrate.py`
+- `policy-engine/src/polisyos/runtime/quality/intervention_substrate.py`
+- `policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py`
+- `policy-engine/src/polisyos/runtime/quality/generation_source.py`
+- `policy-engine/src/polisyos/runtime/quality/generation_cycle.py`
+- `policy-engine/tests/unit/runtime/http/test_runtime_service_container.py`
+- `policy-engine/tests/unit/runtime/http/test_control_service_di.py`
+- `policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py`
+- `policy-engine/tests/unit/runtime/quality/test_intervention_substrate.py`
+- `policy-engine/tests/unit/runtime/quality/test_intervention_atom_binding.py`
+- `policy-engine/tests/unit/runtime/quality/test_generation_source.py`
+- `policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle.py`
+- `policy-engine/tests/unit/runtime/quality/test_generation_cycle.py`
+- `policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py`
+
+No source or test outside this lease; no generated families, acquisition/N7,
+N4 v1 identity, real L6 config, S8/N9/promotion or published authority scope.
+Current served context requires the actual worker lease; historical verification
+must not require the old active lease. A new DTO is not a new owner.
+
+### B61 bounded integration
+
+Root may apply the reviewed immutable V11 patch after B197. The complete 29-path
+lease and 19 actual changed paths are in the corrected manifest
+`/Users/deniskopylov/.codex/scratch/e02r2-held-b-review-20260930/B61_PREPARED_READ_BRIDGE_candidate_92bf_v11_final_20260930_manifest_v2.json@sha256:8089bd63c7989f81ee194266b70e6b218625ebfe0f7b0f556a39833ce2b08c2c`.
+Independent bounded GO: `/Users/deniskopylov/.codex/scratch/e02r2-held-b-review-20260930/B61_V11_INDEPENDENT_REVIEW.md@sha256:34c0863fb29e2f3fe34fe9617e2190ff1cb704d0ee939770334031e97dcd81ff`.
+Full changed test files and named importer tests run on a frozen canonical tree.
+Source issuer authenticity, K_ref and production-scale cost remain held.
+
+### CYC-05 caller retirement
+
+Root may apply only `policy-engine/tests/unit/remediation/test_cyc_05.py` from
+the independently reviewed test-only migration. No runtime alias or manufactured
+context is restored. Actual AST census is 18 test functions / 20 expanded cases
+after retirement; runtime results and R2 currentness semantics remain to measure.
+
+### R9 corrective candidate
+
+Existing branch/worktree stays with its sole writer under the frozen 73-path
+lease. Review findings are the same custody/publication class and require the
+widened owner invariant plus substantive served and cross-process falsifiers.
+Candidate commit `1bb48af5df373b4263c29d705f178c06f310ddc6` is not integrated.
+No canonical write or class-closure claim until independent delta review.
+
+Complete-set intersections computed before dispatch: R1∩B61 = 0, R1∩R9 frozen set = 0.
+Shared test files in separate candidate branches are sequenced during integration;
+never replace a newer whole file with an older candidate snapshot.
+
+Resource allocation: R9 at most one light test process; R1 starts with static
+checks and test authoring, requesting root admission before a runtime wave. Root
+may run one B61 group and one CYC-05 group. Native threads are capped at one.
+Disk floor stays 8 GiB; no source mutation or commit during canonical jobs.

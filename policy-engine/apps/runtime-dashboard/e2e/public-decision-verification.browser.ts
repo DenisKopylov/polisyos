@@ -1,4 +1,4 @@
-import { chmod, readFile, stat, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,8 +19,10 @@ test("real verification service authenticates a report and rejects the same reco
   const metadata = JSON.parse(await readFile(metadataPath, "utf8")) as {
     record_id: string;
     title: string;
-    signature_path: string;
-    record_blob_path: string;
+    record_blob_sha256: string;
+    record_blob_byte_size: number;
+    fixture_control_url: string;
+    fixture_token: string;
   };
   const recordUrl = `/public/decisions/${metadata.record_id}`;
   const realVerdict = () =>
@@ -37,9 +39,6 @@ test("real verification service authenticates a report and rejects the same reco
         if (!response) throw new Error("verification_response_missing");
         return response;
       });
-  const originalSignature = await readFile(metadata.signature_path);
-  const originalMode = (await stat(metadata.signature_path)).mode & 0o777;
-  const originalRecord = await readFile(metadata.record_blob_path);
   const firstResponse = realVerdict();
   await page.goto(recordUrl);
   const authenticated = await (await firstResponse).json();
@@ -65,13 +64,26 @@ test("real verification service authenticates a report and rejects the same reco
   await expect(page.getByTestId("publication-packet-panel")).toHaveCount(0);
 
   try {
-    // Keep the issued ID, signed subject, key ID, timestamp and digest markers intact.
-    const damagedSignature = {
-      ...JSON.parse(originalSignature.toString()),
-      signature_hex: "00".repeat(64),
+    // The fixture performs an isolated out-of-band mutation. The browser sees
+    // only a scoped control URL and never learns a local CAS path.
+    const fixtureHeaders = {
+      "x-policyos-fixture-token": metadata.fixture_token,
     };
-    await chmod(metadata.signature_path, 0o600);
-    await writeFile(metadata.signature_path, JSON.stringify(damagedSignature));
+    const damaged = await page.request.post(
+      `${metadata.fixture_control_url}/damage`,
+      { headers: fixtureHeaders },
+    );
+    expect(damaged.ok()).toBeTruthy();
+    const damagedControl = (await damaged.json()) as {
+      ok: boolean;
+      record_blob_sha256: string;
+      record_blob_byte_size: number;
+    };
+    expect(damagedControl.ok).toBeTruthy();
+    expect(damagedControl.record_blob_sha256).toBe(metadata.record_blob_sha256);
+    expect(damagedControl.record_blob_byte_size).toBe(
+      metadata.record_blob_byte_size,
+    );
     const damagedResponse = realVerdict();
     await page.reload();
     const rejected = await (await damagedResponse).json();
@@ -89,9 +101,23 @@ test("real verification service authenticates a report and rejects the same reco
     await expect(
       page.getByRole("heading", { name: metadata.title }),
     ).toHaveCount(0);
-    expect(await readFile(metadata.record_blob_path)).toEqual(originalRecord);
   } finally {
-    await writeFile(metadata.signature_path, originalSignature);
-    await chmod(metadata.signature_path, originalMode);
+    const restored = await page.request.post(
+      `${metadata.fixture_control_url}/restore`,
+      { headers: { "x-policyos-fixture-token": metadata.fixture_token } },
+    );
+    expect(restored.ok()).toBeTruthy();
+    const restoredControl = (await restored.json()) as {
+      ok: boolean;
+      record_blob_sha256: string;
+      record_blob_byte_size: number;
+    };
+    expect(restoredControl.ok).toBeTruthy();
+    expect(restoredControl.record_blob_sha256).toBe(
+      metadata.record_blob_sha256,
+    );
+    expect(restoredControl.record_blob_byte_size).toBe(
+      metadata.record_blob_byte_size,
+    );
   }
 });

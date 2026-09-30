@@ -373,7 +373,7 @@ def test_recipe_identity_excludes_only_manifest_created_at(tmp_path: Path) -> No
         *(item.artifact.artifact_id for item in first.inputs),
     )
     for artifact_id in artifact_ids:
-        _, manifest_path = store.get_paths(artifact_id)
+        _, manifest_path = store._paths(artifact_id)
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["created_at"] = "2035-01-02T03:04:05Z"
         manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
@@ -931,7 +931,7 @@ def test_cache_hit_reopens_bytes_and_manifest_contract(
         output_basis=output_basis,
     )
     first = materialize_derivation(store, recipe)
-    blob_path, manifest_path = store.get_paths(first.derived_artifact_ref.artifact_id)
+    blob_path, manifest_path = store._paths(first.derived_artifact_ref.artifact_id)
     if mutation == "bytes":
         blob_path.write_bytes(b"{}")
     else:
@@ -965,7 +965,7 @@ def test_source_manifest_and_authority_graph_are_reopened(tmp_path: Path) -> Non
         for item in store.get_manifest(refs["amount"].artifact_id).inputs
         if item.role == "authority_evidence"
     )
-    authority_blob, _ = store.get_paths(authority_edge.artifact_id)
+    authority_blob, _ = store._paths(authority_edge.artifact_id)
     authority_blob.write_bytes(b"{}")
 
     with pytest.raises(DerivationRefusalError) as raised:
@@ -1688,7 +1688,7 @@ def test_epoch_inheritance_recompute_reader_rejects_owner_artifact_drift(
         "certificate": fixture.certificate_ref,
         "derived": fixture.derived_ref,
     }[artifact]
-    blob_path, _ = fixture.store.get_paths(ref.artifact_id)
+    blob_path, _ = fixture.store._paths(ref.artifact_id)
     blob_path.write_bytes(blob_path.read_bytes() + b"corrupt")
 
     with pytest.raises(DerivationRefusalError):
@@ -1700,7 +1700,7 @@ def test_epoch_inheritance_recompute_reader_rejects_receipt_manifest_input_drift
 ) -> None:
     fixture = _epoch_recompute_fixture(tmp_path)
     persisted = _produce_epoch_recompute(fixture)
-    _, manifest_path = fixture.store.get_paths(persisted.receipt_artifact_ref.artifact_id)
+    _, manifest_path = fixture.store._paths(persisted.receipt_artifact_ref.artifact_id)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["inputs"] = []
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")

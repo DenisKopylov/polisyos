@@ -235,7 +235,7 @@ def test_mutated_linked_bytes_refuse_even_after_a_successful_read(tmp_path: Path
     with tenant_scope(None, tenant_id=_TENANT, cell_id=_CELL):
         producer = GlobalCaseIndexProducer(store)
         producer.produce()
-        blob, _ = store.get_paths(persisted.search_ledger_ref.artifact_id)
+        blob, _ = store._paths(persisted.search_ledger_ref.artifact_id)
         payload = canon.from_canonical_bytes(blob.read_bytes())
         payload["case_id"] = "case:tampered"
         blob.write_bytes(canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)))

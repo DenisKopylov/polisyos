@@ -108,26 +108,6 @@ def _run_bounded(
     return results, length_hint, cancelled
 
 
-def put_signature(
-    *,
-    artifact_id: ArtifactID,
-    signature: DetachedSignature,
-    sig_path_for_artifact: Callable[[ArtifactID], Path],
-    atomic_write: Callable[[Path, bytes], None],
-) -> Path:
-    """Persist one detached signature sidecar after binding validation."""
-    if signature.artifact_id != str(artifact_id):
-        raise ValueError("signature artifact_id mismatch")
-    path = sig_path_for_artifact(artifact_id)
-    payload = signature.model_dump_json(
-        by_alias=True,
-        exclude_none=True,
-        indent=2,
-    ).encode("utf-8")
-    atomic_write(path, payload)
-    return path
-
-
 def get_signature(
     *,
     artifact_id: ArtifactID,
@@ -156,7 +136,7 @@ def sign_artifact(
     signer_identity: str | None,
     read_blob: Callable[[ArtifactID], bytes],
     read_manifest_bytes: Callable[[ArtifactID], bytes],
-    write_signature: Callable[[ArtifactID, DetachedSignature], Path],
+    write_signature: Callable[[ArtifactID, DetachedSignature], None],
     load_snapshot: Callable[[ArtifactID], VerifiedArtifactSnapshot] | None = None,
 ) -> DetachedSignature:
     """Sign one stored artifact and persist its sidecar."""
@@ -264,7 +244,7 @@ def sign_all_artifacts(
     has_signature_for_artifact: Callable[[ArtifactID], bool],
     read_blob: Callable[[ArtifactID], bytes],
     read_manifest_bytes: Callable[[ArtifactID], bytes],
-    write_signature: Callable[[ArtifactID, DetachedSignature], Path],
+    write_signature: Callable[[ArtifactID, DetachedSignature], None],
     pending_window: int | None = None,
     cancel_event: threading.Event | None = None,
     load_snapshot: Callable[[ArtifactID], VerifiedArtifactSnapshot] | None = None,

@@ -11,11 +11,50 @@ the older R14 test-file list below.
 | --- | --- | --- |
 | R14 worker/store admission | `core/security/tenant_context.py`, `runtime/http/services/control_plane_store.py`, `runtime/http/services/control_worker.py`; `tests/unit/core/security/test_tenant_context.py`, `tests/unit/runtime/http/test_control_plane_store.py`, `tests/unit/runtime/http/test_control_worker_custody.py`. | Frozen core patch. Integrate only together with a reviewed lifecycle patch; real worker lease and guarded-store custody are the property. |
 | R14 lifecycle v2 | `runtime/http/routes/runs.py`, `runtime/http/services/acquisition_action_service.py`, `runtime/http/services/control/lex_pipeline.py`, `runtime/http/services/control/run_lifecycle.py`, `runtime/quality/workspace/loop.py`; `tests/unit/runtime/http/test_control_api.py`, `test_control_job_execution_intent.py`, `test_workspace_loop_transition.py`, `test_acquisition_control_worker.py`, `test_control_service_di.py`, `test_served_unknown_target_scope.py`; `tests/integration/core_runtime/test_acquisition_authority_served.py`, `tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py`, `test_evaluation_safety_admission.py`; `tests/unit/remediation/test_cyc_05.py`; `tests/_helpers/control_worker.py`. | V1 independent review was NO-GO: an unenforced-store negative, a two-argument acquisition handler annotation, one direct EvalSafety helper caller, and 17 unfenced test calls in seven files. Writer revises the shared real-worker harness and all affected callers in scratch. R1's two overlapping EvalSafety test files are sequenced after R14 integration and then re-reviewed. No source edit while canonical tests run. |
-| B61 owner-prepared SKG cache input | Scratch writer must freeze its exact source/test path set before editing copies. The candidate is disjoint from R14 and may use only Scientist/DataForge/cache paths after this row is amended. | Independent design GO applies to candidate-band cache/read binding only. Authority source authenticity and K_ref custody remain `not_established`; no canonical write until patch review. |
+| B61 owner-prepared SKG cache input | The 14 source and 12 test paths are enumerated below; no others are leased. The frozen scratch lease is `/Users/deniskopylov/.codex/scratch/e02r2-held-b-review-20260930/B61_PREPARED_READ_PATCH_LEASE_bc5ccb.md@sha256:b0c32862f8d6359bc99a02a8fb283209c6516194651eea7c9070c1795af285ed`. | Independent design GO applies to candidate-band cache/read binding only. Authority source authenticity and K_ref custody remain `not_established`; no canonical write until patch review. |
 | R1/R13/B26 designs | Read-only source and scratch memos. | Their implementation leases require separate exact file censuses and reviews; do not overlap the R14 lifecycle paths. |
 
 The disk floor is 8 GiB. No agent empties Trash or writes to
 `production_data`. The canonical tree is frozen during every test run.
+
+### B61 exact scratch path lease
+
+Source (14):
+
+- `src/polisyos/data_forge/domains/academic/knowledge/skg_query.py`
+- `src/polisyos/data_forge/read_api/academic.py`
+- `src/polisyos/scientist/orchestration/engine/protocol.py`
+- `src/polisyos/scientist/orchestration/engine/context.py`
+- `src/polisyos/scientist/orchestration/engine/executor.py`
+- `src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py`
+- `src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py`
+- `src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py`
+- `src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py`
+- `src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py`
+- `src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py`
+- `src/polisyos/foundry/methods/catalog/causal/literature_prior.py`
+- `src/polisyos/scientist/cross_graph/compiler.py`
+- `src/polisyos/scientist/methods/discovery/prior_miner.py`
+
+Tests (12, last path is new):
+
+- `tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py`
+- `tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py`
+- `tests/unit/scientist/nodes/builtins/causal/test_build_literature_prior.py`
+- `tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py`
+- `tests/unit/scientist/nodes/builtins/causal/test_resolve_transport.py`
+- `tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py`
+- `tests/unit/scientist/nodes/builtins/planning/test_run_discovery_blueprint_runtime.py`
+- `tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py`
+- `tests/unit/foundry/methods/catalog/causal/test_literature_prior.py`
+- `tests/unit/scientist/cross_graph/test_compiler.py`
+- `tests/unit/scientist/discovery/test_prior_miner.py`
+- `tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py`
+
+All paths are relative to `policy-engine/`; the B61 writer edits scratch copies
+only. An additional path needs a lease amendment before editing. The candidate
+must use the same owner-prepared input for cache admission and node execution,
+with a real workflow/store witness and historical cache limits.
 
 ## Current coordination after `f1696abca` (2026-09-30)
 

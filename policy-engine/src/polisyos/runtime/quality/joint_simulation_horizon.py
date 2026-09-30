@@ -395,7 +395,7 @@ def _interaction_coverage(
     request: JointSimulationRequest,
     trajectories: Sequence[SimulationTrajectory],
 ) -> _InteractionCoverage:
-    """Index only exact, complete request scopes and return typed coverage issues."""
+    """Index valid requested scopes and report incomplete horizons separately."""
 
     atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
     expected_steps = request.horizon.steps()

@@ -582,7 +582,7 @@ def test_governed_http_corruption_removes_public_content_and_custody_membership(
             snapshot = case.claim_owner.resolve_current_for_packet(
                 decision_packet_ref=case.packet_ref
             )
-            blob, _ = store.get_paths(snapshot.head.statement.ledger_artifact_ref.artifact_id)
+            blob, _ = store._paths(snapshot.head.statement.ledger_artifact_ref.artifact_id)
             blob.write_bytes(blob.read_bytes() + b" ")
         refused = client.get(
             "/api/v1/public-decisions/verification", params={"record_id": record_id}

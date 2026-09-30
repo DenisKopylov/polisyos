@@ -23,7 +23,7 @@ def test_cas_integrity_report_proves_authority_dedup_tamper_and_gc(tmp_path) -> 
     second_ref = _write_authority_payload(store, payload, kind="surface.integrity_payload")
 
     artifact_id = ArtifactID.model_validate(first_ref)
-    blob_path, manifest_path = store.get_paths(artifact_id)
+    blob_path, manifest_path = store._paths(artifact_id)
     original = blob_path.read_bytes()
     blob_path.write_bytes(original + b"\nmutation")
     tamper = verify_filesystem_artifact(

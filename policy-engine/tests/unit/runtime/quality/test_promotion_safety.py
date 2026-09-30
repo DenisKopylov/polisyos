@@ -265,7 +265,7 @@ def test_source_mutation_revokes_current_request_custody(tmp_path):
         owner.resolve(request_ref=str(request.artifact_id), scope=scope).custody_status
         == "verified"
     )
-    blob, _manifest = store.get_paths(artifacts.ArtifactID.model_validate(source_ref))
+    blob, _manifest = store._paths(artifacts.ArtifactID.model_validate(source_ref))
     changed = json.loads(blob.read_bytes())
     changed["evidence_refs"] = ["sha256:" + "e" * 64]
     blob.write_text(json.dumps(changed))

@@ -156,7 +156,7 @@ def sign_artifact(
     signer_identity: str | None,
     read_blob: Callable[[ArtifactID], bytes],
     read_manifest_bytes: Callable[[ArtifactID], bytes],
-    write_signature: Callable[[ArtifactID, DetachedSignature], Path],
+    write_signature: Callable[[ArtifactID, DetachedSignature], None],
     load_snapshot: Callable[[ArtifactID], VerifiedArtifactSnapshot] | None = None,
 ) -> DetachedSignature:
     """Sign one stored artifact and persist its sidecar."""
@@ -264,7 +264,7 @@ def sign_all_artifacts(
     has_signature_for_artifact: Callable[[ArtifactID], bool],
     read_blob: Callable[[ArtifactID], bytes],
     read_manifest_bytes: Callable[[ArtifactID], bytes],
-    write_signature: Callable[[ArtifactID, DetachedSignature], Path],
+    write_signature: Callable[[ArtifactID, DetachedSignature], None],
     pending_window: int | None = None,
     cancel_event: threading.Event | None = None,
     load_snapshot: Callable[[ArtifactID], VerifiedArtifactSnapshot] | None = None,

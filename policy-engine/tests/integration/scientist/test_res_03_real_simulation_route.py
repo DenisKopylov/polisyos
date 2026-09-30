@@ -525,7 +525,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     content_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}/content")
     lineage_response = client.get(f"/api/v1/artifacts/{simulation_ref.artifact_id}/lineage")
 
-    blob_path, _manifest_path = store.get_paths(simulation_ref.artifact_id)
+    blob_path, _manifest_path = store._paths(simulation_ref.artifact_id)
     original_bytes = blob_path.read_bytes()
     blob_path.write_bytes(original_bytes + b"tampered")
     try:
@@ -536,7 +536,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         blob_path.write_bytes(original_bytes)
 
     workflow_report_ref = result.state.reports_index["workflow_report"]
-    report_blob_path, _report_manifest_path = store.get_paths(
+    report_blob_path, _report_manifest_path = store._paths(
         workflow_report_ref.artifact_id
     )
     report_original_bytes = report_blob_path.read_bytes()

@@ -272,7 +272,7 @@ def test_changed_source_bytes_cannot_issue_under_unchanged_run_reference(
     )
     _align_decision_packet_owner(runtime_api_env, cell_id=cell.cell_id)
     store = FileSystemCAS(runtime_api_env["cas_root"])
-    path, _ = store.get_paths(
+    path, _ = store._paths(
         ArtifactID.model_validate(runtime_api_env["decision_packet_artifact_id"])
     )
     original = path.read_bytes()

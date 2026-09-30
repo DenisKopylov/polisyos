@@ -479,8 +479,7 @@ class GovernedPublicRecordOwner:
 
     def _capture(self, ref: artifacts.ArtifactRef) -> _ExactSignature:
         self._raw(ref)
-        blob_path, _ = self.store.get_paths(ref.artifact_id)
-        signature = blob_path.with_suffix(".sig").read_bytes()
+        signature = self.store.get_signature_bytes(ref)
         return _ExactSignature(
             artifact_ref=ref,
             manifest_ref=self.store.put_bytes(
@@ -510,10 +509,9 @@ class GovernedPublicRecordOwner:
         raw = self._raw(evidence.artifact_ref)
         manifest = self._raw(evidence.manifest_ref)
         sig_raw = self._raw(evidence.signature_ref)
-        blob_path, _ = self.store.get_paths(evidence.artifact_ref.artifact_id)
         if (
-            manifest != self.store.get_manifest_bytes(evidence.artifact_ref.artifact_id)
-            or sig_raw != blob_path.with_suffix(".sig").read_bytes()
+            manifest != self.store.get_manifest_bytes(evidence.artifact_ref)
+            or sig_raw != self.store.get_signature_bytes(evidence.artifact_ref)
         ):
             raise GovernedPublicRecordError("record_exact_signature_evidence_changed")
         signature = artifacts.DetachedSignature.model_validate_json(sig_raw)

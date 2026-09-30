@@ -98,14 +98,14 @@ def test_tampered_persisted_evidence_never_returns_document(issued_service, tamp
     service, kwargs, _, record_id, _ = issued_service
     store = kwargs["store"]
     artifact_id = _record_artifact(kwargs, record_id)
-    blob_path, manifest_path = store.get_paths(artifact_id)
+    blob_path, manifest_path = store._paths(artifact_id)
     if tamper == "record":
         _replace_bytes(blob_path, store.get_bytes(artifact_id) + b" ")
     elif tamper == "document":
         doc_id = artifacts.ArtifactID.model_validate(
             _entry(kwargs, record_id)["public_document_digest"]
         )
-        doc_path, _ = store.get_paths(doc_id)
+        doc_path, _ = store._paths(doc_id)
         _replace_bytes(doc_path, b'{"title":"forged"}')
     elif tamper == "manifest":
         _replace_bytes(manifest_path, manifest_path.read_bytes() + b" ")
@@ -332,7 +332,7 @@ def test_response_uses_captured_document_bytes_even_if_store_changes_after_read(
     def read_then_corrupt(artifact_id):
         captured = original_read(artifact_id)
         if str(artifact_id) == doc_ref:
-            path, _ = store.get_paths(artifacts.ArtifactID.model_validate(doc_ref))
+            path, _ = store._paths(artifacts.ArtifactID.model_validate(doc_ref))
             _replace_bytes(path, b'{"title":"forged after read"}')
         return captured
 

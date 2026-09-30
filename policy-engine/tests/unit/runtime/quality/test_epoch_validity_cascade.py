@@ -546,7 +546,7 @@ def test_file_transition_history_adapter_rejects_corrupt_exact_bytes(
         if corrupt_artifact == "receipt"
         else fixture.current_ref.artifact_id
     )
-    blob_path, _ = fixture.store.get_paths(artifact_id)
+    blob_path, _ = fixture.store._paths(artifact_id)
     blob_path.write_bytes(blob_path.read_bytes() + b"corrupt")
     diagnostic = (
         "epoch transition receipt CAS readback failed"

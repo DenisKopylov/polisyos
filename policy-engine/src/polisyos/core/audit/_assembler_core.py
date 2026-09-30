@@ -354,13 +354,14 @@ class AuditPackageAssembler:
             shutil.copy2(audit_path, pkg_dir / "metadata" / "audit.jsonl")
 
         for artifact_id in sorted(artifact_ids, key=lambda item: item.hex):
-            blob_path, manifest_path = self._cas.get_paths(artifact_id)
             rel_dir = Path(artifact_id.hex[:2]) / artifact_id.hex[2:4]
             dst_dir = pkg_dir / "artifacts" / "sha256" / rel_dir
             dst_dir.mkdir(parents=True, exist_ok=True)
             if self._options.profile == ExportProfile.FULL:
-                shutil.copy2(blob_path, dst_dir / f"{artifact_id.hex}.blob")
-            shutil.copy2(manifest_path, dst_dir / f"{artifact_id.hex}.manifest.json")
+                with (dst_dir / f"{artifact_id.hex}.blob").open("wb") as sink:
+                    self._cas.copy_member_to(artifact_id, "blob", sink)
+            with (dst_dir / f"{artifact_id.hex}.manifest.json").open("wb") as sink:
+                self._cas.copy_member_to(artifact_id, "manifest", sink)
 
             signature = signatures.get(artifact_id.hex)
             if signature is None:

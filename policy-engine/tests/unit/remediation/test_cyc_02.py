@@ -794,8 +794,15 @@ def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
     with pytest.raises(GenerationCycleError, match="joint_simulation_result_unavailable"):
         load_joint_simulation_result(missing_ref, store=store)
 
-    blob_path, selected_manifest_path = store.get_paths(result_ref)
-    default_manifest_path = store.get_paths(generic_ref)[1]
+    blob_path, _ = store._paths(result_ref.artifact_id)
+    selected_manifest_path = store._manifest_path_for_ref(
+        result_ref.artifact_id,
+        result_ref.manifest_profile_sha256,
+    )
+    default_manifest_path = store._manifest_path_for_ref(
+        generic_ref.artifact_id,
+        generic_ref.manifest_profile_sha256,
+    )
     assert selected_manifest_path != default_manifest_path
     original_blob = blob_path.read_bytes()
     blob_path.write_bytes(original_blob + b"tampered")

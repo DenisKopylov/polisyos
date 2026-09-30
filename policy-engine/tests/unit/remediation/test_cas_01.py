@@ -313,7 +313,7 @@ def test_existing_corrupt_blob_is_not_confirmed_by_successful_retry(tmp_path: Pa
     store = FileSystemCAS(tmp_path / "cas")
     options = _options("cas.corrupt_retry", "application/octet-stream")
     first_ref = store.put_bytes(PAYLOAD, options)
-    blob_path, _manifest_path = store.get_paths(first_ref.artifact_id)
+    blob_path, _manifest_path = store._paths(first_ref.artifact_id)
     blob_path.write_bytes(PAYLOAD + b"-corrupted")
 
     try:
@@ -589,13 +589,15 @@ def test_lock_registry_is_bounded_without_evicting_active_waiters(tmp_path: Path
 def test_colliding_lock_stripe_keeps_distinct_cas_bytes_and_manifests(tmp_path: Path) -> None:
     """A benign lock collision may serialize writes but cannot alias records."""
     store = FileSystemCAS(tmp_path / "cas")
-    initial_pool_size = len(store._artifact_locks)
+    coordinator = store._coordinator
+    initial_pool_size = len(coordinator._artifact_locks)
+    assert initial_pool_size == coordinator.STRIPE_COUNT == 64
     by_lock: dict[int, tuple[ArtifactID, bytes]] = {}
     collision: tuple[tuple[ArtifactID, bytes], tuple[ArtifactID, bytes]] | None = None
     for index in range(initial_pool_size + 1):
         data = f"cas-01-collision-{index}".encode()
         artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(data).hexdigest())
-        lock_identity = id(store._artifact_lock(artifact_id))
+        lock_identity = id(coordinator._artifact_locks[coordinator._stripe(artifact_id)])
         prior = by_lock.get(lock_identity)
         if prior is not None:
             collision = prior, (artifact_id, data)
@@ -606,7 +608,9 @@ def test_colliding_lock_stripe_keeps_distinct_cas_bytes_and_manifests(tmp_path: 
     (first_id, first_bytes), (second_id, second_bytes) = collision
     assert first_id != second_id
     assert first_bytes != second_bytes
-    assert store._artifact_lock(first_id) is store._artifact_lock(second_id)
+    assert coordinator._artifact_locks[coordinator._stripe(first_id)] is (
+        coordinator._artifact_locks[coordinator._stripe(second_id)]
+    )
 
     options = _options("cas.stripe.collision", "application/octet-stream")
     first_ref = store.put_bytes(first_bytes, options)

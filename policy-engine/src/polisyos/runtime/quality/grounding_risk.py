@@ -9,7 +9,6 @@ this module supplies only the run-bound CG2 admission semantics.
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from typing import Any, Literal
 
@@ -246,24 +245,23 @@ class GroundingRunBudget:
         if self._root is None or self._store is None:
             raise GroundingRiskStateError("grounding_run_persistence_missing")
         rows: list[tuple[str, _AdmissionEvent]] = []
-        identities = self._store.iter_artifact_ids()
-        expected = {
-            path for artifact_id in identities for path in self._store.get_paths(artifact_id)
-        }
-        observed: set[Path] = set()
-
-        def unreadable(exc: OSError) -> None:
-            raise exc
-
-        for directory, children, names in os.walk(self._store.base, onerror=unreadable):
-            parent = Path(directory)
-            if any((parent / name).is_symlink() for name in (*children, *names)):
-                raise GroundingRiskStateError("grounding_run_cas_indirection_unresolved")
-            observed.update(parent / name for name in names)
-        if observed != expected:
-            raise GroundingRiskStateError("grounding_run_cas_denominator_ambiguous")
-        for artifact_id in identities:
-            manifest = self._store.get_manifest(artifact_id)
+        inventory = getattr(self._store, "inventory_snapshot", None)
+        if not callable(inventory):
+            raise GroundingRiskStateError("grounding_run_cas_inventory_unavailable")
+        snapshot = inventory()
+        if snapshot.verdict != "pass":
+            raise GroundingRiskStateError(
+                "grounding_run_cas_inventory_"
+                f"{snapshot.verdict.lower()}:{snapshot.reason or 'no_reason'}"
+            )
+        for entry in snapshot.entries:
+            # Historical replay enumerated only selector-free default views.
+            # Typed views remain in the stable inventory but do not represent
+            # additional run events for this chain.
+            if not isinstance(entry.artifact_ref, artifacts.ArtifactID):
+                continue
+            artifact_id = entry.artifact_ref
+            manifest = entry.manifest
             if manifest.kind != _KIND or manifest.artifact_schema is None:
                 raise GroundingRiskStateError("grounding_run_artifact_kind_invalid")
             if manifest.artifact_schema.name != _SCHEMA:

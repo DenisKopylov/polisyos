@@ -505,7 +505,7 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
     corrupt_cas, corrupt_verifier, corrupt_ref, _ = _put_witness(
         tmp_path / "corrupt", envelope
     )
-    blob_path, _ = corrupt_cas.get_paths(ArtifactID.model_validate(corrupt_ref))
+    blob_path, _ = corrupt_cas._paths(ArtifactID.model_validate(corrupt_ref))
     blob_path.write_bytes(b"corrupted witness bytes")
     with pytest.raises(ValueError, match=r"CAS"):
         _coverage().build_coverage_envelope(
@@ -577,7 +577,7 @@ def test_witness_requires_resolved_source_replay_and_verifier_provenance(
             receipt_changes=receipt,
         )
     elif mutation == "corrupt_source":
-        source_blob, _ = cas.get_paths(ArtifactID.model_validate(source_ref))
+        source_blob, _ = cas._paths(ArtifactID.model_validate(source_ref))
         source_blob.write_bytes(b"corrupted source bytes")
     registry, semantic = _inputs()
     with pytest.raises((TypeError, ValueError), match=message):

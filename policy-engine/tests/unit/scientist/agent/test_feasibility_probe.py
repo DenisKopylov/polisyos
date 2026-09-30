@@ -47,7 +47,7 @@ def _tamper_snapshot_lineage(cas: FileSystemCAS, data_snapshot_ref: str) -> None
     )
     snapshot_ref = data_snapshot.data_ref
     manifest = cas.get_manifest(snapshot_ref.artifact_id)
-    _blob_path, manifest_path = cas.get_paths(snapshot_ref.artifact_id)
+    _blob_path, manifest_path = cas._paths(snapshot_ref.artifact_id)
     manifest_path.write_bytes(
         ManifestLifecycle.to_bytes(
             manifest.model_copy(

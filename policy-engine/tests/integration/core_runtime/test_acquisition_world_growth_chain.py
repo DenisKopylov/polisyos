@@ -545,7 +545,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
     service._production_execution_port = case.port
     service._authority_provider = None
     assert service._projection(closure).admitted_observation_delta == 1
-    blob, _ = control._artifact_store.get_paths(
+    blob, _ = control._artifact_store._paths(
         artifacts.ArtifactID.model_validate(result.overlay_admission_receipt_ref)
     )
     native = blob.read_bytes()
@@ -1049,7 +1049,7 @@ async def test_deferred_admission_refuses_unknown_outcome_and_missing_negative(
     finally:
         fence.unlink()  # Restore this fixture before any actual deferred effect.
     ref = negative.owner_receipt_refs[-1]
-    blob, _ = control._artifact_store.get_paths(artifacts.ArtifactID.model_validate(ref))
+    blob, _ = control._artifact_store._paths(artifacts.ArtifactID.model_validate(ref))
     raw = blob.read_bytes()
     blob.unlink()
     try:

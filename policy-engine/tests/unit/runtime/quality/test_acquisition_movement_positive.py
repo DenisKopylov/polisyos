@@ -216,7 +216,7 @@ def test_remove_decisive_native_bytes_keeps_receipt_markers_but_retracts_board_m
     for decisive_ref in decisive_refs:
         baseline = next(row for row in board.get().payload.rows if row.row_id == movement.row_id)
         assert baseline.movement_records == (record,)
-        blob, _manifest = store.get_paths(artifacts.ArtifactID.model_validate(decisive_ref))
+        blob, _manifest = store._paths(artifacts.ArtifactID.model_validate(decisive_ref))
         native_bytes = blob.read_bytes()
         blob.unlink()
         try:

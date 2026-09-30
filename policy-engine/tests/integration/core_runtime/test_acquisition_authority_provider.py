@@ -120,7 +120,7 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
         retained_paths: dict[Path, bool] = {}
         artifact_ids = tuple(provider._store.iter_artifact_ids())
         for artifact_id in artifact_ids:
-            for path in provider._store.get_paths(artifact_id):
+            for path in provider._store._paths(artifact_id):
                 retained_paths[path] = False
             retained_paths[provider._store._sig_path(artifact_id)] = True
 
@@ -209,7 +209,7 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
                     path = None
                     try:
                         identity = authority.artifacts.ArtifactID.model_validate(artifact_id)
-                        blob, manifest = store.get_paths(identity)
+                        blob, manifest = store._paths(identity)
                         path = {
                             "get_bytes": blob,
                             "get_manifest": manifest,

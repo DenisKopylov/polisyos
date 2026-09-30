@@ -85,7 +85,7 @@ def test_fake_or_corrupt_source_cannot_look_like_absence(tmp_path):
     assert absent.status == "ambiguous"
     assert absent.reason_code == "legal_subject_source_missing"
     spine = _spine(store)
-    blob, _ = store.get_paths(spine.artifact_id)
+    blob, _ = store._paths(spine.artifact_id)
     blob.write_bytes(b"{}")
     result = owner.recognize_legal_correspondence(store, spine, _request())
     assert result.status == "ambiguous"

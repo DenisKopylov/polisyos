@@ -815,7 +815,7 @@ def test_denominator_adapter_persists_reloads_and_detects_live_store_corruption(
     assert manifest.artifact_schema.name == ("polisyos.chronology.ApplicablePredicateDenominator")
     assert manifest.artifact_schema.version == "1"
 
-    blob, _ = store.get_paths(persisted.artifact_ref.artifact_id)
+    blob, _ = store._paths(persisted.artifact_ref.artifact_id)
     blob.write_bytes(b"corrupt")
     corrupted = adapter.persist_and_verify(
         query=qualified.candidate.query,

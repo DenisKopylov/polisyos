@@ -327,7 +327,7 @@ async def test_tampered_raw_blob_is_rejected_before_execution(tmp_path) -> None:
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
     evidence = evidence_fixture(store, registry, tmp_path / "registry", raw_ref)
-    blob_path, _ = store.get_paths(raw_ref.artifact_id)
+    blob_path, _ = store._paths(raw_ref.artifact_id)
     blob_path.write_bytes(b"{}")
     client = _FakeClient(_positive_candidate())
 

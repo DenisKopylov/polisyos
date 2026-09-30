@@ -12,7 +12,8 @@ import pytest
 
 from polisyos.core.artifacts import _atomic_write as atomic_write_module
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.ownership import ArtifactOwnershipIndex
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon.canon_json import CanonSpec, to_canonical_bytes
 
 _V1_INDEX_SCHEMA = "policyos.artifact_ownership_index.v1"
@@ -802,3 +803,43 @@ def test_evidence_read_fails_closed_on_tampered_v1_without_rewriting_it(
 
     assert index.path.read_bytes() == tampered_bytes
     assert index.signature_path.read_bytes() == signature_bytes
+
+
+def test_final_cas_parent_sync_failure_prevents_owner_generation_commit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path / "cas"
+    store = FileSystemCAS(root).for_tenant("tenant-a", cell_id="cell-a")
+    payload = b"durability must precede tenant owner-generation admission"
+    artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    final_parent = (
+        root
+        / "artifacts"
+        / "sha256"
+        / artifact_id.hex[:2]
+        / artifact_id.hex[2:4]
+    )
+    original_fsync_directory = atomic_write_module.fsync_directory
+    failed_final_sync = False
+
+    def fail_final_parent_sync(path: Path) -> None:
+        nonlocal failed_final_sync
+        if path == final_parent and not failed_final_sync:
+            failed_final_sync = True
+            raise OSError("injected CAS member parent fsync failure")
+        original_fsync_directory(path)
+
+    monkeypatch.setattr(atomic_write_module, "fsync_directory", fail_final_parent_sync)
+    with pytest.raises(OSError):
+        store.put_bytes(
+            payload,
+            PutOptions(kind="test.r9.durable", media_type="application/octet-stream"),
+        )
+
+    assert failed_final_sync
+    assert not store._ownership_index.has_any_tenant_claim(artifact_id)
+    intent_path = store._ownership_index._transaction_intent_path(artifact_id)
+    assert json.loads(intent_path.read_bytes())["status"] == "pending"
+    with pytest.raises(ArtifactOwnershipError):
+        store.with_ambient_ownership_enforcement().get_bytes(artifact_id)

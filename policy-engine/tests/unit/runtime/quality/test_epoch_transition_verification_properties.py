@@ -174,7 +174,7 @@ def test_complete_target_census_normalizes_unreadable_packet(tmp_path: Path, fai
     if failure == "backend-key-error":
         store.missing_packet = packet
     else:
-        blob, _ = store.get_paths(artifacts.ArtifactID.model_validate(packet))
+        blob, _ = store._paths(artifacts.ArtifactID.model_validate(packet))
         blob.rename(blob.with_suffix(".unavailable"))
     with pytest.raises(RuntimeError, match=r"^decision_validity_owner_state_corrupt$"):
         service.persist_epoch_impact_snapshot_for_targets(

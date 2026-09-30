@@ -212,9 +212,10 @@ class R1AttemptForensicProjection(_StrictModel):
 class R1ForensicReceipt(_StrictModel):
     """E10 receipt binding the paid journal prefix, CAS bytes, and R1 class."""
 
-    schema_version: Literal["policyos.layer3.gy.n13b.r1_forensics.v1"] = (
-        "policyos.layer3.gy.n13b.r1_forensics.v1"
-    )
+    schema_version: Literal[
+        "policyos.layer3.gy.n13b.r1_forensics.v1",
+        "policyos.layer3.gy.n13b.r1_forensics.v2",
+    ] = "policyos.layer3.gy.n13b.r1_forensics.v1"
     journal_ref: str = Field(min_length=1)
     journal_prefix_byte_length: int = Field(gt=0)
     journal_prefix_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -225,6 +226,10 @@ class R1ForensicReceipt(_StrictModel):
     attempts: tuple[R1AttemptForensicProjection, ...] = Field(min_length=1)
     decisive_attempt_id: str = Field(min_length=1)
     classification: WorldBankDataResponseClassification
+    cas_manifest_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
@@ -246,6 +251,16 @@ class R1ForensicReceipt(_StrictModel):
             or self.cas_blob_sha256 != self.classification.body_sha256
         ):
             raise ValueError("R1 decisive bytes must bind journal, CAS, and classification")
+        if self.schema_version == "policyos.layer3.gy.n13b.r1_forensics.v1":
+            if self.cas_manifest_sha256 is not None:
+                raise ValueError("historical R1 v1 projection cannot add manifest fields")
+        elif (
+            self.cas_blob_ref != f"cas://sha256/{self.cas_blob_sha256.removeprefix('sha256:')}/blob"
+            or self.cas_manifest_ref
+            != f"cas://sha256/{self.cas_blob_sha256.removeprefix('sha256:')}/manifest/default"
+            or self.cas_manifest_sha256 is None
+        ):
+            raise ValueError("R1 v2 must bind logical CAS locators and exact manifest bytes")
         if any(attempt.request_dataset_id != self.request_dataset_id for attempt in self.attempts):
             raise ValueError("R1 attempt denominator must preserve the exact carrier")
         if self.receipt_sha256 != content_sha256(self.identity_payload()):
@@ -255,11 +270,12 @@ class R1ForensicReceipt(_StrictModel):
     def identity_payload(self) -> dict[str, object]:
         """Return the immutable forensic projection without its self-hash."""
 
-        return {
-            key: value
-            for key, value in self.model_dump(mode="json").items()
-            if key != "receipt_sha256"
-        }
+        payload = self.model_dump(mode="json")
+        payload.pop("receipt_sha256")
+        if self.schema_version == "policyos.layer3.gy.n13b.r1_forensics.v1":
+            # Keep the historical v1 hashed projection byte-for-byte replayable.
+            payload.pop("cas_manifest_sha256")
+        return payload
 
 
 class MetadataProbeOwner(_StrictModel):
@@ -879,17 +895,19 @@ def derive_r1_forensic_receipt(
     cas_body = store.get_bytes(artifact_id)
     if cas_body != decisive_body:
         raise AcquisitionSelectionError("r1_cas_body_drift", classification.body_sha256)
-    blob_path, manifest_path = store.get_paths(artifact_id)
+    manifest_bytes = store.get_manifest_bytes(artifact_id)
+    manifest_sha256 = "sha256:" + hashlib.sha256(manifest_bytes).hexdigest()
     prefix_length = max(terminal_end_offsets)
     prefix = journal_path.read_bytes()[:prefix_length]
     values = {
-        "schema_version": "policyos.layer3.gy.n13b.r1_forensics.v1",
+        "schema_version": "policyos.layer3.gy.n13b.r1_forensics.v2",
         "journal_ref": _stable_repo_ref(journal_path),
         "journal_prefix_byte_length": prefix_length,
         "journal_prefix_sha256": f"sha256:{hashlib.sha256(prefix).hexdigest()}",
-        "cas_blob_ref": _stable_repo_ref(blob_path),
-        "cas_manifest_ref": _stable_repo_ref(manifest_path),
+        "cas_blob_ref": f"cas://sha256/{artifact_id.hex}/blob",
+        "cas_manifest_ref": f"cas://sha256/{artifact_id.hex}/manifest/default",
         "cas_blob_sha256": classification.body_sha256,
+        "cas_manifest_sha256": manifest_sha256,
         "request_dataset_id": request_dataset_id,
         "attempts": tuple(projections),
         "decisive_attempt_id": decisive_attempt_id,

@@ -924,7 +924,7 @@ def test_mutated_head_statement_under_old_pointer_fails(tmp_path: Path) -> None:
         == "advanced"
     )
     pointer_raw = index._pointer_path(owner_key).read_bytes()
-    blob_path, _ = store.get_paths(head.head_ref.artifact_id)
+    blob_path, _ = store._paths(head.head_ref.artifact_id)
     blob_path.write_bytes(blob_path.read_bytes() + b" ")
 
     resolved = index.resolve(owner_key=owner_key)
@@ -2395,7 +2395,7 @@ def test_packet_bound_snapshot_unappointed_owner_rejects_a_real_root(
 
 def test_packet_bound_snapshot_reverifies_source_bytes(packet_bound_owner_case) -> None:
     store, owner, _, packet_ref, _ = packet_bound_owner_case
-    blob_path, _ = store.get_paths(packet_ref.artifact_id)
+    blob_path, _ = store._paths(packet_ref.artifact_id)
     blob_path.write_bytes(blob_path.read_bytes() + b" ")
 
     result = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)

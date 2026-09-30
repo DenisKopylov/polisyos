@@ -587,7 +587,7 @@ def test_persisted_receipt_witness_prevents_deleted_events_from_resetting_spend(
     session.persist_receipt(witnessed)
     assert witnessed.total_spend.fraction > 0
     for event in witnessed.events:
-        blob, manifest = session._artifact_store.get_paths(
+        blob, manifest = session._artifact_store._paths(
             ArtifactID.model_validate(event.event_ref)
         )
         blob.unlink()
@@ -1723,7 +1723,7 @@ def test_missing_anchor_and_head_cannot_reset_same_scope_with_changed_root_bindi
     session = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
     spent = session.execute_check(_prepare(session))
     anchor_ref = ledger_module._cas_json_artifact_ref(session._scope_anchor_payload())
-    anchor_blob, anchor_manifest = session._artifact_store.get_paths(
+    anchor_blob, anchor_manifest = session._artifact_store._paths(
         ArtifactID.model_validate(anchor_ref)
     )
     session._head_path.unlink()
@@ -1749,7 +1749,7 @@ def test_surviving_spend_event_prevents_reset_after_pointer_artifacts_are_delete
     receipt = session.receipt()
     anchor_ref = ledger_module._cas_json_artifact_ref(session._scope_anchor_payload())
     for artifact_ref in (anchor_ref, receipt.ledger_root_ref):
-        blob, manifest = session._artifact_store.get_paths(ArtifactID.model_validate(artifact_ref))
+        blob, manifest = session._artifact_store._paths(ArtifactID.model_validate(artifact_ref))
         blob.unlink()
         manifest.unlink()
     session._head_path.unlink()
@@ -1782,7 +1782,7 @@ def test_cross_process_negative_scope_membership_is_never_cached(
                 ledger_module._cas_json_artifact_ref(child._scope_anchor_payload()),
                 receipt.ledger_root_ref,
             ):
-                blob, manifest = child._artifact_store.get_paths(
+                blob, manifest = child._artifact_store._paths(
                     ArtifactID.model_validate(artifact_ref)
                 )
                 blob.unlink()

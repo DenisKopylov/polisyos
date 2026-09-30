@@ -855,7 +855,7 @@ def test_causal_output_refusal_readback_binds_actual_manifest(
         )
     # This is an actual temporary CAS sidecar mutation, preserving payload bytes,
     # content address, node/spec/source markers, and every offered disposition.
-    _, manifest_path = ctx.store.get_paths(ref.artifact_id)
+    _, manifest_path = ctx.store._paths(ref.artifact_id)
     manifest_path.write_text(changed.model_dump_json(by_alias=True))
     with pytest.raises(ValueError):
         owner.RunCausalEvaluationNode().verify_output_dispositions(

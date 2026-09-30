@@ -25,8 +25,6 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.contracts import chronology as contract
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from polisyos.core.artifacts.signing import ArtifactSigner, DetachedSignature
 
 
@@ -50,9 +48,7 @@ class _ExactFileSystemCAS(Protocol):
 
     def put_signature(
         self, artifact_id: ArtifactRef | ArtifactID | str, signature: DetachedSignature
-    ) -> Path: ...
-
-    def get_paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]: ...
+    ) -> None: ...
 
     def verify(self, artifact_id: ArtifactRef | ArtifactID | str) -> object: ...
 
@@ -61,8 +57,8 @@ def supports_signed_evidence_repository(store: object) -> bool:
     """Return whether ``store`` exposes every required exact-byte operation.
 
     This is deliberately structural only at the adapter boundary.  Every read
-    then verifies the content identities, including the raw sidecar path.  A
-    generic store with a parsed-manifest API cannot issue anchor evidence.
+    then verifies the content identities through owner-controlled byte reads.
+    A generic store with a parsed-manifest API cannot issue anchor evidence.
     """
 
     required = (
@@ -71,7 +67,6 @@ def supports_signed_evidence_repository(store: object) -> bool:
         "get_manifest_bytes",
         "get_signature_bytes",
         "put_signature",
-        "get_paths",
         "verify",
     )
     return all(callable(getattr(store, name, None)) for name in required)

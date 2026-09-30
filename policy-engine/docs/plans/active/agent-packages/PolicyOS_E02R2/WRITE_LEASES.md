@@ -70,6 +70,22 @@ whole-file receipt. The R9 preclaim read probe is a **passing characterization
 of a leak**, not a security-closure test. Candidate writers must not treat it
 as a green guard.
 
+## R14 control API red diagnosis (2026-09-30)
+
+One direct scratch-only writer may edit only
+`policy-engine/tests/unit/runtime/http/test_control_api.py`; root remains the
+sole integration writer. This file does not overlap the active R2, R9, or R10
+candidates. The independent read-only review authorizes a bounded test split:
+an owner-bound served route must reach a persisted EvalSafety decision and stop
+before WorkspaceLoop, while the ownerless direct call must retain its typed
+scope refusal without inventing a decision. A marker-retaining restoration of
+the `tenant-unknown` fallback must turn the ownerless negative red. For the
+connector/profile discovery red, the writer may first expose the complete
+typed frontier in the failing assertion and capture the source failure; no
+production repair is leased until that reason is measured. The original-base
+outcomes of these selectors remain UNRUN, so P41 attribution is conditional.
+No test may run while another process is editing the canonical tree.
+
 ## R14/B26 static-NCM measured interaction with incomplete horizon (2026-09-30)
 
 The R13/B12 owner-WMR/N5 source and test slice was committed at `a3fb7bc0f`;

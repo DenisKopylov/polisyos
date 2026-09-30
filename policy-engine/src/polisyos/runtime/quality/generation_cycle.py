@@ -1901,26 +1901,32 @@ class StrangleReceipt(_StrictModel):
 
 
 class N6SourceCensusGateResult(_StrictModel):
-    """Three-valued source census result for the standalone N6 tooling gate.
+    """Rootless N6 source observations with production conclusions held UNRUN.
 
-    This result describes only the declared checkout source slice. It is not a
-    deployment identity, a persisted N6 receipt, or current authority evidence.
+    The AST scan records direct references inside the declared checkout slice.
+    It does not establish the served entrypoint set, rebinding effects, or the
+    loaded deployment identity, so production reachability and production-root
+    completeness are not inferred from a complete file walk.
     """
 
-    schema_version: Literal["policyos.runtime.generation_cycle.n6_source_census.v3"] = (
-        "policyos.runtime.generation_cycle.n6_source_census.v3"
+    schema_version: Literal["policyos.runtime.generation_cycle.n6_source_census.v4"] = (
+        "policyos.runtime.generation_cycle.n6_source_census.v4"
     )
-    source_verdict: Literal["pass", "fail", "UNRUN"]
+    source_verdict: Literal["UNRUN"] = "UNRUN"
+    production_path_verdict: Literal["UNRUN"] = "UNRUN"
+    production_root_and_binding_denominator: Literal["not_established"] = (
+        "not_established"
+    )
     source_scope: Literal["src/polisyos"] = "src/polisyos"
-    denominator_pattern: Literal["src/polisyos/**/*.py"] = "src/polisyos/**/*.py"
-    denominator_file_count: int = Field(ge=0)
-    denominator_complete: bool
-    denominator_path_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
-    census_rule: Literal["n6_direct_and_alias_census_v3"] = (
-        "n6_direct_and_alias_census_v3"
+    source_path_pattern: Literal["src/polisyos/**/*.py"] = "src/polisyos/**/*.py"
+    source_path_count: int = Field(ge=0)
+    source_path_enumeration_complete: bool
+    source_path_set_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    census_rule: Literal["n6_direct_reference_observation_v4"] = (
+        "n6_direct_reference_observation_v4"
     )
     semantic_census_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
-    production_callers: tuple[str, ...] = ()
+    observed_direct_calls: tuple[str, ...] = ()
     unresolved_by_construction: tuple[str, ...] = ()
     authority_currentness: Literal["UNRUN"] = "UNRUN"
     canonical_identity_binding: Literal["not_established"] = "not_established"
@@ -11599,20 +11605,24 @@ def _run_fixture_callers(repo_root: Path) -> tuple[str, ...]:
 
 
 def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
-    """Run the standalone source/deploy-time N6 census gate.
+    """Record direct N6 fixture references without asserting production reachability.
 
-    Inputs are every discovered ``src/polisyos/**/*.py`` path, its relative-path
-    denominator, and direct/aliased ``run_fixture`` references. Positive
-    direct/alias callers yield ``fail``; a no-hit scan yields ``UNRUN`` because
-    complete production roots and transitive reachability are not established.
-    Read/parse failures and dynamic dispatch remain additional UNRUN reasons.
-    This source-only gate never establishes a packaged identity or current authority.
+    Inputs are the declared ``src/polisyos/**/*.py`` path walk, the UTF-8 bytes
+    of each discovered file, and the AST forms listed in ``inputs``. This scan
+    does not derive served roots, Python binding/rebinding behavior, or loaded
+    deployment identity. Those missing denominators keep every production
+    verdict typed ``UNRUN`` even when the declared path walk is complete.
     """
 
     root = repo_root.resolve()
     source_root = root / "src" / "polisyos"
-    unresolved: set[str] = set()
-    callers: set[str] = set()
+    unresolved: set[str] = {
+        "n6_production_entrypoint_and_binding_denominator_not_established",
+        "n6_module_and_class_attribute_rebinding_not_reconciled",
+        "n6_direct_call_observations_not_reachability_proof",
+    }
+    direct_calls: set[str] = set()
+    source_bytes_by_path: dict[str, str] = {}
     source_root_present = False
     try:
         source_root_stat = source_root.stat()
@@ -11630,19 +11640,21 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
             source_root_present = True
             paths = _enumerate_n6_source_paths(source_root, unresolved)
     relative_paths = tuple(path.relative_to(root).as_posix() for path in paths)
-    denominator_digest = hashlib.sha256(
+    path_set_digest = hashlib.sha256(
         "\n".join(relative_paths).encode("utf-8")
     ).hexdigest()
     if not relative_paths:
         unresolved.add("source_denominator_empty")
-    denominator_complete = not any(
+    path_enumeration_complete = not any(
         item.startswith("source_denominator_") for item in unresolved
     )
 
     for path in paths:
         relative = path.relative_to(root).as_posix()
         try:
-            tree = ast.parse(path.read_bytes().decode("utf-8"), filename=relative)
+            source_bytes = path.read_bytes()
+            source_bytes_by_path[relative] = hashlib.sha256(source_bytes).hexdigest()
+            tree = ast.parse(source_bytes.decode("utf-8"), filename=relative)
         except (OSError, SyntaxError, UnicodeDecodeError):
             unresolved.add("source_read_or_parse_incomplete")
             continue
@@ -11706,7 +11718,7 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
                 if node.func.value.id in shadowed_owner_aliases:
                     unresolved.add("lexical_alias_shadowing_not_reconciled")
                 else:
-                    callers.add(f"{relative}:{node.lineno}")
+                    direct_calls.add(f"{relative}:{node.lineno}")
             elif isinstance(node.func, ast.Attribute) and node.func.attr == "run_fixture":
                 if _is_allowed_n6_fixture_owner_dispatch(relative, node, parent_by_node):
                     unresolved.add("allowed_fixture_reachability_not_established")
@@ -11728,23 +11740,22 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
             elif isinstance(node.func, ast.Name) and node.func.id == "run_fixture":
                 unresolved.add("unbound_run_fixture_name")
 
-    if not callers:
-        # A direct/alias negative is not a complete production-root reachability proof.
-        unresolved.add("n6_production_reachability_completeness_not_established")
-    ordered_callers = tuple(sorted(callers))
+    ordered_calls = tuple(sorted(direct_calls))
     ordered_unresolved = tuple(sorted(unresolved))
-    if ordered_callers:
-        source_verdict: Literal["pass", "fail", "UNRUN"] = "fail"
-    elif ordered_unresolved:
-        source_verdict = "UNRUN"
-    else:
-        source_verdict = "pass"
+    source_bytes_digest = "UNRUN"
+    if paths and len(source_bytes_by_path) == len(paths):
+        source_bytes_digest = hashlib.sha256(
+            json.dumps(
+                sorted(source_bytes_by_path.items()),
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
     semantic_payload = {
-        "rule": "n6_direct_and_alias_census_v3",
-        "denominator_path_sha256": denominator_digest,
-        "source_file_count": len(paths),
-        "denominator_complete": denominator_complete,
-        "production_callers": ordered_callers,
+        "rule": "n6_direct_reference_observation_v4",
+        "source_path_set_sha256": path_set_digest,
+        "source_path_count": len(paths),
+        "source_path_enumeration_complete": path_enumeration_complete,
+        "observed_direct_calls": ordered_calls,
         "unresolved_by_construction": ordered_unresolved,
     }
     semantic_digest = hashlib.sha256(
@@ -11755,21 +11766,37 @@ def inspect_n6_source_census(repo_root: Path) -> N6SourceCensusGateResult:
         ).encode("utf-8")
     ).hexdigest()
     return N6SourceCensusGateResult(
-        source_verdict=source_verdict,
-        denominator_file_count=len(paths),
-        denominator_complete=denominator_complete,
-        denominator_path_sha256=denominator_digest,
+        source_verdict="UNRUN",
+        production_path_verdict="UNRUN",
+        production_root_and_binding_denominator="not_established",
+        source_path_count=len(paths),
+        source_path_enumeration_complete=path_enumeration_complete,
+        source_path_set_sha256=path_set_digest,
         semantic_census_sha256=semantic_digest,
-        production_callers=ordered_callers,
+        observed_direct_calls=ordered_calls,
         unresolved_by_construction=ordered_unresolved,
         inputs={
-            "source_scope": "src/polisyos",
-            "denominator_pattern": "src/polisyos/**/*.py",
-            "repository_source_root_present": source_root_present,
-            "denominator_file_count": len(paths),
-            "denominator_complete": denominator_complete,
+            "declared_source_root": "repo_root/src/polisyos",
+            "source_path_pattern": "src/polisyos/**/*.py",
+            "source_path_count": len(paths),
+            "source_path_enumeration_complete": path_enumeration_complete,
+            "source_path_set_sha256": path_set_digest,
+            "source_bytes_sha256": source_bytes_digest,
+            "read_inputs": (
+                "UTF-8 byte reads and AST parse attempts for every enumerated Python source path"
+            ),
+            "searched_ast_forms": (
+                "WorkspaceLoop import/alias, name stores and parameters, run_fixture "
+                "attribute/name references, direct calls, and getattr calls"
+            ),
+            "not_reconciled": (
+                "served entrypoint denominator; module/class attribute rebinding; "
+                "dynamic runtime binding; loaded-code manifest and lock identity"
+            ),
+            "production_root_and_binding_denominator": "not_established",
             "canonical_identity_binding": "not_established",
             "identity_binding_reason": "n6_census_issuer_not_appointed",
+            "repository_source_root_present": source_root_present,
         },
     )
 

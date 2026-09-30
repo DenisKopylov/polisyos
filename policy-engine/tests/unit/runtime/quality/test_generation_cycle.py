@@ -8850,10 +8850,10 @@ def test_generation_cycle_contract_check_maps_temporary_workspace_oserror_to_unr
         contract,
         "inspect_n6_source_census",
         lambda _repo_root: contract.N6SourceCensusGateResult(
-            source_verdict="pass",
-            denominator_file_count=1,
-            denominator_complete=True,
-            denominator_path_sha256="0" * 64,
+            source_verdict="UNRUN",
+            source_path_count=1,
+            source_path_enumeration_complete=True,
+            source_path_set_sha256="0" * 64,
             semantic_census_sha256="1" * 64,
             inputs={"source_scope": "src/polisyos"},
         ),
@@ -8925,10 +8925,10 @@ def test_generation_cycle_contract_check_types_cleanup_and_preserves_evidence(
         contract,
         "inspect_n6_source_census",
         lambda _repo_root: contract.N6SourceCensusGateResult(
-            source_verdict="pass",
-            denominator_file_count=1,
-            denominator_complete=True,
-            denominator_path_sha256="0" * 64,
+            source_verdict="UNRUN",
+            source_path_count=1,
+            source_path_enumeration_complete=True,
+            source_path_set_sha256="0" * 64,
             semantic_census_sha256="1" * 64,
             inputs={"source_scope": "src/polisyos"},
         ),
@@ -9003,12 +9003,17 @@ def test_generation_cycle_contract_check_types_cleanup_and_preserves_evidence(
         assert cleanup_calls == [(type(primary), primary)]
         assert "Traceback" not in captured.out + captured.err
     else:
-        assert exit_code == 0
-        assert report["status"] == "pass"
+        assert exit_code == 2
+        assert report["status"] == "UNRUN"
+        assert any(
+            issue.get("code") == "n6_source_census_not_established"
+            for issue in report["issues"]
+        )
         assert report["measurement"]["selector_denominator"]["n6_n9_replay"] == (
             partial_measurement
         )
         assert cleanup_calls == [(None, None)]
+        assert "inspection_failure" not in report
 
 
 def test_generation_cycle_contract_validator_removal_probe_rejects_missing_run_with_markers(

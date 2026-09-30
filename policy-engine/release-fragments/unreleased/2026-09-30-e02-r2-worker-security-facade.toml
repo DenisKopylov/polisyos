@@ -1,0 +1,30 @@
+id = "2026-09-30-e02-r2-worker-security-facade"
+title = "Expose the tenant context clearing boundary"
+type = "added"
+component = "core-security"
+owner = "team-polisyos"
+summary = "Durable workers clear ambient tenant, cell and access-scope context before restoring the admitted job identity."
+evidence = ["tests/unit/core/security/test_tenant_context.py", "tests/unit/runtime/http/test_control_worker_custody.py", "docs/plans/active/agent-packages/PolicyOS_E02R2/R14_WORKER_CUSTODY_RECEIPT.md"]
+compatibility = "Adds the canonical context manager to the existing lazy security facade."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.security"
+migration = "Import clear_tenant_context and AccessScope from polisyos.core.security."
+api = "clear_tenant_context temporarily clears all three ambient context variables and restores their previous values on every exit."
+limitations = "Clearing ambient context does not establish a job owner, tenant custody or execution authority; those require persisted admission and the current worker attempt."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "core-security-clear-tenant-context"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.security"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The security facade exposes the canonical context clearing boundary used by durable workers."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

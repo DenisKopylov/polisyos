@@ -6,6 +6,18 @@ adr = "ADR-0154"
 description = "Registry-scoped diagnostic event types for serious-run authority, projection, replay, and reconciliation events."
 
 [[event_types]]
+name = "polisyos.runtime.diagnostic.scope_limited.v1"
+category = "scope_limitation"
+description = "An authority-bearing event was withheld because its owner scope is not established; this event records only the limitation."
+owner = "team-runtime-quality"
+authority_role = "projection_only"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "optional"
+
+[[event_types]]
 name = "polisyos.runtime.diagnostic.producer_execution.v1"
 category = "producer_execution"
 description = "A runtime producer executed and emitted or blocked authority-bearing evidence."

@@ -54,6 +54,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 )
 from polisyos.scientist.evidence.claims.head_index import UnappointedClaimLedgerOwner
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.runtime.http.control_service_test_support import (
     bound_nl_authorization_proof,
 )
@@ -130,9 +131,7 @@ def _build_control_service(
         retrieval_service=_NoOpRetrievalService(),
         policy_resolver=resolver,
         registry_providers=_build_registry_providers(),
-        cycle_substrate_context_admission_owner=(
-            cycle_substrate_context_admission_owner
-        ),
+        cycle_substrate_context_admission_owner=(cycle_substrate_context_admission_owner),
     )
 
 
@@ -705,9 +704,7 @@ async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n
         class _ActionController(GenerationCycleController):
             def decide_next_action(self, **kwargs):
                 decision = super().decide_next_action(**kwargs)
-                return decision.model_copy(
-                    update={"next_action": action, "reason": reason}
-                )
+                return decision.model_copy(update={"next_action": action, "reason": reason})
 
         recursive._cycle_controller_factory = lambda _node_ref, _problem: _ActionController(
             generation_port=_CounterexampleAwareGenerator(),
@@ -765,9 +762,7 @@ async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n
 
     with pytest.raises(PublicExportRedactionError) as blocked_error:
         await compile_served_projection("blocked")
-    assert blocked_error.value.code == (
-        "generation_cycle_blocked_before_n9_cannot_supply_receipt"
-    )
+    assert blocked_error.value.code == ("generation_cycle_blocked_before_n9_cannot_supply_receipt")
     assert parsed_payloads == []
     assert projection_inputs == []
 
@@ -853,9 +848,7 @@ async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -
         launch = await service.launch_nl_run(
             request,
             principal=RuntimePrincipal.from_user_claims(claims),
-            authorization_proof=bound_nl_authorization_proof(
-                claims, request
-            ),
+            authorization_proof=bound_nl_authorization_proof(claims, request),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
@@ -933,11 +926,17 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
         def refuse_publication(**_kwargs):
             pytest.fail("candidate-only compiled result entered generation publication")
 
-        monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", return_recursive_result)
+        monkeypatch.setattr(
+            service, "compile_and_run_recursive_generation_cycle", return_recursive_result
+        )
         monkeypatch.setattr(service, "resolve_generation_value_choices", refuse_s8)
         monkeypatch.setattr(service, "_publish_generation_run", refuse_publication)
 
-        service._process_control_job(record)
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None and completed.state == "completed"
@@ -957,6 +956,7 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
         assert "manifest_ref" not in progress
     finally:
         service.close()
+
 
 def _signed_generation_evidence(service, compiled, *, fault: str):
     """Explicit fixture principals permit selection only; this is no governed promotion."""
@@ -1353,7 +1353,9 @@ def test_control_service_builds_retrieval_with_injected_provider_bundle(
 
 @pytest.mark.parametrize("injected", [False, True])
 def test_control_service_preserves_real_catalog_ownership(
-    monkeypatch: pytest.MonkeyPatch, tmp_path, injected: bool,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    injected: bool,
 ) -> None:
     import json
     from types import SimpleNamespace
@@ -1364,16 +1366,37 @@ def test_control_service_preserves_real_catalog_ownership(
 
     curated = tmp_path / "curated"
     curated.mkdir()
-    (curated / "data_contracts.json").write_text(json.dumps({"contracts": [{
-        "metric_id": "recorded_owner_metric", "source_column": "value",
-        "jurisdiction": "UA", "granularity": "annual",
-    }]}))
-    (curated / "source_bindings.json").write_text(json.dumps({"bindings": [{
-        "metric_id": "recorded_owner_metric", "connector_id": "static_csv",
-        "dataset_id": "recorded_owner.csv", "trust": 0.9,
-    }]}))
+    (curated / "data_contracts.json").write_text(
+        json.dumps(
+            {
+                "contracts": [
+                    {
+                        "metric_id": "recorded_owner_metric",
+                        "source_column": "value",
+                        "jurisdiction": "UA",
+                        "granularity": "annual",
+                    }
+                ]
+            }
+        )
+    )
+    (curated / "source_bindings.json").write_text(
+        json.dumps(
+            {
+                "bindings": [
+                    {
+                        "metric_id": "recorded_owner_metric",
+                        "connector_id": "static_csv",
+                        "dataset_id": "recorded_owner.csv",
+                        "trust": 0.9,
+                    }
+                ]
+            }
+        )
+    )
     canonical = catalog_api.build_production_data_contract_catalog_graph(
-        production_root=curated, graph_root=tmp_path / "canonical_catalog",
+        production_root=curated,
+        graph_root=tmp_path / "canonical_catalog",
     )
     canonical.close()
     hint_dir = tmp_path / "empty_curated_hints"
@@ -1385,25 +1408,34 @@ def test_control_service_preserves_real_catalog_ownership(
         lambda _root: SimpleNamespace(l1_dcat_path=tmp_path / "canonical_catalog/catalog.duckdb"),
     )
     monkeypatch.setattr(
-        catalog_api, "default_acquisition_overlay_path", lambda _root: tmp_path / "absent_overlay.duckdb",
+        catalog_api,
+        "default_acquisition_overlay_path",
+        lambda _root: tmp_path / "absent_overlay.duckdb",
     )
     graph = None
     retrieval = None
     if injected:
         graph = catalog_api.DatasetCatalogGraph(
-            tmp_path / "canonical_catalog/catalog.duckdb", tmp_path / "canonical_catalog",
+            tmp_path / "canonical_catalog/catalog.duckdb",
+            tmp_path / "canonical_catalog",
         )
         retrieval = RetrievalService(
-            curated_dir=tmp_path / "catalog_only", cas_root=tmp_path / "cas",
+            curated_dir=tmp_path / "catalog_only",
+            cas_root=tmp_path / "cas",
             dataset_catalog=graph,
         )
     service = ControlPlaneService(
-        cas_root=tmp_path / "cas", core_runs_root=tmp_path / "runs",
-        artifact_store=FileSystemCAS(tmp_path / "cas"), retrieval_service=retrieval,
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        artifact_store=FileSystemCAS(tmp_path / "cas"),
+        retrieval_service=retrieval,
         registry_providers=resolve_control_registry_providers(),
         policy_resolver=RuntimeExecutionPolicyResolver(
-            default_profile="dev", worker_backend="external", state_store_backend="sqlite",
-            sqlite_path=str(tmp_path / "control.sqlite3"), postgres_dsn=None,
+            default_profile="dev",
+            worker_backend="external",
+            state_store_backend="sqlite",
+            sqlite_path=str(tmp_path / "control.sqlite3"),
+            postgres_dsn=None,
         ),
     )
     selected = service._retrieval._dataset_catalog
@@ -1417,10 +1449,13 @@ def test_control_service_preserves_real_catalog_ownership(
         assert service._retrieval.artifact_store is service._artifact_store
     # The concrete catalog resolves the declared metric; this test exercises
     # service construction/lifetime, not the separate fetch-to-N9 falsifier.
-    response = service._retrieval.resolve(DataResolveRequest(
-        data_needs=[DataNeed(metric="recorded_owner_metric")],
-        mode="fastlane", allow_explore_fallback=False,
-    ))
+    response = service._retrieval.resolve(
+        DataResolveRequest(
+            data_needs=[DataNeed(metric="recorded_owner_metric")],
+            mode="fastlane",
+            allow_explore_fallback=False,
+        )
+    )
     assert response.fetch_plans
     closed: list[bool] = []
     close = selected.close
@@ -1559,7 +1594,9 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         compiled_problems.append(problem)
         return problem
 
-    monkeypatch.setattr(generation_cycle_service, "build_design_problem_from_nl_request", run_real_compiler)
+    monkeypatch.setattr(
+        generation_cycle_service, "build_design_problem_from_nl_request", run_real_compiler
+    )
     monkeypatch.setattr(
         llm_factory,
         "create_traced_gateway_client",
@@ -1587,9 +1624,7 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         launch = await service.launch_nl_run(
             request,
             principal=RuntimePrincipal.from_user_claims(claims),
-            authorization_proof=bound_nl_authorization_proof(
-                claims, request
-            ),
+            authorization_proof=bound_nl_authorization_proof(claims, request),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
@@ -1620,15 +1655,23 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
             "build_default_recursive_generation_cycle_controller",
             reject_n6,
         )
-        service._process_control_job(record)
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None
-        if missing_scope_field == "tenant_id":
+        if missing_scope_field is not None:
             # The authenticated tenant was established at enqueue; deleting it
             # from the persisted payload is a custody mismatch, not unknown scope.
             assert completed.state == "failed"
-            assert completed.error_message == "nl_job_execution_intent_not_established"
+            assert completed.error_message == (
+                "control_job_payload_owner_scope_mismatch"
+                if missing_scope_field == "tenant_id"
+                else "nl_job_execution_intent_not_established"
+            )
             assert compiler_gateway.generate_calls == []
             assert generation_gateway._cursor == 0
             proposals = [
@@ -1700,9 +1743,7 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         assert proposal_locator["schema_version"] == (
             "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
         )
-        assert proposal_locator["artifact_ref"]["kind"] == (
-            "runtime.quality.n4_candidate_proposal"
-        )
+        assert proposal_locator["artifact_ref"]["kind"] == ("runtime.quality.n4_candidate_proposal")
         assert proposal_locator["artifact_ref"]["media_type"] == "application/json"
         repository = GenerationSourceRepository(service._artifact_store)
         proposal = repository.load_candidate_proposal_for_served_job(
@@ -1814,7 +1855,6 @@ async def _run_controlled_simulate_only_job_fixture(
                 service._artifact_store,
                 _ncm_with_cross_term(),
             )
-            base_problem, base_context, _ = _cyc01_owner_bound_n5_case()
             recording_id = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
             recording_matches = tuple(
                 item
@@ -1824,6 +1864,9 @@ async def _run_controlled_simulate_only_job_fixture(
             assert len(recording_matches) == 1
             recording = recording_matches[0]
             recorded_problem = n4_contract._design_problem(recording)
+            base_problem, base_context, _ = _cyc01_owner_bound_n5_case(
+                problem_seed=recorded_problem
+            )
             problem = recorded_problem.model_copy(
                 update={
                     "runtime_hints": {
@@ -1833,9 +1876,7 @@ async def _run_controlled_simulate_only_job_fixture(
                     },
                 }
             )
-            problem_ref = generation_cycle_service.gy_content_hash(
-                problem.model_dump(mode="json")
-            )
+            problem_ref = generation_cycle_service.gy_content_hash(problem.model_dump(mode="json"))
             world_record = _record_with_selected_ncm_ref(
                 base_context.world_model_record,
                 str(ncm_ref.artifact_id),
@@ -1844,9 +1885,7 @@ async def _run_controlled_simulate_only_job_fixture(
                 design_problem_ref=problem_ref,
                 domain=problem.domain,
                 substrate_registry=base_context.substrate_registry,
-                selected_registry_entry_hashes=(
-                    base_context.selected_registry_entry_hashes
-                ),
+                selected_registry_entry_hashes=(base_context.selected_registry_entry_hashes),
                 world_model_record=world_record,
                 intervention_substrate=base_context.intervention_substrate,
                 candidate_levers=base_context.candidate_levers,
@@ -1887,9 +1926,7 @@ async def _run_controlled_simulate_only_job_fixture(
         assert get_current_access_scope_or_none() is None
         for changed_scope in (
             verified_nl_job_scope.model_copy(update={"tenant_id": "foreign-tenant"}),
-            verified_nl_job_scope.model_copy(
-                update={"attempt": verified_nl_job_scope.attempt + 1}
-            ),
+            verified_nl_job_scope.model_copy(update={"attempt": verified_nl_job_scope.attempt + 1}),
             verified_nl_job_scope.model_copy(update={"actor_subject": "foreign-actor"}),
         ):
             assert changed_scope._was_issued_by_verified_nl_execution_owner
@@ -2019,9 +2056,9 @@ async def _run_controlled_simulate_only_job_fixture(
     service_transferred = False
     try:
         context_payload = {
-            "evaluation_safety_attempt": _valid_intake_for_mode(
-                "simulate_only"
-            ).model_dump(mode="json")
+            "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                mode="json"
+            )
         }
         request = NaturalLanguageRunRequest(
             request=problem.nl_provenance.raw_request,
@@ -2341,9 +2378,7 @@ async def _run_controlled_simulate_only_job_fixture(
             job=completed,
             compiled_payload=service._artifact_store.get_bytes(compiled_ref),
             compiled_ref=str(compiled_ref),
-            cycle_substrate_context_job_ref=progress[
-                "cycle_substrate_context_job_ref"
-            ],
+            cycle_substrate_context_job_ref=progress["cycle_substrate_context_job_ref"],
         )
         service_transferred = True
         return fixture
@@ -2432,9 +2467,7 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
         launch = await service.launch_nl_run(
             request,
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-            authorization_proof=bound_nl_authorization_proof(
-                _fixture_claims(), request
-            ),
+            authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
@@ -2458,7 +2491,11 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
             "persist_candidate_proposal",
             reject_unavailable_proposal_persistence,
         )
-        service._process_control_job(record)
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None
@@ -2505,7 +2542,9 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
         service.close()
 
 
-def test_diagnostic_event_omission_requires_real_tenant_and_cell_scope(tmp_path) -> None:
+def test_diagnostic_events_bind_admitted_scope_and_declare_unknown_attribution(tmp_path) -> None:
+    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
+
     service = _build_control_service(tmp_path)
 
     class RecordingEventLog:
@@ -2518,8 +2557,17 @@ def test_diagnostic_event_omission_requires_real_tenant_and_cell_scope(tmp_path)
 
     log = RecordingEventLog()
     service._diagnostic_event_log = log
+    unknown_scope = ControlJobExecutionScope(
+        status="not_established",
+        tenant_id=None,
+        cell_id=None,
+        actor_subject=None,
+        actor_authenticated=False,
+        actor_roles=(),
+    )
     try:
         omitted = service._emit_runtime_diagnostic_event(
+            execution_scope=unknown_scope,
             job_id="job-no-scope",
             run_id="run-no-scope",
             execution_profile="dev",
@@ -2527,32 +2575,47 @@ def test_diagnostic_event_omission_requires_real_tenant_and_cell_scope(tmp_path)
             event_type="polisyos.runtime.diagnostic.producer_execution.v1",
             payload={},
         )
-        assert omitted is None
-        assert not log.events
+        assert omitted is not None and omitted.scope_status == "not_established"
+        assert len(log.events) == 1
+        assert log.events[-1].tenant_id == "tenant-unknown"
+        assert log.events[-1].cell_id == "cell-unknown"
 
         placeholder_scope_omitted = service._emit_runtime_diagnostic_event(
+            execution_scope=unknown_scope,
             job_id="job-placeholder-scope",
             run_id="run-placeholder-scope",
             execution_profile="dev",
             phase="job_execution",
             event_type="polisyos.runtime.diagnostic.producer_execution.v1",
-            payload={"tenant_id": "tenant-unknown", "cell_id": "cell-unknown"},
+            payload={"tenant_id": "tenant-real", "cell_id": "cell-real"},
         )
-        assert placeholder_scope_omitted is None
-        assert not log.events
+        assert placeholder_scope_omitted is not None
+        assert placeholder_scope_omitted.scope_status == "not_established"
+        assert len(log.events) == 2
+        assert log.events[-1].tenant_id == "tenant-unknown"
+        assert log.events[-1].cell_id == "cell-unknown"
 
         emitted = service._emit_runtime_diagnostic_event(
+            execution_scope=ControlJobExecutionScope(
+                status="established",
+                tenant_id="tenant-real",
+                cell_id="cell-real",
+                actor_subject="diagnostic-owner",
+                actor_authenticated=True,
+                actor_roles=("analyst",),
+            ),
             job_id="job-scoped",
             run_id="run-scoped",
             execution_profile="dev",
             phase="job_execution",
             event_type="polisyos.runtime.diagnostic.producer_execution.v1",
-            payload={"tenant_id": "tenant-real", "cell_id": "cell-real"},
+            payload={"tenant_id": "payload-foreign", "cell_id": "payload-foreign"},
         )
         assert emitted is not None
-        assert len(log.events) == 1
-        assert log.events[0].tenant_id == "tenant-real"
-        assert log.events[0].cell_id == "cell-real"
+        assert emitted.scope_status == "established"
+        assert len(log.events) == 3
+        assert log.events[-1].tenant_id == "tenant-real"
+        assert log.events[-1].cell_id == "cell-real"
     finally:
         service.close()
 
@@ -2575,6 +2638,7 @@ def test_eval_safety_closure_refuses_absent_tenant_instead_of_fabricating_one(
     from polisyos.runtime.http.services.control.workspace_loop_transition import (
         _WorkflowExecutionNonAuthorityError,
     )
+    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
 
     service = _build_control_service(tmp_path)
     intake = SimpleNamespace(
@@ -2589,6 +2653,14 @@ def test_eval_safety_closure_refuses_absent_tenant_instead_of_fabricating_one(
         requested_execution_profile="dev",
         effective_execution_profile="dev",
     )
+    execution_scope = ControlJobExecutionScope(
+        status="not_established",
+        tenant_id=None,
+        cell_id=None,
+        actor_subject=None,
+        actor_authenticated=False,
+        actor_roles=(),
+    )
     try:
         with pytest.raises(
             _WorkflowExecutionNonAuthorityError,
@@ -2598,6 +2670,7 @@ def test_eval_safety_closure_refuses_absent_tenant_instead_of_fabricating_one(
                 intake=intake,
                 job=job,
                 payload=payload,
+                execution_scope=execution_scope,
             )
         assert raised.value.progress["status"] == "not_established"
         assert raised.value.progress["eval_safety_blocker_codes"] == [

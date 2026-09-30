@@ -1075,7 +1075,7 @@
         {
           "module": "polisyos.core.security",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 105,
+          "export_count": 106,
           "exports": [
             "C3_CANONICAL_CODECS",
             "SECURITY_ASSURANCE_REPORT_REF_KEY",
@@ -1164,6 +1164,7 @@
             "build_retention_package",
             "build_security_assurance_report",
             "canonical_statement_bytes",
+            "clear_tenant_context",
             "get_current_access_scope_or_none",
             "get_current_cell_id",
             "get_current_tenant_id",

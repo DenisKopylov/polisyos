@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from time import monotonic
 
 from polisyos.common.logger import get_logger
+from polisyos.core.security import clear_tenant_context
 from polisyos.runtime.http.errors import (
     RuntimeDependencyTimeoutError,
     RuntimeDependencyUnavailableError,
@@ -56,13 +57,8 @@ def _worker_trace_context(job: ControlJobRecord) -> dict[str, str | None]:
 
 
 def _worker_tenant_context(job: ControlJobRecord) -> tuple[str, str]:
-    details = _job_progress_details(job)
-    tenant_id = details.get("tenant_id") or details.get("tenant")
-    cell_id = details.get("cell_id") or details.get("cell")
-    return (
-        str(tenant_id or "tenant-unknown"),
-        str(cell_id or "cell-unknown"),
-    )
+    del job
+    return "tenant-unknown", "cell-unknown"
 
 
 def _worker_handoff_refs(job: ControlJobRecord) -> tuple[str, ...]:
@@ -246,14 +242,18 @@ class ControlWorker:
         try:
             execution_fence = getattr(self._store, "job_execution_fence", None)
             if callable(execution_fence):
-                with execution_fence(
-                    job_id=job.job_id,
-                    worker_id=self._worker_id,
-                    attempt=job.attempt,
+                with (
+                    execution_fence(
+                        job_id=job.job_id,
+                        worker_id=self._worker_id,
+                        attempt=job.attempt,
+                    ),
+                    clear_tenant_context(),
                 ):
                     self._handler(job)
             else:
-                self._handler(job)
+                with clear_tenant_context():
+                    self._handler(job)
         finally:
             self._emit_worker_diagnostic_event(
                 job=job,

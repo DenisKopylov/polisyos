@@ -4,13 +4,15 @@ import json
 import time
 from dataclasses import replace
 from pathlib import Path
+from threading import Event, Thread, current_thread
 
 import pytest
 
 from polisyos.core.contracts import ControlFailureEnvelope
 from polisyos.core.contracts.control import WorkflowRunRequest
+from polisyos.core.security.tenant_context import clear_tenant_context, tenant_scope
 from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
-from polisyos.pdc import OperationClass
+from polisyos.pdc import OperationClass, SearchTerminalKind
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
 from polisyos.runtime.http.services.control.workspace_loop_transition import (
@@ -21,6 +23,10 @@ from polisyos.runtime.quality.workspace import loop as workspace_loop_module
 from polisyos.runtime.quality.workspace.loop import WorkspaceLoopRunProof
 from polisyos.runtime.quality.workspace.s2_design_search_operation import (
     S2_DESIGN_SEARCH_OPERATION_ID,
+)
+from tests._helpers.control_worker import (
+    dispatch_one_control_job,
+    stop_embedded_control_worker,
 )
 
 
@@ -39,12 +45,44 @@ def _build_slice0_catalog(tmp_path: Path):
     return build_slice0_fixture_catalog_graph(tmp_path)
 
 
+def _launch_owner_bound_workflow(runtime_api_env, request: WorkflowRunRequest):
+    """Use the fixture's admitted storage owner for a controller positive control."""
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    stop_embedded_control_worker(service)
+    principal = RuntimePrincipal(
+        subject="workspace-owner-control",
+        authenticated=True,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        roles=frozenset({"analyst"}),
+    )
+    with tenant_scope(
+        None,
+        tenant_id=principal.tenant_id,
+        cell_id=principal.cell_id,
+    ):
+        # The shared fixture's root blob is not an admitted tenant input. Create
+        # a controlled input through the supplied store with this exact owner.
+        input_ref = service._put_json_artifact(  # noqa: SLF001
+            {"candidate_input": "owner-bound-workspace-control", "params": request.params},
+            kind="test.owner_bound_workspace_input",
+            schema_name="test.OwnerBoundWorkspaceInput",
+        )
+        request = request.model_copy(
+            update={
+                "data_source": request.data_source.model_copy(
+                    update={"data_snapshot_ref": input_ref}
+                )
+            }
+        )
+        return service.launch_workflow_run(request, principal=principal)
+
+
 def _layer2_s2_design_search_input() -> dict[str, object]:
     repository_root = Path(__file__).resolve().parents[4]
     proving_case = json.loads(
         (
-            repository_root
-            / "architecture/policy_design_case/layer2_first_proving_case.json"
+            repository_root / "architecture/policy_design_case/layer2_first_proving_case.json"
         ).read_text(encoding="utf-8")
     )
     manifest = json.loads(
@@ -72,18 +110,24 @@ def _layer2_s2_design_search_input() -> dict[str, object]:
     }
 
 
-def _s2_artifact_census(cas_root: Path) -> dict[str, int]:
+def _s2_artifact_census(cas_root: Path) -> dict[str, dict[str, int]]:
+    """Count distinct typed blob identities across every manifest view."""
     expected = {
         "policyos.layer2_s2.design_record_v0",
         "policyos.layer2_s2.search_ledger",
         "policyos.pdc.run_bound_design_record_binding",
     }
-    counts = dict.fromkeys(expected, 0)
+    identities: dict[str, set[str]] = {kind: set() for kind in expected}
+    manifest_views = dict.fromkeys(expected, 0)
     for path in cas_root.glob("artifacts/sha256/*/*/*.manifest.json"):
-        kind = json.loads(path.read_text(encoding="utf-8"))["kind"]
-        if kind in counts:
-            counts[kind] += 1
-    return counts
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        if manifest["kind"] in identities:
+            identities[manifest["kind"]].add(manifest["artifact_id"])
+            manifest_views[manifest["kind"]] += 1
+    return {
+        "typed_artifacts": {kind: len(artifact_ids) for kind, artifact_ids in identities.items()},
+        "manifest_views": manifest_views,
+    }
 
 
 def _s2_registry_with_fault(fault: str):
@@ -194,7 +238,7 @@ def test_workflow_request_defaults_to_workspace_loop_transition(runtime_api_env)
         params={"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
     )
 
-    launch = service.launch_workflow_run(request)
+    launch = _launch_owner_bound_workflow(runtime_api_env, request)
     assert service._worker is not None
     service._worker.dispatch_once()
 
@@ -217,22 +261,525 @@ def test_workflow_request_defaults_to_workspace_loop_transition(runtime_api_env)
     readback = proof.surface_readbacks[0]
     assert readback["surface"] == "/api/v1/control/runs"
     assert readback["observed_job_state"] == "completed"
-    assert readback["observed_search_exit_contract_ref"] == response.progress[
-        "search_exit_contract_ref"
-    ]
+    assert (
+        readback["observed_search_exit_contract_ref"]
+        == response.progress["search_exit_contract_ref"]
+    )
     assert readback["matched_search_exit_contract_ref"] is True
 
 
-def test_http_control_route_persists_production_and_replay_proofs(runtime_api_env) -> None:
+def test_completed_job_readback_does_not_write_while_worker_finalizes_proof(
+    runtime_api_env,
+    monkeypatch,
+) -> None:
+    """A status reader observes completion without borrowing the worker's custody."""
     service: ControlPlaneService = runtime_api_env["app"].state._control_service
-    client = runtime_api_env["client"]
-    service._artifact_store.record_artifact_owner(
-        runtime_api_env["root_artifact_id"],
-        tenant_id=runtime_api_env["tenant_a"],
-        cell_id=runtime_api_env["cell_a"],
-        writer="test_http_control_route_persists_production_and_replay_proofs",
+    stop_embedded_control_worker(service)
+    finalizer_entered = Event()
+    release_finalizer = Event()
+    worker_done = Event()
+    worker_errors: list[BaseException] = []
+    finalize = service._finalize_workspace_loop_run_proof
+
+    def paused_worker_finalizer(*, job_id: str, endpoint: str) -> None:
+        if current_thread() is dispatch_thread:
+            finalizer_entered.set()
+            if not release_finalizer.wait(15):
+                raise AssertionError("reader did not release the worker finalizer")
+        finalize(job_id=job_id, endpoint=endpoint)
+
+    def dispatch() -> None:
+        try:
+            assert service._worker is not None
+            assert service._worker.dispatch_once()
+        except BaseException as exc:
+            worker_errors.append(exc)
+        finally:
+            worker_done.set()
+
+    dispatch_thread = Thread(target=dispatch, name="proof-finalization-worker")
+    monkeypatch.setattr(service, "_finalize_workspace_loop_run_proof", paused_worker_finalizer)
+    launch = _launch_owner_bound_workflow(
+        runtime_api_env,
+        WorkflowRunRequest(
+            data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
+            params={"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
+        ),
+    )
+    dispatch_thread.start()
+    try:
+        assert finalizer_entered.wait(15), "worker never reached post-completion finalization"
+        before = service._control_store.get_job(launch.job_id)
+        assert before is not None and before.state == "completed"
+        with clear_tenant_context():
+            response = service.get_job_status(launch.job_id)
+        after = service._control_store.get_job(launch.job_id)
+        assert after is not None
+        assert response.state == "completed"
+        assert response.approval_projection.eligible is False
+        assert after.progress == before.progress
+        pending_proof = ProductionLoopRunProof.model_validate(
+            response.progress["production_loop_run_proof"]
+        )
+        assert "runs_readback" not in pending_proof.surface_reads_checked
+        assert not pending_proof.surface_readbacks
+        assert not worker_done.is_set()
+    finally:
+        release_finalizer.set()
+        dispatch_thread.join(15)
+    assert not dispatch_thread.is_alive()
+    assert not worker_errors
+    final = service.get_job_status(launch.job_id)
+    final_proof = ProductionLoopRunProof.model_validate(final.progress["production_loop_run_proof"])
+    assert final_proof.control_store_state_transitions == ["pending", "running", "completed"]
+    assert final_proof.surface_readbacks[0]["observed_job_state"] == "completed"
+    assert final_proof.surface_readbacks[0]["matched_search_exit_contract_ref"] is True
+
+
+def test_unclaimed_candidate_worker_carries_limitation_to_served_readback(
+    runtime_api_env,
+    monkeypatch,
+) -> None:
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.tenant_context import (
+        clear_tenant_context,
+        get_current_access_scope_or_none,
+        get_current_cell_id,
+        get_current_tenant_id_or_none,
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
+    from polisyos.pdc import (
+        AuthorityBoundary,
+        assert_ring2_verifier_provenance,
+        gy_content_hash,
+    )
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        _ControlJobExecutionScopeLimitation,
+    )
+    from polisyos.runtime.quality.authority import authority_surface_decision
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _AllowOPA,
+        _build_secure_client,
+        _claims,
+        _fixture_bearer,
     )
 
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    if service._worker is not None:
+        service._worker.stop()
+    # This controller/worker witness starts from genuinely unclaimed candidate
+    # input. It does not waive HTTP authentication or tenant-owned CAS access,
+    # and does not establish the R1 owner-bound N4 -> N5 -> S8 capability.
+    with clear_tenant_context():
+        input_ref = service._put_json_artifact(  # noqa: SLF001
+            {"root": True, "candidate_input": "unclaimed-r14-control"},
+            kind="test.unclaimed_candidate_input",
+            schema_name="test.UnclaimedCandidateInput",
+        )
+        launch = service.launch_workflow_run(
+            WorkflowRunRequest(
+                data_source={"data_snapshot_ref": input_ref},
+                params={
+                    "slice0_fixture_id": "ua_msme_credit_worldbank_measurement",
+                    "tenant_id": "tenant-forged-payload",
+                    "cell_id": "cell-forged-payload",
+                    "runtime_identity": {
+                        "tenant_id": "tenant-runtime-forged",
+                        "cell_id": "cell-runtime-forged",
+                    },
+                },
+            ),
+            principal=RuntimePrincipal(),
+        )
+    job_id = launch.job_id
+
+    reads: list[tuple[str | None, str | None, object]] = []
+    original_load = service._load_payload_ref  # noqa: SLF001
+
+    def observe_worker_scope(ref: str):
+        reads.append(
+            (
+                get_current_tenant_id_or_none(),
+                get_current_cell_id(),
+                get_current_access_scope_or_none(),
+            )
+        )
+        return original_load(ref)
+
+    monkeypatch.setattr(service, "_load_payload_ref", observe_worker_scope)
+    transition_calls: list[dict[str, object]] = []
+    original_transition = service._execute_workflow_control_transition  # noqa: SLF001
+
+    def observe_real_transition(state_payload, checkpoint_policy, **kwargs):
+        transition_calls.append(dict(state_payload))
+        return original_transition(state_payload, checkpoint_policy, **kwargs)
+
+    monkeypatch.setattr(
+        service,
+        "_execute_workflow_control_transition",
+        observe_real_transition,
+    )
+    unadmitted_contracts: list[dict[str, object]] = []
+    original_output_admission = service._limit_workspace_contract_authority_for_execution_scope  # noqa: SLF001
+
+    def observe_output_admission(contract, *, execution_scope_status):
+        unadmitted_contracts.append(contract.model_dump(mode="json"))
+        return original_output_admission(
+            contract,
+            execution_scope_status=execution_scope_status,
+        )
+
+    monkeypatch.setattr(
+        service,
+        "_limit_workspace_contract_authority_for_execution_scope",
+        observe_output_admission,
+    )
+    poison = AccessScope.for_service(
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        spiffe_id="spiffe://r14/unknown-workflow-poison",
+    )
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        token = set_current_access_scope(poison)
+        try:
+            dispatched_job_id = dispatch_one_control_job(
+                store=service._control_store,  # noqa: SLF001
+                handler=service._process_control_job,  # noqa: SLF001
+                expected_job_id=job_id,
+            )
+        finally:
+            reset_current_access_scope(token)
+    assert dispatched_job_id == job_id
+
+    completed = service.get_job_status(job_id)
+    assert completed.state == "completed"
+    assert transition_calls
+    assert not {"tenant_id", "cell_id", "runtime_identity"}.intersection(
+        transition_calls[0]["params"]
+    )
+    assert reads and all(
+        tenant is None and cell is None and scope is None for tenant, cell, scope in reads
+    )
+    assert completed.progress["execution_scope_status"] == "not_established"
+    assert completed.progress["execution_scope_limitation"] == {
+        "schema_version": "polisyos.runtime.control_execution_scope_limitation.v1",
+        "status": "not_established",
+        "code": "control_job_execution_scope_not_established",
+        "candidate_work": "unclaimed_only",
+        "authority": "withheld",
+    }
+    assert completed.progress["authority_result"] == "candidate_only"
+    assert completed.approval_projection.eligible is False
+    contract_ref = completed.progress["search_exit_contract_ref"]
+    assert contract_ref.startswith("sha256:")
+    stored_contract = from_canonical_bytes(service._artifact_store.get_bytes(contract_ref))  # noqa: SLF001
+    contract_payload = completed.progress["search_exit_contract"]
+    assert stored_contract == contract_payload
+    assert_ring2_verifier_provenance(
+        workspace_loop_module.WorkspaceSearchExitContract.model_validate(stored_contract),
+        context={"writer_role": "workspace_candidate_output"},
+    )
+    assert stored_contract["decision_grade"] == "unsupported"
+    assert stored_contract["authority_derivation_traces"] == []
+    assert stored_contract["authority_boundary"] is None
+    for envelope in stored_contract["artifact_envelopes"]:
+        assert envelope["certified_operation_envelope"] is None
+        assert envelope["authority_boundary"] is None
+        assert envelope["verification"]["latest_promotion_result"] is None
+
+    limited_decision = authority_surface_decision(
+        stored_contract,
+        surface="run",
+        purpose="estimate:ua_msme_credit_worldbank_measurement",
+        enforce_time_source=False,
+        enforce_s12=False,
+        enforce_candidate_firewall=False,
+    )
+    assert limited_decision.status == "blocked"
+    assert limited_decision.reason == "authority_boundary_missing"
+    limited_cas_decision = authority_surface_decision(
+        None,
+        surface="run",
+        purpose="estimate:ua_msme_credit_worldbank_measurement",
+        artifact_store=service._artifact_store,  # noqa: SLF001
+        artifact_id=contract_ref,
+        enforce_time_source=False,
+        enforce_s12=False,
+        enforce_candidate_firewall=False,
+    )
+    assert limited_cas_decision.status == "blocked"
+    assert limited_cas_decision.reason == "authority_boundary_missing"
+    assert limited_cas_decision.integrity_status == "verified"
+    assert "cas_integrity" in limited_cas_decision.composed_gate_inputs
+
+    # Removal probe: restore the real pre-admission contract while preserving
+    # the served unknown-scope marker. The same consumer must expose the precise
+    # boundary this owner gate removes.
+    assert len(unadmitted_contracts) == 1
+    unadmitted_contract = unadmitted_contracts[0]
+    assert unadmitted_contract["authority_boundary"] is not None
+    unadmitted_with_marker = {
+        **unadmitted_contract,
+        "execution_scope_status": "not_established",
+        "execution_scope_limitation": completed.progress["execution_scope_limitation"],
+    }
+    removal_probe = authority_surface_decision(
+        unadmitted_with_marker,
+        surface="run",
+        purpose="estimate:ua_msme_credit_worldbank_measurement",
+        enforce_time_source=False,
+        enforce_s12=False,
+        enforce_candidate_firewall=False,
+    )
+    assert removal_probe.status == "allowed"
+
+    served_readback = runtime_api_env["client"].get(f"/api/v1/control/jobs/{job_id}")
+    assert served_readback.status_code == 200, served_readback.text
+    served_progress = served_readback.json()["progress"]
+    assert (
+        served_progress["execution_scope_limitation"]
+        == completed.progress["execution_scope_limitation"]
+    )
+    assert served_progress["authority_result"] == "candidate_only"
+    assert served_progress["search_exit_contract"] == stored_contract
+    typed_limitation = _ControlJobExecutionScopeLimitation.model_validate(
+        served_progress["execution_scope_limitation"]
+    )
+    assert typed_limitation.status == "not_established"
+    assert typed_limitation.authority == "withheld"
+
+    proof = ProductionLoopRunProof.model_validate(completed.progress["production_loop_run_proof"])
+    assert proof.output_replay_proof_ref is not None
+    output_refs = {
+        *proof.output_cas_refs,
+        proof.output_search_exit_contract_ref,
+        *(completed.progress.get("authority_derivation_trace_refs") or []),
+        *(completed.progress.get("artifacts_index", {}).get("output_artifact_payload_refs") or []),
+        completed.progress["production_loop_run_proof_ref"],
+        stored_contract["workspace_contract_ref"],
+    }
+    if proof.output_replay_proof_ref is not None:
+        output_refs.add(proof.output_replay_proof_ref)
+    assert output_refs
+    assert not completed.progress.get("authority_derivation_trace_refs")
+    assert proof.output_search_exit_contract_ref == contract_ref
+    assert completed.progress["search_ledger_ref"] in proof.output_cas_refs
+    assert proof.output_replay_proof_ref in proof.output_cas_refs
+
+    # Census the full owner-emitted artifact family. No typed boundary may
+    # survive in its contract or ledger; replay/run proofs use the same refs.
+    output_payload_refs = set(
+        completed.progress.get("artifacts_index", {}).get("output_artifact_payload_refs", [])
+    )
+    workspace_contract_ref = stored_contract["workspace_contract_ref"]
+    owner_output_refs = output_refs - output_payload_refs - {workspace_contract_ref}
+    persisted_output_payloads = {
+        artifact_ref: from_canonical_bytes(service._artifact_store.get_bytes(artifact_ref))  # noqa: SLF001
+        for artifact_ref in owner_output_refs
+    }
+    assert (
+        persisted_output_payloads[completed.progress["search_ledger_ref"]]
+        == (stored_contract["search_ledger"])
+    )
+
+    def collect_authority_boundaries(value):
+        if isinstance(value, dict):
+            if set(AuthorityBoundary.model_fields).issubset(value):
+                yield value
+                return
+            for item in value.values():
+                yield from collect_authority_boundaries(item)
+        elif isinstance(value, list):
+            for item in value:
+                yield from collect_authority_boundaries(item)
+
+    emitted_boundaries = [
+        boundary_payload
+        for payload in persisted_output_payloads.values()
+        for boundary_payload in collect_authority_boundaries(payload)
+    ]
+    assert not emitted_boundaries
+    for payload in persisted_output_payloads.values():
+        decision = authority_surface_decision(
+            payload,
+            surface="run",
+            purpose="estimate:ua_msme_credit_worldbank_measurement",
+            enforce_time_source=False,
+            enforce_s12=False,
+            enforce_candidate_firewall=False,
+        )
+        assert decision.status != "allowed"
+
+    assert persisted_output_payloads[contract_ref] == stored_contract
+    assert (
+        persisted_output_payloads[proof.output_replay_proof_ref]["output_hash"]
+        == (completed.progress["outcome_replay_proof"]["output_hash"])
+    )
+    assert persisted_output_payloads[proof.output_replay_proof_ref]["output_hash"] == (
+        gy_content_hash(stored_contract)
+    )
+    persisted_run_proof = ProductionLoopRunProof.model_validate(
+        persisted_output_payloads[completed.progress["production_loop_run_proof_ref"]]
+    )
+    assert persisted_run_proof.output_cas_refs == proof.output_cas_refs
+
+    runtime_container = runtime_api_env["app"].state.runtime_container
+    artifact_client, artifact_cell, artifact_provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        container_overrides=RuntimeContainerOverrides(
+            runtime_api_context=runtime_container.runtime_api_context,
+            control_service=service,
+            decision_validity_service=service._decision_validity_service,
+            claim_ledger_owner=service._epoch_claim_lifecycle_bridge.claim_owner,
+            epoch_claim_lifecycle_bridge=service._epoch_claim_lifecycle_bridge,
+        ),
+    )
+    for tenant_id in (runtime_api_env["tenant_a"], runtime_api_env["tenant_b"]):
+        bearer = _fixture_bearer(f"r14-unscoped-output-{tenant_id}")
+        artifact_provider.put_claim(
+            bearer,
+            _claims(
+                tenant_id=tenant_id,
+                cell_id=artifact_cell.cell_id,
+                jti=f"jwt-r14-unscoped-output-{tenant_id}",
+            ),
+        )
+        headers = {
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": tenant_id,
+        }
+        for artifact_ref in sorted(output_refs):
+            artifact_response = artifact_client.get(
+                f"/api/v1/artifacts/{artifact_ref}",
+                headers=headers,
+            )
+            assert artifact_response.status_code == 403, artifact_response.text
+            assert artifact_response.json()["code"] in {
+                "artifact_tenant_unscoped",
+                "artifact_tenant_mismatch",
+            }
+    artifact_client.close()
+
+    admission = service._control_store.get_job_created_event_payload(job_id)  # noqa: SLF001
+    assert admission["execution_scope"]["status"] == "not_established"
+    diagnostic = next(
+        item
+        for item in service._control_store.list_diagnostic_events(job_id=job_id)  # noqa: SLF001
+        if item.event.phase == "job_execution"
+        and item.event.event_type == "polisyos.runtime.diagnostic.phase_transition.v1"
+    )
+    assert diagnostic.event.tenant_id == "tenant-unknown"
+    assert diagnostic.event.cell_id == "cell-unknown"
+    assert diagnostic.payload_inline is not None
+    assert diagnostic.payload_inline["job_kind"] == "workflow_run"
+    assert diagnostic.payload_inline["execution_scope"]["status"] == "not_established"
+    assert diagnostic.payload_inline["execution_scope"]["source"] == "job_admission"
+
+
+def test_phase2_run_context_uses_worker_tenant_without_access_scope(tmp_path) -> None:
+    """Workspace RunContext carries admitted storage identity, never ambient auth."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
+    from polisyos.core.security.tenant_context import (
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
+
+    loop = workspace_loop_module.WorkspaceLoop(
+        artifact_store=FileSystemCAS(tmp_path / "workspace-cas")
+    )
+    poisoned_access = AccessScope(
+        tenant_id="tenant-poison",
+        cell_id="cell-poison",
+        principal_type="user",
+        user_sub="poisoned-request",
+        roles=frozenset({PolicyOSRole.ADMIN}),
+        max_pii_tier=PIIAccessLevel.HIGH,
+        mfa_verified=True,
+    )
+    with tenant_scope(None, tenant_id="tenant-admitted", cell_id="cell-admitted"):
+        token = set_current_access_scope(poisoned_access)
+        try:
+            execution_context, _ = loop._phase2_context(workspace_id="admitted-scope")
+        finally:
+            reset_current_access_scope(token)
+
+    assert execution_context.run.tenant_id == "tenant-admitted"
+    assert execution_context.run.cell_id == "cell-admitted"
+    assert execution_context.run.access_scope is None
+
+
+def test_http_control_route_persists_production_and_replay_proofs(
+    runtime_api_env, monkeypatch
+) -> None:
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.identity import PolicyOSRole
+    from polisyos.core.security.tenant_context import (
+        get_current_access_scope_or_none,
+        get_current_cell_id,
+        get_current_tenant_id_or_none,
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.quality.authority import authority_surface_decision
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _AllowOPA,
+        _build_secure_client,
+        _claims,
+        _fixture_bearer,
+    )
+
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    runtime_container = runtime_api_env["app"].state.runtime_container
+    bearer = _fixture_bearer("r14-served-workflow-custody")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        container_overrides=RuntimeContainerOverrides(
+            runtime_api_context=runtime_container.runtime_api_context,
+            control_service=service,
+            decision_validity_service=service._decision_validity_service,
+            claim_ledger_owner=service._epoch_claim_lifecycle_bridge.claim_owner,
+            epoch_claim_lifecycle_bridge=service._epoch_claim_lifecycle_bridge,
+        ),
+    )
+    admitted_tenant = runtime_api_env["tenant_b"]
+    admitted_cell = cell.cell_id
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=admitted_tenant,
+            cell_id=admitted_cell,
+            jti="jwt-r14-served-workflow-custody",
+            roles=frozenset({PolicyOSRole.ANALYST}),
+        ),
+    )
+    service._artifact_store.record_artifact_owner(
+        runtime_api_env["root_artifact_id"],
+        tenant_id=admitted_tenant,
+        cell_id=admitted_cell,
+        writer="test_http_control_route_persists_production_and_replay_proofs",
+    )
+    stop_embedded_control_worker(service)
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": admitted_tenant,
+    }
     launch_response = client.post(
         "/api/v1/control/runs",
         json={
@@ -243,23 +790,55 @@ def test_http_control_route_persists_production_and_replay_proofs(runtime_api_en
                 "slice0_fixture_id": "ua_msme_credit_worldbank_measurement",
             },
         },
-        headers={"X-Request-ID": "gy-l-http-route-proof"},
+        headers={**headers, "X-Request-ID": "gy-l-http-route-proof"},
     )
-    assert launch_response.status_code == 200
+    assert launch_response.status_code == 200, launch_response.text
     launch = launch_response.json()
-    assert service._worker is not None
-    deadline = time.monotonic() + 15.0
-    readback_response = client.get(f"/api/v1/control/jobs/{launch['job_id']}")
-    while (
-        readback_response.json()["state"] in {"pending", "running"}
-        and time.monotonic() < deadline
-    ):
-        service._worker.dispatch_once()
-        time.sleep(0.02)
-        readback_response = client.get(
-            f"/api/v1/control/jobs/{launch['job_id']}",
-            headers={"X-Request-ID": "gy-l-http-readback-proof"},
-        )
+    job = service._control_store.get_job(str(launch["job_id"]))
+    assert job is not None
+    reads: list[tuple[str, str | None, str | None, object]] = []
+    capture = {"active": True}
+    original_load_payload = service._load_payload_ref
+
+    def capture_job_reads(ref: str):
+        if capture["active"] and ref in {job.payload_ref, job.capability_manifest_ref}:
+            reads.append(
+                (
+                    ref,
+                    get_current_tenant_id_or_none(),
+                    get_current_cell_id(),
+                    get_current_access_scope_or_none(),
+                )
+            )
+        return original_load_payload(ref)
+
+    monkeypatch.setattr(service, "_load_payload_ref", capture_job_reads)
+    poison = AccessScope.for_service(
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=admitted_cell,
+        spiffe_id="spiffe://r14/poisoned-dispatch-context",
+    )
+
+    access_token = set_current_access_scope(poison)
+    try:
+        with tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=admitted_cell,
+        ):
+            dispatched_job_id = dispatch_one_control_job(
+                store=service._control_store,  # noqa: SLF001
+                handler=service._process_control_job,  # noqa: SLF001
+                expected_job_id=str(launch["job_id"]),
+            )
+    finally:
+        reset_current_access_scope(access_token)
+    assert dispatched_job_id == launch["job_id"]
+    readback_response = client.get(
+        f"/api/v1/control/jobs/{launch['job_id']}",
+        headers={**headers, "X-Request-ID": "gy-l-http-readback-proof"},
+    )
+    capture["active"] = False
     assert readback_response.status_code == 200
     progress = readback_response.json()["progress"]
     proof = ProductionLoopRunProof.model_validate(progress["production_loop_run_proof"])
@@ -269,19 +848,132 @@ def test_http_control_route_persists_production_and_replay_proofs(runtime_api_en
     assert proof.http_request_id == "gy-l-http-route-proof"
     assert proof.control_store_state_transitions == ["pending", "running", "completed"]
     assert proof.output_replay_proof_ref.startswith("sha256:")
+    assert progress["authority_result"] == "verifier_stamped"
+    assert progress["search_exit_contract"]["authority_boundary"]["authoritative_for"] != ["none"]
+    assert (
+        "control_job_execution_scope_not_established"
+        not in progress["search_exit_contract"]["authority_boundary"]["known_limits"]
+    )
+    estimate_decision = authority_surface_decision(
+        progress,
+        surface="run",
+        purpose="estimate:ua_msme_credit_worldbank_measurement",
+        enforce_time_source=False,
+        enforce_s12=False,
+        enforce_candidate_firewall=False,
+    )
+    closeout_decision = authority_surface_decision(
+        progress,
+        surface="run",
+        purpose="runtime_closeout_authority",
+        enforce_time_source=False,
+        enforce_s12=False,
+        enforce_candidate_firewall=False,
+    )
+    assert estimate_decision.status == "allowed"
+    # This direct reader is outside the authenticated HTTP request; supply the
+    # same admitted storage owner rather than relying on a leaked request scope.
+    with tenant_scope(None, tenant_id=admitted_tenant, cell_id=admitted_cell):
+        estimate_cas_decision = authority_surface_decision(
+            None,
+            surface="run",
+            purpose="estimate:ua_msme_credit_worldbank_measurement",
+            artifact_store=service._artifact_store,  # noqa: SLF001
+            artifact_id=progress["search_exit_contract_ref"],
+            enforce_time_source=False,
+            enforce_s12=False,
+            enforce_candidate_firewall=False,
+        )
+    assert estimate_cas_decision.status == "allowed"
+    assert estimate_cas_decision.integrity_status == "verified"
+    assert closeout_decision.status == "downgraded"
+    assert closeout_decision.reason == "authority_purpose_not_authorized"
     assert "outcome_replay_proof_ref" in proof.artifacts_index_refs
     assert progress["outcome_replay_proof"]["replay_levels"] == ["A", "B", "C"]
     assert progress["outcome_replay_proof"]["output_hash"].startswith("sha256:")
     assert progress["outcome_replay_proof"]["input_hashes"]
+    assert {row[0] for row in reads} >= {job.payload_ref, job.capability_manifest_ref}
+    assert all(
+        tenant_id == admitted_tenant and cell_id == admitted_cell and access_scope is None
+        for _, tenant_id, cell_id, access_scope in reads
+    )
+    diagnostics = service._control_store.list_diagnostic_events(job_id=job.job_id)
+    service_diagnostics = [
+        item for item in diagnostics if item.event.event_source == "polisyos.runtime.control"
+    ]
+    worker_diagnostics = [
+        item for item in diagnostics if item.event.event_source == "polisyos.runtime.worker"
+    ]
+    assert service_diagnostics
+    assert worker_diagnostics
+    assert all(
+        item.event.tenant_id == admitted_tenant and item.event.cell_id == admitted_cell
+        for item in service_diagnostics
+    )
+    assert all(
+        item.event.tenant_id == "tenant-unknown" and item.event.cell_id == "cell-unknown"
+        for item in worker_diagnostics
+    )
+    client.close()
 
 
 def test_s2_design_search_real_http_worker_closes_run_bound_case(
     runtime_api_env,
 ) -> None:
-    client = runtime_api_env["client"]
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.identity import PolicyOSRole
+    from polisyos.core.security.tenant_context import (
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _AllowOPA,
+        _build_secure_client,
+        _claims,
+        _fixture_bearer,
+    )
+
     service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    runtime_container = runtime_api_env["app"].state.runtime_container
+    bearer = _fixture_bearer("r14-s2-admitted-scope-candidate")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        container_overrides=RuntimeContainerOverrides(
+            runtime_api_context=runtime_container.runtime_api_context,
+            control_service=service,
+            decision_validity_service=service._decision_validity_service,
+            claim_ledger_owner=service._epoch_claim_lifecycle_bridge.claim_owner,
+            epoch_claim_lifecycle_bridge=service._epoch_claim_lifecycle_bridge,
+        ),
+    )
+    admitted_tenant = runtime_api_env["tenant_b"]
+    admitted_cell = cell.cell_id
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=admitted_tenant,
+            cell_id=admitted_cell,
+            jti="jwt-r14-s2-admitted-scope-candidate",
+            roles=frozenset({PolicyOSRole.ANALYST}),
+        ),
+    )
+    service._artifact_store.record_artifact_owner(
+        runtime_api_env["root_artifact_id"],
+        tenant_id=admitted_tenant,
+        cell_id=admitted_cell,
+        writer="test_s2_design_search_real_http_worker_closes_run_bound_case",
+    )
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": admitted_tenant,
+    }
     search_input = _layer2_s2_design_search_input()
     before = _s2_artifact_census(Path(runtime_api_env["cas_root"]))
+    stop_embedded_control_worker(service)
 
     launch_response = client.post(
         "/api/v1/control/runs",
@@ -293,50 +985,68 @@ def test_s2_design_search_real_http_worker_closes_run_bound_case(
                 "layer2_s2_design_search_input": search_input,
             },
         },
+        headers=headers,
     )
     assert launch_response.status_code == 200, launch_response.text
     launch = launch_response.json()
-    assert service._worker is not None
-    deadline = time.monotonic() + 15.0
-    job_response = client.get(f"/api/v1/control/jobs/{launch['job_id']}")
-    while (
-        job_response.json()["state"] in {"pending", "running"}
-        and time.monotonic() < deadline
-    ):
-        service._worker.dispatch_once()
-        time.sleep(0.02)
-        job_response = client.get(f"/api/v1/control/jobs/{launch['job_id']}")
+    poison = AccessScope.for_service(
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        spiffe_id="spiffe://r14/s2-poisoned-dispatch-context",
+    )
+    token = set_current_access_scope(poison)
+    try:
+        with tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        ):
+            dispatched_job_id = dispatch_one_control_job(
+                store=service._control_store,  # noqa: SLF001
+                handler=service._process_control_job,  # noqa: SLF001
+                expected_job_id=str(launch["job_id"]),
+            )
+    finally:
+        reset_current_access_scope(token)
+    assert dispatched_job_id == launch["job_id"]
+    job_response = client.get(f"/api/v1/control/jobs/{launch['job_id']}", headers=headers)
 
     assert job_response.status_code == 200
     job = job_response.json()
     assert job["state"] == "completed", job
-    assert job["progress"]["workspace_operation_id"] == (
-        "phase2.refine.layer2_s2_design_search"
-    )
+    assert job["progress"]["workspace_operation_id"] == ("phase2.refine.layer2_s2_design_search")
+    assert job["progress"]["authority_result"] == "candidate_only"
+    assert job["progress"]["approval_projection"]["eligible"] is False
     after = _s2_artifact_census(Path(runtime_api_env["cas_root"]))
-    assert {kind: after[kind] - before[kind] for kind in before} == {
+    assert {
+        kind: after["typed_artifacts"][kind] - before["typed_artifacts"][kind]
+        for kind in before["typed_artifacts"]
+    } == {
         "policyos.layer2_s2.design_record_v0": 1,
         "policyos.layer2_s2.search_ledger": 1,
         "policyos.pdc.run_bound_design_record_binding": 1,
     }
+    assert all(
+        after["manifest_views"][kind] > before["manifest_views"][kind]
+        for kind in before["typed_artifacts"]
+    )
 
-    paper_response = client.get(f"/api/v1/runs/{launch['run_id']}/paper")
+    paper_response = client.get(f"/api/v1/runs/{launch['run_id']}/paper", headers=headers)
     assert paper_response.status_code == 200, paper_response.text
     packet = paper_response.json()
     binding = packet["case_record"]["design_record_binding"]
-    assert packet["case_record"]["availability"] == (
-        "record_available_authority_abstaining"
-    )
+    assert packet["case_record"]["availability"] == ("record_available_authority_abstaining")
     assert binding["run_id"] == launch["run_id"]
-    assert binding["tenant_id"] == runtime_api_env["tenant_a"]
-    assert binding["cell_id"] == runtime_api_env["cell_a"]
+    assert binding["tenant_id"] == admitted_tenant
+    assert binding["cell_id"] == admitted_cell
     assert binding["case_id"] == search_input["case_id"]
-    assert packet["run"]["tenant_id"] == runtime_api_env["tenant_a"]
-    assert packet["run"]["cell_id"] == runtime_api_env["cell_a"]
+    assert packet["run"]["tenant_id"] == admitted_tenant
+    assert packet["run"]["cell_id"] == admitted_cell
     assert packet["source"]["manifest_ref"] == job["progress"]["manifest_ref"]
+    client.close()
 
 
-def test_s2_design_search_real_http_worker_tenantless_refuses_with_zero_pdc_writes(
+def test_s2_unclaimed_controller_worker_tenantless_refuses_with_zero_pdc_writes(
     runtime_api_env,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -344,44 +1054,66 @@ def test_s2_design_search_real_http_worker_tenantless_refuses_with_zero_pdc_writ
     service: ControlPlaneService = runtime_api_env["app"].state._control_service
     producer_calls: list[object] = []
 
-    monkeypatch.setattr(
-        "polisyos.runtime.http.routes.control._get_principal",
-        lambda _request: RuntimePrincipal(
-            subject="tenantless-falsifier",
-            authenticated=True,
-            tenant_id=None,
-            cell_id=None,
-        ),
-    )
-
     def _producer_must_not_run(value: object):
         producer_calls.append(value)
         raise AssertionError("S2 producer ran without tenant authority")
 
     monkeypatch.setattr(
-        "polisyos.runtime.quality.workspace.s2_design_search_operation."
-        "run_s2_shadow_design_loop",
+        "polisyos.runtime.quality.workspace.s2_design_search_operation.run_s2_shadow_design_loop",
         _producer_must_not_run,
     )
     before = _s2_artifact_census(Path(runtime_api_env["cas_root"]))
-    launch_response = client.post(
-        "/api/v1/control/runs",
-        json={
-            "data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
-            "params": {
-                "control_plane_transition": "workspace_loop",
-                "workspace_operation_id": "phase2.refine.layer2_s2_design_search",
-                "layer2_s2_design_search_input": _layer2_s2_design_search_input(),
-                "tenant_id": "tenant-unknown",
-                "cell_id": "forged-cell",
-            },
-        },
-    )
-    assert launch_response.status_code == 200, launch_response.text
-    launch = launch_response.json()
+    stop_embedded_control_worker(service)
+    # Reach the S2 owner gate through genuinely unclaimed controller input.
+    # Anonymous HTTP intake and tenant-owned artifact access remain protected.
+    with clear_tenant_context():
+        input_ref = service._put_json_artifact(  # noqa: SLF001
+            {"candidate_input": "unclaimed-s2-owner-negative"},
+            kind="test.unclaimed_s2_input",
+            schema_name="test.UnclaimedS2Input",
+        )
+        launch = service.launch_workflow_run(
+            WorkflowRunRequest(
+                data_source={"data_snapshot_ref": input_ref},
+                params={
+                    "control_plane_transition": "workspace_loop",
+                    "workspace_operation_id": "phase2.refine.layer2_s2_design_search",
+                    "layer2_s2_design_search_input": _layer2_s2_design_search_input(),
+                    "tenant_id": runtime_api_env["tenant_a"],
+                    "cell_id": runtime_api_env["cell_a"],
+                },
+            ),
+            principal=RuntimePrincipal(),
+        ).model_dump(mode="json")
     assert service._worker is not None
-    service._worker.dispatch_once()
-    response = _await_terminal_job(service, launch["job_id"])
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.tenant_context import (
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
+
+    poison = AccessScope.for_service(
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        spiffe_id="spiffe://r14/s2-unknown-scope-poison",
+    )
+    token = set_current_access_scope(poison)
+    try:
+        with tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        ):
+            dispatched_job_id = dispatch_one_control_job(
+                store=service._control_store,  # noqa: SLF001
+                handler=service._process_control_job,  # noqa: SLF001
+                expected_job_id=str(launch["job_id"]),
+            )
+    finally:
+        reset_current_access_scope(token)
+    assert dispatched_job_id == launch["job_id"]
+    response = service.get_job_status(str(launch["job_id"]))
 
     assert response.state == "failed"
     assert response.runtime_state == "blocked"
@@ -395,9 +1127,7 @@ def test_s2_design_search_real_http_worker_tenantless_refuses_with_zero_pdc_writ
         code="run_bound_design_record_tenant_scope_missing",
         layer="pdc.gy",
         phase="s2_design_search_persist",
-        message=(
-            "Run-bound DesignRecord persistence requires a verified ambient tenant scope."
-        ),
+        message=("Run-bound DesignRecord persistence requires a verified ambient tenant scope."),
         retryable=False,
         next_action=(
             "Re-launch under an authenticated principal with a verified tenant scope; "
@@ -417,9 +1147,12 @@ def test_s2_design_search_real_http_worker_tenantless_refuses_with_zero_pdc_writ
     assert response.failure.artifact_refs == {}
     assert producer_calls == []
     assert _s2_artifact_census(Path(runtime_api_env["cas_root"])) == before
+    served = client.get(f"/api/v1/control/jobs/{launch['job_id']}")
+    assert served.status_code == 200, served.text
+    assert served.json()["failure"]["code"] == expected_failure.code
     rendered_progress = json.dumps(response.progress, sort_keys=True)
-    assert "tenant-unknown" not in rendered_progress
-    assert "forged-cell" not in rendered_progress
+    assert runtime_api_env["tenant_a"] not in rendered_progress
+    assert runtime_api_env["cell_a"] not in rendered_progress
 
 
 @pytest.mark.parametrize(
@@ -482,31 +1215,123 @@ def test_s2_design_search_real_http_worker_refuses_untrusted_registry_rows_befor
     assert _s2_artifact_census(Path(runtime_api_env["cas_root"])) == before
 
 
+@pytest.mark.parametrize("scope_established", [True, False])
+@pytest.mark.parametrize(
+    "terminal_kind", ["acquisition_required", "search_ceiling_repair_required"]
+)
+@pytest.mark.parametrize("boundary_present", [True, False])
 def test_workspace_loop_non_authority_terminal_is_not_verifier_stamped(
     runtime_api_env,
+    monkeypatch,
+    scope_established: bool,
+    terminal_kind: str,
+    boundary_present: bool,
 ) -> None:
-    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    from polisyos.runtime.quality.authority import authority_surface_decision
 
-    launch = service.launch_workflow_run(
-        WorkflowRunRequest(
-            data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
-            params={"slice0_fixture_id": "tourism_local_development_ceiling_probe"},
-        )
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    original_fixture = service._run_workspace_loop_fixture  # noqa: SLF001
+
+    def run_non_authority_fixture(**kwargs):
+        contract = original_fixture(**kwargs)
+        assert (contract.authority_boundary is not None) is boundary_present
+        if boundary_present or terminal_kind == "search_ceiling_repair_required":
+            # Inject a typed search-repair result at the owner/consumer boundary;
+            # the real controller must preserve it under either custody scope.
+            terminal = contract.terminal_state.model_copy(
+                update={
+                    "kind": SearchTerminalKind(terminal_kind),
+                    "reason": "Controlled non-authority terminal.",
+                }
+            )
+            # Preserve the actual verifier-owned estimate objects. Recreating
+            # their Ring-2 fields from JSON would rightly fail writer admission
+            # before reaching the terminal/authority composition under test.
+            contract = contract.model_copy(update={"terminal_state": terminal})
+        return contract
+
+    monkeypatch.setattr(service, "_run_workspace_loop_fixture", run_non_authority_fixture)
+    request = WorkflowRunRequest(
+        data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
+        params={
+            "slice0_fixture_id": (
+                "ua_msme_credit_worldbank_measurement"
+                if boundary_present
+                else "tourism_local_development_ceiling_probe"
+            )
+        },
     )
+    if scope_established:
+        launch = _launch_owner_bound_workflow(runtime_api_env, request)
+    else:
+        with clear_tenant_context():
+            input_ref = service._put_json_artifact(  # noqa: SLF001
+                {"candidate_input": f"non-authority-{terminal_kind}"},
+                kind="test.unclaimed_search_terminal_input",
+                schema_name="test.UnclaimedSearchTerminalInput",
+            )
+            request = request.model_copy(
+                update={
+                    "data_source": request.data_source.model_copy(
+                        update={"data_snapshot_ref": input_ref}
+                    )
+                }
+            )
+            launch = service.launch_workflow_run(request, principal=RuntimePrincipal())
     assert service._worker is not None
     service._worker.dispatch_once()
 
     response = _await_terminal_job(service, launch.job_id)
     assert response.state == "completed"
     assert response.progress["authority_path"] == "workspace_loop"
-    assert response.progress["authority_result"] == "acquisition_required"
-    assert response.progress["search_exit_contract"]["terminal_state"]["kind"] == (
-        "acquisition_required"
+    expected_result = (
+        "acquisition_required" if terminal_kind == "acquisition_required" else "repair_required"
     )
-    assert response.progress["search_exit_contract"]["authority_boundary"] is None
-    assert response.progress["authority_derivation_trace_refs"] == []
+    assert response.progress["authority_result"] == expected_result
+    assert response.progress["search_exit_contract"]["terminal_state"]["kind"] == (terminal_kind)
+    if not scope_established or not boundary_present:
+        assert response.progress["search_exit_contract"]["authority_boundary"] is None
+        assert response.progress["authority_derivation_trace_refs"] == []
     assert response.quality_status == "fail"
-    assert any(gate.code == "acquisition_required" for gate in response.quality_gates)
+    assert any(gate.code == terminal_kind for gate in response.quality_gates)
+    assert response.approval_projection.eligible is False
+    projected_decision = authority_surface_decision(
+        response.progress,
+        surface="run",
+        purpose="runtime_closeout_authority",
+        enforce_time_source=False,
+        enforce_s12=False,
+        enforce_candidate_firewall=False,
+    )
+    assert projected_decision.status != "allowed"
+    assert projected_decision.blocking or projected_decision.visible_downgrade
+    if scope_established and boundary_present:
+        # An independently scoped estimate survives; it cannot approve the run.
+        boundary = response.progress["search_exit_contract"]["authority_boundary"]
+        assert boundary is not None
+        assert "runtime_closeout_authority" not in boundary["authoritative_for"]
+        estimate_decision = authority_surface_decision(
+            response.progress["search_exit_contract"],
+            surface="run",
+            purpose="estimate:ua_msme_credit_worldbank_measurement",
+            enforce_time_source=False,
+            enforce_s12=False,
+            enforce_candidate_firewall=False,
+        )
+        assert estimate_decision.status == "allowed"
+        assert estimate_decision.consumed_authority_boundary
+        wrong_purpose_decision = authority_surface_decision(
+            response.progress["search_exit_contract"],
+            surface="run",
+            purpose="estimate:another_case",
+            enforce_time_source=False,
+            enforce_s12=False,
+            enforce_candidate_firewall=False,
+        )
+        assert wrong_purpose_decision.status != "allowed"
+        assert wrong_purpose_decision.visible_downgrade
+    if not scope_established:
+        assert response.progress["execution_scope_status"] == "not_established"
 
 
 def test_workflow_transition_uses_injected_catalog_and_persists_measurement_payload(
@@ -521,11 +1346,12 @@ def test_workflow_transition_uses_injected_catalog_and_persists_measurement_payl
         gy_catalog_graph=catalog,
     )
 
-    launch = service.launch_workflow_run(
+    launch = _launch_owner_bound_workflow(
+        runtime_api_env,
         WorkflowRunRequest(
             data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
             params={"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
-        )
+        ),
     )
     assert service._worker is not None
     service._worker.dispatch_once()
@@ -537,12 +1363,19 @@ def test_workflow_transition_uses_injected_catalog_and_persists_measurement_payl
 
     assert response.state == "completed"
     assert measurement_payload_ref in proof.output_cas_refs
-    assert service._artifact_store.get_bytes(measurement_payload_ref)
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        assert service._artifact_store.get_bytes(measurement_payload_ref)
     assert proof.artifacts_index_refs[0] == "search_exit_contract_ref"
     assert "authority_derivation_trace_refs" in proof.artifacts_index_refs
 
 
-def test_legacy_workflow_shadow_cannot_emit_authority_completed_result(runtime_api_env, monkeypatch) -> None:
+def test_legacy_workflow_shadow_cannot_emit_authority_completed_result(
+    runtime_api_env, monkeypatch
+) -> None:
     service: ControlPlaneService = runtime_api_env["app"].state._control_service
     request = WorkflowRunRequest(
         data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
@@ -552,7 +1385,10 @@ def test_legacy_workflow_shadow_cannot_emit_authority_completed_result(runtime_a
 
     def _legacy_success(*_args, **_kwargs):
         called["run_experiment"] = True
-        return {"status": "success", "authority_boundary": {"decision_grade": "decision_admissible"}}
+        return {
+            "status": "success",
+            "authority_boundary": {"decision_grade": "decision_admissible"},
+        }
 
     monkeypatch.setattr("polisyos.scientist.api.run_experiment", _legacy_success)
 
@@ -570,11 +1406,14 @@ def test_legacy_workflow_shadow_cannot_emit_authority_completed_result(runtime_a
         expected_result="candidate_only",
     )
     assert response.operator_diagnostic is not None
-    assert response.operator_diagnostic.authority_refs["authority_boundary"] == response.progress[
-        "authority_boundary"
-    ]["boundary_id"]
+    assert (
+        response.operator_diagnostic.authority_refs["authority_boundary"]
+        == response.progress["authority_boundary"]["boundary_id"]
+    )
     assert response.quality_status == "fail"
-    assert any(gap.code == "legacy_shadow_candidate_only" for gap in response.unresolved_authority_gaps)
+    assert any(
+        gap.code == "legacy_shadow_candidate_only" for gap in response.unresolved_authority_gaps
+    )
 
 
 def test_failed_workflow_result_is_blocked_across_authority_surfaces(
@@ -616,18 +1455,22 @@ def test_failed_workflow_result_is_blocked_across_authority_surfaces(
         expected_result="blocked",
     )
     assert response.operator_diagnostic is not None
-    assert response.operator_diagnostic.authority_refs["authority_boundary"] == response.progress[
-        "authority_boundary"
-    ]["boundary_id"]
+    assert (
+        response.operator_diagnostic.authority_refs["authority_boundary"]
+        == response.progress["authority_boundary"]["boundary_id"]
+    )
     assert response.failure is not None
     assert response.failure.code == "workflow_failed_non_authority"
     assert response.failure.operator_diagnostic is not None
-    assert response.failure.operator_diagnostic.authority_refs["authority_boundary"] == (
-        response.progress["authority_boundary"]["boundary_id"]
+    assert (
+        response.failure.operator_diagnostic.authority_refs["authority_boundary"]
+        == (response.progress["authority_boundary"]["boundary_id"])
     )
     assert response.quality_status == "fail"
     assert response.approval_projection.eligible is False
-    assert any(gap.code == "workflow_failed_non_authority" for gap in response.unresolved_authority_gaps)
+    assert any(
+        gap.code == "workflow_failed_non_authority" for gap in response.unresolved_authority_gaps
+    )
 
 
 def test_workspace_loop_exception_is_blocked_across_authority_surfaces(
@@ -664,8 +1507,9 @@ def test_workspace_loop_exception_is_blocked_across_authority_surfaces(
     assert response.failure is not None
     assert response.failure.code == "workspace_loop_failed_non_authority"
     assert response.failure.operator_diagnostic is not None
-    assert response.failure.operator_diagnostic.authority_refs["authority_boundary"] == (
-        response.progress["authority_boundary"]["boundary_id"]
+    assert (
+        response.failure.operator_diagnostic.authority_refs["authority_boundary"]
+        == (response.progress["authority_boundary"]["boundary_id"])
     )
     assert any(
         gap.code == "workspace_loop_failed_non_authority"
@@ -704,11 +1548,13 @@ def test_failed_workflow_authority_packet_is_visible_through_http_job_route(
     packet = body["progress"]["authority_surface_packet"]
     assert body["state"] == "failed"
     assert body["failure"]["code"] == "workflow_failed_non_authority"
-    assert body["operator_diagnostic"]["authority_refs"]["authority_boundary"] == (
-        boundary["boundary_id"]
+    assert (
+        body["operator_diagnostic"]["authority_refs"]["authority_boundary"]
+        == (boundary["boundary_id"])
     )
-    assert body["failure"]["operator_diagnostic"]["authority_refs"]["authority_boundary"] == (
-        boundary["boundary_id"]
+    assert (
+        body["failure"]["operator_diagnostic"]["authority_refs"]["authority_boundary"]
+        == (boundary["boundary_id"])
     )
     assert packet["boundary"] == boundary
     for surface_name in ("run", "artifact", "lineage", "export", "dashboard", "public_packet"):
@@ -721,7 +1567,9 @@ def test_failed_workflow_authority_packet_is_visible_through_http_job_route(
     }
 
 
-def test_failed_legacy_workflow_does_not_complete_clean_as_authority(runtime_api_env, monkeypatch) -> None:
+def test_failed_legacy_workflow_does_not_complete_clean_as_authority(
+    runtime_api_env, monkeypatch
+) -> None:
     service: ControlPlaneService = runtime_api_env["app"].state._control_service
     request = WorkflowRunRequest(
         data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
@@ -755,7 +1603,16 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
 ) -> None:
     """The authorized public route persists N4 while authority stages remain unrun."""
     import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
+    from polisyos.core.security.access_scope import AccessScope
     from polisyos.core.security.identity import PolicyOSRole
+    from polisyos.core.security.tenant_context import (
+        get_current_access_scope_or_none,
+        get_current_cell_id,
+        get_current_tenant_id_or_none,
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.permissions import RuntimePermission
     from polisyos.runtime.http.services.control import nl_pipeline
@@ -834,10 +1691,11 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
             epoch_claim_lifecycle_bridge=service._epoch_claim_lifecycle_bridge,
         ),
     )
+    admitted_tenant = runtime_api_env["tenant_b"]
     provider.put_claim(
         bearer,
         _claims(
-            tenant_id=runtime_api_env["tenant_a"],
+            tenant_id=admitted_tenant,
             cell_id=cell.cell_id,
             jti="jwt-control-r5-n4-positive-candidate",
             roles=frozenset({PolicyOSRole.ANALYST}),
@@ -846,8 +1704,9 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
     cell_id = cell.cell_id
     headers = {
         "Authorization": f"Bearer {bearer}",
-        "X-Tenant-ID": runtime_api_env["tenant_a"],
+        "X-Tenant-ID": admitted_tenant,
     }
+    stop_embedded_control_worker(service)
     request_body = {
         "request": raw_request,
         "llm_model": model_id,
@@ -878,6 +1737,38 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         job_id = str(launch["job_id"])
         job = service._control_store.get_job(job_id)
         assert job is not None
+        reads: list[tuple[str, str | None, str | None, object]] = []
+        original_load = service._load_payload_ref
+        original_require_binding = service._require_nl_job_execution_intent_binding
+        binding_results: list[dict[str, object]] = []
+        read_events: list[str] = []
+
+        def capture_job_artifact_read(ref: str):
+            if ref in {job.payload_ref, job.capability_manifest_ref}:
+                kind = "payload" if ref == job.payload_ref else "manifest"
+                read_events.append(kind)
+                reads.append(
+                    (
+                        kind,
+                        get_current_tenant_id_or_none(),
+                        get_current_cell_id(),
+                        get_current_access_scope_or_none(),
+                    )
+                )
+            return original_load(ref)
+
+        def capture_execution_binding(**kwargs):
+            result = original_require_binding(**kwargs)
+            binding_results.append(result)
+            read_events.append("binding")
+            return result
+
+        monkeypatch.setattr(service, "_load_payload_ref", capture_job_artifact_read)
+        monkeypatch.setattr(
+            service,
+            "_require_nl_job_execution_intent_binding",
+            capture_execution_binding,
+        )
 
         def reject_downstream(*_args, **_kwargs):
             pytest.fail("candidate-only N4 entered a downstream authority stage")
@@ -889,10 +1780,28 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
             "build_default_recursive_generation_cycle_controller",
             reject_downstream,
         )
-        assert service._worker is not None
-        service._worker.dispatch_once()
+        poison = AccessScope.for_service(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell_id,
+            spiffe_id="spiffe://r14/poisoned-nl-dispatch-context",
+        )
 
-        completed = _await_terminal_job(service, job_id)
+        access_token = set_current_access_scope(poison)
+        try:
+            with tenant_scope(
+                None,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=cell_id,
+            ):
+                dispatched_job_id = dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=job_id,
+                )
+        finally:
+            reset_current_access_scope(access_token)
+        assert dispatched_job_id == job_id
+        completed = service.get_job_status(job_id)
         assert completed.state == "completed"
         assert compiler_gateway.generate_calls
         assert generation_gateway._cursor > 0
@@ -908,13 +1817,15 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         assert completed.progress.get("normative_disposition_ref") is None
         assert completed.progress.get("manifest_ref") is None
 
-        payload = service._load_payload_ref(str(job.payload_ref))
-        assert payload["tenant_id"] == runtime_api_env["tenant_a"]
-        assert payload["cell_id"] == cell_id
-        intent_binding = service._require_nl_job_execution_intent_binding(
-            job=job,
-            payload=payload,
+        assert binding_results
+        intent_binding = binding_results[0]
+        assert {item[0] for item in reads} >= {"payload", "manifest"}
+        assert all(
+            tenant_id == admitted_tenant and observed_cell == cell_id and access_scope is None
+            for _kind, tenant_id, observed_cell, access_scope in reads
         )
+        assert read_events.index("payload") < read_events.index("manifest")
+        assert read_events.index("manifest") < read_events.index("binding")
         assert intent_binding["admission_surface"] == "served_route"
         assert intent_binding["intent_band"] == "candidate_only"
         authorization_receipt = intent_binding["authorization_receipt"]
@@ -923,52 +1834,47 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         assert permission_snapshot["required_permission"] == RuntimePermission.RUNS_LAUNCH.value
         assert permission_snapshot["subject"] == "user-1"
         assert permission_snapshot["jwt_id"] == "jwt-control-r5-n4-positive-candidate"
-        assert permission_snapshot["tenant_id"] == runtime_api_env["tenant_a"]
+        assert permission_snapshot["tenant_id"] == admitted_tenant
         assert permission_snapshot["roles"] == [PolicyOSRole.ANALYST.value]
-        assert authorization_receipt["resource"]["tenant_id"] == runtime_api_env["tenant_a"]
+        assert authorization_receipt["resource"]["tenant_id"] == admitted_tenant
         proposal_locator = completed.progress["candidate_proposal_ref"]
         assert proposal_locator["schema_version"] == (
             "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
         )
-        assert proposal_locator["artifact_ref"]["kind"] == (
-            "runtime.quality.n4_candidate_proposal"
-        )
-        proposal = GenerationSourceRepository(
-            service._artifact_store
-        ).load_candidate_proposal_for_served_job(
-            proposal_locator,
-            job_id=job_id,
-            run_id=str(job.run_id),
-            tenant_id=runtime_api_env["tenant_a"],
-            cell_id=cell_id,
-            raw_request=raw_request,
-        )
+        assert proposal_locator["artifact_ref"]["kind"] == ("runtime.quality.n4_candidate_proposal")
+        with tenant_scope(None, tenant_id=admitted_tenant, cell_id=cell_id):
+            proposal = GenerationSourceRepository(
+                service._artifact_store
+            ).load_candidate_proposal_for_served_job(
+                proposal_locator,
+                job_id=job_id,
+                run_id=str(job.run_id),
+                tenant_id=admitted_tenant,
+                cell_id=cell_id,
+                raw_request=raw_request,
+            )
         assert proposal.problem.nl_provenance.raw_request == raw_request
-        assert proposal.problem.nl_provenance.source_context["tenant_id"] == (
-            runtime_api_env["tenant_a"]
-        )
+        assert proposal.problem.nl_provenance.source_context["tenant_id"] == (admitted_tenant)
         assert proposal.problem.nl_provenance.source_context["cell_id"] == cell_id
         assert proposal.problem.nl_provenance.source_context["job_id"] == job.job_id
         assert proposal.problem.nl_provenance.source_context["run_id"] == str(job.run_id)
         assert "runtime_identity" not in proposal.problem.nl_provenance.source_context
         intent_envelope = proposal.problem.to_policy_intent_envelope()
-        assert intent_envelope["tenant_id"] == runtime_api_env["tenant_a"]
+        assert intent_envelope["tenant_id"] == admitted_tenant
         assert intent_envelope["job_id"] == job.job_id
         assert intent_envelope["run_id"] == str(job.run_id)
-        assert (
-            intent_envelope["authoring_provenance"]["source_context"]["cell_id"]
-            == cell_id
-        )
+        assert intent_envelope["authoring_provenance"]["source_context"]["cell_id"] == cell_id
         compiler_context = json.loads(compiler_gateway.generate_calls[0]["user"])["context"]
         assert "runtime_identity" not in compiler_context
         assert not set(compiler_context["candidate_context"]).intersection(
             {"tenant_id", "cell_id", "job_id", "run_id", "runtime_identity"}
         )
-        assert compiler_context["tenant_id"] == runtime_api_env["tenant_a"]
+        assert compiler_context["tenant_id"] == admitted_tenant
         assert compiler_context["cell_id"] == cell_id
         assert compiler_context["job_id"] == job.job_id
         assert compiler_context["run_id"] == str(job.run_id)
-        persisted_request = service._load_payload_ref(str(job.payload_ref))
+        with tenant_scope(None, tenant_id=admitted_tenant, cell_id=cell_id):
+            persisted_request = original_load(str(job.payload_ref))
         assert persisted_request["context"]["tenant_id"] == "tenant-request-foreign"
         assert (
             persisted_request["context"]["runtime_identity"]["cell_id"]

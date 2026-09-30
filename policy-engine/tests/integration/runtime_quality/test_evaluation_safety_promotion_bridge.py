@@ -10,12 +10,18 @@ import pytest
 
 from polisyos.core import canon
 from polisyos.core.contracts.control import WorkflowRunRequest
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.services.control.evaluation_safety import (
     EvaluationSafetyPromotionSourceSlot,
 )
+from tests._helpers.control_worker import dispatch_one_control_job
+from tests.integration.runtime_quality.test_evaluation_safety_admission import (
+    _PRINCIPAL as _ADMISSION_FIXTURE_PRINCIPAL,
+)
 from tests.integration.runtime_quality.test_evaluation_safety_admission import (
     _field_pilot_intake,
+    _launch_fixture_workflow,
     _run_blocked_attempt,
 )
 from tests.unit.runtime.http.control_service_test_support import (
@@ -28,10 +34,26 @@ from tests.unit.runtime.http.test_control_service_di import (
 )
 
 
-def _resolution(service, terminal):
-    ref = terminal.progress["eval_safety_promotion_source_resolution_ref"]
-    assert terminal.progress["artifacts_index"]["eval_safety_promotion_source_resolution_ref"] == ref
-    return canon.from_canonical_bytes(service._artifact_store.get_bytes(ref))
+def _within_owner(owner: RuntimePrincipal, function, *args, **kwargs):
+    """Run fixture operations under the supplied principal tenant/cell scope."""
+    assert owner.tenant_id is not None
+    assert owner.cell_id is not None
+    with tenant_scope(None, tenant_id=owner.tenant_id, cell_id=owner.cell_id):
+        return function(*args, **kwargs)
+
+
+def _resolution(service, terminal, *, owner: RuntimePrincipal):
+    def read_resolution():
+        ref = terminal.progress["eval_safety_promotion_source_resolution_ref"]
+        assert (
+            terminal.progress["artifacts_index"][
+                "eval_safety_promotion_source_resolution_ref"
+            ]
+            == ref
+        )
+        return canon.from_canonical_bytes(service._artifact_store.get_bytes(ref))
+
+    return _within_owner(owner, read_resolution)
 
 
 def test_production_empty_slot_persists_named_absence_and_ignores_request_verdict(
@@ -40,7 +62,9 @@ def test_production_empty_slot_persists_named_absence_and_ignores_request_verdic
     result = _run_blocked_attempt(tmp_path, monkeypatch, {"consumer_promotable": True})
     service = result["service"]
     try:
-        resolution = _resolution(service, result["terminal"])
+        resolution = _resolution(
+            service, result["terminal"], owner=_ADMISSION_FIXTURE_PRINCIPAL
+        )
         assert resolution["requested_source_run_ids"] == []
         assert resolution["inputs_read"] == []
         assert resolution["refusal_reasons"] == ["promotion_source_slot_empty"]
@@ -53,30 +77,48 @@ def test_production_empty_slot_persists_named_absence_and_ignores_request_verdic
 
 
 def test_unreadable_selected_run_is_ambiguous_and_cannot_change_safety(tmp_path, monkeypatch):
-    service = _build_control_service(tmp_path)
+    owner = _ADMISSION_FIXTURE_PRINCIPAL
+    service = _within_owner(owner, _build_control_service, tmp_path)
     try:
         source_id, intake = _field_pilot_intake(service)
         service._evaluation_safety_promotion_sources = replace(
             service._evaluation_safety_promotion_sources,
             slot=EvaluationSafetyPromotionSourceSlot(source_run_ids=("missing-prior-run",)),
         )
-        launch = service.launch_workflow_run(
+        launch = _launch_fixture_workflow(
+            service,
             WorkflowRunRequest(
                 data_source={"data_snapshot_ref": source_id},
                 params={"evaluation_safety_attempt": intake},
-            )
+            ),
         )
-        job = service._control_store.get_job(launch.job_id)
-        service._process_control_job(job)
-        terminal = service._control_store.get_job(launch.job_id)
-        resolution = _resolution(service, terminal)
+        job = _within_owner(owner, service._control_store.get_job, launch.job_id)
+        assert job is not None
+        _within_owner(
+            owner,
+            dispatch_one_control_job,
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=job.job_id,
+        )
+        terminal = _within_owner(owner, service._control_store.get_job, launch.job_id)
+        assert terminal is not None
+        resolution = _resolution(service, terminal, owner=owner)
         assert resolution["inputs_read"] == ["control_completed_job:missing-prior-run"]
         assert "promotion_source_job_not_completed" in resolution["refusal_reasons"]
         assert resolution["classification"] == "not_established"
         assert terminal.progress["eval_safety_counters"]["near_miss_count"] == 0
-        # Existing retry path reconciles the same safety decision once.
-        service._process_control_job(job)
-        retried = service._control_store.get_job(launch.job_id)
+        # The worker does not reclaim a terminal row; no retry producer exists.
+        assert (
+            _within_owner(
+                owner,
+                dispatch_one_control_job,
+                store=service._control_store,  # noqa: SLF001
+                handler=service._process_control_job,  # noqa: SLF001
+            )
+            is None
+        )
+        retried = _within_owner(owner, service._control_store.get_job, launch.job_id)
         assert retried.progress["eval_safety_counters"] == terminal.progress["eval_safety_counters"]
     finally:
         service.close()
@@ -84,33 +126,44 @@ def test_unreadable_selected_run_is_ambiguous_and_cannot_change_safety(tmp_path,
 
 @pytest.fixture(scope="module")
 def produced_station(tmp_path_factory):
-    """Retain the owner-bound controlled-profile producer for exact source reads."""
+    """Retain the controlled producer and its actual DI fixture principal."""
+    principal = RuntimePrincipal.from_user_claims(_fixture_claims())
     with pytest.MonkeyPatch.context() as patches:
-        fixture = asyncio.run(
+        fixture = _within_owner(
+            principal,
+            asyncio.run,
             _run_controlled_simulate_only_job_fixture(
                 patches,
                 tmp_path_factory.mktemp("controlled-profile-source"),
-            )
+            ),
         )
     try:
         yield {
             "service": fixture.service,
             "source_run_id": fixture.job.run_id,
             "job_id": fixture.job.job_id,
+            "principal": principal,
         }
     finally:
-        fixture.service.close()
+        _within_owner(principal, fixture.service.close)
 
 
 def _attempt_from_produced_source(produced_station, *, candidate_hash=None, world_hash=None):
     service = produced_station["service"]
+    owner = produced_station["principal"]
     source_run_id = produced_station["source_run_id"]
-    source_job = service._control_store.get_job(produced_station["job_id"])
+    source_job = _within_owner(
+        owner, service._control_store.get_job, produced_station["job_id"]
+    )
+    assert source_job is not None
     compiled_ref = source_job.progress["compiled_recursive_generation_cycle_ref"]
-    compiled = canon.from_canonical_bytes(service._artifact_store.get_bytes(compiled_ref))
+    compiled_bytes = _within_owner(
+        owner, service._artifact_store.get_bytes, compiled_ref
+    )
+    compiled = canon.from_canonical_bytes(compiled_bytes)
     leaf = next(row for row in compiled["recursive_run"]["nodes"] if row["cycle_run"] is not None)
     candidate = leaf["cycle_run"]["candidate_summaries"][0]
-    source_id, intake = _field_pilot_intake(service)
+    source_id, intake = _field_pilot_intake(service, owner=owner)
     intake["attempt_id"] = f"prior-generation-near-miss-{uuid4().hex}"
     intake["design_problem_ref"] = leaf["design_problem_ref"]
     intake["candidate_ref"]["artifact_id"] = candidate["candidate_id"]
@@ -121,12 +174,14 @@ def _attempt_from_produced_source(produced_station, *, candidate_hash=None, worl
         service._evaluation_safety_promotion_sources,
         slot=EvaluationSafetyPromotionSourceSlot(source_run_ids=(source_run_id,)),
     )
-    launch = service.launch_workflow_run(
+    launch = _within_owner(
+        owner,
+        service.launch_workflow_run,
         WorkflowRunRequest(
             data_source={"data_snapshot_ref": source_id},
             params={"evaluation_safety_attempt": intake},
         ),
-        principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        principal=owner,
     )
     return service, source_job, compiled_ref, launch
 
@@ -134,10 +189,18 @@ def _attempt_from_produced_source(produced_station, *, candidate_hash=None, worl
 def test_existing_generation_producer_is_read_before_candidate_absence_is_reported(
     produced_station,
 ):
+    owner = produced_station["principal"]
     service, source_job, compiled_ref, launch = _attempt_from_produced_source(produced_station)
-    service._process_control_job(service._control_store.get_job(launch.job_id))
-    terminal = service._control_store.get_job(launch.job_id)
-    result = _resolution(service, terminal)
+    _within_owner(
+        owner,
+        dispatch_one_control_job,
+        store=service._control_store,  # noqa: SLF001
+        handler=service._process_control_job,  # noqa: SLF001
+        expected_job_id=launch.job_id,
+    )
+    terminal = _within_owner(owner, service._control_store.get_job, launch.job_id)
+    assert terminal is not None
+    result = _resolution(service, terminal, owner=owner)
     assert result["inputs_read_scope"] == "source_selection_only"
     assert f"cas_bytes:{compiled_ref}" in result["inputs_read"]
     assert f"cas_manifest:{source_job.progress['manifest_ref']}" in result["inputs_read"]
@@ -150,6 +213,7 @@ def test_existing_generation_producer_is_read_before_candidate_absence_is_report
 def test_compiled_source_content_binding_survives_retained_semantic_markers(
     produced_station, monkeypatch
 ):
+    owner = produced_station["principal"]
     service, _, compiled_ref, launch = _attempt_from_produced_source(produced_station)
     original = service._artifact_store.get_bytes
 
@@ -159,9 +223,16 @@ def test_compiled_source_content_binding_survives_retained_semantic_markers(
         return body + b" " if str(ref) == compiled_ref else body
 
     monkeypatch.setattr(service._artifact_store, "get_bytes", rebound_bytes)
-    service._process_control_job(service._control_store.get_job(launch.job_id))
-    terminal = service._control_store.get_job(launch.job_id)
-    result = _resolution(service, terminal)
+    _within_owner(
+        owner,
+        dispatch_one_control_job,
+        store=service._control_store,  # noqa: SLF001
+        handler=service._process_control_job,  # noqa: SLF001
+        expected_job_id=launch.job_id,
+    )
+    terminal = _within_owner(owner, service._control_store.get_job, launch.job_id)
+    assert terminal is not None
+    result = _resolution(service, terminal, owner=owner)
     assert "promotion_source_artifact_binding_mismatch" in result["refusal_reasons"], (
         "source CAS binding property was removed"
     )
@@ -170,11 +241,20 @@ def test_compiled_source_content_binding_survives_retained_semantic_markers(
 
 
 def test_matching_candidate_label_cannot_select_foreign_candidate_bytes(produced_station):
+    owner = produced_station["principal"]
     service, _, _, launch = _attempt_from_produced_source(
         produced_station, candidate_hash="sha256:" + "a" * 64
     )
-    service._process_control_job(service._control_store.get_job(launch.job_id))
-    result = _resolution(service, service._control_store.get_job(launch.job_id))
+    _within_owner(
+        owner,
+        dispatch_one_control_job,
+        store=service._control_store,  # noqa: SLF001
+        handler=service._process_control_job,  # noqa: SLF001
+        expected_job_id=launch.job_id,
+    )
+    terminal = _within_owner(owner, service._control_store.get_job, launch.job_id)
+    assert terminal is not None
+    result = _resolution(service, terminal, owner=owner)
     assert "promotion_source_candidate_content_mismatch" in result["refusal_reasons"]
     assert result["classification"] == "not_established"
 
@@ -221,6 +301,7 @@ def test_opaque_classifier_forwards_real_evidence_repository_to_both_n9_readers(
 def test_compiled_source_manifest_custody_requires_exact_writer_contract(
     produced_station, monkeypatch, changed_field,
 ):
+    owner = produced_station["principal"]
     service, _, compiled_ref, launch = _attempt_from_produced_source(produced_station)
     original = service._artifact_store.get_manifest
 
@@ -239,8 +320,16 @@ def test_compiled_source_manifest_custody_requires_exact_writer_contract(
         return manifest.model_copy(update={changed_field: changes[changed_field]})
 
     monkeypatch.setattr(service._artifact_store, "get_manifest", wrong_manifest)
-    service._process_control_job(service._control_store.get_job(launch.job_id))
-    result = _resolution(service, service._control_store.get_job(launch.job_id))
+    _within_owner(
+        owner,
+        dispatch_one_control_job,
+        store=service._control_store,  # noqa: SLF001
+        handler=service._process_control_job,  # noqa: SLF001
+        expected_job_id=launch.job_id,
+    )
+    terminal = _within_owner(owner, service._control_store.get_job, launch.job_id)
+    assert terminal is not None
+    result = _resolution(service, terminal, owner=owner)
     original_failure = {
         "artifact_id": "Manifest artifact_id mismatch",
         "integrity": "Manifest integrity mismatch",
@@ -310,11 +399,18 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     from tests.unit.runtime.quality.test_promotion_sequence import _value_receipt
 
     service = produced_station["service"]
-    prior_job = service._control_store.get_job(produced_station["job_id"])
+    owner = produced_station["principal"]
+    prior_job = _within_owner(
+        owner, service._control_store.get_job, produced_station["job_id"]
+    )
+    assert prior_job is not None
+    compiled_bytes = _within_owner(
+        owner,
+        service._artifact_store.get_bytes,
+        prior_job.progress["compiled_recursive_generation_cycle_ref"],
+    )
     compiled = generation.CompiledRecursiveGenerationCycleRun.model_validate(
-        canon.from_canonical_bytes(service._artifact_store.get_bytes(
-            prior_job.progress["compiled_recursive_generation_cycle_ref"]
-        ))
+        canon.from_canonical_bytes(compiled_bytes)
     )
     leaf = compiled.recursive_run.leaf_nodes[0]
     summary = leaf.cycle_run.candidate_summaries[0]
@@ -400,14 +496,21 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
         }
 
     # Appoint only the test epoch verifier; the canonical N9 source verifier runs unchanged.
-    admitted = _positive_epoch_admitted_batch(
-        runtime=promotion_runtime, problem=compiled.design_problem, summaries=(summary,),
+    admitted = _within_owner(
+        owner,
+        _positive_epoch_admitted_batch,
+        runtime=promotion_runtime,
+        problem=compiled.design_problem,
+        summaries=(summary,),
     )
     monkeypatch.setattr(n9, "_legacy_policy_promotion_callers", lambda _root: ())
-    observation = n9.CanonicalN9PromotionPort(
-        promotion_runtime=promotion_runtime, repo_root=REPO_ROOT,
-        context_provider=source_context,
-    )(
+    observation = _within_owner(
+        owner,
+        n9.CanonicalN9PromotionPort(
+            promotion_runtime=promotion_runtime,
+            repo_root=REPO_ROOT,
+            context_provider=source_context,
+        ),
         admitted_batch=admitted,
         problem=compiled.design_problem,
         deployment_identity=deployment_identity,
@@ -464,16 +567,30 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
         request=compiled.design_problem.nl_provenance.raw_request,
         llm_model="simulated-qwen",
     )
-    source = asyncio.run(service.launch_nl_run(
-        request,
-        principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-        authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
-    ))
-    source_job = service._control_store.get_job(source.job_id)
+    source = _within_owner(
+        owner,
+        lambda: asyncio.run(
+            service.launch_nl_run(
+                request,
+                principal=owner,
+                authorization_proof=bound_nl_authorization_proof(
+                    _fixture_claims(), request
+                ),
+            )
+        ),
+    )
+    source_job = _within_owner(owner, service._control_store.get_job, source.job_id)
+    assert source_job is not None
     process_job_with_worker(source.job_id)
-    completed = service._control_store.get_job(source.job_id)
+    completed = _within_owner(owner, service._control_store.get_job, source.job_id)
+    assert completed is not None
     assert completed.state == "completed"
-    selected = {"service": service, "source_run_id": source_job.run_id, "job_id": source.job_id}
+    selected = {
+        "service": service,
+        "source_run_id": source_job.run_id,
+        "job_id": source.job_id,
+        "principal": owner,
+    }
     _, _, compiled_ref, launch = _attempt_from_produced_source(
         selected, world_hash=value.world_model_record_content_hash,
     )
@@ -497,14 +614,18 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     monkeypatch.setattr(service._evaluation_safety_persistence_service, "compose_and_persist_attempt", compose)
     signature_calls.clear()
     process_job_with_worker(launch.job_id)
-    terminal = service._control_store.get_job(launch.job_id)
-    resolution = _resolution(service, terminal)
+    terminal = _within_owner(owner, service._control_store.get_job, launch.job_id)
+    assert terminal is not None
+    resolution = _resolution(service, terminal, owner=owner)
     assert calls, "real canonical classifier was never reached from persisted source"
     result = outcomes[0]
     assert result.classification_offer_ref is not None
-    offer = es.EvalSafetyNearMissClassificationOffer.model_validate_json(
-        service._artifact_store.get_bytes(result.classification_offer_ref.artifact_id)
+    offer_bytes = _within_owner(
+        owner,
+        service._artifact_store.get_bytes,
+        result.classification_offer_ref.artifact_id,
     )
+    offer = es.EvalSafetyNearMissClassificationOffer.model_validate_json(offer_bytes)
     assert offer.safety_semantic_hash == result.decision.safety.safety_semantic_hash
     assert resolution["selected_compiled_ref"] == compiled_ref
     if calls[0] is None:
@@ -520,7 +641,7 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     assert all(type(artifact_id) is artifacts.ArtifactID for artifact_id in signature_calls)
 
     # The genuine prior source still exists, but is outside this deployment's selector.
-    assert service._artifact_store.get_bytes(compiled_ref)
+    assert _within_owner(owner, service._artifact_store.get_bytes, compiled_ref)
     _, _, _, outside_launch = _attempt_from_produced_source(
         selected, world_hash=value.world_model_record_content_hash,
     )
@@ -530,8 +651,11 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     )
     prior_calls = tuple(calls)
     process_job_with_worker(outside_launch.job_id)
-    outside_terminal = service._control_store.get_job(outside_launch.job_id)
-    outside = _resolution(service, outside_terminal)
+    outside_terminal = _within_owner(
+        owner, service._control_store.get_job, outside_launch.job_id
+    )
+    assert outside_terminal is not None
+    outside = _resolution(service, outside_terminal, owner=owner)
     assert tuple(calls) == prior_calls
     assert outside["requested_source_run_ids"] == []
     assert outside["inputs_read"] == outside["source_selection_read_attempts"] == []

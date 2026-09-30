@@ -28,6 +28,10 @@ from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.canon import CanonSpec
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.core.security import (
+    get_current_cell_id,
+    get_current_tenant_id_or_none,
+)
 from polisyos.data_forge import read_api
 from polisyos.foundry import InputContractMethodSelection
 from polisyos.pdc import (
@@ -1626,10 +1630,16 @@ class WorkspaceLoop:
     def _phase2_context(self, *, workspace_id: str) -> tuple[ClaimCapableExecutionContext, object]:
         store = self._phase2_store()
         bundle = build_default_registry_bundle(store)
+        # The ControlWorker installs persisted execution scope around this call.
+        # Tenant/cell qualify artifact custody; AccessScope remains absent, so
+        # this candidate computation cannot inherit request authority.
         run = RunContext.start(
             store=store,
             registry_bundle=bundle.bundle_ref,
             run_id=f"run-{_slug(workspace_id)}",
+            tenant_id=get_current_tenant_id_or_none(),
+            cell_id=get_current_cell_id(),
+            access_scope=None,
         )
         return (
             ClaimCapableExecutionContext(

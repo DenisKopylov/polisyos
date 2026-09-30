@@ -32,7 +32,7 @@ from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec
-from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
+from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver, RuntimePrincipal
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 from polisyos.runtime.quality.capability_discovery import SourceProfileOwnerReceipt
@@ -43,6 +43,7 @@ from polisyos.scientist.governance.continuous.monitors import (
 from polisyos.scientist.governance.continuous.reissue import build_reissue_packet
 from polisyos.scientist.orchestration.llm.provider_verification import ProviderPreflightReport
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _build_secure_client,
@@ -69,10 +70,18 @@ def test_explicit_non_simulation_attempt_blocks_before_workspace_loop(
     from tests.unit.runtime.http.test_control_service_di import _build_control_service
 
     service = _build_control_service(tmp_path)
-    source = service._artifact_store.put_json(
-        {"observed": "real-world"},
-        ArtifactWriteOptions(kind="test.eval-input", media_type="application/json"),
+    principal = RuntimePrincipal(
+        subject="eval-safety-owner",
+        authenticated=True,
+        tenant_id="tenant-eval",
+        cell_id="cell-eval",
+        roles=frozenset({"analyst"}),
     )
+    with tenant_scope(None, tenant_id=principal.tenant_id, cell_id=principal.cell_id):
+        source = service._artifact_store.put_json(
+            {"observed": "real-world"},
+            ArtifactWriteOptions(kind="test.eval-input", media_type="application/json"),
+        )
 
     def ref(value: str, kind: str) -> EvalSafetyArtifactRef:
         return EvalSafetyArtifactRef(
@@ -122,17 +131,23 @@ def test_explicit_non_simulation_attempt_blocks_before_workspace_loop(
 
     monkeypatch.setattr(service, "_execute_workflow_control_transition", workspace_must_not_run)
     try:
-        launch = service.launch_workflow_run(
-            WorkflowRunRequest(
-                data_source={"data_snapshot_ref": str(source.artifact_id)},
-                params={
-                    "evaluation_safety_attempt": intake.model_dump(mode="json"),
-                },
+        with tenant_scope(None, tenant_id=principal.tenant_id, cell_id=principal.cell_id):
+            launch = service.launch_workflow_run(
+                WorkflowRunRequest(
+                    data_source={"data_snapshot_ref": str(source.artifact_id)},
+                    params={
+                        "evaluation_safety_attempt": intake.model_dump(mode="json"),
+                    },
+                ),
+                principal=principal,
             )
-        )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
-        service._process_control_job(record)
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
         terminal = service._control_store.get_job(launch.job_id)
 
         assert terminal is not None
@@ -979,9 +994,11 @@ class TestProductionApproval:
         )
 
         with client:
-            owner_evidence = client.app.state.runtime_container.runtime_api_context.store.ownership_evidence(
-                tenant_id=runtime_api_env["tenant_a"],
-                cell_id=cell_id,
+            owner_evidence = (
+                client.app.state.runtime_container.runtime_api_context.store.ownership_evidence(
+                    tenant_id=runtime_api_env["tenant_a"],
+                    cell_id=cell_id,
+                )
             )
             assert owner_evidence["ownership_index_format"] == "pointer_generation_v1"
             response = client.post(
@@ -1660,9 +1677,7 @@ class TestLaunchNlRun:
                 request,
                 request_id="req-red-preflight",
                 principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-                authorization_proof=bound_nl_authorization_proof(
-                    _fixture_claims(), request
-                ),
+                authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
             )
             record = service._control_store.get_job(response.job_id)
         finally:
@@ -1831,8 +1846,7 @@ def test_list_connectors_and_profiles_are_producer_backed(
         with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             receipt = SourceProfileOwnerReceipt.model_validate_json(store.get_bytes(receipt_id))
             receipt_manifest_inputs = tuple(
-                (row.role, str(row.artifact_id))
-                for row in store.get_manifest(receipt_id).inputs
+                (row.role, str(row.artifact_id)) for row in store.get_manifest(receipt_id).inputs
             )
             connector_snapshot_bytes = store.get_bytes(connector_id)
             connector_snapshot = from_canonical_bytes(connector_snapshot_bytes)
@@ -1886,8 +1900,7 @@ def test_list_connectors_and_profiles_are_producer_backed(
     assert connector_snapshot["observed_at"] == profile_snapshot["observed_at"]
     connector_namespaces = {row["namespace"] for row in connector_snapshot["entries"]}
     assert {
-        row["profile_id"]: row["connector_available"]
-        for row in profile_snapshot["profiles"]
+        row["profile_id"]: row["connector_available"] for row in profile_snapshot["profiles"]
     } == {
         row["profile_id"]: row["connector_family"] in connector_namespaces
         for row in profile_snapshot["profiles"]

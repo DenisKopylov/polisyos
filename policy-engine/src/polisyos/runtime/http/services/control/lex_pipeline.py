@@ -21,7 +21,7 @@ from .lex_search_projection import LexSearchResponse, LexSearchResultItem
 if TYPE_CHECKING:
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
 
-    from ..control_plane_store import ControlJobRecord
+    from ..control_plane_store import ControlJobExecutionScope, ControlJobRecord
 
 logger = get_logger(__name__)
 
@@ -103,6 +103,7 @@ class LexPipelineMixin:
         job: ControlJobRecord,
         payload: dict[str, Any],
         capability_manifest_ref: str,
+        execution_scope: ControlJobExecutionScope,
     ) -> None:
         import asyncio
 
@@ -148,6 +149,7 @@ class LexPipelineMixin:
             progress=final_progress,
         )
         self._emit_runtime_diagnostic_event(
+            execution_scope=execution_scope,
             job_id=job.job_id,
             run_id=job.run_id,
             execution_profile=job.effective_execution_profile,

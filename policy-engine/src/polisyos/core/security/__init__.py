@@ -193,6 +193,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "TenantQuotaLimits",
     ),
     "TenantContext": ("polisyos.core.security.tenant_context", "TenantContext"),
+    "clear_tenant_context": (
+        "polisyos.core.security.tenant_context",
+        "clear_tenant_context",
+    ),
     "tenant_scope": ("polisyos.core.security.tenant_context", "tenant_scope"),
     "require_tenant_context": (
         "polisyos.core.security.tenant_context",
@@ -390,6 +394,7 @@ if TYPE_CHECKING:
     )
     from polisyos.core.security.tenant_context import (
         TenantContext,
+        clear_tenant_context,
         get_current_access_scope_or_none,
         get_current_cell_id,
         get_current_tenant_id,
@@ -489,6 +494,7 @@ __all__ = [
     "build_retention_package",
     "build_security_assurance_report",
     "canonical_statement_bytes",
+    "clear_tenant_context",
     "get_current_access_scope_or_none",
     "get_current_cell_id",
     "get_current_tenant_id",

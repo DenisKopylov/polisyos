@@ -39,6 +39,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 )
 from polisyos.runtime.quality.workspace.loop import WorkspaceLoop, WorkspaceSearchExitContract
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.remediation.test_cyc_02 import (
     _recursive_contract_testing_controller,
     _recursive_leaf_terminal,
@@ -233,7 +234,11 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
             compile_worker_request,
         )
 
-        service._process_control_job(record)
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=record.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None
@@ -721,7 +726,7 @@ def test_workspace_fixture_child_alias_roundtrip_preserves_source_identity() -> 
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("control", ("missing_child", "missing_coupling", "identity"))
+@pytest.mark.parametrize("control", ["missing_child", "missing_coupling", "identity"])
 async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inputs(
     tmp_path: Path,
     control: str,

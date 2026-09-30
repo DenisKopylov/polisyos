@@ -9,6 +9,7 @@ import pytest
 
 import polisyos.runtime.http.services.control.run_lifecycle as run_lifecycle_module
 import polisyos.runtime.http.services.control_plane_store as control_plane_store_module
+from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.resilience import guard_runtime_control_store
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionService,
@@ -21,6 +22,7 @@ from polisyos.runtime.http.services.control_plane_store import (
 )
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
+from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.runtime.http.test_control_service_di import _build_control_service
 from tests.unit.runtime.quality.test_acquisition_route_loop import (
     _append_terminal,
@@ -196,22 +198,19 @@ async def _worker_harness(tmp_path: Path, *, decision_missing: bool):
         "invocation": invocation.model_dump(mode="json"),
         "intent": intent.model_dump(mode="json"),
     }
-    payload_ref = control._put_json_artifact(
-        payload,
-        kind="runtime.control_job_payload.acquisition",
-        schema_name="polisyos.runtime.ControlJobPayload",
-    )
-    store.create_job(
+    # Issue the real worker admission; the synthetic completed NL source above
+    # limits this witness to durable-decision ordering and lease recovery.
+    control.enqueue_acquisition_job(
         job_id="job-acquisition",
-        kind="acquisition",
         run_id="run-ds15",
-        pipeline_id=None,
-        requested_execution_profile="dev",
-        effective_execution_profile="dev",
-        policy_flags={},
-        capability_manifest_ref=manifest_ref,
-        payload_ref=payload_ref,
-        submitted_by="tester",
+        payload=payload,
+        principal=RuntimePrincipal(
+            subject="tester",
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            authenticated=True,
+            roles=frozenset({"analyst"}),
+        ),
     )
     requested = service._phase_receipt(
         closure=closure,
@@ -235,7 +234,11 @@ async def test_worker_missing_durable_decision_fails_before_owner_effect(tmp_pat
         job = control._control_store.get_job("job-acquisition")
         assert job is not None
 
-        control._process_control_job(job)
+        dispatch_one_control_job(
+            store=control._control_store,  # noqa: SLF001
+            handler=control._process_control_job,  # noqa: SLF001
+            expected_job_id=job.job_id,
+        )
 
         failed = control._control_store.get_job("job-acquisition")
         assert failed is not None

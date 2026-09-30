@@ -41,7 +41,11 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthConfig
     from polisyos.runtime.quality.epoch_deployment import EpochDeployment
 
-    from .control_plane_store import AcquisitionActionHeadRecord, ControlJobRecord
+    from .control_plane_store import (
+        AcquisitionActionHeadRecord,
+        ControlJobExecutionScope,
+        ControlJobRecord,
+    )
 
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _IMPLEMENTATION_REF = "polisyos.runtime.acquisition_route_loop.owner_port.v1"
@@ -467,15 +471,31 @@ class AcquisitionActionService:
             authority_decision_ref=decision_ref,
         )
 
-    def handle_job(self, job: ControlJobRecord, payload: dict[str, Any]) -> dict[str, Any]:
-        """Load the durable decision, invoke only the sealed port, and recover re-entry only."""
+    def handle_job(
+        self,
+        job: ControlJobRecord,
+        payload: dict[str, Any],
+        execution_scope: ControlJobExecutionScope,
+    ) -> dict[str, Any]:
+        """Run only with the tenant/cell admission attached to the live job lease."""
 
         if job.kind != "acquisition" or job.run_id is None:
             raise AcquisitionActionServiceError("acquisition_job_kind_mismatch")
+        if (
+            execution_scope.status != "established"
+            or not execution_scope.tenant_id
+            or not execution_scope.cell_id
+        ):
+            raise AcquisitionActionServiceError("acquisition_job_owner_scope_not_established")
+        if (
+            payload.get("tenant_id") != execution_scope.tenant_id
+            or payload.get("cell_id") != execution_scope.cell_id
+        ):
+            raise AcquisitionActionServiceError("acquisition_job_payload_owner_scope_mismatch")
         request = AcquisitionRouteMutationRequest.model_validate(payload.get("request"))
         closure = self._validated_mutation(
-            tenant_id=str(payload.get("tenant_id") or ""),
-            cell_id=str(payload.get("cell_id") or ""),
+            tenant_id=execution_scope.tenant_id,
+            cell_id=execution_scope.cell_id,
             run_id=job.run_id,
             route_id=str(payload.get("route_id") or ""),
             request=request,

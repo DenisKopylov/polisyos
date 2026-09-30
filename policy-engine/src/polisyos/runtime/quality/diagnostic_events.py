@@ -29,6 +29,7 @@ RECONCILIATION_FAILURE_CODES = (
 
 EXPECTED_DIAGNOSTIC_EVENT_TYPES = (
     "polisyos.runtime.diagnostic.producer_execution.v1",
+    "polisyos.runtime.diagnostic.scope_limited.v1",
     "polisyos.runtime.diagnostic.cas_write.v1",
     "polisyos.runtime.diagnostic.ref_publication.v1",
     "polisyos.runtime.diagnostic.phase_transition.v1",

@@ -1386,15 +1386,31 @@ def build_runtime_api_env(
         if container is not None
         else app.state.runtime_api_ctx.store
     )
-    control_service = ControlPlaneService(
-        cas_root=cas_root,
-        core_runs_root=cas_root / "runs",
-        metrics=app.state.runtime_metrics,
-        tracer=app.state.runtime_tracer,
-        artifact_store=shared_store,
-        registry_providers=(
-            container.control_registry_providers if container is not None else None
-        ),
+    # Materialize the lazy control service with the container's existing owners.
+    # A standalone service over the same CAS would create a different graph.
+    control_service = (
+        container.control_service
+        if container is not None and container.control_service is not None
+        else ControlPlaneService(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+            metrics=app.state.runtime_metrics,
+            tracer=app.state.runtime_tracer,
+            artifact_store=shared_store,
+            **(
+                {
+                    "async_artifact_store": container.runtime_api_context.async_store,
+                    "registry_providers": container.control_registry_providers,
+                    "decision_validity_service": container.decision_validity_service,
+                    "epoch_certificate_issuance_owner": container.epoch_certificate_issuance_owner,
+                    "promotion_runtime": container.promotion_runtime,
+                    "epoch_claim_lifecycle_bridge": container.epoch_claim_lifecycle_bridge,
+                    "normative_authority_trust": container.config.normative_authority_trust,
+                }
+                if container is not None
+                else {}
+            ),
+        )
     )
     control_service._retrieval._promotion_queue["promotion_fixture_001"] = PromotionCandidate(
         promotion_id="promotion_fixture_001",

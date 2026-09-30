@@ -1,18 +1,28 @@
 from __future__ import annotations
 
+import importlib
 import json
+from copy import deepcopy
+from dataclasses import replace
 from datetime import UTC, datetime
 
 import pytest
 
 from polisyos.core.components import ComponentId
-from polisyos.core.contracts.control import NaturalLanguageRunRequest
+from polisyos.core.contracts.control import (
+    LexTriggerRequest,
+    NaturalLanguageRunRequest,
+    PolicyFlags,
+    WorkflowRunRequest,
+)
 from polisyos.pdc._impl.gy_waist import ArtifactRef
 from polisyos.runtime.http.errors import RuntimeHTTPError
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.resilience import GuardedDependencyProxy
+from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
 from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
 from polisyos.runtime.quality.evaluation_safety import EvaluationAttemptIntake
+from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.runtime.http.control_service_test_support import (
     bound_nl_authorization_proof,
 )
@@ -20,6 +30,681 @@ from tests.unit.runtime.http.test_control_service_di import (
     _build_control_service,
     _fixture_claims,
 )
+
+
+def _create_legacy_workflow_job(
+    service: ControlPlaneService,
+    *,
+    job_id: str,
+    run_id: str,
+    payload: dict[str, object],
+) -> str:
+    """Create a pre-scope workflow row with an old-format creation envelope."""
+    from polisyos.core.security.tenant_context import clear_tenant_context
+
+    with clear_tenant_context():
+        payload_ref = service._persist_job_payload(  # noqa: SLF001
+            job_kind="workflow_run",
+            payload=payload,
+        )
+    policy_flags = PolicyFlags().model_dump(mode="json")
+    service._control_store.create_job(  # noqa: SLF001
+        job_id=job_id,
+        kind="workflow_run",
+        run_id=run_id,
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags=policy_flags,
+        capability_manifest_ref=None,
+        payload_ref=payload_ref,
+        submitted_by="legacy-r14",
+        creation_event_payload={
+            "job_id": job_id,
+            "run_id": run_id,
+            "job_kind": "workflow_run",
+            "pipeline_id": None,
+            "payload_ref": payload_ref,
+            "submitted_by": "legacy-r14",
+            "requested_execution_profile": None,
+            "effective_execution_profile": "dev",
+            "policy_flags": policy_flags,
+            "capability_manifest_ref": None,
+            # Older rows have no typed scope. Payload fields cannot fill this gap.
+        },
+    )
+    return payload_ref
+
+
+def test_unknown_scope_payload_identity_is_cleared_before_transition_stub(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.tenant_context import (
+        get_current_access_scope_or_none,
+        get_current_cell_id,
+        get_current_tenant_id_or_none,
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
+
+    service = _build_control_service(tmp_path)
+    job_id = "job-r14-legacy-unclaimed-candidate"
+    run_id = "run-r14-legacy-unclaimed-candidate"
+    forged_identity = {
+        "tenant_id": "tenant-poisoned-a",
+        "cell_id": "cell-poisoned-a",
+        "job_id": "job-payload-forged",
+        "run_id": "run-payload-forged",
+        "runtime_identity": {
+            "tenant_id": "tenant-runtime-forged",
+            "cell_id": "cell-runtime-forged",
+            "job_id": "job-runtime-forged",
+            "run_id": "run-runtime-forged",
+        },
+    }
+    payload = {
+        **forged_identity,
+        "run_id": run_id,
+        "state_payload": {
+            "run_id": run_id,
+            "inputs": {},
+            **forged_identity,
+            "params": dict(forged_identity),
+        },
+        "checkpoint_policy": None,
+    }
+    try:
+        _create_legacy_workflow_job(
+            service,
+            job_id=job_id,
+            run_id=run_id,
+            payload=payload,
+        )
+        reads: list[tuple[str | None, str | None, object]] = []
+        original_load = service._load_payload_ref  # noqa: SLF001
+
+        def observe_scope_on_reads(ref: str):
+            reads.append(
+                (
+                    get_current_tenant_id_or_none(),
+                    get_current_cell_id(),
+                    get_current_access_scope_or_none(),
+                )
+            )
+            return original_load(ref)
+
+        monkeypatch.setattr(service, "_load_payload_ref", observe_scope_on_reads)
+        transition_calls: list[dict[str, object]] = []
+
+        def run_unclaimed_candidate(state_payload, _checkpoint_policy, **_kwargs):
+            # This probe checks identity sanitization only; the served candidate
+            # limitation and persisted readback are tested on the real workflow.
+            transition_calls.append(dict(state_payload))
+            return {"status": "transition_stub_completed"}
+
+        monkeypatch.setattr(
+            service,
+            "_execute_workflow_control_transition",
+            run_unclaimed_candidate,
+        )
+        monkeypatch.setattr(
+            service,
+            "_finalize_workspace_loop_run_proof",
+            lambda **_kwargs: None,
+        )
+        poison = AccessScope.for_service(
+            tenant_id="tenant-poisoned-a",
+            cell_id="cell-poisoned-a",
+            spiffe_id="spiffe://r14/unknown-scope-poison",
+        )
+        with tenant_scope(
+            None,
+            tenant_id="tenant-poisoned-a",
+            cell_id="cell-poisoned-a",
+        ):
+            token = set_current_access_scope(poison)
+            try:
+                dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=job_id,
+                )
+            finally:
+                reset_current_access_scope(token)
+
+        completed = service.get_job_status(job_id)
+        assert completed.state == "completed"
+        assert transition_calls
+        sanitized = transition_calls[0]
+        assert sanitized["job_id"] == job_id
+        assert sanitized["run_id"] == run_id
+        assert not {"tenant_id", "cell_id", "runtime_identity"}.intersection(sanitized)
+        assert not {
+            "tenant_id",
+            "cell_id",
+            "job_id",
+            "run_id",
+            "runtime_identity",
+        }.intersection(sanitized["params"])
+        assert reads
+        assert all(tenant is None and cell is None and scope is None for tenant, cell, scope in reads)
+
+        current = service._control_store.get_job(job_id)  # noqa: SLF001
+        assert current is not None and current.capability_manifest_ref
+        manifest = original_load(current.capability_manifest_ref)
+        actor = manifest["actor"]
+        assert actor["subject"] == "anonymous"
+        assert actor["authenticated"] is False
+        assert actor["tenant_id"] is None
+        assert actor["cell_id"] is None
+        assert actor["roles"] == []
+    finally:
+        service.close()
+
+
+def test_unknown_scope_cannot_use_matching_ambient_tenant_for_owned_payload(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.artifacts import ArtifactOwnershipError
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.tenant_context import (
+        get_current_access_scope_or_none,
+        get_current_cell_id,
+        get_current_tenant_id_or_none,
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
+
+    service = runtime_api_env["app"].state._control_service
+    if service._worker is not None:
+        service._worker.stop()
+    control_routes = importlib.import_module("polisyos.runtime.http.routes.control")
+    monkeypatch.setattr(control_routes, "_get_principal", lambda _request: RuntimePrincipal())
+    # Keep the runtime-supplied GuardedDependencyProxy; unwrapping this method
+    # returns its raw CAS and would bypass the executor/context boundary under test.
+    guarded_store = service._artifact_store  # noqa: SLF001
+    response = runtime_api_env["client"].post(
+        "/api/v1/control/runs",
+        json={
+            "data_source": {
+                "data_snapshot_ref": runtime_api_env["root_artifact_id"]
+            },
+            "params": {
+                "slice0_fixture_id": "ua_msme_credit_worldbank_measurement",
+                "tenant_id": runtime_api_env["tenant_a"],
+                "cell_id": runtime_api_env["cell_a"],
+            },
+        },
+    )
+    assert response.status_code == 200, response.text
+    job_id = response.json()["job_id"]
+    job = service._control_store.get_job(job_id)  # noqa: SLF001
+    assert job is not None and job.payload_ref is not None
+    try:
+        guarded_store.record_artifact_owner(
+            job.payload_ref,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+            writer="test_unknown_scope_cannot_use_matching_ambient_tenant_for_owned_payload",
+        )
+        reads: list[tuple[str, str | None, str | None, object]] = []
+        ownership_errors: list[ArtifactOwnershipError] = []
+        original_load = service._load_payload_ref  # noqa: SLF001
+
+        def observe_scope_before_read(ref: str):
+            reads.append(
+                (
+                    ref,
+                    get_current_tenant_id_or_none(),
+                    get_current_cell_id(),
+                    get_current_access_scope_or_none(),
+                )
+            )
+            try:
+                return original_load(ref)
+            except ArtifactOwnershipError as error:
+                ownership_errors.append(error)
+                raise
+
+        monkeypatch.setattr(service, "_load_payload_ref", observe_scope_before_read)
+        refresh_calls: list[str] = []
+
+        def observe_refresh(**kwargs):
+            refresh_calls.append(kwargs["job"].job_id)
+            raise AssertionError("payload denial must precede manifest refresh")
+
+        monkeypatch.setattr(service, "_refresh_capability_manifest", observe_refresh)
+        transition_calls: list[bool] = []
+        monkeypatch.setattr(
+            service,
+            "_execute_workflow_control_transition",
+            lambda *_args, **_kwargs: transition_calls.append(True),
+        )
+        poison = AccessScope.for_service(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+            spiffe_id="spiffe://r14/unknown-owner-negative",
+        )
+        with tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        ):
+            token = set_current_access_scope(poison)
+            try:
+                assert get_current_tenant_id_or_none() == runtime_api_env["tenant_a"]
+                assert get_current_cell_id() == runtime_api_env["cell_a"]
+                assert get_current_access_scope_or_none() == poison
+                dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=job_id,
+                )
+            finally:
+                reset_current_access_scope(token)
+
+        failed = service.get_job_status(job_id)
+        assert failed.state == "failed"
+        assert transition_calls == []
+        assert refresh_calls == []
+        assert reads == [(job.payload_ref, None, None, None)]
+        assert len(ownership_errors) == 1
+    finally:
+        if service._worker is not None:
+            service._worker.stop()
+
+
+def test_capability_manifest_binding_is_type_strict_and_role_exact(tmp_path) -> None:
+    service = _build_control_service(tmp_path)
+    principal = RuntimePrincipal(
+        subject="user-fixture",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        roles=frozenset({"analyst", "researcher"}),
+        authenticated=True,
+    )
+    try:
+        launch = service.launch_workflow_run(
+            WorkflowRunRequest(
+                data_source={"data_snapshot_ref": "sha256:" + "a" * 64}
+            ),
+            principal=principal,
+        )
+        job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
+        assert job is not None and job.capability_manifest_ref is not None
+        manifest = service._load_payload_ref(job.capability_manifest_ref)  # noqa: SLF001
+        policy = service._resolve_execution_policy(  # noqa: SLF001
+            requested_profile=job.requested_execution_profile,
+            policy_flags=PolicyFlags.model_validate(job.policy_flags),
+            principal=principal,
+        )
+        execution_scope = service._execution_scope_for_policy(policy)  # noqa: SLF001
+
+        def reverse_object_keys(value):
+            if isinstance(value, dict):
+                return {
+                    key: reverse_object_keys(value[key])
+                    for key in reversed(tuple(value))
+                }
+            if isinstance(value, list):
+                return [reverse_object_keys(item) for item in value]
+            return value
+
+        reordered_ref = service._put_json_artifact(  # noqa: SLF001
+            reverse_object_keys(manifest),
+            kind="runtime.capability_manifest",
+            schema_name="polisyos.runtime.CapabilityManifest",
+        )
+        assert service._validate_capability_manifest_for_scope(  # noqa: SLF001
+            manifest_ref=reordered_ref,
+            job=job,
+            execution_scope=execution_scope,
+        )["actor"] == manifest["actor"]
+
+        boolean_key = next(
+            key
+            for key, value in manifest["policy_flags"].items()
+            if type(value) is bool
+        )
+        malformed_manifests = []
+        malformed_policy = deepcopy(manifest)
+        malformed_policy["policy_flags"][boolean_key] = int(
+            malformed_policy["policy_flags"][boolean_key]
+        )
+        malformed_manifests.append(
+            (malformed_policy, "control_job_capability_manifest_binding_mismatch")
+        )
+
+        malformed_roles = deepcopy(manifest)
+        roles = malformed_roles["actor"]["roles"]
+        malformed_roles["actor"]["roles"] = [*roles, *roles]
+        malformed_manifests.append(
+            (malformed_roles, "control_job_capability_manifest_actor_mismatch")
+        )
+
+        reordered_roles = deepcopy(manifest)
+        reordered_roles["actor"]["roles"] = list(reversed(roles))
+        malformed_manifests.append(
+            (reordered_roles, "control_job_capability_manifest_actor_mismatch")
+        )
+
+        malformed_role_type = deepcopy(manifest)
+        malformed_role_type["actor"]["roles"] = [
+            *malformed_role_type["actor"]["roles"],
+            False,
+        ]
+        malformed_manifests.append(
+            (malformed_role_type, "control_job_capability_manifest_actor_mismatch")
+        )
+
+        for malformed, expected_error in malformed_manifests:
+            malformed_ref = service._put_json_artifact(  # noqa: SLF001
+                malformed,
+                kind="runtime.capability_manifest",
+                schema_name="polisyos.runtime.CapabilityManifest",
+            )
+            with pytest.raises(RuntimeError, match=expected_error):
+                service._validate_capability_manifest_for_scope(  # noqa: SLF001
+                    manifest_ref=malformed_ref,
+                    job=job,
+                    execution_scope=execution_scope,
+                )
+    finally:
+        service.close()
+
+
+def test_execution_scope_issuer_rejects_malformed_identity_without_normalizing(
+    tmp_path,
+) -> None:
+    service = _build_control_service(tmp_path)
+    principal = RuntimePrincipal(
+        subject="user-fixture",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        roles=frozenset({"analyst", "researcher"}),
+        authenticated=True,
+    )
+    try:
+        policy = service._resolve_execution_policy(  # noqa: SLF001
+            requested_profile="dev",
+            policy_flags=PolicyFlags(),
+            principal=principal,
+        )
+        canonical_scope = service._execution_scope_for_policy(policy)  # noqa: SLF001
+        assert canonical_scope.status == "established"
+        assert canonical_scope.actor_roles == ("analyst", "researcher")
+
+        malformed_actors = [
+            (
+                "padded_role",
+                {**policy.actor, "roles": [" admin "]},
+            ),
+            (
+                "duplicate_roles",
+                {**policy.actor, "roles": ["analyst", "analyst"]},
+            ),
+            (
+                "nonstr_role",
+                {**policy.actor, "roles": ["analyst", False]},
+            ),
+            (
+                "unsorted_roles",
+                {**policy.actor, "roles": ["researcher", "analyst"]},
+            ),
+            (
+                "padded_subject",
+                {**policy.actor, "subject": " user-fixture"},
+            ),
+            (
+                "padded_tenant",
+                {**policy.actor, "tenant_id": " tenant-fixture"},
+            ),
+            (
+                "padded_cell",
+                {**policy.actor, "cell_id": "cell-fixture "},
+            ),
+        ]
+        for case, actor in malformed_actors:
+            scope = service._execution_scope_for_policy(  # noqa: SLF001
+                replace(policy, actor=actor)
+            )
+            assert scope.status == "not_established", case
+            assert scope.tenant_id is None, case
+            assert scope.cell_id is None, case
+            assert scope.actor_subject is None, case
+            assert scope.actor_authenticated is False, case
+            assert scope.actor_roles == (), case
+    finally:
+        service.close()
+
+
+def test_lex_worker_keeps_completion_diagnostic_under_admitted_scope(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = _build_control_service(tmp_path)
+
+    async def completed_pipeline(_config: object) -> None:
+        return None
+
+    monkeypatch.setattr(
+        "polisyos.data_forge.read_api.legal.run_batch_pipeline",
+        completed_pipeline,
+    )
+    try:
+        launch = service.trigger_lex_pipeline(
+            LexTriggerRequest(
+                cards_path=str(tmp_path / "cards.json"),
+                texts_path=str(tmp_path / "texts"),
+                output_dir=str(tmp_path / "lex-output"),
+                stages={"parse": True, "structure": False, "spo": False, "graph": False, "embed": False},
+            ),
+            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        )
+        dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=launch.job_id,
+                )
+
+        job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
+        assert job is not None and job.state == "completed"
+        event = next(
+            record
+            for record in service._control_store.list_diagnostic_events(  # noqa: SLF001
+                job_id=launch.job_id
+            )
+            if record.event.phase == "lex_pipeline"
+            and record.event.state_after == "completed"
+        )
+        assert event.event.tenant_id == _fixture_claims().tenant_id
+        assert event.event.cell_id == _fixture_claims().cell_id
+        assert event.payload_inline is not None
+        assert event.payload_inline["execution_scope"]["status"] == "established"
+        assert event.payload_inline["execution_scope"]["source"] == "job_admission"
+    finally:
+        service.close()
+
+
+def test_approval_hook_persists_typed_limitation_when_request_scope_is_incomplete(
+    tmp_path,
+) -> None:
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    service = _build_control_service(tmp_path)
+    run_id = "run-r14-approval-diagnostic-scope"
+    job_id = "job-r14-approval-diagnostic-scope"
+    try:
+        service._control_store.create_job(  # noqa: SLF001
+            job_id=job_id,
+            kind="workflow_run",
+            run_id=run_id,
+            pipeline_id=None,
+            requested_execution_profile="dev",
+            effective_execution_profile="dev",
+            policy_flags={},
+            capability_manifest_ref=None,
+            payload_ref=None,
+            submitted_by="test-approval-projection",
+        )
+        service._control_store.complete_job(  # noqa: SLF001
+            job_id=job_id,
+            run_id=run_id,
+            progress={"state": "completed"},
+        )
+        incomplete_scope = AccessScope.for_service(
+            tenant_id="tenant-request-owner",
+            cell_id=None,
+            spiffe_id="spiffe://r14/approval-hook",
+        )
+        with tenant_scope(
+            None,
+            tenant_id="tenant-request-owner",
+            cell_id="cell-ambient-poison",
+        ):
+            service.record_production_approval_packet(
+                run_id=run_id,
+                approval_packet_ref="sha256:" + "f" * 64,
+                decision="approved",
+                request_access_scope=incomplete_scope,
+            )
+
+        event = next(
+            record
+            for record in service._control_store.list_diagnostic_events(  # noqa: SLF001
+                job_id=job_id
+            )
+            if record.event.event_type == "polisyos.runtime.diagnostic.scope_limited.v1"
+        )
+        assert event.event.tenant_id == "tenant-unknown"
+        assert event.event.cell_id == "cell-unknown"
+        assert event.event.state_after == "not_established"
+        assert event.payload_ref is None
+        assert event.event.payload_ref is None
+        assert event.event.artifact_refs == ()
+        assert event.event.input_refs == ()
+        assert event.payload_inline == {
+            "execution_scope": {
+                "schema_version": "polisyos.runtime.control_execution_scope.v1",
+                "status": "not_established",
+                "source": "authenticated_request",
+                "limitation_code": "control_job_execution_scope_not_established",
+            },
+            "withheld_event_type": "polisyos.runtime.diagnostic.approval_decision.v1",
+            "authority_status": "withheld",
+            "limitation_code": "control_job_execution_scope_not_established",
+        }
+    finally:
+        service.close()
+
+
+def test_approval_hook_emits_event_from_verified_request_scope(tmp_path) -> None:
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    service = _build_control_service(tmp_path)
+    run_id = "run-r14-approval-diagnostic-established"
+    job_id = "job-r14-approval-diagnostic-established"
+    tenant_id = "tenant-request-owner"
+    cell_id = "cell-request-owner"
+    try:
+        service._control_store.create_job(  # noqa: SLF001
+            job_id=job_id,
+            kind="workflow_run",
+            run_id=run_id,
+            pipeline_id=None,
+            requested_execution_profile="dev",
+            effective_execution_profile="dev",
+            policy_flags={},
+            capability_manifest_ref=None,
+            payload_ref=None,
+            submitted_by="test-approval-projection",
+        )
+        service._control_store.complete_job(  # noqa: SLF001
+            job_id=job_id,
+            run_id=run_id,
+            progress={"state": "completed"},
+        )
+        request_scope = AccessScope.for_service(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            spiffe_id="spiffe://r14/approval-hook",
+        )
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            service.record_production_approval_packet(
+                run_id=run_id,
+                approval_packet_ref="sha256:" + "e" * 64,
+                decision="approved",
+                request_access_scope=request_scope,
+            )
+
+        event = next(
+            record
+            for record in service._control_store.list_diagnostic_events(  # noqa: SLF001
+                job_id=job_id
+            )
+            if record.event.event_type
+            == "polisyos.runtime.diagnostic.approval_decision.v1"
+        )
+        assert event.event.tenant_id == tenant_id
+        assert event.event.cell_id == cell_id
+        assert event.event.state_after == "approved"
+        assert event.payload_ref is not None
+    finally:
+        service.close()
+
+
+def test_unknown_scope_acquisition_refuses_before_route_owner_or_effect_port(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionActionService,
+        AcquisitionActionServiceError,
+    )
+    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
+
+    service = object.__new__(AcquisitionActionService)
+    calls: list[str] = []
+    service._execution_port = object()
+    monkeypatch.setattr(
+        service,
+        "_validated_mutation",
+        lambda **_kwargs: calls.append("owner-resolution"),
+        raising=False,
+    )
+    unknown_scope = ControlJobExecutionScope(
+        status="not_established",
+        tenant_id=None,
+        cell_id=None,
+        actor_subject=None,
+        actor_authenticated=False,
+        actor_roles=(),
+    )
+
+    with pytest.raises(
+        AcquisitionActionServiceError,
+        match="acquisition_job_owner_scope_not_established",
+    ):
+        service.handle_job(
+            SimpleNamespace(kind="acquisition", run_id="run-r14-unknown-acquisition"),
+            {
+                "tenant_id": "tenant-poisoned-a",
+                "cell_id": "cell-poisoned-a",
+                "route_id": "sha256:" + "a" * 64,
+                "request": {},
+            },
+            unknown_scope,
+        )
+
+    assert calls == []
 
 
 def _artifact_ref(kind: str, digit: str) -> ArtifactRef:
@@ -151,7 +836,11 @@ async def test_plain_nl_job_persists_candidate_intent_and_reaches_candidate_comp
             raise RuntimeError("candidate_control_reached_compiler")
 
         monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", compiler_probe)
-        service._process_control_job(record)  # noqa: SLF001
+        dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=launch.job_id,
+                )
 
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert completed is not None
@@ -386,7 +1075,11 @@ async def test_float_snapshot_tamper_fails_before_worker_with_markers_intact(
 
         monkeypatch.setattr(service, "_load_payload_ref", load_tampered_request)
         monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", compiler_probe)
-        service._process_control_job(record)  # noqa: SLF001
+        dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=launch.job_id,
+                )
 
         terminal = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert terminal is not None
@@ -511,12 +1204,25 @@ async def test_protected_intent_event_tamper_blocks_before_evaluation_safety_or_
 
         monkeypatch.setattr(service, "_admit_evaluation_safety_attempt", forbidden_eval_safety)
         monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", forbidden_compiler)
-        service._process_control_job(record)  # noqa: SLF001
+        dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=launch.job_id,
+                )
 
         blocked = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert blocked is not None
         assert blocked.state == "failed"
-        assert blocked.error_message == "nl_job_execution_intent_not_established"
+        expected_error = (
+            "control_job_created_event_outbox_mismatch"
+            if tamper.startswith(("event_", "outbox_"))
+            else (
+                "control_job_capability_manifest_actor_mismatch"
+                if tamper == "capability_actor_mismatched"
+                else "nl_job_execution_intent_not_established"
+            )
+        )
+        assert blocked.error_message == expected_error
         assert reached == []
     finally:
         service.close()
@@ -594,7 +1300,10 @@ async def test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4
 
         monkeypatch.setattr(service, "_admit_evaluation_safety_attempt", forbidden_eval_safety)
         monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", forbidden_compiler)
-        service._process_control_job(record)  # noqa: SLF001
+        from polisyos.runtime.http.services.control_plane_store import ControlJobLeaseLostError
+
+        with pytest.raises(ControlJobLeaseLostError):
+            service._process_control_job(record)  # noqa: SLF001
 
         failed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert failed is not None
@@ -683,7 +1392,11 @@ async def test_data_trust_band_keeps_candidate_compute_and_persists_bridge_limit
         monkeypatch.setattr(service, "resolve_generation_value_choices", forbidden_authority_consumer)
         monkeypatch.setattr(service, "_publish_generation_run", forbidden_authority_consumer)
 
-        service._process_control_job(record)  # noqa: SLF001
+        dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=launch.job_id,
+                )
 
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert completed is not None
@@ -820,7 +1533,11 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
             lambda **_kwargs: pytest.fail("simulate_only published a recursive run"),
         )
 
-        service._process_control_job(job)  # noqa: SLF001
+        dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=launch.job_id,
+                )
 
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert completed is not None and completed.state == "completed"
@@ -973,7 +1690,11 @@ async def test_simulate_only_n4_terminal_failure_is_not_simulation_unavailable(
             "compile_and_run_recursive_generation_cycle",
             terminal_n4_compiler,
         )
-        service._process_control_job(job)  # noqa: SLF001
+        dispatch_one_control_job(
+                    store=service._control_store,  # noqa: SLF001
+                    handler=service._process_control_job,  # noqa: SLF001
+                    expected_job_id=launch.job_id,
+                )
 
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert completed is not None and completed.state == "completed"

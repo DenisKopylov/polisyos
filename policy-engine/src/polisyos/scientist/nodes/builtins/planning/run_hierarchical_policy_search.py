@@ -12,7 +12,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
@@ -21,10 +22,12 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.trinity import TrinityBundleRef
+from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
 from polisyos.lex.interventions import HierarchicalPolicySearchPlan
 from polisyos.pdc import WorldModelRecord
+from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.methods.search.contracts import (
     ParetoBasisScope,
     ParetoViewAssessment,
@@ -82,6 +85,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_TREASURY_PLAN_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
@@ -129,6 +135,13 @@ _SPEC = NodeSpec(
         "params.policy_loop_id",
         "params.policy_search_config",
         "params.hierarchical_policy_search_config",
+        "params.cross_graph_evidence_config",
+        "params.evidence_sources",
+        "params.skg_db_path",
+        "params.skg_index_dir",
+        "params.target_context",
+        "params.required_parameters",
+        "params.domain",
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         "inputs",
         "artifacts_index",
@@ -599,6 +612,32 @@ class RunHierarchicalPolicySearchNode:
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
+
+    def prepare_cache_input(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+    ) -> PreparedSKGRead | None:
+        """Bind the nested candidate readers to one source before outer cache lookup."""
+        del ctx
+        config_payload = state.params.get("cross_graph_evidence_config")
+        evidence_sources = normalize_evidence_sources_config(state.params, config_payload)
+        candidate_paths = {
+            str(value).strip()
+            for value in (
+                state.params.get("skg_db_path"),
+                evidence_sources.academic_db_path,
+            )
+            if isinstance(value, str) and value.strip()
+        }
+        if len(candidate_paths) != 1:
+            return None
+        db_path = Path(next(iter(candidate_paths)))
+        index_raw = state.params.get("skg_index_dir") or evidence_sources.academic_index_dir
+        index_dir = Path(str(index_raw)) if index_raw else db_path.parent
+        if not index_dir.exists():
+            index_dir = db_path.parent
+        return SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         """Run hierarchical search and persist the selected champion/frontier artifacts.

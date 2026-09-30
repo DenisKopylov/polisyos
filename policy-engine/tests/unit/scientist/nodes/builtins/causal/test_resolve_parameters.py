@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from polisyos.core.artifacts.manifest import InputRef
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
@@ -19,6 +20,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
@@ -233,3 +235,46 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
         outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == bundle_ref
     )
     assert outcome.state.params["phase15_runtime_ready"] is True
+
+
+def test_cache_hit_replays_b60_bundle_request_and_graph_binding(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+):
+    target_context = ContextProfile(context_id="control")
+    original_graph_ref = artifact_ref_factory(kind="ir.causal_graph_model")
+    bundle_ref = persist_context_adaptive_parameter_bundle(
+        execution_context.store,
+        ContextAdaptiveParameterBundle(
+            target_context=target_context,
+            simulation_domain="fiscal",
+            unsupported_parameters=["beta"],
+        ),
+        inputs=[
+            InputRef(
+                artifact_id=str(original_graph_ref.artifact_id),
+                role="causal_graph",
+            )
+        ],
+    )
+    cached_state = minimal_state.model_copy(deep=True)
+    cached_state.params.update(
+        {
+            "target_context": target_context.model_dump(mode="json"),
+            "required_parameters": ["beta"],
+            "domain": "fiscal",
+        }
+    )
+    cached_state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = original_graph_ref
+    cached_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = bundle_ref
+    cached_outcome = NodeOutcome(status="ok", state=cached_state)
+    node = ResolveParametersNode()
+
+    assert node.validate_cache_hit(execution_context, cached_state, cached_outcome)
+
+    changed_request = cached_state.model_copy(deep=True)
+    changed_request.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = artifact_ref_factory(
+        kind="ir.causal_graph_model"
+    )
+    assert not node.validate_cache_hit(execution_context, changed_request, cached_outcome)

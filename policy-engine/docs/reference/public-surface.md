@@ -198,7 +198,7 @@ timestamps
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 489 |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
-| `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 105 |
+| `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 106 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
 
 #### `polisyos.core`
@@ -894,7 +894,7 @@ with_trace_context
 - Facade: `lazy_facade`
 - Summary: Lazy facade for tenant routing, audit, identity, authz, TEE, and SBOM security APIs.
 
-<details><summary>Entrypoint exports (105)</summary>
+<details><summary>Entrypoint exports (106)</summary>
 
 ```text
 C3_CANONICAL_CODECS
@@ -984,6 +984,7 @@ build_full_prefix_bundle
 build_retention_package
 build_security_assurance_report
 canonical_statement_bytes
+clear_tenant_context
 get_current_access_scope_or_none
 get_current_cell_id
 get_current_tenant_id

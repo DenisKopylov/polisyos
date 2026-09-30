@@ -14,7 +14,7 @@ from collections.abc import Callable, Mapping, Sequence
 from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 
 import jax
 import jax.numpy as jnp
@@ -52,6 +52,7 @@ from polisyos.foundry.calibration.pure_executor import (
     run_pure_scan,
 )
 from polisyos.foundry.calibration.report import (
+    CalibrationCoordinateProjection,
     CalibrationFitMetrics,
     CalibrationFitQuality,
     CalibrationReport,
@@ -1716,6 +1717,63 @@ class Calibrator:
                 diagnostics.append(f"Identifiability diagnostics failed: {exc}")
 
         fidelity_stats = _inspect_bundle_fidelity(bundle)
+        coordinate_projection = None
+        coordinate_projection_status: Literal[
+            "complete", "incomplete", "unsupported", "not_established"
+        ] = "not_established"
+        if uncertainties is not None:
+            coordinate_names = tuple(uncertainties.params)
+            scalar_group_names = tuple(group.group_id for group in groups)
+            if (
+                len(coordinate_names) == len(groups)
+                and coordinate_names == scalar_group_names
+                and all(np.asarray(value).size == 1 for value in final_theta_groups)
+            ):
+                group_by_handle = {
+                    handle_idx: group_idx
+                    for group_idx, group in enumerate(groups)
+                    for handle_idx in group.handle_indices
+                }
+                complete_handle_map = (
+                    set(group_by_handle) == set(range(len(final_bundle.trainables)))
+                    and len(group_by_handle)
+                    == sum(len(group.handle_indices) for group in groups)
+                )
+                if not complete_handle_map:
+                    diagnostics.append("coordinate_projection_incomplete_unassigned_fields")
+                    coordinate_projection_status = "incomplete"
+                else:
+                    field_order: list[str] = []
+                    projection_rows: list[tuple[float, ...]] = []
+                    for handle_idx, handle in enumerate(final_bundle.trainables):
+                        group_idx = group_by_handle[handle_idx]
+                        field_name = (
+                            f"{final_bundle.nodes[handle.node_index].node_id}.{handle.field_name}"
+                        )
+                        row = tuple(
+                            1.0 if column_idx == group_idx else 0.0
+                            for column_idx in range(len(coordinate_names))
+                        )
+                        field_order.append(field_name)
+                        projection_rows.append(row)
+                    if (
+                        len(field_order) == len(set(field_order))
+                        and set(field_order) == set(calibrated_params)
+                        and field_order
+                    ):
+                        coordinate_projection = CalibrationCoordinateProjection(
+                            field_order=tuple(field_order),
+                            coordinate_order=coordinate_names,
+                            matrix=tuple(projection_rows),
+                        )
+                        coordinate_projection_status = "complete"
+                    else:
+                        diagnostics.append("coordinate_projection_unsupported_field_identity")
+                        coordinate_projection_status = "unsupported"
+            elif groups:
+                diagnostics.append("coordinate_projection_unsupported_coordinate_shape")
+                coordinate_projection_status = "unsupported"
+
         report = CalibrationReport(
             calibrated_params=calibrated_params,
             total_loss=final_total_loss,
@@ -1726,6 +1784,8 @@ class Calibrator:
             series_comparison=series_comparison,
             fit_quality=fit_quality,
             uncertainties=uncertainties,
+            coordinate_projection=coordinate_projection,
+            coordinate_projection_status=coordinate_projection_status,
             identifiability=identifiability_report,
             diagnostics=diagnostics,
             execution_context={

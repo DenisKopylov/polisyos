@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import time
-from dataclasses import dataclass
+from contextlib import ExitStack
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any
@@ -12,8 +14,9 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.core.contracts.skip_blockers import (
     SkippedNodeBlocker,
@@ -49,6 +52,8 @@ from polisyos.scientist.orchestration.engine.idempotency import (
     compute_idempotency_key,
 )
 from polisyos.scientist.orchestration.engine.protocol import (
+    CacheHitValidator,
+    CacheInputPreparer,
     NodeError,
     NodeEvent,
     NodeOutcome,
@@ -84,6 +89,7 @@ from polisyos.scientist.orchestration.memory.authority import (
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
     from polisyos.scientist.orchestration.engine.checkpoint import CheckpointHook
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.registry import NodeRegistry
@@ -94,6 +100,10 @@ _CACHE_BYPASS_DISABLED = 1
 _CACHE_BYPASS_KEY_ERROR = 2
 _CACHE_BYPASS_STORE_ERROR = 3
 _CACHE_BYPASS_REPLAY_INCOMPATIBLE = 4
+_CACHE_BYPASS_PREPARED_READ = 5
+_CACHE_BYPASS_CACHE_HIT_VALIDATION = 6
+_CACHE_BYPASS_PREPARED_READ_TIMEOUT = 7
+_PREPARED_READ_SELECTOR_EPOCH = "prepared-read-bound-connection-query-v4"
 
 _CACHE_DISABLED_NODE_IDS = frozenset(
     {
@@ -423,6 +433,15 @@ def _executor_degraded(
     )
 
 
+def _is_duckdb_error(exc: Exception) -> bool:
+    """Resolve DuckDB's exception family only when cache preparation fails."""
+    try:
+        import duckdb
+    except ImportError:
+        return False
+    return isinstance(exc, duckdb.Error)
+
+
 def bind_node_params(node: Any, params: dict[str, Any]) -> Any:
     if not params:
         return node
@@ -458,6 +477,122 @@ def _merge_cached_outcome_state(
         mutation_journals={alias: mutation_journal_for_state(outcome.state)},
     )
     return merge_result.state
+
+
+def _prepared_read_origin(outcome: NodeOutcome, *, selector_version: str) -> dict[str, str] | None:
+    """Read the bound-connection query evidence in the persisted cached outcome."""
+    origins = [
+        event for event in outcome.events if event.code == "skg.prepared_connection_query"
+    ]
+    if len(origins) != 1:
+        return None
+    attrs = origins[0].attrs
+    required = (
+        "source_snapshot_ref",
+        "source_snapshot_sha256",
+        "source_binding_schema_version",
+        "query_version",
+        "selector_version",
+        "prepared_at",
+        "read_evidence_scope",
+        "output_dependency",
+    )
+    if any(not isinstance(attrs.get(key), str) or not attrs[key] for key in required):
+        return None
+    if attrs.get("selector_version") != selector_version:
+        return None
+    if attrs.get("time_semantics") != "read_transaction_opened_at":
+        return None
+    if attrs.get("read_evidence_scope") != "bound_connection_query_execution_only":
+        return None
+    if attrs.get("output_dependency") != "not_established":
+        return None
+    query_fingerprints_json = attrs.get("connection_query_fingerprints_json")
+    if not isinstance(query_fingerprints_json, str) or not query_fingerprints_json:
+        return None
+    try:
+        query_fingerprints = json.loads(query_fingerprints_json)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(query_fingerprints, list) or not query_fingerprints:
+        return None
+    if any(
+        not isinstance(fingerprint, str)
+        or len(fingerprint) != 64
+        or any(char not in "0123456789abcdef" for char in fingerprint)
+        for fingerprint in query_fingerprints
+    ):
+        return None
+    return {key: str(attrs[key]) for key in required}
+
+
+def _prepared_read_selector_version(node_id: str) -> str:
+    """Version the cache binding when its persisted consumption proof changes."""
+    return f"{node_id}:{_PREPARED_READ_SELECTOR_EPOCH}"
+
+
+def _persist_prepared_read_receipt(
+    *,
+    ctx: ExecutionContext,
+    run_id: str,
+    node_id: str,
+    cache_key: str,
+    prepared_read: PreparedSKGRead,
+    cached_outcome: NodeOutcome,
+) -> ArtifactRef | None:
+    """Persist a current hit receipt while retaining the cached result's source lineage."""
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGReadReceipt
+    if not prepared_read.source_generation_matches():
+        return None
+    selector_version = _prepared_read_selector_version(node_id)
+    origin = _prepared_read_origin(cached_outcome, selector_version=selector_version)
+    if (
+        origin is None
+        or origin["source_snapshot_sha256"] != prepared_read.source_snapshot_sha256
+        or origin["source_binding_schema_version"]
+        != prepared_read.source_binding_schema_version
+    ):
+        return None
+    receipt = PreparedSKGReadReceipt(
+        run_id=run_id,
+        node_id=node_id,
+        cache_key=cache_key,
+        current_source_snapshot_ref=prepared_read.source_snapshot_ref,
+        current_source_snapshot_sha256=prepared_read.source_snapshot_sha256,
+        source_binding_schema_version=prepared_read.source_binding_schema_version,
+        original_source_snapshot_ref=origin["source_snapshot_ref"],
+        original_source_snapshot_sha256=origin["source_snapshot_sha256"],
+        selector_version=selector_version,
+        query_version=prepared_read.query_version,
+        original_prepared_at=datetime.fromisoformat(origin["prepared_at"]),
+        current_prepared_at=prepared_read.prepared_at,
+        read_evidence_scope="bound_connection_query_execution_only",
+        output_dependency="not_established",
+        original_output_refs=tuple(cached_outcome.artifacts),
+    )
+    payload = json.dumps(
+        receipt.model_dump(mode="json"),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    receipt_ref = ctx.store.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind="scientist.skg_cache_read_receipt",
+            media_type="application/json",
+            schema=SchemaInfo(name="scientist.skg_cache_read_receipt", version="3.0"),
+            producer=ProducerInfo(component="scientist.engine.skg_cache_bridge", version="1.0.0"),
+            inputs=[
+                InputRef(artifact_id=str(ref.artifact_id), role="cached_node_output")
+                for ref in cached_outcome.artifacts
+            ],
+        ),
+    )
+    if not prepared_read.source_generation_matches():
+        return None
+    return receipt_ref
 
 
 def _validate_required_binds(required: list[str], state: ExperimentState) -> None:
@@ -936,7 +1071,10 @@ class WorkflowExecutor:
                 "polisyos.node.id": str(inv.node_id),
             }
 
-            with start_node_span(self._ctx.tracer, span_attrs) as span:
+            with (
+                start_node_span(self._ctx.tracer, span_attrs) as span,
+                ExitStack() as node_resources,
+            ):
                 self._ctx.run.emit(f"scientist.node.{alias}", "NODE_STARTED")
                 if self._ctx.audit is not None:
                     self._ctx.audit.append(
@@ -959,20 +1097,61 @@ class WorkflowExecutor:
                 cache_stored = False
                 cache_entry_ref: ArtifactRef | None = None
                 cache_bypass_reason: int | None = None
+                prepared_read: PreparedSKGRead | None = None
+                query_execution_marker: int | None = None
+                connection_query_fingerprints: tuple[str, ...] = ()
+                node_context = self._ctx
+                cache_bind_params = dict(inv.params or {})
                 set_span_attribute(span, "polisyos.node.cache.enabled", cache_enabled)
 
                 if cache_enabled:
+                    if isinstance(node, CacheInputPreparer):
+                        if inv.timeout_s is not None:
+                            cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ_TIMEOUT
+                        else:
+                            try:
+                                prepared_read = node.prepare_cache_input(self._ctx, state)
+                                if prepared_read is None:
+                                    cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+                                else:
+                                    node_resources.callback(prepared_read.close)
+                                    node_context = replace(
+                                        self._ctx,
+                                        prepared_skg_read=prepared_read,
+                                    )
+                                    cache_bind_params["prepared_skg_read"] = (
+                                        prepared_read.cache_binding(
+                                            selector_version=_prepared_read_selector_version(node_id)
+                                        )
+                                    )
+                            except _EXECUTOR_DEGRADED_ERRORS as exc:
+                                cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+                                self._ctx.logger.warning(
+                                    "Prepared SKG read unavailable for node %s: %s",
+                                    alias,
+                                    exc,
+                                )
+                            except Exception as exc:
+                                if not _is_duckdb_error(exc):
+                                    raise
+                                cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+                                self._ctx.logger.warning(
+                                    "Prepared SKG read unavailable for node %s: %s",
+                                    alias,
+                                    exc,
+                                )
                     try:
-                        cache_key = compute_idempotency_key(
-                            spec=node.spec,
-                            state=state,
-                            bind_params=inv.params,
-                        )
-                        set_span_attribute(
-                            span,
-                            "polisyos.node.idempotency_key_prefix",
-                            cache_key[:16],
-                        )
+                        if cache_bypass_reason is None:
+                            cache_key = compute_idempotency_key(
+                                spec=node.spec,
+                                state=state,
+                                bind_params=cache_bind_params,
+                            )
+                            set_span_attribute(
+                                span,
+                                "polisyos.node.idempotency_key_prefix",
+                                cache_key[:16],
+                            )
                     except (CanonViolation, ValueError, TypeError) as exc:
                         cache_bypass_reason = _CACHE_BYPASS_KEY_ERROR
                         self._ctx.logger.warning(
@@ -1010,16 +1189,55 @@ class WorkflowExecutor:
                 cached_outcome: NodeOutcome | None = None
                 if cache_key is not None and self._cache is not None:
                     cached_outcome = self._cache.get(cache_key)
-                    if cached_outcome is not None:
-                        cache_hit = True
-                        self._ctx.run.emit(
-                            f"scientist.node.{alias}",
-                            "NODE_CACHE_HIT",
-                            metrics={
-                                "duration_ms": int((time.perf_counter() - started) * 1000),
-                                "cache_hit": 1,
-                            },
+                    if cached_outcome is not None and isinstance(node, CacheHitValidator):
+                        try:
+                            cache_hit_valid = node.validate_cache_hit(
+                                node_context,
+                                state,
+                                cached_outcome,
+                            )
+                        except _EXECUTOR_DEGRADED_ERRORS:
+                            cache_hit_valid = False
+                        if not cache_hit_valid:
+                            self._cache.discard(cache_key)
+                            cached_outcome = None
+                            cache_bypass_reason = _CACHE_BYPASS_CACHE_HIT_VALIDATION
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_CACHE_BYPASS",
+                                metrics={
+                                    "duration_ms": int((time.perf_counter() - started) * 1000),
+                                    "cache_bypass": 1,
+                                    "reason_code": _CACHE_BYPASS_CACHE_HIT_VALIDATION,
+                                },
+                            )
+                    if cached_outcome is not None and prepared_read is not None:
+                        origin = _prepared_read_origin(
+                            cached_outcome,
+                            selector_version=_prepared_read_selector_version(node_id),
                         )
+                        if origin is None or any(
+                            (
+                                origin["source_snapshot_ref"] != prepared_read.source_snapshot_ref,
+                                origin["source_snapshot_sha256"]
+                                != prepared_read.source_snapshot_sha256,
+                                origin["source_binding_schema_version"]
+                                != prepared_read.source_binding_schema_version,
+                                origin["query_version"] != prepared_read.query_version,
+                            )
+                        ):
+                            self._cache.discard(cache_key)
+                            cached_outcome = None
+                            cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_CACHE_BYPASS",
+                                metrics={
+                                    "duration_ms": int((time.perf_counter() - started) * 1000),
+                                    "cache_bypass": 1,
+                                    "reason_code": _CACHE_BYPASS_PREPARED_READ,
+                                },
+                            )
 
                 if cached_outcome is not None:
                     try:
@@ -1054,9 +1272,75 @@ class WorkflowExecutor:
                             _CACHE_BYPASS_REPLAY_INCOMPATIBLE,
                         )
                     else:
-                        outcome = cached_outcome.model_copy(
-                            update={"state": merged_cached_state}
-                        )
+                        receipt_ref: ArtifactRef | None = None
+                        if prepared_read is not None and cache_key is not None:
+                            try:
+                                receipt_ref = _persist_prepared_read_receipt(
+                                    ctx=self._ctx,
+                                    run_id=state.run_id,
+                                    node_id=node_id,
+                                    cache_key=cache_key,
+                                    prepared_read=prepared_read,
+                                    cached_outcome=cached_outcome,
+                                )
+                            except _EXECUTOR_DEGRADED_ERRORS as exc:
+                                self._ctx.logger.warning(
+                                    "Prepared SKG cache receipt could not be stored for node %s: %s",
+                                    alias,
+                                    exc,
+                                )
+                            if receipt_ref is None:
+                                if self._cache is not None:
+                                    self._cache.discard(cache_key)
+                                cached_outcome = None
+                                cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+                                self._ctx.run.emit(
+                                    f"scientist.node.{alias}",
+                                    "NODE_CACHE_BYPASS",
+                                    metrics={
+                                        "duration_ms": int((time.perf_counter() - started) * 1000),
+                                        "cache_bypass": 1,
+                                        "reason_code": _CACHE_BYPASS_PREPARED_READ,
+                                    },
+                                )
+                            else:
+                                receipt_event = NodeEvent(
+                                    level="info",
+                                    code="skg.cache_read_receipt",
+                                    message="Candidate SKG cache reuse receipt persisted.",
+                                    attrs={
+                                        "artifact_id": str(receipt_ref.artifact_id),
+                                        "source_binding_schema_version": (
+                                            prepared_read.source_binding_schema_version
+                                        ),
+                                        "source_snapshot_sha256": prepared_read.source_snapshot_sha256,
+                                        "source_snapshot_authenticity": "not_established",
+                                    },
+                                )
+                                outcome = cached_outcome.model_copy(
+                                    update={
+                                        "state": merged_cached_state,
+                                        "events": [*cached_outcome.events, receipt_event],
+                                        "artifacts": [*cached_outcome.artifacts, receipt_ref],
+                                    }
+                                )
+                                cache_hit = True
+                        else:
+                            outcome = cached_outcome.model_copy(
+                                update={"state": merged_cached_state}
+                            )
+                            cache_hit = True
+
+                        if cache_hit:
+                            self._ctx.run.emit(
+                                f"scientist.node.{alias}",
+                                "NODE_CACHE_HIT",
+                                outputs=[receipt_ref] if receipt_ref is not None else None,
+                                metrics={
+                                    "duration_ms": int((time.perf_counter() - started) * 1000),
+                                    "cache_hit": 1,
+                                },
+                            )
 
                 if cached_outcome is None:
                     retry_policy = inv.retry or RetryPolicy()
@@ -1071,9 +1355,11 @@ class WorkflowExecutor:
                         ",".join(branched_state.journal.isolated_paths),
                     )
                     try:
+                        if prepared_read is not None:
+                            query_execution_marker = prepared_read.query_execution_marker()
                         raw_outcome = execute_with_retry_sync(
                             node,
-                            self._ctx,
+                            node_context,
                             node_state,
                             retry_policy=retry_policy,
                             timeout_s=inv.timeout_s,
@@ -1129,7 +1415,52 @@ class WorkflowExecutor:
                         state = _preserve_retry_spend(state, outcome.state)
                         outcome = outcome.model_copy(update={"state": state})
 
-                    if outcome.status == "ok" and cache_key is not None and self._cache is not None:
+                    if prepared_read is not None and query_execution_marker is not None:
+                        if prepared_read.source_generation_matches():
+                            connection_query_fingerprints = (
+                                prepared_read.query_fingerprints_since(query_execution_marker)
+                            )
+
+                    if (
+                        prepared_read is not None
+                        and connection_query_fingerprints
+                        and outcome.status == "ok"
+                    ):
+                        outcome.events.append(
+                            NodeEvent(
+                                level="info",
+                                code="skg.prepared_connection_query",
+                                message=(
+                                    "A successful SELECT/WITH ran on the bound source connection; "
+                                    "output dependence is not established."
+                                ),
+                                attrs={
+                                    "source_snapshot_ref": prepared_read.source_snapshot_ref,
+                                    "source_snapshot_sha256": prepared_read.source_snapshot_sha256,
+                                    "source_binding_schema_version": (
+                                        prepared_read.source_binding_schema_version
+                                    ),
+                                    "query_version": prepared_read.query_version,
+                                    "selector_version": _prepared_read_selector_version(node_id),
+                                    "prepared_at": prepared_read.prepared_at.isoformat(),
+                                    "connection_query_fingerprints_json": json.dumps(
+                                        list(connection_query_fingerprints), separators=(",", ":")
+                                    ),
+                                    "read_evidence_scope": "bound_connection_query_execution_only",
+                                    "output_dependency": "not_established",
+                                    "time_semantics": "read_transaction_opened_at",
+                                    "source_snapshot_authenticity": "not_established",
+                                    "authority_band": "candidate",
+                                },
+                            )
+                        )
+
+                    if (
+                        outcome.status == "ok"
+                        and cache_key is not None
+                        and self._cache is not None
+                        and (prepared_read is None or connection_query_fingerprints)
+                    ):
                         try:
                             entry_ref = self._cache.put(cache_key, node_id=node_id, outcome=outcome)
                             cache_entry_ref = entry_ref
@@ -1177,6 +1508,27 @@ class WorkflowExecutor:
                                 "polisyos.node.cache.bypass_reason",
                                 _CACHE_BYPASS_STORE_ERROR,
                             )
+                    elif (
+                        outcome.status == "ok"
+                        and cache_key is not None
+                        and self._cache is not None
+                        and prepared_read is not None
+                    ):
+                        cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+                        self._ctx.run.emit(
+                            f"scientist.node.{alias}",
+                            "NODE_CACHE_BYPASS",
+                            metrics={
+                                "duration_ms": int((time.perf_counter() - started) * 1000),
+                                "cache_bypass": 1,
+                                "reason_code": _CACHE_BYPASS_PREPARED_READ,
+                            },
+                        )
+                        set_span_attribute(
+                            span,
+                            "polisyos.node.cache.bypass_reason",
+                            _CACHE_BYPASS_PREPARED_READ,
+                        )
 
                 duration_ms = int((time.perf_counter() - started) * 1000)
                 if self._ctx.metrics is not None:

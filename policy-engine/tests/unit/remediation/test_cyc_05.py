@@ -17,9 +17,6 @@ from polisyos.pdc import (
     assert_ring2_verifier_provenance,
     gy_content_hash,
 )
-from polisyos.runtime.http.services.control.generation_cycle import (
-    _build_cycle_substrate_context_from_owner,
-)
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     _search_exit_binding_hash,
     derive_recursive_design_graph,
@@ -39,6 +36,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 )
 from polisyos.runtime.quality.workspace.loop import WorkspaceLoop, WorkspaceSearchExitContract
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.remediation.test_cyc_02 import (
     _recursive_contract_testing_controller,
     _recursive_leaf_terminal,
@@ -233,7 +231,11 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
             compile_worker_request,
         )
 
-        service._process_control_job(record)
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=record.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None
@@ -274,22 +276,6 @@ def test_generation_cycle_receipt_replay_binds_bounded_limitations(tmp_path: Pat
         changed_limitations.verify_current(tmp_path)
 
 
-def test_http_owner_context_requires_explicit_source_root() -> None:
-    """HTTP source-owner preparation must not inspect the process cwd."""
-
-    problem = _problem("cyc_05_http_rootless_context")
-    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
-
-    assert (
-        _build_cycle_substrate_context_from_owner(
-            problem=problem,
-            problem_ref=problem_ref,
-            repo_root=None,
-        )
-        is None
-    )
-
-
 @pytest.mark.asyncio
 async def test_http_rejects_injected_controller_source_root_mismatch(
     tmp_path: Path,
@@ -301,7 +287,9 @@ async def test_http_rejects_injected_controller_source_root_mismatch(
     root_b = tmp_path / "checkout-b"
     root_a.mkdir()
     root_b.mkdir()
-    problem = _problem("cyc_05_controller_root_mismatch")
+    problem, cycle_substrate_context, _ = _cyc01_owner_bound_n5_case(
+        problem_seed=_problem("cyc_05_controller_root_mismatch"),
+    )
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
     verifier = object()
     controller = build_default_recursive_generation_cycle_controller(
@@ -323,11 +311,6 @@ async def test_http_rejects_injected_controller_source_root_mismatch(
         "build_design_problem_from_nl_request",
         compile_problem,
     )
-    monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
-    )
     monkeypatch.setattr(controller, "run", fail_if_controller_runs)
 
     with pytest.raises(DesignProblemAuthorityError) as exc_info:
@@ -335,6 +318,8 @@ async def test_http_rejects_injected_controller_source_root_mismatch(
             raw_request=problem.nl_provenance.raw_request,
             context={},
             model_name="fixture-model",
+            execution_intent="simulate_only",
+            cycle_substrate_context=cycle_substrate_context,
             compiler_gateway=object(),  # type: ignore[arg-type]
             controller=controller,
             budget_state=_budget(),
@@ -721,7 +706,7 @@ def test_workspace_fixture_child_alias_roundtrip_preserves_source_identity() -> 
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("control", ("missing_child", "missing_coupling", "identity"))
+@pytest.mark.parametrize("control", ["missing_child", "missing_coupling", "identity"])
 async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inputs(
     tmp_path: Path,
     control: str,

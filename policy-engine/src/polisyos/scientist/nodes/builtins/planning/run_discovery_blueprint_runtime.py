@@ -5,12 +5,13 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from pydantic import ValidationError
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.foundry.methods.catalog.causal.protocols import (
     TabularCausalDiscoveryData,
     TimeSeriesCausalData,
@@ -19,6 +20,7 @@ from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.transportability import SelectionDiagram, SNode
+from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
 from polisyos.scientist.methods.discovery.output import (
     DiscoveryArtifactBuilder,
@@ -43,17 +45,24 @@ from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityJudge,
     UtilityJudgeInput,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
-from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF,
     INPUT_GRAPH_PRIOR_BUNDLE_REF,
     INPUT_PRIOR_KNOWLEDGE_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_discovery_blueprint_runtime@1.0.0"),
@@ -117,6 +126,27 @@ class RunDiscoveryBlueprintRuntimeNode:
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
+
+    def prepare_cache_input(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+    ) -> PreparedSKGRead | None:
+        """Prepare the academic rows used by discovery prior mining."""
+        del ctx
+        evidence_sources = normalize_evidence_sources_config(state.params)
+        db_path_raw = str(evidence_sources.academic_db_path or "").strip()
+        if not db_path_raw:
+            return None
+        db_path = Path(db_path_raw)
+        index_dir = (
+            Path(evidence_sources.academic_index_dir)
+            if evidence_sources.academic_index_dir
+            else db_path.parent
+        )
+        if not index_dir.exists():
+            index_dir = db_path.parent
+        return SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         data = state.params.get("discovery_data")
@@ -222,7 +252,7 @@ class RunDiscoveryBlueprintRuntimeNode:
                 academic_index_dir=evidence_sources.academic_index_dir,
                 domain=str(state.params.get("discovery_domain") or "").strip() or None,
             )
-        ).mine(graph_prior_bundle)
+        ).mine(graph_prior_bundle, prepared_read=ctx.prepared_skg_read)
         channel_coverage = dict(utility_report.metadata.get("channel_coverage") or {})
         graph_prior_bundle = graph_prior_bundle.model_copy(
             update={

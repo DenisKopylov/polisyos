@@ -9,7 +9,9 @@ from polisyos.core import canon
 from polisyos.core import components as core_components
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.contracts.control import WorkflowRunRequest
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.pdc import ArtifactRef
+from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.services.adapters.core_run import load_terminal_core_run_source
 from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
 from polisyos.runtime.quality.evaluation_safety import (
@@ -20,9 +22,45 @@ from polisyos.runtime.quality.evaluation_safety import (
     evaluation_safety_core_bytes,
     evaluation_safety_decision_id,
 )
+from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.runtime.http.test_control_service_di import _build_control_service
 
 _NOW = datetime(2026, 8, 28, 8, 0, tzinfo=UTC)
+_PRINCIPAL = RuntimePrincipal(
+    subject="eval-safety-admission-fixture",
+    authenticated=True,
+    tenant_id="tenant-eval-safety-admission",
+    cell_id="cell-eval-safety-admission",
+    roles=frozenset({"analyst"}),
+)
+
+
+def _within_fixture_owner(
+    function, *args, owner: RuntimePrincipal = _PRINCIPAL, **kwargs
+):
+    """Admit this controlled fixture's reads and writes under its explicit owner."""
+    assert owner.tenant_id is not None
+    assert owner.cell_id is not None
+    with tenant_scope(None, tenant_id=owner.tenant_id, cell_id=owner.cell_id):
+        return function(*args, **kwargs)
+
+
+def _launch_fixture_workflow(service, request: WorkflowRunRequest):
+    return _within_fixture_owner(service.launch_workflow_run, request, principal=_PRINCIPAL)
+
+
+def _load_fixture_decision(service) -> EvaluationSafetyDecisionEvent:
+    with tenant_scope(None, tenant_id=_PRINCIPAL.tenant_id, cell_id=_PRINCIPAL.cell_id):
+        identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"]
+        decision_ids = tuple(
+            artifact_id
+            for artifact_id in service._artifact_store.iter_artifact_ids()
+            if service._artifact_store.get_manifest(artifact_id).kind == identity.kind
+        )
+        assert len(decision_ids) == 1
+        return EvaluationSafetyDecisionEvent.model_validate(
+            canon.from_canonical_bytes(service._artifact_store.get_bytes(decision_ids[0]))
+        )
 
 
 def _ref(value: str, kind: str) -> ArtifactRef:
@@ -36,10 +74,14 @@ def _ref(value: str, kind: str) -> ArtifactRef:
     )
 
 
-def _field_pilot_intake(service) -> tuple[str, dict[str, Any]]:
-    source = service._artifact_store.put_json(
+def _field_pilot_intake(
+    service, *, owner: RuntimePrincipal = _PRINCIPAL
+) -> tuple[str, dict[str, Any]]:
+    source = _within_fixture_owner(
+        service._artifact_store.put_json,
         {"observed": "real-world"},
         ArtifactWriteOptions(kind="test.eval-input", media_type="application/json"),
+        owner=owner,
     )
     source_ref = _ref(str(source.artifact_id), "test.eval-input")
     pack_ref = _ref("sha256:" + "9" * 64, "test.eval-safety-pack")
@@ -101,28 +143,24 @@ def _run_blocked_attempt(tmp_path, monkeypatch, promotion_state: object) -> dict
     if promotion_state is not None:
         params["promotion_state"] = promotion_state
     try:
-        launch = service.launch_workflow_run(
+        launch = _launch_fixture_workflow(
+            service,
             WorkflowRunRequest(
                 data_source={"data_snapshot_ref": source_id},
                 params=params,
-            )
+            ),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
-        service._process_control_job(record)
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=record.job_id,
+        )
         terminal = service._control_store.get_job(launch.job_id)
         assert terminal is not None
 
-        identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"]
-        decision_ids = tuple(
-            artifact_id
-            for artifact_id in service._artifact_store.iter_artifact_ids()
-            if service._artifact_store.get_manifest(artifact_id).kind == identity.kind
-        )
-        assert len(decision_ids) == 1
-        decision = EvaluationSafetyDecisionEvent.model_validate(
-            canon.from_canonical_bytes(service._artifact_store.get_bytes(decision_ids[0]))
-        )
+        decision = _load_fixture_decision(service)
         return {
             "service": service,
             "launch": launch,
@@ -199,7 +237,8 @@ def test_blocked_control_attempt_projection_is_terminal_manifest_output(
     try:
         terminal = result["terminal"]
         launch = result["launch"]
-        source = load_terminal_core_run_source(
+        source = _within_fixture_owner(
+            load_terminal_core_run_source,
             store=service._artifact_store,
             core_runs_root=service._core_runs_root,
             run_id=launch.run_id,
@@ -251,18 +290,23 @@ def test_explicit_simulate_only_attempt_is_certificate_free_and_preserves_workfl
 
     monkeypatch.setattr("polisyos.scientist.api.run_experiment", capture_run)
     try:
-        launch = service.launch_workflow_run(
+        launch = _launch_fixture_workflow(
+            service,
             WorkflowRunRequest(
                 data_source={"data_snapshot_ref": source_id},
                 params={
                     "control_plane_transition": "legacy_shadow",
                     "evaluation_safety_attempt": raw_intake,
                 },
-            )
+            ),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
-        service._process_control_job(record)
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=record.job_id,
+        )
         terminal = service._control_store.get_job(launch.job_id)
 
         assert terminal is not None
@@ -274,16 +318,7 @@ def test_explicit_simulate_only_attempt_is_certificate_free_and_preserves_workfl
         assert observed["eval_safety_verifier"] is (service._evaluation_safety_admission_verifier)
         assert "_polisyos_eval_safety_execution_context" not in observed["state"]
 
-        identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"]
-        decision_ids = tuple(
-            artifact_id
-            for artifact_id in service._artifact_store.iter_artifact_ids()
-            if service._artifact_store.get_manifest(artifact_id).kind == identity.kind
-        )
-        assert len(decision_ids) == 1
-        decision = EvaluationSafetyDecisionEvent.model_validate(
-            canon.from_canonical_bytes(service._artifact_store.get_bytes(decision_ids[0]))
-        )
+        decision = _load_fixture_decision(service)
         assert decision.safety.status == "passed"
         assert decision.safety.certificate_eligible is False
     finally:
@@ -298,7 +333,14 @@ def test_blocked_control_attempt_retry_reuses_terminal_projection_without_recoun
     service = result["service"]
     first = result["terminal"]
     try:
-        service._process_control_job(first)
+        # The worker does not reclaim a terminal row; no retry producer exists.
+        assert (
+            dispatch_one_control_job(
+                store=service._control_store,  # noqa: SLF001
+                handler=service._process_control_job,  # noqa: SLF001
+            )
+            is None
+        )
         second = service._control_store.get_job(first.job_id)
 
         assert second is not None

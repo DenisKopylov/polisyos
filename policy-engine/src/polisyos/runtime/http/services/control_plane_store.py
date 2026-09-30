@@ -91,10 +91,7 @@ def _is_unique_constraint_violation(exc: BaseException) -> bool:
     """Recognize unique-index conflicts across the supported SQL drivers."""
     if isinstance(exc, sqlite3.IntegrityError):
         return "unique constraint failed" in str(exc).casefold()
-    return (
-        getattr(exc, "sqlstate", None) == "23505"
-        or getattr(exc, "pgcode", None) == "23505"
-    )
+    return getattr(exc, "sqlstate", None) == "23505" or getattr(exc, "pgcode", None) == "23505"
 
 
 def _job_event_topic(event_type: str) -> str:
@@ -128,6 +125,70 @@ _CONTROL_JOB_KINDS = frozenset(get_args(ControlJobKind))
 _CONTROL_JOB_STATES = frozenset({"pending", "running", "completed", "failed"})
 _EXECUTION_PROFILES = frozenset({"dev", "research", "governed", "production"})
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
+_CONTROL_EXECUTION_SCOPE_SCHEMA_VERSION = "polisyos.runtime.control_execution_scope.v1"
+_CONTROL_EXECUTION_SCOPE_KEYS = frozenset(
+    {
+        "schema_version",
+        "status",
+        "tenant_id",
+        "cell_id",
+        "actor_subject",
+        "actor_authenticated",
+        "actor_roles",
+    }
+)
+_CONTROL_EXECUTION_SCOPE_SENTINELS = frozenset(
+    {
+        "",
+        "anonymous",
+        "cell-unknown",
+        "none",
+        "not-established",
+        "null",
+        "tenant-unknown",
+        "unknown",
+    }
+)
+_CONTROL_JOB_ADMISSION_STABLE_FIELDS = (
+    "job_id",
+    "run_id",
+    "job_kind",
+    "pipeline_id",
+    "payload_ref",
+    "submitted_by",
+    "requested_execution_profile",
+    "effective_execution_profile",
+    "policy_flags",
+    "capability_manifest_ref",
+)
+_CONTROL_OUTBOX_ENVELOPE_FIELDS = frozenset(
+    {"job_id", "job_kind", "run_id", "pipeline_id", "effective_execution_profile"}
+)
+
+
+def _json_values_equal_strict(left: object, right: object) -> bool:
+    """Compare decoded JSON values with exact primitive types and order-free objects."""
+
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict) and isinstance(right, dict):
+        if any(not isinstance(key, str) for key in left) or any(
+            not isinstance(key, str) for key in right
+        ):
+            return False
+        if left.keys() != right.keys():
+            return False
+        return all(_json_values_equal_strict(left[key], right[key]) for key in left)
+    if isinstance(left, list) and isinstance(right, list):
+        return len(left) == len(right) and all(
+            _json_values_equal_strict(left_item, right_item)
+            for left_item, right_item in zip(left, right, strict=True)
+        )
+    return left == right
+
+
+ExecutionScopeStatus = Literal["established", "not_established"]
+ManifestPointerState = Literal["admission_current", "refreshed_current", "missing_current"]
 
 _RUNTIME_QUALITY_REF_GATES = (
     {
@@ -962,6 +1023,29 @@ class ControlOutboxRecord:
 
 
 @dataclass(frozen=True)
+class ControlJobExecutionScope:
+    """Carry tenant/cell and actor identity admitted by one job-created event."""
+
+    status: ExecutionScopeStatus
+    tenant_id: str | None
+    cell_id: str | None
+    actor_subject: str | None
+    actor_authenticated: bool
+    actor_roles: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ControlJobExecutionAdmission:
+    """Bind one live leased job to its immutable creation-time execution scope."""
+
+    job: ControlJobRecord
+    scope: ControlJobExecutionScope
+    admission_capability_manifest_ref: str | None
+    attempt: int
+    manifest_pointer_state: ManifestPointerState
+
+
+@dataclass(frozen=True)
 class ControlDiagnosticEventRecord:
     """Represent one durable append-only runtime diagnostic event record."""
 
@@ -975,6 +1059,89 @@ class ControlDiagnosticEventRecord:
 
 class ControlJobLeaseLostError(RuntimeError):
     """Raised when a worker attempts to write outside its live job lease."""
+
+
+class ControlJobExecutionAdmissionError(RuntimeError):
+    """Raised when a leased job's creation record cannot establish its identity."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
+def _unknown_control_job_execution_scope() -> ControlJobExecutionScope:
+    return ControlJobExecutionScope(
+        status="not_established",
+        tenant_id=None,
+        cell_id=None,
+        actor_subject=None,
+        actor_authenticated=False,
+        actor_roles=(),
+    )
+
+
+def _control_job_execution_scope_from_event(
+    payload: dict[str, Any],
+) -> ControlJobExecutionScope:
+    if "execution_scope" not in payload:
+        return _unknown_control_job_execution_scope()
+    raw = payload.get("execution_scope")
+    if not isinstance(raw, dict) or set(raw) != _CONTROL_EXECUTION_SCOPE_KEYS:
+        raise ControlJobExecutionAdmissionError("control_job_execution_scope_malformed")
+    if raw.get("schema_version") != _CONTROL_EXECUTION_SCOPE_SCHEMA_VERSION:
+        raise ControlJobExecutionAdmissionError("control_job_execution_scope_malformed")
+    status = raw.get("status")
+    tenant_id = raw.get("tenant_id")
+    cell_id = raw.get("cell_id")
+    actor_subject = raw.get("actor_subject")
+    actor_authenticated = raw.get("actor_authenticated")
+    actor_roles = raw.get("actor_roles")
+    if (
+        not isinstance(status, str)
+        or status not in {"established", "not_established"}
+        or (tenant_id is not None and not isinstance(tenant_id, str))
+        or (cell_id is not None and not isinstance(cell_id, str))
+        or (actor_subject is not None and not isinstance(actor_subject, str))
+        or type(actor_authenticated) is not bool
+        or not isinstance(actor_roles, list)
+        or any(not isinstance(role, str) for role in actor_roles)
+    ):
+        raise ControlJobExecutionAdmissionError("control_job_execution_scope_malformed")
+    if status == "not_established":
+        if (
+            tenant_id is not None
+            or cell_id is not None
+            or actor_subject is not None
+            or actor_authenticated
+            or actor_roles
+        ):
+            raise ControlJobExecutionAdmissionError("control_job_execution_scope_malformed")
+        return _unknown_control_job_execution_scope()
+
+    identities = (tenant_id, cell_id, actor_subject)
+    if (
+        any(
+            value is None
+            or not value
+            or value != value.strip()
+            or value.casefold() in _CONTROL_EXECUTION_SCOPE_SENTINELS
+            for value in identities
+        )
+        or not actor_authenticated
+    ):
+        raise ControlJobExecutionAdmissionError("control_job_execution_scope_incomplete")
+    if any(not role or role != role.strip() for role in actor_roles) or actor_roles != sorted(
+        set(actor_roles)
+    ):
+        raise ControlJobExecutionAdmissionError("control_job_execution_scope_malformed")
+    return ControlJobExecutionScope(
+        status="established",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        actor_subject=actor_subject,
+        actor_authenticated=True,
+        actor_roles=tuple(actor_roles),
+    )
 
 
 @dataclass(frozen=True)
@@ -1358,6 +1525,112 @@ class ControlPlaneStore:
             attempt=attempt,
         )
 
+    def current_execution_job_admission(self) -> ControlJobExecutionAdmission:
+        """Resolve the leased job's creation-time tenant/cell admission envelope.
+
+        The creation event owns the admitted scope. Legacy events without the
+        typed scope remain explicitly unknown; payload, progress, ambient
+        context, and the mutable current manifest pointer cannot fill it in.
+        """
+        job = self.current_execution_job_record()
+        try:
+            event_payload = self.get_job_created_event_payload(job.job_id)
+        except RuntimeError as exc:
+            raise ControlJobExecutionAdmissionError(
+                "control_job_created_event_unavailable"
+            ) from exc
+        try:
+            outbox_event = self.get_job_created_outbox_event(job.job_id)
+        except (RuntimeError, TypeError, json.JSONDecodeError) as exc:
+            raise ControlJobExecutionAdmissionError(
+                "control_job_created_outbox_unavailable"
+            ) from exc
+        if outbox_event is None:
+            raise ControlJobExecutionAdmissionError("control_job_created_outbox_unavailable")
+        if (
+            outbox_event.topic != "control.job.created"
+            or outbox_event.job_id != job.job_id
+            or outbox_event.run_id != job.run_id
+        ):
+            raise ControlJobExecutionAdmissionError("control_job_created_event_outbox_mismatch")
+
+        outbox_payload = outbox_event.payload
+        if not isinstance(outbox_payload, dict):
+            raise ControlJobExecutionAdmissionError("control_job_created_event_outbox_mismatch")
+        if ("execution_scope" in event_payload) != ("execution_scope" in outbox_payload):
+            raise ControlJobExecutionAdmissionError("control_job_created_event_outbox_mismatch")
+        for key, value in event_payload.items():
+            if key not in outbox_payload or not _json_values_equal_strict(
+                outbox_payload[key], value
+            ):
+                raise ControlJobExecutionAdmissionError("control_job_created_event_outbox_mismatch")
+        outbox_only_fields = set(outbox_payload).difference(event_payload)
+        if not outbox_only_fields.issubset(_CONTROL_OUTBOX_ENVELOPE_FIELDS):
+            raise ControlJobExecutionAdmissionError("control_job_created_event_outbox_mismatch")
+
+        has_typed_scope = "execution_scope" in event_payload
+        scope = _control_job_execution_scope_from_event(event_payload)
+        outbox_scope = _control_job_execution_scope_from_event(outbox_payload)
+        if outbox_scope != scope:
+            raise ControlJobExecutionAdmissionError("control_job_created_event_outbox_mismatch")
+        expected_fields: dict[str, Any] = {
+            "job_id": job.job_id,
+            "run_id": job.run_id,
+            "job_kind": job.kind,
+            "pipeline_id": job.pipeline_id,
+            "payload_ref": job.payload_ref,
+            "submitted_by": job.submitted_by,
+            "requested_execution_profile": job.requested_execution_profile,
+            "effective_execution_profile": job.effective_execution_profile,
+            "policy_flags": job.policy_flags,
+        }
+        if has_typed_scope:
+            missing_fields = set(_CONTROL_JOB_ADMISSION_STABLE_FIELDS).difference(event_payload)
+            if missing_fields:
+                raise ControlJobExecutionAdmissionError("control_job_created_stable_field_missing")
+        for field_name, expected_value in expected_fields.items():
+            if field_name not in event_payload and field_name not in outbox_payload:
+                if has_typed_scope:
+                    raise ControlJobExecutionAdmissionError(
+                        "control_job_created_stable_field_missing"
+                    )
+                continue
+            admitted_value = event_payload.get(field_name, outbox_payload.get(field_name))
+            if not _json_values_equal_strict(admitted_value, expected_value):
+                raise ControlJobExecutionAdmissionError("control_job_created_stable_field_mismatch")
+
+        if scope.status == "established" and scope.actor_subject != job.submitted_by:
+            raise ControlJobExecutionAdmissionError("control_job_execution_actor_subject_mismatch")
+
+        admission_manifest_ref = event_payload.get(
+            "capability_manifest_ref",
+            outbox_payload.get("capability_manifest_ref"),
+        )
+        if admission_manifest_ref is not None and not isinstance(admission_manifest_ref, str):
+            raise ControlJobExecutionAdmissionError("control_job_created_stable_field_mismatch")
+        if has_typed_scope:
+            if not _json_values_equal_strict(outbox_payload, event_payload):
+                raise ControlJobExecutionAdmissionError("control_job_created_event_outbox_mismatch")
+            for field_name in _CONTROL_JOB_ADMISSION_STABLE_FIELDS:
+                if field_name not in event_payload:
+                    raise ControlJobExecutionAdmissionError(
+                        "control_job_created_stable_field_missing"
+                    )
+
+        if job.capability_manifest_ref is None:
+            pointer_state: ManifestPointerState = "missing_current"
+        elif job.capability_manifest_ref == admission_manifest_ref:
+            pointer_state = "admission_current"
+        else:
+            pointer_state = "refreshed_current"
+        return ControlJobExecutionAdmission(
+            job=job,
+            scope=scope,
+            admission_capability_manifest_ref=admission_manifest_ref,
+            attempt=job.attempt,
+            manifest_pointer_state=pointer_state,
+        )
+
     def _require_current_job_execution_record(
         self,
         *,
@@ -1377,9 +1650,7 @@ class ControlPlaneStore:
             or record.lease_expires_at is None
             or record.lease_expires_at <= now
         ):
-            raise ControlJobLeaseLostError(
-                f"control job lease is not current for {job_id}"
-            )
+            raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
         return record
 
     def _resolve_job_execution_fence(
@@ -1404,11 +1675,7 @@ class ControlPlaneStore:
             return bound_owner, bound_attempt
         if expected_lease_owner is None and expected_attempt is None:
             return None
-        if (
-            not expected_lease_owner
-            or type(expected_attempt) is not int
-            or expected_attempt < 1
-        ):
+        if not expected_lease_owner or type(expected_attempt) is not int or expected_attempt < 1:
             raise ValueError("control job owner and attempt must be supplied together")
         return expected_lease_owner, expected_attempt
 
@@ -2792,8 +3059,7 @@ class ControlPlaneStore:
                 )
                 if current_job is None:
                     raise ControlJobLeaseLostError(
-                        "control job lease no longer permits action-head write "
-                        f"for {job_id}"
+                        f"control job lease no longer permits action-head write for {job_id}"
                     )
             current = self.get_acquisition_action_head(
                 tenant_id=tenant_id,
@@ -2805,14 +3071,8 @@ class ControlPlaneStore:
             )
             if (
                 (current is None and expected_head_generation != 0)
-                or (
-                    current is not None
-                    and current.head_generation != expected_head_generation
-                )
-                or (
-                    current is not None
-                    and predecessor_receipt_ref != current.receipt_ref
-                )
+                or (current is not None and current.head_generation != expected_head_generation)
+                or (current is not None and predecessor_receipt_ref != current.receipt_ref)
                 or (current is None and predecessor_receipt_ref is not None)
             ):
                 raise ValueError("acquisition_action_predecessor_conflict")
@@ -3084,6 +3344,169 @@ class ControlPlaneStore:
             """,
             (job_id, progress_json, now),
         )
+
+    def current_execution_completed_job_record(self) -> ControlJobRecord:
+        """Resolve this handler's exact completed attempt without granting a new lease."""
+        with self._job_transaction():
+            return self._require_current_job_completion_record()
+
+    def _require_current_job_completion_record(self) -> ControlJobRecord:
+        """Reconcile the bound attempt with its durable completion event under transaction."""
+        bound = self._job_execution_fence.get()
+        if bound is None:
+            raise ControlJobLeaseLostError("control job completion identity is not bound")
+        job_id, worker_id, attempt = bound
+        lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+        row = self._fetchone(
+            f"SELECT job_id FROM control_jobs WHERE job_id = ?{lock_suffix}", (job_id,)
+        )
+        record = self.get_job(job_id) if row is not None else None
+        if (
+            record is None
+            or record.state != "completed"
+            or record.attempt != attempt
+            or record.lease_owner is not None
+            or record.lease_expires_at is not None
+        ):
+            raise ControlJobLeaseLostError(
+                "control job completed attempt no longer matches handler"
+            )
+        event = self._fetchone(
+            """
+            SELECT payload_json FROM control_job_events
+            WHERE job_id = ? AND event_type = 'job_completed'
+            ORDER BY event_id DESC LIMIT 1
+            """,
+            (job_id,),
+        )
+        raw = (
+            event[0]
+            if event is not None and not isinstance(event, Mapping)
+            else (event.get("payload_json") if event is not None else None)
+        )
+        try:
+            payload = json.loads(str(raw or "{}"))
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise ControlJobLeaseLostError("control job completion event is unavailable") from exc
+        if (
+            not isinstance(payload, dict)
+            or payload.get("state") != "completed"
+            or payload.get("lease_owner") != worker_id
+            or type(payload.get("attempt")) is not int
+            or payload["attempt"] != attempt
+        ):
+            raise ControlJobLeaseLostError("control job completion event does not bind handler")
+        return record
+
+    def publish_completed_job_proof(
+        self,
+        *,
+        job_id: str,
+        expected_progress: dict[str, Any],
+        proof_payload: dict[str, Any],
+        proof_ref: str,
+    ) -> None:
+        """Publish only proof-owned fields for the bound completed attempt.
+
+        Completion clears the running lease. This transition instead checks the
+        retained handler identity against the exact completion event, then
+        compares the progress snapshot before publishing. A stale handler or a
+        concurrent progress writer cannot overwrite a later state.
+        """
+        if not _is_sha256_ref(proof_ref):
+            raise ValueError("control job final proof reference is invalid")
+        with self._job_transaction():
+            record = self._require_current_job_completion_record()
+            if record.job_id != job_id:
+                raise ControlJobLeaseLostError("control job final proof progress changed")
+            bound = self._job_execution_fence.get()
+            if bound is None:
+                raise ControlJobLeaseLostError("control job completion identity is not bound")
+            if (
+                proof_payload.get("job_id") != job_id
+                or proof_payload.get("run_id") != record.run_id
+                or proof_payload.get("worker_id") != bound[1]
+            ):
+                raise ValueError("control job final proof does not bind completed handler")
+            row = self._fetchone(
+                "SELECT progress_json FROM control_job_progress WHERE job_id = ?"
+                + (" FOR UPDATE" if self.backend == "postgres" else ""),
+                (job_id,),
+            )
+            raw_progress = (
+                row[0]
+                if row is not None and not isinstance(row, Mapping)
+                else (row.get("progress_json") if row is not None else None)
+            )
+            try:
+                progress = json.loads(str(raw_progress or "{}"))
+            except (TypeError, json.JSONDecodeError) as exc:
+                raise ControlJobLeaseLostError(
+                    "control job final proof progress is unavailable"
+                ) from exc
+            proof_basis_fields = (
+                "production_loop_run_proof",
+                "production_loop_run_proof_ref",
+                "search_exit_contract",
+                "search_exit_contract_ref",
+                "authority_path",
+                "authority_result",
+            )
+            if not isinstance(progress, dict) or any(
+                (key in progress) != (key in expected_progress)
+                or not _json_values_equal_strict(progress.get(key), expected_progress.get(key))
+                for key in proof_basis_fields
+            ):
+                raise ControlJobLeaseLostError("control job final proof progress changed")
+            if proof_payload.get(
+                "control_store_state_transitions"
+            ) != self.list_job_state_transitions(job_id):
+                raise ControlJobLeaseLostError("control job final proof transition history changed")
+            progress["production_loop_run_proof"] = proof_payload
+            progress["production_loop_run_proof_ref"] = proof_ref
+            artifacts_index = progress.get("artifacts_index")
+            if isinstance(artifacts_index, Mapping):
+                progress["artifacts_index"] = {
+                    **dict(artifacts_index),
+                    "production_loop_run_proof_ref": proof_ref,
+                }
+            quality_scorecard = progress.get("quality_scorecard")
+            if isinstance(quality_scorecard, Mapping):
+                scorecard = dict(quality_scorecard)
+                evidence_refs = scorecard.get("evidence_refs")
+                evidence_refs = dict(evidence_refs) if isinstance(evidence_refs, Mapping) else {}
+                evidence_refs["production_loop_run_proof_ref"] = proof_ref
+                scorecard["evidence_refs"] = evidence_refs
+                progress["quality_scorecard"] = scorecard
+            progress_json = json.dumps(
+                _progress_with_quality_scorecard_summary(progress), sort_keys=True
+            )
+            affected = self._execute(
+                """
+                UPDATE control_job_progress SET progress_json = ?, updated_at = ?
+                WHERE job_id = ? AND progress_json = ?
+                """,
+                (progress_json, _iso(_utc_now()), job_id, raw_progress),
+            )
+            if affected != 1:
+                raise ControlJobLeaseLostError("control job final proof progress changed")
+            event_payload = {
+                "attempt": record.attempt,
+                "lease_owner": bound[1],
+                "proof_ref": proof_ref,
+            }
+            self.append_event(
+                job_id=job_id,
+                event_type="job_proof_finalized",
+                payload=event_payload,
+            )
+            self.enqueue_outbox_event(
+                topic="control.job.proof_finalized",
+                event_key=f"{job_id}:{record.attempt}:proof_finalized:{proof_ref}",
+                job_id=job_id,
+                run_id=record.run_id,
+                payload={"job_id": job_id, "run_id": record.run_id, **event_payload},
+            )
 
     def lease_next_job(
         self,
@@ -3369,6 +3792,10 @@ class ControlPlaneStore:
             expected_lease_owner=None,
             expected_attempt=None,
         )
+        if fence is None:
+            raise ControlJobLeaseLostError(
+                "control job manifest update requires an active execution fence"
+            )
         with self._job_transaction():
             where, where_params = self._job_fence_where(
                 job_id=job_id,
@@ -3427,8 +3854,7 @@ class ControlPlaneStore:
                 now=_utc_now(),
             )
             affected_rows = self._execute(
-                f"UPDATE control_jobs SET error_message = COALESCE(?, error_message) "
-                f"WHERE {where}",
+                f"UPDATE control_jobs SET error_message = COALESCE(?, error_message) WHERE {where}",
                 (error_message, *where_params),
             )
             self._require_fenced_write(
@@ -4720,14 +5146,19 @@ class ControlPlaneStore:
 __all__ = [
     "ControlDeadLetterRecord",
     "ControlDiagnosticEventRecord",
+    "ControlJobExecutionAdmission",
+    "ControlJobExecutionAdmissionError",
+    "ControlJobExecutionScope",
     "ControlJobLeaseLostError",
     "ControlJobRecord",
     "ControlOutboxRecord",
     "ControlPlaneStore",
     "ControlWorkerLeaseRecord",
+    "ExecutionScopeStatus",
     "HumanDecisionRecoveryFence",
     "HumanDecisionReservationRecord",
     "HumanDecisionReservationResult",
     "HumanDecisionReservationState",
     "HumanDecisionWriteFence",
+    "ManifestPointerState",
 ]

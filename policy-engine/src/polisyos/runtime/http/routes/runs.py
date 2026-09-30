@@ -957,6 +957,7 @@ if router is not None:
                 run_id=run_id,
                 approval_packet_ref=persisted.packet_ref,
                 decision=packet.decision,
+                request_access_scope=scope,
                 scorecard=scorecard,
                 approval_packet=packet.model_dump(mode="json", exclude_none=True),
             )

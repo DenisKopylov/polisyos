@@ -6,6 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.contracts.control import NaturalLanguageRunRequest
+from tests._helpers.control_worker import dispatch_one_control_job
 
 
 def test_unknown_target_scope_selector_is_typed_input_not_authority() -> None:
@@ -167,7 +168,11 @@ async def test_served_unknown_scope_job_keeps_candidate_n4_without_default_ua_wo
             lambda **_kwargs: pytest.fail("candidate proposal entered N6"),
         )
 
-        service._process_control_job(job)
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None and completed.state == "completed"

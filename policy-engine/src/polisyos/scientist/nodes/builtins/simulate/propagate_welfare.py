@@ -25,9 +25,19 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     SimulationResultRef,
 )
-from polisyos.foundry.calibration.report import CalibrationReport
+from polisyos.foundry.calibration.report import (
+    CalibrationCoordinateProjection,
+    CalibrationReport,
+)
 from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
 from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.covariance import (
+    CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+    CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+    build_covariance_matrix,
+    calibration_covariance_blocks_agree_v1,
+    preserve_singular_covariance,
+)
 from polisyos.ir.analytics.dependence_structure import (
     DependenceStructure,
     load_dependence_structure,
@@ -113,6 +123,7 @@ _EXPLICIT_GE_UNCERTAINTY_KEYS = frozenset(
 
 _DEFAULT_CONDITION_THRESHOLD = 1e12
 _DEFAULT_MAX_VERTEX_ENUMERATION = 10
+_CALIBRATION_COORDINATE_PROJECTION_VERSION = "1.0"
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_propagate_welfare@1.0.0"),
@@ -210,6 +221,68 @@ class _ResolvedWelfareContext:
 class _EnvelopeCollection:
     envelopes: dict[str, UncertaintyEnvelope]
     refs: dict[str, UncertaintyEnvelopeRef]
+    calibration_source: _CalibrationCovarianceSource | None = None
+
+
+@dataclass(frozen=True)
+class _EnvelopeOrigin:
+    artifact_key: tuple[str, str] | None
+    source_role: str
+
+
+def _envelope_origin(
+    *,
+    source_role: str,
+    ref: ArtifactRefModel | None,
+) -> _EnvelopeOrigin:
+    artifact_key = None
+    if ref is not None:
+        artifact_key = (ref.kind, str(ref.artifact_id))
+    return _EnvelopeOrigin(artifact_key=artifact_key, source_role=source_role)
+
+
+@dataclass(frozen=True)
+class _CalibrationCovarianceSource:
+    report_ref: ArtifactRefModel
+    report_schema_version: str
+    projection_status: str
+    field_order: tuple[str, ...]
+    projection_present: bool
+    coordinate_projection: CalibrationCoordinateProjection | None
+    coordinate_order: tuple[str, ...]
+    coordinate_covariance: tuple[tuple[float, ...], ...]
+    issue_codes: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class _CalibrationCoordinateSampler:
+    coordinate_order: tuple[str, ...]
+    calibration_fields: tuple[str, ...]
+    extra_fields: tuple[str, ...]
+    projection_matrix: np.ndarray
+    coordinate_covariance: np.ndarray
+    joint_covariance: np.ndarray
+    calibration_indices: tuple[int, ...]
+    extra_indices: tuple[int, ...]
+    projection_pseudoinverse: np.ndarray | None
+    extra_stds: tuple[float, ...]
+
+
+@dataclass(frozen=True)
+class _CalibrationCoordinateLaw:
+    coordinate_order: tuple[str, ...]
+    calibration_fields: tuple[str, ...]
+    projection_matrix: np.ndarray
+    coordinate_covariance: np.ndarray
+
+
+@dataclass(frozen=True)
+class _CovarianceResolution:
+    matrix: np.ndarray | None
+    dependence_applied: bool
+    note: dict[str, Any]
+    limitation_code: str | None = None
+    coordinate_law: _CalibrationCoordinateLaw | None = None
 
 
 @dataclass(frozen=True)
@@ -272,6 +345,10 @@ class PropagateWelfareNode:
             collection = _collect_input_envelopes(ctx, state, welfare_params=welfare_params)
             if (
                 not collection.envelopes
+                and not (
+                    collection.calibration_source is not None
+                    and collection.calibration_source.issue_codes
+                )
                 and not _has_explicit_welfare_request(
                     welfare_params,
                     keys=_EXPLICIT_WELFARE_RESPONSE_KEYS | _EXPLICIT_GE_UNCERTAINTY_KEYS,
@@ -309,6 +386,10 @@ class PropagateWelfareNode:
                 and context.ge_context.ge_uncertainty_ref is None
                 and context.ge_context.lower_multiplier is None
                 and context.ge_context.upper_multiplier is None
+                and not (
+                    collection.calibration_source is not None
+                    and collection.calibration_source.issue_codes
+                )
             ):
                 return NodeOutcome(
                     status="skip",
@@ -335,6 +416,7 @@ class PropagateWelfareNode:
                 simulation_fn=simulation_fn,
                 nominal_params=nominal_params,
                 input_envelopes=used_input_envelopes,
+                calibration_source=collection.calibration_source,
             )
             robust_interval, robust_diagnostics = _build_robust_interval(
                 context=context,
@@ -351,6 +433,18 @@ class PropagateWelfareNode:
                 used_input_envelopes=used_input_envelopes,
                 dependence_applied=bool(propagation.diagnostics.get("dependence_applied", False)),
             )
+            limitation_codes = list(
+                collection.calibration_source.issue_codes
+                if collection.calibration_source is not None
+                else ()
+            )
+            limitation_codes.extend(propagation.diagnostics.get("limitation_codes", ()))
+            limitation_codes = list(dict.fromkeys(limitation_codes))
+            for code in limitation_codes:
+                if code not in warnings:
+                    warnings.append(str(code))
+            if limitation_codes:
+                status = WelfareStatus.PARTIAL
             method_used = _resolve_bundle_method(
                 propagation.method_used,
                 credible_interval=propagation.credible_interval,
@@ -437,6 +531,11 @@ class PropagateWelfareNode:
                 method_config_ref=propagation.method_config_ref,
                 report_ref=propagation.report_ref,
                 sample_bundle_ref=propagation.sample_bundle_ref,
+                calibration_report_ref=(
+                    collection.calibration_source.report_ref
+                    if collection.calibration_source is not None
+                    else None
+                ),
                 sensitivity_diagnostics_ref=sensitivity_diagnostics_ref,
             )
             bundle_ref = persist_welfare_bundle(ctx.store, bundle, inputs=bundle_inputs)
@@ -623,6 +722,56 @@ def _collect_input_envelopes(
 ) -> _EnvelopeCollection:
     envelopes: dict[str, UncertaintyEnvelope] = {}
     refs: dict[str, UncertaintyEnvelopeRef] = {}
+    origins: dict[str, _EnvelopeOrigin] = {}
+    calibration_ref: ArtifactRefModel | None = None
+    report: CalibrationReport | None = None
+    calibration_fields: tuple[str, ...] = ()
+    calibration_projection_present = False
+    calibration_projection_status = "not_established"
+    calibration_issues: set[str] = set()
+
+    def admit_envelope(
+        name: str,
+        envelope: UncertaintyEnvelope,
+        *,
+        source_role: str,
+        origin_ref: ArtifactRefModel | None = None,
+        ref: UncertaintyEnvelopeRef | None = None,
+    ) -> None:
+        previous = envelopes.get(name)
+        previous_origin = origins.get(name)
+        current_origin = _envelope_origin(source_role=source_role, ref=origin_ref)
+        if previous is not None and previous_origin is not None:
+            same_source = (
+                current_origin.artifact_key is not None
+                and current_origin.artifact_key == previous_origin.artifact_key
+            )
+            same_content = previous.model_dump(mode="json") == envelope.model_dump(mode="json")
+            if same_source and same_content:
+                return
+            if (
+                previous_origin.source_role == "calibration_report"
+                or source_role == "calibration_report"
+            ):
+                calibration_issues.add("calibration_envelope_conflict")
+                if previous_origin.source_role == "calibration_report":
+                    return
+        elif previous is not None and (
+            previous_origin is None
+            or previous_origin.source_role == "calibration_report"
+            or source_role == "calibration_report"
+        ):
+            # Equal values without a shared content-addressed origin are not
+            # evidence that two producers admitted the same envelope.
+            calibration_issues.add("calibration_envelope_conflict")
+            if previous_origin is not None and previous_origin.source_role == "calibration_report":
+                return
+        envelopes[name] = envelope
+        origins[name] = current_origin
+        if ref is None:
+            refs.pop(name, None)
+        else:
+            refs[name] = ref
 
     data_snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
     if data_snapshot_ref is not None:
@@ -631,19 +780,77 @@ def _collect_input_envelopes(
             env = load_uncertainty_envelope(ctx.store, snapshot.uncertainty_envelope_ref)
             name = env.metadata.get("param_name")
             key = str(name) if isinstance(name, str) and name.strip() else "data_snapshot"
-            envelopes[key] = env
-            refs[key] = snapshot.uncertainty_envelope_ref
+            admit_envelope(
+                key,
+                env,
+                source_role="data_snapshot",
+                origin_ref=snapshot.uncertainty_envelope_ref,
+                ref=snapshot.uncertainty_envelope_ref,
+            )
 
     calibration_ref = state.inputs.get(INPUT_CALIBRATION_REPORT_REF)
     if calibration_ref is not None:
         report = _load_model(ctx, calibration_ref, CalibrationReport)
+        calibration_projection_present = report.coordinate_projection is not None
+        calibration_projection_status = (
+            report.coordinate_projection_status or "not_established"
+        )
+        if calibration_projection_status == "incomplete":
+            calibration_issues.add("calibration_projection_incomplete")
+        elif calibration_projection_status == "unsupported":
+            calibration_issues.add("calibration_projection_unsupported")
+        loaded_calibration_names: list[str] = []
         if report.uncertainty_envelope_refs:
             for name, ref in report.uncertainty_envelope_refs.items():
-                envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
-                refs[str(name)] = ref
+                key = str(name)
+                loaded_calibration_names.append(key)
+                admit_envelope(
+                    key,
+                    load_uncertainty_envelope(ctx.store, ref),
+                    source_role="calibration_report",
+                    origin_ref=ref,
+                    ref=ref,
+                )
         elif report.uncertainty_envelopes:
             for name, env in report.uncertainty_envelopes.items():
-                envelopes[str(name)] = env
+                key = str(name)
+                loaded_calibration_names.append(key)
+                admit_envelope(
+                    key,
+                    env,
+                    source_role="calibration_report",
+                    origin_ref=calibration_ref,
+                )
+
+        if report.coordinate_projection is not None:
+            calibration_fields = report.coordinate_projection.field_order
+            if report.uncertainties is not None and not set(calibration_fields) <= set(
+                loaded_calibration_names
+            ):
+                calibration_issues.add("calibration_covariance_invalid")
+        else:
+            calibration_fields = tuple(loaded_calibration_names) or tuple(
+                str(name) for name in report.calibrated_params
+            )
+            if report.uncertainties is not None:
+                legacy_identity = (
+                    report.schema_version == "1.0"
+                    and set(report.uncertainties.params) == set(report.calibrated_params)
+                    and len(report.uncertainties.params) == len(report.calibrated_params)
+                )
+                if calibration_projection_status == "incomplete":
+                    calibration_issues.add("calibration_projection_incomplete")
+                elif calibration_projection_status == "unsupported":
+                    calibration_issues.add("calibration_projection_unsupported")
+                elif not legacy_identity:
+                    calibration_issues.add("calibration_projection_missing")
+
+        if not loaded_calibration_names and report.uncertainties is not None:
+            calibration_issues.add(
+                "calibration_projection_missing"
+                if not calibration_projection_present
+                else "calibration_covariance_invalid"
+            )
 
     raw_input_envelopes = welfare_params.get("input_envelopes")
     if isinstance(raw_input_envelopes, dict):
@@ -652,15 +859,56 @@ def _collect_input_envelopes(
                 continue
             if isinstance(value, dict) and {"artifact_id", "kind", "media_type"} <= set(value):
                 ref = UncertaintyEnvelopeRef.model_validate(value)
-                envelopes[name] = load_uncertainty_envelope(ctx.store, ref)
-                refs[name] = ref
+                admit_envelope(
+                    name,
+                    load_uncertainty_envelope(ctx.store, ref),
+                    source_role="inline_ref",
+                    origin_ref=ref,
+                    ref=ref,
+                )
                 continue
             try:
-                envelopes[name] = UncertaintyEnvelope.model_validate(value)
+                admit_envelope(
+                    name,
+                    UncertaintyEnvelope.model_validate(value),
+                    source_role="inline",
+                )
             except _WELFARE_VALIDATION_ERRORS:
                 logger.debug("Invalid inline welfare input envelope for %s", name, exc_info=True)
+                if name in calibration_fields:
+                    calibration_issues.add("calibration_envelope_conflict")
 
-    return _EnvelopeCollection(envelopes=envelopes, refs=refs)
+    calibration_source = None
+    if calibration_ref is not None and report is not None and (calibration_fields or calibration_issues):
+        coordinate_order = (
+            tuple(report.uncertainties.params)
+            if report.uncertainties is not None
+            else ()
+        )
+        coordinate_covariance = (
+            tuple(
+                tuple(float(value) for value in row)
+                for row in report.uncertainties.covariance
+            )
+            if report.uncertainties is not None
+            else ()
+        )
+        calibration_source = _CalibrationCovarianceSource(
+            report_ref=calibration_ref,
+            report_schema_version=report.schema_version,
+            projection_status=calibration_projection_status,
+            field_order=calibration_fields,
+            projection_present=calibration_projection_present,
+            coordinate_projection=report.coordinate_projection,
+            coordinate_order=coordinate_order,
+            coordinate_covariance=coordinate_covariance,
+            issue_codes=tuple(sorted(calibration_issues)),
+        )
+    return _EnvelopeCollection(
+        envelopes=envelopes,
+        refs=refs,
+        calibration_source=calibration_source,
+    )
 
 
 def _resolve_welfare_context(
@@ -1424,6 +1672,7 @@ def _propagate_credible_interval(
     simulation_fn: Any,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
+    calibration_source: _CalibrationCovarianceSource | None = None,
 ) -> _PropagationOutcome:
     config = _load_propagation_config(state)
     config_ref = _persist_json_payload(
@@ -1434,6 +1683,26 @@ def _propagate_credible_interval(
     )
     requested_method = _resolve_requested_welfare_method(config, welfare_params)
     if not input_envelopes:
+        if calibration_source is not None and calibration_source.issue_codes:
+            method_used = (
+                WelfareMethod.DELTA
+                if requested_method in {"delta", "delta_method"}
+                else WelfareMethod.MONTE_CARLO
+                if requested_method in {"monte_carlo", "mc"}
+                else WelfareMethod.DETERMINISTIC
+            )
+            return _limited_covariance_outcome(
+                ctx,
+                config_ref=config_ref,
+                simulation_fn=simulation_fn,
+                nominal_params=nominal_params,
+                input_envelopes=input_envelopes,
+                calibration_source=calibration_source,
+                requested_method=requested_method,
+                method_used=method_used,
+                limitation_code=calibration_source.issue_codes[0],
+                dependence_note={"strategy": "calibration_report", "reason": "no_envelopes"},
+            )
         report_ref = _persist_json_payload(
             ctx,
             payload={
@@ -1444,6 +1713,7 @@ def _propagate_credible_interval(
             },
             kind="foundry.welfare_propagation_report",
             schema_name="polisyos.foundry.WelfarePropagationReport",
+            inputs=_calibration_lineage_inputs(calibration_source),
         )
         return _PropagationOutcome(
             credible_interval=None,
@@ -1467,6 +1737,7 @@ def _propagate_credible_interval(
             },
             kind="foundry.welfare_propagation_report",
             schema_name="polisyos.foundry.WelfarePropagationReport",
+            inputs=_calibration_lineage_inputs(calibration_source),
         )
         return _PropagationOutcome(
             credible_interval=None,
@@ -1487,6 +1758,7 @@ def _propagate_credible_interval(
             simulation_fn=simulation_fn,
             nominal_params=nominal_params,
             input_envelopes=input_envelopes,
+            calibration_source=calibration_source,
             requested_method=requested_method,
         )
 
@@ -1495,16 +1767,68 @@ def _propagate_credible_interval(
     draws_pe: list[float] = []
     draws_ge: list[float] = []
     param_names = sorted(input_envelopes)
-    dependence_sampler = _build_dependence_sampler(
-        context.dependence_context,
-        param_names=param_names,
+    calibration_resolution = (
+        _resolve_calibration_covariance(
+            context.dependence_context,
+            calibration_source=calibration_source,
+            param_names=param_names,
+            input_envelopes=input_envelopes,
+            jitter=config.delta_covariance_jitter,
+        )
+        if calibration_source is not None
+        else None
     )
+    if calibration_resolution is not None and calibration_resolution.limitation_code:
+        return _limited_covariance_outcome(
+            ctx,
+            config_ref=config_ref,
+            simulation_fn=simulation_fn,
+            nominal_params=nominal_params,
+            input_envelopes=input_envelopes,
+            calibration_source=calibration_source,
+            requested_method=requested_method,
+            method_used=WelfareMethod.MONTE_CARLO,
+            limitation_code=calibration_resolution.limitation_code,
+            dependence_note=calibration_resolution.note,
+        )
+    if calibration_resolution is None:
+        dependence_sampler = _build_dependence_sampler(
+            context.dependence_context,
+            param_names=param_names,
+        )
+        calibration_coordinate_sampler = None
+    else:
+        assert calibration_resolution.matrix is not None
+        (
+            dependence_sampler,
+            calibration_coordinate_sampler,
+            sampler_limitation,
+        ) = _calibration_dependence_sampler(
+            calibration_resolution,
+            calibration_source=calibration_source,
+            param_names=param_names,
+            input_envelopes=input_envelopes,
+        )
+        if sampler_limitation is not None:
+            return _limited_covariance_outcome(
+                ctx,
+                config_ref=config_ref,
+                simulation_fn=simulation_fn,
+                nominal_params=nominal_params,
+                input_envelopes=input_envelopes,
+                calibration_source=calibration_source,
+                requested_method=requested_method,
+                method_used=WelfareMethod.MONTE_CARLO,
+                limitation_code=sampler_limitation,
+                dependence_note=dependence_sampler,
+            )
     for _ in range(int(config.mc_n_samples)):
         draw_params = _sample_param_draw(
             rng,
             param_names=param_names,
             input_envelopes=input_envelopes,
             dependence_sampler=dependence_sampler,
+            calibration_coordinate_sampler=calibration_coordinate_sampler,
         )
         outputs = simulation_fn(**draw_params)
         welfare = float(outputs.get("welfare", float("nan")))
@@ -1542,13 +1866,40 @@ def _propagate_credible_interval(
                 "requested_method": requested_method,
                 "dependence_strategy": dependence_sampler["strategy"],
                 "covered_params": dependence_sampler["covered_params"],
+                "calibration_report_ref": (
+                    str(calibration_source.report_ref.artifact_id)
+                    if calibration_source is not None
+                    else None
+                ),
+                "calibration_covariance_order": (
+                    list(param_names) if calibration_source is not None else None
+                ),
+                **(
+                    {
+                        "calibration_covariance_matrix": calibration_resolution.matrix.tolist(),
+                    }
+                    if calibration_resolution is not None
+                    and calibration_resolution.matrix is not None
+                    else {}
+                ),
+                **_calibration_projection_report_metadata(
+                    calibration_source,
+                    covariance_note=(
+                        calibration_resolution.note if calibration_resolution is not None else {}
+                    ),
+                    uncertainty_status="candidate",
+                ),
             },
+        ),
+        inputs=_calibration_lineage_inputs(
+            calibration_source,
+            dependence_ref=context.dependence_structure_ref,
         ),
     )
     report_ref = _persist_json_payload(
         ctx,
         payload={
-            "schema_version": "1.0",
+            "schema_version": "2.0" if calibration_source is not None else "1.0",
             "input_envelope_count": len(input_envelopes),
             "methods": ["monte_carlo"],
             "requested_method": requested_method,
@@ -1560,9 +1911,37 @@ def _propagate_credible_interval(
                 "welfare_ge_mean": float(np.mean(np.asarray(draws_ge, dtype=np.float64))),
             },
             "dependence_sampling": dependence_sampler,
+            "calibration_report_ref": (
+                str(calibration_source.report_ref.artifact_id)
+                if calibration_source is not None
+                else None
+            ),
+            **(
+                {
+                    "covariance_order": list(param_names),
+                    "covariance_matrix": calibration_resolution.matrix.tolist(),
+                }
+                if calibration_resolution is not None
+                and calibration_resolution.matrix is not None
+                else {}
+            ),
+            **_calibration_projection_report_metadata(
+                calibration_source,
+                covariance_note=(
+                    calibration_resolution.note if calibration_resolution is not None else {}
+                ),
+                uncertainty_status="candidate",
+            ),
         },
         kind="foundry.welfare_propagation_report",
         schema_name="polisyos.foundry.WelfarePropagationReport",
+        inputs=_calibration_lineage_inputs(
+            calibration_source,
+            dependence_ref=context.dependence_structure_ref,
+            additional_refs=(
+                InputRef(artifact_id=str(sample_bundle_ref.artifact_id), role="sample_bundle"),
+            ),
+        ),
     )
     return _PropagationOutcome(
         credible_interval=(
@@ -1610,6 +1989,7 @@ def _propagate_delta_interval(
     simulation_fn: Any,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
+    calibration_source: _CalibrationCovarianceSource | None,
     requested_method: str,
 ) -> _PropagationOutcome:
     param_names = sorted(input_envelopes)
@@ -1618,11 +1998,41 @@ def _propagate_delta_interval(
         nominal_params=nominal_params,
         input_envelopes=input_envelopes,
     )
-    covariance, dependence_applied, dependence_note = _build_parameter_covariance(
-        context.dependence_context,
-        param_names=param_names,
-        input_envelopes=input_envelopes,
+    calibration_resolution = (
+        _resolve_calibration_covariance(
+            context.dependence_context,
+            calibration_source=calibration_source,
+            param_names=param_names,
+            input_envelopes=input_envelopes,
+            jitter=config.delta_covariance_jitter,
+        )
+        if calibration_source is not None
+        else None
     )
+    if calibration_resolution is not None and calibration_resolution.limitation_code:
+        return _limited_covariance_outcome(
+            ctx,
+            config_ref=config_ref,
+            simulation_fn=simulation_fn,
+            nominal_params=nominal_params,
+            input_envelopes=input_envelopes,
+            calibration_source=calibration_source,
+            requested_method=requested_method,
+            method_used=WelfareMethod.DELTA,
+            limitation_code=calibration_resolution.limitation_code,
+            dependence_note=calibration_resolution.note,
+        )
+    if calibration_resolution is None:
+        covariance, dependence_applied, dependence_note = _build_parameter_covariance(
+            context.dependence_context,
+            param_names=param_names,
+            input_envelopes=input_envelopes,
+        )
+    else:
+        assert calibration_resolution.matrix is not None
+        covariance = calibration_resolution.matrix
+        dependence_applied = calibration_resolution.dependence_applied
+        dependence_note = calibration_resolution.note
     gradient_vector = np.asarray([gradient[name] for name in param_names], dtype=np.float64)
     variance = float(gradient_vector @ covariance @ gradient_vector) if param_names else 0.0
     variance = max(variance, 0.0)
@@ -1635,7 +2045,7 @@ def _propagate_delta_interval(
     report_ref = _persist_json_payload(
         ctx,
         payload={
-            "schema_version": "1.0",
+            "schema_version": "2.0" if calibration_source is not None else "1.0",
             "input_envelope_count": len(input_envelopes),
             "methods": [WelfareMethod.DELTA.value],
             "requested_method": requested_method,
@@ -1643,9 +2053,24 @@ def _propagate_delta_interval(
             "covariance": covariance.tolist(),
             "delta_std": float(std),
             "dependence_sampling": dependence_note,
+            "calibration_report_ref": (
+                str(calibration_source.report_ref.artifact_id)
+                if calibration_source is not None
+                else None
+            ),
+            "covariance_order": list(param_names),
+            **_calibration_projection_report_metadata(
+                calibration_source,
+                covariance_note=dependence_note,
+                uncertainty_status="candidate",
+            ),
         },
         kind="foundry.welfare_propagation_report",
         schema_name="polisyos.foundry.WelfarePropagationReport",
+        inputs=_calibration_lineage_inputs(
+            calibration_source,
+            dependence_ref=context.dependence_structure_ref,
+        ),
     )
     return _PropagationOutcome(
         credible_interval=credible_interval,
@@ -1666,6 +2091,729 @@ def _propagate_delta_interval(
             "requested_method": requested_method,
             "delta_gradient": gradient,
             "delta_std": float(std),
+        },
+    )
+
+
+def _resolve_calibration_covariance(
+    dependence_context: _ResolvedDependenceContext,
+    *,
+    calibration_source: _CalibrationCovarianceSource,
+    param_names: list[str],
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+    jitter: float,
+) -> _CovarianceResolution:
+    """Resolve one report-owned covariance law for Delta and Monte Carlo."""
+    if calibration_source.issue_codes:
+        code = calibration_source.issue_codes[0]
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={"strategy": "calibration_report", "limitation_code": code},
+            limitation_code=code,
+        )
+
+    calibration_fields = [
+        name for name in calibration_source.field_order if name in param_names
+    ]
+    if not calibration_fields:
+        code = "calibration_projection_missing"
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={"strategy": "calibration_report", "limitation_code": code},
+            limitation_code=code,
+        )
+
+    try:
+        calibration_covariance = _build_report_covariance(
+            calibration_fields,
+            input_envelopes=input_envelopes,
+            jitter=jitter,
+        )
+    except (KeyError, TypeError, ValueError, FloatingPointError) as exc:
+        code = "calibration_covariance_invalid"
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={
+                "strategy": "calibration_report",
+                "limitation_code": code,
+                "validation_error": str(exc),
+            },
+            limitation_code=code,
+        )
+
+    projection = calibration_source.coordinate_projection
+    if projection is not None:
+        if (
+            projection.field_order != calibration_source.field_order
+            or projection.coordinate_order != calibration_source.coordinate_order
+            or calibration_source.projection_status != "complete"
+        ):
+            code = "calibration_projection_invalid"
+            return _CovarianceResolution(
+                matrix=None,
+                dependence_applied=False,
+                note={
+                    "strategy": "calibration_report_projection_invalid",
+                    "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                    "calibration_fields": calibration_fields,
+                },
+                limitation_code=code,
+            )
+        full_projection = np.asarray(projection.matrix, dtype=np.float64)
+    elif calibration_source.report_schema_version == "1.0":
+        coordinate_order = calibration_source.coordinate_order
+        if (
+            not coordinate_order
+            or len(set(coordinate_order)) != len(coordinate_order)
+            or set(coordinate_order) != set(calibration_source.field_order)
+            or len(coordinate_order) != len(calibration_source.field_order)
+        ):
+            code = "calibration_projection_missing"
+            return _CovarianceResolution(
+                matrix=None,
+                dependence_applied=False,
+                note={
+                    "strategy": "calibration_report_legacy_identity_incomplete",
+                    "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                    "coordinate_order": list(coordinate_order),
+                    "calibration_field_order": list(calibration_source.field_order),
+                },
+                limitation_code=code,
+            )
+        full_projection = np.asarray(
+            [
+                [1.0 if field_name == coordinate_name else 0.0 for coordinate_name in coordinate_order]
+                for field_name in calibration_source.field_order
+            ],
+            dtype=np.float64,
+        )
+    else:
+        code = "calibration_projection_missing"
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={
+                "strategy": "calibration_report_projection_missing",
+                "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                "calibration_fields": calibration_fields,
+            },
+            limitation_code=code,
+        )
+
+    coordinate_order = calibration_source.coordinate_order
+    try:
+        coordinate_covariance = preserve_singular_covariance(
+            np.asarray(calibration_source.coordinate_covariance, dtype=np.float64),
+            symmetry_rtol=CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+            symmetry_atol=CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+        )
+        if coordinate_covariance.shape != (len(coordinate_order), len(coordinate_order)):
+            raise ValueError("coordinate covariance shape does not match coordinate order")
+        if full_projection.shape != (
+            len(calibration_source.field_order),
+            len(coordinate_order),
+        ):
+            raise ValueError("coordinate projection shape does not match its declared orders")
+        projection_rows = [
+            calibration_source.field_order.index(name) for name in calibration_fields
+        ]
+        projection_matrix = full_projection[projection_rows, :]
+        projected_covariance = preserve_singular_covariance(
+            projection_matrix @ coordinate_covariance @ projection_matrix.T,
+            symmetry_rtol=CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+            symmetry_atol=CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+        )
+    except (TypeError, ValueError, FloatingPointError, np.linalg.LinAlgError) as exc:
+        code = "calibration_covariance_invalid"
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={
+                "strategy": "calibration_report_coordinate_covariance_invalid",
+                "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                "coordinate_order": list(coordinate_order),
+                "validation_error": str(exc),
+            },
+            limitation_code=code,
+        )
+
+    if not calibration_covariance_blocks_agree_v1(
+        projected_covariance,
+        calibration_covariance,
+    ):
+        code = "calibration_covariance_conflict"
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={
+                "strategy": "calibration_report_projection_conflict",
+                "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                "projection_schema_version": _CALIBRATION_COORDINATE_PROJECTION_VERSION,
+                "coordinate_order": list(coordinate_order),
+                "calibration_field_order": list(calibration_source.field_order),
+                "calibration_fields": calibration_fields,
+                "projected_covariance": projected_covariance.tolist(),
+                "envelope_covariance": calibration_covariance.tolist(),
+                "reconciliation_tolerance": {
+                    "version": 1,
+                    "rtol": CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+                    "atol": CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+                },
+            },
+            limitation_code=code,
+        )
+
+    # The report projection is the admitted field law. The envelope rows are
+    # an independent persisted view that must agree, not a second covariance
+    # source from which consumers may choose different answers.
+    calibration_covariance = projected_covariance
+    coordinate_law = _CalibrationCoordinateLaw(
+        coordinate_order=coordinate_order,
+        calibration_fields=tuple(calibration_fields),
+        projection_matrix=projection_matrix,
+        coordinate_covariance=coordinate_covariance,
+    )
+
+    def mixed_marginal_limitation(covariance: np.ndarray) -> _CovarianceResolution | None:
+        """Withhold joint intervals when a non-Normal marginal carries Pearson covariance."""
+        matrix = np.asarray(covariance, dtype=np.float64)
+        if matrix.shape != (len(param_names), len(param_names)) or not np.all(
+            np.isfinite(matrix)
+        ):
+            code = "calibration_covariance_invalid"
+            return _CovarianceResolution(
+                matrix=None,
+                dependence_applied=False,
+                note={
+                    "strategy": "calibration_report_joint_matrix_invalid",
+                    "limitation_code": code,
+                    "covariance_order": list(param_names),
+                },
+                limitation_code=code,
+            )
+
+        unsupported_fields: set[str] = set()
+        correlated_fields: set[str] = set()
+        pairs: list[dict[str, Any]] = []
+        # The matrix has already passed covariance admission. Exact zero avoids
+        # making this semantic decision depend on another field's measurement
+        # scale; a zero-variance coordinate in a valid PSD matrix has no
+        # nonzero covariance and requires no standardization or division.
+        for left_index, left_name in enumerate(param_names):
+            left_is_non_normal = (
+                input_envelopes[left_name].distribution_family is not DistributionFamily.NORMAL
+            )
+            for right_index in range(left_index + 1, len(param_names)):
+                covariance_value = float(matrix[left_index, right_index])
+                if covariance_value == 0.0:
+                    continue
+                right_name = param_names[right_index]
+                right_is_non_normal = (
+                    input_envelopes[right_name].distribution_family
+                    is not DistributionFamily.NORMAL
+                )
+                if not left_is_non_normal and not right_is_non_normal:
+                    continue
+                correlated_fields.update((left_name, right_name))
+                if left_is_non_normal:
+                    unsupported_fields.add(left_name)
+                if right_is_non_normal:
+                    unsupported_fields.add(right_name)
+                pairs.append(
+                    {
+                        "left_field": left_name,
+                        "right_field": right_name,
+                        "covariance": covariance_value,
+                    }
+                )
+
+        if not unsupported_fields:
+            return None
+
+        code = "calibration_mixed_marginal_covariance_unsupported"
+        note = {
+            "strategy": code,
+            "limitation_code": code,
+            "reason": (
+                "the current Gaussian-copula marginal transform does not preserve the "
+                "admitted Pearson covariance for non-Normal fields"
+            ),
+            "gate_predicate_class": "recomputed",
+            "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+            "calibration_report_schema_version": calibration_source.report_schema_version,
+            "calibration_field_order": list(calibration_source.field_order),
+            "coordinate_order": list(coordinate_order),
+            "projection_schema_version": (
+                _CALIBRATION_COORDINATE_PROJECTION_VERSION
+                if calibration_source.projection_present
+                else None
+            ),
+            "dependence_structure_ref": (
+                str(dependence_context.ref.artifact_id)
+                if dependence_context.ref is not None
+                else None
+            ),
+            "covariance_order": list(param_names),
+            "unsupported_marginal_fields": [
+                name for name in param_names if name in unsupported_fields
+            ],
+            "correlated_fields": [
+                name for name in param_names if name in correlated_fields
+            ],
+            "nonzero_covariance_pairs": pairs,
+            "covariance_predicate": "exact_nonzero_in_admitted_finite_matrix",
+            "decision": "retain_candidate_point_withhold_interval_and_samples",
+        }
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note=note,
+            limitation_code=code,
+        )
+
+    external_order = list(dependence_context.parameter_order)
+    external_index = {name: idx for idx, name in enumerate(external_order)}
+    external_is_calibrated = (
+        dependence_context.correlation_matrix is not None
+        and dependence_context.structure is not None
+        and dependence_context.structure.calibrated
+        and not dependence_context.structure.blocking_reasons
+        and len(external_order) == len(external_index)
+    )
+    overlap_reconciled = False
+    if external_is_calibrated:
+        overlap_fields = [name for name in calibration_fields if name in external_index]
+        if overlap_fields:
+            try:
+                overlap_indices = [external_index[name] for name in overlap_fields]
+                overlap_stds = np.asarray(
+                    [_extract_std(input_envelopes[name]) for name in overlap_fields],
+                    dtype=np.float64,
+                )
+                external_overlap = dependence_context.correlation_matrix[
+                    np.ix_(overlap_indices, overlap_indices)
+                ] * np.outer(overlap_stds, overlap_stds)
+                report_indices = [calibration_fields.index(name) for name in overlap_fields]
+                report_overlap = calibration_covariance[
+                    np.ix_(report_indices, report_indices)
+                ]
+            except (KeyError, TypeError, ValueError, FloatingPointError) as exc:
+                code = "calibration_covariance_invalid"
+                return _CovarianceResolution(
+                    matrix=None,
+                    dependence_applied=False,
+                    note={
+                        "strategy": "calibration_report_overlap_invalid",
+                        "limitation_code": code,
+                        "validation_error": str(exc),
+                    },
+                    limitation_code=code,
+                )
+            if not calibration_covariance_blocks_agree_v1(
+                report_overlap,
+                external_overlap,
+            ):
+                code = "calibration_covariance_conflict"
+                return _CovarianceResolution(
+                    matrix=None,
+                    dependence_applied=False,
+                    note={
+                        "strategy": "calibration_report_overlap_conflict",
+                        "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                        "calibration_fields": overlap_fields,
+                        "reconciliation_tolerance": {
+                            "version": 1,
+                            "rtol": CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+                            "atol": CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+                        },
+                    },
+                    limitation_code=code,
+                )
+            overlap_reconciled = True
+
+    if len(calibration_fields) == len(param_names):
+        order = [calibration_fields.index(name) for name in param_names]
+        covariance = calibration_covariance[np.ix_(order, order)]
+        strategy = (
+            "calibration_report_overlap_reconciled"
+            if overlap_reconciled
+            else "calibration_report_projected_covariance"
+        )
+        note = {
+            "strategy": strategy,
+            "covered_params": list(param_names),
+            "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+            "covariance_order": list(param_names),
+            "covariance_matrix": covariance.tolist(),
+            "preserves_singular_ties": True,
+            "independence_source_validated": False,
+        }
+        mixed_marginal = mixed_marginal_limitation(covariance)
+        if mixed_marginal is not None:
+            return mixed_marginal
+        return _CovarianceResolution(
+            matrix=covariance,
+            dependence_applied=True,
+            note=note,
+            coordinate_law=coordinate_law,
+        )
+
+    if (
+        not external_is_calibrated
+        or dependence_context.correlation_matrix is None
+        or not set(param_names) <= set(external_index)
+    ):
+        code = "calibration_cross_source_dependence_unknown"
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={
+                "strategy": "calibration_report_plus_disjoint_sources",
+                "calibration_fields": calibration_fields,
+                "uncovered_fields": [name for name in param_names if name not in calibration_fields],
+                "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                "reason": "no_complete_calibrated_joint_covariance",
+                "independence_source_validated": False,
+            },
+            limitation_code=code,
+        )
+
+    dep_indices = [external_index[name] for name in param_names]
+    correlation = dependence_context.correlation_matrix[np.ix_(dep_indices, dep_indices)]
+    stds = np.asarray([_extract_std(input_envelopes[name]) for name in param_names])
+    external_covariance = correlation * np.outer(stds, stds)
+    calibration_indices = [param_names.index(name) for name in calibration_fields]
+    external_block = external_covariance[np.ix_(calibration_indices, calibration_indices)]
+    if not calibration_covariance_blocks_agree_v1(calibration_covariance, external_block):
+        code = "calibration_covariance_conflict"
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={
+                "strategy": "calibration_report_overlap_conflict",
+                "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                "calibration_fields": calibration_fields,
+                "reconciliation_tolerance": {
+                    "version": 1,
+                    "rtol": CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+                    "atol": CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+                },
+            },
+            limitation_code=code,
+        )
+
+    extra_indices = [idx for idx, name in enumerate(param_names) if name not in calibration_fields]
+    cross_source_block = external_covariance[np.ix_(calibration_indices, extra_indices)]
+    cross_source_tolerance = max(
+        CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+        CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1
+        * float(np.max(np.abs(np.diag(external_covariance)))),
+    )
+    if float(np.max(np.abs(cross_source_block))) <= cross_source_tolerance:
+        code = "calibration_cross_source_dependence_unknown"
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={
+                "strategy": "calibration_report_plus_disjoint_sources",
+                "calibration_fields": calibration_fields,
+                "uncovered_fields": [param_names[idx] for idx in extra_indices],
+                "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                "reason": "zero_cross_covariance_requires_verified_independence",
+                "independence_source_validated": False,
+            },
+            limitation_code=code,
+        )
+
+    # The report owns its exact block. External matrices may contribute only
+    # after their overlap agrees under the covariance owner's pinned tolerance.
+    external_covariance[np.ix_(calibration_indices, calibration_indices)] = calibration_covariance
+    external_covariance = 0.5 * (external_covariance + external_covariance.T)
+    eigenvalues = np.linalg.eigvalsh(external_covariance)
+    if float(np.min(eigenvalues)) < -1e-10:
+        code = "calibration_covariance_conflict"
+        return _CovarianceResolution(
+            matrix=None,
+            dependence_applied=False,
+            note={
+                "strategy": "calibration_report_joint_matrix_not_psd",
+                "minimum_eigenvalue": float(np.min(eigenvalues)),
+            },
+            limitation_code=code,
+        )
+    mixed_marginal = mixed_marginal_limitation(external_covariance)
+    if mixed_marginal is not None:
+        return mixed_marginal
+    return _CovarianceResolution(
+        matrix=external_covariance,
+        dependence_applied=True,
+        note={
+            "strategy": "calibration_report_reconciled_dependence_structure",
+            "covered_params": list(param_names),
+            "calibration_fields": calibration_fields,
+            "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+            "dependence_structure_ref": (
+                str(dependence_context.ref.artifact_id) if dependence_context.ref is not None else None
+            ),
+            "reconciliation_tolerance": {
+                "version": 1,
+                "rtol": CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+                "atol": CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+            },
+            "covariance_order": list(param_names),
+            "covariance_matrix": external_covariance.tolist(),
+            "preserves_singular_ties": True,
+            "independence_source_validated": False,
+        },
+        coordinate_law=coordinate_law,
+    )
+
+
+def _build_report_covariance(
+    param_names: list[str],
+    *,
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+    jitter: float,
+) -> np.ndarray:
+    """Validate and select a report-owned projected covariance submatrix."""
+    reduced_envelopes: dict[str, UncertaintyEnvelope] = {}
+    for name in param_names:
+        envelope = input_envelopes[name]
+        metadata = dict(envelope.metadata)
+        row = metadata.get("covariance_row")
+        order = metadata.get("covariance_params")
+        if (
+            not isinstance(row, list)
+            or not isinstance(order, list)
+            or not all(isinstance(item, str) for item in order)
+            or len(order) != len(row)
+            or len(set(order)) != len(order)
+            or not set(param_names) <= set(order)
+        ):
+            raise ValueError(f"calibration covariance metadata is incomplete for {name!r}")
+        metadata["covariance_row"] = [row[order.index(item)] for item in param_names]
+        metadata["covariance_params"] = list(param_names)
+        reduced_envelopes[name] = envelope.model_copy(update={"metadata": metadata})
+    matrix = build_covariance_matrix(
+        param_names,
+        reduced_envelopes,
+        use_full_covariance=True,
+        jitter=jitter,
+        preserve_singular=True,
+    )
+    return np.asarray(matrix, dtype=np.float64)
+
+
+def _calibration_dependence_sampler(
+    resolution: _CovarianceResolution,
+    *,
+    calibration_source: _CalibrationCovarianceSource,
+    param_names: list[str],
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+) -> tuple[dict[str, Any], _CalibrationCoordinateSampler | None, str | None]:
+    """Build a sampler that materializes calibration fields through their persisted projection."""
+    if resolution.matrix is None:
+        raise ValueError("calibration covariance resolution is missing its matrix")
+
+    def limited(code: str) -> tuple[dict[str, Any], None, str]:
+        return (
+            {
+                "applied": False,
+                "strategy": "calibration_report_coordinate_sampling",
+                "covered_params": [],
+                "uncovered_params": list(param_names),
+                "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+                "preserves_singular_ties": False,
+                "limitation_code": code,
+            },
+            None,
+            code,
+        )
+
+    coordinate_law = resolution.coordinate_law
+    if coordinate_law is None:
+        return limited("calibration_projection_missing")
+    coordinate_order = coordinate_law.coordinate_order
+    calibration_fields = coordinate_law.calibration_fields
+    coordinate_covariance = coordinate_law.coordinate_covariance
+    projection_matrix = coordinate_law.projection_matrix
+    coordinate_psd_tolerance = 1e-10 * max(
+        1.0,
+        float(np.max(np.abs(coordinate_covariance))),
+    )
+
+    parameter_index = {name: index for index, name in enumerate(param_names)}
+    if not calibration_fields or any(name not in parameter_index for name in calibration_fields):
+        return limited("calibration_projection_missing")
+    calibration_indices = tuple(parameter_index[name] for name in calibration_fields)
+    extra_fields = tuple(name for name in param_names if name not in set(calibration_fields))
+    extra_indices = tuple(parameter_index[name] for name in extra_fields)
+
+    if any(
+        input_envelopes[name].distribution_family != DistributionFamily.NORMAL
+        for name in calibration_fields
+    ):
+        return limited("calibration_coordinate_distribution_unsupported")
+
+    resolved_covariance = np.asarray(resolution.matrix, dtype=np.float64)
+    if resolved_covariance.shape != (len(param_names), len(param_names)):
+        return limited("calibration_covariance_invalid")
+    projection_pseudoinverse = None
+    if extra_fields:
+        try:
+            projection_pseudoinverse = np.linalg.pinv(projection_matrix, rcond=1e-12)
+        except np.linalg.LinAlgError:
+            return limited("calibration_cross_source_dependence_unknown")
+        cross_block = resolved_covariance[np.ix_(calibration_indices, extra_indices)]
+        represented_cross_block = (
+            projection_matrix @ projection_pseudoinverse @ cross_block
+        )
+        if not np.allclose(
+            represented_cross_block,
+            cross_block,
+            rtol=CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+            atol=CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+        ):
+            return limited("calibration_cross_source_dependence_unknown")
+
+    diagonal = np.diag(resolved_covariance)
+    if not np.all(np.isfinite(diagonal)) or np.any(diagonal < -coordinate_psd_tolerance):
+        return limited("calibration_covariance_invalid")
+    scales = np.sqrt(np.clip(diagonal, 0.0, None))
+    denominator = np.outer(scales, scales)
+    correlation = np.divide(
+        resolved_covariance,
+        denominator,
+        out=np.zeros_like(resolved_covariance),
+        where=denominator > 0.0,
+    )
+    correlation = 0.5 * (correlation + correlation.T)
+    np.fill_diagonal(correlation, np.where(scales > 0.0, 1.0, 0.0))
+    if extra_fields and np.any(scales[list(extra_indices)] <= 0.0):
+        extra_diagonal = diagonal[list(extra_indices)]
+        extra_cross = resolved_covariance[np.ix_(calibration_indices, extra_indices)]
+        if np.any(extra_diagonal < 0.0) or np.any(
+            np.abs(extra_cross[:, scales[list(extra_indices)] <= 0.0])
+            > CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1
+        ):
+            return limited("calibration_cross_source_dependence_unknown")
+
+    sampler = _CalibrationCoordinateSampler(
+        coordinate_order=coordinate_order,
+        calibration_fields=calibration_fields,
+        extra_fields=extra_fields,
+        projection_matrix=projection_matrix,
+        coordinate_covariance=coordinate_covariance,
+        joint_covariance=resolved_covariance,
+        calibration_indices=calibration_indices,
+        extra_indices=extra_indices,
+        projection_pseudoinverse=projection_pseudoinverse,
+        extra_stds=tuple(float(scales[index]) for index in extra_indices),
+    )
+    strategy = (
+        "calibration_report_optimizer_coordinates"
+        if not extra_fields
+        else "calibration_report_joint_covariance_projection"
+    )
+    note = {
+        "applied": True,
+        "strategy": strategy,
+        "covered_params": list(param_names),
+        "uncovered_params": [],
+        "correlation_matrix": correlation.tolist(),
+        "preserves_singular_ties": True,
+        "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+    }
+    return note, sampler, None
+
+
+def _calibration_projection_report_metadata(
+    calibration_source: _CalibrationCovarianceSource | None,
+    *,
+    covariance_note: Mapping[str, Any],
+    uncertainty_status: str,
+) -> dict[str, Any]:
+    """Describe the candidate covariance source and its explicit limitations."""
+    if calibration_source is None:
+        return {}
+    return {
+        "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
+        "calibration_report_schema_version": calibration_source.report_schema_version,
+        "calibration_coordinate_projection_status": calibration_source.projection_status,
+        "calibration_projection_schema_version": (
+            _CALIBRATION_COORDINATE_PROJECTION_VERSION
+            if calibration_source.projection_present
+            else None
+        ),
+        "calibration_projection_present": calibration_source.projection_present,
+        "calibration_field_order": list(calibration_source.field_order),
+        "covariance_source_selection": covariance_note.get("strategy"),
+        "independence_source_validated": False,
+        "uncertainty_status": uncertainty_status,
+    }
+
+
+def _limited_covariance_outcome(
+    ctx: ExecutionContext,
+    *,
+    config_ref: ArtifactRefModel,
+    simulation_fn: Any,
+    nominal_params: Mapping[str, float],
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+    calibration_source: _CalibrationCovarianceSource | None,
+    requested_method: str,
+    method_used: WelfareMethod,
+    limitation_code: str,
+    dependence_note: Mapping[str, Any],
+) -> _PropagationOutcome:
+    """Preserve the candidate point while withholding an unsupported joint interval."""
+    point_value = float(simulation_fn(**nominal_params)["welfare"])
+    report_payload = {
+        "schema_version": "2.0" if calibration_source is not None else "1.0",
+        "input_envelope_count": len(input_envelopes),
+        "methods": [method_used.value],
+        "requested_method": requested_method,
+        "status": "partial",
+        "limitation_code": limitation_code,
+        "calibration_report_ref": (
+            str(calibration_source.report_ref.artifact_id)
+            if calibration_source is not None
+            else None
+        ),
+        "dependence_resolution": dict(dependence_note),
+        **_calibration_projection_report_metadata(
+            calibration_source,
+            covariance_note=dependence_note,
+            uncertainty_status="partial",
+        ),
+    }
+    report_ref = _persist_json_payload(
+        ctx,
+        payload=report_payload,
+        kind="foundry.welfare_propagation_report",
+        schema_name="polisyos.foundry.WelfarePropagationReport",
+        inputs=_calibration_lineage_inputs(calibration_source),
+    )
+    return _PropagationOutcome(
+        credible_interval=None,
+        method_used=method_used,
+        result_map={"welfare": {"point_estimate": point_value}},
+        method_config_ref=config_ref,
+        report_ref=report_ref,
+        sample_bundle_ref=None,
+        diagnostics={
+            "dependence_applied": False,
+            "limitation_codes": [limitation_code],
+            "dependence_resolution": dict(dependence_note),
+            "calibration_report_ref": (
+                str(calibration_source.report_ref.artifact_id)
+                if calibration_source is not None
+                else None
+            ),
+            "requested_method": requested_method,
         },
     )
 
@@ -1711,8 +2859,55 @@ def _sample_param_draw(
     param_names: list[str],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     dependence_sampler: Mapping[str, Any],
+    calibration_coordinate_sampler: _CalibrationCoordinateSampler | None = None,
 ) -> dict[str, float]:
     draw_params: dict[str, float] = {}
+    if calibration_coordinate_sampler is not None:
+        sampler = calibration_coordinate_sampler
+        if sampler.extra_fields:
+            joint_draw = rng.multivariate_normal(
+                mean=np.zeros(len(param_names), dtype=np.float64),
+                cov=sampler.joint_covariance,
+                check_valid="raise",
+                tol=1e-10,
+            )
+            assert sampler.projection_pseudoinverse is not None
+            sampled_calibration_fields = joint_draw[list(sampler.calibration_indices)]
+            coordinate_draw = sampler.projection_pseudoinverse @ sampled_calibration_fields
+            calibration_delta = sampler.projection_matrix @ coordinate_draw
+            extra_delta = joint_draw[list(sampler.extra_indices)]
+            for name, delta in zip(sampler.calibration_fields, calibration_delta, strict=True):
+                draw_params[name] = float(input_envelopes[name].point_estimate + delta)
+            for index, name in enumerate(sampler.extra_fields):
+                envelope = input_envelopes[name]
+                if envelope.distribution_family == DistributionFamily.NORMAL:
+                    draw_params[name] = float(
+                        envelope.point_estimate + extra_delta[index]
+                    )
+                else:
+                    standard_deviation = sampler.extra_stds[index]
+                    standardized = (
+                        float(extra_delta[index] / standard_deviation)
+                        if standard_deviation > 0.0
+                        else 0.0
+                    )
+                    draw_params[name] = _quantile_from_envelope(
+                        NormalDist().cdf(standardized),
+                        envelope,
+                    )
+            return draw_params
+
+        coordinate_draw = rng.multivariate_normal(
+            mean=np.zeros(len(sampler.coordinate_order), dtype=np.float64),
+            cov=sampler.coordinate_covariance,
+            check_valid="raise",
+            tol=1e-10,
+        )
+        calibration_delta = sampler.projection_matrix @ coordinate_draw
+        for name, delta in zip(sampler.calibration_fields, calibration_delta, strict=True):
+            draw_params[name] = float(input_envelopes[name].point_estimate + delta)
+        return draw_params
+
     if bool(dependence_sampler.get("applied")):
         covered = [str(name) for name in dependence_sampler.get("covered_params", ())]
         correlation = np.asarray(dependence_sampler.get("correlation_matrix"), dtype=np.float64)
@@ -2106,6 +3301,7 @@ def _bundle_inputs(
     pe_uncertainty_refs: Mapping[str, UncertaintyEnvelopeRef],
     ge_uncertainty_ref: GEUncertaintyBundleRef | None,
     dependence_structure_ref: DependenceStructureRef | None,
+    calibration_report_ref: ArtifactRefModel | None,
     channel_decomposition_ref: ArtifactRefModel | None,
     method_config_ref: ArtifactRefModel | None,
     report_ref: ArtifactRefModel | None,
@@ -2127,6 +3323,13 @@ def _bundle_inputs(
             InputRef(
                 artifact_id=str(dependence_structure_ref.artifact_id),
                 role="dependence_structure",
+            )
+        )
+    if calibration_report_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=str(calibration_report_ref.artifact_id),
+                role="calibration_report",
             )
         )
     if channel_decomposition_ref is not None:
@@ -2691,17 +3894,46 @@ def _persist_json_payload(
     payload: Mapping[str, Any],
     kind: str,
     schema_name: str,
+    inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
+    schema_version = payload.get("schema_version", "1.0")
+    if not isinstance(schema_version, str) or not schema_version.strip():
+        raise ValueError("persisted welfare payload must declare a non-empty schema_version")
     ref = ctx.store.put_json(
         dict(payload),
         PutOptions(
             kind=kind,
             media_type="application/json",
-            schema=SchemaInfo(name=schema_name, version="1.0"),
+            schema=SchemaInfo(name=schema_name, version=schema_version),
+            inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
     return ArtifactRefModel.model_validate(ref.model_dump())
+
+
+def _calibration_lineage_inputs(
+    calibration_source: _CalibrationCovarianceSource | None,
+    *,
+    dependence_ref: DependenceStructureRef | None = None,
+    additional_refs: tuple[InputRef, ...] = (),
+) -> list[InputRef] | None:
+    inputs = list(additional_refs)
+    if calibration_source is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=str(calibration_source.report_ref.artifact_id),
+                role="calibration_report",
+            )
+        )
+    if dependence_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=str(dependence_ref.artifact_id),
+                role="dependence_structure",
+            )
+        )
+    return inputs or None
 
 
 def _sample_from_envelope(rng: np.random.Generator, env: UncertaintyEnvelope) -> float:

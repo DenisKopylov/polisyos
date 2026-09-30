@@ -29,6 +29,7 @@ from polisyos.runtime.quality import agent_action_authority as authority
 from polisyos.runtime.quality import substrate_registry
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceipt
 from tests._helpers.acquisition_production import persist_wdi_route
+from tests._helpers.control_worker import dispatch_one_control_job
 from tests.integration.core_runtime.test_acquisition_admission_bundle import _contract
 from tests.unit.runtime.http.deployment_security_test_support import LocalJWKSStub
 from tests.unit.runtime.http.test_runtime_deployment_security import _config_mapping
@@ -474,18 +475,21 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 asyncio.run, persist_wdi_route(control, tenant_id=TENANT, cell_id=CELL)
             )
             store = control._artifact_store
-            registry = store.put_json(
-                {"fixture": "registry"},
-                artifacts.ArtifactWriteOptions(kind="test.registry", media_type="application/json"),
-            )
-            RunContext.start(
-                store=store,
-                registry_bundle=registry,
-                run_dir=cas_root / "runs" / RUN,
-                run_id=RUN,
-                tenant_id=TENANT,
-                cell_id=CELL,
-            ).finalize()
+            with tenant_scope(None, tenant_id=TENANT, cell_id=CELL):
+                registry = store.put_json(
+                    {"fixture": "registry"},
+                    artifacts.ArtifactWriteOptions(
+                        kind="test.registry", media_type="application/json"
+                    ),
+                )
+                RunContext.start(
+                    store=store,
+                    registry_bundle=registry,
+                    run_dir=cas_root / "runs" / RUN,
+                    run_id=RUN,
+                    tenant_id=TENANT,
+                    cell_id=CELL,
+                ).finalize()
             path = f"/api/v1/runs/{RUN}/acquisition-routes/{closure.route_id}"
             route_prefix = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
             response, resource_digest = trust.post(
@@ -553,6 +557,15 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             control = container.control_service
             job = control._control_store.get_job(job_id)
             assert job is not None
+            admitted_scope = control._control_store.get_job_created_event_payload(job_id)[
+                "execution_scope"
+            ]
+            assert admitted_scope["status"] == "established"
+            assert admitted_scope["tenant_id"] == TENANT
+            assert admitted_scope["cell_id"] == CELL
+            assert admitted_scope["actor_subject"] == job.submitted_by
+            assert admitted_scope["actor_authenticated"] is True
+            assert admitted_scope["actor_roles"] == sorted(set(admitted_scope["actor_roles"]))
             persisted_payload = canon.from_canonical_bytes(
                 _within_fixture_owner(control._artifact_store.get_bytes, job.payload_ref)
             )
@@ -572,7 +585,11 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             container = client.app.state.runtime_container
             control = container.control_service
             job = control._control_store.get_job(job_id)
-            control._process_control_job(job)
+            dispatch_one_control_job(
+                store=control._control_store,  # noqa: SLF001
+                handler=control._process_control_job,  # noqa: SLF001
+                expected_job_id=job_id,
+            )
             completed_job = control._control_store.get_job(job_id)
             assert completed_job.state == "completed", completed_job
             result = completed_job.progress
@@ -654,7 +671,22 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
         with TestClient(app()) as client:
             container = client.app.state.runtime_container
             control = container.control_service
-            control._process_control_job(control._control_store.get_job(job_id))
+            job = control._control_store.get_job(job_id)
+            assert job is not None
+            admitted_scope = control._control_store.get_job_created_event_payload(job_id)[
+                "execution_scope"
+            ]
+            assert admitted_scope["status"] == "established"
+            assert admitted_scope["tenant_id"] == TENANT
+            assert admitted_scope["cell_id"] == CELL
+            assert admitted_scope["actor_subject"] == job.submitted_by
+            assert admitted_scope["actor_authenticated"] is True
+            assert admitted_scope["actor_roles"] == sorted(set(admitted_scope["actor_roles"]))
+            dispatch_one_control_job(
+                store=control._control_store,  # noqa: SLF001
+                handler=control._process_control_job,  # noqa: SLF001
+                expected_job_id=job_id,
+            )
             completed_job = control._control_store.get_job(job_id)
             assert completed_job.state == "completed", completed_job
             result = completed_job.progress

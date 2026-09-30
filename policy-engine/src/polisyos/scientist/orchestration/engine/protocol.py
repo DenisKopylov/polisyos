@@ -12,6 +12,7 @@ from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 NodeStatus = Literal["ok", "skip", "fail"]
@@ -200,4 +201,29 @@ class Node(Protocol):
     def execute(
         self, ctx: ExecutionContext, state: ExperimentState
     ) -> NodeOutcome:  # pragma: no cover - protocol signature
+        ...
+
+
+@runtime_checkable
+class CacheInputPreparer(Protocol):
+    """Optional pre-cache owner hook for materializing mutable external read inputs."""
+
+    def prepare_cache_input(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+    ) -> PreparedSKGRead | None:  # pragma: no cover - protocol signature
+        ...
+
+
+@runtime_checkable
+class CacheHitValidator(Protocol):
+    """Optional consumer hook that rechecks request bindings before cached replay."""
+
+    def validate_cache_hit(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        cached_outcome: NodeOutcome,
+    ) -> bool:  # pragma: no cover - protocol signature
         ...

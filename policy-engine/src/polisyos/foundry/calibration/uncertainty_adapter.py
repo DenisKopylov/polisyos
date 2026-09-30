@@ -71,17 +71,44 @@ def envelope_from_calibration_param(
         return None
 
     unc = report.uncertainties
-    if param_name not in unc.params:
-        return None
-    idx = unc.params.index(param_name)
-    if idx >= len(unc.std):
-        return None
-
     point = report.calibrated_params.get(param_name)
     if point is None:
         return None
 
-    std = float(unc.std[idx])
+    projection = report.coordinate_projection
+    covariance_params: list[str]
+    covariance_row: list[float] | None
+    non_identifiable: bool
+    if projection is not None:
+        field_covariance = _projected_field_covariance(report)
+        if field_covariance is None or param_name not in projection.field_order:
+            return None
+        idx = projection.field_order.index(param_name)
+        variance = float(field_covariance[idx, idx])
+        if not math.isfinite(variance) or variance < 0.0:
+            return None
+        std = math.sqrt(variance)
+        covariance_row = [float(value) for value in field_covariance[idx]]
+        covariance_params = list(projection.field_order)
+        coordinate_indices = np.flatnonzero(np.asarray(projection.matrix[idx], dtype=float))
+        non_identifiable = any(
+            unc.params[coordinate_idx] in unc.non_identifiable
+            for coordinate_idx in coordinate_indices
+            if coordinate_idx < len(unc.params)
+        )
+    else:
+        if report.schema_version != "1.0":
+            return None
+        if param_name not in unc.params:
+            return None
+        idx = unc.params.index(param_name)
+        if idx >= len(unc.std):
+            return None
+        std = float(unc.std[idx])
+        covariance_row = list(unc.covariance[idx]) if idx < len(unc.covariance) else None
+        covariance_params = list(unc.params)
+        non_identifiable = param_name in unc.non_identifiable
+
     if not math.isfinite(std) or std < 0.0:
         return None
     if not math.isfinite(point):
@@ -98,9 +125,12 @@ def envelope_from_calibration_param(
         "hessian_condition": unc.hessian_condition,
         "damping": unc.damping,
         "method": unc.method,
-        "non_identifiable": param_name in unc.non_identifiable,
-        "covariance_row": list(unc.covariance[idx]) if idx < len(unc.covariance) else None,
-        "covariance_params": list(unc.params),
+        "non_identifiable": non_identifiable,
+        "covariance_row": covariance_row,
+        "covariance_params": covariance_params,
+        "covariance_source": "calibration_report_projection_v2"
+        if projection is not None
+        else "calibration_report_v1_identity_key",
         "interval_basis": "local_gaussian_hessian_approximation",
         "requested_confidence_level": confidence_level,
     }
@@ -138,7 +168,12 @@ def envelopes_from_calibration(
 ) -> Mapping[str, UncertaintyEnvelope]:
     """Build uncertainty envelopes for every calibrated parameter with usable Hessian stats."""
     result: dict[str, UncertaintyEnvelope] = {}
-    for param_name in report.calibrated_params:
+    param_names = (
+        report.coordinate_projection.field_order
+        if report.coordinate_projection is not None
+        else report.calibrated_params
+    )
+    for param_name in param_names:
         env = envelope_from_calibration_param(
             report,
             param_name,
@@ -147,6 +182,29 @@ def envelopes_from_calibration(
         if env is not None:
             result[param_name] = env
     return result
+
+
+def _projected_field_covariance(report: CalibrationReport) -> np.ndarray | None:
+    """Return ``J Σ Jᵀ`` only when the persisted coordinate basis is complete."""
+    projection = report.coordinate_projection
+    uncertainty = report.uncertainties
+    if projection is None or uncertainty is None:
+        return None
+    if tuple(uncertainty.params) != projection.coordinate_order:
+        return None
+    covariance = np.asarray(uncertainty.covariance, dtype=np.float64)
+    coordinate_count = len(projection.coordinate_order)
+    if covariance.shape != (coordinate_count, coordinate_count):
+        return None
+    if not np.all(np.isfinite(covariance)):
+        return None
+    if not np.allclose(covariance, covariance.T, rtol=1e-7, atol=1e-10):
+        return None
+    jacobian = np.asarray(projection.matrix, dtype=np.float64)
+    projected = jacobian @ covariance @ jacobian.T
+    if not np.all(np.isfinite(projected)):
+        return None
+    return 0.5 * (projected + projected.T)
 
 
 def summarize_bayesian_calibration_posterior(

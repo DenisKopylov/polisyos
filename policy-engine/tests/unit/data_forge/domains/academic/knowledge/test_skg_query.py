@@ -1022,3 +1022,107 @@ def test_query_edge_transport_reads_target_context_scores(tmp_path) -> None:
     assert rows[0].edge_id == "edge-1"
     assert rows[0].transport_confidence == 0.75
     assert rows[0].matched_moderators_count == 1
+
+
+def test_prepared_read_tracks_source_mutation_between_transactions(tmp_path) -> None:
+    db_path = tmp_path / "prepared-skg.duckdb"
+    _seed_skg_tables(db_path)
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            "INSERT INTO ac_skg_simulation_parameters VALUES "
+            "('n1', 'W1', 'fiscal_multiplier', 'coefficient', 1.1, 'positive', "
+            "'unitless', 'rct', '[0.9,1.3]', NULL, '[]', '[]', "
+            "'{\"context_id\":\"UA\"}', 'simulation_ready', 'confidence_interval', '[]')"
+        )
+
+    prepared = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
+    try:
+        before = prepared.query.query_parameters("fiscal_multiplier")
+        assert before[0].parameter.value == 1.1
+        original_sha256 = prepared.source_snapshot_sha256
+    finally:
+        prepared.close()
+
+    with duckdb.connect(str(db_path)) as writer:
+        writer.execute(
+            "UPDATE ac_skg_simulation_parameters SET point_estimate=2.4 WHERE numeric_id='n1'"
+        )
+    current = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
+    try:
+        refreshed = current.query.query_parameters("fiscal_multiplier")
+        assert refreshed[0].parameter.value == 2.4
+        assert current.source_snapshot_sha256 != original_sha256
+    finally:
+        current.close()
+
+
+def test_prepared_read_binding_tracks_all_source_bytes(tmp_path) -> None:
+    db_path = tmp_path / "unrelated-row.duckdb"
+    _seed_skg_tables(db_path)
+    with duckdb.connect(str(db_path)) as writer:
+        writer.execute("CREATE TABLE unrelated_rows (value VARCHAR)")
+        writer.execute("INSERT INTO unrelated_rows VALUES ('before')")
+
+    original = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
+    original_binding = original.cache_binding(selector_version="scientist.node_fixture@1.0.0")
+    original_sha256 = original.source_snapshot_sha256
+    original.close()
+
+    with duckdb.connect(str(db_path)) as writer:
+        writer.execute("UPDATE unrelated_rows SET value='after'")
+    current = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
+    try:
+        current_binding = current.cache_binding(selector_version="scientist.node_fixture@1.0.0")
+        assert current.source_snapshot_sha256 != original_sha256
+        assert current_binding != original_binding
+        assert current_binding["source_snapshot_sha256"] == current.source_snapshot_sha256
+        assert current_binding["source_snapshot_sha256"] != original_sha256
+    finally:
+        current.close()
+
+
+def test_prepared_read_static_helper_does_not_record_bound_query_execution(tmp_path) -> None:
+    """Only a successful SELECT/WITH on the prepared connection is recorded."""
+    db_path = tmp_path / "prepared-owner.duckdb"
+    other_path = tmp_path / "other-owner.duckdb"
+    _seed_skg_tables(db_path)
+    _seed_skg_tables(other_path)
+
+    prepared = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
+    try:
+        marker = prepared.query_execution_marker()
+        assert prepared.query.confidence_layer_vintage(other_path) is None
+        prepared.query.require_forwardable_confidence(other_path)
+        assert prepared.query_fingerprints_since(marker) == ()
+
+        prepared.query.query_parameters("macro.tax")
+        assert prepared.query_fingerprints_since(marker)
+    finally:
+        prepared.close()
+
+
+def test_prepared_read_uses_source_connection_without_temporary_clone(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    """Prepared reads retain one read-only source connection and create no DB copy."""
+    db_path = tmp_path / "source.duckdb"
+    _seed_skg_tables(db_path)
+    original_sha256 = skg_query._file_sha256(db_path)
+    original_files = set(tmp_path.iterdir())
+    original_connect = duckdb.connect
+    opens: list[tuple[str, bool]] = []
+
+    def track_connection(path, *args, **kwargs):
+        opens.append((str(path), bool(kwargs.get("read_only", False))))
+        return original_connect(path, *args, **kwargs)
+
+    monkeypatch.setattr(skg_query.duckdb, "connect", track_connection)
+    prepared = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
+    try:
+        prepared.query.query_parameters("macro.tax")
+        assert opens == [(str(db_path.resolve()), True)]
+        assert set(tmp_path.iterdir()) == original_files
+        assert skg_query._file_sha256(db_path) == original_sha256
+    finally:
+        prepared.close()

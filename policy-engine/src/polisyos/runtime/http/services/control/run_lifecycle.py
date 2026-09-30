@@ -7,7 +7,7 @@ import json
 import time
 import uuid
 from collections.abc import Mapping
-from contextlib import AbstractContextManager, contextmanager, nullcontext
+from contextlib import AbstractContextManager, contextmanager
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -88,7 +88,7 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityStatus,
 )
 from polisyos.core.observability import get_metrics, get_tracer
-from polisyos.core.security import tenant_scope
+from polisyos.core.security import AccessScope, clear_tenant_context, tenant_scope
 from polisyos.runtime.http.errors import conflict, forbidden, unprocessable_entity
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,
@@ -214,6 +214,10 @@ from .._control_contracts import (
 )
 from ..control_plane_store import (
     AcquisitionActionHeadRecord,
+    ControlJobExecutionAdmission,
+    ControlJobExecutionAdmissionError,
+    ControlJobExecutionScope,
+    ControlJobLeaseLostError,
     ControlJobRecord,
     ControlPlaneStore,
     HumanDecisionRecoveryFence,
@@ -225,6 +229,76 @@ from ..control_worker import ControlWorker
 
 logger = get_logger(__name__)
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
+
+
+def _strict_json_value_equal(actual: object, expected: object) -> bool:
+    """Compare decoded JSON values without Python's bool/int equality coercion."""
+    if type(actual) is not type(expected):
+        return False
+    if isinstance(expected, dict):
+        if not isinstance(actual, dict):
+            return False
+        if any(type(key) is not str for key in expected) or any(
+            type(key) is not str for key in actual
+        ):
+            return False
+        return actual.keys() == expected.keys() and all(
+            _strict_json_value_equal(actual[key], expected[key]) for key in expected
+        )
+    if isinstance(expected, list):
+        if not isinstance(actual, list):
+            return False
+        return len(actual) == len(expected) and all(
+            _strict_json_value_equal(actual_item, expected_item)
+            for actual_item, expected_item in zip(actual, expected, strict=True)
+        )
+    if expected is None or type(expected) in {bool, int, float, str}:
+        return actual == expected
+    return False
+
+
+class _DiagnosticExecutionScopeRecord(BaseModel):
+    """Typed source and establishment state for one durable diagnostic."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.runtime.control_execution_scope.v1"] = (
+        "polisyos.runtime.control_execution_scope.v1"
+    )
+    status: Literal["established", "not_established"]
+    source: Literal["job_admission", "authenticated_request"]
+    limitation_code: Literal["control_job_execution_scope_not_established"] | None = None
+
+
+class _ControlJobExecutionScopeLimitation(BaseModel):
+    """Candidate-only output limitation when a worker has no admitted owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal[
+        "polisyos.runtime.control_execution_scope_limitation.v1"
+    ] = "polisyos.runtime.control_execution_scope_limitation.v1"
+    status: Literal["not_established"] = "not_established"
+    code: Literal["control_job_execution_scope_not_established"] = (
+        "control_job_execution_scope_not_established"
+    )
+    candidate_work: Literal["unclaimed_only"] = "unclaimed_only"
+    authority: Literal["withheld"] = "withheld"
+
+
+@dataclass(frozen=True, slots=True)
+class _DiagnosticEventEmission:
+    """Report whether a diagnostic persisted and what its scope allows."""
+
+    event_id: str | None
+    status: Literal[
+        "persisted",
+        "candidate_diagnostic",
+        "authority_withheld",
+        "not_persisted",
+    ]
+    scope_status: Literal["established", "not_established"]
+    limitation_code: str | None = None
 _EVALUATION_SAFETY_ATTEMPT_KEY = "evaluation_safety_attempt"
 _EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY = "_polisyos_eval_safety_execution_context"
 _EXECUTION_INTENT_BINDING_KEY = "execution_intent_binding"
@@ -814,27 +888,6 @@ def _clean_runtime_text(value: object) -> str | None:
         return None
     text = str(value).strip()
     return text or None
-
-
-def _job_scope_identity(
-    payload: Mapping[str, Any] | None,
-) -> tuple[str | None, str | None]:
-    """Return only tenant and cell identities actually supplied by the job owner."""
-
-    if not isinstance(payload, Mapping):
-        return None, None
-    raw_tenant_id = payload.get("tenant_id")
-    raw_cell_id = payload.get("cell_id")
-    tenant_id = _clean_runtime_text(raw_tenant_id) if isinstance(raw_tenant_id, str) else None
-    cell_id = _clean_runtime_text(raw_cell_id) if isinstance(raw_cell_id, str) else None
-    if tenant_id is not None and tenant_id.casefold() == "tenant-unknown":
-        tenant_id = None
-    if cell_id is not None and cell_id.casefold() == "cell-unknown":
-        cell_id = None
-    return (
-        tenant_id,
-        cell_id,
-    )
 
 
 class _ControlEvaluationSafetyAuthorityResolver:
@@ -2085,7 +2138,11 @@ class ControlPlaneService(
             control_store=self._control_store,
         )
         self._acquisition_job_handler: (
-            Callable[[ControlJobRecord, dict[str, Any]], dict[str, Any]] | None
+            Callable[
+                [ControlJobRecord, dict[str, Any], ControlJobExecutionScope],
+                dict[str, Any],
+            ]
+            | None
         ) = None
         if decision_validity_service is not None and not isinstance(
             decision_validity_service, DecisionValidityService
@@ -2497,7 +2554,10 @@ class ControlPlaneService(
 
     def bind_acquisition_job_handler(
         self,
-        handler: Callable[[ControlJobRecord, dict[str, Any]], dict[str, Any]],
+        handler: Callable[
+            [ControlJobRecord, dict[str, Any], ControlJobExecutionScope],
+            dict[str, Any],
+        ],
     ) -> None:
         """Bind one container-composed acquisition worker bridge."""
 
@@ -2727,6 +2787,47 @@ class ControlPlaneService(
             "parent_span_id": str(parent_span_id or span_id or stored_parent_span_id or "") or None,
         }
 
+    @staticmethod
+    def _diagnostic_scope_record(
+        scope: ControlJobExecutionScope | AccessScope,
+    ) -> tuple[_DiagnosticExecutionScopeRecord, str, str]:
+        """Resolve diagnostic attribution only from admitted or request scope."""
+        if isinstance(scope, ControlJobExecutionScope):
+            source = "job_admission"
+            tenant_id = scope.tenant_id
+            cell_id = scope.cell_id
+            subject = scope.actor_subject
+            established = scope.status == "established"
+        elif isinstance(scope, AccessScope):
+            source = "authenticated_request"
+            tenant_id = scope.tenant_id
+            cell_id = scope.cell_id
+            subject = scope.user_sub or scope.spiffe_id
+            established = True
+        else:
+            raise TypeError("runtime_diagnostic_execution_scope_type_invalid")
+
+        sentinels = {"unknown", "tenant-unknown", "cell-unknown", "anonymous", "none", "null"}
+
+        def usable(value: object) -> bool:
+            return (
+                isinstance(value, str)
+                and bool(value.strip())
+                and value.strip().casefold() not in sentinels
+            )
+
+        established = established and usable(tenant_id) and usable(cell_id) and usable(subject)
+        if established:
+            record = _DiagnosticExecutionScopeRecord(status="established", source=source)
+            return record, str(tenant_id).strip(), str(cell_id).strip()
+
+        record = _DiagnosticExecutionScopeRecord(
+            status="not_established",
+            source=source,
+            limitation_code="control_job_execution_scope_not_established",
+        )
+        return record, "tenant-unknown", "cell-unknown"
+
     def _emit_runtime_diagnostic_event(
         self,
         *,
@@ -2745,21 +2846,46 @@ class ControlPlaneService(
         authority_bearing_payload: bool = False,
         producer_component: str = "polisyos.runtime.control",
         parent_span_id: str | None = None,
-    ) -> str | None:
-        """Emit a durable runtime diagnostic event and return its event id."""
+        execution_scope: ControlJobExecutionScope | AccessScope,
+    ) -> _DiagnosticEventEmission:
+        """Persist a diagnostic with typed owner attribution or a scoped limitation."""
 
         trace = self._job_trace_context(
             job_id=job_id,
             payload=payload,
             parent_span_id=parent_span_id,
         )
-        tenant_id, cell_id = _job_scope_identity(payload)
-        if tenant_id is None or cell_id is None:
-            return None
+        scope_record, tenant_id, cell_id = self._diagnostic_scope_record(execution_scope)
+        scope_payload = scope_record.model_dump(mode="json")
+        scope_established = scope_record.status == "established"
+        authority_withheld = authority_bearing_payload and not scope_established
+        persisted_event_type = (
+            "polisyos.runtime.diagnostic.scope_limited.v1"
+            if authority_withheld
+            else event_type
+        )
+        if authority_withheld:
+            persisted_event_payload: Mapping[str, Any] = {
+                "execution_scope": scope_payload,
+                "withheld_event_type": event_type,
+                "authority_status": "withheld",
+                "limitation_code": "control_job_execution_scope_not_established",
+            }
+            persisted_state_after = "not_established"
+            persisted_artifact_refs: tuple[str, ...] = ()
+            persisted_input_refs: tuple[str, ...] = ()
+        else:
+            persisted_event_payload = {
+                **dict(event_payload or {}),
+                "execution_scope": scope_payload,
+            }
+            persisted_state_after = state_after
+            persisted_artifact_refs = tuple(artifact_refs or ())
+            persisted_input_refs = tuple(input_refs or ())
         event = DiagnosticEvent(
             event_id=f"evt_{uuid.uuid4().hex[:24]}",
             event_source="polisyos.runtime.control",
-            event_type=event_type,
+            event_type=persisted_event_type,
             event_time=datetime.now(UTC).replace(microsecond=0),
             event_subject=f"run/{run_id or 'run-unknown'}/job/{job_id}/phase/{phase}",
             schema_name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
@@ -2776,11 +2902,11 @@ class ControlPlaneService(
             execution_profile=execution_profile,
             phase=phase,
             state_before=state_before,
-            state_after=state_after,
+            state_after=persisted_state_after,
             payload_ref=None,
-            artifact_refs=tuple(artifact_refs or ()),
-            input_refs=tuple(input_refs or ()),
-            blocking_status=blocking_status,
+            artifact_refs=persisted_artifact_refs,
+            input_refs=persisted_input_refs,
+            blocking_status=("blocking" if authority_withheld else blocking_status),
             redaction_policy_ref="redaction-policy/runtime-diagnostics-v1",
             duplicate_of=None,
             dedupe_key=None,
@@ -2790,9 +2916,9 @@ class ControlPlaneService(
         try:
             record = self._diagnostic_event_log.append(
                 event,
-                payload=event_payload,
+                payload=persisted_event_payload,
                 payload_policy=DiagnosticEventPayloadPolicy(
-                    authority_bearing=authority_bearing_payload
+                    authority_bearing=authority_bearing_payload and scope_established
                 ),
             )
         except Exception as exc:  # pragma: no cover - diagnostics cannot mask dev jobs
@@ -2806,8 +2932,165 @@ class ControlPlaneService(
                 phase,
                 exc,
             )
-            return None
-        return str(record.event.event_id)
+            return _DiagnosticEventEmission(
+                event_id=None,
+                status="not_persisted",
+                scope_status=scope_record.status,
+                limitation_code=(
+                    scope_record.limitation_code
+                    or "runtime_diagnostic_event_persistence_failed"
+                ),
+            )
+        if authority_withheld:
+            status: Literal[
+                "persisted",
+                "candidate_diagnostic",
+                "authority_withheld",
+                "not_persisted",
+            ] = "authority_withheld"
+        elif not scope_established:
+            status = "candidate_diagnostic"
+        else:
+            status = "persisted"
+        return _DiagnosticEventEmission(
+            event_id=str(record.event.event_id),
+            status=status,
+            scope_status=scope_record.status,
+            limitation_code=scope_record.limitation_code,
+        )
+
+    @staticmethod
+    def _execution_scope_for_policy(
+        policy: ResolvedExecutionPolicy,
+    ) -> ControlJobExecutionScope:
+        """Freeze complete authenticated identity from route policy at job admission."""
+        actor = policy.actor
+        if not isinstance(actor, Mapping):
+            return ControlJobExecutionScope(
+                status="not_established",
+                tenant_id=None,
+                cell_id=None,
+                actor_subject=None,
+                actor_authenticated=False,
+                actor_roles=(),
+            )
+        subject = actor.get("subject")
+        tenant_id = actor.get("tenant_id")
+        cell_id = actor.get("cell_id")
+        authenticated = actor.get("authenticated") is True
+        roles_raw = actor.get("roles")
+        sentinel_values = {"unknown", "tenant-unknown", "cell-unknown", "anonymous", "none", "null"}
+
+        def established_text(value: object) -> bool:
+            return (
+                type(value) is str
+                and bool(value)
+                and value == value.strip()
+                and value.casefold() not in sentinel_values
+            )
+
+        canonical_roles = (
+            type(roles_raw) is list
+            and all(
+                type(role) is str
+                and bool(role)
+                and role == role.strip()
+                for role in roles_raw
+            )
+            and roles_raw == sorted(set(roles_raw))
+        )
+
+        if (
+            authenticated
+            and established_text(subject)
+            and established_text(tenant_id)
+            and established_text(cell_id)
+            and canonical_roles
+        ):
+            return ControlJobExecutionScope(
+                status="established",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                actor_subject=subject,
+                actor_authenticated=True,
+                actor_roles=tuple(roles_raw),
+            )
+        return ControlJobExecutionScope(
+            status="not_established",
+            tenant_id=None,
+            cell_id=None,
+            actor_subject=None,
+            actor_authenticated=False,
+            actor_roles=(),
+        )
+
+    @staticmethod
+    def _execution_scope_payload(scope: ControlJobExecutionScope) -> dict[str, Any]:
+        """Serialize the typed route identity for the existing job-created owner event."""
+        return {
+            "schema_version": "polisyos.runtime.control_execution_scope.v1",
+            "status": scope.status,
+            "tenant_id": scope.tenant_id,
+            "cell_id": scope.cell_id,
+            "actor_subject": scope.actor_subject,
+            "actor_authenticated": scope.actor_authenticated,
+            "actor_roles": list(scope.actor_roles),
+        }
+
+    @staticmethod
+    def _policy_with_execution_scope(
+        policy: ResolvedExecutionPolicy,
+        scope: ControlJobExecutionScope,
+    ) -> ResolvedExecutionPolicy:
+        """Bind submitted principal and persisted execution scope to one identity."""
+        actor = dict(policy.actor)
+        if scope.status == "established":
+            actor.update(
+                subject=scope.actor_subject,
+                authenticated=True,
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+                roles=list(scope.actor_roles),
+            )
+        else:
+            actor.update(
+                subject="anonymous",
+                authenticated=False,
+                tenant_id=None,
+                cell_id=None,
+                roles=[],
+            )
+        return replace(policy, actor=actor)
+
+    @staticmethod
+    def _job_created_event_payload(
+        *,
+        job_id: str,
+        job_kind: str,
+        run_id: str | None,
+        pipeline_id: str | None,
+        payload_ref: str | None,
+        submitted_by: str | None,
+        requested_execution_profile: str | None,
+        effective_execution_profile: str,
+        policy_flags: Mapping[str, Any],
+        capability_manifest_ref: str | None,
+        execution_scope: ControlJobExecutionScope,
+    ) -> dict[str, Any]:
+        """Build the complete immutable stable envelope stored with the creation event."""
+        return {
+            "job_id": job_id,
+            "run_id": run_id,
+            "job_kind": job_kind,
+            "pipeline_id": pipeline_id,
+            "payload_ref": payload_ref,
+            "submitted_by": submitted_by,
+            "requested_execution_profile": requested_execution_profile,
+            "effective_execution_profile": effective_execution_profile,
+            "policy_flags": dict(policy_flags),
+            "capability_manifest_ref": capability_manifest_ref,
+            "execution_scope": ControlPlaneService._execution_scope_payload(execution_scope),
+        }
 
     def _attach_job_actor_scope(
         self,
@@ -2816,27 +3099,13 @@ class ControlPlaneService(
         policy: ResolvedExecutionPolicy,
     ) -> dict[str, Any]:
         scoped_payload = dict(payload)
-        tenant_id = policy.actor.get("tenant_id")
-        cell_id = policy.actor.get("cell_id")
-        if isinstance(tenant_id, str) and tenant_id:
-            scoped_payload["tenant_id"] = tenant_id
-        if isinstance(cell_id, str) and cell_id:
-            scoped_payload["cell_id"] = cell_id
+        scoped_payload.pop("tenant_id", None)
+        scoped_payload.pop("cell_id", None)
+        execution_scope = self._execution_scope_for_policy(policy)
+        if execution_scope.status == "established":
+            scoped_payload["tenant_id"] = execution_scope.tenant_id
+            scoped_payload["cell_id"] = execution_scope.cell_id
         return scoped_payload
-
-    @contextmanager
-    def _job_tenant_scope(self, payload: dict[str, Any]) -> Iterator[None]:
-        tenant_id, cell_id = _job_scope_identity(payload)
-        if tenant_id is None:
-            with nullcontext():
-                yield
-            return
-        with tenant_scope(
-            None,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-        ):
-            yield
 
     @contextmanager
     def _control_job_span(
@@ -2927,6 +3196,9 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> ControlJobRecord:
         started = time.perf_counter()
+        execution_scope = self._execution_scope_for_policy(policy)
+        policy = self._policy_with_execution_scope(policy, execution_scope)
+        submitted_by = execution_scope.actor_subject or "anonymous"
         payload = self._attach_job_actor_scope(payload, policy=policy)
         payload = self._enrich_job_payload(payload, request_id=request_id)
         initially_refused = False
@@ -2962,24 +3234,34 @@ class ControlPlaneService(
                 policy_flags=policy.policy_flags.model_dump(mode="json"),
                 capability_manifest_ref=capability_manifest_ref,
                 payload_ref=payload_ref,
-                submitted_by=str(policy.actor.get("subject") or "anonymous"),
-                creation_event_payload=(
-                    {
-                        "job_id": job_id,
-                        "run_id": run_id,
-                        "job_kind": job_kind,
-                        "payload_ref": payload_ref,
-                        "capability_manifest_ref": capability_manifest_ref,
-                        _EXECUTION_INTENT_BINDING_KEY: payload[
-                            _EXECUTION_INTENT_BINDING_KEY
-                        ],
-                        "intent_digest": payload[
-                            _EXECUTION_INTENT_BINDING_KEY
-                        ]["intent_digest"],
-                    }
-                    if job_kind == "natural_language_run"
-                    else None
-                ),
+                submitted_by=submitted_by,
+                creation_event_payload={
+                    **self._job_created_event_payload(
+                        job_id=job_id,
+                        job_kind=job_kind,
+                        run_id=run_id,
+                        pipeline_id=pipeline_id,
+                        payload_ref=payload_ref,
+                        submitted_by=submitted_by,
+                        requested_execution_profile=policy.requested_profile,
+                        effective_execution_profile=policy.effective_profile,
+                        policy_flags=policy.policy_flags.model_dump(mode="json"),
+                        capability_manifest_ref=capability_manifest_ref,
+                        execution_scope=execution_scope,
+                    ),
+                    **(
+                        {
+                            _EXECUTION_INTENT_BINDING_KEY: payload[
+                                _EXECUTION_INTENT_BINDING_KEY
+                            ],
+                            "intent_digest": payload[
+                                _EXECUTION_INTENT_BINDING_KEY
+                            ]["intent_digest"],
+                        }
+                        if job_kind == "natural_language_run"
+                        else {}
+                    ),
+                },
                 initial_state="failed" if initially_refused else "pending",
                 initial_error_message=(
                     "nl_job_execution_intent_not_established" if initially_refused else None
@@ -2998,10 +3280,8 @@ class ControlPlaneService(
                     else None
                 ),
             )
-            diagnostic_event_ids = [
-                event_id
-                for event_id in (
-                    self._emit_runtime_diagnostic_event(
+            diagnostic_emissions = (
+                self._emit_runtime_diagnostic_event(
                         job_id=job_id,
                         run_id=run_id,
                         execution_profile=policy.effective_profile,
@@ -3009,6 +3289,7 @@ class ControlPlaneService(
                         event_type="polisyos.runtime.diagnostic.cas_write.v1",
                         state_after="payload_persisted",
                         payload=payload,
+                        execution_scope=execution_scope,
                         event_payload={
                             "artifact_ref": payload_ref,
                             "artifact_kind": f"runtime.control_job_payload.{job_kind}",
@@ -3019,7 +3300,7 @@ class ControlPlaneService(
                             policy.effective_profile in _SERIOUS_EXECUTION_PROFILES
                         ),
                     ),
-                    self._emit_runtime_diagnostic_event(
+                self._emit_runtime_diagnostic_event(
                         job_id=job_id,
                         run_id=run_id,
                         execution_profile=policy.effective_profile,
@@ -3027,6 +3308,7 @@ class ControlPlaneService(
                         event_type="polisyos.runtime.diagnostic.cas_write.v1",
                         state_after="capability_manifest_persisted",
                         payload=payload,
+                        execution_scope=execution_scope,
                         event_payload={
                             "artifact_ref": capability_manifest_ref,
                             "artifact_kind": "runtime.capability_manifest",
@@ -3038,7 +3320,7 @@ class ControlPlaneService(
                             policy.effective_profile in _SERIOUS_EXECUTION_PROFILES
                         ),
                     ),
-                    self._emit_runtime_diagnostic_event(
+                self._emit_runtime_diagnostic_event(
                         job_id=job_id,
                         run_id=run_id,
                         execution_profile=policy.effective_profile,
@@ -3046,6 +3328,7 @@ class ControlPlaneService(
                         event_type="polisyos.runtime.diagnostic.phase_transition.v1",
                         state_after="failed" if initially_refused else "pending",
                         payload=payload,
+                        execution_scope=execution_scope,
                         event_payload={
                             "job_kind": job_kind,
                             "pipeline_id": pipeline_id,
@@ -3057,24 +3340,41 @@ class ControlPlaneService(
                             "projection_authority": "progress_reference_only",
                         },
                     ),
-                )
-                if event_id is not None
+            )
+            diagnostic_event_ids = [
+                emission.event_id
+                for emission in diagnostic_emissions
+                if emission.event_id is not None
             ]
             if diagnostic_event_ids:
+                diagnostic_progress = {
+                    "diagnostic_event_ids": diagnostic_event_ids,
+                    "diagnostic_event_authority": (
+                        "scope_limited"
+                        if any(
+                            emission.status == "authority_withheld"
+                            for emission in diagnostic_emissions
+                        )
+                        else "progress_reference_only"
+                    ),
+                    "diagnostic_event_scope_status": execution_scope.status,
+                }
+                if execution_scope.status == "not_established":
+                    diagnostic_progress[
+                        "diagnostic_event_limitation_code"
+                    ] = "control_job_execution_scope_not_established"
                 progress_state = "failed" if initially_refused else "pending"
                 progress = (
                     {
                         **record.progress,
                         "state": "failed",
-                        "diagnostic_event_ids": diagnostic_event_ids,
-                        "diagnostic_event_authority": "progress_reference_only",
+                        **diagnostic_progress,
                     }
                     if initially_refused
                     else {
                         "state": "pending",
                         "phase": "job_admission",
-                        "diagnostic_event_ids": diagnostic_event_ids,
-                        "diagnostic_event_authority": "progress_reference_only",
+                        **diagnostic_progress,
                     }
                 )
                 self._control_store.update_progress_state(
@@ -3115,16 +3415,6 @@ class ControlPlaneService(
         record = self._control_store.get_job(job_id)
         if record is None:
             raise KeyError(job_id)
-        if (
-            record.state == "completed"
-            and record.progress.get("authority_path") == "workspace_loop"
-        ):
-            proof_payload = record.progress.get("production_loop_run_proof")
-            endpoint = "/api/v1/control/runs"
-            if isinstance(proof_payload, Mapping):
-                endpoint = str(proof_payload.get("endpoint") or endpoint)
-            self._finalize_workspace_loop_run_proof(job_id=job_id, endpoint=endpoint)
-            record = self._control_store.get_job(job_id) or record
         return self._current_normative_job_record(record).to_response(request_id=request_id)
 
     def _current_normative_job_record(self, record: ControlJobRecord) -> ControlJobRecord:
@@ -3242,6 +3532,7 @@ class ControlPlaneService(
         run_id: str,
         approval_packet_ref: str,
         decision: str,
+        request_access_scope: AccessScope,
         scorecard: Mapping[str, Any] | None = None,
         approval_packet: Mapping[str, Any] | None = None,
     ) -> None:
@@ -3340,7 +3631,7 @@ class ControlPlaneService(
         progress["evidence_refs"] = {
             **progress_evidence_refs,
         }
-        approval_event_id = self._emit_runtime_diagnostic_event(
+        approval_event = self._emit_runtime_diagnostic_event(
             job_id=record.job_id,
             run_id=run_id,
             execution_profile=record.effective_execution_profile,
@@ -3355,12 +3646,26 @@ class ControlPlaneService(
             },
             artifact_refs=[approval_packet_ref],
             authority_bearing_payload=True,
+            execution_scope=request_access_scope,
         )
-        if approval_event_id is not None:
+        if approval_event.event_id is not None:
             progress.setdefault("diagnostic_event_ids", [])
             if isinstance(progress["diagnostic_event_ids"], list):
-                progress["diagnostic_event_ids"].append(approval_event_id)
-            progress["diagnostic_event_authority"] = "progress_reference_only"
+                progress["diagnostic_event_ids"].append(approval_event.event_id)
+            progress["diagnostic_event_authority"] = (
+                "progress_reference_only"
+                if approval_event.status == "persisted"
+                else (
+                    "scope_limited"
+                    if approval_event.status == "authority_withheld"
+                    else "candidate_diagnostic"
+                )
+            )
+            progress["diagnostic_event_scope_status"] = approval_event.scope_status
+            if approval_event.limitation_code is not None:
+                progress["diagnostic_event_limitation_code"] = (
+                    approval_event.limitation_code
+                )
         self._control_store.upsert_progress(job_id=record.job_id, progress=progress)
 
     def list_control_workers(
@@ -3448,31 +3753,47 @@ class ControlPlaneService(
         self,
         *,
         job: ControlJobRecord,
+        execution_scope: ControlJobExecutionScope,
         observed_fallbacks: list[str] | None = None,
     ) -> str:
-        payload: dict[str, Any] = {}
-        if job.payload_ref:
-            try:
-                payload = self._load_payload_ref(job.payload_ref)
-            except Exception as exc:
-                logger.debug(
-                    "Failed to load payload scope while refreshing capability manifest for %s: %s",
-                    job.job_id,
-                    exc,
-                )
+        """Refresh the current manifest from persisted worker admission only."""
+        if execution_scope.status == "established":
+            tenant_id = execution_scope.tenant_id
+            cell_id = execution_scope.cell_id
+            subject = execution_scope.actor_subject
+            authenticated = execution_scope.actor_authenticated
+            roles = frozenset(execution_scope.actor_roles)
+            if (
+                not tenant_id
+                or not cell_id
+                or not subject
+                or not authenticated
+                or subject != job.submitted_by
+            ):
+                raise RuntimeError("control_job_execution_scope_incomplete")
+            principal = RuntimePrincipal(
+                subject=subject,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                roles=roles,
+                authenticated=True,
+            )
+        else:
+            # Unknown legacy scope may still execute unclaimed candidate work. A
+            # refresh must not promote payload or manifest identity into a principal.
+            principal = RuntimePrincipal()
+
         policy = self._policy_resolver.resolve(
             requested_profile=job.requested_execution_profile,
             policy_flags=PolicyFlags.model_validate(job.policy_flags),
-            principal=RuntimePrincipal(
-                subject=job.submitted_by or "control-plane",
-                tenant_id=(
-                    payload.get("tenant_id") if isinstance(payload.get("tenant_id"), str) else None
-                ),
-                cell_id=payload.get("cell_id") if isinstance(payload.get("cell_id"), str) else None,
-                roles=frozenset({"system"}),
-                authenticated=True,
-            ),
+            principal=principal,
         )
+        if (
+            policy.effective_profile != job.effective_execution_profile
+            or policy.requested_profile != job.requested_execution_profile
+            or policy.policy_flags.model_dump(mode="json") != job.policy_flags
+        ):
+            raise RuntimeError("control_job_capability_manifest_policy_mismatch")
         manifest_ref = self._persist_capability_manifest(
             policy=policy,
             job_id=job.job_id,
@@ -3486,6 +3807,235 @@ class ControlPlaneService(
             capability_manifest_ref=manifest_ref,
         )
         return manifest_ref
+
+    def _validate_capability_manifest_for_scope(
+        self,
+        *,
+        manifest_ref: str,
+        job: ControlJobRecord,
+        execution_scope: ControlJobExecutionScope,
+    ) -> dict[str, Any]:
+        """Bind manifest bytes to the canonical leased row and admitted actor."""
+        manifest = self._load_payload_ref(manifest_ref)
+        expected_binding: dict[str, Any] = {
+            "job_id": job.job_id,
+            "run_id": job.run_id,
+            "pipeline_id": job.pipeline_id,
+            "payload_ref": job.payload_ref,
+            "requested_execution_profile": job.requested_execution_profile,
+            "effective_execution_profile": job.effective_execution_profile,
+            "policy_flags": job.policy_flags,
+        }
+        if not isinstance(manifest, Mapping) or any(
+            key not in manifest for key in expected_binding
+        ):
+            raise RuntimeError("control_job_capability_manifest_binding_mismatch")
+        actor = manifest.get("actor")
+        observed_binding = {key: manifest[key] for key in expected_binding}
+        if not _strict_json_value_equal(observed_binding, expected_binding):
+            raise RuntimeError("control_job_capability_manifest_binding_mismatch")
+        if execution_scope.status == "established":
+            expected_actor = {
+                "subject": execution_scope.actor_subject,
+                "tenant_id": execution_scope.tenant_id,
+                "cell_id": execution_scope.cell_id,
+                "roles": list(execution_scope.actor_roles),
+                "authenticated": True,
+            }
+            if not _strict_json_value_equal(actor, expected_actor):
+                raise RuntimeError("control_job_capability_manifest_actor_mismatch")
+        else:
+            anonymous_actor = {
+                "subject": "anonymous",
+                "tenant_id": None,
+                "cell_id": None,
+                "roles": [],
+                "authenticated": False,
+            }
+            if not _strict_json_value_equal(actor, anonymous_actor):
+                raise RuntimeError("control_job_unknown_scope_manifest_not_anonymous")
+        return dict(manifest)
+
+    def _resolve_capability_manifest_for_execution(
+        self,
+        *,
+        job: ControlJobRecord,
+        admission: ControlJobExecutionAdmission,
+        execution_scope: ControlJobExecutionScope,
+    ) -> tuple[str, dict[str, Any]]:
+        """Resolve a current manifest without treating its mutable pointer as identity."""
+        if execution_scope.status == "established" and job.capability_manifest_ref:
+            manifest_ref = job.capability_manifest_ref
+        else:
+            manifest_ref = self._refresh_capability_manifest(
+                job=job,
+                execution_scope=execution_scope,
+            )
+        manifest = self._validate_capability_manifest_for_scope(
+            manifest_ref=manifest_ref,
+            job=job,
+            execution_scope=execution_scope,
+        )
+        # The event pointer is a historical admission snapshot. It is checked by
+        # the NL binding consumer but never forced to equal a fenced current pointer.
+        _ = admission.manifest_pointer_state
+        return manifest_ref, manifest
+
+    @staticmethod
+    def _limit_workflow_progress_for_execution_scope(
+        progress: dict[str, Any],
+        execution_scope: ControlJobExecutionScope,
+    ) -> dict[str, Any]:
+        """Carry unknown owner scope through the served result as a candidate limit."""
+        if execution_scope.status == "established":
+            return progress
+
+        limitation = _ControlJobExecutionScopeLimitation().model_dump(mode="json")
+        limited = dict(progress)
+        limited["execution_scope_status"] = "not_established"
+        limited["execution_scope_limitation"] = limitation
+        if limited.get("authority_result") == "verifier_stamped":
+            limited["authority_result"] = "candidate_only"
+        if limited.get("authority_result") is not None:
+            limited["execution_band"] = "candidate"
+
+        boundary = limited.get("authority_boundary")
+        if isinstance(boundary, Mapping):
+            candidate_boundary = dict(boundary)
+            candidate_boundary["decision_grade"] = "unsupported"
+            known_limits = candidate_boundary.get("known_limits")
+            known_limits = list(known_limits) if isinstance(known_limits, list) else []
+            if "control_job_execution_scope_not_established" not in known_limits:
+                known_limits.append("control_job_execution_scope_not_established")
+            candidate_boundary["known_limits"] = known_limits
+            limited["authority_boundary"] = candidate_boundary
+
+            packet = limited.get("authority_surface_packet")
+            if isinstance(packet, Mapping):
+                candidate_packet = dict(packet)
+                candidate_packet["authority_result"] = "candidate_only"
+                candidate_packet["boundary"] = candidate_boundary
+                surfaces = packet.get("surfaces")
+                if isinstance(surfaces, Mapping):
+                    candidate_surfaces = {
+                        name: {
+                            **dict(surface),
+                            "status": "candidate_only",
+                            "authority_result": "candidate_only",
+                            "decision_grade": "unsupported",
+                            "reason": "control_job_execution_scope_not_established",
+                        }
+                        if isinstance(surface, Mapping)
+                        else surface
+                        for name, surface in surfaces.items()
+                    }
+                    candidate_packet["surfaces"] = candidate_surfaces
+                    limited["surface_authority"] = candidate_surfaces
+                    limited["public_packet"] = {
+                        "authority_boundary": candidate_boundary,
+                        "projection": candidate_surfaces.get("public_packet"),
+                    }
+                    for progress_key, surface_key in (
+                        ("artifact_projection", "artifact"),
+                        ("lineage_projection", "lineage"),
+                        ("export_projection", "export"),
+                    ):
+                        if surface_key in candidate_surfaces:
+                            limited[progress_key] = candidate_surfaces[surface_key]
+                limited["authority_surface_packet"] = candidate_packet
+
+        scorecard = limited.get("quality_scorecard")
+        if isinstance(scorecard, Mapping):
+            limited_scorecard = dict(scorecard)
+            limited_scorecard["approval_ready"] = False
+            limited_scorecard["approval_state"] = "candidate_only"
+            limited_scorecard["execution_scope_limitation"] = limitation
+            if isinstance(limited.get("authority_boundary"), Mapping):
+                limited_scorecard["authority_boundary"] = limited["authority_boundary"]
+            if isinstance(limited.get("authority_surface_packet"), Mapping):
+                limited_scorecard["authority_surface_packet"] = limited[
+                    "authority_surface_packet"
+                ]
+            limited["quality_scorecard"] = limited_scorecard
+
+        approval_projection = limited.get("approval_projection")
+        reasons = (
+            list(approval_projection.get("reasons") or [])
+            if isinstance(approval_projection, Mapping)
+            else []
+        )
+        if "control_job_execution_scope_not_established" not in reasons:
+            reasons.append("control_job_execution_scope_not_established")
+        limited["approval_projection"] = {
+            "state": "candidate_only",
+            "eligible": False,
+            "reasons": reasons,
+        }
+        return limited
+
+    @contextmanager
+    def _install_execution_scope(
+        self, execution_scope: ControlJobExecutionScope
+    ) -> Iterator[None]:
+        """Clear request identity, then install only persisted tenant/cell custody."""
+        with clear_tenant_context():
+            if execution_scope.status == "established":
+                if not execution_scope.tenant_id or not execution_scope.cell_id:
+                    raise RuntimeError("control_job_execution_scope_incomplete")
+                with tenant_scope(
+                    None,
+                    tenant_id=execution_scope.tenant_id,
+                    cell_id=execution_scope.cell_id,
+                ):
+                    yield
+                return
+            yield
+
+    @staticmethod
+    def _payload_for_execution_scope(
+        payload: Mapping[str, Any],
+        *,
+        job: ControlJobRecord,
+        execution_scope: ControlJobExecutionScope,
+    ) -> dict[str, Any]:
+        """Reject stable mismatches and strip caller owner claims from candidate inputs."""
+        result = dict(payload)
+        if result.get("run_id") is not None and result.get("run_id") != job.run_id:
+            raise RuntimeError("control_job_payload_run_id_mismatch")
+        result["job_id"] = job.job_id
+        result["run_id"] = job.run_id
+        result.pop("runtime_identity", None)
+        if execution_scope.status == "established":
+            if (
+                result.get("tenant_id") != execution_scope.tenant_id
+                or result.get("cell_id") != execution_scope.cell_id
+            ):
+                raise RuntimeError("control_job_payload_owner_scope_mismatch")
+            result["tenant_id"] = execution_scope.tenant_id
+            result["cell_id"] = execution_scope.cell_id
+        else:
+            result.pop("tenant_id", None)
+            result.pop("cell_id", None)
+
+        raw_state_payload = result.get("state_payload")
+        if isinstance(raw_state_payload, Mapping):
+            state_payload = dict(raw_state_payload)
+            for key in _NL_JOB_OWNER_CONTEXT_KEYS:
+                state_payload.pop(key, None)
+            raw_params = state_payload.get("params")
+            if isinstance(raw_params, Mapping):
+                state_payload["params"] = {
+                    key: value
+                    for key, value in raw_params.items()
+                    if key not in _NL_JOB_OWNER_CONTEXT_KEYS
+                }
+            state_payload["job_id"] = job.job_id
+            state_payload["run_id"] = job.run_id
+            if execution_scope.status == "established":
+                state_payload["tenant_id"] = execution_scope.tenant_id
+                state_payload["cell_id"] = execution_scope.cell_id
+            result["state_payload"] = state_payload
+        return result
 
     def _hydrate_state_payload(
         self,
@@ -3509,10 +4059,12 @@ class ControlPlaneService(
         intake: EvaluationAttemptIntake,
         job: ControlJobRecord,
         payload: Mapping[str, Any],
+        execution_scope: ControlJobExecutionScope,
     ) -> EvaluationSafetyPersistenceContext:
         trace = self._job_trace_context(job_id=job.job_id, payload=payload)
-        tenant_id, cell_id = _job_scope_identity(payload)
-        if tenant_id is None:
+        tenant_id = execution_scope.tenant_id
+        cell_id = execution_scope.cell_id
+        if execution_scope.status != "established" or tenant_id is None or cell_id is None:
             code = "evaluation_safety_tenant_scope_not_established"
             raise _WorkflowExecutionNonAuthorityError(
                 code,
@@ -3532,7 +4084,7 @@ class ControlPlaneService(
                     ),
                 },
             )
-        run_id = str(job.run_id or payload.get("run_id") or "run-unknown")
+        run_id = str(job.run_id or "run-unknown")
         input_refs = tuple(ref.artifact_id for ref in intake.evaluation_input_refs)
         closure_payload = {
             "attempt_id": intake.attempt_id,
@@ -3590,6 +4142,7 @@ class ControlPlaneService(
         extension_payload: Mapping[str, Any],
         job: ControlJobRecord,
         payload: Mapping[str, Any],
+        execution_scope: ControlJobExecutionScope,
     ) -> _ControlEvaluationSafetyResult | None:
         if _EVALUATION_SAFETY_ATTEMPT_KEY not in extension_payload:
             return None
@@ -3600,6 +4153,7 @@ class ControlPlaneService(
             intake=intake,
             job=job,
             payload=payload,
+            execution_scope=execution_scope,
         )
         authorities = EvaluationSafetyAttemptAuthorities(
             mode_basis_ref=None,
@@ -3632,6 +4186,7 @@ class ControlPlaneService(
                 phase="evaluation_safety",
                 event_type="polisyos.runtime.diagnostic.producer_execution.v1",
                 payload=payload,
+                execution_scope=execution_scope,
                 event_payload={
                     "producer": "promotion_classification_source_resolution",
                     "source_resolution_ref": persisted.promotion_source_resolution_ref,
@@ -3711,8 +4266,9 @@ class ControlPlaneService(
         result: _ControlEvaluationSafetyResult,
         job: ControlJobRecord,
         payload: Mapping[str, Any],
+        execution_scope: ControlJobExecutionScope,
     ) -> dict[str, Any]:
-        run_id = str(job.run_id or payload.get("run_id") or "run-unknown")
+        run_id = str(job.run_id or "run-unknown")
         run_dir = derive_core_run_dir(self._core_runs_root, run_id)
         projection_ref = ArtifactRef(
             artifact_id=artifacts.ArtifactID.model_validate(
@@ -3746,8 +4302,9 @@ class ControlPlaneService(
                 ),
                 run_dir=run_dir,
                 run_id=run_id,
-                tenant_id=_clean_runtime_text(payload.get("tenant_id")),
-                cell_id=_clean_runtime_text(payload.get("cell_id")),
+                tenant_id=execution_scope.tenant_id,
+                cell_id=execution_scope.cell_id,
+                access_scope=None,
             )
             run_context.add_output(projection_ref)
             manifest_ref = run_context.finalize(
@@ -3804,12 +4361,14 @@ class ControlPlaneService(
         result: _ControlEvaluationSafetyResult,
         job: ControlJobRecord,
         payload: Mapping[str, Any],
+        execution_scope: ControlJobExecutionScope,
         capability_manifest_ref: str,
     ) -> None:
         progress = self._blocked_evaluation_safety_progress(
             result=result,
             job=job,
             payload=payload,
+            execution_scope=execution_scope,
         )
         self._control_store.fail_job(
             job_id=job.job_id,
@@ -3826,6 +4385,7 @@ class ControlPlaneService(
             state_before="running",
             state_after="failed",
             payload=payload,
+            execution_scope=execution_scope,
             event_payload={
                 "job_kind": job.kind,
                 "blocker_codes": progress["eval_safety_blocker_codes"],
@@ -3845,12 +4405,18 @@ class ControlPlaneService(
         payload: Mapping[str, Any],
         compiled_run_ref: str,
         normative_disposition_ref: str,
+        execution_scope: ControlJobExecutionScope,
     ) -> str:
-        """Publish the candidate computation through the existing owned core-run index."""
+        """Publish through the existing owner using only admitted job scope."""
         run_id = str(job.run_id or "")
-        tenant_id = _clean_runtime_text(payload.get("tenant_id"))
-        cell_id = _clean_runtime_text(payload.get("cell_id"))
-        if not run_id or not tenant_id or run_id != payload.get("run_id"):
+        tenant_id = execution_scope.tenant_id
+        cell_id = execution_scope.cell_id
+        if (
+            execution_scope.status != "established"
+            or not run_id
+            or not tenant_id
+            or not cell_id
+        ):
             raise ValueError("normative_generation_run_identity_unbound")
         outputs = [
             ArtifactRef(
@@ -3890,6 +4456,7 @@ class ControlPlaneService(
             run_id=run_id,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            access_scope=None,
         )
         for output in outputs:
             context.add_output(output)
@@ -3907,18 +4474,26 @@ class ControlPlaneService(
         self,
         *,
         job: ControlJobRecord,
+        admission: ControlJobExecutionAdmission,
+        execution_scope: ControlJobExecutionScope,
         payload: Mapping[str, Any],
+        capability_manifest_ref: str,
+        capability_manifest: Mapping[str, Any],
     ) -> dict[str, Any]:
-        """Reconcile intent, actor, row, event, capability manifest, and outbox."""
+        """Reconcile route intent against immutable admission and current custody."""
         failure_code = "nl_job_execution_intent_not_established"
         try:
-            if not job.capability_manifest_ref or not job.payload_ref or not job.run_id:
+            if (
+                execution_scope.status != "established"
+                or not capability_manifest_ref
+                or not job.payload_ref
+                or not job.run_id
+            ):
                 raise ValueError(failure_code)
             event = self._control_store.get_job_created_event_payload(job.job_id)
             outbox = self._control_store.get_job_created_outbox_event(job.job_id)
             payload_binding = payload.get(_EXECUTION_INTENT_BINDING_KEY)
             event_binding = event.get(_EXECUTION_INTENT_BINDING_KEY)
-            capability_manifest = self._load_payload_ref(job.capability_manifest_ref)
             actor = capability_manifest.get("actor")
             if not isinstance(actor, Mapping):
                 raise ValueError(failure_code)
@@ -3938,7 +4513,8 @@ class ControlPlaneService(
                 to_canonical_bytes(binding_payload),
                 prefix=True,
             )
-            payload_tenant_id, payload_cell_id = _job_scope_identity(payload)
+            payload_tenant_id = payload.get("tenant_id")
+            payload_cell_id = payload.get("cell_id")
             expected_outbox_payload = {
                 "job_id": job.job_id,
                 "job_kind": job.kind,
@@ -3972,7 +4548,10 @@ class ControlPlaneService(
                 or event.get("run_id") != job.run_id
                 or event.get("job_kind") != "natural_language_run"
                 or event.get("payload_ref") != job.payload_ref
-                or event.get("capability_manifest_ref") != job.capability_manifest_ref
+                or event.get("capability_manifest_ref")
+                != admission.admission_capability_manifest_ref
+                or event.get("execution_scope")
+                != self._execution_scope_payload(execution_scope)
                 or event.get("intent_digest") != binding.intent_digest
                 or payload.get("run_id") != job.run_id
                 or event_binding != dict(payload_binding)
@@ -3983,13 +4562,18 @@ class ControlPlaneService(
                 or capability_manifest.get("pipeline_id") != job.pipeline_id
                 or capability_manifest.get("payload_ref") != job.payload_ref
                 or binding.actor_subject != job.submitted_by
+                or binding.actor_subject != execution_scope.actor_subject
                 or binding.actor_subject != actor.get("subject")
                 or binding.actor_authenticated is not actor.get("authenticated")
+                or binding.actor_authenticated is not execution_scope.actor_authenticated
                 or binding.actor_roles != normalized_manifest_roles
+                or binding.actor_roles != execution_scope.actor_roles
                 or binding.tenant_id != actor.get("tenant_id")
                 or binding.cell_id != actor.get("cell_id")
-                or payload_tenant_id != binding.tenant_id
-                or payload_cell_id != binding.cell_id
+                or binding.tenant_id != execution_scope.tenant_id
+                or binding.cell_id != execution_scope.cell_id
+                or payload_tenant_id != execution_scope.tenant_id
+                or payload_cell_id != execution_scope.cell_id
                 or binding.route_id != _NL_ROUTE_ID
                 or binding.route_action != _NL_ROUTE_ACTION
                 or binding.admission_surface != "served_route"
@@ -4068,25 +4652,82 @@ class ControlPlaneService(
             raise RuntimeError(failure_code) from exc
 
     def _process_control_job(self, job: ControlJobRecord) -> None:
+        """Enter only the persisted, live-lease scope before any job artifact read."""
+        del job  # The lease-fenced row, not the dispatch snapshot, owns stable fields.
+        with clear_tenant_context():
+            try:
+                admission = self._control_store.current_execution_job_admission()
+            except ControlJobLeaseLostError:
+                raise
+            except ControlJobExecutionAdmissionError as exc:
+                current = self._control_store.current_execution_job_record()
+                self._control_store.fail_job(
+                    job_id=current.job_id,
+                    capability_manifest_ref=current.capability_manifest_ref,
+                    error_message=exc.code,
+                    progress={
+                        "state": "failed",
+                        "phase": "job_admission",
+                        "status": "not_established",
+                        "failure_code": exc.code,
+                        "execution_scope": "not_established",
+                    },
+                )
+                return
+            with self._install_execution_scope(admission.scope):
+                self._process_control_job_admitted(
+                    job=admission.job,
+                    admission=admission,
+                    execution_scope=admission.scope,
+                )
+
+    def _process_control_job_admitted(
+        self,
+        *,
+        job: ControlJobRecord,
+        admission: ControlJobExecutionAdmission,
+        execution_scope: ControlJobExecutionScope,
+    ) -> None:
         payload: dict[str, Any] = {}
+        capability_manifest_ref: str | None = job.capability_manifest_ref
+        capability_manifest: dict[str, Any] | None = None
         execution_intent_binding: dict[str, Any] | None = None
         cycle_substrate_context_job_ref: str | None = None
         try:
             if not job.payload_ref:
                 raise RuntimeError("control job payload ref is missing")
             payload = self._load_payload_ref(job.payload_ref)
+            payload = self._payload_for_execution_scope(
+                payload,
+                job=job,
+                execution_scope=execution_scope,
+            )
+            capability_manifest_ref, capability_manifest = (
+                self._resolve_capability_manifest_for_execution(
+                    job=job,
+                    admission=admission,
+                    execution_scope=execution_scope,
+                )
+            )
+            if capability_manifest_ref is None:
+                raise RuntimeError("control_job_capability_manifest_not_established")
             if job.kind == "natural_language_run":
                 execution_intent_binding = self._require_nl_job_execution_intent_binding(
                     job=job,
+                    admission=admission,
+                    execution_scope=execution_scope,
                     payload=payload,
+                    capability_manifest_ref=capability_manifest_ref,
+                    capability_manifest=capability_manifest,
                 )
                 if (
                     execution_intent_binding["admission_status"] != "established"
                     or execution_intent_binding["intent_band"] == "not_established"
                 ):
                     raise RuntimeError("nl_job_execution_intent_not_established")
-            with self._control_job_span(job=job, payload=payload), self._job_tenant_scope(payload):
+            with self._control_job_span(job=job, payload=payload):
                 self._emit_runtime_diagnostic_event(
+                    execution_scope=execution_scope,
                     job_id=job.job_id,
                     run_id=job.run_id,
                     execution_profile=job.effective_execution_profile,
@@ -4117,9 +4758,6 @@ class ControlPlaneService(
                     },
                 )
                 if job.kind == "workflow_run":
-                    capability_manifest_ref = (
-                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
-                    )
                     state_payload = self._hydrate_state_payload(
                         payload["state_payload"],
                         job=job,
@@ -4131,12 +4769,14 @@ class ControlPlaneService(
                         ),
                         job=job,
                         payload=payload,
+                        execution_scope=execution_scope,
                     )
                     if evaluation_safety is not None and evaluation_safety.blocked:
                         self._finish_blocked_evaluation_safety_attempt(
                             result=evaluation_safety,
                             job=job,
                             payload=payload,
+                            execution_scope=execution_scope,
                             capability_manifest_ref=capability_manifest_ref,
                         )
                         return
@@ -4152,10 +4792,15 @@ class ControlPlaneService(
                         payload["checkpoint_policy"],
                         job=job,
                         endpoint="/api/v1/control/runs",
+                        execution_scope_status=execution_scope.status,
                         http_request_id=str(
                             (payload.get("_telemetry") or {}).get("request_id")
                             or f"control-job:{job.job_id}"
                         ),
+                    )
+                    progress = self._limit_workflow_progress_for_execution_scope(
+                        progress,
+                        execution_scope,
                     )
                     self._control_store.complete_job(
                         job_id=job.job_id,
@@ -4173,6 +4818,7 @@ class ControlPlaneService(
                             endpoint="/api/v1/control/runs",
                         )
                     self._emit_runtime_diagnostic_event(
+                        execution_scope=execution_scope,
                         job_id=job.job_id,
                         run_id=job.run_id,
                         execution_profile=job.effective_execution_profile,
@@ -4194,9 +4840,6 @@ class ControlPlaneService(
                     )
                     from polisyos.scientist import BudgetState
 
-                    capability_manifest_ref = (
-                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
-                    )
                     intent_band = ExecutionIntentBand(
                         str(execution_intent_binding["intent_band"])
                     )
@@ -4208,12 +4851,14 @@ class ControlPlaneService(
                             ),
                             job=job,
                             payload=payload,
+                            execution_scope=execution_scope,
                         )
                         if evaluation_safety is not None and evaluation_safety.blocked:
                             self._finish_blocked_evaluation_safety_attempt(
                                 result=evaluation_safety,
                                 job=job,
                                 payload=payload,
+                                execution_scope=execution_scope,
                                 capability_manifest_ref=capability_manifest_ref,
                             )
                             return
@@ -4276,8 +4921,8 @@ class ControlPlaneService(
                         if key not in _NL_JOB_OWNER_CONTEXT_KEYS
                     }
                     trusted_source_context: dict[str, object | None] = {
-                        "tenant_id": execution_intent_binding.get("tenant_id"),
-                        "cell_id": execution_intent_binding.get("cell_id"),
+                        "tenant_id": execution_scope.tenant_id,
+                        "cell_id": execution_scope.cell_id,
                         "job_id": str(job.job_id),
                         "run_id": str(job.run_id),
                     }
@@ -4296,8 +4941,8 @@ class ControlPlaneService(
                     cycle_substrate_context_resolver = None
                     profile_id = payload.get("target_world_scope_profile_id")
                     admission_owner = self._cycle_substrate_context_admission_owner
-                    bound_tenant_id = execution_intent_binding.get("tenant_id")
-                    bound_cell_id = execution_intent_binding.get("cell_id")
+                    bound_tenant_id = execution_scope.tenant_id
+                    bound_cell_id = execution_scope.cell_id
                     if (
                         intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
                         and admission_owner is not None
@@ -4457,8 +5102,9 @@ class ControlPlaneService(
                                     "n4_candidate_proposal_terminal_status_invalid"
                                 )
 
-                            run_id = str(job.run_id or payload.get("run_id") or "")
-                            event_id = self._emit_runtime_diagnostic_event(
+                            run_id = str(job.run_id or "")
+                            diagnostic_emission = self._emit_runtime_diagnostic_event(
+                                execution_scope=execution_scope,
                                 job_id=job.job_id,
                                 run_id=run_id,
                                 execution_profile=job.effective_execution_profile,
@@ -4516,9 +5162,8 @@ class ControlPlaneService(
                                 "n4_status": generation_status,
                                 "run_id": run_id,
                                 "candidate_proposal_ref": None,
-                                "runtime_diagnostic_event_status": (
-                                    "persisted" if event_id is not None else "not_established"
-                                ),
+                                "runtime_diagnostic_event_status": diagnostic_emission.status,
+                                "diagnostic_event_scope_status": diagnostic_emission.scope_status,
                                 "n5_status": "not_run",
                                 "n8_status": "not_run",
                                 "n9_status": "not_run",
@@ -4526,10 +5171,14 @@ class ControlPlaneService(
                                 **simulation_failure,
                                 **target_scope_progress,
                             }
-                            if event_id is None:
+                            if diagnostic_emission.event_id is not None:
+                                progress["diagnostic_event_ids"] = [
+                                    diagnostic_emission.event_id
+                                ]
+                            if diagnostic_emission.limitation_code is not None:
                                 progress[
                                     "runtime_diagnostic_event_limitation_code"
-                                ] = "diagnostic_event_owner_scope_not_established"
+                                ] = diagnostic_emission.limitation_code
                             self._control_store.complete_job(
                                 job_id=job.job_id,
                                 run_id=run_id,
@@ -4545,9 +5194,10 @@ class ControlPlaneService(
                             N4CandidateProposalSimulationRecord,
                         )
 
-                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        run_id = str(job.run_id or "")
                         raw_request = str(payload.get("request") or "")
-                        tenant_id, cell_id = _job_scope_identity(payload)
+                        tenant_id = execution_scope.tenant_id
+                        cell_id = execution_scope.cell_id
                         if tenant_id is None or cell_id is None:
                             scope_limiter = (
                                 "candidate_proposal_owner_scope_not_established"
@@ -4667,6 +5317,7 @@ class ControlPlaneService(
                             progress=progress,
                         )
                         self._emit_runtime_diagnostic_event(
+                            execution_scope=execution_scope,
                             job_id=job.job_id,
                             run_id=run_id,
                             execution_profile=job.effective_execution_profile,
@@ -4704,8 +5355,9 @@ class ControlPlaneService(
                         # from an adapter is not evidence that the requested band
                         # was upgraded; terminate before N5, S8, or publication.
                         limitation = "candidate_only_compiled_result_not_admitted"
-                        run_id = str(job.run_id or payload.get("run_id") or "")
-                        event_id = self._emit_runtime_diagnostic_event(
+                        run_id = str(job.run_id or "")
+                        diagnostic_emission = self._emit_runtime_diagnostic_event(
+                            execution_scope=execution_scope,
                             job_id=job.job_id,
                             run_id=run_id,
                             execution_profile=job.effective_execution_profile,
@@ -4746,19 +5398,22 @@ class ControlPlaneService(
                             "n4_status": "not_established",
                             "run_id": run_id,
                             "candidate_proposal_ref": None,
-                            "runtime_diagnostic_event_status": (
-                                "persisted" if event_id is not None else "not_established"
-                            ),
+                            "runtime_diagnostic_event_status": diagnostic_emission.status,
+                            "diagnostic_event_scope_status": diagnostic_emission.scope_status,
                             "n5_status": "not_run",
                             "n8_status": "not_run",
                             "n9_status": "not_run",
                             "s8_status": "not_run",
                             "publication_status": "not_run",
                         }
-                        if event_id is None:
+                        if diagnostic_emission.event_id is not None:
+                            progress["diagnostic_event_ids"] = [
+                                diagnostic_emission.event_id
+                            ]
+                        if diagnostic_emission.limitation_code is not None:
                             progress[
                                 "runtime_diagnostic_event_limitation_code"
-                            ] = "diagnostic_event_owner_scope_not_established"
+                            ] = diagnostic_emission.limitation_code
                         self._control_store.complete_job(
                             job_id=job.job_id,
                             run_id=run_id,
@@ -4774,7 +5429,7 @@ class ControlPlaneService(
                                 "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
                             ),
                         )
-                        run_id = str(job.run_id or payload.get("run_id") or "")
+                        run_id = str(job.run_id or "")
                         progress = {
                             "state": "completed",
                             "phase": "natural_language_run",
@@ -4805,6 +5460,7 @@ class ControlPlaneService(
                             progress=progress,
                         )
                         self._emit_runtime_diagnostic_event(
+                            execution_scope=execution_scope,
                             job_id=job.job_id,
                             run_id=run_id,
                             execution_profile=job.effective_execution_profile,
@@ -4863,12 +5519,13 @@ class ControlPlaneService(
                         payload=payload,
                         compiled_run_ref=compiled_ref,
                         normative_disposition_ref=str(normative.disposition_ref),
+                        execution_scope=execution_scope,
                     )
                     progress = {
                         "state": "completed",
                         "phase": "natural_language_run",
                         "manifest_ref": manifest_ref,
-                        "run_id": str(job.run_id or payload.get("run_id") or ""),
+                        "run_id": str(job.run_id or ""),
                         "compiled_recursive_generation_cycle_ref": compiled_ref,
                         "recursive_budget_resolution": recursive_budget_resolution.model_dump(
                             mode="json"
@@ -4879,13 +5536,14 @@ class ControlPlaneService(
                     }
                     self._control_store.complete_job(
                         job_id=job.job_id,
-                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        run_id=str(job.run_id or ""),
                         capability_manifest_ref=str(capability_manifest_ref),
                         progress=progress,
                     )
                     self._emit_runtime_diagnostic_event(
+                        execution_scope=execution_scope,
                         job_id=job.job_id,
-                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        run_id=str(job.run_id or ""),
                         execution_profile=job.effective_execution_profile,
                         phase="job_execution",
                         event_type="polisyos.runtime.diagnostic.phase_transition.v1",
@@ -4914,26 +5572,21 @@ class ControlPlaneService(
                     )
                     return
                 if job.kind == "lex_pipeline":
-                    capability_manifest_ref = (
-                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
-                    )
                     self._run_lex_pipeline_job(
                         job=job,
                         payload=payload,
                         capability_manifest_ref=capability_manifest_ref,
+                        execution_scope=execution_scope,
                     )
                     return
                 if job.kind == "acquisition":
                     handler = self._acquisition_job_handler
                     if handler is None:
                         raise RuntimeError("acquisition_job_handler_missing")
-                    capability_manifest_ref = (
-                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
-                    )
-                    progress = handler(job, payload)
+                    progress = handler(job, payload, execution_scope)
                     self._control_store.complete_job(
                         job_id=job.job_id,
-                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        run_id=str(job.run_id or ""),
                         capability_manifest_ref=capability_manifest_ref,
                         progress=progress,
                     )
@@ -4942,8 +5595,9 @@ class ControlPlaneService(
                     if isinstance(terminal_receipt_ref, str):
                         artifact_refs.append(terminal_receipt_ref)
                     self._emit_runtime_diagnostic_event(
+                        execution_scope=execution_scope,
                         job_id=job.job_id,
-                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        run_id=str(job.run_id or ""),
                         execution_profile=job.effective_execution_profile,
                         phase="job_execution",
                         event_type="polisyos.runtime.diagnostic.phase_transition.v1",
@@ -4964,6 +5618,7 @@ class ControlPlaneService(
                 dict(exc.progress) if isinstance(exc, _WorkflowExecutionNonAuthorityError) else None
             )
             self._emit_runtime_diagnostic_event(
+                execution_scope=execution_scope,
                 job_id=job.job_id,
                 run_id=job.run_id,
                 execution_profile=job.effective_execution_profile,
@@ -4981,7 +5636,7 @@ class ControlPlaneService(
             )
             self._control_store.fail_job(
                 job_id=job.job_id,
-                capability_manifest_ref=job.capability_manifest_ref,
+                capability_manifest_ref=capability_manifest_ref,
                 error_message=str(exc),
                 progress=progress,
             )
@@ -5592,6 +6247,9 @@ class ControlPlaneService(
                     kind="runtime.provider_preflight_report",
                     schema_name="polisyos.runtime.ProviderPreflightReport",
                 )
+                execution_scope = self._execution_scope_for_policy(policy)
+                policy = self._policy_with_execution_scope(policy, execution_scope)
+                submitted_by = execution_scope.actor_subject or "anonymous"
                 capability_manifest_ref = self._persist_capability_manifest(
                     policy=policy,
                     job_id=job_id,
@@ -5609,7 +6267,20 @@ class ControlPlaneService(
                     policy_flags=policy.policy_flags.model_dump(mode="json"),
                     capability_manifest_ref=capability_manifest_ref,
                     payload_ref=None,
-                    submitted_by=str(policy.actor.get("subject") or "anonymous"),
+                    submitted_by=submitted_by,
+                    creation_event_payload=self._job_created_event_payload(
+                        job_id=job_id,
+                        job_kind="natural_language_run",
+                        run_id=run_id,
+                        pipeline_id=None,
+                        payload_ref=None,
+                        submitted_by=submitted_by,
+                        requested_execution_profile=policy.requested_profile,
+                        effective_execution_profile=policy.effective_profile,
+                        policy_flags=policy.policy_flags.model_dump(mode="json"),
+                        capability_manifest_ref=capability_manifest_ref,
+                        execution_scope=execution_scope,
+                    ),
                 )
                 failure = dict(preflight_report.failure or {})
                 failure.setdefault("code", "llm_provider_preflight_failed")

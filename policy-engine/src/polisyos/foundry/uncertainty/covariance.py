@@ -6,12 +6,16 @@ import math
 from collections.abc import Mapping
 
 import jax.numpy as jnp
+import numpy as np
 
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     ParametricFitCarrier,
     UncertaintyEnvelope,
 )
+
+CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1 = 1e-7
+CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1 = 1e-10
 
 
 def extract_std(env: UncertaintyEnvelope) -> float:
@@ -74,8 +78,11 @@ def build_covariance_matrix(
     *,
     use_full_covariance: bool,
     jitter: float,
+    preserve_singular: bool = False,
 ) -> jnp.ndarray:
-    """Build covariance matrix."""
+    """Build a validated covariance matrix, optionally retaining exact null spaces."""
+    if not math.isfinite(float(jitter)) or jitter < 0.0:
+        raise ValueError("jitter must be finite and non-negative")
     marginal_stds: list[float] = []
     for name in param_names:
         envelope = input_envelopes[name]
@@ -143,33 +150,98 @@ def build_covariance_matrix(
         if set(expected_params) != set(param_names):
             raise ValueError("covariance_params must cover exactly the requested parameters")
         reorder_idx = [expected_params.index(name) for name in param_names]
-        cov = jnp.asarray(rows, dtype=jnp.float32)
+        covariance_values = np.asarray(rows, dtype=np.float64)
         # Every row belongs to the envelope that supplied it.  Only the
         # declared columns need moving into the requested parameter order;
         # moving rows as well changes row ownership and can manufacture a
         # covariance matrix that no producer emitted.
-        cov = cov[:, reorder_idx]
+        covariance_values = covariance_values[:, reorder_idx]
     else:
-        cov = jnp.asarray(rows, dtype=jnp.float32)
+        covariance_values = np.asarray(rows, dtype=np.float64)
 
-    if cov.shape != diag_cov.shape:
+    if covariance_values.shape != tuple(diag_cov.shape):
         raise ValueError("covariance matrix has the wrong dimension")
 
-    if not bool(jnp.all(jnp.isfinite(cov))):
+    covariance = covariance_values
+    diagonal = np.diag(np.square(np.asarray(marginal_stds, dtype=np.float64)))
+    if not np.all(np.isfinite(covariance)):
         raise ValueError("covariance matrix must contain finite values")
-    symmetric = 0.5 * (cov + cov.T)
-    if not bool(jnp.allclose(cov, cov.T, rtol=1e-5, atol=1e-6)):
-        raise ValueError("covariance matrix must be symmetric")
-    if not bool(jnp.allclose(jnp.diag(cov), stds**2, rtol=1e-3, atol=1e-5)):
+    if not np.allclose(np.diag(covariance), np.diag(diagonal), rtol=1e-3, atol=1e-5):
         raise ValueError("covariance diagonal must match marginal standard deviations")
-    eigenvalues = jnp.linalg.eigvalsh(symmetric)
-    if float(jnp.min(eigenvalues)) < -max(1e-6, 10.0 * jitter):
-        raise ValueError("covariance matrix must be positive semidefinite")
+    if preserve_singular:
+        covariance = preserve_singular_covariance(covariance)
+    else:
+        symmetric = 0.5 * (covariance + covariance.T)
+        if not np.allclose(covariance, covariance.T, rtol=1e-5, atol=1e-6):
+            raise ValueError("covariance matrix must be symmetric")
+        eigenvalues = np.linalg.eigvalsh(symmetric)
+        minimum_eigenvalue = float(np.min(eigenvalues))
+        if minimum_eigenvalue < -max(1e-6, 10.0 * jitter):
+            raise ValueError("covariance matrix must be positive semidefinite")
+        eigenvalues, eigenvectors = np.linalg.eigh(symmetric)
+        covariance = (eigenvectors * np.clip(eigenvalues, jitter, None)) @ eigenvectors.T
 
-    cov = _repair_covariance(cov, jitter=jitter)
-    if not bool(jnp.all(jnp.isfinite(cov))):
+    if not np.all(np.isfinite(covariance)):
         raise ValueError("covariance matrix must contain finite values")
-    return cov
+    return jnp.asarray(covariance, dtype=jnp.float32)
+
+def preserve_singular_covariance(
+    covariance: object,
+    *,
+    symmetry_rtol: float = 1e-5,
+    symmetry_atol: float = 1e-6,
+) -> np.ndarray:
+    """Validate a covariance matrix while retaining its declared null space.
+
+    Tiny negative eigenvalues within the established numerical tolerance are
+    projected to zero. Materially indefinite or malformed matrices are rejected.
+    """
+    matrix = np.asarray(covariance, dtype=np.float64)
+    if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1]:
+        raise ValueError("covariance matrix must be square")
+    if not np.all(np.isfinite(matrix)):
+        raise ValueError("covariance matrix must contain finite values")
+    if not np.allclose(
+        matrix,
+        matrix.T,
+        rtol=symmetry_rtol,
+        atol=symmetry_atol,
+    ):
+        raise ValueError("covariance matrix must be symmetric")
+    symmetric = 0.5 * (matrix + matrix.T)
+    if symmetric.size == 0:
+        return symmetric
+    eigenvalues = np.linalg.eigvalsh(symmetric)
+    minimum_eigenvalue = float(np.min(eigenvalues))
+    scale = max(1.0, float(np.max(np.abs(symmetric))))
+    # The tolerance is independent of jitter; regularization cannot make an
+    # indefinite declared law acceptable.
+    if minimum_eigenvalue < -1e-10 * scale:
+        raise ValueError("covariance matrix must be positive semidefinite")
+    if minimum_eigenvalue < 0.0:
+        eigenvalues, eigenvectors = np.linalg.eigh(symmetric)
+        symmetric = (eigenvectors * np.clip(eigenvalues, 0.0, None)) @ eigenvectors.T
+    if not np.all(np.isfinite(symmetric)):
+        raise ValueError("covariance matrix must contain finite values")
+    return symmetric
+
+
+def calibration_covariance_blocks_agree_v1(expected: object, actual: object) -> bool:
+    """Compare a cross-owner covariance block under the pinned v1 tolerance."""
+    expected_matrix = np.asarray(expected, dtype=np.float64)
+    actual_matrix = np.asarray(actual, dtype=np.float64)
+    if expected_matrix.shape != actual_matrix.shape:
+        return False
+    if not np.all(np.isfinite(expected_matrix)) or not np.all(np.isfinite(actual_matrix)):
+        return False
+    return bool(
+        np.allclose(
+            expected_matrix,
+            actual_matrix,
+            rtol=CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+            atol=CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+        )
+    )
 
 
 def has_unknown_dependency(input_envelopes: Mapping[str, UncertaintyEnvelope]) -> bool:

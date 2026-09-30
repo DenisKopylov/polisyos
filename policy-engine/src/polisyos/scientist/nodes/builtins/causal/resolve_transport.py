@@ -6,7 +6,7 @@ import hashlib
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -84,6 +84,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
 )
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
@@ -701,6 +704,21 @@ class RunTransportabilityNode:
     def spec(self) -> NodeSpec:
         return _SPEC
 
+    def prepare_cache_input(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+    ) -> PreparedSKGRead | None:
+        """Bind cache lookup to the selected academic source database."""
+        del ctx
+        db_path_raw = state.params.get("skg_db_path")
+        if not isinstance(db_path_raw, str) or not db_path_raw.strip():
+            return None
+        db_path = Path(db_path_raw)
+        index_dir_raw = state.params.get("skg_index_dir")
+        index_dir = Path(str(index_dir_raw)) if index_dir_raw else db_path.parent
+        return SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
+
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         report_ref_raw = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
         if report_ref_raw is None:
@@ -838,10 +856,26 @@ class RunTransportabilityNode:
             )
 
         dataset_registry = _build_dataset_registry(state.params.get("dataset_registry_db_path"))
-        skg_query = _build_skg_query(
-            db_path=state.params.get("skg_db_path"),
-            index_dir=state.params.get("skg_index_dir"),
-        )
+        prepared_read = ctx.prepared_skg_read
+        configured_skg_path = state.params.get("skg_db_path")
+        owns_skg_query = False
+        if prepared_read is not None and isinstance(configured_skg_path, str):
+            if not prepared_read.matches_path(configured_skg_path):
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message="Prepared SKG source path does not match transport selector input.",
+                    ),
+                )
+            skg_query = prepared_read.query
+        else:
+            skg_query = _build_skg_query(
+                db_path=configured_skg_path,
+                index_dir=state.params.get("skg_index_dir"),
+            )
+            owns_skg_query = isinstance(skg_query, SKGQuery)
         legal_kg_db_path = _coerce_path(state.params.get("legal_kg_db_path"))
 
         loop = TransportabilityResolutionLoop(
@@ -870,7 +904,7 @@ class RunTransportabilityNode:
                 privacy_context=privacy_context,
             )
         finally:
-            if isinstance(skg_query, SKGQuery):
+            if owns_skg_query and isinstance(skg_query, SKGQuery):
                 skg_query.close()
 
         transport_ref = persist_transportability_result(

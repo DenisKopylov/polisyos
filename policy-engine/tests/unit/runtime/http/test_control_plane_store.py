@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager
+from contextlib import AbstractContextManager, contextmanager
 from datetime import UTC, datetime, timedelta
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -15,11 +16,20 @@ from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+from polisyos.runtime.http.resilience import guard_runtime_control_store
 from polisyos.runtime.http.services.control.run_lifecycle import HumanDecisionAuthoritySink
-from polisyos.runtime.http.services.control_plane_store import ControlJobRecord, ControlPlaneStore
+from polisyos.runtime.http.services.control_plane_store import (
+    ControlJobExecutionAdmissionError,
+    ControlJobLeaseLostError,
+    ControlJobRecord,
+    ControlPlaneStore,
+)
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from tests._helpers.policy_design_case_projection import policy_design_case, sha
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _make_store(tmp_path) -> ControlPlaneStore:
@@ -27,6 +37,36 @@ def _make_store(tmp_path) -> ControlPlaneStore:
         backend="sqlite",
         sqlite_path=tmp_path / "control-plane.sqlite3",
     )
+
+
+def _job_execution_scope() -> dict[str, object]:
+    return {
+        "schema_version": "polisyos.runtime.control_execution_scope.v1",
+        "status": "established",
+        "tenant_id": "tenant-b",
+        "cell_id": "cell-b",
+        "actor_subject": "denis",
+        "actor_authenticated": True,
+        "actor_roles": ["analyst", "operator"],
+    }
+
+
+def _job_creation_event(*, execution_scope: dict[str, object] | None) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "job_id": "job_execution_admission",
+        "run_id": "run_execution_admission",
+        "job_kind": "workflow_run",
+        "pipeline_id": None,
+        "payload_ref": "sha256:payload-b",
+        "submitted_by": "denis",
+        "requested_execution_profile": None,
+        "effective_execution_profile": "dev",
+        "policy_flags": {"candidate": True},
+        "capability_manifest_ref": "sha256:manifest-admission",
+    }
+    if execution_scope is not None:
+        payload["execution_scope"] = execution_scope
+    return payload
 
 
 def _human_decision_sink(
@@ -1536,3 +1576,511 @@ def test_acquisition_action_heads_enumerate_latest_per_generation_in_exact_scope
     for field in identity:
         append({**identity, field: "other-" + identity[field]}, 1)
     assert store.list_acquisition_action_heads(**identity) == (latest, second)
+
+
+def _create_execution_admission_job(
+    store: ControlPlaneStore,
+    *,
+    execution_scope: dict[str, object] | None,
+    capability_manifest_ref: str | None = "sha256:manifest-admission",
+) -> ControlJobRecord:
+    return store.create_job(
+        job_id="job_execution_admission",
+        kind="workflow_run",
+        run_id="run_execution_admission",
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={"candidate": True},
+        capability_manifest_ref=capability_manifest_ref,
+        payload_ref="sha256:payload-b",
+        submitted_by="denis",
+        creation_event_payload=_job_creation_event(execution_scope=execution_scope),
+    )
+
+
+def _fence_leased_execution(
+    store: ControlPlaneStore,
+    *,
+    job: ControlJobRecord,
+    worker_id: str = "worker-execution-admission",
+) -> AbstractContextManager[None]:
+    leased = store.lease_next_job(worker_id=worker_id, lease_seconds=30)
+    assert leased is not None
+    return store.job_execution_fence(
+        job_id=job.job_id,
+        worker_id=worker_id,
+        attempt=leased.attempt,
+    )
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+def test_completed_proof_publication_preserves_progress_and_journals_exact_attempt(
+    tmp_path: Path,
+    guarded: bool,
+) -> None:
+    raw = _make_store(tmp_path)
+    store = guard_runtime_control_store(raw) if guarded else raw
+    job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+    with _fence_leased_execution(store, job=job):
+        store.complete_job(
+            job_id=job.job_id,
+            progress={
+                "phase": "completed",
+                "unrelated": {"retained": True},
+                "artifacts_index": {"search_exit_contract_ref": "search-ref"},
+                "quality_scorecard": {"evidence_refs": {"search_exit_contract_ref": "search-ref"}},
+            },
+        )
+        completed = store.current_execution_completed_job_record()
+        proof_ref = "sha256:" + "7" * 64
+        proof = {
+            "job_id": job.job_id,
+            "run_id": job.run_id,
+            "worker_id": "worker-execution-admission",
+            "observed_job_state": "completed",
+            "control_store_state_transitions": store.list_job_state_transitions(job.job_id),
+        }
+        raw.upsert_progress(
+            job_id=job.job_id,
+            progress={**completed.progress, "sibling_update": {"retained": True}},
+        )
+        store.publish_completed_job_proof(
+            job_id=job.job_id,
+            expected_progress=completed.progress,
+            proof_payload=proof,
+            proof_ref=proof_ref,
+        )
+        updated = store.get_job(job.job_id)
+        assert updated is not None
+        assert updated.progress["unrelated"] == {"retained": True}
+        assert updated.progress["sibling_update"] == {"retained": True}
+        assert updated.progress["artifacts_index"]["search_exit_contract_ref"] == "search-ref"
+        assert updated.progress["production_loop_run_proof"] == proof
+        assert updated.progress["production_loop_run_proof_ref"] == proof_ref
+        assert store.list_job_state_transitions(job.job_id) == ["pending", "running", "completed"]
+        events = [
+            e
+            for e in store.list_outbox_events(state=None, limit=100)
+            if e.topic == "control.job.proof_finalized"
+        ]
+        assert len(events) == 1
+        assert events[0].payload["proof_ref"] == proof_ref
+        assert events[0].payload["attempt"] == completed.attempt
+        with pytest.raises(ControlJobLeaseLostError, match="progress changed"):
+            store.publish_completed_job_proof(
+                job_id=job.job_id,
+                expected_progress=completed.progress,
+                proof_payload=proof,
+                proof_ref=proof_ref,
+            )
+    with pytest.raises(ControlJobLeaseLostError, match="identity is not bound"):
+        store.publish_completed_job_proof(
+            job_id=job.job_id,
+            expected_progress=updated.progress,
+            proof_payload=proof,
+            proof_ref=proof_ref,
+        )
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "completion_owner",
+        "attempt",
+        "restarted",
+        "lease_owner",
+        "lease_expiry",
+        "proof_basis",
+        "proof_basis_primitive_type",
+        "proof_basis_key_presence",
+        "history",
+    ],
+)
+def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
+    tmp_path: Path,
+    guarded: bool,
+    mutation: str,
+) -> None:
+    raw = _make_store(tmp_path)
+    store = guard_runtime_control_store(raw) if guarded else raw
+    job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
+    with _fence_leased_execution(store, job=job):
+        store.complete_job(
+            job_id=job.job_id,
+            progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+        )
+        completed = store.current_execution_completed_job_record()
+        if mutation == "completion_owner":
+            raw.append_event(
+                job_id=job.job_id,
+                event_type="job_completed",
+                payload={
+                    "state": "completed",
+                    "lease_owner": "foreign-worker",
+                    "attempt": completed.attempt,
+                },
+            )
+        elif mutation == "attempt":
+            raw._execute(
+                "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
+            )
+        elif mutation == "restarted":
+            raw.mark_running(job_id=job.job_id, worker_id="replacement-worker")
+        elif mutation == "lease_owner":
+            raw._execute(
+                "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                ("foreign-worker", job.job_id),
+            )
+        elif mutation == "lease_expiry":
+            raw._execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+            )
+        elif mutation == "proof_basis":
+            raw.upsert_progress(
+                job_id=job.job_id,
+                progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+            )
+        elif mutation == "proof_basis_primitive_type":
+            raw.upsert_progress(
+                job_id=job.job_id,
+                progress={**completed.progress, "search_exit_contract": {"verified": 1}},
+            )
+        elif mutation == "proof_basis_key_presence":
+            raw.upsert_progress(
+                job_id=job.job_id,
+                progress={**completed.progress, "authority_path": None},
+            )
+        else:
+            raw.append_event(
+                job_id=job.job_id, event_type="job_progress", payload={"state": "pending"}
+            )
+        before = raw.get_job(job.job_id)
+        assert before is not None
+        before_outbox = raw.list_outbox_events(state=None, limit=100)
+        with pytest.raises(ControlJobLeaseLostError):
+            store.publish_completed_job_proof(
+                job_id=job.job_id,
+                expected_progress=completed.progress,
+                proof_payload={
+                    "job_id": job.job_id,
+                    "run_id": job.run_id,
+                    "worker_id": "worker-execution-admission",
+                    "control_store_state_transitions": ["pending", "running", "completed"],
+                },
+                proof_ref="sha256:" + "7" * 64,
+            )
+        after = raw.get_job(job.job_id)
+        assert after is not None and after.progress == before.progress
+        assert raw.list_outbox_events(state=None, limit=100) == before_outbox
+
+
+def test_control_job_execution_admission_uses_event_and_allows_fenced_pointer_refresh(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    with pytest.raises(ControlJobLeaseLostError, match="execution fence"):
+        store.update_manifest_ref(
+            job_id=job.job_id,
+            capability_manifest_ref="sha256:manifest-refreshed",
+        )
+
+    with _fence_leased_execution(store, job=job):
+        admission = store.current_execution_job_admission()
+        assert admission.job.job_id == job.job_id
+        assert admission.scope.status == "established"
+        assert admission.scope.tenant_id == "tenant-b"
+        assert admission.scope.cell_id == "cell-b"
+        assert admission.scope.actor_subject == "denis"
+        assert admission.scope.actor_authenticated is True
+        assert admission.scope.actor_roles == ("analyst", "operator")
+        assert admission.admission_capability_manifest_ref == "sha256:manifest-admission"
+        assert admission.manifest_pointer_state == "admission_current"
+
+        store.update_manifest_ref(
+            job_id=job.job_id,
+            capability_manifest_ref="sha256:manifest-refreshed",
+        )
+        refreshed = store.current_execution_job_admission()
+        assert refreshed.scope == admission.scope
+        assert refreshed.admission_capability_manifest_ref == "sha256:manifest-admission"
+        assert refreshed.manifest_pointer_state == "refreshed_current"
+
+    event = store.get_job_created_event_payload(job.job_id)
+    assert event["capability_manifest_ref"] == "sha256:manifest-admission"
+
+
+def test_control_job_execution_admission_keeps_scope_less_legacy_unknown(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = store.create_job(
+        job_id="job_execution_admission",
+        kind="workflow_run",
+        run_id="run_execution_admission",
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={"candidate": True},
+        capability_manifest_ref=None,
+        payload_ref="sha256:payload-b",
+        submitted_by="denis",
+    )
+
+    with _fence_leased_execution(store, job=job):
+        admission = store.current_execution_job_admission()
+
+    assert admission.scope.status == "not_established"
+    assert admission.scope.tenant_id is None
+    assert admission.scope.cell_id is None
+    assert admission.scope.actor_subject is None
+    assert admission.scope.actor_authenticated is False
+    assert admission.scope.actor_roles == ()
+    assert admission.manifest_pointer_state == "missing_current"
+
+
+def test_control_job_execution_admission_accepts_typed_unknown_scope(tmp_path: Path) -> None:
+    store = _make_store(tmp_path)
+    unknown_scope: dict[str, object] = {
+        "schema_version": "polisyos.runtime.control_execution_scope.v1",
+        "status": "not_established",
+        "tenant_id": None,
+        "cell_id": None,
+        "actor_subject": None,
+        "actor_authenticated": False,
+        "actor_roles": [],
+    }
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=unknown_scope,
+        capability_manifest_ref=None,
+    )
+
+    with _fence_leased_execution(store, job=job):
+        admission = store.current_execution_job_admission()
+
+    assert admission.scope.status == "not_established"
+    assert admission.scope.tenant_id is None
+    assert admission.scope.actor_authenticated is False
+
+
+def test_control_job_execution_admission_rejects_malformed_scope_and_row_mismatch(
+    tmp_path: Path,
+) -> None:
+    malformed_store = _make_store(tmp_path / "malformed")
+    malformed_scope = _job_execution_scope()
+    malformed_scope["actor_authenticated"] = False
+    malformed_job = _create_execution_admission_job(
+        malformed_store,
+        execution_scope=malformed_scope,
+    )
+    with (
+        _fence_leased_execution(malformed_store, job=malformed_job),
+        pytest.raises(
+            ControlJobExecutionAdmissionError,
+            match="control_job_execution_scope_incomplete",
+        ),
+    ):
+        malformed_store.current_execution_job_admission()
+
+    mismatch_store = _make_store(tmp_path / "mismatch")
+    mismatched_event = _job_creation_event(execution_scope=_job_execution_scope())
+    mismatched_event["job_id"] = "another-job"
+    mismatch_job = mismatch_store.create_job(
+        job_id="job_execution_admission",
+        kind="workflow_run",
+        run_id="run_execution_admission",
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={"candidate": True},
+        capability_manifest_ref="sha256:manifest-admission",
+        payload_ref="sha256:payload-b",
+        submitted_by="denis",
+        creation_event_payload=mismatched_event,
+    )
+    with (
+        _fence_leased_execution(mismatch_store, job=mismatch_job),
+        pytest.raises(
+            ControlJobExecutionAdmissionError,
+            match="control_job_created_stable_field_mismatch",
+        ),
+    ):
+        mismatch_store.current_execution_job_admission()
+
+
+def test_control_job_execution_admission_requires_exactly_one_creation_event(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    store.append_event(
+        job_id=job.job_id,
+        event_type="job_created",
+        payload=_job_creation_event(execution_scope=_job_execution_scope()),
+    )
+    with (
+        _fence_leased_execution(store, job=job),
+        pytest.raises(
+            ControlJobExecutionAdmissionError,
+            match="control_job_created_event_unavailable",
+        ),
+    ):
+        store.current_execution_job_admission()
+
+
+def test_control_job_execution_admission_rejects_bool_int_outbox_scope_drift(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    outbox = store.get_job_created_outbox_event(job.job_id)
+    assert outbox is not None
+    outbox_payload = outbox.payload
+    execution_scope = outbox_payload["execution_scope"]
+    assert isinstance(execution_scope, dict)
+    execution_scope["actor_authenticated"] = 1
+    store._execute(
+        "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+        (json.dumps(outbox_payload, sort_keys=True), outbox.event_id),
+    )
+
+    with (
+        _fence_leased_execution(store, job=job),
+        pytest.raises(
+            ControlJobExecutionAdmissionError,
+            match="control_job_created_event_outbox_mismatch",
+        ),
+    ):
+        store.current_execution_job_admission()
+
+
+def test_control_job_execution_admission_rejects_nested_bool_int_outbox_drift(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    outbox = store.get_job_created_outbox_event(job.job_id)
+    assert outbox is not None
+    outbox_payload = outbox.payload
+    policy_flags = outbox_payload["policy_flags"]
+    assert isinstance(policy_flags, dict)
+    policy_flags["candidate"] = 1
+    store._execute(
+        "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+        (json.dumps(outbox_payload, sort_keys=True), outbox.event_id),
+    )
+
+    with (
+        _fence_leased_execution(store, job=job),
+        pytest.raises(
+            ControlJobExecutionAdmissionError,
+            match="control_job_created_event_outbox_mismatch",
+        ),
+    ):
+        store.current_execution_job_admission()
+
+
+def test_control_job_execution_admission_rejects_nested_bool_int_row_drift(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    event_payload = store.get_job_created_event_payload(job.job_id)
+    policy_flags = event_payload["policy_flags"]
+    assert isinstance(policy_flags, dict)
+    policy_flags["candidate"] = 1
+    serialized_event = json.dumps(event_payload, sort_keys=True)
+    store._execute(
+        "UPDATE control_job_events SET payload_json = ? WHERE job_id = ? AND event_type = ?",
+        (serialized_event, job.job_id, "job_created"),
+    )
+    outbox = store.get_job_created_outbox_event(job.job_id)
+    assert outbox is not None
+    outbox_payload = outbox.payload
+    outbox_policy_flags = outbox_payload["policy_flags"]
+    assert isinstance(outbox_policy_flags, dict)
+    outbox_policy_flags["candidate"] = 1
+    store._execute(
+        "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+        (json.dumps(outbox_payload, sort_keys=True), outbox.event_id),
+    )
+
+    with (
+        _fence_leased_execution(store, job=job),
+        pytest.raises(
+            ControlJobExecutionAdmissionError,
+            match="control_job_created_stable_field_mismatch",
+        ),
+    ):
+        store.current_execution_job_admission()
+
+
+def test_control_job_execution_admission_binds_actor_subject_to_submitter(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    scope = _job_execution_scope()
+    scope["actor_subject"] = "different-actor"
+    job = _create_execution_admission_job(store, execution_scope=scope)
+
+    with (
+        _fence_leased_execution(store, job=job),
+        pytest.raises(
+            ControlJobExecutionAdmissionError,
+            match="control_job_execution_actor_subject_mismatch",
+        ),
+    ):
+        store.current_execution_job_admission()
+
+
+def test_control_job_execution_admission_ignores_json_object_key_order(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    outbox = store.get_job_created_outbox_event(job.job_id)
+    assert outbox is not None
+
+    def reverse_object_key_order(value: object) -> object:
+        if isinstance(value, dict):
+            return {
+                key: reverse_object_key_order(child)
+                for key, child in reversed(tuple(value.items()))
+            }
+        if isinstance(value, list):
+            return [reverse_object_key_order(child) for child in value]
+        return value
+
+    reordered = reverse_object_key_order(outbox.payload)
+    assert isinstance(reordered, dict)
+    store._execute(
+        "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+        (json.dumps(reordered), outbox.event_id),
+    )
+
+    with _fence_leased_execution(store, job=job):
+        admission = store.current_execution_job_admission()
+
+    assert admission.scope.status == "established"

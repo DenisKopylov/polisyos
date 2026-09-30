@@ -10,7 +10,12 @@ from pydantic import BaseModel, ConfigDict
 
 from polisyos.core.contracts import ControlFailureEnvelope
 from polisyos.core.security import TenantContextNotSetError
-from polisyos.pdc import AuthorityBoundary, EvidenceBasis
+from polisyos.pdc import (
+    AuthorityBoundary,
+    EvidenceBasis,
+    SearchTerminalKind,
+    assert_ring2_verifier_provenance,
+)
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.workspace.loop import WorkspaceSearchExitContract
@@ -64,6 +69,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         job: ControlJobRecord,
         endpoint: str,
         http_request_id: str,
+        execution_scope_status: Literal["established", "not_established"],
     ) -> dict[str, Any]:
         if self._execute_workflow_is_overridden():
             result = self._execute_workflow(state_payload, checkpoint_policy)
@@ -114,6 +120,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             job=job,
             endpoint=endpoint,
             http_request_id=http_request_id,
+            execution_scope_status=execution_scope_status,
         )
 
     def _execute_workflow(
@@ -142,6 +149,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         job: ControlJobRecord,
         endpoint: str,
         http_request_id: str,
+        execution_scope_status: Literal["established", "not_established"],
     ) -> dict[str, Any]:
         from polisyos.runtime.quality.authority import (
             ProductionLoopRunProof,
@@ -187,6 +195,14 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             raise _WorkflowExecutionNonAuthorityError(str(exc), progress=progress) from exc
         from polisyos.runtime.quality.workspace.loop import workspace_exit_schema_version
 
+        authority_withheld_for_execution_scope = (
+            execution_scope_status == "not_established"
+            and contract.authority_boundary is not None
+        )
+        contract = self._limit_workspace_contract_authority_for_execution_scope(
+            contract,
+            execution_scope_status=execution_scope_status,
+        )
         output_schema_version = workspace_exit_schema_version(contract)
         contract_payload = contract.model_dump(mode="json")
         search_exit_ref = self._put_json_artifact(
@@ -241,6 +257,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             self._workspace_loop_authority_projection(
                 terminal_kind=str(contract.terminal_state["kind"]),
                 has_authority_boundary=contract.authority_boundary is not None,
+                authority_withheld_for_execution_scope=authority_withheld_for_execution_scope,
                 search_exit_ref=search_exit_ref,
             )
         )
@@ -598,13 +615,93 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             raise _WorkflowExecutionNonAuthorityError(str(exc), progress=progress) from exc
 
     @staticmethod
+    def _limit_workspace_contract_authority_for_execution_scope(
+        contract: WorkspaceSearchExitContract,
+        *,
+        execution_scope_status: Literal["established", "not_established"],
+    ) -> WorkspaceSearchExitContract:
+        """Admit the complete persisted output family under the creating job scope."""
+        if execution_scope_status == "established":
+            return contract
+
+        payload = contract.model_dump(mode="json")
+        authority_paths: set[tuple[object, ...]] = set()
+        ring2_paths: set[tuple[object, ...]] = set()
+
+        def collect_admission_paths(value: object, path: tuple[object, ...] = ()) -> None:
+            if isinstance(value, BaseModel):
+                if isinstance(value, AuthorityBoundary):
+                    authority_paths.add(path)
+                ring2_paths.update(
+                    (*path, field_name)
+                    for field_name in getattr(type(value), "ring2_fields", frozenset())
+                )
+                for field_name in type(value).model_fields:
+                    collect_admission_paths(
+                        getattr(value, field_name),
+                        (*path, field_name),
+                    )
+            elif isinstance(value, Mapping):
+                for key, child in value.items():
+                    collect_admission_paths(child, (*path, key))
+            elif isinstance(value, list | tuple):
+                for index, child in enumerate(value):
+                    collect_admission_paths(child, (*path, index))
+
+        collect_admission_paths(contract)
+
+        def limit_output_authority(
+            value: object,
+            path: tuple[object, ...] = (),
+        ) -> object:
+            """Remove all typed authority and Ring-2 claims before persistence."""
+            if path in authority_paths or path in ring2_paths:
+                return None
+            if isinstance(value, Mapping):
+                limited: dict[str, object] = {}
+                for key, item in value.items():
+                    if key == "authority_derivation_traces":
+                        limited[key] = []
+                    else:
+                        limited[key] = limit_output_authority(item, (*path, key))
+                return limited
+            if isinstance(value, list):
+                return [
+                    limit_output_authority(item, (*path, index))
+                    for index, item in enumerate(value)
+                ]
+            return value
+
+        limited_payload = limit_output_authority(payload)
+        if not isinstance(limited_payload, dict):
+            raise TypeError("workspace output admission must produce an object")
+        limited_payload["decision_grade"] = "unsupported"
+        limited_payload["evidence_kind"] = None
+        limited_payload["evidence_ladder_rung"] = "none"
+        # Revalidate the same schema version after recursively limiting nested
+        # SearchLedger and ArtifactEnvelope boundaries. Proofs and refs are then
+        # constructed only from this admitted projection below.
+        admitted_contract = type(contract).model_validate(limited_payload)
+        assert_ring2_verifier_provenance(
+            admitted_contract,
+            context={"writer_role": "workspace_candidate_output"},
+        )
+        return admitted_contract
+
+    @staticmethod
     def _workspace_loop_authority_projection(
         *,
         terminal_kind: str,
         has_authority_boundary: bool,
+        authority_withheld_for_execution_scope: bool,
         search_exit_ref: str,
     ) -> tuple[str, dict[str, Any], dict[str, Any]]:
-        if has_authority_boundary:
+        admissible_terminal = terminal_kind in {
+            SearchTerminalKind.GROUNDED_ADMISSIBLE,
+            SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE,
+            SearchTerminalKind.GROUNDED_ABSTENTION,
+        }
+        if has_authority_boundary and admissible_terminal:
             gate = {
                 "name": "slice0_estimate_scope_only",
                 "code": "slice0_estimate_scope_only",
@@ -633,6 +730,38 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                     "eligible": False,
                     "reasons": ["slice0_estimate_scope_only"],
                 },
+            )
+
+        # The absence of a boundary does not identify a failed search: output
+        # admission also removes a valid boundary when execution scope is unknown.
+        # Preserve actual repair/acquisition terminals and disclose that distinct
+        # cause only for an owner-produced admissible terminal.
+        if authority_withheld_for_execution_scope and admissible_terminal:
+            code = "control_job_execution_scope_not_established"
+            gate = {
+                "name": code,
+                "code": code,
+                "status": "warn",
+                "layer": "pdc.gy",
+                "phase": "workspace_loop",
+                "message": (
+                    "Candidate computation completed; authority is withheld because "
+                    "the creating job's execution scope is not established."
+                ),
+                "blocking": False,
+                "evidence_ref": search_exit_ref,
+            }
+            return (
+                "candidate_only",
+                {
+                    "quality_status": "warn",
+                    "approval_state": "candidate_only",
+                    "approval_ready": False,
+                    "quality_gates": [gate],
+                    "blocking_quality_failures": [],
+                    "evidence_refs": {},
+                },
+                {"state": "candidate_only", "eligible": False, "reasons": [code]},
             )
 
         code = (
@@ -688,13 +817,17 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         )
 
     def _finalize_workspace_loop_run_proof(self, *, job_id: str, endpoint: str) -> None:
-        """Persist a post-completion proof that includes observed /runs readback."""
+        """Persist this worker's post-completion store observation under its attempt fence.
+
+        The observation is a control-store read, not an HTTP route receipt.
+        Served-route verification records its independent response separately.
+        """
 
         from polisyos.runtime.quality.authority import ProductionLoopRunProof
 
-        record = self._control_store.get_job(job_id)
-        if record is None:
-            return
+        record = self._control_store.current_execution_completed_job_record()
+        if record.job_id != job_id:
+            raise ValueError("control job final proof identity does not match handler")
         progress = dict(record.progress)
         if progress.get("authority_path") != "workspace_loop":
             return
@@ -750,23 +883,12 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             kind="pdc.gy.production_loop_run_proof",
             schema_name="polisyos.runtime.ProductionLoopRunProof",
         )
-        progress["production_loop_run_proof"] = final_payload
-        progress["production_loop_run_proof_ref"] = final_ref
-        artifacts_index = progress.get("artifacts_index")
-        if isinstance(artifacts_index, Mapping):
-            progress["artifacts_index"] = {
-                **dict(artifacts_index),
-                "production_loop_run_proof_ref": final_ref,
-            }
-        quality_scorecard = progress.get("quality_scorecard")
-        if isinstance(quality_scorecard, Mapping):
-            quality_scorecard = dict(quality_scorecard)
-            evidence_refs = quality_scorecard.get("evidence_refs")
-            evidence_refs = dict(evidence_refs) if isinstance(evidence_refs, Mapping) else {}
-            evidence_refs["production_loop_run_proof_ref"] = final_ref
-            quality_scorecard["evidence_refs"] = evidence_refs
-            progress["quality_scorecard"] = quality_scorecard
-        self._control_store.upsert_progress(job_id=record.job_id, progress=progress)
+        self._control_store.publish_completed_job_proof(
+            job_id=record.job_id,
+            expected_progress=progress,
+            proof_payload=final_payload,
+            proof_ref=final_ref,
+        )
 
     def _execute_legacy_shadow_workflow(
         self,

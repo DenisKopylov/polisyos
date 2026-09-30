@@ -10,7 +10,10 @@ from typing import TYPE_CHECKING, Any
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.data_forge.read_api.academic import ParameterCandidate, SKGQuery
+from polisyos.data_forge.read_api.academic import (
+    ParameterCandidate,
+    SKGQuery,
+)
 from polisyos.data_forge.read_api.catalog import DatasetRegistry, resolve_proxy
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentDegradedOutcome,
@@ -79,6 +82,8 @@ from polisyos.scientist.methods.search.latent_governance import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGRead
 
 logger = logging.getLogger(__name__)
 
@@ -201,6 +206,7 @@ class CrossGraphEvidenceCompiler:
         causal_graph: CausalGraphModel | None = None,
         literature_prior: LiteratureCausalPrior | None = None,
         literature_prior_ref: str | None = None,
+        prepared_skg_read: PreparedSKGRead | None = None,
     ) -> CrossGraphEvidenceProfile:
         policy_domain = self.config.policy_domain or bundle.problem_frame.domain.value
         jurisdiction = (
@@ -224,7 +230,10 @@ class CrossGraphEvidenceCompiler:
         used_concepts: dict[str, CanonicalConcept] = {}
         assessments: list[EvidenceNeedAssessment] = []
 
-        academic_query, academic_status = _build_academic_query(self.config)
+        academic_query, academic_status = _build_academic_query(
+            self.config,
+            prepared_skg_read=prepared_skg_read,
+        )
         dataset_registry, dataset_status = _build_dataset_registry(self.config)
         legal_status = _build_legal_source_status(self.config)
         academic_gatherer = AcademicGatherer()
@@ -357,7 +366,9 @@ class CrossGraphEvidenceCompiler:
                     )
                 )
         finally:
-            if academic_query is not None:
+            if academic_query is not None and (
+                prepared_skg_read is None or academic_query is not prepared_skg_read.query
+            ):
                 close = getattr(academic_query, "close", None)
                 if callable(close):
                     close()
@@ -1605,6 +1616,8 @@ def _parameter_name(parameter: ParameterSpec) -> str:
 
 def _build_academic_query(
     config: CrossGraphEvidenceConfig,
+    *,
+    prepared_skg_read: PreparedSKGRead | None = None,
 ) -> tuple[SKGQuery | None, EvidenceSourceStatus]:
     status = build_path_source_status(
         EvidenceSourceKind.ACADEMIC,
@@ -1618,6 +1631,10 @@ def _build_academic_query(
     if not index_dir.exists():
         index_dir = db_path.parent
     try:
+        if prepared_skg_read is not None:
+            if not prepared_skg_read.matches_path(db_path):
+                raise ValueError("prepared_skg_read_source_path_mismatch")
+            return prepared_skg_read.query, status
         return SKGQuery(db_path=db_path, index_dir=index_dir), status
     except _CROSS_GRAPH_INIT_ERRORS as exc:
         return None, update_source_status(

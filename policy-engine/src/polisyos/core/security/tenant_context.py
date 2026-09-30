@@ -71,6 +71,25 @@ def reset_current_access_scope(
     _current_access_scope.reset(token)
 
 
+@contextmanager
+def clear_tenant_context() -> Iterator[None]:
+    """Temporarily clear tenant, cell, and access-scope context variables.
+
+    The prior values are restored when the block exits. This is useful at a
+    worker boundary where the caller's request context must not become job
+    identity.
+    """
+    token_tenant = _current_tenant.set(None)
+    token_cell = _current_cell.set(None)
+    token_access_scope = _current_access_scope.set(None)
+    try:
+        yield
+    finally:
+        _current_access_scope.reset(token_access_scope)
+        _current_cell.reset(token_cell)
+        _current_tenant.reset(token_tenant)
+
+
 def get_current_access_scope_or_none() -> AccessScope | None:
     """Return current access scope or none."""
     return _current_access_scope.get()
@@ -110,6 +129,7 @@ def require_tenant_context(func: Callable[P, R]) -> Callable[P, R]:
 
 __all__ = [
     "TenantContext",
+    "clear_tenant_context",
     "get_current_access_scope_or_none",
     "get_current_cell_id",
     "get_current_tenant_id",

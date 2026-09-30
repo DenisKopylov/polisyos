@@ -1,5 +1,47 @@
 # E02-R2 write leases
 
+## B197 cumulative covariance checkpoint after R14 (2026-09-30)
+
+Root integrates only the reviewed immutable B197 revision 6, revision 8 and
+revision 9 patches, in that order; these revision names are not the R9 CAS
+regression class. The exact changed source set is
+`foundry/calibration/{calibrator,report,uncertainty_adapter}.py`,
+`foundry/uncertainty/covariance.py` and
+`scientist/nodes/builtins/simulate/propagate_welfare.py`. The four changed tests
+are `tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py`,
+`tests/unit/foundry/uncertainty/test_covariance.py`,
+`tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py` and
+`tests/unit/remediation/test_cal_06.py`; the unchanged
+`tests/unit/foundry/calibration/test_calibrator_mvp.py` is a required control.
+The last test-path addition is included before any canonical edit.
+
+The integration companion is `PolicyOS_E02R2/B197_COVARIANCE_RECEIPT.md`.
+The fresh deciding wave freezes the five source/four test paths and their
+companions. It must prove shared Delta/MC covariance meaning, v1 historical
+bytes, tied-Normal positives and typed partial for unsupported non-Normal
+Pearson dependence. It withholds covariance-derived credible intervals and
+samples; independently produced marginal `robust_outer` bounds remain.
+Configured/served Calibrator orchestration and producer authenticity stay
+unestablished. No source edit during the wave, no optional revision-7 mirror,
+no public-surface, plan, debt-register or production-data edit is leased.
+
+## R14 integrated witness reconciliation (2026-09-30)
+
+Root owns the existing R14 paths plus these three companions:
+`runtime/quality/diagnostic_events.py`,
+`architecture/production_quality/diagnostic_event_types.toml`, and
+`tests/_helpers/runtime_http.py`. The first two register the authority-withheld
+scope limitation through the diagnostic owner; the helper reuses the container's
+existing control service and custody owners. No generated schema changes are
+leased. Canonical tests have stopped before these edits.
+
+Independent review of the two deciding red waves:
+`/Users/deniskopylov/.codex/scratch/e02-r14-integrated-2122-20260930/R14_WORKER_FAILURE_REVIEW.md@sha256:67e6bbd845f73c63f6106e68e435b8f9475922f38eaa27c6081b64f7d908f732`.
+The acquisition fixture must enqueue through its real producer; event/outbox
+tampering must retain an exact early refusal and zero downstream calls. A
+tenant-owned payload remains unreadable without admitted storage ownership;
+that refusal cannot substitute for a positive candidate computation witness.
+
 ## Current scratch coordination after `bb2b81bcc` (2026-09-30)
 
 Root alone writes `codex/e02-r2`. Candidate patches stay under `.codex/scratch`
@@ -1980,3 +2022,126 @@ this lease cannot claim them closed. The touched test file's four-base
 whole-file replay remains required for closure; resource-limited cells are
 recorded as `UNRUN`, not inferred green. Independent review precedes root
 integration, and no source or test tree is edited during a running test.
+
+## Active writer coordination after the finding-record reconciliation (2026-09-30)
+
+Root is the sole writer in `codex/e02-r2`. The R14 worker-custody mechanism,
+terminal-proof publication, diagnostics, and their shared HTTP fixtures are
+root-owned. The frozen input manifests in
+`/Users/deniskopylov/.codex/scratch/e02-r14-integrated-2122-20260930/` enumerate
+that complete write set. A frozen test tree is never edited during its run.
+
+| Candidate | Isolated writer and boundary | Integration order |
+|---|---|---|
+| R9 physical publication | `codex/e02-r2-r9-publication`, `/Users/deniskopylov/.codex/worktrees/e02-r2-r9-publication/polisyos`; twelve source paths enumerated by `R9_WIDENED_IMPLEMENTATION_PLAN.md` and its design review; 58 Python test paths and one browser companion | Root applies the reviewed complete class. The candidate reuses the existing venv and read-only data link; it never writes the integration tree. |
+| B197 covariance meaning | Ten-path R6 manifest in `e02r2-b197-algorithm-candidate-independent-20260930`; nine changed paths | The frozen R6 patch has a bounded independent GO. The untested optional R7 mirror is excluded. Served calibration and producer authenticity remain unestablished. |
+| B61 prepared source read | Existing isolated candidate; v8 design adds `data_forge/domains/academic/knowledge/skg_versioning.py` to the prior complete lease | One read-only source transaction; no production database/table copy. Review before root integration; source authenticity remains held. |
+| B26 N5 served projection | Existing seven-path candidate manifest; no additional source lease | Common controlled-case fixture design is read-only. Root owns `test_control_service_di.py`; candidate changes are sequenced after that shared fixture is coherent. |
+
+R9's earlier erroneous canonical patch application is recorded in
+`/Users/deniskopylov/.codex/scratch/e02-r9-transaction-prep-894631fca-20260930/R9_WRITER_INCIDENT_RECEIPT_20260930.md@sha256:0389d75f1da8e97456a242d98a5fee3fc08ea7e443aa0923de772f78fac51f21`.
+Root independently verified the three tracked R9 files match the committed
+head, the new test path is absent as at that head, and all 27 V12 frozen R14
+paths are unchanged. No test overlapped the incident. Future writer Git
+operations run from the actual attached candidate checkout, with branch
+attachment checked before every commit; worktree overrides are forbidden.
+
+The disk floor remains 8 GiB. Native threads are capped at one; four or five
+resource-bearing processes are an upper budget, not a launch target. Heavy
+numerical jobs remain exclusive. Review and source tracing run independently.
+
+## R14 security facade extension after the V18 architecture check
+
+Root adds `core/security/__init__.py` to the R14 source lease. The new
+`clear_tenant_context` worker-boundary operation is exposed through the existing
+lazy security facade; its two production callers and the existing `AccessScope`
+consumer use that facade. This closes the three R14-introduced deep imports
+reported by the V18 gate. Public-surface generated companions are owned outputs,
+not a baseline-sync exemption; regenerate and inspect them through their owner.
+All other reported gate findings require individual triage and exact-base replay
+before inherited attribution. No source edits overlap a canonical test or gate.
+The mandatory public companions are `architecture/public_surface/inventory.json`,
+`docs/reference/public-surface.md` and the R14 security-facade release fragment.
+Only the public inventory builder/renderers regenerate this family; deep-import
+baselines and unrelated generated families are not synchronized.
+The complete gate triage found a fourth new edge in the already leased
+`runtime/quality/workspace/loop.py`; its existing context readers also use the
+security facade. The V18 log contains 118 unique findings, not three; exact
+slice-base provenance for the other findings remains unestablished.
+
+## Current coding coordination — 2026-10-01
+
+R14 is committed at `ccc5c9f9b409cba4d540a74aa0b1b6466f175326`; B197
+algorithm integration is committed at `28ea3bb56bc4e751bf1303615d79219b56d7a24c`
+with 58/58 whole-file passes. Root remains the only canonical writer.
+
+### R1 configured candidate scenario
+
+Writer: direct R1 candidate agent, branch `codex/e02-r2-r1-candidate-scenario`,
+worktree `/Users/deniskopylov/.codex/worktrees/e02-r2-r1-candidate-scenario/polisyos`.
+Its base is the B197 checkpoint; its environment and production-data path are
+symlinks to existing owners, with no duplicated data or dependency installation.
+Design V2: `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_CONFIGURED_CANDIDATE_SCENARIO_EXTENSION_PLAN_V2.md@sha256:073be2e197c6f929404f58b99ca6e1af1d73d591eb7222b73b830c4e0ccaa746`.
+Independent coding GO: `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_CONFIGURED_CANDIDATE_SCENARIO_V2_DELTA_REVIEW.md@sha256:fc9b06cba545ec2812fe044b161cd1b955f33f74bc4ff2d72259737ab2d61af0`.
+
+Exact source/test lease (11 source, 9 test paths; new DTO and
+served test are explicitly included):
+
+- `policy-engine/src/polisyos/runtime/quality/candidate_simulation.py`
+- `policy-engine/src/polisyos/runtime/http/app.py`
+- `policy-engine/src/polisyos/runtime/http/container.py`
+- `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`
+- `policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py`
+- `policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py`
+- `policy-engine/src/polisyos/runtime/quality/cycle_substrate.py`
+- `policy-engine/src/polisyos/runtime/quality/intervention_substrate.py`
+- `policy-engine/src/polisyos/runtime/quality/intervention_atom_binding.py`
+- `policy-engine/src/polisyos/runtime/quality/generation_source.py`
+- `policy-engine/src/polisyos/runtime/quality/generation_cycle.py`
+- `policy-engine/tests/unit/runtime/http/test_runtime_service_container.py`
+- `policy-engine/tests/unit/runtime/http/test_control_service_di.py`
+- `policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py`
+- `policy-engine/tests/unit/runtime/quality/test_intervention_substrate.py`
+- `policy-engine/tests/unit/runtime/quality/test_intervention_atom_binding.py`
+- `policy-engine/tests/unit/runtime/quality/test_generation_source.py`
+- `policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle.py`
+- `policy-engine/tests/unit/runtime/quality/test_generation_cycle.py`
+- `policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py`
+
+No source or test outside this lease; no generated families, acquisition/N7,
+N4 v1 identity, real L6 config, S8/N9/promotion or published authority scope.
+Current served context requires the actual worker lease; historical verification
+must not require the old active lease. A new DTO is not a new owner.
+
+### B61 bounded integration
+
+Root may apply the reviewed immutable V11 patch after B197. The complete 29-path
+lease and 19 actual changed paths are in the corrected manifest
+`/Users/deniskopylov/.codex/scratch/e02r2-held-b-review-20260930/B61_PREPARED_READ_BRIDGE_candidate_92bf_v11_final_20260930_manifest_v2.json@sha256:8089bd63c7989f81ee194266b70e6b218625ebfe0f7b0f556a39833ce2b08c2c`.
+Independent bounded GO: `/Users/deniskopylov/.codex/scratch/e02r2-held-b-review-20260930/B61_V11_INDEPENDENT_REVIEW.md@sha256:34c0863fb29e2f3fe34fe9617e2190ff1cb704d0ee939770334031e97dcd81ff`.
+Full changed test files and named importer tests run on a frozen canonical tree.
+Source issuer authenticity, K_ref and production-scale cost remain held.
+
+### CYC-05 caller retirement
+
+Root may apply only `policy-engine/tests/unit/remediation/test_cyc_05.py` from
+the independently reviewed test-only migration. No runtime alias or manufactured
+context is restored. Actual AST census is 18 test functions / 20 expanded cases
+after retirement; runtime results and R2 currentness semantics remain to measure.
+
+### R9 corrective candidate
+
+Existing branch/worktree stays with its sole writer under the frozen 73-path
+lease. Review findings are the same custody/publication class and require the
+widened owner invariant plus substantive served and cross-process falsifiers.
+Candidate commit `1bb48af5df373b4263c29d705f178c06f310ddc6` is not integrated.
+No canonical write or class-closure claim until independent delta review.
+
+Complete-set intersections computed before dispatch: R1∩B61 = 0, R1∩R9 frozen set = 0.
+Shared test files in separate candidate branches are sequenced during integration;
+never replace a newer whole file with an older candidate snapshot.
+
+Resource allocation: R9 at most one light test process; R1 starts with static
+checks and test authoring, requesting root admission before a runtime wave. Root
+may run one B61 group and one CYC-05 group. Native threads are capped at one.
+Disk floor stays 8 GiB; no source mutation or commit during canonical jobs.

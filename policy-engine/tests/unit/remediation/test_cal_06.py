@@ -7,7 +7,11 @@ from statistics import NormalDist
 import numpy.testing as npt
 import pytest
 
-from polisyos.foundry.calibration.report import CalibrationReport, CalibrationUncertainty
+from polisyos.foundry.calibration.report import (
+    CalibrationCoordinateProjection,
+    CalibrationReport,
+    CalibrationUncertainty,
+)
 from polisyos.foundry.calibration.uncertainty_adapter import envelope_from_calibration_param
 from polisyos.foundry.uncertainty.covariance import build_covariance_matrix, extract_std
 from polisyos.ir.analytics.uncertainty import (
@@ -34,6 +38,11 @@ def _hessian_report(*, std: float | None = 1.0) -> CalibrationReport:
         calibrated_params={"node.rate": 0.25},
         total_loss=0.01,
         uncertainties=uncertainty,
+        coordinate_projection=CalibrationCoordinateProjection(
+            field_order=("node.rate",),
+            coordinate_order=("node.rate",),
+            matrix=((1.0,),),
+        ),
     )
 
 

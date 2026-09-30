@@ -1747,3 +1747,25 @@ The six touched whole test files at four refs are 24 P41 slots, **UNRUN** while
 free disk is below the 8 GiB floor; no inherited-red inference is authorized.
 Use only static checks until the floor is restored, then run focused witnesses
 and marker-retaining removal probes before a new independent code review.
+
+## Active integration leases at `1e4618ae3` (2026-09-30)
+
+The R9 CAS owner-first lease is released: its reviewed source and tests are
+committed as `1e4618ae3`. The R14 B26 N5 horizon repair is committed as
+`ebc00a015`. The baseline broker released the canonical worktree after its
+clean two-file replay. Root remains the only canonical-tree writer.
+
+| Candidate | Exclusive candidate write set | Sequence / state |
+|---|---|---|
+| R13 snapshot typed-view handoff | `core/contracts/foundry.py`; `foundry/execute/_internal/snapshots/__init__.py`; `foundry/data_plane/bindings.py`; `runtime/quality/generation_cycle.py`; mirrored snapshot, bindings, and generation-cycle tests | Scratch revision follows the selected-wrapper review finding; root integrates only after independent re-review. |
+| R14 N8 candidate limitation | `runtime/quality/generation_cycle.py`; `tests/unit/runtime/quality/test_generation_cycle.py` | Scratch patch and review are separate; root applies it **after** R13 releases these two paths. |
+| R1 controlled-profile served witness | `tests/unit/runtime/http/test_control_service_di.py` | Scratch-only fixture repair; root integrates after the domain, jurisdiction, and lever-slot owner checks pass and the shared R2 setup can run. Any production-source expansion requires a new lease entry first. |
+| R14 B26 record | `BASELINES.md`; `FINAL_REPORT.md`; `RESIDUAL_LEDGER.md`; `residual_ledger.json` in this package | Scratch patch pending corrected clean-head six-present/two-missing cell receipt; root applies after review. |
+| R9 physical-write/owner-index premise | `OPEN_PREMISES.md` in this package | Scratch record only; no ledger/status or register change unless a separate reproducer establishes a finding. |
+
+R11 consumer mapping is read-only. R2 outer-v1 replay shares the R1 fixture;
+both selected R2 tests currently error in setup before exercising v1 bytes, so
+no R2 code lease is opened from that red. The compute budget remains at most
+four or five resource-bearing processes, with numerical/native jobs serialized
+when they contend. The agreed disk floor is 8 GiB; no active job copies
+`production_data` or creates a fresh environment.

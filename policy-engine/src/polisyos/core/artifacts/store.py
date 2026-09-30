@@ -244,17 +244,14 @@ class FileSystemCAS:
                 operation="get_paths_manifest",
             )
         elif self._ownership_enforced:
+            self._require_default_manifest_access(
+                aid,
+                operation="get_paths",
+            )
             manifest_path = self._manifest_path_for_ref(aid, None)
             if manifest_path.is_file():
                 manifest = self._manifests.read(manifest_path)
                 _validate_manifest_identity(aid, manifest)
-                self._require_default_manifest_access(
-                    aid,
-                    manifest,
-                    operation="get_paths",
-                )
-            else:
-                self._require_artifact_owner(aid, operation="get_paths")
         blob, _default_manifest = self._paths(aid)
         return blob, self._manifest_path_for_ref(aid, profile_sha256)
 
@@ -460,30 +457,11 @@ class FileSystemCAS:
     def _require_default_manifest_access(
         self,
         artifact_id: ArtifactID,
-        manifest: ArtifactManifest,
         *,
         operation: str,
     ) -> None:
-        try:
-            self._require_artifact_owner(artifact_id, operation=operation)
-            return
-        except ArtifactOwnershipError as legacy_error:
-            if not self._ownership_enforced:
-                raise
-            tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
-            if tenant_id is None:
-                raise legacy_error
-            profile_sha256 = self._manifests.profile_sha256(manifest)
-            try:
-                self._ownership_index.require_view_owner(
-                    artifact_id,
-                    profile_sha256,
-                    tenant_id=tenant_id,
-                    cell_id=cell_id,
-                    operation=operation,
-                )
-            except ArtifactOwnershipError:
-                raise legacy_error from None
+        """Authorize a default-view read using ownership evidence only."""
+        self._require_artifact_owner(artifact_id, operation=operation)
 
     def _record_write_owner(
         self,
@@ -610,12 +588,6 @@ class FileSystemCAS:
                 self.get_manifest(ref)
             except (FileNotFoundError, ValueError, ArtifactOwnershipError):
                 exists = False
-        elif ref is None and exists is False and blob.exists() and manifest.exists():
-            try:
-                self.get_manifest(aid)
-                exists = True
-            except (FileNotFoundError, ValueError, ArtifactOwnershipError):
-                pass
         if self._hpc_enabled and self._metrics:
             if exists and self._metrics.artifact_cache_hits_total:
                 self._metrics.artifact_cache_hits_total.add(1, {"kind": "existence_check"})
@@ -860,6 +832,11 @@ class FileSystemCAS:
                 profile_sha256,
                 operation="read_manifest",
             )
+        else:
+            self._require_default_manifest_access(
+                aid,
+                operation="read_manifest",
+            )
         manp = self._manifest_path_for_ref(aid, profile_sha256)
         manifest = self._manifests.read(manp)
         try:
@@ -870,12 +847,6 @@ class FileSystemCAS:
                     raise ArtifactIntegrityError(
                         f"Selected manifest profile mismatch for {aid}"
                     )
-            else:
-                self._require_default_manifest_access(
-                    aid,
-                    manifest,
-                    operation="read_manifest",
-                )
             if ref is not None and (
                 ref.kind != manifest.kind or ref.media_type != manifest.media_type
             ):
@@ -1061,7 +1032,7 @@ class FileSystemCAS:
         aid: ArtifactID,
         sha: str,
     ) -> tuple[bool, str | None]:
-        """Persist one blob and its default plus exact typed-view manifests."""
+        """Persist one blob and an admitted default or exact typed-view manifest."""
         blob, default_manifest_path = self._paths(aid)
         with self._artifact_lock(aid):
             blob_preexisted = blob.exists()
@@ -1080,14 +1051,58 @@ class FileSystemCAS:
             )
             manifest_bytes = self._manifests.to_bytes(manifest)
             profile_sha256 = self._manifests.profile_sha256(manifest)
-            default_view_created = self._files.write_once(
-                default_manifest_path,
-                manifest_bytes,
-            )
-            default_manifest = self._manifests.read(default_manifest_path)
-            _validate_manifest_identity(aid, default_manifest)
-            _validate_read_integrity(aid, existing_data, default_manifest)
-            default_profile_sha256 = self._manifests.profile_sha256(default_manifest)
+
+            tenant_id: str | None = None
+            cell_id: str | None = None
+            default_owner_admitted = False
+            skip_default_manifest = False
+            if self._ownership_enforced:
+                tenant_id, cell_id = self._resolve_owner(
+                    required=self._ownership_requires_scope
+                )
+                default_owner_admitted = (
+                    tenant_id is not None
+                    and self._ownership_index.is_owned_by(
+                        aid,
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                    )
+                )
+                skip_default_manifest = (
+                    tenant_id is not None
+                    and not default_owner_admitted
+                    and (
+                        default_manifest_path.exists()
+                        or self._ownership_index.has_any_tenant_claim(aid)
+                    )
+                )
+
+            default_view_created = False
+            default_profile_sha256: str | None = None
+            if not skip_default_manifest:
+                default_view_created = self._files.write_once(
+                    default_manifest_path,
+                    manifest_bytes,
+                )
+                # Another tenant may have won the first-write race after the path
+                # and ownership checks above. A selector-free caller that does not
+                # own the default must not parse that newly admitted sidecar. An
+                # unscoped candidate may proceed only while the target remains
+                # unclaimed; if a tenant claimed the winner, fail before parsing or
+                # returning an exact-view ref that the caller cannot later access.
+                if (
+                    not default_view_created
+                    and self._ownership_enforced
+                    and not default_owner_admitted
+                ):
+                    if tenant_id is None:
+                        self._require_unclaimed_without_owner(aid, operation="write")
+                    skip_default_manifest = True
+                else:
+                    default_manifest = self._manifests.read(default_manifest_path)
+                    _validate_manifest_identity(aid, default_manifest)
+                    _validate_read_integrity(aid, existing_data, default_manifest)
+                    default_profile_sha256 = self._manifests.profile_sha256(default_manifest)
 
             view_path = self._layout.view_manifest_path(aid, profile_sha256)
             if not self._files.write_once(view_path, manifest_bytes):
@@ -1101,25 +1116,19 @@ class FileSystemCAS:
                         f"Manifest profile digest collision for {aid}"
                     )
 
-            # Record the exact view while still holding the per-blob lock. A second
-            # same-tenant writer must observe the first writer's default-view owner
-            # before deciding whether its reference can remain selector-free.
+            # Record the exact view while still holding the per-blob lock. A view-only
+            # writer retains the profile selector and never claims the default view.
             self._record_write_owner(aid, default_view_created=default_view_created)
             self._record_write_view_owner(aid, profile_sha256)
 
-        ref_profile_sha256 = (
-            profile_sha256 if profile_sha256 != default_profile_sha256 else None
-        )
-        if ref_profile_sha256 is None and not default_view_created and self._ownership_enforced:
-            tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
-            if tenant_id is not None and not self._ownership_index.is_owned_by(
-                aid,
-                tenant_id=tenant_id,
-                cell_id=cell_id,
-            ):
-                # A selector-free ref resolves through default-view ownership. Keep a typed
-                # selector when this tenant can read only its separately admitted view.
-                ref_profile_sha256 = profile_sha256
+        if skip_default_manifest:
+            ref_profile_sha256 = profile_sha256
+        elif default_profile_sha256 is None:
+            raise ArtifactIntegrityError("Default manifest profile was not validated")
+        else:
+            ref_profile_sha256 = (
+                profile_sha256 if profile_sha256 != default_profile_sha256 else None
+            )
         return blob_preexisted, ref_profile_sha256
 
     def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:

@@ -34,7 +34,7 @@ class ArtifactStore(Protocol):
     # -- read ----------------------------------------------------------
 
     def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:  # pragma: no cover - protocol
-        """Return whether both blob and manifest data are available for `artifact_id`."""
+        """Check availability for the default ID view or exact typed `ArtifactRef` view."""
         ...
 
     def get_bytes(
@@ -48,7 +48,7 @@ class ArtifactStore(Protocol):
         self,
         artifact_id: ArtifactID | ArtifactRef,
     ) -> ArtifactManifest:  # pragma: no cover - protocol
-        """Return the validated manifest sidecar for one artifact ID."""
+        """Return the authorized default or exact typed-view manifest."""
         ...
 
     # -- write ---------------------------------------------------------

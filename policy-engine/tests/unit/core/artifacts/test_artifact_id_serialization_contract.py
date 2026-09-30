@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import threading
 import warnings
 from collections import Counter
@@ -77,8 +78,175 @@ def test_tenant_scoped_cas_keeps_canonical_content_hashes_without_cross_tenant_r
     ref_b = store_b.put_json({"same": "payload"}, opts)
 
     assert ref_b.artifact_id == ref_a.artifact_id
-    assert store_b.has(ref_a.artifact_id) is True
-    assert store_b.get_bytes(ref_a.artifact_id) == store_a.get_bytes(ref_a.artifact_id)
+    assert store_b.has(ref_b) is True
+    assert store_b.has(ref_a.artifact_id) is False
+    assert store_b.get_bytes(ref_b) == store_a.get_bytes(ref_a.artifact_id)
+
+
+def test_view_only_tenant_never_reads_foreign_default_manifest(tmp_path, monkeypatch) -> None:
+    shared_root = tmp_path / "cas"
+    store_a = FileSystemCAS(shared_root).for_tenant("tenant-a")
+    store_b = FileSystemCAS(shared_root).for_tenant("tenant-b")
+    payload = b"shared bytes with independently owned typed manifests"
+    owner_opts = PutOptions(kind="test.tenant_a_default", media_type="text/plain")
+    view_opts = PutOptions(kind="test.tenant_b_view", media_type="text/plain")
+
+    ref_a = store_a.put_bytes(payload, owner_opts)
+    default_path = store_b._manifest_path_for_ref(ref_a.artifact_id, None)
+    default_bytes_before = default_path.read_bytes()
+
+    original_read = store_b._manifests.read
+    default_reads = []
+    selected_reads = []
+    selected_paths = []
+
+    def spy_read(path):
+        resolved_path = Path(path)
+        if resolved_path == default_path:
+            default_reads.append(resolved_path)
+        if selected_paths and resolved_path == selected_paths[0]:
+            selected_reads.append(resolved_path)
+        return original_read(path)
+
+    monkeypatch.setattr(store_b._manifests, "read", spy_read)
+
+    ref_b = store_b.put_bytes(payload, view_opts)
+    assert ref_b.manifest_profile_sha256 is not None
+    selected_path = store_b._manifest_path_for_ref(
+        ref_b.artifact_id,
+        ref_b.manifest_profile_sha256,
+    )
+    selected_paths.append(selected_path)
+    assert selected_path != default_path
+    default_reads_after_put = tuple(default_reads)
+    assert default_path.read_bytes() == default_bytes_before
+    default_reads.clear()
+
+    has_default = store_b.has(ref_a.artifact_id)
+    default_reads_after_has = tuple(default_reads)
+
+    direct_read_refused = False
+    try:
+        store_b.get_manifest(ref_a.artifact_id)
+    except ArtifactOwnershipError:
+        direct_read_refused = True
+    default_reads_after_get_manifest = tuple(default_reads)
+
+    paths_read_refused = False
+    try:
+        store_b.get_paths(ref_a.artifact_id)
+    except ArtifactOwnershipError:
+        paths_read_refused = True
+    default_reads_after_get_paths = tuple(default_reads)
+
+    exact_view_available = store_b.has(ref_b)
+    exact_view_paths = store_b.get_paths(ref_b)
+
+    owner_reads = []
+    original_owner_read = store_a._manifests.read
+
+    def owner_read_spy(path):
+        resolved_path = Path(path)
+        if resolved_path == default_path:
+            owner_reads.append(resolved_path)
+        return original_owner_read(path)
+
+    monkeypatch.setattr(store_a._manifests, "read", owner_read_spy)
+    repeated_default_ref = store_a.put_bytes(payload, owner_opts)
+
+    assert has_default is False
+    assert default_reads_after_put == ()
+    assert default_reads_after_has == ()
+    assert direct_read_refused is True
+    assert default_reads_after_get_manifest == ()
+    assert paths_read_refused is True
+    assert default_reads_after_get_paths == ()
+    assert exact_view_available is True
+    assert selected_reads
+    assert exact_view_paths[1] == selected_path
+    assert repeated_default_ref.manifest_profile_sha256 is None
+    assert owner_reads
+    assert default_path.read_bytes() == default_bytes_before
+
+    tampered_manifest = store_a.get_manifest(ref_a).model_copy(
+        update={
+            "artifact_id": CoreArtifactID.model_validate(
+                "sha256:" + "0" * 64,
+            )
+        }
+    )
+    default_path.write_bytes(store_a._manifests.to_bytes(tampered_manifest))
+    with pytest.raises(ValueError, match="Manifest artifact_id mismatch"):
+        store_a.put_bytes(payload, owner_opts)
+
+
+def test_unscoped_cas_loser_refuses_default_claimed_during_write(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    shared_root = tmp_path / "shared"
+    ambient = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
+    tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+    payload = b"ambient write loses default-view ownership race"
+    ambient_opts = PutOptions(kind="test.ambient_candidate", media_type="text/plain")
+    owner_opts = PutOptions(kind="test.tenant_a_default", media_type="text/plain")
+    artifact_id = CoreArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    default_path = ambient._manifest_path_for_ref(artifact_id, None)
+
+    manifest_write_entered = threading.Event()
+    allow_manifest_write = threading.Event()
+    foreign_default_reads: list[Path] = []
+    original_write_once = ambient._files.write_once
+    original_read = ambient._manifests.read
+
+    def pause_before_default_write(path: Path, data: bytes) -> bool:
+        if path == default_path:
+            manifest_write_entered.set()
+            if not allow_manifest_write.wait(timeout=5):
+                raise AssertionError("tenant writer did not complete the default claim")
+        return original_write_once(path, data)
+
+    def spy_manifest_read(path: Path):
+        if path == default_path:
+            foreign_default_reads.append(path)
+        return original_read(path)
+
+    monkeypatch.setattr(ambient._files, "write_once", pause_before_default_write)
+    monkeypatch.setattr(ambient._manifests, "read", spy_manifest_read)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        ambient_write = executor.submit(ambient.put_bytes, payload, ambient_opts)
+        try:
+            assert manifest_write_entered.wait(timeout=5)
+            owner_ref = tenant_a.put_bytes(payload, owner_opts)
+            assert owner_ref.manifest_profile_sha256 is None
+            assert tenant_a._ownership_index.is_owned_by(
+                artifact_id,
+                tenant_id="tenant-a",
+                cell_id=None,
+            )
+        finally:
+            allow_manifest_write.set()
+
+        try:
+            ambient_write.result(timeout=5)
+        except ArtifactOwnershipError:
+            pass
+        else:
+            assert foreign_default_reads == []
+            pytest.fail("unscoped writer returned a ref after losing the default claim")
+
+    assert foreign_default_reads == []
+    assert tenant_a.put_bytes(payload, owner_opts).manifest_profile_sha256 is None
+
+    unclaimed_ref = ambient.put_bytes(
+        b"separate anonymous candidate remains available",
+        ambient_opts,
+    )
+    assert ambient.has(unclaimed_ref.artifact_id)
+    assert ambient.get_bytes(unclaimed_ref.artifact_id) == (
+        b"separate anonymous candidate remains available"
+    )
 
 
 def test_ambient_cas_rejects_foreign_tenant_and_cell_claims(tmp_path) -> None:

@@ -44,6 +44,25 @@ independent patch review and focused behavioral verification before integration;
 full four-base P41 remains a separate requirement. No generated or governed
 artifact, plan, or debt-register write is leased.
 
+## R9 nonempty V2 signed-pair refusal witness (2026-09-30)
+
+One direct scratch-only writer may edit only
+`policy-engine/tests/unit/runtime/http/test_human_decision_service.py`; root
+remains the sole integration writer. This test file does not overlap the active
+R2 or R10 code candidates. Denis ruled that the temporary shared-owner V2
+approval issuance/currentness refusal remains until verified V3. The reviewed
+test design is
+`/Users/deniskopylov/.codex/scratch/E02R2-R9-v2-signed-pair-test-design-20260930.md@sha256:85daf9e8aef23917aebc1c9fc571197809de2a2e37cdd4985831750012252c16`.
+Build a valid nonempty persisted V2 local-integrity owner index/signature pair,
+derive its evidence through `ArtifactOwnershipIndex.evidence`, and add it to
+the existing issuer/currentness state matrices. Require typed refusal before
+an authority packet write, historical packet byte/signature readability, and
+ordinary candidate artifact writes. With packet markers retained, removing
+only the shared V2 gate must turn the currentness assertion red. The V2 pair
+is test evidence for the temporary refusal, not an asymmetric owner signature
+or a claim that the pair is the runtime store's active index. Independent
+review and focused tests precede integration; full four-base P41 remains open.
+
 No canonical test runs while disk free is below the agreed 8-GiB floor. The
 R14 whole generation-cycle file at the `226884f53` source has 158/161 passes;
 the three failures have unresolved P41 attribution, so that run is not a green

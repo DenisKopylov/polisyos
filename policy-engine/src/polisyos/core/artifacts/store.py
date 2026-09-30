@@ -948,23 +948,26 @@ class FileSystemCAS:
         strict_identity: bool | None = None,
     ) -> SignatureVerificationResult:
         """Verify content integrity and detached signature trust/revocation/identity state."""
-        if isinstance(artifact_id, str):
-            try:
-                artifact_id = ArtifactID.model_validate(artifact_id)
-            except ValidationError:
-                return SignatureVerificationResult(
-                    status=SignatureVerificationStatus.ERROR,
-                    artifact_id=artifact_id,
-                    message="Malformed artifact ID",
-                )
         try:
             aid, _profile_sha256, ref = _artifact_reference(artifact_id)
         except ValidationError:
             supplied_id = getattr(artifact_id, "artifact_id", artifact_id)
+            if isinstance(supplied_id, ArtifactID):
+                supplied_id = supplied_id.root
+            result_id = (
+                supplied_id
+                if isinstance(supplied_id, str)
+                else "<malformed-artifact-id>"
+            )
+            message = (
+                "Malformed artifact reference"
+                if isinstance(artifact_id, ArtifactRef)
+                else "Malformed artifact ID"
+            )
             return SignatureVerificationResult(
                 status=SignatureVerificationStatus.ERROR,
-                artifact_id=str(supplied_id),
-                message="Malformed artifact reference",
+                artifact_id=result_id,
+                message=message,
             )
         selected: ArtifactID | ArtifactRef = ref or aid
         return _verify_signature(

@@ -88,6 +88,38 @@ def test_store_boundary_revalidates_unchecked_artifact_ref_copy() -> None:
     assert isinstance(normalized_scoped.artifact_id, ArtifactID)
 
 
+@pytest.mark.parametrize("nested", [False, True], ids=("direct-id", "nested-ref"))
+def test_store_boundary_revalidates_mutated_artifact_id_root(nested: bool) -> None:
+    artifact_id = ArtifactID.from_sha256_hex("a" * 64)
+    malformed_id = artifact_id.model_copy(update={"root": None})
+    supplied: ArtifactID | ArtifactRef = malformed_id
+    if nested:
+        selected_ref = ArtifactRef(
+            artifact_id=artifact_id,
+            kind="test.parent.selected",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "b" * 64,
+        )
+        supplied = selected_ref.model_copy(update={"artifact_id": malformed_id})
+
+    with pytest.raises(ValidationError):
+        artifact_manifest.artifact_reference_parts(supplied)
+
+
+def test_store_boundary_revalidates_typed_artifact_id_root_to_canonical_form() -> None:
+    canonical_id = ArtifactID.from_sha256_hex("a" * 64)
+    unchecked = canonical_id.model_copy(update={"root": "sha256:" + "A" * 64})
+
+    normalized_id, profile, normalized_ref = artifact_manifest.artifact_reference_parts(
+        unchecked
+    )
+
+    assert normalized_id == canonical_id
+    assert normalized_id is not unchecked
+    assert profile is None
+    assert normalized_ref is None
+
+
 def test_dict_lineage_preserves_selected_manifest_view_across_idempotent_puts(
     tmp_path: Path,
 ) -> None:

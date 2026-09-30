@@ -363,16 +363,28 @@ def _is_manifest_profile_sha256(value: str) -> bool:
     )
 
 
+def _revalidate_artifact_id(value: object) -> ArtifactID:
+    """Validate an artifact ID from its raw root, including existing instances."""
+    raw_value = value.root if isinstance(value, ArtifactID) else value
+    if not isinstance(raw_value, str):
+        raw_value = None
+    return ArtifactID.model_validate(raw_value)
+
+
 def artifact_reference_parts(
     value: ArtifactID | ArtifactRef | str,
 ) -> tuple[ArtifactID, str | None, ArtifactRef | None]:
     """Normalize a CAS identity while retaining any exact manifest selector."""
     if isinstance(value, ArtifactRef):
-        # Pydantic model_copy(update=...) does not validate its replacement
-        # values. Revalidate at the store boundary before the ID reaches the
-        # path layout, and preserve the selected manifest view.
-        ref = type(value).model_validate(value.model_dump(mode="python"))
+        # model_dump invokes the ID serializer before it can revalidate a
+        # model_copy-mutated nested ID. Validate its raw root and build the ref
+        # from raw model fields so malformed state never reaches CAS I/O.
+        fields = dict(value.__dict__)
+        fields["artifact_id"] = _revalidate_artifact_id(fields.get("artifact_id"))
+        ref = type(value).model_validate(fields)
         return ref.artifact_id, ref.manifest_profile_sha256, ref
+    if isinstance(value, ArtifactID):
+        return _revalidate_artifact_id(value), None, None
     if isinstance(value, str):
-        return ArtifactID.model_validate(value), None, None
+        return _revalidate_artifact_id(value), None, None
     return value, None, None

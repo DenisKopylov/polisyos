@@ -153,27 +153,69 @@ def test_verify_signature_rejects_malformed_artifact_ref_before_cas_reads(
     assert read_attempts == []
 
 
+@pytest.mark.parametrize("nested", [False, True], ids=("direct-id", "nested-ref"))
+def test_verify_signature_rejects_mutated_artifact_id_root_before_cas_reads(
+    nested: bool, monkeypatch, tmp_path: Path
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    valid_id = ArtifactID.from_sha256_hex("a" * 64)
+    malformed_id = valid_id.model_copy(update={"root": None})
+    supplied: ArtifactID | ArtifactRef = malformed_id
+    if nested:
+        supplied = ArtifactRef(
+            artifact_id=valid_id,
+            kind="test.bytes",
+            media_type="application/octet-stream",
+        ).model_copy(update={"artifact_id": malformed_id})
+    read_attempts: list[str] = []
+
+    def record_forbidden_read(*_args: object, **_kwargs: object) -> None:
+        read_attempts.append("read")
+        raise AssertionError("malformed artifact IDs must be rejected before CAS reads")
+
+    for method_name in (
+        "_load_verified_snapshot",
+        "verify",
+        "get_signature",
+        "get_bytes",
+        "get_manifest_bytes",
+    ):
+        monkeypatch.setattr(store, method_name, record_forbidden_read)
+
+    result = store.verify_signature(supplied, Ed25519Verifier())
+
+    assert result.status == SignatureVerificationStatus.ERROR
+    assert result.artifact_id == "<malformed-artifact-id>"
+    assert result.message == (
+        "Malformed artifact reference" if nested else "Malformed artifact ID"
+    )
+    assert read_attempts == []
+
+
 def test_verify_signature_preserves_selected_ref_and_id_controls(tmp_path: Path) -> None:
     store, signer, verifier = _make_signed_store(tmp_path)
-    ref = store.put_bytes(
-        b"selected view controls",
-        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    payload = b"selected view controls"
+    default_ref = store.put_bytes(
+        payload,
+        PutOptions(kind="test.default", media_type="application/octet-stream"),
     )
-    manifest = store.get_manifest(ref.artifact_id)
-    profile_sha256 = store._manifests.profile_sha256(manifest)
-    selected_ref = ref.model_copy(update={"manifest_profile_sha256": profile_sha256})
+    selected_ref = store.put_bytes(
+        payload,
+        PutOptions(kind="test.selected", media_type="application/octet-stream"),
+    )
+    assert selected_ref.artifact_id == default_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 is not None
 
-    store.sign_artifact(ref, signer, signer_identity="test")
     store.sign_artifact(selected_ref, signer, signer_identity="test")
 
     selected_result = store.verify_signature(selected_ref, verifier)
-    typed_id_result = store.verify_signature(ref.artifact_id, verifier)
-    string_id_result = store.verify_signature(str(ref.artifact_id), verifier)
+    typed_id_result = store.verify_signature(default_ref.artifact_id, verifier)
+    string_id_result = store.verify_signature(str(default_ref.artifact_id), verifier)
 
     assert selected_result.status == SignatureVerificationStatus.VALID
     assert selected_result.ok
-    assert typed_id_result.status == SignatureVerificationStatus.VALID
-    assert string_id_result.status == SignatureVerificationStatus.VALID
+    assert typed_id_result.status == SignatureVerificationStatus.UNSIGNED
+    assert string_id_result.status == SignatureVerificationStatus.UNSIGNED
 
 
 def test_verify_signature_string_normalization_is_required_before_snapshot_load(

@@ -2320,3 +2320,9 @@ source/consumer witness gap, not a new runtime mechanism. The writer may
 prepare the small patch while R1/R9 run, but launches no tests. Root owns
 four-base admission and records each unavailable cell as UNRUN. The whole
 touched file remains a required post-integration replay denominator.
+
+## 2026-10-01: candidate composition and exact foreign-document freeze
+
+Root leases the additional `runtime/quality/generation_cycle.py` path to the R1 candidate writer, sequenced within its existing candidate worktree. Preserve the existing LoopVOIDecision scheduler fields; change only terminal `next_action=blocked` and limitation reason. Generic validator and R11 no-N9 rule remain. Prior three-path lease persists. Root lease: `/Users/deniskopylov/.codex/scratch/R1_CANDIDATE_VOI_COMPOSITION_WRITE_LEASE_20261001.md@sha256:456751bc35e10e1def4135b2d76143189e4aaec2619ef552e35888db5666d47d`. Earlier WMR fallback exact lease: `/Users/deniskopylov/.codex/scratch/R1_N4_WMR_FALLBACK_WRITE_LEASE_20261001.md@sha256:f5a6c3eee8bc8f6342cf5dd4b28277a6c538a80e500e75a6747f47236fbecd07`.
+
+Denis confirmed that the 16 untracked `docs/research/development-programs/2026-09-30-post-e02/` documents are parallel research work. Root verified the full path/hash/status set against its placement receipt. Preserve them; they are neither E02 edits nor a broad dirty-tree exception. Exact 16 paths are frozen before/after canonical test jobs; any additional dirty input is refused. Reconciliation: `/Users/deniskopylov/.codex/scratch/E02R2_FOREIGN_RESEARCH_PLACEMENT_RECONCILIATION_20261001.json@sha256:d7cad37709f0c01a3462d8731bd07147c0c92c26186d56b44e5c1091ec632a5b`.

@@ -1,5 +1,29 @@
 # E02-R2 final report draft
 
+## Measured current checkpoint: R14 whole file and R9 candidate (2026-10-01)
+
+**Discrepancies first.** R14's post-edit replay is now measured FAIL, superseding the preceding UNRUN as the latest attempt: 14/15 pass, one new witness stops on `capture_loaded_deployment_identity().status == not_established` before canonical N9. The complete pre/post case comparison has **0 pass→fail across 15 shared identities**; the intended new negative-source property remains unverified. Origin inspection passes with 10,038 frozen paths, including the 16 acknowledged foreign research documents, all unchanged. The canonical runtime source is `695ef7fd3`; this is current-only evidence, not completion of four-base verification.
+
+R9 bulk/snapshot V4 is candidate-only: **25/26 pass in two whole files**, including **4 fail→pass and 0 pass→fail across 19 shared identities** against its recorded pre-repair candidate. The remaining new telemetry case fails during fixture construction because its partial metrics object does not implement the actual metrics-owner contract; its signature/telemetry property was not exercised. The fix reuses the real metrics owner. Both origin audits pass on 6,414 frozen source/test/config paths; public-export authority and the synchronous inventory-census residual are outside this cohort.
+
+Root receipts: `/Users/deniskopylov/.codex/scratch/R14_CURRENT15_POST_ROOT_RECONCILIATION_20261001.json@sha256:ca19f9278424da7a011d27014fcdc374badff7256786a06019502365236aa2fd`; `/Users/deniskopylov/.codex/scratch/R9_CAS03_V4_ROOT_WHOLEFILE_RECONCILIATION_20261001.json@sha256:0dd0b9db2ecde71e8a70ab5be0e482a0ddb387200b989af9ba48cc9bc707ae82`.
+
+**Conclusion.** Preserve the measured distinctions: R14 is blocked by a deployment-identity premise before its intended new property; R9's four prior CAS-03 failures now pass on the candidate, while one new test fixture needs repair. Finding statuses and ledger counts remain unchanged. Public-read trust options are recorded separately in `OPEN_PREMISES.md` and `DECISION_RECORDS.md`.
+
+## R1 served V9 result at candidate `bc38d4a` (2026-10-01)
+
+**Discrepancies first.** The prior one-node V8 attempt was resource-guarded UNRUN. V9 is a completed one-case FAIL under normal resource use, on candidate branch `codex/e02-r2-r1-candidate-scenario@bc38d4a59253ba6295cecb8d9681b172158cde76`; it is not a fresh integration-head result.
+
+- The served test reached its call phase, but the job ended `failed` instead of `completed`. Root reconciliation records `unknown_voi_action_not_fail_closed` at cycle 0 with `scheduler_action=candidate_scenario_n5_only`, assigns it to the E02-R2 controlled candidate result/VOI composition, and leaves inherited status unasserted. This is one selected node, not a whole-file or four-base replay.
+- The origin instrument passed: 1,728 loaded Python modules, 6,715 frozen inputs unchanged, 15 test-support modules, and no foreign origins. The pytest exit is nonzero because the measured property failed; it is not an origin-audit failure. Resource use was ordinary: 32.376 s, 100% peak process-group CPU, 1,078,096 KiB peak RSS, minimum free RAM 57%, and zero swap growth.
+- The complete observer saw 12 owner entries and 12 exits, but saw `JointSimulationPort.__init__` only—not `JointSimulationPort.__call__`. There is no positive N5 witness from this run. R1 remains open for the candidate VOI-action failure and a served N5 witness; the test is not an authority/S8 result.
+- R14 post-edit replay remains UNRUN. This report update changes no ledger count or finding status. Exact scope and receipts are in [BASELINES.md](BASELINES.md#r1-v9-served-candidate-single-node-result-2026-10-01).
+
+A separate retained-source inspection establishes an earlier N4 failure: zero candidates and no K_ref payload, with `credal_reference_unavailable:ValueError`. The context-job and source WMR hashes agree. The exact exception cause is still unrecorded. The existing grammar fallback is correctly refused by the configured N5 real-N4 type guard. Diagnosis: `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_V9_VOI_ACTION_AND_KREF_DIAGNOSIS_20261001.md@sha256:728703146608e3f4fb96cfbd574aa5b40a727bfc3f26b4852e057cb41ff707ee`.
+
+**Conclusion.** V9 supplies a real candidate-path failure under the resource budget. Preserve the scheduler owner's action vocabulary, measure the existing K_ref owner's exception, and repair its cause before claiming a served N5 positive. Fixing the action alone does not establish N4→N5. No R1 closure is claimed.
+
+
 ## Current source checkpoint after R14 witness repair (2026-10-01)
 
 **Discrepancies first.** The test-only R14 source/consumer repair is committed

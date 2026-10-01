@@ -3059,3 +3059,35 @@ Result:
 `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T051318Z_13102/runtime-result.json@sha256:a945b0181e0afcc5031e4ce3c05ad7404a404293147e2a80feb947896558a99d`.
 Retained stack:
 `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T051318Z_13102/cells/r1_patch/test_configured_candidate_simulation_served-0c391d57c1b4.stderr.log@sha256:0bd110103f7a04e5cb4e596cfe4463b8a94b2b28bfc6cd42611929cf296086cd`.
+
+## R1 V9 served candidate single-node result (2026-10-01)
+
+**Discrepancies first.** Requested and executed denominator: one selected test node. The candidate run completed with one failure and no resource guard; its root/head were `codex/e02-r2-r1-candidate-scenario@bc38d4a59253ba6295cecb8d9681b172158cde76`, not the integration head. The prior V8 resource-guard UNRUN is a separate older attempt. This result is not a whole-file or four-base P41 replay.
+
+| Test node | Cases | Outcome |
+|---|---:|---|
+| `tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift` | 1 | 1 failed in call phase; setup and teardown passed |
+
+The test observed the served job terminate `failed` rather than `completed`. The root reconciliation assigns the emitted `unknown_voi_action_not_fail_closed` at recursive cycle 0 to the E02-R2 controlled candidate result/VOI composition (`scheduler_action=candidate_scenario_n5_only`); inherited status is not asserted. The observer completed 12 owner entries / 12 exits, but recorded `JointSimulationPort.__init__` and no `JointSimulationPort.__call__`, so this is not a positive N5 witness.
+
+The origin instrument passed: 1,728 loaded Python modules; 6,715 frozen inputs unchanged; 15 test-support modules; zero foreign origins. The test's nonzero exit records the product-property failure and does not mean origin inspection failed. Runtime was 32.376 s; peak process-group CPU 100%; peak RSS 1,078,096 KiB; minimum free RAM 57%; swap growth 0 bytes; no guard fired. Pytest/JUnit has one failed case and no setup errors.
+
+Root reconciliation `/Users/deniskopylov/.codex/scratch/R1_V9_ROOT_COMPLETE_FAILURE_RECONCILIATION_20261001.json@sha256:05e8eaad39ba23bb62f98532d697f608fad17ddb690fc161428cb8bfe0dc104a`; raw runtime result `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T054820Z_16952/runtime-result.json@sha256:0b468b99301e3eb3486097eacc66f211d992a1178f7f6f192883d954a2ac378c`; JUnit `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T054820Z_16952/cells/r1_patch/test_configured_candidate_simulation_served-0c391d57c1b4.junit.xml@sha256:f7c561d866a8e6f8a832b02abba7db7f875246d5e92dd7206e3e81a20bf1e9b8`.
+
+R14's post-edit replay remains UNRUN. This result changes no finding status or ledger count. A completed candidate-path failure is evidence to diagnose; it does not establish failure or success at the integration head, a positive N5 path, authority-band admission, S8, or R1 closure.
+
+## R14 post-edit current15 and R9 V4 whole-file candidate (2026-10-01)
+
+| Scope | Complete case denominator | Result | Comparison |
+| --- | ---: | --- | --- |
+| Canonical `695ef7fd3`, EvalSafety service whole file | 15 | 14 pass / 1 fail, 67.283 s | Same 15 pre/post identities; 0 pass→fail. New witness stops at canonical loaded-deployment identity `not_established`, before N9. |
+| R9 candidate `d66327d` plus frozen V4 patch, protocol whole file | 10 | 10 pass, 2.126 s | 10 shared identities; 0 pass→fail. |
+| Same candidate, CAS-03 whole file | 16 | 15 pass / 1 new fixture failure, 3.171 s | 9 shared identities; 4 fail→pass / 0 pass→fail; 7 added cases. |
+
+R14 origin: PASS, 1,680 loaded Python modules, 13 support modules, one test module, 10,038 frozen paths including exact 16 acknowledged foreign documents; no foreign origins or drift. R9 origins: both PASS over 6,414 frozen paths. No guard fired. Each run used one process group and read-only production-data linkage. The raw resource measurements and every exact JUnit identity are retained in the root receipts below; these are current/candidate comparisons, not a four-base closure or a public-read witness.
+
+R14 receipt `/Users/deniskopylov/.codex/scratch/R14_CURRENT15_POST_ROOT_RECONCILIATION_20261001.json@sha256:ca19f9278424da7a011d27014fcdc374badff7256786a06019502365236aa2fd`; raw result `/Users/deniskopylov/.codex/scratch/e02-r14-current15-baseline-20261001/r14-current15-post-20261001T061223Z-20134-1e6e9c8a/result.json@sha256:f9d75e00f18459220550860ec23a4278d3a90e868cd71177a1b3cf67a23d16b0`.
+
+R9 receipt `/Users/deniskopylov/.codex/scratch/R9_CAS03_V4_ROOT_WHOLEFILE_RECONCILIATION_20261001.json@sha256:0dd0b9db2ecde71e8a70ab5be0e482a0ddb387200b989af9ba48cc9bc707ae82`; raw result `/Users/deniskopylov/.codex/scratch/R9_CAS03_V4_WHOLEFILE_ADAPTER_PREP_20261001/runs/r9-cas03-v4-wholefile-20261001T061307534281Z-20418/results.json@sha256:b04508ed901830208b4c24b864dc1d3dd6505b86a62490574da0aa933f1d3895`.
+
+The new R9 telemetry fixture fails at `put_bytes` because `RecordingMetrics.artifact_operations_total` is absent. Its intended corrupt-manifest/valid-control property is UNRUN; use the existing metrics owner rather than a partial substitute. The R14 new source-consumer property is also unverified; no deployment identity or governed receipt is restamped to make it pass.

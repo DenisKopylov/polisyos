@@ -405,22 +405,22 @@ risk_notes = "The facade keeps legacy monkeypatch and import behavior for downst
 characterization_tests = ["tests/unit/data_forge/domains/academic/batch/test__resolve_extract_contracts.py"]
 
 [[budget]]
-path = "src/polisyos/runtime/http/services/control.py"
+path = "src/polisyos/runtime/http/services/control/__init__.py"
 package = "runtime"
 owner = "team-runtime"
 baseline_lines = 4114
-current_lines = 10
+current_lines = 25
 warning_lines = 1000
-report_only_limit_lines = 10
-next_ratchet_lines = 10
-target_lines = 10
+report_only_limit_lines = 25
+next_ratchet_lines = 25
+target_lines = 25
 sunset = "2026-12-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
-strategy = "keep the legacy import path as a no-growth package-like compatibility facade"
-shrink_plan = "Phase 4.3 moved the runtime control implementation behind src/polisyos/runtime/http/services/control/api.py and keeps this historical module as a ten-line compatibility facade only."
+strategy = "keep the runtime control package root as a bounded child-first lazy facade over its existing public API"
+shrink_plan = "Phase 4.3 moved runtime control behavior into the control package. Preserve the former control.py bytes at the non-importable control.py.retired path and keep this initializer at or below twenty-five lines."
 extraction_sequence = ["serialization"]
-risk_notes = "The shim must not grow; implementation risk is now tracked on the control/run_lifecycle.py budget entry."
-characterization_tests = ["tests/unit/runtime/http/services/test__control_contracts.py"]
+risk_notes = "Direct child/store imports must not load control.api; public symbols and __all__ must retain identity with the existing API owner. The retired path is historical evidence only."
+characterization_tests = ["tests/unit/runtime/http/test_control_import_boundary.py"]
 
 [[budget]]
 path = "src/polisyos/runtime/http/services/control/run_lifecycle.py"

@@ -21,8 +21,11 @@ contract and generated OpenAPI, not direct imports from service modules.
 
 ## Naming Convention
 
-Use snake_case service names matching route or domain concepts, for example
-`control.py`, `lineage.py`, or `artifact_inspector.py`.
+Use snake_case service names matching route or domain concepts. A service area
+with several owners may use a package such as `control/`; keep its `__init__.py`
+as a thin lazy public boundary and place behavior in the existing owner module.
+Single-module services may use names such as `lineage.py` or
+`artifact_inspector.py`.
 
 ## Test Location
 

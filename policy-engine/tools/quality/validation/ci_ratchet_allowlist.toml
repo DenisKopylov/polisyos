@@ -15,5 +15,4 @@ entries = [
   { path = "src/polisyos/core/security/tee.py", contains = "# noqa: BLE001" },
   { path = "src/polisyos/core/trace/sink.py", contains = "# noqa: BLE001" },
   { path = "src/polisyos/runtime/http/routes/*.py", contains = "# noqa: B008" },
-  { path = "src/polisyos/runtime/http/services/control.py", contains = "# noqa: BLE001" },
 ]

@@ -26,14 +26,6 @@ remediation = "Complete the interventions/ split and retire src/polisyos/lex/int
 # Runtime service boundary cleanup.
 # ---------------------------------------------------------------------------
 
-[[exception]]
-path = "src/polisyos/runtime/http/services/control.py"
-reason = "Legacy control surface; split by bounded service area."
-owner = "team-runtime"
-expires = "2026-08-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-43---characterization-tests-and-god-module-budgets"
-remediation = "Move control-plane run, artifact, collaboration, and graph handlers into bounded service modules."
-
 # ---------------------------------------------------------------------------
 # Scientist built-in node burn-down.
 # ---------------------------------------------------------------------------

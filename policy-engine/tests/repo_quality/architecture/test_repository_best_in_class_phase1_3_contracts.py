@@ -177,7 +177,7 @@ def test_phase1_3_module_size_budget_sets_defaults_and_shrinking_god_module_budg
     assert {
         "src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py",
         "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py",
-        "src/polisyos/runtime/http/services/control.py",
+        "src/polisyos/runtime/http/services/control/__init__.py",
     } <= {budget["path"] for budget in budgets}
 
     for budget in budgets:

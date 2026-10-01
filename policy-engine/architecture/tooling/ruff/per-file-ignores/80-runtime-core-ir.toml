@@ -36,7 +36,7 @@
 "src/polisyos/runtime/http/routes/runs.py" = ["ANN401", "B008"]
 "src/polisyos/runtime/http/security.py" = ["ANN401"]
 "src/polisyos/runtime/http/services/artifact_inspector.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/control.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/control/__init__.py" = ["ANN401"]
 "src/polisyos/runtime/http/services/control_registry_providers.py" = ["ANN401"]
 "src/polisyos/runtime/http/services/debug.py" = ["ANN401"]
 "src/polisyos/runtime/http/services/feedback.py" = ["ANN401"]

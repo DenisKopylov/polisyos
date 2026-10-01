@@ -272,6 +272,8 @@ Runtime уже импортирует observability helpers:
 - `src/polisyos/runtime/http/execution_policy.py`
 - `src/polisyos/runtime/http/routes/runs.py`
 - `src/polisyos/runtime/http/routes/control.py`
-- `src/polisyos/runtime/http/services/control.py`
+- `src/polisyos/runtime/http/services/control/__init__.py`
+- `src/polisyos/runtime/http/services/control/api.py`
+- `src/polisyos/runtime/http/services/control/run_lifecycle.py`
 - `src/polisyos/runtime/http/services/task_runner.py`
 - `apps/runtime-dashboard/src/app/workspaces.ts`

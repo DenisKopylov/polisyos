@@ -8,7 +8,6 @@ persisted ``not_established`` nonreceipt rather than an all-clear.
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Literal, Protocol
 
@@ -81,7 +80,11 @@ class PublicRecordInventoryRead(BaseModel):
 
 
 class PersistedPublicSignaturePopulation(BaseModel):
-    """Exact persisted population handle; no unverified snapshot crosses the watcher boundary."""
+    """Persisted population handle with runtime-only owner selectors.
+
+    No unverified snapshot crosses the watcher boundary. Selectors are not authority;
+    every protected open re-resolves the current owner closure.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -90,6 +93,8 @@ class PersistedPublicSignaturePopulation(BaseModel):
     snapshot: PublicSignaturePopulationSnapshot
     record_inspections: tuple[PublicRecordPopulationInspection, ...] = ()
     inventory_reads: tuple[PublicRecordInventoryRead, ...] = ()
+    # Runtime correlation only; absent from the persisted snapshot and never authority.
+    governed_record_ids: tuple[str, ...] = ()
     input_scope: str = "supplied_population_snapshot_and_member_artifacts"
     unresolved_by_construction: tuple[str, ...] = ("uncontrolled_public_signature_history",)
 
@@ -201,6 +206,7 @@ class PublicVerificationRecordPopulationProvider:
                 boundary="report_source", outcome="read", record_ids=record_ids
             )
         )
+        governed_owner = None
         if self._admission_source is not None:
             from polisyos.scientist.governance.continuous.governed_public_record import (
                 GovernedPublicRecordOwner,
@@ -210,6 +216,7 @@ class PublicVerificationRecordPopulationProvider:
                 owner = self._admission_source
                 if type(owner) is not GovernedPublicRecordOwner or owner.store is not self._store:
                     raise ValueError("governed public inventory owner mismatch")
+                governed_owner = owner
                 admitted_ids = owner.issued_record_ids()
                 inventory_reads.append(
                     PublicRecordInventoryRead(
@@ -258,6 +265,7 @@ class PublicVerificationRecordPopulationProvider:
                 )
         inspections: list[PublicRecordPopulationInspection] = []
         members: list[PublicSignaturePopulationMember] = []
+        governed_record_ids: list[str] = []
         governed_failure = False
         for record_id in sorted(record_ids):
             authentication: Literal["verified", "invalid", "not_established"] = "not_established"
@@ -298,6 +306,7 @@ class PublicVerificationRecordPopulationProvider:
                                 staleness_after_seconds=binding.staleness_after_seconds,
                             )
                         )
+                        governed_record_ids.append(record_id)
                         reason = "promoted_record_admitted"
                 else:
                     reason = "promoted_record_missing"
@@ -319,11 +328,14 @@ class PublicVerificationRecordPopulationProvider:
                 population_provenance="institutionally_supplied",
                 members=tuple(members),
                 captured_at=datetime.now(UTC),
+                governed_owner=governed_owner,
+                governed_record_ids=tuple(governed_record_ids),
             )
             return persisted.model_copy(
                 update={
                     "record_inspections": tuple(inspections),
                     "inventory_reads": tuple(inventory_reads),
+                    "governed_record_ids": tuple(governed_record_ids),
                     "input_scope": "controlled_issued_index_and_listed_record_verification",
                 }
             )
@@ -502,6 +514,66 @@ def _assert_exact_artifact(
         raise ValueError("public_signature_custody_ref_unresolvable")
 
 
+def _assert_member_artifacts(
+    store: core_artifacts.ArtifactStore,
+    member: PublicSignaturePopulationMember,
+    *,
+    governed_owner: GovernedPublicRecordOwner | None,
+    record_id: str | None,
+) -> None:
+    """Open governed refs through their current record owner, preserving ordinary CAS ACLs.
+
+    A record ID is only a selector. The owner must re-resolve the exact current closure
+    and authorize each protected CAS operation before any bytes are returned.
+    """
+    if record_id is None:
+        if member.signature_ref.kind == "polisyos.governed_public_record":
+            raise ValueError("governed_public_record_owner_binding_missing")
+        _assert_exact_artifact(store, member.signature_ref)
+        _assert_exact_artifact(store, member.decision_packet_ref)
+        return
+
+    from polisyos.scientist.governance.continuous.governed_public_record import (
+        GovernedPublicRecordOwner,
+    )
+
+    if type(governed_owner) is not GovernedPublicRecordOwner or governed_owner.store is not store:
+        raise ValueError("governed_public_record_owner_binding_missing")
+    governed_owner.verify_custody_binding_artifacts(
+        record_id,
+        signature_ref=member.signature_ref,
+        decision_packet_ref=member.decision_packet_ref,
+    )
+
+
+def _assert_population_member_artifacts(
+    store: core_artifacts.ArtifactStore,
+    snapshot: PublicSignaturePopulationSnapshot,
+    *,
+    governed_owner: GovernedPublicRecordOwner | None,
+    governed_record_ids: tuple[str, ...],
+) -> None:
+    """Validate every member with its exact owner binding or ordinary store ACL."""
+    if governed_record_ids and (
+        len(governed_record_ids) != len(snapshot.members)
+        or len(set(governed_record_ids)) != len(governed_record_ids)
+    ):
+        raise ValueError("governed_public_record_owner_binding_mismatch")
+    if not governed_record_ids and any(
+        member.signature_ref.kind == "polisyos.governed_public_record"
+        for member in snapshot.members
+    ):
+        raise ValueError("governed_public_record_owner_binding_missing")
+    for index, member in enumerate(snapshot.members):
+        record_id = governed_record_ids[index] if governed_record_ids else None
+        _assert_member_artifacts(
+            store,
+            member,
+            governed_owner=governed_owner,
+            record_id=record_id,
+        )
+
+
 def persist_public_signature_population(
     store: core_artifacts.ArtifactStore,
     *,
@@ -509,6 +581,8 @@ def persist_public_signature_population(
     population_provenance: Literal["institutionally_supplied", "synthetic_test"],
     members: tuple[PublicSignaturePopulationMember, ...],
     captured_at: datetime,
+    governed_owner: GovernedPublicRecordOwner | None = None,
+    governed_record_ids: tuple[str, ...] = (),
 ) -> PersistedPublicSignaturePopulation:
     """Persist and exactly reload one non-vacuous public-signature population."""
 
@@ -518,9 +592,12 @@ def persist_public_signature_population(
         members=members,
         captured_at=captured_at,
     )
-    for member in snapshot.members:
-        _assert_exact_artifact(store, member.signature_ref)
-        _assert_exact_artifact(store, member.decision_packet_ref)
+    _assert_population_member_artifacts(
+        store,
+        snapshot,
+        governed_owner=governed_owner,
+        governed_record_ids=governed_record_ids,
+    )
     ref = store.put_json(
         snapshot,
         core_artifacts.PutOptions(
@@ -534,12 +611,20 @@ def persist_public_signature_population(
         ),
         canon_spec=_CANON,
     )
-    return resolve_public_signature_population(store, ref)
+    return resolve_public_signature_population(
+        store,
+        ref,
+        governed_owner=governed_owner,
+        governed_record_ids=governed_record_ids,
+    )
 
 
 def resolve_public_signature_population(
     store: core_artifacts.ArtifactStore,
     ref: core_artifacts.ArtifactRef,
+    *,
+    governed_owner: GovernedPublicRecordOwner | None = None,
+    governed_record_ids: tuple[str, ...] = (),
 ) -> PersistedPublicSignaturePopulation:
     """Resolve a snapshot and reject manifest, input, or canonical-byte drift."""
 
@@ -567,13 +652,17 @@ def resolve_public_signature_population(
         or core_canon.to_canonical_bytes(snapshot, _CANON) != raw
     ):
         raise ValueError("public_signature_population_artifact_binding_mismatch")
-    for member in snapshot.members:
-        _assert_exact_artifact(store, member.signature_ref)
-        _assert_exact_artifact(store, member.decision_packet_ref)
+    _assert_population_member_artifacts(
+        store,
+        snapshot,
+        governed_owner=governed_owner,
+        governed_record_ids=governed_record_ids,
+    )
     return PersistedPublicSignaturePopulation(
         population_ref=ref,
         population_content_hash="sha256:" + hashlib.sha256(raw).hexdigest(),
         snapshot=snapshot,
+        governed_record_ids=governed_record_ids,
     )
 
 
@@ -702,10 +791,30 @@ class PublishedSignatureCustodyWatcher:
         input_scope = population.input_scope
         inspections = population.record_inspections
         unresolved_boundaries = population.unresolved_by_construction
+        governed_record_ids = population.governed_record_ids
+        governed_owner = (
+            self._population_provider._admission_source
+            if isinstance(
+                self._population_provider,
+                PublicVerificationRecordPopulationProvider,
+            )
+            else None
+        )
         try:
             population = resolve_public_signature_population(
                 self._store,
                 population.population_ref,
+                governed_owner=governed_owner,
+                governed_record_ids=governed_record_ids,
+            )
+            population = population.model_copy(
+                update={
+                    "record_inspections": inspections,
+                    "inventory_reads": inventory_reads,
+                    "governed_record_ids": governed_record_ids,
+                    "input_scope": input_scope,
+                    "unresolved_by_construction": unresolved_boundaries,
+                }
             )
         except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
             persisted = persist_published_signature_custody_scan(
@@ -736,9 +845,14 @@ class PublishedSignatureCustodyWatcher:
         monitor_refs: list[core_artifacts.ArtifactRef] = []
         lifecycle_refs: list[core_artifacts.ArtifactRef] = []
         try:
-            for member in population.snapshot.members:
-                _assert_exact_artifact(self._store, member.signature_ref)
-                _assert_exact_artifact(self._store, member.decision_packet_ref)
+            for index, member in enumerate(population.snapshot.members):
+                record_id = governed_record_ids[index] if governed_record_ids else None
+                _assert_member_artifacts(
+                    self._store,
+                    member,
+                    governed_owner=governed_owner,
+                    record_id=record_id,
+                )
                 if scanned_at < member.published_at + timedelta(
                     seconds=member.staleness_after_seconds
                 ):

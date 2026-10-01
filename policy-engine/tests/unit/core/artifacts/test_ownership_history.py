@@ -20,6 +20,8 @@ _V1_INDEX_SCHEMA = "policyos.artifact_ownership_index.v1"
 _V1_SIGNATURE_SCHEMA = "policyos.artifact_ownership_index_signature.v1"
 _V2_INDEX_SCHEMA = "policyos.artifact_ownership_index.v2"
 _V2_SIGNATURE_SCHEMA = "policyos.artifact_ownership_index_signature.v2"
+_V3_INDEX_SCHEMA = "policyos.artifact_ownership_index.v3"
+_V3_SIGNATURE_SCHEMA = "policyos.artifact_ownership_index_signature.v3"
 _POINTER_SCHEMA = "policyos.artifact_ownership_index_pointer.v1"
 _GENERATION_SCHEMA = "policyos.artifact_ownership_index_generation.v1"
 _EVIDENCE_SCHEMA_V3 = "policyos.artifact_ownership_evidence.v3"
@@ -525,8 +527,9 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
     assert generation["mode"] == _MODE
     assert generation["parent_generation_sha256"] is None
     migrated = generation["payload"]
-    assert migrated["schema_version"] == _V2_INDEX_SCHEMA
+    assert migrated["schema_version"] == _V3_INDEX_SCHEMA
     assert migrated["artifacts"] == original_payload["artifacts"]
+    assert migrated["public_read_closures"] == {}
     assert migrated["blob_readers"][str(reader_id)][0]["tenant_id"] == "tenant-b"
     assert migrated["blob_readers"][str(reader_id)][0]["cell_id"] == "cell-b"
     assert migrated["blob_readers"][str(reader_id)][0]["writer"] == ("explicit-reader-admission")
@@ -534,7 +537,7 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
 
     signature = generation["signature"]
     statement = {key: value for key, value in signature.items() if key != "signature"}
-    assert signature["schema_version"] == _V2_SIGNATURE_SCHEMA
+    assert signature["schema_version"] == _V3_SIGNATURE_SCHEMA
     assert signature["index_sha256"] == generation["payload_sha256"]
     assert signature["signature"] == _canonical_sha256(statement)
 
@@ -551,6 +554,7 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
     assert base64.b64decode(legacy_source["signature_bytes_base64"], validate=True) == (
         legacy_signature_bytes
     )
+
     assert legacy_source["index_bytes_sha256"] == (
         "sha256:" + hashlib.sha256(legacy_index_bytes).hexdigest()
     )
@@ -609,6 +613,46 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
     assert later_evidence["ownership_index_pre_v3_history_status"] == (
         "current_pair_captured; earlier_overwritten_generations_unresolved"
     )
+
+
+def test_public_read_closure_is_per_record_replayable_and_revocable(tmp_path: Path) -> None:
+    """Closure mutation advances only that record and persists in the canonical index."""
+    artifact_id = ArtifactID.from_sha256_hex("4" * 64)
+    record_id = "gpr_" + "r" * 32
+    index = ArtifactOwnershipIndex(tmp_path)
+    operation_refs = [
+        {
+            "operation": "get_bytes",
+            "artifact_id": str(artifact_id),
+            "kind": "test.public_member",
+            "media_type": "application/json",
+            "manifest_profile_sha256": None,
+        }
+    ]
+
+    first = index._record_public_read_closure(
+        record_id,
+        store_identity="sha256:" + "a" * 64,
+        operation_refs=operation_refs,
+    )
+    assert first["status"] == "active"
+    assert first["epoch"] == 1
+    assert first["operation_refs"] == operation_refs
+    assert index._get_public_read_closure(record_id) == first
+
+    assert index._revoke_public_read_closure(record_id) is True
+    withdrawn = index._get_public_read_closure(record_id)
+    assert withdrawn is not None
+    assert withdrawn["status"] == "revoked"
+    assert withdrawn["epoch"] == 2
+    assert withdrawn["operation_refs"] == operation_refs
+    assert index._public_read_closure_matches(
+        record_id,
+        store_identity="sha256:" + "a" * 64,
+        epoch=1,
+        operation="get_bytes",
+        ref_identity=(str(artifact_id), "test.public_member", "application/json", None),
+    ) is False
 
 
 def test_empty_index_evidence_is_ephemeral_and_read_only(tmp_path: Path) -> None:

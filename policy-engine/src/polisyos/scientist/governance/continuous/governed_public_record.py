@@ -13,11 +13,15 @@ import os
 import re
 import secrets
 import tempfile
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, TypeVar
+from typing import TYPE_CHECKING, Literal, TypeVar
 
 from pydantic import AwareDatetime, BaseModel, JsonValue
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 from polisyos.core import artifacts, canon
 from polisyos.scientist.evidence.claims.audit import _load_append_only_claim_ledger
@@ -406,6 +410,17 @@ class GovernedPublicRecordOwner:
         self.index_root = Path(index_root)
         self.slot = slot
         self.last_boundary_reads: tuple[GovernedPublicRecordBoundaryRead, ...] = ()
+        register_public_reader = getattr(
+            store,
+            "_register_governed_public_read_owner",
+            None,
+        )
+        self._public_read_owner_token = (
+            register_public_reader() if callable(register_public_reader) else None
+        )
+        # Production stays unavailable until deployment-root custody is independently
+        # established. Tests may set this private marker only for a synthetic temp CAS.
+        self._synthetic_public_read_root_custody_for_tests = False
         self._publisher_verifier, self._publisher_keys = self._trust(slot.publisher_trusted_keys)
         self._mandate_verifier, self._mandate_keys = self._trust(slot.mandate_trusted_keys)
 
@@ -465,6 +480,19 @@ class GovernedPublicRecordOwner:
             ):
                 raise ValueError("CAS binding invalid")
             return raw
+        except artifacts.ArtifactOwnershipError as exc:
+            if getattr(exc, "code", None) == "public_read_closure_not_established":
+                raise GovernedPublicRecordError("public_read_closure_not_established") from exc
+            raise GovernedPublicRecordError(
+                "record_evidence_unavailable",
+                reads=(
+                    GovernedPublicRecordBoundaryRead(
+                        operation="cas.verify_and_get_bytes",
+                        selector=str(ref.artifact_id),
+                        outcome="invalid",
+                    ),
+                ),
+            ) from exc
         except (OSError, ValueError, KeyError) as exc:
             raise GovernedPublicRecordError(
                 "record_evidence_unavailable",
@@ -843,8 +871,30 @@ class GovernedPublicRecordOwner:
             admission_ref.artifact_id, slot.signer, signer_identity=slot.issuer_id
         )
         index = _IssuanceIndex(record_id=record.record_id, admission=self._capture(admission_ref))
-        self._resolve_index(index)
+        read_set = None
+        capture_read_set = getattr(self.store, "_capture_public_read_set", None)
+        record_read_closure = getattr(
+            self.store,
+            "_record_governed_public_read_closure",
+            None,
+        )
+        if self._public_read_owner_token is not None and (
+            not callable(capture_read_set) or not callable(record_read_closure)
+        ):
+            raise GovernedPublicRecordError("public_read_closure_store_unsupported")
+        if self._public_read_owner_token is not None and callable(capture_read_set):
+            with capture_read_set() as captured:
+                self._resolve_index(index)
+            read_set = captured
+        else:
+            self._resolve_index(index)
         self._atomic_new(self.index_root / "issued" / (record.record_id + ".json"), _bytes(index))
+        if self._public_read_owner_token is not None and read_set is not None:
+            record_read_closure(
+                record.record_id,
+                read_set,
+                owner_token=self._public_read_owner_token,
+            )
         return record.record_id
 
     def _resolve_index(
@@ -921,10 +971,67 @@ class GovernedPublicRecordOwner:
             raise GovernedPublicRecordError("issuance_index_invalid")
         return result
 
+    def _resolve_public_index(
+        self,
+        record_id: str,
+    ) -> tuple[
+        GovernedPublicRecord,
+        _PrivateDraft,
+        PublicationMandateStatement,
+        PublicationTrustedKey,
+        _PrivateAdmission,
+    ]:
+        """Resolve one anonymous record only through its exact current read closure."""
+        with self._authorized_public_index(record_id) as resolved:
+            return resolved
+
+    @contextmanager
+    def _authorized_public_index(
+        self,
+        record_id: str,
+    ) -> Iterator[
+        tuple[
+            GovernedPublicRecord,
+            _PrivateDraft,
+            PublicationMandateStatement,
+            PublicationTrustedKey,
+            _PrivateAdmission,
+        ]
+    ]:
+        """Keep the exact current record capability active for owner-mediated reads."""
+        if not self._synthetic_public_read_root_custody_for_tests:
+            raise GovernedPublicRecordError("public_read_root_custody_not_established")
+        if self._public_read_owner_token is None:
+            raise GovernedPublicRecordError("public_read_closure_store_unsupported")
+        index = self._index(record_id)
+        try:
+            with self.store._authorize_governed_public_read(
+                record_id,
+                owner_token=self._public_read_owner_token,
+            ) as capability:
+                with self.store._capture_public_read_set() as observed:
+                    resolved = self._resolve_index(index)
+                if frozenset(observed.operation_refs) != capability.operation_refs:
+                    raise GovernedPublicRecordError("public_read_closure_owner_readset_mismatch")
+                yield resolved
+        except artifacts.ArtifactOwnershipError as exc:
+            if getattr(exc, "code", None) == "public_read_closure_not_established":
+                raise GovernedPublicRecordError("public_read_closure_not_established") from exc
+            raise
+
+    def _revoke_public_read_closure_for_test(self, record_id: str) -> bool:
+        """Withdraw one closure in a synthetic test deployment's owner path."""
+        if self._public_read_owner_token is None:
+            raise GovernedPublicRecordError("public_read_closure_store_unsupported")
+        return self.store._revoke_governed_public_read_closure(
+            record_id,
+            owner_token=self._public_read_owner_token,
+        )
+
     def verify(self, record_id: str) -> GovernedPublicRecordVerificationResponse:
         """Reverify exact historical admission; never promote it to current authority."""
         try:
-            record, draft, _, key, _ = self._resolve_index(self._index(record_id))
+            record, draft, _, key, _ = self._resolve_public_index(record_id)
         except (GovernedPublicRecordError, OSError, ValueError, TypeError, KeyError) as exc:
             code = (
                 exc.code
@@ -943,7 +1050,15 @@ class GovernedPublicRecordOwner:
             return GovernedPublicRecordVerificationResponse(
                 record_id=record_id,
                 report_authentication="not_established"
-                if code in {"record_not_issued", "client_token_not_server_issued"}
+                if code
+                in {
+                    "record_not_issued",
+                    "client_token_not_server_issued",
+                    "public_read_root_custody_not_established",
+                    "public_read_closure_not_established",
+                    "public_read_closure_owner_readset_mismatch",
+                    "public_read_closure_store_unsupported",
+                }
                 else "invalid",
                 reason_codes=(code,),
                 cryptographic_signature="invalid"
@@ -1029,9 +1144,9 @@ class GovernedPublicRecordOwner:
         return tuple(sorted(record_ids))
 
     def resolve_custody_binding(self, record_id: str) -> GovernedPublicCustodyBinding:
-        """Resolve a historical admitted signature for the private custody bridge."""
+        """Return observed refs; callers must re-enter the owner for every protected open."""
         try:
-            record, draft, mandate, _, admission = self._resolve_index(self._index(record_id))
+            record, draft, mandate, _, admission = self._resolve_public_index(record_id)
         except GovernedPublicRecordError:
             raise
         except (OSError, ValueError, TypeError, KeyError) as exc:
@@ -1053,6 +1168,35 @@ class GovernedPublicRecordOwner:
             published_at=record.issued_at,
             staleness_after_seconds=mandate.staleness_after_seconds,
         )
+
+    def verify_custody_binding_artifacts(
+        self,
+        record_id: str,
+        *,
+        signature_ref: artifacts.ArtifactRef,
+        decision_packet_ref: artifacts.ArtifactRef,
+    ) -> None:
+        """Re-resolve and verify only this record's exact artifacts under its live closure.
+
+        The returned refs from :meth:`resolve_custody_binding` are observations, not read
+        authority. This method replays the current owner record and retains its scoped
+        capability across the artifact reads so revocation is checked at each CAS operation.
+        """
+        with self._authorized_public_index(record_id) as resolved:
+            record, draft, mandate, _, admission = resolved
+            expected_signature_ref = admission.publication.artifact_ref
+            expected_decision_packet_ref = draft.snapshot.decision_packet_ref
+            if (
+                artifacts.artifact_ref_identity_key(signature_ref)
+                != artifacts.artifact_ref_identity_key(expected_signature_ref)
+                or artifacts.artifact_ref_identity_key(decision_packet_ref)
+                != artifacts.artifact_ref_identity_key(expected_decision_packet_ref)
+                or record.record_id != record_id
+                or mandate.decision_packet_ref != expected_decision_packet_ref
+            ):
+                raise GovernedPublicRecordError("record_custody_binding_mismatch")
+            self._raw(signature_ref)
+            self._raw(decision_packet_ref)
 
 
 __all__ = [

@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from fastapi.testclient import TestClient
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
 
 from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, KeyPair, SchemaInfo
 from polisyos.core.artifacts.signing import Ed25519Signer
@@ -91,6 +94,11 @@ class _PublicationCase:
                 ),
             ),
         )
+        synthetic_owner = (
+            app.state.runtime_container.public_decision_verification_service.governed_owner
+        )
+        if synthetic_owner is not None:
+            synthetic_owner._synthetic_public_read_root_custody_for_tests = True
         try:
             with TestClient(app) as client:
                 yield client
@@ -409,16 +417,83 @@ def test_public_decision_projection_is_custody_bound(publication_case: _Publicat
                     case.context.store.get_bytes(watched.scan_receipt_ref.artifact_id)
                 )
             )
+            verification_service = client.app.state.runtime_container.public_decision_verification_service
+            owner = verification_service.governed_owner
+            assert owner is not None
             population = custody.resolve_public_signature_population(
-                case.context.store, scan.population_ref
-            )
-            owner = (
-                client.app.state.runtime_container.public_decision_verification_service.governed_owner
+                case.context.store,
+                scan.population_ref,
+                governed_owner=owner,
+                governed_record_ids=(record_id,),
             )
             binding = owner.resolve_custody_binding(record_id)
         assert population.snapshot.members[0].signature_ref == binding.signature_ref
         assert population.snapshot.members[0].decision_packet_ref == case.packet_ref
         assert population.snapshot.members[0].affected_claim_ids == ("snapshot-claim",)
+
+
+def test_anonymous_publication_refuses_after_only_current_closure_is_withdrawn(
+    publication_case: _PublicationCase,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The served reader refuses with intact publication markers and before CAS replay."""
+    case = publication_case
+    _prepare_and_authorize(case)
+    with case.client() as client:
+        record_id, _ = _issue_and_read(case, client)
+        owner = (
+            client.app.state.runtime_container.public_decision_verification_service.governed_owner
+        )
+        assert owner is not None
+        with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+            binding = owner.resolve_custody_binding(record_id)
+        locator = owner._index(record_id)
+        assert owner._revoke_public_read_closure_for_test(record_id) is True
+        closure = owner.store._ownership_index._get_public_read_closure(record_id)
+        assert closure is not None
+        assert closure["status"] == "revoked"
+
+        def protected_replay_must_not_start(_index: object) -> None:
+            pytest.fail("protected CAS replay began after closure withdrawal")
+
+        monkeypatch.setattr(owner, "_resolve_index", protected_replay_must_not_start)
+        protected_ids = {
+            str(binding.signature_ref.artifact_id),
+            str(binding.decision_packet_ref.artifact_id),
+        }
+        protected_reads: list[str] = []
+        for operation in ("verify", "get_bytes", "get_manifest", "get_signature_bytes"):
+            original = getattr(owner.store, operation)
+
+            def observe_protected_read(
+                artifact_id: object,
+                *args: object,
+                _operation: str = operation,
+                _original: Callable[..., object] = original,
+                **kwargs: object,
+            ) -> object:
+                identity = str(getattr(artifact_id, "artifact_id", artifact_id))
+                if identity in protected_ids:
+                    protected_reads.append(_operation)
+                return _original(artifact_id, *args, **kwargs)
+
+            monkeypatch.setattr(owner.store, operation, observe_protected_read)
+        response = client.get(
+            "/api/v1/public-decisions/verification", params={"record_id": record_id}
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["report_authentication"] == "not_established"
+        assert body["cryptographic_signature"] == "not_established"
+        assert body["reason_codes"] == ["public_read_closure_not_established"]
+        assert body["public_document"] is None
+        assert owner._index(record_id) == locator
+        with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+            control_service = client.app.state.runtime_container.control_service
+            watched = control_service.run_published_signature_custody_maintenance()
+        assert watched.status == "not_established", watched
+        assert not watched.monitor_event_refs
+        assert protected_reads == []
 
 
 def test_http_publication_relocates_selected_manifest_profiles(
@@ -529,11 +604,61 @@ def test_first_governed_public_signature_is_custody_bound(
         assert container.public_decision_verification_service.issued_record_ids() == (record_id,)
         assert result["dimensions"]["public_history_establishment"] == "not_established"
         with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
-            binding = (
-                container.public_decision_verification_service.governed_owner.resolve_custody_binding(
-                    record_id
-                )
+            owner = container.public_decision_verification_service.governed_owner
+            assert owner is not None
+            binding = owner.resolve_custody_binding(record_id)
+
+            candidate_payload = {"candidate_only": True, "scope": "unrelated"}
+            candidate_default = case.context.store.put_json(
+                candidate_payload,
+                ArtifactWriteOptions(
+                    kind="tests.synthetic.candidate.default", media_type="application/json"
+                ),
             )
+            candidate_view = case.context.store.put_json(
+                candidate_payload,
+                ArtifactWriteOptions(
+                    kind="tests.synthetic.candidate.selected", media_type="application/json"
+                ),
+            )
+            case.context.store.record_artifact_owner(
+                candidate_view.artifact_id,
+                tenant_id=_TENANT,
+                cell_id=case.cell_id,
+                writer="tests.synthetic.publication_candidate",
+            )
+            assert candidate_default.artifact_id == candidate_view.artifact_id
+            assert case.context.store.get_bytes(candidate_view) == case.context.store.get_bytes(
+                candidate_default
+            )
+
+            with (
+                tenant_scope(None, tenant_id=_FOREIGN_TENANT, cell_id=case.cell_id),
+                pytest.raises(GovernedPublicRecordError),
+            ):
+                owner.verify_custody_binding_artifacts(
+                        record_id,
+                        signature_ref=binding.signature_ref,
+                        decision_packet_ref=binding.decision_packet_ref,
+                    )
+
+            owner_reads: list[str] = []
+            verify_binding_artifacts = owner.verify_custody_binding_artifacts
+
+            def observe_owner_read(
+                observed_record_id: str,
+                *,
+                signature_ref: ArtifactRef,
+                decision_packet_ref: ArtifactRef,
+            ) -> None:
+                owner_reads.append(observed_record_id)
+                verify_binding_artifacts(
+                    observed_record_id,
+                    signature_ref=signature_ref,
+                    decision_packet_ref=decision_packet_ref,
+                )
+
+            monkeypatch.setattr(owner, "verify_custody_binding_artifacts", observe_owner_read)
             due = binding.published_at + timedelta(seconds=binding.staleness_after_seconds + 1)
 
             class DueCustodyClock(datetime):
@@ -544,8 +669,11 @@ def test_first_governed_public_signature_is_custody_bound(
             monkeypatch.setattr(custody, "datetime", DueCustodyClock)
             watched = container.control_service.run_published_signature_custody_maintenance()
             assert watched.status == "watched", watched
+            assert owner_reads
+            assert set(owner_reads) == {record_id}
             assert watched.scan_receipt_ref is not None
-            assert watched.monitor_event_refs and watched.lifecycle_bridge_result_refs
+            assert watched.monitor_event_refs
+            assert watched.lifecycle_bridge_result_refs
             bridge = load_lifecycle_bridge_result(
                 case.context.store, watched.lifecycle_bridge_result_refs[0]
             )

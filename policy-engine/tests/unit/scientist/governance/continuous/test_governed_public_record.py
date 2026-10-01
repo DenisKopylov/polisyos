@@ -78,6 +78,7 @@ def build_governed_owner_case(
     owner = GovernedPublicRecordOwner(
         store=store, claim_owner=claim_owner, index_root=index_root / "publication", slot=slot
     )
+    owner._synthetic_public_read_root_custody_for_tests = True
     return owner, prepared, packet_ref, institution, slot
 
 
@@ -120,12 +121,17 @@ def appoint_synthetic_publication(
         index_root=owner.index_root,
         slot=replace(slot, mandate_ref=mandate_ref),
     )
+    configured._synthetic_public_read_root_custody_for_tests = True
     return configured, draft
 
 
 @pytest.fixture
 def case(tmp_path):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=False,
+    )
     return build_governed_owner_case(
         store=store, index_root=tmp_path, completed_batches=DecisionValidityService(store)
     )
@@ -177,13 +183,52 @@ def test_real_owner_signed_mandate_issuance_readback_and_custody(case):
         index_root=owner.index_root,
         slot=configured.slot,
     )
+    restarted._synthetic_public_read_root_custody_for_tests = True
     assert restarted.verify(record_id) == response
     assert restarted.resolve_custody_binding(record_id) == binding
 
 
+def test_public_reader_keeps_root_custody_unestablished_by_default(
+    case: tuple[
+        GovernedPublicRecordOwner,
+        object,
+        ArtifactRef,
+        Ed25519Signer,
+        PublicationSigningSlot,
+    ],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A signed record does not establish anonymous CAS-root access by itself."""
+    owner, _, packet_ref, institution, slot = case
+    configured, _ = appoint_synthetic_publication(owner, packet_ref, institution, slot)
+    record_id = configured.issue(
+        decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
+    )
+    default_owner = GovernedPublicRecordOwner(
+        store=owner.store,
+        claim_owner=owner.claim_owner,
+        index_root=owner.index_root,
+        slot=configured.slot,
+    )
+
+    def issuance_locator_must_not_be_read(_record_id: str) -> None:
+        pytest.fail("issuance locator was read without root-custody evidence")
+
+    monkeypatch.setattr(default_owner, "_index", issuance_locator_must_not_be_read)
+    response = default_owner.verify(record_id)
+    assert response.report_authentication == "not_established"
+    assert response.cryptographic_signature == "not_established"
+    assert response.reason_codes == ("public_read_root_custody_not_established",)
+    assert response.public_document is None
+
+
 def test_real_owner_publication_relocates_selected_manifest_views(tmp_path):
     """The served owner publishes selected view identity without exposing selectors."""
-    store = FileSystemCAS(tmp_path / "cas")
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=False,
+    )
     raw = b"Explicitly synthetic evidence with two honest manifest profiles."
     def options(version: str) -> ArtifactWriteOptions:
         return ArtifactWriteOptions(
@@ -359,6 +404,7 @@ def test_historical_revocation_does_not_erase_issuance_or_custody(case):
         index_root=owner.index_root,
         slot=revoked_slot,
     )
+    revoked._synthetic_public_read_root_custody_for_tests = True
     response = revoked.verify(record_id)
     assert response.report_authentication == "verified"
     assert response.cryptographic_signature == "valid"
@@ -387,7 +433,11 @@ def test_exact_unsigned_sidecar_fields_cannot_change_after_issuance(case):
 
 
 def test_arbitrary_metadata_is_refused_without_lossy_projection(tmp_path):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=False,
+    )
     owner, _, packet_ref, _, _ = build_governed_owner_case(
         store=store,
         index_root=tmp_path,

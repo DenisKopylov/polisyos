@@ -2221,3 +2221,28 @@ Keep descriptor/inode and path confinement checks; no owner-index repair or
 production permission change. Add a read-only preserving-mode control in an
 already leased consumer file. Freeze and independently review the complete
 seven-path candidate before integration; runtime remains UNRUN until admitted.
+
+## R9 canonical artifact-ID inventory repair — 2026-10-01
+
+The sole R9 writer reuses `codex/e02-r2-r9-publication`; root alone writes
+`codex/e02-r2`. The exact candidate lease is:
+
+- `policy-engine/src/polisyos/core/artifacts/store.py`
+- `policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py`
+- `policy-engine/tests/unit/remediation/test_cas_03.py`
+
+Before code, independent design review must admit the shared canonical-ID
+deduplication mechanism. It covers the default-view inventory and the two
+explicit typed-ID bulk signature methods, preserves typed return values and
+the complete manifest-view inventory, and uses the supplied tenant-bound
+store. It changes neither ArtifactID hashability nor a historical serializer.
+The seven main-passing public-export cases are the production consumer
+witness; view/order controls and a marker-retaining removal probe are required.
+No head-index, packet, ownership-index, generated-family or production-data
+edit is leased. The separate incomplete historical-source fixture is excluded.
+The three paths intersect the active R1 source/test lease at zero.
+
+Causal proof and complete 6,414-Python-file census:
+`/Users/deniskopylov/.codex/scratch/r9-root-refusal-trace-20261001-X1KZDz/R9_ARTIFACT_IDENTITY_CAUSAL_SCOPE_20261001.md@sha256:133989d9cc867363b23243074fcaefda05549c0a50af6201181bd1346f48d879`.
+Candidate review precedes integration; every tree under test remains frozen.
+Heavy jobs run exclusively; disk floor remains 8 GiB and Trash is not emptied.

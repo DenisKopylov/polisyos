@@ -54,7 +54,7 @@ def _current_compiler_problem(recording: dict[str, object]):
 
 
 def _controlled_procurement_recording(
-    recording: dict[str, object], *, intensity: int = 1
+    recording: dict[str, object], *, outcome_variable: str, intensity: int = 1
 ) -> dict[str, object]:
     """Keep the real N4 replay path while making its one direct value integer-only."""
 
@@ -78,7 +78,8 @@ def _controlled_procurement_recording(
         procurement["params"] = {"intensity": intensity}
         procurement["notes"] = [
             "do.target=cells.distress_score sign=decrease "
-            "outcome=cells.output effect_path=cells.distress_score,cells.output"
+            f"outcome={outcome_variable} "
+            f"effect_path=cells.distress_score,{outcome_variable}"
         ]
         rewritten = json.dumps(trinity, sort_keys=True, separators=(",", ":"))
         response["raw_response"] = rewritten
@@ -216,8 +217,9 @@ def _configured_procurement_profile(
     base_problem, base_context, _candidate = _cyc01_owner_bound_n5_case(
         problem_seed=recorded_problem
     )
+    outcome_variable = recorded_problem.outcome_of_interest.target_variable
     ncm = NCMSpec(
-        endogenous_vars=["cells.distress_score", "cells.output"],
+        endogenous_vars=["cells.distress_score", outcome_variable],
         exogenous_specs=[
             ExogenousSpec(
                 variable="u_distress",
@@ -226,7 +228,7 @@ def _configured_procurement_profile(
             ),
             ExogenousSpec(
                 variable="u_output",
-                associated_endogenous="cells.output",
+                associated_endogenous=outcome_variable,
                 distribution_params={"mean": 0.0, "std": 0.01},
             ),
         ],
@@ -239,7 +241,7 @@ def _configured_procurement_profile(
                 equation_params={"intercept": 0.0, "coefficients": {}},
             ),
             StructuralEquation(
-                variable="cells.output",
+                variable=outcome_variable,
                 parents=["cells.distress_score"],
                 exogenous="u_output",
                 equation_type="linear",
@@ -264,14 +266,17 @@ def _configured_procurement_profile(
 
     candidate_slots = tuple(
         dict.fromkeys(
-            [lever.target_slot for lever in recorded_problem.candidate_lever_space.candidate_levers]
-            + ["global.tax_rate", "cells.distress_score", "cells.output"]
+            [
+                lever.target_slot
+                for lever in recorded_problem.candidate_lever_space.candidate_levers
+            ]
+            + ["global.tax_rate", "cells.distress_score", outcome_variable]
         )
     )
     world = _build_boundary_world_model_record(
         repo_root=REPO_ROOT,
         problem=base_problem,
-        outcome="cells.output",
+        outcome=outcome_variable,
         policy_slot_ids=candidate_slots,
         substrate_registry=base_context.substrate_registry,
         selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
@@ -320,7 +325,7 @@ def _configured_procurement_profile(
     n5 = CandidateScenarioN5Config(
         budget_ref="budget://r1/controlled-candidate-n5",
         horizon=HorizonSpec(start=0, end=0, step=1),
-        baseline_state={"cells.distress_score": 0.0, "cells.output": 0.0},
+        baseline_state={"cells.distress_score": 0.0, outcome_variable: 0.0},
         seed=11,
         replications=2,
     )
@@ -360,7 +365,7 @@ def _configured_procurement_profile(
         "profile_content_hash": profile.content_hash,
         "profile_selection_ref": profile.profile_selection_ref,
         "target_world_slot": rule.target_world_slot,
-        "outcome_variable": "cells.output",
+        "outcome_variable": outcome_variable,
         "target_unit_id": rule.unit_id,
         "outcome_unit_id": rule.unit_id,
         "target_baseline": 0.0,
@@ -613,8 +618,12 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         for item in n4_contract._load_recordings(REPO_ROOT)
         if item.get("design_problem_id") == _RECORDING_ID
     )
-    controlled_recording = _controlled_procurement_recording(recording)
     recorded_problem = _current_compiler_problem(recording)
+    outcome_variable = recorded_problem.outcome_of_interest.target_variable
+    controlled_recording = _controlled_procurement_recording(
+        recording,
+        outcome_variable=outcome_variable,
+    )
     raw_request = recorded_problem.nl_provenance.raw_request
     model_id = str(recording["model_id"])
     compiler_gateway = _FakeDesignProblemGateway(
@@ -1046,7 +1055,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 observation.simulation_result_ref,
                 store=service._artifact_store,
                 expected_world_model_record_content_hash=context_job.context.world_model_record.content_hash,
-                expected_selected_outcomes=("cells.output",),
+                expected_selected_outcomes=(outcome_variable,),
             ),
             job_id=completed.job_id,
             run_id=str(completed.run_id),
@@ -1054,10 +1063,10 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert n5_result.uncertainty_kind == "K_sim"
         assert n5_result.world_credal_state_before == n5_result.world_credal_state_after
         effects = [
-            point.effect["cells.output"]
+            point.effect[outcome_variable]
             for trajectory in n5_result.trajectories
             for point in trajectory.points
-            if "cells.output" in point.effect
+            if outcome_variable in point.effect
         ]
         profile_target_baseline = profile.n5.baseline_state[
             model_declaration.target_world_slot

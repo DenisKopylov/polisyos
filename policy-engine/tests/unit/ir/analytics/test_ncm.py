@@ -156,7 +156,7 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
         stripped_selector = selected_ref.model_copy(
             update={"manifest_profile_sha256": None}
         )
-        with pytest.raises(ValueError, match="declaration_lineage_mismatch"):
+        with pytest.raises(ValueError, match="ncm_selected_view_manifest_mismatch"):
             load_ncm_spec_selected_view(
                 store,
                 stripped_selector,

@@ -2330,3 +2330,18 @@ Denis confirmed that the 16 untracked `docs/research/development-programs/2026-0
 ## 2026-10-01: R9/R10 snapshot and batch integration boundary
 
 Root applies the V5 three-path patch (store, signature ops, CAS-03 test) after independent review, complete 26-case candidate replay, current iterator removal/control and initial-census residual falsifier. Root alone commits integration. Receipt, baseline and report are mandatory companions outside the mechanism count. No overlap with R1's four-path freeze or the separate selected-ref owner-family candidate. Fresh integrated replay is required; candidate success is not integration evidence.
+
+
+## R2 CYC-05 test migration boundary — 2026-10-01
+
+Root applies only the reviewed V5 patch to
+`policy-engine/tests/unit/remediation/test_cyc_05.py`. Its 18 test functions
+are preserved, with the obsolete whole-source-staleness expectation replaced
+by a real N6 candidate frontier and typed source-custody/currentness limits.
+Historical replay and unrelated-edit controls remain in the existing R2
+history tests; this change is not their runtime re-verification.
+
+Patch `/Users/deniskopylov/.codex/scratch/e02-b61-cyc05-integrated-1366-20261001/CYC05_R2_TESTPATCH_V5_20261001/CYC05_R2_test_addendum_v5.patch@sha256:ccce2abc9ecca2bab5dacbba4b8c5a6dc8f2add551ebd49dc83b1352417a844a`;
+independent GO `CYC05_R2_V5_INDEPENDENT_DELTA_REVIEW.md@sha256:6fa1cf63d7148e63d5cb2fe207ef2eb735be8e3d45f3aee1959f395cdbf8c04a`
+in the same directory. Whole-file runtime remains UNRUN until a frozen run;
+no source owner, generated family, epoch, ledger status or authority changes.

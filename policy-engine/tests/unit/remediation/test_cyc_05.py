@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 from pathlib import Path
 
 import pytest
@@ -15,7 +14,6 @@ from polisyos.pdc import (
     SearchTerminalKind,
     SubDesignContract,
     assert_ring2_verifier_provenance,
-    gy_content_hash,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     _search_exit_binding_hash,
@@ -448,50 +446,49 @@ def test_depth_n_strangle_receipt_binds_available_slice_and_invalidates_on_chang
 
 
 @pytest.mark.asyncio
-async def test_generation_cycle_consumer_rejects_stale_source_receipt(tmp_path: Path) -> None:
-    """The actual N6 run consumer must reject a receipt after source drift."""
+async def test_generation_cycle_candidate_band_keeps_frontier_with_unestablished_limits(
+    tmp_path: Path,
+) -> None:
+    """Ordinary N6 candidates survive while source custody and currentness stay limited."""
 
-    source = _source_root(tmp_path)
-    (source / "owner.py").write_text("def owner():\n    return None\n", encoding="utf-8")
-    controller = GenerationCycleController(
+    from polisyos.runtime.quality.generation_cycle import (
+        inspect_generation_cycle_run,
+        validate_generation_cycle_candidate_run,
+    )
+
+    run = await GenerationCycleController(
         generation_port=_CgfGenerationPort(),
         value_port=_DataGapValuePort(),
         repo_root=tmp_path,
         authority_scope="contract_testing",
-    )
-
-    run = await controller.run(
-        _problem("cyc_05_source_bound_run"),
+    ).run(
+        _problem("cyc_05_candidate_limits_are_declared"),
         budget_state=_budget(),
         max_cycles=1,
     )
-    receipt = run.strangle_receipt
-    source_files = {
-        path.relative_to(tmp_path).as_posix(): "sha256:"
-        + hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted((tmp_path / "src" / "polisyos").rglob("*.py"))
-    }
-    assert receipt.status == "strangled"
-    assert receipt.source_state == "available"
-    assert receipt.source_file_count == len(source_files)
-    assert receipt.source_content_hash == gy_content_hash(
-        {"scope": "src/polisyos", "files": source_files}
-    )
-    unchecked_issues = validate_generation_cycle_run(run)
-    assert {
-        "strangle_receipt_currentness_not_established"
-    } <= {issue["code"] for issue in unchecked_issues}
-    assert validate_generation_cycle_run(run, repo_root=tmp_path) == ()
+    candidate_fronts = run.fronts.candidate_ids_by_front()
+    assert candidate_fronts
+    assert any(candidate_fronts.values())
+    assert validate_generation_cycle_candidate_run(run) == ()
+    strict_inspection = inspect_generation_cycle_run(run)
+    issue_codes = {issue["code"] for issue in strict_inspection.issues}
+    assert "strangle_receipt_currentness_not_established" in issue_codes
+    assert strict_inspection.currentness.status == "not_established"
+    assert strict_inspection.currentness.census_verdict == "UNRUN"
 
-    (source / "owner.py").write_text(
-        "def owner():\n    return 'changed'\n",
-        encoding="utf-8",
-    )
-    with pytest.raises(GenerationCycleError, match="generation_cycle_strangle_receipt_stale"):
-        run.strangle_receipt.verify_current(tmp_path)
-    issues = validate_generation_cycle_run(run, repo_root=tmp_path)
-    assert {issue["code"] for issue in issues} >= {"strangle_receipt_stale"}
-
+    # The injected N4 fixture has no retained DesignGenerationOrganRun, so it
+    # cannot claim persisted source custody. Keep either owner limitation typed.
+    assert run.source_handoff_refs == ()
+    if run.source_custody_limitation is not None:
+        assert run.source_custody_limitation.reason_code == "source_store_unavailable"
+        assert run.source_preservation_receipt is None
+        source_limit_code = "generation_cycle_source_custody_not_established"
+    else:
+        assert run.source_preservation_receipt is None or (
+            run.source_preservation_receipt.status != "strangled"
+        )
+        source_limit_code = "generation_cycle_source_preservation_not_established"
+    assert source_limit_code in issue_codes
 
 def _cyc05_recursive_fixture_case(tmp_path: Path) -> tuple[
     str,

@@ -2246,3 +2246,22 @@ Causal proof and complete 6,414-Python-file census:
 `/Users/deniskopylov/.codex/scratch/r9-root-refusal-trace-20261001-X1KZDz/R9_ARTIFACT_IDENTITY_CAUSAL_SCOPE_20261001.md@sha256:133989d9cc867363b23243074fcaefda05549c0a50af6201181bd1346f48d879`.
 Candidate review precedes integration; every tree under test remains frozen.
 Heavy jobs run exclusively; disk floor remains 8 GiB and Trash is not emptied.
+
+## R1 mandatory documentation companions — 2026-10-01
+
+The direct R1 architecture reader may prepare a scratch-only patch for
+`policy-engine/src/polisyos/runtime/quality/README.md` and the new
+`policy-engine/release-fragments/unreleased/2026-10-01-e02r2-candidate-simulation.toml`.
+These are the contributor-required companions to the new candidate-simulation
+module, outside its mechanism path count (P39). Root alone applies them with
+or after the reviewed implementation. The patch must distinguish source
+wiring from the still runtime-unverified configured served positive; it must
+retain the declared real-data/time-contract and N8/N9/S8 authority limits.
+No source, test, generated family, register or plan path is added to this lease.
+
+The R1 currentness source remains frozen while a read-only resource review
+traces the two-variable, two-replication NCM path. Scratch instrumentation may
+record owner-method/stage names, elapsed time and resource measurements,
+without arguments, locals, data or secrets. Another numerical run requires
+root admission after that review; the latest resource-terminated run remains
+UNRUN. Its 13-path and 6,715-input freezes have no recorded drift.

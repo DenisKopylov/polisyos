@@ -20,13 +20,18 @@ from tools.quality.validation import check_layer3_gy_design_generation_contract 
 
 
 def test_candidate_scenario_v4_is_additive_to_historical_v3() -> None:
-    """The proposal-profile lane gets new readers without reinterpreting v3."""
+    """Selected-view v5 adds to earlier wires without reinterpreting history."""
 
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationExecutionV3,
         CandidateSimulationExecutionV4,
+        CandidateSimulationExecutionV5,
         CandidateSimulationN5InputV3,
         CandidateSimulationN5InputV4,
+        CandidateSimulationN5InputV5,
+    )
+    from polisyos.runtime.quality.generation_source import (
+        N4CandidateScenarioSourceRecordV2,
     )
 
     assert CandidateSimulationN5InputV3.model_fields["schema_version"].default == (
@@ -41,11 +46,29 @@ def test_candidate_scenario_v4_is_additive_to_historical_v3() -> None:
     assert CandidateSimulationExecutionV4.model_fields["schema_version"].default == (
         "policyos.runtime.candidate_simulation.execution.v4"
     )
+    assert CandidateSimulationN5InputV5.model_fields["schema_version"].default == (
+        "policyos.runtime.candidate_simulation.n5_input.v5"
+    )
+    assert CandidateSimulationExecutionV5.model_fields["schema_version"].default == (
+        "policyos.runtime.candidate_simulation.execution.v5"
+    )
+    assert N4CandidateScenarioSourceRecordV2.model_fields["schema_version"].default == (
+        "policyos.runtime.quality.n4_candidate_scenario_source.v2"
+    )
     assert CandidateSimulationN5InputV4.model_config["extra"] == "forbid"
     assert CandidateSimulationExecutionV4.model_config["extra"] == "forbid"
+    assert CandidateSimulationN5InputV5.model_config["extra"] == "forbid"
+    assert CandidateSimulationExecutionV5.model_config["extra"] == "forbid"
     assert {"n4_source_ref", "context_job_ref", "profile", "materialization"}.issubset(
         CandidateSimulationN5InputV4.model_fields
     )
+    assert {
+        "n4_source_ref",
+        "context_job_ref",
+        "model_declaration_ref",
+        "ncm_ref",
+        "materialization",
+    }.issubset(CandidateSimulationN5InputV5.model_fields)
 
 
 @pytest.mark.asyncio

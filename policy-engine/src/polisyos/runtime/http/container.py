@@ -101,6 +101,7 @@ class RuntimeContainerConfig:
         default_factory=NormativeAuthorityTrust
     )
     candidate_simulation_profiles: tuple[Any, ...] = ()
+    candidate_simulation_model_declarations: tuple[Any, ...] = ()
 
 
 @dataclass
@@ -169,13 +170,8 @@ class RuntimeServiceContainer:
         overrides = config.overrides
         if type(config.candidate_simulation_profiles) is not tuple:
             raise TypeError("candidate_simulation_profiles_must_be_tuple")
-        candidate_context_owner = (
-            ConfiguredCandidateSimulationContextAdmissionOwner(
-                profiles=config.candidate_simulation_profiles
-            )
-            if config.candidate_simulation_profiles
-            else None
-        )
+        if type(config.candidate_simulation_model_declarations) is not tuple:
+            raise TypeError("candidate_simulation_model_declarations_must_be_tuple")
         runtime_metrics = overrides.runtime_metrics or (config.metrics_factory or get_metrics)()
         runtime_tracer = overrides.runtime_tracer or (config.tracer_factory or get_tracer)()
         runtime_api_context = overrides.runtime_api_context or build_runtime_api_context(
@@ -188,6 +184,16 @@ class RuntimeServiceContainer:
             artifact_redaction_hooks=config.artifact_redaction_hooks,
             metrics=runtime_metrics,
             tracer=runtime_tracer,
+        )
+        candidate_context_owner = (
+            ConfiguredCandidateSimulationContextAdmissionOwner(
+                profiles=config.candidate_simulation_profiles,
+                model_declarations=config.candidate_simulation_model_declarations,
+                store=runtime_api_context.store,
+            )
+            if config.candidate_simulation_profiles
+            or config.candidate_simulation_model_declarations
+            else None
         )
         runtime_rate_limiter, runtime_idempotency_store, runtime_mutation_audit = (
             build_runtime_mutation_services(
@@ -217,6 +223,9 @@ class RuntimeServiceContainer:
             if (
                 type(override_owner) is not ConfiguredCandidateSimulationContextAdmissionOwner
                 or override_owner.profiles != candidate_context_owner.profiles
+                or override_owner.model_declarations
+                != candidate_context_owner.model_declarations
+                or override_owner.store is not runtime_api_context.store
             ):
                 raise ValueError("candidate_simulation_context_owner_override_mismatch")
         if type(config.normative_authority_trust) is not NormativeAuthorityTrust:

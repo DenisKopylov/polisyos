@@ -32,6 +32,7 @@ from polisyos.ir import TrinityBundle  # noqa: TC001
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import design_generation as n4
 from polisyos.runtime.quality.candidate_simulation import (
+    CandidateSimulationSyntheticModelDeclarationV1,
     CandidateSimulationScenarioProfile,
     candidate_simulation_profile_ref,
 )
@@ -68,6 +69,12 @@ _CANDIDATE_SIMULATION_EXECUTION_KIND = "runtime.quality.candidate_simulation_exe
 _N4_CANDIDATE_SCENARIO_SOURCE_KIND = "runtime.quality.n4_candidate_scenario_source"
 _N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA = (
     "policyos.runtime.quality.n4_candidate_scenario_source.v1"
+)
+_N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA = (
+    "policyos.runtime.quality.n4_candidate_scenario_source.v2"
+)
+_CANDIDATE_MODEL_DECLARATION_KIND = (
+    "runtime.quality.candidate_simulation_model_declaration"
 )
 
 
@@ -145,6 +152,50 @@ def _candidate_scenario_source_write_options(
             job_id=job_id,
             tenant_id=tenant_id,
             cell_id=cell_id,
+        ),
+    )
+
+
+def _candidate_scenario_source_v2_write_options(
+    *,
+    source: N4CandidateScenarioSourceRecordV1,
+    model_declaration_ref: ArtifactRef,
+    ncm_ref: ArtifactRef,
+) -> artifacts.ArtifactWriteOptions:
+    """Bind V2 source to the context and exact selected model views."""
+    return artifacts.ArtifactWriteOptions(
+        kind=_N4_CANDIDATE_SCENARIO_SOURCE_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(
+            name=_N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA,
+            version="2.0",
+        ),
+        producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        inputs=[
+            input_ref_from_artifact_ref(
+                source.context_job_ref,
+                role="cycle_substrate_context_job",
+            ),
+            input_ref_from_artifact_ref(
+                model_declaration_ref,
+                role="candidate_model_declaration",
+            ),
+            input_ref_from_artifact_ref(ncm_ref, role="candidate_ncm_spec"),
+        ],
+        tenant_context=ArtifactTenantContextInfo(
+            tenant_id=source.tenant_id,
+            cell_id=source.cell_id,
+        ),
+        same_input_closure=ArtifactSameInputClosureInfo(
+            closure_id=(
+                f"candidate-scenario-source-v2:{source.run_id}:{source.job_id}:"
+                f"{source.design_problem_ref}"
+            ),
+            status="candidate_only",
+            run_id=source.run_id,
+            job_id=source.job_id,
+            tenant_id=source.tenant_id,
+            cell_id=source.cell_id,
         ),
     )
 
@@ -691,6 +742,119 @@ class N4CandidateScenarioSourceRecordV1(_StrictModel):
         return self
 
 
+class N4CandidateScenarioSourceRecordV2(_StrictModel):
+    """Versioned selected-view extension around unchanged historical source V1."""
+
+    schema_version: Literal[
+        "policyos.runtime.quality.n4_candidate_scenario_source.v2"
+    ] = _N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA
+    source_record: N4CandidateScenarioSourceRecordV1
+    model_declaration: CandidateSimulationSyntheticModelDeclarationV1
+    model_declaration_ref: ArtifactRef
+    ncm_ref: ArtifactRef
+    world_model_record_id: str = Field(..., min_length=1, strict=True)
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+
+    @model_validator(mode="after")
+    def _verify_v2_bindings(self) -> N4CandidateScenarioSourceRecordV2:
+        source = self.source_record
+        declaration = self.model_declaration
+        if (
+            source.profile_config_ref != declaration.profile_config_ref
+            or source.profile.content_hash != declaration.profile_content_hash
+            or source.profile.profile_selection_ref != declaration.profile_selection_ref
+            or source.profile.rule.target_world_slot != declaration.target_world_slot
+            or source.profile.rule.unit_id != declaration.target_unit_id
+            or source.profile.n5.baseline_state.get(declaration.target_world_slot)
+            != declaration.target_baseline
+            or source.profile.n5.baseline_state.get(declaration.outcome_variable)
+            != declaration.outcome_baseline
+            or self.model_declaration_ref.kind != _CANDIDATE_MODEL_DECLARATION_KIND
+            or self.model_declaration_ref.media_type != "application/json"
+            or self.ncm_ref.kind != "ir.ncm_spec"
+            or self.ncm_ref.media_type != "application/json"
+            or not self.world_model_record_id
+        ):
+            raise ValueError("n4_candidate_scenario_v2_model_binding_mismatch")
+        if self.content_hash != _source_content_hash(
+            self.model_dump(mode="python", exclude={"content_hash"})
+        ):
+            raise ValueError("n4_candidate_scenario_v2_content_hash_mismatch")
+        return self
+
+    @property
+    def status(self) -> str:
+        return self.source_record.status
+
+    @property
+    def job_id(self) -> str:
+        return self.source_record.job_id
+
+    @property
+    def run_id(self) -> str:
+        return self.source_record.run_id
+
+    @property
+    def tenant_id(self) -> str:
+        return self.source_record.tenant_id
+
+    @property
+    def cell_id(self) -> str:
+        return self.source_record.cell_id
+
+    @property
+    def design_problem_ref(self) -> str:
+        return self.source_record.design_problem_ref
+
+    @property
+    def cycle_problem_ref(self) -> str:
+        return self.source_record.cycle_problem_ref
+
+    @property
+    def problem(self) -> DesignProblem:
+        return self.source_record.problem
+
+    @property
+    def proposal(self) -> n4.N4CandidateProposalSource:
+        return self.source_record.proposal
+
+    @property
+    def candidate(self) -> n4.N4CandidateScenarioProposalCandidate | None:
+        return self.source_record.candidate
+
+    @property
+    def profile(self) -> CandidateSimulationScenarioProfile:
+        return self.source_record.profile
+
+    @property
+    def profile_config_ref(self) -> str:
+        return self.source_record.profile_config_ref
+
+    @property
+    def candidate_limitation_code(self) -> str | None:
+        return self.source_record.candidate_limitation_code
+
+    @property
+    def context_job_ref(self) -> ArtifactRef:
+        return self.source_record.context_job_ref
+
+    @property
+    def context_hash(self) -> str:
+        return self.source_record.context_hash
+
+    @property
+    def world_model_record_hash(self) -> str:
+        return self.source_record.world_model_record_hash
+
+    @property
+    def k_ref_limitation_code(self) -> str:
+        return self.source_record.k_ref_limitation_code
+
+    @property
+    def l2_confidence_vintage(self) -> ConfidenceLayerVintage | None:
+        return self.source_record.l2_confidence_vintage
+
+
 class GenerationSourceResolution(_StrictModel):
     """Typed candidate-source resolution; its context carries existing owner objects."""
 
@@ -705,6 +869,315 @@ class GenerationSourceRepository:
 
     def __init__(self, store: artifacts.ArtifactStore) -> None:
         self.store = store
+
+    def persist_candidate_model_declaration(
+        self,
+        *,
+        declaration: CandidateSimulationSyntheticModelDeclarationV1,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> ArtifactRef:
+        """Persist the server-declared candidate model in the active job scope."""
+        if type(declaration) is not CandidateSimulationSyntheticModelDeclarationV1:
+            raise TypeError("candidate_simulation_model_declaration_untyped")
+        record = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+            declaration.model_dump(mode="python")
+        )
+        options = _candidate_simulation_write_options(
+            kind=_CANDIDATE_MODEL_DECLARATION_KIND,
+            schema_name=record.schema_version,
+            schema_version="1.0",
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            source_ref=record.profile_content_hash,
+        )
+        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+
+    def load_candidate_model_declaration(
+        self,
+        ref: ArtifactRef,
+        *,
+        expected_profile: CandidateSimulationScenarioProfile,
+        expected_run_id: str,
+        expected_job_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> CandidateSimulationSyntheticModelDeclarationV1:
+        """Replay one selected or default declaration view with its owner profile."""
+        if not isinstance(ref, ArtifactRef):
+            raise ValueError("candidate_simulation_model_declaration_selected_ref_required")
+        if not self.store.verify(ref).ok:
+            raise ValueError("candidate_simulation_model_declaration_integrity_failed")
+        manifest = self.store.get_manifest(ref)
+        if not _ref_selects_manifest(ref, manifest):
+            raise ValueError("candidate_simulation_model_declaration_selected_view_mismatch")
+        body = self.store.get_bytes(ref)
+        if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
+            raise ValueError("candidate_simulation_model_declaration_content_mismatch")
+        try:
+            record = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+                canon.from_canonical_bytes(body)
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("candidate_simulation_model_declaration_invalid") from exc
+        if (
+            manifest.kind != _CANDIDATE_MODEL_DECLARATION_KIND
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != record.schema_version
+            or manifest.artifact_schema.version != "1.0"
+        ):
+            raise ValueError("candidate_simulation_model_declaration_manifest_mismatch")
+        options = _candidate_simulation_write_options(
+            kind=_CANDIDATE_MODEL_DECLARATION_KIND,
+            schema_name=record.schema_version,
+            schema_version="1.0",
+            job_id=expected_job_id,
+            run_id=expected_run_id,
+            tenant_id=expected_tenant_id,
+            cell_id=expected_cell_id,
+            source_ref=record.profile_content_hash,
+        )
+        if not _has_owner_profile(manifest, options):
+            raise ValueError("candidate_simulation_model_declaration_owner_profile_mismatch")
+        if (
+            record.profile_content_hash != expected_profile.content_hash
+            or record.profile_selection_ref != expected_profile.profile_selection_ref
+            or record.profile_config_ref != candidate_simulation_profile_ref(expected_profile)
+        ):
+            raise ValueError("candidate_simulation_model_declaration_profile_mismatch")
+        return record
+
+    def persist_candidate_ncm_selected_view(
+        self,
+        *,
+        ncm_spec: object,
+        declaration_ref: ArtifactRef,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        profile_content_hash: str,
+    ) -> ArtifactRef:
+        """Use the existing IR NCM serializer with the runtime's full input ref."""
+        from polisyos.ir.analytics.ncm import NCMSpec, persist_ncm_spec_selected_view
+
+        if type(ncm_spec) is not NCMSpec:
+            raise TypeError("candidate_simulation_ncm_spec_untyped")
+        if not isinstance(declaration_ref, ArtifactRef):
+            raise ValueError("candidate_simulation_ncm_declaration_ref_required")
+        options = _candidate_simulation_write_options(
+            kind="ir.ncm_spec",
+            schema_name="ir.ncm_spec",
+            schema_version="1.0",
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            source_ref=profile_content_hash,
+            input_refs=(
+                input_ref_from_artifact_ref(
+                    declaration_ref,
+                    role="candidate_model_declaration",
+                ),
+            ),
+        )
+        ref = persist_ncm_spec_selected_view(
+            self.store,
+            ncm_spec,
+            write_options=options,
+        )
+        if not isinstance(ref, ArtifactRef):
+            raise ValueError("candidate_simulation_ncm_selected_ref_untyped")
+        return ref
+
+    def create_candidate_scenario_source_v2(
+        self,
+        *,
+        source_record: N4CandidateScenarioSourceRecordV1,
+        model_declaration: CandidateSimulationSyntheticModelDeclarationV1,
+        model_declaration_ref: ArtifactRef,
+        ncm_ref: ArtifactRef,
+        world_model_record_id: str,
+    ) -> N4CandidateScenarioSourceRecordV2:
+        """Add selected model refs without changing the historical SourceV1 body."""
+        payload = {
+            "source_record": source_record,
+            "model_declaration": model_declaration,
+            "model_declaration_ref": model_declaration_ref,
+            "ncm_ref": ncm_ref,
+            "world_model_record_id": world_model_record_id,
+        }
+        draft = N4CandidateScenarioSourceRecordV2.model_construct(
+            **payload,
+            content_hash="sha256:" + "0" * 64,
+        ).model_dump(mode="python", exclude={"content_hash"})
+        return N4CandidateScenarioSourceRecordV2.model_validate(
+            {**payload, "content_hash": _source_content_hash(draft)}
+        )
+
+    def persist_candidate_scenario_source_v2(
+        self,
+        *,
+        source_record: N4CandidateScenarioSourceRecordV2,
+    ) -> ArtifactRef:
+        """Persist selected-view N4 source V2 with exact upstream manifest inputs."""
+        if type(source_record) is not N4CandidateScenarioSourceRecordV2:
+            raise TypeError("n4_candidate_scenario_source_v2_untyped")
+        record = N4CandidateScenarioSourceRecordV2.model_validate(
+            source_record.model_dump(mode="python")
+        )
+        options = _candidate_scenario_source_v2_write_options(
+            source=record.source_record,
+            model_declaration_ref=record.model_declaration_ref,
+            ncm_ref=record.ncm_ref,
+        )
+        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+
+    def load_candidate_scenario_source_v2(
+        self,
+        ref: ArtifactRef,
+        *,
+        expected_run_id: str,
+        expected_job_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> N4CandidateScenarioSourceRecordV2:
+        """Replay selected source, context, declaration, and NCM exact views."""
+        if not isinstance(ref, ArtifactRef):
+            raise ValueError("n4_candidate_scenario_source_selected_ref_required")
+        if not self.store.verify(ref).ok:
+            raise ValueError("n4_candidate_scenario_source_cas_integrity_failed")
+        manifest = self.store.get_manifest(ref)
+        if not _ref_selects_manifest(ref, manifest):
+            raise ValueError("n4_candidate_scenario_source_selected_view_mismatch")
+        body = self.store.get_bytes(ref)
+        if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
+            raise ValueError("n4_candidate_scenario_source_cas_content_mismatch")
+        try:
+            source = N4CandidateScenarioSourceRecordV2.model_validate(
+                canon.from_canonical_bytes(body)
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("n4_candidate_scenario_source_v2_invalid") from exc
+        if (
+            manifest.kind != _N4_CANDIDATE_SCENARIO_SOURCE_KIND
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != source.schema_version
+            or manifest.artifact_schema.version != "2.0"
+        ):
+            raise ValueError("n4_candidate_scenario_source_v2_manifest_mismatch")
+        options = _candidate_scenario_source_v2_write_options(
+            source=source.source_record,
+            model_declaration_ref=source.model_declaration_ref,
+            ncm_ref=source.ncm_ref,
+        )
+        if not _has_owner_profile(manifest, options):
+            raise ValueError("n4_candidate_scenario_source_v2_owner_profile_mismatch")
+        if (
+            source.run_id != expected_run_id
+            or source.job_id != expected_job_id
+            or source.tenant_id != expected_tenant_id
+            or source.cell_id != expected_cell_id
+        ):
+            raise ValueError("n4_candidate_scenario_source_identity_mismatch")
+        source_v1 = source.source_record
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+        )
+
+        context_job = CycleSubstrateContextArtifactOwner(store=self.store).resolve_historical_job_artifact(
+            source_v1.context_job_ref,
+            problem=source_v1.problem,
+            expected_job_id=source_v1.job_id,
+            expected_run_id=source_v1.run_id,
+            expected_tenant_id=source_v1.tenant_id,
+            expected_cell_id=source_v1.cell_id,
+        )
+        context_slot_units = {
+            item.slot_id: item.unit
+            for item in context_job.context.world_model_record.policy_slot_map
+        }
+        if (
+            context_job.problem != source_v1.problem
+            or context_job.design_problem_ref != source_v1.cycle_problem_ref
+            or context_job.context.content_hash != source_v1.context_hash
+            or context_job.context.world_model_record.content_hash
+            != source_v1.world_model_record_hash
+            or context_job.context.world_model_record.world_model_record_id
+            != source.world_model_record_id
+            or str(source.ncm_ref.artifact_id)
+            not in context_job.context.world_model_record.simulation_model_ref.ncm_refs
+        ):
+            raise ValueError("n4_candidate_scenario_source_v2_context_binding_mismatch")
+        declaration = self.load_candidate_model_declaration(
+            source.model_declaration_ref,
+            expected_profile=source_v1.profile,
+            expected_run_id=source_v1.run_id,
+            expected_job_id=source_v1.job_id,
+            expected_tenant_id=source_v1.tenant_id,
+            expected_cell_id=source_v1.cell_id,
+        )
+        if (
+            context_slot_units.get(declaration.target_world_slot)
+            != declaration.target_unit_id
+            or context_slot_units.get(declaration.outcome_variable)
+            != declaration.outcome_unit_id
+        ):
+            raise ValueError("n4_candidate_scenario_source_v2_unit_binding_mismatch")
+        from polisyos.ir.analytics.ncm import (
+            candidate_ncm_spec_from_declaration,
+            load_ncm_spec_selected_view,
+        )
+
+        ncm_spec = load_ncm_spec_selected_view(
+            self.store,
+            source.ncm_ref,
+            expected_tenant_id=source_v1.tenant_id,
+            expected_cell_id=source_v1.cell_id,
+            expected_declaration_ref=source.model_declaration_ref,
+        )
+        expected_ncm_spec = candidate_ncm_spec_from_declaration(declaration)
+        if ncm_spec.model_dump(mode="json") != expected_ncm_spec.model_dump(mode="json"):
+            raise ValueError("n4_candidate_scenario_source_v2_ncm_declaration_mismatch")
+        return source
+
+    def load_candidate_scenario_source_for_n5(
+        self,
+        ref: ArtifactRef,
+        *,
+        expected_run_id: str,
+        expected_job_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> N4CandidateScenarioSourceRecordV1 | N4CandidateScenarioSourceRecordV2:
+        """Dispatch a scenario source by its persisted manifest schema version."""
+        manifest = self.store.get_manifest(ref)
+        schema = manifest.artifact_schema
+        if schema is None:
+            raise ValueError("n4_candidate_scenario_source_manifest_mismatch")
+        if schema.name == _N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA and schema.version == "1.0":
+            return self.load_candidate_scenario_source_v1(
+                ref,
+                expected_run_id=expected_run_id,
+                expected_job_id=expected_job_id,
+                expected_tenant_id=expected_tenant_id,
+                expected_cell_id=expected_cell_id,
+            )
+        if schema.name == _N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA and schema.version == "2.0":
+            return self.load_candidate_scenario_source_v2(
+                ref,
+                expected_run_id=expected_run_id,
+                expected_job_id=expected_job_id,
+                expected_tenant_id=expected_tenant_id,
+                expected_cell_id=expected_cell_id,
+            )
+        raise ValueError("n4_candidate_scenario_source_schema_unsupported")
 
     def create_candidate_scenario_source_v1(
         self,
@@ -985,6 +1458,45 @@ class GenerationSourceRepository:
         )
         return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
 
+    def persist_candidate_simulation_input_v5(
+        self,
+        *,
+        input_record: object,
+    ) -> ArtifactRef:
+        """Persist the declared-model N5 input with every selected CAS view."""
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationN5InputV5,
+        )
+
+        if type(input_record) is not CandidateSimulationN5InputV5:
+            raise TypeError("candidate_simulation_n5_input_untyped")
+        record = CandidateSimulationN5InputV5.model_validate(
+            input_record.model_dump(mode="python")
+        )
+        options = _candidate_simulation_write_options(
+            kind=_CANDIDATE_SIMULATION_INPUT_KIND,
+            schema_name=record.schema_version,
+            schema_version="5.0",
+            job_id=record.job_id,
+            run_id=record.run_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+            source_ref=str(record.n4_source_ref.artifact_id),
+            input_refs=(
+                input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
+                input_ref_from_artifact_ref(
+                    record.context_job_ref,
+                    role="cycle_substrate_context_job",
+                ),
+                input_ref_from_artifact_ref(
+                    record.model_declaration_ref,
+                    role="candidate_model_declaration",
+                ),
+                input_ref_from_artifact_ref(record.ncm_ref, role="candidate_ncm_spec"),
+            ),
+        )
+        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+
     def persist_candidate_simulation_execution_v2(
         self,
         *,
@@ -1245,6 +1757,110 @@ class GenerationSourceRepository:
                     role="cycle_substrate_context_job",
                 ),
                 input_ref_from_artifact_ref(record.n5_result_ref, role="n5_result"),
+            ),
+        )
+        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+
+    def persist_candidate_simulation_execution_v5(
+        self,
+        *,
+        input_ref: ArtifactRef,
+        simulation: object,
+        handoff: object,
+    ) -> ArtifactRef:
+        """Persist a served N5 result with the complete declared-model lineage."""
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV5,
+        )
+        from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
+
+        if type(handoff) is not CandidateSimulationContextHandoff:
+            raise TypeError("candidate_simulation_handoff_untyped")
+        if type(simulation) is not SimulationPortObservation:
+            raise TypeError("candidate_simulation_observation_untyped")
+        if (
+            simulation.status != "joint_simulated"
+            or simulation.simulation_result_ref is None
+            or simulation.simulation_ref is None
+        ):
+            raise ValueError("candidate_simulation_execution_requires_persisted_n5_result")
+        input_record = self._load_candidate_simulation_input_v5(input_ref)
+        if type(input_record) is not CandidateSimulationN5InputV5:
+            raise ValueError("candidate_simulation_input_ref_not_input_record")
+        if (
+            artifact_ref_identity_key(input_record.context_job_ref)
+            != artifact_ref_identity_key(handoff.context_job_ref)
+            or input_record.model_declaration_ref != handoff.model_declaration_ref
+            or input_record.ncm_ref != handoff.ncm_ref
+            or input_record.job_id != handoff.job_id
+            or input_record.run_id != handoff.run_id
+            or input_record.tenant_id != handoff.tenant_id
+            or input_record.cell_id != handoff.cell_id
+            or input_record.profile.content_hash != handoff.profile.content_hash
+            or input_record.materialization.context_hash != handoff.context.content_hash
+        ):
+            raise ValueError("candidate_simulation_execution_handoff_mismatch")
+        if (
+            simulation.k_world_ref_before
+            != input_record.materialization.world_model_record_hash
+            or simulation.k_world_ref_after
+            != input_record.materialization.world_model_record_hash
+        ):
+            raise ValueError("candidate_simulation_execution_world_binding_mismatch")
+        payload = {
+            "schema_version": "policyos.runtime.candidate_simulation.execution.v5",
+            "authority_purpose": "candidate_scenario_n5_only",
+            "n5_input_ref": input_ref,
+            "n4_source_ref": input_record.n4_source_ref,
+            "context_job_ref": input_record.context_job_ref,
+            "model_declaration_ref": input_record.model_declaration_ref,
+            "ncm_ref": input_record.ncm_ref,
+            "profile_config_ref": input_record.profile_config_ref,
+            "job_id": input_record.job_id,
+            "run_id": input_record.run_id,
+            "tenant_id": input_record.tenant_id,
+            "cell_id": input_record.cell_id,
+            "original_candidate_id": input_record.original_candidate_id,
+            "original_candidate_hash": input_record.original_candidate_hash,
+            "original_n4_atom_hash": input_record.original_n4_atom_hash,
+            "derived_n5_atom_hash": input_record.materialization.derived_n5_atom.content_hash,
+            "problem_ref": input_record.materialization.problem_ref,
+            "world_model_record_hash": input_record.materialization.world_model_record_hash,
+            "n5_result_ref": simulation.simulation_result_ref,
+            "n5_result_content_hash": simulation.simulation_ref,
+            "k_world_ref_before": str(simulation.k_world_ref_before),
+            "k_world_ref_after": str(simulation.k_world_ref_after),
+        }
+        record = CandidateSimulationExecutionV5.model_validate(
+            {**payload, "content_hash": gy_content_hash(payload)}
+        )
+        options = _candidate_simulation_write_options(
+            kind=_CANDIDATE_SIMULATION_EXECUTION_KIND,
+            schema_name=record.schema_version,
+            schema_version="5.0",
+            job_id=record.job_id,
+            run_id=record.run_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+            source_ref=str(record.n4_source_ref.artifact_id),
+            input_refs=(
+                input_ref_from_artifact_ref(input_ref, role="n5_input"),
+                input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
+                input_ref_from_artifact_ref(
+                    record.context_job_ref,
+                    role="cycle_substrate_context_job",
+                ),
+                input_ref_from_artifact_ref(
+                    record.model_declaration_ref,
+                    role="candidate_model_declaration",
+                ),
+                input_ref_from_artifact_ref(record.ncm_ref, role="candidate_ncm_spec"),
+                input_ref_from_artifact_ref(
+                    record.n5_result_ref,
+                    role="n5_result",
+                ),
             ),
         )
         return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
@@ -1822,6 +2438,216 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v4_current_lease_not_established")
         return record
 
+    def resolve_candidate_simulation_v5(
+        self,
+        *,
+        ref: ArtifactRef,
+        expected_run_id: str,
+        expected_job_id: str | None = None,
+        expected_tenant_id: str | None = None,
+        expected_cell_id: str | None = None,
+        require_current_lease: bool = False,
+        current_lease_resolver: Callable[[object], bool] | None = None,
+    ) -> object:
+        """Resolve the versioned selected-model input or its N5 execution."""
+        import hashlib
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV5,
+        )
+
+        if not isinstance(ref, ArtifactRef):
+            raise ValueError("candidate_simulation_v5_selected_ref_required")
+        if not self.store.verify(ref).ok:
+            raise ValueError("candidate_simulation_v5_cas_integrity_failed")
+        manifest = self.store.get_manifest(ref)
+        if not _ref_selects_manifest(ref, manifest):
+            raise ValueError("candidate_simulation_v5_selected_view_mismatch")
+        body = self.store.get_bytes(ref)
+        if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
+            raise ValueError("candidate_simulation_v5_cas_content_mismatch")
+        try:
+            payload = canon.from_canonical_bytes(body)
+            if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
+                record: object = CandidateSimulationN5InputV5.model_validate(payload)
+            elif manifest.kind == _CANDIDATE_SIMULATION_EXECUTION_KIND:
+                record = CandidateSimulationExecutionV5.model_validate(payload)
+            else:
+                raise ValueError("candidate_simulation_v5_manifest_kind_mismatch")
+        except (TypeError, ValueError) as exc:
+            raise ValueError("candidate_simulation_v5_record_invalid") from exc
+        is_input = type(record) is CandidateSimulationN5InputV5
+        expected_kind = (
+            _CANDIDATE_SIMULATION_INPUT_KIND
+            if is_input
+            else _CANDIDATE_SIMULATION_EXECUTION_KIND
+        )
+        if (
+            manifest.kind != expected_kind
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != record.schema_version
+            or manifest.artifact_schema.version != "5.0"
+        ):
+            raise ValueError("candidate_simulation_v5_manifest_profile_mismatch")
+        record_input_refs = (
+            (
+                input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
+                input_ref_from_artifact_ref(
+                    record.context_job_ref,
+                    role="cycle_substrate_context_job",
+                ),
+                input_ref_from_artifact_ref(
+                    record.model_declaration_ref,
+                    role="candidate_model_declaration",
+                ),
+                input_ref_from_artifact_ref(record.ncm_ref, role="candidate_ncm_spec"),
+            )
+            if is_input
+            else (
+                input_ref_from_artifact_ref(record.n5_input_ref, role="n5_input"),
+                input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
+                input_ref_from_artifact_ref(
+                    record.context_job_ref,
+                    role="cycle_substrate_context_job",
+                ),
+                input_ref_from_artifact_ref(
+                    record.model_declaration_ref,
+                    role="candidate_model_declaration",
+                ),
+                input_ref_from_artifact_ref(record.ncm_ref, role="candidate_ncm_spec"),
+                input_ref_from_artifact_ref(record.n5_result_ref, role="n5_result"),
+            )
+        )
+        options = _candidate_simulation_write_options(
+            kind=expected_kind,
+            schema_name=record.schema_version,
+            schema_version="5.0",
+            job_id=record.job_id,
+            run_id=record.run_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+            source_ref=str(record.n4_source_ref.artifact_id),
+            input_refs=record_input_refs,
+        )
+        if not _has_owner_profile(manifest, options):
+            raise ValueError("candidate_simulation_v5_owner_profile_mismatch")
+        if (
+            record.run_id != expected_run_id
+            or (expected_job_id is not None and record.job_id != expected_job_id)
+            or (expected_tenant_id is not None and record.tenant_id != expected_tenant_id)
+            or (expected_cell_id is not None and record.cell_id != expected_cell_id)
+        ):
+            raise ValueError("candidate_simulation_v5_identity_mismatch")
+
+        source = self.load_candidate_scenario_source_v2(
+            record.n4_source_ref,
+            expected_run_id=record.run_id,
+            expected_job_id=record.job_id,
+            expected_tenant_id=record.tenant_id,
+            expected_cell_id=record.cell_id,
+        )
+        source_v1 = source.source_record
+        if (
+            artifact_ref_identity_key(source_v1.context_job_ref)
+            != artifact_ref_identity_key(record.context_job_ref)
+            or source.model_declaration_ref != record.model_declaration_ref
+            or source.ncm_ref != record.ncm_ref
+            or source_v1.profile.content_hash != record.profile.content_hash
+            or source_v1.profile_config_ref != record.profile_config_ref
+            or source_v1.candidate is None
+            or source_v1.candidate.candidate_id != record.original_candidate_id
+            or source_v1.candidate.atom.content_hash != record.original_candidate_hash
+            or source_v1.candidate.atom.content_hash != record.original_n4_atom_hash
+        ):
+            raise ValueError("candidate_simulation_v5_n4_source_membership_mismatch")
+        if is_input:
+            materialization = record.materialization
+            if (
+                artifact_ref_identity_key(materialization.n4_source_ref)
+                != artifact_ref_identity_key(record.n4_source_ref)
+                or artifact_ref_identity_key(materialization.context_job_ref)
+                != artifact_ref_identity_key(record.context_job_ref)
+                or materialization.model_declaration_ref != record.model_declaration_ref
+                or materialization.ncm_ref != record.ncm_ref
+                or materialization.profile_hash != source_v1.profile.content_hash
+                or materialization.problem_ref != source_v1.cycle_problem_ref
+                or materialization.context_hash != source_v1.context_hash
+                or materialization.world_model_record_hash
+                != source_v1.world_model_record_hash
+                or materialization.original_atom_hash
+                != source_v1.candidate.atom.content_hash
+                or materialization.outcome_variable
+                != source_v1.problem.outcome_of_interest.target_variable
+            ):
+                raise ValueError("candidate_simulation_v5_input_context_mismatch")
+        else:
+            input_record = self._load_candidate_simulation_input_v5(record.n5_input_ref)
+            if (
+                type(input_record) is not CandidateSimulationN5InputV5
+                or artifact_ref_identity_key(input_record.n4_source_ref)
+                != artifact_ref_identity_key(record.n4_source_ref)
+                or artifact_ref_identity_key(input_record.context_job_ref)
+                != artifact_ref_identity_key(record.context_job_ref)
+                or input_record.model_declaration_ref != record.model_declaration_ref
+                or input_record.ncm_ref != record.ncm_ref
+                or input_record.profile_config_ref != record.profile_config_ref
+                or input_record.original_candidate_id != record.original_candidate_id
+                or input_record.original_candidate_hash != record.original_candidate_hash
+                or input_record.original_n4_atom_hash != record.original_n4_atom_hash
+                or input_record.materialization.derived_n5_atom.content_hash
+                != record.derived_n5_atom_hash
+                or input_record.materialization.problem_ref != record.problem_ref
+                or input_record.materialization.world_model_record_hash
+                != record.world_model_record_hash
+            ):
+                raise ValueError("candidate_simulation_v5_execution_input_mismatch")
+            from polisyos.runtime.quality.generation_cycle import (
+                JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+                load_joint_simulation_result,
+            )
+
+            result = load_joint_simulation_result(
+                record.n5_result_ref,
+                store=self.store,
+                expected_world_model_record_content_hash=record.world_model_record_hash,
+                expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
+            )
+            if (
+                result.receipt.payload_hash != record.n5_result_content_hash
+                or record.n5_result_ref.kind != JOINT_SIMULATION_RESULT_ARTIFACT_KIND
+            ):
+                raise ValueError("candidate_simulation_v5_result_hash_mismatch")
+        if require_current_lease and (
+            current_lease_resolver is None or not current_lease_resolver(record)
+        ):
+            raise ValueError("candidate_simulation_v5_current_lease_not_established")
+        return record
+
+    def _load_candidate_simulation_input_v5(self, ref: ArtifactRef) -> object:
+        """Resolve one exact V5 input and its upstream candidate source."""
+        from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+
+        if not isinstance(ref, ArtifactRef):
+            raise ValueError("candidate_simulation_v5_selected_ref_required")
+        if not self.store.verify(ref).ok:
+            raise ValueError("candidate_simulation_v5_input_cas_integrity_failed")
+        body = self.store.get_bytes(ref)
+        try:
+            record = CandidateSimulationN5InputV5.model_validate(
+                canon.from_canonical_bytes(body)
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("candidate_simulation_v5_input_invalid") from exc
+        return self.resolve_candidate_simulation_v5(
+            ref=ref,
+            expected_run_id=record.run_id,
+            expected_job_id=record.job_id,
+            expected_tenant_id=record.tenant_id,
+            expected_cell_id=record.cell_id,
+        )
+
     def _load_candidate_simulation_input_v4(self, ref: ArtifactRef) -> object:
         """Load one v4 input only after the shared resolver replays its lineage."""
 
@@ -2080,6 +2906,7 @@ class GenerationSourceRepository:
         N4CandidateProposalRecord
         | N4CandidateProposalSimulationRecord
         | N4CandidateScenarioSourceRecordV1
+        | N4CandidateScenarioSourceRecordV2
     ):
         """Dispatch the existing progress pointer to its exact N4 source owner."""
 
@@ -2115,7 +2942,7 @@ class GenerationSourceRepository:
                 raise ValueError("n4_candidate_proposal_projection_problem_mismatch")
             return artifact
 
-        artifact = self.load_candidate_scenario_source_v1(
+        artifact = self.load_candidate_scenario_source_for_n5(
             typed_locator.artifact_ref,
             expected_run_id=run_id,
             expected_job_id=job_id,

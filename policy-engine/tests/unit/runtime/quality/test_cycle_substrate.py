@@ -1016,3 +1016,191 @@ def test_cycle_substrate_context_rejects_content_hash_tamper() -> None:
 
     with pytest.raises(ValueError, match="cycle_substrate_content_hash_mismatch"):
         CycleSubstrateContext.model_validate(payload)
+
+
+def test_configured_candidate_owner_persists_declared_model_in_exact_context(
+    tmp_path: Any,
+) -> None:
+    """The existing context owner emits only a limited declared NCM selection."""
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+        _cycle_job_v1_design_problem_ref,
+        _cycle_job_v1_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+
+    problem = _design_problem()
+    registry = _registry("education")
+    base_world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method", "learning_outcomes"),
+    )
+    slots = tuple(
+        slot.model_copy(update={"unit": "synthetic_score"})
+        for slot in base_world.policy_slot_map
+    )
+    draft_world = base_world.model_copy(update={"policy_slot_map": slots})
+    world_hash = world_model_record_content_hash(draft_world)
+    world = draft_world.model_copy(
+        update={
+            "content_hash": world_hash,
+            "world_model_record_id": (
+                "world_model_record_" + world_hash.removeprefix("sha256:")[:16]
+            ),
+        }
+    )
+    context = _cycle_context(
+        registry=registry,
+        world_model_record=world,
+        design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
+    )
+    context_inputs = CandidateSimulationContextInputs(
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=world,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=context.candidate_levers,
+        transport_context=context.transport_context,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=context.substrate_input_content_hash,
+    )
+    rule = CandidateScenarioSetToRule(
+        operator_kind="teaching_method_set_to",
+        parameter_id="intensity",
+        target_world_slot="education.teaching_method",
+        unit_id="synthetic_score",
+        minimum=0,
+        maximum=1,
+    )
+    n5 = CandidateScenarioN5Config(
+        budget_ref="budget://cycle-substrate/declared-candidate",
+        horizon=HorizonSpec(start=0, end=0, step=1),
+        baseline_state={
+            "education.teaching_method": 0.0,
+            "learning_outcomes": 0.0,
+        },
+        seed=7,
+        replications=2,
+    )
+    profile_fields = {
+        "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
+        "profile_id": "cycle-substrate-declared-candidate",
+        "profile_selection_ref": _cycle_job_v1_profile_selection_ref(problem),
+        "context_inputs": context_inputs,
+        "rule": rule,
+        "n5": n5,
+        "limitations": (
+            "scenario_only",
+            "real_profile_not_established",
+            "real_time_not_established",
+            "grounding_not_established",
+            "s8_blocked",
+            "n9_not_admitted",
+        ),
+    }
+    profile_draft = CandidateSimulationScenarioProfile.model_construct(
+        **profile_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    profile = CandidateSimulationScenarioProfile.model_validate(
+        {
+            **profile_fields,
+            "content_hash": gy_content_hash(
+                profile_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    declaration_fields = {
+        "schema_version": (
+            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
+        ),
+        "profile_config_ref": candidate_simulation_profile_ref(profile),
+        "profile_content_hash": profile.content_hash,
+        "profile_selection_ref": profile.profile_selection_ref,
+        "target_world_slot": rule.target_world_slot,
+        "outcome_variable": "learning_outcomes",
+        "target_unit_id": "synthetic_score",
+        "outcome_unit_id": "synthetic_score",
+        "target_baseline": 0.0,
+        "outcome_baseline": 0.0,
+        "outcome_per_target_unit": 0.5,
+        "outcome_noise_stddev": 0.01,
+        "assumption": "declared_candidate_scm_not_empirically_grounded",
+    }
+    declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+        **declaration_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {
+            **declaration_fields,
+            "content_hash": gy_content_hash(
+                declaration_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    store = FileSystemCAS(tmp_path / "candidate-context-cas")
+    owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+        profiles=(profile,),
+        model_declarations=(declaration,),
+        store=store,
+    )
+    try:
+        offer = owner.admit_context(
+            problem=problem,
+            job_id="job-declared-candidate",
+            run_id="run-declared-candidate",
+            tenant_id="tenant-declared-candidate",
+            cell_id="cell-declared-candidate",
+        )
+        from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextOffer
+
+        assert type(offer) is CandidateSimulationContextOffer
+        assert offer.profile == profile
+        assert offer.model_declaration == declaration
+        assert offer.model_declaration_ref is not None
+        assert offer.ncm_ref is not None
+        assert str(offer.ncm_ref.artifact_id) in (
+            offer.context.world_model_record.simulation_model_ref.ncm_refs
+        )
+        assert offer.context.world_model_record.authority_status == "limited"
+        assert offer.context.s8_status == "blocked"
+
+        profile_only_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+            profiles=(profile,)
+        )
+        profile_only = profile_only_owner.admit_context(
+            problem=problem,
+            job_id="job-profile-only",
+            run_id="run-profile-only",
+            tenant_id="tenant-profile-only",
+            cell_id="cell-profile-only",
+        )
+        assert type(profile_only) is CandidateSimulationContextOffer
+        assert profile_only.model_declaration is None
+        assert profile_only.model_declaration_ref is None
+        assert profile_only.ncm_ref is None
+        assert profile_only.context.world_model_record == world
+
+        changed_time = problem.jurisdiction_time.model_copy(
+            update={"as_of": "2026-06-30"}
+        )
+        assert owner.admit_context(
+            problem=problem.model_copy(update={"jurisdiction_time": changed_time}),
+            job_id="job-declared-candidate",
+            run_id="run-declared-candidate",
+            tenant_id="tenant-declared-candidate",
+            cell_id="cell-declared-candidate",
+        ) is None
+    finally:
+        store.close()

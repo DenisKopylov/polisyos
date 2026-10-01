@@ -73,8 +73,10 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecordError,
     build_world_model_record,
     consume_world_model_record_for_simulation,
+    derive_candidate_scenario_world_model_record,
     load_world_model_record,
     resolve_intervention_atom_world_binding,
+    world_model_record_content_hash,
 )
 
 SNAPSHOT_ID = "snapshot-2026-05-24"
@@ -425,6 +427,55 @@ def _build_record(tmp_path: Path):
         required_substrate_families=("firm_fundamentals",),
     )
     return store, result, model_spec, registry_bundle.bundle_ref
+
+
+def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
+    tmp_path: Path,
+) -> None:
+    """A declared candidate model remains candidate-only and preserves its WMR basis."""
+    store, result, _model_spec, _registry_ref = _build_record(tmp_path)
+    try:
+        base_record = result.record.model_copy(
+            update={"authority_status": "limited"}
+        )
+        selected_ncm_ref = "sha256:" + "d" * 64
+        declaration_hash = "sha256:" + "e" * 64
+
+        derived = derive_candidate_scenario_world_model_record(
+            base_record,
+            ncm_artifact_id=selected_ncm_ref,
+            declaration_content_hash=declaration_hash,
+        )
+
+        assert result.record.simulation_model_ref.ncm_refs == (
+            base_record.simulation_model_ref.ncm_refs
+        )
+        assert set(derived.simulation_model_ref.ncm_refs) == {
+            *base_record.simulation_model_ref.ncm_refs,
+            selected_ncm_ref,
+        }
+        assert derived.authority_status == "limited"
+        assert derived.simulation_model_ref.calibrated is False
+        assert derived.simulation_model_ref.calibration_ref is None
+        assert derived.simulation_model_ref.fidelity_level == "declared_candidate_scenario"
+        assert any(
+            item.get("declaration_content_hash") == declaration_hash
+            and item.get("status") == "candidate_only_not_empirically_grounded"
+            for item in derived.simulation_model_ref.assumptions
+        )
+        assert derived.content_hash == world_model_record_content_hash(derived)
+        assert derived.world_model_record_id == (
+            "world_model_record_" + derived.content_hash.removeprefix("sha256:")[:16]
+        )
+
+        with pytest.raises(WorldModelRecordError, match="basis_not_limited"):
+            derive_candidate_scenario_world_model_record(
+                result.record,
+                ncm_artifact_id=selected_ncm_ref,
+                declaration_content_hash=declaration_hash,
+            )
+    finally:
+        store.close()
 
 
 def _build_record_with_substrate_registry_ref(

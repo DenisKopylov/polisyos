@@ -88,6 +88,7 @@ if TYPE_CHECKING:
     from polisyos.foundry import MethodRouteConstraint
     from polisyos.ir.linker import LinkedIntervention
     from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioMaterializationV4,
         CandidateScenarioMaterializationV3,
         CandidateSimulationScenarioProfile,
     )
@@ -98,6 +99,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_source import (
         N4CandidateScenarioSourceRecordV1,
+        N4CandidateScenarioSourceRecordV2,
     )
 
 INTERVENTION_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.intervention_substrate_lift.v2"
@@ -733,7 +735,7 @@ def materialize_candidate_scenario_action(
 def materialize_candidate_scenario_proposal_action(
     bundle: InterventionSubstrateBundle,
     *,
-    source_record: N4CandidateScenarioSourceRecordV1,
+    source_record: N4CandidateScenarioSourceRecordV1 | N4CandidateScenarioSourceRecordV2,
     source_ref: artifacts.ArtifactRef,
     profile: CandidateSimulationScenarioProfile,
     candidate: N4CandidateScenarioProposalCandidate,
@@ -742,12 +744,13 @@ def materialize_candidate_scenario_proposal_action(
     problem: DesignProblem,
     context: CycleSubstrateContext,
     context_job_ref: artifacts.ArtifactRef,
-) -> CandidateScenarioMaterializationV3:
+) -> CandidateScenarioMaterializationV3 | CandidateScenarioMaterializationV4:
     """Materialize one exact proposal atom through the existing L6 owner."""
 
     from polisyos.ir.linker import LinkedIntervention
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioMaterializationV3,
+        CandidateScenarioMaterializationV4,
         CandidateSimulationScenarioProfile,
         candidate_simulation_profile_ref,
     )
@@ -763,6 +766,7 @@ def materialize_candidate_scenario_proposal_action(
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_source import (
         N4CandidateScenarioSourceRecordV1,
+        N4CandidateScenarioSourceRecordV2,
     )
     from polisyos.runtime.quality.intervention_atom_binding import (
         derive_candidate_scenario_atom,
@@ -772,7 +776,14 @@ def materialize_candidate_scenario_proposal_action(
         resolve_intervention_atom_world_binding,
     )
 
-    if type(source_record) is not N4CandidateScenarioSourceRecordV1:
+    source_v1 = (
+        source_record
+        if type(source_record) is N4CandidateScenarioSourceRecordV1
+        else source_record.source_record
+        if type(source_record) is N4CandidateScenarioSourceRecordV2
+        else None
+    )
+    if source_v1 is None:
         raise InterventionSubstrateError("candidate_scenario_source_record_untyped")
     if type(profile) is not CandidateSimulationScenarioProfile:
         raise InterventionSubstrateError("candidate_scenario_profile_untyped")
@@ -792,27 +803,27 @@ def materialize_candidate_scenario_proposal_action(
     verified_bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     verified_context = revalidate_cycle_substrate_context(context)
     if (
-        profile != source_record.profile
-        or profile.content_hash != source_record.profile.content_hash
+        profile != source_v1.profile
+        or profile.content_hash != source_v1.profile.content_hash
     ):
         raise InterventionSubstrateError("candidate_scenario_source_profile_mismatch")
-    if source_record.context_job_ref != context_job_ref:
+    if source_v1.context_job_ref != context_job_ref:
         raise InterventionSubstrateError("candidate_scenario_context_job_view_mismatch")
-    if source_record.problem != problem or source_record.proposal.design_problem_ref != (
+    if source_v1.problem != problem or source_v1.proposal.design_problem_ref != (
         gy_content_hash(problem.model_dump(mode="json"))
     ):
         raise InterventionSubstrateError("candidate_scenario_source_problem_mismatch")
     if (
-        source_record.profile_config_ref != candidate_simulation_profile_ref(profile)
+        source_v1.profile_config_ref != candidate_simulation_profile_ref(profile)
         or profile.profile_selection_ref != _cycle_job_v1_profile_selection_ref(problem)
     ):
         raise InterventionSubstrateError("candidate_scenario_profile_selection_ref_mismatch")
     problem_ref = _cycle_job_v1_design_problem_ref(problem)
     if (
         verified_context.design_problem_ref != problem_ref
-        or source_record.cycle_problem_ref != problem_ref
-        or source_record.context_hash != verified_context.content_hash
-        or source_record.world_model_record_hash
+        or source_v1.cycle_problem_ref != problem_ref
+        or source_v1.context_hash != verified_context.content_hash
+        or source_v1.world_model_record_hash
         != verified_context.world_model_record.content_hash
     ):
         raise InterventionSubstrateError("candidate_scenario_context_problem_mismatch")
@@ -825,14 +836,14 @@ def materialize_candidate_scenario_proposal_action(
     ):
         raise InterventionSubstrateError("candidate_scenario_l6_bundle_context_mismatch")
     if (
-        source_record.candidate is None
-        or source_record.candidate != candidate
+        source_v1.candidate is None
+        or source_v1.candidate != candidate
         or candidate.atom.status != "candidate_unverified"
     ):
         raise InterventionSubstrateError("candidate_scenario_source_candidate_mismatch")
     source_interventions = tuple(
         item
-        for item in source_record.proposal.trinity_bundle.policy_spec.interventions
+        for item in source_v1.proposal.trinity_bundle.policy_spec.interventions
         if item.intervention_id == candidate.intervention_id
     )
     if len(source_interventions) != 1 or source_interventions[0] != intervention:
@@ -873,6 +884,64 @@ def materialize_candidate_scenario_proposal_action(
     except (TypeError, ValueError) as exc:
         code = str(getattr(exc, "code", None) or "candidate_scenario_atom_derivation_failed")
         raise InterventionSubstrateError(code, str(exc)) from exc
+
+    if type(source_record) is N4CandidateScenarioSourceRecordV2:
+        declaration = source_record.model_declaration
+        world_slot_units = {item.slot_id: item.unit for item in world.policy_slot_map}
+        if (
+            source_record.model_declaration_ref.kind
+            != "runtime.quality.candidate_simulation_model_declaration"
+            or source_record.ncm_ref.kind != "ir.ncm_spec"
+            or source_record.world_model_record_id != world.world_model_record_id
+            or declaration.profile_content_hash != profile.content_hash
+            or declaration.profile_selection_ref != profile.profile_selection_ref
+            or declaration.target_world_slot != rule.target_world_slot
+            or declaration.target_unit_id != rule.unit_id
+            or declaration.outcome_variable != problem.outcome_of_interest.target_variable
+            or world_slot_units.get(declaration.target_world_slot)
+            != declaration.target_unit_id
+            or world_slot_units.get(declaration.outcome_variable)
+            != declaration.outcome_unit_id
+            or profile.n5.baseline_state.get(declaration.target_world_slot)
+            != declaration.target_baseline
+            or profile.n5.baseline_state.get(declaration.outcome_variable)
+            != declaration.outcome_baseline
+            or str(source_record.ncm_ref.artifact_id)
+            not in world.simulation_model_ref.ncm_refs
+        ):
+            raise InterventionSubstrateError("candidate_scenario_model_binding_mismatch")
+        payload_v4 = {
+            "schema_version": "policyos.runtime.candidate_scenario.materialization.v4",
+            "profile_hash": profile.content_hash,
+            "problem_ref": problem_ref,
+            "context_hash": verified_context.content_hash,
+            "context_job_ref": context_job_ref,
+            "world_model_record_hash": world.content_hash,
+            "n4_source_ref": source_ref,
+            "model_declaration_ref": source_record.model_declaration_ref,
+            "ncm_ref": source_record.ncm_ref,
+            "candidate_id": candidate.candidate_id,
+            "original_candidate_hash": candidate.atom.content_hash,
+            "original_atom_hash": candidate.atom.content_hash,
+            "operator_kind": rule.operator_kind,
+            "parameter_id": rule.parameter_id,
+            "value": value,
+            "target_world_slot": rule.target_world_slot,
+            "unit_id": rule.unit_id,
+            "outcome_variable": declaration.outcome_variable,
+            "derived_n5_atom": derived_atom,
+        }
+        return CandidateScenarioMaterializationV4.model_validate(
+            {
+                **payload_v4,
+                "content_hash": gy_content_hash(
+                    CandidateScenarioMaterializationV4.model_construct(
+                        **payload_v4,
+                        content_hash="sha256:" + "0" * 64,
+                    ).model_dump(mode="json", exclude={"content_hash"})
+                ),
+            }
+        )
 
     payload = {
         "schema_version": "policyos.runtime.candidate_scenario.materialization.v3",

@@ -179,7 +179,7 @@ def _configured_procurement_profile(
     recorded_problem: object,
     cas_root: Path,
 ):
-    """Compose a synthetic score NCM behind existing registry, L6 and WMR owners."""
+    """Return a configured candidate profile and its explicit synthetic SCM."""
 
     from polisyos.core.artifacts import FileSystemCAS
     from polisyos.core.security.tenant_context import tenant_scope
@@ -195,6 +195,8 @@ def _configured_procurement_profile(
         CandidateScenarioSetToRule,
         CandidateSimulationContextInputs,
         CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.cycle_substrate import (
         _cycle_job_v1_profile_selection_ref,
@@ -318,7 +320,7 @@ def _configured_procurement_profile(
     n5 = CandidateScenarioN5Config(
         budget_ref="budget://r1/controlled-candidate-n5",
         horizon=HorizonSpec(start=0, end=0, step=1),
-        baseline_state={"cells.output": 0.0},
+        baseline_state={"cells.distress_score": 0.0, "cells.output": 0.0},
         seed=11,
         replications=2,
     )
@@ -342,7 +344,7 @@ def _configured_procurement_profile(
         **fields,
         content_hash="sha256:" + "0" * 64,
     )
-    return CandidateSimulationScenarioProfile.model_validate(
+    profile = CandidateSimulationScenarioProfile.model_validate(
         {
             **fields,
             "content_hash": gy_content_hash(
@@ -350,6 +352,36 @@ def _configured_procurement_profile(
             ),
         }
     )
+    declaration_fields = {
+        "schema_version": (
+            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
+        ),
+        "profile_config_ref": candidate_simulation_profile_ref(profile),
+        "profile_content_hash": profile.content_hash,
+        "profile_selection_ref": profile.profile_selection_ref,
+        "target_world_slot": rule.target_world_slot,
+        "outcome_variable": "cells.output",
+        "target_unit_id": rule.unit_id,
+        "outcome_unit_id": rule.unit_id,
+        "target_baseline": 0.0,
+        "outcome_baseline": 0.0,
+        "outcome_per_target_unit": 0.5,
+        "outcome_noise_stddev": 0.01,
+        "assumption": "declared_candidate_scm_not_empirically_grounded",
+    }
+    declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+        **declaration_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {
+            **declaration_fields,
+            "content_hash": gy_content_hash(
+                declaration_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    return profile, declaration
 
 
 def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
@@ -540,6 +572,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         N4CandidateProposalSimulationRecord,
         N4CandidateScenarioSourceLocator,
         N4CandidateScenarioSourceRecordV1,
+        N4CandidateScenarioSourceRecordV2,
     )
     from polisyos.runtime.quality.intervention_atom_binding import (
         InterventionAtomBinding,
@@ -584,7 +617,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         arguments=recorded_problem.model_dump(mode="json"),
     )
     cas_root = tmp_path / ".polisyos"
-    profile = _configured_procurement_profile(
+    profile, model_declaration = _configured_procurement_profile(
         recorded_problem=recorded_problem,
         cas_root=cas_root,
     )
@@ -681,6 +714,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         cas_root=cas_root,
         allow_fixture_identity=True,
         candidate_simulation_profiles=(profile,),
+        candidate_simulation_model_declarations=(model_declaration,),
     )
     with TestClient(app) as client:
         response = client.post(
@@ -748,6 +782,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         assert context_job.profile_admission_status == "not_established"
         assert context_job.s8_status == "blocked"
+        assert context_job.context.world_model_record.authority_status == "limited"
+        assert context_job.context.world_model_record.simulation_model_ref.calibrated is False
 
         compiled_payload_bytes = read_private_artifact_in_job_scope(
             lambda: service._artifact_store.get_bytes(
@@ -782,14 +818,26 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             for item, result, selected_ref in n5_calls
             if result.candidate_id == item.original_candidate_id
         )
-        assert type(input_record).__name__ == "CandidateSimulationN5InputV4"
+        assert type(input_record).__name__ == "CandidateSimulationN5InputV5"
         assert input_record.authority_purpose == "candidate_scenario_n5_only"
         assert isinstance(input_record.n4_source_ref, ArtifactRef)
         assert isinstance(input_record.context_job_ref, ArtifactRef)
+        assert isinstance(input_record.model_declaration_ref, ArtifactRef)
+        assert isinstance(input_record.ncm_ref, ArtifactRef)
         assert isinstance(port_input_ref, ArtifactRef)
         assert input_record.n4_source_ref.manifest_profile_sha256 is None
         assert input_record.context_job_ref.manifest_profile_sha256 is None
+        assert input_record.model_declaration_ref.manifest_profile_sha256 is None
+        assert input_record.ncm_ref.manifest_profile_sha256 is None
         assert port_input_ref.manifest_profile_sha256 is None
+        assert str(input_record.ncm_ref.artifact_id) in (
+            context_job.context.world_model_record.simulation_model_ref.ncm_refs
+        )
+        assert any(
+            item.get("declaration_content_hash") == model_declaration.content_hash
+            and item.get("status") == "candidate_only_not_empirically_grounded"
+            for item in context_job.context.world_model_record.simulation_model_ref.assumptions
+        )
         assert artifact_ref_identity_key(input_record.context_job_ref) == (
             artifact_ref_identity_key(context_job_selected_ref)
         )
@@ -803,10 +851,10 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         # This source kind is distinct from full CGF generation custody: it
         # retains the selected profile/context joins and the typed L2 vintage
         # restriction without forwarding historic confidence into the proposal.
-        n4_source = read_private_artifact_in_job_scope(
+        selected_source = read_private_artifact_in_job_scope(
             lambda: GenerationSourceRepository(
                 service._artifact_store
-            ).load_candidate_scenario_source_v1(
+            ).load_candidate_scenario_source_v2(
                 input_record.n4_source_ref,
                 expected_run_id=str(completed.run_id),
                 expected_job_id=completed.job_id,
@@ -816,7 +864,30 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             job_id=completed.job_id,
             run_id=str(completed.run_id),
         )
-        assert type(n4_source).__name__ == "N4CandidateScenarioSourceRecordV1"
+        assert type(selected_source) is N4CandidateScenarioSourceRecordV2
+        assert selected_source.model_declaration == model_declaration
+        assert selected_source.model_declaration_ref == input_record.model_declaration_ref
+        assert selected_source.ncm_ref == input_record.ncm_ref
+        assert selected_source.world_model_record_id == (
+            context_job.context.world_model_record.world_model_record_id
+        )
+        ncm_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(input_record.ncm_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert len(ncm_manifest.inputs) == 1
+        assert (
+            ncm_manifest.inputs[0].role,
+            str(ncm_manifest.inputs[0].artifact_id),
+            ncm_manifest.inputs[0].manifest_profile_sha256,
+        ) == (
+            "candidate_model_declaration",
+            str(input_record.model_declaration_ref.artifact_id),
+            input_record.model_declaration_ref.manifest_profile_sha256,
+        )
+        n4_source = selected_source.source_record
+        assert type(n4_source) is N4CandidateScenarioSourceRecordV1
         assert n4_source.authority_purpose == "candidate_scenario_n5_only"
         assert n4_source.profile.content_hash == profile.content_hash
         assert artifact_ref_identity_key(n4_source.context_job_ref) == (
@@ -1009,7 +1080,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             job_id=foreign_ref_job.job_id,
             run_id=str(foreign_ref_job.run_id),
         )
-        assert type(foreign_ref_source) is N4CandidateScenarioSourceRecordV1
+        assert type(foreign_ref_source) is N4CandidateScenarioSourceRecordV2
+        foreign_ref_source = foreign_ref_source.source_record
         assert foreign_ref_source.candidate is not None
         assert foreign_ref_source.candidate.atom.policy_spec_ref == foreign_policy_spec_ref
         assert foreign_ref_source.authority_purpose == "candidate_scenario_n5_only"
@@ -1068,7 +1140,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         for reference_payload in input_refs:
             selected_ref = ArtifactRef.model_validate(reference_payload)
             selected_input = read_private_artifact_in_job_scope(
-                lambda selected_ref=selected_ref: source_repository.resolve_candidate_simulation_v4(
+                lambda selected_ref=selected_ref: source_repository.resolve_candidate_simulation_v5(
                     ref=selected_ref,
                     expected_run_id=str(completed.run_id),
                     expected_job_id=completed.job_id,
@@ -1079,7 +1151,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 run_id=str(completed.run_id),
             )
             if (
-                type(selected_input).__name__ == "CandidateSimulationN5InputV4"
+                type(selected_input).__name__ == "CandidateSimulationN5InputV5"
                 and selected_input.original_candidate_id == input_record.original_candidate_id
             ):
                 input_ref = selected_ref
@@ -1102,7 +1174,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         for reference_payload in execution_refs:
             selected_ref = ArtifactRef.model_validate(reference_payload)
             selected_execution = read_private_artifact_in_job_scope(
-                lambda selected_ref=selected_ref: source_repository.resolve_candidate_simulation_v4(
+                lambda selected_ref=selected_ref: source_repository.resolve_candidate_simulation_v5(
                     ref=selected_ref,
                     expected_run_id=str(completed.run_id),
                     expected_job_id=completed.job_id,
@@ -1122,7 +1194,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert str(execution_ref.artifact_id) in refs_named(
             compiled_payload, "candidate_simulation_execution_ref"
         )
-        assert type(execution).__name__ == "CandidateSimulationExecutionV4"
+        assert type(execution).__name__ == "CandidateSimulationExecutionV5"
         assert execution.authority_purpose == "candidate_scenario_n5_only"
         assert execution.problem_ref == context_job.design_problem_ref
         assert artifact_ref_identity_key(execution.context_job_ref) == (
@@ -1156,6 +1228,16 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 str(context_job_selected_ref.artifact_id),
                 context_job_selected_ref.manifest_profile_sha256,
             ),
+            (
+                "candidate_model_declaration",
+                str(input_record.model_declaration_ref.artifact_id),
+                input_record.model_declaration_ref.manifest_profile_sha256,
+            ),
+            (
+                "candidate_ncm_spec",
+                str(input_record.ncm_ref.artifact_id),
+                input_record.ncm_ref.manifest_profile_sha256,
+            ),
         }
         execution_manifest = read_private_artifact_in_job_scope(
             lambda: service._artifact_store.get_manifest(execution_ref),
@@ -1176,6 +1258,16 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 "cycle_substrate_context_job",
                 str(context_job_selected_ref.artifact_id),
                 context_job_selected_ref.manifest_profile_sha256,
+            ),
+            (
+                "candidate_model_declaration",
+                str(input_record.model_declaration_ref.artifact_id),
+                input_record.model_declaration_ref.manifest_profile_sha256,
+            ),
+            (
+                "candidate_ncm_spec",
+                str(input_record.ncm_ref.artifact_id),
+                input_record.ncm_ref.manifest_profile_sha256,
             ),
             (
                 "n5_result",
@@ -1332,7 +1424,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             job_id=third_job.job_id,
             run_id=str(third_job.run_id),
         )
-        assert type(scenario_source) is N4CandidateScenarioSourceRecordV1
+        assert type(scenario_source) is N4CandidateScenarioSourceRecordV2
+        scenario_source = scenario_source.source_record
         assert scenario_source.status == "candidate_limited"
         assert scenario_source.candidate is None
         assert (
@@ -1358,7 +1451,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         # as a declared limitation; no generated grammar or downstream owner
         # may fill the missing handoff.
         original_persist_candidate_scenario = (
-            GenerationSourceRepository.persist_candidate_scenario_source_v1
+            GenerationSourceRepository.persist_candidate_scenario_source_v2
         )
 
         def refuse_scenario_source_persistence(_repository, *, source_record):
@@ -1367,7 +1460,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
 
         monkeypatch.setattr(
             GenerationSourceRepository,
-            "persist_candidate_scenario_source_v1",
+            "persist_candidate_scenario_source_v2",
             refuse_scenario_source_persistence,
         )
         controlled_recording = _controlled_procurement_recording(recording)
@@ -1411,7 +1504,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert n9_owner_calls == []
         monkeypatch.setattr(
             GenerationSourceRepository,
-            "persist_candidate_scenario_source_v1",
+            "persist_candidate_scenario_source_v2",
             original_persist_candidate_scenario,
         )
 
@@ -1478,6 +1571,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert (
             zero_budget_handoff.profile,
             zero_budget_handoff.profile_config_ref,
+            zero_budget_handoff.model_declaration,
+            zero_budget_handoff.model_declaration_ref,
+            zero_budget_handoff.ncm_ref,
             zero_budget_handoff.job_id,
             zero_budget_handoff.run_id,
             zero_budget_handoff.tenant_id,
@@ -1485,6 +1581,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         ) == (
             profile,
             candidate_simulation_profile_ref(profile),
+            model_declaration,
+            zero_budget_handoff.model_declaration_ref,
+            zero_budget_handoff.ncm_ref,
             zero_budget_job.job_id,
             str(zero_budget_job.run_id),
             zero_budget_scope.tenant_id,
@@ -1497,7 +1596,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         zero_budget_source = read_private_artifact_in_job_scope(
             lambda: GenerationSourceRepository(
                 service._artifact_store
-            ).load_candidate_scenario_source_v1(
+            ).load_candidate_scenario_source_v2(
                 zero_budget_source_refs[0],
                 expected_run_id=str(zero_budget_job.run_id),
                 expected_job_id=zero_budget_job.job_id,
@@ -1507,20 +1606,26 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             job_id=zero_budget_job.job_id,
             run_id=str(zero_budget_job.run_id),
         )
-        assert type(zero_budget_source) is N4CandidateScenarioSourceRecordV1
+        assert type(zero_budget_source) is N4CandidateScenarioSourceRecordV2
+        zero_budget_v1 = zero_budget_source.source_record
+        assert zero_budget_source.model_declaration == model_declaration
+        assert zero_budget_source.model_declaration_ref == (
+            zero_budget_handoff.model_declaration_ref
+        )
+        assert zero_budget_source.ncm_ref == zero_budget_handoff.ncm_ref
         assert zero_budget_source.status == "candidate_unverified"
-        assert zero_budget_source.candidate is not None
+        assert zero_budget_v1.candidate is not None
         assert (
-            zero_budget_source.profile,
-            zero_budget_source.profile_config_ref,
-            zero_budget_source.problem,
-            zero_budget_source.profile.profile_selection_ref,
-            zero_budget_source.context_hash,
-            zero_budget_source.job_id,
-            zero_budget_source.run_id,
-            zero_budget_source.tenant_id,
-            zero_budget_source.cell_id,
-            artifact_ref_identity_key(zero_budget_source.context_job_ref),
+            zero_budget_v1.profile,
+            zero_budget_v1.profile_config_ref,
+            zero_budget_v1.problem,
+            zero_budget_v1.profile.profile_selection_ref,
+            zero_budget_v1.context_hash,
+            zero_budget_v1.job_id,
+            zero_budget_v1.run_id,
+            zero_budget_v1.tenant_id,
+            zero_budget_v1.cell_id,
+            artifact_ref_identity_key(zero_budget_v1.context_job_ref),
         ) == (
             profile,
             zero_budget_handoff.profile_config_ref,

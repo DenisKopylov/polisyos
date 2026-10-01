@@ -1161,9 +1161,17 @@ class CycleSubstrateContextArtifactOwner:
 class ConfiguredCandidateSimulationContextAdmissionOwner:
     """Compose a candidate context only for an exact server-configured problem."""
 
-    def __init__(self, *, profiles: Sequence[object]) -> None:
+    def __init__(
+        self,
+        *,
+        profiles: Sequence[object],
+        model_declarations: Sequence[object] = (),
+        store: artifacts.ArtifactStore | None = None,
+    ) -> None:
         from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationSyntheticModelDeclarationV1,
             CandidateSimulationScenarioProfile,
+            candidate_simulation_profile_ref,
         )
 
         validated: list[CandidateSimulationScenarioProfile] = []
@@ -1183,12 +1191,59 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             profile_selection_refs.add(checked.profile_selection_ref)
             validated.append(checked)
         self._profiles = tuple(validated)
+        profiles_by_config_ref = {
+            candidate_simulation_profile_ref(profile): profile for profile in self._profiles
+        }
+        declarations_by_profile: dict[
+            str, CandidateSimulationSyntheticModelDeclarationV1
+        ] = {}
+        for declaration in model_declarations:
+            if type(declaration) is not CandidateSimulationSyntheticModelDeclarationV1:
+                raise TypeError("candidate_simulation_model_declaration_untyped")
+            checked_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+                declaration.model_dump(mode="python")
+            )
+            profile = profiles_by_config_ref.get(checked_declaration.profile_config_ref)
+            if profile is None:
+                raise ValueError("candidate_simulation_model_profile_not_configured")
+            if (
+                checked_declaration.profile_content_hash != profile.content_hash
+                or checked_declaration.profile_selection_ref != profile.profile_selection_ref
+                or checked_declaration.target_world_slot != profile.rule.target_world_slot
+                or checked_declaration.target_unit_id != profile.rule.unit_id
+                or profile.n5.baseline_state.get(checked_declaration.target_world_slot)
+                != checked_declaration.target_baseline
+                or profile.n5.baseline_state.get(checked_declaration.outcome_variable)
+                != checked_declaration.outcome_baseline
+            ):
+                raise ValueError("candidate_simulation_model_profile_binding_mismatch")
+            if checked_declaration.profile_config_ref in declarations_by_profile:
+                raise ValueError("candidate_simulation_model_profile_declaration_duplicate")
+            declarations_by_profile[checked_declaration.profile_config_ref] = (
+                checked_declaration
+            )
+        if declarations_by_profile and store is None:
+            raise ValueError("candidate_simulation_model_store_not_supplied")
+        self._model_declarations = declarations_by_profile
+        self._store = store
 
     @property
     def profiles(self) -> tuple[object, ...]:
         """Return the immutable server-configured profile set."""
 
         return self._profiles
+
+    @property
+    def model_declarations(self) -> tuple[object, ...]:
+        """Return the immutable declaration set bound to configured profiles."""
+
+        return tuple(self._model_declarations.values())
+
+    @property
+    def store(self) -> artifacts.ArtifactStore | None:
+        """Return the exact runtime-supplied artifact store, if configured."""
+
+        return self._store
 
     def admit_context(
         self,
@@ -1206,7 +1261,10 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             candidate_simulation_profile_ref,
         )
 
-        del job_id, run_id, tenant_id, cell_id
+        if not all(isinstance(value, str) and value.strip() for value in (job_id, run_id, tenant_id, cell_id)):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_job_scope_not_established"
+            )
         problem_ref = _cycle_job_v1_design_problem_ref(problem)
         profile_selection_ref = _cycle_job_v1_profile_selection_ref(problem)
         matches = tuple(
@@ -1222,12 +1280,70 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             )
         profile = matches[0]
         inputs = profile.context_inputs
+        profile_config_ref = candidate_simulation_profile_ref(profile)
+        declaration = self._model_declarations.get(profile_config_ref)
+        model_declaration_ref = None
+        ncm_ref = None
+        world_model_record = inputs.world_model_record
+        if declaration is not None:
+            if self._store is None:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_model_store_not_supplied"
+                )
+            slot_units = {
+                item.slot_id: item.unit
+                for item in inputs.world_model_record.policy_slot_map
+            }
+            if (
+                declaration.outcome_variable
+                != problem.outcome_of_interest.target_variable
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_model_outcome_problem_mismatch"
+                )
+            if (
+                slot_units.get(declaration.target_world_slot)
+                != declaration.target_unit_id
+                or slot_units.get(declaration.outcome_variable)
+                != declaration.outcome_unit_id
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_model_unit_binding_mismatch"
+                )
+            from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
+            from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+            from polisyos.runtime.quality.world_model_record import (
+                derive_candidate_scenario_world_model_record,
+            )
+
+            repository = GenerationSourceRepository(store=self._store)
+            model_declaration_ref = repository.persist_candidate_model_declaration(
+                declaration=declaration,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            ncm_ref = repository.persist_candidate_ncm_selected_view(
+                ncm_spec=candidate_ncm_spec_from_declaration(declaration),
+                declaration_ref=model_declaration_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                profile_content_hash=profile.content_hash,
+            )
+            world_model_record = derive_candidate_scenario_world_model_record(
+                inputs.world_model_record,
+                ncm_artifact_id=str(ncm_ref.artifact_id),
+                declaration_content_hash=declaration.content_hash,
+            )
         context = build_cycle_substrate_context(
             design_problem_ref=problem_ref,
             domain=problem.domain,
             substrate_registry=inputs.substrate_registry,
             selected_registry_entry_hashes=inputs.selected_registry_entry_hashes,
-            world_model_record=inputs.world_model_record,
+            world_model_record=world_model_record,
             intervention_substrate=inputs.intervention_substrate,
             candidate_levers=inputs.candidate_levers,
             transport_context=inputs.transport_context,
@@ -1239,7 +1355,10 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
         return CandidateSimulationContextOffer(
             context=context,
             profile=profile,
-            profile_config_ref=candidate_simulation_profile_ref(profile),
+            profile_config_ref=profile_config_ref,
+            model_declaration=declaration,
+            model_declaration_ref=model_declaration_ref,
+            ncm_ref=ncm_ref,
         )
 
 

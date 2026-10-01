@@ -5033,6 +5033,15 @@ class ControlPlaneService(
                             == candidate_simulation_profile_ref(handoff.profile)
                             and current_offer.context == admitted_offer.context
                             and current_offer.context == handoff.context
+                            and current_offer.model_declaration
+                            == admitted_offer.model_declaration
+                            == handoff.model_declaration
+                            and current_offer.model_declaration_ref
+                            == admitted_offer.model_declaration_ref
+                            == handoff.model_declaration_ref
+                            and current_offer.ncm_ref
+                            == admitted_offer.ncm_ref
+                            == handoff.ncm_ref
                             and current_context_job.design_problem_ref == expected_problem_ref
                             and current_context_job.problem == problem
                             and current_context_job.context == current_offer.context
@@ -5150,6 +5159,9 @@ class ControlPlaneService(
                                     run_id=str(job.run_id),
                                     tenant_id=bound_tenant_id,
                                     cell_id=bound_cell_id,
+                                    model_declaration=offer.model_declaration,
+                                    model_declaration_ref=offer.model_declaration_ref,
+                                    ncm_ref=offer.ncm_ref,
                                 )
 
                                 candidate_simulation_context_binding.update(
@@ -5234,6 +5246,7 @@ class ControlPlaneService(
                             GenerationSourceRepository,
                             N4CandidateScenarioSourceLocator,
                             N4CandidateScenarioSourceRecordV1,
+                            N4CandidateScenarioSourceRecordV2,
                         )
 
                         run_id = str(job.run_id or "")
@@ -5267,7 +5280,10 @@ class ControlPlaneService(
                                     raw_request=str(payload.get("request") or ""),
                                     expected_design_problem=compiled.design_problem,
                                 )
-                                if type(loaded) is not N4CandidateScenarioSourceRecordV1:
+                                if type(loaded) not in {
+                                    N4CandidateScenarioSourceRecordV1,
+                                    N4CandidateScenarioSourceRecordV2,
+                                }:
                                     raise RuntimeError(
                                         "n4_candidate_scenario_projection_owner_mismatch"
                                     )

@@ -176,6 +176,7 @@ if TYPE_CHECKING:
         CandidateSimulationN5InputV2,
         CandidateSimulationN5InputV3,
         CandidateSimulationN5InputV4,
+        CandidateSimulationN5InputV5,
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
@@ -2627,6 +2628,7 @@ class JointSimulationPort:
             CandidateSimulationN5InputV2
             | CandidateSimulationN5InputV3
             | CandidateSimulationN5InputV4
+            | CandidateSimulationN5InputV5
             | None
         ) = None,
         candidate_simulation_input_ref: CASArtifactRef | None = None,
@@ -2641,11 +2643,13 @@ class JointSimulationPort:
                 from polisyos.runtime.quality.candidate_simulation import (
                     CandidateSimulationN5InputV3,
                     CandidateSimulationN5InputV4,
+                    CandidateSimulationN5InputV5,
                 )
 
                 if type(candidate_simulation_input) in {
                     CandidateSimulationN5InputV3,
                     CandidateSimulationN5InputV4,
+                    CandidateSimulationN5InputV5,
                 }:
                     if (
                         self._artifact_store is None
@@ -2659,7 +2663,15 @@ class JointSimulationPort:
                     )
 
                     source_repository = GenerationSourceRepository(self._artifact_store)
-                    if type(candidate_simulation_input) is CandidateSimulationN5InputV4:
+                    if type(candidate_simulation_input) is CandidateSimulationN5InputV5:
+                        persisted_input = source_repository.resolve_candidate_simulation_v5(
+                            ref=candidate_simulation_input_ref,
+                            expected_run_id=candidate_simulation_input.run_id,
+                            expected_job_id=candidate_simulation_input.job_id,
+                            expected_tenant_id=candidate_simulation_input.tenant_id,
+                            expected_cell_id=candidate_simulation_input.cell_id,
+                        )
+                    elif type(candidate_simulation_input) is CandidateSimulationN5InputV4:
                         persisted_input = source_repository.resolve_candidate_simulation_v4(
                             ref=candidate_simulation_input_ref,
                             expected_run_id=candidate_simulation_input.run_id,
@@ -3450,6 +3462,7 @@ class JointSimulationPort:
             CandidateSimulationN5InputV2
             | CandidateSimulationN5InputV3
             | CandidateSimulationN5InputV4
+            | CandidateSimulationN5InputV5
         ),
     ) -> JointSimulationRequest:
         """Build N5 strictly from the persisted server profile and exact N4 source."""
@@ -3458,6 +3471,7 @@ class JointSimulationPort:
             CandidateSimulationN5InputV2,
             CandidateSimulationN5InputV3,
             CandidateSimulationN5InputV4,
+            CandidateSimulationN5InputV5,
         )
         from polisyos.runtime.quality.cycle_substrate import (
             _cycle_job_v1_design_problem_ref,
@@ -3476,13 +3490,22 @@ class JointSimulationPort:
             CandidateSimulationN5InputV2,
             CandidateSimulationN5InputV3,
             CandidateSimulationN5InputV4,
+            CandidateSimulationN5InputV5,
         }:
             raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
         if (
-            type(input_record) is CandidateSimulationN5InputV4
+            type(input_record)
+            in {
+                CandidateSimulationN5InputV4,
+                CandidateSimulationN5InputV5,
+            }
             and type(candidate) is not N4CandidateScenarioProposalCandidate
         ) or (
-            type(input_record) is not CandidateSimulationN5InputV4
+            type(input_record)
+            not in {
+                CandidateSimulationN5InputV4,
+                CandidateSimulationN5InputV5,
+            }
             and type(candidate) is not ShadowGeneratedCandidate
         ):
             raise WorldModelRecordError("candidate_simulation_n4_source_untyped")
@@ -3504,6 +3527,7 @@ class JointSimulationPort:
                 if type(input_record) in {
                     CandidateSimulationN5InputV3,
                     CandidateSimulationN5InputV4,
+                    CandidateSimulationN5InputV5,
                 }
                 else input_record.context_job_ref
                 != str(handoff.context_job_ref.artifact_id)
@@ -3533,6 +3557,7 @@ class JointSimulationPort:
                 if type(input_record) in {
                     CandidateSimulationN5InputV3,
                     CandidateSimulationN5InputV4,
+                    CandidateSimulationN5InputV5,
                 }
                 else materialization.context_job_ref
                 != str(handoff.context_job_ref.artifact_id)
@@ -3549,8 +3574,16 @@ class JointSimulationPort:
         ):
             raise WorldModelRecordError("candidate_simulation_n5_candidate_binding_mismatch")
         source_repository = GenerationSourceRepository(self._artifact_store)
-        if type(input_record) is CandidateSimulationN5InputV4:
-            source = source_repository.load_candidate_scenario_source_v1(
+        if type(input_record) in {
+            CandidateSimulationN5InputV4,
+            CandidateSimulationN5InputV5,
+        }:
+            source_loader = (
+                source_repository.load_candidate_scenario_source_for_n5
+                if type(input_record) is CandidateSimulationN5InputV5
+                else source_repository.load_candidate_scenario_source_v1
+            )
+            source = source_loader(
                 input_record.n4_source_ref,
                 expected_run_id=input_record.run_id,
                 expected_job_id=input_record.job_id,
@@ -3625,10 +3658,29 @@ class JointSimulationPort:
             raise WorldModelRecordError("candidate_simulation_n5_outcome_binding_mismatch")
         if outcome not in input_record.n5.baseline_state:
             raise WorldModelRecordError("candidate_simulation_n5_outcome_baseline_missing")
-        ncm_spec = self._resolve_joint_simulation_ncm(
-            problem=problem,
-            world_record=world_record,
-        )
+        if type(input_record) is CandidateSimulationN5InputV5:
+            if (
+                handoff.model_declaration_ref != input_record.model_declaration_ref
+                or handoff.ncm_ref != input_record.ncm_ref
+                or str(input_record.ncm_ref.artifact_id)
+                not in world_record.simulation_model_ref.ncm_refs
+            ):
+                raise WorldModelRecordError(
+                    "candidate_simulation_n5_selected_ncm_binding_mismatch"
+                )
+            ncm_spec = self._resolve_joint_simulation_ncm(
+                problem=problem,
+                world_record=world_record,
+                selected_ncm_ref=input_record.ncm_ref,
+                declaration_ref=input_record.model_declaration_ref,
+                tenant_id=input_record.tenant_id,
+                cell_id=input_record.cell_id,
+            )
+        else:
+            ncm_spec = self._resolve_joint_simulation_ncm(
+                problem=problem,
+                world_record=world_record,
+            )
         variable_map = self._joint_simulation_variable_map(
             atoms=(derived_atom,),
             outcome=outcome,
@@ -3709,6 +3761,10 @@ class JointSimulationPort:
         *,
         problem: DesignProblem,
         world_record: WorldModelRecord,
+        selected_ncm_ref: CASArtifactRef | None = None,
+        declaration_ref: CASArtifactRef | None = None,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
     ) -> object:
         """Resolve an owner-provided NCM, refusing an absent model."""
 
@@ -3716,6 +3772,39 @@ class JointSimulationPort:
         from polisyos.ir.registry.refs import NCMSpecRef
 
         refs = tuple(world_record.simulation_model_ref.ncm_refs)
+        if selected_ncm_ref is not None:
+            if (
+                type(selected_ncm_ref) is not CASArtifactRef
+                or declaration_ref is None
+                or tenant_id is None
+                or cell_id is None
+                or not str(selected_ncm_ref.artifact_id).startswith("sha256:")
+                or str(selected_ncm_ref.artifact_id) not in refs
+            ):
+                raise WorldModelRecordError(
+                    "joint_simulation_ncm_selected_ref_not_in_world_model"
+                )
+            store = self._artifact_store
+            if store is None:
+                raise WorldModelRecordError("joint_simulation_ncm_store_not_established")
+            try:
+                from polisyos.ir.analytics.ncm import load_ncm_spec_selected_view
+
+                return load_ncm_spec_selected_view(
+                    store,
+                    selected_ncm_ref,
+                    expected_tenant_id=tenant_id,
+                    expected_cell_id=cell_id,
+                    expected_declaration_ref=declaration_ref,
+                )
+            except RuntimeDependencyError as exc:
+                raise WorldModelRecordError(
+                    "joint_simulation_ncm_store_unavailable", str(exc)
+                ) from exc
+            except (OSError, TypeError, ValueError) as exc:
+                raise WorldModelRecordError(
+                    "joint_simulation_ncm_spec_unresolved", str(exc)
+                ) from exc
         if len(refs) != 1 or not refs[0].startswith("sha256:"):
             raise WorldModelRecordError("joint_simulation_ncm_spec_missing")
         try:
@@ -7522,6 +7611,7 @@ class GenerationCycleController:
         )
         from polisyos.runtime.quality.generation_source import (
             N4CandidateScenarioSourceRecordV1,
+            N4CandidateScenarioSourceRecordV2,
         )
 
         if type(proposal_run) is not N4CandidateScenarioProposalRun:
@@ -7563,7 +7653,7 @@ class GenerationCycleController:
         source_persistence_limiter: str | None = None
         if repository is not None and self._source_run_id is not None:
             try:
-                source_record = repository.create_candidate_scenario_source_v1(
+                source_record_v1 = repository.create_candidate_scenario_source_v1(
                     status=(
                         "candidate_unverified" if candidate is not None else "candidate_limited"
                     ),
@@ -7593,11 +7683,36 @@ class GenerationCycleController:
                     credal_reference_payload=None,
                     l2_confidence_forwarded=False,
                 )
-                if type(source_record) is not N4CandidateScenarioSourceRecordV1:
+                if type(source_record_v1) is not N4CandidateScenarioSourceRecordV1:
                     raise TypeError("n4_candidate_scenario_source_record_untyped")
-                source_ref = repository.persist_candidate_scenario_source_v1(
-                    source_record=source_record
+                model_binding = (
+                    handoff.model_declaration,
+                    handoff.model_declaration_ref,
+                    handoff.ncm_ref,
                 )
+                if all(value is None for value in model_binding):
+                    source_record: object = source_record_v1
+                    source_ref = repository.persist_candidate_scenario_source_v1(
+                        source_record=source_record_v1
+                    )
+                elif any(value is None for value in model_binding):
+                    raise ValueError("candidate_simulation_handoff_model_binding_incomplete")
+                else:
+                    source_record_v2 = repository.create_candidate_scenario_source_v2(
+                        source_record=source_record_v1,
+                        model_declaration=handoff.model_declaration,
+                        model_declaration_ref=handoff.model_declaration_ref,
+                        ncm_ref=handoff.ncm_ref,
+                        world_model_record_id=(
+                            handoff.context.world_model_record.world_model_record_id
+                        ),
+                    )
+                    source_record = source_record_v2
+                    if type(source_record) is not N4CandidateScenarioSourceRecordV2:
+                        raise TypeError("n4_candidate_scenario_source_v2_untyped")
+                    source_ref = repository.persist_candidate_scenario_source_v2(
+                        source_record=source_record_v2
+                    )
                 if candidate is not None:
                     identity = (candidate.candidate_id, candidate.atom.content_hash)
                     self._candidate_scenario_source_refs[identity] = source_ref
@@ -8160,6 +8275,7 @@ class GenerationCycleController:
 
         from polisyos.runtime.quality.candidate_simulation import (
             CandidateSimulationContextHandoff,
+            CandidateSimulationN5InputV5,
             CandidateSimulationN5InputV4,
             candidate_simulation_profile_ref,
         )
@@ -8168,6 +8284,7 @@ class GenerationCycleController:
         )
         from polisyos.runtime.quality.generation_source import (
             N4CandidateScenarioSourceRecordV1,
+            N4CandidateScenarioSourceRecordV2,
         )
         from polisyos.runtime.quality.intervention_substrate import (
             _link_candidate_scenario_intervention,
@@ -8212,29 +8329,56 @@ class GenerationCycleController:
             )
 
         try:
-            source_record = repository.load_candidate_scenario_source_v1(
+            source_record = repository.load_candidate_scenario_source_for_n5(
                 source_ref,
                 expected_run_id=handoff.run_id,
                 expected_job_id=handoff.job_id,
                 expected_tenant_id=handoff.tenant_id,
                 expected_cell_id=handoff.cell_id,
             )
+            source_v1 = (
+                source_record.source_record
+                if type(source_record) is N4CandidateScenarioSourceRecordV2
+                else source_record
+                if type(source_record) is N4CandidateScenarioSourceRecordV1
+                else None
+            )
             if (
-                type(source_record) is not N4CandidateScenarioSourceRecordV1
-                or source_record.candidate != candidate
-                or source_record.status != "candidate_unverified"
-                or source_record.proposal.trinity_bundle is None
+                source_v1 is None
+                or source_v1.candidate != candidate
+                or source_v1.status != "candidate_unverified"
+                or source_v1.proposal.trinity_bundle is None
+                or (
+                    type(source_record) is N4CandidateScenarioSourceRecordV2
+                    and (
+                        source_record.model_declaration_ref
+                        != handoff.model_declaration_ref
+                        or source_record.ncm_ref != handoff.ncm_ref
+                        or source_record.model_declaration != handoff.model_declaration
+                    )
+                )
+                or (
+                    type(source_record) is N4CandidateScenarioSourceRecordV1
+                    and any(
+                        value is not None
+                        for value in (
+                            handoff.model_declaration,
+                            handoff.model_declaration_ref,
+                            handoff.ncm_ref,
+                        )
+                    )
+                )
             ):
                 raise ValueError("candidate_simulation_n4_proposal_source_binding_mismatch")
             linked_intervention, selected_policy_spec_ref = (
                 _link_candidate_scenario_intervention(
-                    source_record.proposal.trinity_bundle,
+                    source_v1.proposal.trinity_bundle,
                     intervention_id=candidate.intervention_id,
                     repo_root=self._repo_root,
                 )
             )
             full_policy_spec_ref = gy_content_hash(
-                source_record.proposal.trinity_bundle.policy_spec.model_dump(
+                source_v1.proposal.trinity_bundle.policy_spec.model_dump(
                     mode="json"
                 )
             )
@@ -8248,7 +8392,7 @@ class GenerationCycleController:
                 raise ValueError("candidate_simulation_selected_policy_spec_ref_mismatch")
             interventions = tuple(
                 item
-                for item in source_record.proposal.trinity_bundle.policy_spec.interventions
+                for item in source_v1.proposal.trinity_bundle.policy_spec.interventions
                 if item.intervention_id == candidate.intervention_id
             )
             if len(interventions) != 1:
@@ -8272,38 +8416,76 @@ class GenerationCycleController:
             if not outcome:
                 raise ValueError("candidate_simulation_outcome_not_established")
             profile_ref = candidate_simulation_profile_ref(handoff.profile)
-            input_payload = {
-                "schema_version": "policyos.runtime.candidate_simulation.n5_input.v4",
-                "authority_purpose": "candidate_scenario_n5_only",
-                "source_role": "runtime-config:candidate-simulation",
-                "profile": handoff.profile,
-                "profile_config_ref": profile_ref,
-                "n4_source_ref": source_ref,
-                "context_job_ref": handoff.context_job_ref,
-                "job_id": handoff.job_id,
-                "run_id": handoff.run_id,
-                "tenant_id": handoff.tenant_id,
-                "cell_id": handoff.cell_id,
-                "original_candidate_id": candidate.candidate_id,
-                "original_candidate_hash": candidate.atom.content_hash,
-                "original_n4_atom_hash": candidate.atom.content_hash,
-                "outcome_variable": outcome,
-                "materialization": materialization,
-                "n5": handoff.profile.n5,
-            }
-            hash_payload = CandidateSimulationN5InputV4.model_construct(
-                **input_payload,
-                content_hash="sha256:" + "0" * 64,
-            ).model_dump(mode="json", exclude={"content_hash"})
-            input_record = CandidateSimulationN5InputV4.model_validate(
-                {
-                    **input_payload,
-                    "content_hash": gy_content_hash(hash_payload),
+            if type(source_record) is N4CandidateScenarioSourceRecordV2:
+                if outcome != source_record.model_declaration.outcome_variable:
+                    raise ValueError("candidate_simulation_n5_model_outcome_mismatch")
+                input_payload = {
+                    "schema_version": "policyos.runtime.candidate_simulation.n5_input.v5",
+                    "authority_purpose": "candidate_scenario_n5_only",
+                    "source_role": "runtime-config:candidate-simulation",
+                    "profile": handoff.profile,
+                    "profile_config_ref": profile_ref,
+                    "n4_source_ref": source_ref,
+                    "context_job_ref": handoff.context_job_ref,
+                    "model_declaration_ref": source_record.model_declaration_ref,
+                    "ncm_ref": source_record.ncm_ref,
+                    "job_id": handoff.job_id,
+                    "run_id": handoff.run_id,
+                    "tenant_id": handoff.tenant_id,
+                    "cell_id": handoff.cell_id,
+                    "original_candidate_id": candidate.candidate_id,
+                    "original_candidate_hash": candidate.atom.content_hash,
+                    "original_n4_atom_hash": candidate.atom.content_hash,
+                    "outcome_variable": outcome,
+                    "materialization": materialization,
+                    "n5": handoff.profile.n5,
                 }
-            )
-            input_ref = repository.persist_candidate_simulation_input_v4(
-                input_record=input_record
-            )
+                hash_payload = CandidateSimulationN5InputV5.model_construct(
+                    **input_payload,
+                    content_hash="sha256:" + "0" * 64,
+                ).model_dump(mode="json", exclude={"content_hash"})
+                input_record = CandidateSimulationN5InputV5.model_validate(
+                    {
+                        **input_payload,
+                        "content_hash": gy_content_hash(hash_payload),
+                    }
+                )
+                input_ref = repository.persist_candidate_simulation_input_v5(
+                    input_record=input_record
+                )
+            else:
+                input_payload = {
+                    "schema_version": "policyos.runtime.candidate_simulation.n5_input.v4",
+                    "authority_purpose": "candidate_scenario_n5_only",
+                    "source_role": "runtime-config:candidate-simulation",
+                    "profile": handoff.profile,
+                    "profile_config_ref": profile_ref,
+                    "n4_source_ref": source_ref,
+                    "context_job_ref": handoff.context_job_ref,
+                    "job_id": handoff.job_id,
+                    "run_id": handoff.run_id,
+                    "tenant_id": handoff.tenant_id,
+                    "cell_id": handoff.cell_id,
+                    "original_candidate_id": candidate.candidate_id,
+                    "original_candidate_hash": candidate.atom.content_hash,
+                    "original_n4_atom_hash": candidate.atom.content_hash,
+                    "outcome_variable": outcome,
+                    "materialization": materialization,
+                    "n5": handoff.profile.n5,
+                }
+                hash_payload = CandidateSimulationN5InputV4.model_construct(
+                    **input_payload,
+                    content_hash="sha256:" + "0" * 64,
+                ).model_dump(mode="json", exclude={"content_hash"})
+                input_record = CandidateSimulationN5InputV4.model_validate(
+                    {
+                        **input_payload,
+                        "content_hash": gy_content_hash(hash_payload),
+                    }
+                )
+                input_ref = repository.persist_candidate_simulation_input_v4(
+                    input_record=input_record
+                )
             if currentness_resolver() is not True:
                 raise ValueError("candidate_simulation_worker_lease_not_current")
             if type(self._simulation_port) is not JointSimulationPort:
@@ -8339,7 +8521,12 @@ class GenerationCycleController:
                         }
                     }
                 )
-            execution_ref = repository.persist_candidate_simulation_execution_v4(
+            execution_persist = (
+                repository.persist_candidate_simulation_execution_v5
+                if type(input_record) is CandidateSimulationN5InputV5
+                else repository.persist_candidate_simulation_execution_v4
+            )
+            execution_ref = execution_persist(
                 input_ref=input_ref,
                 simulation=simulation,
                 handoff=handoff,

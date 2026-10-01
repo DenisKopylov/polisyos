@@ -91,6 +91,66 @@ class WorldModelRecordError(ValueError):
         super().__init__(f"{code}: {message or code}")
 
 
+def derive_candidate_scenario_world_model_record(
+    base_record: WorldModelRecord,
+    *,
+    ncm_artifact_id: str,
+    declaration_content_hash: str,
+) -> WorldModelRecord:
+    """Derive one limited WMR that names a declared candidate NCM.
+
+    This pure projection preserves the supplied WMR's substrates and status.
+    It does not write the world, acquire data, or grant empirical authority.
+    """
+    if type(base_record) is not WorldModelRecord:
+        raise WorldModelRecordError("candidate_scenario_base_wmr_untyped")
+    if (
+        base_record.authority_status != "limited"
+        or not ncm_artifact_id.startswith("sha256:")
+        or not declaration_content_hash.startswith("sha256:")
+    ):
+        raise WorldModelRecordError("candidate_scenario_wmr_basis_not_limited")
+    prior_refs = tuple(base_record.simulation_model_ref.ncm_refs)
+    selected_refs = tuple(dict.fromkeys((*prior_refs, ncm_artifact_id)))
+    model_ref = base_record.simulation_model_ref.model_copy(
+        update={
+            "ncm_refs": selected_refs,
+            "assumptions": (
+                *base_record.simulation_model_ref.assumptions,
+                {
+                    "assumption": "declared synthetic candidate model",
+                    "declaration_content_hash": declaration_content_hash,
+                    "status": "candidate_only_not_empirically_grounded",
+                },
+            ),
+            "fidelity_level": "declared_candidate_scenario",
+            "calibrated": False,
+            "calibration_ref": None,
+        }
+    )
+    draft = base_record.model_copy(
+        update={
+            "producer_ref": (
+                "polisyos.runtime.quality.world_model_record."
+                "derive_candidate_scenario_world_model_record"
+            ),
+            "authority_status": "limited",
+            "simulation_model_ref": model_ref,
+            "world_model_record_id": "world_model_record_0000000000000000",
+            "content_hash": "sha256:" + "0" * 64,
+        }
+    )
+    content_hash = world_model_record_content_hash(draft)
+    return draft.model_copy(
+        update={
+            "world_model_record_id": (
+                f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}"
+            ),
+            "content_hash": content_hash,
+        }
+    )
+
+
 class _StrictModel(BaseModel):
     """Strict immutable base model for Runtime-owned consumer DTOs."""
 

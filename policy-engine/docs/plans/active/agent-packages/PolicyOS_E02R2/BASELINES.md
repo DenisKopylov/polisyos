@@ -2991,3 +2991,109 @@ The exact-parent `test_control_service_di.py` whole file at `2913062b0` covers 4
 Claim limits: all 15 E02 `design_axes` pass-to-fail identities pass on integration; a causal link to R10 remains unestablished. Seven main-pass `public_export` identities become setup errors on integration. Two additional integration-only failing identities are not P→F. The exact case identities, full JUnit path/hash table, and per-cell origin results are in [the R9 P41 receipt](R9_PUBLICATION_INTEGRATION_RECEIPT.md#r9-p41-two-file-home-preserving-four-base-replay-2026-10-01), aggregate /Users/deniskopylov/.codex/scratch/E02R2_R9_P41_TWO_FILE_HOME_REPLAY_20261001/runs/r9-p41-home-20261001T012910Z-69253/results.json@sha256:a365dfaf1603445ecc10dac6c6c20763d9efd9eedc89bbc85b9a53d3912bd96a, and identity reconciliation /Users/deniskopylov/.codex/scratch/E02R2_R9_P41_ROOT_RECONCILIATION_20261001.json@sha256:4dba2e62fcba49b3849e96b18511cd7201204fd4681b85c9ebeaa2f84320eca3. Six origin receipts passed; all six executed cells preserved HOME; four frozen checkouts matched their expected refs and were clean.
 
 The independent bounded TypeScript gate at the same `edb2` head is recorded in the R9 receipt and frozen receipt /Users/deniskopylov/.codex/scratch/e02r2-tscheck-edb2-20261001/TS_TYPECHECK_RECEIPT.md@sha256:2d1a6cebdd7da426544f9ab1617088c7751d2fd1357464d30b5f3e787dadcf09; it does not establish runtime or R9 closure. R9 remains partial; the global replay is still open, and this matrix changes no ledger status/count.
+
+## R9 canonical-ID protocol/CAS-03 pre-repair P41 at `d0e65aa` (2026-10-01)
+
+**Discrepancies first.** This baseline is the clean pre-repair integration cut `d0e65aa59385913c7996b89eb617209bf7548eef`, not the later candidate run. Pins: Execution `78187878ee188ff6d27442ba1498bd094da9785b`; E02 `00d946c2b7d052522be092f9c70eb9902f6521c2`; Main `5fd3ebcc15637e98bbd4938de5d62ee5004504a8`; integration `d0e65aa59385913c7996b89eb617209bf7548eef`. Denominator: two whole files × four refs = 8 requested cells; 6 present cells executed, 2 CAS-03 cells structurally Git-MISSING; 49 testcase observations. All six executed origin receipts passed; the production-data symlink remained read-only with manifest `/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json@sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`.
+
+| Whole file | Execution `78187878e` | E02 `00d946c2b` | Main `5fd3ebcc1` | Pre-repair integration `d0e65aa` |
+|---|---:|---:|---:|---:|
+| `policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py` | 8 passed | 8 passed | 8 passed | 8 passed / 1 failed (7 common pass, 1 shared P→F, 1 current-only pass) |
+| `policy-engine/tests/unit/remediation/test_cas_03.py` | MISSING / UNRUN | 8 passed | MISSING / UNRUN | 8 failed |
+
+The protocol failure is `test_iter_artifact_ids`, which passed at all three historical refs; the current-only `test_core_artifacts_facade_exports_backend_factory` passes. CAS-03 is absent in the Execution and Main trees, so those cells have no behavioral outcome. The unique E02→integration P→F total is **9**: seven CAS-03 batch cases and `test_iter_artifact_ids` are the unhashable typed-`ArtifactID` class; `test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot` is a separate manifest-read-count mismatch (observed 3, expected 1). This reconciles the broker's initial missed shared identity; exact identities are in the root reconciliation and correction memo.
+
+The patch freeze and static review preceded completion of this baseline; the baseline nevertheless ran against the unchanged, clean `d0` checkout before candidate runtime admission. Thus this is the pre-repair owner measurement, not a replay of a patch or post-repair integration. Results `/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/results.json@sha256:d359bca1c689de162ba1bcdc1e1fc4224cf84ddb55bb1d4154c4283f8467bf52`; root identity reconciliation `/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_ROOT_RECONCILIATION_20261001.json@sha256:e45862c42dca4295498ddd6123b11dbc04280c015ce6c06fa4c5c36787e8924b`; case correction `/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_CASE_MATRIX_CORRECTION_V1_20261001.md@sha256:93c3fcfe76e18102d9c0a2a3a127478a20afa1fbf040945f532498fb83077942`.
+
+### Follow-on candidate run (not a four-base cell)
+
+The frozen three-path candidate patch (`store.py` plus the protocol and CAS-03 tests) was statically reviewed GO, then executed on candidate branch `codex/e02-r2-r9-publication@336d0ab`; source remains outside the integration branch. Its 27 outcomes were protocol 9 pass / 1 fail (new scoped-view fixture expected 3 inventory rows, observed 5), CAS-03 5 pass / 4 fail (manifest-read count, pending-window, cancellation, lazy-inventory cancellation), and `public_export` has 7 pytest setup errors and 1 test-body failure; all eight stop in case construction on the same `ArtifactOwnershipError` (a claimed registry bundle requires an active owner for `write input:registry_bundle`), before any HTTP assertion runs. This is not a closure result; the new failures and setup refusal remain under owner review. Aggregate result `/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/results.json@sha256:ef5c571dd5dddbeecb32edea71927465e884369a3854755acd94ceb5fc4ad49b`; frozen patch `/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_FREEZE_20261001T0234Z/candidate.patch@sha256:5c506687335410a3fb31bb03d42decc31676d4de9663f944bdb2ef099022a0f5`; review `/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_FREEZE_20261001T0234Z/INDEPENDENT_CODE_REVIEW.md@sha256:79d20829fdc5b6117020e6962274cdf6596ecdde24c5054698a9d3647fcd3de4`.
+
+No ledger status changes follow. B152, B154, and B155 remain partial under their CAS-03 cards; the manifest snapshot residual is not reclassified as R10/P20. Finding-level classification `/Users/deniskopylov/.codex/scratch/e02r2-r10-cas03-finding-classification-20261001-v1/R10_CAS03_FINDING_CLASSIFICATION.md@sha256:094ce6fac6bd96e0242d3ebac5b4c4a4ffa58b4cecb986a7a39d08e112c3bbb2`.
+
+## R9 V5 candidate run and R1 resource-guarded attempt (2026-10-01)
+
+**Discrepancies first.** This is an isolated candidate cohort plus a separate R1 attempt, not a post-integration four-base replay. R9 code now sits at integration `8b40f8f5a8d838235a22b92e6f9adc84f006e551`, but the R9 run used candidate parent `324eb3d2fbc5f0ad1af80495ebac469ecc6762b4` plus the frozen patch, later preserved as `d66327d876c1b6453976a71202db845c7a270600`. The root has not replayed this cohort against integration.
+
+| Candidate whole file | Cases | Outcome |
+|---|---:|---:|
+| `tests/unit/core/artifacts/test_artifact_store_protocol.py` | 10 | 10 pass |
+| `tests/unit/remediation/test_cas_03.py` | 9 | 5 pass / 4 fail |
+| `tests/unit/runtime/http/test_public_export.py` | 8 | 3 pass / 5 fail |
+| **Total** | **27** | **18 pass / 9 fail; 0 setup errors** |
+
+All three origin audits passed; the 6,414 tracked Python/config input set was unchanged; no resource guard fired in this R9 cohort. The served path issued successfully (201) and then returned verification 200 with `report_authentication=invalid`. The four CAS-03 failures cover repeated manifest reads, eager explicit-input consumption, cancellation, and eager default inventory. These outcomes do not establish the invalid receipt's cause or close R9.
+
+The removal probe temporarily replaced `_canonical_artifact_id_sequence` at the selected test call with a tuple-preserving identity sequence, retaining its symbol and call sites. Its two selected tests behaved as required: `test_verify_batch_deduplicates_equivalent_typed_ids_from_generator` failed with `total=2` instead of 1; the distinct-ID `test_verify_batch_records_preflight_error_without_marking_it_valid` control passed. The first adapter mislabeled shorthand `fail/pass`; the correction reconciles the preserved raw JUnit and does not add a rerun.
+
+R9 deciding inputs: candidate aggregate `/Users/deniskopylov/.codex/scratch/R9_FIXTURE_SCOPE_RUNTIME_GROUPS_20261001/runs/r9-fixture-scope-20261001T043147001594Z-7326/results.json@sha256:99f0f7efdbdb0c71288963cf47aff3845ec014d0660b2f78c785ba7772a9bae4`; identity and JUnit reconciliation `/Users/deniskopylov/.codex/scratch/R9_V5_ROOT_WHOLE_FILE_RECONCILIATION_20261001.json@sha256:cc2d1fbe9f584c8bb63ba22e41200c3f49c632a62924913218ba55e6f4dd8dd4`; probe correction `/Users/deniskopylov/.codex/scratch/R9_FIXTURE_SCOPE_RUNTIME_GROUPS_20261001/removal-probe/run-20261001T044421579302Z/ROOT_VERDICT_LABEL_CORRECTION.json@sha256:4a603e539125b264e32362d77e7c2ffc3891410725e65a2e30f04b89c31279f4`. Integrated checkpoint receipt `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R9_CANONICAL_ID_RECEIPT.md@sha256:e68893a61bea214c6f8763220801b7650c28c598cfd89a84852f396a15e7d9ba`.
+
+The earlier V8 R1 attempt was one selected node on candidate branch `codex/e02-r2-r1-candidate-scenario@bc38d4a59253ba6295cecb8d9681b172158cde76`; it is not current-integration evidence. It ended after 29.51 seconds with child pytest return `-15` and harness verdict UNRUN / exit 125. Peak process-group RSS was 4,423,024 KiB against the 4 GiB guard; minimum free RAM was 32%, swap grew 140,697,928 bytes, and minimum free scratch volume was 11.16 GiB. JUnit was zero bytes, the origin object was missing, and the stage observer had 10 owner entries / 6 exits with four unfinished spans. Frozen 6,715 tracked inputs were unchanged. This attempt establishes no product pass/fail and no current served witness.
+
+R1 raw runtime result `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T044616Z_8681/runtime-result.json@sha256:04532c7cb8b6ed752b9ac8ffc0b7965c6bde36b51f9839fbc8854bde5c96db6b`. The R9 and R1 cohorts above do not satisfy the complete Appendix A/B and touched-file four-base replay.
+
+## R1 production-substrate stack diagnostic (2026-10-01)
+
+The next one-node attempt used the same frozen R1 source and resource caps,
+with only pytest's built-in `faulthandler_timeout=8` added to retain one
+Python stack. No locals, argument values or environment were captured.
+It finished UNRUN / exit 125 after 24.775 seconds: the aggregate CPU guard
+reported 524% against its 500% limit and terminated pytest (`-15`). Peak
+aggregate RSS was 3,073,760 KiB, minimum free RAM 46%, swap growth zero and
+minimum free disk 11.06 GiB. All 6,715 tracked inputs and 13 R1 path pins
+were unchanged; the process-group fence was CLEAR with no remaining groups.
+JUnit and final module-origin inspection were absent, and stage observation
+was incomplete (10 entries / 6 exits); this is no product pass/fail verdict.
+
+The retained main-thread stack shows
+`design_generation._content_bound_candidates` →
+`credal_reference.build_credal_reference` → `_production_world_model_record`
+→ `intervention_substrate._production_composed_world_model_record` →
+`data_state_substrate._project_real_l4_payload` during the controlled-profile
+request. This narrows the source/context-bypass diagnosis before N5; it does
+not establish cumulative allocation cost, universal reachability or a
+successful served chain. The pending repair must use the existing supplied
+owner-bound context and preserve the ordinary production route.
+
+Result:
+`/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T051318Z_13102/runtime-result.json@sha256:a945b0181e0afcc5031e4ce3c05ad7404a404293147e2a80feb947896558a99d`.
+Retained stack:
+`/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T051318Z_13102/cells/r1_patch/test_configured_candidate_simulation_served-0c391d57c1b4.stderr.log@sha256:0bd110103f7a04e5cb4e596cfe4463b8a94b2b28bfc6cd42611929cf296086cd`.
+
+## R1 V9 served candidate single-node result (2026-10-01)
+
+**Discrepancies first.** Requested and executed denominator: one selected test node. The candidate run completed with one failure and no resource guard; its root/head were `codex/e02-r2-r1-candidate-scenario@bc38d4a59253ba6295cecb8d9681b172158cde76`, not the integration head. The prior V8 resource-guard UNRUN is a separate older attempt. This result is not a whole-file or four-base P41 replay.
+
+| Test node | Cases | Outcome |
+|---|---:|---|
+| `tests/integration/runtime_quality/test_configured_candidate_simulation_served.py::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift` | 1 | 1 failed in call phase; setup and teardown passed |
+
+The test observed the served job terminate `failed` rather than `completed`. The root reconciliation assigns the emitted `unknown_voi_action_not_fail_closed` at recursive cycle 0 to the E02-R2 controlled candidate result/VOI composition (`scheduler_action=candidate_scenario_n5_only`); inherited status is not asserted. The observer completed 12 owner entries / 12 exits, but recorded `JointSimulationPort.__init__` and no `JointSimulationPort.__call__`, so this is not a positive N5 witness.
+
+The origin instrument passed: 1,728 loaded Python modules; 6,715 frozen inputs unchanged; 15 test-support modules; zero foreign origins. The test's nonzero exit records the product-property failure and does not mean origin inspection failed. Runtime was 32.376 s; peak process-group CPU 100%; peak RSS 1,078,096 KiB; minimum free RAM 57%; swap growth 0 bytes; no guard fired. Pytest/JUnit has one failed case and no setup errors.
+
+Root reconciliation `/Users/deniskopylov/.codex/scratch/R1_V9_ROOT_COMPLETE_FAILURE_RECONCILIATION_20261001.json@sha256:05e8eaad39ba23bb62f98532d697f608fad17ddb690fc161428cb8bfe0dc104a`; raw runtime result `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T054820Z_16952/runtime-result.json@sha256:0b468b99301e3eb3486097eacc66f211d992a1178f7f6f192883d954a2ac378c`; JUnit `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T054820Z_16952/cells/r1_patch/test_configured_candidate_simulation_served-0c391d57c1b4.junit.xml@sha256:f7c561d866a8e6f8a832b02abba7db7f875246d5e92dd7206e3e81a20bf1e9b8`.
+
+R14's post-edit replay remains UNRUN. This result changes no finding status or ledger count. A completed candidate-path failure is evidence to diagnose; it does not establish failure or success at the integration head, a positive N5 path, authority-band admission, S8, or R1 closure.
+
+## R14 post-edit current15 and R9 V4 whole-file candidate (2026-10-01)
+
+| Scope | Complete case denominator | Result | Comparison |
+| --- | ---: | --- | --- |
+| Canonical `695ef7fd3`, EvalSafety service whole file | 15 | 14 pass / 1 fail, 67.283 s | Same 15 pre/post identities; 0 pass→fail. New witness stops at canonical loaded-deployment identity `not_established`, before N9. |
+| R9 candidate `d66327d` plus frozen V4 patch, protocol whole file | 10 | 10 pass, 2.126 s | 10 shared identities; 0 pass→fail. |
+| Same candidate, CAS-03 whole file | 16 | 15 pass / 1 new fixture failure, 3.171 s | 9 shared identities; 4 fail→pass / 0 pass→fail; 7 added cases. |
+
+R14 origin: PASS, 1,680 loaded Python modules, 13 support modules, one test module, 10,038 frozen paths including exact 16 acknowledged foreign documents; no foreign origins or drift. R9 origins: both PASS over 6,414 frozen paths. No guard fired. Each run used one process group and read-only production-data linkage. The raw resource measurements and every exact JUnit identity are retained in the root receipts below; these are current/candidate comparisons, not a four-base closure or a public-read witness.
+
+R14 receipt `/Users/deniskopylov/.codex/scratch/R14_CURRENT15_POST_ROOT_RECONCILIATION_20261001.json@sha256:ca19f9278424da7a011d27014fcdc374badff7256786a06019502365236aa2fd`; raw result `/Users/deniskopylov/.codex/scratch/e02-r14-current15-baseline-20261001/r14-current15-post-20261001T061223Z-20134-1e6e9c8a/result.json@sha256:f9d75e00f18459220550860ec23a4278d3a90e868cd71177a1b3cf67a23d16b0`.
+
+R9 receipt `/Users/deniskopylov/.codex/scratch/R9_CAS03_V4_ROOT_WHOLEFILE_RECONCILIATION_20261001.json@sha256:0dd0b9db2ecde71e8a70ab5be0e482a0ddb387200b989af9ba48cc9bc707ae82`; raw result `/Users/deniskopylov/.codex/scratch/R9_CAS03_V4_WHOLEFILE_ADAPTER_PREP_20261001/runs/r9-cas03-v4-wholefile-20261001T061307534281Z-20418/results.json@sha256:b04508ed901830208b4c24b864dc1d3dd6505b86a62490574da0aa933f1d3895`.
+
+The new R9 telemetry fixture fails at `put_bytes` because `RecordingMetrics.artifact_operations_total` is absent. Its intended corrupt-manifest/valid-control property is UNRUN; use the existing metrics owner rather than a partial substitute. The R14 new source-consumer property is also unverified; no deployment identity or governed receipt is restamped to make it pass.
+
+## R9 V5 snapshot/batch and two falsifiers (2026-10-01)
+
+Requested and executed: two whole files, 26 JUnit cases. Protocol 10/10 pass in 2.103 s; CAS-03 16/16 pass in 3.164 s. The same 26 V4→V5 identities have one fixture fail→pass and zero pass→fail. Both origin audits pass on 6,414 frozen source/test/config paths; no drift or resource guard. This is candidate evidence, not integrated-head or four-base verification.
+
+Two-case current iterator removal: duplicate-ID case red at `total=2`, distinct-ID preflight-error control green. Separate one-case residual falsifier: red with six filesystem scans after cancellation. Its expected-red runner pass does not establish cancellation. Complete deciding receipts and hashes: [R9_BATCH_SNAPSHOT_RECEIPT.md](R9_BATCH_SNAPSHOT_RECEIPT.md). B152/B154/B155 and ledger totals unchanged.

@@ -6367,9 +6367,9 @@
       "status": "held",
       "appendix_c_comparison": {
         "relation": "agreement_held_blocker_refined",
-        "detail": "Appendix C held remains. The v2 prepared-read candidate's three local state-reference replay selectors pass, but the reviewer found source-identity bypasses: current existing-reference fast paths can return an old artifact while WorkflowExecutor attaches the current prepared-read event. The direct review was chat-only and is recorded as an orchestrator reconciliation receipt. The earlier real executor/cache candidate run was 12/13. Same-path mutation/removal and current four-base tests remain UNRUN; no stale production hit is asserted."
+        "detail": "Appendix C held remains. The prior v2 candidate’s three existing-reference bypasses and 12/13 specialized-ref reconstruction result are historical and are superseded for the integrated V11 source. At integration commit cb4c6b82e the complete V4 B61 wave passed 121/121 cases in 13 whole files. The run includes same-path SKG-byte mutation through existing literature-prior, cross-graph-profile, and ResolveParameters refs (the tests require new outputs), plus a marker-retaining cache-key-binding removal probe. The reconciled four-base cohort is 13 named files × 4 pins = 52 cells: 49 present whole-file PASS cells, three Git-absent UNRUN cells for the newly added prepared-read integration file at the three historical bases, and 393 passing cases total. All six pairwise common-case comparisons have zero pass→fail. The 20 paths in the B61 integration commit (one receipt, 19 source/test paths) are unchanged through current head 252f6b8e2. These bounded results establish the tested cache/source identity behavior, not issuer authority: the runtime computes a local full-file digest and uses the bound read-only connection; it does not establish an owner-issued SKG snapshot/ref, issuer authenticity, K_ref custody, production-data behavior, row-to-output dependence, hash-to-MVCC correspondence beyond the recorded WAL/filesystem checks, production-scale hash cost, or deployment timeout routing. One data_record remains: an owner-issued immutable SKG source identity/read-handle record binding issuer provenance, exact selected/consumed bytes, query, and run/cache scope has not been supplied. Retain held; no source authority or finding closure is claimed."
       },
-      "residual": "One data_record/source-binding blocker remains. The scratch prepared-read candidate proposes a snapshot, selector/query binding and cache-input preparation, but the v2 reviewer found three existing-ref fast paths in BuildLiteraturePriorNode, CompileCrossGraphEvidenceNode and ResolveParametersNode that omit the same source-read identity; WorkflowExecutor can then attach a newly prepared read to an old output. The v2 candidate's local typed StateMutation replay passed 3/3, which does not exercise those paths; its earlier real executor/cache witness was 12 passed / 1 failed on specialized-ref reconstruction. The direct review returned NO-GO (chat-only receipt linked in OPEN_PREMISES.md). Close only after same-path source mutation tests exercise each live shortcut, keep the exact consumed bytes bound to the returned artifact, and a no-change cache-hit control passes. No production stale hit or P41 result is claimed.",
+      "residual": "One owner data_record remains. Integrated V11 prepares a read by streaming a SHA-256 over the selected database file, checking file identity and WAL state around binding, and executing through that same read-only connection; the digest participates in cache identity. Configured existing-ref paths for BuildLiteraturePriorNode, CompileCrossGraphEvidenceNode, and ResolveParametersNode now recompute from the prepared read, with same-path changed-byte cases requiring different output refs. This supersedes the earlier v2 stale-ref bypass and its 12/13 specialized-ref failure. The computed digest/transaction is a technical cache identity, not an owner-issued immutable/versioned SKG source record or proof of issuer authenticity, K_ref custody, or source authority. Synthetic fixtures do not establish production source behavior or semantic row-to-output dependence. The smallest remaining record is an SKG-owner issued source snapshot/read handle binding owner provenance and the exact selected/consumed bytes, query, and run/cache scope before cache reuse is decided. Preserve held and the single data_record; do not introduce a second source/admission path.",
       "residual_owner": {
         "kind": "data_record",
         "name": "SKG source owner and ResolveParametersNode run-scope binding",
@@ -6379,25 +6379,28 @@
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "kind": "complete_source_review_no_behavior_run",
-          "identity": "B61 ResolveParametersNode live SKG selection/cache-key owner census",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B61",
-          "behavioral_verdict": "UNRUN",
-          "scope": "Complete 2,696-file product Python and 2,732-file test Python census plus resolver/source trace. No resolver mutation/removal test was run; no behavioral closure or P41. P38: cache key uses declared path state while selected SKG bytes are consumed through a live query before the version/ref is read.",
+          "kind": "bounded_behavioral_test_receipt_or_source_audit",
+          "identity": "B61 same-path SKG content change and existing-ref cache behavior; V11 integration plus four-base cohort",
+          "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@sha256:7250b5ad19321e5e3ad65da5bb318a84c95c6bf7ae97c5c53bda437881680431",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "At integration commit cb4c6b82e the complete V4 B61 wave passed 121/121 cases in 13 whole files. The run includes same-path SKG-byte mutation through existing literature-prior, cross-graph-profile, and ResolveParameters refs (the tests require new outputs), plus a marker-retaining cache-key-binding removal probe. The reconciled four-base cohort is 13 named files × 4 pins = 52 cells: 49 present whole-file PASS cells, three Git-absent UNRUN cells for the newly added prepared-read integration file at the three historical bases, and 393 passing cases total. All six pairwise common-case comparisons have zero pass→fail. The 20 paths in the B61 integration commit (one receipt, 19 source/test paths) are unchanged through current head 252f6b8e2. These bounded results establish the tested cache/source identity behavior, not issuer authority: the runtime computes a local full-file digest and uses the bound read-only connection; it does not establish an owner-issued SKG snapshot/ref, issuer authenticity, K_ref custody, production-data behavior, row-to-output dependence, hash-to-MVCC correspondence beyond the recorded WAL/filesystem checks, production-scale hash cost, or deployment timeout routing.",
           "package_test_selector_groups": [
             "bundle_test_selectors/STA-02"
           ],
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a",
-            "/Users/deniskopylov/.codex/scratch/e02-r2-h-b31-b61-b219-la031-la032-20260927/H_CLASS_CLOSEOUT_AUDIT.md@sha256:d832f87cabacb3f21f07fb86dd686c407431dc2b683c18c55e13da280d21e032#B61"
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B61_PREPARED_READ_V11_INTEGRATION_RECEIPT.md@sha256:f2dc99d219790756a46c8eebcde625fb3be152befe2606dc71937c6c3482bdc4",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@sha256:7250b5ad19321e5e3ad65da5bb318a84c95c6bf7ae97c5c53bda437881680431",
+            "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-custom-20260930T221819Z-30338/results.json@sha256:1156fd7cc57bb7e9b16384a259b10d18b298cf248d75b51ae29aa9127b83b12c",
+            "/Users/deniskopylov/.codex/scratch/E02R2_B61_P41_ROOT_RECONCILIATION_20261001.json@sha256:9d1fa728a15c1bc39af1ce0063649100968d64ad41b5839a47098f57d8a99c7f",
+            "/Users/deniskopylov/.codex/scratch/e02-b61-cyc05-integrated-1366-20261001/b61-v4-whole.junit.xml@sha256:315276088e696bf9fe7b3ea4bc0ee0528283a6c5939ca270a8dea95c102e896d"
           ]
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN",
-        "blocker_path_at_sha": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py@git-blob:365ce2b0efcd55b1e47f823057b2201e37c68cb3",
-        "blocker_path_scope": "ResolveParameters live SKG query, selected source bytes and cache-key binding; a separate SourceSnapshot path exists but does not wrap this query.",
-        "held_audit_receipt_status": "read_only_h_card_audit_complete; current status held; one data_record; complete source census and P38 divergence recorded; mutation/removal/control and P41 remain UNRUN",
+        "finding_test_status": "PASS_BOUNDED",
+        "blocker_path_at_sha": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py@git-blob:88c9553da1377e28418bcb06b00449010409a011",
+        "blocker_path_scope": "Current PreparedSKGRead source-byte digest and bound read-only query transaction. This code supplies a local technical cache identity; the remaining blocker is the absent SKG-owner-issued provenance/authenticity record and K_ref custody, not the former resolver path-only cache binding.",
+        "held_audit_receipt_status": "Integrated V11 bounded behavior PASS (121/121); four-base cohort 49 present whole-file PASS cells, three verified Git-absent historical cells UNRUN, 393 pass outcomes, and zero pass-to-fail among six pairwise common-case comparisons. B61 source/test paths are unchanged from cb4 through 252f. Owner-issued source authenticity/provenance and K_ref custody remain not established; keep held with one data_record.",
         "held_review": {
           "identity": "current source/card and complete owner-census review; no behavior run",
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-held-substrate-recheck-20260926/B61_B219_RECHECK.md@sha256:04f363586832faca6a265edf35403190e1a191f7679648becaddec245e05199a#B61",
@@ -6418,7 +6421,7 @@
         },
         "h_n_review_disposition": [
           "data_record",
-          "Record an owner-issued immutable SKG snapshot/read handle proving selected bytes are the bytes consumed and named by the cache key; mutation refusal and frozen-byte reuse remain unrun."
+          "Provide an SKG-owner-issued immutable/versioned source snapshot or read-handle record binding issuer provenance, exact selected and consumed bytes, query, and ResolveParametersNode run/cache scope before reuse. The local content digest and prepared read transaction establish bounded cache behavior but are not that owner admission record."
         ],
         "current_hn_review": {
           "identity": "E02-R2 H/N current evidence reconciliation:B61",
@@ -6432,7 +6435,7 @@
           "scope": "Across 2,696 tracked source Python files, SourceSnapshot occurs in five files/11 occurrences with one class and one constructor in a different path; the resolver does not consume that handle. The resolver key hashes declared path state, selects data through a live query, then records a version. This is source-only evidence; behavioral mutation/removal is UNRUN."
         },
         "h_n_review_notes": [
-          "Keep held with exactly one data_record. Do not claim snapshot primitives are absent globally: SourceSnapshot exists but is on a separate bridge and is not accepted by ResolveParametersNode. The required record and live-query binding are not established."
+          "Keep held with exactly one data_record. SourceSnapshot/PreparedSKGRead is now wired through ResolveParametersNode and the live query/cache-input path; prior source-only notes saying the resolver did not consume that bridge are historical. Do not conflate its locally computed digest/read receipt with issuer-authenticated source identity, provenance, or K_ref custody. Output dependence and production-source authority remain unestablished."
         ],
         "latest_h14_source_review": {
           "identity": "2026-09-27 H-class current-source closeout review:B61",
@@ -13150,7 +13153,7 @@
         }
       }
     },
-    {
+        {
       "id": "B152",
       "source_kind": "B",
       "source_title": "Одна проверка целостности трижды хэширует те же bytes, а проверка подписи повторно читает их",
@@ -13165,13 +13168,13 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C marks B152 closed_bounded. The cited E02 CAS-03 receipt (CAS-03 J0676/J0680 bounded integrated stages) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Одна проверка целостности трижды хэширует те же bytes, а проверка подписи повторно читает их' (source card line 3965: 'S; хороший первый ремонт при использовании верификации.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure. The 282-card audit found the prior package-derived R-class assignment unsupported by this card discriminator; no R9/R10 link is established here, and the finding-level behavior remains UNRUN."
+        "detail": "Appendix C closed_bounded is historical only. The d0 integration replay and a later post-helper candidate both directly fail B152’s read-once assertion (blob=1, manifest=3; expected 1/1). The candidate result is not integrated and does not close B152. Keep current status partial pending owner repair and the removal/preserving controls."
       },
-      "residual": "The source-card discriminator is 'Одна проверка целостности трижды хэширует те же bytes, а проверка подписи повторно читает их' (criterion: 'S; хороший первый ремонт при использовании верификации.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L3965). The E02 receipt identifies the finding in the CAS-03 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN.",
+      "residual": "The J0676-mapped selector fails at d0 and again on the post-helper R9 candidate: blob reads remain 1, but manifest reads are 3 rather than the asserted 1. Candidate whole-file run: 5/9 CAS-03 cases pass and four fail; this selector directly exercises the B152 read-once discriminator. The candidate is not integrated. Keep partial until the shared manifest-read path passes, a marker-retaining second-read removal probe turns red, and valid-signature plus integrity/size refusal controls pass.",
       "residual_owner": {
         "kind": "verification_owner",
-        "name": "CAS-03 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
-        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+        "name": "R9 CAS runtime owner and CAS-03 finding-level verification owner",
+        "appointment_status": "The R9 shared-boundary implementation owner is the residual owner; individual implementation and finding-verification appointments are not established."
       },
       "r_class": null,
       "p_triage": null,
@@ -13181,7 +13184,7 @@
           "identity": "source_record_inspection:B152",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/B152",
           "behavioral_verdict": "UNRUN",
-          "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Одна проверка целостности трижды хэширует те же bytes, а проверка подписи повторно читает их' (criterion excerpt: 'S; хороший первый ремонт при использовании верификации.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
+          "scope": "This earlier complete-card audit did not discover selector mapping in its package-level projection. It did not run behavior; its UNRUN verdict is preserved as an audit-scope fact, not as a claim that no selector mapping exists. The later independent J0676 review supplies the exact historical selector mapping in historical_selector_reconciliation.",
           "package_test_selector_groups": []
         },
         "package_record": "e02_package_projection",
@@ -13192,9 +13195,12 @@
           "scope": "CAS-03 declares B152 and its distinguishing behavior/scope."
         },
         "current_r2_replay": {
-          "identity": "four-base full-file P41 replay",
-          "behavioral_verdict": "UNRUN",
-          "scope": "not a negative result; broker receipt not yet complete"
+          "identity": "Four-base full-file P41 replay at d0e65aa; exact selector from test_cas_03.py",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/results.json@sha256:d359bca1c689de162ba1bcdc1e1fc4224cf84ddb55bb1d4154c4283f8467bf52",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_cas_03-391db3c26b24.junit.xml@sha256:1a741eccb2779941cfa8b6833008b65fb9f4185d5c0afd883c4a9f2e6e4cc609",
+          "behavioral_verdict": "FAIL",
+          "test_run_outcome": "E02 head PASS for all eight CAS-03 selectors; integration head FAIL for all eight. This B152 selector measured blob=1 and manifest=3, where its assertion expects blob=1 and manifest=1. The module is structurally MISSING at E02 execution base and main.",
+          "scope": "Observed direct counter mismatch for B152 at current integration head. No current digest/hash-count result is asserted. Six executable cell origin receipts passed inspection; the two absent module cells are structural MISSING, not UNRUN process attempts."
         },
         "package_level_receipt": {
           "kind": "package_level_receipt",
@@ -13212,8 +13218,102 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-ledger-card-audit-20260925/LEDGER_CARD_AUDIT.md@sha256:a010d184a7528340cdf129cd09e467b2845faecbb1af0fc8297190c8fd0c95ed",
           "behavioral_verdict": "UNRUN",
           "scope": "Source/card mapping correction only; no finding-level behavior was run."
+        },
+        "historical_selector_reconciliation": {
+          "identity": "CAS-03 J0676 historical selector reconciliation",
+          "review_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-CAS-03-CURRENT-R1/reviews/CAS-03-J0676-independent-bounded-verdict.md@sha256:6cdcc936d685ac2f917d13a533bf46ef48c11bae683f2952f0328004d49d8fd4",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-CAS-03-CURRENT-R1/outputs/E02-J0676-L-CAS03-current-r1/junit.xml@sha256:24ad999866b7465c1d30ba1aae406041a16f229b8253ecaceb751cec00ab7979",
+          "supporting_j0506_junit_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260921-CAS-03-GREEN-R3/outputs/E02-J0506-L-CAS-03-green-r3/junit.xml@sha256:ccccfe1ea01da11b6e8cebe0512d775f99fa5a3e932adfc8d42dc09680ecec1f",
+          "behavioral_verdict": "PASS_AT_HISTORICAL_SOURCE_PIN_ONLY",
+          "source_pin": "07b99fedb3919767a768d7c61af17ca37781b51e for J0676; J0506 at 32b539f7c2d1e6632243228ba4287d11220eaceb",
+          "scope": "Historical selector evidence only; it does not establish current d0e65aa behavior. The independent J0676 review maps selector 1 to B152, selectors 2–5 to B154, and selectors 6–8 to B155.",
+          "finding_selector_scope": [
+            "tests/unit/remediation/test_cas_03.py::test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot"
+          ],
+          "source_card_path_at_sha": "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L3965-L3976",
+          "current_test_source_path_at_sha": "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:85a0200f8a54a412a66cbfb2c66bf6f5568aee22cc65cdb3320cccdadb1bec83",
+          "r10_scope_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R10_P20_P40_CLASSIFICATION_20261001.md@sha256:8f74ad76388540f7576a44c983351182c0fc3205728e7d1f86126ccabe75c473"
+        },
+        "current_source_refs": [
+          "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/store.py@sha256:b70ba445cb1f5b7692ab11308285ce6627eebbb3994f0b45b68ca53c511c8d54",
+          "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py@sha256:b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966",
+          "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:85a0200f8a54a412a66cbfb2c66bf6f5568aee22cc65cdb3320cccdadb1bec83"
+        ],
+        "r9_p20_class_separation": {
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R10_P20_P40_CLASSIFICATION_20261001.md@sha256:8f74ad76388540f7576a44c983351182c0fc3205728e7d1f86126ccabe75c473",
+          "scope": "The P20 string-ID normalization class remains separate from this CAS-03 read-once property; this ledger row retains reported_test_catalog=R10 and r_class=null."
+        },
+        "d0_four_base_reconciliation": {
+          "identity": "Corrected four-base P41 case-identity reconciliation at d0e65aa, pre-repair",
+          "raw_results_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/results.json@sha256:d359bca1c689de162ba1bcdc1e1fc4224cf84ddb55bb1d4154c4283f8467bf52",
+          "cas03_integration_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_cas_03-391db3c26b24.junit.xml@sha256:1a741eccb2779941cfa8b6833008b65fb9f4185d5c0afd883c4a9f2e6e4cc609",
+          "cas03_integration_origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_cas_03-391db3c26b24.junit.origin.json@sha256:19f2475b80813d6b5e4a7bbb70a033855564f5b0a5027e341ed4fcb19c622e2f",
+          "root_case_identity_reconciliation_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_ROOT_RECONCILIATION_20261001.json@sha256:e45862c42dca4295498ddd6123b11dbc04280c015ce6c06fa4c5c36787e8924b",
+          "correction_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_CASE_MATRIX_CORRECTION_V1_20261001.md@sha256:93c3fcfe76e18102d9c0a2a3a127478a20afa1fbf040945f532498fb83077942",
+          "e02_to_d0_unique_pass_to_fail_identities": 9,
+          "split": {
+            "test_cas_03.py": 8,
+            "test_artifact_store_protocol.py": 1
+          },
+          "d0_observations": "All eight CAS-03 selectors pass at E02 head and fail at d0 integration; the module is structurally MISSING at E02 execution base and main. Selector 1/B152 observes blob=1, manifest=3 versus 1/1. Selectors 2–8, mapped 2–5/B154 and 6–8/B155, fail on the shared unhashable ArtifactID boundary before those card properties run. The ninth identity, test_iter_artifact_ids, passes at execution/E02/main and fails at d0. The current-only facade-export case passes and is not a regression.",
+          "property_scope": "At d0, B154/B155 semantic verdicts were UNRUN behind the shared owner-boundary failure. This historical pre-repair result is not superseded by the candidate-only cohort."
+        },
+        "post_helper_candidate_replay": {
+          "identity": "R9 post-helper candidate whole-file cohort, candidate-only and not integrated",
+          "candidate_branch": "codex/e02-r2-r9-publication",
+          "candidate_head": "336d0ab73db44bba91ccb250746a55f258d0933f",
+          "candidate_patch_sha256": "5c506687335410a3fb31bb03d42decc31676d4de9663f944bdb2ef099022a0f5",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/results.json@sha256:ef5c571dd5dddbeecb32edea71927465e884369a3854755acd94ceb5fc4ad49b",
+          "source_freeze_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/origin_freeze.json@sha256:29c1cfbf3282e38633200a76f14e71c9c4727fad81b1db38e4fb6d61c003f22c",
+          "source_freeze_denominator": 6414,
+          "whole_file_denominator": {
+            "test_files": 3,
+            "test_cases": 27
+          },
+          "whole_file_outcomes": {
+            "tests/unit/remediation/test_cas_03.py": {
+              "passed": 5,
+              "failed": 4
+            },
+            "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+              "passed": 9,
+              "failed": 1
+            },
+            "tests/unit/runtime/http/test_public_export.py": {
+              "passed": 0,
+              "failed": 1,
+              "setup_errors": 7
+            }
+          },
+          "junit_and_origin_receipts": [
+            {
+              "file": "tests/unit/remediation/test_cas_03.py",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_cas_03-391db3c26b24.junit.xml@sha256:8b5b95a6896f64f163f91c5f71b9f68999315163429db517f4c5cfb59b6cb02a",
+              "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_cas_03-391db3c26b24.junit.origin.json@sha256:f180c004dac06e03bcba9239eeebceb3e4dca8f5217a9851382bc72a5819f84d"
+            },
+            {
+              "file": "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:790a74e1a394d0b252f1d301047fc10d81c5e0ac9270d3c5abac2d1e213b38aa",
+              "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_artifact_store_protocol-1db51de3f63f.junit.origin.json@sha256:6f1620280c58b56dc21fb09d4e0988f0d7a458c78c5c6de06f37f6e22d40c4a4"
+            },
+            {
+              "file": "tests/unit/runtime/http/test_public_export.py",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_public_export-a8fab95a64ac.junit.xml@sha256:599c2f80129e614432b066e2eb774c390e43c0d1be28d327e81297ad161a8c58",
+              "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_public_export-a8fab95a64ac.junit.origin.json@sha256:5dd7f046ce33606f826c676f74228e3109f65ccc136362cf075bf304e877d52d"
+            }
+          ],
+          "candidate_source_refs": [
+            "/Users/deniskopylov/.codex/worktrees/e02-r2-r9-publication/polisyos/policy-engine/src/polisyos/core/artifacts/store.py@sha256:90725d798d1b3ff4b18bac4327aad97c9b5b2f1238c963d3dc80b0292f5fdf40",
+            "/Users/deniskopylov/.codex/worktrees/e02-r2-r9-publication/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:0bc0a7b763a85c583b600910b01e2b16e9e9b5e823c69aa8757bb5e072730ff4"
+          ],
+          "scope_limit": "Candidate snapshot only; not current integration-head evidence and not the full R9 class closure.",
+          "finding_scope": "B152 selector tests/unit/remediation/test_cas_03.py::test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot failed in the complete 27-case, three-file candidate cohort; measured blob=1, manifest=3 against expected 1/1. This is direct B152 evidence in that candidate snapshot.",
+          "mapped_selector_identities": [
+            "tests.unit.remediation.test_cas_03::test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot"
+          ]
         }
-      }
+      },
+      "finding_test_status": "FAIL"
     },
     {
       "id": "B153",
@@ -13382,7 +13482,7 @@
       },
       "finding_test_status": "PASS_BOUNDED"
     },
-    {
+        {
       "id": "B154",
       "source_kind": "B",
       "source_title": "Ошибка одного элемента прерывает выдачу полного отчёта пакетной проверки",
@@ -13397,13 +13497,13 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C marks B154 closed_bounded. The cited E02 CAS-03 receipt (CAS-03 J0676/J0680 bounded integrated stages) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Ошибка одного элемента прерывает выдачу полного отчёта пакетной проверки' (source card line 3989: 'S/M для batch-ветки. Проверить локальный отказ, глобальный отказ, отмену и нормальный набор. Частичный отчёт не даёт права на публикацию, требующую всех подтверждений. Связь с B13 — новый конкретный интерфейс подписи, не повтор прежнего примера контроллера.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure. The 282-card audit found the prior package-derived R-class assignment unsupported by this card discriminator; no R9/R10 link is established here, and the finding-level behavior remains UNRUN."
+        "detail": "Appendix C closed_bounded reflects historical local-batch behavior. The candidate now passes the four mapped J0676 per-item/preflight/BaseException selectors, but the source-card global-after-progress requirement remains unmeasured and there is no production all-confirmations consumer (consumer_missing; owner not established). The candidate public-export cohort did not reach the governed publication assertions (7 setup errors, 1 failure). This bounded candidate evidence does not close B154; retain partial."
       },
-      "residual": "The source-card discriminator is 'Ошибка одного элемента прерывает выдачу полного отчёта пакетной проверки' (criterion: 'S/M для batch-ветки. Проверить локальный отказ, глобальный отказ, отмену и нормальный набор. Частичный отчёт не даёт права на публикацию, требующую всех подтверждений. Связь с B13 — новый конкретный интерфейс подписи, не повтор прежнего примера контроллера.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L3989). The E02 receipt identifies the finding in the CAS-03 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN.",
+      "residual": "At d0, the four J0676-mapped selectors 2–5 failed before B154 assertions at the shared unhashable-ArtifactID boundary; B154 behavior was UNRUN at that pre-repair head. In the post-helper candidate, those four mapped per-item/preflight/BaseException selectors now pass, demonstrating only their bounded aggregation behavior. The card also requires preservation of prior completed rows with explicit aborted state after a global failure and non-publication when all confirmations are required. A complete 2,696-file production-source census found consumer_missing for an all-confirmations publisher and owner not established. The candidate public-export whole-file run (8 cases) produced 7 setup errors and 1 failure, so it is not a served positive/negative publication witness. Keep partial; no publisher or authority guarantee is claimed.",
       "residual_owner": {
         "kind": "verification_owner",
-        "name": "CAS-03 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
-        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+        "name": "R9 CAS runtime owner for the shared current failure; CAS-03 B154 finding-verification owner; all-confirmations consumer owner absent",
+        "appointment_status": "No production all-confirmations consumer was found (consumer_missing), so its owner is not established. Individual R9 and finding-verification appointments are also not established."
       },
       "r_class": null,
       "p_triage": null,
@@ -13413,7 +13513,7 @@
           "identity": "source_record_inspection:B154",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/B154",
           "behavioral_verdict": "UNRUN",
-          "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Ошибка одного элемента прерывает выдачу полного отчёта пакетной проверки' (criterion excerpt: 'S/M для batch-ветки. Проверить локальный отказ, глобальный отказ, отмену и нормальный набор. Частичный отчёт не даёт права на публикацию, требующую всех подтверждений. Связь с B13 — новый конкретный интерфейс подписи, не повтор прежнего примера контроллера.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
+          "scope": "This earlier complete-card audit did not discover selector mapping in its package-level projection. It did not run behavior; its UNRUN verdict is preserved as an audit-scope fact, not as a claim that no selector mapping exists. The later independent J0676 review supplies the exact historical selector mapping in historical_selector_reconciliation.",
           "package_test_selector_groups": []
         },
         "package_record": "e02_package_projection",
@@ -13424,9 +13524,12 @@
           "scope": "CAS-03 declares B154 and its distinguishing behavior/scope."
         },
         "current_r2_replay": {
-          "identity": "four-base full-file P41 replay",
+          "identity": "Four-base full-file P41 replay at d0e65aa; B154 selectors mapped by J0676",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/results.json@sha256:d359bca1c689de162ba1bcdc1e1fc4224cf84ddb55bb1d4154c4283f8467bf52",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_cas_03-391db3c26b24.junit.xml@sha256:1a741eccb2779941cfa8b6833008b65fb9f4185d5c0afd883c4a9f2e6e4cc609",
           "behavioral_verdict": "UNRUN",
-          "scope": "not a negative result; broker receipt not yet complete"
+          "test_run_outcome": "The current integration-file run reports FAIL for each of selectors 2–5, with TypeError: ArtifactID is unhashable, before batch result behavior is reached. The matching E02-head selectors pass. The whole test module is structurally MISSING at E02 execution base and main.",
+          "scope": "Test-process failures are real; they are a shared CAS owner-boundary precondition failure and do not measure B154 local/global/abort/publication behavior. Current property verdict is UNRUN."
         },
         "package_level_receipt": {
           "kind": "package_level_receipt",
@@ -13444,10 +13547,118 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-ledger-card-audit-20260925/LEDGER_CARD_AUDIT.md@sha256:a010d184a7528340cdf129cd09e467b2845faecbb1af0fc8297190c8fd0c95ed",
           "behavioral_verdict": "UNRUN",
           "scope": "Source/card mapping correction only; no finding-level behavior was run."
+        },
+        "historical_selector_reconciliation": {
+          "identity": "CAS-03 J0676 historical selector reconciliation",
+          "review_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-CAS-03-CURRENT-R1/reviews/CAS-03-J0676-independent-bounded-verdict.md@sha256:6cdcc936d685ac2f917d13a533bf46ef48c11bae683f2952f0328004d49d8fd4",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-CAS-03-CURRENT-R1/outputs/E02-J0676-L-CAS03-current-r1/junit.xml@sha256:24ad999866b7465c1d30ba1aae406041a16f229b8253ecaceb751cec00ab7979",
+          "supporting_j0506_junit_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260921-CAS-03-GREEN-R3/outputs/E02-J0506-L-CAS-03-green-r3/junit.xml@sha256:ccccfe1ea01da11b6e8cebe0512d775f99fa5a3e932adfc8d42dc09680ecec1f",
+          "behavioral_verdict": "PASS_AT_HISTORICAL_SOURCE_PIN_ONLY",
+          "source_pin": "07b99fedb3919767a768d7c61af17ca37781b51e for J0676; J0506 at 32b539f7c2d1e6632243228ba4287d11220eaceb",
+          "scope": "Historical selector evidence only; it does not establish current d0e65aa behavior. The independent J0676 review maps selector 1 to B152, selectors 2–5 to B154, and selectors 6–8 to B155.",
+          "finding_selector_scope": [
+            "tests/unit/remediation/test_cas_03.py::test_verify_batch_records_local_element_errors_and_finishes_independent_items",
+            "tests/unit/remediation/test_cas_03.py::test_verify_batch_records_preflight_error_without_marking_it_valid",
+            "tests/unit/remediation/test_cas_03.py::test_verify_batch_does_not_swallow_base_exception",
+            "tests/unit/remediation/test_cas_03.py::test_sign_batch_records_signature_presence_preflight_error"
+          ],
+          "source_card_path_at_sha": "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L3989-L4000",
+          "current_test_source_path_at_sha": "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:85a0200f8a54a412a66cbfb2c66bf6f5568aee22cc65cdb3320cccdadb1bec83",
+          "r10_scope_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R10_P20_P40_CLASSIFICATION_20261001.md@sha256:8f74ad76388540f7576a44c983351182c0fc3205728e7d1f86126ccabe75c473"
+        },
+        "production_consumer_census": {
+          "kind": "complete_literal_source_census",
+          "source_files_walked": 2696,
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02r2-r10-cas03-finding-classification-20261001-v1/INDEPENDENT_REVIEW_B152_B154_B155_20261001.md@sha256:cb101c44a72f811b72d9726cbb642134bf8869e59565603a2924abf53484f29b",
+          "direct_caller_path_at_sha": "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/components/_cli_crypto.py@sha256:d6ff6e128fe8bd212ff91c661b5e709a0cb663d5eb8077c60f27e9dd9a9ac9ec",
+          "behavioral_verdict": "CONSUMER_MISSING",
+          "scope": "The independent review reports a complete walk of policy-engine/src/**/*.py: the only direct verify_all_signatures production caller is the CLI verifier, which renders output and returns an error status. It does not consume the report as an all-confirmations publisher. No production caller requiring every confirmation was found; external consumers are not established by this source census."
+        },
+        "current_source_refs": [
+          "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/_signature_ops.py@sha256:17126ec85daf0b49917ae4ca2a6bacff4dc1e8d76ce274dd9064023ba217f1ee",
+          "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/components/_cli_crypto.py@sha256:d6ff6e128fe8bd212ff91c661b5e709a0cb663d5eb8077c60f27e9dd9a9ac9ec",
+          "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:85a0200f8a54a412a66cbfb2c66bf6f5568aee22cc65cdb3320cccdadb1bec83"
+        ],
+        "r9_p20_class_separation": {
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R10_P20_P40_CLASSIFICATION_20261001.md@sha256:8f74ad76388540f7576a44c983351182c0fc3205728e7d1f86126ccabe75c473",
+          "scope": "P20 string-ID normalization remains separate. The ledger row keeps reported_test_catalog=R10 and r_class=null; current batch selector TypeError is attributed to the shared R9 CAS inventory/set boundary, not to closure or failure of P20."
+        },
+        "d0_four_base_reconciliation": {
+          "identity": "Corrected four-base P41 case-identity reconciliation at d0e65aa, pre-repair",
+          "raw_results_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/results.json@sha256:d359bca1c689de162ba1bcdc1e1fc4224cf84ddb55bb1d4154c4283f8467bf52",
+          "cas03_integration_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_cas_03-391db3c26b24.junit.xml@sha256:1a741eccb2779941cfa8b6833008b65fb9f4185d5c0afd883c4a9f2e6e4cc609",
+          "cas03_integration_origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_cas_03-391db3c26b24.junit.origin.json@sha256:19f2475b80813d6b5e4a7bbb70a033855564f5b0a5027e341ed4fcb19c622e2f",
+          "root_case_identity_reconciliation_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_ROOT_RECONCILIATION_20261001.json@sha256:e45862c42dca4295498ddd6123b11dbc04280c015ce6c06fa4c5c36787e8924b",
+          "correction_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_CASE_MATRIX_CORRECTION_V1_20261001.md@sha256:93c3fcfe76e18102d9c0a2a3a127478a20afa1fbf040945f532498fb83077942",
+          "e02_to_d0_unique_pass_to_fail_identities": 9,
+          "split": {
+            "test_cas_03.py": 8,
+            "test_artifact_store_protocol.py": 1
+          },
+          "d0_observations": "All eight CAS-03 selectors pass at E02 head and fail at d0 integration; the module is structurally MISSING at E02 execution base and main. Selector 1/B152 observes blob=1, manifest=3 versus 1/1. Selectors 2–8, mapped 2–5/B154 and 6–8/B155, fail on the shared unhashable ArtifactID boundary before those card properties run. The ninth identity, test_iter_artifact_ids, passes at execution/E02/main and fails at d0. The current-only facade-export case passes and is not a regression.",
+          "property_scope": "At d0, B154/B155 semantic verdicts were UNRUN behind the shared owner-boundary failure. This historical pre-repair result is not superseded by the candidate-only cohort."
+        },
+        "post_helper_candidate_replay": {
+          "identity": "R9 post-helper candidate whole-file cohort, candidate-only and not integrated",
+          "candidate_branch": "codex/e02-r2-r9-publication",
+          "candidate_head": "336d0ab73db44bba91ccb250746a55f258d0933f",
+          "candidate_patch_sha256": "5c506687335410a3fb31bb03d42decc31676d4de9663f944bdb2ef099022a0f5",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/results.json@sha256:ef5c571dd5dddbeecb32edea71927465e884369a3854755acd94ceb5fc4ad49b",
+          "source_freeze_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/origin_freeze.json@sha256:29c1cfbf3282e38633200a76f14e71c9c4727fad81b1db38e4fb6d61c003f22c",
+          "source_freeze_denominator": 6414,
+          "whole_file_denominator": {
+            "test_files": 3,
+            "test_cases": 27
+          },
+          "whole_file_outcomes": {
+            "tests/unit/remediation/test_cas_03.py": {
+              "passed": 5,
+              "failed": 4
+            },
+            "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+              "passed": 9,
+              "failed": 1
+            },
+            "tests/unit/runtime/http/test_public_export.py": {
+              "passed": 0,
+              "failed": 1,
+              "setup_errors": 7
+            }
+          },
+          "junit_and_origin_receipts": [
+            {
+              "file": "tests/unit/remediation/test_cas_03.py",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_cas_03-391db3c26b24.junit.xml@sha256:8b5b95a6896f64f163f91c5f71b9f68999315163429db517f4c5cfb59b6cb02a",
+              "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_cas_03-391db3c26b24.junit.origin.json@sha256:f180c004dac06e03bcba9239eeebceb3e4dca8f5217a9851382bc72a5819f84d"
+            },
+            {
+              "file": "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:790a74e1a394d0b252f1d301047fc10d81c5e0ac9270d3c5abac2d1e213b38aa",
+              "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_artifact_store_protocol-1db51de3f63f.junit.origin.json@sha256:6f1620280c58b56dc21fb09d4e0988f0d7a458c78c5c6de06f37f6e22d40c4a4"
+            },
+            {
+              "file": "tests/unit/runtime/http/test_public_export.py",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_public_export-a8fab95a64ac.junit.xml@sha256:599c2f80129e614432b066e2eb774c390e43c0d1be28d327e81297ad161a8c58",
+              "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_public_export-a8fab95a64ac.junit.origin.json@sha256:5dd7f046ce33606f826c676f74228e3109f65ccc136362cf075bf304e877d52d"
+            }
+          ],
+          "candidate_source_refs": [
+            "/Users/deniskopylov/.codex/worktrees/e02-r2-r9-publication/polisyos/policy-engine/src/polisyos/core/artifacts/store.py@sha256:90725d798d1b3ff4b18bac4327aad97c9b5b2f1238c963d3dc80b0292f5fdf40",
+            "/Users/deniskopylov/.codex/worktrees/e02-r2-r9-publication/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:0bc0a7b763a85c583b600910b01e2b16e9e9b5e823c69aa8757bb5e072730ff4"
+          ],
+          "scope_limit": "Candidate snapshot only; not current integration-head evidence and not the full R9 class closure.",
+          "finding_scope": "J0676 selectors 2–5 pass at candidate head: local element error/independent completion, preflight refusal, BaseException propagation, and signature-presence preflight. The same whole-file candidate run has 7 public-export setup errors and 1 failed case; it does not establish a served all-confirmations publisher. Production consumer census remains consumer_missing, owner not established.",
+          "mapped_selector_identities": [
+            "tests.unit.remediation.test_cas_03::test_verify_batch_records_local_element_errors_and_finishes_independent_items",
+            "tests.unit.remediation.test_cas_03::test_verify_batch_records_preflight_error_without_marking_it_valid",
+            "tests.unit.remediation.test_cas_03::test_verify_batch_does_not_swallow_base_exception",
+            "tests.unit.remediation.test_cas_03::test_sign_batch_records_signature_presence_preflight_error"
+          ]
         }
-      }
+      },
+      "finding_test_status": "MIXED_BOUNDED"
     },
-    {
+        {
       "id": "B155",
       "source_kind": "B",
       "source_title": "Число работников ограничено, но список заданий и очередь futures — нет",
@@ -13462,13 +13673,13 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C marks B155 closed_bounded. The cited E02 CAS-03 receipt (CAS-03 J0676/J0680 bounded integrated stages) is package-level; the complete record inspection did not find an inspectable selector/result linked to this card discriminator: 'Число работников ограничено, но список заданий и очередь futures — нет' (source card line 4001: 'S/M, условно на объёме используемого batch.'). The finding-level behavior verdict is UNRUN. This status records an evidence gap, not a behavior failure. The 282-card audit found the prior package-derived R-class assignment unsupported by this card discriminator; no R9/R10 link is established here, and the finding-level behavior remains UNRUN."
+        "detail": "Appendix C closed_bounded reflects historical pending-window/cancellation behavior. The d0 four-base failure was initially only an owner-boundary precondition; the post-helper candidate now reaches the three mapped B155 assertions and fails each. Keep status partial and assign the remaining mechanism to the shared R9 CAS owner; no instance-only fix is sufficient."
       },
-      "residual": "The source-card discriminator is 'Число работников ограничено, но список заданий и очередь futures — нет' (criterion: 'S/M, условно на объёме используемого batch.'; policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L4001). The E02 receipt identifies the finding in the CAS-03 package record but supplies no inspectable selector-to-result link exercising this discriminator. Finding-level behavior remains UNRUN, so retain partial until an accepted historical selector is reconciled to the discriminator or a new finding-specific witness is run. Recover an accepted selector/result whose assertions exercise this card discriminator, or add a finding-specific positive, removal, and property-preserving control witness; record its exact selector and result, then complete the four-base replay. This is an evidence gap, not a claim that the behavior failed. Four-base current-head replay is also UNRUN.",
+      "residual": "At d0, the three J0676-mapped selectors 6–8 failed before B155 assertions at the shared unhashable-ArtifactID boundary; B155 semantics were UNRUN there. After the candidate helper, all three selectors reach their semantic assertions and fail: the pending-window case observes over-consumption, cancellation does not stop new submissions, and the default path does not stop lazy inventory. The candidate is not integrated. Keep partial; repair source admission/cancellation at the shared owner boundary and rerun the full file with bounded-window and non-cancelled controls.",
       "residual_owner": {
         "kind": "verification_owner",
-        "name": "CAS-03 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
-        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+        "name": "R9 CAS runtime owner for the shared current failure; CAS-03 B155 finding-level verification owner",
+        "appointment_status": "The R9 shared-boundary implementation owner is the residual owner; individual implementation and finding-verification appointments are not established."
       },
       "r_class": null,
       "p_triage": null,
@@ -13478,7 +13689,7 @@
           "identity": "source_record_inspection:B155",
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/finding_record_probe.json@sha256:603dba72e8515a558f28c1820c65551308401b51026dc71c01dcea2f54b01063#rows/B155",
           "behavioral_verdict": "UNRUN",
-          "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Число работников ограничено, но список заданий и очередь futures — нет' (criterion excerpt: 'S/M, условно на объёме используемого batch.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
+          "scope": "This earlier complete-card audit did not discover selector mapping in its package-level projection. It did not run behavior; its UNRUN verdict is preserved as an audit-scope fact, not as a claim that no selector mapping exists. The later independent J0676 review supplies the exact historical selector mapping in historical_selector_reconciliation.",
           "package_test_selector_groups": []
         },
         "package_record": "e02_package_projection",
@@ -13489,9 +13700,12 @@
           "scope": "CAS-03 declares B155 and its distinguishing behavior/scope."
         },
         "current_r2_replay": {
-          "identity": "four-base full-file P41 replay",
+          "identity": "Four-base full-file P41 replay at d0e65aa; B155 selectors mapped by J0676",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/results.json@sha256:d359bca1c689de162ba1bcdc1e1fc4224cf84ddb55bb1d4154c4283f8467bf52",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_cas_03-391db3c26b24.junit.xml@sha256:1a741eccb2779941cfa8b6833008b65fb9f4185d5c0afd883c4a9f2e6e4cc609",
           "behavioral_verdict": "UNRUN",
-          "scope": "not a negative result; broker receipt not yet complete"
+          "test_run_outcome": "All three current integration B155 selectors fail at the unhashable-ArtifactID set boundary before admission/window assertions. Matching E02-head selectors pass. The module is structurally MISSING at E02 execution base and main.",
+          "scope": "Current whole-file selector execution did not measure B155 source-admission behavior. Current source-level materialization is documented separately and is not treated as an executed semantic verdict."
         },
         "package_level_receipt": {
           "kind": "package_level_receipt",
@@ -13509,8 +13723,120 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-ledger-card-audit-20260925/LEDGER_CARD_AUDIT.md@sha256:a010d184a7528340cdf129cd09e467b2845faecbb1af0fc8297190c8fd0c95ed",
           "behavioral_verdict": "UNRUN",
           "scope": "Source/card mapping correction only; no finding-level behavior was run."
+        },
+        "historical_selector_reconciliation": {
+          "identity": "CAS-03 J0676 historical selector reconciliation",
+          "review_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-CAS-03-CURRENT-R1/reviews/CAS-03-J0676-independent-bounded-verdict.md@sha256:6cdcc936d685ac2f917d13a533bf46ef48c11bae683f2952f0328004d49d8fd4",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260922-CAS-03-CURRENT-R1/outputs/E02-J0676-L-CAS03-current-r1/junit.xml@sha256:24ad999866b7465c1d30ba1aae406041a16f229b8253ecaceb751cec00ab7979",
+          "supporting_j0506_junit_path_at_sha": "/Users/deniskopylov/.codex/worktrees/safe-workspace/polisyos/.superpowers/sdd/bundle_manifest.json/I1-ROLLING-WORK-CYCLE-20260921-CAS-03-GREEN-R3/outputs/E02-J0506-L-CAS-03-green-r3/junit.xml@sha256:ccccfe1ea01da11b6e8cebe0512d775f99fa5a3e932adfc8d42dc09680ecec1f",
+          "behavioral_verdict": "PASS_AT_HISTORICAL_SOURCE_PIN_ONLY",
+          "source_pin": "07b99fedb3919767a768d7c61af17ca37781b51e for J0676; J0506 at 32b539f7c2d1e6632243228ba4287d11220eaceb",
+          "scope": "Historical selector evidence only; it does not establish current d0e65aa behavior. The independent J0676 review maps selector 1 to B152, selectors 2–5 to B154, and selectors 6–8 to B155.",
+          "finding_selector_scope": [
+            "tests/unit/remediation/test_cas_03.py::test_verify_batch_keeps_pending_window_bounded_for_large_iterable",
+            "tests/unit/remediation/test_cas_03.py::test_verify_batch_cancellation_stops_new_submissions_and_is_reported",
+            "tests/unit/remediation/test_cas_03.py::test_default_batch_path_stops_lazy_inventory_on_cancellation"
+          ],
+          "source_card_path_at_sha": "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@sha256:9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5#L4001-L4012",
+          "current_test_source_path_at_sha": "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:85a0200f8a54a412a66cbfb2c66bf6f5568aee22cc65cdb3320cccdadb1bec83",
+          "r10_scope_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R10_P20_P40_CLASSIFICATION_20261001.md@sha256:8f74ad76388540f7576a44c983351182c0fc3205728e7d1f86126ccabe75c473"
+        },
+        "current_source_refs": [
+          "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/store.py@sha256:b70ba445cb1f5b7692ab11308285ce6627eebbb3994f0b45b68ca53c511c8d54",
+          "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/_signature_ops.py@sha256:17126ec85daf0b49917ae4ca2a6bacff4dc1e8d76ce274dd9064023ba217f1ee",
+          "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:85a0200f8a54a412a66cbfb2c66bf6f5568aee22cc65cdb3320cccdadb1bec83"
+        ],
+        "related_owner_boundary_regression": {
+          "identity": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip::test_iter_artifact_ids",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/results.json@sha256:d359bca1c689de162ba1bcdc1e1fc4224cf84ddb55bb1d4154c4283f8467bf52",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:61983766d67436f870522be1ecc1d1343524a2315008caf5fb860aec386b7fc4",
+          "outcomes": {
+            "e02_execution_base": "PASS",
+            "e02_head": "PASS",
+            "main": "PASS",
+            "integration_head": "FAIL"
+          },
+          "current_failure": "TypeError: unhashable ArtifactID at the set-based inventory boundary",
+          "adjacent_current_only_control": "test_core_artifacts_facade_exports_backend_factory passes on integration head; it is present only there and is not a historical pass-to-fail comparison.",
+          "scope": "Same R9 CAS owner/inventory boundary, but this protocol property is not B155 source-admission closure evidence and is not classified as a B155 semantic result."
+        },
+        "r9_p20_class_separation": {
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R10_P20_P40_CLASSIFICATION_20261001.md@sha256:8f74ad76388540f7576a44c983351182c0fc3205728e7d1f86126ccabe75c473",
+          "scope": "P20 string-ID normalization remains separate; this B155 runtime/set-boundary evidence is not closure for that class. This row retains reported_test_catalog=R10 and r_class=null."
+        },
+        "d0_four_base_reconciliation": {
+          "identity": "Corrected four-base P41 case-identity reconciliation at d0e65aa, pre-repair",
+          "raw_results_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/results.json@sha256:d359bca1c689de162ba1bcdc1e1fc4224cf84ddb55bb1d4154c4283f8467bf52",
+          "cas03_integration_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_cas_03-391db3c26b24.junit.xml@sha256:1a741eccb2779941cfa8b6833008b65fb9f4185d5c0afd883c4a9f2e6e4cc609",
+          "cas03_integration_origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_PREREPAIR_20261001/runs/r9-p41-home-20261001T024755Z-93411/cells/integration_head/test_cas_03-391db3c26b24.junit.origin.json@sha256:19f2475b80813d6b5e4a7bbb70a033855564f5b0a5027e341ed4fcb19c622e2f",
+          "root_case_identity_reconciliation_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_ROOT_RECONCILIATION_20261001.json@sha256:e45862c42dca4295498ddd6123b11dbc04280c015ce6c06fa4c5c36787e8924b",
+          "correction_memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_R9_CAS03_PROTOCOL_CASE_MATRIX_CORRECTION_V1_20261001.md@sha256:93c3fcfe76e18102d9c0a2a3a127478a20afa1fbf040945f532498fb83077942",
+          "e02_to_d0_unique_pass_to_fail_identities": 9,
+          "split": {
+            "test_cas_03.py": 8,
+            "test_artifact_store_protocol.py": 1
+          },
+          "d0_observations": "All eight CAS-03 selectors pass at E02 head and fail at d0 integration; the module is structurally MISSING at E02 execution base and main. Selector 1/B152 observes blob=1, manifest=3 versus 1/1. Selectors 2–8, mapped 2–5/B154 and 6–8/B155, fail on the shared unhashable ArtifactID boundary before those card properties run. The ninth identity, test_iter_artifact_ids, passes at execution/E02/main and fails at d0. The current-only facade-export case passes and is not a regression.",
+          "property_scope": "At d0, B154/B155 semantic verdicts were UNRUN behind the shared owner-boundary failure. This historical pre-repair result is not superseded by the candidate-only cohort."
+        },
+        "post_helper_candidate_replay": {
+          "identity": "R9 post-helper candidate whole-file cohort, candidate-only and not integrated",
+          "candidate_branch": "codex/e02-r2-r9-publication",
+          "candidate_head": "336d0ab73db44bba91ccb250746a55f258d0933f",
+          "candidate_patch_sha256": "5c506687335410a3fb31bb03d42decc31676d4de9663f944bdb2ef099022a0f5",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/results.json@sha256:ef5c571dd5dddbeecb32edea71927465e884369a3854755acd94ceb5fc4ad49b",
+          "source_freeze_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/origin_freeze.json@sha256:29c1cfbf3282e38633200a76f14e71c9c4727fad81b1db38e4fb6d61c003f22c",
+          "source_freeze_denominator": 6414,
+          "whole_file_denominator": {
+            "test_files": 3,
+            "test_cases": 27
+          },
+          "whole_file_outcomes": {
+            "tests/unit/remediation/test_cas_03.py": {
+              "passed": 5,
+              "failed": 4
+            },
+            "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+              "passed": 9,
+              "failed": 1
+            },
+            "tests/unit/runtime/http/test_public_export.py": {
+              "passed": 0,
+              "failed": 1,
+              "setup_errors": 7
+            }
+          },
+          "junit_and_origin_receipts": [
+            {
+              "file": "tests/unit/remediation/test_cas_03.py",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_cas_03-391db3c26b24.junit.xml@sha256:8b5b95a6896f64f163f91c5f71b9f68999315163429db517f4c5cfb59b6cb02a",
+              "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_cas_03-391db3c26b24.junit.origin.json@sha256:f180c004dac06e03bcba9239eeebceb3e4dca8f5217a9851382bc72a5819f84d"
+            },
+            {
+              "file": "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:790a74e1a394d0b252f1d301047fc10d81c5e0ac9270d3c5abac2d1e213b38aa",
+              "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_artifact_store_protocol-1db51de3f63f.junit.origin.json@sha256:6f1620280c58b56dc21fb09d4e0988f0d7a458c78c5c6de06f37f6e22d40c4a4"
+            },
+            {
+              "file": "tests/unit/runtime/http/test_public_export.py",
+              "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_public_export-a8fab95a64ac.junit.xml@sha256:599c2f80129e614432b066e2eb774c390e43c0d1be28d327e81297ad161a8c58",
+              "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/cells/r9_candidate/test_public_export-a8fab95a64ac.junit.origin.json@sha256:5dd7f046ce33606f826c676f74228e3109f65ccc136362cf075bf304e877d52d"
+            }
+          ],
+          "candidate_source_refs": [
+            "/Users/deniskopylov/.codex/worktrees/e02-r2-r9-publication/polisyos/policy-engine/src/polisyos/core/artifacts/store.py@sha256:90725d798d1b3ff4b18bac4327aad97c9b5b2f1238c963d3dc80b0292f5fdf40",
+            "/Users/deniskopylov/.codex/worktrees/e02-r2-r9-publication/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:0bc0a7b763a85c583b600910b01e2b16e9e9b5e823c69aa8757bb5e072730ff4"
+          ],
+          "scope_limit": "Candidate snapshot only; not current integration-head evidence and not the full R9 class closure.",
+          "finding_scope": "J0676 selectors 6–8 all fail in the post-helper candidate: pending-window boundedness, cancellation stopping new submissions, and lazy default inventory stop. These are behavioral failures after the owner-boundary helper, not UNRUN. Candidate-only result; not integrated.",
+          "mapped_selector_identities": [
+            "tests.unit.remediation.test_cas_03::test_verify_batch_keeps_pending_window_bounded_for_large_iterable",
+            "tests.unit.remediation.test_cas_03::test_verify_batch_cancellation_stops_new_submissions_and_is_reported",
+            "tests.unit.remediation.test_cas_03::test_default_batch_path_stops_lazy_inventory_on_cancellation"
+          ]
         }
-      }
+      },
+      "finding_test_status": "FAIL"
     },
     {
       "id": "B156",

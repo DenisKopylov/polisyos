@@ -678,8 +678,8 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     )
     from tests.unit.runtime.quality.test_value_gate import _receipt, _world_record
 
-    persistence, store = _service(tmp_path / "eval-safety")
-    fixture = _passing_fixture(tmp_path / "intake")
+    fixture = _passing_fixture(tmp_path / "eval-safety")
+    persistence, store = fixture.service, fixture.artifact_store
     problem = _problem(f"r11_eval_safety_{uuid4().hex}")
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
@@ -875,6 +875,8 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
         problem=problem,
         deployment_identity=_canonical_loaded_deployment_identity(),
     )
+    assert n9_observation.status == "not_promoted"
+    assert n9_observation.reason
     assert n9_observation.receipts
     genuine_receipt = n9.CanonicalPromotionReceipt.model_validate(
         n9_observation.receipts[0]
@@ -1020,6 +1022,16 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
         ),
     )
 
+    def source_intake() -> EvaluationAttemptIntake:
+        return fixture.intake.model_copy(update={
+            "design_problem_ref": problem_ref,
+            "candidate_ref": fixture.intake.candidate_ref.model_copy(update={
+                "artifact_id": candidate.candidate_id,
+                "content_hash": candidate.content_hash,
+            }),
+            "world_model_record_ref": world_ref,
+        })
+
     def resolve(base_compiled, n6_source, *, omit_terminal_status: bool = False):
         compiled = compiled_wire(base_compiled, n6_source)
         compiled_payload = compiled.model_dump(mode="json")
@@ -1048,17 +1060,9 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
             canon_spec=CanonSpec(forbid_floats=False),
         )
         control_store.compiled_ref = str(emitted.artifact_id)
-        intake = fixture.intake.model_copy(update={
-            "design_problem_ref": problem_ref,
-            "candidate_ref": fixture.intake.candidate_ref.model_copy(update={
-                "artifact_id": candidate.candidate_id,
-                "content_hash": candidate.content_hash,
-            }),
-            "world_model_record_ref": world_ref,
-        })
         return persistence._resolve_promotion_source(
             sources=selected_sources,
-            intake=intake,
+            intake=source_intake(),
             context=_context(str(payload_ref.artifact_id)),
         )
 
@@ -1070,6 +1074,56 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     assert stop_reasons == []
     assert stop_source is not None, "a nonblocked scheduler stop was over-refused"
     assert len(parsed_receipts) == 1
+    stop_compiled_ref = control_store.compiled_ref
+    assert stop_compiled_ref
+    persisted_stop_compiled = from_canonical_bytes(
+        store.get_bytes(stop_compiled_ref)
+    )
+    persisted_stop_leaf = next(
+        row for row in persisted_stop_compiled["recursive_run"]["nodes"]
+        if row["node_ref"] == source_node.node_ref
+    )
+    persisted_stop_cycle = persisted_stop_leaf["cycle_run"]
+    assert persisted_stop_cycle["promotion_port"]["status"] == "not_promoted"
+    assert persisted_stop_cycle["promotion_port"] == n9_observation.model_dump(
+        mode="json"
+    )
+
+    # Exercise the persisted consumer with the exact same selected N6 source.
+    # The canonical N9 receipt is valid and replayable, but its owner status is
+    # negative; EvalSafety must preserve that outcome in its persisted event.
+    parsed_receipts.clear()
+    control_store.compiled_ref = stop_compiled_ref
+    consumed = persistence.compose_and_persist_attempt(
+        intake=source_intake(),
+        authorities=fixture.authorities,
+        context=_context(str(payload_ref.artifact_id)),
+        evaluated_at=fixture.evaluated_at,
+        promotion_sources=selected_sources,
+    )
+    assert consumed.promotion_source_resolution_ref is not None
+    source_resolution = c02.EvaluationSafetyPromotionSourceResolution.model_validate(
+        from_canonical_bytes(
+            store.get_bytes(consumed.promotion_source_resolution_ref)
+        )
+    )
+    assert source_resolution.classification == "verified"
+    assert source_resolution.refusal_reasons == ()
+    assert source_resolution.selected_compiled_ref == stop_compiled_ref
+    assert consumed.owner_evidence.classification is not None
+    assert consumed.owner_evidence.classification.promotion_safe_facet is False
+    assert consumed.decision.promotion_safe_facet is False
+    assert consumed.decision.near_miss is False
+    persisted_decision = es.EvaluationSafetyDecisionEvent.model_validate(
+        from_canonical_bytes(store.get_bytes(consumed.decision_ref.artifact_id))
+    )
+    assert persisted_decision == consumed.decision
+    assert persisted_decision.promotion_safe_facet is False
+    assert persisted_decision.near_miss is False
+    assert any(
+        isinstance(payload, dict) and payload.get("candidate_id") == candidate.candidate_id
+        for payload in parsed_receipts
+    )
 
     parsed_receipts.clear()
     blocked_source, blocked_inputs, _blocked_attempts, blocked_reasons = resolve(

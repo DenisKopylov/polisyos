@@ -4351,6 +4351,14 @@
           "behavioral_verdict": "UNRUN",
           "current_recheck_tests_run": false,
           "four_base_p41": "UNRUN"
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/B31",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "blocker_path_at_sha": "policy-engine/src/polisyos/core/contracts/value_outer_set.py@sha256:1c3fcb8a3c097e323c251820a9df8d833e3a1d925a64fb0885c52384421d152b",
@@ -6521,6 +6529,14 @@
           "behavioral_verdict": "UNRUN",
           "current_recheck_tests_run": false,
           "four_base_p41": "UNRUN"
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/B61",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -16264,6 +16280,14 @@
           "behavioral_verdict": "UNRUN",
           "current_recheck_tests_run": false,
           "four_base_p41": "UNRUN"
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/B194",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "blocker_path_at_sha": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@git-blob:ef85325624efa365cd716b9633dc7ed6f1fe4e56#L127,L130,L320",
@@ -16588,6 +16612,14 @@
           "scope": "Complete tracked src/polisyos denominator 2,906 paths: AST-parsed 2,696 production Python files with zero parse failures; searched 272/272 declared deployment/config paths. No production Calibrator/CalibratorInputs construction or put_calibration_report caller. Existing served WorkflowRunRequest.calibration_report_ref carries an already-created artifact ref and assigns kind from request without manifest/payload binding; default served transition is WorkspaceLoop, and legacy-shadow run_experiment is candidate-only. Internal policy_design shares INPUT_CALIBRATION_REPORT_REF between B197 Foundry V2 propagation consumers and RunPolicyBlueprintRuntimeNode, which parses the distinct FunnelCalibrationReport kind/schema. This establishes a reachable typed intake mismatch, not a produced B197 report or authority emission. The census did not run tests, inspect live data/runtime, or revalidate the separate internal 58/58 witness; institutionally authorized real targets and source/graph/plan provenance remain not_established.",
           "property": "A persisted report may proceed only to a typed consumer whose resolved stored manifest kind/schema and payload agree with that consumer; request labels and shared state-key names are not proof.",
           "falsifier": "Proposed and UNRUN: use persisted Foundry V2, Funnel, and unknown-kind refs through policy_design and prove only compatible typed consumers proceed; V2 is never parsed as Funnel, Funnel is never admitted as B197 uncertainty, and unknown/mismatched kind is withheld. Remove manifest kind/schema resolution while keeping request kind/status markers and require the behavioral selector to turn red. Preserve valid compatible-report and no-report ordinary-candidate controls."
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/B197",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -16919,6 +16951,14 @@
           "behavioral_verdict": "UNRUN",
           "current_recheck_tests_run": false,
           "four_base_p41": "UNRUN"
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/B201",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -17074,6 +17114,14 @@
           "behavioral_verdict": "UNRUN",
           "current_recheck_tests_run": false,
           "four_base_p41": "UNRUN"
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/B202",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -18100,6 +18148,14 @@
           "behavioral_verdict": "UNRUN",
           "current_recheck_tests_run": false,
           "four_base_p41": "UNRUN"
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/B219",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h_current_add75_audit_20260927": {
@@ -18759,6 +18815,14 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3"
           ],
           "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The exact FQN is absent from the stable Foundry entrypoint list; the legacy module docstring and importability test conflict with that boundary."
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/LA-005",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -19117,6 +19181,14 @@
             "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@sha256:2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727#L335"
           ],
           "remaining_out_of_scope": "Full historical/external compatibility matrix; no such caller is appointed or required by the principal clarification."
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/LA-010",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -20235,6 +20307,14 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3"
           ],
           "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The source contains a three-field placeholder and the current tracked loader/import census finds no production consumer; that does not prove external ABI absence."
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/LA-026",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -20343,6 +20423,14 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-dfk01-inventory-20260926/DFK01_REASSESSMENT.md@sha256:974d4eca6604e4343f08c567d6e057b0838abacd0520dd192b760d7ca9e6a4d3"
           ],
           "scope": "Complete tracked-repository source/test/tool, dynamic-loader, package-configuration and locally reachable-history census at bcf14f319 is recorded in the cited memo. The current committed HEAD is 4d79cd5971c8a6b95078aeaa8e49157f125e124a; changes from the census head are documentation/coordination paths only, with no tracked product source, test, tool, package-configuration or public-surface input changed. External published artifacts, installed consumers, untracked production payloads and behavior remain not_established/UNRUN. The tracked implementation routes registry/evolution/migration through kernel/schemas while the active consolidation plan names kernel/pipeline/schemas; the latter currently re-exports the former."
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/LA-027",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -20648,6 +20736,14 @@
             "/Users/deniskopylov/.codex/scratch/e02-la031-d3-implementation-20260929/LA031_D3_WITNESS_V2_RECEIPT.md@sha256:4138f07c5f8cca6d2a7099feda819da1d79d4ff981ee178fcec8df6875014a4c",
             "/Users/deniskopylov/.codex/scratch/e02-la031-d3-implementation-20260929/LA031_D3_WITNESS_V2_REVIEW_ADDENDUM.md@sha256:f958c09687fe5b7dc9a53ef21e8d90f0a5b4491b67d71559729b685d414bd97b"
           ]
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/LA-031",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -20790,6 +20886,14 @@
           "behavioral_verdict": "UNRUN",
           "reviewed_head_or_snapshot": "codex/e02-r2 HEAD 43d4f47838087476d9d26d78aeb244a6d1cd6d6c; read-only review; no tests run",
           "scope": "Read-only H closeout review at HEAD 43d4f478. The complete 2,696-source census finds no production caller of the four demographic readers beyond definitions/re-exports; reusable inventory/digest primitives are not wired to them. The prior public-facade mixed-layout counterexample is retained; this audit ran no tests. Shared reader inventory, served readback/history and P41 remain UNRUN."
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/LA-032",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {
@@ -21835,6 +21939,14 @@
             "/Users/deniskopylov/.codex/scratch/e02-held-la-mig-ledger-review-20260929/current_tree_census.json@sha256:d559a89af3e055a7a9a26fb7236ba9dd5c8bd618a91be228aaefa6c2c2f4f6a8"
           ],
           "remaining_out_of_scope": "Broad historical/external compatibility is not an appointed or required blanket; retained helper cleanup is optional."
+        },
+        "h14_independent_blocker_review_20261001": {
+          "kind": "read_only_reconciliation",
+          "identity": "Independent H14 blocker reconciliation at dea99f0227f1c11d71bb00c3c4be78813be5c7b5",
+          "scope": "Read-only comparison of source-card criterion, pinned ledger row and cited receipts; no product imports or tests; no status change or principal ruling.",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-h14-blocker-audit-dea99-20261001-v2/H14_BLOCKER_RECONCILIATION_20261001.json@sha256:1243a744f411b9996811933169c2cc1fa96822cd8b71ae35eacbaf26b6c370d7#rows/LA-049",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN"
         }
       },
       "h13_remaining_audit_20260927": {

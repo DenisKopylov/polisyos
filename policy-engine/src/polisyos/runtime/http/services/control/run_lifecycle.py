@@ -231,6 +231,19 @@ logger = get_logger(__name__)
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 
 
+def _n4_proposal_progress_with_budget(
+    progress: Mapping[str, Any],
+    recursive_budget_resolution: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Attach the resolved but unapplied cycle budget to N4-only progress."""
+
+    return {
+        **progress,
+        "recursive_budget_resolution": dict(recursive_budget_resolution),
+        "recursive_budget_application_status": "not_applied_n4_proposal_only",
+    }
+
+
 def _strict_json_value_equal(actual: object, expected: object) -> bool:
     """Compare decoded JSON values without Python's bool/int equality coercion."""
     if type(actual) is not type(expected):
@@ -5179,6 +5192,10 @@ class ControlPlaneService(
                                 progress[
                                     "runtime_diagnostic_event_limitation_code"
                                 ] = diagnostic_emission.limitation_code
+                            progress = _n4_proposal_progress_with_budget(
+                                progress,
+                                recursive_budget_resolution.model_dump(mode="json"),
+                            )
                             self._control_store.complete_job(
                                 job_id=job.job_id,
                                 run_id=run_id,
@@ -5224,6 +5241,10 @@ class ControlPlaneService(
                                 "s8_status": "not_run",
                                 **target_scope_progress,
                             }
+                            progress = _n4_proposal_progress_with_budget(
+                                progress,
+                                recursive_budget_resolution.model_dump(mode="json"),
+                            )
                             self._control_store.complete_job(
                                 job_id=job.job_id,
                                 run_id=run_id,
@@ -5310,6 +5331,10 @@ class ControlPlaneService(
                             progress["simulation_limitation_code"] = (
                                 proposal_record.simulation_disposition.reason_code
                             )
+                        progress = _n4_proposal_progress_with_budget(
+                            progress,
+                            recursive_budget_resolution.model_dump(mode="json"),
+                        )
                         self._control_store.complete_job(
                             job_id=job.job_id,
                             run_id=run_id,

@@ -331,9 +331,21 @@ def _recursive_contract_testing_controller(
     repo_root: Path,
     *,
     artifact_store: Any | None = None,
+    canonical_default_n9_candidate_leaf: bool = False,
 ) -> RecursiveGenerationCycleController:
 
     def factory(_node_ref: str, _problem_input: object) -> GenerationCycleController:
+        if canonical_default_n9_candidate_leaf:
+            # Preserve the default canonical N9 owner while keeping its runtime
+            # authority absent. The outer test router owns parent N5 storage.
+            return GenerationCycleController(
+                generation_port=_RecursiveGenerationPort(),
+                grounding_port=_RecursiveGroundingPort(),
+                simulation_port=_RecursiveSimulationPort(),
+                value_port=PendingN8ValuePort(),
+                authority_scope="production",
+                repo_root=repo_root,
+            )
         return GenerationCycleController(
             generation_port=_RecursiveGenerationPort(),
             grounding_port=_RecursiveGroundingPort(),

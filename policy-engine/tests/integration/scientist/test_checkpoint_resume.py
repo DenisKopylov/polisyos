@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import ast
+import copy
+import hashlib
 import importlib
+import inspect
 import json
 import logging
 import multiprocessing
@@ -9,11 +13,15 @@ from pathlib import Path
 from typing import Any, Literal
 
 import pytest
-
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.core.security.tenant_context import tenant_scope
@@ -21,6 +29,7 @@ from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflow
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointError,
+    _build_resume_workflow_spec,
     compute_workflow_fingerprint,
     load_checkpoint,
     load_checkpoint_head,
@@ -43,9 +52,14 @@ from polisyos.scientist.orchestration.engine.protocol import (
     decode_node_outcome,
 )
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
-from polisyos.scientist.orchestration.engine.runner.local_runner import LocalWorkflowRunner
+from polisyos.scientist.orchestration.engine.runner.local_runner import (
+    LocalWorkflowRunner,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from polisyos.scientist.orchestration.engine.workflow_spec import (
+    NodeInvocation,
+    WorkflowSpec,
+)
 
 pytestmark = pytest.mark.integration
 
@@ -1005,11 +1019,155 @@ def _seed_parallel_checkpoint(
     return ctx, bundle_ref, seeded.state
 
 
+def _install_b73_left_frontier_removal() -> dict[str, Any]:
+    """Omit one completed peer in the spawned child, pinned to the owner source."""
+    executor_module = importlib.import_module(
+        "polisyos.scientist.orchestration.engine.async_executor"
+    )
+    executor_class = executor_module.AsyncWorkflowExecutor
+    if executor_class is not AsyncWorkflowExecutor:
+        raise AssertionError("B73 removal probe loaded a different executor class")
+
+    module_path = Path(executor_module.__file__).resolve()
+    class_path = Path(inspect.getsourcefile(executor_class) or "").resolve()
+    code_path = Path(executor_class.execute.__code__.co_filename).resolve()
+    if class_path != module_path or code_path != module_path:
+        raise AssertionError("B73 removal probe executor source origin changed")
+    source_bytes = module_path.read_bytes()
+    source_sha256 = hashlib.sha256(source_bytes).hexdigest()
+    if source_sha256 != (
+        "df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"
+    ):
+        raise AssertionError("B73 removal probe executor source digest changed")
+
+    source_tree = ast.parse(source_bytes.decode("utf-8"), filename=str(module_path))
+    executor_classes = [
+        node
+        for node in source_tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "AsyncWorkflowExecutor"
+    ]
+    if len(executor_classes) != 1:
+        raise AssertionError(
+            "B73 removal probe found an unexpected executor class count"
+        )
+    execute_methods = [
+        node
+        for node in executor_classes[0].body
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == "execute"
+    ]
+    if len(execute_methods) != 1 or execute_methods[0].decorator_list:
+        raise AssertionError("B73 removal probe found an unexpected execute method")
+
+    def is_completed_frontier_extend(node: ast.AST) -> bool:
+        return (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "extend"
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "completed_nodes"
+            and len(node.args) == 1
+            and not node.keywords
+        )
+
+    def has_original_frontier_argument(node: ast.Call) -> bool:
+        return (
+            isinstance(node.args[0], ast.Name)
+            and node.args[0].id == "tier_completed"
+        )
+
+    all_frontier_extends = [
+        node for node in ast.walk(source_tree) if is_completed_frontier_extend(node)
+    ]
+    if (
+        len(all_frontier_extends) != 1
+        or not has_original_frontier_argument(all_frontier_extends[0])
+    ):
+        raise AssertionError(
+            "B73 removal probe found an unexpected frontier producer count"
+        )
+
+    original_method = copy.deepcopy(execute_methods[0])
+    mutant_method = copy.deepcopy(execute_methods[0])
+    mutant_frontier_extends = [
+        node for node in ast.walk(mutant_method) if is_completed_frontier_extend(node)
+    ]
+    if len(mutant_frontier_extends) != 1:
+        raise AssertionError(
+            "B73 removal probe could not isolate the frontier producer"
+        )
+    original_argument = copy.deepcopy(mutant_frontier_extends[0].args[0])
+    alias = "b73_frontier_alias"
+    mutant_frontier_extends[0].args[0] = ast.GeneratorExp(
+        elt=ast.Name(id=alias, ctx=ast.Load()),
+        generators=[
+            ast.comprehension(
+                target=ast.Name(id=alias, ctx=ast.Store()),
+                iter=ast.Name(id="tier_completed", ctx=ast.Load()),
+                ifs=[
+                    ast.Compare(
+                        left=ast.Name(id=alias, ctx=ast.Load()),
+                        ops=[ast.NotEq()],
+                        comparators=[ast.Constant(value="left")],
+                    )
+                ],
+                is_async=0,
+            )
+        ],
+    )
+
+    restored_method = copy.deepcopy(mutant_method)
+    restored_frontier_extends = [
+        node for node in ast.walk(restored_method) if is_completed_frontier_extend(node)
+    ]
+    if len(restored_frontier_extends) != 1:
+        raise AssertionError("B73 removal probe restoration lost the frontier producer")
+    restored_frontier_extends[0].args[0] = original_argument
+    if ast.dump(restored_method, include_attributes=False) != ast.dump(
+        original_method, include_attributes=False
+    ):
+        raise AssertionError(
+            "B73 removal probe changed AST outside the target argument"
+        )
+
+    mutated_expression = ast.unparse(mutant_frontier_extends[0])
+    compiled_module = ast.Module(
+        body=[
+            ast.ImportFrom(
+                module="__future__",
+                names=[ast.alias(name="annotations")],
+                level=0,
+            ),
+            mutant_method,
+        ],
+        type_ignores=[],
+    )
+    ast.fix_missing_locations(compiled_module)
+    namespace = dict(executor_module.__dict__)
+    exec(
+        compile(compiled_module, filename=str(module_path), mode="exec"),
+        namespace,
+    )
+    replacement = namespace.get("execute")
+    if replacement is None or not inspect.iscoroutinefunction(replacement):
+        raise AssertionError("B73 removal probe did not compile the async owner method")
+    if Path(replacement.__code__.co_filename).resolve() != module_path:
+        raise AssertionError("B73 removal probe replacement lost source identity")
+    executor_class.execute = replacement
+    return {
+        "source_sha256": source_sha256,
+        "method": "AsyncWorkflowExecutor.execute",
+        "original_expression": "completed_nodes.extend(tier_completed)",
+        "mutated_expression": mutated_expression,
+        "mutant_installed": True,
+    }
+
+
 def _b73_pause_writer_at_owner_phase(
     cas_root: str,
     run_id: str,
     bundle_ref_payload: dict[str, Any],
     cut: Literal["after_artifact_before_head", "after_head_before_history"],
+    remove_left_from_frontier: bool,
     phase_queue: Any,
     release_event: Any,
 ) -> None:
@@ -1026,6 +1184,13 @@ def _b73_pause_writer_at_owner_phase(
     checkpoint_module = importlib.import_module(
         "polisyos.scientist.orchestration.engine.checkpoint"
     )
+    mutation_receipt: dict[str, Any] | None = None
+    if remove_left_from_frontier:
+        if cut != "after_artifact_before_head":
+            raise AssertionError(
+                "B73 removal probe is limited to the first publication cut"
+            )
+        mutation_receipt = _install_b73_left_frontier_removal()
 
     if cut == "after_artifact_before_head":
         original_update_head = checkpoint_module.update_checkpoint_head
@@ -1035,6 +1200,7 @@ def _b73_pause_writer_at_owner_phase(
             phase_queue.put(
                 {
                     "phase": cut,
+                    "mutation_receipt": mutation_receipt,
                     "checkpoint_ref": checkpoint_ref.model_dump(mode="json"),
                     "sequence_number": kwargs["sequence_number"],
                     "left_calls": ParallelLeftNode.calls,
@@ -1053,6 +1219,7 @@ def _b73_pause_writer_at_owner_phase(
             phase_queue.put(
                 {
                     "phase": cut,
+                    "mutation_receipt": mutation_receipt,
                     "checkpoint_ref": head.checkpoint_ref.model_dump(mode="json"),
                     "sequence_number": head.sequence_number,
                     "left_calls": ParallelLeftNode.calls,
@@ -1177,6 +1344,7 @@ def _b73_fresh_reader_then_resume(
         ],
         "cache_aliases": list(verified_cache_aliases),
         "workflow_fingerprint": checkpoint.metadata.workflow_fingerprint,
+        "origin_workflow_fingerprint": checkpoint.metadata.origin_workflow_fingerprint,
     }
 
     resumed = resume_from_checkpoint(
@@ -1215,6 +1383,16 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
         run_dir = Path(store.root) / "runs" / run_id
         seed_head = load_checkpoint_head(run_dir)
         assert seed_head is not None
+        seed_checkpoint = load_checkpoint(store, seed_head.checkpoint_ref)
+        seed_completed_nodes = list(seed_checkpoint.metadata.completed_nodes)
+        assert seed_completed_nodes == ["seed"]
+        expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+        expected_residual_fingerprint = compute_workflow_fingerprint(
+            _build_resume_workflow_spec(
+                workflow,
+                completed_nodes=seed_completed_nodes,
+            )
+        )
         phase_queue = process_context.Queue()
         release_event = process_context.Event()
         writer = process_context.Process(
@@ -1224,6 +1402,8 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
                 run_id,
                 bundle_ref.model_dump(mode="json"),
                 cut,
+                os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                and cut == "after_artifact_before_head",
                 phase_queue,
                 release_event,
             ),
@@ -1232,6 +1412,26 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             writer.start()
             observed = phase_queue.get(timeout=60)
             assert observed["phase"] == cut
+            remove_left_for_cut = (
+                os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                and cut == "after_artifact_before_head"
+            )
+            if remove_left_for_cut:
+                assert observed["mutation_receipt"] == {
+                    "source_sha256": (
+                        "df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"
+                    ),
+                    "method": "AsyncWorkflowExecutor.execute",
+                    "original_expression": "completed_nodes.extend(tier_completed)",
+                    "mutated_expression": (
+                        "completed_nodes.extend(("
+                        "b73_frontier_alias for b73_frontier_alias "
+                        "in tier_completed if b73_frontier_alias != 'left'))"
+                    ),
+                    "mutant_installed": True,
+                }
+            else:
+                assert observed["mutation_receipt"] is None
             assert observed["left_calls"] == 1
             assert observed["right_calls"] == 1
             assert observed["final_calls"] == 0
@@ -1248,15 +1448,10 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
                 assert current_head == seed_head
                 assert str(observed_ref.artifact_id) not in history_refs
                 uncommitted = load_checkpoint(store, observed_ref)
-                assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
                 uncommitted_state = materialize_checkpoint_state(store, observed_ref)
-                _assert_tier_cache_entries_bind_node_identity_and_content(
-                    store,
-                    run_id=run_id,
-                    workflow=workflow,
-                    completed_nodes=uncommitted.metadata.completed_nodes,
-                    checkpoint_state=uncommitted_state,
-                    cache_entry_refs=uncommitted.metadata.cache_entry_refs,
+                assert (
+                    uncommitted.metadata.completed_node_status_contract
+                    == "native_node_outcome_v1"
                 )
                 assert uncommitted_state["params"] == {
                     "seed": 29,
@@ -1264,6 +1459,15 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
                     "left": 1,
                     "right": 2,
                 }
+                _assert_tier_cache_entries_bind_node_identity_and_content(
+                    store,
+                    run_id=run_id,
+                    workflow=workflow,
+                    completed_nodes=["seed", "left", "right"],
+                    checkpoint_state=uncommitted_state,
+                    cache_entry_refs=uncommitted.metadata.cache_entry_refs,
+                )
+                assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
                 expected_before_resume = ["seed"]
                 expected_peer_calls = [1, 1]
             else:
@@ -1307,8 +1511,16 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             result_queue.close()
 
         assert result["pid"] != os.getpid()
-        assert result["before_resume"]["workflow_fingerprint"] == compute_workflow_fingerprint(
-            workflow
+        assert result["before_resume"]["origin_workflow_fingerprint"] == (
+            expected_origin_fingerprint
+        )
+        expected_current_fingerprint = (
+            expected_origin_fingerprint
+            if cut == "after_artifact_before_head"
+            else expected_residual_fingerprint
+        )
+        assert result["before_resume"]["workflow_fingerprint"] == (
+            expected_current_fingerprint
         )
         assert result["before_resume"]["completed_nodes"] == expected_before_resume
         if cut == "after_head_before_history":
@@ -1390,6 +1602,7 @@ def _b73_failure_policy_fresh_reader(
     run_id: str,
     bundle_ref_payload: dict[str, Any],
     error_policy: Literal["fail_fast", "continue"],
+    expected_current_fingerprint: str,
     right_fails_once: bool,
     result_queue: Any,
 ) -> None:
@@ -1422,9 +1635,14 @@ def _b73_failure_policy_fresh_reader(
         checkpoint_state=checkpoint.state,
         cache_entry_refs=checkpoint.metadata.cache_entry_refs,
     )
-    fingerprint = compute_workflow_fingerprint(workflow)
-    if checkpoint.metadata.workflow_fingerprint != fingerprint:
-        raise AssertionError("reopened checkpoint workflow fingerprint changed")
+    origin_fingerprint = compute_workflow_fingerprint(workflow)
+    current_fingerprint = checkpoint.metadata.workflow_fingerprint
+    if checkpoint.metadata.origin_workflow_fingerprint != origin_fingerprint:
+        raise AssertionError("reopened checkpoint origin workflow fingerprint changed")
+    if current_fingerprint != expected_current_fingerprint:
+        raise AssertionError(
+            "reopened checkpoint residual workflow fingerprint changed"
+        )
 
     resumed = resume_from_checkpoint(
         store,
@@ -1446,7 +1664,10 @@ def _b73_failure_policy_fresh_reader(
                     str(ref.artifact_id) for ref in checkpoint.metadata.cache_entry_refs
                 ],
                 "cache_aliases": list(cache_aliases),
-                "workflow_fingerprint": fingerprint,
+                "workflow_fingerprint": current_fingerprint,
+                "origin_workflow_fingerprint": (
+                    checkpoint.metadata.origin_workflow_fingerprint
+                ),
             },
             "report_status": resumed.report.status,
             "resumed_params": dict(resumed.state.params),
@@ -1475,7 +1696,18 @@ def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successf
         assert seed is not None
         _, seed_checkpoint = seed
         assert seed_checkpoint.state is not None
-        expected_fingerprint = compute_workflow_fingerprint(workflow)
+        expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+        expected_residual_fingerprint = compute_workflow_fingerprint(
+            _build_resume_workflow_spec(
+                workflow,
+                completed_nodes=list(seed_checkpoint.metadata.completed_nodes),
+            )
+        )
+        expected_current_fingerprint = (
+            expected_origin_fingerprint
+            if error_policy == "fail_fast"
+            else expected_residual_fingerprint
+        )
 
         writer_queue = process_context.Queue()
         writer = process_context.Process(
@@ -1519,6 +1751,7 @@ def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successf
                 run_id,
                 bundle_ref.model_dump(mode="json"),
                 error_policy,
+                expected_current_fingerprint,
                 False,
                 reader_queue,
             ),
@@ -1536,7 +1769,8 @@ def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successf
 
         assert retried["pid"] != first["pid"]
         before = retried["before_resume"]
-        assert before["workflow_fingerprint"] == expected_fingerprint
+        assert before["origin_workflow_fingerprint"] == expected_origin_fingerprint
+        assert before["workflow_fingerprint"] == expected_current_fingerprint
         assert retried["report_status"] == "ok"
         assert retried["resumed_params"] == {
             "seed": 29,

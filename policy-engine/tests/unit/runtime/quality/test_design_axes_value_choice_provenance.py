@@ -4,7 +4,7 @@ import json
 from copy import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import pytest
@@ -12,6 +12,9 @@ from pydantic import ValidationError
 
 import polisyos.runtime.quality as runtime_quality
 from tests._helpers.artifacts import overwrite_signature_sidecar_for_test
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore, SignatureVerifyingArtifactStore
 
 CASE_ID = "ua-msme-affordable-loans-2022"
 RULE_VERSION_REF = "policyos.layer2.s8.value_choice.v1"
@@ -25,6 +28,15 @@ def _fixture(name: str) -> dict[str, Any]:
 
 def _s8(name: str) -> Any:
     return getattr(runtime_quality, name)
+
+
+def _guarded_signature_verifier(store: ArtifactStore) -> SignatureVerifyingArtifactStore:
+    """Use the runtime-owned verifier bound to this exact test store."""
+    from polisyos.runtime.http.resilience import build_guarded_signature_verifier
+
+    verifier = build_guarded_signature_verifier(backend="filesystem", guarded_store=store)
+    assert verifier is not None  # noqa: S101
+    return verifier
 
 
 def _authority_boundary(
@@ -588,11 +600,22 @@ def test_ranked_bundle_persistence_requires_owner_verification(tmp_path: Path) -
         )
 
 
-def _normative_harness(tmp_path: Path, *, fault: str = "") -> dict[str, Any]:
+def _normative_harness(
+    tmp_path: Path,
+    *,
+    fault: str = "",
+    signature_capability: bool = True,
+    guarded_proxy: bool = False,
+) -> dict[str, Any]:
+    import threading
+
     from polisyos.core import artifacts
     from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
 
     store = artifacts.FileSystemCAS(tmp_path / "cas")
+    owner_store: Any = store
+    guarded_store_calls: list[tuple[str, int]] = []
+    owner_call_thread_id: int | None = None
     claimant_key, authorizer_key = artifacts.KeyPair.generate(), artifacts.KeyPair.generate()
     claimant = "claimant://research-owner"
     authorizer = "principal://ua/ministry-of-economy"
@@ -704,7 +727,34 @@ def _normative_harness(tmp_path: Path, *, fault: str = "") -> dict[str, Any]:
     trust = s8.NormativeAuthorityTrust(
         epoch="test-deployment-epoch", principals=() if fault == "empty" else tuple(principals)
     )
-    owner = s8.NormativeValueScheduleOwner(store=store, trust=trust)
+    if guarded_proxy:
+        from polisyos.runtime.http.resilience import guard_runtime_cas
+
+        owner_call_thread_id = threading.get_ident()
+
+        class RecordingStore:
+            def __init__(self, delegate: Any) -> None:  # noqa: ANN401
+                self._delegate = delegate
+
+            def __getattr__(self, name: str) -> Any:  # noqa: ANN401
+                operation = getattr(self._delegate, name)
+                if not callable(operation):
+                    return operation
+
+                def record_operation(*args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
+                    guarded_store_calls.append((name, threading.get_ident()))
+                    return operation(*args, **kwargs)
+
+                return record_operation
+
+        owner_store = guard_runtime_cas(RecordingStore(store))
+    owner = s8.NormativeValueScheduleOwner(
+        store=owner_store,
+        trust=trust,
+        signature_verifier=(
+            _guarded_signature_verifier(owner_store) if signature_capability else None
+        ),
+    )
     if fault == "signature":
         signature = store.get_signature(authorization_ref)
         assert signature is not None
@@ -725,7 +775,12 @@ def _normative_harness(tmp_path: Path, *, fault: str = "") -> dict[str, Any]:
     return {
         "owner": owner,
         "store": store,
+        "owner_store": owner_store,
+        "guarded_store_calls": guarded_store_calls,
+        "owner_call_thread_id": owner_call_thread_id,
+        "trust": trust,
         "frontier": frontier,
+        "schedule_ref": schedule_ref,
         "kwargs": {
             "frontier_ref": frontier_ref,
             "authorization_ref": None if fault == "missing" else authorization_ref,
@@ -820,6 +875,115 @@ def test_separate_signed_authorization_produces_persists_resolves_and_projects(
         == result.archive
     )
     assert owner.project(bundle_ref, evaluated_at=NOW) == result.model_dump(mode="json")
+
+
+def test_signed_authority_refuses_without_a_signature_capability(tmp_path: Path) -> None:
+    harness = _normative_harness(tmp_path, signature_capability=False)
+
+    result, _bundle_ref = harness["owner"].recommend(**harness["kwargs"])
+
+    assert result.authorization_status == "blocked"  # noqa: S101
+    assert result.ranked_recommendations == ()  # noqa: S101
+    assert result.archive.nondominated_alternative_ids == (  # noqa: S101
+        harness["frontier"].nondominated_alternative_ids
+    )
+    assert result.decision_request is not None  # noqa: S101
+    assert result.decision_request.reason_codes == (  # noqa: S101
+        "p20_normative_signature_port_unavailable",
+    )
+
+
+def test_signature_capability_must_be_bound_to_the_exact_store(tmp_path: Path) -> None:
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    other_store = artifacts.FileSystemCAS(tmp_path / "other-cas")
+
+    with pytest.raises(ValueError, match="signature_verifier_store_mismatch"):
+        s8.NormativeValueScheduleOwner(
+            store=store,
+            signature_verifier=_guarded_signature_verifier(other_store),
+        )
+
+
+def test_signature_verifier_receives_a_normalized_artifact_id(tmp_path: Path) -> None:
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+
+    harness = _normative_harness(tmp_path)
+    delegate = _guarded_signature_verifier(harness["store"])
+
+    class RecordingVerifier:
+        def __init__(self) -> None:
+            self.guarded_store = delegate.guarded_store
+            self.artifact_ids: list[object] = []
+
+        def verify_signature(
+            self,
+            artifact_id: artifacts.ArtifactID,
+            verifier: artifacts.Ed25519Verifier,
+            *,
+            strict_identity: bool | None = None,
+        ) -> artifacts.SignatureVerificationResult:
+            self.artifact_ids.append(artifact_id)
+            return delegate.verify_signature(
+                artifact_id, verifier, strict_identity=strict_identity
+            )
+
+    signature_verifier = RecordingVerifier()
+    owner = s8.NormativeValueScheduleOwner(
+        store=harness["store"],
+        trust=harness["trust"],
+        signature_verifier=signature_verifier,
+    )
+
+    result, _bundle_ref = owner.recommend(**harness["kwargs"])
+
+    assert result.authorization_status == "authorized"  # noqa: S101
+    assert all(  # noqa: S101
+        isinstance(item, artifacts.ArtifactID) for item in signature_verifier.artifact_ids
+    )
+    assert set(signature_verifier.artifact_ids) >= {  # noqa: S101
+        artifacts.ArtifactID.model_validate(harness["kwargs"]["authorization_ref"]),
+        artifacts.ArtifactID.model_validate(harness["kwargs"]["frontier_ref"]),
+        artifacts.ArtifactID.model_validate(harness["schedule_ref"]),
+    }
+
+
+def test_signed_owner_uses_runtime_guarded_proxy_and_executes_through_guard(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.http.resilience import GuardedDependencyProxy
+
+    harness = _normative_harness(tmp_path, guarded_proxy=True)
+    owner_store = harness["owner_store"]
+    try:
+        assert isinstance(owner_store, GuardedDependencyProxy)  # noqa: S101
+        assert harness["owner"]._signature_verifier.guarded_store is owner_store  # noqa: S101
+        result, _bundle_ref = harness["owner"].recommend(**harness["kwargs"])
+    finally:
+        owner_store.close()
+
+    assert result.authorization_status == "authorized"  # noqa: S101
+    owner_operations = [
+        (name, thread_id)
+        for name, thread_id in harness["guarded_store_calls"]
+        if name in {"get_bytes", "get_manifest", "put_json", "verify_signature"}
+    ]
+    required_operations = {
+        "get_bytes",
+        "get_manifest",
+        "put_json",
+        "verify_signature",
+    }
+    assert required_operations <= {  # noqa: S101
+        name for name, _thread_id in owner_operations
+    }
+    assert all(  # noqa: S101
+        thread_id != harness["owner_call_thread_id"]
+        for _name, thread_id in owner_operations
+    )
 
 
 @pytest.mark.parametrize(

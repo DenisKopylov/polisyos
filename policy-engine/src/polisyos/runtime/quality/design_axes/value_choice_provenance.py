@@ -638,15 +638,19 @@ class NormativeValueScheduleOwner:
     def __init__(
         self,
         *,
-        store: artifacts.FileSystemCAS,
+        store: artifacts.ArtifactStore,
         trust: NormativeAuthorityTrust | None = None,
+        signature_verifier: artifacts.SignatureVerifyingArtifactStore | None = None,
         repo_root: Path | None = None,
     ) -> None:
         if trust is None:
             trust = NormativeAuthorityTrust()
-        if type(store) is not artifacts.FileSystemCAS or type(trust) is not NormativeAuthorityTrust:
-            raise TypeError("normative authority requires the concrete CAS and deployment trust")
+        if type(trust) is not NormativeAuthorityTrust:
+            raise TypeError("normative authority requires deployment trust")
+        if signature_verifier is not None and signature_verifier.guarded_store is not store:
+            raise ValueError("normative_signature_verifier_store_mismatch")
         self._store = store
+        self._signature_verifier = signature_verifier
         self._repo_root = repo_root.resolve() if repo_root is not None else None
         self._trust = trust
         self._verifier = artifacts.Ed25519Verifier(strict_identity=True)
@@ -818,7 +822,21 @@ class NormativeValueScheduleOwner:
         self, ref: str, *, kind: str, schema: str
     ) -> tuple[dict[str, Any], NormativeAuthorityPrincipal, str]:
         payload = self._read(ref, kind=kind, schema=schema)
-        signature = self._store.verify_signature(ref, self._verifier, strict_identity=True)
+        signature_verifier = self._signature_verifier
+        if signature_verifier is None:
+            raise P20NormativeChoiceError(
+                "p20_normative_signature_port_unavailable",
+                code="p20_normative_signature_port_unavailable",
+            )
+        if signature_verifier.guarded_store is not self._store:
+            raise P20NormativeChoiceError(
+                "p20_normative_signature_store_mismatch",
+                code="p20_normative_signature_store_mismatch",
+            )
+        artifact_id = artifacts.ArtifactID.model_validate(ref)
+        signature = signature_verifier.verify_signature(
+            artifact_id, self._verifier, strict_identity=True
+        )
         self._require_signature(signature)
         principal = self._principals.get(signature.key_id or "")
         if principal is None or signature.signer_identity != principal.identity:
@@ -1762,7 +1780,7 @@ def s8_value_provenance_integrity(
 def persist_value_choice_provenance_bundle(
     bundle: Mapping[str, object],
     *,
-    store: artifacts.FileSystemCAS | None = None,
+    store: artifacts.ArtifactStore | None = None,
     rule_version_ref: str = LAYER2_S8_VALUE_CHOICE_RULE_VERSION,
     owner: NormativeValueScheduleOwner | None = None,
     evaluated_at: datetime | None = None,

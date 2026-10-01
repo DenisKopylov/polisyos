@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 import asyncio
+import os
+import threading
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 from polisyos.core import artifacts, canon
 from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
@@ -671,24 +677,128 @@ def test_data_only_leaf_growth_preserves_complete_source_identity_sets(station):
     assert all(item.decision_request is not None for item in result.leaf_dispositions.values())
 
 
-def test_runtime_cas_adapter_reuses_ambient_owner_and_rejects_impostor(tmp_path):
+def test_runtime_cas_adapter_preserves_guarded_owner_and_rejects_impostor(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.core.security import tenant_scope
     from polisyos.runtime.http.dependencies import build_runtime_api_context
 
     context = build_runtime_api_context(cas_root=tmp_path / "cas", core_runs_root=tmp_path / "runs")
     try:
+        trust = s8.NormativeAuthorityTrust()
+        verifier = context.signature_verifier
+        assert verifier is not None  # noqa: S101
+        worker_calls: list[tuple[str, str]] = []
+        caller_thread = threading.current_thread().name
+        guard = context.store._guard
+        original_run = guard.run
+
+        def record_guarded_worker(
+            func: Callable[..., object], *args: object, **kwargs: object
+        ) -> object:
+            operation = getattr(func, "__name__", "<callable>")
+
+            def record_worker(*inner_args: object, **inner_kwargs: object) -> object:
+                worker_calls.append((operation, threading.current_thread().name))
+                return func(*inner_args, **inner_kwargs)
+
+            return original_run(record_worker, *args, **kwargs)
+
+        monkeypatch.setattr(guard, "run", record_guarded_worker)
+        kind = "test.r13.guarded_owner_read_probe"
+        schema = "test.r13.guarded_owner_read_probe.v1"
+        payload = {"probe": "owner-read-through-runtime-guard", "candidate_only": True}
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            stored = context.store.put_json(
+                payload,
+                artifacts.PutOptions(
+                    kind=kind,
+                    media_type="application/json",
+                    schema=artifacts.SchemaInfo(name=kind, version=schema),
+                ),
+            )
+        seed_worker_calls = tuple(worker_calls)
+        assert "put_json" in {name for name, _thread in seed_worker_calls}  # noqa: S101
+        assert all(thread_name != caller_thread for _name, thread_name in seed_worker_calls)  # noqa: S101
+        source_ref = str(stored.artifact_id)
+
+        if os.environ.get("POLISYOS_R13_DIRECT_TARGET_REMOVAL_PROBE") == "1":
+            # Default off. This keeps the bytes/ref/manifest fixed and removes only
+            # adapter custody, so the worker-operation assertion below must turn red.
+            def direct_target_adapter(
+                store: artifacts.ArtifactStore,
+                deployment_trust: s8.NormativeAuthorityTrust,
+                *,
+                signature_verifier: artifacts.SignatureVerifyingArtifactStore | None = None,
+                repo_root: Path | None = None,
+            ) -> s8.NormativeValueScheduleOwner:
+                del signature_verifier
+                return s8.NormativeValueScheduleOwner(
+                    store=store._target,
+                    trust=deployment_trust,
+                    repo_root=repo_root,
+                )
+
+            monkeypatch.setattr(
+                bridge, "normative_owner_for_runtime_store", direct_target_adapter
+            )
+
         owner = bridge.normative_owner_for_runtime_store(
-            context.store, s8.NormativeAuthorityTrust()
+            context.store, trust, signature_verifier=verifier
         )
-        assert owner._store is context.store._target
+        worker_calls.clear()
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            observed = owner._read(source_ref, kind=kind, schema=schema)
+            owner_read_calls = tuple(worker_calls)
+            manifest_after = context.store.get_manifest(stored.artifact_id)
+
+        assert observed == payload  # noqa: S101
+        assert str(stored.artifact_id) == source_ref  # noqa: S101
+        assert manifest_after.kind == kind  # noqa: S101
+        assert manifest_after.artifact_schema is not None  # noqa: S101
+        assert manifest_after.artifact_schema.version == schema  # noqa: S101
+        owner_worker_operations = {name for name, _thread in owner_read_calls}
+        assert {"get_bytes", "get_manifest"} <= owner_worker_operations  # noqa: S101
+        assert all(thread_name != caller_thread for _name, thread_name in owner_read_calls)  # noqa: S101
+        assert owner._store is context.store  # noqa: S101
+        assert owner._signature_verifier is verifier  # noqa: S101
+
+        # The authority capability is optional for candidate/blocked computation.
+        # V2 owner tests separately prove signed evidence stays typed-blocked without it.
+        candidate_owner = bridge.normative_owner_for_runtime_store(context.store, trust)
+        assert candidate_owner._store is context.store  # noqa: S101
+        assert candidate_owner._signature_verifier is None  # noqa: S101
+        worker_calls.clear()
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            candidate_observed = candidate_owner._read(
+                source_ref, kind=kind, schema=schema
+            )
+            candidate_worker_calls = tuple(worker_calls)
+        assert candidate_observed == payload  # noqa: S101
+        assert {"get_bytes", "get_manifest"} <= {  # noqa: S101
+            name for name, _thread in candidate_worker_calls
+        }
 
         class Fake:
-            _target = owner._store
+            _target = context.store
 
-        with pytest.raises(s8.P20NormativeChoiceError, match="signed_store_unavailable"):
-            bridge.normative_owner_for_runtime_store(Fake(), s8.NormativeAuthorityTrust())
+        with pytest.raises(
+            s8.P20NormativeChoiceError, match="p20_normative_signed_store_unavailable"
+        ):
+            bridge.normative_owner_for_runtime_store(Fake(), trust)
+
+        # Foreign tenant/cell reads remain refused by the same guarded owner.
+        for tenant_id, cell_id in (("tenant-b", "cell-a"), ("tenant-a", "cell-b")):
+            worker_calls.clear()
+            with (
+                tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id),
+                pytest.raises(s8.P20NormativeChoiceError) as refused,
+            ):
+                owner._read(source_ref, kind=kind, schema=schema)
+            assert refused.value.code == s8.P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE  # noqa: S101
+            assert any(name == "get_bytes" for name, _thread in worker_calls)  # noqa: S101
     finally:
         context.store.close()
-
 
 def test_s8_rejects_post_v1_field_from_raw_persisted_n6_bytes(tmp_path):
     """S8 checks the persisted historical projection before Pydantic can drop fields."""

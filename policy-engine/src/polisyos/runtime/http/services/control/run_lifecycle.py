@@ -2363,6 +2363,7 @@ class ControlPlaneService(
         owner = normative_owner_for_runtime_store(
             self._artifact_store,
             self._normative_authority_trust,
+            signature_verifier=self._promotion_runtime.signature_verifier,
             repo_root=self._repo_root,
         )
         return produce_normative_run_disposition(
@@ -2518,6 +2519,7 @@ class ControlPlaneService(
             owner = normative_owner_for_runtime_store(
                 self._artifact_store,
                 self._normative_authority_trust,
+                signature_verifier=self._promotion_runtime.signature_verifier,
                 repo_root=self._repo_root,
             )
             return project_normative_run_disposition(
@@ -3488,6 +3490,7 @@ class ControlPlaneService(
                     owner = normative_owner_for_runtime_store(
                         self._artifact_store,
                         self._normative_authority_trust,
+                        signature_verifier=self._promotion_runtime.signature_verifier,
                         repo_root=self._repo_root,
                     )
                     historical_replay = replay_normative_run_disposition(

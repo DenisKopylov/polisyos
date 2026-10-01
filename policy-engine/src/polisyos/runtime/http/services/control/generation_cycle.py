@@ -11,7 +11,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core import artifacts, canon
 from polisyos.core.contracts import ControlJobResponse  # noqa: TC001 - Pydantic DTO
 from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
-from polisyos.runtime.http.resilience import GuardedDependencyProxy
 from polisyos.runtime.http.services.control.nl_pipeline import (
     build_design_problem_from_nl_request,
 )
@@ -427,16 +426,42 @@ def _read_normative_run_disposition_v1(
 
 
 def normative_owner_for_runtime_store(
-    store: object,
+    store: artifacts.ArtifactStore,
     trust: NormativeAuthorityTrust,
     *,
+    signature_verifier: artifacts.SignatureVerifyingArtifactStore | None = None,
     repo_root: Path | None = None,
 ) -> NormativeValueScheduleOwner:
-    """Reuse the canonical filesystem target and explicit source checkout."""
-    target = store._target if type(store) is GuardedDependencyProxy else store
-    if type(target) is not artifacts.FileSystemCAS:
+    """Reuse the exact runtime store and its optional signature capability."""
+    try:
+        required_operations = tuple(
+            getattr(store, name, None)
+            for name in ("get_bytes", "get_manifest", "put_json")
+        )
+    except (AttributeError, TypeError) as exc:
+        raise P20NormativeChoiceError(
+            "p20_normative_signed_store_unavailable"
+        ) from exc
+    if not all(callable(operation) for operation in required_operations):
         raise P20NormativeChoiceError("p20_normative_signed_store_unavailable")
-    return NormativeValueScheduleOwner(store=target, trust=trust, repo_root=repo_root)
+    if signature_verifier is not None:
+        try:
+            verifier_store = signature_verifier.guarded_store
+            verify_signature = signature_verifier.verify_signature
+        except (AttributeError, TypeError) as exc:
+            raise P20NormativeChoiceError(
+                "p20_normative_signature_port_unavailable"
+            ) from exc
+        if verifier_store is not store:
+            raise P20NormativeChoiceError("p20_normative_signature_store_mismatch")
+        if not callable(verify_signature):
+            raise P20NormativeChoiceError("p20_normative_signature_port_unavailable")
+    return NormativeValueScheduleOwner(
+        store=store,
+        trust=trust,
+        signature_verifier=signature_verifier,
+        repo_root=repo_root,
+    )
 
 
 def _read_normative_source(

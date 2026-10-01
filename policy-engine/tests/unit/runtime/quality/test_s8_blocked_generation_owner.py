@@ -17,6 +17,7 @@ from tests.unit.runtime.quality.test_design_axes_value_choice_provenance import 
     RULE_VERSION_REF,
     _authority_boundary,
     _authorized_schedule_payload,
+    _guarded_signature_verifier,
     _pareto_archive_payload,
 )
 from tests.unit.runtime.quality.test_generation_cycle import (
@@ -338,6 +339,7 @@ async def _owner_source_harness(
     owner = s8.NormativeValueScheduleOwner(
         store=store,
         trust=trust,
+        signature_verifier=_guarded_signature_verifier(store),
         repo_root=source_root,
     )
     evidence = s8.NormativeGenerationEvidenceRefs(

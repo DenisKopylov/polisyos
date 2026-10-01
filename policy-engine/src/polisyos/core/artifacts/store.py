@@ -44,7 +44,7 @@ from ._integrity_ops import (
     VerifiedArtifactSnapshot as _VerifiedArtifactSnapshot,
 )
 from ._integrity_ops import (
-    load_verified_artifact_snapshot as _load_verified_artifact_snapshot,
+    _validate_read_integrity_with_digest as _validate_read_integrity_with_digest,
 )
 from ._integrity_ops import (
     read_verified_blob as _read_verified_blob,
@@ -139,10 +139,25 @@ def _canonical_artifact_id_sequence(
     artifact_ids: Iterable[ArtifactID],
 ) -> tuple[ArtifactID, ...]:
     """Return typed IDs unique and ordered by their canonical content identity."""
-    by_hex: dict[str, ArtifactID] = {}
+    return tuple(
+        sorted(
+            _iter_canonical_artifact_ids(artifact_ids),
+            key=lambda artifact_id: artifact_id.hex,
+        )
+    )
+
+
+def _iter_canonical_artifact_ids(
+    artifact_ids: Iterable[ArtifactID],
+) -> Iterator[ArtifactID]:
+    """Yield first-seen typed IDs without draining an explicit source."""
+    seen: set[str] = set()
     for artifact_id in artifact_ids:
-        by_hex.setdefault(artifact_id.hex, artifact_id)
-    return tuple(by_hex[hex_id] for hex_id in sorted(by_hex))
+        identity = artifact_id.hex
+        if identity in seen:
+            continue
+        seen.add(identity)
+        yield artifact_id
 
 
 _TRANSACTION_INTENT_SCHEMA = "policyos.artifact_ownership_transaction_intent.v2"
@@ -1446,15 +1461,27 @@ class FileSystemCAS:
                 message=message,
             )
         selected: ArtifactID | ArtifactRef = ref or aid
+        loaded_snapshot: _VerifiedArtifactSnapshot | None = None
+
+        def load_snapshot(_artifact_id: ArtifactID) -> _VerifiedArtifactSnapshot:
+            nonlocal loaded_snapshot
+            loaded_snapshot = self._load_verified_snapshot(selected)
+            return loaded_snapshot
+
+        def load_signature(_artifact_id: ArtifactID) -> DetachedSignature | None:
+            if loaded_snapshot is None:
+                raise ArtifactIntegrityError("signature_snapshot_not_loaded")
+            return self._load_signature_for_snapshot(selected, loaded_snapshot)
+
         return _verify_signature(
             artifact_id=aid,
             verifier=verifier,
             strict_identity=strict_identity,
             verify_integrity=self.verify,
-            load_signature=lambda selected_id: self.get_signature(selected),
+            load_signature=load_signature,
             read_blob=lambda selected_id: self.get_bytes(selected),
             read_manifest_bytes=lambda selected_id: self.get_manifest_bytes(selected),
-            load_snapshot=lambda selected_id: self._load_verified_snapshot(selected),
+            load_snapshot=load_snapshot,
         )
 
     def sign_all_artifacts(
@@ -1469,8 +1496,10 @@ class FileSystemCAS:
         cancel_event: threading.Event | None = None,
     ) -> BulkSigningReport:
         """Sign many artifacts concurrently and summarize signed/skipped/error counts."""
-        ids = _canonical_artifact_id_sequence(
-            artifact_ids if artifact_ids is not None else self._bulk_inventory_artifact_ids()
+        ids = (
+            self._iter_artifact_ids_lazy()
+            if artifact_ids is None
+            else _iter_canonical_artifact_ids(artifact_ids)
         )
         return _sign_all_artifacts(
             signer=signer,
@@ -1498,8 +1527,10 @@ class FileSystemCAS:
         cancel_event: threading.Event | None = None,
     ) -> BulkVerificationReport:
         """Verify many artifact signatures concurrently and summarize verifier outcomes."""
-        ids = _canonical_artifact_id_sequence(
-            artifact_ids if artifact_ids is not None else self._bulk_inventory_artifact_ids()
+        ids = (
+            self._iter_artifact_ids_lazy()
+            if artifact_ids is None
+            else _iter_canonical_artifact_ids(artifact_ids)
         )
         return _verify_all_signatures(
             verifier=verifier,
@@ -3153,14 +3184,10 @@ class FileSystemCAS:
         token = hashlib.sha256(f"{payload_sha}:{signature_sha}".encode()).hexdigest()
         return f"sha256:{token}"
 
-    def _capture_inventory_membership(
+    def _capture_inventory_member_paths(
         self,
-    ) -> tuple[
-        tuple[str, ...],
-        tuple[tuple[ArtifactID, str | None, Path, ArtifactManifest, bytes], ...],
-        str,
-    ]:
-        """Capture member names, exact manifest views, and owner generation under root lock."""
+    ) -> tuple[tuple[str, ...], dict[tuple[str, str], Path]]:
+        """Parse the complete canonical member-name set without reading contents."""
         names: set[str] = set()
         walk_errors: list[OSError] = []
 
@@ -3224,6 +3251,110 @@ class FileSystemCAS:
                 if kind == "sig" and (artifact_hex, f"{selector}:manifest.json") not in members:
                     raise ArtifactIntegrityError("cas_inventory_signature_view_missing")
 
+        return tuple(sorted(names)), members
+
+    def _capture_default_inventory_state(
+        self,
+        *,
+        owner_scope: tuple[str | None, str | None],
+    ) -> tuple[tuple[str, ...], tuple[ArtifactID, ...], str]:
+        """Capture visible default-view identities without reading manifests or blobs."""
+        _all_names, members = self._capture_inventory_member_paths()
+        default_ids = {
+            artifact_hex
+            for artifact_hex, selector_kind in members
+            if selector_kind == "default:blob"
+            and (artifact_hex, "default:manifest.json") in members
+        }
+        tenant_id, cell_id = owner_scope
+        visible_ids: list[ArtifactID] = []
+        for artifact_hex in sorted(default_ids):
+            artifact_id = ArtifactID.from_sha256_hex(artifact_hex)
+            if self._ownership_enforced:
+                if tenant_id is None:
+                    if self._ownership_index.has_any_tenant_claim(artifact_id):
+                        continue
+                elif not self._ownership_index.is_owned_by(
+                    artifact_id,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                ):
+                    continue
+            visible_ids.append(artifact_id)
+        visible_hex = {artifact_id.hex for artifact_id in visible_ids}
+        default_names = tuple(
+            sorted(
+                path.relative_to(self.base).as_posix()
+                for (artifact_hex, selector_kind), path in members.items()
+                if artifact_hex in visible_hex
+                and selector_kind in {"default:blob", "default:manifest.json"}
+            )
+        )
+        return default_names, tuple(visible_ids), self._owner_generation_token()
+
+    def _authenticated_default_inventory_cursor(self) -> Iterator[ArtifactID]:
+        """Yield default IDs from the active-scope membership projection.
+
+        The first iteration walks the complete CAS name tree and materializes
+        its member map and visible default IDs before yielding. It does not read
+        every manifest or blob during that census. Cancellation stops later
+        item admission, but cannot interrupt the initial filesystem walk. On
+        successful exhaustion, the owner recomputes the active-scope default
+        IDs and their blob/manifest member names. The shared owner-generation
+        token is sampled but is not itself the completion predicate: unrelated
+        tenant claims and signature-only writes may advance it without changing
+        this scope's default membership.
+        """
+        owner_scope = (
+            self._resolve_owner(required=self._ownership_requires_scope)
+            if self._ownership_enforced
+            else (None, None)
+        )
+        try:
+            with self._coordinator.root_exclusive():
+                names_before, ids_before, generation_before = (
+                    self._capture_default_inventory_state(owner_scope=owner_scope)
+                )
+        except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
+            raise ArtifactIntegrityError("cas_batch_inventory_capture_failed") from exc
+
+        processed: set[str] = set()
+        for artifact_id in ids_before:
+            processed.add(artifact_id.hex)
+            yield artifact_id
+
+        try:
+            with self._coordinator.root_exclusive():
+                names_after, ids_after, generation_after = (
+                    self._capture_default_inventory_state(owner_scope=owner_scope)
+                )
+        except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
+            raise ArtifactIntegrityError("cas_batch_inventory_recheck_failed") from exc
+        visible_membership_changed = (
+            names_before != names_after
+            or tuple(artifact_id.hex for artifact_id in ids_after)
+            != tuple(sorted(processed))
+        )
+        owner_generation_changed = generation_before != generation_after
+        if visible_membership_changed:
+            raise ArtifactIntegrityError("cas_batch_inventory_changed_during_scan")
+        if owner_generation_changed:
+            # Owner-index generations are shared across tenants and can advance
+            # for signature-only writes. The complete active-scope projection
+            # above is re-read at exhaustion, so generation-only churn outside
+            # that projection does not make this batch incomplete.
+            return
+
+    def _capture_inventory_membership(
+        self,
+    ) -> tuple[
+        tuple[str, ...],
+        tuple[tuple[ArtifactID, str | None, Path, ArtifactManifest, bytes], ...],
+        str,
+    ]:
+        """Capture member names, exact manifest views, and owner generation under root lock."""
+        names, members = self._capture_inventory_member_paths()
+
         visible_views: list[tuple[ArtifactID, str | None, Path, ArtifactManifest, bytes]] = []
         tenant_id: str | None = None
         cell_id: str | None = None
@@ -3264,7 +3395,7 @@ class FileSystemCAS:
                 (artifact_id, profile_sha256, manifest_path, manifest, manifest_bytes)
             )
 
-        return tuple(sorted(names)), tuple(visible_views), self._owner_generation_token()
+        return names, tuple(visible_views), self._owner_generation_token()
 
     def inventory_snapshot(self) -> CASInventorySnapshot:
         """Verify a stable store-visible artifact/ref inventory in bounded memory.
@@ -3395,8 +3526,8 @@ class FileSystemCAS:
         )
 
     def _iter_artifact_ids_lazy(self) -> Iterator[ArtifactID]:
-        """Compatibility iterator over a single verified inventory generation."""
-        yield from self._bulk_inventory_artifact_ids()
+        """Yield authenticated default IDs through the bounded batch cursor."""
+        yield from self._authenticated_default_inventory_cursor()
 
     def export_subgraph(
         self,
@@ -3459,6 +3590,70 @@ class FileSystemCAS:
     def _artifact_id_from_member(path: str) -> ArtifactID | None:
         return _artifact_id_from_member(path)
 
+    def _read_cas_file_no_follow(
+        self,
+        path: Path,
+        *,
+        member: str,
+        max_bytes: int | None = None,
+    ) -> bytes:
+        """Read one regular CAS member through a no-follow file descriptor."""
+        if self._ownership_index._path_has_symlink_component(path):
+            raise ArtifactIntegrityError(f"CAS {member} path crosses a symlink")
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        try:
+            before = os.fstat(descriptor)
+            if not stat.S_ISREG(before.st_mode):
+                raise ArtifactIntegrityError(f"CAS {member} member is not a regular file")
+            if max_bytes is not None and before.st_size > max_bytes:
+                raise ArtifactIntegrityError(f"CAS {member} member exceeds its size bound")
+            with os.fdopen(descriptor, "rb") as stream:
+                descriptor = -1
+                data = stream.read(-1 if max_bytes is None else max_bytes + 1)
+                after = os.fstat(stream.fileno())
+            if (
+                len(data) != before.st_size
+                or after.st_size != before.st_size
+                or after.st_mtime_ns != before.st_mtime_ns
+                or after.st_ctime_ns != before.st_ctime_ns
+            ):
+                raise ArtifactIntegrityError(f"CAS {member} member changed while reading")
+            return data
+        finally:
+            if descriptor >= 0:
+                os.close(descriptor)
+
+    def _load_signature_for_snapshot(
+        self,
+        artifact_ref: ArtifactID | ArtifactRef,
+        snapshot: _VerifiedArtifactSnapshot,
+    ) -> DetachedSignature | None:
+        """Read a signature bound to the exact already-verified selected snapshot."""
+        aid, profile_sha256, _ref = _artifact_reference(artifact_ref)
+        self._ownership_index.require_no_pending_transaction(
+            aid,
+            manifest_profile_sha256=profile_sha256,
+            signature_profile=profile_sha256 or "default",
+        )
+        signature_path = self._sig_path(aid, profile_sha256)
+        try:
+            signature_bytes = self._read_cas_file_no_follow(
+                signature_path,
+                member="signature",
+                max_bytes=1024 * 1024,
+            )
+        except FileNotFoundError:
+            return None
+        signature = DetachedSignature.model_validate_json(signature_bytes)
+        if (
+            signature.artifact_id != str(aid)
+            or signature.statement.blob_sha256 != aid.hex
+            or signature.statement.manifest_sha256
+            != hashlib.sha256(snapshot.manifest_bytes).hexdigest()
+        ):
+            raise ArtifactIntegrityError(f"Signature binding mismatch for {aid}")
+        return signature
+
     def _read_verified_blob(
         self,
         artifact_id: ArtifactID,
@@ -3481,17 +3676,22 @@ class FileSystemCAS:
         """Load one owned, integrity-checked bytes/manifest snapshot."""
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
         self._require_blob_owner(aid, operation="verify")
-        self.get_manifest(artifact_id)
+        if profile_sha256 is None:
+            self._require_default_manifest_access(aid, operation="verify_manifest")
+        else:
+            self._require_manifest_view_owner(
+                aid,
+                profile_sha256,
+                operation="verify_manifest",
+            )
         blob, _default_manifest = self._paths(aid)
         manifest_path = self._manifest_path_for_ref(aid, profile_sha256)
-        snapshot = _load_verified_artifact_snapshot(
-            aid,
-            blob_path=blob,
-            manifest_path=manifest_path,
-            record_integrity_failure=self._record_integrity_failure,
+        manifest_bytes = self._read_cas_file_no_follow(
+            manifest_path,
+            member="manifest",
         )
-        manifest = ArtifactManifest.model_validate_json(snapshot.manifest_bytes)
-        _validate_manifest_identity(aid, manifest)
+        data = self._read_cas_file_no_follow(blob, member="blob")
+        manifest = ArtifactManifest.model_validate_json(manifest_bytes)
         if profile_sha256 is not None and (
             self._manifests.profile_sha256(manifest) != profile_sha256
         ):
@@ -3500,4 +3700,20 @@ class FileSystemCAS:
             raise ArtifactIntegrityError(
                 f"Artifact reference type does not match selected manifest for {aid}"
             )
-        return snapshot
+        actual_sha256_hex = content_hash(data)
+        try:
+            _validate_read_integrity_with_digest(
+                aid,
+                data=data,
+                manifest=manifest,
+                actual_sha256_hex=actual_sha256_hex,
+            )
+        except ArtifactIntegrityError as exc:
+            self._record_integrity_failure(reason=type(exc).__name__)
+            raise
+        return _VerifiedArtifactSnapshot(
+            data=data,
+            manifest_bytes=manifest_bytes,
+            actual_sha256_hex=actual_sha256_hex,
+            byte_size=len(data),
+        )

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import threading
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
+from contextvars import copy_context
 from typing import TYPE_CHECKING, Protocol
 
 from .signing import (
@@ -57,7 +58,7 @@ def _run_bounded(
     max_workers: int,
     pending_window: int | None,
     cancel_event: threading.Event | None,
-) -> tuple[list[tuple[int, object]], int | None, bool]:
+) -> tuple[list[tuple[int, object]], int | None, bool, bool]:
     """Run item callbacks with bounded inventory consumption and cancellation.
 
     Only ordinary per-item exceptions are converted by the callback supplied
@@ -71,11 +72,12 @@ def _run_bounded(
     next_index = 0
     exhausted = False
     cancelled = False
+    source_failed = False
     window = _pending_window(max_workers, pending_window)
     length_hint = _source_length_hint(artifact_ids)
 
     def fill_window(executor: ThreadPoolExecutor) -> None:
-        nonlocal cancelled, exhausted, next_index
+        nonlocal cancelled, exhausted, next_index, source_failed
         while not exhausted and not cancelled and len(pending) < window:
             if cancel_event is not None and cancel_event.is_set():
                 cancelled = True
@@ -85,10 +87,17 @@ def _run_bounded(
             except StopIteration:
                 exhausted = True
                 return
+            except Exception:
+                # Preserve already-completed item rows, but never report a
+                # complete batch when its inventory source failed mid-stream.
+                exhausted = True
+                source_failed = True
+                return
             if cancel_event is not None and cancel_event.is_set():
                 cancelled = True
                 return
-            future = executor.submit(process, artifact_id)
+            task_context = copy_context()
+            future = executor.submit(task_context.run, process, artifact_id)
             pending[future] = (next_index, artifact_id)
             next_index += 1
 
@@ -105,7 +114,7 @@ def _run_bounded(
                     cancelled = True
             fill_window(executor)
 
-    return results, length_hint, cancelled
+    return results, length_hint, cancelled, source_failed
 
 
 def get_signature(
@@ -287,7 +296,7 @@ def sign_all_artifacts(
                 message=str(exc),
             )
 
-    indexed, length_hint, cancelled = _run_bounded(
+    indexed, length_hint, cancelled, source_failed = _run_bounded(
         artifact_ids,
         _sign_one,
         max_workers=max_workers,
@@ -306,12 +315,24 @@ def sign_all_artifacts(
                 message="Batch cancelled; no new artifacts were submitted",
             )
         )
+    if source_failed:
+        details.append(
+            ArtifactSigningResult(
+                artifact_id="<batch>",
+                status="error",
+                message="Batch inventory source failed; results are incomplete",
+            )
+        )
 
     signed = sum(1 for item in details if item.status == "signed")
     skipped = sum(1 for item in details if item.status == "skipped")
     errors = sum(1 for item in details if item.status == "error")
     return BulkSigningReport(
-        total=length_hint if length_hint is not None else len(details),
+        total=(
+            length_hint
+            if length_hint is not None and not source_failed
+            else len(details)
+        ),
         signed=signed,
         skipped=skipped,
         errors=errors,
@@ -341,7 +362,7 @@ def verify_all_signatures(
                 message=str(exc),
             )
 
-    indexed, length_hint, cancelled = _run_bounded(
+    indexed, length_hint, cancelled, source_failed = _run_bounded(
         artifact_ids,
         _verify_one,
         max_workers=max_workers,
@@ -360,6 +381,14 @@ def verify_all_signatures(
                 message="Batch cancelled; no new artifacts were submitted",
             )
         )
+    if source_failed:
+        details.append(
+            SignatureVerificationResult(
+                status=SignatureVerificationStatus.ERROR,
+                artifact_id="<batch>",
+                message="Batch inventory source failed; results are incomplete",
+            )
+        )
 
     valid = sum(1 for item in details if item.status == SignatureVerificationStatus.VALID)
     unsigned = sum(1 for item in details if item.status == SignatureVerificationStatus.UNSIGNED)
@@ -368,7 +397,11 @@ def verify_all_signatures(
     revoked = sum(1 for item in details if item.status == SignatureVerificationStatus.REVOKED)
     errors = sum(1 for item in details if item.status == SignatureVerificationStatus.ERROR)
     return BulkVerificationReport(
-        total=length_hint if length_hint is not None else len(details),
+        total=(
+            length_hint
+            if length_hint is not None and not source_failed
+            else len(details)
+        ),
         valid=valid,
         unsigned=unsigned,
         invalid=invalid,

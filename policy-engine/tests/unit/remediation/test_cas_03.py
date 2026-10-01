@@ -1,11 +1,8 @@
-"""Test-first witnesses for CAS-03 snapshot and bounded batch semantics.
-
-These tests deliberately describe the missing B152/B154/B155 behavior at the
-public ``FileSystemCAS`` seams.  This branch owns no production remediation.
-"""
+"""Behavioral witnesses for CAS-03 snapshot and bounded batch semantics."""
 
 from __future__ import annotations
 
+import json
 import threading
 from pathlib import Path
 from typing import Any
@@ -13,6 +10,7 @@ from typing import Any
 import pytest
 
 from polisyos.core.artifacts import _integrity_ops as integrity_ops
+from polisyos.core.artifacts import store as store_module
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.signing import (
     ArtifactSigningResult,
@@ -23,6 +21,8 @@ from polisyos.core.artifacts.signing import (
     SignatureVerificationStatus,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.observability import get_metrics
+from polisyos.core.security.tenant_context import tenant_scope
 
 
 def _synthetic_ids(count: int) -> list[ArtifactID]:
@@ -35,6 +35,67 @@ def _valid_result(artifact_id: ArtifactID) -> SignatureVerificationResult:
     return SignatureVerificationResult(
         status=SignatureVerificationStatus.VALID,
         artifact_id=str(artifact_id),
+    )
+
+
+def probe_default_inventory_cancellation_stops_member_name_walk(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Removal probe: cancellation must stop an in-progress CAS name walk.
+
+    This helper is called only by a separate scratch pytest leaf. It is not
+    collected in the normal CAS-03 file cohort. It signals cancellation from
+    the first actual CAS-root ``scandir`` call and then records any later scan
+    calls; the standalone probe is expected to fail until the owner can
+    interrupt its authenticated name census.
+    """
+    store = FileSystemCAS(tmp_path / "cas")
+    cancel_event = threading.Event()
+    visited_prefixes: set[str] = set()
+    candidate_index = 0
+    while len(visited_prefixes) < 3:
+        ref = store.put_bytes(
+            f"cas-03-cancelled-name-walk-{candidate_index}".encode(),
+            PutOptions(kind="cas03.inventory", media_type="application/octet-stream"),
+        )
+        candidate_index += 1
+        if ref.artifact_id.hex[:4] in visited_prefixes:
+            continue
+        visited_prefixes.add(ref.artifact_id.hex[:4])
+    cas_root = store.base.resolve()
+    visited_after_cancel: list[Path] = []
+    cancellation_observed = False
+    original_scandir = store_module.os.scandir
+
+    def count_scandir(path: Any) -> Any:
+        nonlocal cancellation_observed
+        resolved = Path(path).resolve()
+        if resolved == cas_root or cas_root in resolved.parents:
+            if cancel_event.is_set():
+                visited_after_cancel.append(resolved)
+            result = original_scandir(path)
+            if not cancellation_observed:
+                cancellation_observed = True
+                cancel_event.set()
+            return result
+        return original_scandir(path)
+
+    monkeypatch.setattr(store_module.os, "scandir", count_scandir)
+    report = store.verify_all_signatures(
+        Ed25519Verifier(),
+        max_workers=1,
+        pending_window=1,
+        cancel_event=cancel_event,
+    )
+
+    assert report.errors == 1
+    assert report.details[-1].artifact_id == "<batch>"
+    assert cancellation_observed
+    assert cancel_event.is_set()
+    assert not visited_after_cancel, (
+        "CAS member-name traversal continued after cancellation; "
+        f"observed {len(visited_after_cancel)} post-cancellation scandir calls"
     )
 
 
@@ -58,7 +119,11 @@ def test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot(
     integrity_hashes = 0
     original_read_bytes = Path.read_bytes
     original_read_text = Path.read_text
-    original_content_hash = integrity_ops.content_hash
+    original_member_reader = store._read_cas_file_no_follow
+    original_stream_read = store_module._VerifiedCASMemberStream.read
+    original_store_content_hash = store_module.content_hash
+    original_integrity_content_hash = integrity_ops.content_hash
+    member_reads = {"blob": 0, "manifest": 0, "signature": 0}
 
     def counted_read_bytes(path: Path, *args: Any, **kwargs: Any) -> bytes:
         if path.name.endswith(".blob"):
@@ -75,17 +140,102 @@ def test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot(
     def counted_content_hash(data: bytes, *args: Any, **kwargs: Any) -> str:
         nonlocal integrity_hashes
         integrity_hashes += 1
-        return original_content_hash(data, *args, **kwargs)
+        return original_store_content_hash(data, *args, **kwargs)
+
+    def counted_member_reader(
+        path: Path,
+        *,
+        member: str,
+        max_bytes: int | None = None,
+    ) -> bytes:
+        member_reads[member] += 1
+        return original_member_reader(path, member=member, max_bytes=max_bytes)
+
+    def counted_stream_read(stream: Any, size: int = -1) -> bytes:
+        member_name = stream._member
+        if member_name.endswith(".blob"):
+            member_reads["blob"] += 1
+        elif member_name.endswith(".manifest.json"):
+            member_reads["manifest"] += 1
+        elif member_name.endswith(".sig"):
+            member_reads["signature"] += 1
+        return original_stream_read(stream, size)
+
+    def counted_integrity_hash(data: bytes, *args: Any, **kwargs: Any) -> str:
+        nonlocal integrity_hashes
+        integrity_hashes += 1
+        return original_integrity_content_hash(data, *args, **kwargs)
 
     monkeypatch.setattr(Path, "read_bytes", counted_read_bytes)
     monkeypatch.setattr(Path, "read_text", counted_read_text)
-    monkeypatch.setattr(integrity_ops, "content_hash", counted_content_hash)
+    monkeypatch.setattr(store, "_read_cas_file_no_follow", counted_member_reader)
+    monkeypatch.setattr(
+        store_module._VerifiedCASMemberStream,
+        "read",
+        counted_stream_read,
+    )
+    monkeypatch.setattr(store_module, "content_hash", counted_content_hash)
+    monkeypatch.setattr(integrity_ops, "content_hash", counted_integrity_hash)
 
     result = store.verify_signature(ref.artifact_id, verifier)
 
     assert result.status == SignatureVerificationStatus.VALID
-    assert reads == {"blob": 1, "manifest": 1}
+    assert member_reads == {"blob": 1, "manifest": 1, "signature": 1}
+    assert reads == {"blob": 0, "manifest": 0}
     assert integrity_hashes == 1
+
+
+def test_verify_signature_records_corrupt_manifest_and_preserves_valid_control(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Manifest identity failures remain visible through metrics and valid reads."""
+    metrics = get_metrics()
+    integrity_failures: list[tuple[str, str]] = []
+    record_integrity_failure = metrics.record_artifact_integrity_failure
+
+    def record_integrity_failure_spy(*, backend: str, reason: str) -> None:
+        integrity_failures.append((backend, reason))
+        record_integrity_failure(backend=backend, reason=reason)
+
+    monkeypatch.setattr(
+        metrics,
+        "record_artifact_integrity_failure",
+        record_integrity_failure_spy,
+    )
+    store = FileSystemCAS(tmp_path / "cas", metrics=metrics)
+    key_pair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key_pair.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key_pair.public_key, key_id=key_pair.key_id)
+    valid_ref = store.put_bytes(
+        b"cas-03-valid-signature-control",
+        PutOptions(kind="cas03.snapshot", media_type="application/octet-stream"),
+    )
+    corrupt_ref = store.put_bytes(
+        b"cas-03-corrupt-manifest-negative",
+        PutOptions(kind="cas03.snapshot", media_type="application/octet-stream"),
+    )
+    store.sign_artifact(valid_ref.artifact_id, signer, signer_identity="cas03")
+    store.sign_artifact(corrupt_ref.artifact_id, signer, signer_identity="cas03")
+
+    valid_result = store.verify_signature(valid_ref.artifact_id, verifier)
+
+    assert valid_result.status == SignatureVerificationStatus.VALID
+    assert integrity_failures == []
+
+    manifest_path = store._manifest_path_for_ref(corrupt_ref.artifact_id, None)
+    manifest_document = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest_document["artifact_id"] = str(ArtifactID.from_sha256_hex("f" * 64))
+    manifest_path.write_text(
+        json.dumps(manifest_document),
+        encoding="utf-8",
+    )
+
+    corrupt_result = store.verify_signature(corrupt_ref.artifact_id, verifier)
+
+    assert corrupt_result.status == SignatureVerificationStatus.ERROR
+    assert integrity_failures == [("filesystem", "ArtifactIntegrityError")]
 
 
 def test_verify_batch_records_local_element_errors_and_finishes_independent_items(
@@ -390,6 +540,30 @@ def test_default_batch_path_stops_lazy_inventory_on_cancellation(
     ]
     cancel_event = threading.Event()
     yielded: list[ArtifactID] = []
+    reads_before_first_worker = {"blob": 0, "manifest": 0}
+    original_path_read_bytes = Path.read_bytes
+    original_stream_read = store_module._VerifiedCASMemberStream.read
+
+    def counted_path_read_bytes(path: Path, *args: Any, **kwargs: Any) -> bytes:
+        if path.name.endswith(".blob"):
+            reads_before_first_worker["blob"] += 1
+        elif path.name.endswith(".manifest.json"):
+            reads_before_first_worker["manifest"] += 1
+        return original_path_read_bytes(path, *args, **kwargs)
+
+    def counted_stream_read(stream: Any, size: int = -1) -> bytes:
+        if stream._member.endswith(".blob"):
+            reads_before_first_worker["blob"] += 1
+        elif stream._member.endswith(".manifest.json"):
+            reads_before_first_worker["manifest"] += 1
+        return original_stream_read(stream, size)
+
+    monkeypatch.setattr(Path, "read_bytes", counted_path_read_bytes)
+    monkeypatch.setattr(
+        store_module._VerifiedCASMemberStream,
+        "read",
+        counted_stream_read,
+    )
     original_inventory = store._iter_artifact_ids_lazy
 
     def lazy_inventory():
@@ -404,6 +578,7 @@ def test_default_batch_path_stops_lazy_inventory_on_cancellation(
         strict_identity: bool | None = None,
     ) -> SignatureVerificationResult:
         del strict_identity
+        assert reads_before_first_worker == {"blob": 0, "manifest": 0}
         cancel_event.set()
         return _valid_result(artifact_id)
 
@@ -425,3 +600,288 @@ def test_default_batch_path_stops_lazy_inventory_on_cancellation(
         and "cancel" in (item.message or "").lower()
         for item in report.details
     )
+
+
+def test_verify_batch_preserves_partial_rows_when_inventory_source_fails(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """An inventory exception after work starts cannot erase rows or imply completion."""
+    store = FileSystemCAS(tmp_path / "cas")
+    artifact_id = _synthetic_ids(1)[0]
+
+    def broken_source():
+        yield artifact_id
+        raise OSError("synthetic inventory read failure")
+
+    def fake_verify(
+        current_id: ArtifactID,
+        _verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        del strict_identity
+        return _valid_result(current_id)
+
+    monkeypatch.setattr(store, "verify_signature", fake_verify)
+
+    report = store.verify_all_signatures(
+        Ed25519Verifier(),
+        artifact_ids=broken_source(),
+        max_workers=1,
+    )
+
+    assert report.total == 2
+    assert report.valid == 1
+    assert report.errors == 1
+    assert report.details[0].artifact_id == str(artifact_id)
+    assert report.details[-1].artifact_id == "<batch>"
+    assert "source failed" in (report.details[-1].message or "")
+
+
+def test_default_batch_inventory_change_is_a_partial_error(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A cooperating writer during work cannot make a default scan look complete."""
+    store = FileSystemCAS(tmp_path / "cas")
+    initial_ref = store.put_bytes(
+        b"cas-03-inventory-before",
+        PutOptions(kind="cas03.inventory", media_type="application/octet-stream"),
+    )
+    inserted: list[ArtifactID] = []
+
+    def write_during_worker(
+        artifact_id: ArtifactID,
+        _verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        del strict_identity
+        if not inserted:
+            new_ref = store.put_bytes(
+                b"cas-03-inventory-during-scan",
+                PutOptions(kind="cas03.inventory", media_type="application/octet-stream"),
+            )
+            inserted.append(new_ref.artifact_id)
+        return _valid_result(artifact_id)
+
+    monkeypatch.setattr(store, "verify_signature", write_during_worker)
+
+    report = store.verify_all_signatures(
+        Ed25519Verifier(),
+        max_workers=1,
+        pending_window=1,
+    )
+
+    assert inserted
+    assert report.valid == 1
+    assert report.errors == 1
+    assert report.total == 2
+    assert report.details[0].artifact_id == str(initial_ref.artifact_id)
+    assert report.details[-1].artifact_id == "<batch>"
+    assert "source failed" in (report.details[-1].message or "")
+
+
+def test_default_batch_tolerates_hidden_tenant_and_signature_only_writes(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Unrelated shared-CAS churn must preserve a complete tenant batch."""
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    key_pair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key_pair.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key_pair.public_key, key_id=key_pair.key_id)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        current_ref = store.put_bytes(
+            b"cas-03-tenant-a-default",
+            PutOptions(kind="cas03.tenant", media_type="application/octet-stream"),
+        )
+
+    foreign_refs: list[ArtifactID] = []
+    original_verify = store.verify_signature
+
+    def write_during_verify(
+        artifact_id: ArtifactID,
+        current_verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            store.sign_artifact(artifact_id, signer, signer_identity="tenant-a")
+        with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+            foreign_ref = store.put_bytes(
+                b"cas-03-tenant-b-added-during-scan",
+                PutOptions(
+                    kind="cas03.tenant",
+                    media_type="application/octet-stream",
+                ),
+            )
+            foreign_refs.append(foreign_ref.artifact_id)
+        return original_verify(
+            artifact_id,
+            current_verifier,
+            strict_identity=strict_identity,
+        )
+
+    monkeypatch.setattr(store, "verify_signature", write_during_verify)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        report = store.verify_all_signatures(
+            verifier,
+            max_workers=1,
+            pending_window=1,
+        )
+        assert store.has_signature(current_ref.artifact_id)
+
+    assert foreign_refs
+    assert report.total == 1
+    assert report.valid == 1
+    assert report.errors == 0
+    assert [item.artifact_id for item in report.details] == [
+        str(current_ref.artifact_id)
+    ]
+
+
+def test_bulk_sign_worker_inherits_the_callers_tenant_scope(
+    tmp_path: Path,
+) -> None:
+    """CAS workers must retain the caller's tenant-bound owner context."""
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    key_pair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key_pair.private_pem())
+
+    with tenant_scope(None, tenant_id="tenant-cas03", cell_id="cell-cas03"):
+        ref = store.put_bytes(
+            b"cas-03-tenant-bound-worker",
+            PutOptions(kind="cas03.tenant", media_type="application/octet-stream"),
+        )
+        report = store.sign_all_artifacts(
+            signer,
+            artifact_ids=(artifact_id for artifact_id in (ref.artifact_id,)),
+            only_unsigned=True,
+            max_workers=1,
+            pending_window=1,
+        )
+
+    assert report.total == 1
+    assert report.signed == 1
+    assert report.errors == 0
+
+
+def test_default_bulk_signing_uses_unique_default_views(
+    tmp_path: Path,
+) -> None:
+    """Default bulk signing sees one sorted blob ID per default view only."""
+    store = FileSystemCAS(tmp_path / "cas")
+    key_pair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key_pair.private_pem())
+    default_view = store.put_bytes(
+        b"cas-03-default-and-selected-view",
+        PutOptions(kind="cas03.default", media_type="text/plain"),
+    )
+    selected_view = store.put_bytes(
+        b"cas-03-default-and-selected-view",
+        PutOptions(kind="cas03.selected", media_type="application/json"),
+    )
+    other_blob = store.put_bytes(
+        b"cas-03-second-default-blob",
+        PutOptions(kind="cas03.other", media_type="text/plain"),
+    )
+
+    report = store.sign_all_artifacts(
+        signer,
+        only_unsigned=True,
+        max_workers=2,
+        pending_window=2,
+    )
+
+    expected_ids = {str(default_view.artifact_id), str(other_blob.artifact_id)}
+    assert report.total == 2
+    assert report.signed == 2
+    assert report.errors == 0
+    assert {item.artifact_id for item in report.details} == expected_ids
+    assert store.has_signature(default_view.artifact_id)
+    assert not store.has_signature(selected_view)
+
+
+def test_default_and_explicit_bulk_reads_keep_foreign_tenant_bytes_unread(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Default inventory omits foreign IDs, and an explicit foreign ID denies before bytes."""
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    key_pair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key_pair.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key_pair.public_key, key_id=key_pair.key_id)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        tenant_a_ref = store.put_bytes(
+            b"cas-03-tenant-a",
+            PutOptions(kind="cas03.tenant", media_type="application/octet-stream"),
+        )
+        store.sign_artifact(tenant_a_ref.artifact_id, signer, signer_identity="tenant-a")
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        tenant_b_ref = store.put_bytes(
+            b"cas-03-tenant-b",
+            PutOptions(kind="cas03.tenant", media_type="application/octet-stream"),
+        )
+        store.sign_artifact(tenant_b_ref.artifact_id, signer, signer_identity="tenant-b")
+
+    blob_reads = 0
+    original_member_reader = store._read_cas_file_no_follow
+
+    def count_blob_reads(
+        path: Path,
+        *,
+        member: str,
+        max_bytes: int | None = None,
+    ) -> bytes:
+        nonlocal blob_reads
+        if member == "blob":
+            blob_reads += 1
+        return original_member_reader(path, member=member, max_bytes=max_bytes)
+
+    monkeypatch.setattr(store, "_read_cas_file_no_follow", count_blob_reads)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        default_report = store.verify_all_signatures(
+            verifier,
+            max_workers=1,
+            pending_window=1,
+        )
+
+    assert default_report.total == 1
+    assert default_report.valid == 1
+    assert [item.artifact_id for item in default_report.details] == [
+        str(tenant_a_ref.artifact_id)
+    ]
+    assert blob_reads == 1
+
+    blob_reads = 0
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        explicit_report = store.verify_all_signatures(
+            verifier,
+            artifact_ids=(tenant_b_ref.artifact_id,),
+            max_workers=1,
+        )
+
+    assert explicit_report.total == 1
+    assert explicit_report.errors == 1
+    assert explicit_report.details[0].artifact_id == str(tenant_b_ref.artifact_id)
+    assert blob_reads == 0

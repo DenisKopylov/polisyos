@@ -3091,3 +3091,9 @@ R14 receipt `/Users/deniskopylov/.codex/scratch/R14_CURRENT15_POST_ROOT_RECONCIL
 R9 receipt `/Users/deniskopylov/.codex/scratch/R9_CAS03_V4_ROOT_WHOLEFILE_RECONCILIATION_20261001.json@sha256:0dd0b9db2ecde71e8a70ab5be0e482a0ddb387200b989af9ba48cc9bc707ae82`; raw result `/Users/deniskopylov/.codex/scratch/R9_CAS03_V4_WHOLEFILE_ADAPTER_PREP_20261001/runs/r9-cas03-v4-wholefile-20261001T061307534281Z-20418/results.json@sha256:b04508ed901830208b4c24b864dc1d3dd6505b86a62490574da0aa933f1d3895`.
 
 The new R9 telemetry fixture fails at `put_bytes` because `RecordingMetrics.artifact_operations_total` is absent. Its intended corrupt-manifest/valid-control property is UNRUN; use the existing metrics owner rather than a partial substitute. The R14 new source-consumer property is also unverified; no deployment identity or governed receipt is restamped to make it pass.
+
+## R9 V5 snapshot/batch and two falsifiers (2026-10-01)
+
+Requested and executed: two whole files, 26 JUnit cases. Protocol 10/10 pass in 2.103 s; CAS-03 16/16 pass in 3.164 s. The same 26 V4→V5 identities have one fixture fail→pass and zero pass→fail. Both origin audits pass on 6,414 frozen source/test/config paths; no drift or resource guard. This is candidate evidence, not integrated-head or four-base verification.
+
+Two-case current iterator removal: duplicate-ID case red at `total=2`, distinct-ID preflight-error control green. Separate one-case residual falsifier: red with six filesystem scans after cancellation. Its expected-red runner pass does not establish cancellation. Complete deciding receipts and hashes: [R9_BATCH_SNAPSHOT_RECEIPT.md](R9_BATCH_SNAPSHOT_RECEIPT.md). B152/B154/B155 and ledger totals unchanged.

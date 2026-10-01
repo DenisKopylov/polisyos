@@ -1,6 +1,12 @@
 # E02-R2 final report draft
 
-## Measured current checkpoint: R14 whole file and R9 candidate (2026-10-01)
+## R9 source integration checkpoint: snapshot and bounded batch (2026-10-01)
+
+**Discrepancies first.** Candidate V5 passes **26/26 across two whole files**; integrated-head replay is UNRUN. The current iterator removal probe makes the duplicate-ID case red while the distinct-ID control stays green. The separate real-walk falsifier confirms B155's residual: six scans after cancellation. No public-read authority, B154 production attestation, four-base completion, class closure or ledger status change follows.
+
+**Conclusion.** Integrate the independently reviewed single-snapshot, lazy explicit batch, bounded admission and worker-context repair. Keep the uncancellable initial name census as a measured limitation. [R9_BATCH_SNAPSHOT_RECEIPT.md](R9_BATCH_SNAPSHOT_RECEIPT.md) records the source and evidence. The older V4 telemetry fixture red below is superseded by V5's measured pass.
+
+## Earlier measured checkpoint: R14 whole file and R9 V4 candidate (2026-10-01)
 
 **Discrepancies first.** R14's post-edit replay is now measured FAIL, superseding the preceding UNRUN as the latest attempt: 14/15 pass, one new witness stops on `capture_loaded_deployment_identity().status == not_established` before canonical N9. The complete pre/post case comparison has **0 pass→fail across 15 shared identities**; the intended new negative-source property remains unverified. Origin inspection passes with 10,038 frozen paths, including the 16 acknowledged foreign research documents, all unchanged. The canonical runtime source is `695ef7fd3`; this is current-only evidence, not completion of four-base verification.
 

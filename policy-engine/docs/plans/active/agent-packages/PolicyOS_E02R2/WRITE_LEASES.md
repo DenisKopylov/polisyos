@@ -2367,3 +2367,13 @@ The distinct versioned proposal/profile route uses existing N4, atom/L6,
 source repository and N5 owners; full K_ref vintage and authority guards stay.
 Root admits runtime only after the candidate is frozen; no concurrent edit of
 that tree or the canonical tree under test.
+
+## Prior writer-coordination V2 snapshot at `bc909aed` (2026-10-01; superseded below)
+
+The retained coordination receipt is `/Users/deniskopylov/.codex/scratch/E02R2_ACTIVE_WRITER_COORDINATION_20261001_V2.json@sha256:7cfdd6bd04ea02ae48a78db5445708342d1333a68ce433ae42acd73a2e78b79f`. It records the R1 private-ref inspection scope, root as sole integration writer, and a then-pending R9 replay and 12-cell matrix. Those two pending states are superseded by the current checkpoint below.
+
+
+
+## Current evidence and freeze checkpoint at `242a6e7` (2026-10-01)
+
+The 12-cell P41 matrix is complete; its result and denominator are in `BASELINES.md`. CYC-05's post-integration current-head run at `242a6e7` is 20/20 PASS; root has read back the whole-file identities and loaded-module supplement. Root retains the sole integration lease. The corrected R9 head-index runner stopped before pytest, so any replay uses the existing baseline harness; no extra adapter rung is authorized. This report delta performs no runtime work.

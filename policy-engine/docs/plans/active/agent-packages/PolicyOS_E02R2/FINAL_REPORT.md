@@ -1,5 +1,21 @@
 # E02-R2 final report draft
 
+## Current checkpoint at integration `242a6e7` (2026-10-01)
+
+**Scope.** `242a6e7fab0c472825e1de29748109b111c892f6` is this report checkpoint; the R1 observation is from candidate `a2539b2066608e80a18248c275c89526bf4d3fa4` and the earlier R9 cohort from `944ffa0cdfb0223416e8602eaa3831cd180f2da4`, not runs at `242a6e7`.
+
+**Discrepancies first.** R1's one-selector candidate run failed after a `simulation_only` job completed: the test read a private context-job ref outside tenant scope and correctly received `ArtifactOwnershipError` at line 672. N5 assertions were not reached. Pytest is FAIL; its postflight adapter aggregate is separately `UNRUN` after `TypeError`; this is not an N5 behavior result or P41 attribution.
+
+R9's `944ffa0` cohort remains 118 executed cases (112 pass / 6 fail) plus two collection-error observations—not 120 tests or an integrated-head replay. The head-index red assumed a non-null profile, but the owner ref had `None`; test-only correction `c0f2968` has static GO, while its 65-case replay remains `UNRUN`. The later matrix below observes collection exits at four refs without assigning their owner.
+
+The matched 12-cell P41 matrix has 10 present/executed cells and two verified-MISSING `test_public_export.py` cells at the E02 refs. Main's public-export file is 7/7 PASS; integration is 3/8 PASS and 5 FAIL: four same-name PASS→FAIL rows have changed test definitions, and one current-only case fails. `test_monitors.py` and `test_reissue.py` each return collection exit 2 at all four refs (8 module observations, not 8 test cases); equivalence and causal ownership remain unresolved.
+
+After three-path commit `242a6e7`, the current-head CYC-05 whole-file replay is 20/20 PASS, including `test_workspace_fixture_children_flow_through_recursive_graph_and_n5` and `test_http_job_progress_exposes_requested_and_effective_recursive_limits`. Origin review covers 1,723 loaded modules plus 12 test-support files; all 6,728 frozen inputs are unchanged. This is current-head evidence, not four-base closure or finding-status change.
+
+The corrected R9 head-index V2 runner stopped in preparation with `KeyError: 'harness_sha256'` before pytest because it read a top-level key absent from the nested manifest; its corrected 65-case replay remains `UNRUN`. Use the existing baseline harness for an integrated replay; no new adapter rung is established.
+
+A marker-retaining removal probe turns the absent-profile assertion red when three `_raw` CAS calls lose the full ref; the plugin records `EXPECTED_REMOVAL_FAILURE` (pytest exit 1), and the probe itself passes (exit 0). The later tenant-store assertion was not reached and the original method was restored. This is one owner-seam witness, not anonymous-public closure. No R1 positive N5, R9 closure, or ledger status change is established. See [current baselines](BASELINES.md#current-r1r9-p41-and-cyc-05-receipts-2026-10-01) and [premise updates](OPEN_PREMISES.md).
+
 ## Current bounded evidence checkpoint at `b4d771b` (2026-10-01)
 
 **Discrepancies first.** R10 now has a fresh integrated-head result: 47/47 across the three complete signing, artifact-protocol, and CAS-03 files. The earlier marker-retaining removal probe remains candidate-only: five malformed-input failures and one valid-string control pass at `fdac2ae`; that mutation was not rerun at `b4d771b`. The integrated four-base P41 and broader served/backend cohort remain `UNRUN`.

@@ -1,5 +1,31 @@
 # E02-R2 write leases
 
+## Current evidence / writer checkpoint at `da6ab5b` (2026-10-01)
+
+The R14 four-file run at `a0c0e8c` completed 89 cases (83 PASS / 6 assertion-message FAIL); a reviewer-approved test-only change then landed as `da6ab5b` and the complete changed monitor file passed 11/11. The other three files were not rerun at `da6ab5b`. Keep these as separate execution cuts. No production source was changed for this assertion correction; no four-base or finding-closure claim follows.
+
+R1's measured candidate cut `f9abf776` remains 2/3; its red is a zero-ROI N6 scheduler return before N5, with persisted status markers out of step. After independent design review, root admitted candidate work on exactly three existing paths: `policy-engine/src/polisyos/runtime/quality/generation_cycle.py`, `policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py`, and `policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py`. Preserve explicit zero budget, default only absent/None, keep the real BudgetState refusal and truthful cause, and permit only the configured bounded candidate N5 computation after an exact owner-produced ROI reject. R11's blocked/no-N9 rule and N8/S8 fences remain. Review: `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_N6_ROI_VS_N5_ADMISSION_DESIGN_REVIEW_20261001.md@sha256:0f478796c7fff20cc87131046e752d325523fe567fae4804d46229ffbc32ddf0`. The existing candidate worktree is the only writer location; independent code review/freeze precede root runtime admission. Root alone may integrate, preserving canonical R2 budget-resolution projections. No new N5 success or integrated result is established.
+
+R9 remains split by boundary: the frozen conditional-A candidate needs the same owner-mediated closure extended through watcher member reads; production public-read remains denied. A separate advisory review rejects a current-Claim-head prerequisite but finds no evidenced tenant-scoped background maintenance admission. Any R9 continuation must keep the advisory's historical predicate distinct from the private-read closure and use an exact frozen owner/test manifest before runtime.
+
+Root remains sole integration writer. This document records the already-admitted three-path R1 candidate lease and pending R9 review; it starts no tests and grants no production permission, integration, epoch/receipt reissue or finding/ledger closure.
+
+R9 conditional-A V2 is frozen with eight changed paths inside the existing eleven-path lease and is under independent delta review: `/Users/deniskopylov/.codex/scratch/R9_PUBLIC_READ_CONDITIONAL_A_FREEZE_20261001T131217Z_V2/manifest.json@sha256:ec465bf8a2d8499d7868aee642e64213d1a0091e81a634a8d802c697c8bc0d3b`. The earlier V1 NO-GO remains historical evidence. No V2 runtime, integration, production trust or closure follows from its freeze.
+
+## Historical assignment snapshot (recorded at `d6670ff`; refreshed at `da6d05e`, 2026-10-01)
+
+This section is a historical allocation snapshot. Later source integration and the current checkpoint above supersede its pending-state wording; retain it as history. This prose records the then-current allocation from root. R9 has a pinned finite source/test/read-only dependency census; the R1 V2 three-owner caller census is delivered, while candidate implementation and served runtime proof remain unverified. The R14 V3 manifest/review remains pending. Exact source freezes and independent reviews precede runtime admission or integration. The integration worktree remains owned solely by root; no candidate applies directly to it. The CYC-02/CYC-05 run at `da6d05e` exited with no active group; this is not a claim of machine-wide quiescence. The latest bounded evidence is [the da6 test-only replay](BASELINES.md#latest-whole-file-evidence-at-test-only-commit-da6d05e-2026-10-01).
+
+| Writer | Conditional scope / boundary | Admission state |
+|---|---|---|
+| `r9_transaction_writer` | Four existing owners: `policy-engine/src/polisyos/core/artifacts/ownership.py`, `policy-engine/src/polisyos/core/artifacts/store.py`, `policy-engine/src/polisyos/scientist/governance/continuous/governed_public_record.py`, and `policy-engine/src/polisyos/scientist/governance/continuous/published_signature_custody.py`. The finite census authorizes seven editable companions: `policy-engine/tests/unit/core/artifacts/test_ownership_history.py`, `policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py`, `policy-engine/tests/unit/remediation/test_cas_03.py`, `policy-engine/tests/unit/scientist/governance/continuous/test_governed_public_record.py`, `policy-engine/tests/unit/scientist/governance/continuous/test_published_signature_custody.py`, `policy-engine/tests/unit/runtime/http/test_public_export.py`, and `policy-engine/tests/integration/runtime_quality/test_published_signature_custody.py`. The response-boundary suites `policy-engine/tests/unit/runtime/http/test_public_decision_verification.py` and `policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py` are read-only dependencies, not write paths. `policy-engine/src/polisyos/runtime/http/routes/public_decisions.py` is the exact read-only production route pin, not a planned route rewrite. | The root-reconciled 20-path census is `/Users/deniskopylov/.codex/scratch/E02R2_R9_CONDITIONAL_A_D6670FF_20261001/R9_CONDITIONAL_A_WRITE_CENSUS_D6670FF_NEW_V2.md@sha256:4a8e97c74c32f70dcbc641264f504300a8ebb54bd05125b39caecc2963eb9e63`. Design GO `/Users/deniskopylov/.codex/scratch/E02R2_R9_PUBLIC_READ_DESIGN_V3_20261001/R9_PUBLIC_READ_CLOSURE_DESIGN_P41_V4_INDEPENDENT_REVIEW.md@sha256:29ed990472f860eb800f8468ca0a621f9e62a51dff5f4dc4f19bf2380c4600c0`; design `/Users/deniskopylov/.codex/scratch/E02R2_R9_PUBLIC_READ_DESIGN_V3_20261001/R9_PUBLIC_READ_CLOSURE_DESIGN_P41_V4_20261001.md@sha256:2c8dc6b54c3e2a87c97dcaaa79b4624cd4d03b8121b6c69ca4bbf98c0f975f2f`. Independent patch review is in progress. Implement only the reviewed conditional owner-local option; production-root trust and ARCH-37 remain `not_established`, with no authority expansion. |
+| `b197custodywriter` / R14 | V2 proposed a new package initializer, byte-exact `control.py.retired`, three path-assertion tests plus config/docs; preserve historical `run_lifecycle.legacy_path`. | V2 is **static NO-GO**: `api.artifacts` can resolve to the core dependency module while `control.artifacts` is the real child, and the API identity test checks one symbol rather than every retained export. Review `/Users/deniskopylov/.codex/scratch/e02-r14-control-response-shapes-rca-20261001/R14_CONTROL_RESPONSE_SHAPES_CANDIDATE_V2_STATIC_REVIEW_20261001.md@sha256:db2e80aad6d34643de5431c8714407c649e4e31be0ea60da22637595136aa50e`; its complete source/test consumer census found zero root `artifacts` alias consumers. Root authorizes a scratch-only V3 amendment that excludes `ModuleType` dependency aliases from existing `control/api.py` exports and adds a generic identity loop over all retained `__all__` names. This is an engineering scope instruction, not a principal ruling. The costed alternatives, premises, remainder, and revisit falsifier are recorded in the review’s “Bounded engineering decision draft” section; no principal ruling is implied. No V3 GO, import/runtime/pytest/Ruff/guardrail pass exists. The V2 manifest’s base is `1a55580`, not d667; do not integrate that patch. Preserve `run_lifecycle.legacy_path`. |
+| `b61fastwriter` | Diagnose the two CYC-02 failures under the same R2/R1 candidate-fixture/property class and provide a narrow complete census. | Test-only commit `da6d05e0a29a9a717a53f6c5d85c1fc6bd930e6c` now passes whole `test_cyc_02.py` (14/14) and `test_cyc_05.py` (20/20); it changes only those two test files. The result does not establish a production fix, a pass for the old d667 test blobs, four-base P41, or finding closure. Preserve the N9 fence; evidence and resource limits are in `BASELINES.md`. |
+| R1 selected-atom candidate | The `ef5343f` served file remains 2/3: `candidate_limited` where `simulation_only` was expected; no positive N5. Preserve the exact full mixed proposal and leave unsupported siblings present but unlinked. The V2 complete scope names `policy-engine/src/polisyos/runtime/quality/design_generation.py`, `policy-engine/src/polisyos/runtime/quality/generation_cycle.py`, and `policy-engine/src/polisyos/runtime/quality/intervention_substrate.py`, plus the existing served test. This corrects the V6 row, which incorrectly named `runtime/http/services/control/generation_cycle.py` as the N5 selected-link owner. | V2 caller/write census: /Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SELECTED_INTERVENTION_LINKAGE_RCA_AND_WRITE_CENSUS_V2_20261001.md@sha256:3eef3126c19f700662244423e3117020fb48a6a5e190df22d6d6d99495de0485. The reviewed design remains GO for one shared L6 linker at producer and N5 consumer, and V1 one-path census remains NO-GO: /Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SELECTED_INTERVENTION_LINKAGE_DESIGN_REVIEW_20261001.md@sha256:675c334e57e8cfff2e3289b2ca238b1f99c5ff7c439c6b8988059089e7dc3d0e. The V2 census is scope evidence, not code review or runtime proof; no integrated repair or positive-N5 witness is established. Preserve the existing guards and do not infer authority from the test-only CYC result. |
+| `integration` | Apply only reviewed candidates, serialize shared file owners, freeze tested inputs and admit fresh whole-file runs. | Root only. |
+
+The next runtime admission follows receipt of finite manifests, source freeze and independent review. No tests were active in the root-admitted group at this snapshot; other lanes/process groups are outside this observation.
+
 ## B197 cumulative covariance checkpoint after R14 (2026-09-30)
 
 Root integrates only the reviewed immutable B197 revision 6, revision 8 and
@@ -2330,3 +2356,61 @@ Denis confirmed that the 16 untracked `docs/research/development-programs/2026-0
 ## 2026-10-01: R9/R10 snapshot and batch integration boundary
 
 Root applies the V5 three-path patch (store, signature ops, CAS-03 test) after independent review, complete 26-case candidate replay, current iterator removal/control and initial-census residual falsifier. Root alone commits integration. Receipt, baseline and report are mandatory companions outside the mechanism count. No overlap with R1's four-path freeze or the separate selected-ref owner-family candidate. Fresh integrated replay is required; candidate success is not integration evidence.
+
+
+## R2 CYC-05 test migration boundary — 2026-10-01
+
+Root applies only the reviewed V5 patch to
+`policy-engine/tests/unit/remediation/test_cyc_05.py`. Its 18 test functions
+are preserved, with the obsolete whole-source-staleness expectation replaced
+by a real N6 candidate frontier and typed source-custody/currentness limits.
+Historical replay and unrelated-edit controls remain in the existing R2
+history tests; this change is not their runtime re-verification.
+
+Patch `/Users/deniskopylov/.codex/scratch/e02-b61-cyc05-integrated-1366-20261001/CYC05_R2_TESTPATCH_V5_20261001/CYC05_R2_test_addendum_v5.patch@sha256:ccce2abc9ecca2bab5dacbba4b8c5a6dc8f2add551ebd49dc83b1352417a844a`;
+independent GO `CYC05_R2_V5_INDEPENDENT_DELTA_REVIEW.md@sha256:6fa1cf63d7148e63d5cb2fe207ef2eb735be8e3d45f3aee1959f395cdbf8c04a`
+in the same directory. Whole-file runtime remains UNRUN until a frozen run;
+no source owner, generated family, epoch, ledger status or authority changes.
+
+
+## R10 signature boundary integration and next candidate leases — 2026-10-01
+
+Root integrates only `core/artifacts/store.py` and its mirrored
+`tests/unit/core/phase0/test_store_signing.py` from the reviewed R10 patch.
+The receipt, report, baseline and R10 repair note are mandatory companions.
+Candidate whole-file and removal jobs have finished; no tested tree is edited
+in flight. Fresh canonical replay freezes the integration tree.
+
+R9 selected-ref V3 is a separate candidate-only 22-path lease (11 source and
+11 nearest tests), exactly enumerated by
+`/Users/deniskopylov/.codex/scratch/E02R2-R9-selected-ref-patch-V3-20261001/V3_MANIFEST.json@sha256:b6f62b26d4e6996059f5888285942fa1e61f86764c8889c52687f52a914f4d2f`.
+Root may apply it serially to the reused R9 candidate after the R10 probe.
+No new environment/worktree, authority reissue or generated family is leased.
+
+R1 narrows its current coding variant to the eight existing owner/test paths
+in `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_PROPOSAL_PROFILE_VARIANT_WRITESET_20261001.md@sha256:2c443e3cf39d02233ed9cb9b37885be8e32c0820b26566d97c2dfbdd684ad999`.
+The distinct versioned proposal/profile route uses existing N4, atom/L6,
+source repository and N5 owners; full K_ref vintage and authority guards stay.
+Root admits runtime only after the candidate is frozen; no concurrent edit of
+that tree or the canonical tree under test.
+
+## Prior writer-coordination V2 snapshot at `bc909aed` (2026-10-01; superseded below)
+
+The retained coordination receipt is `/Users/deniskopylov/.codex/scratch/E02R2_ACTIVE_WRITER_COORDINATION_20261001_V2.json@sha256:7cfdd6bd04ea02ae48a78db5445708342d1333a68ce433ae42acd73a2e78b79f`. It records the R1 private-ref inspection scope, root as sole integration writer, and a then-pending R9 replay and 12-cell matrix. Those two pending states are superseded by the current checkpoint below.
+
+
+
+## Current evidence and freeze checkpoint at `242a6e7` (2026-10-01)
+
+The 12-cell P41 matrix is complete; its result and denominator are in `BASELINES.md`. CYC-05's post-integration current-head run at `242a6e7` is 20/20 PASS; root has read back the whole-file identities and loaded-module supplement. Root retains the sole integration lease. The corrected R9 head-index runner stopped before pytest, so any replay uses the existing baseline harness; no extra adapter rung is authorized. This report delta performs no runtime work.
+
+
+## Current writer/run boundary at `a0c0e8c` (2026-10-01)
+
+Root remains sole integration writer. The four-file R14 runtime cohort is the current admitted complete-file replay; reconcile its result/readback before any further canonical source or test mutation. Do not start a second R14 replay from this documentation update.
+
+R1 candidate `f9abf776` is complete but not integrated; its served whole-file run has 2/3 PASS and a failed configured positive before N5 (`n5_calls=[]`). Keep the selected N4/N5 owner paths and authority fences intact while the cause is diagnosed. No integration write or positive N5 claim follows from this receipt.
+
+R9 conditional-A's frozen patch received a static NO-GO for watcher reads outside the exact record-closure context. The same R9 owner/read-path class needs widening within its existing candidate ownership and companion tests. Any next runtime admission requires a frozen source/test manifest that includes the watcher consumer and closure-removal/preserving controls. Production read permission remains denied; this work does not authorize a wider audience or independent issuer claim.
+
+This checkpoint is coordination only: it grants no new path, does not alter any test tree, and records no ledger or finding closure.

@@ -4,10 +4,10 @@ Related explanation: [Security Model](../../explanation/security-model.md).
 
 Freshness: 2026-04-17
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/runtime/http/routes/control.py`, `src/polisyos/runtime/http/services/control.py`, `src/polisyos/runtime/http/mutation_policy.py`, `src/polisyos/runtime/http/execution_policy.py`, and `schemas/runtime_api_v1.openapi.json`
+Source of truth: `src/polisyos/runtime/http/routes/control.py`, the existing owners under `src/polisyos/runtime/http/services/control/` (public aggregation in `control/api.py` and lifecycle in `control/run_lifecycle.py`), `src/polisyos/runtime/http/services/control_plane_store.py`, `src/polisyos/runtime/http/mutation_policy.py`, `src/polisyos/runtime/http/execution_policy.py`, and `schemas/runtime_api_v1.openapi.json`
 Validation:
 
-- `uv run pytest -q tests/unit/runtime/http/test_control_api.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`
+- `uv run pytest -q tests/unit/runtime/http/test_control_import_boundary.py tests/unit/runtime/http/test_control_api.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py tests/unit/runtime/http/test_control_hardening.py`
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py`
 
 The control plane is the write-capable orchestration surface for launching runs, driving data collection, and operating Lex and decision-validity workflows.

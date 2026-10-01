@@ -187,9 +187,12 @@ Run commands from the repository root `policy-engine/`.
 
 There are no active package-local root shims for `polisyos.runtime` in
 [architecture/shims.toml](../../../architecture/shims.toml) as of 2026-05-06.
-`runtime/http/services/control.py` and `runtime/http/openapi_contract.py` are
-tracked in [architecture/module_size_budget.toml](../../../architecture/module_size_budget.toml)
-with owner `team-runtime` and sunset `2026-12-31`.
+`runtime/http/services/control/__init__.py` and
+`runtime/http/openapi_contract.py` are tracked in
+[architecture/module_size_budget.toml](../../../architecture/module_size_budget.toml)
+with owner `team-runtime` and sunset `2026-12-31`. The control initializer
+resolves child modules before lazily forwarding public names to the existing
+`control/api.py` aggregator.
 
 ## Reference docs
 

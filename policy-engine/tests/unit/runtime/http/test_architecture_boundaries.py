@@ -46,7 +46,14 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     / "http"
     / "services"
     / "control_registry_providers.py",
-    REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control.py",
+    REPO_ROOT
+    / "src"
+    / "polisyos"
+    / "runtime"
+    / "http"
+    / "services"
+    / "control"
+    / "__init__.py",
     REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "cell_router_middleware.py",
     REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "jwt_auth_middleware.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "catalog" / "providers.py",
@@ -329,13 +336,19 @@ def test_boundary_default_hooks_remain_isolated_to_default_helpers() -> None:
 
 
 def test_runtime_control_hot_path_uses_shared_executor_bridge_not_asyncio_to_thread() -> None:
-    control_source = (
-        REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control.py"
-    ).read_text(encoding="utf-8")
+    control_package = (
+        REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control"
+    )
+    violations = [
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in sorted(control_package.rglob("*.py"))
+        if "asyncio.to_thread(" in path.read_text(encoding="utf-8")
+    ]
 
-    assert "asyncio.to_thread(" not in control_source, (
+    assert not violations, (
         "runtime control hot paths should reuse run_blocking_async/shared executor "
-        "rather than ad hoc asyncio.to_thread offloads"
+        "rather than ad hoc asyncio.to_thread offloads: "
+        + ", ".join(violations)
     )
 
 

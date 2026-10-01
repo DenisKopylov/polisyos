@@ -2,20 +2,16 @@
 
 from __future__ import annotations
 
-import hashlib
 from pathlib import Path
 
 import pytest
 
 import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
-from polisyos.core import canon
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.pdc import (
     SearchTerminalKind,
     SubDesignContract,
     assert_ring2_verifier_provenance,
-    gy_content_hash,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     _search_exit_binding_hash,
@@ -25,7 +21,9 @@ from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleError,
+    JointSimulationRequest,
     StrangleReceipt,
+    load_joint_simulation_result,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -149,9 +147,11 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
     from polisyos.core.contracts.control import NaturalLanguageRunRequest
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.runtime.http.services.control.generation_cycle import (
+        N4CandidateProposalExecution,
         _resolve_http_recursive_budget,
     )
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
+    from polisyos.runtime.quality.design_generation import DesignGenerationOrganRun
     from tests.unit.runtime.http.control_service_test_support import (
         bound_nl_authorization_proof,
     )
@@ -201,6 +201,7 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
                 repo_root=REPO_ROOT,
             )
         )
+        assert isinstance(compiled_fixture, N4CandidateProposalExecution)
 
         request = NaturalLanguageRunRequest(
             request=problem.nl_provenance.raw_request,
@@ -240,6 +241,10 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None
         assert completed.state == "completed"
+        assert completed.progress["execution_band"] == "candidate"
+        assert completed.progress["target_world_scope_status"] == "not_established"
+        assert completed.progress["target_world_scope_authority"] == "not_established"
+        assert completed.progress["target_world_scope_currentness"] == "not_established"
         assert completed.progress["recursive_budget_resolution"] == {
             "requested_max_iterations": 7,
             "effective_max_iterations": 3,
@@ -251,13 +256,22 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
             },
             "clamp_reason": "requested_max_iterations_above_http_cycle_cap_3",
         }
-        compiled_ref = ArtifactID.model_validate(
-            completed.progress["compiled_recursive_generation_cycle_ref"]
+        assert (
+            completed.progress["recursive_budget_application_status"]
+            == "not_applied_n4_proposal_only"
         )
-        persisted = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
-            canon.from_canonical_bytes(service._artifact_store.get_bytes(compiled_ref))
-        )
-        assert persisted.recursive_budget_resolution == recursive_budget_resolution
+        assert completed.progress["n5_status"] == "not_run"
+        assert completed.progress["n8_status"] == "not_run"
+        assert completed.progress["n9_status"] == "not_run"
+        assert completed.progress["s8_status"] == "not_run"
+        assert "compiled_recursive_generation_cycle_ref" not in completed.progress
+        if isinstance(compiled_fixture.proposal, DesignGenerationOrganRun):
+            assert completed.progress["n4_status"] == (
+                compiled_fixture.proposal.result.status
+            )
+            assert completed.progress["candidate_proposal_ref"] is None
+        else:
+            assert completed.progress["candidate_proposal_ref"] is not None
     finally:
         service.close()
 
@@ -448,50 +462,49 @@ def test_depth_n_strangle_receipt_binds_available_slice_and_invalidates_on_chang
 
 
 @pytest.mark.asyncio
-async def test_generation_cycle_consumer_rejects_stale_source_receipt(tmp_path: Path) -> None:
-    """The actual N6 run consumer must reject a receipt after source drift."""
+async def test_generation_cycle_candidate_band_keeps_frontier_with_unestablished_limits(
+    tmp_path: Path,
+) -> None:
+    """Ordinary N6 candidates survive while source custody and currentness stay limited."""
 
-    source = _source_root(tmp_path)
-    (source / "owner.py").write_text("def owner():\n    return None\n", encoding="utf-8")
-    controller = GenerationCycleController(
+    from polisyos.runtime.quality.generation_cycle import (
+        inspect_generation_cycle_run,
+        validate_generation_cycle_candidate_run,
+    )
+
+    run = await GenerationCycleController(
         generation_port=_CgfGenerationPort(),
         value_port=_DataGapValuePort(),
         repo_root=tmp_path,
         authority_scope="contract_testing",
-    )
-
-    run = await controller.run(
-        _problem("cyc_05_source_bound_run"),
+    ).run(
+        _problem("cyc_05_candidate_limits_are_declared"),
         budget_state=_budget(),
         max_cycles=1,
     )
-    receipt = run.strangle_receipt
-    source_files = {
-        path.relative_to(tmp_path).as_posix(): "sha256:"
-        + hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted((tmp_path / "src" / "polisyos").rglob("*.py"))
-    }
-    assert receipt.status == "strangled"
-    assert receipt.source_state == "available"
-    assert receipt.source_file_count == len(source_files)
-    assert receipt.source_content_hash == gy_content_hash(
-        {"scope": "src/polisyos", "files": source_files}
-    )
-    unchecked_issues = validate_generation_cycle_run(run)
-    assert {
-        "strangle_receipt_currentness_not_established"
-    } <= {issue["code"] for issue in unchecked_issues}
-    assert validate_generation_cycle_run(run, repo_root=tmp_path) == ()
+    candidate_fronts = run.fronts.candidate_ids_by_front()
+    assert candidate_fronts
+    assert any(candidate_fronts.values())
+    assert validate_generation_cycle_candidate_run(run) == ()
+    strict_inspection = inspect_generation_cycle_run(run)
+    issue_codes = {issue["code"] for issue in strict_inspection.issues}
+    assert "strangle_receipt_currentness_not_established" in issue_codes
+    assert strict_inspection.currentness.status == "not_established"
+    assert strict_inspection.currentness.census_verdict == "UNRUN"
 
-    (source / "owner.py").write_text(
-        "def owner():\n    return 'changed'\n",
-        encoding="utf-8",
-    )
-    with pytest.raises(GenerationCycleError, match="generation_cycle_strangle_receipt_stale"):
-        run.strangle_receipt.verify_current(tmp_path)
-    issues = validate_generation_cycle_run(run, repo_root=tmp_path)
-    assert {issue["code"] for issue in issues} >= {"strangle_receipt_stale"}
-
+    # The injected N4 fixture has no retained DesignGenerationOrganRun, so it
+    # cannot claim persisted source custody. Keep either owner limitation typed.
+    assert run.source_handoff_refs == ()
+    if run.source_custody_limitation is not None:
+        assert run.source_custody_limitation.reason_code == "source_store_unavailable"
+        assert run.source_preservation_receipt is None
+        source_limit_code = "generation_cycle_source_custody_not_established"
+    else:
+        assert run.source_preservation_receipt is None or (
+            run.source_preservation_receipt.status != "strangled"
+        )
+        source_limit_code = "generation_cycle_source_preservation_not_established"
+    assert source_limit_code in issue_codes
 
 def _cyc05_recursive_fixture_case(tmp_path: Path) -> tuple[
     str,
@@ -528,9 +541,9 @@ def _cyc05_recursive_fixture_case(tmp_path: Path) -> tuple[
         problem=parent_problem,
         world_model_record=context.world_model_record,
     )
-    # The contract-testing leaf owner emits the same terminal for both child
-    # routes. Preserve each WorkspaceLoop result's identity/artifacts while
-    # binding the explicit handoff to that canonical leaf terminal.
+    # The leaf is candidate-only: production scope, default canonical N9 port,
+    # no N9 runtime. The outer router remains contract-testing.
+    # Preserve child identity/artifacts and bind handoff to the canonical leaf.
     leaf_terminal = _recursive_leaf_terminal()
     routed_children = tuple(
         child.model_copy(
@@ -564,7 +577,7 @@ async def _run_cyc05_recursive_case(
     problems: dict[str, object],
     request: object,
     subdesigns: tuple[SubDesignContract, ...],
-) -> tuple[object, list[object]]:
+) -> tuple[object, list[object], FileSystemCAS]:
     # Keep the validation root test-owned and deterministic.  The canonical
     # leaf validator requires a complete, parseable ``src/polisyos`` slice to
     # establish its strangle receipt; an empty ``tmp_path`` would therefore
@@ -576,7 +589,11 @@ async def _run_cyc05_recursive_case(
         "def owner() -> None:\n    return None\n",
         encoding="utf-8",
     )
-    controller = _recursive_contract_testing_controller(tmp_path)
+    outer_n5_store = FileSystemCAS(tmp_path / "n5-runtime-store")
+    controller = _recursive_contract_testing_controller(
+        tmp_path,
+        artifact_store=outer_n5_store,
+    )
     calls: list[object] = []
 
     class _RecordingN5:
@@ -602,7 +619,7 @@ async def _run_cyc05_recursive_case(
         )
     finally:
         controller._joint_simulation_controller = original_n5
-    return result, calls
+    return result, calls, outer_n5_store
 
 
 @pytest.mark.asyncio
@@ -612,7 +629,7 @@ async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
     """Explicit WorkspaceLoop children retain identity through graph, N5 and composition."""
 
     root, subdesigns, graph, problems, request = _cyc05_recursive_fixture_case(tmp_path)
-    result, calls = await _run_cyc05_recursive_case(
+    result, calls, outer_n5_store = await _run_cyc05_recursive_case(
         tmp_path=tmp_path,
         root=root,
         graph=graph,
@@ -632,6 +649,19 @@ async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
     assert root_node.child_refs == child_refs
     assert root_node.joint_simulation is not None
     assert root_node.joint_simulation_ref is not None
+    assert isinstance(request, JointSimulationRequest)
+    reopened = load_joint_simulation_result(
+        root_node.joint_simulation_ref,
+        store=outer_n5_store,
+        expected_world_model_record_content_hash=(
+            request.world_model_record.content_hash
+        ),
+        expected_atom_ids=tuple(
+            atom.intervention_id for atom in request.intervention_atoms
+        ),
+        expected_selected_outcomes=request.selected_outcomes,
+    )
+    assert reopened.trajectories == root_node.joint_simulation.trajectories
     assert root_node.composition_certificate is not None
     assert root_node.composition_certificate.input_subdesigns == [
         child.subdesign_id for child in subdesigns
@@ -731,7 +761,7 @@ async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inp
             subdesigns[1],
         )
 
-    result, calls = await _run_cyc05_recursive_case(
+    result, calls, _outer_n5_store = await _run_cyc05_recursive_case(
         tmp_path=tmp_path,
         root=root,
         graph=graph,
@@ -763,7 +793,7 @@ async def test_recursive_parent_blocks_for_wrong_parent_workspace_identity(tmp_p
         subdesigns[1],
     )
 
-    result, calls = await _run_cyc05_recursive_case(
+    result, calls, _outer_n5_store = await _run_cyc05_recursive_case(
         tmp_path=tmp_path,
         root=root,
         graph=graph,

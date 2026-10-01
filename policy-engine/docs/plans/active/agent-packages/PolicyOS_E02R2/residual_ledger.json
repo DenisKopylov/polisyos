@@ -13168,9 +13168,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C closed_bounded is historical only. The d0 integration replay and a later post-helper candidate both directly fail B152’s read-once assertion (blob=1, manifest=3; expected 1/1). The candidate result is not integrated and does not close B152. Keep current status partial pending owner repair and the removal/preserving controls."
+        "detail": "Appendix C closed_bounded is historical only. The integrated two-file readback at 62ad records 26/26 pass; the mapped signature snapshot test and its valid-signature/corrupt-manifest controls pass with one blob, manifest, signature read and one integrity hash. The exact wrong-byte-size negative named by the source card is absent from this current cohort. Retain partial pending that current owner-path negative plus a valid selected-view control; no current size-handling failure is inferred."
       },
-      "residual": "The J0676-mapped selector fails at d0 and again on the post-helper R9 candidate: blob reads remain 1, but manifest reads are 3 rather than the asserted 1. Candidate whole-file run: 5/9 CAS-03 cases pass and four fail; this selector directly exercises the B152 read-once discriminator. The candidate is not integrated. Keep partial until the shared manifest-read path passes, a marker-retaining second-read removal probe turns red, and valid-signature plus integrity/size refusal controls pass.",
+      "residual": "The integrated two-file readback at 62ad records the exact signature snapshot selector passing; it reads one blob, one manifest, and one signature member and computes one integrity hash. A separate valid-signature control and corrupt-manifest artifact_id refusal also pass. The source card additionally requires preserving refusal for an invalid byte_size; the integrated CAS-03 cohort does not exercise a wrong-size manifest. Keep partial until a current FileSystemCAS owner-path wrong-size negative and valid selected-view control pass. This is an unmeasured control, not a claim that current wrong-size handling fails.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "R9 CAS runtime owner and CAS-03 finding-level verification owner",
@@ -13311,9 +13311,43 @@
           "mapped_selector_identities": [
             "tests.unit.remediation.test_cas_03::test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot"
           ]
+        },
+        "integrated_readback_and_residual_update": {
+          "integrated_current_readback": {
+            "identity": "Integrated root readback at commit 62ad51e3b48e644c37fe28e17c1d1e30be3e7560",
+            "root_reconciliation_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_BATCH_SNAPSHOT_INTEGRATED_RUNTIME_READBACK_20261001.json@sha256:a0c6432dd0757207e396dd799b5e8086f0ce2fe551fedd17d41d8f45dd32d218",
+            "raw_results_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/results.json@sha256:ec6095fa88df01d2e5eb92985b23892dc13529bb71ef9b6c320776f9ea76b0b3",
+            "whole_file_denominator": {
+              "test_files": 2,
+              "test_cases": 26
+            },
+            "whole_file_outcomes": {
+              "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+                "passed": 10,
+                "failed": 0
+              },
+              "tests/unit/remediation/test_cas_03.py": {
+                "passed": 16,
+                "failed": 0
+              }
+            },
+            "junit_path_at_sha": [
+              "/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/cells/r9_candidate/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:f5c2732721618874cc94b7e13c059a4543c2b598a42eb671e214020f67769c19",
+              "/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/cells/r9_candidate/test_cas_03-391db3c26b24.junit.xml@sha256:da2bbacebd06e63ffbfc0ab18cbcdefaf8b438f8a21775c0dabe412f4a74cd6c"
+            ],
+            "integrated_source_refs": [
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/store.py@sha256:ce7dc27cac37c33935f607e03bf090dd9a1352cda48c06d913ccb3d1d95823b0",
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py@sha256:c85c7c0a79abfde0131206dc7a98a360ef5cfd6bf19cdd199bb6fa8e40ff5c34",
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/_signature_ops.py@sha256:4473a4742a27ff022f59383b201a0473838931aa58d635a061c99ba8b6b6af93",
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:ce9b5e61ece01e348c83159af48911c1502e767a72c3645ddbd601a9970f437f"
+            ],
+            "scope": "The 16-case CAS-03 file passes, including test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot and test_verify_signature_records_corrupt_manifest_and_preserves_valid_control. The first asserts one blob/manifest/signature member read and one content hash while verifying a real Ed25519 signature. The second preserves corrupt artifact_id refusal and a valid control. Neither asserts the source-card invalid-byte_size refusal."
+          },
+          "source_reference_note": "Existing current_source_refs are preserved as earlier snapshot data; integrated_source_refs pin the current source/test files at 62ad."
         }
+
       },
-      "finding_test_status": "FAIL"
+      "finding_test_status": "MIXED_BOUNDED"
     },
     {
       "id": "B153",
@@ -13497,9 +13531,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C closed_bounded reflects historical local-batch behavior. The candidate now passes the four mapped J0676 per-item/preflight/BaseException selectors, but the source-card global-after-progress requirement remains unmeasured and there is no production all-confirmations consumer (consumer_missing; owner not established). The candidate public-export cohort did not reach the governed publication assertions (7 setup errors, 1 failure). This bounded candidate evidence does not close B154; retain partial."
+        "detail": "Appendix C closed_bounded reflects historical local-batch behavior only. The integrated two-file readback at 62ad passes 26/26, including the four mapped bounded local aggregation selectors. The complete 2,696-file census still reports consumer_missing for an all-confirmations publisher and owner not established; global failure after progress and governed non-publication remain unwitnessed. Retain partial; the candidate public-export setup errors remain historical evidence and are not presented as current integration failures."
       },
-      "residual": "At d0, the four J0676-mapped selectors 2–5 failed before B154 assertions at the shared unhashable-ArtifactID boundary; B154 behavior was UNRUN at that pre-repair head. In the post-helper candidate, those four mapped per-item/preflight/BaseException selectors now pass, demonstrating only their bounded aggregation behavior. The card also requires preservation of prior completed rows with explicit aborted state after a global failure and non-publication when all confirmations are required. A complete 2,696-file production-source census found consumer_missing for an all-confirmations publisher and owner not established. The candidate public-export whole-file run (8 cases) produced 7 setup errors and 1 failure, so it is not a served positive/negative publication witness. Keep partial; no publisher or authority guarantee is claimed.",
+      "residual": "The integrated two-file readback at 62ad records 26/26 pass, including the mapped local-element, preflight-error, BaseException and signature-presence batch selectors. This is bounded local aggregation evidence. A complete 2,696-file production Python census still finds no production all-confirmations publisher (consumer_missing; owner not established). The source-card global failure-after-progress state and non-publication when all confirmations are required therefore lack a served consumer witness. Keep partial; next step is to identify/admit that production consumer and prove its mixed global-failure and all-confirmations publication behavior.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "R9 CAS runtime owner for the shared current failure; CAS-03 B154 finding-verification owner; all-confirmations consumer owner absent",
@@ -13654,7 +13688,47 @@
             "tests.unit.remediation.test_cas_03::test_verify_batch_does_not_swallow_base_exception",
             "tests.unit.remediation.test_cas_03::test_sign_batch_records_signature_presence_preflight_error"
           ]
+        },
+        "integrated_readback_and_residual_update": {
+          "integrated_current_readback": {
+            "identity": "Integrated root readback at commit 62ad51e3b48e644c37fe28e17c1d1e30be3e7560",
+            "root_reconciliation_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_BATCH_SNAPSHOT_INTEGRATED_RUNTIME_READBACK_20261001.json@sha256:a0c6432dd0757207e396dd799b5e8086f0ce2fe551fedd17d41d8f45dd32d218",
+            "raw_results_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/results.json@sha256:ec6095fa88df01d2e5eb92985b23892dc13529bb71ef9b6c320776f9ea76b0b3",
+            "whole_file_denominator": {
+              "test_files": 2,
+              "test_cases": 26
+            },
+            "whole_file_outcomes": {
+              "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+                "passed": 10,
+                "failed": 0
+              },
+              "tests/unit/remediation/test_cas_03.py": {
+                "passed": 16,
+                "failed": 0
+              }
+            },
+            "junit_path_at_sha": [
+              "/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/cells/r9_candidate/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:f5c2732721618874cc94b7e13c059a4543c2b598a42eb671e214020f67769c19",
+              "/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/cells/r9_candidate/test_cas_03-391db3c26b24.junit.xml@sha256:da2bbacebd06e63ffbfc0ab18cbcdefaf8b438f8a21775c0dabe412f4a74cd6c"
+            ],
+            "integrated_source_refs": [
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/store.py@sha256:ce7dc27cac37c33935f607e03bf090dd9a1352cda48c06d913ccb3d1d95823b0",
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/_signature_ops.py@sha256:4473a4742a27ff022f59383b201a0473838931aa58d635a061c99ba8b6b6af93",
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/components/_cli_crypto.py@sha256:d6ff6e128fe8bd212ff91c661b5e709a0cb663d5eb8077c60f27e9dd9a9ac9ec",
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:ce9b5e61ece01e348c83159af48911c1502e767a72c3645ddbd601a9970f437f"
+            ],
+            "scope": "The complete CAS-03 file passes its mapped per-item error, preflight error, BaseException and signature-presence selectors. The 2,696-file source census remains the separate consumer finding; passing local batch tests does not establish a served all-confirmations publication path."
+          },
+          "source_reference_note": "Existing current_source_refs are preserved as earlier snapshot data; integrated_source_refs pin the current source/test files at 62ad.",
+          "complete_production_consumer_census": {
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02r2-r10-cas03-finding-classification-20261001-v1/INDEPENDENT_REVIEW_B152_B154_B155_20261001.md@sha256:cb101c44a72f811b72d9726cbb642134bf8869e59565603a2924abf53484f29b",
+            "source_files_walked": 2696,
+            "verdict": "CONSUMER_MISSING",
+            "scope": "Complete policy-engine/src/**/*.py source census: the direct CLI verifier is not an all-confirmations publisher; no production consumer requiring every confirmation was found, and external consumers are not established."
+          }
         }
+
       },
       "finding_test_status": "MIXED_BOUNDED"
     },
@@ -13673,9 +13747,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "disagrees",
-        "detail": "Appendix C closed_bounded reflects historical pending-window/cancellation behavior. The d0 four-base failure was initially only an owner-boundary precondition; the post-helper candidate now reaches the three mapped B155 assertions and fails each. Keep status partial and assign the remaining mechanism to the shared R9 CAS owner; no instance-only fix is sufficient."
+        "detail": "Appendix C closed_bounded is historical. The integrated two-file readback passes 26/26, including the synthetic/lazy-source pending-window and cancellation cases. The actual default-inventory cancellation falsifier remains an expected red: six filesystem scans occur after cancellation. The falsifier source hashes match the integrated store/test files; it is bounded evidence, not a four-base or full-file replay. Retain partial until actual traversal is interruptible."
       },
-      "residual": "At d0, the three J0676-mapped selectors 6–8 failed before B155 assertions at the shared unhashable-ArtifactID boundary; B155 semantics were UNRUN there. After the candidate helper, all three selectors reach their semantic assertions and fail: the pending-window case observes over-consumption, cancellation does not stop new submissions, and the default path does not stop lazy inventory. The candidate is not integrated. Keep partial; repair source admission/cancellation at the shared owner boundary and rerun the full file with bounded-window and non-cancelled controls.",
+      "residual": "The integrated two-file readback at 62ad records 26/26 pass, including bounded pending-window, cancellation-stops-submission and lazy-source cancellation selectors. A separate falsifier against the actual default filesystem inventory still observes six scandir calls after cancellation: the complete name census is eager before first yield. The falsifier used source files whose recorded postflight hashes match 62ad; it is not a four-base/full-file replay. Keep partial until an interruptible owner-authenticated name cursor stops actual traversal after cancellation and retains the non-cancelled complete-inventory control.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "R9 CAS runtime owner for the shared current failure; CAS-03 B155 finding-level verification owner",
@@ -13834,7 +13908,52 @@
             "tests.unit.remediation.test_cas_03::test_verify_batch_cancellation_stops_new_submissions_and_is_reported",
             "tests.unit.remediation.test_cas_03::test_default_batch_path_stops_lazy_inventory_on_cancellation"
           ]
+        },
+        "integrated_readback_and_residual_update": {
+          "integrated_current_readback": {
+            "identity": "Integrated root readback at commit 62ad51e3b48e644c37fe28e17c1d1e30be3e7560",
+            "root_reconciliation_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_BATCH_SNAPSHOT_INTEGRATED_RUNTIME_READBACK_20261001.json@sha256:a0c6432dd0757207e396dd799b5e8086f0ce2fe551fedd17d41d8f45dd32d218",
+            "raw_results_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/results.json@sha256:ec6095fa88df01d2e5eb92985b23892dc13529bb71ef9b6c320776f9ea76b0b3",
+            "whole_file_denominator": {
+              "test_files": 2,
+              "test_cases": 26
+            },
+            "whole_file_outcomes": {
+              "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+                "passed": 10,
+                "failed": 0
+              },
+              "tests/unit/remediation/test_cas_03.py": {
+                "passed": 16,
+                "failed": 0
+              }
+            },
+            "junit_path_at_sha": [
+              "/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/cells/r9_candidate/test_artifact_store_protocol-1db51de3f63f.junit.xml@sha256:f5c2732721618874cc94b7e13c059a4543c2b598a42eb671e214020f67769c19",
+              "/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/cells/r9_candidate/test_cas_03-391db3c26b24.junit.xml@sha256:da2bbacebd06e63ffbfc0ab18cbcdefaf8b438f8a21775c0dabe412f4a74cd6c"
+            ],
+            "integrated_source_refs": [
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/src/polisyos/core/artifacts/store.py@sha256:ce7dc27cac37c33935f607e03bf090dd9a1352cda48c06d913ccb3d1d95823b0",
+              "/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/tests/unit/remediation/test_cas_03.py@sha256:ce9b5e61ece01e348c83159af48911c1502e767a72c3645ddbd601a9970f437f"
+            ],
+            "scope": "The complete 16-case CAS-03 test file passes, including bounded-window and cancellation tests over explicit/lazy iterables. These do not replace the actual default filesystem inventory falsifier recorded separately; see cancellation_residual_falsifier."
+          },
+          "source_reference_note": "Existing current_source_refs are preserved as earlier snapshot data; integrated_source_refs pin the current source/test files at 62ad.",
+          "cancellation_residual_falsifier": {
+            "identity": "Actual default filesystem inventory post-cancellation traversal falsifier",
+            "reconciliation_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CAS03_V5_CANCEL_PROBE_ADAPTER_PREP_20261001/runs/r9-v5-cancel-residual-20261001T063607724594Z-24364/root_reconciliation.json@sha256:f15669142e5a1b8b8451b28558b7bb8f4f9d06d00a43b1c88914c75a235f3f41",
+            "raw_results_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CAS03_V5_CANCEL_PROBE_ADAPTER_PREP_20261001/runs/r9-v5-cancel-residual-20261001T063607724594Z-24364/results.json@sha256:71eeb1105f050ac1e25b7970610acca4b1fc6f01bd853f4003d394e0cebd40f7",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CAS03_V5_CANCEL_PROBE_ADAPTER_PREP_20261001/runs/r9-v5-cancel-residual-20261001T063607724594Z-24364/cells/r9_v5_candidate_cancel_probe/test_r9_default_inventory_cancellation_residual-f3723a87d755.junit.xml@sha256:12bfc3d04f914d2d59de861f3d666f02545e8c0ca98b2a2f504674cfbb1a61e5",
+            "origin_path_at_sha": "/Users/deniskopylov/.codex/scratch/R9_CAS03_V5_CANCEL_PROBE_ADAPTER_PREP_20261001/runs/r9-v5-cancel-residual-20261001T063607724594Z-24364/cells/r9_v5_candidate_cancel_probe/test_r9_default_inventory_cancellation_residual-f3723a87d755.junit.origin.json@sha256:46a68bc75e5e7cb7819462538d82f66dc56fa374c060a1b55f1ac3d3218e1be9",
+            "behavioral_verdict": "FAIL",
+            "probe_verdict": "PASS_EXPECTED_RED",
+            "observed_post_cancellation_scandir_calls": 6,
+            "source_freeze_denominator": 6414,
+            "scope": "Candidate harness expected-red probe against source hashes that match the integrated store/test files; not a four-base replay or whole-file P41 cell. It demonstrates that actual default inventory completes an uncancellable eager name census before first yield.",
+            "unresolved_by_construction": "An interruptible owner-authenticated default name cursor is absent; synthetic iterable cancellation tests do not exercise the eager filesystem census."
+          }
         }
+
       },
       "finding_test_status": "FAIL"
     },

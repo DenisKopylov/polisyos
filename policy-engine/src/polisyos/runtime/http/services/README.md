@@ -95,9 +95,14 @@ projections. Route handlers should stay thin and delegate behavior here.
 - [`run_index.py`](run_index.py), [`timeline.py`](timeline.py),
   [`debug.py`](debug.py), [`artifact_inspector.py`](artifact_inspector.py),
   and [`lineage.py`](lineage.py) own core read-side API behavior.
-- [`control.py`](control.py), [`control_worker.py`](control_worker.py), and
-  [`control_plane_store.py`](control_plane_store.py) own control-plane run
-  lifecycle behavior and are intentionally kept behind route-layer adapters.
+- [`control/__init__.py`](control/__init__.py) is the lazy package boundary for
+  the existing public control API; direct child-module imports do not load the
+  public API aggregator.
+- [`control/api.py`](control/api.py), [`control/run_lifecycle.py`](control/run_lifecycle.py),
+  [`control_worker.py`](control_worker.py), and
+  [`control_plane_store.py`](control_plane_store.py) own the public service
+  aggregation, run lifecycle, worker, and durable control state behind
+  route-layer adapters.
 - [`control/evaluation_safety.py`](control/evaluation_safety.py) owns the typed evaluation-safety
   persistence/reconciliation adapter, the single-operation admission verifier, and the public
   metrics-projection read-identity accessor. The verifier exposes only
@@ -202,10 +207,12 @@ for the compatibility and rollout boundary.
 ## Known Shims/Deprecations
 
 - There are no active package-local shims for `runtime.http.services` in
-  `architecture/shims.toml` as of 2026-05-06.
-- [`control.py`](control.py) is a high-complexity module tracked in
+  `architecture/shims.toml` as of 2026-05-06. `control/__init__.py` is the real
+  package initializer, not a compatibility module layered beside the package.
+- The bounded lazy `control/__init__.py` package boundary is tracked in
   [architecture/module_size_budget.toml](../../../../../architecture/module_size_budget.toml)
-  with owner `team-runtime` and sunset `2026-12-31`.
+  with owner `team-runtime` and sunset `2026-12-31`. The former `control.py`
+  bytes are retained as a non-importable historical record.
 - Public response changes must go through OpenAPI snapshot checks and generated
   client compatibility notes before old fields are removed.
 

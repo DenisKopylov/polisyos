@@ -2,7 +2,7 @@
 
 ## Discrepancies and scope
 
-Candidate V5 passes 26/26 cases across two whole files. This receipt accompanies source integration; fresh integrated-head replay is UNRUN. Complete four-base replay, public-read admission and class closure remain outstanding. B152/B154/B155 stay partial.
+Candidate V5 passes 26/26 cases across two whole files, and a fresh integrated-head replay at `62ad51e3b48e644c37fe28e17c1d1e30be3e7560` also passes 26/26 (protocol 10/10; CAS-03 16/16). This supersedes the prior integrated-UNRUN boundary for these two whole files only. Complete four-base replay, public-read admission and class closure remain outstanding. B152/B154/B155 stay partial.
 
 The initial CAS name/path census remains synchronous and uncancellable before first yield. Its falsifier observes six post-cancellation filesystem scans. The runner passes because that expected red was measured; the cancellation property itself fails. This is the same P40 residual. The missing capability is an interruptible owner-authenticated name cursor; the current owner has no such cursor.
 
@@ -23,3 +23,12 @@ Independent delta review: same directory `V5_INDEPENDENT_DELTA_REVIEW.md@sha256:
 Receipts retain complete JUnit, gate output, origin/source freeze and resource measurements. Original Python 3.14.0 / pytest 9.0.2; preserved HOME; per-job cache; read-only production data; one process group; 8 GiB disk floor and 30% RAM reserve. The first preparation was UNRUN because the harness expected absent V5 manifest keys; actual-schema checks were corrected before execution. Iterator runner module-name and raw-status-label defects were corrected before launch.
 
 No permissions, issuer, deployment identity, epoch or production approval change. Producer/consumer B154 attestation, B155 interrupted initial census and governed public-read closure remain separate residuals.
+
+
+## Fresh integrated-head whole-file replay at `62ad51e` (2026-10-01)
+
+The root reran the two complete files at the integrated commit: protocol 10/10 and CAS-03 16/16, 26/26 total. Both origin receipts pass across 6,430 frozen paths (6,414 tracked Python/config inputs plus 16 acknowledged research documents); no changed inputs, foreign origins, postflight errors or resource guard. This is a fresh integrated pass, not a four-base replay or complete R9 closure.
+
+Root reconciliation: `/Users/deniskopylov/.codex/scratch/R9_BATCH_SNAPSHOT_INTEGRATED_RUNTIME_READBACK_20261001.json@sha256:a0c6432dd0757207e396dd799b5e8086f0ce2fe551fedd17d41d8f45dd32d218`. Runtime source: `/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/results.json@sha256:ec6095fa88df01d2e5eb92985b23892dc13529bb71ef9b6c320776f9ea76b0b3`; source freeze: `/Users/deniskopylov/.codex/scratch/R9_CAS03_INTEGRATED_V5_ADAPTER_PREP_20261001/runs/r9-cas03-v5-wholefile-20261001T065325414931Z-27021/origin_freeze.json@sha256:934f88bd434896209f23f7cd13853fc2e66f53e5bc01cf5ecbe4087432935666`.
+
+The removal probe and six-scan cancellation falsifier above remain candidate-run evidence; they were not repeated by this two-file integrated cohort. The synchronous initial census remains uncancellable; its B155 cancellation residual remains unresolved.

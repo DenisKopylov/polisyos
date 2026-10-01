@@ -1,5 +1,21 @@
 # E02-R2 final report draft
 
+## R1 V3 canonical K_ref owner reconciliation (2026-10-01)
+
+**Discrepancies first.** One direct owner call completed with a typed `FAIL` after 20.315 seconds. The retained WMR passed validation through `polisyos.core.canon.from_canonical_bytes`; both `coverage_score` and `trust_cap` decoded as floats. The call then reached the existing SKG/L2 `require_forwardable_confidence` guard and raised `ValueError` for restricted historical confidence. The complete 6,715-input set matched before and after; both module-origin snapshots passed at 1,427/1,427. This measures the current vintage refusal, not a K_ref decoding defect, a served N4→N5 positive, or S8 authority.
+
+**Conclusion.** Keep the forwardability guard. Controlled candidate-band N4→N5 engineering remains available under the existing bounded design; the owner call does not exercise the served path or establish a current N5 result. The missing claim-evidence-axis/source record remains the existing [OP-R1-CREDAL-VINTAGE premise](OPEN_PREMISES.md#op-r1-credal-vintage), linked to B61's single held `data_record`; this adds no blocker, finding status change, or ledger row. V1 and V2 diagnostics below remain separate and are not retrospectively explained by this run. See [the V3 baseline entry](BASELINES.md#r1-v3-canonical-kref-owner-reconciliation-2026-10-01).
+
+## Fresh R9 integrated replay and R1 K_ref diagnostics (2026-10-01)
+
+**Discrepancies first.** The previous R9 checkpoint described a candidate-only 26/26 result and left the integrated replay UNRUN. Root has now replayed both complete files at integrated `codex/e02-r2@62ad51e3b48e644c37fe28e17c1d1e30be3e7560`: 26/26 pass (protocol 10/10; CAS-03 16/16). This supersedes that UNRUN boundary for these two files only; it is not the four-base matrix, public-read witness, or R9 closure. Both origin receipts pass over 6,430 frozen paths (6,414 tracked Python/config plus 16 acknowledged research documents), with no changed inputs, foreign origins, postflight errors, or resource guard.
+
+- Candidate-only removal and cancellation falsifiers remain separate evidence recorded in [the R9 receipt](R9_BATCH_SNAPSHOT_RECEIPT.md); the integrated whole-file pass does not rerun those probes. B152/B154/B155 remain partial; the initial synchronous census/cancellation, governed public-read evidence, and broader R9 denominator remain unresolved.
+- The separate R1 V1 direct K_ref diagnostic returned typed UNRUN after 18.421 s with `retained_wmr_validation_unrun`. Its child captured an initial 6,715-input freeze; no post-run comparison was established. The process group was clean, but the exact execution stage and exception cause remain unmeasured. A later V2 mapping diagnostic is separate evidence: it reports two `float_type` validation errors before any owner call and does not establish canonical decoder behavior or explain V1.
+- No ledger count or finding status changes. R14 post-edit replay remains UNRUN.
+
+**Conclusion.** R9 now has a fresh integrated bounded pass for the protocol and CAS-03 whole files. R1 retains its candidate VOI-action failure; its V1 K_ref cause remains unmeasured and the separate V2 typed-mapping observation still lacks a canonical-owner witness. No R1 closure or positive N5 witness is established. See the updated [BASELINES.md](BASELINES.md#r9-fresh-integrated-two-file-replay-and-r1-direct-k_ref-diagnostics-2026-10-01) for run pins and limits.
+
 ## R9 source integration checkpoint: snapshot and bounded batch (2026-10-01)
 
 **Discrepancies first.** Candidate V5 passes **26/26 across two whole files**; integrated-head replay is UNRUN. The current iterator removal probe makes the duplicate-ID case red while the distinct-ID control stays green. The separate real-walk falsifier confirms B155's residual: six scans after cancellation. No public-read authority, B154 production attestation, four-base completion, class closure or ledger status change follows.

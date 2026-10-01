@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import pytest
 
@@ -12,6 +13,7 @@ from polisyos.core import artifacts, canon
 from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.http.services.control import generation_cycle as bridge
 from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+from tests._helpers.artifacts import overwrite_signature_sidecar_for_test
 from tests.unit.runtime.http.test_control_service_di import (
     _build_control_service,
     _run_controlled_simulate_only_job_fixture,
@@ -260,7 +262,7 @@ def test_current_permission_expiry_overrides_persisted_green(station):
     assert projected["ranked_recommendations"] == []
 
 
-def test_current_signature_corruption_revokes_recommendation(station):
+def test_current_signature_corruption_revokes_recommendation(station, tmp_path: Path):
     service, compiled, source_ref = station
     now = datetime.now(UTC)
     evidence = bridge.NormativeRunEvidenceRefs.model_validate(
@@ -273,10 +275,20 @@ def test_current_signature_corruption_revokes_recommendation(station):
     authorization_ref = next(iter(evidence.by_node.values())).authorization_ref
     signature = service._artifact_store.get_signature(authorization_ref)
     assert signature is not None
-    signature.signature_hex = (
-        "00" if signature.signature_hex[:2] != "00" else "01"
-    ) + signature.signature_hex[2:]
-    service._artifact_store.put_signature(authorization_ref, signature)
+    corrupted_signature = signature.model_copy(
+        update={
+            "signature_hex": (
+                "00" if signature.signature_hex[:2] != "00" else "01"
+            )
+            + signature.signature_hex[2:]
+        }
+    )
+    overwrite_signature_sidecar_for_test(
+        service._artifact_store,
+        authorization_ref,
+        corrupted_signature,
+        tmp_root=tmp_path,
+    )
     projection = _current(service, result.disposition_ref, source_ref, now)
     assert projection["authorization_status"] == "blocked"
     assert projection["ranked_recommendations"] == []

@@ -1,6 +1,6 @@
 {
   "schema": "policyos.e02r2.residual-ledger.v1",
-  "census_head": "93affc59bcbeb3c21e015596b05ae6b8787d8e8e",
+  "census_head": "b5622447f9b2eeefc95f6b4faac2016ebb84f76f",
   "denominator": {
     "B": 225,
     "LA": 57,
@@ -49,7 +49,8 @@
     "R5 commit ce18d7445 repairs the served control-service fixture contract and derives the test owner-source context through the served path. Focused DI/N4 cases passed 3/3 and preserving controls passed 3/3; receipts: /Users/deniskopylov/.codex/scratch/e02-r11-integrated-20260927/R5_FOCUSED_AFTER_R11.junit.xml@sha256:5131156e89ddc5dc9e715af741522328fe158890ba81f1327b7fa8fb3bcd8799 and R5_CONTROL_AFTER_R11.junit.xml@sha256:e6d4828a1a7be9a802057338b8ba1b2e2692056848ad5e03041de07226537db9. This is fixture-path evidence, not R5 closure, a full control-service file result, or four-base replay; the positive DataTrust bridge and whole-file P41 remain open.",
     "Second a5141d432 current-head wave ran eight whole test files with git, the production_data symlink, and the shared .venv; exact JUnit/log hashes are in /Users/deniskopylov/.codex/scratch/e02-r2-integration-wave-20260927/SECOND_WAVE_RECEIPT.json@sha256:aa63fbcb3f40e6a402f9da092c4b94a27c093e9f16db57454c8b4f82d0d19b5c. Results: WDI 8/9, tenant custody 2/3, generation_cycle 119/140, control_service_di 35/40, runtime_deployment_security 44/54, live_acquisition_executor 49/49, dur_02 5/5, human_decision_guarded_custody 2/2. These are one-base outcomes; attribution of the red cases requires the exact-base P41 replay and is not established by this receipt. No finding status or class closure is inferred.",
     "R1 profile/time residuals at a5141d432: the V2 served-context handoff independent review is BLOCK; its 0/2,907 named candidate-context providers census does not mean there is no WMR producer. A read-only owner census (`R1_WORLD_PROFILE_OWNER_CENSUS_A514.md`, /Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_WORLD_PROFILE_OWNER_CENSUS_A514.md@sha256:200bebc024648c6b5e78254d5241f9f8465802b8c20caf09c189db6b1ca6286e) finds a fixed Ukraine/fiscal-credit DataState→WMR producer, but no capability-neutral profile admission/selection producer and no initial served job-scoped context bridge. The exported no-context design_generation API path may select the fixed-UA WMR while scope is not_established (API-level P38 candidate); the served unknown-scope path returns through candidate_proposal_only before _content_bound_candidates, so no served fallback is proven and API production reachability is under investigation. The same census finds requested period bounds are metadata not enforced by inspected queries. A separate generic time-scope candidate is BLOCKed because it equates request data_time with generic WMR valid_time_scope and can over-refuse legitimate retrospective/unknown-time candidates. Both are the same R1 class one level deeper under P40; no tests/removal/control/four-base receipts are admitted. Preserve ordinary candidate work with typed unknown; require an appointed source/profile owner to distinguish covered/outside/unknown and a served N4→qualified same-store N5→separate S8 authority witness. Reviews: /Users/deniskopylov/.codex/scratch/e02-r1-served-context-bridge-20260927/R1_SERVED_CONTEXT_HANDOFF_V2_INDEPENDENT_REVIEW.md@sha256:c95848c9fd3f7660d59931bcd7e4020d1512d00ffb51d0de73107b1e28ce06ae; /Users/deniskopylov/.codex/scratch/e02-r1-candidate-n5-patches-20260927/time-guard/R1_TIME_SCOPE_CANDIDATE_INDEPENDENT_REVIEW.md@sha256:7195aaee03de64908a9b356ef3e88dfaea898ebae281b1963a099c606e070a42.",
-    "R2 packaged-identity issuer checkpoint at a5141d432: no production build/deploy owner issues and admits one signed identity binding exact installed-code bytes, canonical lock, and complete N6 route census. Keep the confidence-ledger owner as sole identity reader and installed strict currentness typed UNRUN; no self-attested package-local manifest, parallel issuer, code patch, or reissue. Candidate computation remains available with declared unknown. Read-only blocker/decision draft: /Users/deniskopylov/.codex/scratch/e02-r2-loaded-manifest-owner-design-20260927/R2_IMPLEMENTATION_BLOCKER.md@sha256:3a2900be1f4cab2ed92c780d95f48d5719b129dc35919bc0181eff1bd6636453; current confidence-ledger source blob policy-engine/src/polisyos/runtime/quality/confidence_ledger.py@sha256:9a8945227abf9638f97740639ba9856e53ae08cf7b11cc7fd4ad064d280c62fd."
+    "R2 packaged-identity issuer checkpoint at a5141d432: no production build/deploy owner issues and admits one signed identity binding exact installed-code bytes, canonical lock, and complete N6 route census. Keep the confidence-ledger owner as sole identity reader and installed strict currentness typed UNRUN; no self-attested package-local manifest, parallel issuer, code patch, or reissue. Candidate computation remains available with declared unknown. Read-only blocker/decision draft: /Users/deniskopylov/.codex/scratch/e02-r2-loaded-manifest-owner-design-20260927/R2_IMPLEMENTATION_BLOCKER.md@sha256:3a2900be1f4cab2ed92c780d95f48d5719b129dc35919bc0181eff1bd6636453; current confidence-ledger source blob policy-engine/src/polisyos/runtime/quality/confidence_ledger.py@sha256:9a8945227abf9638f97740639ba9856e53ae08cf7b11cc7fd4ad064d280c62fd.",
+    "2026-10-01 read-only census at codex/e02-r2@b5622447f reconciles all 282 JSON IDs, all 282 B/LA source-card headings and all 282 rendered current-status cells; status/Appendix-C/P-triage counts are unchanged. H14/N18 held or unresolved rows each retain a row-specific reason and next step. Denominator V2 inventories 445 test modules / 1,780 module-ref cells and a 46-module / 184-cell priority union; this is not execution evidence. Later, the exact four-file b562 R9 cohort measured 48 pass / 29 fail (77 cases), versus candidate dcda3de75 at 43 pass / 38 fail (81 cases), with six common pass-to-fail identities and four candidate-only cases; no individual card mapping or original slice four-base ownership is established. The reviewed R1 candidate 79ba7659 served file is 2/3; its configured-profile case reports candidate_simulation_n5_outcome_baseline_missing and does not reach later controls. These are separate cut-specific receipts and do not imply finding closure."
   ],
   "citation_catalog": {
     "B_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@d800082eebfc12eaf647b0c0257c4f06e135d25a",
@@ -731,7 +732,7 @@
         "relation": "not_measured",
         "detail": "R1/R5 measure owner-context integrity and N4 candidate handling, not normal N5 request construction, method execution and CAS readback. Keep partial. The R1 031e witness explicitly records simulation_unavailable and does not exercise the N5 request/result discriminator; the finding-level relation remains not_measured."
       },
-      "residual": "The served ordinary route now persists an N4 candidate, and R1 verifies a content-bound context owner; neither constructs and executes the normal N5 request from the actual candidate, intervention atoms, WMR, outcomes, horizon and authorized resources. No cited run reaches a production simulation method and verifies the numeric result through the runtime CAS readback. Keep partial until a served request-builder/consumer witness proves that path and rejects a changed material binding; finding-level four-base replay remains UNRUN. Bounded R1 evidence at code commit 031e2133c persists/reopens the served N4 candidate as v2 with typed `simulation_unavailable`; it does not construct or run an N5 request, produce a numerical result, or read that result back from runtime CAS. Keep the N5 request-builder/consumer witness and finding-level four-base replay open.",
+      "residual": "The served ordinary route now persists an N4 candidate, and R1 verifies a content-bound context owner; neither constructs and executes the normal N5 request from the actual candidate, intervention atoms, WMR, outcomes, horizon and authorized resources. No cited run reaches a production simulation method and verifies the numeric result through the runtime CAS readback. Keep partial until a served request-builder/consumer witness proves that path and rejects a changed material binding; finding-level four-base replay remains UNRUN. Bounded R1 evidence at code commit 031e2133c persists/reopens the served N4 candidate as v2 with typed `simulation_unavailable`; it does not construct or run an N5 request, produce a numerical result, or read that result back from runtime CAS. Keep the N5 request-builder/consumer witness and finding-level four-base replay open. The reviewed three-path candidate whole-file run at 79ba7659 is 2/3. Its configured-profile case expects `candidate_scenario_n5_only` but receives `candidate_simulation_n5_outcome_baseline_missing`; zero-budget and foreign-context assertions are not reached. This candidate-only result establishes neither a positive numeric N5 outcome/readback nor current integration-head/four-base attribution.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "Runtime HTTP composition and generation-cycle owner; AcquisitionWorldGrowthBridge owner for canonical post-growth/store witness",
@@ -854,7 +855,24 @@
               "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/context-conflict.junit.xml@sha256:67175c8407d7d424b927ce6acde926aa36adbe706ed17596662c9822a62bac00",
               "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/epoch-context.junit.xml@sha256:9f95fc444264dfab5b11713fa00b7ee1ad04b48d689ebe2474be86d9ca4548cd"
             ]
-          }
+          },
+        "r1_served_candidate_79ba_2026_10_01": {
+          "identity": "R1 served configured-candidate N5 outcome boundary at candidate 79ba7659 (2026-10-01)",
+          "kind": "candidate_whole_file_replay",
+          "behavioral_verdict": "FAIL_CANDIDATE_ONLY",
+          "result_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r1-served-zero-budget-79ba7659-20261001T141443590320Z/result.json@sha256:510f2c8a8a0c0874f0330e2c71e8bfc0209a05d543d2644e26be0262fe9261f4",
+          "root_readback_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r1-served-zero-budget-79ba7659-20261001T141443590320Z/ROOT_READBACK.json@sha256:5d79f890df8ba87e55fc3d9c3edc2b26b7ecc3accdbfdbbc7c2417991c725e5b",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r1-served-zero-budget-79ba7659-20261001T141443590320Z/cells/current_explicit/test_configured_candidate_simulation_served-0c391d57c1b4.junit.xml@sha256:3f6bcb90dce1dcc04210702a6fe12ad6dbe01fd89c72c56d4e8e36d273f85e7a",
+          "denominator": {
+            "whole_files": 1,
+            "cases": 3,
+            "passed": 2,
+            "failed": 1
+          },
+          "failed_identity": "tests.integration.runtime_quality.test_configured_candidate_simulation_served::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift",
+          "boundary": "The configured-profile positive expects candidate_scenario_n5_only but receives candidate_simulation_n5_outcome_baseline_missing. The later zero-budget and foreign-context assertions are not reached. No positive numerical N5 outcome/readback or four-base finding replay is established.",
+          "scope": "Reviewed three-path candidate commit 79ba7659, not the integration head. Whole-file FAIL does not establish pass-to-fail ownership or finding closure; RCA and four-base P41 remain open. No status change."
+        }
       }
     },
     {
@@ -1182,9 +1200,9 @@
       "status": "open",
       "appendix_c_comparison": {
         "relation": "source_review_refines_no_record",
-        "detail": "Appendix C records that E02 had no finding-level record. The current row now has a discriminator-level source audit and retained negative-control tests. The audit recommends open because the card’s required newly admitted-evidence positive is absent; the passing retry controls do not establish it. Appendix C remains a historical package/finding-record classification, not a contradictory behavior verdict."
+        "detail": "Appendix C's no_finding_level_record remains its historical record classification. The earlier 95f082b N18 partial disposition is superseded as current status by the B09 source-card discriminator: the integrated WDI witness reaches N5 refusal, while the separate 79ba7659 R1 candidate failure is an outcome-baseline mismatch, not successful repeat computation on newly admitted WDI evidence. Keep open until the owner-supported changed-basis rule and same-candidate N5 positive are established; no four-base ownership is claimed."
       },
-      "residual": "The generic repeat gate still measures grammar/content progress rather than whether newly owner-admitted evidence was consumed by N5 (P37/P38). The 153/153 unit receipt proves only contract-testing/local-WMR callback re-entry. The integrated served path admits and reads back the selected WDI row and reaches N5, which returns typed refusal before N8; this does not establish a successful same-candidate, unchanged-grammar N5 computation consuming a refreshed problem-bound WMR/context. Keep open; exact-head and four-base P41 remain UNRUN.",
+      "residual": "The generic repeat gate still measures grammar/content progress rather than whether newly owner-admitted evidence was consumed by N5 (P37/P38). The integrated served WDI witness admits and reads back the selected row, then N5 typed-refuses before N8; it does not establish successful same-candidate computation over a changed problem-bound WMR/context. A separate reviewed R1 three-path candidate whole-file run at 79ba7659 is 2/3: its configured-profile case receives `candidate_simulation_n5_outcome_baseline_missing` instead of `candidate_scenario_n5_only`, and later zero-budget/foreign-context assertions are not reached. This candidate run is not a B09 changed-WDI-basis witness. Keep open; exact-head and four-base P41 remain UNRUN. Next step: establish the owner-supported observation-to-WMR/context rule, then prove a second served N5 consumes a genuinely changed admitted basis for the same candidate and produces a distinct replayable occurrence, with UUID/time-only and unchanged-overlay controls. Do not infer causal structure or substitute a guessed data contract.",
       "residual_owner": {
         "appointment_status": "Owner roles identified; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -1320,6 +1338,30 @@
           ],
           "evidence_summary": "Overlay/passport/epoch admission and re-entry are evidenced, but the B09 distinguishing N5-consumed-evidence positive is absent. Keep open.",
           "p41_four_base": "UNRUN"
+        },
+        "current_status_reconciliation_2026_10_01": {
+          "identity": "B09 current source-card status reconciliation at codex/e02-r2@b5622447f (2026-10-01)",
+          "current_status": "open",
+          "source_card_discriminator_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L301-L312",
+          "disagreement_with_prior_reading": "Appendix C no_finding_level_record is retained as a historical finding-record classification. The 95f082b N18 audit's provisional partial disposition is a dated source/test snapshot; an available overlay re-entry mechanism did not establish the card's successful new-evidence N5 discriminator. The current row remains open, not closed or partial.",
+          "existing_served_wdi_witness": {
+            "identity": "test_served_wdi_admits_selected_row_but_n5_refusal_prevents_n8",
+            "whole_file_counts": "12/12 at the recorded integration snapshot",
+            "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-integrated-20260929/world/junit.xml@sha256:dcdb0faef056dde1020bd44f26a9971454ab6364e37b1a26abeef2d14b812430",
+            "scope": "The selected WDI row is admitted/read back, then N5 typed-refuses before N8; this is not a successful repeat computation consuming changed problem-bound WMR/context."
+          },
+          "latest_r1_candidate_boundary": {
+            "candidate_snapshot": "79ba7659 (reviewed three-path candidate; not the current integration head)",
+            "result_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r1-served-zero-budget-79ba7659-20261001T141443590320Z/result.json@sha256:510f2c8a8a0c0874f0330e2c71e8bfc0209a05d543d2644e26be0262fe9261f4",
+            "root_readback_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r1-served-zero-budget-79ba7659-20261001T141443590320Z/ROOT_READBACK.json@sha256:5d79f890df8ba87e55fc3d9c3edc2b26b7ecc3accdbfdbbc7c2417991c725e5b",
+            "failed_test_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r1-served-zero-budget-79ba7659-20261001T141443590320Z/cells/current_explicit/test_configured_candidate_simulation_served-0c391d57c1b4.junit.xml@sha256:3f6bcb90dce1dcc04210702a6fe12ad6dbe01fd89c72c56d4e8e36d273f85e7a",
+            "failed_identity": "tests.integration.runtime_quality.test_configured_candidate_simulation_served::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift",
+            "whole_file_counts": "2 passed / 1 failed; the configured-profile assertion expected candidate_scenario_n5_only but received candidate_simulation_n5_outcome_baseline_missing; later zero-budget and foreign-context assertions were not reached",
+            "scope": "The served candidate file exercises the R1 route only, not B09’s newly admitted WDI-basis discriminator. It does not prove a positive N5 outcome or four-base ownership attribution."
+          },
+          "owner_premise_not_established": "The owner-supported rule mapping the newly admitted WDI observation to the exact DataSnapshot/NCM/WMR and problem-bound CycleSubstrateContext consumed by a second N5 run remains not_established; do not invent that mapping or treat UUID/time-only changes as progress.",
+          "next_step": "After the owner-supported observation-to-WMR/context rule is established, keep candidate subject and grammar fixed, admit a genuinely changed passport/epoch-bound basis, and prove a second served N5 consumes that changed basis and produces a distinct replayable occurrence. Retain UUID/time-only and unchanged-overlay no-progress controls, plus a current whole-file/four-base replay.",
+          "status_transition": "none"
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -1913,9 +1955,9 @@
       "status": "partial",
       "appendix_c_comparison": {
         "relation": "not_measured",
-        "detail": "The post-code suites contain no B15 graph/depth/resource discriminator. Keep partial and retain the bounded dynamic-call limitation."
+        "detail": "The da6d05e CYC-05 file supplies two separate bounded subproperty witnesses (limit visibility and fixture child-graph/N5 traversal), but not the complete ordinary served two-child/budget-stop/retained-partial-output discriminator. Keep partial; whole-file four-base replay remains UNRUN."
       },
-      "residual": "The R5 commit adjusts an HTTP recursive-limit test setup to carry served authorization, but its 28-case JUnit contains no test_cyc_05 case. The separate 22-case R2 suite verifies historical serializer/replay behavior and contains no nested two-child graph, effective-depth/resource-boundary or recursive-limit selector. Therefore these post-code receipts do not establish B15 behavior. Still required: a real two-child graph, requested-versus-effective limit at exact depth boundaries, resource exhaustion refusal with preserved partial output, and a declared dynamic-call limitation. Arbitrary recursion/dynamic-call completeness remains out of claim; current B15 selectors and four-base replay are UNRUN.",
+      "residual": "The current retained CYC-05 whole-file receipt at test-only commit da6d05e is 20/20. It contains separate bounded subproperty cases: one exposes requested/effective recursive limits, and another sends fixture-built child nodes through the recursive graph and N5. No single ordinary served path demonstrates two meaningful children together with a forced budget stop that retains obtained output and marks search incomplete. Keep partial; the P118 next step still requires that combined behavioral witness, its one-child preserving control, and a whole-file four-base replay. Arbitrary recursion/dynamic-call completeness remains out of claim.",
       "residual_owner": {
         "kind": "implementation_owner",
         "name": "Generation-cycle deployment identity owner",
@@ -1962,6 +2004,26 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-history-integration-20260927/integrated-history.junit.xml@sha256:c7dc706ffbefc866c61f499248c529839370eed6d61dfe282952ce06691e9acd",
             "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B15"
           ]
+        },
+        "current_cyc05_bounded_subproperties_2026_10_01": {
+          "identity": "CYC-05 whole-file bounded subproperty readback at test-only commit da6d05e (2026-10-01)",
+          "kind": "whole_file_behavioral_test_receipt",
+          "behavioral_verdict": "PARTIAL_SUBPROPERTIES_ONLY",
+          "result_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cyc02-cyc05-da6d05e-20261001T120327696415Z/result.json@sha256:fbfd44a2f4e4a1c7cb63d309069839aeef77dd8f1e85385b54649349abe8dbec",
+          "root_readback_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cyc02-cyc05-da6d05e-20261001T120327696415Z/ROOT_READBACK.json@sha256:c0c869c7ed6305c68a8df6fbfca45eed994805135248fc7f328b540ab3257688",
+          "commit": "da6d05e0a29a9a717a53f6c5d85c1fc6bd930e6c",
+          "denominator": {
+            "whole_files": 1,
+            "cases": 20,
+            "passed": 20,
+            "failed": 0
+          },
+          "positive_subproperty_cases": [
+            "tests.unit.remediation.test_cyc_05::test_http_job_progress_exposes_requested_and_effective_recursive_limits",
+            "tests.unit.remediation.test_cyc_05::test_workspace_fixture_children_flow_through_recursive_graph_and_n5"
+          ],
+          "scope": "Separate tests witness requested/effective limit visibility and fixture-built child graph traversal through recursion/N5. They do not combine an ordinary served two-child path, forced budget exhaustion, retained partial output, and an explicit search-incomplete status. This is one-file test-only-snapshot evidence, not the four-base replay or complete B15 criterion.",
+          "status_transition": "none"
         }
       }
     },

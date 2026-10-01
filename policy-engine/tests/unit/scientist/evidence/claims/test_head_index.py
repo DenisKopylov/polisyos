@@ -2470,7 +2470,10 @@ def test_historical_packet_snapshot_rejects_removed_selected_head_view(
     snapshot = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
     assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
     head_ref = snapshot.head.head_ref
-    assert head_ref.manifest_profile_sha256 is not None
+    # The owner-issued default remains valid if a caller strips the selector.
+    # Therefore the absent explicit view below distinguishes exact-ref reads.
+    assert store.get_bytes(head_ref.artifact_id) == store.get_bytes(head_ref)
+    assert store.get_manifest(head_ref.artifact_id) == store.get_manifest(head_ref)
     absent_profile = next(
         f"sha256:{digit * 64}"
         for digit in "0123456789abcdef"

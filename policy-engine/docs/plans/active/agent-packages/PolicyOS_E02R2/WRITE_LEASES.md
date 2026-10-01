@@ -1,5 +1,26 @@
 # E02-R2 write leases
 
+## R1 controlled synthetic-model owner implementation — 2026-10-01
+
+Root leases the following ten mechanism paths to `r1_candidate_scenario_writer` in the existing `codex/e02-r2-r1-candidate-scenario` worktree, starting at its clean `79ba7659b98f0e0ed5c2ec31e36d5c855247d710` head. This finite lease supersedes earlier R1 coding variants. All paths below are relative to `policy-engine/`:
+
+- `src/polisyos/runtime/quality/candidate_simulation.py`
+- `src/polisyos/runtime/http/app.py`
+- `src/polisyos/runtime/http/container.py`
+- `src/polisyos/runtime/quality/cycle_substrate.py`
+- `src/polisyos/runtime/quality/world_model_record.py`
+- `src/polisyos/ir/analytics/ncm.py`
+- `src/polisyos/runtime/http/services/control/run_lifecycle.py`
+- `src/polisyos/runtime/quality/generation_source.py`
+- `src/polisyos/runtime/quality/intervention_substrate.py`
+- `src/polisyos/runtime/quality/generation_cycle.py`
+
+The eight mandatory test companions are `tests/integration/runtime_quality/test_configured_candidate_simulation_served.py`, `tests/unit/runtime/quality/test_generation_source.py`, `tests/unit/runtime/quality/test_generation_cycle.py`, `tests/unit/runtime/quality/test_intervention_substrate.py`, `tests/unit/runtime/quality/test_cycle_substrate.py`, `tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py`, `tests/unit/pdc/test_world_model_record.py`, and the new `tests/unit/ir/analytics/test_ncm.py`. They are outside the mechanism count. Root alone integrates reviewed candidates.
+
+Design census: `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_VERSIONED_SELECTED_VIEW_COMPLETE_WRITE_CENSUS_20261001.md@sha256:748d9e78bb99ff127938fbf263702fe4ed2b448ad8aae4e9d148ccb2d84188df`. Independent finite-lease GO: `R1_VERSIONED_SELECTED_VIEW_WRITE_CENSUS_REVIEW_20261001.md@sha256:3dbde02a56789768b83e60e3c58f46032b207f47729f2c456a67a191bcce2d9a` in the same directory. Preserve ProfileV2 and historical source/input/execution byte projections; add the declared synthetic-model sidecar, SourceV2, InputV5 and ExecutionV5. Preserve full selected manifest identity through the existing NCM owner. The IR owner uses local structural protocols: no forbidden `ir -> core/runtime` import. Construct runtime InputRefs in the allowed runtime caller and validate the actual default manifest when the selector is None.
+
+This is the principal-authorized controlled candidate route. Declared synthetic causal assumptions carry typed limits and do not establish real data/time/grounding or S8/promotion/publication authority. Preserve zero N8/N9/S8 calls, K_world, ordinary no-profile candidate usefulness, runtime-supplied tenant store identity, and existing authority refusals. N6's string-only historical source refs remain an explicitly unestablished selected-view replay residual. Do not restamp historical evidence or invent a matching fixture baseline. R13's overlapping HTTP adapter/lifecycle bridge is sequenced after this lease releases. No generated family, epoch reissue, new environment or worktree is leased. AST/Ruff preparation may proceed; root admits runtime only after freeze and sufficient disk/resource reserve.
+
 ## Current bounded engineering admission (2026-10-01, after ledger `9b7561920`)
 
 Root admits the reviewed B73 V2 witness on exactly `policy-engine/tests/integration/scientist/test_checkpoint_resume.py`; this coordination record is its mandatory companion. The complete input file has a separate 9/9 current replay at `b5622447`, and the unchanged target was rechecked at `9b7561920`. The applied patch is `/Users/deniskopylov/.codex/scratch/E02R2_B73_checkpoint_publication_candidate_20261001_V2/B73_PUBLICATION_CUT_TESTS_V2.patch@sha256:089c9da10cd48fda973084057b5ed80e7ce62a8d8c9e1c913118fd223e0d2847`; independent admission is `/Users/deniskopylov/.codex/scratch/B73_V2_INDEPENDENT_REVIEW_20261001.md@sha256:f841c67b9ee55f82fab829e5362651ce573721d431c54a3b1c79681c633d5f17`. This is a test-only frontier/fresh-reader witness through the existing checkpoint/cache owners. The expected whole-file denominator is 11 cases; execution and removal remain UNRUN at admission. It does not prove history repair, remote execution parity, or B73 closure.

@@ -5173,7 +5173,10 @@ class ControlPlaneService(
                     max_cycles, recursive_budget_resolution = _resolve_http_recursive_budget(
                         payload.get("max_iterations")
                     )
-                    budget_usd = Decimal(str(payload.get("run_budget_usd") or "5"))
+                    raw_budget_usd = payload.get("run_budget_usd")
+                    budget_usd = Decimal(
+                        "5" if raw_budget_usd is None else str(raw_budget_usd)
+                    )
                     compiled = async_tools.run_coro_sync(
                         self.compile_and_run_recursive_generation_cycle(
                             raw_request=str(payload.get("request") or ""),

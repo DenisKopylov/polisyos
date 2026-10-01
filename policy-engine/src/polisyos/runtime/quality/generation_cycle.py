@@ -7819,7 +7819,15 @@ class GenerationCycleController:
             voi_estimate=voi_estimate,
             budget_state=state["budget_state"],
         )
-        if schedule.recommended_action != "advance":
+        configured_candidate_roi_reject = (
+            self._candidate_simulation_handoff is not None
+            and schedule.recommended_action == "reject"
+            and schedule.reason == "roi_below_threshold"
+        )
+        if (
+            schedule.recommended_action != "advance"
+            and not configured_candidate_roi_reject
+        ):
             reason = schedule.reason
             simulation = SimulationPortObservation(
                 candidate_id=candidate_id,
@@ -7833,22 +7841,10 @@ class GenerationCycleController:
                 },
             )
             value = ValuePortObservation(
-                status=(
-                    "value_pending_n8"
-                    if self._candidate_simulation_handoff is not None
-                    else "value_blocked"
-                ),
+                status="value_blocked",
                 candidate_id=candidate_id,
-                authority_blockers=(
-                    ("candidate_scenario_n5_only",)
-                    if self._candidate_simulation_handoff is not None
-                    else (reason,)
-                ),
-                reason=(
-                    "candidate_scenario_n5_only"
-                    if self._candidate_simulation_handoff is not None
-                    else f"N6 VOI scheduler blocked the next stage: {reason}."
-                ),
+                authority_blockers=(reason,),
+                reason=f"N6 VOI scheduler blocked the next stage: {reason}.",
             )
             return {
                 **state,
@@ -7862,12 +7858,26 @@ class GenerationCycleController:
                 problem=problem,
                 cycle_index=cycle_index,
             )
-            value = ValuePortObservation(
-                status="value_pending_n8",
-                candidate_id=candidate_id,
-                authority_blockers=("candidate_scenario_n5_only",),
-                reason="candidate_scenario_n5_only",
-            )
+            if simulation.status == "joint_simulated":
+                value = ValuePortObservation(
+                    status="value_pending_n8",
+                    candidate_id=candidate_id,
+                    authority_blockers=("candidate_scenario_n5_only",),
+                    reason="candidate_scenario_n5_only",
+                )
+            else:
+                blockers = simulation.authority_blockers or (
+                    str(
+                        simulation.diagnostics.get("reason")
+                        or "candidate_simulation_n5_not_completed"
+                    ),
+                )
+                value = ValuePortObservation(
+                    status="value_blocked",
+                    candidate_id=candidate_id,
+                    authority_blockers=blockers,
+                    reason=f"Configured candidate N5 did not complete: {blockers[0]}.",
+                )
             return {
                 **state,
                 "simulation": simulation,
@@ -8458,10 +8468,18 @@ class GenerationCycleController:
             budget_state=state["budget_state"],
         )
         if self._candidate_simulation_handoff is not None:
+            candidate_reason = (
+                "candidate_scenario_n5_only"
+                if state["value_port"].status == "value_pending_n8"
+                else str(
+                    state["simulation"].diagnostics.get("reason")
+                    or state["execution_schedule"].reason
+                )
+            )
             next_action = next_action.model_copy(
                 update={
                     "next_action": "blocked",
-                    "reason": "candidate_scenario_n5_only",
+                    "reason": candidate_reason,
                 }
             )
         decision = _refinement_decision(

@@ -519,6 +519,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         _control_job_execution_scope_from_event,
     )
     from polisyos.runtime.quality import design_generation as design_generation_module
+    from polisyos.runtime.quality.candidate_simulation import (
+        candidate_simulation_profile_ref,
+    )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextJobArtifact,
         _cycle_job_v1_design_problem_ref,
@@ -768,6 +771,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             )
         )
         assert voi_decision.scheduler_action in scheduler_actions
+        assert voi_decision.scheduler_action == "reject"
+        assert voi_decision.scheduler_reason == "roi_below_threshold"
         assert voi_decision.next_action == "blocked"
         assert voi_decision.reason == "candidate_scenario_n5_only"
 
@@ -1409,3 +1414,165 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             "persist_candidate_scenario_source_v1",
             original_persist_candidate_scenario,
         )
+
+        # An explicit zero-dollar request is a real N6 budget limit, not a
+        # missing value that may fall through to the HTTP owner's default.
+        calls_before_zero_budget = len(n5_calls)
+        controllers_before_zero_budget = len(candidate_leaf_controllers)
+        compiled_problems_before_zero_budget = len(compiled_problems)
+        zero_budget_response = client.post(
+            "/api/v1/control/runs/nl",
+            json={
+                "request": raw_request,
+                "llm_model": model_id,
+                "run_budget_usd": 0.0,
+                "context": {
+                    "evaluation_safety_attempt": _valid_intake_for_mode(
+                        "simulate_only"
+                    ).model_dump(mode="json")
+                },
+            },
+        )
+        assert zero_budget_response.status_code == 200, zero_budget_response.text
+        zero_budget_job_id = zero_budget_response.json()["job_id"]
+        assert dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=zero_budget_job_id,
+        ) == zero_budget_job_id
+
+        zero_budget_job = service._control_store.get_job(zero_budget_job_id)
+        assert zero_budget_job is not None and zero_budget_job.state == "completed"
+        assert zero_budget_job.progress["status"] == "simulation_only"
+        assert zero_budget_job.progress["s8_status"] == "not_run"
+        assert zero_budget_job.progress["publication_status"] == "not_run"
+        assert len(n5_calls) == calls_before_zero_budget
+        assert len(compiled_problems) == compiled_problems_before_zero_budget + 1
+
+        # Prove this is the configured profile path with the worker's exact
+        # persisted context/job handoff, rather than an ordinary no-profile
+        # simulation-only request that happened not to call N5.
+        zero_budget_controllers = tuple(
+            controller
+            for controller in candidate_leaf_controllers[
+                controllers_before_zero_budget:
+            ]
+            if controller._candidate_simulation_handoff.job_id
+            == zero_budget_job.job_id
+        )
+        assert len(zero_budget_controllers) == 1
+        zero_budget_controller = zero_budget_controllers[0]
+        zero_budget_handoff = zero_budget_controller._candidate_simulation_handoff
+        assert zero_budget_handoff is not None
+        zero_budget_context_job_selected_ref = ArtifactRef.model_validate(
+            zero_budget_job.progress["cycle_substrate_context_job_selected_ref"]
+        )
+        assert artifact_ref_identity_key(zero_budget_handoff.context_job_ref) == (
+            artifact_ref_identity_key(zero_budget_context_job_selected_ref)
+        )
+
+        zero_budget_event = service._control_store.get_job_created_event_payload(
+            zero_budget_job.job_id
+        )
+        zero_budget_scope = _control_job_execution_scope_from_event(zero_budget_event)
+        assert (
+            zero_budget_handoff.profile,
+            zero_budget_handoff.profile_config_ref,
+            zero_budget_handoff.job_id,
+            zero_budget_handoff.run_id,
+            zero_budget_handoff.tenant_id,
+            zero_budget_handoff.cell_id,
+        ) == (
+            profile,
+            candidate_simulation_profile_ref(profile),
+            zero_budget_job.job_id,
+            str(zero_budget_job.run_id),
+            zero_budget_scope.tenant_id,
+            zero_budget_scope.cell_id,
+        )
+        zero_budget_source_refs = tuple(
+            zero_budget_controller._candidate_scenario_source_refs.values()
+        )
+        assert len(zero_budget_source_refs) == 1
+        zero_budget_source = read_private_artifact_in_job_scope(
+            lambda: GenerationSourceRepository(
+                service._artifact_store
+            ).load_candidate_scenario_source_v1(
+                zero_budget_source_refs[0],
+                expected_run_id=str(zero_budget_job.run_id),
+                expected_job_id=zero_budget_job.job_id,
+                expected_tenant_id=zero_budget_scope.tenant_id,
+                expected_cell_id=zero_budget_scope.cell_id,
+            ),
+            job_id=zero_budget_job.job_id,
+            run_id=str(zero_budget_job.run_id),
+        )
+        assert type(zero_budget_source) is N4CandidateScenarioSourceRecordV1
+        assert zero_budget_source.status == "candidate_unverified"
+        assert zero_budget_source.candidate is not None
+        assert (
+            zero_budget_source.profile,
+            zero_budget_source.profile_config_ref,
+            zero_budget_source.problem,
+            zero_budget_source.profile.profile_selection_ref,
+            zero_budget_source.context_hash,
+            zero_budget_source.job_id,
+            zero_budget_source.run_id,
+            zero_budget_source.tenant_id,
+            zero_budget_source.cell_id,
+            artifact_ref_identity_key(zero_budget_source.context_job_ref),
+        ) == (
+            profile,
+            zero_budget_handoff.profile_config_ref,
+            compiled_problems[-1],
+            _cycle_job_v1_profile_selection_ref(compiled_problems[-1]),
+            zero_budget_handoff.context.content_hash,
+            zero_budget_handoff.job_id,
+            zero_budget_handoff.run_id,
+            zero_budget_scope.tenant_id,
+            zero_budget_scope.cell_id,
+            artifact_ref_identity_key(zero_budget_context_job_selected_ref),
+        )
+
+        zero_budget_compiled_bytes = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_bytes(
+                zero_budget_job.progress["compiled_recursive_generation_cycle_ref"]
+            ),
+            job_id=zero_budget_job.job_id,
+            run_id=str(zero_budget_job.run_id),
+        )
+        zero_budget_compiled_record = (
+            CompiledRecursiveGenerationCycleRun.model_validate(
+                canon.from_canonical_bytes(zero_budget_compiled_bytes)
+            )
+        )
+        zero_budget_leaf_nodes = zero_budget_compiled_record.recursive_run.leaf_nodes
+        assert len(zero_budget_leaf_nodes) == 1
+        zero_budget_leaf = zero_budget_leaf_nodes[0].cycle_run
+        assert zero_budget_leaf is not None
+        zero_budget_cycle = zero_budget_leaf.cycles[-1]
+        assert zero_budget_cycle.simulation.status == "simulation_blocked"
+        assert zero_budget_cycle.simulation.diagnostics == {
+            "port": "N6",
+            "reason": "budget_exhausted_for_next_level",
+            "scheduler_action": "defer",
+            "scheduler_priority": 0.0,
+        }
+        assert zero_budget_cycle.value_port.status == "value_blocked"
+        assert zero_budget_cycle.value_port.authority_blockers == (
+            "budget_exhausted_for_next_level",
+        )
+        assert zero_budget_cycle.voi_decision.scheduler_action == "defer"
+        assert (
+            zero_budget_cycle.voi_decision.scheduler_reason
+            == "budget_exhausted_for_next_level"
+        )
+        assert zero_budget_cycle.voi_decision.next_action == "blocked"
+        assert (
+            zero_budget_cycle.voi_decision.reason
+            == "budget_exhausted_for_next_level"
+        )
+        assert zero_budget_leaf.terminal_status == "blocked"
+        assert zero_budget_leaf.value_port.status == "value_blocked"
+        assert n8_owner_calls == []
+        assert n9_owner_calls == []

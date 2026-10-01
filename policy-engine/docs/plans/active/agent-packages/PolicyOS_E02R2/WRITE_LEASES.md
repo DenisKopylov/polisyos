@@ -2246,3 +2246,53 @@ Causal proof and complete 6,414-Python-file census:
 `/Users/deniskopylov/.codex/scratch/r9-root-refusal-trace-20261001-X1KZDz/R9_ARTIFACT_IDENTITY_CAUSAL_SCOPE_20261001.md@sha256:133989d9cc867363b23243074fcaefda05549c0a50af6201181bd1346f48d879`.
 Candidate review precedes integration; every tree under test remains frozen.
 Heavy jobs run exclusively; disk floor remains 8 GiB and Trash is not emptied.
+
+## R1 mandatory documentation companions — 2026-10-01
+
+The direct R1 architecture reader may prepare a scratch-only patch for
+`policy-engine/src/polisyos/runtime/quality/README.md` and the new
+`policy-engine/release-fragments/unreleased/2026-10-01-e02r2-candidate-simulation.toml`.
+These are the contributor-required companions to the new candidate-simulation
+module, outside its mechanism path count (P39). Root alone applies them with
+or after the reviewed implementation. The patch must distinguish source
+wiring from the still runtime-unverified configured served positive; it must
+retain the declared real-data/time-contract and N8/N9/S8 authority limits.
+No source, test, generated family, register or plan path is added to this lease.
+
+The R1 currentness source remains frozen while a read-only resource review
+traces the two-variable, two-replication NCM path. Scratch instrumentation may
+record owner-method/stage names, elapsed time and resource measurements,
+without arguments, locals, data or secrets. Another numerical run requires
+root admission after that review; the latest resource-terminated run remains
+UNRUN. Its 13-path and 6,715-input freezes have no recorded drift.
+
+## R9 measured CAS-03 properties and publication fixture — 2026-10-01
+
+The same sole R9 candidate writer first corrects the new inventory control in
+`policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py`: the
+owner exposes five members (two default-ID aliases and three manifest views),
+while the public blob-ID projection must return two unique typed IDs. Root adds
+only `policy-engine/tests/unit/runtime/http/test_public_export.py` to that
+checkpoint. Enter the existing tenant scope around synthetic RunContext setup
+and finalization; release it before HTTP requests. Keep the guarded runtime
+store and all foreign-tenant, signature, ownership and publication assertions.
+The activity-worker scope chain remains a separately unverified premise.
+
+After that reviewed checkpoint is preserved, the writer may widen the same
+owner mechanism in `policy-engine/src/polisyos/core/artifacts/store.py` and
+`policy-engine/src/polisyos/core/artifacts/_signature_ops.py`, with the already
+leased protocol and CAS-03 tests. Reuse the bounded scheduler for lazy explicit
+ID admission, cancellation and typed source failure, and read one verified
+blob/manifest snapshot under the existing transaction lease. Default inventory
+needs an owner-authenticated cursor or an explicit bounded residual; a lazy
+wrapper over a completed scan is not evidence. Do not weaken tenant/view,
+pending-transaction, path, signature or trust checks. Design GO:
+`/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_FREEZE_20261001T0234Z/R9_CAS03_BULK_AND_SNAPSHOT_DESIGN_REVIEW.md@sha256:7fcf082262e4bfd2476f86acc3f61a6865b3575402d85687efd8e958c8763651`.
+
+The completed pre-repair matrix has nine E02-to-d0 pass-to-fail identities across
+the two files; the shared protocol iterator also regresses against execution
+base and main. The subsequent 27-case candidate cohort does not close R9.
+Independent delta review precedes each integration. Root admits runtime and
+removal probes separately; no writer edits any tree while its tests run.
+These five candidate paths have zero intersection with R1's 13-path source/test
+candidate. No generated artifact, governed record, register or plan is leased.

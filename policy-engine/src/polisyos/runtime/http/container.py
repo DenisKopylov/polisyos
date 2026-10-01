@@ -28,6 +28,9 @@ from polisyos.runtime.http.services.review_collaboration import ReviewCollaborat
 from polisyos.runtime.quality.chronology_custody import (
     build_production_epoch_anchor_custody_provider,
 )
+from polisyos.runtime.quality.cycle_substrate import (
+    ConfiguredCandidateSimulationContextAdmissionOwner,
+)
 from polisyos.runtime.quality.design_axes.value_choice_provenance import NormativeAuthorityTrust
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.scientist import (
@@ -97,6 +100,8 @@ class RuntimeContainerConfig:
     normative_authority_trust: NormativeAuthorityTrust = field(
         default_factory=NormativeAuthorityTrust
     )
+    candidate_simulation_profiles: tuple[Any, ...] = ()
+    candidate_simulation_model_declarations: tuple[Any, ...] = ()
 
 
 @dataclass
@@ -144,6 +149,7 @@ class RuntimeServiceContainer:
     epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService
     control_registry_providers: ControlRegistryProviders
     public_decision_verification_service: PublicDecisionVerificationService
+    candidate_simulation_context_admission_owner: Any | None = None
     control_service: ControlPlaneService | None = None
     epoch_certificate_issuance_owner: DecisionPacketEpochIssuanceOwner | None = None
     human_decision_service: HumanDecisionService | None = None
@@ -162,6 +168,10 @@ class RuntimeServiceContainer:
     ) -> RuntimeServiceContainer:
         """Construct a container with lazy startup for heavyweight services."""
         overrides = config.overrides
+        if type(config.candidate_simulation_profiles) is not tuple:
+            raise TypeError("candidate_simulation_profiles_must_be_tuple")
+        if type(config.candidate_simulation_model_declarations) is not tuple:
+            raise TypeError("candidate_simulation_model_declarations_must_be_tuple")
         runtime_metrics = overrides.runtime_metrics or (config.metrics_factory or get_metrics)()
         runtime_tracer = overrides.runtime_tracer or (config.tracer_factory or get_tracer)()
         runtime_api_context = overrides.runtime_api_context or build_runtime_api_context(
@@ -174,6 +184,16 @@ class RuntimeServiceContainer:
             artifact_redaction_hooks=config.artifact_redaction_hooks,
             metrics=runtime_metrics,
             tracer=runtime_tracer,
+        )
+        candidate_context_owner = (
+            ConfiguredCandidateSimulationContextAdmissionOwner(
+                profiles=config.candidate_simulation_profiles,
+                model_declarations=config.candidate_simulation_model_declarations,
+                store=runtime_api_context.store,
+            )
+            if config.candidate_simulation_profiles
+            or config.candidate_simulation_model_declarations
+            else None
         )
         runtime_rate_limiter, runtime_idempotency_store, runtime_mutation_audit = (
             build_runtime_mutation_services(
@@ -198,6 +218,16 @@ class RuntimeServiceContainer:
             overrides.control_service, ControlPlaneService
         ):
             raise ValueError("control_service_owner_invalid")
+        if candidate_context_owner is not None and overrides.control_service is not None:
+            override_owner = overrides.control_service._cycle_substrate_context_admission_owner
+            if (
+                type(override_owner) is not ConfiguredCandidateSimulationContextAdmissionOwner
+                or override_owner.profiles != candidate_context_owner.profiles
+                or override_owner.model_declarations
+                != candidate_context_owner.model_declarations
+                or override_owner.store is not runtime_api_context.store
+            ):
+                raise ValueError("candidate_simulation_context_owner_override_mismatch")
         if type(config.normative_authority_trust) is not NormativeAuthorityTrust:
             raise TypeError("normative_deployment_trust_must_be_typed")
         if overrides.control_service is not None and (
@@ -295,6 +325,7 @@ class RuntimeServiceContainer:
                 store=runtime_api_context.store,
                 claim_owner=claim_ledger_owner,
             ),
+            candidate_simulation_context_admission_owner=candidate_context_owner,
             control_service=overrides.control_service,
         )
 
@@ -372,6 +403,9 @@ class RuntimeServiceContainer:
                             admission_source=self.public_decision_verification_service.governed_owner,
                             store=self.runtime_api_context.store,
                         )
+                    ),
+                    cycle_substrate_context_admission_owner=(
+                        self.candidate_simulation_context_admission_owner
                     ),
                 )
                 self.control_service = control_service

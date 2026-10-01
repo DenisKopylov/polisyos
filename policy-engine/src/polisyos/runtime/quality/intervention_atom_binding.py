@@ -27,6 +27,7 @@ from polisyos.ir.analytics.interventions import (
     QueryTargetKind,
     StochasticIntervention,
     TransportIntervention,
+    VariableAssignment,
 )
 from polisyos.ir.governance import InterventionSpec
 from polisyos.ir.kernel.base import SLOT_ID_PATTERN
@@ -332,6 +333,74 @@ def intervention_atom_content_hash(atom: InterventionAtomBinding) -> str:
     """Return the time-invariant content hash for an atom."""
 
     return gy_content_hash(_content_payload_from_atom(atom))
+
+
+def derive_candidate_scenario_atom(
+    atom: InterventionAtomBinding,
+    *,
+    target_world_slot: str,
+    value: int,
+) -> InterventionAtomBinding:
+    """Derive one integer ``do(slot=value)`` projection for candidate N5 only.
+
+    The source atom is never mutated. Both the typed assignment projection and
+    the serialized proof-kernel expression are rebuilt from the same
+    ``NodeIntervention`` and checked by replaying the atom's normal projection.
+    """
+
+    if type(value) is not int:
+        raise InterventionAtomBindingError("candidate_scenario_value_not_strict_integer")
+    if not _SLOT_ID_RE.fullmatch(target_world_slot):
+        raise InterventionAtomBindingError("candidate_scenario_target_slot_malformed")
+    if atom.status != "candidate_unverified":
+        raise InterventionAtomBindingError("candidate_scenario_source_atom_not_candidate")
+    if atom.target_world_slots != (target_world_slot,):
+        raise InterventionAtomBindingError("candidate_scenario_target_slot_mismatch")
+    if atom.causal_do_expr.write_variables != (target_world_slot,):
+        raise InterventionAtomBindingError("candidate_scenario_write_set_mismatch")
+
+    source_intervention = atom.to_node_intervention()
+    if len(source_intervention.assignments) != 1:
+        raise InterventionAtomBindingError("candidate_scenario_source_assignment_not_atomic")
+    source_assignment = source_intervention.assignments[0]
+    if source_assignment.variable != target_world_slot:
+        raise InterventionAtomBindingError("candidate_scenario_assignment_slot_mismatch")
+
+    derived_intervention = NodeIntervention(
+        assignments=(
+            VariableAssignment(variable=target_world_slot, value=value, value_expr=None),
+        )
+    )
+    derived_projection = _node_assignments(derived_intervention)
+    expression_payload = derived_intervention.model_dump(mode="json")
+    if len(derived_projection) != 1 or derived_projection[0].value != value:
+        raise InterventionAtomBindingError("candidate_scenario_assignment_projection_mismatch")
+
+    causal_do_expr = atom.causal_do_expr.model_copy(
+        update={
+            "assignments": derived_projection,
+            "expression_payload": expression_payload,
+            "write_variables": (target_world_slot,),
+        }
+    )
+    fields = atom.model_dump(mode="python", exclude={"atom_id", "content_hash"})
+    fields["causal_do_expr"] = causal_do_expr
+    content_hash = gy_content_hash(_content_payload_from_fields(fields))
+    derived = InterventionAtomBinding.model_validate(
+        {
+            **fields,
+            "atom_id": f"atom_{content_hash.removeprefix('sha256:')[:16]}",
+            "content_hash": content_hash,
+        }
+    )
+    replayed = derived.to_node_intervention()
+    if replayed != derived_intervention:
+        raise InterventionAtomBindingError("candidate_scenario_intervention_roundtrip_mismatch")
+    if _node_assignments(replayed) != derived.causal_do_expr.assignments:
+        raise InterventionAtomBindingError("candidate_scenario_projection_roundtrip_mismatch")
+    if intervention_atom_content_hash(derived) != content_hash:
+        raise InterventionAtomBindingError("candidate_scenario_derived_atom_hash_mismatch")
+    return derived
 
 
 def build_intervention_atom_binding(

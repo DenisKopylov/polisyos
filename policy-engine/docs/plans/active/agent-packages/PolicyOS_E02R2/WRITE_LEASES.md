@@ -1,5 +1,45 @@
 # E02-R2 write leases
 
+## R1 complete candidate delivery scope and R2 composition — 2026-10-01
+
+Root alone integrates the complete candidate branch delta from the common fork, including the four required foundations that the earlier eighteen-path lease omitted. The complete source census is twenty-two paths: fourteen mechanisms and eight tests. Census `/Users/deniskopylov/.codex/scratch/E02R2_R1_INTEGRATION_CENSUS_20261001.md@sha256:42b6044181939cbf027ac7e7dc91d8680479e4a2c435e0f47ed1c2994859d789`; delivery review `/Users/deniskopylov/.codex/scratch/E02R2_R1_NCM_SELECTED_VIEW_API_20261001/R1_DELIVERY_SCOPE_REVIEW_75658e703_20261001.md@sha256:abf0e4921952fd7c922f67e629b1f240e3b2445f41b8613c488aa2f26bd2d466`. This finite integration scope supersedes the earlier partial delivery scope; it does not lease any unrelated source or generated family.
+
+Mechanism paths relative to `policy-engine/src/polisyos/`:
+
+- `ir/analytics/ncm.py`
+- `runtime/http/app.py`
+- `runtime/http/container.py`
+- `runtime/http/services/control/generation_cycle.py`
+- `runtime/http/services/control/run_lifecycle.py`
+- `runtime/quality/candidate_simulation.py`
+- `runtime/quality/cycle_substrate.py`
+- `runtime/quality/design_generation.py`
+- `runtime/quality/generation_cycle.py`
+- `runtime/quality/generation_source.py`
+- `runtime/quality/intervention_atom_binding.py`
+- `runtime/quality/intervention_substrate.py`
+- `runtime/quality/recursive_generation_cycle.py`
+- `runtime/quality/world_model_record.py`
+
+Test paths relative to `policy-engine/tests/`:
+
+- `integration/runtime_quality/test_configured_candidate_simulation_served.py`
+- `unit/ir/analytics/test_ncm.py`
+- `unit/runtime/http/test_cycle_substrate_job_execution_binding.py`
+- `unit/runtime/quality/test_cycle_substrate.py`
+- `unit/runtime/quality/test_generation_cycle.py`
+- `unit/runtime/quality/test_generation_source.py`
+- `unit/runtime/quality/test_intervention_substrate.py`
+- `unit/runtime/quality/test_world_model_record.py`
+
+The reviewed lifecycle postimage preserves the canonical budget helper and its three calls, adds the same projection to the N4-only completion, and retains a default only for `None`, including explicit zero budgets. Composition manifest `/Users/deniskopylov/.codex/scratch/E02R2_R1_COMPOSED_RUN_LIFECYCLE_20261001/composition-manifest.json@sha256:8320046a425faa1c5eaf25c8927ab044e81ff77f8d647d1ef114988d1ad10bc4`; postimage SHA `d40a0f0b47e7cd8317793cf8855d54d889b2eb92ce3396b575209cee8b22f258`. The additional budget projection closes the separate R2 integration gap identified by the delivery review.
+
+Bounded composition GO `/Users/deniskopylov/.codex/scratch/E02R2_R1_COMPOSED_RUN_LIFECYCLE_20261001/review.md@sha256:b96779cbb1a50fc727f26c32b530d1a0dfcc851427c1db49bebc9745505d2f39` covers that four-line seam. Root additionally sorts four import groups and wraps three overlong expressions in five of the leased mechanism files. These formatting deltas require a separate delta readback; all runtime predicates and call arguments remain unchanged. The full twenty-two-path Ruff invocation initially reported nine diagnostics, so no whole-scope Ruff pass is claimed.
+
+Formatting review and actual integration byte binding are GO: `/Users/deniskopylov/.codex/scratch/E02R2_R1_INTEGRATION_FORMATTING_DELTA_20261001_REVIEW.md@sha256:0db345c5efda30f82e482ac5e6649e9b0b6ca4ae426c33b31a5003030a48e69c` and `/Users/deniskopylov/.codex/scratch/E02R2_R1_INTEGRATION_FORMATTING_DELTA_20261001_BYTE_BINDING_ADDENDUM.md@sha256:6702a36f0fcd74063b2c4eeb0c2683b79b031fe8d0bd4e3c698812bd7158400a`. Complete root readback `/Users/deniskopylov/.codex/scratch/E02R2_R1_ROOT_INTEGRATION_READBACK_20261001_V2.json@sha256:7d46d502d8b7efc16520f3fdf0ff8c8fa4c1ce596dfccf2b78b2b950a5c0965e` checks all twenty-two ASTs and binds sixteen exact candidate postimages, five formatting postimages and one lifecycle composition. Current full-scope Ruff exits 1 with S608 and PT007; both were also present at the immediate pre-integration source. This entry comparison is not the original four-base P41 attribution and does not waive either diagnostic.
+
+Runtime at the integrated postimage is UNRUN. The latest two-file fixture review `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_TYPED_OUTCOME_FIXTURE_DELTA_REVIEW_75658e703_20261001.md@sha256:3f8c91b36fa21a4d6d7318b05aa85160db05c8ffb1711d2bec22eab3ba665d68` permits a controlled synthetic candidate witness; its rewritten proposal's direction is not validated by the numerical arithmetic oracle. No real-data temporal contract, N8/N9/S8 authority, principal ruling, currentness reissue, or B01–B03 closure is claimed. Existing R9/R10 custody mechanisms and the R8 carrier-removal witness remain intact.
+
 ## R8 carrier-removal witness integrated, runtime pending — 2026-10-01
 
 Root integrates the one-file test-only carrier probe after independent static GO: `/Users/deniskopylov/.codex/scratch/E02R2_R8_THREADLOCAL_REMOVAL_INPUT_20261001/R8_CARRIER_REMOVAL_REVIEW.md@sha256:eaf7b280288c08da3f0d0cd09b01adec617aeb7ee56ae7cdb743700ae24e20ef`. Patch `/Users/deniskopylov/.codex/scratch/E02R2_R8_THREADLOCAL_REMOVAL_INPUT_20261001/R8_TEST_LOCAL_THREADLOCAL_MUTATION.patch@sha256:7f7f771353a852cee91ea6162302681c89ffdc777346485ae61ce6079d9c9da2` preserves the seven case identities and all production code. Only the exact test opt-in `POLISYOS_R8_THREAD_LOCAL_FENCE_REMOVAL=1` substitutes the initialized store's ContextVar carrier with thread-local state.

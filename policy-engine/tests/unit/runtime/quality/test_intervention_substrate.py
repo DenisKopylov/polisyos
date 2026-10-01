@@ -61,6 +61,129 @@ FREE_GROW_MECHANISM = "future_child_benefit_transfer"
 FREE_GROW_SLOT = "household_cells.transfer_intensity"
 
 
+def test_candidate_scenario_set_to_gate_recomputes_operator_value_and_write_set() -> None:
+    """The existing L6 owner admits only the exact profile's integer set-to."""
+
+    from polisyos.runtime.quality.candidate_simulation import CandidateScenarioSetToRule
+    from polisyos.runtime.quality.intervention_substrate import (
+        candidate_scenario_set_to_value,
+    )
+
+    rule = CandidateScenarioSetToRule(
+        operator_kind="procurement_shock_intensity",
+        parameter_id="intensity",
+        target_world_slot="cells.distress_score",
+        unit_id="synthetic_score",
+        minimum=0,
+        maximum=1,
+    )
+    assert candidate_scenario_set_to_value(
+        rule,
+        operator_kind="procurement_shock_intensity",
+        parameters={"intensity": 1},
+        linked_write_slots=("cells.distress_score",),
+    ) == 1
+
+    invalid_actions = (
+        ("other_operator", {"intensity": 1}, ("cells.distress_score",)),
+        ("procurement_shock_intensity", {"other": 1}, ("cells.distress_score",)),
+        ("procurement_shock_intensity", {"intensity": True}, ("cells.distress_score",)),
+        ("procurement_shock_intensity", {"intensity": 2}, ("cells.distress_score",)),
+        ("procurement_shock_intensity", {"intensity": 1}, ("cells.output",)),
+    )
+    for operator_kind, parameters, write_slots in invalid_actions:
+        with pytest.raises(InterventionSubstrateError):
+            candidate_scenario_set_to_value(
+                rule,
+                operator_kind=operator_kind,
+                parameters=parameters,
+                linked_write_slots=write_slots,
+            )
+
+
+def test_candidate_scenario_linker_selects_only_the_source_bound_intervention(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """L6 links the selected atom while retaining the complete authored bundle."""
+    from types import SimpleNamespace
+
+    from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+    from polisyos.ir.linker import LinkedIntervention
+    from polisyos.ir.linker.reports import LinkReport
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    selected = InterventionSpec.model_construct(
+        intervention_id="selected_procurement",
+        kind="procurement_shock_intensity",
+        params={"intensity": 1},
+    )
+    unknown_sibling = InterventionSpec.model_construct(
+        intervention_id="unselected_credit_guarantee",
+        kind="not_in_this_candidate_profile",
+        params={"coverage": 0.4},
+    )
+    source = TrinityBundle.model_construct(
+        policy_spec=PolicySpec.model_construct(
+            policy_id="candidate_scenario_source",
+            interventions=[selected, unknown_sibling],
+        )
+    )
+    observed: dict[str, object] = {}
+
+    def link_selected(bundle, _registries, *, allow_extra_params, strict):
+        observed["interventions"] = tuple(
+            item.intervention_id for item in bundle.policy_spec.interventions
+        )
+        observed["flags"] = (allow_extra_params, strict)
+        linked = SimpleNamespace(
+            bindings=SimpleNamespace(
+                interventions=(
+                    LinkedIntervention(
+                        intervention_id="selected_procurement",
+                        mechanism_id="procurement_mechanism",
+                        writes_slots=["cells.distress_score"],
+                        schedule_start=0,
+                        schedule_end=0,
+                    ),
+                )
+            )
+        )
+        return linked, LinkReport(ok=True)
+
+    monkeypatch.setattr(owner, "intervention_generation_registry_bundle", lambda _root: object())
+    monkeypatch.setattr(owner, "link_trinity", link_selected)
+
+    linked, selected_spec_ref = owner._link_candidate_scenario_intervention(
+        source,
+        intervention_id="selected_procurement",
+        repo_root=REPO_ROOT,
+    )
+
+    assert observed == {
+        "interventions": ("selected_procurement",),
+        "flags": (True, True),
+    }
+    assert linked.intervention_id == "selected_procurement"
+    expected_selected_spec = source.policy_spec.model_copy(
+        update={"interventions": [selected]}
+    )
+    assert selected_spec_ref == gy_content_hash(
+        expected_selected_spec.model_dump(mode="json")
+    )
+    assert tuple(item.intervention_id for item in source.policy_spec.interventions) == (
+        "selected_procurement",
+        "unselected_credit_guarantee",
+    )
+    with pytest.raises(InterventionSubstrateError, match="source_membership_ambiguous"):
+        owner._link_candidate_scenario_intervention(
+            source,
+            intervention_id="not_in_source",
+            repo_root=REPO_ROOT,
+        )
+
+
 def test_phase5_n8_default_rejects_every_corrupted_real_route() -> None:
     """The real N8 bridge must consume every real route's target validity."""
     from polisyos.runtime.quality.generation_cycle import _select_value_method

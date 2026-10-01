@@ -6,7 +6,7 @@ import hashlib
 import json
 import time
 import uuid
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from contextlib import AbstractContextManager, contextmanager
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -1032,6 +1032,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
         N4CandidateProposalExecution,
+        N4CandidateScenarioProposalOnlyExecution,
         NormativeEvidenceSubmissionRequest,
         NormativeEvidenceSubmissionResponse,
         NormativeRunDisposition,
@@ -1041,7 +1042,6 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
     )
-    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
     from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -1082,13 +1082,13 @@ if TYPE_CHECKING:
         def admit_context(
             self,
             *,
-            target_world_scope_profile_id: str,
             problem: DesignProblem,
             job_id: str,
             run_id: str,
             tenant_id: str,
             cell_id: str,
-        ) -> CycleSubstrateContext | None: ...
+            target_world_scope_profile_id: str | None = None,
+        ) -> object | None: ...
 
 
 # ---------------------------------------------------------------------------
@@ -2304,11 +2304,16 @@ class ControlPlaneService(
         recursive_budget_resolution: RecursiveBudgetResolution | None = None,
         target_world_scope_profile_id: str | None = None,
         cycle_substrate_context_resolver: Callable[
-            [DesignProblem], CycleSubstrateContext | None
+            [DesignProblem], object | None
         ]
         | None = None,
+        candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
-    ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
+    ) -> (
+        CompiledRecursiveGenerationCycleRun
+        | N4CandidateProposalExecution
+        | N4CandidateScenarioProposalOnlyExecution
+    ):
         """Run the HTTP composition through its container-owned epoch strangle."""
 
         from polisyos.runtime.http.services.control.generation_cycle import (
@@ -2328,6 +2333,9 @@ class ControlPlaneService(
             recursive_budget_resolution=recursive_budget_resolution,
             target_world_scope_profile_id=target_world_scope_profile_id,
             cycle_substrate_context_resolver=cycle_substrate_context_resolver,
+            candidate_simulation_currentness_resolver=(
+                candidate_simulation_currentness_resolver
+            ),
             root_evaluation_context=root_evaluation_context,
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,
@@ -4604,14 +4612,11 @@ class ControlPlaneService(
             ):
                 raise ValueError(failure_code)
             replayed_binding = binding.model_dump(mode="json")
-            profile_id = payload.get("target_world_scope_profile_id")
             if (
                 binding.admission_status == "established"
                 and binding.intent_band == "simulate_only_attempt"
                 and binding.canonical_mode == "simulate_only"
                 and binding.actor_authenticated is True
-                and isinstance(profile_id, str)
-                and profile_id.strip()
                 and isinstance(binding.tenant_id, str)
                 and binding.tenant_id.strip()
                 and isinstance(binding.cell_id, str)
@@ -4706,6 +4711,7 @@ class ControlPlaneService(
         capability_manifest: dict[str, Any] | None = None
         execution_intent_binding: dict[str, Any] | None = None
         cycle_substrate_context_job_ref: str | None = None
+        cycle_substrate_context_job_selected_ref: ArtifactRef | None = None
         try:
             if not job.payload_ref:
                 raise RuntimeError("control job payload ref is missing")
@@ -4952,21 +4958,139 @@ class ControlPlaneService(
                         }
                     )
                     cycle_substrate_context_resolver = None
+                    candidate_simulation_context_binding: dict[str, object] = {}
                     profile_id = payload.get("target_world_scope_profile_id")
                     admission_owner = self._cycle_substrate_context_admission_owner
+                    from polisyos.runtime.quality.cycle_substrate import (
+                        ConfiguredCandidateSimulationContextAdmissionOwner,
+                    )
+
+                    configured_candidate_owner = (
+                        type(admission_owner)
+                        is ConfiguredCandidateSimulationContextAdmissionOwner
+                    )
                     bound_tenant_id = execution_scope.tenant_id
                     bound_cell_id = execution_scope.cell_id
+
+                    def assert_candidate_simulation_currentness() -> bool:
+                        """Recompute the selected profile/context under the live worker lease."""
+
+                        from polisyos.core.artifacts.manifest import (
+                            ArtifactRef,
+                            artifact_ref_identity_key,
+                        )
+                        from polisyos.runtime.quality.candidate_simulation import (
+                            CandidateSimulationContextHandoff,
+                            CandidateSimulationContextOffer,
+                            candidate_simulation_profile_ref,
+                        )
+                        from polisyos.runtime.quality.cycle_substrate import (
+                            ConfiguredCandidateSimulationContextAdmissionOwner,
+                            CycleSubstrateContextArtifactOwner,
+                            CycleSubstrateContextJobArtifact,
+                            VerifiedNLJobScope,
+                            _cycle_job_v1_design_problem_ref,
+                            _cycle_job_v1_profile_selection_ref,
+                        )
+                        from polisyos.runtime.quality.design_problem import DesignProblem
+
+                        binding = candidate_simulation_context_binding
+                        handoff = binding.get("handoff")
+                        context_owner = binding.get("context_owner")
+                        context_ref = binding.get("context_ref")
+                        problem = binding.get("problem")
+                        verified_scope = binding.get("verified_nl_job_scope")
+                        admitted_offer = binding.get("offer")
+                        if (
+                            not configured_candidate_owner
+                            or type(admission_owner)
+                            is not ConfiguredCandidateSimulationContextAdmissionOwner
+                            or type(handoff) is not CandidateSimulationContextHandoff
+                            or type(context_owner) is not CycleSubstrateContextArtifactOwner
+                            or type(context_ref) is not ArtifactRef
+                            or type(problem) is not DesignProblem
+                            or type(verified_scope) is not VerifiedNLJobScope
+                            or not verified_scope._was_issued_by_verified_nl_execution_owner
+                            or type(admitted_offer) is not CandidateSimulationContextOffer
+                        ):
+                            return False
+                        try:
+                            current_context_job = context_owner.resolve_for_current_job(
+                                context_ref,
+                                problem=problem,
+                                verified_nl_job_scope=verified_scope,
+                            )
+                        except ControlJobLeaseLostError:
+                            return False
+                        current_offer = admission_owner.admit_context(
+                            problem=problem,
+                            job_id=str(job.job_id),
+                            run_id=str(job.run_id),
+                            tenant_id=bound_tenant_id,
+                            cell_id=bound_cell_id,
+                        )
+                        if (
+                            type(current_offer) is not CandidateSimulationContextOffer
+                            or type(current_context_job) is not CycleSubstrateContextJobArtifact
+                        ):
+                            return False
+                        expected_problem_ref = _cycle_job_v1_design_problem_ref(problem)
+                        return (
+                            _cycle_job_v1_profile_selection_ref(problem)
+                            == handoff.profile.profile_selection_ref
+                            and current_offer.profile == admitted_offer.profile
+                            and current_offer.profile == handoff.profile
+                            and current_offer.profile_config_ref
+                            == admitted_offer.profile_config_ref
+                            == handoff.profile_config_ref
+                            == candidate_simulation_profile_ref(handoff.profile)
+                            and current_offer.context == admitted_offer.context
+                            and current_offer.context == handoff.context
+                            and current_offer.model_declaration
+                            == admitted_offer.model_declaration
+                            == handoff.model_declaration
+                            and current_offer.model_declaration_ref
+                            == admitted_offer.model_declaration_ref
+                            == handoff.model_declaration_ref
+                            and current_offer.ncm_ref
+                            == admitted_offer.ncm_ref
+                            == handoff.ncm_ref
+                            and current_context_job.design_problem_ref == expected_problem_ref
+                            and current_context_job.problem == problem
+                            and current_context_job.context == current_offer.context
+                            and current_context_job.job_id == handoff.job_id == str(job.job_id)
+                            and current_context_job.run_id == handoff.run_id == str(job.run_id)
+                            and current_context_job.tenant_id
+                            == handoff.tenant_id
+                            == bound_tenant_id
+                            and current_context_job.cell_id == handoff.cell_id == bound_cell_id
+                            and artifact_ref_identity_key(context_ref)
+                            == artifact_ref_identity_key(handoff.context_job_ref)
+                        )
+
+                    # Compilation calls the context resolver only after this
+                    # callback is passed downstream. Prebind one fail-closed
+                    # predicate so every admitted handoff reaches N6 paired.
+                    candidate_simulation_currentness_resolver = (
+                        assert_candidate_simulation_currentness
+                    )
                     if (
                         intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
                         and admission_owner is not None
-                        and isinstance(profile_id, str)
-                        and profile_id.strip()
+                        and (
+                            configured_candidate_owner
+                            or (isinstance(profile_id, str) and profile_id.strip())
+                        )
                         and isinstance(bound_tenant_id, str)
                         and bound_tenant_id.strip()
                         and isinstance(bound_cell_id, str)
                         and bound_cell_id.strip()
                         and job.run_id is not None
                     ):
+                        from polisyos.runtime.quality.candidate_simulation import (
+                            CandidateSimulationContextHandoff,
+                            CandidateSimulationContextOffer,
+                        )
                         from polisyos.runtime.quality.cycle_substrate import (
                             CycleSubstrateContext,
                             CycleSubstrateContextArtifactOwner,
@@ -4986,18 +5110,34 @@ class ControlPlaneService(
 
                         def resolve_cycle_substrate_context(
                             problem: DesignProblem,
-                        ) -> CycleSubstrateContext | None:
+                        ) -> object | None:
                             nonlocal cycle_substrate_context_job_ref
-                            admitted_context = admission_owner.admit_context(
-                                target_world_scope_profile_id=profile_id,
-                                problem=problem,
-                                job_id=job.job_id,
-                                run_id=str(job.run_id),
-                                tenant_id=bound_tenant_id,
-                                cell_id=bound_cell_id,
-                            )
-                            if admitted_context is None:
+                            nonlocal cycle_substrate_context_job_selected_ref
+                            if configured_candidate_owner:
+                                admitted = admission_owner.admit_context(
+                                    problem=problem,
+                                    job_id=job.job_id,
+                                    run_id=str(job.run_id),
+                                    tenant_id=bound_tenant_id,
+                                    cell_id=bound_cell_id,
+                                )
+                            else:
+                                admitted = admission_owner.admit_context(
+                                    target_world_scope_profile_id=profile_id,
+                                    problem=problem,
+                                    job_id=job.job_id,
+                                    run_id=str(job.run_id),
+                                    tenant_id=bound_tenant_id,
+                                    cell_id=bound_cell_id,
+                                )
+                            if admitted is None:
                                 return None
+                            offer = (
+                                admitted
+                                if type(admitted) is CandidateSimulationContextOffer
+                                else None
+                            )
+                            admitted_context = offer.context if offer is not None else admitted
                             if type(admitted_context) is not CycleSubstrateContext:
                                 raise RuntimeError(
                                     "cycle_substrate_context_admission_owner_returned_untyped"
@@ -5021,6 +5161,33 @@ class ControlPlaneService(
                                     "cycle_substrate_context_job_replay_changed_content"
                                 )
                             cycle_substrate_context_job_ref = str(context_ref.artifact_id)
+                            cycle_substrate_context_job_selected_ref = context_ref
+                            if offer is not None:
+                                handoff = CandidateSimulationContextHandoff(
+                                    context=replayed.context,
+                                    context_job_ref=context_ref,
+                                    profile=offer.profile,
+                                    profile_config_ref=offer.profile_config_ref,
+                                    job_id=job.job_id,
+                                    run_id=str(job.run_id),
+                                    tenant_id=bound_tenant_id,
+                                    cell_id=bound_cell_id,
+                                    model_declaration=offer.model_declaration,
+                                    model_declaration_ref=offer.model_declaration_ref,
+                                    ncm_ref=offer.ncm_ref,
+                                )
+
+                                candidate_simulation_context_binding.update(
+                                    {
+                                        "handoff": handoff,
+                                        "context_owner": context_owner,
+                                        "context_ref": context_ref,
+                                        "problem": problem,
+                                        "verified_nl_job_scope": verified_nl_job_scope,
+                                        "offer": offer,
+                                    }
+                                )
+                                return handoff
                             return replayed.context
 
                         cycle_substrate_context_resolver = resolve_cycle_substrate_context
@@ -5031,7 +5198,10 @@ class ControlPlaneService(
                     max_cycles, recursive_budget_resolution = _resolve_http_recursive_budget(
                         payload.get("max_iterations")
                     )
-                    budget_usd = Decimal(str(payload.get("run_budget_usd") or "5"))
+                    raw_budget_usd = payload.get("run_budget_usd")
+                    budget_usd = Decimal(
+                        "5" if raw_budget_usd is None else str(raw_budget_usd)
+                    )
                     compiled = async_tools.run_coro_sync(
                         self.compile_and_run_recursive_generation_cycle(
                             raw_request=str(payload.get("request") or ""),
@@ -5067,6 +5237,9 @@ class ControlPlaneService(
                                 else None
                             ),
                             cycle_substrate_context_resolver=cycle_substrate_context_resolver,
+                            candidate_simulation_currentness_resolver=(
+                                candidate_simulation_currentness_resolver
+                            ),
                             root_evaluation_context=(
                                 evaluation_safety.execution_context
                                 if evaluation_safety is not None
@@ -5078,7 +5251,182 @@ class ControlPlaneService(
                     )
                     from polisyos.runtime.http.services.control.generation_cycle import (
                         N4CandidateProposalExecution,
+                        N4CandidateScenarioProposalOnlyExecution,
                     )
+
+                    if isinstance(compiled, N4CandidateScenarioProposalOnlyExecution):
+                        from polisyos.runtime.quality.generation_source import (
+                            GenerationSourceRepository,
+                            N4CandidateScenarioSourceLocator,
+                            N4CandidateScenarioSourceRecordV1,
+                            N4CandidateScenarioSourceRecordV2,
+                        )
+
+                        run_id = str(job.run_id or "")
+                        source = None
+                        locator = None
+                        source_ref = compiled.source_ref
+                        currentness_status = "not_established"
+                        limitation_code = compiled.limitation_code
+                        if source_ref is not None:
+                            if (
+                                execution_scope.tenant_id is None
+                                or execution_scope.cell_id is None
+                                or candidate_simulation_currentness_resolver is None
+                            ):
+                                currentness_status = "not_established"
+                                limitation_code = (
+                                    "candidate_scenario_worker_lease_not_current"
+                                )
+                            else:
+                                locator = N4CandidateScenarioSourceLocator(
+                                    artifact_ref=source_ref
+                                )
+                                loaded = GenerationSourceRepository(
+                                    self._artifact_store
+                                ).load_candidate_proposal_projection_for_served_job(
+                                    locator,
+                                    job_id=job.job_id,
+                                    run_id=run_id,
+                                    tenant_id=execution_scope.tenant_id,
+                                    cell_id=execution_scope.cell_id,
+                                    raw_request=str(payload.get("request") or ""),
+                                    expected_design_problem=compiled.design_problem,
+                                )
+                                if type(loaded) not in {
+                                    N4CandidateScenarioSourceRecordV1,
+                                    N4CandidateScenarioSourceRecordV2,
+                                }:
+                                    raise RuntimeError(
+                                        "n4_candidate_scenario_projection_owner_mismatch"
+                                    )
+                                source = loaded
+                                current = (
+                                    candidate_simulation_currentness_resolver() is True
+                                )
+                                currentness_status = "current" if current else "not_current"
+                                if current:
+                                    limitation_code = (
+                                        source.candidate_limitation_code
+                                        or compiled.limitation_code
+                                    )
+                                else:
+                                    limitation_code = (
+                                        "candidate_scenario_worker_lease_not_current"
+                                    )
+                        else:
+                            currentness_status = "not_established"
+                            limitation_code = (
+                                "candidate_scenario_source_persistence_not_established"
+                            )
+
+                        proposal_limiter = (
+                            source.candidate_limitation_code
+                            if source is not None
+                            else compiled.limitation_code
+                        )
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": (
+                                "candidate_limited"
+                                if source is not None
+                                and currentness_status == "current"
+                                else "not_established"
+                            ),
+                            "execution_band": "candidate",
+                            "candidate_computation_status": (
+                                "completed"
+                                if source is not None
+                                and currentness_status == "current"
+                                else "not_established"
+                            ),
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": (
+                                execution_intent_limitation
+                            ),
+                            "limitation_code": limitation_code,
+                            "candidate_proposal_limitation_code": proposal_limiter,
+                            "candidate_context_currentness_status": currentness_status,
+                            "proposal_persistence_status": (
+                                "persisted" if source_ref is not None else "not_established"
+                            ),
+                            "stage": "n4_proposal_only",
+                            "n4_status": (
+                                "candidate_limited" if source is not None else "not_established"
+                            ),
+                            "run_id": run_id,
+                            "candidate_proposal_ref": (
+                                locator.model_dump(mode="json")
+                                if locator is not None
+                                else None
+                            ),
+                            "simulation_status": "not_run",
+                            "simulation_limitation_code": proposal_limiter,
+                            "n5_status": "not_run",
+                            "n8_status": "not_run",
+                            "n9_status": "not_admitted",
+                            "s8_status": "blocked",
+                        }
+                        artifact_refs = [str(capability_manifest_ref)]
+                        if source_ref is not None:
+                            artifact_refs.append(str(source_ref.artifact_id))
+                        diagnostic_emission = self._emit_runtime_diagnostic_event(
+                            execution_scope=execution_scope,
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "capability_manifest_ref": str(capability_manifest_ref),
+                                "candidate_proposal_ref": progress[
+                                    "candidate_proposal_ref"
+                                ],
+                                "execution_band": "candidate",
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": (
+                                    execution_intent_limitation
+                                ),
+                                "limitation_code": limitation_code,
+                                "downstream_stages": {
+                                    "n5": "not_run",
+                                    "n8": "not_run",
+                                    "n9": "not_admitted",
+                                    "s8": "blocked",
+                                },
+                            },
+                            artifact_refs=artifact_refs,
+                        )
+                        progress["runtime_diagnostic_event_status"] = (
+                            diagnostic_emission.status
+                        )
+                        progress["diagnostic_event_scope_status"] = (
+                            diagnostic_emission.scope_status
+                        )
+                        if diagnostic_emission.event_id is not None:
+                            progress["diagnostic_event_ids"] = [
+                                diagnostic_emission.event_id
+                            ]
+                        if diagnostic_emission.limitation_code is not None:
+                            progress["runtime_diagnostic_event_limitation_code"] = (
+                                diagnostic_emission.limitation_code
+                            )
+                        progress = _n4_proposal_progress_with_budget(
+                            progress,
+                            recursive_budget_resolution.model_dump(mode="json"),
+                        )
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        return
 
                     if isinstance(compiled, N4CandidateProposalExecution):
                         from polisyos.runtime.quality.design_generation import (
@@ -5472,9 +5820,17 @@ class ControlPlaneService(
                                 {
                                     "cycle_substrate_context_job_ref": (
                                         cycle_substrate_context_job_ref
-                                    )
+                                    ),
+                                    "cycle_substrate_context_job_selected_ref": (
+                                        cycle_substrate_context_job_selected_ref.model_dump(
+                                            mode="json"
+                                        )
+                                    ),
                                 }
-                                if cycle_substrate_context_job_ref is not None
+                                if (
+                                    cycle_substrate_context_job_ref is not None
+                                    and cycle_substrate_context_job_selected_ref is not None
+                                )
                                 else {}
                             ),
                         }

@@ -94,6 +94,12 @@ from polisyos.scientist.agent.protocols import (  # noqa: TC001 - Pydantic resol
 )
 
 if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+        ConfidenceLayerVintage,
+    )
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationScenarioProfile,
+    )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
@@ -239,6 +245,38 @@ class N4CandidateProposalSource(_StrictModel):
         if self.critique.metadata.get("generator_path") != self.critic_path:
             raise ValueError("n4_candidate_proposal_critic_path_mismatch")
         return self
+
+
+class N4CandidateScenarioProposalCandidate(_StrictModel):
+    """One ungrounded N4 proposal atom admitted only to a configured N5 route."""
+
+    candidate_id: str = Field(..., pattern=r"^candidate_[a-f0-9]{16}$")
+    status: Literal["candidate_unverified"] = "candidate_unverified"
+    intervention_id: str = Field(..., min_length=1, strict=True)
+    atom: InterventionAtomBinding
+
+    @model_validator(mode="after")
+    def _candidate_atom_stays_unverified(self) -> N4CandidateScenarioProposalCandidate:
+        if self.atom.status != "candidate_unverified":
+            raise ValueError("n4_candidate_scenario_atom_not_candidate")
+        return self
+
+
+@dataclass(frozen=True)
+class N4CandidateScenarioProposalRun:
+    """Ephemeral proposal plus typed L2 limitation for the served candidate lane."""
+
+    proposal: N4CandidateProposalSource
+    l2_confidence_vintage: ConfidenceLayerVintage | None
+    k_ref_limitation_code: str
+
+
+@dataclass
+class _N4CandidateScenarioReferenceCapture:
+    """Local capture of the existing K_ref owner's typed refusal, never its message."""
+
+    l2_confidence_vintage: ConfidenceLayerVintage | None = None
+    k_ref_limitation_code: str = "candidate_scenario_l2_not_consumed"
 
 
 class GenerationCandidateProvenance(_StrictModel):
@@ -983,6 +1021,239 @@ async def generate_design_candidate_proposal_under_a(
     )
 
 
+async def generate_design_candidate_scenario_proposal_under_a(
+    design_problem: DesignProblem,
+    *,
+    model_id: str,
+    llm_client: object | None = None,
+    repo_root: Path | None = None,
+    data_context: dict[str, Any] | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
+) -> N4CandidateScenarioProposalRun | DesignGenerationOrganRun:
+    """Run the same N4 organs while keeping the candidate lane's L2 limit typed.
+
+    This wrapper does not forward a credal reference. It captures only the
+    existing SKG vintage declaration when the K_ref owner returns that exact
+    typed refusal; other K_ref failures remain a generic not-established limit.
+    """
+
+    capture = _N4CandidateScenarioReferenceCapture()
+    result = await _run_design_generation_under_a(
+        design_problem,
+        model_id=model_id,
+        llm_client=llm_client,
+        repo_root=repo_root,
+        min_diverse_candidates=3,
+        data_context=data_context,
+        world_model_record_ref=None,
+        cycle_substrate_context=cycle_substrate_context,
+        grounding_run_budget=None,
+        candidate_proposal_only=True,
+        candidate_scenario_reference_capture=capture,
+    )
+    if not isinstance(result, N4CandidateProposalSource):
+        return result
+    return N4CandidateScenarioProposalRun(
+        proposal=result,
+        l2_confidence_vintage=capture.l2_confidence_vintage,
+        k_ref_limitation_code=capture.k_ref_limitation_code,
+    )
+
+
+def _recognized_confidence_layer_vintage(
+    error: BaseException,
+) -> ConfidenceLayerVintage | None:
+    """Return only the existing SKG owner's exact registered vintage declaration."""
+
+    try:
+        payload = json.loads(str(error))
+        declared = payload.get("confidence_layer_vintage")
+        if not isinstance(declared, dict):
+            return None
+        from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+            ConfidenceLayerVintage,
+            _confidence_layer_vintage_for_sha256,
+        )
+
+        vintage = ConfidenceLayerVintage(**declared)
+        owner_vintage = _confidence_layer_vintage_for_sha256(vintage.snapshot_sha256)
+        if owner_vintage is None or owner_vintage.to_payload() != declared:
+            return None
+        return owner_vintage
+    except (ImportError, TypeError, ValueError, json.JSONDecodeError):
+        return None
+
+
+def build_candidate_scenario_proposal_candidate(
+    proposal: N4CandidateProposalSource,
+    *,
+    problem: DesignProblem,
+    profile: CandidateSimulationScenarioProfile,
+    context: CycleSubstrateContext,
+    repo_root: Path,
+) -> N4CandidateScenarioProposalCandidate | None:
+    """Bind one exact profile-shaped proposal intervention to the existing atom owner.
+
+    A nonmatching proposal remains a proposal; it is not rewritten to fit the
+    profile. The returned atom is candidate-only and contains no CGF claim.
+    """
+
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationScenarioProfile,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        _cycle_job_v1_design_problem_ref,
+        _cycle_job_v1_profile_selection_ref,
+        revalidate_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem as DesignProblemModel
+    from polisyos.runtime.quality.intervention_substrate import (
+        _link_candidate_scenario_intervention,
+        candidate_scenario_set_to_value,
+    )
+
+    if type(proposal) is not N4CandidateProposalSource:
+        raise DesignGenerationError("n4_candidate_scenario_proposal_untyped")
+    if type(problem) is not DesignProblemModel:
+        raise DesignGenerationError("n4_candidate_scenario_problem_untyped")
+    if type(profile) is not CandidateSimulationScenarioProfile:
+        raise DesignGenerationError("n4_candidate_scenario_profile_untyped")
+    if proposal.design_problem_ref != gy_content_hash(problem.model_dump(mode="json")):
+        raise DesignGenerationError("n4_candidate_scenario_proposal_problem_mismatch")
+    if proposal.trinity_bundle is None:
+        raise DesignGenerationError("n4_candidate_scenario_trinity_missing")
+
+    verified_context = revalidate_cycle_substrate_context(context)
+    if verified_context.design_problem_ref != _cycle_job_v1_design_problem_ref(problem):
+        raise DesignGenerationError("n4_candidate_scenario_context_problem_mismatch")
+    if profile.profile_selection_ref != _cycle_job_v1_profile_selection_ref(problem):
+        return None
+    if profile.context_inputs.intervention_substrate is None:
+        return None
+    if (
+        verified_context.intervention_substrate is None
+        or verified_context.intervention_substrate.content_hash
+        != profile.context_inputs.intervention_substrate.content_hash
+    ):
+        return None
+
+    rule = profile.rule
+    matches: list[tuple[InterventionSpec, LinkedIntervention, int, str]] = []
+    world = verified_context.world_model_record
+    for intervention in proposal.trinity_bundle.policy_spec.interventions:
+        if intervention.kind != rule.operator_kind:
+            continue
+        try:
+            linked, selected_policy_spec_ref = _link_candidate_scenario_intervention(
+                proposal.trinity_bundle,
+                intervention_id=intervention.intervention_id,
+                repo_root=repo_root,
+            )
+        except InterventionSubstrateError:
+            continue
+        try:
+            value = candidate_scenario_set_to_value(
+                rule,
+                operator_kind=intervention.kind,
+                parameters=intervention.params,
+                linked_write_slots=linked.writes_slots,
+            )
+        except InterventionSubstrateError:
+            continue
+        if intervention.target is None:
+            continue
+        slot = world.slot_binding(rule.target_world_slot)
+        if (
+            linked.writes_slots != [rule.target_world_slot]
+            or slot is None
+            or not slot.state_path
+            or slot.unit != rule.unit_id
+        ):
+            continue
+        matches.append((intervention, linked, value, selected_policy_spec_ref))
+    if len(matches) != 1:
+        return None
+
+    intervention, linked, value, policy_spec_ref = matches[0]
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        build_intervention_atom_binding,
+        intervention_atom_target_selector_ref,
+    )
+
+    bundle_ref = gy_content_hash(proposal.trinity_bundle.model_dump(mode="json"))
+    target_slots = tuple(linked.writes_slots)
+    causal = NodeIntervention(
+        assignments=tuple(
+            VariableAssignment(
+                variable=slot_id,
+                value_expr=_slot_value_expr(intervention.kind, intervention.params, slot_id),
+            )
+            for slot_id in target_slots
+        )
+    )
+    query_target = QueryTarget(
+        outcome_variables=(problem.outcome_of_interest.target_variable,),
+        conditioning=(),
+        functional=problem.outcome_of_interest.estimand,
+    )
+    selector_ref = intervention_atom_target_selector_ref(intervention)
+    scenario_context = InterventionContext(
+        source_domain=f"{problem.design_problem_id}:candidate",
+        target_domain=problem.jurisdiction_time.region,
+        selection_diagram_ref=selector_ref,
+        available_data_refs=(
+            (problem.model_spec_ref,) if problem.model_spec_ref is not None else ()
+        ),
+        assumptions=(
+            "n4_proposal_candidate_only",
+            "l2_confidence_not_consumed",
+            "grounding_not_established",
+            f"candidate_scenario_profile:{candidate_simulation_profile_ref(profile)}",
+        ),
+    )
+    atom = build_intervention_atom_binding(
+        problem_frame_ref=proposal.design_problem_ref,
+        policy_spec_ref=policy_spec_ref,
+        intervention=intervention,
+        linked_intervention=linked,
+        causal_intervention=causal,
+        query_target=query_target,
+        identification_plan=identification_plan_for_intervention(causal),
+        causal_context=scenario_context,
+        world_model_record_ref=world.world_model_record_id,
+        producer_ref=f"{DESIGN_GENERATION_PRODUCER_REF}.candidate_scenario_proposal",
+        provenance_refs=(
+            bundle_ref,
+            gy_content_hash(proposal.model_dump(mode="json")),
+            profile.content_hash,
+            verified_context.content_hash,
+        ),
+        operator_proof_type_map={intervention.kind: "node"},
+        mechanism_variable_map={intervention.kind: target_slots},
+        estimand_metric_id=problem.outcome_of_interest.metric_id,
+        target_population=problem.jurisdiction_time.region,
+        status="candidate_unverified",
+    )
+    resolve_intervention_atom_world_binding(atom, world)
+    if type(value) is not int:
+        raise DesignGenerationError("n4_candidate_scenario_value_not_strict_integer")
+    identity = gy_content_hash(
+        {
+            "proposal": proposal.design_problem_ref,
+            "trinity_bundle": bundle_ref,
+            "intervention_id": intervention.intervention_id,
+            "profile": profile.content_hash,
+            "atom": atom.content_hash,
+        }
+    )
+    return N4CandidateScenarioProposalCandidate(
+        candidate_id=f"candidate_{identity.removeprefix('sha256:')[:16]}",
+        intervention_id=intervention.intervention_id,
+        atom=atom,
+    )
+
+
 async def _run_design_generation_under_a(
     design_problem: DesignProblem,
     *,
@@ -995,6 +1266,7 @@ async def _run_design_generation_under_a(
     cycle_substrate_context: CycleSubstrateContext | None,
     grounding_run_budget: GroundingRunBudget | None,
     candidate_proposal_only: bool,
+    candidate_scenario_reference_capture: _N4CandidateScenarioReferenceCapture | None = None,
 ) -> DesignGenerationOrganRun | N4CandidateProposalSource:
     """Own one gateway client while selecting the canonical N4 output boundary."""
 
@@ -1020,6 +1292,7 @@ async def _run_design_generation_under_a(
             cycle_substrate_context=cycle_substrate_context,
             grounding_run_budget=grounding_run_budget,
             candidate_proposal_only=candidate_proposal_only,
+            candidate_scenario_reference_capture=candidate_scenario_reference_capture,
         )
         if isinstance(organ_run, DesignGenerationOrganRun):
             return replace(
@@ -1056,6 +1329,7 @@ async def _generate_design_candidate_bundle_under_a(
     cycle_substrate_context: CycleSubstrateContext | None,
     grounding_run_budget: GroundingRunBudget | None = None,
     candidate_proposal_only: bool = False,
+    candidate_scenario_reference_capture: _N4CandidateScenarioReferenceCapture | None = None,
 ) -> DesignGenerationOrganRun | N4CandidateProposalSource:
     """Execute N4 with an already resolved caller- or owner-supplied client."""
 
@@ -1101,6 +1375,10 @@ async def _generate_design_candidate_bundle_under_a(
             status="unavailable",
             failure_reason="target_world_scope_not_established",
         )
+        if candidate_scenario_reference_capture is not None:
+            candidate_scenario_reference_capture.k_ref_limitation_code = (
+                "candidate_scenario_l2_not_consumed"
+            )
     else:
         try:
             reference = build_credal_reference(
@@ -1116,7 +1394,19 @@ async def _generate_design_candidate_bundle_under_a(
                 status="unavailable",
                 failure_reason=f"credal_reference_unavailable:{type(exc).__name__}",
             )
+            if candidate_scenario_reference_capture is not None:
+                vintage = _recognized_confidence_layer_vintage(exc)
+                candidate_scenario_reference_capture.l2_confidence_vintage = vintage
+                candidate_scenario_reference_capture.k_ref_limitation_code = (
+                    "historical_l2_confidence_withheld"
+                    if vintage is not None
+                    else "full_credal_reference_not_established"
+                )
         else:
+            if candidate_scenario_reference_capture is not None:
+                candidate_scenario_reference_capture.k_ref_limitation_code = (
+                    "full_credal_reference_not_consumed"
+                )
             lever_space_prompt_slice = derive_lever_space_prompt_slice(
                 design_problem,
                 repo_root=repo_root,
@@ -2671,7 +2961,17 @@ def _content_bound_candidates(
             "world_model_record_ref_pending",
             str(resolved_world_model_record_ref),
         )
-    reference = reference or build_credal_reference(repo_root)
+    if reference is None:
+        try:
+            reference = build_credal_reference(
+                repo_root,
+                world_model_record=world_record,
+            )
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise DesignGenerationError(
+                "credal_reference_unavailable",
+                type(exc).__name__,
+            ) from exc
     relation_engine = relation_engine or GroundingRelationEngine(reference)
     bind_gate = GroundingBindGate(reference, run_budget=grounding_run_budget)
     if source_capture is not None:
@@ -4293,14 +4593,18 @@ __all__ = [
     "LLMGenerationCall",
     "ModelProfilePreflight",
     "N4CandidateProposalSource",
+    "N4CandidateScenarioProposalCandidate",
+    "N4CandidateScenarioProposalRun",
     "RecordingLLMClient",
     "ShadowGeneratedCandidate",
     "SurrogateRanking",
+    "build_candidate_scenario_proposal_candidate",
     "default_firewall_evidence",
     "design_generation_strangle_receipts",
     "firewall_issues_for_result",
     "generate_design_candidate_bundle_under_a",
     "generate_design_candidate_proposal_under_a",
+    "generate_design_candidate_scenario_proposal_under_a",
     "generate_design_candidates_under_a",
     "measure_generation_diversity",
     "preflight_model_profile",

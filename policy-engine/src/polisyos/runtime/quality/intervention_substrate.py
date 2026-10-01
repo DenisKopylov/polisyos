@@ -31,7 +31,7 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core import artifacts  # noqa: TC001 - Pydantic resolves these fields at runtime.
+from polisyos.core import artifacts
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.foundry import (
     LegalCorrespondenceRequest,
@@ -86,7 +86,21 @@ from polisyos.runtime.quality.world_model_record import (
 
 if TYPE_CHECKING:
     from polisyos.foundry import MethodRouteConstraint
+    from polisyos.ir.linker import LinkedIntervention
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioMaterializationV3,
+        CandidateScenarioMaterializationV4,
+        CandidateSimulationScenarioProfile,
+    )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.design_generation import (
+        N4CandidateScenarioProposalCandidate,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generation_source import (
+        N4CandidateScenarioSourceRecordV1,
+        N4CandidateScenarioSourceRecordV2,
+    )
 
 INTERVENTION_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.intervention_substrate_lift.v2"
 LAW_LEVER_RESOLUTION_SCHEMA_VERSION = "policyos.runtime.intervention_substrate_lift.v3"
@@ -477,6 +491,487 @@ def verify_intervention_substrate_bundle_content_hash(
     payload = bundle.model_dump(mode="python")
     _assert_intervention_substrate_bundle_content_hash(payload)
     return InterventionSubstrateBundle.model_validate(payload)
+
+
+def candidate_scenario_set_to_value(
+    rule: object,
+    *,
+    operator_kind: str,
+    parameters: Mapping[str, object],
+    linked_write_slots: Sequence[str],
+) -> int:
+    """Recompute the exact one-slot integer set-to admitted by an L6 profile.
+
+    The gate turns on the profile's operator, parameter identity, integer
+    domain, and the linker's complete write set. It does not interpret labels
+    or infer a missing scope.
+    """
+
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioSetToRule,
+    )
+
+    if type(rule) is not CandidateScenarioSetToRule:
+        raise InterventionSubstrateError("candidate_scenario_set_to_rule_untyped")
+    if operator_kind != rule.operator_kind:
+        raise InterventionSubstrateError("candidate_scenario_operator_mismatch")
+    if set(parameters) != {rule.parameter_id}:
+        raise InterventionSubstrateError("candidate_scenario_parameter_set_mismatch")
+    value = parameters[rule.parameter_id]
+    if type(value) is not int:
+        raise InterventionSubstrateError("candidate_scenario_value_not_strict_integer")
+    if value < rule.minimum or value > rule.maximum:
+        raise InterventionSubstrateError("candidate_scenario_value_outside_profile_domain")
+    if tuple(linked_write_slots) != (rule.target_world_slot,):
+        raise InterventionSubstrateError("candidate_scenario_linker_write_set_mismatch")
+    return value
+
+
+def _link_candidate_scenario_intervention(
+    trinity_bundle: TrinityBundle,
+    *,
+    intervention_id: str,
+    repo_root: str | Path,
+) -> tuple[LinkedIntervention, str]:
+    """Link one source-bound candidate action through the existing L6 registry.
+
+    The full source bundle is retained by its owner. This function creates a
+    deterministic link view containing only the exact intervention selected
+    from that source, so an unresolved sibling remains unknown without
+    blocking candidate-only evaluation of the selected action.
+    """
+
+    if type(trinity_bundle) is not TrinityBundle:
+        raise InterventionSubstrateError("candidate_scenario_trinity_source_untyped")
+    if not intervention_id:
+        raise InterventionSubstrateError("candidate_scenario_intervention_id_missing")
+    source_matches = tuple(
+        item
+        for item in trinity_bundle.policy_spec.interventions
+        if item.intervention_id == intervention_id
+    )
+    if len(source_matches) != 1:
+        raise InterventionSubstrateError(
+            "candidate_scenario_intervention_source_membership_ambiguous"
+        )
+
+    selected_policy_spec = trinity_bundle.policy_spec.model_copy(
+        update={"interventions": [source_matches[0]]}
+    )
+    selected_bundle = trinity_bundle.model_copy(
+        update={"policy_spec": selected_policy_spec}
+    )
+    linked_bundle, link_report = link_trinity(
+        selected_bundle,
+        intervention_generation_registry_bundle(repo_root),
+        allow_extra_params=True,
+        strict=True,
+    )
+    if not link_report.ok:
+        raise InterventionSubstrateError(
+            "candidate_scenario_selected_intervention_not_linked"
+        )
+    linked_rows = tuple(linked_bundle.bindings.interventions)
+    if (
+        len(linked_rows) != 1
+        or linked_rows[0].intervention_id != intervention_id
+    ):
+        raise InterventionSubstrateError(
+            "candidate_scenario_selected_intervention_link_ambiguous"
+        )
+    return (
+        linked_rows[0],
+        gy_content_hash(selected_policy_spec.model_dump(mode="json")),
+    )
+
+
+def materialize_candidate_scenario_action(
+    bundle: InterventionSubstrateBundle,
+    *,
+    profile: object,
+    candidate: object,
+    intervention: InterventionSpec,
+    linked_intervention: object,
+    problem: object,
+    context: object,
+    context_job_ref: str,
+    source_handoff_ref: str,
+    source_handoff: object,
+) -> object:
+    """Materialize one explicitly configured integer action for candidate N5.
+
+    This is a purpose-limited projection through the existing L6 owner. It
+    does not rewrite the bundle, confer legal meaning, or alter the original
+    N4 atom/source record.
+    """
+
+    from polisyos.ir.linker import LinkedIntervention
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioMaterializationV1,
+        CandidateSimulationScenarioProfile,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContext,
+        _cycle_job_v1_design_problem_ref,
+        _cycle_job_v1_profile_selection_ref,
+        revalidate_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.design_generation import (
+        ShadowGeneratedCandidate,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generation_source import GenerationSourceHandoff
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        derive_candidate_scenario_atom,
+    )
+    from polisyos.runtime.quality.world_model_record import WorldModelRecord
+
+    if type(profile) is not CandidateSimulationScenarioProfile:
+        raise InterventionSubstrateError("candidate_scenario_profile_untyped")
+    if type(candidate) is not ShadowGeneratedCandidate:
+        raise InterventionSubstrateError("candidate_scenario_candidate_untyped")
+    if type(source_handoff) is not GenerationSourceHandoff:
+        raise InterventionSubstrateError("candidate_scenario_source_handoff_untyped")
+    if type(context) is not CycleSubstrateContext:
+        raise InterventionSubstrateError("candidate_scenario_context_untyped")
+    if type(linked_intervention) is not LinkedIntervention:
+        raise InterventionSubstrateError("candidate_scenario_linked_intervention_untyped")
+    if type(problem) is not DesignProblem:
+        raise InterventionSubstrateError("candidate_scenario_problem_untyped")
+
+    verified_bundle = verify_intervention_substrate_bundle_content_hash(bundle)
+    verified_context = revalidate_cycle_substrate_context(context)
+    if profile.profile_selection_ref != _cycle_job_v1_profile_selection_ref(problem):
+        raise InterventionSubstrateError("candidate_scenario_profile_selection_ref_mismatch")
+    problem_ref = _cycle_job_v1_design_problem_ref(problem)
+    if verified_context.design_problem_ref != problem_ref:
+        raise InterventionSubstrateError("candidate_scenario_context_problem_mismatch")
+    if verified_context.intervention_substrate is None:
+        raise InterventionSubstrateError("candidate_scenario_l6_bundle_missing")
+    if verified_context.intervention_substrate.content_hash != verified_bundle.content_hash:
+        raise InterventionSubstrateError("candidate_scenario_l6_bundle_context_mismatch")
+    if source_handoff.problem != problem:
+        raise InterventionSubstrateError("candidate_scenario_source_problem_mismatch")
+    source_candidates = {
+        item.candidate_id: item for item in source_handoff.generation_result.candidates
+    }
+    source_candidate = source_candidates.get(candidate.candidate_id)
+    if source_candidate is None or source_candidate != candidate:
+        raise InterventionSubstrateError("candidate_scenario_candidate_not_in_n4_source")
+    candidate_source_matches = tuple(
+        item
+        for item in source_handoff.candidate_sources
+        if item.candidate_id == candidate.candidate_id
+        and item.intervention_id == intervention.intervention_id
+    )
+    if len(candidate_source_matches) != 1:
+        raise InterventionSubstrateError("candidate_scenario_intervention_not_in_n4_source")
+    if candidate.atom.status != "candidate_unverified":
+        raise InterventionSubstrateError("candidate_scenario_atom_not_candidate")
+    if intervention.intervention_id != linked_intervention.intervention_id:
+        raise InterventionSubstrateError("candidate_scenario_linked_intervention_mismatch")
+    rule = profile.rule
+    if rule.operator_kind != candidate.atom.operator_kind.trinity_kind:
+        raise InterventionSubstrateError("candidate_scenario_operator_mismatch")
+    value = candidate_scenario_set_to_value(
+        rule,
+        operator_kind=intervention.kind,
+        parameters=intervention.params,
+        linked_write_slots=linked_intervention.writes_slots,
+    )
+    if candidate.atom.target_world_slots != (rule.target_world_slot,):
+        raise InterventionSubstrateError("candidate_scenario_atom_target_slot_mismatch")
+    if candidate.atom.causal_do_expr.write_variables != (rule.target_world_slot,):
+        raise InterventionSubstrateError("candidate_scenario_atom_write_set_mismatch")
+    world = verified_context.world_model_record
+    if type(world) is not WorldModelRecord:
+        raise InterventionSubstrateError("candidate_scenario_world_model_untyped")
+    slot = world.slot_binding(rule.target_world_slot)
+    if slot is None or not slot.state_path:
+        raise InterventionSubstrateError("candidate_scenario_world_slot_unresolved")
+    if slot.unit is None or slot.unit != rule.unit_id:
+        raise InterventionSubstrateError("candidate_scenario_world_slot_unit_mismatch")
+    try:
+        derived_atom = derive_candidate_scenario_atom(
+            candidate.atom,
+            target_world_slot=rule.target_world_slot,
+            value=value,
+        )
+    except (TypeError, ValueError) as exc:
+        code = str(getattr(exc, "code", None) or "candidate_scenario_atom_derivation_failed")
+        raise InterventionSubstrateError(code, str(exc)) from exc
+
+    payload = {
+        "schema_version": "policyos.runtime.candidate_scenario.materialization.v1",
+        "profile_hash": profile.content_hash,
+        "problem_ref": problem_ref,
+        "context_hash": verified_context.content_hash,
+        "context_job_ref": context_job_ref,
+        "world_model_record_hash": world.content_hash,
+        "source_handoff_ref": source_handoff_ref,
+        "candidate_id": candidate.candidate_id,
+        "original_candidate_hash": candidate.provenance.content_hash,
+        "original_atom_hash": candidate.atom.content_hash,
+        "operator_kind": rule.operator_kind,
+        "parameter_id": rule.parameter_id,
+        "value": value,
+        "target_world_slot": rule.target_world_slot,
+        "unit_id": rule.unit_id,
+        "derived_n5_atom": derived_atom,
+    }
+    return CandidateScenarioMaterializationV1.model_validate(
+        {
+            **payload,
+            "content_hash": gy_content_hash(
+                CandidateScenarioMaterializationV1.model_construct(
+                    **payload,
+                    content_hash="sha256:" + "0" * 64,
+                ).model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+
+
+def materialize_candidate_scenario_proposal_action(
+    bundle: InterventionSubstrateBundle,
+    *,
+    source_record: N4CandidateScenarioSourceRecordV1 | N4CandidateScenarioSourceRecordV2,
+    source_ref: artifacts.ArtifactRef,
+    profile: CandidateSimulationScenarioProfile,
+    candidate: N4CandidateScenarioProposalCandidate,
+    intervention: InterventionSpec,
+    linked_intervention: LinkedIntervention,
+    problem: DesignProblem,
+    context: CycleSubstrateContext,
+    context_job_ref: artifacts.ArtifactRef,
+) -> CandidateScenarioMaterializationV3 | CandidateScenarioMaterializationV4:
+    """Materialize one exact proposal atom through the existing L6 owner."""
+
+    from polisyos.ir.linker import LinkedIntervention
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioMaterializationV3,
+        CandidateScenarioMaterializationV4,
+        CandidateSimulationScenarioProfile,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContext,
+        _cycle_job_v1_design_problem_ref,
+        _cycle_job_v1_profile_selection_ref,
+        revalidate_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.design_generation import (
+        N4CandidateScenarioProposalCandidate,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generation_source import (
+        N4CandidateScenarioSourceRecordV1,
+        N4CandidateScenarioSourceRecordV2,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        derive_candidate_scenario_atom,
+    )
+    from polisyos.runtime.quality.world_model_record import (
+        WorldModelRecord,
+        resolve_intervention_atom_world_binding,
+    )
+
+    source_v1 = (
+        source_record
+        if type(source_record) is N4CandidateScenarioSourceRecordV1
+        else source_record.source_record
+        if type(source_record) is N4CandidateScenarioSourceRecordV2
+        else None
+    )
+    if source_v1 is None:
+        raise InterventionSubstrateError("candidate_scenario_source_record_untyped")
+    if type(profile) is not CandidateSimulationScenarioProfile:
+        raise InterventionSubstrateError("candidate_scenario_profile_untyped")
+    if type(candidate) is not N4CandidateScenarioProposalCandidate:
+        raise InterventionSubstrateError("candidate_scenario_proposal_candidate_untyped")
+    if type(context) is not CycleSubstrateContext:
+        raise InterventionSubstrateError("candidate_scenario_context_untyped")
+    if type(linked_intervention) is not LinkedIntervention:
+        raise InterventionSubstrateError("candidate_scenario_linked_intervention_untyped")
+    if type(problem) is not DesignProblem:
+        raise InterventionSubstrateError("candidate_scenario_problem_untyped")
+    if not isinstance(source_ref, artifacts.ArtifactRef) or not isinstance(
+        context_job_ref, artifacts.ArtifactRef
+    ):
+        raise InterventionSubstrateError("candidate_scenario_selected_refs_required")
+
+    verified_bundle = verify_intervention_substrate_bundle_content_hash(bundle)
+    verified_context = revalidate_cycle_substrate_context(context)
+    if (
+        profile != source_v1.profile
+        or profile.content_hash != source_v1.profile.content_hash
+    ):
+        raise InterventionSubstrateError("candidate_scenario_source_profile_mismatch")
+    if source_v1.context_job_ref != context_job_ref:
+        raise InterventionSubstrateError("candidate_scenario_context_job_view_mismatch")
+    if source_v1.problem != problem or source_v1.proposal.design_problem_ref != (
+        gy_content_hash(problem.model_dump(mode="json"))
+    ):
+        raise InterventionSubstrateError("candidate_scenario_source_problem_mismatch")
+    if (
+        source_v1.profile_config_ref != candidate_simulation_profile_ref(profile)
+        or profile.profile_selection_ref != _cycle_job_v1_profile_selection_ref(problem)
+    ):
+        raise InterventionSubstrateError("candidate_scenario_profile_selection_ref_mismatch")
+    problem_ref = _cycle_job_v1_design_problem_ref(problem)
+    if (
+        verified_context.design_problem_ref != problem_ref
+        or source_v1.cycle_problem_ref != problem_ref
+        or source_v1.context_hash != verified_context.content_hash
+        or source_v1.world_model_record_hash
+        != verified_context.world_model_record.content_hash
+    ):
+        raise InterventionSubstrateError("candidate_scenario_context_problem_mismatch")
+    if (
+        verified_context.intervention_substrate is None
+        or verified_context.intervention_substrate.content_hash != verified_bundle.content_hash
+        or profile.context_inputs.intervention_substrate is None
+        or profile.context_inputs.intervention_substrate.content_hash
+        != verified_bundle.content_hash
+    ):
+        raise InterventionSubstrateError("candidate_scenario_l6_bundle_context_mismatch")
+    if (
+        source_v1.candidate is None
+        or source_v1.candidate != candidate
+        or candidate.atom.status != "candidate_unverified"
+    ):
+        raise InterventionSubstrateError("candidate_scenario_source_candidate_mismatch")
+    source_interventions = tuple(
+        item
+        for item in source_v1.proposal.trinity_bundle.policy_spec.interventions
+        if item.intervention_id == candidate.intervention_id
+    )
+    if len(source_interventions) != 1 or source_interventions[0] != intervention:
+        raise InterventionSubstrateError("candidate_scenario_intervention_not_in_n4_source")
+    rule = profile.rule
+    if (
+        intervention.intervention_id != linked_intervention.intervention_id
+        or candidate.atom.intervention_id != intervention.intervention_id
+        or candidate.atom.operator_kind.trinity_kind != intervention.kind
+    ):
+        raise InterventionSubstrateError("candidate_scenario_linked_intervention_mismatch")
+    value = candidate_scenario_set_to_value(
+        rule,
+        operator_kind=intervention.kind,
+        parameters=intervention.params,
+        linked_write_slots=linked_intervention.writes_slots,
+    )
+    if (
+        candidate.atom.target_world_slots != (rule.target_world_slot,)
+        or candidate.atom.causal_do_expr.write_variables != (rule.target_world_slot,)
+    ):
+        raise InterventionSubstrateError("candidate_scenario_atom_write_set_mismatch")
+    world = verified_context.world_model_record
+    if type(world) is not WorldModelRecord:
+        raise InterventionSubstrateError("candidate_scenario_world_model_untyped")
+    slot = world.slot_binding(rule.target_world_slot)
+    if slot is None or not slot.state_path:
+        raise InterventionSubstrateError("candidate_scenario_world_slot_unresolved")
+    if slot.unit is None or slot.unit != rule.unit_id:
+        raise InterventionSubstrateError("candidate_scenario_world_slot_unit_mismatch")
+    try:
+        resolve_intervention_atom_world_binding(candidate.atom, world)
+        derived_atom = derive_candidate_scenario_atom(
+            candidate.atom,
+            target_world_slot=rule.target_world_slot,
+            value=value,
+        )
+    except (TypeError, ValueError) as exc:
+        code = str(getattr(exc, "code", None) or "candidate_scenario_atom_derivation_failed")
+        raise InterventionSubstrateError(code, str(exc)) from exc
+
+    if type(source_record) is N4CandidateScenarioSourceRecordV2:
+        declaration = source_record.model_declaration
+        world_slot_units = {item.slot_id: item.unit for item in world.policy_slot_map}
+        if (
+            source_record.model_declaration_ref.kind
+            != "runtime.quality.candidate_simulation_model_declaration"
+            or source_record.ncm_ref.kind != "ir.ncm_spec"
+            or source_record.world_model_record_id != world.world_model_record_id
+            or declaration.profile_content_hash != profile.content_hash
+            or declaration.profile_selection_ref != profile.profile_selection_ref
+            or declaration.target_world_slot != rule.target_world_slot
+            or declaration.target_unit_id != rule.unit_id
+            or declaration.outcome_variable != problem.outcome_of_interest.target_variable
+            or world_slot_units.get(declaration.target_world_slot)
+            != declaration.target_unit_id
+            or world_slot_units.get(declaration.outcome_variable)
+            != declaration.outcome_unit_id
+            or profile.n5.baseline_state.get(declaration.target_world_slot)
+            != declaration.target_baseline
+            or profile.n5.baseline_state.get(declaration.outcome_variable)
+            != declaration.outcome_baseline
+            or str(source_record.ncm_ref.artifact_id)
+            not in world.simulation_model_ref.ncm_refs
+        ):
+            raise InterventionSubstrateError("candidate_scenario_model_binding_mismatch")
+        payload_v4 = {
+            "schema_version": "policyos.runtime.candidate_scenario.materialization.v4",
+            "profile_hash": profile.content_hash,
+            "problem_ref": problem_ref,
+            "context_hash": verified_context.content_hash,
+            "context_job_ref": context_job_ref,
+            "world_model_record_hash": world.content_hash,
+            "n4_source_ref": source_ref,
+            "model_declaration_ref": source_record.model_declaration_ref,
+            "ncm_ref": source_record.ncm_ref,
+            "candidate_id": candidate.candidate_id,
+            "original_candidate_hash": candidate.atom.content_hash,
+            "original_atom_hash": candidate.atom.content_hash,
+            "operator_kind": rule.operator_kind,
+            "parameter_id": rule.parameter_id,
+            "value": value,
+            "target_world_slot": rule.target_world_slot,
+            "unit_id": rule.unit_id,
+            "outcome_variable": declaration.outcome_variable,
+            "derived_n5_atom": derived_atom,
+        }
+        return CandidateScenarioMaterializationV4.model_validate(
+            {
+                **payload_v4,
+                "content_hash": gy_content_hash(
+                    CandidateScenarioMaterializationV4.model_construct(
+                        **payload_v4,
+                        content_hash="sha256:" + "0" * 64,
+                    ).model_dump(mode="json", exclude={"content_hash"})
+                ),
+            }
+        )
+
+    payload = {
+        "schema_version": "policyos.runtime.candidate_scenario.materialization.v3",
+        "profile_hash": profile.content_hash,
+        "problem_ref": problem_ref,
+        "context_hash": verified_context.content_hash,
+        "context_job_ref": context_job_ref,
+        "world_model_record_hash": world.content_hash,
+        "n4_source_ref": source_ref,
+        "candidate_id": candidate.candidate_id,
+        "original_candidate_hash": candidate.atom.content_hash,
+        "original_atom_hash": candidate.atom.content_hash,
+        "operator_kind": rule.operator_kind,
+        "parameter_id": rule.parameter_id,
+        "value": value,
+        "target_world_slot": rule.target_world_slot,
+        "unit_id": rule.unit_id,
+        "derived_n5_atom": derived_atom,
+    }
+    return CandidateScenarioMaterializationV3.model_validate(
+        {
+            **payload,
+            "content_hash": gy_content_hash(
+                CandidateScenarioMaterializationV3.model_construct(
+                    **payload,
+                    content_hash="sha256:" + "0" * 64,
+                ).model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
 
 
 def _assert_intervention_substrate_bundle_content_hash(

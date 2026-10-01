@@ -3012,6 +3012,132 @@ def test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_con
         store.close()
 
 
+def test_joint_port_resolves_exact_selected_candidate_ncm_view(
+    tmp_path: Path,
+) -> None:
+    """N5's existing port consumes the full selected NCM ref, never its default ID view."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.ncm import (
+        candidate_ncm_spec_from_declaration,
+    )
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceRepository,
+        _candidate_simulation_write_options,
+    )
+
+    problem, context, _candidate = _cyc01_owner_bound_n5_case()
+    tenant_id = "tenant-selected-ncm"
+    cell_id = "cell-selected-ncm"
+    job_id = "job-selected-ncm"
+    run_id = "run-selected-ncm"
+    declaration_fields = {
+        "schema_version": (
+            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
+        ),
+        "profile_config_ref": "runtime-config:candidate-simulation:selected-ncm",
+        "profile_content_hash": "sha256:" + "a" * 64,
+        "profile_selection_ref": "sha256:" + "b" * 64,
+        "target_world_slot": "agents.income",
+        "outcome_variable": "firm_survival",
+        "target_unit_id": "score",
+        "outcome_unit_id": "score",
+        "target_baseline": 2.0,
+        "outcome_baseline": 10.0,
+        "outcome_per_target_unit": 3.0,
+        "outcome_noise_stddev": 0.01,
+        "assumption": "declared_candidate_scm_not_empirically_grounded",
+    }
+    declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+        **declaration_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {
+            **declaration_fields,
+            "content_hash": gy_content_hash(
+                declaration_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    selected_ncm = candidate_ncm_spec_from_declaration(declaration)
+    store = FileSystemCAS(tmp_path / "selected-candidate-ncm-cas")
+    repository = GenerationSourceRepository(store)
+    try:
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            default_options = _candidate_simulation_write_options(
+                kind="ir.ncm_spec",
+                schema_name="ir.ncm_spec",
+                schema_version="1.0",
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                source_ref=declaration.profile_content_hash,
+            )
+            from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
+
+            store.put_bytes(
+                to_canonical_bytes(
+                    selected_ncm.model_dump(mode="json"),
+                    CanonSpec(forbid_floats=False, exclude_none=False),
+                ),
+                default_options,
+            )
+            declaration_ref = repository.persist_candidate_model_declaration(
+                declaration=declaration,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            selected_ref = repository.persist_candidate_ncm_selected_view(
+                ncm_spec=selected_ncm,
+                declaration_ref=declaration_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                profile_content_hash=declaration.profile_content_hash,
+            )
+            selected_world = _record_with_selected_ncm_ref(
+                context.world_model_record,
+                str(selected_ref.artifact_id),
+            )
+            port = JointSimulationPort(
+                repo_root=tmp_path / "empty-repo",
+                artifact_store=store,
+            )
+            resolved = port._resolve_joint_simulation_ncm(
+                problem=problem,
+                world_record=selected_world,
+                selected_ncm_ref=selected_ref,
+                declaration_ref=declaration_ref,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            assert resolved.model_dump(mode="json") == selected_ncm.model_dump(mode="json")
+            assert selected_ref.manifest_profile_sha256 is not None
+
+            stripped_ref = selected_ref.model_copy(
+                update={"manifest_profile_sha256": None}
+            )
+            with pytest.raises(WorldModelRecordError) as raised:
+                port._resolve_joint_simulation_ncm(
+                    problem=problem,
+                    world_record=selected_world,
+                    selected_ncm_ref=stripped_ref,
+                    declaration_ref=declaration_ref,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+            assert raised.value.code == "joint_simulation_ncm_spec_unresolved"
+    finally:
+        store.close()
+
+
 def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
     tmp_path: Path,
 ) -> None:

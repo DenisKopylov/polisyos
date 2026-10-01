@@ -69,6 +69,9 @@ if TYPE_CHECKING:
 
     from polisyos.core import contracts as core_contracts
     from polisyos.core.artifacts import ArtifactStore
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationContextHandoff,
+    )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.evaluation_safety import EvalSafetyVerifierPort
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -790,6 +793,12 @@ class RecursiveGenerationCycleController:
         joint_simulation_requests_by_node: Mapping[str, JointSimulationRequest] | None = None,
         subdesign_contracts_by_node: Mapping[str, tuple[SubDesignContract, ...]] | None = None,
         cycle_substrate_contexts_by_node: Mapping[str, CycleSubstrateContext] | None = None,
+        candidate_simulation_handoffs_by_node: Mapping[
+            str, CandidateSimulationContextHandoff
+        ] | None = None,
+        candidate_simulation_currentness_resolvers_by_node: Mapping[
+            str, Callable[[], bool]
+        ] | None = None,
         n4_generation_ports_by_node: Mapping[str, N4GenerationPort] | None = None,
         evaluation_contexts_by_node: Mapping[str, EvaluationExecutionContext] | None = None,
         execution_intents_by_node: Mapping[str, ExecutionIntent] | None = None,
@@ -848,6 +857,42 @@ class RecursiveGenerationCycleController:
         if set(depths) != set(node_refs):
             raise RecursiveGenerationCycleError("recursive_graph_unreachable_node")
         leaf_refs = {node_ref for node_ref, child_refs in children.items() if not child_refs}
+        if candidate_simulation_handoffs_by_node is not None:
+            from polisyos.runtime.quality.candidate_simulation import (
+                CandidateSimulationContextHandoff,
+            )
+            from polisyos.runtime.quality.cycle_substrate import (
+                _cycle_job_v1_design_problem_ref,
+            )
+
+            if not set(candidate_simulation_handoffs_by_node).issubset(leaf_refs):
+                raise RecursiveGenerationCycleError(
+                    "recursive_candidate_simulation_handoff_not_leaf"
+                )
+            for node_ref, handoff in candidate_simulation_handoffs_by_node.items():
+                if type(handoff) is not CandidateSimulationContextHandoff:
+                    raise RecursiveGenerationCycleError(
+                        "recursive_candidate_simulation_handoff_untyped"
+                    )
+                if (
+                    handoff.context.design_problem_ref
+                    != _cycle_job_v1_design_problem_ref(problems_by_node[node_ref])
+                    or (cycle_substrate_contexts_by_node or {}).get(node_ref)
+                    != handoff.context
+                ):
+                    raise RecursiveGenerationCycleError(
+                        "recursive_candidate_simulation_handoff_binding_mismatch"
+                    )
+        if set(candidate_simulation_currentness_resolvers_by_node or {}) != set(
+            candidate_simulation_handoffs_by_node or {}
+        ):
+            raise RecursiveGenerationCycleError(
+                "recursive_candidate_simulation_currentness_denominator_mismatch"
+            )
+        if candidate_simulation_handoffs_by_node and self._cycle_controller_factory is not None:
+            raise RecursiveGenerationCycleError(
+                "recursive_candidate_simulation_factory_bypass_forbidden"
+            )
         if execution_intents_by_node is not None:
             if set(execution_intents_by_node) != leaf_refs:
                 raise RecursiveGenerationCycleError(
@@ -1106,6 +1151,12 @@ class RecursiveGenerationCycleController:
                         repo_root=self._repo_root,
                         model_id=self._leaf_model_id,
                         cycle_substrate_context=context,
+                        candidate_simulation_handoff=(
+                            candidate_simulation_handoffs_by_node or {}
+                        ).get(node_ref),
+                        candidate_simulation_currentness_resolver=(
+                            candidate_simulation_currentness_resolvers_by_node or {}
+                        ).get(node_ref),
                         promotion_runtime=self._promotion_runtime,
                         artifact_store=self._artifact_store,
                     )

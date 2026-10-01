@@ -870,6 +870,40 @@ def _cycle_job_v1_design_problem_ref(problem: DesignProblem) -> str:
     return gy_content_hash(_serialize_context_job_v1_value(problem))
 
 
+_CYCLE_JOB_PROFILE_SELECTION_EXECUTION_KEYS = frozenset(
+    {"tenant_id", "cell_id", "job_id", "run_id"}
+)
+
+
+def _cycle_job_v1_profile_selection_ref(problem: DesignProblem) -> str:
+    """Hash the frozen v1 projection for static candidate-scenario selection.
+
+    The selector omits only server-assigned execution IDs from
+    ``nl_provenance.source_context``. It is not a DesignProblem identity,
+    context/job identity, tenant claim, grounding result, or authority ref.
+    Persisted custody continues to use :func:`_cycle_job_v1_design_problem_ref`.
+    """
+
+    projection = _serialize_context_job_v1_value(problem)
+    if not isinstance(projection, dict):
+        raise CycleSubstrateContextOwnerError(
+            "candidate_simulation_profile_selection_projection_invalid"
+        )
+    provenance = projection.get("nl_provenance")
+    if not isinstance(provenance, dict):
+        raise CycleSubstrateContextOwnerError(
+            "candidate_simulation_profile_selection_provenance_invalid"
+        )
+    source_context = provenance.get("source_context")
+    if not isinstance(source_context, dict):
+        raise CycleSubstrateContextOwnerError(
+            "candidate_simulation_profile_selection_source_context_invalid"
+        )
+    for key in _CYCLE_JOB_PROFILE_SELECTION_EXECUTION_KEYS:
+        source_context.pop(key, None)
+    return gy_content_hash(projection)
+
+
 def cycle_substrate_context_job_content_hash(
     artifact: CycleSubstrateContextJobArtifact | Mapping[str, Any],
 ) -> str:
@@ -964,7 +998,7 @@ class CycleSubstrateContextArtifactOwner:
         self,
         *,
         store: artifacts.ArtifactStore,
-        control_store: _CurrentControlJobExecutionOwner,
+        control_store: _CurrentControlJobExecutionOwner | None = None,
     ) -> None:
         self._store = store
         self._control_store = control_store
@@ -978,6 +1012,10 @@ class CycleSubstrateContextArtifactOwner:
     ) -> artifacts.ArtifactRef:
         """Persist through the runtime store under the current persisted job lease."""
 
+        if self._control_store is None:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_current_job_owner_unavailable"
+            )
         current_job = self._control_store.current_execution_job_record()
         artifact = _build_cycle_substrate_context_job_artifact(
             context,
@@ -1000,6 +1038,10 @@ class CycleSubstrateContextArtifactOwner:
     ) -> CycleSubstrateContextJobArtifact:
         """Verify a ref against the persisted job authorized by the active lease."""
 
+        if self._control_store is None:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_current_job_owner_unavailable"
+            )
         current_job = self._control_store.current_execution_job_record()
         if not current_job.job_id.strip() or not current_job.run_id:
             raise CycleSubstrateContextOwnerError(
@@ -1048,6 +1090,279 @@ class CycleSubstrateContextArtifactOwner:
                 "cycle_substrate_context_job_owner_profile_mismatch"
             )
         return artifact
+
+    def resolve_historical_job_artifact(
+        self,
+        ref: artifacts.ArtifactRef | str,
+        *,
+        problem: DesignProblem,
+        expected_job_id: str,
+        expected_run_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> CycleSubstrateContextJobArtifact:
+        """Replay a persisted context-job artifact without requiring its old lease.
+
+        This validates historical integrity and identity. It does not authorize
+        a new execution; served N5 still calls :meth:`resolve_for_current_job`
+        under the current verified worker scope.
+        """
+
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (
+                expected_job_id,
+                expected_run_id,
+                expected_tenant_id,
+                expected_cell_id,
+            )
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_historical_identity_missing"
+            )
+        if not self._store.verify(ref).ok:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_cas_integrity_failed"
+            )
+        manifest = self._store.get_manifest(ref)
+        body = self._store.get_bytes(ref)
+        artifact_id = str(getattr(ref, "artifact_id", ref))
+        if "sha256:" + hashlib.sha256(body).hexdigest() != artifact_id:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_cas_content_mismatch"
+            )
+        try:
+            artifact = CycleSubstrateContextJobArtifact.model_validate(
+                canon.from_canonical_bytes(body)
+            )
+        except (TypeError, ValueError) as exc:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_record_invalid", str(exc)
+            ) from exc
+        expected_problem_ref = _cycle_job_v1_design_problem_ref(problem)
+        if (
+            artifact.job_id != expected_job_id
+            or artifact.run_id != expected_run_id
+            or artifact.tenant_id != expected_tenant_id
+            or artifact.cell_id != expected_cell_id
+            or artifact.design_problem_ref != expected_problem_ref
+            or artifact.problem != problem
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_historical_binding_mismatch"
+            )
+        if not _has_context_job_owner_profile(manifest, artifact):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_owner_profile_mismatch"
+            )
+        return artifact
+
+
+class ConfiguredCandidateSimulationContextAdmissionOwner:
+    """Compose a candidate context only for an exact server-configured problem."""
+
+    def __init__(
+        self,
+        *,
+        profiles: Sequence[object],
+        model_declarations: Sequence[object] = (),
+        store: artifacts.ArtifactStore | None = None,
+    ) -> None:
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationScenarioProfile,
+            CandidateSimulationSyntheticModelDeclarationV1,
+            candidate_simulation_profile_ref,
+        )
+
+        validated: list[CandidateSimulationScenarioProfile] = []
+        profile_ids: set[str] = set()
+        profile_selection_refs: set[str] = set()
+        for profile in profiles:
+            if type(profile) is not CandidateSimulationScenarioProfile:
+                raise TypeError("candidate_simulation_profile_untyped")
+            checked = CandidateSimulationScenarioProfile.model_validate(
+                profile.model_dump(mode="python")
+            )
+            if checked.profile_id in profile_ids:
+                raise ValueError("candidate_simulation_profile_id_duplicate")
+            if checked.profile_selection_ref in profile_selection_refs:
+                raise ValueError("candidate_simulation_profile_problem_ref_ambiguous")
+            profile_ids.add(checked.profile_id)
+            profile_selection_refs.add(checked.profile_selection_ref)
+            validated.append(checked)
+        self._profiles = tuple(validated)
+        profiles_by_config_ref = {
+            candidate_simulation_profile_ref(profile): profile for profile in self._profiles
+        }
+        declarations_by_profile: dict[
+            str, CandidateSimulationSyntheticModelDeclarationV1
+        ] = {}
+        for declaration in model_declarations:
+            if type(declaration) is not CandidateSimulationSyntheticModelDeclarationV1:
+                raise TypeError("candidate_simulation_model_declaration_untyped")
+            checked_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+                declaration.model_dump(mode="python")
+            )
+            profile = profiles_by_config_ref.get(checked_declaration.profile_config_ref)
+            if profile is None:
+                raise ValueError("candidate_simulation_model_profile_not_configured")
+            if (
+                checked_declaration.profile_content_hash != profile.content_hash
+                or checked_declaration.profile_selection_ref != profile.profile_selection_ref
+                or checked_declaration.target_world_slot != profile.rule.target_world_slot
+                or checked_declaration.target_unit_id != profile.rule.unit_id
+                or profile.n5.baseline_state.get(checked_declaration.target_world_slot)
+                != checked_declaration.target_baseline
+                or profile.n5.baseline_state.get(checked_declaration.outcome_variable)
+                != checked_declaration.outcome_baseline
+            ):
+                raise ValueError("candidate_simulation_model_profile_binding_mismatch")
+            if checked_declaration.profile_config_ref in declarations_by_profile:
+                raise ValueError("candidate_simulation_model_profile_declaration_duplicate")
+            declarations_by_profile[checked_declaration.profile_config_ref] = (
+                checked_declaration
+            )
+        if declarations_by_profile and store is None:
+            raise ValueError("candidate_simulation_model_store_not_supplied")
+        self._model_declarations = declarations_by_profile
+        self._store = store
+
+    @property
+    def profiles(self) -> tuple[object, ...]:
+        """Return the immutable server-configured profile set."""
+
+        return self._profiles
+
+    @property
+    def model_declarations(self) -> tuple[object, ...]:
+        """Return the immutable declaration set bound to configured profiles."""
+
+        return tuple(self._model_declarations.values())
+
+    @property
+    def store(self) -> artifacts.ArtifactStore | None:
+        """Return the exact runtime-supplied artifact store, if configured."""
+
+        return self._store
+
+    def admit_context(
+        self,
+        *,
+        problem: DesignProblem,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> object | None:
+        """Compose the unique matching candidate context; never infer a profile."""
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextOffer,
+            candidate_simulation_profile_ref,
+        )
+
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (job_id, run_id, tenant_id, cell_id)
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_job_scope_not_established"
+            )
+        problem_ref = _cycle_job_v1_design_problem_ref(problem)
+        profile_selection_ref = _cycle_job_v1_profile_selection_ref(problem)
+        matches = tuple(
+            profile
+            for profile in self._profiles
+            if profile.profile_selection_ref == profile_selection_ref
+        )
+        if not matches:
+            return None
+        if len(matches) != 1:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_profile_problem_ref_ambiguous"
+            )
+        profile = matches[0]
+        inputs = profile.context_inputs
+        profile_config_ref = candidate_simulation_profile_ref(profile)
+        declaration = self._model_declarations.get(profile_config_ref)
+        model_declaration_ref = None
+        ncm_ref = None
+        world_model_record = inputs.world_model_record
+        if declaration is not None:
+            if self._store is None:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_model_store_not_supplied"
+                )
+            slot_units = {
+                item.slot_id: item.unit
+                for item in inputs.world_model_record.policy_slot_map
+            }
+            if (
+                declaration.outcome_variable
+                != problem.outcome_of_interest.target_variable
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_model_outcome_problem_mismatch"
+                )
+            if (
+                slot_units.get(declaration.target_world_slot)
+                != declaration.target_unit_id
+                or slot_units.get(declaration.outcome_variable)
+                != declaration.outcome_unit_id
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_model_unit_binding_mismatch"
+                )
+            from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
+            from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+            from polisyos.runtime.quality.world_model_record import (
+                derive_candidate_scenario_world_model_record,
+            )
+
+            repository = GenerationSourceRepository(store=self._store)
+            model_declaration_ref = repository.persist_candidate_model_declaration(
+                declaration=declaration,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            ncm_ref = repository.persist_candidate_ncm_selected_view(
+                ncm_spec=candidate_ncm_spec_from_declaration(declaration),
+                declaration_ref=model_declaration_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                profile_content_hash=profile.content_hash,
+            )
+            world_model_record = derive_candidate_scenario_world_model_record(
+                inputs.world_model_record,
+                ncm_artifact_id=str(ncm_ref.artifact_id),
+                declaration_content_hash=declaration.content_hash,
+            )
+        context = build_cycle_substrate_context(
+            design_problem_ref=problem_ref,
+            domain=problem.domain,
+            substrate_registry=inputs.substrate_registry,
+            selected_registry_entry_hashes=inputs.selected_registry_entry_hashes,
+            world_model_record=world_model_record,
+            intervention_substrate=inputs.intervention_substrate,
+            candidate_levers=inputs.candidate_levers,
+            transport_context=inputs.transport_context,
+            source_pack_content_hash=inputs.source_pack_content_hash,
+            substrate_input_content_hash=inputs.substrate_input_content_hash,
+        )
+        _validate_problem_world_match(problem, context)
+        context = revalidate_cycle_substrate_context(context)
+        return CandidateSimulationContextOffer(
+            context=context,
+            profile=profile,
+            profile_config_ref=profile_config_ref,
+            model_declaration=declaration,
+            model_declaration_ref=model_declaration_ref,
+            ncm_ref=ncm_ref,
+        )
 
 
 def _has_context_job_owner_profile(

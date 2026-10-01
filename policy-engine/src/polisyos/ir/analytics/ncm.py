@@ -20,7 +20,7 @@ This module provides:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -204,6 +204,237 @@ class NCMSpec(BaseModel):
         return self
 
 
+class _SelectedArtifactRef(Protocol):
+    """Structural view of a runtime artifact ref; IR does not import Core."""
+
+    artifact_id: object
+    kind: str
+    media_type: str
+    manifest_profile_sha256: str | None
+
+
+class _SelectedViewStore(Protocol):
+    """Minimal runtime-supplied store surface for exact selected-view NCM I/O."""
+
+    def put_bytes(self, data: bytes, opts: object) -> _SelectedArtifactRef: ...
+
+    def get_bytes(self, artifact_id: object) -> bytes: ...
+
+    def get_manifest(self, artifact_id: object) -> object: ...
+
+    def verify(self, artifact_id: object) -> object: ...
+
+
+class _CandidateModelDeclaration(Protocol):
+    """Structural declaration consumed by the existing NCM owner."""
+
+    target_world_slot: str
+    outcome_variable: str
+    target_baseline: float
+    outcome_baseline: float
+    outcome_per_target_unit: float
+    outcome_noise_stddev: float
+
+
+def candidate_ncm_spec_from_declaration(
+    declaration: _CandidateModelDeclaration,
+) -> NCMSpec:
+    """Build the exact two-node SCM explicitly declared for candidate work.
+
+    This is a pure model projection. The declaration remains the source of the
+    coefficients and limitations; this does not claim empirical grounding.
+    """
+    import math
+
+    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+    from polisyos.ir.analytics.structural_causal_model import (
+        MechanismFamily,
+        MechanismSource,
+        NodeMechanism,
+        StructuralCausalModelSpec,
+    )
+
+    numeric = (
+        declaration.target_baseline,
+        declaration.outcome_baseline,
+        declaration.outcome_per_target_unit,
+        declaration.outcome_noise_stddev,
+    )
+    if (
+        any(not math.isfinite(value) for value in numeric)
+        or declaration.target_world_slot == declaration.outcome_variable
+        or declaration.outcome_per_target_unit == 0.0
+        or declaration.outcome_noise_stddev < 0.0
+    ):
+        raise ValueError("candidate_ncm_declaration_invalid")
+
+    target = declaration.target_world_slot
+    outcome = declaration.outcome_variable
+    coefficient = declaration.outcome_per_target_unit
+    intercept = declaration.outcome_baseline - coefficient * declaration.target_baseline
+    scm = StructuralCausalModelSpec(
+        graph=CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=[target, outcome],
+            edges=[CausalEdge(src=target, dst=outcome)],
+        ),
+        mechanisms=[
+            NodeMechanism(
+                variable=target,
+                parents=[],
+                family=MechanismFamily.LINEAR,
+                family_params={
+                    "intercept": declaration.target_baseline,
+                    "coefficients": {},
+                    "noise_std": 0.0,
+                },
+                source=MechanismSource.DEFAULT,
+            ),
+            NodeMechanism(
+                variable=outcome,
+                parents=[target],
+                family=MechanismFamily.LINEAR,
+                family_params={
+                    "intercept": intercept,
+                    "coefficients": {target: coefficient},
+                    "noise_std": declaration.outcome_noise_stddev,
+                },
+                source=MechanismSource.DEFAULT,
+            ),
+        ],
+        fitted=False,
+        fit_method="manual",
+    )
+    return NCMSpec(
+        endogenous_vars=[target, outcome],
+        exogenous_specs=[
+            ExogenousSpec(
+                variable=f"U_{target}",
+                associated_endogenous=target,
+                distribution_params={"mean": 0.0, "std": 0.0},
+            ),
+            ExogenousSpec(
+                variable=f"U_{outcome}",
+                associated_endogenous=outcome,
+                distribution_params={
+                    "mean": 0.0,
+                    "std": declaration.outcome_noise_stddev,
+                },
+            ),
+        ],
+        structural_equations=[
+            StructuralEquation(
+                variable=target,
+                parents=[],
+                exogenous=f"U_{target}",
+                equation_type="linear",
+                equation_params={
+                    "intercept": declaration.target_baseline,
+                    "coefficients": {},
+                },
+            ),
+            StructuralEquation(
+                variable=outcome,
+                parents=[target],
+                exogenous=f"U_{outcome}",
+                equation_type="linear",
+                equation_params={
+                    "intercept": intercept,
+                    "coefficients": {target: coefficient},
+                },
+            ),
+        ],
+        scm_spec=scm,
+        is_acyclic=True,
+        markov_condition_verified=False,
+        independence_model="unknown",
+        fit_method="declared_candidate_assumption",
+    )
+
+
+def persist_ncm_spec_selected_view(
+    store: _SelectedViewStore,
+    ncm_spec: NCMSpec,
+    *,
+    write_options: object,
+) -> _SelectedArtifactRef:
+    """Persist an NCM through the runtime store while retaining typed lineage.
+
+    Runtime callers construct ``write_options`` with their tenant, job, and
+    full selected ``InputRef`` values. This IR owner serializes the NCM and
+    returns the exact ref from the store without normalizing it to an ID.
+    """
+    from polisyos.ir.model_layer.canon import to_canonical_bytes
+
+    checked = NCMSpec.model_validate(ncm_spec.model_dump(mode="python"))
+    body = to_canonical_bytes(
+        checked.model_dump(mode="json"),
+        CanonSpec(forbid_floats=False, exclude_none=False),
+    )
+    ref = store.put_bytes(body, write_options)
+    if (
+        ref.kind != "ir.ncm_spec"
+        or ref.media_type != "application/json"
+        or not str(ref.artifact_id).startswith("sha256:")
+    ):
+        raise ValueError("ncm_selected_view_owner_ref_invalid")
+    return ref
+
+
+def load_ncm_spec_selected_view(
+    store: _SelectedViewStore,
+    ref: _SelectedArtifactRef,
+    *,
+    expected_tenant_id: str,
+    expected_cell_id: str,
+    expected_declaration_ref: _SelectedArtifactRef,
+) -> NCMSpec:
+    """Replay an exact selected NCM manifest and its declared sidecar input.
+
+    A missing selector means the canonical default view. The actual default
+    manifest is still checked for kind, schema, tenant, cell, and exact input
+    lineage; ``None`` never skips view validation.
+    """
+    import hashlib
+
+    if ref.kind != "ir.ncm_spec" or ref.media_type != "application/json":
+        raise ValueError("ncm_selected_view_ref_kind_mismatch")
+    verification = store.verify(ref)
+    if getattr(verification, "ok", False) is not True:
+        raise ValueError("ncm_selected_view_integrity_failed")
+    manifest = store.get_manifest(ref)
+    schema = getattr(manifest, "artifact_schema", None)
+    tenant_context = getattr(manifest, "tenant_context", None)
+    manifest_inputs = tuple(getattr(manifest, "inputs", ()) or ())
+    if (
+        str(getattr(manifest, "artifact_id", "")) != str(ref.artifact_id)
+        or getattr(manifest, "kind", None) != "ir.ncm_spec"
+        or getattr(manifest, "media_type", None) != "application/json"
+        or getattr(schema, "name", None) != "ir.ncm_spec"
+        or getattr(schema, "version", None) != "1.0"
+        or getattr(tenant_context, "tenant_id", None) != expected_tenant_id
+        or getattr(tenant_context, "cell_id", None) != expected_cell_id
+        or len(manifest_inputs) != 1
+    ):
+        raise ValueError("ncm_selected_view_manifest_mismatch")
+    lineage = manifest_inputs[0]
+    if (
+        str(getattr(lineage, "artifact_id", ""))
+        != str(expected_declaration_ref.artifact_id)
+        or getattr(lineage, "role", None) != "candidate_model_declaration"
+        or getattr(lineage, "manifest_profile_sha256", None)
+        != expected_declaration_ref.manifest_profile_sha256
+    ):
+        raise ValueError("ncm_selected_view_declaration_lineage_mismatch")
+    body = store.get_bytes(ref)
+    if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
+        raise ValueError("ncm_selected_view_content_mismatch")
+    from polisyos.ir.model_layer.canon import from_canonical_bytes
+
+    payload = from_canonical_bytes(body)
+    return NCMSpec.model_validate(payload)
+
+
 # ── Persistence helpers (same pattern as structural_causal_model.py) ──────────
 
 
@@ -241,6 +472,9 @@ __all__ = [
     "ExogenousSpec",
     "NCMSpec",
     "StructuralEquation",
+    "candidate_ncm_spec_from_declaration",
     "load_ncm_spec",
+    "load_ncm_spec_selected_view",
     "persist_ncm_spec",
+    "persist_ncm_spec_selected_view",
 ]

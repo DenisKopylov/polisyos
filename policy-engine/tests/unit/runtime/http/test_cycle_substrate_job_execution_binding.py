@@ -255,3 +255,168 @@ def test_cycle_substrate_context_owner_rejects_matching_marker_scope_without_iss
     finally:
         artifact_store.close()
         control_store.close()
+
+
+def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_membership() -> None:
+    """The persisted worker handoff carries the owner-selected NCM identity."""
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextHandoff,
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        _cycle_job_v1_design_problem_ref,
+        _cycle_job_v1_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.world_model_record import (
+        derive_candidate_scenario_world_model_record,
+    )
+
+    problem = _design_problem()
+    registry = _registry("education")
+    base_context = _cycle_context(
+        design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
+        registry=registry,
+    )
+    inputs = CandidateSimulationContextInputs(
+        substrate_registry=base_context.substrate_registry,
+        selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
+        world_model_record=base_context.world_model_record,
+        intervention_substrate=base_context.intervention_substrate,
+        candidate_levers=base_context.candidate_levers,
+        transport_context=base_context.transport_context,
+        source_pack_content_hash=base_context.source_pack_content_hash,
+        substrate_input_content_hash=base_context.substrate_input_content_hash,
+    )
+    rule = CandidateScenarioSetToRule(
+        operator_kind="teaching_method_set_to",
+        parameter_id="intensity",
+        target_world_slot="education.teaching_method",
+        unit_id="synthetic_score",
+        minimum=0,
+        maximum=1,
+    )
+    n5 = CandidateScenarioN5Config(
+        budget_ref="budget://handoff/controlled-candidate",
+        horizon=HorizonSpec(start=0, end=0, step=1),
+        baseline_state={
+            "education.teaching_method": 0.0,
+            "learning_outcomes": 0.0,
+        },
+        seed=7,
+        replications=2,
+    )
+    profile_fields = {
+        "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
+        "profile_id": "handoff-controlled-candidate",
+        "profile_selection_ref": _cycle_job_v1_profile_selection_ref(problem),
+        "context_inputs": inputs,
+        "rule": rule,
+        "n5": n5,
+        "limitations": (
+            "scenario_only",
+            "real_profile_not_established",
+            "real_time_not_established",
+            "grounding_not_established",
+            "s8_blocked",
+            "n9_not_admitted",
+        ),
+    }
+    profile_draft = CandidateSimulationScenarioProfile.model_construct(
+        **profile_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    profile = CandidateSimulationScenarioProfile.model_validate(
+        {
+            **profile_fields,
+            "content_hash": gy_content_hash(
+                profile_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    declaration_fields = {
+        "schema_version": (
+            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
+        ),
+        "profile_config_ref": candidate_simulation_profile_ref(profile),
+        "profile_content_hash": profile.content_hash,
+        "profile_selection_ref": profile.profile_selection_ref,
+        "target_world_slot": rule.target_world_slot,
+        "outcome_variable": "learning_outcomes",
+        "target_unit_id": rule.unit_id,
+        "outcome_unit_id": rule.unit_id,
+        "target_baseline": 0.0,
+        "outcome_baseline": 0.0,
+        "outcome_per_target_unit": 0.5,
+        "outcome_noise_stddev": 0.01,
+        "assumption": "declared_candidate_scm_not_empirically_grounded",
+    }
+    declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+        **declaration_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {
+            **declaration_fields,
+            "content_hash": gy_content_hash(
+                declaration_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    declaration_ref = ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind="runtime.quality.candidate_simulation_model_declaration",
+        media_type="application/json",
+    )
+    ncm_ref = ArtifactRef(
+        artifact_id="sha256:" + "b" * 64,
+        kind="ir.ncm_spec",
+        media_type="application/json",
+    )
+    context = _cycle_context(
+        design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
+        registry=registry,
+        world_model_record=derive_candidate_scenario_world_model_record(
+            base_context.world_model_record,
+            ncm_artifact_id=str(ncm_ref.artifact_id),
+            declaration_content_hash=declaration.content_hash,
+        ),
+    )
+    payload = {
+        "context": context,
+        "context_job_ref": ArtifactRef(
+            artifact_id="sha256:" + "c" * 64,
+            kind="runtime.quality.cycle_substrate_context_job",
+            media_type="application/json",
+        ),
+        "profile": profile,
+        "profile_config_ref": candidate_simulation_profile_ref(profile),
+        "job_id": "job-candidate-handoff",
+        "run_id": "run-candidate-handoff",
+        "tenant_id": "tenant-candidate-handoff",
+        "cell_id": "cell-candidate-handoff",
+        "model_declaration": declaration,
+        "model_declaration_ref": declaration_ref,
+        "ncm_ref": ncm_ref,
+    }
+
+    handoff = CandidateSimulationContextHandoff.model_validate(payload)
+    assert handoff.ncm_ref == ncm_ref
+    assert handoff.ncm_ref.manifest_profile_sha256 is None
+
+    with pytest.raises(ValueError, match="model_binding_incomplete"):
+        CandidateSimulationContextHandoff.model_validate(
+            {**payload, "ncm_ref": None}
+        )
+
+    foreign_ref = ncm_ref.model_copy(update={"artifact_id": "sha256:" + "d" * 64})
+    with pytest.raises(ValueError, match="selected_ref_mismatch"):
+        CandidateSimulationContextHandoff.model_validate(
+            {**payload, "ncm_ref": foreign_ref}
+        )

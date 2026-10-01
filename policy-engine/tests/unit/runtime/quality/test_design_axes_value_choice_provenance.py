@@ -11,6 +11,7 @@ import pytest
 from pydantic import ValidationError
 
 import polisyos.runtime.quality as runtime_quality
+from tests._helpers.artifacts import overwrite_signature_sidecar_for_test
 
 CASE_ID = "ua-msme-affordable-loans-2022"
 RULE_VERSION_REF = "policyos.layer2.s8.value_choice.v1"
@@ -591,7 +592,7 @@ def _normative_harness(tmp_path: Path, *, fault: str = "") -> dict[str, Any]:
     from polisyos.core import artifacts
     from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
 
-    store = artifacts.FileSystemCAS(tmp_path)
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
     claimant_key, authorizer_key = artifacts.KeyPair.generate(), artifacts.KeyPair.generate()
     claimant = "claimant://research-owner"
     authorizer = "principal://ua/ministry-of-economy"
@@ -707,10 +708,20 @@ def _normative_harness(tmp_path: Path, *, fault: str = "") -> dict[str, Any]:
     if fault == "signature":
         signature = store.get_signature(authorization_ref)
         assert signature is not None
-        signature.signature_hex = ("00" if signature.signature_hex[:2] != "00" else "01") + (
-            signature.signature_hex[2:]
+        corrupted_signature = signature.model_copy(
+            update={
+                "signature_hex": (
+                    "00" if signature.signature_hex[:2] != "00" else "01"
+                )
+                + signature.signature_hex[2:]
+            }
         )
-        store.put_signature(authorization_ref, signature)
+        overwrite_signature_sidecar_for_test(
+            store,
+            authorization_ref,
+            corrupted_signature,
+            tmp_root=tmp_path,
+        )
     return {
         "owner": owner,
         "store": store,

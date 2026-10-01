@@ -41,6 +41,7 @@ from polisyos.scientist.governance.continuous.governed_public_record import (
 )
 from polisyos.scientist.governance.continuous.lifecycle_bridge import load_lifecycle_bridge_result
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from tests._helpers.artifacts import overwrite_signature_sidecar_for_test
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _claims,
@@ -560,6 +561,7 @@ def test_governed_http_rejects_a_candidate_ledger_source(
 def test_governed_http_corruption_removes_public_content_and_custody_membership(
     publication_case: _PublicationCase,
     corruption: str,
+    tmp_path: Path,
 ) -> None:
     case = publication_case
     _prepare_and_authorize(case)
@@ -573,10 +575,12 @@ def test_governed_http_corruption_removes_public_content_and_custody_membership(
         )
         store = case.context.store
         if corruption == "signature":
-            signature = store.get_signature(binding.signature_ref.artifact_id)
-            store.put_signature(
-                binding.signature_ref.artifact_id,
+            signature = store.get_signature(binding.signature_ref)
+            overwrite_signature_sidecar_for_test(
+                store,
+                binding.signature_ref,
                 signature.model_copy(update={"signature_hex": "00" * 64}),
+                tmp_root=tmp_path,
             )
         else:
             snapshot = case.claim_owner.resolve_current_for_packet(
@@ -596,15 +600,19 @@ def test_governed_http_corruption_removes_public_content_and_custody_membership(
 
 def test_governed_http_rejects_invalid_mandate_signature_before_issuance(
     publication_case: _PublicationCase,
+    tmp_path: Path,
 ) -> None:
     """Capturing a present but invalid signature must not grant publication authority."""
     case = publication_case
     _prepare_and_authorize(case)
     mandate_ref = ArtifactRef.model_validate(case.config["mandate_ref"])
-    signature = case.context.store.get_signature(mandate_ref.artifact_id)
+    signature = case.context.store.get_signature(mandate_ref)
     assert signature is not None
-    case.context.store.put_signature(
-        mandate_ref.artifact_id, signature.model_copy(update={"signature_hex": "00" * 64})
+    overwrite_signature_sidecar_for_test(
+        case.context.store,
+        mandate_ref,
+        signature.model_copy(update={"signature_hex": "00" * 64}),
+        tmp_root=tmp_path,
     )
     with case.client() as client:
         refused = case.post(client, "governed_public_record")

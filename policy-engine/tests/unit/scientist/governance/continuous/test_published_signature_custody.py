@@ -9,6 +9,7 @@ import pytest
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon as core_canon
 from polisyos.scientist.governance.continuous import published_signature_custody as custody
+from tests._helpers.artifacts import overwrite_signature_sidecar_for_test
 
 
 def _population(store: core_artifacts.FileSystemCAS):
@@ -269,7 +270,12 @@ def test_corrupt_actual_report_changes_population_nonreceipt_not_its_markers(tmp
     artifact_id = core_artifacts.ArtifactID.model_validate(entry["record_artifact_ref"])
     signature = store.get_signature(artifact_id)
     assert signature is not None
-    store.put_signature(artifact_id, signature.model_copy(update={"signature_hex": "00" * 64}))
+    overwrite_signature_sidecar_for_test(
+        store,
+        artifact_id,
+        signature.model_copy(update={"signature_hex": "00" * 64}),
+        tmp_root=tmp_path,
+    )
 
     after = provider.resolve()
 

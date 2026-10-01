@@ -477,16 +477,23 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     from fastapi.testclient import TestClient
 
     from polisyos.core import canon
+    from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextJobArtifact,
         _cycle_job_v1_design_problem_ref,
         _cycle_job_v1_profile_selection_ref,
     )
     from polisyos.runtime.quality.generation_cycle import (
+        FoundryValuePort,
+        GenerationCycleController,
         JointSimulationPort,
+        _DefaultSimulationBoundFoundryValuePort,
         load_joint_simulation_result,
     )
     from polisyos.runtime.quality.generation_source import (
@@ -494,6 +501,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         N4CandidateProposalLocator,
         N4CandidateProposalSimulationRecord,
     )
+    from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
     from polisyos.scientist.orchestration.llm import factory as llm_factory
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests.unit.runtime.http.test_control_job_execution_intent import (
@@ -569,13 +577,46 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     )
 
     n5_calls = []
+    n8_owner_calls: list[str] = []
+    n9_owner_calls: list[str] = []
+    candidate_leaf_controllers: list[GenerationCycleController] = []
+
+    original_controller_init = GenerationCycleController.__init__
+
+    def observe_leaf_controller(controller, *args, **kwargs):
+        original_controller_init(controller, *args, **kwargs)
+        if kwargs.get("candidate_simulation_handoff") is not None:
+            candidate_leaf_controllers.append(controller)
+
+    def reject_n8_owner_call(port, *args, **kwargs):
+        del args, kwargs
+        n8_owner_calls.append(type(port).__qualname__)
+        raise AssertionError("candidate_scenario_n5_only_must_not_call_n8")
+
+    def reject_n9_owner_call(port, *args, **kwargs):
+        del args, kwargs
+        n9_owner_calls.append(type(port).__qualname__)
+        raise AssertionError("candidate_scenario_n5_only_must_not_call_n9")
+
+    # Observe the concrete owners built by the served recursive controller. The
+    # sentinels retain the real classes and fail if the candidate-only branch
+    # ever crosses into N8 or N9, even while purpose/progress markers remain.
+    monkeypatch.setattr(GenerationCycleController, "__init__", observe_leaf_controller)
+    monkeypatch.setattr(FoundryValuePort, "__call__", reject_n8_owner_call)
+    monkeypatch.setattr(
+        _DefaultSimulationBoundFoundryValuePort, "__call__", reject_n8_owner_call
+    )
+    monkeypatch.setattr(CanonicalN9PromotionPort, "__call__", reject_n9_owner_call)
+
     original_n5_port = JointSimulationPort.__call__
 
     def observe_n5_port(port, *args, **kwargs):
         observation = original_n5_port(port, *args, **kwargs)
         input_record = kwargs.get("candidate_simulation_input")
         if input_record is not None:
-            n5_calls.append((input_record, observation))
+            n5_calls.append(
+                (input_record, observation, kwargs.get("candidate_simulation_input_ref"))
+            )
         return observation
 
     monkeypatch.setattr(JointSimulationPort, "__call__", observe_n5_port)
@@ -619,8 +660,15 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert progress["normative_disposition_status"] == "not_run"
         assert progress["s8_status"] == progress["publication_status"] == "not_run"
         context_job_ref = progress["cycle_substrate_context_job_ref"]
+        context_job_selected_ref = ArtifactRef.model_validate(
+            progress["cycle_substrate_context_job_selected_ref"]
+        )
+        assert str(context_job_selected_ref.artifact_id) == context_job_ref
+        assert context_job_selected_ref.manifest_profile_sha256 is None
         context_job = CycleSubstrateContextJobArtifact.model_validate(
-            canon.from_canonical_bytes(service._artifact_store.get_bytes(context_job_ref))
+            canon.from_canonical_bytes(
+                service._artifact_store.get_bytes(context_job_selected_ref)
+            )
         )
         assert context_job.problem == compiled_problem
         assert context_job.design_problem_ref == _cycle_job_v1_design_problem_ref(
@@ -639,18 +687,36 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert context_job.s8_status == "blocked"
 
         assert n5_calls, "configured candidate profile did not reach the N5 port"
-        input_record, observation = next(
-            (item, result)
-            for item, result in n5_calls
+        input_record, observation, port_input_ref = next(
+            (item, result, selected_ref)
+            for item, result, selected_ref in n5_calls
             if result.candidate_id == item.original_candidate_id
         )
-        assert type(input_record).__name__ == "CandidateSimulationN5InputV2"
+        assert type(input_record).__name__ == "CandidateSimulationN5InputV3"
+        assert input_record.authority_purpose == "candidate_scenario_n5_only"
+        assert isinstance(input_record.n4_source_ref, ArtifactRef)
+        assert isinstance(input_record.context_job_ref, ArtifactRef)
+        assert isinstance(port_input_ref, ArtifactRef)
+        assert input_record.n4_source_ref.manifest_profile_sha256 is None
+        assert input_record.context_job_ref.manifest_profile_sha256 is None
+        assert port_input_ref.manifest_profile_sha256 is None
+        assert artifact_ref_identity_key(input_record.context_job_ref) == (
+            artifact_ref_identity_key(context_job_selected_ref)
+        )
+        assert artifact_ref_identity_key(input_record.materialization.context_job_ref) == (
+            artifact_ref_identity_key(context_job_selected_ref)
+        )
+        assert artifact_ref_identity_key(input_record.materialization.source_handoff_ref) == (
+            artifact_ref_identity_key(input_record.n4_source_ref)
+        )
         assert type(observation).__name__ == "SimulationPortObservation"
         assert observation.status == "joint_simulated"
         assert observation.uncertainty_kind == "K_sim"
         assert observation.k_world_ref_before == observation.k_world_ref_after
         assert observation.k_world_ref_before == context_job.context.world_model_record.content_hash
         assert observation.simulation_result_ref is not None
+        assert isinstance(observation.simulation_result_ref, ArtifactRef)
+        assert observation.simulation_result_ref.manifest_profile_sha256 is None
         n5_result = load_joint_simulation_result(
             observation.simulation_result_ref,
             store=service._artifact_store,
@@ -672,6 +738,40 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 progress["compiled_recursive_generation_cycle_ref"]
             )
         )
+        compiled_record = CompiledRecursiveGenerationCycleRun.model_validate(
+            compiled_payload
+        )
+        leaf_nodes = compiled_record.recursive_run.leaf_nodes
+        assert len(leaf_nodes) == 1
+        leaf_run = leaf_nodes[0].cycle_run
+        assert leaf_run is not None
+        assert leaf_run.terminal_status == "blocked"
+        assert leaf_run.value_port.status == "value_pending_n8"
+        assert leaf_run.value_port.authority_blockers == (
+            "candidate_scenario_n5_only",
+        )
+        assert leaf_run.cycles[-1].voi_decision.next_action == "blocked"
+        assert leaf_run.promotion_port.status == "not_promoted"
+        assert leaf_run.promotion_port.reason.startswith(
+            "generation_cycle_blocked_before_n9:"
+        )
+        assert leaf_run.promotion_port.certified_candidate_ids == ()
+        assert leaf_run.fronts.decision.candidate_ids == ()
+        assert all(
+            not summary.certified_by_n9 for summary in leaf_run.candidate_summaries
+        )
+        assert all(
+            summary.front != "decision" for summary in leaf_run.candidate_summaries
+        )
+        assert len(candidate_leaf_controllers) == 1
+        actual_leaf_controller = candidate_leaf_controllers[0]
+        assert type(actual_leaf_controller._value_port) in {
+            FoundryValuePort,
+            _DefaultSimulationBoundFoundryValuePort,
+        }
+        assert type(actual_leaf_controller._promotion_port) is CanonicalN9PromotionPort
+        assert n8_owner_calls == []
+        assert n9_owner_calls == []
 
         def refs_named(payload: object, key: str) -> list[str]:
             found: list[str] = []
@@ -686,20 +786,130 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                     found.extend(refs_named(value, key))
             return found
 
-        execution_refs = refs_named(compiled_payload, "candidate_simulation_execution_ref")
-        assert execution_refs
-        execution = GenerationSourceRepository(
-            service._artifact_store
-        ).resolve_candidate_simulation_v2(
-            ref=execution_refs[0],
-            expected_run_id=str(completed.run_id),
-            expected_job_id=completed.job_id,
-            expected_tenant_id=context_job.tenant_id,
-            expected_cell_id=context_job.cell_id,
+        purpose_markers = refs_named(compiled_payload, "candidate_simulation_purpose")
+        assert purpose_markers
+        assert set(purpose_markers) == {"candidate_scenario_n5_only"}
+
+        def typed_refs_named(payload: object, key: str) -> list[dict[str, object]]:
+            found: list[dict[str, object]] = []
+            if isinstance(payload, dict):
+                for name, value in payload.items():
+                    if name == key and isinstance(value, dict):
+                        found.append(value)
+                    else:
+                        found.extend(typed_refs_named(value, key))
+            elif isinstance(payload, list):
+                for value in payload:
+                    found.extend(typed_refs_named(value, key))
+            return found
+
+        source_repository = GenerationSourceRepository(service._artifact_store)
+        input_refs = typed_refs_named(
+            compiled_payload, "candidate_simulation_n5_input_selected_ref"
         )
-        assert type(execution).__name__ == "CandidateSimulationExecutionV2"
+        input_ref = None
+        for reference_payload in input_refs:
+            selected_ref = ArtifactRef.model_validate(reference_payload)
+            selected_input = source_repository.resolve_candidate_simulation_v3(
+                ref=selected_ref,
+                expected_run_id=str(completed.run_id),
+                expected_job_id=completed.job_id,
+                expected_tenant_id=context_job.tenant_id,
+                expected_cell_id=context_job.cell_id,
+            )
+            if (
+                type(selected_input).__name__ == "CandidateSimulationN5InputV3"
+                and selected_input.original_candidate_id == input_record.original_candidate_id
+            ):
+                input_ref = selected_ref
+                break
+        assert input_ref is not None
+        assert input_ref.manifest_profile_sha256 is None
+        assert artifact_ref_identity_key(port_input_ref) == artifact_ref_identity_key(
+            input_ref
+        )
+        assert str(input_ref.artifact_id) in refs_named(
+            compiled_payload, "candidate_simulation_n5_input_ref"
+        )
+
+        execution_refs = typed_refs_named(
+            compiled_payload, "candidate_simulation_execution_selected_ref"
+        )
+        assert execution_refs
+        execution_ref = None
+        execution = None
+        for reference_payload in execution_refs:
+            selected_ref = ArtifactRef.model_validate(reference_payload)
+            selected_execution = source_repository.resolve_candidate_simulation_v3(
+                ref=selected_ref,
+                expected_run_id=str(completed.run_id),
+                expected_job_id=completed.job_id,
+                expected_tenant_id=context_job.tenant_id,
+                expected_cell_id=context_job.cell_id,
+            )
+            if selected_execution.original_candidate_id == input_record.original_candidate_id:
+                execution_ref = selected_ref
+                execution = selected_execution
+                break
+        assert execution_ref is not None
+        assert execution is not None
+        assert execution_ref.manifest_profile_sha256 is None
+        assert str(execution_ref.artifact_id) in refs_named(
+            compiled_payload, "candidate_simulation_execution_ref"
+        )
+        assert type(execution).__name__ == "CandidateSimulationExecutionV3"
+        assert execution.authority_purpose == "candidate_scenario_n5_only"
         assert execution.problem_ref == context_job.design_problem_ref
-        assert execution.context_job_ref == context_job_ref
+        assert artifact_ref_identity_key(execution.context_job_ref) == (
+            artifact_ref_identity_key(context_job_selected_ref)
+        )
+        assert artifact_ref_identity_key(execution.n5_input_ref) == (
+            artifact_ref_identity_key(input_ref)
+        )
+        assert artifact_ref_identity_key(execution.n4_source_ref) == (
+            artifact_ref_identity_key(input_record.n4_source_ref)
+        )
+        assert artifact_ref_identity_key(execution.n5_result_ref) == (
+            artifact_ref_identity_key(observation.simulation_result_ref)
+        )
+        input_manifest = service._artifact_store.get_manifest(input_ref)
+        assert {
+            (item.role, str(item.artifact_id), item.manifest_profile_sha256)
+            for item in input_manifest.inputs
+        } == {
+            (
+                "n4_source",
+                str(input_record.n4_source_ref.artifact_id),
+                input_record.n4_source_ref.manifest_profile_sha256,
+            ),
+            (
+                "cycle_substrate_context_job",
+                str(context_job_selected_ref.artifact_id),
+                context_job_selected_ref.manifest_profile_sha256,
+            ),
+        }
+        execution_manifest = service._artifact_store.get_manifest(execution_ref)
+        assert {
+            (item.role, str(item.artifact_id), item.manifest_profile_sha256)
+            for item in execution_manifest.inputs
+        } == {
+            ("n5_input", str(input_ref.artifact_id), input_ref.manifest_profile_sha256),
+            (
+                "n4_source",
+                str(input_record.n4_source_ref.artifact_id),
+                input_record.n4_source_ref.manifest_profile_sha256,
+            ),
+            (
+                "cycle_substrate_context_job",
+                str(context_job_selected_ref.artifact_id),
+                context_job_selected_ref.manifest_profile_sha256,
+            ),
+            (
+                "n5_result",
+                str(observation.simulation_result_ref.artifact_id),
+                observation.simulation_result_ref.manifest_profile_sha256,
+            ),
+        }
         assert execution.profile_config_ref.endswith(profile.content_hash)
         assert execution.k_world_ref_before == execution.k_world_ref_after
 

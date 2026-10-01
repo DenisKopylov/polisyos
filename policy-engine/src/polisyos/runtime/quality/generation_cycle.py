@@ -59,6 +59,7 @@ from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
 )
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.manifest import artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
@@ -173,6 +174,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
         CandidateSimulationN5InputV2,
+        CandidateSimulationN5InputV3,
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
@@ -2578,7 +2580,11 @@ class JointSimulationPort:
         candidate: object,
         problem: DesignProblem,
         cycle_index: int,
-        candidate_simulation_input: CandidateSimulationN5InputV2 | None = None,
+        candidate_simulation_input: (
+            CandidateSimulationN5InputV2 | CandidateSimulationN5InputV3 | None
+        ) = None,
+        candidate_simulation_input_ref: CASArtifactRef | None = None,
+        candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
     ) -> SimulationPortObservation:
         """Run N5 from a supplied request or the data-only request builder."""
 
@@ -2586,6 +2592,47 @@ class JointSimulationPort:
         request = None
         if candidate_simulation_input is not None:
             try:
+                from polisyos.runtime.quality.candidate_simulation import (
+                    CandidateSimulationN5InputV3,
+                )
+
+                if type(candidate_simulation_input) is CandidateSimulationN5InputV3:
+                    if (
+                        self._artifact_store is None
+                        or candidate_simulation_input_ref is None
+                    ):
+                        raise ValueError(
+                            "candidate_simulation_v3_persisted_input_ref_missing"
+                        )
+                    from polisyos.runtime.quality.generation_source import (
+                        GenerationSourceRepository,
+                    )
+
+                    persisted_input = GenerationSourceRepository(
+                        self._artifact_store
+                    ).resolve_candidate_simulation_v3(
+                        ref=candidate_simulation_input_ref,
+                        expected_run_id=candidate_simulation_input.run_id,
+                        expected_job_id=candidate_simulation_input.job_id,
+                        expected_tenant_id=candidate_simulation_input.tenant_id,
+                        expected_cell_id=candidate_simulation_input.cell_id,
+                    )
+                    if (
+                        type(persisted_input) is not CandidateSimulationN5InputV3
+                        or persisted_input.content_hash
+                        != candidate_simulation_input.content_hash
+                    ):
+                        raise ValueError(
+                            "candidate_simulation_v3_persisted_input_mismatch"
+                        )
+                    if (
+                        candidate_simulation_currentness_resolver is None
+                        or candidate_simulation_currentness_resolver() is not True
+                    ):
+                        raise ValueError(
+                            "candidate_simulation_worker_lease_not_current"
+                        )
+                    candidate_simulation_input = persisted_input
                 request = self._build_candidate_simulation_request(
                     candidate=candidate,
                     problem=problem,
@@ -3344,12 +3391,13 @@ class JointSimulationPort:
         *,
         candidate: object,
         problem: DesignProblem,
-        input_record: CandidateSimulationN5InputV2,
+        input_record: CandidateSimulationN5InputV2 | CandidateSimulationN5InputV3,
     ) -> JointSimulationRequest:
         """Build N5 strictly from the persisted server profile and exact N4 source."""
 
         from polisyos.runtime.quality.candidate_simulation import (
             CandidateSimulationN5InputV2,
+            CandidateSimulationN5InputV3,
         )
         from polisyos.runtime.quality.cycle_substrate import (
             _cycle_job_v1_design_problem_ref,
@@ -3361,7 +3409,10 @@ class JointSimulationPort:
         from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
         from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan
 
-        if type(input_record) is not CandidateSimulationN5InputV2:
+        if type(input_record) not in {
+            CandidateSimulationN5InputV2,
+            CandidateSimulationN5InputV3,
+        }:
             raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
         if type(candidate) is not ShadowGeneratedCandidate:
             raise WorldModelRecordError("candidate_simulation_n4_source_untyped")
@@ -3377,7 +3428,13 @@ class JointSimulationPort:
             or input_record.run_id != handoff.run_id
             or input_record.tenant_id != handoff.tenant_id
             or input_record.cell_id != handoff.cell_id
-            or input_record.context_job_ref != handoff.context_job_ref
+            or (
+                artifact_ref_identity_key(input_record.context_job_ref)
+                != artifact_ref_identity_key(handoff.context_job_ref)
+                if type(input_record) is CandidateSimulationN5InputV3
+                else input_record.context_job_ref
+                != str(handoff.context_job_ref.artifact_id)
+            )
             or input_record.profile_config_ref != handoff.profile_config_ref
             or input_record.profile.content_hash != handoff.profile.content_hash
         ):
@@ -3397,7 +3454,13 @@ class JointSimulationPort:
             or context.design_problem_ref != problem_ref
             or materialization.context_hash != context.content_hash
             or materialization.profile_hash != input_record.profile.content_hash
-            or materialization.context_job_ref != handoff.context_job_ref
+            or (
+                artifact_ref_identity_key(materialization.context_job_ref)
+                != artifact_ref_identity_key(handoff.context_job_ref)
+                if type(input_record) is CandidateSimulationN5InputV3
+                else materialization.context_job_ref
+                != str(handoff.context_job_ref.artifact_id)
+            )
             or materialization.problem_ref != problem_ref
         ):
             raise WorldModelRecordError("candidate_simulation_n5_context_binding_mismatch")
@@ -5130,6 +5193,7 @@ class GenerationCycleController:
         self._source_repository: GenerationSourceRepository | None = None
         self._source_custody_limitation: GenerationSourceCustodyLimitation | None = None
         self._source_handoff_refs: list[str] = []
+        self._source_handoff_selected_refs: list[CASArtifactRef] = []
         self._source_expected_identities: list[tuple[str, str, str]] = []
         self._source_issues: list[str] = []
         self._source_organs: list[object] = []
@@ -5153,6 +5217,7 @@ class GenerationCycleController:
         root = (self._repo_root or Path.cwd()).resolve()
         self._source_run_id = run_id
         self._source_handoff_refs = []
+        self._source_handoff_selected_refs = []
         self._source_custody_limitation = None
         self._source_expected_identities = []
         self._source_issues = []
@@ -5227,7 +5292,11 @@ class GenerationCycleController:
             return None
         return self._source_repository.preservation_receipt(
             run_id=self._source_run_id,
-            refs=self._source_handoff_refs,
+            refs=(
+                self._source_handoff_selected_refs
+                if self._source_handoff_selected_refs
+                else self._source_handoff_refs
+            ),
             expected=self._source_expected_identities,
             prior_issues=self._source_issues,
             scope_synthetic=self._source_synthetic,
@@ -5250,7 +5319,11 @@ class GenerationCycleController:
                 update={"content_hash": summary.source_content_hash}
             )
         resolution = self._source_repository.resolve(
-            refs=self._source_handoff_refs,
+            refs=(
+                self._source_handoff_selected_refs
+                if self._source_handoff_selected_refs
+                else self._source_handoff_refs
+            ),
             run_id=self._source_run_id,
             summary=source_summary,
             problem=problem,
@@ -7363,15 +7436,15 @@ class GenerationCycleController:
         if organ is not None:
             if self._source_repository is not None and self._source_run_id is not None:
                 try:
-                    self._source_handoff_refs.append(
-                        self._source_repository.persist(
-                            run_id=self._source_run_id,
-                            cycle_index=int(state["cycle_index"]),
-                            problem=state["problem"],
-                            organ=organ,
-                            execution_scope=self._authority_scope,
-                        )
+                    source_ref = self._source_repository.persist_ref(
+                        run_id=self._source_run_id,
+                        cycle_index=int(state["cycle_index"]),
+                        problem=state["problem"],
+                        organ=organ,
+                        execution_scope=self._authority_scope,
                     )
+                    self._source_handoff_selected_refs.append(source_ref)
+                    self._source_handoff_refs.append(str(source_ref.artifact_id))
                 except (OSError, ValueError, TypeError) as exc:
                     self._source_issues.append(f"source_persistence_refused:{type(exc).__name__}")
             else:
@@ -7578,8 +7651,9 @@ class GenerationCycleController:
 
         from polisyos.ir.linker import link_trinity
         from polisyos.runtime.quality.candidate_simulation import (
+            CandidateScenarioMaterializationV2,
             CandidateSimulationContextHandoff,
-            CandidateSimulationN5InputV2,
+            CandidateSimulationN5InputV3,
             candidate_simulation_profile_ref,
         )
         from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
@@ -7610,8 +7684,13 @@ class GenerationCycleController:
                 status="simulation_pending_n5",
             )
         source: object | None = None
-        source_ref: str | None = None
-        for candidate_ref in reversed(self._source_handoff_refs):
+        source_ref: CASArtifactRef | str | None = None
+        candidate_source_refs: Sequence[CASArtifactRef | str] = (
+            self._source_handoff_selected_refs
+            if self._source_handoff_selected_refs
+            else self._source_handoff_refs
+        )
+        for candidate_ref in reversed(candidate_source_refs):
             try:
                 loaded = repository.load(candidate_ref, run_id=self._source_run_id)
             except (OSError, RuntimeError, TypeError, ValueError):
@@ -7665,7 +7744,13 @@ class GenerationCycleController:
             if handoff.context.intervention_substrate is None:
                 raise ValueError("candidate_simulation_l6_bundle_missing")
             intervention = interventions[0]
-            materialization = materialize_candidate_scenario_action(
+            context_job_id = str(handoff.context_job_ref.artifact_id)
+            source_id = (
+                str(source_ref.artifact_id)
+                if isinstance(source_ref, CASArtifactRef)
+                else source_ref
+            )
+            materialization_v1 = materialize_candidate_scenario_action(
                 handoff.context.intervention_substrate,
                 profile=handoff.profile,
                 candidate=candidate,
@@ -7673,16 +7758,37 @@ class GenerationCycleController:
                 linked_intervention=linked_rows[0],
                 problem=problem,
                 context=handoff.context,
-                context_job_ref=handoff.context_job_ref,
-                source_handoff_ref=source_ref,
+                context_job_ref=context_job_id,
+                source_handoff_ref=source_id,
                 source_handoff=source,
+            )
+            materialization_payload = materialization_v1.model_dump(mode="python")
+            materialization_payload.update(
+                {
+                    "schema_version": (
+                        "policyos.runtime.candidate_scenario.materialization.v2"
+                    ),
+                    "context_job_ref": handoff.context_job_ref,
+                    "source_handoff_ref": source_ref,
+                }
+            )
+            materialization_payload.pop("content_hash", None)
+            materialization_hash_payload = CandidateScenarioMaterializationV2.model_construct(
+                **materialization_payload,
+                content_hash="sha256:" + "0" * 64,
+            ).model_dump(mode="json", exclude={"content_hash"})
+            materialization = CandidateScenarioMaterializationV2.model_validate(
+                {
+                    **materialization_payload,
+                    "content_hash": gy_content_hash(materialization_hash_payload),
+                }
             )
             outcome = _value_outcome_variable(candidate, problem)
             if not outcome:
                 raise ValueError("candidate_simulation_outcome_not_established")
             profile_ref = candidate_simulation_profile_ref(handoff.profile)
             input_payload = {
-                "schema_version": "policyos.runtime.candidate_simulation.n5_input.v2",
+                "schema_version": "policyos.runtime.candidate_simulation.n5_input.v3",
                 "authority_purpose": "candidate_scenario_n5_only",
                 "source_role": "runtime-config:candidate-simulation",
                 "profile": handoff.profile,
@@ -7700,17 +7806,17 @@ class GenerationCycleController:
                 "materialization": materialization,
                 "n5": handoff.profile.n5,
             }
-            hash_payload = CandidateSimulationN5InputV2.model_construct(
+            hash_payload = CandidateSimulationN5InputV3.model_construct(
                 **input_payload,
                 content_hash="sha256:" + "0" * 64,
             ).model_dump(mode="json", exclude={"content_hash"})
-            input_record = CandidateSimulationN5InputV2.model_validate(
+            input_record = CandidateSimulationN5InputV3.model_validate(
                 {
                     **input_payload,
                     "content_hash": gy_content_hash(hash_payload),
                 }
             )
-            input_ref = repository.persist_candidate_simulation_input_v2(
+            input_ref = repository.persist_candidate_simulation_input_v3(
                 input_record=input_record
             )
             currentness_resolver = self._candidate_simulation_currentness_resolver
@@ -7723,20 +7829,28 @@ class GenerationCycleController:
                 problem=problem,
                 cycle_index=cycle_index,
                 candidate_simulation_input=input_record,
+                candidate_simulation_input_ref=input_ref,
+                candidate_simulation_currentness_resolver=currentness_resolver,
             )
             if simulation.status != "joint_simulated":
                 return simulation.model_copy(
                     update={
                         "diagnostics": {
                             **simulation.diagnostics,
-                            "candidate_simulation_n5_input_ref": input_ref,
-                            "candidate_simulation_context_job_ref": handoff.context_job_ref,
+                            "candidate_simulation_n5_input_ref": str(input_ref.artifact_id),
+                            "candidate_simulation_n5_input_selected_ref": (
+                                input_ref.model_dump(mode="json")
+                            ),
+                            "candidate_simulation_context_job_ref": context_job_id,
+                            "candidate_simulation_context_job_selected_ref": (
+                                handoff.context_job_ref.model_dump(mode="json")
+                            ),
                             "candidate_simulation_profile_ref": profile_ref,
                             "candidate_simulation_purpose": "candidate_scenario_n5_only",
                         }
                     }
                 )
-            execution_ref = repository.persist_candidate_simulation_execution_v2(
+            execution_ref = repository.persist_candidate_simulation_execution_v3(
                 input_ref=input_ref,
                 simulation=simulation,
                 handoff=handoff,
@@ -7745,9 +7859,18 @@ class GenerationCycleController:
                 update={
                     "diagnostics": {
                         **simulation.diagnostics,
-                        "candidate_simulation_n5_input_ref": input_ref,
-                        "candidate_simulation_execution_ref": execution_ref,
-                        "candidate_simulation_context_job_ref": handoff.context_job_ref,
+                        "candidate_simulation_n5_input_ref": str(input_ref.artifact_id),
+                        "candidate_simulation_n5_input_selected_ref": (
+                            input_ref.model_dump(mode="json")
+                        ),
+                        "candidate_simulation_execution_ref": str(execution_ref.artifact_id),
+                        "candidate_simulation_execution_selected_ref": (
+                            execution_ref.model_dump(mode="json")
+                        ),
+                        "candidate_simulation_context_job_ref": context_job_id,
+                        "candidate_simulation_context_job_selected_ref": (
+                            handoff.context_job_ref.model_dump(mode="json")
+                        ),
                         "candidate_simulation_profile_ref": profile_ref,
                         "candidate_simulation_purpose": "candidate_scenario_n5_only",
                     }

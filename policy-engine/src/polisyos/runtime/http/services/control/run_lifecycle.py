@@ -26,6 +26,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ProducerInfo,
     SchemaInfo,
+    artifact_ref_identity_key,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
@@ -4693,6 +4694,7 @@ class ControlPlaneService(
         capability_manifest: dict[str, Any] | None = None
         execution_intent_binding: dict[str, Any] | None = None
         cycle_substrate_context_job_ref: str | None = None
+        cycle_substrate_context_job_selected_ref: ArtifactRef | None = None
         try:
             if not job.payload_ref:
                 raise RuntimeError("control job payload ref is missing")
@@ -4990,6 +4992,7 @@ class ControlPlaneService(
                             problem: DesignProblem,
                         ) -> object | None:
                             nonlocal cycle_substrate_context_job_ref
+                            nonlocal cycle_substrate_context_job_selected_ref
                             if configured_candidate_owner:
                                 admitted = admission_owner.admit_context(
                                     problem=problem,
@@ -5038,10 +5041,11 @@ class ControlPlaneService(
                                     "cycle_substrate_context_job_replay_changed_content"
                                 )
                             cycle_substrate_context_job_ref = str(context_ref.artifact_id)
+                            cycle_substrate_context_job_selected_ref = context_ref
                             if offer is not None:
                                 handoff = CandidateSimulationContextHandoff(
                                     context=replayed.context,
-                                    context_job_ref=cycle_substrate_context_job_ref,
+                                    context_job_ref=context_ref,
                                     profile=offer.profile,
                                     profile_config_ref=offer.profile_config_ref,
                                     job_id=job.job_id,
@@ -5058,8 +5062,10 @@ class ControlPlaneService(
                                     )
                                     return (
                                         current.content_hash == replayed.content_hash
-                                        and str(context_ref.artifact_id)
-                                        == handoff.context_job_ref
+                                        and artifact_ref_identity_key(context_ref)
+                                        == artifact_ref_identity_key(
+                                            handoff.context_job_ref
+                                        )
                                     )
 
                                 nonlocal candidate_simulation_currentness_resolver
@@ -5509,9 +5515,17 @@ class ControlPlaneService(
                                 {
                                     "cycle_substrate_context_job_ref": (
                                         cycle_substrate_context_job_ref
-                                    )
+                                    ),
+                                    "cycle_substrate_context_job_selected_ref": (
+                                        cycle_substrate_context_job_selected_ref.model_dump(
+                                            mode="json"
+                                        )
+                                    ),
                                 }
-                                if cycle_substrate_context_job_ref is not None
+                                if (
+                                    cycle_substrate_context_job_ref is not None
+                                    and cycle_substrate_context_job_selected_ref is not None
+                                )
                                 else {}
                             ),
                         }

@@ -805,6 +805,117 @@ def test_source_replay_requires_actual_persistence_owner_profile(tmp_path):
             GenerationSourceRepository(other).load(ref, run_id="synthetic-owner-profile")
 
 
+def test_typed_source_reference_roundtrips_v1_bytes_without_changing_string_api(tmp_path):
+    """The source owner retains its exact CAS view while v1 history stays unchanged."""
+    import hashlib
+
+    from polisyos.core import canon
+    from polisyos.core.artifacts import ArtifactWriteOptions
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_source import _SOURCE_CANON
+
+    problem = _test_design_problem()
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=n4.gy_content_hash(problem.model_dump(mode="json")),
+        model_id="synthetic-typed-source-ref",
+        preflight=n4.ModelProfilePreflight(
+            status="gateway_unavailable", model_id="synthetic-typed-source-ref"
+        ),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1, candidate_count=0, unique_diversity_key_count=0
+        ),
+    )
+    source = result.as_organ_run()
+    seed_store = FileSystemCAS(tmp_path / "source-seed")
+    seed_repository = GenerationSourceRepository(seed_store)
+    seed_id = seed_repository.persist(
+        run_id="synthetic-typed-source-ref",
+        cycle_index=0,
+        problem=problem,
+        organ=source,
+        execution_scope="contract_testing",
+    )
+    source_body = seed_store.get_bytes(seed_id)
+
+    store = FileSystemCAS(tmp_path / "typed-source-cas").with_ambient_ownership_enforcement()
+    repository = GenerationSourceRepository(store)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        wrong_default = store.put_bytes(
+            source_body,
+            ArtifactWriteOptions(
+                kind="runtime.unrelated_source_view", media_type="application/json"
+            ),
+        )
+        typed_ref = repository.persist_ref(
+            run_id="synthetic-typed-source-ref",
+            cycle_index=0,
+            problem=problem,
+            organ=source,
+            execution_scope="contract_testing",
+        )
+
+        assert isinstance(typed_ref, ArtifactRef)
+        assert typed_ref.artifact_id == wrong_default.artifact_id
+        assert typed_ref.manifest_profile_sha256 != wrong_default.manifest_profile_sha256
+        body = store.get_bytes(typed_ref)
+        restored = repository.load(typed_ref, run_id="synthetic-typed-source-ref")
+        n6_receipt = repository.preservation_receipt(
+            run_id="synthetic-typed-source-ref",
+            refs=(typed_ref,),
+            expected=restored.identities(),
+        )
+        assert n6_receipt.status == "drift"
+        assert "source_selected_view_not_retained_by_n6_id" in n6_receipt.issues
+        assert n6_receipt.source_refs == (str(typed_ref.artifact_id),)
+        with pytest.raises(ValueError, match="generation_source_owner_profile_mismatch"):
+            repository.load(str(typed_ref.artifact_id), run_id="synthetic-typed-source-ref")
+
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"), pytest.raises(
+        ArtifactOwnershipError
+    ):
+        store.get_bytes(typed_ref)
+
+    body_hash = "sha256:" + hashlib.sha256(body).hexdigest()
+    assert body_hash == str(typed_ref.artifact_id)
+    assert body == source_body
+    assert body == canon.to_canonical_bytes(restored, _SOURCE_CANON)
+
+    legacy_store = FileSystemCAS(tmp_path / "legacy-source-cas")
+    legacy_repository = GenerationSourceRepository(legacy_store)
+    legacy_ref = legacy_repository.persist(
+        run_id="synthetic-typed-source-ref",
+        cycle_index=0,
+        problem=problem,
+        organ=source,
+        execution_scope="contract_testing",
+    )
+    assert isinstance(legacy_ref, str)
+    assert legacy_repository.load(
+        legacy_ref, run_id="synthetic-typed-source-ref"
+    ) == restored
+
+    default_view_store = FileSystemCAS(tmp_path / "default-view-source-cas")
+    default_view_repository = GenerationSourceRepository(default_view_store)
+    default_view_ref = default_view_repository.persist_ref(
+        run_id="synthetic-typed-source-ref",
+        cycle_index=0,
+        problem=problem,
+        organ=source,
+        execution_scope="contract_testing",
+    )
+    assert default_view_ref.manifest_profile_sha256 is None
+    assert default_view_store.get_manifest(default_view_ref).kind == (
+        "runtime.generation_source_handoff"
+    )
+    assert default_view_repository.load(
+        default_view_ref, run_id="synthetic-typed-source-ref"
+    ) == restored
+
+
 def test_candidate_owner_profile_preserves_warning_view_semantics(tmp_path):
     """An omitted warnings option means no warnings, not an unknown profile."""
     from dataclasses import replace

@@ -125,6 +125,39 @@ def test_verify_batch_records_local_element_errors_and_finishes_independent_item
     assert "local item access denied" in (by_id[str(denied_id)].message or "")
 
 
+def test_verify_batch_deduplicates_equivalent_typed_ids_from_generator(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Equivalent typed IDs must be processed once at the public batch boundary."""
+    store = FileSystemCAS(tmp_path / "cas")
+    first = ArtifactID.from_sha256_hex("a" * 64)
+    repeated = ArtifactID(str(first))
+    verified: list[ArtifactID] = []
+
+    def verify_once(
+        artifact_id: ArtifactID,
+        _verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        del strict_identity
+        verified.append(artifact_id)
+        return _valid_result(artifact_id)
+
+    monkeypatch.setattr(store, "verify_signature", verify_once)
+
+    report = store.verify_all_signatures(
+        Ed25519Verifier(),
+        artifact_ids=(artifact_id for artifact_id in (first, repeated)),
+        max_workers=1,
+    )
+
+    assert report.total == 1
+    assert report.valid == 1
+    assert verified == [first]
+
+
 def test_verify_batch_records_preflight_error_without_marking_it_valid(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

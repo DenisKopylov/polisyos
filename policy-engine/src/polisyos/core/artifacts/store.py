@@ -134,6 +134,17 @@ if TYPE_CHECKING:
 PutOptions = ArtifactWriteOptions
 ArtifactMemberKind = Literal["blob", "manifest", "signature"]
 
+
+def _canonical_artifact_id_sequence(
+    artifact_ids: Iterable[ArtifactID],
+) -> tuple[ArtifactID, ...]:
+    """Return typed IDs unique and ordered by their canonical content identity."""
+    by_hex: dict[str, ArtifactID] = {}
+    for artifact_id in artifact_ids:
+        by_hex.setdefault(artifact_id.hex, artifact_id)
+    return tuple(by_hex[hex_id] for hex_id in sorted(by_hex))
+
+
 _TRANSACTION_INTENT_SCHEMA = "policyos.artifact_ownership_transaction_intent.v2"
 _TRANSACTION_INTENT_SCHEMA_V3 = "policyos.artifact_ownership_transaction_intent.v3"
 
@@ -1458,13 +1469,8 @@ class FileSystemCAS:
         cancel_event: threading.Event | None = None,
     ) -> BulkSigningReport:
         """Sign many artifacts concurrently and summarize signed/skipped/error counts."""
-        ids = tuple(
-            sorted(
-                set(artifact_ids)
-                if artifact_ids is not None
-                else self._bulk_inventory_artifact_ids(),
-                key=lambda artifact_id: artifact_id.hex,
-            )
+        ids = _canonical_artifact_id_sequence(
+            artifact_ids if artifact_ids is not None else self._bulk_inventory_artifact_ids()
         )
         return _sign_all_artifacts(
             signer=signer,
@@ -1492,13 +1498,8 @@ class FileSystemCAS:
         cancel_event: threading.Event | None = None,
     ) -> BulkVerificationReport:
         """Verify many artifact signatures concurrently and summarize verifier outcomes."""
-        ids = tuple(
-            sorted(
-                set(artifact_ids)
-                if artifact_ids is not None
-                else self._bulk_inventory_artifact_ids(),
-                key=lambda artifact_id: artifact_id.hex,
-            )
+        ids = _canonical_artifact_id_sequence(
+            artifact_ids if artifact_ids is not None else self._bulk_inventory_artifact_ids()
         )
         return _verify_all_signatures(
             verifier=verifier,
@@ -3132,15 +3133,10 @@ class FileSystemCAS:
                 "bulk_cas_inventory_not_established:"
                 f"{snapshot.verdict}:{snapshot.reason or 'no_reason'}"
             )
-        return tuple(
-            sorted(
-                {
-                    entry.artifact_ref
-                    for entry in snapshot.entries
-                    if isinstance(entry.artifact_ref, ArtifactID)
-                },
-                key=lambda artifact_id: artifact_id.hex,
-            )
+        return _canonical_artifact_id_sequence(
+            entry.artifact_ref
+            for entry in snapshot.entries
+            if isinstance(entry.artifact_ref, ArtifactID)
         )
 
     def iter_artifact_ids(self) -> list[ArtifactID]:

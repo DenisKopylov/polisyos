@@ -24,6 +24,7 @@ from polisyos.core.run.context import RunContext
 from polisyos.core.security.cell import CellSpec, CellTier, TenantSpec
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.security.registry import CellRegistry
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.container import RuntimeContainerOverrides
 from polisyos.runtime.http.dependencies import RuntimeApiContext, build_runtime_api_context
@@ -120,13 +121,14 @@ class _PublicationCase:
             )
 
     def own_artifacts(self) -> None:
-        for artifact_id in self.context.store.iter_artifact_ids():
-            self.context.store.record_artifact_owner(
-                artifact_id,
-                tenant_id=_TENANT,
-                cell_id=self.cell_id,
-                writer="tests.synthetic.publication",
-            )
+        with tenant_scope(None, tenant_id=_TENANT, cell_id=self.cell_id):
+            for artifact_id in self.context.store.iter_artifact_ids():
+                self.context.store.record_artifact_owner(
+                    artifact_id,
+                    tenant_id=_TENANT,
+                    cell_id=self.cell_id,
+                    writer="tests.synthetic.publication",
+                )
 
     def post(self, client: TestClient, publication_class: str, **kwargs):
         return client.post(
@@ -149,32 +151,10 @@ def _build_publication_case(
     context = build_runtime_api_context(
         cas_root=tmp_path / "cas", core_runs_root=tmp_path / "cas" / "runs"
     )
-    validity = ControlPlaneService.build_decision_validity_owner(context.store)
-    evidence_refs = None
-    if selected_profile_evidence:
-        data = b"Synthetic evidence with two selected manifest profiles."
-
-        def options(version: str) -> ArtifactWriteOptions:
-            return ArtifactWriteOptions(
-                kind="fixture.claim_evidence",
-                media_type="text/plain",
-                schema=SchemaInfo(name="fixture.claim_evidence", version=version),
-            )
-
-        context.store.put_bytes(data, options("1"))
-        evidence_refs = (
-            context.store.put_bytes(data, options("2")),
-            context.store.put_bytes(data, options("3")),
-        )
-    owner, _, packet_ref, _ = _build_packet_bound_owner_case(
-        store=context.store,
-        head_index_root=tmp_path / "heads",
-        completed_batches=validity,
-        evidence_refs=evidence_refs,
-    )
     registry = CellRegistry()
     cell = CellSpec(tier=CellTier.SHARED, region="us-gov-west-1", max_tenants=50)
     registry.register_cell(cell)
+    evidence_refs = None
     bearer = _fixture_bearer("governed-public-admin")
     foreign_bearer = _fixture_bearer("governed-public-foreign")
     provider = _IdentityProvider({})
@@ -192,31 +172,54 @@ def _build_publication_case(
                 roles=frozenset({PolicyOSRole.ADMIN}),
             ),
         )
-    registry_ref = context.store.put_json(
-        {"purpose": "explicit synthetic governed-public HTTP fixture"},
-        ArtifactWriteOptions(kind="core.registry_bundle", media_type="application/json"),
-    )
-    run = RunContext.start(
-        store=context.store,
-        registry_bundle=registry_ref,
-        run_id="packet-snapshot",
-        tenant_id=_TENANT,
-        cell_id=cell.cell_id,
-    )
-    run.add_output(packet_ref)
-    run.finalize(status="completed")
-    envelope = DecisionValidityEnvelope(
-        decision_lineage_key="synthetic-governed-public-lineage",
-        policy_fingerprint="synthetic-governed-public-v1",
-    )
-    validity.register_decision_packet(
-        packet_ref=str(packet_ref.artifact_id),
-        envelope=envelope,
-        baseline=DecisionValidityEvaluation(
-            decision_lineage_key=envelope.decision_lineage_key,
-            status=DecisionValidityStatus.ACTIVE,
-        ),
-    )
+    with tenant_scope(None, tenant_id=_TENANT, cell_id=cell.cell_id):
+        validity = ControlPlaneService.build_decision_validity_owner(context.store)
+        if selected_profile_evidence:
+            data = b"Synthetic evidence with two selected manifest profiles."
+
+            def options(version: str) -> ArtifactWriteOptions:
+                return ArtifactWriteOptions(
+                    kind="fixture.claim_evidence",
+                    media_type="text/plain",
+                    schema=SchemaInfo(name="fixture.claim_evidence", version=version),
+                )
+
+            context.store.put_bytes(data, options("1"))
+            evidence_refs = (
+                context.store.put_bytes(data, options("2")),
+                context.store.put_bytes(data, options("3")),
+            )
+        owner, _, packet_ref, _ = _build_packet_bound_owner_case(
+            store=context.store,
+            head_index_root=tmp_path / "heads",
+            completed_batches=validity,
+            evidence_refs=evidence_refs,
+        )
+        registry_ref = context.store.put_json(
+            {"purpose": "explicit synthetic governed-public HTTP fixture"},
+            ArtifactWriteOptions(kind="core.registry_bundle", media_type="application/json"),
+        )
+        run = RunContext.start(
+            store=context.store,
+            registry_bundle=registry_ref,
+            run_id="packet-snapshot",
+            tenant_id=_TENANT,
+            cell_id=cell.cell_id,
+        )
+        run.add_output(packet_ref)
+        run.finalize(status="completed")
+        envelope = DecisionValidityEnvelope(
+            decision_lineage_key="synthetic-governed-public-lineage",
+            policy_fingerprint="synthetic-governed-public-v1",
+        )
+        validity.register_decision_packet(
+            packet_ref=str(packet_ref.artifact_id),
+            envelope=envelope,
+            baseline=DecisionValidityEvaluation(
+                decision_lineage_key=envelope.decision_lineage_key,
+                status=DecisionValidityStatus.ACTIVE,
+            ),
+        )
     publisher, institution = KeyPair.generate(), KeyPair.generate()
     private_path = tmp_path / "publisher-private.pem"
     private_path.write_bytes(publisher.private_pem())
@@ -284,57 +287,62 @@ def _prepare_and_authorize(case: _PublicationCase) -> dict[str, object]:
         assert not_authorized.status_code == 409, not_authorized.text
         assert not_authorized.json()["detail"] == "publication_mandate_not_configured"
         verifier_epoch = service.governed_owner.slot.verifier_epoch
-    snapshot = case.claim_owner.resolve_current_for_packet(decision_packet_ref=case.packet_ref)
-    assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
-    now = datetime.now(UTC)
-    public_document = draft["public_document"]
-    assert isinstance(public_document, dict)
-    version = public_document["schema_version"].rsplit(".", maxsplit=1)[1]
-    mandate = PublicationMandateStatement(
-        schema_version=f"polisyos.publication_mandate.{version}",
-        profile=public_document["profile"],
-        rule_version=f"governed-public-record.{version}",
-        authority_issuer_id="synthetic-appointing-institution",
-        authority_key_id=case.institution.key_id,
-        issuer_id="synthetic-publication-issuer",
-        signing_key_id=case.publisher.key_id,
-        public_document_digest=draft["public_document_digest"],
-        decision_packet_ref=case.packet_ref,
-        owner_scope_ref=snapshot.head.statement.owner_key.scope_ref,
-        ledger_artifact_ref=snapshot.head.statement.ledger_artifact_ref,
-        authority_basis="Explicit synthetic test appointment; no real institution is represented.",
-        issued_at=now,
-        valid_from=now - timedelta(minutes=1),
-        valid_until=now + timedelta(days=1),
-        staleness_after_seconds=5,
-        verifier_epoch=verifier_epoch,
-    )
-    raw = json.dumps(
-        mandate.model_dump(mode="json", exclude_none=False),
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-        allow_nan=False,
-    ).encode()
-    mandate_ref = case.context.store.put_bytes(
-        raw,
-        ArtifactWriteOptions(
-            kind="polisyos.publication_mandate",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.publication_mandate",
-                version=mandate.schema_version.rsplit(".", maxsplit=1)[1].removeprefix("v"),
+    with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+        snapshot = case.claim_owner.resolve_current_for_packet(
+            decision_packet_ref=case.packet_ref
+        )
+        assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
+        now = datetime.now(UTC)
+        public_document = draft["public_document"]
+        assert isinstance(public_document, dict)
+        version = public_document["schema_version"].rsplit(".", maxsplit=1)[1]
+        mandate = PublicationMandateStatement(
+            schema_version=f"polisyos.publication_mandate.{version}",
+            profile=public_document["profile"],
+            rule_version=f"governed-public-record.{version}",
+            authority_issuer_id="synthetic-appointing-institution",
+            authority_key_id=case.institution.key_id,
+            issuer_id="synthetic-publication-issuer",
+            signing_key_id=case.publisher.key_id,
+            public_document_digest=draft["public_document_digest"],
+            decision_packet_ref=case.packet_ref,
+            owner_scope_ref=snapshot.head.statement.owner_key.scope_ref,
+            ledger_artifact_ref=snapshot.head.statement.ledger_artifact_ref,
+            authority_basis=(
+                "Explicit synthetic test appointment; no real institution is represented."
             ),
-        ),
-    )
-    case.context.store.sign_artifact(
-        mandate_ref.artifact_id,
-        Ed25519Signer(case.institution.private_key),
-        signer_identity=mandate.authority_issuer_id,
-    )
-    case.config["mandate_ref"] = mandate_ref.model_dump(mode="json")
-    case.config_path.write_text(json.dumps(case.config))
-    case.own_artifacts()
+            issued_at=now,
+            valid_from=now - timedelta(minutes=1),
+            valid_until=now + timedelta(days=1),
+            staleness_after_seconds=5,
+            verifier_epoch=verifier_epoch,
+        )
+        raw = json.dumps(
+            mandate.model_dump(mode="json", exclude_none=False),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode()
+        mandate_ref = case.context.store.put_bytes(
+            raw,
+            ArtifactWriteOptions(
+                kind="polisyos.publication_mandate",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.publication_mandate",
+                    version=mandate.schema_version.rsplit(".", maxsplit=1)[1].removeprefix("v"),
+                ),
+            ),
+        )
+        case.context.store.sign_artifact(
+            mandate_ref.artifact_id,
+            Ed25519Signer(case.institution.private_key),
+            signer_identity=mandate.authority_issuer_id,
+        )
+        case.config["mandate_ref"] = mandate_ref.model_dump(mode="json")
+        case.config_path.write_text(json.dumps(case.config))
+        case.own_artifacts()
     return draft
 
 
@@ -377,7 +385,10 @@ def test_public_decision_projection_is_custody_bound(publication_case: _Publicat
         assert result["dimensions"]["projection_faithfulness"] == "established"
         assert result["dimensions"]["current_authority"] == "not_established"
         assert result["dimensions"]["public_history_establishment"] == "not_established"
-        snapshot = case.claim_owner.resolve_current_for_packet(decision_packet_ref=case.packet_ref)
+        with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+            snapshot = case.claim_owner.resolve_current_for_packet(
+                decision_packet_ref=case.packet_ref
+            )
         serialized = json.dumps(result)
         for private in (
             str(case.packet_ref.artifact_id),
@@ -388,19 +399,22 @@ def test_public_decision_projection_is_custody_bound(publication_case: _Publicat
             snapshot.ledger.events[0].event_id,
         ):
             assert private not in serialized
-        control = client.app.state.runtime_container.control_service
-        watched = control.run_published_signature_custody_maintenance()
-        assert watched.status == "watched"
-        scan = custody.PublishedSignatureCustodyScan.model_validate(
-            from_canonical_bytes(case.context.store.get_bytes(watched.scan_receipt_ref.artifact_id))
-        )
-        population = custody.resolve_public_signature_population(
-            case.context.store, scan.population_ref
-        )
-        owner = (
-            client.app.state.runtime_container.public_decision_verification_service.governed_owner
-        )
-        binding = owner.resolve_custody_binding(record_id)
+        with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+            control = client.app.state.runtime_container.control_service
+            watched = control.run_published_signature_custody_maintenance()
+            assert watched.status == "watched"
+            scan = custody.PublishedSignatureCustodyScan.model_validate(
+                from_canonical_bytes(
+                    case.context.store.get_bytes(watched.scan_receipt_ref.artifact_id)
+                )
+            )
+            population = custody.resolve_public_signature_population(
+                case.context.store, scan.population_ref
+            )
+            owner = (
+                client.app.state.runtime_container.public_decision_verification_service.governed_owner
+            )
+            binding = owner.resolve_custody_binding(record_id)
         assert population.snapshot.members[0].signature_ref == binding.signature_ref
         assert population.snapshot.members[0].decision_packet_ref == case.packet_ref
         assert population.snapshot.members[0].affected_claim_ids == ("snapshot-claim",)
@@ -414,9 +428,10 @@ def test_http_publication_relocates_selected_manifest_profiles(
         tmp_path, monkeypatch, selected_profile_evidence=True
     )
     draft = _prepare_and_authorize(case)
-    snapshot = case.claim_owner.resolve_current_for_packet(
-        decision_packet_ref=case.packet_ref
-    )
+    with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+        snapshot = case.claim_owner.resolve_current_for_packet(
+            decision_packet_ref=case.packet_ref
+        )
     assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
     source_refs = snapshot.ledger.current_claims[0].evidence_refs
     assert len(source_refs) == 2
@@ -453,39 +468,40 @@ def test_first_governed_public_signature_is_custody_bound(
         record_id, result = _issue_and_read(case, client)
         assert container.public_decision_verification_service.issued_record_ids() == (record_id,)
         assert result["dimensions"]["public_history_establishment"] == "not_established"
-        binding = (
-            container.public_decision_verification_service.governed_owner.resolve_custody_binding(
-                record_id
+        with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+            binding = (
+                container.public_decision_verification_service.governed_owner.resolve_custody_binding(
+                    record_id
+                )
             )
-        )
-        due = binding.published_at + timedelta(seconds=binding.staleness_after_seconds + 1)
+            due = binding.published_at + timedelta(seconds=binding.staleness_after_seconds + 1)
 
-        class DueCustodyClock(datetime):
-            @classmethod
-            def now(cls, tz=None):
-                return due if tz is None else due.astimezone(tz)
+            class DueCustodyClock(datetime):
+                @classmethod
+                def now(cls, tz=None):
+                    return due if tz is None else due.astimezone(tz)
 
-        monkeypatch.setattr(custody, "datetime", DueCustodyClock)
-        watched = container.control_service.run_published_signature_custody_maintenance()
-        assert watched.status == "watched", watched
-        assert watched.scan_receipt_ref is not None
-        assert watched.monitor_event_refs and watched.lifecycle_bridge_result_refs
-        bridge = load_lifecycle_bridge_result(
-            case.context.store, watched.lifecycle_bridge_result_refs[0]
-        )
-        assert bridge.decision_packet_ref == case.packet_ref
-        assert bridge.monitor_projection_authority == "advisory"
-        assert bridge.updated_ledger.events[-1].action is ClaimLifecycleAction.REVIEW_REQUIRED
-        outbox = container.control_service.list_control_outbox(limit=100)
-        matching = [
-            event
-            for event in outbox.events
-            if event.topic == "control.decision_validity.published_signature_custody"
-        ]
-        assert matching
-        assert matching[0].payload[
-            "lifecycle_bridge_result_ref"
-        ] == watched.lifecycle_bridge_result_refs[0].model_dump(mode="json")
+            monkeypatch.setattr(custody, "datetime", DueCustodyClock)
+            watched = container.control_service.run_published_signature_custody_maintenance()
+            assert watched.status == "watched", watched
+            assert watched.scan_receipt_ref is not None
+            assert watched.monitor_event_refs and watched.lifecycle_bridge_result_refs
+            bridge = load_lifecycle_bridge_result(
+                case.context.store, watched.lifecycle_bridge_result_refs[0]
+            )
+            assert bridge.decision_packet_ref == case.packet_ref
+            assert bridge.monitor_projection_authority == "advisory"
+            assert bridge.updated_ledger.events[-1].action is ClaimLifecycleAction.REVIEW_REQUIRED
+            outbox = container.control_service.list_control_outbox(limit=100)
+            matching = [
+                event
+                for event in outbox.events
+                if event.topic == "control.decision_validity.published_signature_custody"
+            ]
+            assert matching
+            assert matching[0].payload[
+                "lifecycle_bridge_result_ref"
+            ] == watched.lifecycle_bridge_result_refs[0].model_dump(mode="json")
 
 
 def test_governed_http_rejects_foreign_tenant_body_and_unappointed_source(
@@ -516,33 +532,38 @@ def test_governed_http_rejects_a_candidate_ledger_source(
 ) -> None:
     case = publication_case
     store = case.context.store
-    snapshot = case.claim_owner.resolve_current_for_packet(decision_packet_ref=case.packet_ref)
     candidate_run_id = "candidate-only"
-    claim_payload = snapshot.ledger.current_claims[0].model_dump()
-    claim_payload["run_id"] = candidate_run_id
-    candidate_ref = case.claim_owner.persist_candidate_ledger(
-        ledger=ClaimLedger(
-            run_id=candidate_run_id, claims=[ClaimRecord.model_validate(claim_payload)]
+    with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+        snapshot = case.claim_owner.resolve_current_for_packet(
+            decision_packet_ref=case.packet_ref
         )
-    )
-    packet_ref = store.put_json(
-        {"run_id": candidate_run_id, "claims_ref": candidate_ref.model_dump(mode="json")},
-        ArtifactWriteOptions(kind="scientist.decision_packet", media_type="application/json"),
-    )
-    registry_ref = store.put_json(
-        {"purpose": "candidate negative"},
-        ArtifactWriteOptions(kind="core.registry_bundle", media_type="application/json"),
-    )
-    run = RunContext.start(
-        store=store,
-        registry_bundle=registry_ref,
-        run_id=candidate_run_id,
-        tenant_id=_TENANT,
-        cell_id=case.cell_id,
-    )
-    run.add_output(packet_ref)
-    run.finalize(status="completed")
-    case.own_artifacts()
+        claim_payload = snapshot.ledger.current_claims[0].model_dump()
+        claim_payload["run_id"] = candidate_run_id
+        candidate_ref = case.claim_owner.persist_candidate_ledger(
+            ledger=ClaimLedger(
+                run_id=candidate_run_id, claims=[ClaimRecord.model_validate(claim_payload)]
+            )
+        )
+        packet_ref = store.put_json(
+            {"run_id": candidate_run_id, "claims_ref": candidate_ref.model_dump(mode="json")},
+            ArtifactWriteOptions(
+                kind="scientist.decision_packet", media_type="application/json"
+            ),
+        )
+        registry_ref = store.put_json(
+            {"purpose": "candidate negative"},
+            ArtifactWriteOptions(kind="core.registry_bundle", media_type="application/json"),
+        )
+        run = RunContext.start(
+            store=store,
+            registry_bundle=registry_ref,
+            run_id=candidate_run_id,
+            tenant_id=_TENANT,
+            cell_id=case.cell_id,
+        )
+        run.add_output(packet_ref)
+        run.finalize(status="completed")
+        case.own_artifacts()
     with case.client() as client:
         refused = client.post(
             f"/api/v1/runs/{candidate_run_id}/public-verification-record",
@@ -568,14 +589,16 @@ def test_governed_http_corruption_removes_public_content_and_custody_membership(
     with case.client() as client:
         record_id, _ = _issue_and_read(case, client)
         container = client.app.state.runtime_container
-        binding = (
-            container.public_decision_verification_service.governed_owner.resolve_custody_binding(
-                record_id
+        with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+            binding = (
+                container.public_decision_verification_service.governed_owner.resolve_custody_binding(
+                    record_id
+                )
             )
-        )
         store = case.context.store
         if corruption == "signature":
-            signature = store.get_signature(binding.signature_ref)
+            with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+                signature = store.get_signature(binding.signature_ref)
             overwrite_signature_sidecar_for_test(
                 store,
                 binding.signature_ref,
@@ -583,9 +606,10 @@ def test_governed_http_corruption_removes_public_content_and_custody_membership(
                 tmp_root=tmp_path,
             )
         else:
-            snapshot = case.claim_owner.resolve_current_for_packet(
-                decision_packet_ref=case.packet_ref
-            )
+            with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+                snapshot = case.claim_owner.resolve_current_for_packet(
+                    decision_packet_ref=case.packet_ref
+                )
             blob, _ = store._paths(snapshot.head.statement.ledger_artifact_ref.artifact_id)
             blob.write_bytes(blob.read_bytes() + b" ")
         refused = client.get(
@@ -593,7 +617,8 @@ def test_governed_http_corruption_removes_public_content_and_custody_membership(
         ).json()
         assert refused["report_authentication"] == "invalid", refused
         assert refused["public_document"] is None and refused["promoted_record"] is None
-        watched = container.control_service.run_published_signature_custody_maintenance()
+        with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+            watched = container.control_service.run_published_signature_custody_maintenance()
         assert watched.status == "not_established"
         assert not watched.monitor_event_refs
 
@@ -606,7 +631,8 @@ def test_governed_http_rejects_invalid_mandate_signature_before_issuance(
     case = publication_case
     _prepare_and_authorize(case)
     mandate_ref = ArtifactRef.model_validate(case.config["mandate_ref"])
-    signature = case.context.store.get_signature(mandate_ref)
+    with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+        signature = case.context.store.get_signature(mandate_ref)
     assert signature is not None
     overwrite_signature_sidecar_for_test(
         case.context.store,

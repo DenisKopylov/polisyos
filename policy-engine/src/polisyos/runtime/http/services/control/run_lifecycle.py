@@ -26,7 +26,6 @@ from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ProducerInfo,
     SchemaInfo,
-    artifact_ref_identity_key,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
@@ -4941,7 +4940,7 @@ class ControlPlaneService(
                         }
                     )
                     cycle_substrate_context_resolver = None
-                    candidate_simulation_currentness_resolver = None
+                    candidate_simulation_context_binding: dict[str, object] = {}
                     profile_id = payload.get("target_world_scope_profile_id")
                     admission_owner = self._cycle_substrate_context_admission_owner
                     from polisyos.runtime.quality.cycle_substrate import (
@@ -4954,6 +4953,100 @@ class ControlPlaneService(
                     )
                     bound_tenant_id = execution_scope.tenant_id
                     bound_cell_id = execution_scope.cell_id
+
+                    def assert_candidate_simulation_currentness() -> bool:
+                        """Recompute the selected profile/context under the live worker lease."""
+
+                        from polisyos.core.artifacts.manifest import (
+                            ArtifactRef,
+                            artifact_ref_identity_key,
+                        )
+                        from polisyos.runtime.quality.candidate_simulation import (
+                            CandidateSimulationContextHandoff,
+                            CandidateSimulationContextOffer,
+                            candidate_simulation_profile_ref,
+                        )
+                        from polisyos.runtime.quality.cycle_substrate import (
+                            ConfiguredCandidateSimulationContextAdmissionOwner,
+                            CycleSubstrateContextArtifactOwner,
+                            CycleSubstrateContextJobArtifact,
+                            VerifiedNLJobScope,
+                            _cycle_job_v1_design_problem_ref,
+                            _cycle_job_v1_profile_selection_ref,
+                        )
+                        from polisyos.runtime.quality.design_problem import DesignProblem
+
+                        binding = candidate_simulation_context_binding
+                        handoff = binding.get("handoff")
+                        context_owner = binding.get("context_owner")
+                        context_ref = binding.get("context_ref")
+                        problem = binding.get("problem")
+                        verified_scope = binding.get("verified_nl_job_scope")
+                        admitted_offer = binding.get("offer")
+                        if (
+                            not configured_candidate_owner
+                            or type(admission_owner)
+                            is not ConfiguredCandidateSimulationContextAdmissionOwner
+                            or type(handoff) is not CandidateSimulationContextHandoff
+                            or type(context_owner) is not CycleSubstrateContextArtifactOwner
+                            or type(context_ref) is not ArtifactRef
+                            or type(problem) is not DesignProblem
+                            or type(verified_scope) is not VerifiedNLJobScope
+                            or not verified_scope._was_issued_by_verified_nl_execution_owner
+                            or type(admitted_offer) is not CandidateSimulationContextOffer
+                        ):
+                            return False
+                        try:
+                            current_context_job = context_owner.resolve_for_current_job(
+                                context_ref,
+                                problem=problem,
+                                verified_nl_job_scope=verified_scope,
+                            )
+                        except ControlJobLeaseLostError:
+                            return False
+                        current_offer = admission_owner.admit_context(
+                            problem=problem,
+                            job_id=str(job.job_id),
+                            run_id=str(job.run_id),
+                            tenant_id=bound_tenant_id,
+                            cell_id=bound_cell_id,
+                        )
+                        if (
+                            type(current_offer) is not CandidateSimulationContextOffer
+                            or type(current_context_job) is not CycleSubstrateContextJobArtifact
+                        ):
+                            return False
+                        expected_problem_ref = _cycle_job_v1_design_problem_ref(problem)
+                        return (
+                            _cycle_job_v1_profile_selection_ref(problem)
+                            == handoff.profile.profile_selection_ref
+                            and current_offer.profile == admitted_offer.profile
+                            and current_offer.profile == handoff.profile
+                            and current_offer.profile_config_ref
+                            == admitted_offer.profile_config_ref
+                            == handoff.profile_config_ref
+                            == candidate_simulation_profile_ref(handoff.profile)
+                            and current_offer.context == admitted_offer.context
+                            and current_offer.context == handoff.context
+                            and current_context_job.design_problem_ref == expected_problem_ref
+                            and current_context_job.problem == problem
+                            and current_context_job.context == current_offer.context
+                            and current_context_job.job_id == handoff.job_id == str(job.job_id)
+                            and current_context_job.run_id == handoff.run_id == str(job.run_id)
+                            and current_context_job.tenant_id
+                            == handoff.tenant_id
+                            == bound_tenant_id
+                            and current_context_job.cell_id == handoff.cell_id == bound_cell_id
+                            and artifact_ref_identity_key(context_ref)
+                            == artifact_ref_identity_key(handoff.context_job_ref)
+                        )
+
+                    # Compilation calls the context resolver only after this
+                    # callback is passed downstream. Prebind one fail-closed
+                    # predicate so every admitted handoff reaches N6 paired.
+                    candidate_simulation_currentness_resolver = (
+                        assert_candidate_simulation_currentness
+                    )
                     if (
                         intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
                         and admission_owner is not None
@@ -5054,23 +5147,15 @@ class ControlPlaneService(
                                     cell_id=bound_cell_id,
                                 )
 
-                                def assert_candidate_simulation_currentness() -> bool:
-                                    current = context_owner.resolve_for_current_job(
-                                        context_ref,
-                                        problem=problem,
-                                        verified_nl_job_scope=verified_nl_job_scope,
-                                    )
-                                    return (
-                                        current.content_hash == replayed.content_hash
-                                        and artifact_ref_identity_key(context_ref)
-                                        == artifact_ref_identity_key(
-                                            handoff.context_job_ref
-                                        )
-                                    )
-
-                                nonlocal candidate_simulation_currentness_resolver
-                                candidate_simulation_currentness_resolver = (
-                                    assert_candidate_simulation_currentness
+                                candidate_simulation_context_binding.update(
+                                    {
+                                        "handoff": handoff,
+                                        "context_owner": context_owner,
+                                        "context_ref": context_ref,
+                                        "problem": problem,
+                                        "verified_nl_job_scope": verified_nl_job_scope,
+                                        "offer": offer,
+                                    }
                                 )
                                 return handoff
                             return replayed.context

@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
+from typing import get_args
 
 import pytest
 from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
@@ -502,6 +503,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         N4CandidateProposalSimulationRecord,
     )
     from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+    from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
     from polisyos.scientist.orchestration.llm import factory as llm_factory
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests.unit.runtime.http.test_control_job_execution_intent import (
@@ -686,6 +688,28 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert context_job.profile_admission_status == "not_established"
         assert context_job.s8_status == "blocked"
 
+        compiled_payload = canon.from_canonical_bytes(
+            service._artifact_store.get_bytes(
+                progress["compiled_recursive_generation_cycle_ref"]
+            )
+        )
+        compiled_record = CompiledRecursiveGenerationCycleRun.model_validate(
+            compiled_payload
+        )
+        leaf_nodes = compiled_record.recursive_run.leaf_nodes
+        assert len(leaf_nodes) == 1
+        leaf_run = leaf_nodes[0].cycle_run
+        assert leaf_run is not None
+        voi_decision = leaf_run.cycles[-1].voi_decision
+        scheduler_actions = set(
+            get_args(
+                SchedulingDecision.model_fields["recommended_action"].annotation
+            )
+        )
+        assert voi_decision.scheduler_action in scheduler_actions
+        assert voi_decision.next_action == "blocked"
+        assert voi_decision.reason == "candidate_scenario_n5_only"
+
         assert n5_calls, "configured candidate profile did not reach the N5 port"
         input_record, observation, port_input_ref = next(
             (item, result, selected_ref)
@@ -709,6 +733,22 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert artifact_ref_identity_key(input_record.materialization.source_handoff_ref) == (
             artifact_ref_identity_key(input_record.n4_source_ref)
         )
+
+        # The content-bound N4 source must retain the exact profile-selected WMR
+        # in the K_ref that its grounding certificates consumed. Context markers
+        # alone do not prove that a fallback reference builder kept the owner.
+        n4_source = GenerationSourceRepository(service._artifact_store).load(
+            str(input_record.n4_source_ref.artifact_id),
+            run_id=str(completed.run_id),
+        )
+        assert n4_source.cycle_substrate_context is not None
+        assert n4_source.credal_reference_payload is not None
+        assert (
+            n4_source.credal_reference_payload["component_versions"]["WMR"]
+            == n4_source.cycle_substrate_context.world_model_record_content_hash
+            == context_job.context.world_model_record_content_hash
+        )
+
         assert type(observation).__name__ == "SimulationPortObservation"
         assert observation.status == "joint_simulated"
         assert observation.uncertainty_kind == "K_sim"
@@ -733,24 +773,11 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         ]
         assert effects and any(abs(value) > 0.1 for value in effects)
 
-        compiled_payload = canon.from_canonical_bytes(
-            service._artifact_store.get_bytes(
-                progress["compiled_recursive_generation_cycle_ref"]
-            )
-        )
-        compiled_record = CompiledRecursiveGenerationCycleRun.model_validate(
-            compiled_payload
-        )
-        leaf_nodes = compiled_record.recursive_run.leaf_nodes
-        assert len(leaf_nodes) == 1
-        leaf_run = leaf_nodes[0].cycle_run
-        assert leaf_run is not None
         assert leaf_run.terminal_status == "blocked"
         assert leaf_run.value_port.status == "value_pending_n8"
         assert leaf_run.value_port.authority_blockers == (
             "candidate_scenario_n5_only",
         )
-        assert leaf_run.cycles[-1].voi_decision.next_action == "blocked"
         assert leaf_run.promotion_port.status == "not_promoted"
         assert leaf_run.promotion_port.reason.startswith(
             "generation_cycle_blocked_before_n9:"
@@ -772,6 +799,13 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert type(actual_leaf_controller._promotion_port) is CanonicalN9PromotionPort
         assert n8_owner_calls == []
         assert n9_owner_calls == []
+        currentness_guard = (
+            actual_leaf_controller._candidate_simulation_currentness_resolver
+        )
+        assert callable(currentness_guard)
+        # The context remains persisted, but cannot authorize N5 after the
+        # served worker lease has ended.
+        assert currentness_guard() is False
 
         def refs_named(payload: object, key: str) -> list[str]:
             found: list[str] = []

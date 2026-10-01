@@ -7972,14 +7972,11 @@ class GenerationCycleController:
             budget_state=state["budget_state"],
         )
         if self._candidate_simulation_handoff is not None:
-            next_action = LoopVOIDecision(
-                candidate_id=candidate_id,
-                terminal_kind=terminal_kind,
-                scheduler_action="candidate_scenario_n5_only",
-                scheduler_reason="candidate_scenario_n5_only",
-                priority=float(getattr(state.get("execution_schedule"), "priority", 0.0)),
-                next_action="blocked",
-                reason="candidate_scenario_n5_only",
+            next_action = next_action.model_copy(
+                update={
+                    "next_action": "blocked",
+                    "reason": "candidate_scenario_n5_only",
+                }
             )
         decision = _refinement_decision(
             problem=problem,

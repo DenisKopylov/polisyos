@@ -2671,7 +2671,17 @@ def _content_bound_candidates(
             "world_model_record_ref_pending",
             str(resolved_world_model_record_ref),
         )
-    reference = reference or build_credal_reference(repo_root)
+    if reference is None:
+        try:
+            reference = build_credal_reference(
+                repo_root,
+                world_model_record=world_record,
+            )
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise DesignGenerationError(
+                "credal_reference_unavailable",
+                type(exc).__name__,
+            ) from exc
     relation_engine = relation_engine or GroundingRelationEngine(reference)
     bind_gate = GroundingBindGate(reference, run_budget=grounding_run_budget)
     if source_capture is not None:

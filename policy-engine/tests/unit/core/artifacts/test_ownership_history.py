@@ -53,7 +53,6 @@ def _write_signed_v1_index(
         },
     }
     index = ArtifactOwnershipIndex(root)
-    index.path.parent.mkdir(parents=True)
     index_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
     index.path.write_bytes(index_bytes)
 
@@ -99,7 +98,6 @@ def _write_signed_v2_index(
     payload: dict[str, Any],
 ) -> tuple[ArtifactOwnershipIndex, bytes, bytes]:
     index = ArtifactOwnershipIndex(root)
-    index.path.parent.mkdir(parents=True)
     payload = {
         "schema_version": _V2_INDEX_SCHEMA,
         "mode": _MODE,
@@ -132,7 +130,6 @@ def _write_signed_index_documents(
     signed_projection: dict[str, Any],
 ) -> tuple[ArtifactOwnershipIndex, bytes, bytes]:
     index = ArtifactOwnershipIndex(root)
-    index.path.parent.mkdir(parents=True)
     index_bytes = (json.dumps(raw_payload, indent=2, sort_keys=True) + "\n").encode()
     index.path.write_bytes(index_bytes)
     schema_version = str(signed_projection["schema_version"])
@@ -659,6 +656,19 @@ def test_empty_index_evidence_is_ephemeral_and_read_only(tmp_path: Path) -> None
     root = tmp_path / "empty-cas"
     index = ArtifactOwnershipIndex(root)
 
+    def filesystem_state() -> dict[Path, tuple[str, int, int, bytes]]:
+        state = {}
+        for path in (root, *root.rglob("*")):
+            stat = path.stat()
+            relative = path.relative_to(root.parent)
+            if path.is_dir():
+                state[relative] = ("directory", stat.st_mtime_ns, stat.st_ino, b"")
+            else:
+                state[relative] = ("file", stat.st_mtime_ns, stat.st_ino, path.read_bytes())
+        return state
+
+    before_evidence = filesystem_state()
+
     evidence = index.evidence()
 
     assert evidence["ownership_evidence_schema_version"] == _EVIDENCE_SCHEMA_V3
@@ -671,7 +681,10 @@ def test_empty_index_evidence_is_ephemeral_and_read_only(tmp_path: Path) -> None
     assert evidence["ownership_index_generation_sha256"] is None
     assert evidence["ownership_index_signature_locator"] is None
     assert evidence["ownership_index_pre_v3_history_status"] == "no_pre_v3_pair"
-    assert not (root / "artifacts").exists()
+    assert not index.path.exists()
+    assert not index.signature_path.exists()
+    assert not (index.directory / "generations").exists()
+    assert filesystem_state() == before_evidence
 
 
 def test_noop_legacy_mutation_preserves_pair_without_migration(tmp_path: Path) -> None:

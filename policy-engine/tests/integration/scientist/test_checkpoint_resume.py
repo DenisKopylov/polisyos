@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+import importlib
 import json
 import logging
 import multiprocessing
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -19,12 +21,27 @@ from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflow
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointError,
+    compute_workflow_fingerprint,
+    load_checkpoint,
+    load_checkpoint_head,
+    load_checkpoint_history,
+    materialize_checkpoint_state,
     resolve_latest_checkpoint,
     resume_from_checkpoint,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeCacheEntry,
+    NodeResultCache,
+    compute_idempotency_key,
+)
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeOutcome,
+    NodeSpec,
+    decode_node_outcome,
+)
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.runner.local_runner import LocalWorkflowRunner
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -876,3 +893,669 @@ async def test_async_executor_parallel_tier_checkpoints_merged_state_for_resume(
     assert ParallelLeftNode.calls == 1
     assert ParallelRightNode.calls == 1
     assert FlakyAfterParallelNode.calls == 2
+
+
+class FailOnceParallelRightNode:
+    """Fail its first call so checkpoint policies can be observed across resume."""
+
+    calls = 0
+    fail_once = True
+    _spec = NodeSpec(
+        metadata=_meta("scientist.node_parallel_right@1.0.0", "FlakyParallelRight"),
+        state_writes=["params.right"],
+    )
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        type(self).calls += 1
+        if type(self).fail_once:
+            type(self).fail_once = False
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(code="node.flaky", message="simulated peer failure"),
+            )
+
+        new_state = state.model_copy(deep=True)
+        new_state.params["right"] = 2
+        return NodeOutcome(status="ok", state=new_state)
+
+
+def _seeded_parallel_workflow(
+    *, error_policy: Literal["fail_fast", "continue"] = "fail_fast"
+) -> WorkflowSpec:
+    return WorkflowSpec(
+        workflow_id="wf_seeded_parallel_checkpoint_resume",
+        required_binds=["run_id"],
+        error_policy=error_policy,
+        nodes=[
+            NodeInvocation(
+                alias="seed",
+                node_id=ComponentId.parse("scientist.node_step_one@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="left",
+                node_id=ComponentId.parse("scientist.node_parallel_left@1.0.0"),
+                depends_on=["seed"],
+            ),
+            NodeInvocation(
+                alias="right",
+                node_id=ComponentId.parse("scientist.node_parallel_right@1.0.0"),
+                depends_on=["seed"],
+            ),
+            NodeInvocation(
+                alias="final",
+                node_id=ComponentId.parse("scientist.node_parallel_final@1.0.0"),
+                depends_on=["left", "right"],
+            ),
+        ],
+    )
+
+
+def _seeded_parallel_registry(*, right_node: Any | None = None) -> NodeRegistry:
+    registry = NodeRegistry()
+    for node in (
+        StepOneNode(),
+        ParallelLeftNode(),
+        right_node or ParallelRightNode(),
+        FlakyAfterParallelNode(),
+    ):
+        registry.register(node)
+    return registry
+
+
+def _seed_parallel_checkpoint(
+    store: FileSystemCAS,
+    *,
+    run_id: str,
+    workflow: WorkflowSpec,
+) -> tuple[ExecutionContext, ArtifactRef, ExperimentState]:
+    ctx, bundle_ref = _context(store, run_id)
+    state = ExperimentState(
+        run_id=run_id,
+        inputs={"registry_bundle_ref": bundle_ref},
+        params={"seed": 29},
+    )
+    StepOneNode.calls = 0
+    seeded = StepOneNode().execute(ctx, state)
+    hook = CASCheckpointHook(
+        store=store,
+        run_dir=Path(store.root) / "runs" / run_id,
+        checkpoint_policy="strict",
+    )
+    hook.mark_completed_node_status_established(prior_completed_nodes=[])
+    hook.on_node_complete(
+        state=seeded.state,
+        alias="seed",
+        node_id=str(workflow.nodes[0].node_id),
+        completed_nodes=["seed"],
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        cache_entry_ref=None,
+    )
+    resolved = resolve_latest_checkpoint(store, run_id)
+    assert resolved is not None
+    _, checkpoint = resolved
+    assert checkpoint.state is not None
+    assert checkpoint.metadata.completed_nodes == ["seed"]
+    assert checkpoint.state["params"] == {"seed": 29, "step1": 1}
+    return ctx, bundle_ref, seeded.state
+
+
+def _b73_pause_writer_at_owner_phase(
+    cas_root: str,
+    run_id: str,
+    bundle_ref_payload: dict[str, Any],
+    cut: Literal["after_artifact_before_head", "after_head_before_history"],
+    phase_queue: Any,
+    release_event: Any,
+) -> None:
+    os.environ["POLISYOS_RUNNER_BACKEND"] = "local"
+    os.environ["POLISYOS_RUNNER_MAX_PARALLELISM"] = "2"
+    ParallelLeftNode.calls = 0
+    ParallelRightNode.calls = 0
+    FlakyAfterParallelNode.calls = 0
+    FlakyAfterParallelNode.fail_once = False
+
+    store = FileSystemCAS(Path(cas_root))
+    bundle_ref = ArtifactRef.model_validate(bundle_ref_payload)
+    workflow = _seeded_parallel_workflow()
+    checkpoint_module = importlib.import_module(
+        "polisyos.scientist.orchestration.engine.checkpoint"
+    )
+
+    if cut == "after_artifact_before_head":
+        original_update_head = checkpoint_module.update_checkpoint_head
+
+        def pause_before_head(run_dir: Path, **kwargs: Any) -> Any:
+            checkpoint_ref = kwargs["checkpoint_ref"]
+            phase_queue.put(
+                {
+                    "phase": cut,
+                    "checkpoint_ref": checkpoint_ref.model_dump(mode="json"),
+                    "sequence_number": kwargs["sequence_number"],
+                    "left_calls": ParallelLeftNode.calls,
+                    "right_calls": ParallelRightNode.calls,
+                    "final_calls": FlakyAfterParallelNode.calls,
+                }
+            )
+            release_event.wait(180)
+            return original_update_head(run_dir, **kwargs)
+
+        checkpoint_module.update_checkpoint_head = pause_before_head
+    elif cut == "after_head_before_history":
+        original_append_history = checkpoint_module.append_checkpoint_history
+
+        def pause_before_history(run_dir: Path, head: Any) -> None:
+            phase_queue.put(
+                {
+                    "phase": cut,
+                    "checkpoint_ref": head.checkpoint_ref.model_dump(mode="json"),
+                    "sequence_number": head.sequence_number,
+                    "left_calls": ParallelLeftNode.calls,
+                    "right_calls": ParallelRightNode.calls,
+                    "final_calls": FlakyAfterParallelNode.calls,
+                }
+            )
+            release_event.wait(180)
+            original_append_history(run_dir, head)
+
+        checkpoint_module.append_checkpoint_history = pause_before_history
+    else:  # pragma: no cover - the process target receives only the two declared cuts.
+        raise AssertionError(f"unknown checkpoint cut: {cut}")
+
+    resume_from_checkpoint(
+        store,
+        run_id,
+        workflow=workflow,
+        registry=_seeded_parallel_registry(),
+        registry_bundle_ref=bundle_ref,
+        checkpoint_policy="strict",
+    )
+
+
+def _assert_tier_cache_entries_bind_node_identity_and_content(
+    store: FileSystemCAS,
+    *,
+    run_id: str,
+    workflow: WorkflowSpec,
+    completed_nodes: list[str],
+    checkpoint_state: dict[str, Any],
+    cache_entry_refs: list[ArtifactRef],
+) -> tuple[str, ...]:
+    """Resolve and verify cache entries for exactly the committed peer nodes."""
+    peer_values = {"left": 1, "right": 2}
+    expected_invocations = {
+        invocation.alias: invocation
+        for invocation in workflow.nodes
+        if invocation.alias in peer_values and invocation.alias in completed_nodes
+    }
+    assert len(cache_entry_refs) == len(expected_invocations)
+    artifact_ids = [str(ref.artifact_id) for ref in cache_entry_refs]
+    assert len(artifact_ids) == len(set(artifact_ids))
+
+    invocations_by_node_id = {
+        str(invocation.node_id): invocation for invocation in expected_invocations.values()
+    }
+    observed_aliases: set[str] = set()
+    proof_reader = NodeResultCache(store, run_id=run_id)
+    peer_input_state = ExperimentState.model_validate(checkpoint_state)
+    for alias in peer_values:
+        peer_input_state.params.pop(alias, None)
+    assert peer_input_state.params == {"seed": 29, "step1": 1}
+    registry = _seeded_parallel_registry()
+    for ref in cache_entry_refs:
+        assert ref.kind == "scientist.node_cache_entry"
+        payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+        entry = NodeCacheEntry.model_validate(payload)
+        assert entry.schema_version == "2.0"
+        assert entry.run_id == run_id
+        invocation = invocations_by_node_id.get(entry.node_id)
+        assert invocation is not None
+        assert invocation.alias not in observed_aliases
+        expected_key = compute_idempotency_key(
+            spec=registry.get(invocation.node_id).spec,
+            state=peer_input_state,
+            bind_params=invocation.params,
+        )
+        assert entry.idempotency_key == expected_key
+        assert entry.outcome_payload is not None
+        assert entry.outcome_ref is None
+        outcome = decode_node_outcome(entry.outcome_payload)
+        assert outcome.status == "ok"
+        assert outcome.state.run_id == run_id
+        assert outcome.state.params.get(invocation.alias) == peer_values[invocation.alias]
+        # The existing cache reader verifies CAS integrity, manifest profile,
+        # run binding, and the versioned replay proof including the cache key.
+        assert proof_reader.seed_from_entry_refs([ref]) == 1
+        observed_aliases.add(invocation.alias)
+
+    assert observed_aliases == set(expected_invocations)
+    return tuple(sorted(observed_aliases))
+
+
+def _b73_fresh_reader_then_resume(
+    cas_root: str,
+    run_id: str,
+    bundle_ref_payload: dict[str, Any],
+    result_queue: Any,
+) -> None:
+    """Reopen, verify committed peer entries, and resume from a new process."""
+    os.environ["POLISYOS_RUNNER_BACKEND"] = "local"
+    os.environ["POLISYOS_RUNNER_MAX_PARALLELISM"] = "2"
+    ParallelLeftNode.calls = 0
+    ParallelRightNode.calls = 0
+    FlakyAfterParallelNode.calls = 0
+    FlakyAfterParallelNode.fail_once = False
+
+    store = FileSystemCAS(Path(cas_root))
+    bundle_ref = ArtifactRef.model_validate(bundle_ref_payload)
+    workflow = _seeded_parallel_workflow()
+    before = resolve_latest_checkpoint(store, run_id)
+    if before is None:
+        raise AssertionError("fresh reader did not resolve a committed checkpoint")
+    head, checkpoint = before
+    assert checkpoint.state is not None
+    verified_cache_aliases = _assert_tier_cache_entries_bind_node_identity_and_content(
+        store,
+        run_id=run_id,
+        workflow=workflow,
+        completed_nodes=checkpoint.metadata.completed_nodes,
+        checkpoint_state=checkpoint.state,
+        cache_entry_refs=checkpoint.metadata.cache_entry_refs,
+    )
+    before_resume = {
+        "sequence_number": head.sequence_number,
+        "checkpoint_ref": str(head.checkpoint_ref.artifact_id),
+        "completed_nodes": list(checkpoint.metadata.completed_nodes),
+        "params": dict(checkpoint.state["params"]),
+        "cache_entry_refs": [
+            str(ref.artifact_id) for ref in checkpoint.metadata.cache_entry_refs
+        ],
+        "cache_aliases": list(verified_cache_aliases),
+        "workflow_fingerprint": checkpoint.metadata.workflow_fingerprint,
+    }
+
+    resumed = resume_from_checkpoint(
+        store,
+        run_id,
+        workflow=workflow,
+        registry=_seeded_parallel_registry(),
+        registry_bundle_ref=bundle_ref,
+        checkpoint_policy="strict",
+    )
+    result_queue.put(
+        {
+            "pid": os.getpid(),
+            "before_resume": before_resume,
+            "report_status": resumed.report.status,
+            "resumed_params": dict(resumed.state.params),
+            "peer_calls": [ParallelLeftNode.calls, ParallelRightNode.calls],
+            "final_calls": FlakyAfterParallelNode.calls,
+        }
+    )
+
+
+def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A fresh reader follows only the atomic head's committed tier frontier."""
+    monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+    monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+    process_context = multiprocessing.get_context("spawn")
+    for cut in ("after_artifact_before_head", "after_head_before_history"):
+        store = FileSystemCAS(tmp_path / cut)
+        workflow = _seeded_parallel_workflow()
+        run_id = f"R_b73_seeded_publication_cut_{cut}"
+        _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+        run_dir = Path(store.root) / "runs" / run_id
+        seed_head = load_checkpoint_head(run_dir)
+        assert seed_head is not None
+        phase_queue = process_context.Queue()
+        release_event = process_context.Event()
+        writer = process_context.Process(
+            target=_b73_pause_writer_at_owner_phase,
+            args=(
+                str(store.root),
+                run_id,
+                bundle_ref.model_dump(mode="json"),
+                cut,
+                phase_queue,
+                release_event,
+            ),
+        )
+        try:
+            writer.start()
+            observed = phase_queue.get(timeout=60)
+            assert observed["phase"] == cut
+            assert observed["left_calls"] == 1
+            assert observed["right_calls"] == 1
+            assert observed["final_calls"] == 0
+
+            observed_ref = ArtifactRef.model_validate(observed["checkpoint_ref"])
+            history = load_checkpoint_history(run_dir)
+            history_refs = (
+                []
+                if history is None
+                else [str(entry.checkpoint_ref.artifact_id) for entry in history.entries]
+            )
+            if cut == "after_artifact_before_head":
+                current_head = load_checkpoint_head(run_dir)
+                assert current_head == seed_head
+                assert str(observed_ref.artifact_id) not in history_refs
+                uncommitted = load_checkpoint(store, observed_ref)
+                assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
+                uncommitted_state = materialize_checkpoint_state(store, observed_ref)
+                _assert_tier_cache_entries_bind_node_identity_and_content(
+                    store,
+                    run_id=run_id,
+                    workflow=workflow,
+                    completed_nodes=uncommitted.metadata.completed_nodes,
+                    checkpoint_state=uncommitted_state,
+                    cache_entry_refs=uncommitted.metadata.cache_entry_refs,
+                )
+                assert uncommitted_state["params"] == {
+                    "seed": 29,
+                    "step1": 1,
+                    "left": 1,
+                    "right": 2,
+                }
+                expected_before_resume = ["seed"]
+                expected_peer_calls = [1, 1]
+            else:
+                current_head = load_checkpoint_head(run_dir)
+                assert current_head is not None
+                assert current_head.checkpoint_ref == observed_ref
+                assert current_head.sequence_number == observed["sequence_number"]
+                assert str(observed_ref.artifact_id) not in history_refs
+                expected_before_resume = ["seed", "left", "right"]
+                expected_peer_calls = [0, 0]
+
+            writer.terminate()
+            writer.join(timeout=5)
+            assert not writer.is_alive()
+            assert writer.exitcode != 0
+        finally:
+            if writer.is_alive():
+                writer.terminate()
+                writer.join(timeout=5)
+            phase_queue.close()
+
+        result_queue = process_context.Queue()
+        reader = process_context.Process(
+            target=_b73_fresh_reader_then_resume,
+            args=(
+                str(store.root),
+                run_id,
+                bundle_ref.model_dump(mode="json"),
+                result_queue,
+            ),
+        )
+        try:
+            reader.start()
+            reader.join(timeout=60)
+            result = result_queue.get(timeout=5)
+            assert reader.exitcode == 0, result
+        finally:
+            if reader.is_alive():
+                reader.terminate()
+                reader.join(timeout=5)
+            result_queue.close()
+
+        assert result["pid"] != os.getpid()
+        assert result["before_resume"]["workflow_fingerprint"] == compute_workflow_fingerprint(
+            workflow
+        )
+        assert result["before_resume"]["completed_nodes"] == expected_before_resume
+        if cut == "after_head_before_history":
+            assert result["before_resume"]["params"] == {
+                "seed": 29,
+                "step1": 1,
+                "left": 1,
+                "right": 2,
+            }
+            assert result["before_resume"]["cache_aliases"] == ["left", "right"]
+        else:
+            assert result["before_resume"]["params"] == {"seed": 29, "step1": 1}
+            assert result["before_resume"]["cache_entry_refs"] == []
+            assert result["before_resume"]["cache_aliases"] == []
+        assert result["report_status"] == "ok"
+        assert result["resumed_params"] == {
+            "seed": 29,
+            "step1": 1,
+            "left": 1,
+            "right": 2,
+            "final": True,
+        }
+        assert result["peer_calls"] == expected_peer_calls
+        assert result["final_calls"] == 1
+
+
+def _b73_failure_policy_writer(
+    cas_root: str,
+    run_id: str,
+    bundle_ref_payload: dict[str, Any],
+    error_policy: Literal["fail_fast", "continue"],
+    result_queue: Any,
+) -> None:
+    """Run the first failed tier attempt through the actual resume owner."""
+    os.environ["POLISYOS_RUNNER_BACKEND"] = "local"
+    os.environ["POLISYOS_RUNNER_MAX_PARALLELISM"] = "2"
+    StepOneNode.calls = 0
+    ParallelLeftNode.calls = 0
+    FailOnceParallelRightNode.calls = 0
+    FailOnceParallelRightNode.fail_once = True
+    FlakyAfterParallelNode.calls = 0
+    FlakyAfterParallelNode.fail_once = False
+
+    store = FileSystemCAS(Path(cas_root))
+    bundle_ref = ArtifactRef.model_validate(bundle_ref_payload)
+    workflow = _seeded_parallel_workflow(error_policy=error_policy)
+    first = resume_from_checkpoint(
+        store,
+        run_id,
+        workflow=workflow,
+        registry=_seeded_parallel_registry(right_node=FailOnceParallelRightNode()),
+        registry_bundle_ref=bundle_ref,
+        checkpoint_policy="strict",
+    )
+    resolved = resolve_latest_checkpoint(store, run_id)
+    if resolved is None:
+        raise AssertionError("writer did not resolve a checkpoint after first attempt")
+    head, checkpoint = resolved
+    if checkpoint.state is None:
+        raise AssertionError("writer checkpoint omitted state")
+    result_queue.put(
+        {
+            "pid": os.getpid(),
+            "report_status": first.report.status,
+            "sequence_number": head.sequence_number,
+            "checkpoint_ref": str(head.checkpoint_ref.artifact_id),
+            "completed_nodes": list(checkpoint.metadata.completed_nodes),
+            "params": dict(checkpoint.state["params"]),
+            "cache_entry_refs": [
+                str(ref.artifact_id) for ref in checkpoint.metadata.cache_entry_refs
+            ],
+            "peer_calls": [ParallelLeftNode.calls, FailOnceParallelRightNode.calls],
+        }
+    )
+
+
+def _b73_failure_policy_fresh_reader(
+    cas_root: str,
+    run_id: str,
+    bundle_ref_payload: dict[str, Any],
+    error_policy: Literal["fail_fast", "continue"],
+    right_fails_once: bool,
+    result_queue: Any,
+) -> None:
+    """Retry a failed tier from CAS with a fresh process and explicit transient control."""
+    os.environ["POLISYOS_RUNNER_BACKEND"] = "local"
+    os.environ["POLISYOS_RUNNER_MAX_PARALLELISM"] = "2"
+    StepOneNode.calls = 0
+    ParallelLeftNode.calls = 0
+    FailOnceParallelRightNode.calls = 0
+    # The first process consumed the transient failure. Set the reader behavior
+    # explicitly rather than depending on process-local class state inheritance.
+    FailOnceParallelRightNode.fail_once = right_fails_once
+    FlakyAfterParallelNode.calls = 0
+    FlakyAfterParallelNode.fail_once = False
+
+    store = FileSystemCAS(Path(cas_root))
+    bundle_ref = ArtifactRef.model_validate(bundle_ref_payload)
+    workflow = _seeded_parallel_workflow(error_policy=error_policy)
+    before = resolve_latest_checkpoint(store, run_id)
+    if before is None:
+        raise AssertionError("fresh failure-policy reader found no checkpoint")
+    head, checkpoint = before
+    if checkpoint.state is None:
+        raise AssertionError("fresh failure-policy checkpoint omitted state")
+    cache_aliases = _assert_tier_cache_entries_bind_node_identity_and_content(
+        store,
+        run_id=run_id,
+        workflow=workflow,
+        completed_nodes=checkpoint.metadata.completed_nodes,
+        checkpoint_state=checkpoint.state,
+        cache_entry_refs=checkpoint.metadata.cache_entry_refs,
+    )
+    fingerprint = compute_workflow_fingerprint(workflow)
+    if checkpoint.metadata.workflow_fingerprint != fingerprint:
+        raise AssertionError("reopened checkpoint workflow fingerprint changed")
+
+    resumed = resume_from_checkpoint(
+        store,
+        run_id,
+        workflow=workflow,
+        registry=_seeded_parallel_registry(right_node=FailOnceParallelRightNode()),
+        registry_bundle_ref=bundle_ref,
+        checkpoint_policy="strict",
+    )
+    result_queue.put(
+        {
+            "pid": os.getpid(),
+            "before_resume": {
+                "sequence_number": head.sequence_number,
+                "checkpoint_ref": str(head.checkpoint_ref.artifact_id),
+                "completed_nodes": list(checkpoint.metadata.completed_nodes),
+                "params": dict(checkpoint.state["params"]),
+                "cache_entry_refs": [
+                    str(ref.artifact_id) for ref in checkpoint.metadata.cache_entry_refs
+                ],
+                "cache_aliases": list(cache_aliases),
+                "workflow_fingerprint": fingerprint,
+            },
+            "report_status": resumed.report.status,
+            "resumed_params": dict(resumed.state.params),
+            "peer_calls": [ParallelLeftNode.calls, FailOnceParallelRightNode.calls],
+            "final_calls": FlakyAfterParallelNode.calls,
+        }
+    )
+
+
+def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Fresh readers retry only the peers absent from the durable frontier."""
+    monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+    monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+    process_context = multiprocessing.get_context("spawn")
+
+    error_policies: tuple[Literal["fail_fast", "continue"], ...] = ("fail_fast", "continue")
+    for error_policy in error_policies:
+        store = FileSystemCAS(tmp_path / error_policy)
+        workflow = _seeded_parallel_workflow(error_policy=error_policy)
+        run_id = f"R_b73_failure_policy_{error_policy}"
+        _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+        seed = resolve_latest_checkpoint(store, run_id)
+        assert seed is not None
+        _, seed_checkpoint = seed
+        assert seed_checkpoint.state is not None
+        expected_fingerprint = compute_workflow_fingerprint(workflow)
+
+        writer_queue = process_context.Queue()
+        writer = process_context.Process(
+            target=_b73_failure_policy_writer,
+            args=(
+                str(store.root),
+                run_id,
+                bundle_ref.model_dump(mode="json"),
+                error_policy,
+                writer_queue,
+            ),
+        )
+        try:
+            writer.start()
+            writer.join(timeout=60)
+            assert writer.exitcode == 0
+            first = writer_queue.get(timeout=5)
+        finally:
+            if writer.is_alive():
+                writer.terminate()
+                writer.join(timeout=5)
+            writer_queue.close()
+
+        assert first["pid"] != os.getpid()
+        assert first["report_status"] == "fail"
+        assert first["peer_calls"] == [1, 1]
+        if error_policy == "fail_fast":
+            assert first["completed_nodes"] == ["seed"]
+            assert first["params"] == {"seed": 29, "step1": 1}
+            assert first["cache_entry_refs"] == []
+        else:
+            assert first["completed_nodes"] == ["seed", "left"]
+            assert first["params"] == {"seed": 29, "step1": 1, "left": 1}
+            assert len(first["cache_entry_refs"]) == 1
+
+        reader_queue = process_context.Queue()
+        reader = process_context.Process(
+            target=_b73_failure_policy_fresh_reader,
+            args=(
+                str(store.root),
+                run_id,
+                bundle_ref.model_dump(mode="json"),
+                error_policy,
+                False,
+                reader_queue,
+            ),
+        )
+        try:
+            reader.start()
+            reader.join(timeout=60)
+            assert reader.exitcode == 0
+            retried = reader_queue.get(timeout=5)
+        finally:
+            if reader.is_alive():
+                reader.terminate()
+                reader.join(timeout=5)
+            reader_queue.close()
+
+        assert retried["pid"] != first["pid"]
+        before = retried["before_resume"]
+        assert before["workflow_fingerprint"] == expected_fingerprint
+        assert retried["report_status"] == "ok"
+        assert retried["resumed_params"] == {
+            "seed": 29,
+            "step1": 1,
+            "left": 1,
+            "right": 2,
+            "final": True,
+        }
+        assert retried["peer_calls"] == (
+            [1, 1] if error_policy == "fail_fast" else [0, 1]
+        )
+        assert retried["final_calls"] == 1
+        if error_policy == "fail_fast":
+            assert before["completed_nodes"] == ["seed"]
+            assert before["params"] == {"seed": 29, "step1": 1}
+            assert before["cache_entry_refs"] == []
+            assert before["cache_aliases"] == []
+        else:
+            assert before["completed_nodes"] == ["seed", "left"]
+            assert before["params"] == {"seed": 29, "step1": 1, "left": 1}
+            assert before["cache_aliases"] == ["left"]
+            assert len(before["cache_entry_refs"]) == 1

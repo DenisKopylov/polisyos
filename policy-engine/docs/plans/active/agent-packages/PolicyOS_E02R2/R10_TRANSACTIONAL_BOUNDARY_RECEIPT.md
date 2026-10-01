@@ -63,3 +63,12 @@ four-base, broader guarded/served consumers and authority closure remain
 outside this candidate cohort; no ledger status changes or R10 closure follow.
 Production data is cited read-only by canonical path and manifest SHA-256
 `9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105`.
+
+## Fresh integrated replay at `b4d771b` (2026-10-01)
+
+Root readback records the integrated branch `codex/e02-r2` at `b4d771b83db64f4590d5a1354dcd747957406fb9`: all three complete R10 files passed, 47/47.
+Origin audits pass over 6,430 frozen paths (including 16 acknowledged research documents); each loaded 63 Python modules, with zero changed inputs, zero postflight errors, and no guard; peak RSS was 116,816 KiB, minimum free RAM 55%, swap growth zero.
+Deciding index: `/Users/deniskopylov/.codex/scratch/R10_CANONICAL_CURRENT_REPLAY_20261001/R10_CANONICAL_ROOT_READBACK.json@sha256:3885c93dd89a1026bf9746c1f1b77b0351371df70a9cf184321e906a24878762`.
+This supersedes the preceding `fresh integrated replay remains UNRUN` statement as of this cut; the earlier candidate result and removal probe remain separate historical evidence.
+The `fdac2ae` catch-removal probe had five malformed-input failures and one valid-string control pass; it was not rerun at `b4d771b`.
+Integrated marker-removal, whole-class four-base P41, broader served/backend cohort, and authority closure remain `UNRUN` or outside this 47-case cohort; R10 remains `partial`.

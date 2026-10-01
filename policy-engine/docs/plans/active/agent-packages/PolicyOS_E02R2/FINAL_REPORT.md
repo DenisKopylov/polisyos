@@ -1,5 +1,15 @@
 # E02-R2 final report draft
 
+## Current bounded evidence checkpoint at `b4d771b` (2026-10-01)
+
+**Discrepancies first.** R10 now has a fresh integrated-head result: 47/47 across the three complete signing, artifact-protocol, and CAS-03 files. The earlier marker-retaining removal probe remains candidate-only: five malformed-input failures and one valid-string control pass at `fdac2ae`; that mutation was not rerun at `b4d771b`. The integrated four-base P41 and broader served/backend cohort remain `UNRUN`.
+
+The complete `test_cyc_05.py` file at the same head is **14/20**, with six failures: one `KeyError: recursive_budget_resolution` and five `recursive_contract_testing_candidate_n9_owner_not_established` exceptions before the intended N5 assertions. The new candidate-frontier-with-unestablished-limits case passes. This is an exact-head result, not a four-base attribution; it does not establish N9 ownership or a served N5 result. The existing R1 owner/source premise remains unresolved.
+
+R14 V4 was **not run**: independent review returned NO-GO because the adapter expects observation schema v4 while the observer emits v3; the bounded diagnostic is `UNRUN` under its P40 stop rule. The 282-row ledger remains 8 closed / 261 partial / 12 held / 1 open; these measurements change no finding status.
+
+**Conclusion.** R10’s integrated whole-file behavior is verified within this three-file cohort; its mutation probe, four-base P41, and broader authority boundary are still open. CYC05 failures remain unattributed pending four-base replay. See the [current baseline addenda](BASELINES.md#b4d771-current-evidence-cut-2026-10-01), [R10 receipt](R10_TRANSACTIONAL_BOUNDARY_RECEIPT.md), and [R10 class record](R10_REPAIR.md).
+
 ## R10 source integration and catch-removal checkpoint (2026-10-01)
 
 **Discrepancies first.** The new normalization/transaction composition repair has a candidate-only 47/47 whole-file pass and a complete removal witness: five malformed call failures and one passing valid-string control. The exact reviewed source/test bytes are now integrated; fresh integration-head runtime and broad four-base replay remain UNRUN. Earlier pending-probe statements below are historical.

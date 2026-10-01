@@ -50,3 +50,11 @@ file P41 comparison and final repository gates remain closeout work.
 Candidate `codex/e02-r2-r9-publication@fdac2ae1209e6a80a72f8ab90aa974916624c229` passes three complete files, 47/47. The bounded property is public identity normalization before the existing signature transaction lease: malformed identities return typed `ERROR` without CAS reads; valid strings reach the leased verifier as `ArtifactID`. The no-scope malformed controls and selected-view control pass. This is candidate evidence only; the current marker-retaining removal probe remains pending, integration replay is unrun, four-base P41 is unrun, and R10 remains `partial`. See [the indexed baseline result](BASELINES.md#r10-candidate-whole-file-boundary-result-2026-10-01).
 
 The consulted [architecture recommendation reference](ARCHITECTURE_REFERENCE.md) presents E02-ARCH-02/05 as proposals about preserving selected-view identity and binding signature reads to the admitted store. They are not adopted contracts. This local `FileSystemCAS` candidate does not establish a broader backend, tenant, or authority capability.
+
+## Current integrated replay at `b4d771b` (2026-10-01)
+
+**Current result.** Root’s exact-head readback reports all three complete R10 files passing, 47/47; see [the deciding receipt](R10_TRANSACTIONAL_BOUNDARY_RECEIPT.md#fresh-integrated-replay-at-b4d771b-2026-10-01) and its indexed outputs. This verifies the integrated whole-file cohort only.
+
+**Supersession and residual.** The earlier “fresh integrated replay remains UNRUN” and candidate “removal probe pending” wording above is historical. The candidate `fdac2ae` marker-retaining removal probe completed with five malformed-input failures and one valid-string control pass; it was not rerun at `b4d771b`. Integrated removal, full four-base P41, broader guarded/served consumers, other backends, and authority closure remain open; R10 stays `partial`.
+
+**Historical scope.** The earlier 48-case design-axis pass is a separate historical result; its cited JUnit does not establish the execution head, and the `b4d771b` 47-case replay does not include that file. The caller census of 5,444 tracked source/test Python files and 50 call sites is pinned at `62ad51e3b48e644c37fe28e17c1d1e30be3e7560`, not a current whole-tree census. Neither claim is promoted by this replay.

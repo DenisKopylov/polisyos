@@ -8,8 +8,8 @@
     "unique": 282
   },
   "status_counts": {
-    "closed": 8,
-    "partial": 261,
+    "closed": 7,
+    "partial": 262,
     "held": 12,
     "open": 1
   },
@@ -1362,6 +1362,17 @@
           "owner_premise_not_established": "The owner-supported rule mapping the newly admitted WDI observation to the exact DataSnapshot/NCM/WMR and problem-bound CycleSubstrateContext consumed by a second N5 run remains not_established; do not invent that mapping or treat UUID/time-only changes as progress.",
           "next_step": "After the owner-supported observation-to-WMR/context rule is established, keep candidate subject and grammar fixed, admit a genuinely changed passport/epoch-bound basis, and prove a second served N5 consumes that changed basis and produces a distinct replayable occurrence. Retain UUID/time-only and unchanged-overlay no-progress controls, plus a current whole-file/four-base replay.",
           "status_transition": "none"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B09",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/0",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/0",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "open",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -2313,6 +2324,17 @@
           ],
           "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
           "p41_four_base": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B19",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/3",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/3",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -2546,6 +2568,17 @@
           ],
           "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
           "p41_four_base": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B21",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/4",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/4",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -2777,6 +2810,17 @@
           ],
           "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
           "p41_four_base": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B23",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/5",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/5",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -3029,6 +3073,17 @@
           ],
           "evidence_summary": "Partial bounded numerical/controller evidence; served producer/consumer binding and four-base replay are not claimed.",
           "p41_four_base": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B25",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/6",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/6",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "closed",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -3332,7 +3387,19 @@
           },
           "independent_review": "/Users/deniskopylov/.codex/scratch/b26-n8-persisted-blocker-reconciliation-candidate-20260930/INDEPENDENT_CODE_REVIEW.md@sha256:34b7174c7405c3116ccaaefc39e4d97c4c638a147d7a312bfe936b583677cd25",
           "scope": "Internal N8 persisted-blocker integrity only. Does not expose diagnostics externally or close B26."
-        }},
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B26",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/7",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/7",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
+        }
+      },
       "finding_test_status": "PASS_BOUNDED",
       "r2_ledger_reconciliation_additions": [
         {
@@ -3647,6 +3714,17 @@
           ],
           "evidence_summary": "R1 closes the prior evidence gap that no served fixture-controlled N5 context positive existed. It does not close B27: there is one root-basis pass under a test owner, while production provider wiring and revised-basis context reissuance remain unestablished.",
           "p41_four_base": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B27",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/1",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/1",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -3854,6 +3932,17 @@
           ],
           "evidence_summary": "History/front behavior is boundedly evidenced; positive N9 authority and downstream occurrence binding are not. Keep partial.",
           "p41_four_base": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B28",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/2",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/2",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -5940,6 +6029,17 @@
           "residual_owner": "NodeResultCache/executor cache-replay producer; async and distributed outcome-serialization consumers",
           "next_signal": "Add one canonical cache-hit witness combining same-value write intent, independent update and stale-key deletion/non-resurrection, then exercise via async and serialized distributed/Temporal replay; run four-base P41.",
           "four_base_p41": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B57",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/11",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/11",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -6135,6 +6235,17 @@
           "residual_owner": "StateMerge plus executor/cache deletion-routing and distributed outcome-serialization consumers",
           "next_signal": "Exercise allowed delete/null/no-write through a real parallel node and warm-cache serialize/rehydrate path, then distributed/Temporal wire with absent/repeated delete and conflict controls; run four-base P41.",
           "four_base_p41": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B58",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/12",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/12",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -6329,6 +6440,17 @@
           "residual_owner": "state_branching and canonical branch-execution callers; bounded declared-leaf property",
           "next_signal": "No further action is needed for bounded declared-leaf closure. Broader sibling lifecycle, alias/cycle or custom-mutable claims need separate witnesses; four-base P41 remains UNRUN.",
           "four_base_p41": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B59",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/13",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/13",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "closed",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -7330,6 +7452,17 @@
           "residual_owner": "distributed worker-result/status admission owner; Temporal history verifier unavailable/unappointed",
           "next_signal": "Record persisted width-one/width-two skip plus independent success through close/reopen/resume and an output-specific dependent consumer; run Temporal event history when available, then four-base P41.",
           "four_base_p41": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B72",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/14",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/14",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED_TEMPORAL_UNRUN",
@@ -7386,7 +7519,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C records E02’s absence of a finding-level record. The bounded expected-red probe and integrated CAS reopen/resume evidence add a finding-level record; the wider durable-head matrix remains open, so status is partial."
       },
-      "residual": "Commit 468a04893 adds a bounded local process boundary to the existing built-in CAS tier checkpoint test: a spawned child constructs a fresh FileSystemCAS, observes both merged peer effects with the complete completed-node frontier, then resumes without re-running either peer. The post-edit whole-file P41 at 468a04893 is 7/7 on each historical base and 9/9 at integration, with no shared pass-to-fail; this is one of the three B73 files, not the complete finding matrix. A marker-retaining incomplete-frontier mutant fails at the child-observed frontier. Keep partial: fail-fast/continue durable-head behavior, compensation, output-cache and seed references, arbitrary hook persistence, externally killed-writer recovery, and Temporal/Ray/external exactly-once semantics are not established.",
+      "residual": "Historical 468a04893 four-base evidence remains a bounded checkpoint-resume-file result, not the full B73 finding matrix. On the frozen integration tree 401fa13d, the complete test_checkpoint_resume.py file passed 11/11, including the seeded publication-cut selector. A marker-retaining spawned-writer mutant omitted left from completed_nodes while preserving status, merged state, peer cache refs and artifact/head/history markers; after the child reopened and checked those independent properties, completed_nodes was [seed,right] rather than [seed,left,right], and the same selector failed while the other 10 whole-file cases passed. This establishes the local real-CAS completed-frontier property only. Keep partial: current four-base finding replay, fail-fast/continue durable-head behavior plus compensation, output-cache/seed semantics, arbitrary-hook persistence, writer-killed/power-loss recovery, and Temporal/Ray/distributed or external exactly-once remain UNRUN.",
       "residual_owner": {
         "appointment_status": "Owner role identified by source path/review; no individual appointment is claimed.",
         "kind": "implementation_owner",
@@ -7648,6 +7781,68 @@
           "p38_divergence": "The writer process can retain correct in-memory state while a fresh reader would observe an incomplete durable frontier beside both peer effects; the child recomputes the predicate from the persisted CAS head and artifact.",
           "behavioral_verdict": "PASS_BOUNDED",
           "scope_limit": "Simulated stop after publication and local multiprocessing spawn; does not kill the writer during publish or prove crash atomicity, distributed workers, arbitrary custom hooks, fail-fast/continue rollback, compensation, output-cache/seed semantics, or external exactly-once effects. B73 remains partial."
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B73",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/15",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/15",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged. The selector test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier is present in the pinned source snapshot but UNRUN; no pass is claimed."
+        },
+
+        "b73_current_wholefile_401fa_20261001": {
+          "identity": "B73 complete current integration checkpoint-resume file at 401fa13d",
+          "kind": "bounded_behavioral_test_receipt",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b73-whole11-control-401fa13d6-20261001T171256238962Z/ROOT_READBACK.json@sha256:94d6f1c543105d23dc72d47244334d302c11dfc775361cc6edda98f6597935df",
+          "result_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b73-whole11-control-401fa13d6-20261001T171256238962Z/result.json@sha256:6b94b1d9a5ffaa15afd4ee1370e892f3755f799697ed00935d1d24792941376f",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b73-whole11-control-401fa13d6-20261001T171256238962Z/cells/current_explicit/test_checkpoint_resume-49d3a675ffe8.junit.xml@sha256:3090b50ed7652ec1661e05c4e7ca185982538a9fa121e88c9dbfd70f3128ee88",
+          "test_identity": "tests.integration.scientist.test_checkpoint_resume (whole file; 11 cases)",
+          "commit": "401fa13d61a0d1e103ddaf59c89e001b04cfa539",
+          "case_counts": {
+            "passed": 11
+          },
+          "elapsed_seconds": 65.496,
+          "source_freeze_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b73-whole11-control-401fa13d6-20261001T171256238962Z/source-freeze.json@sha256:91a824fe20aeba93260effdf7e6a01a4157d46f85730f9aa0ebe2cae08857ae9",
+          "regular_inputs": 6730,
+          "tracked_regular": 6714,
+          "foreign_docs": 16,
+          "origin_modules": 1146,
+          "support_modules": 5,
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "One current whole file on the frozen 401fa13d tree. This is not the full finding-level four-base replay, and does not establish Temporal/Ray, arbitrary-hook, crash-during-publication, distributed or external exactly-once behavior."
+        },
+        "b73_frontier_removal_401fa_20261001": {
+          "identity": "B73 marker-retaining completed-frontier removal at 401fa13d",
+          "kind": "marker_retaining_property_removal",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b73-current-whole11-frontier-removal-401fa13d6-20261001T172750982880Z/ROOT_REMOVAL_PROBE_READBACK.json@sha256:6540e39917a20d07b96ae760c5959e66ef2b44b5b5f35c8c47a719c92de5b4b9",
+          "result_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b73-current-whole11-frontier-removal-401fa13d6-20261001T172750982880Z/result.json@sha256:2b75d8f767b296ad6e6d81b7058e4e296ab77c86e4ea820b199c5cbf86f5f864",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b73-current-whole11-frontier-removal-401fa13d6-20261001T172750982880Z/cells/current_explicit/test_checkpoint_resume-49d3a675ffe8.junit.xml@sha256:a7e004a05ffa29307e873db8286cf56588543f6491f2f4df7452456f9b044886",
+          "test_identity": "tests.integration.scientist.test_checkpoint_resume::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier",
+          "commit": "401fa13d61a0d1e103ddaf59c89e001b04cfa539",
+          "mutation": "The spawned pinned writer omits left from completed_nodes while retaining native status, merged state, cache refs, artifact/head/history markers.",
+          "case_counts": {
+            "passed": 10,
+            "failed": 1
+          },
+          "expected_completed_nodes": [
+            "seed",
+            "left",
+            "right"
+          ],
+          "observed_completed_nodes": [
+            "seed",
+            "right"
+          ],
+          "independent_checks_before_failure": "Old seed head/history, native status contract, merged state, and both peer cache identities/content are asserted before the failed frontier assertion.",
+          "elapsed_seconds": 47.963,
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "EXPECTED_RED",
+          "scope": "Local real-CAS seed/parallel publication cuts only; full four-base replay, Temporal/Ray and external exactly-once remain UNRUN."
         }
       },
       "finding_test_status": "MIXED_BOUNDED",
@@ -8798,6 +8993,17 @@
             "status": "not_established; separate from B88 and not a B88 closure condition."
           },
           "scope_boundary": "Closes the exact B88 card for the currently supported served replay path and observed aiohttp transport. It does not claim every hypothetical future connector transport."
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B88",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/16",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/16",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "closed",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -10115,6 +10321,17 @@
           "residual": "All ten objective cases pass, including budget_deficit alias normalization, genuine zero, unusable absent/null values, conflicting aliases and non-finite inputs. The objective has no typed units input and a served search caller consuming BudgetDeficitObjective is not demonstrated. Keep partial; whole-file four-base replay remains UNRUN.",
           "residual_owner": "BudgetDeficitObjective extractor and optimizer candidate consumer",
           "next_step": "Give the objective a typed unit basis and demonstrate the actual served optimizer/search consumer preserves absent, null, conflict and non-finite distinctions; then replay the complete test file at four bases."
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B108",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/8",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/8",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -10407,6 +10624,17 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b109-p27-blocker-20260927.md@sha256:2677fb66cd8c4c5f1ddd9663fb4ade678b5e6dfa447485f2c44835ec937c5c3f",
           "behavioral_verdict": "UNRUN",
           "scope": "Source inspection and complete AST census only; no test process was launched. The local comparator evidence remains bounded; the run/tenant/cell-scoped served owner/provider and its consumer witness remain missing."
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B109",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/9",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/9",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "p37_p38_measurement_scope": {
@@ -10723,6 +10951,17 @@
           "residual": "The scratch candidate d924383 adds typed metric_missing/metric_non_finite omissions and partial/unavailable coverage in the in-memory promoter and optional registry-to-VOI projection; its focused 3/3 JUnit and registry-propagation removal probe are candidate-only. The current branch has not integrated it. A static follow-up identifies a second same-class escape: duplicate invalid evaluations with the same candidate ref/coordinate may duplicate omission identity and make ParetoFront construction fail; this has not been executed. Per P40, stop instance patching and widen to one typed invariant across admission, existing registry, and output consumers. Native canonical CAS independently rejects NaN/+Inf/-Inf before ref issuance with a finite promotion control. Still open: not_applicable distinction; permutation, missing, infinity, mixed-direction, tie and duplicate-input controls; declared ObjectiveStack/OptimizerObjectiveSpec basis; served registry wiring; coverage propagation through legacy frontier projections and PolicyArtifactBuilder/PolicyFrontierReport/rejected-alternative consumers; and complete historical 1.0 snapshot replay. The sibling projections currently discard coverage and can present omitted candidates as dominated; the default RunHierarchicalPolicySearchNode is an independent frontier producer. Raw/legacy CAS bypass remains not_established. Keep partial.",
           "residual_owner": "ParetoPromoter.compute_front; ParetoRegistry; existing controller/coordinator and PolicyArtifactBuilder/PolicyFrontierReport consumers",
           "next_step": "Stop instance patching and implement one owner-first assessment across the existing promoter, registry, default coordinator, controller/search and PolicyArtifactBuilder/PolicyFrontierReport/rejected-alternative consumers; supply the declared objective basis rather than inferring it from the first candidate map. Make duplicate invalid rows aggregate idempotently, or use stable evaluation identity. Add the same-class intake and consumer removal probes plus missing/not-applicable/infinity/direction/tie/repeated-input controls, enumerate historical v1.0 snapshots, and prove the served chain before four-base P41. Do not add a second registry."
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:B111",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/10",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/10",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "partial",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",
@@ -13090,12 +13329,12 @@
       "closure_owner": "CAS-01",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "closed_bounded",
-      "status": "closed",
+      "status": "partial",
       "appendix_c_comparison": {
-        "relation": "aligned_refined",
-        "detail": "Appendix C marks B150 closed_bounded. The source-record inspection correctly found no E02 package selector mapped to this card discriminator, but the direct d966 current-code whole-file receipt now supplies an exact positive, same-profile preserving control, selected-view removal negative with both sidecars present, and selectorless-history controls (11/11). B150 is closed bounded only for direct FileSystemCAS manifest views; this does not close the broader R9 consumer/backend/custody class or four-base P41."
+          "relation": "disagrees",
+          "detail": "Appendix C retains its historical closed_bounded label. The current ledger status is partial because the exact 401fa13d full file leaves concurrent profile publication and active-waiter behavior unverified: one test times out on a retired .blob write hook, and two stop in fixture setup on retired _artifact_lock(s) members. None fails a persisted-profile or custody assertion. The file is absent at the original execution and audit bases, so these are not pass-to-fail evidence and do not establish a production regression. Retain the earlier direct-profile witness as historical. Revisit after the CAS owner migrates the behavioral witness to the root transaction coordinator and current semantics."
       },
-      "residual": "Closed bounded to B150’s source-card claim about honest returned and persisted typed views of identical bytes in the direct FileSystemCAS owner. The complete tests/unit/remediation/test_cas_01.py file passes 11/11 at d966d007c: the distinct-profile case returns two refs for one blob and reads each persisted profile back; the same-profile control preserves its first manifest/ref; selectorless historical projection/signature controls remain valid; and the selected-view removal probe turns red with both sidecars present. This is finding-specific bounded evidence, not the four-base whole-file replay. Broader R9 consumer selector propagation, custody/backends, and the principal decision remain open at class level. A separate owner-level v1/v2 projection candidate was BLOCKed by static review: three runtime repository constructor sites exist but no production persist_signed caller; seven downstream DTO consumers remain strict-v1 and reject v2; the two C3 v1 golden vectors still need replay. This is a P40 same-class projection residual, not a B150 behavior reversal; no per-consumer patch or R9 class closure is admitted.",
+      "residual": "The earlier d966d007c 11/11 direct FileSystemCAS profile witness remains historical bounded evidence. The latest available whole test_cas_01.py run at 401fa13d is 15/18; its three reds are stale harness/setup observations at retired private write/lock hooks, not failed persisted-profile or custody assertions. The concurrent publication and active-waiter properties remain unverified on the root transaction coordinator, and the current-only run gives no pass-to-fail attribution. Keep partial pending the CAS owner’s transaction-aware replacement witness; do not restore retired per-instance aliases, classify the reds as inherited, or call them a proven production defect. Broader consumer selection, custody/backends and the four-base replay remain open.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "E02-R2 four-base baseline broker for the full-file replay; CAS-01 owner for broader R9 consumers/backends",
@@ -13146,6 +13385,36 @@
           "behavioral_verdict": "UNRUN",
           "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Возвращаемая ссылка обещает профиль новой записи, а сохранённый манифест остаётся первым' (criterion excerpt: 'S/M.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
           "package_test_selector_groups": []
+        },
+
+        "current_wholefile_401fa_20261001": {
+          "identity": "B150 current full test_cas_01.py file at integration 401fa13d",
+          "kind": "whole_file_current_head_result",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b150-b198-whole2-current-401fa13d6-20261001T174112512294Z/ROOT_READBACK.json@sha256:908570825e687644b0dc334dabc7cc77224fa67c64f194b2c915f510605210f6",
+          "result_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b150-b198-whole2-current-401fa13d6-20261001T174112512294Z/result.json@sha256:d563a07a70c398ea548f2a59eec42194b60840015f99c08134f17075a535e7d1",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b150-b198-whole2-current-401fa13d6-20261001T174112512294Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:0d9a2c17e7964c966b16f1e59421bb4e80b6c4a6bb7f40c3bfd3fb2fc414b67d",
+          "test_identity": "tests.unit.remediation.test_cas_01 (whole file; 18 cases)",
+          "commit": "401fa13d61a0d1e103ddaf59c89e001b04cfa539",
+          "case_counts": {
+            "passed": 15,
+            "failed": 3
+          },
+          "failed_selectors": [
+            "test_concurrent_writers_publish_only_the_persisted_first_writer_profile",
+            "test_exception_releases_same_id_lock_for_scoped_view_waiter",
+            "test_lock_registry_is_bounded_without_evicting_active_waiters"
+          ],
+          "diagnosis_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-closed-ledger-audit-20261001/B150_CURRENT401FA_THREE_REDS_DIAGNOSIS.md@sha256:60417bee8399b045e2fc509a4668f1d14ad201f594f0aa56681a986ecc319d7a",
+          "observed_failure_boundary": "One selector waits on a retired .blob write hook that now observes only .stage writes; two stop in fixture setup on retired _artifact_lock(s) members. No persisted-profile or custody assertion fails. Concurrent owner publication and active-waiter behavior remain unverified.",
+          "source_freeze_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b150-b198-whole2-current-401fa13d6-20261001T174112512294Z/source-freeze.json@sha256:91a824fe20aeba93260effdf7e6a01a4157d46f85730f9aa0ebe2cae08857ae9",
+          "regular_inputs": 6730,
+          "origin_modules": 63,
+          "support_modules": 5,
+          "elapsed_seconds": 4.212,
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "FAIL",
+          "regression_ownership": "NO_PASS_TO_FAIL_BASELINE; current behavior not established",
+          "scope": "Single current whole file; no four-base or regression ownership claim."
         }
       },
       "r9_projection_owner_review_20260927": {
@@ -16716,6 +16985,27 @@
         "source_card": {
           "path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#L4936",
           "scope": "Original source-card discriminator: Эвристическая полоса Hessian меняет STD при следующем чтении. Criterion excerpt: Один и тот же report с STD=1 дал извлечённое STD=1,131585734 при отображаемом уровне 0,95 и STD=0,739904141 при 0,8."
+        },
+
+        "current_wholefile_401fa_20261001": {
+          "identity": "B198 current welfare propagation file at integration 401fa13d",
+          "kind": "whole_file_current_head_result",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b150-b198-whole2-current-401fa13d6-20261001T174112512294Z/ROOT_READBACK.json@sha256:908570825e687644b0dc334dabc7cc77224fa67c64f194b2c915f510605210f6",
+          "result_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b150-b198-whole2-current-401fa13d6-20261001T174112512294Z/result.json@sha256:d563a07a70c398ea548f2a59eec42194b60840015f99c08134f17075a535e7d1",
+          "junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b150-b198-whole2-current-401fa13d6-20261001T174112512294Z/cells/current_explicit/test_propagate_welfare-13d4e32dbe49.junit.xml@sha256:ee6d44874f9517b7773e256cdcf14044ad1d7810bd410a7ad73e1fae090f8376",
+          "test_identity": "tests.unit.scientist.nodes.builtins.simulate.test_propagate_welfare (whole file; 25 cases)",
+          "commit": "401fa13d61a0d1e103ddaf59c89e001b04cfa539",
+          "case_counts": {
+            "passed": 25
+          },
+          "source_freeze_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b150-b198-whole2-current-401fa13d6-20261001T174112512294Z/source-freeze.json@sha256:91a824fe20aeba93260effdf7e6a01a4157d46f85730f9aa0ebe2cae08857ae9",
+          "regular_inputs": 6730,
+          "origin_modules": 817,
+          "support_modules": 10,
+          "elapsed_seconds": 21.804,
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "One current 25-case welfare file; this is not a rerun of the separate historical five-file/58-case cohort."
         }
       }
     },
@@ -19968,6 +20258,17 @@
           ],
           "appendix_c_disagreement": "Appendix C no-finding-record status is superseded for this bounded CAN-01 profile by the finding-level recheck. The architect 418-input exact selector remains UNRUN.",
           "p41_four_base": "UNRUN"
+        },
+        "n18_independent_card_review_20261001": {
+          "identity": "N18 independent card-source inspection at 1281fd36:LA-021",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/n18_findings.json@sha256:e7290644f7a3fa61c77becb0fe421f4b657ae90d6a2ad987a798f788a3d61da1#/rows/17",
+          "memo_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-n18-reconciliation-1281-20261001/N18_RECONCILIATION.md@sha256:c5c57038d96cf260e6063a0a868d7bca8177589a44d2b791a8ef5d965e75a8ff",
+          "row_anchor": "#/rows/17",
+          "reviewed_snapshot": "1281fd36e57f8f4523fa7138b2f29f8baafd3a38",
+          "finding_status_at_audit_snapshot": "closed",
+          "inspection_verdict": "PASS",
+          "behavioral_verdict": "UNRUN",
+          "scope": "Read-only inspection of this N18 audit row, its source-card locator, and its distinguishing criterion. No product code or tests were run; this citation is not behavioral evidence or a closure/P41 claim. Current status, residual, owner, and prior n18_reconciliation history are unchanged."
         }
       },
       "finding_test_status": "PASS_BOUNDED",

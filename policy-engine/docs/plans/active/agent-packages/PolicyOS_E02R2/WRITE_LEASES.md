@@ -1,5 +1,15 @@
 # E02-R2 write leases
 
+## Current transaction and fence witness leases — 2026-10-01
+
+`r9_transaction_writer` has a one-file test lease in its existing R9 candidate worktree: `tests/unit/core/artifacts/test_ownership_history.py`. Correct the shared signed-index fixture helpers and measure evidence reads after the transaction coordinator has been constructed; no ownership evidence may be created by a read. The five historical governed-record pass-to-fail cases require causal diagnosis and are outside this code lease. The principal's HumanDecisionService V2 production-approval ruling does not cover those historical readers. No production source, epoch, signed receipt or authority expectation is leased.
+
+`b197_custody_writer` prepares a scratch-only current-owner witness in `tests/unit/remediation/test_cas_01.py`: honest concurrent views, typed pending-intent refusal of a different request after interruption, exact-request recovery, and bounded coordinator stripes with an active waiter. Retired FileSystemCAS private aliases are not restored. This is the existing R9/CAS-01 class; the prior three setup reds and historical results remain recorded.
+
+`r7_r8_current_wave_prep` prepares a scratch-only default-off carrier-removal probe in `tests/unit/runtime/http/test_acquisition_control_worker.py`. Replace only the test child's fence carrier with thread-local semantics, preserving production classes, SQL lease predicates and markers. The complete seven-case preserving run at `8c1c3fc` passed; the fresh mutant is UNRUN. Guarded stale completion is the distinguishing negative; manifest refusal alone may be produced by the separate missing-fence guard.
+
+Root alone integrates these disjoint test paths after independent review. Each candidate records exact input and postimage hashes; no agent runs product imports or tests. Runtime admission follows source freeze and the 8 GiB disk / 30% memory reserve. The parallel disk and session censuses are read-only and cannot retire a live checkout, shared dependency provider or unique uncommitted work.
+
 ## B23 physical simulation identity witness — 2026-10-01
 
 Root alone integrates the reviewed test-only candidate in `tests/unit/remediation/test_sim_03.py`; no production mechanism is leased. The complete file has 21 collectable test functions. Independent static GO: `/Users/deniskopylov/.codex/scratch/e02-r2-b23-independent-review-20261001/B23_V2_INDEPENDENT_REVIEW.md@sha256:fee39d5cc44ee739e097c84178fcafb8b106ae0ec13cf1b633010fefcef60d55`. Candidate patch: `/Users/deniskopylov/.codex/scratch/e02-r2-b23-identity-separation-candidate-20261001/V2/B23_PHYSICAL_RUN_IDENTITY_V2.patch@sha256:067ad9dae0025749f02cfa5cfbae828afaa09d1c98527622c5393bec83c9b663`.

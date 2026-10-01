@@ -525,6 +525,64 @@ def candidate_scenario_set_to_value(
     return value
 
 
+def _link_candidate_scenario_intervention(
+    trinity_bundle: TrinityBundle,
+    *,
+    intervention_id: str,
+    repo_root: str | Path,
+) -> tuple[LinkedIntervention, str]:
+    """Link one source-bound candidate action through the existing L6 registry.
+
+    The full source bundle is retained by its owner. This function creates a
+    deterministic link view containing only the exact intervention selected
+    from that source, so an unresolved sibling remains unknown without
+    blocking candidate-only evaluation of the selected action.
+    """
+
+    if type(trinity_bundle) is not TrinityBundle:
+        raise InterventionSubstrateError("candidate_scenario_trinity_source_untyped")
+    if not intervention_id:
+        raise InterventionSubstrateError("candidate_scenario_intervention_id_missing")
+    source_matches = tuple(
+        item
+        for item in trinity_bundle.policy_spec.interventions
+        if item.intervention_id == intervention_id
+    )
+    if len(source_matches) != 1:
+        raise InterventionSubstrateError(
+            "candidate_scenario_intervention_source_membership_ambiguous"
+        )
+
+    selected_policy_spec = trinity_bundle.policy_spec.model_copy(
+        update={"interventions": [source_matches[0]]}
+    )
+    selected_bundle = trinity_bundle.model_copy(
+        update={"policy_spec": selected_policy_spec}
+    )
+    linked_bundle, link_report = link_trinity(
+        selected_bundle,
+        intervention_generation_registry_bundle(repo_root),
+        allow_extra_params=True,
+        strict=True,
+    )
+    if not link_report.ok:
+        raise InterventionSubstrateError(
+            "candidate_scenario_selected_intervention_not_linked"
+        )
+    linked_rows = tuple(linked_bundle.bindings.interventions)
+    if (
+        len(linked_rows) != 1
+        or linked_rows[0].intervention_id != intervention_id
+    ):
+        raise InterventionSubstrateError(
+            "candidate_scenario_selected_intervention_link_ambiguous"
+        )
+    return (
+        linked_rows[0],
+        gy_content_hash(selected_policy_spec.model_dump(mode="json")),
+    )
+
+
 def materialize_candidate_scenario_action(
     bundle: InterventionSubstrateBundle,
     *,

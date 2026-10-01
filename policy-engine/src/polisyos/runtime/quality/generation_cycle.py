@@ -7913,7 +7913,6 @@ class GenerationCycleController:
                 cycle_index=cycle_index,
             )
 
-        from polisyos.ir.linker import link_trinity
         from polisyos.runtime.quality.candidate_simulation import (
             CandidateScenarioMaterializationV2,
             CandidateSimulationContextHandoff,
@@ -7922,7 +7921,7 @@ class GenerationCycleController:
         )
         from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
         from polisyos.runtime.quality.intervention_substrate import (
-            intervention_generation_registry_bundle,
+            _link_candidate_scenario_intervention,
             materialize_candidate_scenario_action,
         )
 
@@ -7989,22 +7988,13 @@ class GenerationCycleController:
                 raise ValueError("candidate_simulation_trinity_intervention_ambiguous")
             if self._repo_root is None:
                 raise ValueError("candidate_simulation_linker_registry_owner_missing")
-            registries = intervention_generation_registry_bundle(self._repo_root)
-            linked_bundle, link_report = link_trinity(
-                source.trinity_bundle,
-                registries,
-                allow_extra_params=True,
-                strict=True,
+            linked_intervention, _selected_policy_spec_ref = (
+                _link_candidate_scenario_intervention(
+                    source.trinity_bundle,
+                    intervention_id=source_item.intervention_id,
+                    repo_root=self._repo_root,
+                )
             )
-            if not link_report.ok:
-                raise ValueError("candidate_simulation_linker_write_set_not_established")
-            linked_rows = tuple(
-                item
-                for item in linked_bundle.bindings.interventions
-                if item.intervention_id == source_item.intervention_id
-            )
-            if len(linked_rows) != 1:
-                raise ValueError("candidate_simulation_linked_intervention_ambiguous")
             if handoff.context.intervention_substrate is None:
                 raise ValueError("candidate_simulation_l6_bundle_missing")
             intervention = interventions[0]
@@ -8019,7 +8009,7 @@ class GenerationCycleController:
                 profile=handoff.profile,
                 candidate=candidate,
                 intervention=intervention,
-                linked_intervention=linked_rows[0],
+                linked_intervention=linked_intervention,
                 problem=problem,
                 context=handoff.context,
                 context_job_ref=context_job_id,
@@ -8158,7 +8148,6 @@ class GenerationCycleController:
     ) -> SimulationPortObservation:
         """Run N5 from a typed proposal source without promoting it to CGF source."""
 
-        from polisyos.ir.linker import link_trinity
         from polisyos.runtime.quality.candidate_simulation import (
             CandidateSimulationContextHandoff,
             CandidateSimulationN5InputV4,
@@ -8171,7 +8160,7 @@ class GenerationCycleController:
             N4CandidateScenarioSourceRecordV1,
         )
         from polisyos.runtime.quality.intervention_substrate import (
-            intervention_generation_registry_bundle,
+            _link_candidate_scenario_intervention,
             materialize_candidate_scenario_proposal_action,
         )
 
@@ -8227,25 +8216,32 @@ class GenerationCycleController:
                 or source_record.proposal.trinity_bundle is None
             ):
                 raise ValueError("candidate_simulation_n4_proposal_source_binding_mismatch")
-            linked_bundle, link_report = link_trinity(
-                source_record.proposal.trinity_bundle,
-                intervention_generation_registry_bundle(self._repo_root),
-                allow_extra_params=True,
-                strict=True,
+            linked_intervention, selected_policy_spec_ref = (
+                _link_candidate_scenario_intervention(
+                    source_record.proposal.trinity_bundle,
+                    intervention_id=candidate.intervention_id,
+                    repo_root=self._repo_root,
+                )
             )
-            if not link_report.ok:
-                raise ValueError("candidate_simulation_linker_write_set_not_established")
+            full_policy_spec_ref = gy_content_hash(
+                source_record.proposal.trinity_bundle.policy_spec.model_dump(
+                    mode="json"
+                )
+            )
+            # Historical V1 atoms bind the complete source PolicySpec. The N4
+            # candidate writer now binds the selected projection. Recompute
+            # both exact identities; never rewrite the persisted atom.
+            if candidate.atom.policy_spec_ref not in {
+                selected_policy_spec_ref,
+                full_policy_spec_ref,
+            }:
+                raise ValueError("candidate_simulation_selected_policy_spec_ref_mismatch")
             interventions = tuple(
                 item
                 for item in source_record.proposal.trinity_bundle.policy_spec.interventions
                 if item.intervention_id == candidate.intervention_id
             )
-            linked = tuple(
-                item
-                for item in linked_bundle.bindings.interventions
-                if item.intervention_id == candidate.intervention_id
-            )
-            if len(interventions) != 1 or len(linked) != 1:
+            if len(interventions) != 1:
                 raise ValueError("candidate_simulation_linked_intervention_ambiguous")
             l6_bundle = handoff.context.intervention_substrate
             if l6_bundle is None:
@@ -8257,7 +8253,7 @@ class GenerationCycleController:
                 profile=handoff.profile,
                 candidate=candidate,
                 intervention=interventions[0],
-                linked_intervention=linked[0],
+                linked_intervention=linked_intervention,
                 problem=problem,
                 context=handoff.context,
                 context_job_ref=handoff.context_job_ref,

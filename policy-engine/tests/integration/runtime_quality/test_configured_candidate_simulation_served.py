@@ -509,6 +509,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
 
     from polisyos.core import canon
     from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
     from polisyos.runtime.http.services.control.generation_cycle import (
@@ -517,6 +518,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     from polisyos.runtime.http.services.control_plane_store import (
         _control_job_execution_scope_from_event,
     )
+    from polisyos.runtime.quality import design_generation as design_generation_module
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextJobArtifact,
         _cycle_job_v1_design_problem_ref,
@@ -535,6 +537,10 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         N4CandidateProposalSimulationRecord,
         N4CandidateScenarioSourceLocator,
         N4CandidateScenarioSourceRecordV1,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
     )
     from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
     from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
@@ -820,7 +826,50 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         assert n4_source.l2_confidence_vintage.snapshot_sha256
         assert n4_source.credal_reference_payload is None
-        assert n4_source.proposal.trinity_bundle.policy_spec.interventions
+        assert n4_source.candidate is not None
+        full_interventions = n4_source.proposal.trinity_bundle.policy_spec.interventions
+        assert {
+            intervention.kind for intervention in full_interventions
+        } == {
+            "procurement_shock_intensity",
+            "tax_relief_rate",
+            "credit_guarantee",
+        }
+        selected_interventions = tuple(
+            intervention
+            for intervention in full_interventions
+            if intervention.intervention_id == n4_source.candidate.intervention_id
+        )
+        assert len(selected_interventions) == 1
+        selected_intervention = selected_interventions[0]
+        assert selected_intervention.kind == profile.rule.operator_kind
+        assert selected_intervention.params == {profile.rule.parameter_id: 1}
+        selected_policy_spec = n4_source.proposal.trinity_bundle.policy_spec.model_copy(
+            update={"interventions": [selected_intervention]}
+        )
+        selected_policy_spec_ref = gy_content_hash(
+            selected_policy_spec.model_dump(mode="json")
+        )
+        full_bundle_ref = gy_content_hash(
+            n4_source.proposal.trinity_bundle.model_dump(mode="json")
+        )
+        proposal_ref = gy_content_hash(n4_source.proposal.model_dump(mode="json"))
+        assert n4_source.candidate.atom.policy_spec_ref == selected_policy_spec_ref
+        assert n4_source.candidate.atom.intervention_id == selected_intervention.intervention_id
+        assert n4_source.candidate.atom.direct_effect_bundle.params == (
+            selected_intervention.params
+        )
+        assert n4_source.candidate.atom.target_world_slots == (
+            profile.rule.target_world_slot,
+        )
+        assert full_bundle_ref in n4_source.candidate.atom.provenance_refs
+        assert proposal_ref in n4_source.candidate.atom.provenance_refs
+        assert input_record.original_n4_atom_hash == n4_source.candidate.atom.content_hash
+        assert input_record.materialization.operator_kind == selected_intervention.kind
+        assert input_record.materialization.parameter_id == profile.rule.parameter_id
+        assert input_record.materialization.value == 1
+        assert input_record.materialization.target_world_slot == profile.rule.target_world_slot
+        assert input_record.materialization.unit_id == profile.rule.unit_id
 
         assert type(observation).__name__ == "SimulationPortObservation"
         assert observation.status == "joint_simulated"
@@ -876,6 +925,98 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert type(actual_leaf_controller._promotion_port) is CanonicalN9PromotionPort
         assert n8_owner_calls == []
         assert n9_owner_calls == []
+
+        # A content-valid atom that names neither the exact selected projection
+        # nor the complete historical source PolicySpec must stop at N5. The
+        # N4 source and candidate-only status markers remain persisted.
+        original_candidate_builder = (
+            design_generation_module.build_candidate_scenario_proposal_candidate
+        )
+        foreign_policy_spec_ref = "sha256:" + "f" * 64
+
+        def issue_candidate_with_foreign_policy_ref(*args, **kwargs):
+            candidate = original_candidate_builder(*args, **kwargs)
+            if candidate is None:
+                return None
+            foreign_atom_draft = candidate.atom.model_copy(
+                update={"policy_spec_ref": foreign_policy_spec_ref}
+            )
+            foreign_atom_hash = intervention_atom_content_hash(foreign_atom_draft)
+            foreign_atom_payload = foreign_atom_draft.model_dump(mode="python")
+            foreign_atom_payload.update(
+                {
+                    "atom_id": f"atom_{foreign_atom_hash.removeprefix('sha256:')[:16]}",
+                    "content_hash": foreign_atom_hash,
+                }
+            )
+            foreign_atom = InterventionAtomBinding.model_validate(foreign_atom_payload)
+            return candidate.model_copy(update={"atom": foreign_atom})
+
+        monkeypatch.setattr(
+            design_generation_module,
+            "build_candidate_scenario_proposal_candidate",
+            issue_candidate_with_foreign_policy_ref,
+        )
+        n5_calls_before_foreign_ref = len(n5_calls)
+        foreign_ref_response = client.post(
+            "/api/v1/control/runs/nl",
+            json={
+                "request": raw_request,
+                "llm_model": model_id,
+                "context": {
+                    "evaluation_safety_attempt": _valid_intake_for_mode(
+                        "simulate_only"
+                    ).model_dump(mode="json")
+                },
+            },
+        )
+        assert foreign_ref_response.status_code == 200, foreign_ref_response.text
+        foreign_ref_job_id = foreign_ref_response.json()["job_id"]
+        assert dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=foreign_ref_job_id,
+        ) == foreign_ref_job_id
+        foreign_ref_job = service._control_store.get_job(foreign_ref_job_id)
+        assert foreign_ref_job is not None and foreign_ref_job.state == "completed"
+        assert len(n5_calls) == n5_calls_before_foreign_ref
+        assert n8_owner_calls == []
+        assert n9_owner_calls == []
+        foreign_ref_locator = N4CandidateScenarioSourceLocator.model_validate(
+            foreign_ref_job.progress["candidate_proposal_ref"]
+        )
+        foreign_ref_event = service._control_store.get_job_created_event_payload(
+            foreign_ref_job.job_id
+        )
+        foreign_ref_scope = _control_job_execution_scope_from_event(foreign_ref_event)
+        foreign_ref_source = read_private_artifact_in_job_scope(
+            lambda: GenerationSourceRepository(
+                service._artifact_store
+            ).load_candidate_proposal_projection_for_served_job(
+                foreign_ref_locator,
+                job_id=foreign_ref_job.job_id,
+                run_id=str(foreign_ref_job.run_id),
+                tenant_id=foreign_ref_scope.tenant_id,
+                cell_id=foreign_ref_scope.cell_id,
+                raw_request=raw_request,
+                expected_design_problem=compiled_problems[1],
+            ),
+            job_id=foreign_ref_job.job_id,
+            run_id=str(foreign_ref_job.run_id),
+        )
+        assert type(foreign_ref_source) is N4CandidateScenarioSourceRecordV1
+        assert foreign_ref_source.candidate is not None
+        assert foreign_ref_source.candidate.atom.policy_spec_ref == foreign_policy_spec_ref
+        assert foreign_ref_source.authority_purpose == "candidate_scenario_n5_only"
+        assert foreign_ref_source.n5_status == foreign_ref_source.n8_status == "not_run"
+        assert foreign_ref_source.n9_status == "not_admitted"
+        assert foreign_ref_source.s8_status == "blocked"
+        monkeypatch.setattr(
+            design_generation_module,
+            "build_candidate_scenario_proposal_candidate",
+            original_candidate_builder,
+        )
+
         currentness_guard = (
             actual_leaf_controller._candidate_simulation_currentness_resolver
         )
@@ -1065,8 +1206,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         ) == second_job_id
         second_job = service._control_store.get_job(second_job_id)
         assert second_job is not None and second_job.state == "completed"
-        assert len(compiled_problems) == 2
-        assert _cycle_job_v1_profile_selection_ref(compiled_problems[1]) != (
+        assert len(compiled_problems) == 3
+        assert _cycle_job_v1_profile_selection_ref(compiled_problems[2]) != (
             profile.profile_selection_ref
         )
         assert second_job.progress["stage"] == "n4_proposal_only"
@@ -1103,7 +1244,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             run_id=str(second_job.run_id),
         )
         assert type(proposal) is N4CandidateProposalSimulationRecord
-        assert proposal.problem == compiled_problems[1]
+        assert proposal.problem == compiled_problems[2]
         assert proposal.proposal.status == "candidate_limited"
         assert proposal.n5_status == proposal.n8_status == "not_run"
         assert proposal.n9_status == proposal.s8_status == "not_run"
@@ -1138,8 +1279,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         ) == third_job_id
         third_job = service._control_store.get_job(third_job_id)
         assert third_job is not None and third_job.state == "completed"
-        assert len(compiled_problems) == 3
-        assert _cycle_job_v1_profile_selection_ref(compiled_problems[2]) == (
+        assert len(compiled_problems) == 4
+        assert _cycle_job_v1_profile_selection_ref(compiled_problems[3]) == (
             profile.profile_selection_ref
         )
         assert third_job.progress["stage"] == "n4_proposal_only"
@@ -1181,7 +1322,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 tenant_id=third_scope.tenant_id,
                 cell_id=third_scope.cell_id,
                 raw_request=raw_request,
-                expected_design_problem=compiled_problems[2],
+                expected_design_problem=compiled_problems[3],
             ),
             job_id=third_job.job_id,
             run_id=str(third_job.run_id),
@@ -1197,6 +1338,10 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert any(
             intervention.kind == "procurement_shock_intensity"
             and intervention.params["intensity"] == 2
+            for intervention in scenario_source.proposal.trinity_bundle.policy_spec.interventions
+        )
+        assert any(
+            intervention.kind == "credit_guarantee"
             for intervention in scenario_source.proposal.trinity_bundle.policy_spec.interventions
         )
         assert scenario_source.n5_status == "not_run"
@@ -1243,7 +1388,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         ) == fourth_job_id
         fourth_job = service._control_store.get_job(fourth_job_id)
         assert fourth_job is not None and fourth_job.state == "completed"
-        assert len(compiled_problems) == 4
+        assert len(compiled_problems) == 5
         assert fourth_job.progress["stage"] == "n4_proposal_only"
         assert fourth_job.progress["status"] == "not_established"
         assert fourth_job.progress["candidate_proposal_ref"] is None

@@ -1109,8 +1109,8 @@ def build_candidate_scenario_proposal_candidate(
     )
     from polisyos.runtime.quality.design_problem import DesignProblem as DesignProblemModel
     from polisyos.runtime.quality.intervention_substrate import (
+        _link_candidate_scenario_intervention,
         candidate_scenario_set_to_value,
-        intervention_generation_registry_bundle,
     )
 
     if type(proposal) is not N4CandidateProposalSource:
@@ -1138,26 +1138,19 @@ def build_candidate_scenario_proposal_candidate(
     ):
         return None
 
-    linked_bundle, link_report = link_trinity(
-        proposal.trinity_bundle,
-        intervention_generation_registry_bundle(repo_root),
-        allow_extra_params=True,
-        strict=True,
-    )
-    if not link_report.ok:
-        return None
-    linked_by_id = {
-        item.intervention_id: item for item in linked_bundle.bindings.interventions
-    }
-    if len(linked_by_id) != len(linked_bundle.bindings.interventions):
-        return None
-
     rule = profile.rule
-    matches: list[tuple[InterventionSpec, LinkedIntervention, int]] = []
+    matches: list[tuple[InterventionSpec, LinkedIntervention, int, str]] = []
     world = verified_context.world_model_record
     for intervention in proposal.trinity_bundle.policy_spec.interventions:
-        linked = linked_by_id.get(intervention.intervention_id)
-        if linked is None or intervention.kind != rule.operator_kind:
+        if intervention.kind != rule.operator_kind:
+            continue
+        try:
+            linked, selected_policy_spec_ref = _link_candidate_scenario_intervention(
+                proposal.trinity_bundle,
+                intervention_id=intervention.intervention_id,
+                repo_root=repo_root,
+            )
+        except InterventionSubstrateError:
             continue
         try:
             value = candidate_scenario_set_to_value(
@@ -1178,20 +1171,17 @@ def build_candidate_scenario_proposal_candidate(
             or slot.unit != rule.unit_id
         ):
             continue
-        matches.append((intervention, linked, value))
+        matches.append((intervention, linked, value, selected_policy_spec_ref))
     if len(matches) != 1:
         return None
 
-    intervention, linked, value = matches[0]
+    intervention, linked, value, policy_spec_ref = matches[0]
     from polisyos.runtime.quality.intervention_atom_binding import (
         build_intervention_atom_binding,
         intervention_atom_target_selector_ref,
     )
 
     bundle_ref = gy_content_hash(proposal.trinity_bundle.model_dump(mode="json"))
-    policy_spec_ref = gy_content_hash(
-        proposal.trinity_bundle.policy_spec.model_dump(mode="json")
-    )
     target_slots = tuple(linked.writes_slots)
     causal = NodeIntervention(
         assignments=tuple(

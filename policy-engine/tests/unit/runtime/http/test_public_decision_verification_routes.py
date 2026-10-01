@@ -1,13 +1,17 @@
 """Exercise PUBLIC verification through the actual runtime app boundary."""
 
 import json
+import os
+import stat
 from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
+from polisyos.core.artifacts import ArtifactIntegrityError
 from polisyos.runtime.http.app import create_runtime_api_app
+from tests._helpers.artifacts import overwrite_signature_sidecar_for_test
 
 
 def test_legacy_browser_token_receives_public_verifier_refusal(tmp_path: Path) -> None:
@@ -265,7 +269,59 @@ def test_owned_run_packet_is_redacted_issued_and_publicly_verified(
         ref = ArtifactID.model_validate(entry["record_artifact_ref"])
         signature = evidence.get_signature(ref)
         assert signature is not None
-        evidence.put_signature(ref, signature.model_copy(update={"signature_hex": "00" * 64}))
+        corrupted_signature = signature.model_copy(update={"signature_hex": "00" * 64})
+        with pytest.raises(ArtifactIntegrityError, match="immutable signature sidecar conflicts"):
+            evidence.put_signature(ref, corrupted_signature)
+        assert evidence.get_signature(ref) == signature
+        signature_path = evidence._sig_path(ref)
+        original_signature_bytes = signature_path.read_bytes()
+        signature_path.chmod(0o444)
+        real_fsync = os.fsync
+        fsync_calls = 0
+
+        def fail_first_corruption_fsync(descriptor: int) -> None:
+            nonlocal fsync_calls
+            fsync_calls += 1
+            if fsync_calls == 1:
+                raise OSError("injected signature-corruption fsync failure")
+            real_fsync(descriptor)
+
+        with monkeypatch.context() as patches:
+            patches.setattr(os, "fsync", fail_first_corruption_fsync)
+            with pytest.raises(OSError, match="injected signature-corruption fsync failure"):
+                overwrite_signature_sidecar_for_test(
+                    evidence,
+                    ref,
+                    corrupted_signature,
+                    tmp_root=tmp_path,
+                )
+        assert signature_path.read_bytes() == original_signature_bytes
+        assert stat.S_IMODE(signature_path.stat().st_mode) == 0o444
+        unrelated_root = tmp_path / "unrelated-cas-root"
+        unrelated_root.mkdir()
+        with pytest.raises(ValueError, match="CAS root must be inside"):
+            overwrite_signature_sidecar_for_test(
+                evidence,
+                ref,
+                corrupted_signature,
+                tmp_root=unrelated_root,
+            )
+        symlink_root = tmp_path / "cas-root-symlink"
+        symlink_root.symlink_to(evidence.root, target_is_directory=True)
+        with pytest.raises(ValueError, match="tmp_root must not be a symlink"):
+            overwrite_signature_sidecar_for_test(
+                evidence,
+                ref,
+                corrupted_signature,
+                tmp_root=symlink_root,
+            )
+        overwrite_signature_sidecar_for_test(
+            evidence,
+            ref,
+            corrupted_signature,
+            tmp_root=tmp_path,
+        )
+        assert stat.S_IMODE(signature_path.stat().st_mode) == 0o444
         refused = client.get(
             "/api/v1/public-decisions/verification", params={"record_id": locator["record_id"]}
         ).json()

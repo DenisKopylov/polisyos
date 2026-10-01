@@ -2145,3 +2145,79 @@ Resource allocation: R9 at most one light test process; R1 starts with static
 checks and test authoring, requesting root admission before a runtime wave. Root
 may run one B61 group and one CYC-05 group. Native threads are capped at one.
 Disk floor stays 8 GiB; no source mutation or commit during canonical jobs.
+
+### R9 signature-corruption fixture repair — 2026-10-01
+
+The publication candidate is integrated as `f34f17c137a1450105aa9068a29dff261c98a8d0`
+and `8298a843f2091f5c4416f9663816e7796081a740`. Its sole writer reuses
+`codex/e02-r2-r9-publication` at append-only merge
+`f651729061465f9d1be1001824d1086f3db57f1e`; the worktree is active and must
+not be retired. Root remains the sole canonical writer.
+
+The fixed write set is four existing test paths:
+
+- `policy-engine/tests/_helpers/artifacts.py`
+- `policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py`
+- `policy-engine/tests/unit/runtime/http/test_public_decision_verification.py`
+- `policy-engine/tests/unit/runtime/http/test_public_export.py`
+
+The integrated phase-1 replay found a fault-injection defect: immutable
+`put_signature` refuses the attempted corruption before the verifier assertion.
+The complete 58-file R9 Python census identifies six existing-signature mutation
+sites across these three consumer files; five inject corruption and one tests
+ignored unsigned hints. Census:
+`/Users/deniskopylov/.codex/scratch/e02-r9-transaction-prep-894631fca-20260930/R9_CURRENT_INTEGRATED_PHASE1_20261001/PHASE1_TRIAGE.md@sha256:6a345a563174bb155129e5bd34028a7f60a70b84a17009f47c350d073666d408`.
+This is one fixture class (P40), not six production fixes.
+Use one helper in the existing helper owner, with an explicit pytest `tmp_root`,
+resolved CAS/signature-path containment, the existing signature serializer and
+selected-view-preserving reference normalization. Overwrite only an existing
+temporary signature sidecar, preserving and restoring its mode. Keep production
+immutability and all semantic verifier assertions. ArtifactID/string inputs
+retain default-view semantics. The unsigned-hint preserving control must publish
+its signature with those hints at the first authorized fixture write, before
+immutability applies, and keep its verified/record-derived identity assertions.
+Raw corruption cannot witness that control because it also stales the owner's
+byte digest. Do not repair a corrupted owner claim to force verification.
+No production source, API, schema, new helper
+module, data-tree write, unlink, or receipt restamp is authorized by this lease.
+
+Acceptance: whole-file replay of the three consumers plus the immutable-write
+positive/control cohort, including selected-view corruption and wrong-root
+refusal through the consumers. Independent review precedes integration. This
+four-path set has zero intersection with R1's 20-path lease. Tests run only on
+frozen inputs with root admission; resource and four-base attribution limits
+remain explicit. R9 finding status is unchanged.
+
+### R9 complete signature-mutation consumer extension — 2026-10-01
+
+The complete AST census of 2,748 tracked Python test files parsed every file
+without error. At the frozen four-path candidate it found eight literal
+`put_signature` calls: four legitimate setup/retry calls, the new immutable-write
+negative control, and three remaining existing-signature mutation consumers.
+All four literal `get_paths` calls belong to `sysconfig`, not the CAS API.
+Independent census/code review:
+`/Users/deniskopylov/.codex/scratch/e02-r9-transaction-prep-894631fca-20260930/R9_FIXTURE_CORRUPTION_HELPER_CENSUS_REVIEW_20261001.md@sha256:b2be009e3810883db2e09cf3f85b66f9f792b4d4a4b4fedead521e30efe6952b`.
+AST receipt:
+`/Users/deniskopylov/.codex/scratch/e02-r9-transaction-prep-894631fca-20260930/R9_FIXTURE_CORRUPTION_CANDIDATE_FREEZE_V1/put_signature_ast_census.json@sha256:a4e77580ee06406f4e0ceea91c26fbdc296e132f5e0e23fbfdc6f82dc1bc97bb`.
+
+Root adds exactly these three test paths to the same sole R9 writer:
+
+- `policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py`
+- `policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py`
+- `policy-engine/tests/unit/scientist/governance/continuous/test_published_signature_custody.py`
+
+The combined seven-path lease has zero intersection with the complete R1
+20-path lease. These consumers use the same temporary-CAS corruption helper;
+preserve their actual verifier/consumer refusal assertions and exact typed refs.
+This widens the existing fixture mechanism once under P40. It does not create
+three new mechanisms or call existing helper omissions external blockers.
+The original 58-file R9 roster remains a historical denominator: two added
+consumer files are outside it, while the design-axes file is already inside it.
+The current touched-file/four-base roster must include the added consumers.
+
+The helper must also support a read-only temporary sidecar by changing only its
+owner-write mode as needed and restoring the original mode even on failure.
+Keep descriptor/inode and path confinement checks; no owner-index repair or
+production permission change. Add a read-only preserving-mode control in an
+already leased consumer file. Freeze and independently review the complete
+seven-path candidate before integration; runtime remains UNRUN until admitted.

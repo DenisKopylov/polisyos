@@ -21,16 +21,50 @@ from polisyos.runtime.http.services.public_decision_verification_contracts impor
     PublicDecisionVerificationRecord,
     PublicDecisionVerificationResponse,
 )
+from tests._helpers.artifacts import overwrite_signature_sidecar_for_test
 
 ISSUED_AT = datetime(2026, 9, 7, 12, tzinfo=UTC)
 PURPOSE = "public_decision_verification_record"
 
 
-@pytest.fixture
-def issued_service(tmp_path: Path):
-    """Build real CAS and trusted keys, then issue one server record."""
+def _build_issued_service(
+    tmp_path: Path,
+    *,
+    monkeypatch: pytest.MonkeyPatch | None = None,
+    forge_unsigned_sidecar_hints: bool = False,
+):
+    """Build a real issuer fixture, optionally changing only unsigned signer hints."""
     pair = artifacts.KeyPair.generate()
     signer = artifacts.Ed25519Signer(pair.private_key)
+    if forge_unsigned_sidecar_hints:
+        if monkeypatch is None:
+            raise ValueError("monkeypatch is required for forged sidecar hint fixture")
+        sign_original = signer.sign
+
+        def sign_with_unsigned_hints(
+            artifact_id: artifacts.ArtifactID,
+            blob_data: bytes,
+            manifest_data: bytes,
+            *,
+            signer_identity: str | None = None,
+        ) -> artifacts.DetachedSignature:
+            signed = sign_original(
+                artifact_id,
+                blob_data,
+                manifest_data,
+                signer_identity=signer_identity,
+            )
+            hinted = signed.model_copy(
+                update={
+                    "signer_identity": "forged",
+                    "signed_at": datetime(1900, 1, 1, tzinfo=UTC),
+                }
+            )
+            assert hinted.statement == signed.statement
+            assert hinted.signature_hex == signed.signature_hex
+            return hinted
+
+        monkeypatch.setattr(signer, "sign", sign_with_unsigned_hints)
     trust = PublicDecisionVerificationTrustedKey(
         public_key_pem=pair.public_pem(),
         issuer_id="policyos-verifier",
@@ -50,6 +84,25 @@ def issued_service(tmp_path: Path):
         decision_id="decision-1", public_document=document, issued_at=ISSUED_AT
     )
     return service, kwargs, trust, record_id, document
+
+
+@pytest.fixture
+def issued_service(tmp_path: Path):
+    """Build real CAS and trusted keys, then issue one server record."""
+    return _build_issued_service(tmp_path)
+
+
+@pytest.fixture
+def issued_service_with_unsigned_sidecar_hints(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    """Issue through real signer and CAS owner with forged unsigned hint fields."""
+    return _build_issued_service(
+        tmp_path,
+        monkeypatch=monkeypatch,
+        forge_unsigned_sidecar_hints=True,
+    )
 
 
 def _entry(kwargs, record_id):
@@ -94,7 +147,11 @@ def test_persisted_index_survives_new_service_and_reads_never_resign(issued_serv
 
 
 @pytest.mark.parametrize("tamper", ["record", "document", "manifest", "signature", "unsigned"])
-def test_tampered_persisted_evidence_never_returns_document(issued_service, tamper):
+def test_tampered_persisted_evidence_never_returns_document(
+    issued_service,
+    tamper,
+    tmp_path: Path,
+):
     service, kwargs, _, record_id, _ = issued_service
     store = kwargs["store"]
     artifact_id = _record_artifact(kwargs, record_id)
@@ -114,7 +171,12 @@ def test_tampered_persisted_evidence_never_returns_document(issued_service, tamp
     else:
         signature = store.get_signature(artifact_id)
         assert signature is not None
-        store.put_signature(artifact_id, signature.model_copy(update={"signature_hex": "00" * 64}))
+        overwrite_signature_sidecar_for_test(
+            store,
+            artifact_id,
+            signature.model_copy(update={"signature_hex": "00" * 64}),
+            tmp_root=tmp_path,
+        )
     result = service.verify(record_id)
     assert result.report_authentication != "verified"
     assert result.public_document is None
@@ -137,15 +199,22 @@ def test_missing_key_or_issuer_purpose_trust_never_authenticates(issued_service,
 
 
 @pytest.mark.parametrize("corrupt", [False, True])
-def test_revocation_preserves_cryptographic_distinction_and_issued_bytes(issued_service, corrupt):
+def test_revocation_preserves_cryptographic_distinction_and_issued_bytes(
+    issued_service,
+    corrupt,
+    tmp_path: Path,
+):
     service, kwargs, trust, record_id, _ = issued_service
     record_ref = _record_artifact(kwargs, record_id)
     assert service.verify(record_id).report_authentication == "verified"
     before = kwargs["store"].get_bytes(record_ref)
     if corrupt:
         signature = kwargs["store"].get_signature(record_ref)
-        kwargs["store"].put_signature(
-            record_ref, signature.model_copy(update={"signature_hex": "00" * 64})
+        overwrite_signature_sidecar_for_test(
+            kwargs["store"],
+            record_ref,
+            signature.model_copy(update={"signature_hex": "00" * 64}),
+            tmp_root=tmp_path,
         )
     revoked = PublicDecisionVerificationService(
         **{**kwargs, "trusted_keys": (replace(trust, revoked=True),)}
@@ -159,16 +228,15 @@ def test_revocation_preserves_cryptographic_distinction_and_issued_bytes(issued_
     assert kwargs["store"].get_bytes(record_ref) == before
 
 
-def test_unsigned_sidecar_hints_do_not_supply_identity_or_time(issued_service):
-    service, kwargs, _, record_id, _ = issued_service
+def test_unsigned_sidecar_hints_do_not_supply_identity_or_time(
+    issued_service_with_unsigned_sidecar_hints,
+):
+    service, kwargs, _, record_id, _ = issued_service_with_unsigned_sidecar_hints
     artifact_id = _record_artifact(kwargs, record_id)
     signature = kwargs["store"].get_signature(artifact_id)
-    kwargs["store"].put_signature(
-        artifact_id,
-        signature.model_copy(
-            update={"signer_identity": "forged", "signed_at": datetime(1900, 1, 1, tzinfo=UTC)}
-        ),
-    )
+    assert signature is not None
+    assert signature.signer_identity == "forged"
+    assert signature.signed_at == datetime(1900, 1, 1, tzinfo=UTC)
     result = service.verify(record_id)
     assert result.report_authentication == "verified"
     assert result.issuer_id == "policyos-verifier"

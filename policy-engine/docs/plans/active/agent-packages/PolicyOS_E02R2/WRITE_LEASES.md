@@ -1,5 +1,11 @@
 # E02-R2 write leases
 
+## B150/B153 transaction-owner witness integrated, runtime pending — 2026-10-01
+
+Root integrates the one-file V2 test candidate in `tests/unit/remediation/test_cas_01.py`, retaining all eighteen identities. It exercises the real transaction coordinator for writer exclusion, pending-intent refusal and exact-request recovery, independent-stripe progress, and three thousand actual pressure leases with a held same-ID waiter. The original bounded-table-only witness was static NO-GO because it could leave the real lease path unmeasured; V2 widens the same class to actual lock acquisition.
+
+Patch `/Users/deniskopylov/.codex/scratch/e02-r2-b150-b153-transaction-owner-tests-candidate-20261001/V2/packet/B150_B153_TRANSACTION_OWNER_TESTS_V2.patch@sha256:cebf4d8f64674e223c34213361ed2a89a3974bec907138a92c211716bd232a75`; independent GO `/Users/deniskopylov/.codex/scratch/e02-r2-b150-b153-transaction-owner-tests-candidate-20261001/V2/B150_B153_TRANSACTION_OWNER_TESTS_V2_REVIEW.md@sha256:fdb68667b6d6b2c74edb53c9d038d40a04664085f41bc47d40593f37cfe8d67c`. Root exact-postimage readback, eighteen-function AST census and Ruff pass; runtime remains UNRUN. B150/B153 remain partial. Admit whole-file normal and restored controls with both opt-ins unset; admit the same-ID stripe-exclusion and bounded-pool property-removal modes separately. No retired owner aliases, production implementation, signed record or epoch is changed by this integration.
+
 ## R1 complete candidate delivery scope and R2 composition — 2026-10-01
 
 Root alone integrates the complete candidate branch delta from the common fork, including the four required foundations that the earlier eighteen-path lease omitted. The complete source census is twenty-two paths: fourteen mechanisms and eight tests. Census `/Users/deniskopylov/.codex/scratch/E02R2_R1_INTEGRATION_CENSUS_20261001.md@sha256:42b6044181939cbf027ac7e7dc91d8680479e4a2c435e0f47ed1c2994859d789`; delivery review `/Users/deniskopylov/.codex/scratch/E02R2_R1_NCM_SELECTED_VIEW_API_20261001/R1_DELIVERY_SCOPE_REVIEW_75658e703_20261001.md@sha256:abf0e4921952fd7c922f67e629b1f240e3b2445f41b8613c488aa2f26bd2d466`. This finite integration scope supersedes the earlier partial delivery scope; it does not lease any unrelated source or generated family.

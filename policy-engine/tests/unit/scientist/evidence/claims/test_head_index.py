@@ -1631,12 +1631,12 @@ class _FixtureIssuanceVerifier:
                 model=ClaimLedgerRootDenominatorReceipt,
             )
             assert isinstance(denominator, ClaimLedgerRootDenominatorReceipt)
-            packet_raw = self.store.get_bytes(basis.decision_packet_ref.artifact_id)
+            packet_raw = self.store.get_bytes(basis.decision_packet_ref)
             packet = from_canonical_bytes(packet_raw)
-            initial_raw = self.store.get_bytes(basis.initial_ledger_ref.artifact_id)
+            initial_raw = self.store.get_bytes(basis.initial_ledger_ref)
             _load_append_only_claim_ledger(self.store, basis.initial_ledger_ref)
-            policy_raw = self.store.get_bytes(preparation.initialization_policy_ref.artifact_id)
-            verifier_raw = self.store.get_bytes(root.issuance_verifier_provenance_ref.artifact_id)
+            policy_raw = self.store.get_bytes(preparation.initialization_policy_ref)
+            verifier_raw = self.store.get_bytes(root.issuance_verifier_provenance_ref)
             if (
                 c4_semantic_digest("claim_ledger_root_basis", basis) != root.basis_content_hash
                 or c4_semantic_digest("claim_ledger_preparation", preparation)
@@ -1664,7 +1664,7 @@ class _FixtureIssuanceVerifier:
                 != str(root.issuance_verifier_provenance_ref.artifact_id)
             ):
                 raise ValueError("root closure mismatch")
-            evidence_raw = self.store.get_bytes(root.issuance_evidence_ref.artifact_id)
+            evidence_raw = self.store.get_bytes(root.issuance_evidence_ref)
             evidence = from_canonical_bytes(evidence_raw)
             if not isinstance(evidence, dict):
                 raise ValueError("bad evidence")

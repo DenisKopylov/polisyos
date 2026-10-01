@@ -137,8 +137,9 @@ class TestFileSystemCASRoundTrip:
             assert store.get_bytes(default_ref) == raw
             with pytest.raises(ArtifactPublicReadClosureUnavailableError):
                 store.get_bytes(selected_ref)
+            assert store.get_manifest(default_ref).kind == "test.public_member"
             with pytest.raises(ArtifactPublicReadClosureUnavailableError):
-                store.get_manifest(default_ref)
+                store.get_manifest_bytes(default_ref)
 
         with (
             store._authorize_governed_public_read(

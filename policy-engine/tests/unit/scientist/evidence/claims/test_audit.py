@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
+from polisyos.core.artifacts import ArtifactWriteOptions
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.evidence.claims.audit import (
@@ -78,6 +81,56 @@ def test_append_only_claim_ledger_persists_and_loads(tmp_path) -> None:
     assert ref.kind == CLAIM_LEDGER_V2_KIND
     assert loaded == append_only
     assert {item.role for item in manifest.inputs} == {"base_claim_ledger"}
+
+
+def test_append_only_loader_rejects_removed_selected_manifest_view(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    legacy_ref = _persist_claim_ledger(store, _ledger())
+    append_only = build_initial_append_only_ledger(
+        _ledger(),
+        actor_id="node",
+        reason="Initial profile-selection fixture.",
+        occurred_at=datetime(2026, 4, 28, tzinfo=UTC),
+        base_ledger_ref=legacy_ref,
+    )
+    default_ref = _persist_append_only_claim_ledger(
+        store,
+        append_only,
+        inputs=_claim_ledger_v2_inputs(base_ledger_ref=legacy_ref),
+    )
+    raw = store.get_bytes(default_ref)
+    default_manifest = store.get_manifest(default_ref)
+    selected_ref = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind=default_ref.kind,
+            media_type=default_ref.media_type,
+            schema=default_manifest.artifact_schema,
+            canon=default_manifest.canon,
+            inputs=[],
+        ),
+    )
+    assert selected_ref.artifact_id == default_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 != default_ref.manifest_profile_sha256
+    assert _load_append_only_claim_ledger(store, selected_ref) == append_only
+
+    absent_profile = next(
+        f"sha256:{digit * 64}"
+        for digit in "0123456789abcdef"
+        if f"sha256:{digit * 64}" not in {
+            default_ref.manifest_profile_sha256,
+            selected_ref.manifest_profile_sha256,
+        }
+        and not store.has_manifest_view(
+            selected_ref.artifact_id, f"sha256:{digit * 64}"
+        )
+    )
+    assert not store.has_manifest_view(selected_ref.artifact_id, absent_profile)
+    missing_view = selected_ref.model_copy(
+        update={"manifest_profile_sha256": absent_profile}
+    )
+    with pytest.raises((KeyError, OSError, ValueError)):
+        _load_append_only_claim_ledger(store, missing_view)
 
 
 def test_legacy_claim_ledger_loads_as_append_only_compatibility_view(tmp_path) -> None:

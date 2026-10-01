@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, SchemaInfo
+from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
@@ -25,6 +25,7 @@ from polisyos.scientist.evidence.claims.owner_events import (
     OWNER_EVENT_KIND,
     ClaimSupersessionAppointment,
     ClaimSupersessionAuthority,
+    _validate_candidate_content,
     persist_claim_supersession_appointment,
     persist_claim_supersession_successor,
     produce_claim_supersession_owner_event,
@@ -343,3 +344,93 @@ def test_owner_event_verification_rejects_present_but_unproven_evidence(
     assert isinstance(outcome, ClaimLedgerHeadResolutionNonReceipt)
     assert outcome.code == "claim_owner_event_rejected"
     assert owner.resolve_current(owner_key=prepared.owner_key) == initial.new_head
+
+
+def _selected_and_missing_profile(
+    store: FileSystemCAS, ref: ArtifactRef
+) -> tuple[ArtifactRef, ArtifactRef, bytes]:
+    manifest = store.get_manifest(ref)
+    raw = store.get_bytes(ref)
+    selected = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind=ref.kind,
+            media_type=ref.media_type,
+            schema=manifest.artifact_schema,
+            producer=ProducerInfo(component="tests.r9.profile_probe", version="2"),
+            env=manifest.env,
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+        ),
+    )
+    assert selected.artifact_id == ref.artifact_id
+    assert selected.kind == ref.kind
+    assert selected.media_type == ref.media_type
+    assert selected.manifest_profile_sha256 != ref.manifest_profile_sha256
+    assert store.get_bytes(selected) == raw
+    present_profiles = {ref.manifest_profile_sha256, selected.manifest_profile_sha256}
+    absent_profile = next(
+        f"sha256:{digit * 64}"
+        for digit in "0123456789abcdef"
+        if f"sha256:{digit * 64}" not in present_profiles
+        and not store.has_manifest_view(ref.artifact_id, f"sha256:{digit * 64}")
+    )
+    assert not store.has_manifest_view(ref.artifact_id, absent_profile)
+    missing = selected.model_copy(update={"manifest_profile_sha256": absent_profile})
+    assert missing.artifact_id == ref.artifact_id
+    assert missing.kind == ref.kind
+    assert missing.media_type == ref.media_type
+    return selected, missing, raw
+
+
+def test_owner_event_reads_preserve_selected_legal_evidence_profile(owner_event_case) -> None:
+    store, owner, prepared, initial, persisted_monitor, successor_ref = owner_event_case
+    original_ref = persisted_monitor.event.perturbation.legal_change_evidence_ref
+    selected_ref, missing_ref, _ = _selected_and_missing_profile(store, original_ref)
+
+    selected_event = persisted_monitor.event.model_copy(
+        update={
+            "perturbation": persisted_monitor.event.perturbation.model_copy(
+                update={"legal_change_evidence_ref": selected_ref}
+            )
+        }
+    )
+    selected_monitor = persist_governance_monitor_event(store, selected_event)
+    selected_case = (store, owner, prepared, initial, selected_monitor, successor_ref)
+    candidate_ref = _event(selected_case)
+    candidate = read_claim_supersession_candidate(store=store, owner_event_ref=candidate_ref)
+    assert candidate.legal_evidence_ref == selected_ref
+    _validate_candidate_content(store=store, event=candidate)
+
+    missing_event = selected_event.model_copy(
+        update={
+            "perturbation": selected_event.perturbation.model_copy(
+                update={"legal_change_evidence_ref": missing_ref}
+            )
+        }
+    )
+    missing_monitor = persist_governance_monitor_event(store, missing_event)
+    missing_candidate = candidate.model_copy(
+        update={
+            "monitor_event_ref": missing_monitor.event_ref,
+            "monitor_event_content_hash": str(missing_monitor.event_ref.artifact_id),
+            "legal_evidence_ref": missing_ref,
+            "legal_evidence_content_hash": str(missing_ref.artifact_id),
+        }
+    )
+    with pytest.raises((KeyError, OSError, ValueError)):
+        produce_claim_supersession_owner_event(
+            store=store,
+            owner_key=prepared.owner_key,
+            monitor_event_ref=missing_monitor.event_ref,
+            prior_ledger_ref=prepared.initial_ledger_ref,
+            predecessor_claim_id="predecessor",
+            successor_claim_ref=successor_ref,
+            effective_at=datetime.now(UTC),
+        )
+    with pytest.raises((KeyError, OSError, ValueError)):
+        _validate_candidate_content(store=store, event=missing_candidate)

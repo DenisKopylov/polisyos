@@ -192,7 +192,7 @@ def persist_incident_report(
 def load_incident_report(store: Any, ref: ArtifactRef) -> IncidentReport:
     """Load a persisted IncidentReport from CAS."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return IncidentReport.model_validate(payload)
 
 
@@ -249,7 +249,7 @@ def persist_withdrawal_record(
 def load_withdrawal_record(store: Any, ref: ArtifactRef) -> WithdrawalRecord:
     """Load a persisted WithdrawalRecord from CAS."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return WithdrawalRecord.model_validate(payload)
 
 

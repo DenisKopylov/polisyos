@@ -77,9 +77,9 @@ def _read_exact_artifact(
 ) -> bytes:
     """Reload bytes only when the shaped ref and live manifest agree exactly."""
 
-    raw = store.get_bytes(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
+    raw = store.get_bytes(ref)
+    manifest = store.get_manifest(ref)
+    report = store.verify(ref)
     if (
         not report.ok
         or str(manifest.artifact_id) != str(ref.artifact_id)
@@ -116,9 +116,9 @@ def _persist_profiled_statement(
             canon=artifacts.CanonInfo.from_spec(profile.canon_spec),
         ),
     )
-    observed = store.get_bytes(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
+    observed = store.get_bytes(ref)
+    manifest = store.get_manifest(ref)
+    report = store.verify(ref)
     if (
         not report.ok
         or observed != raw
@@ -144,9 +144,9 @@ def _read_profiled_statement(
     """Reload one exact frozen C4 statement without trusting its shaped ref."""
 
     profile = c4_profile(record)
-    raw = store.get_bytes(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
+    raw = store.get_bytes(ref)
+    manifest = store.get_manifest(ref)
+    report = store.verify(ref)
     if (
         ref.kind != profile.kind
         or ref.media_type != profile.media_type
@@ -1228,9 +1228,9 @@ class ClaimDependencyDenominatorResolver:
                 dict.fromkeys(requested_dependency_keys)
             ):
                 raise ValueError("claim_dependency_request_not_canonical_unique")
-            ledger_raw = self.store.get_bytes(ledger_artifact_ref.artifact_id)
-            ledger_report = self.store.verify(ledger_artifact_ref.artifact_id)
-            ledger_manifest = self.store.get_manifest(ledger_artifact_ref.artifact_id)
+            ledger_raw = self.store.get_bytes(ledger_artifact_ref)
+            ledger_report = self.store.verify(ledger_artifact_ref)
+            ledger_manifest = self.store.get_manifest(ledger_artifact_ref)
             if (
                 not ledger_report.ok
                 or _raw_content_hash(ledger_raw) != str(ledger_artifact_ref.artifact_id)
@@ -2073,7 +2073,7 @@ def _load_exact_claim_ledger_bytes(
         _load_claim_ledger(store, ref)
     else:
         raise ValueError("claim_root_ledger_profile_mismatch")
-    return store.get_bytes(ref.artifact_id)
+    return store.get_bytes(ref)
 
 
 def _resolve_decision_packet_claim_ledger(
@@ -3379,9 +3379,9 @@ class _RepositoryClaimLedgerOwner:
         from polisyos.scientist.evidence.claims.lifecycle import build_initial_append_only_ledger
 
         try:
-            base_raw = self.store.get_bytes(base_claims_ref.artifact_id)
-            base_report = self.store.verify(base_claims_ref.artifact_id)
-            base_manifest = self.store.get_manifest(base_claims_ref.artifact_id)
+            base_raw = self.store.get_bytes(base_claims_ref)
+            base_report = self.store.verify(base_claims_ref)
+            base_manifest = self.store.get_manifest(base_claims_ref)
             base_claims = _load_claim_ledger(self.store, base_claims_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return ClaimLedgerIssuanceNonReceipt(
@@ -3434,9 +3434,9 @@ class _RepositoryClaimLedgerOwner:
         source_hashes: list[Digest] = []
         try:
             for source_ref in source_artifact_refs:
-                raw = self.store.get_bytes(source_ref.artifact_id)
-                report = self.store.verify(source_ref.artifact_id)
-                manifest = self.store.get_manifest(source_ref.artifact_id)
+                raw = self.store.get_bytes(source_ref)
+                report = self.store.verify(source_ref)
+                manifest = self.store.get_manifest(source_ref)
                 if (
                     not report.ok
                     or _raw_content_hash(raw) != str(source_ref.artifact_id)
@@ -3590,7 +3590,7 @@ class _RepositoryClaimLedgerOwner:
             )
             if len(exact_rows) != 1:
                 raise _ClaimRootDenominatorMismatch("claim_root_denominator_target_missing")
-            packet_raw = self.store.get_bytes(decision_packet_ref.artifact_id)
+            packet_raw = self.store.get_bytes(decision_packet_ref)
             basis = ClaimLedgerRootBasisStatement(
                 owner_key=preparation.owner_key,
                 preparation_ref=preparation_ref,
@@ -3713,8 +3713,8 @@ class _RepositoryClaimLedgerOwner:
         ):
             return False
         try:
-            raw = self.store.get_bytes(issuance.evidence_ref.artifact_id)
-            report = self.store.verify(issuance.evidence_ref.artifact_id)
+            raw = self.store.get_bytes(issuance.evidence_ref)
+            report = self.store.verify(issuance.evidence_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return False
         return (

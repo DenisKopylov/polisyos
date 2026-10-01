@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ArtifactWriteOptions, ProducerInfo
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.governance.continuous.incident import (
@@ -14,7 +17,6 @@ from polisyos.scientist.governance.continuous.incident import (
     persist_withdrawal_record,
 )
 from polisyos.scientist.governance.continuous.monitors import recommend_validity_action
-from pydantic import ValidationError
 
 
 def _ref(seed: str, *, kind: str = "scientist.test") -> ArtifactRef:
@@ -101,3 +103,56 @@ def test_incident_and_withdrawal_records_persist_to_cas(tmp_path) -> None:
     assert load_withdrawal_record(store, withdrawal_ref) == withdrawal
     assert incident_ref.kind == "scientist.incident_report"
     assert withdrawal_ref.kind == "scientist.withdrawal_record"
+
+    selected_incident, missing_incident, _ = _selected_and_missing_profile(store, incident_ref)
+    assert load_incident_report(store, selected_incident) == incident
+    with pytest.raises((KeyError, OSError, ValueError)):
+        load_incident_report(store, missing_incident)
+    selected_withdrawal, missing_withdrawal, _ = _selected_and_missing_profile(
+        store, withdrawal_ref
+    )
+    assert load_withdrawal_record(store, selected_withdrawal) == withdrawal
+    with pytest.raises((KeyError, OSError, ValueError)):
+        load_withdrawal_record(store, missing_withdrawal)
+
+
+def _selected_and_missing_profile(
+    store: FileSystemCAS, ref: ArtifactRef
+) -> tuple[ArtifactRef, ArtifactRef, bytes]:
+    manifest = store.get_manifest(ref)
+    raw = store.get_bytes(ref)
+    selected = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind=ref.kind,
+            media_type=ref.media_type,
+            schema=manifest.artifact_schema,
+            producer=ProducerInfo(component="tests.r9.profile_probe", version="2"),
+            env=manifest.env,
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+        ),
+    )
+    assert selected.artifact_id == ref.artifact_id
+    assert selected.kind == ref.kind
+    assert selected.media_type == ref.media_type
+    assert selected.manifest_profile_sha256 != ref.manifest_profile_sha256
+    assert store.get_bytes(selected) == raw
+
+    present_profiles = {ref.manifest_profile_sha256, selected.manifest_profile_sha256}
+    absent_profile = next(
+        f"sha256:{digit * 64}"
+        for digit in "0123456789abcdef"
+        if f"sha256:{digit * 64}" not in present_profiles
+        and not store.has_manifest_view(ref.artifact_id, f"sha256:{digit * 64}")
+    )
+    assert not store.has_manifest_view(ref.artifact_id, absent_profile)
+    missing = selected.model_copy(update={"manifest_profile_sha256": absent_profile})
+    assert missing.artifact_id == ref.artifact_id
+    assert missing.kind == ref.kind
+    assert missing.media_type == ref.media_type
+    return selected, missing, raw

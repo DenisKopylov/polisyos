@@ -67,6 +67,7 @@ from polisyos.scientist.evidence.claims.head_index import (
     DecisionPacketRootSnapshot,
     DecisionPacketRootSnapshotStatement,
     FilesystemArtifactStoreClaimRootWalk,
+    PacketBoundClaimLedgerSnapshot,
     PersistedClaimLedgerHead,
     PersistedClaimLedgerRoot,
     PreparedClaimLedgerInitialization,
@@ -76,6 +77,7 @@ from polisyos.scientist.evidence.claims.head_index import (
     _LockedClaimLedgerHeadCAS,
     _persist_claim_bridge_pending,
     _persist_profiled_statement,
+    _read_exact_artifact,
     _read_profiled_statement,
     _RepositoryClaimLedgerOwner,
     _VerifiedClaimLedgerInitializationPolicy,
@@ -2458,6 +2460,98 @@ def test_historical_packet_snapshot_replays_the_real_owner(packet_bound_owner_ca
         ),
         ClaimLedgerHeadResolutionNonReceipt,
     )
+
+
+def test_historical_packet_snapshot_rejects_removed_selected_head_view(
+    packet_bound_owner_case,
+) -> None:
+    """The real history owner refuses a missing view instead of using the default."""
+    store, owner, _, packet_ref, _ = packet_bound_owner_case
+    snapshot = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+    assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
+    head_ref = snapshot.head.head_ref
+    # The owner-issued default remains valid if a caller strips the selector.
+    # Therefore the absent explicit view below distinguishes exact-ref reads.
+    assert store.get_bytes(head_ref.artifact_id) == store.get_bytes(head_ref)
+    assert store.get_manifest(head_ref.artifact_id) == store.get_manifest(head_ref)
+    absent_profile = next(
+        f"sha256:{digit * 64}"
+        for digit in "0123456789abcdef"
+        if f"sha256:{digit * 64}" != head_ref.manifest_profile_sha256
+        and not store.has_manifest_view(head_ref.artifact_id, f"sha256:{digit * 64}")
+    )
+    assert not store.has_manifest_view(head_ref.artifact_id, absent_profile)
+    missing_view = head_ref.model_copy(
+        update={"manifest_profile_sha256": absent_profile}
+    )
+    assert missing_view.artifact_id == head_ref.artifact_id
+    assert missing_view.kind == head_ref.kind
+    assert missing_view.media_type == head_ref.media_type
+    altered_head = snapshot.head.model_copy(update={"head_ref": missing_view})
+    altered_snapshot = snapshot.model_copy(update={"head": altered_head})
+
+    refused = owner.verify_historical_packet_snapshot(snapshot=altered_snapshot)
+
+    assert isinstance(refused, ClaimLedgerHeadResolutionNonReceipt)
+    assert refused.status == "rejected"
+    assert refused.code == "claim_head_content_mismatch"
+
+
+def test_exact_artifact_reader_rejects_removed_same_blob_view(tmp_path: Path) -> None:
+    """Removing only the requested selector cannot expose the default view."""
+    store = FileSystemCAS(tmp_path)
+    raw = b"same content, different manifest profiles"
+    default_ref = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind="fixture.claim_profile",
+            media_type="application/json",
+            schema=SchemaInfo(name="fixture.claim_profile", version="1"),
+        ),
+    )
+    selected_ref = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind="fixture.claim_profile",
+            media_type="application/json",
+            schema=SchemaInfo(name="fixture.claim_profile", version="2"),
+        ),
+    )
+    assert default_ref.artifact_id == selected_ref.artifact_id
+    assert default_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+    assert _read_exact_artifact(
+        store=store,
+        ref=selected_ref,
+        expected_kind="fixture.claim_profile",
+        expected_media_type="application/json",
+    ) == raw
+
+    present_profiles = {
+        default_ref.manifest_profile_sha256,
+        selected_ref.manifest_profile_sha256,
+    }
+    absent_profile = next(
+        f"sha256:{digit * 64}"
+        for digit in "0123456789abcdef"
+        if f"sha256:{digit * 64}" not in present_profiles
+        and not store.has_manifest_view(
+            selected_ref.artifact_id, f"sha256:{digit * 64}"
+        )
+    )
+    assert not store.has_manifest_view(selected_ref.artifact_id, absent_profile)
+    missing_view = selected_ref.model_copy(
+        update={"manifest_profile_sha256": absent_profile}
+    )
+    assert missing_view.artifact_id == selected_ref.artifact_id
+    assert missing_view.kind == selected_ref.kind
+    assert missing_view.media_type == selected_ref.media_type
+    with pytest.raises((KeyError, OSError, ValueError)):
+        _read_exact_artifact(
+            store=store,
+            ref=missing_view,
+            expected_kind="fixture.claim_profile",
+            expected_media_type="application/json",
+        )
 
 
 @pytest.mark.parametrize("forgery", ["packet", "head", "ledger", "public_eligibility"])

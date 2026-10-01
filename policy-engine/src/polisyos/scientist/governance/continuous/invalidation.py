@@ -128,9 +128,9 @@ def resolve_evidence_validity_event(
 ) -> PersistedEvidenceValidityEvent:
     """Resolve exact bytes, manifest profile, and lineage for one event."""
 
-    raw = store.get_bytes(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    raw = store.get_bytes(ref)
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
     observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
     event = EvidenceValidityEvent.model_validate(canon.from_canonical_bytes(raw))
     expected_inputs = evidence_validity_event_inputs(event)

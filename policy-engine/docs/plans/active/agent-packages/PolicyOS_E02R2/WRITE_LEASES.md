@@ -2296,3 +2296,27 @@ Independent delta review precedes each integration. Root admits runtime and
 removal probes separately; no writer edits any tree while its tests run.
 These five candidate paths have zero intersection with R1's 13-path source/test
 candidate. No generated artifact, governed record, register or plan is leased.
+## R14 canonical N9 negative-source witness (2026-10-01)
+
+One direct test writer (`r14_test_broker`) owns a scratch candidate for
+`policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py`
+only. Root alone applies reviewed changes to the integration branch. This
+path has no overlap with the active R1 and R9 write sets; no runtime source,
+generated artifact, epoch or receipt is leased.
+
+Reuse the existing controlled nonblocked N6 run, canonical N9 owner and
+receipt validator in
+`test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read`.
+Join their successful receipt replay to the persisted EvalSafety consumer's
+`not_promoted` classification. Preserve the blocked twin's refusal before
+receipt parsing. A fabricated terminal status or handwritten authority
+receipt is not an acceptable witness. This bounded test does not establish
+automatic production N6-to-N9 dispatch or S8 authority.
+
+Design input:
+`/Users/deniskopylov/.codex/scratch/e02-r14-integrated-2122-20260930/R14_CASE9_CANONICAL_N9_NEGATIVE_SOURCE_FEASIBILITY.md@sha256:37a9c43a7eb76346f527cc22e7bc10d5955ced88b4e36030dace418cfa582da0`.
+Independent reviewer: `r14_unknown_scope_review`. P40: this is the existing
+source/consumer witness gap, not a new runtime mechanism. The writer may
+prepare the small patch while R1/R9 run, but launches no tests. Root owns
+four-base admission and records each unavailable cell as UNRUN. The whole
+touched file remains a required post-integration replay denominator.

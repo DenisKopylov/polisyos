@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactWriteOptions, ProducerInfo
+from polisyos.core.artifacts import ArtifactIntegrityError, ArtifactWriteOptions, ProducerInfo
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
@@ -252,7 +252,7 @@ def test_six_perturbation_classes_round_trip_as_exact_distinct_bytes(
     with pytest.raises((KeyError, OSError, ValueError)):
         resolve_governance_monitor_event(store, missing_ref)
 
-    with pytest.raises(ValueError, match="profile mismatch"):
+    with pytest.raises(ArtifactIntegrityError):
         resolve_governance_monitor_event(
             store,
             persisted.event_ref.model_copy(update={"kind": "test.wrong_profile"}),

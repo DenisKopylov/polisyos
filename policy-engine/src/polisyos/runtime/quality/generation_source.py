@@ -1130,6 +1130,27 @@ class GenerationSourceRepository:
             != declaration.outcome_unit_id
         ):
             raise ValueError("n4_candidate_scenario_source_v2_unit_binding_mismatch")
+        ncm_manifest = self.store.get_manifest(source.ncm_ref)
+        ncm_options = _candidate_simulation_write_options(
+            kind="ir.ncm_spec",
+            schema_name="ir.ncm_spec",
+            schema_version="1.0",
+            job_id=expected_job_id,
+            run_id=expected_run_id,
+            tenant_id=expected_tenant_id,
+            cell_id=expected_cell_id,
+            source_ref=declaration.profile_content_hash,
+            input_refs=(
+                input_ref_from_artifact_ref(
+                    source.model_declaration_ref,
+                    role="candidate_model_declaration",
+                ),
+            ),
+        )
+        if not _ref_selects_manifest(source.ncm_ref, ncm_manifest) or not _has_owner_profile(
+            ncm_manifest, ncm_options
+        ):
+            raise ValueError("n4_candidate_scenario_source_v2_ncm_owner_profile_mismatch")
         from polisyos.ir.analytics.ncm import (
             candidate_ncm_spec_from_declaration,
             load_ncm_spec_selected_view,

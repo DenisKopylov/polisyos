@@ -540,7 +540,11 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     from fastapi.testclient import TestClient
 
     from polisyos.core import canon
-    from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+    from polisyos.core.artifacts.manifest import (
+        ArtifactRef,
+        artifact_ref_identity_key,
+        input_ref_from_artifact_ref,
+    )
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
@@ -573,6 +577,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         N4CandidateScenarioSourceLocator,
         N4CandidateScenarioSourceRecordV1,
         N4CandidateScenarioSourceRecordV2,
+        _candidate_simulation_write_options,
     )
     from polisyos.runtime.quality.intervention_atom_binding import (
         InterventionAtomBinding,
@@ -886,6 +891,87 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             str(input_record.model_declaration_ref.artifact_id),
             input_record.model_declaration_ref.manifest_profile_sha256,
         )
+        wrong_closure_job_id = "candidate-ncm-wrong-closure-job"
+        wrong_closure_run_id = "candidate-ncm-wrong-closure-run"
+        ncm_body = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_bytes(input_record.ncm_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        wrong_closure_options = _candidate_simulation_write_options(
+            kind="ir.ncm_spec",
+            schema_name="ir.ncm_spec",
+            schema_version="1.0",
+            job_id=wrong_closure_job_id,
+            run_id=wrong_closure_run_id,
+            tenant_id=admitted_scope.tenant_id,
+            cell_id=admitted_scope.cell_id,
+            source_ref=model_declaration.profile_content_hash,
+            input_refs=(
+                input_ref_from_artifact_ref(
+                    input_record.model_declaration_ref,
+                    role="candidate_model_declaration",
+                ),
+            ),
+        )
+        wrong_closure_ncm_ref = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.put_bytes(
+                ncm_body,
+                wrong_closure_options,
+            ),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        wrong_closure_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(wrong_closure_ncm_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert wrong_closure_ncm_ref.artifact_id == input_record.ncm_ref.artifact_id
+        assert read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_bytes(wrong_closure_ncm_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        ) == ncm_body
+        assert wrong_closure_manifest.tenant_context == ncm_manifest.tenant_context
+        assert wrong_closure_manifest.inputs == ncm_manifest.inputs
+        assert wrong_closure_manifest.same_input_closure.run_id == wrong_closure_run_id
+        assert wrong_closure_manifest.same_input_closure.job_id == wrong_closure_job_id
+        wrong_closure_source = GenerationSourceRepository(
+            service._artifact_store
+        ).create_candidate_scenario_source_v2(
+            source_record=selected_source.source_record,
+            model_declaration=selected_source.model_declaration,
+            model_declaration_ref=selected_source.model_declaration_ref,
+            ncm_ref=wrong_closure_ncm_ref,
+            world_model_record_id=selected_source.world_model_record_id,
+        )
+        wrong_closure_source_ref = read_private_artifact_in_job_scope(
+            lambda: GenerationSourceRepository(
+                service._artifact_store
+            ).persist_candidate_scenario_source_v2(
+                source_record=wrong_closure_source
+            ),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        with pytest.raises(
+            ValueError,
+            match="n4_candidate_scenario_source_v2_ncm_owner_profile_mismatch",
+        ):
+            read_private_artifact_in_job_scope(
+                lambda: GenerationSourceRepository(
+                    service._artifact_store
+                ).load_candidate_scenario_source_v2(
+                    wrong_closure_source_ref,
+                    expected_run_id=str(completed.run_id),
+                    expected_job_id=completed.job_id,
+                    expected_tenant_id=admitted_scope.tenant_id,
+                    expected_cell_id=admitted_scope.cell_id,
+                ),
+                job_id=completed.job_id,
+                run_id=str(completed.run_id),
+            )
         n4_source = selected_source.source_record
         assert type(n4_source) is N4CandidateScenarioSourceRecordV1
         assert n4_source.authority_purpose == "candidate_scenario_n5_only"
@@ -973,7 +1059,23 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             for point in trajectory.points
             if "cells.output" in point.effect
         ]
-        assert effects and any(abs(value) > 0.1 for value in effects)
+        profile_target_baseline = profile.n5.baseline_state[
+            model_declaration.target_world_slot
+        ]
+        assert profile_target_baseline == model_declaration.target_baseline
+        assert (
+            profile.n5.baseline_state[model_declaration.outcome_variable]
+            == model_declaration.outcome_baseline
+        )
+        expected_effect = model_declaration.outcome_per_target_unit * (
+            input_record.materialization.value - profile_target_baseline
+        )
+        assert expected_effect == pytest.approx(0.5, abs=1e-12)
+        assert len(effects) == profile.n5.replications
+        assert effects == pytest.approx(
+            [expected_effect] * profile.n5.replications,
+            abs=0.02,
+        )
 
         assert leaf_run.terminal_status == "blocked"
         assert leaf_run.value_port.status == "value_pending_n8"

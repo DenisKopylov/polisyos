@@ -7,7 +7,8 @@ fixture imports the native registry and numerical stack.
 
 from __future__ import annotations
 
-from typing import Any
+import os
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -27,6 +28,11 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     _interaction_coverage,
 )
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _atom, _request
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
 
 
 def _request_with_atom_count(count: int) -> Any:
@@ -64,7 +70,13 @@ def _request_with_atom_count(count: int) -> Any:
     )
     atoms = list(request.intervention_atoms)
     variable_map = dict(request.engine_plan[0].variable_map)
-    for atom_id, causal_variable, engine_variable, kind, mechanism_variables in additions[: count - 2]:
+    for (
+        atom_id,
+        causal_variable,
+        engine_variable,
+        kind,
+        mechanism_variables,
+    ) in additions[: count - 2]:
         atoms.append(
             _atom(
                 intervention_id=atom_id,
@@ -92,6 +104,43 @@ def _request_with_atom_count(count: int) -> Any:
             "baseline_state": {"firm_survival": 0.0},
             "horizon": request.horizon.model_copy(update={"start": 0, "end": 0}),
         }
+    )
+
+
+def _request_with_interaction_multiplier(
+    request: JointSimulationRequest, multiplier: float
+) -> JointSimulationRequest:
+    """Change only the NCM plan's cross-term coefficient for a physical run."""
+
+    plan = request.engine_plan[0]
+    spec = plan.ncm_spec
+    if spec is None:
+        raise AssertionError("SIM-03 fixture requires its NCM plan")
+    updated_equations = []
+    changed = False
+    old_term = "(5.0 * income_delta * balance_delta)"
+    new_term = f"({multiplier:.1f} * income_delta * balance_delta)"
+    for equation in spec.structural_equations:
+        if equation.variable != "firm_survival":
+            updated_equations.append(equation)
+            continue
+        parameters = dict(equation.equation_params)
+        expression = parameters.get("noise_expression")
+        if not isinstance(expression, str) or expression.count(old_term) != 1:
+            raise AssertionError(
+                "SIM-03 cross-term fixture no longer matches its source model"
+            )
+        parameters["noise_expression"] = expression.replace(old_term, new_term, 1)
+        updated_equations.append(
+            equation.model_copy(update={"equation_params": parameters})
+        )
+        changed = True
+    if not changed:
+        raise AssertionError("SIM-03 fixture is missing its firm-survival equation")
+    updated_spec = spec.model_copy(update={"structural_equations": updated_equations})
+    updated_plan = plan.model_copy(update={"ncm_spec": updated_spec})
+    return request.model_copy(
+        update={"engine_plan": (updated_plan, *request.engine_plan[1:])}
     )
 
 
@@ -276,6 +325,116 @@ def test_physical_run_ref_binds_effective_evidence_and_source_mode() -> None:
         joint_ref(changed_baseline),
     }
     assert len(refs) == 3
+
+
+def test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B23: changed inputs get new refs; the same counted witness can remove either input."""
+
+    original = NCMEngineMethod.pure_step
+    observed_seeds: list[int] = []
+
+    def counted(
+        state: Mapping[str, object], params: Mapping[str, object]
+    ) -> dict[str, Any]:
+        observed_seeds.append(int(params["__seed__"]))
+        return original(state, params)
+
+    removal_probe = os.environ.get(_REMOVAL_PROBE_ENV)
+    if removal_probe not in {None, "seed", "plan"}:
+        raise ValueError("B23 removal probe must be 'seed', 'plan', or unset")
+    if removal_probe is not None:
+        from polisyos.runtime.quality import (
+            joint_simulation_horizon as joint_simulation,
+        )
+
+        original_hash = joint_simulation.gy_content_hash
+        removed_fields = (
+            {"seed", "replication_seeds"} if removal_probe == "seed" else {"plan"}
+        )
+
+        def hash_without_selected_input(payload: object) -> str:
+            if (
+                isinstance(payload, dict)
+                and frozenset(payload) == _PHYSICAL_RUN_IDENTITY_FIELDS
+            ):
+                payload = {
+                    key: value
+                    for key, value in payload.items()
+                    if key not in removed_fields
+                }
+            return original_hash(payload)
+
+        monkeypatch.setattr(
+            joint_simulation, "gy_content_hash", hash_without_selected_input
+        )
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
+    request = _request().model_copy(update={"seed": 17})
+    changed_seed = request.model_copy(update={"seed": 18})
+    changed_plan = _request_with_interaction_multiplier(request, 6.0)
+    controller = JointSimulationHorizonController()
+
+    results = (
+        controller.run(request),
+        controller.run(changed_seed),
+        controller.run(changed_plan),
+    )
+
+    pair = ("income_subsidy", "balance_grant")
+    role_views = []
+    for result in results:
+        pairwise = result.trajectory_for("pairwise", pair)
+        joint = result.trajectory_for("joint", pair)
+        assert (
+            pairwise.diagnostics["physical_run_ref"]
+            == joint.diagnostics["physical_run_ref"]
+        )  # noqa: S101
+        assert pairwise.diagnostics["physical_run_reused"] is False  # noqa: S101
+        assert joint.diagnostics["physical_run_reused"] is True  # noqa: S101
+        assert pairwise.points == joint.points  # noqa: S101
+        role_views.append((pairwise, joint))
+
+    base_pair, base_joint = role_views[0]
+    seed_pair, seed_joint = role_views[1]
+    plan_pair, plan_joint = role_views[2]
+    physical_refs = {
+        base_pair.diagnostics["physical_run_ref"],
+        seed_pair.diagnostics["physical_run_ref"],
+        plan_pair.diagnostics["physical_run_ref"],
+    }
+    assert len(physical_refs) == 3  # noqa: S101
+    assert base_joint.method_fqn == seed_joint.method_fqn == plan_joint.method_fqn  # noqa: S101
+    assert observed_seeds == [17] * 3 + [18] * 3 + [17] * 3  # noqa: S101
+    assert (  # noqa: S101
+        plan_joint.points[0].outcomes["firm_survival"]
+        == pytest.approx(base_joint.points[0].outcomes["firm_survival"] + 1.0)
+    )
+    # _run_cached_replicates owns only an invocation-local cache: these are three
+    # separate controller executions, each observed reaching the Foundry method.
+
+
+_REMOVAL_PROBE_ENV = "POLISYOS_SIM03_PHYSICAL_IDENTITY_REMOVAL_PROBE"
+_PHYSICAL_RUN_IDENTITY_FIELDS = frozenset(
+    {
+        "world_model_record_ref",
+        "world_model_record_content_hash",
+        "engine_kind",
+        "method_fqn",
+        "objective_ref",
+        "horizon",
+        "selected_outcomes",
+        "seed",
+        "replications",
+        "replication_seeds",
+        "evidence_state",
+        "evidence_source",
+        "plan",
+        "runtime_refs",
+        "atoms",
+    }
+)
 
 
 def test_three_atom_controller_reports_real_higher_order_residual_and_order(
@@ -625,13 +784,12 @@ def test_joint_simulation_reuses_physical_spec_across_roles(
     result = JointSimulationHorizonController().run(_request())
 
     assert len(calls) == 3
-    pair_ref = result.trajectory_for("pairwise", ("income_subsidy", "balance_grant")).diagnostics[
-        "physical_run_ref"
-    ]
-    joint_ref = result.trajectory_for("joint", ("income_subsidy", "balance_grant")).diagnostics[
-        "physical_run_ref"
-    ]
-    assert pair_ref == joint_ref
+    pairwise = result.trajectory_for("pairwise", ("income_subsidy", "balance_grant"))
+    joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
+    assert pairwise.diagnostics["physical_run_ref"] == joint.diagnostics["physical_run_ref"]  # noqa: S101
+    assert pairwise.diagnostics["physical_run_reused"] is False  # noqa: S101
+    assert joint.diagnostics["physical_run_reused"] is True  # noqa: S101
+    assert pairwise.points == joint.points  # noqa: S101
 
 
 def test_joint_residual_keeps_higher_order_interaction_visible() -> None:

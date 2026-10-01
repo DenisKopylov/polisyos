@@ -1,5 +1,11 @@
 # E02-R2 write leases
 
+## B23 physical simulation identity witness — 2026-10-01
+
+Root alone integrates the reviewed test-only candidate in `tests/unit/remediation/test_sim_03.py`; no production mechanism is leased. The complete file has 21 collectable test functions. Independent static GO: `/Users/deniskopylov/.codex/scratch/e02-r2-b23-independent-review-20261001/B23_V2_INDEPENDENT_REVIEW.md@sha256:fee39d5cc44ee739e097c84178fcafb8b106ae0ec13cf1b633010fefcef60d55`. Candidate patch: `/Users/deniskopylov/.codex/scratch/e02-r2-b23-identity-separation-candidate-20261001/V2/B23_PHYSICAL_RUN_IDENTITY_V2.patch@sha256:067ad9dae0025749f02cfa5cfbae828afaa09d1c98527622c5393bec83c9b663`.
+
+The witness uses the existing N5 controller and original Foundry NCM method: same-request pairwise/joint reuse, distinct seed/plan identities, actual calls and the declared plan effect. Default-off seed/plan removal modes keep identity markers. Runtime and four-base replay are UNRUN at integration; B23 remains partial. The cache is invocation-local; no persistent cache or served acquisition/N6 result custody is claimed. Root admits the frozen whole-file control and both removal modes separately. This path is disjoint from R1, R13 and the four-document ledger reconciliation. The already admitted R9 wave runs against its separate frozen candidate checkout.
+
 ## R1 controlled synthetic-model owner implementation — 2026-10-01
 
 Root leases the following ten mechanism paths to `r1_candidate_scenario_writer` in the existing `codex/e02-r2-r1-candidate-scenario` worktree, starting at its clean `79ba7659b98f0e0ed5c2ec31e36d5c855247d710` head. This finite lease supersedes earlier R1 coding variants. All paths below are relative to `policy-engine/`:

@@ -2345,3 +2345,25 @@ Patch `/Users/deniskopylov/.codex/scratch/e02-b61-cyc05-integrated-1366-20261001
 independent GO `CYC05_R2_V5_INDEPENDENT_DELTA_REVIEW.md@sha256:6fa1cf63d7148e63d5cb2fe207ef2eb735be8e3d45f3aee1959f395cdbf8c04a`
 in the same directory. Whole-file runtime remains UNRUN until a frozen run;
 no source owner, generated family, epoch, ledger status or authority changes.
+
+
+## R10 signature boundary integration and next candidate leases — 2026-10-01
+
+Root integrates only `core/artifacts/store.py` and its mirrored
+`tests/unit/core/phase0/test_store_signing.py` from the reviewed R10 patch.
+The receipt, report, baseline and R10 repair note are mandatory companions.
+Candidate whole-file and removal jobs have finished; no tested tree is edited
+in flight. Fresh canonical replay freezes the integration tree.
+
+R9 selected-ref V3 is a separate candidate-only 22-path lease (11 source and
+11 nearest tests), exactly enumerated by
+`/Users/deniskopylov/.codex/scratch/E02R2-R9-selected-ref-patch-V3-20261001/V3_MANIFEST.json@sha256:b6f62b26d4e6996059f5888285942fa1e61f86764c8889c52687f52a914f4d2f`.
+Root may apply it serially to the reused R9 candidate after the R10 probe.
+No new environment/worktree, authority reissue or generated family is leased.
+
+R1 narrows its current coding variant to the eight existing owner/test paths
+in `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_PROPOSAL_PROFILE_VARIANT_WRITESET_20261001.md@sha256:2c443e3cf39d02233ed9cb9b37885be8e32c0820b26566d97c2dfbdd684ad999`.
+The distinct versioned proposal/profile route uses existing N4, atom/L6,
+source repository and N5 owners; full K_ref vintage and authority guards stay.
+Root admits runtime only after the candidate is frozen; no concurrent edit of
+that tree or the canonical tree under test.

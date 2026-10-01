@@ -44,3 +44,9 @@ retaining the widened annotation and status strings does not preserve behavior.
 **Remainder.** This does not change CAS manifest-profile conflicts (R9), source
 currentness (R2), or the guarded-store bypass noted under R13. The full touched
 file P41 comparison and final repository gates remain closeout work.
+
+## R10 candidate whole-file boundary result (2026-10-01)
+
+Candidate `codex/e02-r2-r9-publication@fdac2ae1209e6a80a72f8ab90aa974916624c229` passes three complete files, 47/47. The bounded property is public identity normalization before the existing signature transaction lease: malformed identities return typed `ERROR` without CAS reads; valid strings reach the leased verifier as `ArtifactID`. The no-scope malformed controls and selected-view control pass. This is candidate evidence only; the current marker-retaining removal probe remains pending, integration replay is unrun, four-base P41 is unrun, and R10 remains `partial`. See [the indexed baseline result](BASELINES.md#r10-candidate-whole-file-boundary-result-2026-10-01).
+
+The consulted [architecture recommendation reference](ARCHITECTURE_REFERENCE.md) presents E02-ARCH-02/05 as proposals about preserving selected-view identity and binding signature reads to the admitted store. They are not adopted contracts. This local `FileSystemCAS` candidate does not establish a broader backend, tenant, or authority capability.

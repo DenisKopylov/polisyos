@@ -1,5 +1,11 @@
 # Four-base P41 test baselines
 
+## R10 six-case public catch-removal probe (2026-10-01)
+
+**Discrepancies first.** The new normalization/transaction composition repair has a candidate-only 47/47 whole-file pass and a complete removal witness: five malformed call failures and one passing valid-string control. The exact reviewed source/test bytes are now integrated; fresh integration-head runtime and broad four-base replay remain UNRUN. Earlier pending-probe statements below are historical.
+
+**Conclusion.** Keep the public typed-error boundary before lease acquisition and retain valid-input custody in the transactional helper. [R10_TRANSACTIONAL_BOUNDARY_RECEIPT.md](R10_TRANSACTIONAL_BOUNDARY_RECEIPT.md) cites the deciding outputs, caller census, mutation and limits. R10 remains partial; no ledger or authority status changes.
+
 ## B61 four-base replay at cb4c6b82e (2026-10-01)
 
 ### Discrepancies and result
@@ -3134,3 +3140,22 @@ The frozen tracked-input denominator is 6,715 with pre/post equality. The origin
 Root reconciliation: `/Users/deniskopylov/.codex/scratch/R1_KREF_CANONICAL_OWNER_RECONCILIATION_20261001.json@sha256:9dccbecf3f4cdcb9537029f0ed5ee05017f3027fb52d2c714c26fa94e2bd880e`; supervised call `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_KREF_ROOT_SUPERVISED_20261001T073008Z_48852/result.json@sha256:ccfbead6a4df7efb13abec490a54ac75995d969093f7e49aec352cedd83ad229`; direct owner output `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_DIRECT_KREF_RUNS_20261001/20261001T073009Z/48857/result.json@sha256:7cf2f8dc3fde72e333a6c9c713b1f77f51167ce8b25ca5f366bfefadffd6d2b5`; typed WMR receipt `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_DIRECT_KREF_RUNS_20261001/20261001T073009Z/48857/retained-wmr-validation.json@sha256:3c404de660c113669f2d2ef5cdf9a4931166cc57250eaaf4b7a4d5172b8937d0`. Tracked trace anchors at the measured source: `policy-engine/src/polisyos/runtime/quality/credal_reference.py@git-blob:7dc892e23b3d114ea2db74c744935b6675008e91#L440,L799-L810`; `policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py@git-blob:88c9553da1377e28418bcb06b00449010409a011#L372`; `policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_versioning.py@git-blob:65825b35623748dc7d3b548aec6207c01adfdee7#L129`.
 
 No production data bytes were copied into the receipts. This is a bounded owner diagnostic, not a test-suite or four-base result; a served N4→N5 positive, currentness, S8, and the broader R1 outcome remain unestablished.
+
+## R10 candidate whole-file boundary result (2026-10-01)
+
+**Discrepancies first.** Candidate head `fdac2ae1209e6a80a72f8ab90aa974916624c229` ran three complete files: 47/47 pass. This is not an integrated-head or four-base result. The earlier 32/32 normalization selection mixes 21 signing cases and 11 lineage cases and has no established execution head; keep its denominator and provenance separate.
+
+| Complete candidate file | Cases | Outcome | JUnit SHA-256 |
+|---|---:|---:|---|
+| `policy-engine/tests/unit/core/phase0/test_store_signing.py` | 21 | 21 passed | `734f8ae44a29561d178974746377f77917d8bb8242933327518b146d1b780fdb` |
+| `policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py` | 10 | 10 passed | `d1889ea3be5479ca37498290e9a9982fb91e96d6a03cc1ad1e91a62ebc46dd46` |
+| `policy-engine/tests/unit/remediation/test_cas_03.py` | 16 | 16 passed | `c4f4752c64756892676a2c3ad4a7e2bdf69cb413d8536419939c0eaf6b338086` |
+| **Total** | **47** | **47 passed** | — |
+
+All three per-file origin receipts passed. Each collected one test module and loaded 63 Python modules against the same 6,414 frozen paths; there were zero changed frozen inputs, zero foreign origins, and no postflight errors. Each process group exited cleanly without a resource guard. The four hashed inputs were the `FileSystemCAS` source plus the three listed test files.
+
+**Behavioral boundary.** The public method parses the supplied identity before calling `_verify_signature_under_transaction_lease`; that helper retains the existing `_transactional_read(signature_surface=True)` guard. The malformed-string tests assert typed `ERROR` and zero observed CAS/snapshot reads without an owner scope, while the valid-string test observes an exact `ArtifactID` at snapshot loading. The selected-reference control preserves the distinct signed view. This cohort does not itself run the current removal probe.
+
+**Receipts and pins.** Root readback `/Users/deniskopylov/.codex/scratch/R10_TRANSACTIONAL_BOUNDARY_CANDIDATE_RUNTIME_READBACK_20261001.json@sha256:dc7a6f8710e755d6cd5575eaec9477c20456ded40cb10fbc458473d8be820475`; aggregate indexed results `/Users/deniskopylov/.codex/scratch/R10_CURRENT_WHOLEFILE_ADAPTER_20261001/runs/r9-cas03-v5-wholefile-20261001T075429579887Z-66377/results.json@sha256:088f6fcfc41942847116ce54e99cd003aa33607d8ed2b2c2af2734f35676ed24`; source freeze `/Users/deniskopylov/.codex/scratch/R10_CURRENT_WHOLEFILE_ADAPTER_20261001/runs/r9-cas03-v5-wholefile-20261001T075429579887Z-66377/origin_freeze.json@sha256:889f87991d874363bbe18b10d032b47af0024eb86cf926cd7391299f7fd63db5`. Candidate path pins: `policy-engine/src/polisyos/core/artifacts/store.py@git-blob:730675df4c2964bf9ab1b1c5551cb8dd8162a27d`; `test_store_signing.py@git-blob:2b49dbe9b27796a4aacce3369be5c2f4c5bbb288`; `test_artifact_store_protocol.py@git-blob:4d8f2e91788f1766cccaec9e99ff5f50240a6c82`; `test_cas_03.py@git-blob:e0a8f6e9341abaf6f50f99ee373780c179cfa716`. Per-file JUnit and origin receipts are indexed by `results.json`.
+
+The current marker-retaining removal probe is **PENDING**; no root mutation result or integration replay is recorded. Four-base P41 is **UNRUN**. R10 remains `partial`; no ledger status change follows.

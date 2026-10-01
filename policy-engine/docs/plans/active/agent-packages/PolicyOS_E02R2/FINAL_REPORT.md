@@ -1,5 +1,21 @@
 # E02-R2 final report draft
 
+## R10 source integration and catch-removal checkpoint (2026-10-01)
+
+**Discrepancies first.** The new normalization/transaction composition repair has a candidate-only 47/47 whole-file pass and a complete removal witness: five malformed call failures and one passing valid-string control. The exact reviewed source/test bytes are now integrated; fresh integration-head runtime and broad four-base replay remain UNRUN. Earlier pending-probe statements below are historical.
+
+**Conclusion.** Keep the public typed-error boundary before lease acquisition and retain valid-input custody in the transactional helper. [R10_TRANSACTIONAL_BOUNDARY_RECEIPT.md](R10_TRANSACTIONAL_BOUNDARY_RECEIPT.md) cites the deciding outputs, caller census, mutation and limits. R10 remains partial; no ledger or authority status changes.
+
+## R10 candidate whole-file boundary result (2026-10-01)
+
+**Discrepancies first.** Candidate `codex/e02-r2-r9-publication@fdac2ae1209e6a80a72f8ab90aa974916624c229` passes three complete test files, 47/47. This is candidate-only evidence: the current marker-retaining removal probe is pending, there is no integration commit or integrated replay, and four-base P41 remains unrun. The earlier 32/32 normalization result is a historical mixed selection (21 signing cases plus 11 lineage cases) whose execution head was `not_established`; it is not this whole-file cohort.
+
+- **Property exercised:** `FileSystemCAS.verify_signature` parses public `ArtifactID`, `ArtifactRef`, or string input before dispatching valid identities to the existing transaction-leased verifier. Malformed identities return typed `ERROR` before CAS reads.
+- **Witnesses:** all 21 signing-file cases, all 10 protocol-file cases, and all 16 CAS-03-file cases pass. Five malformed-string variants use `ownership_enforced=True`, `ownership_requires_scope=True`, and no owner scope; they trap snapshot, signature, blob, and manifest reads and assert zero reads. Malformed refs and mutated direct/nested IDs also refuse before reads. Valid string input reaches snapshot loading as `ArtifactID`; typed and string forms agree; a selected signed profile verifies `VALID` while bare typed/string IDs retain the default-view `UNSIGNED` result.
+- **Remainder:** the current marker-retaining removal probe is **PENDING**. Integration result/commit is **UNRUN/PENDING**; four-base P41 is **UNRUN**. R10 remains `partial`; no ledger or finding status changes.
+
+**Conclusion.** This bounded candidate result supports local filesystem signature-input normalization and its typed valid-input path. It does not establish a wider store, tenant, backend, promotion, or publication authority. See the indexed outcomes in [BASELINES.md](BASELINES.md#r10-candidate-whole-file-boundary-result-2026-10-01) and the class record in [R10_REPAIR.md](R10_REPAIR.md#r10-candidate-whole-file-boundary-result-2026-10-01).
+
 ## R1 V3 canonical K_ref owner reconciliation (2026-10-01)
 
 **Discrepancies first.** One direct owner call completed with a typed `FAIL` after 20.315 seconds. The retained WMR passed validation through `polisyos.core.canon.from_canonical_bytes`; both `coverage_score` and `trust_cap` decoded as floats. The call then reached the existing SKG/L2 `require_forwardable_confidence` guard and raised `ValueError` for restricted historical confidence. The complete 6,715-input set matched before and after; both module-origin snapshots passed at 1,427/1,427. This measures the current vintage refusal, not a K_ref decoding defect, a served N4→N5 positive, or S8 authority.

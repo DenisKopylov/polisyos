@@ -1430,7 +1430,6 @@ class FileSystemCAS:
             load_snapshot=lambda selected_id: self._load_verified_snapshot(selected),
         )
 
-    @_transactional_read(signature_surface=True)
     def verify_signature(
         self,
         artifact_id: ArtifactID | ArtifactRef | str,
@@ -1438,7 +1437,7 @@ class FileSystemCAS:
         *,
         strict_identity: bool | None = None,
     ) -> SignatureVerificationResult:
-        """Verify content integrity and detached signature trust/revocation/identity state."""
+        """Normalize identity before acquiring the CAS read lease."""
         try:
             aid, _profile_sha256, ref = _artifact_reference(artifact_id)
         except ValidationError:
@@ -1460,6 +1459,26 @@ class FileSystemCAS:
                 artifact_id=result_id,
                 message=message,
             )
+
+        # Keep the transactional decorator on the typed helper so malformed
+        # public identities return ERROR before lease acquisition or CAS access.
+        selected: ArtifactID | ArtifactRef = ref or aid
+        return self._verify_signature_under_transaction_lease(
+            selected,
+            verifier,
+            strict_identity=strict_identity,
+        )
+
+    @_transactional_read(signature_surface=True)
+    def _verify_signature_under_transaction_lease(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+        verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        """Verify a normalized selected identity while its CAS view is leased."""
+        aid, _profile_sha256, ref = _artifact_reference(artifact_id)
         selected: ArtifactID | ArtifactRef = ref or aid
         loaded_snapshot: _VerifiedArtifactSnapshot | None = None
 

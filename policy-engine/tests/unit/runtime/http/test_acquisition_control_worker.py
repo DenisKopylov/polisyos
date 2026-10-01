@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from threading import Event, Thread
+from threading import Event, Thread, get_ident, local
 
 import pytest
 
@@ -28,6 +29,79 @@ from tests.unit.runtime.quality.test_acquisition_route_loop import (
     _append_terminal,
     _compiled,
 )
+
+_R8_THREAD_LOCAL_FENCE_REMOVAL_ENV = "POLISYOS_R8_THREAD_LOCAL_FENCE_REMOVAL"
+_THREAD_LOCAL_UNSET = object()
+
+
+class _ThreadLocalFenceToken:
+    def __init__(self, *, carrier: _ThreadLocalFenceCarrier, previous: object) -> None:
+        self.carrier = carrier
+        self.thread_id = get_ident()
+        self.previous = previous
+        self.used = False
+
+
+class _ThreadLocalFenceCarrier:
+    """Thread-affine ContextVar-shaped carrier used only by the removal probe."""
+
+    def __init__(self) -> None:
+        self._local = local()
+
+    def get(self, default: object = _THREAD_LOCAL_UNSET) -> object:
+        value = getattr(self._local, "value", _THREAD_LOCAL_UNSET)
+        if value is _THREAD_LOCAL_UNSET:
+            return None if default is _THREAD_LOCAL_UNSET else default
+        return value
+
+    def set(self, value: object) -> _ThreadLocalFenceToken:
+        previous = getattr(self._local, "value", _THREAD_LOCAL_UNSET)
+        token = _ThreadLocalFenceToken(carrier=self, previous=previous)
+        self._local.value = value
+        return token
+
+    def reset(self, token: _ThreadLocalFenceToken) -> None:
+        if token.carrier is not self or token.thread_id != get_ident() or token.used:
+            raise ValueError("thread-local fence token cannot be reset in this context")
+        token.used = True
+        if token.previous is _THREAD_LOCAL_UNSET:
+            del self._local.value
+        else:
+            self._local.value = token.previous
+
+
+@pytest.fixture(autouse=True)
+def _optional_r8_thread_local_fence_removal(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Remove cross-thread fence propagation only under an explicit opt-in."""
+    setting = os.environ.get(_R8_THREAD_LOCAL_FENCE_REMOVAL_ENV)
+    if setting is None:
+        return
+    if setting != "1":
+        pytest.fail(
+            f"{_R8_THREAD_LOCAL_FENCE_REMOVAL_ENV} must be unset or exactly '1'",
+            pytrace=False,
+        )
+
+    original_init = ControlPlaneStore.__init__
+
+    def _thread_local_init(
+        self: ControlPlaneStore,
+        *,
+        backend: str,
+        sqlite_path: str | Path,
+        postgres_dsn: str | None = None,
+    ) -> None:
+        original_init(
+            self,
+            backend=backend,
+            sqlite_path=sqlite_path,
+            postgres_dsn=postgres_dsn,
+        )
+        self._job_execution_fence = _ThreadLocalFenceCarrier()
+
+    monkeypatch.setattr(ControlPlaneStore, "__init__", _thread_local_init)
 
 
 @dataclass

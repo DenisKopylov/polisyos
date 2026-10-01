@@ -1,5 +1,11 @@
 # E02-R2 write leases
 
+## R8 carrier-removal witness integrated, runtime pending — 2026-10-01
+
+Root integrates the one-file test-only carrier probe after independent static GO: `/Users/deniskopylov/.codex/scratch/E02R2_R8_THREADLOCAL_REMOVAL_INPUT_20261001/R8_CARRIER_REMOVAL_REVIEW.md@sha256:eaf7b280288c08da3f0d0cd09b01adec617aeb7ee56ae7cdb743700ae24e20ef`. Patch `/Users/deniskopylov/.codex/scratch/E02R2_R8_THREADLOCAL_REMOVAL_INPUT_20261001/R8_TEST_LOCAL_THREADLOCAL_MUTATION.patch@sha256:7f7f771353a852cee91ea6162302681c89ffdc777346485ae61ce6079d9c9da2` preserves the seven case identities and all production code. Only the exact test opt-in `POLISYOS_R8_THREAD_LOCAL_FENCE_REMOVAL=1` substitutes the initialized store's ContextVar carrier with thread-local state.
+
+The fresh postimage default-off control, mutant, and restored control are UNRUN. The earlier seven-pass run predates these test bytes. Admit all three against one frozen committed postimage after the disk reserve is available; record the guarded stale-completion transition as the removal discriminator. Manifest refusal alone and a failed current-worker control under the mutant do not establish preservation. No current R8 behavioral closure or four-base replay is claimed by this commit.
+
 ## Current transaction and fence witness leases — 2026-10-01
 
 `r9_transaction_writer` has a one-file test lease in its existing R9 candidate worktree: `tests/unit/core/artifacts/test_ownership_history.py`. Correct the shared signed-index fixture helpers and measure evidence reads after the transaction coordinator has been constructed; no ownership evidence may be created by a read. The five historical governed-record pass-to-fail cases require causal diagnosis and are outside this code lease. The principal's HumanDecisionService V2 production-approval ruling does not cover those historical readers. No production source, epoch, signed receipt or authority expectation is leased.

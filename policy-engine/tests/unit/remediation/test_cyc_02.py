@@ -45,8 +45,8 @@ from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleError,
     JointSimulationPort,
+    JointSimulationRequest,
     PendingN8ValuePort,
-    PromotionPortObservation,
     SimulationPortObservation,
     _DefaultSimulationBoundFoundryValuePort,
     load_joint_simulation_result,
@@ -188,6 +188,7 @@ def _real_n5_observation(
     *,
     artifact_store: Any | None = None,
     without_runtime_store: bool = False,
+    single_step_horizon: bool = False,
 ):
     """Run the canonical N5 producer through the real generation-cycle adapter."""
 
@@ -202,6 +203,15 @@ def _real_n5_observation(
         record=context.world_model_record,
         world_model_record_ref=context.world_model_record.world_model_record_id,
     )
+    if single_step_horizon:
+        # This static request must not add a separate incomplete-horizon blocker.
+        request = request.model_copy(
+            update={
+                "horizon": request.horizon.model_copy(
+                    update={"end": request.horizon.start}
+                )
+            }
+        )
     problem = problem.model_copy(
         update={
             "runtime_hints": {
@@ -321,40 +331,23 @@ class _RecursiveSimulationPort:
         )
 
 
-class _RecursivePromotionPort:
-    def __call__(self, **kwargs: Any) -> PromotionPortObservation:
-        del kwargs
-        return PromotionPortObservation()
-
-
 def _recursive_contract_testing_controller(
     repo_root: Path,
     *,
     artifact_store: Any | None = None,
-    canonical_default_n9_candidate_leaf: bool = False,
 ) -> RecursiveGenerationCycleController:
+    """Build the contract-testing router with canonical candidate-only leaves."""
 
     def factory(_node_ref: str, _problem_input: object) -> GenerationCycleController:
-        if canonical_default_n9_candidate_leaf:
-            # Preserve the default canonical N9 owner while keeping its runtime
-            # authority absent. The outer test router owns parent N5 storage.
-            return GenerationCycleController(
-                generation_port=_RecursiveGenerationPort(),
-                grounding_port=_RecursiveGroundingPort(),
-                simulation_port=_RecursiveSimulationPort(),
-                value_port=PendingN8ValuePort(),
-                authority_scope="production",
-                repo_root=repo_root,
-            )
+        # Keep the canonical default N9 owner but omit its authority runtime.
+        # The outer contract-testing router owns parent N5 storage.
         return GenerationCycleController(
             generation_port=_RecursiveGenerationPort(),
             grounding_port=_RecursiveGroundingPort(),
             simulation_port=_RecursiveSimulationPort(),
             value_port=PendingN8ValuePort(),
-            promotion_port=_RecursivePromotionPort(),
-            authority_scope="contract_testing",
+            authority_scope="production",
             repo_root=repo_root,
-            artifact_store=artifact_store,
         )
 
     return RecursiveGenerationCycleController.for_contract_testing(
@@ -449,12 +442,16 @@ def _recursive_parent_request(
 
 
 def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> None:
-    """K_sim limits authority, but does not make the real N5 input disappear."""
+    """A complete static N5 result remains an input despite K_sim limits."""
 
     _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
-        tmp_path
+        tmp_path,
+        single_step_horizon=True,
     )
 
+    assert set(simulation.authority_blockers) == {
+        "simulation_only_k_sim_not_world_evidence"
+    }
     assert simulation_evaluation_input_ref(simulation) is None
     input_ref = simulation_evaluation_input_ref(simulation, artifact_store=store)
 
@@ -919,6 +916,7 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
     assert root_node.joint_simulation is not None
     assert root_node.joint_simulation_ref is not None
     assert root_node.joint_simulation_ref.kind == "polisyos.runtime.joint_simulation_result"
+    assert isinstance(request, JointSimulationRequest)
 
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
 
@@ -926,9 +924,12 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
         root_node.joint_simulation_ref,
         store=store,
         expected_world_model_record_content_hash=(
-            root_node.joint_simulation.world_model_record_content_hash
+            request.world_model_record.content_hash
         ),
-        expected_atom_ids=root_node.joint_simulation.atom_ids,
+        expected_atom_ids=tuple(
+            atom.intervention_id for atom in request.intervention_atoms
+        ),
+        expected_selected_outcomes=request.selected_outcomes,
     )
     assert reopened.trajectories == root_node.joint_simulation.trajectories
 
@@ -981,8 +982,8 @@ async def test_recursive_parent_without_store_refuses_before_n5_execution(
     )
 
     # The two leaf intents are explicit candidate-only computations. The
-    # contract-testing factory has no N9 authority owner, so implicit intent
-    # resolution would refuse before this test reaches the parent N5 store gate.
+    # canonical N9 owner has no runtime; explicit intents keep this negative
+    # focused on the parent N5 store gate rather than implicit leaf authority.
     with pytest.raises(
         RecursiveGenerationCycleError,
         match="recursive_n5_runtime_store_not_established",

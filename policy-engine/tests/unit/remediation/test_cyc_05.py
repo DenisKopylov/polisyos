@@ -593,7 +593,6 @@ async def _run_cyc05_recursive_case(
     controller = _recursive_contract_testing_controller(
         tmp_path,
         artifact_store=outer_n5_store,
-        canonical_default_n9_candidate_leaf=True,
     )
     calls: list[object] = []
 

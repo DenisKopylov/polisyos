@@ -2358,6 +2358,22 @@ class _N4CandidateScenarioGenerationResult:
     candidates: tuple[object, ...]
     surrogate_rankings: tuple[object, ...] = ()
     proposal_run: object | None = None
+    source_ref: CASArtifactRef | None = None
+    candidate_limitation_code: str | None = None
+
+
+class _N4CandidateScenarioProposalOnlyError(Exception):
+    """Unwind N6 when a persisted configured-profile proposal has no matching atom."""
+
+    def __init__(
+        self,
+        *,
+        source_ref: CASArtifactRef | None,
+        limitation_code: str,
+    ) -> None:
+        self.source_ref = source_ref
+        self.limitation_code = limitation_code
+        super().__init__("n4_candidate_scenario_proposal_only")
 
 
 class N4GenerationPort:
@@ -7543,6 +7559,8 @@ class GenerationCycleController:
             candidate_issue = "candidate_scenario_worker_lease_not_current"
 
         repository = self._source_repository
+        source_ref: CASArtifactRef | None = None
+        source_persistence_limiter: str | None = None
         if repository is not None and self._source_run_id is not None:
             try:
                 source_record = repository.create_candidate_scenario_source_v1(
@@ -7590,13 +7608,31 @@ class GenerationCycleController:
                         or "candidate_scenario_source_persistence_refused"
                     )
                 )
+                source_persistence_limiter = (
+                    "candidate_scenario_source_persistence_not_established"
+                )
+        else:
+            source_persistence_limiter = (
+                "candidate_scenario_source_persistence_not_established"
+            )
 
         return _N4CandidateScenarioGenerationResult(
             status=(
-                "generated" if candidate is not None else "candidate_proposal_only"
+                "generated"
+                if candidate is not None and source_ref is not None
+                else "candidate_proposal_only"
             ),
-            candidates=(candidate,) if candidate is not None else (),
+            candidates=(
+                (candidate,)
+                if candidate is not None and source_ref is not None
+                else ()
+            ),
             proposal_run=proposal_run,
+            source_ref=source_ref,
+            candidate_limitation_code=(
+                source_persistence_limiter
+                or (candidate_issue if candidate is None else None)
+            ),
         )
 
     async def _generate_node(self, state: dict[str, Any]) -> dict[str, Any]:
@@ -7619,6 +7655,17 @@ class GenerationCycleController:
             result = self._candidate_scenario_proposal_result(
                 result,
                 problem=state["problem"],
+            )
+        if (
+            type(result) is _N4CandidateScenarioGenerationResult
+            and result.status == "candidate_proposal_only"
+        ):
+            raise _N4CandidateScenarioProposalOnlyError(
+                source_ref=result.source_ref,
+                limitation_code=(
+                    result.candidate_limitation_code
+                    or "candidate_scenario_proposal_not_established"
+                ),
             )
         organ = result if isinstance(result, DesignGenerationOrganRun) else None
         from polisyos.runtime.quality.generation_source import generation_source_synthetic

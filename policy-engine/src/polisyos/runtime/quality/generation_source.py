@@ -57,6 +57,9 @@ N4_CANDIDATE_PROPOSAL_KIND = "runtime.quality.n4_candidate_proposal"
 N4_CANDIDATE_PROPOSAL_LOCATOR_SCHEMA = (
     "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
 )
+N4_CANDIDATE_SCENARIO_SOURCE_LOCATOR_SCHEMA = (
+    "policyos.runtime.quality.n4_candidate_scenario_source_locator.v1"
+)
 Identity = tuple[str, str, str]
 ExecutionScope = Literal["production", "contract_testing"]
 _SOURCE_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
@@ -300,6 +303,26 @@ class N4CandidateProposalLocator(_StrictModel):
             or self.artifact_ref.media_type != "application/json"
         ):
             raise ValueError("n4_candidate_proposal_locator_owner_profile_mismatch")
+        return self
+
+
+class N4CandidateScenarioSourceLocator(_StrictModel):
+    """Versioned pointer to a configured-profile N4 scenario-source record."""
+
+    schema_version: Literal[
+        "policyos.runtime.quality.n4_candidate_scenario_source_locator.v1"
+    ] = N4_CANDIDATE_SCENARIO_SOURCE_LOCATOR_SCHEMA
+    artifact_ref: artifacts.ArtifactRef
+
+    @model_validator(mode="after")
+    def _scenario_source_owner_view(self) -> N4CandidateScenarioSourceLocator:
+        if (
+            self.artifact_ref.kind != _N4_CANDIDATE_SCENARIO_SOURCE_KIND
+            or self.artifact_ref.media_type != "application/json"
+        ):
+            raise ValueError(
+                "n4_candidate_scenario_source_locator_owner_profile_mismatch"
+            )
         return self
 
 
@@ -2037,6 +2060,75 @@ class GenerationSourceRepository:
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
+        return artifact
+
+    def load_candidate_proposal_projection_for_served_job(
+        self,
+        locator: (
+            N4CandidateProposalLocator
+            | N4CandidateScenarioSourceLocator
+            | Mapping[str, Any]
+        ),
+        *,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        raw_request: str,
+        expected_design_problem: DesignProblem | None = None,
+    ) -> (
+        N4CandidateProposalRecord
+        | N4CandidateProposalSimulationRecord
+        | N4CandidateScenarioSourceRecordV1
+    ):
+        """Dispatch the existing progress pointer to its exact N4 source owner."""
+
+        typed_locator: N4CandidateProposalLocator | N4CandidateScenarioSourceLocator
+        if type(locator) is N4CandidateProposalLocator or type(
+            locator
+        ) is N4CandidateScenarioSourceLocator:
+            typed_locator = locator
+        elif isinstance(locator, Mapping):
+            schema_version = locator.get("schema_version")
+            if schema_version == N4_CANDIDATE_PROPOSAL_LOCATOR_SCHEMA:
+                typed_locator = N4CandidateProposalLocator.model_validate(locator)
+            elif schema_version == N4_CANDIDATE_SCENARIO_SOURCE_LOCATOR_SCHEMA:
+                typed_locator = N4CandidateScenarioSourceLocator.model_validate(locator)
+            else:
+                raise ValueError("n4_candidate_proposal_locator_schema_unsupported")
+        else:
+            raise TypeError("n4_candidate_proposal_locator_untyped")
+
+        if type(typed_locator) is N4CandidateProposalLocator:
+            artifact = self.load_candidate_proposal_for_served_job(
+                typed_locator,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                raw_request=raw_request,
+            )
+            if (
+                expected_design_problem is not None
+                and artifact.problem != expected_design_problem
+            ):
+                raise ValueError("n4_candidate_proposal_projection_problem_mismatch")
+            return artifact
+
+        artifact = self.load_candidate_scenario_source_v1(
+            typed_locator.artifact_ref,
+            expected_run_id=run_id,
+            expected_job_id=job_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+        )
+        if artifact.problem.nl_provenance.raw_request != raw_request:
+            raise ValueError("n4_candidate_scenario_projection_request_mismatch")
+        if (
+            expected_design_problem is not None
+            and artifact.problem != expected_design_problem
+        ):
+            raise ValueError("n4_candidate_scenario_projection_problem_mismatch")
         return artifact
 
     def persist(

@@ -1019,6 +1019,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
         N4CandidateProposalExecution,
+        N4CandidateScenarioProposalOnlyExecution,
         NormativeEvidenceSubmissionRequest,
         NormativeEvidenceSubmissionResponse,
         NormativeRunDisposition,
@@ -2295,7 +2296,11 @@ class ControlPlaneService(
         | None = None,
         candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
-    ) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
+    ) -> (
+        CompiledRecursiveGenerationCycleRun
+        | N4CandidateProposalExecution
+        | N4CandidateScenarioProposalOnlyExecution
+    ):
         """Run the HTTP composition through its container-owned epoch strangle."""
 
         from polisyos.runtime.http.services.control.generation_cycle import (
@@ -5218,7 +5223,174 @@ class ControlPlaneService(
                     )
                     from polisyos.runtime.http.services.control.generation_cycle import (
                         N4CandidateProposalExecution,
+                        N4CandidateScenarioProposalOnlyExecution,
                     )
+
+                    if isinstance(compiled, N4CandidateScenarioProposalOnlyExecution):
+                        from polisyos.runtime.quality.generation_source import (
+                            GenerationSourceRepository,
+                            N4CandidateScenarioSourceLocator,
+                            N4CandidateScenarioSourceRecordV1,
+                        )
+
+                        run_id = str(job.run_id or "")
+                        source = None
+                        locator = None
+                        source_ref = compiled.source_ref
+                        currentness_status = "not_established"
+                        limitation_code = compiled.limitation_code
+                        if source_ref is not None:
+                            if (
+                                execution_scope.tenant_id is None
+                                or execution_scope.cell_id is None
+                                or candidate_simulation_currentness_resolver is None
+                            ):
+                                currentness_status = "not_established"
+                                limitation_code = (
+                                    "candidate_scenario_worker_lease_not_current"
+                                )
+                            else:
+                                locator = N4CandidateScenarioSourceLocator(
+                                    artifact_ref=source_ref
+                                )
+                                loaded = GenerationSourceRepository(
+                                    self._artifact_store
+                                ).load_candidate_proposal_projection_for_served_job(
+                                    locator,
+                                    job_id=job.job_id,
+                                    run_id=run_id,
+                                    tenant_id=execution_scope.tenant_id,
+                                    cell_id=execution_scope.cell_id,
+                                    raw_request=str(payload.get("request") or ""),
+                                    expected_design_problem=compiled.design_problem,
+                                )
+                                if type(loaded) is not N4CandidateScenarioSourceRecordV1:
+                                    raise RuntimeError(
+                                        "n4_candidate_scenario_projection_owner_mismatch"
+                                    )
+                                source = loaded
+                                current = (
+                                    candidate_simulation_currentness_resolver() is True
+                                )
+                                currentness_status = "current" if current else "not_current"
+                                if current:
+                                    limitation_code = (
+                                        source.candidate_limitation_code
+                                        or compiled.limitation_code
+                                    )
+                                else:
+                                    limitation_code = (
+                                        "candidate_scenario_worker_lease_not_current"
+                                    )
+                        else:
+                            currentness_status = "not_established"
+                            limitation_code = (
+                                "candidate_scenario_source_persistence_not_established"
+                            )
+
+                        proposal_limiter = (
+                            source.candidate_limitation_code
+                            if source is not None
+                            else compiled.limitation_code
+                        )
+                        progress = {
+                            "state": "completed",
+                            "phase": "natural_language_run",
+                            "status": (
+                                "candidate_limited"
+                                if source is not None
+                                and currentness_status == "current"
+                                else "not_established"
+                            ),
+                            "execution_band": "candidate",
+                            "candidate_computation_status": (
+                                "completed"
+                                if source is not None
+                                and currentness_status == "current"
+                                else "not_established"
+                            ),
+                            "execution_intent_band": intent_band.value,
+                            "execution_intent_limitation_code": (
+                                execution_intent_limitation
+                            ),
+                            "limitation_code": limitation_code,
+                            "candidate_proposal_limitation_code": proposal_limiter,
+                            "candidate_context_currentness_status": currentness_status,
+                            "proposal_persistence_status": (
+                                "persisted" if source_ref is not None else "not_established"
+                            ),
+                            "stage": "n4_proposal_only",
+                            "n4_status": (
+                                "candidate_limited" if source is not None else "not_established"
+                            ),
+                            "run_id": run_id,
+                            "candidate_proposal_ref": (
+                                locator.model_dump(mode="json")
+                                if locator is not None
+                                else None
+                            ),
+                            "simulation_status": "not_run",
+                            "simulation_limitation_code": proposal_limiter,
+                            "n5_status": "not_run",
+                            "n8_status": "not_run",
+                            "n9_status": "not_admitted",
+                            "s8_status": "blocked",
+                        }
+                        artifact_refs = [str(capability_manifest_ref)]
+                        if source_ref is not None:
+                            artifact_refs.append(str(source_ref.artifact_id))
+                        diagnostic_emission = self._emit_runtime_diagnostic_event(
+                            execution_scope=execution_scope,
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            execution_profile=job.effective_execution_profile,
+                            phase="job_execution",
+                            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                            state_before="running",
+                            state_after="completed",
+                            payload=payload,
+                            event_payload={
+                                "job_kind": job.kind,
+                                "capability_manifest_ref": str(capability_manifest_ref),
+                                "candidate_proposal_ref": progress[
+                                    "candidate_proposal_ref"
+                                ],
+                                "execution_band": "candidate",
+                                "execution_intent_band": intent_band.value,
+                                "execution_intent_limitation_code": (
+                                    execution_intent_limitation
+                                ),
+                                "limitation_code": limitation_code,
+                                "downstream_stages": {
+                                    "n5": "not_run",
+                                    "n8": "not_run",
+                                    "n9": "not_admitted",
+                                    "s8": "blocked",
+                                },
+                            },
+                            artifact_refs=artifact_refs,
+                        )
+                        progress["runtime_diagnostic_event_status"] = (
+                            diagnostic_emission.status
+                        )
+                        progress["diagnostic_event_scope_status"] = (
+                            diagnostic_emission.scope_status
+                        )
+                        if diagnostic_emission.event_id is not None:
+                            progress["diagnostic_event_ids"] = [
+                                diagnostic_emission.event_id
+                            ]
+                        if diagnostic_emission.limitation_code is not None:
+                            progress["runtime_diagnostic_event_limitation_code"] = (
+                                diagnostic_emission.limitation_code
+                            )
+                        self._control_store.complete_job(
+                            job_id=job.job_id,
+                            run_id=run_id,
+                            capability_manifest_ref=str(capability_manifest_ref),
+                            progress=progress,
+                        )
+                        return
 
                     if isinstance(compiled, N4CandidateProposalExecution):
                         from polisyos.runtime.quality.design_generation import (

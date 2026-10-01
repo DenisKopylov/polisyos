@@ -1868,3 +1868,39 @@ def test_n4_nonbinding_surface_retains_actual_cg3_authority_limitation():
     observed = n4._non_binding_cause(cg1, cg2, cg3)
     assert observed["synthetic"] is True
     assert observed["authority_limitation"] == cg3.authority_limitation
+
+
+def test_n4_candidate_scenario_source_locator_is_versioned_and_kind_bound():
+    """The progress pointer keeps the scenario-source owner distinct from N4 v1/v2."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.runtime.quality.generation_source import (
+        N4CandidateScenarioSourceLocator,
+    )
+
+    locator = N4CandidateScenarioSourceLocator(
+        artifact_ref=ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="runtime.quality.n4_candidate_scenario_source",
+            media_type="application/json",
+        )
+    )
+    assert locator.model_dump(mode="json") == {
+        "schema_version": (
+            "policyos.runtime.quality.n4_candidate_scenario_source_locator.v1"
+        ),
+        "artifact_ref": {
+            "artifact_id": "sha256:" + "a" * 64,
+            "kind": "runtime.quality.n4_candidate_scenario_source",
+            "media_type": "application/json",
+            "manifest_profile_sha256": None,
+        },
+    }
+
+    with pytest.raises(ValueError, match="n4_candidate_scenario_source_locator_owner_profile_mismatch"):
+        N4CandidateScenarioSourceLocator(
+            artifact_ref=ArtifactRef(
+                artifact_id="sha256:" + "a" * 64,
+                kind="runtime.quality.n4_candidate_proposal",
+                media_type="application/json",
+            )
+        )

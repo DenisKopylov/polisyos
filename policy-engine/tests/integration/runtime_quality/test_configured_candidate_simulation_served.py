@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import copy
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import get_args
+from typing import Any, get_args
 
 import pytest
 from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
@@ -52,7 +53,9 @@ def _current_compiler_problem(recording: dict[str, object]):
     )
 
 
-def _controlled_procurement_recording(recording: dict[str, object]) -> dict[str, object]:
+def _controlled_procurement_recording(
+    recording: dict[str, object], *, intensity: int = 1
+) -> dict[str, object]:
     """Keep the real N4 replay path while making its one direct value integer-only."""
 
     from polisyos.pdc import gy_content_hash
@@ -72,7 +75,7 @@ def _controlled_procurement_recording(recording: dict[str, object]) -> dict[str,
             for item in interventions
             if item.get("kind") == "procurement_shock_intensity"
         )
-        procurement["params"] = {"intensity": 1}
+        procurement["params"] = {"intensity": intensity}
         procurement["notes"] = [
             "do.target=cells.distress_score sign=decrease "
             "outcome=cells.output effect_path=cells.distress_score,cells.output"
@@ -81,6 +84,33 @@ def _controlled_procurement_recording(recording: dict[str, object]) -> dict[str,
         response["raw_response"] = rewritten
         response["raw_response_hash"] = gy_content_hash(rewritten)
     return controlled
+
+
+def _read_private_artifact_in_job_scope(
+    *,
+    service: Any,
+    operation: Callable[[str, str], Any],
+    job_id: str,
+    run_id: str,
+) -> Any:
+    """Read private CAS data in the job-created scope admitted by the worker."""
+    from polisyos.runtime.http.services.control_plane_store import (
+        _control_job_execution_scope_from_event,
+    )
+
+    event = service._control_store.get_job_created_event_payload(job_id)
+    outbox = service._control_store.get_job_created_outbox_event(job_id)
+    assert outbox is not None
+    assert event.get("job_id") == job_id
+    assert event.get("run_id") == run_id
+    assert outbox.job_id == job_id and outbox.run_id == run_id
+    scope = _control_job_execution_scope_from_event(event)
+    outbox_scope = _control_job_execution_scope_from_event(outbox.payload)
+    assert outbox_scope == scope
+    assert scope.status == "established"
+    assert scope.tenant_id and scope.cell_id
+    with tenant_scope(None, tenant_id=scope.tenant_id, cell_id=scope.cell_id):
+        return operation(scope.tenant_id, scope.cell_id)
 
 
 def test_profile_selection_ref_ignores_only_server_execution_ids() -> None:
@@ -433,21 +463,21 @@ def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
             locator = N4CandidateProposalLocator.model_validate(
                 progress["candidate_proposal_ref"]
             )
-            with tenant_scope(
-                None,
-                tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                cell_id="cell-a",
-            ):
-                proposal = GenerationSourceRepository(
+            proposal = _read_private_artifact_in_job_scope(
+                service=service,
+                operation=lambda tenant_id, cell_id: GenerationSourceRepository(
                     service._artifact_store
                 ).load_candidate_proposal_for_served_job(
                     locator,
                     job_id=job.job_id,
                     run_id=str(job.run_id),
-                    tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                    cell_id="cell-a",
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
                     raw_request=raw_request,
-                )
+                ),
+                job_id=job.job_id,
+                run_id=str(job.run_id),
+            )
             assert type(proposal) is N4CandidateProposalSimulationRecord
             assert proposal.problem == compiled_problem
             assert proposal.proposal.status == "candidate_limited"
@@ -479,11 +509,13 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
 
     from polisyos.core import canon
     from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
-    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.http.services.control_plane_store import (
+        _control_job_execution_scope_from_event,
     )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextJobArtifact,
@@ -501,6 +533,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         GenerationSourceRepository,
         N4CandidateProposalLocator,
         N4CandidateProposalSimulationRecord,
+        N4CandidateScenarioSourceLocator,
+        N4CandidateScenarioSourceRecordV1,
     )
     from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
     from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
@@ -610,6 +644,17 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     )
     monkeypatch.setattr(CanonicalN9PromotionPort, "__call__", reject_n9_owner_call)
 
+    def read_private_artifact_in_job_scope(
+        operation: Callable[[], Any], *, job_id: str, run_id: str
+    ) -> Any:
+        """Read one artifact under the persisted, admitted job-created scope."""
+        return _read_private_artifact_in_job_scope(
+            service=service,
+            operation=lambda _tenant_id, _cell_id: operation(),
+            job_id=job_id,
+            run_id=run_id,
+        )
+
     original_n5_port = JointSimulationPort.__call__
 
     def observe_n5_port(port, *args, **kwargs):
@@ -667,10 +712,13 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         assert str(context_job_selected_ref.artifact_id) == context_job_ref
         assert context_job_selected_ref.manifest_profile_sha256 is None
+        context_job_bytes = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_bytes(context_job_selected_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
         context_job = CycleSubstrateContextJobArtifact.model_validate(
-            canon.from_canonical_bytes(
-                service._artifact_store.get_bytes(context_job_selected_ref)
-            )
+            canon.from_canonical_bytes(context_job_bytes)
         )
         assert context_job.problem == compiled_problem
         assert context_job.design_problem_ref == _cycle_job_v1_design_problem_ref(
@@ -679,8 +727,12 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert context_job.design_problem_ref != profile.profile_selection_ref
         assert context_job.job_id == completed.job_id
         assert context_job.run_id == str(completed.run_id)
-        assert context_job.tenant_id == "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-        assert context_job.cell_id == "cell-a"
+        admitted_event = service._control_store.get_job_created_event_payload(
+            completed.job_id
+        )
+        admitted_scope = _control_job_execution_scope_from_event(admitted_event)
+        assert context_job.tenant_id == admitted_scope.tenant_id
+        assert context_job.cell_id == admitted_scope.cell_id
         assert context_job.problem.nl_provenance.source_context["job_id"] == completed.job_id
         assert context_job.problem.nl_provenance.source_context["run_id"] == str(
             completed.run_id
@@ -688,11 +740,14 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert context_job.profile_admission_status == "not_established"
         assert context_job.s8_status == "blocked"
 
-        compiled_payload = canon.from_canonical_bytes(
-            service._artifact_store.get_bytes(
+        compiled_payload_bytes = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_bytes(
                 progress["compiled_recursive_generation_cycle_ref"]
-            )
+            ),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
         )
+        compiled_payload = canon.from_canonical_bytes(compiled_payload_bytes)
         compiled_record = CompiledRecursiveGenerationCycleRun.model_validate(
             compiled_payload
         )
@@ -737,14 +792,18 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         # This source kind is distinct from full CGF generation custody: it
         # retains the selected profile/context joins and the typed L2 vintage
         # restriction without forwarding historic confidence into the proposal.
-        n4_source = GenerationSourceRepository(
-            service._artifact_store
-        ).load_candidate_scenario_source_v1(
-            input_record.n4_source_ref,
-            expected_run_id=str(completed.run_id),
-            expected_job_id=completed.job_id,
-            expected_tenant_id=context_job.tenant_id,
-            expected_cell_id=context_job.cell_id,
+        n4_source = read_private_artifact_in_job_scope(
+            lambda: GenerationSourceRepository(
+                service._artifact_store
+            ).load_candidate_scenario_source_v1(
+                input_record.n4_source_ref,
+                expected_run_id=str(completed.run_id),
+                expected_job_id=completed.job_id,
+                expected_tenant_id=admitted_scope.tenant_id,
+                expected_cell_id=admitted_scope.cell_id,
+            ),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
         )
         assert type(n4_source).__name__ == "N4CandidateScenarioSourceRecordV1"
         assert n4_source.authority_purpose == "candidate_scenario_n5_only"
@@ -771,11 +830,15 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert observation.simulation_result_ref is not None
         assert isinstance(observation.simulation_result_ref, ArtifactRef)
         assert observation.simulation_result_ref.manifest_profile_sha256 is None
-        n5_result = load_joint_simulation_result(
-            observation.simulation_result_ref,
-            store=service._artifact_store,
-            expected_world_model_record_content_hash=context_job.context.world_model_record.content_hash,
-            expected_selected_outcomes=("cells.output",),
+        n5_result = read_private_artifact_in_job_scope(
+            lambda: load_joint_simulation_result(
+                observation.simulation_result_ref,
+                store=service._artifact_store,
+                expected_world_model_record_content_hash=context_job.context.world_model_record.content_hash,
+                expected_selected_outcomes=("cells.output",),
+            ),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
         )
         assert n5_result.uncertainty_kind == "K_sim"
         assert n5_result.world_credal_state_before == n5_result.world_credal_state_after
@@ -858,12 +921,16 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         input_ref = None
         for reference_payload in input_refs:
             selected_ref = ArtifactRef.model_validate(reference_payload)
-            selected_input = source_repository.resolve_candidate_simulation_v4(
-                ref=selected_ref,
-                expected_run_id=str(completed.run_id),
-                expected_job_id=completed.job_id,
-                expected_tenant_id=context_job.tenant_id,
-                expected_cell_id=context_job.cell_id,
+            selected_input = read_private_artifact_in_job_scope(
+                lambda selected_ref=selected_ref: source_repository.resolve_candidate_simulation_v4(
+                    ref=selected_ref,
+                    expected_run_id=str(completed.run_id),
+                    expected_job_id=completed.job_id,
+                    expected_tenant_id=admitted_scope.tenant_id,
+                    expected_cell_id=admitted_scope.cell_id,
+                ),
+                job_id=completed.job_id,
+                run_id=str(completed.run_id),
             )
             if (
                 type(selected_input).__name__ == "CandidateSimulationN5InputV4"
@@ -888,12 +955,16 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         execution = None
         for reference_payload in execution_refs:
             selected_ref = ArtifactRef.model_validate(reference_payload)
-            selected_execution = source_repository.resolve_candidate_simulation_v4(
-                ref=selected_ref,
-                expected_run_id=str(completed.run_id),
-                expected_job_id=completed.job_id,
-                expected_tenant_id=context_job.tenant_id,
-                expected_cell_id=context_job.cell_id,
+            selected_execution = read_private_artifact_in_job_scope(
+                lambda selected_ref=selected_ref: source_repository.resolve_candidate_simulation_v4(
+                    ref=selected_ref,
+                    expected_run_id=str(completed.run_id),
+                    expected_job_id=completed.job_id,
+                    expected_tenant_id=admitted_scope.tenant_id,
+                    expected_cell_id=admitted_scope.cell_id,
+                ),
+                job_id=completed.job_id,
+                run_id=str(completed.run_id),
             )
             if selected_execution.original_candidate_id == input_record.original_candidate_id:
                 execution_ref = selected_ref
@@ -920,7 +991,11 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert artifact_ref_identity_key(execution.n5_result_ref) == (
             artifact_ref_identity_key(observation.simulation_result_ref)
         )
-        input_manifest = service._artifact_store.get_manifest(input_ref)
+        input_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(input_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
         assert {
             (item.role, str(item.artifact_id), item.manifest_profile_sha256)
             for item in input_manifest.inputs
@@ -936,7 +1011,11 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 context_job_selected_ref.manifest_profile_sha256,
             ),
         }
-        execution_manifest = service._artifact_store.get_manifest(execution_ref)
+        execution_manifest = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_manifest(execution_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
         assert {
             (item.role, str(item.artifact_id), item.manifest_profile_sha256)
             for item in execution_manifest.inputs
@@ -998,21 +1077,190 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         locator = N4CandidateProposalLocator.model_validate(
             second_job.progress["candidate_proposal_ref"]
         )
-        with tenant_scope(
-            None,
-            tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-            cell_id="cell-a",
-        ):
-            proposal = GenerationSourceRepository(service._artifact_store).load_candidate_proposal_for_served_job(
+        second_event = service._control_store.get_job_created_event_payload(
+            second_job.job_id
+        )
+        second_scope = _control_job_execution_scope_from_event(second_event)
+        second_outbox = service._control_store.get_job_created_outbox_event(
+            second_job.job_id
+        )
+        assert second_outbox is not None
+        assert _control_job_execution_scope_from_event(second_outbox.payload) == second_scope
+        assert second_scope.status == "established"
+        assert second_scope.tenant_id and second_scope.cell_id
+        proposal = read_private_artifact_in_job_scope(
+            lambda: GenerationSourceRepository(
+                service._artifact_store
+            ).load_candidate_proposal_for_served_job(
                 locator,
                 job_id=second_job.job_id,
                 run_id=str(second_job.run_id),
-                tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                cell_id="cell-a",
+                tenant_id=second_scope.tenant_id,
+                cell_id=second_scope.cell_id,
                 raw_request=raw_request,
-            )
+            ),
+            job_id=second_job.job_id,
+            run_id=str(second_job.run_id),
+        )
         assert type(proposal) is N4CandidateProposalSimulationRecord
         assert proposal.problem == compiled_problems[1]
         assert proposal.proposal.status == "candidate_limited"
         assert proposal.n5_status == proposal.n8_status == "not_run"
         assert proposal.n9_status == proposal.s8_status == "not_run"
+
+        # A selected profile whose exact set_to rule does not match the real N4
+        # proposal must expose that original limited proposal and stop before
+        # grammar fallback or downstream candidate processing.
+        alter_next_compilation[0] = False
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            intensity=2,
+        )
+        calls_before_nonmatch = len(n5_calls)
+        third_response = client.post(
+            "/api/v1/control/runs/nl",
+            json={
+                "request": raw_request,
+                "llm_model": model_id,
+                "context": {
+                    "evaluation_safety_attempt": _valid_intake_for_mode(
+                        "simulate_only"
+                    ).model_dump(mode="json")
+                },
+            },
+        )
+        assert third_response.status_code == 200, third_response.text
+        third_job_id = third_response.json()["job_id"]
+        assert dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=third_job_id,
+        ) == third_job_id
+        third_job = service._control_store.get_job(third_job_id)
+        assert third_job is not None and third_job.state == "completed"
+        assert len(compiled_problems) == 3
+        assert _cycle_job_v1_profile_selection_ref(compiled_problems[2]) == (
+            profile.profile_selection_ref
+        )
+        assert third_job.progress["stage"] == "n4_proposal_only"
+        assert third_job.progress["status"] == "candidate_limited"
+        assert (
+            third_job.progress["candidate_proposal_limitation_code"]
+            == "candidate_scenario_profile_action_not_matched"
+        )
+        assert third_job.progress["candidate_proposal_ref"]
+        assert third_job.progress["n5_status"] == "not_run"
+        assert third_job.progress["n8_status"] == "not_run"
+        assert third_job.progress["n9_status"] == "not_admitted"
+        assert third_job.progress["s8_status"] == "blocked"
+        assert len(n5_calls) == calls_before_nonmatch
+        assert n8_owner_calls == []
+        assert n9_owner_calls == []
+
+        scenario_locator = N4CandidateScenarioSourceLocator.model_validate(
+            third_job.progress["candidate_proposal_ref"]
+        )
+        third_event = service._control_store.get_job_created_event_payload(
+            third_job.job_id
+        )
+        third_scope = _control_job_execution_scope_from_event(third_event)
+        third_outbox = service._control_store.get_job_created_outbox_event(
+            third_job.job_id
+        )
+        assert third_outbox is not None
+        assert _control_job_execution_scope_from_event(third_outbox.payload) == third_scope
+        assert third_scope.status == "established"
+        assert third_scope.tenant_id and third_scope.cell_id
+        scenario_source = read_private_artifact_in_job_scope(
+            lambda: GenerationSourceRepository(
+                service._artifact_store
+            ).load_candidate_proposal_projection_for_served_job(
+                scenario_locator,
+                job_id=third_job.job_id,
+                run_id=str(third_job.run_id),
+                tenant_id=third_scope.tenant_id,
+                cell_id=third_scope.cell_id,
+                raw_request=raw_request,
+                expected_design_problem=compiled_problems[2],
+            ),
+            job_id=third_job.job_id,
+            run_id=str(third_job.run_id),
+        )
+        assert type(scenario_source) is N4CandidateScenarioSourceRecordV1
+        assert scenario_source.status == "candidate_limited"
+        assert scenario_source.candidate is None
+        assert (
+            scenario_source.candidate_limitation_code
+            == "candidate_scenario_profile_action_not_matched"
+        )
+        assert scenario_source.proposal.trinity_bundle.policy_spec.interventions
+        assert any(
+            intervention.kind == "procurement_shock_intensity"
+            and intervention.params["intensity"] == 2
+            for intervention in scenario_source.proposal.trinity_bundle.policy_spec.interventions
+        )
+        assert scenario_source.n5_status == "not_run"
+        assert scenario_source.n8_status == "not_run"
+        assert scenario_source.n9_status == "not_admitted"
+        assert scenario_source.s8_status == "blocked"
+
+        # If the typed source owner cannot persist, keep the original N4 work
+        # as a declared limitation; no generated grammar or downstream owner
+        # may fill the missing handoff.
+        original_persist_candidate_scenario = (
+            GenerationSourceRepository.persist_candidate_scenario_source_v1
+        )
+
+        def refuse_scenario_source_persistence(_repository, *, source_record):
+            del source_record
+            raise OSError
+
+        monkeypatch.setattr(
+            GenerationSourceRepository,
+            "persist_candidate_scenario_source_v1",
+            refuse_scenario_source_persistence,
+        )
+        controlled_recording = _controlled_procurement_recording(recording)
+        calls_before_persistence_refusal = len(n5_calls)
+        fourth_response = client.post(
+            "/api/v1/control/runs/nl",
+            json={
+                "request": raw_request,
+                "llm_model": model_id,
+                "context": {
+                    "evaluation_safety_attempt": _valid_intake_for_mode(
+                        "simulate_only"
+                    ).model_dump(mode="json")
+                },
+            },
+        )
+        assert fourth_response.status_code == 200, fourth_response.text
+        fourth_job_id = fourth_response.json()["job_id"]
+        assert dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=fourth_job_id,
+        ) == fourth_job_id
+        fourth_job = service._control_store.get_job(fourth_job_id)
+        assert fourth_job is not None and fourth_job.state == "completed"
+        assert len(compiled_problems) == 4
+        assert fourth_job.progress["stage"] == "n4_proposal_only"
+        assert fourth_job.progress["status"] == "not_established"
+        assert fourth_job.progress["candidate_proposal_ref"] is None
+        assert fourth_job.progress["proposal_persistence_status"] == "not_established"
+        assert (
+            fourth_job.progress["candidate_proposal_limitation_code"]
+            == "candidate_scenario_source_persistence_not_established"
+        )
+        assert fourth_job.progress["n5_status"] == "not_run"
+        assert fourth_job.progress["n8_status"] == "not_run"
+        assert fourth_job.progress["n9_status"] == "not_admitted"
+        assert fourth_job.progress["s8_status"] == "blocked"
+        assert len(n5_calls) == calls_before_persistence_refusal
+        assert n8_owner_calls == []
+        assert n9_owner_calls == []
+        monkeypatch.setattr(
+            GenerationSourceRepository,
+            "persist_candidate_scenario_source_v1",
+            original_persist_candidate_scenario,
+        )

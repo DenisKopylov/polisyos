@@ -710,6 +710,15 @@ class N4CandidateProposalExecution:
     target_world_model_record_ref: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class N4CandidateScenarioProposalOnlyExecution:
+    """Ephemeral HTTP outcome for one persisted profile-limited N4 proposal."""
+
+    design_problem: DesignProblem
+    source_ref: artifacts.ArtifactRef | None
+    limitation_code: str
+
+
 async def compile_and_run_recursive_generation_cycle(
     *,
     raw_request: str,
@@ -738,7 +747,11 @@ async def compile_and_run_recursive_generation_cycle(
     target_world_scope_profile_id: str | None = None,
     promotion_runtime: PromotionRuntime | None = None,
     repo_root: Path | None = None,
-) -> CompiledRecursiveGenerationCycleRun | N4CandidateProposalExecution:
+) -> (
+    CompiledRecursiveGenerationCycleRun
+    | N4CandidateProposalExecution
+    | N4CandidateScenarioProposalOnlyExecution
+):
     """Compile natural language and run the appropriate candidate or authority path.
 
     ``trusted_source_context`` carries scope identities replayed by the served
@@ -1009,35 +1022,50 @@ async def compile_and_run_recursive_generation_cycle(
         parent_child_edges=(),
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
-    recursive_run = await resolved_controller.run(
-        recursive_graph,
-        problems_by_node={root_ref: problem},
-        budget_state=budget_state,
-        recursive_budget=recursive_budget,
-        cycle_substrate_contexts_by_node=(
-            {root_ref: cycle_substrate_context} if cycle_substrate_context is not None else None
-        ),
-        candidate_simulation_handoffs_by_node=(
-            {root_ref: candidate_simulation_handoff}
-            if candidate_simulation_handoff is not None
-            else None
-        ),
-        candidate_simulation_currentness_resolvers_by_node=(
-            {root_ref: candidate_simulation_currentness_resolver}
-            if candidate_simulation_handoff is not None
-            and candidate_simulation_currentness_resolver is not None
-            else None
-        ),
-        n4_generation_ports_by_node=(
-            {root_ref: root_n4_generation_port} if root_n4_generation_port is not None else None
-        ),
-        evaluation_contexts_by_node=(
-            {root_ref: root_evaluation_context}
-            if root_evaluation_context is not None
-            else None
-        ),
-        execution_intents_by_node={root_ref: execution_intent},
+    from polisyos.runtime.quality.generation_cycle import (
+        _N4CandidateScenarioProposalOnlyError,
     )
+
+    try:
+        recursive_run = await resolved_controller.run(
+            recursive_graph,
+            problems_by_node={root_ref: problem},
+            budget_state=budget_state,
+            recursive_budget=recursive_budget,
+            cycle_substrate_contexts_by_node=(
+                {root_ref: cycle_substrate_context}
+                if cycle_substrate_context is not None
+                else None
+            ),
+            candidate_simulation_handoffs_by_node=(
+                {root_ref: candidate_simulation_handoff}
+                if candidate_simulation_handoff is not None
+                else None
+            ),
+            candidate_simulation_currentness_resolvers_by_node=(
+                {root_ref: candidate_simulation_currentness_resolver}
+                if candidate_simulation_handoff is not None
+                and candidate_simulation_currentness_resolver is not None
+                else None
+            ),
+            n4_generation_ports_by_node=(
+                {root_ref: root_n4_generation_port}
+                if root_n4_generation_port is not None
+                else None
+            ),
+            evaluation_contexts_by_node=(
+                {root_ref: root_evaluation_context}
+                if root_evaluation_context is not None
+                else None
+            ),
+            execution_intents_by_node={root_ref: execution_intent},
+        )
+    except _N4CandidateScenarioProposalOnlyError as signal:
+        return N4CandidateScenarioProposalOnlyExecution(
+            design_problem=problem,
+            source_ref=signal.source_ref,
+            limitation_code=signal.limitation_code,
+        )
     limitations: list[OpenWorldRiskPublicLimitation] = []
     seen_vector_refs: set[str] = set()
     from polisyos.runtime.quality.generation_cycle import (

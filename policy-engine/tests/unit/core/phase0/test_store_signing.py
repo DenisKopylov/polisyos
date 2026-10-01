@@ -97,7 +97,13 @@ def test_verify_signature_valid(tmp_path: Path) -> None:
 def test_verify_signature_rejects_malformed_string_before_cas_reads(
     artifact_id: str, monkeypatch, tmp_path: Path
 ) -> None:
-    store = FileSystemCAS(tmp_path)
+    # No owner scope is established: malformed input must return ERROR before
+    # attempting the guarded transaction lease or any CAS read.
+    store = FileSystemCAS(
+        tmp_path,
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
     read_attempts: list[str] = []
 
     def record_forbidden_read(*_args: object, **_kwargs: object) -> None:
@@ -221,7 +227,16 @@ def test_verify_signature_preserves_selected_ref_and_id_controls(tmp_path: Path)
 def test_verify_signature_string_normalization_is_required_before_snapshot_load(
     monkeypatch, tmp_path: Path
 ) -> None:
-    store, signer, verifier = _make_signed_store(tmp_path)
+    store = FileSystemCAS(
+        tmp_path,
+        tenant_id="tenant-signature-normalization",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    keypair = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(keypair.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(keypair.public_key, key_id=keypair.key_id)
     ref = store.put_bytes(
         b"signed",
         PutOptions(kind="test.bytes", media_type="application/octet-stream"),

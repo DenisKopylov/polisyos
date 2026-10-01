@@ -116,7 +116,7 @@ def persist_validity_report(
 def load_validity_report(store: Any, ref: ArtifactRef) -> DecisionValidityReport:
     """Load a persisted DecisionValidityReport from CAS."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return DecisionValidityReport.model_validate(payload)
 
 

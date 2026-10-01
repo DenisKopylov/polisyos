@@ -83,9 +83,9 @@ def _load_append_only_claim_ledger(
 ) -> AppendOnlyClaimLedger:
     """Load one exact-profile append-only Claim Ledger v2 artifact."""
 
-    raw = store.get_bytes(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
+    raw = store.get_bytes(ref)
+    manifest = store.get_manifest(ref)
+    report = store.verify(ref)
     expected_schema = SchemaInfo(
         name=CLAIM_LEDGER_V2_SCHEMA_NAME,
         version=CLAIM_LEDGER_V2_SCHEMA_VERSION,

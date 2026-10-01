@@ -282,9 +282,9 @@ def resolve_governance_monitor_event(
 ) -> PersistedGovernanceMonitorEvent:
     """Resolve exact bytes, manifest profile, and semantic model for one event ref."""
 
-    raw = store.get_bytes(ref.artifact_id)
-    report = store.verify(ref.artifact_id)
-    manifest = store.get_manifest(ref.artifact_id)
+    raw = store.get_bytes(ref)
+    report = store.verify(ref)
+    manifest = store.get_manifest(ref)
     observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
     if (
         not report.ok
@@ -600,10 +600,10 @@ def emit_governance_lifecycle_evidence(
     )
     report_ref_value = str(result.cas_ref.artifact_id)
     diagnostic_payload = from_canonical_bytes(
-        store.get_bytes(result.diagnostic_event_ref.artifact_id)
+        store.get_bytes(result.diagnostic_event_ref)
     )
     authority_payload = from_canonical_bytes(
-        store.get_bytes(result.authority_envelope_ref.artifact_id)
+        store.get_bytes(result.authority_envelope_ref)
     )
 
     return GovernanceLifecycleEvidence(

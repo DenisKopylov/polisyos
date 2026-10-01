@@ -431,7 +431,7 @@ def persist_reissue_packet(
 def load_reissue_packet(store: _JsonArtifactStore, ref: ArtifactRef) -> ReissuePacket:
     """Load a persisted ReissuePacket from CAS."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     return ReissuePacket.model_validate(payload)
 
 

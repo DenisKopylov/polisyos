@@ -436,8 +436,8 @@ class GovernedPublicRecordOwner:
 
     def _read(self, ref: artifacts.ArtifactRef, cls: type[_T], name: str) -> _T:
         self._raw(ref)
-        manifest = self.store.get_manifest(ref.artifact_id)
-        raw = self.store.get_bytes(ref.artifact_id)
+        manifest = self.store.get_manifest(ref)
+        raw = self.store.get_bytes(ref)
         result = cls.model_validate_json(raw)
         if (
             manifest.kind != name
@@ -453,9 +453,9 @@ class GovernedPublicRecordOwner:
 
     def _raw(self, ref: artifacts.ArtifactRef) -> bytes:
         try:
-            result = self.store.verify(ref.artifact_id)
-            raw = self.store.get_bytes(ref.artifact_id)
-            manifest = self.store.get_manifest(ref.artifact_id)
+            result = self.store.verify(ref)
+            raw = self.store.get_bytes(ref)
+            manifest = self.store.get_manifest(ref)
             if (
                 not result.ok
                 or _digest(raw) != str(ref.artifact_id)
@@ -483,7 +483,7 @@ class GovernedPublicRecordOwner:
         return _ExactSignature(
             artifact_ref=ref,
             manifest_ref=self.store.put_bytes(
-                self.store.get_manifest_bytes(ref.artifact_id),
+                self.store.get_manifest_bytes(ref),
                 artifacts.ArtifactWriteOptions(
                     kind="scientist.publication.exact_manifest", media_type="application/json"
                 ),

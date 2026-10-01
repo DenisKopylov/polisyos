@@ -38,6 +38,7 @@ from polisyos.scientist.evidence.claims.lifecycle import ClaimLifecycleAction
 from polisyos.scientist.evidence.claims.models import ClaimLedger, ClaimRecord
 from polisyos.scientist.governance.continuous import published_signature_custody as custody
 from polisyos.scientist.governance.continuous.governed_public_record import (
+    GovernedPublicRecordError,
     PublicationMandateStatement,
 )
 from polisyos.scientist.governance.continuous.lifecycle_bridge import load_lifecycle_bridge_result
@@ -454,6 +455,65 @@ def test_http_publication_relocates_selected_manifest_profiles(
         assert str(ref.artifact_id) not in serialized
         assert ref.manifest_profile_sha256 not in serialized
     assert record_id.startswith("gpr_")
+
+
+def test_governed_owner_rejects_removed_selected_view_and_keeps_tenant_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A missing selected view cannot fall back to its same-blob default profile."""
+    case = _build_publication_case(
+        tmp_path, monkeypatch, selected_profile_evidence=True
+    )
+    _prepare_and_authorize(case)
+    with case.client() as client:
+        issued = case.post(client, "governed_public_record")
+        assert issued.status_code == 201, issued.text
+        locator = issued.json()
+        assert locator["publication_class"] == "governed_public_record"
+        assert locator["public_path"] == f"/public/decisions/{locator['record_id']}"
+        container = client.app.state.runtime_container
+        owner = container.public_decision_verification_service.governed_owner
+        assert owner is not None
+        with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+            snapshot = case.claim_owner.resolve_current_for_packet(
+                decision_packet_ref=case.packet_ref
+            )
+            assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
+            source_refs = snapshot.ledger.current_claims[0].evidence_refs
+            assert len(source_refs) == 2
+            assert source_refs[0].artifact_id == source_refs[1].artifact_id
+            assert (
+                source_refs[0].manifest_profile_sha256
+                != source_refs[1].manifest_profile_sha256
+            )
+
+            selected_ref = source_refs[1]
+            raw = b"Synthetic evidence with two selected manifest profiles."
+            assert owner._raw(selected_ref) == raw
+
+            present_profiles = {ref.manifest_profile_sha256 for ref in source_refs}
+            absent_profile = next(
+                f"sha256:{digit * 64}"
+                for digit in "0123456789abcdef"
+                if f"sha256:{digit * 64}" not in present_profiles
+                and not owner.store.has_manifest_view(
+                    selected_ref.artifact_id, f"sha256:{digit * 64}"
+                )
+            )
+            assert not owner.store.has_manifest_view(
+                selected_ref.artifact_id, absent_profile
+            )
+            missing_view = selected_ref.model_copy(
+                update={"manifest_profile_sha256": absent_profile}
+            )
+            assert missing_view.artifact_id == selected_ref.artifact_id
+            assert missing_view.kind == selected_ref.kind
+            assert missing_view.media_type == selected_ref.media_type
+            with pytest.raises(GovernedPublicRecordError, match="record_evidence_unavailable"):
+                owner._raw(missing_view)
+
+            # The patch adds no permission layer: a tenant still reads its own selected ref.
+            assert case.context.store.get_bytes(selected_ref) == raw
 
 
 def test_first_governed_public_signature_is_custody_bound(

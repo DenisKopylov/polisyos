@@ -225,7 +225,7 @@ def produce_claim_supersession_owner_event(
         )
     )
     legal_ref = monitor.perturbation.legal_change_evidence_ref
-    if not store.verify(legal_ref.artifact_id).ok:
+    if not store.verify(legal_ref).ok:
         raise ValueError("claim_supersession_legal_basis_unresolved")
     event = ClaimSupersessionOwnerEvent(
         owner_key=owner_key,
@@ -269,7 +269,7 @@ def _validate_candidate_content(
         )
     )
     prior_ids = {claim.claim_id for claim in ledger.current_claims}
-    legal_manifest = store.get_manifest(event.legal_evidence_ref.artifact_id)
+    legal_manifest = store.get_manifest(event.legal_evidence_ref)
     if (
         not isinstance(monitor.perturbation, LegalChangePerturbation)
         or monitor.perturbation.legal_change_evidence_ref != event.legal_evidence_ref
@@ -285,7 +285,7 @@ def _validate_candidate_content(
         or event.prior_ledger_content_hash != str(event.prior_ledger_ref.artifact_id)
         or event.successor_claim_content_hash != str(event.successor_claim_ref.artifact_id)
         or event.legal_evidence_content_hash != str(event.legal_evidence_ref.artifact_id)
-        or not store.verify(event.legal_evidence_ref.artifact_id).ok
+        or not store.verify(event.legal_evidence_ref).ok
         or legal_manifest.kind != event.legal_evidence_ref.kind
         or legal_manifest.media_type != event.legal_evidence_ref.media_type
     ):

@@ -861,7 +861,7 @@ def load_lifecycle_bridge_result(
 ) -> LifecycleBridgeResult:
     """Load a persisted lifecycle bridge result from CAS."""
 
-    payload = canon.from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    payload = canon.from_canonical_bytes(store.get_bytes(ref))
     return LifecycleBridgeResult.model_validate(payload)
 
 

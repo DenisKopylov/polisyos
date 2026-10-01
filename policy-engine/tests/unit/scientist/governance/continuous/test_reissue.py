@@ -1,19 +1,21 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import ArtifactWriteOptions, ProducerInfo
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
-from polisyos.scientist.governance.continuous.monitors import DecisionValidityStatus
 from polisyos.scientist.governance.continuous import reissue
+from polisyos.scientist.governance.continuous.monitors import DecisionValidityStatus
 from polisyos.scientist.governance.continuous.reissue import (
     ReissuePacket,
     build_reissue_packet,
     load_reissue_packet,
     persist_reissue_packet,
 )
-from pydantic import ValidationError
 
 
 def _ref(seed: str, *, kind: str = "scientist.test") -> ArtifactRef:
@@ -88,6 +90,10 @@ def test_reissue_packet_persists_to_cas(tmp_path) -> None:
 
     assert loaded == packet
     assert ref.kind == "scientist.reissue_packet"
+    selected_ref, missing_ref, _ = _selected_and_missing_profile(store, ref)
+    assert load_reissue_packet(store, selected_ref) == packet
+    with pytest.raises((KeyError, OSError, ValueError)):
+        load_reissue_packet(store, missing_ref)
 
 
 @pytest.mark.parametrize(
@@ -154,3 +160,45 @@ def test_reissue_lifecycle_decisions_emit_runtime_authority_evidence(
     assert result.authority_envelope["runtime_event_ref"] == str(
         result.diagnostic_event_ref.artifact_id
     )
+
+
+def _selected_and_missing_profile(
+    store: FileSystemCAS, ref: ArtifactRef
+) -> tuple[ArtifactRef, ArtifactRef, bytes]:
+    manifest = store.get_manifest(ref)
+    raw = store.get_bytes(ref)
+    selected = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind=ref.kind,
+            media_type=ref.media_type,
+            schema=manifest.artifact_schema,
+            producer=ProducerInfo(component="tests.r9.profile_probe", version="2"),
+            env=manifest.env,
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+        ),
+    )
+    assert selected.artifact_id == ref.artifact_id
+    assert selected.kind == ref.kind
+    assert selected.media_type == ref.media_type
+    assert selected.manifest_profile_sha256 != ref.manifest_profile_sha256
+    assert store.get_bytes(selected) == raw
+
+    present_profiles = {ref.manifest_profile_sha256, selected.manifest_profile_sha256}
+    absent_profile = next(
+        f"sha256:{digit * 64}"
+        for digit in "0123456789abcdef"
+        if f"sha256:{digit * 64}" not in present_profiles
+        and not store.has_manifest_view(ref.artifact_id, f"sha256:{digit * 64}")
+    )
+    assert not store.has_manifest_view(ref.artifact_id, absent_profile)
+    missing = selected.model_copy(update={"manifest_profile_sha256": absent_profile})
+    assert missing.artifact_id == ref.artifact_id
+    assert missing.kind == ref.kind
+    assert missing.media_type == ref.media_type
+    return selected, missing, raw

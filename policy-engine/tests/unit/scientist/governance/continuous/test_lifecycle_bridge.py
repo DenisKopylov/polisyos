@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactWriteOptions, ProducerInfo
 from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
@@ -752,6 +753,11 @@ def test_unadjudicated_event_cannot_reissue_and_persists_review_required(
     assert loaded.transition_records[0].transition == "review_required"
     assert loaded.reissue_packet == result.reissue_packet
 
+    selected_ref, missing_ref, _ = _selected_and_missing_profile(store, bridge_ref)
+    assert load_lifecycle_bridge_result(store, selected_ref) == result
+    with pytest.raises((KeyError, OSError, ValueError)):
+        load_lifecycle_bridge_result(store, missing_ref)
+
 
 def test_unscoped_detector_event_produces_missing_lifecycle_bridge_blocker(
     tmp_path: Path,
@@ -782,3 +788,45 @@ def test_unscoped_detector_event_produces_missing_lifecycle_bridge_blocker(
     assert result.public_revision_state.affected_claim_ids == []
     assert result.public_revision_state.unaffected_claim_ids == ["claim_alpha", "claim_beta"]
     assert result.public_revision_state.public_diff_required is False
+
+
+def _selected_and_missing_profile(
+    store: FileSystemCAS, ref: ArtifactRef
+) -> tuple[ArtifactRef, ArtifactRef, bytes]:
+    manifest = store.get_manifest(ref)
+    raw = store.get_bytes(ref)
+    selected = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind=ref.kind,
+            media_type=ref.media_type,
+            schema=manifest.artifact_schema,
+            producer=ProducerInfo(component="tests.r9.profile_probe", version="2"),
+            env=manifest.env,
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+        ),
+    )
+    assert selected.artifact_id == ref.artifact_id
+    assert selected.kind == ref.kind
+    assert selected.media_type == ref.media_type
+    assert selected.manifest_profile_sha256 != ref.manifest_profile_sha256
+    assert store.get_bytes(selected) == raw
+
+    present_profiles = {ref.manifest_profile_sha256, selected.manifest_profile_sha256}
+    absent_profile = next(
+        f"sha256:{digit * 64}"
+        for digit in "0123456789abcdef"
+        if f"sha256:{digit * 64}" not in present_profiles
+        and not store.has_manifest_view(ref.artifact_id, f"sha256:{digit * 64}")
+    )
+    assert not store.has_manifest_view(ref.artifact_id, absent_profile)
+    missing = selected.model_copy(update={"manifest_profile_sha256": absent_profile})
+    assert missing.artifact_id == ref.artifact_id
+    assert missing.kind == ref.kind
+    assert missing.media_type == ref.media_type
+    return selected, missing, raw

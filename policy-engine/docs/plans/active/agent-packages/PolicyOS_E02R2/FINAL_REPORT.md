@@ -1,5 +1,35 @@
 # E02-R2 final report draft
 
+## Current source checkpoint after R14 witness repair (2026-10-01)
+
+**Discrepancies first.** The test-only R14 source/consumer repair is committed
+at `9a3843f19b58b0511a5361c699ca545a009dfe22`. Its complete current-head
+pre-edit baseline is 14 passed / 1 failed across 15 cases; its post-edit
+runtime replay is UNRUN. The [checkpoint receipt](R14_N9_NEGATIVE_SOURCE_RECEIPT.md)
+states the actual owner chain and the controlled-source boundary. R9's
+bulk/snapshot follow-on is a frozen, unintegrated candidate under review.
+
+The subsequent R1 stack diagnostic also ended UNRUN: its CPU guard fired
+at 524% against a 500% group limit after 24.775 seconds. Its retained 8-second
+Python stack locates a call from controlled candidate generation into
+`data_state_substrate._project_real_l4_payload` through the production
+world-model loader. This is evidence of that live call, not a complete
+origin audit or a served pass. The existing owner/context repair is being
+widened to preserve the supplied controlled substrate through that seam.
+The [baseline addendum](BASELINES.md#r1-production-substrate-stack-diagnostic-2026-10-01)
+preserves the exact trace and resource boundary. No ledger status changes.
+
+
+## Current checkpoint at `8b40f8f` (2026-10-01)
+
+**Discrepancies first.** R9's four source/test paths are integrated on clean `codex/e02-r2@8b40f8f5a8d838235a22b92e6f9adc84f006e551`, with its checkpoint receipt. The 27-case whole-file run was executed earlier on candidate parent `324eb3d2fbc5f0ad1af80495ebac469ecc6762b4` plus its frozen patch, then preserved as candidate commit `d66327d876c1b6453976a71202db845c7a270600`; it is not a fresh runtime replay of the integrated head. The current integration replay remains UNRUN.
+
+- Candidate outcomes across three whole files: protocol 10/10 pass; CAS-03 5 pass / 4 fail; public export 3 pass / 5 fail, with zero setup errors. Public issuance succeeds (201), but served verification returns 200 with `report_authentication=invalid`. The removal probe is bounded and positive: temporarily replacing `_canonical_artifact_id_sequence` with a tuple-preserving identity sequence while retaining its symbol and call sites makes the duplicate-ID witness fail (`total=2`); its distinct-ID preflight-error control passes. Exact scope and limits are in [BASELINES.md](BASELINES.md#r9-v5-candidate-run-and-r1-resource-guarded-attempt-2026-10-01) and the integrated [R9 receipt](R9_CANONICAL_ID_RECEIPT.md).
+- R1's latest single served-node attempt is UNRUN, not a product red: after 29.51 s, the resource guard stopped it at 4,423,024 KiB peak process-group RSS (4 GiB cap). Pytest returned `-15`; JUnit is empty, module-origin inspection is missing, and the stage observer has an incomplete session. No served witness or attribution follows from this attempt.
+- The ledger still has 282 rows: 8 closed, 261 partial, 12 held, 1 open. Evidence changed for B61, B152, B154 and B155; no status changed. B152/B154/B155 remain partial. Ledger readback receipt `/Users/deniskopylov/.codex/scratch/E02R2_LEDGER_FOUR_ROW_UPDATE_20261001.json@sha256:2b72527bbee35f073196ae29f40f63e88cc8f1dc5cb688d087b2dc61cd190e09`; JSON `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@sha256:07cf974004fb6806fb53c263b7e1fdb0973bb85be23a0c9b36306a8f1f891754`.
+
+**Conclusion.** R9's canonical-ID repair and its removal-probe witness are integrated, but the candidate run does not verify the integration, the served invalid-verification cause remains unresolved, and CAS-03 still has four failures. R1's served witness remains UNRUN. No R9/R1 class closure or ledger status change is claimed; complete touched-file four-base replay remains outstanding.
+
 ## Current report correction at `e7cf8ca` (2026-10-01)
 
 **Discrepancies first.** This update is read at clean `codex/e02-r2@e7cf8ca171011a0c1e3de73a0c91511ddf3453cf`; the only path changed since the pre-repair `d0e65aa` test cut is `WRITE_LEASES.md`. The P41 matrix below is measured at `d0`, not rerun at `029`. The ledger remains 282 rows (8 closed / 261 partial / 12 held / 1 open); none of these measurements changes a finding status.

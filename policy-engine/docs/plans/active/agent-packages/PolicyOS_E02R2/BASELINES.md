@@ -3010,3 +3010,52 @@ The patch freeze and static review preceded completion of this baseline; the bas
 The frozen three-path candidate patch (`store.py` plus the protocol and CAS-03 tests) was statically reviewed GO, then executed on candidate branch `codex/e02-r2-r9-publication@336d0ab`; source remains outside the integration branch. Its 27 outcomes were protocol 9 pass / 1 fail (new scoped-view fixture expected 3 inventory rows, observed 5), CAS-03 5 pass / 4 fail (manifest-read count, pending-window, cancellation, lazy-inventory cancellation), and `public_export` has 7 pytest setup errors and 1 test-body failure; all eight stop in case construction on the same `ArtifactOwnershipError` (a claimed registry bundle requires an active owner for `write input:registry_bundle`), before any HTTP assertion runs. This is not a closure result; the new failures and setup refusal remain under owner review. Aggregate result `/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_RUNTIME_GROUPS_20261001/runs/r9-canonical-id-20261001T025932158408Z-95680/results.json@sha256:ef5c571dd5dddbeecb32edea71927465e884369a3854755acd94ceb5fc4ad49b`; frozen patch `/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_FREEZE_20261001T0234Z/candidate.patch@sha256:5c506687335410a3fb31bb03d42decc31676d4de9663f944bdb2ef099022a0f5`; review `/Users/deniskopylov/.codex/scratch/R9_CANONICAL_ID_FREEZE_20261001T0234Z/INDEPENDENT_CODE_REVIEW.md@sha256:79d20829fdc5b6117020e6962274cdf6596ecdde24c5054698a9d3647fcd3de4`.
 
 No ledger status changes follow. B152, B154, and B155 remain partial under their CAS-03 cards; the manifest snapshot residual is not reclassified as R10/P20. Finding-level classification `/Users/deniskopylov/.codex/scratch/e02r2-r10-cas03-finding-classification-20261001-v1/R10_CAS03_FINDING_CLASSIFICATION.md@sha256:094ce6fac6bd96e0242d3ebac5b4c4a4ffa58b4cecb986a7a39d08e112c3bbb2`.
+
+## R9 V5 candidate run and R1 resource-guarded attempt (2026-10-01)
+
+**Discrepancies first.** This is an isolated candidate cohort plus a separate R1 attempt, not a post-integration four-base replay. R9 code now sits at integration `8b40f8f5a8d838235a22b92e6f9adc84f006e551`, but the R9 run used candidate parent `324eb3d2fbc5f0ad1af80495ebac469ecc6762b4` plus the frozen patch, later preserved as `d66327d876c1b6453976a71202db845c7a270600`. The root has not replayed this cohort against integration.
+
+| Candidate whole file | Cases | Outcome |
+|---|---:|---:|
+| `tests/unit/core/artifacts/test_artifact_store_protocol.py` | 10 | 10 pass |
+| `tests/unit/remediation/test_cas_03.py` | 9 | 5 pass / 4 fail |
+| `tests/unit/runtime/http/test_public_export.py` | 8 | 3 pass / 5 fail |
+| **Total** | **27** | **18 pass / 9 fail; 0 setup errors** |
+
+All three origin audits passed; the 6,414 tracked Python/config input set was unchanged; no resource guard fired in this R9 cohort. The served path issued successfully (201) and then returned verification 200 with `report_authentication=invalid`. The four CAS-03 failures cover repeated manifest reads, eager explicit-input consumption, cancellation, and eager default inventory. These outcomes do not establish the invalid receipt's cause or close R9.
+
+The removal probe temporarily replaced `_canonical_artifact_id_sequence` at the selected test call with a tuple-preserving identity sequence, retaining its symbol and call sites. Its two selected tests behaved as required: `test_verify_batch_deduplicates_equivalent_typed_ids_from_generator` failed with `total=2` instead of 1; the distinct-ID `test_verify_batch_records_preflight_error_without_marking_it_valid` control passed. The first adapter mislabeled shorthand `fail/pass`; the correction reconciles the preserved raw JUnit and does not add a rerun.
+
+R9 deciding inputs: candidate aggregate `/Users/deniskopylov/.codex/scratch/R9_FIXTURE_SCOPE_RUNTIME_GROUPS_20261001/runs/r9-fixture-scope-20261001T043147001594Z-7326/results.json@sha256:99f0f7efdbdb0c71288963cf47aff3845ec014d0660b2f78c785ba7772a9bae4`; identity and JUnit reconciliation `/Users/deniskopylov/.codex/scratch/R9_V5_ROOT_WHOLE_FILE_RECONCILIATION_20261001.json@sha256:cc2d1fbe9f584c8bb63ba22e41200c3f49c632a62924913218ba55e6f4dd8dd4`; probe correction `/Users/deniskopylov/.codex/scratch/R9_FIXTURE_SCOPE_RUNTIME_GROUPS_20261001/removal-probe/run-20261001T044421579302Z/ROOT_VERDICT_LABEL_CORRECTION.json@sha256:4a603e539125b264e32362d77e7c2ffc3891410725e65a2e30f04b89c31279f4`. Integrated checkpoint receipt `/Users/deniskopylov/.codex/worktrees/e02-r2/polisyos/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/R9_CANONICAL_ID_RECEIPT.md@sha256:e68893a61bea214c6f8763220801b7650c28c598cfd89a84852f396a15e7d9ba`.
+
+The earlier V8 R1 attempt was one selected node on candidate branch `codex/e02-r2-r1-candidate-scenario@bc38d4a59253ba6295cecb8d9681b172158cde76`; it is not current-integration evidence. It ended after 29.51 seconds with child pytest return `-15` and harness verdict UNRUN / exit 125. Peak process-group RSS was 4,423,024 KiB against the 4 GiB guard; minimum free RAM was 32%, swap grew 140,697,928 bytes, and minimum free scratch volume was 11.16 GiB. JUnit was zero bytes, the origin object was missing, and the stage observer had 10 owner entries / 6 exits with four unfinished spans. Frozen 6,715 tracked inputs were unchanged. This attempt establishes no product pass/fail and no current served witness.
+
+R1 raw runtime result `/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T044616Z_8681/runtime-result.json@sha256:04532c7cb8b6ed752b9ac8ffc0b7965c6bde36b51f9839fbc8854bde5c96db6b`. The R9 and R1 cohorts above do not satisfy the complete Appendix A/B and touched-file four-base replay.
+
+## R1 production-substrate stack diagnostic (2026-10-01)
+
+The next one-node attempt used the same frozen R1 source and resource caps,
+with only pytest's built-in `faulthandler_timeout=8` added to retain one
+Python stack. No locals, argument values or environment were captured.
+It finished UNRUN / exit 125 after 24.775 seconds: the aggregate CPU guard
+reported 524% against its 500% limit and terminated pytest (`-15`). Peak
+aggregate RSS was 3,073,760 KiB, minimum free RAM 46%, swap growth zero and
+minimum free disk 11.06 GiB. All 6,715 tracked inputs and 13 R1 path pins
+were unchanged; the process-group fence was CLEAR with no remaining groups.
+JUnit and final module-origin inspection were absent, and stage observation
+was incomplete (10 entries / 6 exits); this is no product pass/fail verdict.
+
+The retained main-thread stack shows
+`design_generation._content_bound_candidates` →
+`credal_reference.build_credal_reference` → `_production_world_model_record`
+→ `intervention_substrate._production_composed_world_model_record` →
+`data_state_substrate._project_real_l4_payload` during the controlled-profile
+request. This narrows the source/context-bypass diagnosis before N5; it does
+not establish cumulative allocation cost, universal reachability or a
+successful served chain. The pending repair must use the existing supplied
+owner-bound context and preserve the ordinary production route.
+
+Result:
+`/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T051318Z_13102/runtime-result.json@sha256:a945b0181e0afcc5031e4ce3c05ad7404a404293147e2a80feb947896558a99d`.
+Retained stack:
+`/Users/deniskopylov/.codex/scratch/e02-r1-candidate-atom-design-20260930/R1_SERVED_ONE_NODE_20261001T051318Z_13102/cells/r1_patch/test_configured_candidate_simulation_served-0c391d57c1b4.stderr.log@sha256:0bd110103f7a04e5cb4e596cfe4463b8a94b2b28bfc6cd42611929cf296086cd`.

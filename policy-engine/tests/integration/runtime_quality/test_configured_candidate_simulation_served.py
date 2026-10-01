@@ -716,7 +716,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             for item, result, selected_ref in n5_calls
             if result.candidate_id == item.original_candidate_id
         )
-        assert type(input_record).__name__ == "CandidateSimulationN5InputV3"
+        assert type(input_record).__name__ == "CandidateSimulationN5InputV4"
         assert input_record.authority_purpose == "candidate_scenario_n5_only"
         assert isinstance(input_record.n4_source_ref, ArtifactRef)
         assert isinstance(input_record.context_job_ref, ArtifactRef)
@@ -730,24 +730,38 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert artifact_ref_identity_key(input_record.materialization.context_job_ref) == (
             artifact_ref_identity_key(context_job_selected_ref)
         )
-        assert artifact_ref_identity_key(input_record.materialization.source_handoff_ref) == (
+        assert artifact_ref_identity_key(input_record.materialization.n4_source_ref) == (
             artifact_ref_identity_key(input_record.n4_source_ref)
         )
 
-        # The content-bound N4 source must retain the exact profile-selected WMR
-        # in the K_ref that its grounding certificates consumed. Context markers
-        # alone do not prove that a fallback reference builder kept the owner.
-        n4_source = GenerationSourceRepository(service._artifact_store).load(
-            str(input_record.n4_source_ref.artifact_id),
-            run_id=str(completed.run_id),
+        # This source kind is distinct from full CGF generation custody: it
+        # retains the selected profile/context joins and the typed L2 vintage
+        # restriction without forwarding historic confidence into the proposal.
+        n4_source = GenerationSourceRepository(
+            service._artifact_store
+        ).load_candidate_scenario_source_v1(
+            input_record.n4_source_ref,
+            expected_run_id=str(completed.run_id),
+            expected_job_id=completed.job_id,
+            expected_tenant_id=context_job.tenant_id,
+            expected_cell_id=context_job.cell_id,
         )
-        assert n4_source.cycle_substrate_context is not None
-        assert n4_source.credal_reference_payload is not None
-        assert (
-            n4_source.credal_reference_payload["component_versions"]["WMR"]
-            == n4_source.cycle_substrate_context.world_model_record_content_hash
-            == context_job.context.world_model_record_content_hash
+        assert type(n4_source).__name__ == "N4CandidateScenarioSourceRecordV1"
+        assert n4_source.authority_purpose == "candidate_scenario_n5_only"
+        assert n4_source.profile.content_hash == profile.content_hash
+        assert artifact_ref_identity_key(n4_source.context_job_ref) == (
+            artifact_ref_identity_key(context_job_selected_ref)
         )
+        assert n4_source.context_hash == context_job.context.content_hash
+        assert n4_source.world_model_record_hash == (
+            context_job.context.world_model_record.content_hash
+        )
+        assert n4_source.l2_confidence_vintage.consumer_action == (
+            "withhold_confidence_forwarding"
+        )
+        assert n4_source.l2_confidence_vintage.snapshot_sha256
+        assert n4_source.credal_reference_payload is None
+        assert n4_source.proposal.trinity_bundle.policy_spec.interventions
 
         assert type(observation).__name__ == "SimulationPortObservation"
         assert observation.status == "joint_simulated"
@@ -844,7 +858,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         input_ref = None
         for reference_payload in input_refs:
             selected_ref = ArtifactRef.model_validate(reference_payload)
-            selected_input = source_repository.resolve_candidate_simulation_v3(
+            selected_input = source_repository.resolve_candidate_simulation_v4(
                 ref=selected_ref,
                 expected_run_id=str(completed.run_id),
                 expected_job_id=completed.job_id,
@@ -852,7 +866,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 expected_cell_id=context_job.cell_id,
             )
             if (
-                type(selected_input).__name__ == "CandidateSimulationN5InputV3"
+                type(selected_input).__name__ == "CandidateSimulationN5InputV4"
                 and selected_input.original_candidate_id == input_record.original_candidate_id
             ):
                 input_ref = selected_ref
@@ -874,7 +888,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         execution = None
         for reference_payload in execution_refs:
             selected_ref = ArtifactRef.model_validate(reference_payload)
-            selected_execution = source_repository.resolve_candidate_simulation_v3(
+            selected_execution = source_repository.resolve_candidate_simulation_v4(
                 ref=selected_ref,
                 expected_run_id=str(completed.run_id),
                 expected_job_id=completed.job_id,
@@ -891,7 +905,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert str(execution_ref.artifact_id) in refs_named(
             compiled_payload, "candidate_simulation_execution_ref"
         )
-        assert type(execution).__name__ == "CandidateSimulationExecutionV3"
+        assert type(execution).__name__ == "CandidateSimulationExecutionV4"
         assert execution.authority_purpose == "candidate_scenario_n5_only"
         assert execution.problem_ref == context_job.design_problem_ref
         assert artifact_ref_identity_key(execution.context_job_ref) == (

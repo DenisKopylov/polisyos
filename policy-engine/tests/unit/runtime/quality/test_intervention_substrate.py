@@ -61,6 +61,46 @@ FREE_GROW_MECHANISM = "future_child_benefit_transfer"
 FREE_GROW_SLOT = "household_cells.transfer_intensity"
 
 
+def test_candidate_scenario_set_to_gate_recomputes_operator_value_and_write_set() -> None:
+    """The existing L6 owner admits only the exact profile's integer set-to."""
+
+    from polisyos.runtime.quality.candidate_simulation import CandidateScenarioSetToRule
+    from polisyos.runtime.quality.intervention_substrate import (
+        candidate_scenario_set_to_value,
+    )
+
+    rule = CandidateScenarioSetToRule(
+        operator_kind="procurement_shock_intensity",
+        parameter_id="intensity",
+        target_world_slot="cells.distress_score",
+        unit_id="synthetic_score",
+        minimum=0,
+        maximum=1,
+    )
+    assert candidate_scenario_set_to_value(
+        rule,
+        operator_kind="procurement_shock_intensity",
+        parameters={"intensity": 1},
+        linked_write_slots=("cells.distress_score",),
+    ) == 1
+
+    invalid_actions = (
+        ("other_operator", {"intensity": 1}, ("cells.distress_score",)),
+        ("procurement_shock_intensity", {"other": 1}, ("cells.distress_score",)),
+        ("procurement_shock_intensity", {"intensity": True}, ("cells.distress_score",)),
+        ("procurement_shock_intensity", {"intensity": 2}, ("cells.distress_score",)),
+        ("procurement_shock_intensity", {"intensity": 1}, ("cells.output",)),
+    )
+    for operator_kind, parameters, write_slots in invalid_actions:
+        with pytest.raises(InterventionSubstrateError):
+            candidate_scenario_set_to_value(
+                rule,
+                operator_kind=operator_kind,
+                parameters=parameters,
+                linked_write_slots=write_slots,
+            )
+
+
 def test_phase5_n8_default_rejects_every_corrupted_real_route() -> None:
     """The real N8 bridge must consume every real route's target validity."""
     from polisyos.runtime.quality.generation_cycle import _select_value_method

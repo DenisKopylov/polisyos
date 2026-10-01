@@ -24,9 +24,17 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
+from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+    ConfidenceLayerVintage,
+    _confidence_layer_vintage_for_sha256,
+)
 from polisyos.ir import TrinityBundle  # noqa: TC001
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import design_generation as n4
+from polisyos.runtime.quality.candidate_simulation import (
+    CandidateSimulationScenarioProfile,
+    candidate_simulation_profile_ref,
+)
 from polisyos.runtime.quality.cycle_substrate import (
     CycleSubstrateContext,
     revalidate_cycle_substrate_context,
@@ -54,6 +62,10 @@ ExecutionScope = Literal["production", "contract_testing"]
 _SOURCE_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _CANDIDATE_SIMULATION_INPUT_KIND = "runtime.quality.candidate_simulation_n5_input"
 _CANDIDATE_SIMULATION_EXECUTION_KIND = "runtime.quality.candidate_simulation_execution"
+_N4_CANDIDATE_SCENARIO_SOURCE_KIND = "runtime.quality.n4_candidate_scenario_source"
+_N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA = (
+    "policyos.runtime.quality.n4_candidate_scenario_source.v1"
+)
 
 
 def _source_write_options() -> artifacts.ArtifactWriteOptions:
@@ -88,6 +100,43 @@ def _candidate_simulation_write_options(
         tenant_context=ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id),
         same_input_closure=ArtifactSameInputClosureInfo(
             closure_id=f"candidate-simulation:{run_id}:{job_id}:{source_ref}",
+            status="candidate_only",
+            run_id=run_id,
+            job_id=job_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        ),
+    )
+
+
+def _candidate_scenario_source_write_options(
+    *,
+    job_id: str,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+    context_job_ref: ArtifactRef,
+    source_ref: str,
+) -> artifacts.ArtifactWriteOptions:
+    """Bind the proposal-only N4 source to its selected context-job view."""
+
+    return artifacts.ArtifactWriteOptions(
+        kind=_N4_CANDIDATE_SCENARIO_SOURCE_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(
+            name=_N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA,
+            version="1.0",
+        ),
+        producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        inputs=[
+            input_ref_from_artifact_ref(
+                context_job_ref,
+                role="cycle_substrate_context_job",
+            )
+        ],
+        tenant_context=ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id),
+        same_input_closure=ArtifactSameInputClosureInfo(
+            closure_id=f"candidate-scenario-source:{run_id}:{job_id}:{source_ref}",
             status="candidate_only",
             run_id=run_id,
             job_id=job_id,
@@ -494,6 +543,131 @@ class GenerationSourceHandoff(_StrictModel):
         )
 
 
+class N4CandidateScenarioSourceRecordV1(_StrictModel):
+    """Versioned proposal source for a profile-limited N5 candidate scenario.
+
+    This record is not a normal CGF generation handoff. It retains the exact
+    proposal and candidate atom, while explicitly excluding K_ref confidence
+    and all grounding/authority claims.
+    """
+
+    schema_version: Literal[
+        "policyos.runtime.quality.n4_candidate_scenario_source.v1"
+    ] = _N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA
+    authority_purpose: Literal["candidate_scenario_n5_only"] = (
+        "candidate_scenario_n5_only"
+    )
+    status: Literal["candidate_unverified", "candidate_limited"] = "candidate_limited"
+    n5_status: Literal["not_run"] = "not_run"
+    n8_status: Literal["not_run"] = "not_run"
+    n9_status: Literal["not_admitted"] = "not_admitted"
+    s8_status: Literal["blocked"] = "blocked"
+    job_id: str = Field(..., min_length=1, strict=True)
+    run_id: str = Field(..., min_length=1, strict=True)
+    tenant_id: str = Field(..., min_length=1, strict=True)
+    cell_id: str = Field(..., min_length=1, strict=True)
+    design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    cycle_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    problem: DesignProblem
+    proposal: n4.N4CandidateProposalSource
+    candidate: n4.N4CandidateScenarioProposalCandidate | None = None
+    profile: CandidateSimulationScenarioProfile
+    profile_config_ref: str = Field(..., min_length=1, strict=True)
+    candidate_limitation_code: Literal[
+        "candidate_scenario_profile_action_not_matched",
+        "candidate_scenario_worker_lease_not_current",
+        "candidate_scenario_proposal_atom_not_established",
+    ] | None = None
+    context_job_ref: ArtifactRef
+    context_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    world_model_record_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    k_ref_limitation_code: Literal[
+        "candidate_scenario_l2_not_consumed",
+        "historical_l2_confidence_withheld",
+        "full_credal_reference_not_established",
+        "full_credal_reference_not_consumed",
+    ]
+    l2_confidence_vintage: ConfidenceLayerVintage | None = None
+    credal_reference_payload: Literal[None] = None
+    l2_confidence_forwarded: Literal[False] = False
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+
+    @model_validator(mode="after")
+    def _verify_proposal_source_bindings(self) -> N4CandidateScenarioSourceRecordV1:
+        from polisyos.runtime.quality.cycle_substrate import (
+            _cycle_job_v1_design_problem_ref,
+            _cycle_job_v1_profile_selection_ref,
+        )
+
+        if type(self.profile) is not CandidateSimulationScenarioProfile:
+            raise ValueError("n4_candidate_scenario_profile_untyped")
+        if self.context_job_ref.kind != "runtime.quality.cycle_substrate_context_job":
+            raise ValueError("n4_candidate_scenario_context_job_kind_mismatch")
+        if self.context_job_ref.media_type != "application/json":
+            raise ValueError("n4_candidate_scenario_context_job_media_mismatch")
+        if self.profile_config_ref != candidate_simulation_profile_ref(self.profile):
+            raise ValueError("n4_candidate_scenario_profile_ref_mismatch")
+        if (
+            self.design_problem_ref != gy_content_hash(self.problem.model_dump(mode="json"))
+            or self.proposal.design_problem_ref != self.design_problem_ref
+            or self.cycle_problem_ref != _cycle_job_v1_design_problem_ref(self.problem)
+            or self.profile.profile_selection_ref
+            != _cycle_job_v1_profile_selection_ref(self.problem)
+        ):
+            raise ValueError("n4_candidate_scenario_problem_binding_mismatch")
+        if self.candidate is None:
+            if (
+                self.status != "candidate_limited"
+                or self.candidate_limitation_code is None
+            ):
+                raise ValueError("n4_candidate_scenario_candidate_missing")
+        else:
+            interventions = tuple(
+                item
+                for item in self.proposal.trinity_bundle.policy_spec.interventions
+                if item.intervention_id == self.candidate.intervention_id
+            )
+            if (
+                len(interventions) != 1
+                or self.candidate.atom.problem_frame_ref != self.design_problem_ref
+            ):
+                raise ValueError("n4_candidate_scenario_proposal_membership_mismatch")
+            if (
+                self.candidate.atom.intervention_id != interventions[0].intervention_id
+                or self.candidate.atom.operator_kind.trinity_kind != interventions[0].kind
+                or self.candidate.atom.direct_effect_bundle.params != interventions[0].params
+                or self.candidate.atom.target_world_slots
+                != (self.profile.rule.target_world_slot,)
+                or self.candidate.atom.causal_do_expr.write_variables
+                != (self.profile.rule.target_world_slot,)
+                or self.status != "candidate_unverified"
+                or self.candidate_limitation_code is not None
+            ):
+                raise ValueError("n4_candidate_scenario_atom_proposal_binding_mismatch")
+            if self.candidate.atom.status != "candidate_unverified":
+                raise ValueError("n4_candidate_scenario_atom_not_candidate")
+        if self.l2_confidence_vintage is not None:
+            if type(self.l2_confidence_vintage) is not ConfidenceLayerVintage:
+                raise ValueError("n4_candidate_scenario_l2_vintage_untyped")
+            owner_vintage = _confidence_layer_vintage_for_sha256(
+                self.l2_confidence_vintage.snapshot_sha256
+            )
+            if (
+                self.k_ref_limitation_code != "historical_l2_confidence_withheld"
+                or owner_vintage != self.l2_confidence_vintage
+            ):
+                raise ValueError("n4_candidate_scenario_l2_vintage_mismatch")
+        elif self.k_ref_limitation_code == "historical_l2_confidence_withheld":
+            raise ValueError("n4_candidate_scenario_l2_vintage_missing")
+        if self.l2_confidence_forwarded or self.credal_reference_payload is not None:
+            raise ValueError("n4_candidate_scenario_l2_confidence_forwarded")
+        if self.content_hash != _source_content_hash(
+            self.model_dump(mode="python", exclude={"content_hash"})
+        ):
+            raise ValueError("n4_candidate_scenario_source_content_hash_mismatch")
+        return self
+
+
 class GenerationSourceResolution(_StrictModel):
     """Typed candidate-source resolution; its context carries existing owner objects."""
 
@@ -508,6 +682,71 @@ class GenerationSourceRepository:
 
     def __init__(self, store: artifacts.ArtifactStore) -> None:
         self.store = store
+
+    def create_candidate_scenario_source_v1(
+        self,
+        *,
+        status: Literal["candidate_unverified", "candidate_limited"],
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        design_problem_ref: str,
+        cycle_problem_ref: str,
+        problem: DesignProblem,
+        proposal: n4.N4CandidateProposalSource,
+        candidate: n4.N4CandidateScenarioProposalCandidate | None,
+        profile: CandidateSimulationScenarioProfile,
+        profile_config_ref: str,
+        candidate_limitation_code: Literal[
+            "candidate_scenario_profile_action_not_matched",
+            "candidate_scenario_worker_lease_not_current",
+            "candidate_scenario_proposal_atom_not_established",
+        ] | None,
+        context_job_ref: ArtifactRef,
+        context_hash: str,
+        world_model_record_hash: str,
+        k_ref_limitation_code: Literal[
+            "candidate_scenario_l2_not_consumed",
+            "historical_l2_confidence_withheld",
+            "full_credal_reference_not_established",
+            "full_credal_reference_not_consumed",
+        ],
+        l2_confidence_vintage: ConfidenceLayerVintage | None,
+        credal_reference_payload: None,
+        l2_confidence_forwarded: Literal[False],
+    ) -> N4CandidateScenarioSourceRecordV1:
+        """Issue one immutable proposal-source record through this source owner."""
+
+        payload = {
+            "status": status,
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "design_problem_ref": design_problem_ref,
+            "cycle_problem_ref": cycle_problem_ref,
+            "problem": problem,
+            "proposal": proposal,
+            "candidate": candidate,
+            "profile": profile,
+            "profile_config_ref": profile_config_ref,
+            "candidate_limitation_code": candidate_limitation_code,
+            "context_job_ref": context_job_ref,
+            "context_hash": context_hash,
+            "world_model_record_hash": world_model_record_hash,
+            "k_ref_limitation_code": k_ref_limitation_code,
+            "l2_confidence_vintage": l2_confidence_vintage,
+            "credal_reference_payload": credal_reference_payload,
+            "l2_confidence_forwarded": l2_confidence_forwarded,
+        }
+        draft = N4CandidateScenarioSourceRecordV1.model_construct(
+            **payload,
+            content_hash="sha256:" + "0" * 64,
+        ).model_dump(mode="python", exclude={"content_hash"})
+        return N4CandidateScenarioSourceRecordV1.model_validate(
+            {**payload, "content_hash": _source_content_hash(draft)}
+        )
 
     def persist_candidate_simulation_input_v2(self, *, input_record: object) -> str:
         """Persist one v2 N5 input through the runtime-supplied artifact store."""
@@ -533,6 +772,128 @@ class GenerationSourceRepository:
         )
         ref = self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
         return str(ref.artifact_id)
+
+    def persist_candidate_scenario_source_v1(
+        self,
+        *,
+        source_record: object,
+    ) -> ArtifactRef:
+        """Persist one typed N4 proposal source through the runtime artifact store."""
+
+        if type(source_record) is not N4CandidateScenarioSourceRecordV1:
+            raise TypeError("n4_candidate_scenario_source_untyped")
+        record = N4CandidateScenarioSourceRecordV1.model_validate(
+            source_record.model_dump(mode="python")
+        )
+        options = _candidate_scenario_source_write_options(
+            job_id=record.job_id,
+            run_id=record.run_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+            context_job_ref=record.context_job_ref,
+            source_ref=record.design_problem_ref,
+        )
+        return self.store.put_bytes(
+            canon.to_canonical_bytes(record, _SOURCE_CANON),
+            options,
+        )
+
+    def load_candidate_scenario_source_v1(
+        self,
+        ref: ArtifactRef,
+        *,
+        expected_run_id: str,
+        expected_job_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> N4CandidateScenarioSourceRecordV1:
+        """Replay the exact selected proposal-source view and its context owner."""
+
+        if not isinstance(ref, ArtifactRef):
+            raise ValueError("n4_candidate_scenario_source_selected_ref_required")
+        if not self.store.verify(ref).ok:
+            raise ValueError("n4_candidate_scenario_source_cas_integrity_failed")
+        manifest = self.store.get_manifest(ref)
+        if not _ref_selects_manifest(ref, manifest):
+            raise ValueError("n4_candidate_scenario_source_selected_view_mismatch")
+        body = self.store.get_bytes(ref)
+        artifact_id = str(ref.artifact_id)
+        if "sha256:" + hashlib.sha256(body).hexdigest() != artifact_id:
+            raise ValueError("n4_candidate_scenario_source_cas_content_mismatch")
+        try:
+            source = N4CandidateScenarioSourceRecordV1.model_validate(
+                canon.from_canonical_bytes(body)
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("n4_candidate_scenario_source_record_invalid") from exc
+        if (
+            manifest.kind != _N4_CANDIDATE_SCENARIO_SOURCE_KIND
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != source.schema_version
+            or manifest.artifact_schema.version != "1.0"
+        ):
+            raise ValueError("n4_candidate_scenario_source_manifest_mismatch")
+        options = _candidate_scenario_source_write_options(
+            job_id=source.job_id,
+            run_id=source.run_id,
+            tenant_id=source.tenant_id,
+            cell_id=source.cell_id,
+            context_job_ref=source.context_job_ref,
+            source_ref=source.design_problem_ref,
+        )
+        if not _has_owner_profile(manifest, options):
+            raise ValueError("n4_candidate_scenario_source_owner_profile_mismatch")
+        if artifact_ref_identity_key(ref) != artifact_ref_identity_key(
+            ArtifactRef(
+                artifact_id=manifest.artifact_id,
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                manifest_profile_sha256=(
+                    ManifestLifecycle.profile_sha256(manifest)
+                    if ref.manifest_profile_sha256 is not None
+                    else None
+                ),
+            )
+        ):
+            raise ValueError("n4_candidate_scenario_source_selected_view_mismatch")
+        if (
+            source.run_id != expected_run_id
+            or source.job_id != expected_job_id
+            or source.tenant_id != expected_tenant_id
+            or source.cell_id != expected_cell_id
+        ):
+            raise ValueError("n4_candidate_scenario_source_identity_mismatch")
+
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+        )
+
+        context_job = CycleSubstrateContextArtifactOwner(
+            store=self.store,
+        ).resolve_historical_job_artifact(
+            source.context_job_ref,
+            problem=source.problem,
+            expected_job_id=source.job_id,
+            expected_run_id=source.run_id,
+            expected_tenant_id=source.tenant_id,
+            expected_cell_id=source.cell_id,
+        )
+        if (
+            context_job.problem != source.problem
+            or context_job.design_problem_ref != source.cycle_problem_ref
+            or context_job.context.content_hash != source.context_hash
+            or context_job.context.world_model_record.content_hash
+            != source.world_model_record_hash
+            or source.profile.context_inputs.world_model_record.content_hash
+            != source.world_model_record_hash
+            or source.profile.context_inputs.intervention_substrate is None
+            or context_job.context.intervention_substrate is None
+            or source.profile.context_inputs.intervention_substrate.content_hash
+            != context_job.context.intervention_substrate.content_hash
+        ):
+            raise ValueError("n4_candidate_scenario_source_context_binding_mismatch")
+        return source
 
     def persist_candidate_simulation_input_v3(
         self, *, input_record: object
@@ -561,6 +922,41 @@ class GenerationSourceRepository:
                 input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
                 input_ref_from_artifact_ref(
                     record.context_job_ref, role="cycle_substrate_context_job"
+                ),
+            ),
+        )
+        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+
+    def persist_candidate_simulation_input_v4(
+        self,
+        *,
+        input_record: object,
+    ) -> ArtifactRef:
+        """Persist the additive proposal-source N5 input with exact CAS views."""
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationN5InputV4,
+        )
+
+        if type(input_record) is not CandidateSimulationN5InputV4:
+            raise TypeError("candidate_simulation_n5_input_untyped")
+        record = CandidateSimulationN5InputV4.model_validate(
+            input_record.model_dump(mode="python")
+        )
+        options = _candidate_simulation_write_options(
+            kind=_CANDIDATE_SIMULATION_INPUT_KIND,
+            schema_name=record.schema_version,
+            schema_version="4.0",
+            job_id=record.job_id,
+            run_id=record.run_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+            source_ref=str(record.n4_source_ref.artifact_id),
+            input_refs=(
+                input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
+                input_ref_from_artifact_ref(
+                    record.context_job_ref,
+                    role="cycle_substrate_context_job",
                 ),
             ),
         )
@@ -733,6 +1129,97 @@ class GenerationSourceRepository:
                 input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
                 input_ref_from_artifact_ref(
                     record.context_job_ref, role="cycle_substrate_context_job"
+                ),
+                input_ref_from_artifact_ref(record.n5_result_ref, role="n5_result"),
+            ),
+        )
+        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+
+    def persist_candidate_simulation_execution_v4(
+        self,
+        *,
+        input_ref: ArtifactRef,
+        simulation: object,
+        handoff: object,
+    ) -> ArtifactRef:
+        """Persist the N5 result joined to exact proposal source and input views."""
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationExecutionV4,
+            CandidateSimulationN5InputV4,
+        )
+        from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
+
+        if type(handoff) is not CandidateSimulationContextHandoff:
+            raise TypeError("candidate_simulation_handoff_untyped")
+        if type(simulation) is not SimulationPortObservation:
+            raise TypeError("candidate_simulation_observation_untyped")
+        if (
+            simulation.status != "joint_simulated"
+            or simulation.simulation_result_ref is None
+            or simulation.simulation_ref is None
+        ):
+            raise ValueError("candidate_simulation_execution_requires_persisted_n5_result")
+        input_record = self._load_candidate_simulation_input_v4(input_ref)
+        if type(input_record) is not CandidateSimulationN5InputV4:
+            raise ValueError("candidate_simulation_input_ref_not_input_record")
+        if (
+            artifact_ref_identity_key(input_record.context_job_ref)
+            != artifact_ref_identity_key(handoff.context_job_ref)
+            or input_record.job_id != handoff.job_id
+            or input_record.run_id != handoff.run_id
+            or input_record.tenant_id != handoff.tenant_id
+            or input_record.cell_id != handoff.cell_id
+            or input_record.profile.content_hash != handoff.profile.content_hash
+            or input_record.materialization.context_hash != handoff.context.content_hash
+        ):
+            raise ValueError("candidate_simulation_execution_handoff_mismatch")
+        if (
+            simulation.k_world_ref_before != input_record.materialization.world_model_record_hash
+            or simulation.k_world_ref_after != input_record.materialization.world_model_record_hash
+        ):
+            raise ValueError("candidate_simulation_execution_world_binding_mismatch")
+        payload = {
+            "schema_version": "policyos.runtime.candidate_simulation.execution.v4",
+            "authority_purpose": "candidate_scenario_n5_only",
+            "n5_input_ref": input_ref,
+            "n4_source_ref": input_record.n4_source_ref,
+            "context_job_ref": input_record.context_job_ref,
+            "profile_config_ref": input_record.profile_config_ref,
+            "job_id": input_record.job_id,
+            "run_id": input_record.run_id,
+            "tenant_id": input_record.tenant_id,
+            "cell_id": input_record.cell_id,
+            "original_candidate_id": input_record.original_candidate_id,
+            "original_candidate_hash": input_record.original_candidate_hash,
+            "original_n4_atom_hash": input_record.original_n4_atom_hash,
+            "derived_n5_atom_hash": input_record.materialization.derived_n5_atom.content_hash,
+            "problem_ref": input_record.materialization.problem_ref,
+            "world_model_record_hash": input_record.materialization.world_model_record_hash,
+            "n5_result_ref": simulation.simulation_result_ref,
+            "n5_result_content_hash": simulation.simulation_ref,
+            "k_world_ref_before": str(simulation.k_world_ref_before),
+            "k_world_ref_after": str(simulation.k_world_ref_after),
+        }
+        record = CandidateSimulationExecutionV4.model_validate(
+            {**payload, "content_hash": gy_content_hash(payload)}
+        )
+        options = _candidate_simulation_write_options(
+            kind=_CANDIDATE_SIMULATION_EXECUTION_KIND,
+            schema_name=record.schema_version,
+            schema_version="4.0",
+            job_id=record.job_id,
+            run_id=record.run_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+            source_ref=str(record.n4_source_ref.artifact_id),
+            input_refs=(
+                input_ref_from_artifact_ref(input_ref, role="n5_input"),
+                input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
+                input_ref_from_artifact_ref(
+                    record.context_job_ref,
+                    role="cycle_substrate_context_job",
                 ),
                 input_ref_from_artifact_ref(record.n5_result_ref, role="n5_result"),
             ),
@@ -1132,6 +1619,214 @@ class GenerationSourceRepository:
             ):
                 raise ValueError("candidate_simulation_v3_result_hash_mismatch")
         return record
+
+    def resolve_candidate_simulation_v4(
+        self,
+        *,
+        ref: ArtifactRef,
+        expected_run_id: str,
+        expected_job_id: str | None = None,
+        expected_tenant_id: str | None = None,
+        expected_cell_id: str | None = None,
+        require_current_lease: bool = False,
+        current_lease_resolver: Callable[[object], bool] | None = None,
+    ) -> object:
+        """Replay one proposal-profile input or execution with exact selected views."""
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationExecutionV4,
+            CandidateSimulationN5InputV4,
+        )
+
+        if not isinstance(ref, ArtifactRef):
+            raise ValueError("candidate_simulation_v4_selected_ref_required")
+        if not self.store.verify(ref).ok:
+            raise ValueError("candidate_simulation_v4_cas_integrity_failed")
+        manifest = self.store.get_manifest(ref)
+        if not _ref_selects_manifest(ref, manifest):
+            raise ValueError("candidate_simulation_v4_selected_view_mismatch")
+        body = self.store.get_bytes(ref)
+        if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
+            raise ValueError("candidate_simulation_v4_cas_content_mismatch")
+        try:
+            payload = canon.from_canonical_bytes(body)
+            if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
+                record: object = CandidateSimulationN5InputV4.model_validate(payload)
+            elif manifest.kind == _CANDIDATE_SIMULATION_EXECUTION_KIND:
+                record = CandidateSimulationExecutionV4.model_validate(payload)
+            else:
+                raise ValueError("candidate_simulation_v4_manifest_kind_mismatch")
+        except (TypeError, ValueError) as exc:
+            raise ValueError("candidate_simulation_v4_record_invalid") from exc
+        is_input = type(record) is CandidateSimulationN5InputV4
+        expected_kind = (
+            _CANDIDATE_SIMULATION_INPUT_KIND
+            if is_input
+            else _CANDIDATE_SIMULATION_EXECUTION_KIND
+        )
+        if (
+            manifest.kind != expected_kind
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != record.schema_version
+            or manifest.artifact_schema.version != "4.0"
+        ):
+            raise ValueError("candidate_simulation_v4_manifest_profile_mismatch")
+        if artifact_ref_identity_key(ref) != artifact_ref_identity_key(
+            ArtifactRef(
+                artifact_id=manifest.artifact_id,
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                manifest_profile_sha256=(
+                    ManifestLifecycle.profile_sha256(manifest)
+                    if ref.manifest_profile_sha256 is not None
+                    else None
+                ),
+            )
+        ):
+            raise ValueError("candidate_simulation_v4_selected_view_mismatch")
+
+        options = _candidate_simulation_write_options(
+            kind=expected_kind,
+            schema_name=record.schema_version,
+            schema_version="4.0",
+            job_id=record.job_id,
+            run_id=record.run_id,
+            tenant_id=record.tenant_id,
+            cell_id=record.cell_id,
+            source_ref=str(record.n4_source_ref.artifact_id),
+            input_refs=(
+                (
+                    input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
+                    input_ref_from_artifact_ref(
+                        record.context_job_ref,
+                        role="cycle_substrate_context_job",
+                    ),
+                )
+                if is_input
+                else (
+                    input_ref_from_artifact_ref(record.n5_input_ref, role="n5_input"),
+                    input_ref_from_artifact_ref(record.n4_source_ref, role="n4_source"),
+                    input_ref_from_artifact_ref(
+                        record.context_job_ref,
+                        role="cycle_substrate_context_job",
+                    ),
+                    input_ref_from_artifact_ref(record.n5_result_ref, role="n5_result"),
+                )
+            ),
+        )
+        if not _has_owner_profile(manifest, options):
+            raise ValueError("candidate_simulation_v4_owner_profile_mismatch")
+        if (
+            record.run_id != expected_run_id
+            or (expected_job_id is not None and record.job_id != expected_job_id)
+            or (expected_tenant_id is not None and record.tenant_id != expected_tenant_id)
+            or (expected_cell_id is not None and record.cell_id != expected_cell_id)
+        ):
+            raise ValueError("candidate_simulation_v4_identity_mismatch")
+
+        source = self.load_candidate_scenario_source_v1(
+            record.n4_source_ref,
+            expected_run_id=record.run_id,
+            expected_job_id=record.job_id,
+            expected_tenant_id=record.tenant_id,
+            expected_cell_id=record.cell_id,
+        )
+        if (
+            source.candidate is None
+            or source.candidate.candidate_id != record.original_candidate_id
+            or source.candidate.atom.content_hash != record.original_n4_atom_hash
+            or source.candidate.atom.content_hash != record.original_candidate_hash
+            or source.profile.content_hash != record.profile.content_hash
+            or source.profile_config_ref != record.profile_config_ref
+            or artifact_ref_identity_key(source.context_job_ref)
+            != artifact_ref_identity_key(record.context_job_ref)
+        ):
+            raise ValueError("candidate_simulation_v4_n4_source_membership_mismatch")
+        if is_input:
+            materialization = record.materialization
+            if (
+                artifact_ref_identity_key(materialization.n4_source_ref)
+                != artifact_ref_identity_key(record.n4_source_ref)
+                or artifact_ref_identity_key(materialization.context_job_ref)
+                != artifact_ref_identity_key(record.context_job_ref)
+                or materialization.profile_hash != source.profile.content_hash
+                or materialization.problem_ref != source.cycle_problem_ref
+                or materialization.context_hash != source.context_hash
+                or materialization.world_model_record_hash
+                != source.world_model_record_hash
+                or materialization.original_atom_hash != source.candidate.atom.content_hash
+            ):
+                raise ValueError("candidate_simulation_v4_input_context_mismatch")
+        else:
+            input_record = self._load_candidate_simulation_input_v4(record.n5_input_ref)
+            if (
+                type(input_record) is not CandidateSimulationN5InputV4
+                or artifact_ref_identity_key(input_record.n4_source_ref)
+                != artifact_ref_identity_key(record.n4_source_ref)
+                or artifact_ref_identity_key(input_record.context_job_ref)
+                != artifact_ref_identity_key(record.context_job_ref)
+                or input_record.profile_config_ref != record.profile_config_ref
+                or input_record.original_candidate_id != record.original_candidate_id
+                or input_record.original_candidate_hash != record.original_candidate_hash
+                or input_record.original_n4_atom_hash != record.original_n4_atom_hash
+                or input_record.materialization.derived_n5_atom.content_hash
+                != record.derived_n5_atom_hash
+                or input_record.materialization.problem_ref != record.problem_ref
+                or input_record.materialization.world_model_record_hash
+                != record.world_model_record_hash
+            ):
+                raise ValueError("candidate_simulation_v4_execution_input_mismatch")
+            from polisyos.runtime.quality.generation_cycle import (
+                JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+                load_joint_simulation_result,
+            )
+
+            result = load_joint_simulation_result(
+                record.n5_result_ref,
+                store=self.store,
+                expected_world_model_record_content_hash=record.world_model_record_hash,
+                expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
+            )
+            if (
+                result.receipt.payload_hash != record.n5_result_content_hash
+                or record.n5_result_ref.kind != JOINT_SIMULATION_RESULT_ARTIFACT_KIND
+            ):
+                raise ValueError("candidate_simulation_v4_result_hash_mismatch")
+        if require_current_lease and (
+            current_lease_resolver is None or not current_lease_resolver(record)
+        ):
+            raise ValueError("candidate_simulation_v4_current_lease_not_established")
+        return record
+
+    def _load_candidate_simulation_input_v4(self, ref: ArtifactRef) -> object:
+        """Load one v4 input only after the shared resolver replays its lineage."""
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationN5InputV4,
+        )
+
+        if not isinstance(ref, ArtifactRef):
+            raise ValueError("candidate_simulation_v4_selected_ref_required")
+        if not self.store.verify(ref).ok:
+            raise ValueError("candidate_simulation_v4_input_cas_integrity_failed")
+        manifest = self.store.get_manifest(ref)
+        if not _ref_selects_manifest(ref, manifest):
+            raise ValueError("candidate_simulation_v4_input_selected_view_mismatch")
+        body = self.store.get_bytes(ref)
+        try:
+            record = CandidateSimulationN5InputV4.model_validate(
+                canon.from_canonical_bytes(body)
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("candidate_simulation_v4_input_invalid") from exc
+        return self.resolve_candidate_simulation_v4(
+            ref=ref,
+            expected_run_id=record.run_id,
+            expected_job_id=record.job_id,
+            expected_tenant_id=record.tenant_id,
+            expected_cell_id=record.cell_id,
+        )
 
     def _load_candidate_simulation_input_v3(self, ref: ArtifactRef) -> object:
         """Load one exact typed N5 input view through its persistence owner."""

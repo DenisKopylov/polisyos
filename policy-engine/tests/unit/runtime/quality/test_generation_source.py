@@ -19,6 +19,35 @@ from tests.unit.runtime.quality.test_design_generation import (
 from tools.quality.validation import check_layer3_gy_design_generation_contract as contract
 
 
+def test_candidate_scenario_v4_is_additive_to_historical_v3() -> None:
+    """The proposal-profile lane gets new readers without reinterpreting v3."""
+
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationExecutionV3,
+        CandidateSimulationExecutionV4,
+        CandidateSimulationN5InputV3,
+        CandidateSimulationN5InputV4,
+    )
+
+    assert CandidateSimulationN5InputV3.model_fields["schema_version"].default == (
+        "policyos.runtime.candidate_simulation.n5_input.v3"
+    )
+    assert CandidateSimulationExecutionV3.model_fields["schema_version"].default == (
+        "policyos.runtime.candidate_simulation.execution.v3"
+    )
+    assert CandidateSimulationN5InputV4.model_fields["schema_version"].default == (
+        "policyos.runtime.candidate_simulation.n5_input.v4"
+    )
+    assert CandidateSimulationExecutionV4.model_fields["schema_version"].default == (
+        "policyos.runtime.candidate_simulation.execution.v4"
+    )
+    assert CandidateSimulationN5InputV4.model_config["extra"] == "forbid"
+    assert CandidateSimulationExecutionV4.model_config["extra"] == "forbid"
+    assert {"n4_source_ref", "context_job_ref", "profile", "materialization"}.issubset(
+        CandidateSimulationN5InputV4.model_fields
+    )
+
+
 @pytest.mark.asyncio
 async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):
     """The real N4 port must not erase the producer's enclosing source object."""

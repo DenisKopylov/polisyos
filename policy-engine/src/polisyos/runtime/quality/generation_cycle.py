@@ -9701,7 +9701,7 @@ def _load_value_data_profile_from_l1_dcat(
 
     normalized_scope_region = _optional_text(scope_region)
     owner_row_limit = 20_000
-    parameters: list[str] = [outcome]
+    parameters: list[object] = [outcome]
     observation_projection = None
     registered_dataset_id: str | None = None
     registered_canonical_unit: str | None = None
@@ -9842,18 +9842,14 @@ def _load_value_data_profile_from_l1_dcat(
                     ),
                 )
             selected_wdi_observation_ids = tuple(sorted(set(selected_ids)))
-    scope_clause = ""
-    if normalized_scope_region:
-        parameters.append(normalized_scope_region)
-        if selected_wdi_observation_ids:
-            placeholders = ", ".join("?" for _ in selected_wdi_observation_ids)
-            scope_clause = (
-                "\n              AND (country_code = ? OR observation_id IN ("
-                f"{placeholders}))"
-            )
-            parameters.extend(selected_wdi_observation_ids)
-        else:
-            scope_clause = "\n              AND country_code = ?"
+    parameters.extend(
+        (
+            normalized_scope_region,
+            normalized_scope_region,
+            list(selected_wdi_observation_ids),
+            owner_row_limit + 1,
+        )
+    )
     try:
         from polisyos.runtime.quality.substrate_registry import (
             default_substrate_catalog_paths,
@@ -9881,7 +9877,7 @@ def _load_value_data_profile_from_l1_dcat(
     )
     try:
         raw_rows = con.execute(
-            f"""
+            """
             SELECT
               COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,
               COALESCE(year, survey_year, wave) AS period_id,
@@ -9898,9 +9894,15 @@ def _load_value_data_profile_from_l1_dcat(
             WHERE canonical_var = ?
               AND value IS NOT NULL
               AND COALESCE(year, survey_year, wave) IS NOT NULL
-              {scope_clause}
+              AND (
+                CAST(? AS VARCHAR) IS NULL
+                OR country_code = CAST(? AS VARCHAR)
+                OR observation_id IN (
+                    SELECT UNNEST(CAST(? AS VARCHAR[]))
+                )
+              )
             ORDER BY unit_id, period_id, dataset_id, observation_id, value
-            LIMIT {owner_row_limit + 1}
+            LIMIT ?
             """,
             parameters,
         ).fetchall()

@@ -1036,7 +1036,7 @@ async def test_real_value_owner_gateway_projects_selected_wdi_iso3_row_into_iso2
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 "unselected-ukr-collision-2025",
-                "unregistered.other-source",
+                selected.dataset_id,
                 "GC.BAL.CASH.GD.ZS",
                 "government.balance",
                 "UKR",

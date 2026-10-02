@@ -1,5 +1,11 @@
 # E02-R2 write leases
 
+## R13 semantic historical-reader and verifier witness repair — 2026-10-02
+
+Root integrates the reviewed one-file test correction in `tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py` after the exact `88e6ea1` whole-file run returned 51 PASS / 2 FAIL. The two-field historical placeholders are replaced by the repository-owned v1 Git record, tracked v2 record, and pinned v3 fixtures. A malformed v2 retains its schema and strangle markers but must fail historical projection and the real owner reader. All verifier inputs must be `ArtifactID`, and all three required identities must be observed; additional valid inputs are permitted. No production model, historical serializer, signature, epoch or receipt is changed. The same 53 case identities are retained; candidate runtime remains UNRUN until its frozen whole-file replay.
+
+Patch `/Users/deniskopylov/.codex/scratch/E02R2_R13_WITNESS_REPAIR_20261002/test.patch@sha256:327bd72ce86fc5d758d929e4d03b75a93065c1837c03ff0621d1f46c974a9833`; V2 manifest `manifest-v2.json@sha256:80cd511bdcabf9535c1bac678fca4c421378981e2694acb685e9c51f3e5168a7`; independent delta GO `REVIEW_DELTA_V2_20261002.md@sha256:aaab32f0ad4ffba312a13cf95716a50d2258b1074751c606d7563550439de1ee`, all in that packet directory. Exact test postimage SHA `30875beac470af41bf0fc367ddd926e6d9568a869925e66e94014476d25ac511`. Root alone writes the integration branch; no other path is leased at this boundary.
+
 ## R13 runtime-store owner, adapter and lifecycle integration — 2026-10-01
 
 Root integrates the reviewed six-path composition after the R1 delivery and B150 witness commits. The finite mechanism set is `runtime/quality/design_axes/value_choice_provenance.py`, `runtime/http/services/control/generation_cycle.py` and `runtime/http/services/control/run_lifecycle.py`; mirrored witnesses are `test_design_axes_value_choice_provenance.py`, `test_normative_generation_bridge.py` and `test_s8_blocked_generation_owner.py`. The seventh pinned input, `test_generation_cycle_history.py`, is unchanged. All paths are below `policy-engine/src/polisyos/` or their existing `policy-engine/tests/unit/` mirror. Root alone writes the integration branch; no governed artifact or epoch is leased.

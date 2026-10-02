@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from copy import replace
+from copy import deepcopy, replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -794,52 +794,73 @@ def _normative_harness(
 def test_generation_source_reader_replays_historical_schema_by_its_manifest(
     tmp_path: Path,
 ) -> None:
-    """The current consumer admits known historical runs only when payload and manifest agree."""
+    """The source reader admits real byte-exact v1/v2/current records by manifest."""
 
-    from polisyos.core import artifacts
+    from polisyos.core import artifacts, canon
     from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
-    from polisyos.runtime.quality.generation_cycle import GENERATION_CYCLE_SCHEMA_VERSION
+    from polisyos.runtime.quality.generation_cycle import (
+        GENERATION_CYCLE_SCHEMA_VERSION,
+        GenerationCycleRun,
+        _historical_generation_cycle_run_projection,
+        validate_generation_cycle_run_history,
+    )
+    from tests.unit.runtime.quality.historical_artifacts import historical_generation_cycle_v1
+    from tests.unit.runtime.quality.test_generation_cycle_history import (
+        _v3_history_fixtures,
+    )
+
+    product_root = Path(__file__).resolve().parents[4]
+    v1_payload = historical_generation_cycle_v1()["generation_cycle_run"]
+    v2_payload = json.loads(
+        (
+            product_root
+            / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+        ).read_text(encoding="utf-8")
+    )["generation_cycle_run"]
+    current_fixture, mismatch_fixture = _v3_history_fixtures()
+    current_payload = current_fixture[1]
+    mismatch_payload = mismatch_fixture[1]
 
     store = artifacts.FileSystemCAS(tmp_path)
     owner = s8.NormativeValueScheduleOwner(store=store)
 
-    def put(
-        payload_schema: str,
-        manifest_schema: str,
-        *,
-        run_id: str = "historical-run",
-    ) -> str:
+    def put(payload: dict[str, Any], *, manifest_schema: str | None = None) -> str:
+        payload_schema = payload["schema_version"]
+        assert isinstance(payload_schema, str)  # noqa: S101
         ref = store.put_json(
-            {"schema_version": payload_schema, "run_id": run_id},
+            payload,
             artifacts.PutOptions(
                 kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
                 media_type="application/json",
                 schema=artifacts.SchemaInfo(
                     name=s8.NORMATIVE_GENERATION_SOURCE_KIND,
-                    version=manifest_schema,
+                    version=(manifest_schema if manifest_schema is not None else payload_schema),
                 ),
             ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
         )
         return str(ref.artifact_id)
 
-    supported_schemas = (
-        "policyos.runtime.generation_cycle_controller.v1",
-        "policyos.runtime.generation_cycle_controller.v2",
-        GENERATION_CYCLE_SCHEMA_VERSION,
-    )
-    for run_schema in supported_schemas:
-        run_ref = put(run_schema, run_schema)
+    for historical_payload in (v1_payload, v2_payload, current_payload):
+        run_schema = historical_payload["schema_version"]
+        assert isinstance(run_schema, str)  # noqa: S101
+        run = GenerationCycleRun.model_validate(historical_payload)
+        assert (  # noqa: S101
+            _historical_generation_cycle_run_projection(run) == historical_payload
+        )
+        assert validate_generation_cycle_run_history(historical_payload) == ()  # noqa: S101
+        run_ref = put(historical_payload, manifest_schema=run_schema)
         assert owner._read(
             run_ref,
             kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
             schema=GENERATION_CYCLE_SCHEMA_VERSION,
-        ) == {"schema_version": run_schema, "run_id": "historical-run"}
+        ) == historical_payload
 
-    mismatched_ref = put(
-        GENERATION_CYCLE_SCHEMA_VERSION,
-        supported_schemas[1],
-        run_id="historical-run-with-mismatched-manifest",
-    )
+    current_schema = current_payload["schema_version"]
+    v2_schema = v2_payload["schema_version"]
+    assert current_schema == GENERATION_CYCLE_SCHEMA_VERSION  # noqa: S101
+    assert mismatch_payload["schema_version"] == current_schema  # noqa: S101
+    mismatched_ref = put(mismatch_payload, manifest_schema=v2_schema)
     with pytest.raises(s8.P20NormativeChoiceError, match="ref_unresolvable"):
         owner._read(
             mismatched_ref,
@@ -847,8 +868,36 @@ def test_generation_source_reader_replays_historical_schema_by_its_manifest(
             schema=GENERATION_CYCLE_SCHEMA_VERSION,
         )
 
+    malformed_history = deepcopy(v2_payload)
+    malformed_history["candidate_summaries"][0]["grounding_issue_codes"] = []
+    assert malformed_history["schema_version"] == v2_schema  # noqa: S101
+    assert (  # noqa: S101
+        malformed_history["strangle_receipt"]["status"]
+        == v2_payload["strangle_receipt"]["status"]
+    )
+    malformed_run = GenerationCycleRun.model_validate(malformed_history)
+    assert malformed_run.schema_version == v2_schema  # noqa: S101
+    assert (  # noqa: S101
+        _historical_generation_cycle_run_projection(malformed_run) != malformed_history
+    )
+    assert validate_generation_cycle_run_history(malformed_history) == (  # noqa: S101
+        {"code": "generation_cycle_historical_projection_mismatch"},
+    )
+    malformed_ref = put(malformed_history, manifest_schema=v2_schema)
+    with pytest.raises(
+        s8.P20NormativeChoiceError,
+        match="p20_normative_generation_history_invalid",
+    ):
+        owner._read(
+            malformed_ref,
+            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            schema=GENERATION_CYCLE_SCHEMA_VERSION,
+        )
+
+    unknown_history = deepcopy(current_payload)
     unknown_schema = "policyos.runtime.generation_cycle_controller.v0"
-    unknown_ref = put(unknown_schema, unknown_schema)
+    unknown_history["schema_version"] = unknown_schema
+    unknown_ref = put(unknown_history, manifest_schema=unknown_schema)
     with pytest.raises(s8.P20NormativeChoiceError, match="ref_unresolvable"):
         owner._read(
             unknown_ref,
@@ -944,11 +993,17 @@ def test_signature_verifier_receives_a_normalized_artifact_id(tmp_path: Path) ->
     assert all(  # noqa: S101
         isinstance(item, artifacts.ArtifactID) for item in signature_verifier.artifact_ids
     )
-    assert set(signature_verifier.artifact_ids) >= {  # noqa: S101
-        artifacts.ArtifactID.model_validate(harness["kwargs"]["authorization_ref"]),
-        artifacts.ArtifactID.model_validate(harness["kwargs"]["frontier_ref"]),
-        artifacts.ArtifactID.model_validate(harness["schedule_ref"]),
+    observed_id_strings = {
+        str(item)
+        for item in signature_verifier.artifact_ids
+        if isinstance(item, artifacts.ArtifactID)
     }
+    expected_id_strings = {
+        str(artifacts.ArtifactID.model_validate(harness["kwargs"]["authorization_ref"])),
+        str(artifacts.ArtifactID.model_validate(harness["kwargs"]["frontier_ref"])),
+        str(artifacts.ArtifactID.model_validate(harness["schedule_ref"])),
+    }
+    assert expected_id_strings <= observed_id_strings  # noqa: S101
 
 
 def test_signed_owner_uses_runtime_guarded_proxy_and_executes_through_guard(

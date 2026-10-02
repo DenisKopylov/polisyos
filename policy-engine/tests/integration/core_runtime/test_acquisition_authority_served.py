@@ -574,6 +574,8 @@ def _key_config(tmp_path, trust):
 def test_served_acquisition_selects_committed_human_authority_and_reopens_worker(
     tmp_path, monkeypatch
 ):
+    import os
+
     from polisyos.runtime.http.services import (
         acquisition_action_service,
         acquisition_surface_execution,
@@ -612,6 +614,10 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
     candidate_profiles = []
     candidate_model_declarations = []
     candidate_generation_mode = [False]
+    remove_acquired_n5_baseline = (
+        os.environ.get("POLISYOS_R1_REMOVE_ACQUIRED_N5_INPUT_CONSUMPTION") == "1"
+    )
+    removal_probe_n5_baselines: list[dict[str, float]] = []
 
     def app():
         return create_runtime_api_app(
@@ -904,6 +910,41 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 candidate_scenario_generation=candidate_generation_mode[0],
             )
             cases.append(case)
+            if candidate_generation_mode[0] and remove_acquired_n5_baseline:
+                from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+
+                original_build_candidate_request = (
+                    JointSimulationPort._build_candidate_simulation_request
+                )
+
+                def remove_acquired_baseline_from_n5_request(
+                    simulation_port,
+                    *,
+                    candidate,
+                    problem,
+                    input_record,
+                ):
+                    request = original_build_candidate_request(
+                        simulation_port,
+                        candidate=candidate,
+                        problem=problem,
+                        input_record=input_record,
+                    )
+                    baseline_state = dict(request.baseline_state)
+                    baseline_state[model_declaration.target_world_slot] = (
+                        model_declaration.target_baseline
+                    )
+                    baseline_state[model_declaration.outcome_variable] = (
+                        model_declaration.outcome_baseline
+                    )
+                    removal_probe_n5_baselines.append(baseline_state)
+                    return request.model_copy(update={"baseline_state": baseline_state})
+
+                port_patch.setattr(
+                    JointSimulationPort,
+                    "_build_candidate_simulation_request",
+                    remove_acquired_baseline_from_n5_request,
+                )
             return case.port
 
         monkeypatch.setattr(
@@ -1340,6 +1381,19 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 (n5_input.materialization.derived_n5_atom.intervention_id,),
             )
             computed_outcome = trajectory.points[-1].outcomes["global.tax_rate"]
+            if remove_acquired_n5_baseline:
+                assert removal_probe_n5_baselines, (
+                    "removal probe did not reach the owner N5 request builder"
+                )
+                assert all(
+                    baseline[model_declaration.target_world_slot]
+                    == model_declaration.target_baseline
+                    and baseline[model_declaration.outcome_variable]
+                    == model_declaration.outcome_baseline
+                    for baseline in removal_probe_n5_baselines
+                )
+            else:
+                assert not removal_probe_n5_baselines
             acquired_value_outcome = (
                 source_v2.model_declaration.outcome_baseline
                 + source_v2.model_declaration.outcome_per_target_unit

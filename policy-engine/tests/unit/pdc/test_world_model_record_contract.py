@@ -148,49 +148,51 @@ def test_world_model_record_v1_projection_omits_new_view_bundle() -> None:
 
 
 def test_world_model_record_v2_hash_binds_ordered_program_and_ncm_views() -> None:
+    from polisyos.core.artifacts import ArtifactRef
+
     base = _world_model_record()
     graph_id = "sha256:" + "e" * 64
     ncm_id = "sha256:" + "f" * 64
 
     def build_record(profile: str) -> pdc.WorldModelRecord:
         views = pdc.WorldModelArtifactViews(
-            data_snapshot_ref=pdc.ArtifactRef(
+            data_snapshot_ref=ArtifactRef(
                 artifact_id=base.simulation_model_ref.data_snapshot_ref,
                 kind="fabric.data_snapshot",
                 media_type="application/json",
             ),
-            registry_bundle_ref=pdc.ArtifactRef(
+            registry_bundle_ref=ArtifactRef(
                 artifact_id=base.simulation_model_ref.registry_bundle_ref,
                 kind="core.registry_bundle",
                 media_type="application/json",
             ),
-            model_spec_ref=pdc.ArtifactRef(
+            model_spec_ref=ArtifactRef(
                 artifact_id=base.simulation_model_ref.model_spec_ref,
                 kind="ir.model_spec",
                 media_type="application/json",
             ),
-            input_bindings_ref=pdc.ArtifactRef(
+            input_bindings_ref=ArtifactRef(
                 artifact_id=base.foundry_binding_ref.input_bindings_ref,
                 kind="foundry.input_bindings",
                 media_type="application/json",
             ),
-            bound_state_snapshot_ref=pdc.ArtifactRef(
+            bound_state_snapshot_ref=ArtifactRef(
                 artifact_id=base.foundry_binding_ref.bound_state_snapshot_ref,
                 kind="foundry.state_snapshot",
                 media_type="application/json",
             ),
-            input_binding_report_ref=pdc.ArtifactRef(
+            input_binding_report_ref=ArtifactRef(
                 artifact_id=base.foundry_binding_ref.mapping_rules_ref,
                 kind="foundry.input_binding_report",
                 media_type="application/json",
             ),
-            substrate_registry_ref=pdc.ArtifactRef(
+            substrate_registry_ref=ArtifactRef(
                 artifact_id=base.substrate_registry_ref.registry_artifact_ref,
                 kind="runtime.quality.substrate_registry",
                 media_type="application/json",
             ),
             program_graph_refs=(
-                pdc.ArtifactRef(
+                ArtifactRef(
                     artifact_id=graph_id,
                     kind="foundry.program_graph",
                     media_type="application/json",
@@ -198,7 +200,7 @@ def test_world_model_record_v2_hash_binds_ordered_program_and_ncm_views() -> Non
                 ),
             ),
             ncm_refs=(
-                pdc.ArtifactRef(
+                ArtifactRef(
                     artifact_id=ncm_id,
                     kind="ir.ncm_spec",
                     media_type="application/json",

@@ -21,6 +21,48 @@
   "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.world_model_record_contract.v1",
   "json_schema": {
     "$defs": {
+      "ArtifactID": {
+        "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
+        "title": "ArtifactID",
+        "type": "string"
+      },
+      "ArtifactRef": {
+        "additionalProperties": false,
+        "description": "Reference an artifact across service, registry, and governance boundaries.",
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/$defs/ArtifactID"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type"
+        ],
+        "title": "ArtifactRef",
+        "type": "object"
+      },
       "BranchMode": {
         "description": "World branch semantics for the bound version.",
         "enum": [
@@ -590,7 +632,7 @@
         "type": "object"
       },
       "SubstrateLayer": {
-        "description": "Production-data substrate layer labels.",
+        "description": "Production-data substrate layer labels shared by PDC and Runtime.",
         "enum": [
           "L1",
           "L2",
@@ -642,6 +684,67 @@
           "resolved_entries"
         ],
         "title": "SubstrateRegistryRef",
+        "type": "object"
+      },
+      "WorldModelArtifactViews": {
+        "additionalProperties": false,
+        "description": "Exact CAS views selected by a versioned world-model record.\n\nDomain IDs remain stable projections for existing consumers. This bundle\ncarries the manifest profile selectors needed to custody selected bytes.",
+        "properties": {
+          "bound_state_snapshot_ref": {
+            "$ref": "#/$defs/ArtifactRef"
+          },
+          "data_snapshot_ref": {
+            "$ref": "#/$defs/ArtifactRef"
+          },
+          "input_binding_report_ref": {
+            "$ref": "#/$defs/ArtifactRef"
+          },
+          "input_bindings_ref": {
+            "$ref": "#/$defs/ArtifactRef"
+          },
+          "model_spec_ref": {
+            "$ref": "#/$defs/ArtifactRef"
+          },
+          "ncm_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/ArtifactRef"
+            },
+            "title": "Ncm Refs",
+            "type": "array"
+          },
+          "program_graph_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/ArtifactRef"
+            },
+            "title": "Program Graph Refs",
+            "type": "array"
+          },
+          "registry_bundle_ref": {
+            "$ref": "#/$defs/ArtifactRef"
+          },
+          "substrate_registry_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "data_snapshot_ref",
+          "registry_bundle_ref",
+          "model_spec_ref",
+          "input_bindings_ref",
+          "bound_state_snapshot_ref",
+          "input_binding_report_ref"
+        ],
+        "title": "WorldModelArtifactViews",
         "type": "object"
       },
       "WorldModelLimitations": {
@@ -697,8 +800,19 @@
       }
     },
     "additionalProperties": false,
-    "description": "Name one versioned, simulatable world built from existing substrates.\n\n``WorldModelRecord`` is a bridge contract, not a second world store. The\nFabric world remains the fact/provenance/snapshot owner, Data Forge remains\nthe read-surface binding owner, ``ModelSpec`` remains the simulation\ncontract, Foundry owns ``GlobalState`` and mechanism execution, and SKG/G2\nown causal prior traces. This record binds their corresponding versions,\nrecords a policy-slot map into the bound state, and carries Phase-6\ndeployment-update refs as forward hooks only.",
+    "description": "Name one versioned, simulatable world built from existing substrates.",
     "properties": {
+      "artifact_views": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/WorldModelArtifactViews"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
       "authority_status": {
         "default": "bound",
         "enum": [
@@ -773,6 +887,10 @@
       },
       "schema_version": {
         "default": "policyos.runtime.world_model_record.v1",
+        "enum": [
+          "policyos.runtime.world_model_record.v1",
+          "policyos.runtime.world_model_record.v2"
+        ],
         "title": "Schema Version",
         "type": "string"
       },

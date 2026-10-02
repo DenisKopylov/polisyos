@@ -958,10 +958,16 @@ class PolicyArtifactBuilder:
     def _build_frontier_report(self, source: PolicyArtifactBuildInput) -> PolicyFrontierReport:
         snapshot = source.pareto_snapshot
         if snapshot is None:
+            limited_projection = _limited_pareto_projection("global_feasible")
+            view_projections = {limited_projection.view: limited_projection}
             return PolicyFrontierReport(
                 loop_id=source.loop_id,
                 source_feasible_candidate_hashes=(),
-                view_projections={"global_feasible": _limited_pareto_projection("global_feasible")},
+                view_membership={
+                    view_key: list(view_projection.ranked_frontier_hashes)
+                    for view_key, view_projection in view_projections.items()
+                },
+                view_projections=view_projections,
             )
         projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
         projected_hashes = (

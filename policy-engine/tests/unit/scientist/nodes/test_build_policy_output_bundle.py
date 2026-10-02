@@ -448,9 +448,18 @@ def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state
     assert bundle.welfare_bundle_ref == welfare_ref
     assert bundle.ambiguity_certificate_ref == ambiguity_ref
     frontier_report = load_policy_frontier_report(cas_store, bundle.policy_frontier_report_ref)
+    assert frontier_report.schema_version == "3.0"
+    assert frontier_report.source_feasible_candidate_hashes == ()
+    assert frontier_report.view_membership == {
+        view_key: list(view_projection.ranked_frontier_hashes)
+        for view_key, view_projection in frontier_report.view_projections.items()
+    }
     assert frontier_report.global_frontier == []
     assert frontier_report.candidate_frontier == []
-    assert frontier_report.view_projections["global_feasible"].assessment.status == "basis_limited"
+    limited_projection = frontier_report.view_projections["global_feasible"]
+    assert limited_projection.ranked_frontier_hashes == ()
+    assert limited_projection.assessment.status == "basis_limited"
+    assert limited_projection.assessment.basis_scope.scope == "not_established"
     assert (
         outcome.state.policy_output_bundle_ref
         == outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
@@ -658,8 +667,18 @@ def test_build_policy_output_bundle_mismatched_frontier_run_does_not_block_candi
         outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
     )
     limited_report = load_policy_frontier_report(cas_store, bundle.policy_frontier_report_ref)
+    assert limited_report.schema_version == "3.0"
+    assert limited_report.source_feasible_candidate_hashes == ()
+    assert limited_report.view_membership == {
+        view_key: list(view_projection.ranked_frontier_hashes)
+        for view_key, view_projection in limited_report.view_projections.items()
+    }
+    assert limited_report.global_frontier == []
     assert limited_report.candidate_frontier == []
-    assert limited_report.view_projections["global_feasible"].assessment.status == "basis_limited"
+    limited_projection = limited_report.view_projections["global_feasible"]
+    assert limited_projection.ranked_frontier_hashes == ()
+    assert limited_projection.assessment.status == "basis_limited"
+    assert limited_projection.assessment.basis_scope.scope == "not_established"
 
 
 def test_build_policy_output_bundle_propagates_actionable_side_information(

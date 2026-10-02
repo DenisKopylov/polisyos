@@ -2836,3 +2836,35 @@ factory. Card mapping `B09_CARD_TEST_MAPPING.md@sha256:cc063af490a7751407cb517a1
 in the packet identifies the production owners and smallest next witness.
 No native process group remained active before editing. No product source,
 governed record, environment, worktree or production-data write is leased.
+
+
+## B09/B12 workspace precondition — 2026-10-02
+
+Root integrates the finite two-owner parent-provisioning correction after the
+frozen b22 whole35 run completed with 33 passed and two owned failures. Both
+reach DuckDB before the caller-owned nested workspace exists. Result:
+`/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b09-served-growth-wmr-whole35-b22b593-v4-cpu700-20261002T131856154148Z/result.json@sha256:b3193d4decaef678c76274e784b29a1a86f02c30c0e3d31c6bede74635ebbee0`.
+
+Write set: acquired-candidate Fabric writer in data_state_substrate.py, the
+served controlled-profile helper, and this mandatory coordination record.
+Both owners provision their supplied scratch before opening file-backed
+snapshots; the runtime uses its existing CAS-root-derived per-job workspace,
+the fixture pytest scratch. No store replacement, production-data copy/write,
+authority/time relaxation or assertion change occurs. Patch
+`/Users/deniskopylov/.codex/scratch/E02R2_B09_B12_BRIDGE_CANDIDATE_20261002/B22_WORKSPACE_CANDIDATE_R2/patch.diff@sha256:d2930fff84fdee5dbf21350d032f3913922269a35600eb4489b588dea2e44130`;
+independent static GO in that packet:
+`INDEPENDENT_STATIC_REVIEW_20261002.md@sha256:66699966041a1a9371247c97c3589e6a02b794f72d613d28352553959ece6122`.
+The review corrects the manifest: the WMR test helper relies on an existing
+pytest root; it does not itself provision an absent nested DB parent.
+
+P40: the two missing-parent failures are one workspace-precondition class.
+Provisioning belongs to the two snapshot-producing owners, rather than their
+individual callers. Removing provisioning retains all semantic markers and
+recreates the recorded DuckDB failure. The supplied-path contract does not
+qualify an arbitrary misconfigured runtime root inside production_data.
+B09 occurrence continuity, B12 changed dependent outcome, and the default
+production factory positive remain unverified; this is no finding closure.
+No native process group remained active before editing. Native postimage
+replay is UNRUN at this commit boundary; Ruff/diff results are recorded below.
+
+Ruff on both executable paths returned exit 0; git diff --check returned exit 0.

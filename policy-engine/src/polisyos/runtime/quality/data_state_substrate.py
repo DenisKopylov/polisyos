@@ -1921,6 +1921,9 @@ def _write_acquired_candidate_fabric_snapshot(
 
     snapshot_root = workspace_dir / "fabric-world"
     db_path = workspace_dir / "fabric-world.duckdb"
+    # Materialize the caller-owned job workspace before the file-backed writer.
+    snapshot_root.mkdir(parents=True, exist_ok=True)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
     node_id = f"world.acquisition-candidate.{snapshot_id}"
     node = WorldSnapshotNodeWrite(
         node_id=node_id,

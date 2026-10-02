@@ -57,6 +57,7 @@ def _read_owned_terminal(store, ref):
 
 def _served_wdi_candidate_profile(*, tmp_path, store, problem):
     """Build one typed synthetic N5 profile over a real owner-built base WMR."""
+    tmp_path.mkdir(parents=True, exist_ok=True)
 
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.pdc import gy_content_hash

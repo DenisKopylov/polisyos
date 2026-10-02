@@ -16,6 +16,13 @@ from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, SchemaInf
 from polisyos.core.artifacts.signing import Ed25519Signer
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.c4_persisted_profiles import c4_profile
+from polisyos.scientist.evidence.claims.head_index import (
+    ClaimLedgerRootVerificationReceipt,
+    PersistedClaimLedgerHead,
+    _persist_profiled_statement,
+    _read_profiled_statement,
+    project_claim_ledger_current_head,
+)
 from polisyos.scientist.governance.continuous.governed_public_record import (
     GovernedPublicRecordDimensions,
     GovernedPublicRecordError,
@@ -26,13 +33,6 @@ from polisyos.scientist.governance.continuous.governed_public_record import (
     PublicationTrustedKey,
     _PrivateDraft,
     publication_trust_epoch,
-)
-from polisyos.scientist.evidence.claims.head_index import (
-    ClaimLedgerRootVerificationReceipt,
-    PersistedClaimLedgerHead,
-    _persist_profiled_statement,
-    _read_profiled_statement,
-    project_claim_ledger_current_head,
 )
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from tests.unit.scientist.evidence.claims.test_head_index import _build_packet_bound_owner_case

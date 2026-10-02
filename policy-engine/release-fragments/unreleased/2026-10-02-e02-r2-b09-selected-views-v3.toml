@@ -1,0 +1,38 @@
+id = "2026-10-02-e02-r2-b09-selected-views-v3"
+title = "Persist selected world-model views with versioned candidate lineage"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Candidate-only N5 paths can persist exact selected CAS views in WorldModelRecord v2, add N4 source v3 and cycle-context job v3 records, and require exact V1/V2/V3 source-record types in the HTTP run-lifecycle N4 reader."
+evidence = [
+  "tests/unit/pdc/test_world_model_record_contract.py",
+  "tests/unit/runtime/quality/test_world_model_record.py",
+  "tests/unit/runtime/quality/test_generation_source.py",
+  "tests/unit/runtime/quality/test_cycle_substrate.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+  "tests/integration/core_runtime/test_acquisition_authority_served.py",
+  "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+]
+compatibility = "WorldModelRecord v2 carries typed selected ArtifactRef views; v1 content hashing and storage serialization exclude the new field. N4 SourceRecord v3 wraps a v2 source. The HTTP run-lifecycle N4 source reader accepts only repository values whose concrete type is V1, V2, or V3; v1/v2 source and context-job replay remain version-dispatched. This change performs no historical rewrite or epoch reissue."
+change_class = "persisted-artifact-format"
+surface_classification = "public_experimental: polisyos.runtime.quality.WorldModelRecord; internal: polisyos.pdc schema helpers and selected-view DTO, N4 candidate source and cycle-substrate context-job records"
+migration = "No bulk migration is required. Persist explicit schema versions and keep old records on their historical readers; use the existing owner transition if a current record must be issued."
+api = "No HTTP or generated TypeScript API changes. The existing public-experimental polisyos.runtime.quality.WorldModelRecord gains v2 selected-view semantics. New polisyos.pdc helpers are internal because polisyos.pdc is not a supported entrypoint; the N4 source and cycle-context v3 records remain internal owner artifacts."
+limitations = "Candidate only. Product runtime verification is UNRUN. Originless source-v3 replay does not independently reconcile the stable candidate subject against a persisted run-root fact. Its served path creates N4 after the admitted observation and establishes no pre-acquisition N5 continuity, source-time contract, causal coupling, empirical grounding, or N9/S8 authority. Do not publish this fragment until the pinned behavioral and owner checks pass."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "world-model-record-v2-selected-views"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_experimental: persisted WorldModelRecord; internal: N4 source and cycle-context artifacts"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "No v1 or v2 retirement is scheduled; the historical read path remains version-bound and currentness is separately epoch-governed."
+release_note = "Selected-view world-model records use v2 with exact typed artifact views; prior WorldModelRecord v1, N4 source v1/v2, and context-job v1/v2 retain their versioned replay paths. The HTTP run-lifecycle N4 source reader recognizes only the explicit V1/V2/V3 types."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

@@ -2569,3 +2569,30 @@ launches a test. Root sequences their reviewed integrations and admits jobs.
 R2, R3, B09/B12, B79, architecture and TypeScript preparation use read-only
 source and scratch reports/instruments. Generated families and governed
 records remain serialized through their owners. No Trash is emptied.
+
+
+## 2026-10-02: R13-C exact capture-store integration boundary
+
+Root integrates only `runtime/quality/acquisition_planner.py` and its mirrored
+`test_acquisition_planner.py`. Persisted Fabric capture always requires the
+caller's store and exact service/store identity, including injected factories
+and guarded tenant stores. Catalog-only candidate behavior stays available.
+The default production caller supplies `promotion_runtime.store`; a separately
+injected gateway is an explicitly unverified seam, not this lease's witness.
+
+Patch: `/Users/deniskopylov/.codex/scratch/E02R2_R13C_CAPTURE_STORE_INVARIANT_20261002/candidate.patch@sha256:a65644a0ffaad1550d1d0d1b9744ead2653b6990c0af579aca941062e32bba7e`;
+independent review: `INDEPENDENT_REVIEW_20261002.md@sha256:c7417568258b6b5a3bf1897b06ccbf8434896131ccaee092e0fb9ebd96934745`
+in that packet. Root adds only the missing local fetch-owner helper import
+identified by Ruff F821. The actual negative and preserving controls remain
+runtime-UNRUN until the committed source is frozen and replayed.
+
+The unrelated R13 design-axes whole file at `cab21ace` passed all 53 cases.
+Root read back all 6,733 frozen inputs and loaded origins:
+`/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r13-design-axes-whole53-cab21-testrepair-v2-20261002T052406504255Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:23c41299722855a188d5735c6189c33802c49647f6edb580cbb9ea6d3dba78e0`.
+That is a prior-head witness, not a four-base or full R13 closure.
+
+The architecture owner may prepare scratch changes only to
+`tools/devx/architecture/guardrails.py` and
+`tests/repo_quality/tools/test_architecture_phase3.py`: opt-in retained run
+workspace, populated offline UV cache, private venv and copied-source import
+proof. No generated manifest/output or governed record is leased.

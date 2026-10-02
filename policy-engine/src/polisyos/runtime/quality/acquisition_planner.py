@@ -1371,11 +1371,7 @@ class RealAcquisitionOwnerGateway:
         if not families:
             return None
         capture_fetches = _fabric_fetch_capture_enabled(spec)
-        if (
-            capture_fetches
-            and self._retrieval_service_factory is None
-            and self._artifact_store is None
-        ):
+        if capture_fetches and self._artifact_store is None:
             _LOGGER.warning(
                 "Fabric fetch capture refused: the owner-supplied artifact store is missing"
             )
@@ -1429,10 +1425,7 @@ class RealAcquisitionOwnerGateway:
                     service_store = getattr(service, "artifact_store", None)
                     if service_store is None:
                         raise ValueError("fabric_fetch_capture_store_missing")
-                    if (
-                        self._artifact_store is not None
-                        and service_store is not self._artifact_store
-                    ):
+                    if service_store is not self._artifact_store:
                         raise ValueError("fabric_fetch_capture_store_identity_mismatch")
                     response = service.resolve(request)
                     if len(response.fetch_plans) != 1:

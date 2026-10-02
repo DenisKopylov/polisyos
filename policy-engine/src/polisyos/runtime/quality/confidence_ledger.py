@@ -5388,6 +5388,373 @@ def _unwrapped_function_chain(
     return chain[-1], tuple(chain)
 
 
+def _source_scope_returned_function_names(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> tuple[str | None, ...]:
+    """Return direct-scope return names without descending into nested scopes."""
+
+    returned: list[str | None] = []
+    pending = list(reversed(node.body))
+    while pending:
+        current = pending.pop()
+        if isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            continue
+        if isinstance(current, ast.Return):
+            returned.append(current.value.id if isinstance(current.value, ast.Name) else None)
+            continue
+        pending.extend(reversed(list(ast.iter_child_nodes(current))))
+    return tuple(returned)
+
+
+def _returned_local_wrapper_path(
+    factory_node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> tuple[str, ...] | None:
+    """Resolve a simple, unique nested-function return path for a decorator."""
+
+    path: list[str] = []
+    current = factory_node
+    while True:
+        nested = [
+            child
+            for child in current.body
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+        ]
+        if not nested:
+            return tuple(path) if path else None
+        returned = _source_scope_returned_function_names(current)
+        if (
+            len(nested) != 1
+            or not returned
+            or any(name != nested[0].name for name in returned)
+        ):
+            return None
+        path.append(nested[0].name)
+        current = nested[0]
+
+
+def _exact_literal_equal(actual: object, expected: object) -> bool:
+    """Compare only immutable source-literal values with exact runtime types."""
+
+    if type(actual) is not type(expected):
+        return False
+    if type(actual) is tuple:
+        return len(actual) == len(expected) and all(
+            _exact_literal_equal(left, right) for left, right in zip(actual, expected, strict=True)
+        )
+    if type(actual) in {str, int, bool, float, bytes, type(None)}:
+        return actual == expected
+    return False
+
+
+_UNSUPPORTED_SOURCE_LITERAL = object()
+
+
+def _source_literal(node: ast.expr) -> object:
+    """Read an immutable literal from decorator syntax or a factory default."""
+
+    try:
+        value = ast.literal_eval(node)
+    except (ValueError, TypeError, SyntaxError, MemoryError):
+        return _UNSUPPORTED_SOURCE_LITERAL
+    if type(value) in {str, int, bool, float, bytes, type(None)}:
+        return value
+    if type(value) is tuple and all(
+        type(item) in {str, int, bool, float, bytes, type(None)} for item in value
+    ):
+        return value
+    return _UNSUPPORTED_SOURCE_LITERAL
+
+
+def _source_function_defaults_match(
+    function: types.FunctionType,
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> bool:
+    """Require live positional and keyword-only defaults to match source literals."""
+
+    positional_defaults = tuple(_source_literal(item) for item in node.args.defaults)
+    if any(value is _UNSUPPORTED_SOURCE_LITERAL for value in positional_defaults):
+        return False
+    actual_positional_defaults = function.__defaults__ or ()
+    if len(actual_positional_defaults) != len(positional_defaults) or any(
+        not _exact_literal_equal(actual, expected)
+        for actual, expected in zip(
+            actual_positional_defaults, positional_defaults, strict=True
+        )
+    ):
+        return False
+
+    expected_keyword_defaults: dict[str, object] = {}
+    if len(node.args.kwonlyargs) != len(node.args.kw_defaults):
+        return False
+    for argument, default in zip(
+        node.args.kwonlyargs, node.args.kw_defaults, strict=True
+    ):
+        if default is None:
+            continue
+        value = _source_literal(default)
+        if value is _UNSUPPORTED_SOURCE_LITERAL:
+            return False
+        expected_keyword_defaults[argument.arg] = value
+    actual_keyword_defaults = function.__kwdefaults__
+    if actual_keyword_defaults is None:
+        actual_keyword_defaults = {}
+    if type(actual_keyword_defaults) is not dict or set(actual_keyword_defaults) != set(
+        expected_keyword_defaults
+    ):
+        return False
+    return all(
+        _exact_literal_equal(actual_keyword_defaults[name], expected)
+        for name, expected in expected_keyword_defaults.items()
+    )
+
+
+def _source_decorator_factory_captures(
+    factory_node: ast.FunctionDef | ast.AsyncFunctionDef,
+    decorator_node: ast.expr,
+    *,
+    terminal: types.FunctionType,
+) -> dict[str, object] | None:
+    """Bind a literal decorator call against its complete non-variadic source signature."""
+
+    if factory_node.args.vararg is not None or factory_node.args.kwarg is not None:
+        return None
+    positional_parameters = (
+        *factory_node.args.posonlyargs,
+        *factory_node.args.args,
+    )
+    keyword_only_parameters = tuple(factory_node.args.kwonlyargs)
+    parameter_names = tuple(
+        argument.arg for argument in (*positional_parameters, *keyword_only_parameters)
+    )
+    if len(set(parameter_names)) != len(parameter_names):
+        return None
+
+    values: dict[str, object] = {}
+    default_start = len(positional_parameters) - len(factory_node.args.defaults)
+    for index, default in enumerate(factory_node.args.defaults, start=default_start):
+        value = _source_literal(default)
+        if value is _UNSUPPORTED_SOURCE_LITERAL:
+            return None
+        values[positional_parameters[index].arg] = value
+    if len(keyword_only_parameters) != len(factory_node.args.kw_defaults):
+        return None
+    for argument, default in zip(
+        keyword_only_parameters, factory_node.args.kw_defaults, strict=True
+    ):
+        if default is None:
+            continue
+        value = _source_literal(default)
+        if value is _UNSUPPORTED_SOURCE_LITERAL:
+            return None
+        values[argument.arg] = value
+
+    explicit_bindings: set[str] = set()
+    if isinstance(decorator_node, ast.Call):
+        if len(decorator_node.args) > len(positional_parameters):
+            return None
+        for index, argument in enumerate(decorator_node.args):
+            name = positional_parameters[index].arg
+            value = _source_literal(argument)
+            if value is _UNSUPPORTED_SOURCE_LITERAL:
+                return None
+            values[name] = value
+            explicit_bindings.add(name)
+
+        positional_only_names = {argument.arg for argument in factory_node.args.posonlyargs}
+        keywordable_names = {
+            argument.arg for argument in factory_node.args.args
+        } | {argument.arg for argument in keyword_only_parameters}
+        for keyword in decorator_node.keywords:
+            if (
+                keyword.arg is None
+                or keyword.arg in positional_only_names
+                or keyword.arg not in keywordable_names
+                or keyword.arg in explicit_bindings
+            ):
+                return None
+            value = _source_literal(keyword.value)
+            if value is _UNSUPPORTED_SOURCE_LITERAL:
+                return None
+            values[keyword.arg] = value
+            explicit_bindings.add(keyword.arg)
+    else:
+        if not positional_parameters:
+            return None
+        values[positional_parameters[0].arg] = terminal
+
+    if set(parameter_names) - set(values):
+        return None
+    return values
+
+
+def _source_slot_function_node(
+    tree: ast.Module,
+    slot: _LoaderOwnedCallableSlot,
+) -> ast.FunctionDef | ast.AsyncFunctionDef | None:
+    """Resolve one source-declared function slot without evaluating imports."""
+
+    body: list[ast.stmt] = tree.body
+    for class_name in slot.owner_path:
+        owner = next(
+            (
+                statement
+                for statement in body
+                if isinstance(statement, ast.ClassDef) and statement.name == class_name
+            ),
+            None,
+        )
+        if owner is None:
+            return None
+        body = owner.body
+    declaration = next(
+        (
+            statement
+            for statement in body
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and statement.name == slot.binding_name
+        ),
+        None,
+    )
+    return declaration
+
+
+def _source_local_decorator_names(
+    slot: _LoaderOwnedCallableSlot,
+    module: object,
+    module_name: str,
+) -> tuple[str, ...]:
+    """Find local function decorators whose wrapper must be source-reconciled."""
+
+    namespace = getattr(module, "__dict__", {})
+    if not isinstance(namespace, Mapping):
+        return ()
+    names: list[str] = []
+    for decorator in slot.decorators:
+        name = decorator[:-2] if decorator.endswith("()") else decorator
+        factory = namespace.get(name)
+        if (
+            isinstance(factory, types.FunctionType)
+            and factory.__module__ == module_name
+        ):
+            names.append(name)
+    return tuple(names)
+
+
+def _local_decorator_wrapper_matches(
+    function: types.FunctionType,
+    *,
+    terminal: types.FunctionType,
+    chain: tuple[types.FunctionType, ...],
+    slot: _LoaderOwnedCallableSlot,
+    module: object,
+    module_name: str,
+    source_path: Path,
+    loader_code_hashes: Mapping[str, tuple[str, ...]],
+) -> bool:
+    """Authenticate a local decorator wrapper by its source path and closure."""
+
+    if slot.descriptor_kind != "function" or len(chain) != 2:
+        return False
+    local_names = _source_local_decorator_names(slot, module, module_name)
+    if len(local_names) != 1 or getattr(function, "__wrapped__", None) is not terminal:
+        return False
+    factory_name = local_names[0]
+    namespace = getattr(module, "__dict__", {})
+    factory = namespace.get(factory_name) if isinstance(namespace, Mapping) else None
+    if not isinstance(factory, types.FunctionType):
+        return False
+    if not (
+        factory.__module__ == module_name
+        and factory.__globals__ is namespace
+        and factory.__qualname__ == factory_name
+        and Path(factory.__code__.co_filename).resolve() == source_path
+        and _content_hash(_normalize_code_object(factory.__code__))
+        in loader_code_hashes.get(factory.__qualname__, ())
+    ):
+        return False
+    try:
+        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+    except (OSError, SyntaxError, UnicodeError):
+        return False
+    factory_node = next(
+        (
+            statement
+            for statement in tree.body
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and statement.name == factory_name
+        ),
+        None,
+    )
+    slot_node = _source_slot_function_node(tree, slot)
+    if factory_node is None or slot_node is None or len(slot_node.decorator_list) != 1:
+        return False
+    decorator_node = slot_node.decorator_list[0]
+    decorator_target = (
+        decorator_node.func if isinstance(decorator_node, ast.Call) else decorator_node
+    )
+    if not isinstance(decorator_target, ast.Name) or decorator_target.id != factory_name:
+        return False
+    wrapper_path = _returned_local_wrapper_path(factory_node)
+    if wrapper_path is None:
+        return False
+    expected_wrapper_qualname = (
+        factory_name + ".<locals>." + ".<locals>.".join(wrapper_path)
+    )
+    if not (
+        function.__module__ == module_name
+        and function.__globals__ is namespace
+        and function.__qualname__ == slot.qualname
+        and function.__code__.co_qualname == expected_wrapper_qualname
+        and Path(function.__code__.co_filename).resolve() == source_path
+        and _content_hash(_normalize_code_object(function.__code__))
+        in loader_code_hashes.get(expected_wrapper_qualname, ())
+    ):
+        return False
+
+    wrapper_node = factory_node
+    for nested_name in wrapper_path:
+        wrapper_node = next(
+            (
+                child
+                for child in wrapper_node.body
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and child.name == nested_name
+            ),
+            None,
+        )
+        if wrapper_node is None:
+            return False
+    if not _source_function_defaults_match(function, wrapper_node):
+        return False
+    if not _source_function_defaults_match(factory, factory_node):
+        return False
+    expected_captures = _source_decorator_factory_captures(
+        factory_node,
+        decorator_node,
+        terminal=terminal,
+    )
+    if expected_captures is None:
+        return False
+
+    closure = function.__closure__ or ()
+    if len(closure) != len(function.__code__.co_freevars):
+        return False
+    target_bindings = 0
+    for name, cell in zip(function.__code__.co_freevars, closure, strict=True):
+        try:
+            value = cell.cell_contents
+        except ValueError:
+            return False
+        if value is terminal:
+            target_bindings += 1
+            continue
+        if name not in expected_captures or not _exact_literal_equal(
+            value, expected_captures[name]
+        ):
+            return False
+    return target_bindings == 1
+
+
 def _loader_owned_slot_function_matches(
     function: types.FunctionType,
     *,
@@ -5396,6 +5763,8 @@ def _loader_owned_slot_function_matches(
     source_path: Path,
     expected_hashes: tuple[str, ...],
     expected_firstlinenos: tuple[int, ...],
+    module: object,
+    loader_code_hashes: Mapping[str, tuple[str, ...]],
 ) -> tuple[dict[str, object], bool]:
     """Reconcile one live function or declared wrapper to its loader slot."""
 
@@ -5405,6 +5774,7 @@ def _loader_owned_slot_function_matches(
         expected_hashes
         and terminal.__code__.co_firstlineno in expected_firstlinenos
         and terminal.__module__ == module_name
+        and terminal.__globals__ is getattr(module, "__dict__", None)
         and terminal.__qualname__ == slot.qualname
         and Path(terminal.__code__.co_filename).resolve() == source_path
         and terminal_hash in expected_hashes
@@ -5413,11 +5783,27 @@ def _loader_owned_slot_function_matches(
         decorator == "contextmanager" or decorator.endswith(".contextmanager")
         for decorator in slot.decorators
     )
-    wrapper_matches = len(chain) == 1 and not expects_contextmanager
+    local_decorator_names = _source_local_decorator_names(slot, module, module_name)
+    wrapper_matches = (
+        len(chain) == 1
+        and not expects_contextmanager
+        and not local_decorator_names
+    )
     if len(chain) > 1 and expects_contextmanager:
         expected_wrapper = contextmanager(terminal)
         wrapper_matches = _content_hash(_normalize_function_binding(function)) == _content_hash(
             _normalize_function_binding(expected_wrapper)
+        )
+    elif len(chain) > 1 and local_decorator_names:
+        wrapper_matches = _local_decorator_wrapper_matches(
+            function,
+            terminal=terminal,
+            chain=chain,
+            slot=slot,
+            module=module,
+            module_name=module_name,
+            source_path=source_path,
+            loader_code_hashes=loader_code_hashes,
         )
     return (
         {
@@ -5441,6 +5827,7 @@ def _loader_owned_slot_binding(
     source_path: Path,
     slot: _LoaderOwnedCallableSlot,
     expected_hashes: tuple[str, ...],
+    loader_code_hashes: Mapping[str, tuple[str, ...]],
 ) -> tuple[dict[str, object], bool]:
     """Resolve and reconcile one exact source-declared callable binding."""
 
@@ -5540,6 +5927,8 @@ def _loader_owned_slot_binding(
             source_path=source_path,
             expected_hashes=expected_hashes,
             expected_firstlinenos=expected_firstlinenos,
+            module=module,
+            loader_code_hashes=loader_code_hashes,
         )
         function_rows.append({"accessor": accessor, **row, "matches_loader_slot": matches})
         functions_match = functions_match and matches
@@ -5612,11 +6001,17 @@ def _loaded_code_manifest(
         live_loader_bindings: dict[str, object] = {}
         module_consistent = True
         for label, live_code in live_defined_code.items():
-            qualname = str(live_code["qualname"])
+            code_qualname = str(live_code["code_qualname"])
             live_hash = str(live_code["normalized_code_hash"])
             defined_locally = bool(live_code["defined_locally"])
-            loader_hashes = loader_code_hashes.get(qualname, ()) if defined_locally else ()
-            matches_loader = live_hash in loader_hashes if defined_locally else None
+            loader_hashes = (
+                loader_code_hashes.get(code_qualname, ()) if defined_locally else ()
+            )
+            matches_loader = (
+                live_hash in loader_hashes and bool(live_code["globals_match_module"])
+                if defined_locally
+                else None
+            )
             if defined_locally:
                 module_consistent = module_consistent and bool(matches_loader)
             live_loader_bindings[label] = {
@@ -5633,9 +6028,33 @@ def _loaded_code_manifest(
                 source_path,
                 slot,
                 expected_hashes,
+                loader_code_hashes,
             )
             module_consistent = module_consistent and matches_slot
             loader_owned_slots[slot.qualname] = row
+        for binding_label, binding in live_loader_bindings.items():
+            if not binding["defined_locally"]:
+                continue
+            code_qualname = str(binding["code_qualname"])
+            declared_qualname = str(binding["qualname"])
+            if code_qualname == declared_qualname:
+                continue
+            slot_qualname = binding_label
+            for accessor in (".fget", ".fset", ".fdel"):
+                if slot_qualname.endswith(accessor):
+                    slot_qualname = slot_qualname.removesuffix(accessor)
+                    break
+            slot_row = loader_owned_slots.get(slot_qualname)
+            slot_proves_wrapper = (
+                type(slot_row) is dict and slot_row.get("matches_loader_slot") is True
+            )
+            binding_matches = bool(
+                binding["matches_loader"]
+                and declared_qualname == slot_qualname
+                and slot_proves_wrapper
+            )
+            binding["matches_loader"] = binding_matches
+            module_consistent = module_consistent and binding_matches
         all_consistent = all_consistent and module_consistent
         try:
             source_hash = _bytes_hash((repo_root / relative_path).read_bytes())
@@ -5696,15 +6115,25 @@ def _live_defined_code_manifest(
 ) -> dict[str, dict[str, object]]:
     """Capture every live function bound into one authority module namespace."""
 
-    found: dict[str, tuple[types.FunctionType, bool]] = {}
+    found: dict[str, tuple[types.FunctionType, bool, bool]] = {}
     seen_classes: set[int] = set()
+    module_namespace = getattr(module, "__dict__", {})
+    if not isinstance(module_namespace, dict):
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"loaded repository module namespace invalid: {module_name}",
+        )
 
     def add_function(label: str, function: types.FunctionType) -> None:
         defined_locally = bool(
             function.__module__ == module_name
             and Path(function.__code__.co_filename).resolve() == source_path
         )
-        found[label] = (function, defined_locally)
+        found[label] = (
+            function,
+            defined_locally,
+            function.__globals__ is module_namespace,
+        )
 
     def walk_class(label: str, cls: type[object]) -> None:
         if id(cls) in seen_classes or cls.__module__ != module_name:
@@ -5724,12 +6153,7 @@ def _live_defined_code_manifest(
             elif isinstance(value, type):
                 walk_class(member_label, value)
 
-    namespace = getattr(module, "__dict__", {})
-    if not isinstance(namespace, dict):
-        raise ConfidenceLedgerError(
-            "canonical_loaded_runtime_mismatch",
-            f"loaded repository module namespace invalid: {module_name}",
-        )
+    namespace = module_namespace
     for name, value in sorted(namespace.items()):
         if isinstance(value, types.FunctionType):
             add_function(name, value)
@@ -5738,12 +6162,14 @@ def _live_defined_code_manifest(
     return {
         label: {
             "qualname": function.__qualname__,
+            "code_qualname": function.__code__.co_qualname,
             "declared_module": function.__module__,
             "defined_locally": defined_locally,
+            "globals_match_module": globals_match,
             "normalized_code_hash": _content_hash(_normalize_code_object(function.__code__)),
             "normalized_binding_hash": _content_hash(_normalize_function_binding(function)),
         }
-        for label, (function, defined_locally) in sorted(found.items())
+        for label, (function, defined_locally, globals_match) in sorted(found.items())
     }
 
 

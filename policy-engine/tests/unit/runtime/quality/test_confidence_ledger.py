@@ -1027,12 +1027,42 @@ raise SystemExit(3)
     assert completed.stdout.strip() == "canonical_loaded_runtime_mismatch"
 
 
+def test_source_decorator_factory_argument_binding_is_typed_and_exact() -> None:
+    source = ast.parse(
+        "def factory(required, /, optional=1, *, flag=False):\n    pass\n"
+        "@factory('source', 2, flag=True)\n"
+        "def target():\n    pass\n"
+    )
+    factory_node, target_node = source.body
+    assert isinstance(factory_node, ast.FunctionDef)
+    assert isinstance(target_node, ast.FunctionDef)
+    assert ledger_module._source_decorator_factory_captures(
+        factory_node,
+        target_node.decorator_list[0],
+        terminal=lambda: None,
+    ) == {"required": "source", "optional": 2, "flag": True}
+
+    duplicate_source = ast.parse(
+        "def duplicate_factory(value=0):\n    pass\n"
+        "@duplicate_factory(1, value=2)\n"
+        "def duplicate_target():\n    pass\n"
+    )
+    duplicate_factory, duplicate_target = duplicate_source.body
+    assert isinstance(duplicate_factory, ast.FunctionDef)
+    assert isinstance(duplicate_target, ast.FunctionDef)
+    assert ledger_module._source_decorator_factory_captures(
+        duplicate_factory,
+        duplicate_target.decorator_list[0],
+        terminal=lambda: None,
+    ) is None
+
+
 def test_rebound_closure_owned_callable_fails_closed_for_every_session_mode(
     tmp_path: Path,
 ) -> None:
     probe_source = """
 from contextlib import contextmanager
-from functools import lru_cache
+from functools import lru_cache, wraps
 
 def _default_metrics(*args, **kwargs):
     return None
@@ -1046,10 +1076,48 @@ class AuthzInput:
     def for_cas_artifact(cls):
         return cls()
 
+def _transactional_read(
+    *,
+    profile_argument_index: int | None = None,
+    signature_surface: bool = False,
+):
+    def decorate(method):
+        @wraps(method)
+        def wrapped(*args, **kwargs):
+            if signature_surface and profile_argument_index == -1:
+                raise AssertionError("unreachable wrapper control")
+            return method(*args, **kwargs)
+        return wrapped
+    return decorate
+
+def _positional_read(
+    profile_argument_index: int | None = None,
+    /,
+    signature_surface: bool = False,
+):
+    def decorate(method):
+        @wraps(method)
+        def wrapped(*args, **kwargs):
+            if signature_surface and profile_argument_index == -1:
+                raise AssertionError("unreachable wrapper control")
+            return method(*args, **kwargs)
+        return wrapped
+    return decorate
+
+def _unsafe_replacement(method):
+    @wraps(method)
+    def wrapped(*args, **kwargs):
+        return "bypassed-transaction"
+    return wrapped
+
 class DatabaseBackend:
-    @contextmanager
+    @_transactional_read(profile_argument_index=None, signature_surface=False)
     def transaction(self):
-        yield None
+        return None
+
+    @_positional_read(None, signature_surface=False)
+    def positional_transaction(self):
+        return None
 
     @contextmanager
     def tenant_scope(self):
@@ -1076,6 +1144,7 @@ import importlib.util
 import json
 import sys
 import tempfile
+import types
 from functools import lru_cache
 from pathlib import Path
 
@@ -1125,10 +1194,69 @@ elif mutation == "lru_policy_rewritten":
     probe.get_security_settings = lru_cache(maxsize=8, typed=True)(
         original.__wrapped__
     )
+elif mutation == "decorated_forged_wrapper":
+    original = vars(probe.DatabaseBackend)["transaction"]
+    probe.DatabaseBackend.transaction = probe._unsafe_replacement(original.__wrapped__)
+elif mutation == "decorated_foreign_globals":
+    original = vars(probe.DatabaseBackend)["transaction"]
+    foreign_globals = dict(probe.__dict__)
+    probe.DatabaseBackend.transaction = types.FunctionType(
+        original.__code__,
+        foreign_globals,
+        original.__name__,
+        original.__defaults__,
+        original.__closure__,
+    )
+    probe.DatabaseBackend.transaction.__dict__.update(original.__dict__)
+elif mutation in {
+    "decorated_closure_argument_changed",
+    "decorated_closure_target_changed",
+    "decorated_unsupported_literal_changed",
+}:
+    original = vars(probe.DatabaseBackend)["transaction"]
+    def make_cell(value):
+        return (lambda: value).__closure__[0]
+    replacement_value = (
+        "not-a-bool"
+        if mutation == "decorated_closure_argument_changed"
+        else None
+        if mutation == "decorated_unsupported_literal_changed"
+        else vars(probe.DatabaseBackend)["tenant_scope"].__wrapped__
+    )
+    replacement_name = (
+        "signature_surface"
+        if mutation in {
+            "decorated_closure_argument_changed",
+            "decorated_unsupported_literal_changed",
+        }
+        else "method"
+    )
+    closure = [
+        make_cell(replacement_value) if name == replacement_name else cell
+        for name, cell in zip(original.__code__.co_freevars, original.__closure__)
+    ]
+    replacement = types.FunctionType(
+        original.__code__,
+        original.__globals__,
+        original.__name__,
+        original.__defaults__,
+        tuple(closure),
+    )
+    replacement.__dict__.update(original.__dict__)
+    probe.DatabaseBackend.transaction = replacement
+elif mutation == "valid":
+    pass
 else:
     raise AssertionError(mutation)
 
 from polisyos.runtime.quality import confidence_ledger as ledger
+
+if mutation == "valid":
+    print(json.dumps({
+        "consistent": ledger._IMPORT_TIME_LOADED_CODE_CONSISTENT,
+        "identity": ledger.capture_loaded_deployment_identity().model_dump(mode="json"),
+    }))
+    raise SystemExit(0)
 
 repo_root = Path.cwd()
 scope = ledger.ConfidenceRiskBudgetScope(
@@ -1179,6 +1307,11 @@ print(json.dumps(results))
         "decorated_deleted",
         "property_roles_swapped",
         "lru_policy_rewritten",
+        "decorated_forged_wrapper",
+        "decorated_foreign_globals",
+        "decorated_closure_argument_changed",
+        "decorated_closure_target_changed",
+        "decorated_unsupported_literal_changed",
     ):
         checkout = tmp_path / mutation / "policy-engine"
         shutil.copytree(REPO_ROOT / "src", checkout / "src")
@@ -1191,7 +1324,13 @@ print(json.dumps(results))
             target_is_directory=True,
         )
         probe_path = checkout / "src/polisyos/_gy_di1_closure_probe.py"
-        probe_path.write_text(probe_source, encoding="utf-8")
+        mutation_probe_source = probe_source
+        if mutation == "decorated_unsupported_literal_changed":
+            mutation_probe_source = mutation_probe_source.replace(
+                "@_transactional_read(profile_argument_index=None, signature_surface=False)",
+                "@_transactional_read(profile_argument_index=None, signature_surface=...)",
+            )
+        probe_path.write_text(mutation_probe_source, encoding="utf-8")
         entry_path = checkout / "src/polisyos/runtime/quality/confidence_ledger.py"
         entry_path.write_bytes(
             entry_path.read_bytes()
@@ -1212,6 +1351,35 @@ print(json.dumps(results))
             "canonical_loaded_runtime_mismatch",
             "canonical_loaded_runtime_mismatch",
         ]
+
+    valid_checkout = tmp_path / "valid-local-decorator" / "policy-engine"
+    shutil.copytree(REPO_ROOT / "src", valid_checkout / "src")
+    for relative in (Path("pyproject.toml"), Path("uv.lock")):
+        target = valid_checkout / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((REPO_ROOT / relative).read_bytes())
+    (valid_checkout / "architecture").symlink_to(
+        REPO_ROOT / "architecture",
+        target_is_directory=True,
+    )
+    probe_path = valid_checkout / "src/polisyos/_gy_di1_closure_probe.py"
+    probe_path.write_text(probe_source, encoding="utf-8")
+    entry_path = valid_checkout / "src/polisyos/runtime/quality/confidence_ledger.py"
+    entry_path.write_bytes(entry_path.read_bytes() + b"\nimport polisyos._gy_di1_closure_probe\n")
+    valid_env = os.environ.copy()
+    valid_env["PYTHONPATH"] = str(valid_checkout / "src")
+    valid_completed = subprocess.run(
+        [sys.executable, "-c", script, "valid"],
+        cwd=valid_checkout,
+        env=valid_env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert valid_completed.returncode == 0, valid_completed.stdout + valid_completed.stderr
+    valid_observation = json.loads(valid_completed.stdout.strip().splitlines()[-1])
+    assert valid_observation["consistent"] is True
+    assert valid_observation["identity"]["status"] == "established"
 
 
 def test_deployment_identity_manifest_is_complete_and_import_order_independent() -> None:

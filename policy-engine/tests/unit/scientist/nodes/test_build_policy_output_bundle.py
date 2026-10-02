@@ -435,7 +435,7 @@ def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state
         _claim_capable_context(execution_context), state
     )
 
-    assert outcome.status == "ok"
+    assert outcome.status == "ok", outcome.error
     assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in outcome.state.artifacts_index
     assert ARTIFACT_CLAIMS_REF in outcome.state.artifacts_index
     assert ARTIFACT_POLICY_BRIEF_REF in outcome.state.artifacts_index

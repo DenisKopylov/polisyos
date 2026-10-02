@@ -938,6 +938,20 @@ def test_history_replay_is_read_only_and_does_not_consult_current_source(
     )
     before = canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False))
     current_validator = generation._validate_generation_cycle_run
+    history_owner = generation.validate_generation_cycle_run_history
+
+    def consult_current_source_then_replay(
+        candidate: object,
+    ) -> tuple[dict[str, Any], ...]:
+        """Test-only removed-property mutant; the installed tripwire makes it red."""
+
+        run = GenerationCycleRun.model_validate(candidate)
+        assert isinstance(run.strangle_receipt, StrangleReceipt)
+        run.strangle_receipt.verify_current(repo_root=REPO_ROOT)
+        return history_owner(candidate)
+
+    history_mutant = os.environ.get("POLISYOS_R2_HISTORY_MUTANT")
+    assert history_mutant in {None, "source-bound"}
 
     def require_history_mode(
         run: object, **kwargs: object
@@ -954,7 +968,13 @@ def test_history_replay_is_read_only_and_does_not_consult_current_source(
         history_only.setattr(
             generation, "_validate_generation_cycle_run", require_history_mode
         )
-        assert validate_generation_cycle_run_history(payload) == ()
+        if history_mutant == "source-bound":
+            history_only.setattr(
+                generation,
+                "validate_generation_cycle_run_history",
+                consult_current_source_then_replay,
+            )
+        assert generation.validate_generation_cycle_run_history(payload) == ()
     after = canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False))
     assert before == after
     assert "strangle_receipt_currentness_not_established" in {

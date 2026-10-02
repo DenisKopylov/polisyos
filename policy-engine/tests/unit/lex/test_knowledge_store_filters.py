@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 
 import duckdb
@@ -304,6 +305,12 @@ def test_retroactive_row_differs_before_and_after_knowledge_cutoff(
         after = store.resolve_amendment_window_denominator(
             query=_amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
         )
+        after_snapshot = store.load_amendment_owner_snapshot(
+            ref=after.owner_source_snapshot_ref
+        )
+        semantic_epoch._verify_lex_snapshot(
+            owner=store, payload=after_snapshot, receipt=after
+        )
     finally:
         store.close()
 
@@ -352,6 +359,7 @@ def test_missing_amendment_effective_window_stays_in_complete_denominator(
             query=_amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
         )
         snapshot = store.load_amendment_owner_snapshot(ref=receipt.owner_source_snapshot_ref)
+        semantic_epoch._verify_lex_snapshot(owner=store, payload=snapshot, receipt=receipt)
     finally:
         store.close()
 
@@ -359,8 +367,164 @@ def test_missing_amendment_effective_window_stays_in_complete_denominator(
     assert receipt.status == "unresolved"
     assert receipt.failure_codes == ("amendment_valid_effect_window_unresolved",)
     assert receipt.assessments[0].effective_from is None
+    assert receipt.assessments[0].effective_to is None
     assert receipt.assessments[0].failure_code == ("amendment_valid_effect_window_unresolved")
     assert b'"effective_from":""' in snapshot
+
+
+def test_unresolved_lex_window_partition_is_typed_and_verified(tmp_path: Path) -> None:
+    db_path = tmp_path / "inverted-amendment-window.duckdb"
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            """
+            CREATE TABLE lex_amendments (
+                amendment_id VARCHAR,
+                amended_doc_id VARCHAR,
+                target_anchor VARCHAR,
+                effective_from VARCHAR,
+                created_at VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_facts (
+                doc_id VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR
+            )
+            """
+        )
+        con.execute(
+            "INSERT INTO lex_amendments VALUES "
+            "('a-inverted', 'doc-1', 'article-1', '2025-12-01', '2025-02-01'), "
+            "('b-week-date', 'doc-1', 'article-1', '2025-W02-1', '2025-02-01'), "
+            "('c-missing-window', 'doc-2', 'article-2', '', 'not-a-time'), "
+            "('d-bad-created', 'doc-3', 'article-3', '2025-01-01', 'not-a-time'), "
+            "('e-calendar-before', 'doc-4', 'article-4', '2025-01-01', '2025-02-01'), "
+            "('f-calendar-after', 'doc-4', 'article-4', '2025-06-01', '2025-02-01'), "
+            "('g-duplicate-start-a', 'doc-5', 'article-5', '2025-01-01', '2025-02-01'), "
+            "('h-duplicate-start-b', 'doc-5', 'article-5', '2025-01-01', '2025-02-01')"
+        )
+        con.execute(
+            "INSERT INTO lex_facts VALUES "
+            "('doc-1', 'UA', 'fiscal'), ('doc-2', 'UA', 'fiscal'), "
+            "('doc-3', 'UA', 'fiscal'), ('doc-4', 'UA', 'fiscal'), "
+            "('doc-5', 'UA', 'fiscal')"
+        )
+
+    store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
+    try:
+        receipt = store.resolve_amendment_window_denominator(
+            query=_amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
+        )
+        snapshot = store.load_amendment_owner_snapshot(ref=receipt.owner_source_snapshot_ref)
+        semantic_epoch._verify_lex_snapshot(owner=store, payload=snapshot, receipt=receipt)
+        invalid_time_receipt = store.resolve_amendment_window_denominator(
+            query=_amendment_query(
+                knowledge_cutoff=b"not-a-cutoff",
+                admission_cutoff=b"not-an-admission-cutoff",
+            )
+        )
+        semantic_epoch._verify_lex_snapshot(
+            owner=store, payload=snapshot, receipt=invalid_time_receipt
+        )
+    finally:
+        store.close()
+
+    assert receipt.declared_amendment_count == len(receipt.assessments) == 8
+    assert receipt.status == "unresolved"
+    assert receipt.failure_codes == (
+        "amendment_knowledge_cutoff_unresolved",
+        "amendment_valid_effect_window_unresolved",
+    )
+    inverted = receipt.assessments[0]
+    assert inverted.effective_from is None
+    assert inverted.effective_to is None
+    assert inverted.failure_code == "amendment_valid_effect_window_unresolved"
+    assert inverted.disposition == "unresolved"
+    # The LEAD successor would otherwise be applicable at the query date. The
+    # source chain is uncertain, so the whole partition remains unresolved.
+    successor = receipt.assessments[1]
+    assert successor.effective_from is None
+    assert successor.effective_to is None
+    assert successor.failure_code == "amendment_valid_effect_window_unresolved"
+    assert successor.disposition == "unresolved"
+    assert receipt.assessments[2].failure_code == "amendment_valid_effect_window_unresolved"
+    assert receipt.assessments[3].failure_code == "amendment_knowledge_cutoff_unresolved"
+    assert receipt.assessments[4].disposition == "applicable"
+    assert receipt.assessments[4].failure_code is None
+    assert receipt.assessments[5].disposition == "not_applicable"
+    assert receipt.assessments[6].effective_from is None
+    assert receipt.assessments[6].effective_to is None
+    assert receipt.assessments[6].failure_code == "amendment_valid_effect_window_unresolved"
+    assert receipt.assessments[7].effective_from is None
+    assert receipt.assessments[7].effective_to is None
+    assert receipt.assessments[7].failure_code == "amendment_valid_effect_window_unresolved"
+    assert all(
+        receipt.assessments[index].disposition == "unresolved" for index in (0, 1, 2, 6, 7)
+    )
+    assert invalid_time_receipt.owner_source_snapshot_ref == receipt.owner_source_snapshot_ref
+    assert invalid_time_receipt.assessments[0].failure_code == (
+        "amendment_valid_effect_window_unresolved"
+    )
+    assert invalid_time_receipt.assessments[1].failure_code == (
+        "amendment_valid_effect_window_unresolved"
+    )
+    assert invalid_time_receipt.assessments[2].failure_code == (
+        "amendment_valid_effect_window_unresolved"
+    )
+    assert invalid_time_receipt.assessments[3].failure_code == (
+        "amendment_knowledge_cutoff_unresolved"
+    )
+    assert all(
+        invalid_time_receipt.assessments[index].failure_code
+        == "amendment_valid_effect_window_unresolved"
+        for index in (6, 7)
+    )
+
+    forged_assessment = inverted.model_copy(
+        update={
+            "effective_from": date(2025, 12, 1),
+            "effective_to": date(2025, 12, 31),
+            "disposition": "not_applicable",
+            "failure_code": None,
+        }
+    )
+    forged_assessments = (forged_assessment, *receipt.assessments[1:])
+    forged_failure_codes = tuple(
+        sorted(
+            {
+                *(
+                    assessment.failure_code
+                    for assessment in forged_assessments
+                    if assessment.failure_code
+                ),
+                *((receipt.owner_failure_code,) if receipt.owner_failure_code else ()),
+            }
+        )
+    )
+    forged_denominator = epoch_contract.canonical_epoch_bytes(
+        {
+            "query": receipt.query.model_dump(mode="json"),
+            "snapshot_hash": receipt.owner_source_snapshot_content_hash,
+            "assessments": [
+                assessment.model_dump(mode="json") for assessment in forged_assessments
+            ],
+        }
+    )
+    forged_receipt = epoch_contract.LegalAmendmentWindowDenominatorReceipt.model_validate(
+        {
+            **receipt.model_dump(mode="python"),
+            "assessments": forged_assessments,
+            "failure_codes": forged_failure_codes,
+            "status": "unresolved" if forged_failure_codes else "resolved",
+            "denominator_hash": semantic_epoch._raw_cas_hash(forged_denominator),
+        }
+    )
+    assert forged_receipt.denominator_hash != receipt.denominator_hash
+    with pytest.raises(ValueError, match="Lex assessment window differs from frozen owner bytes"):
+        semantic_epoch._verify_lex_snapshot(owner=store, payload=snapshot, receipt=forged_receipt)
 
 
 def test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filters(tmp_path) -> None:

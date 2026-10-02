@@ -109,7 +109,8 @@ def make_wdi_port_case(
             if appointments
             else None
         )
-    bridge_repo_root = (
+    bridge_repo_root = repo
+    generation_repo_root = (
         Path(__file__).resolve().parents[2] if candidate_scenario_generation else repo
     )
     bridge = AcquisitionWorldGrowthBridge(
@@ -145,10 +146,9 @@ def make_wdi_port_case(
             check_layer3_gy_design_generation_contract as n4_contract,
         )
 
-        repo_root = bridge_repo_root
         recording = next(
             item
-            for item in n4_contract._load_recordings(repo_root)
+            for item in n4_contract._load_recordings(generation_repo_root)
             if item.get("design_problem_id")
             == "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
         )
@@ -187,7 +187,7 @@ def make_wdi_port_case(
                 problem,
                 model_id=port._model_id,
                 llm_client=recorded_client,
-                repo_root=bridge_repo_root,
+                repo_root=generation_repo_root,
                 cycle_substrate_context=port._cycle_substrate_context,
             )
     else:

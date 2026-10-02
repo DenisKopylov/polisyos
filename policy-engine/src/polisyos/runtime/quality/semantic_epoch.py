@@ -1481,6 +1481,13 @@ class LegalAmendmentWindowOwner(Protocol):
 
     def load_amendment_owner_snapshot(self, *, ref: ArtifactRef) -> bytes: ...
 
+    def verify_amendment_window_snapshot(
+        self,
+        *,
+        source_rows: list[dict[str, object]],
+        receipt: epoch_contract.LegalAmendmentWindowDenominatorReceipt,
+    ) -> None: ...
+
 
 class CatalogAcquisitionBoundaryOwner(Protocol):
     def resolve_native_membership(
@@ -1566,13 +1573,17 @@ def _verify_l5_snapshot(
 
 
 def _verify_lex_snapshot(
-    *, payload: bytes, receipt: epoch_contract.LegalAmendmentWindowDenominatorReceipt
+    *,
+    owner: LegalAmendmentWindowOwner,
+    payload: bytes,
+    receipt: epoch_contract.LegalAmendmentWindowDenominatorReceipt,
 ) -> None:
     value = json.loads(payload)
     rows = value.get("rows") if isinstance(value, dict) else None
     owner_failure_code = value.get("owner_failure_code") if isinstance(value, dict) else None
     if (
         not isinstance(rows, list)
+        or any(not isinstance(row, dict) for row in rows)
         or len(rows) != receipt.declared_amendment_count
         or owner_failure_code != receipt.owner_failure_code
     ):
@@ -1585,6 +1596,7 @@ def _verify_lex_snapshot(
     for assessment in receipt.assessments:
         if assessment.amendment_content_hash != str(assessment.amendment_ref.artifact_id):
             raise ValueError("Lex assessment content hash differs from its native ref")
+    owner.verify_amendment_window_snapshot(source_rows=rows, receipt=receipt)
     denominator = epoch_contract.canonical_epoch_bytes(
         {
             "query": receipt.query.model_dump(mode="json"),
@@ -1774,7 +1786,7 @@ class LexEpochBoundaryOwnerAdapter:
         )
         if receipt.owner_source_snapshot_content_hash != _raw_cas_hash(snapshot):
             raise ValueError("Lex owner snapshot semantic hash differs from its bytes")
-        _verify_lex_snapshot(payload=snapshot, receipt=receipt)
+        _verify_lex_snapshot(owner=self._owner, payload=snapshot, receipt=receipt)
         receipt_ref, receipt_hash = _persist_model(
             store=self._artifacts,
             value=receipt,

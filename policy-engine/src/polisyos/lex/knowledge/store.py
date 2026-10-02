@@ -204,6 +204,45 @@ class LegalKnowledgeStore:
             return None
 
     @classmethod
+    def _unresolved_amendment_window_indices(
+        cls, source_rows: list[dict[str, object]]
+    ) -> frozenset[int]:
+        """Mark every member of a window chain whose chronology is not established."""
+
+        groups: dict[tuple[str, str], list[tuple[int, date | None, bool]]] = {}
+        unresolved: set[int] = set()
+        for index, row in enumerate(source_rows):
+            amended_doc_id = str(row.get("amended_doc_id") or "")
+            target_anchor = str(row.get("target_anchor") or "")
+            effective_from = cls._parse_amendment_date(row.get("effective_from"))
+            raw_effective_to = row.get("effective_to")
+            effective_to = cls._parse_amendment_date(raw_effective_to)
+            invalid_window = (
+                effective_from is None
+                or (raw_effective_to not in {None, ""} and effective_to is None)
+                or (
+                    effective_from is not None
+                    and effective_to is not None
+                    and effective_to < effective_from
+                )
+            )
+            if invalid_window:
+                unresolved.add(index)
+            if not amended_doc_id or not target_anchor:
+                unresolved.add(index)
+                continue
+            groups.setdefault((amended_doc_id, target_anchor), []).append(
+                (index, effective_from, invalid_window)
+            )
+
+        for members in groups.values():
+            starts = [start for _, start, _ in members if start is not None]
+            ambiguous_start = len(starts) != len(set(starts))
+            if ambiguous_start or any(invalid for _, _, invalid in members):
+                unresolved.update(index for index, _, _ in members)
+        return frozenset(unresolved)
+
+    @classmethod
     def _amendment_source_mapping(cls, row: tuple[object, ...]) -> dict[str, object]:
         effective_from = cls._parse_amendment_date(row[3])
         effective_to = cls._parse_amendment_date(row[4])
@@ -272,6 +311,10 @@ class LegalKnowledgeStore:
             else "amendment_owner_table_not_established"
         )
         rows = self._amendment_window_rows()
+        source_snapshot_rows = [self._amendment_source_mapping(row) for row in rows]
+        unresolved_window_indices = self._unresolved_amendment_window_indices(
+            source_snapshot_rows
+        )
         try:
             cutoff_text = query.visibility_knowledge_cutoff_bytes.decode().strip()
             cutoff = datetime.fromisoformat(cutoff_text.replace("Z", "+00:00"))
@@ -283,8 +326,7 @@ class LegalKnowledgeStore:
         except (UnicodeDecodeError, ValueError):
             admission_cutoff = None
         assessments: list[epoch_contract.LegalAmendmentWindowAssessment] = []
-        snapshot_rows: list[dict[str, object]] = []
-        for row in rows:
+        for row_index, row in enumerate(rows):
             amended_doc_id = str(row[1] or "")
             effective_from = self._parse_amendment_date(row[3])
             effective_to = self._parse_amendment_date(row[4])
@@ -311,12 +353,8 @@ class LegalKnowledgeStore:
                     }
                 )
                 resolved_scope_ref = f"sha256:{hashlib.sha256(scope_raw).hexdigest()}"
-            valid_effect_window_unresolved = effective_from is None or (
-                row[4] not in {None, ""} and effective_to is None
-            )
-            if valid_effect_window_unresolved:
-                failure_code = "amendment_valid_effect_window_unresolved"
-            elif cutoff is None or admission_cutoff is None or created_at in {None, ""}:
+            valid_effect_window_unresolved = row_index in unresolved_window_indices
+            if cutoff is None or admission_cutoff is None or created_at in {None, ""}:
                 failure_code = "amendment_knowledge_cutoff_unresolved"
             created_datetime = self._parse_amendment_datetime(created_at)
             if created_at not in {None, ""} and created_datetime is None:
@@ -348,7 +386,7 @@ class LegalKnowledgeStore:
             ):
                 admission_comparable = admission_comparable.replace(tzinfo=created_datetime.tzinfo)
             scope_matches = scope_values == ((query.jurisdiction.upper(), query.domain),)
-            in_valid_window = effective_from is not None and (
+            in_valid_window = not valid_effect_window_unresolved and effective_from is not None and (
                 effective_from <= query.valid_effect_value
                 and (effective_to is None or query.valid_effect_value < effective_to)
             )
@@ -359,13 +397,15 @@ class LegalKnowledgeStore:
                 and created_datetime <= cutoff_comparable
                 and created_datetime <= admission_comparable
             )
+            if valid_effect_window_unresolved:
+                failure_code = "amendment_valid_effect_window_unresolved"
             if failure_code is not None:
                 disposition = "unresolved"
             elif scope_matches and in_valid_window and visible:
                 disposition = "applicable"
             else:
                 disposition = "not_applicable"
-            source_mapping = self._amendment_source_mapping(row)
+            source_mapping = source_snapshot_rows[row_index]
             source_raw = epoch_contract.canonical_epoch_bytes(source_mapping)
             source_hash = f"sha256:{hashlib.sha256(source_raw).hexdigest()}"
             doc_raw = amended_doc_id.encode()
@@ -384,17 +424,16 @@ class LegalKnowledgeStore:
                         media_type="text/plain",
                     ),
                     resolved_scope_ref=resolved_scope_ref,
-                    effective_from=effective_from,
-                    effective_to=effective_to,
+                    effective_from=(None if valid_effect_window_unresolved else effective_from),
+                    effective_to=(None if valid_effect_window_unresolved else effective_to),
                     disposition=disposition,
                     failure_code=failure_code,
                 )
             )
-            snapshot_rows.append(source_mapping)
         snapshot_raw = epoch_contract.canonical_epoch_bytes(
             {
                 "owner_failure_code": owner_failure_code,
-                "rows": snapshot_rows,
+                "rows": source_snapshot_rows,
             }
         )
         snapshot_hash = f"sha256:{hashlib.sha256(snapshot_raw).hexdigest()}"
@@ -429,6 +468,49 @@ class LegalKnowledgeStore:
             owner_failure_code=owner_failure_code,
             predicate_class="independently_reconciled",
         )
+
+    @classmethod
+    def verify_amendment_window_snapshot(
+        cls,
+        *,
+        source_rows: list[dict[str, object]],
+        receipt: epoch_contract.LegalAmendmentWindowDenominatorReceipt,
+    ) -> None:
+        """Reconcile receipt windows against the complete frozen Lex source chain."""
+
+        if len(source_rows) != receipt.declared_amendment_count:
+            raise ValueError("Lex source partition differs from receipt denominator")
+        unresolved_indices = cls._unresolved_amendment_window_indices(source_rows)
+        source_by_ref = {
+            f"sha256:{hashlib.sha256(epoch_contract.canonical_epoch_bytes(row)).hexdigest()}": (
+                index,
+                row,
+            )
+            for index, row in enumerate(source_rows)
+        }
+        if len(source_by_ref) != len(source_rows) or set(source_by_ref) != {
+            str(assessment.amendment_ref.artifact_id) for assessment in receipt.assessments
+        }:
+            raise ValueError("Lex receipt member refs differ from its source partition")
+
+        for assessment in receipt.assessments:
+            index, source = source_by_ref[str(assessment.amendment_ref.artifact_id)]
+            effective_from = cls._parse_amendment_date(source.get("effective_from"))
+            effective_to = cls._parse_amendment_date(source.get("effective_to"))
+            if index in unresolved_indices:
+                if (
+                    assessment.effective_from is not None
+                    or assessment.effective_to is not None
+                    or assessment.failure_code != "amendment_valid_effect_window_unresolved"
+                    or assessment.disposition != "unresolved"
+                ):
+                    raise ValueError("Lex assessment window differs from frozen owner bytes")
+            elif (
+                assessment.effective_from != effective_from
+                or assessment.effective_to != effective_to
+                or assessment.failure_code == "amendment_valid_effect_window_unresolved"
+            ):
+                raise ValueError("Lex assessment window differs from frozen owner bytes")
 
     def _table_exists(self, table_name: str) -> bool:
         cached = self._table_exists_cache.get(table_name)

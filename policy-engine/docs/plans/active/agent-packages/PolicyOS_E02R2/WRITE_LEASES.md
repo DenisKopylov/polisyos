@@ -2951,3 +2951,29 @@ No source under test is edited while a native run is active. Generated families,
 Root applies the five-path R6 candidate after independent review at `E02R2_R6_CONTEXT_REFRESH_CANDIDATE_20261002/INDEPENDENT_REVIEW.md@sha256:2a8bb300d1d8bd90327d568d2b53e44015e8594759f14515d240166a913fee32` in the shared scratch. The normal and acquired-world owner paths share one typed refresh refusal. Only ordinary N4 candidate work catches that refusal; protected modes rethrow it, and N5 stays not_run. No source-backed issuer/revalidator is established; no lever, transport record, historical context or epoch is restamped.
 
 Full-file root Ruff found an import-order issue, a duplicate transport-test identity and tuple parameter formatting in the proposed tests. Root fixes the three test-only issues as one finite delta: the new same-envelope foreign-binding probe has a distinct identity, the older full foreign-transport witness remains, and all parameter cases remain. The rollout fragment records the new typed progress limitation. Source behavior and the five reviewed production/test scopes are otherwise unchanged. Native replay remains UNRUN at this clean commit boundary; no finding closure is claimed. Root is the only canonical writer; B09 overlapping files follow this postimage.
+
+## R1/R13 Lex temporal partition integration — 2026-10-02
+
+Root integrates four reviewed executable paths: lex/knowledge/store.py,
+runtime/quality/semantic_epoch.py, tests/unit/lex/test_knowledge_store_filters.py
+and tests/_helpers/acquisition_chain.py. The bridge keeps its authority/data
+owner root stable; the separate checkout root is used only by the controlled
+N4 recording/generation fixture. Lex production and snapshot verification use
+one owner classifier over the complete amendment partition. Missing, malformed,
+inverted or duplicate chronology makes every member of that partition unresolved,
+while an independent valid calendar chain remains usable. The strict epoch DTO,
+source snapshot mapping, schema fields and historical readers are unchanged.
+
+Candidate `E02R2_R1_LEX_WINDOW_OWNER_REPAIR_CANDIDATE_20261002_V4_PARTITION_WIDE/V4_COMPLETE_CANDIDATE.patch@sha256:11deb9f060ba56b1b2f6c04b0b7d34696e062c9ea39ff1694a4db32d5cef4713`
+and independent static GO `INDEPENDENT_REVIEW.md@sha256:2902e179740f4d113b4cdd0fff2c2e239c284efbb163997068cf48593d0ef31d`
+are in the shared scratch. P40: the false open-ended successor is the second
+finding of the temporal partition class; the repair widens once to the complete
+partition. No inferred tie precedence or source date contract is introduced.
+Broader non-window assessment reconciliation remains a bounded residual.
+
+Witness: `test_unresolved_lex_window_partition_is_typed_and_verified`, including
+a forged receipt with preserved/recomputed markers and the valid calendar control.
+Root Ruff on all four paths and git diff --check returned zero. No native job
+was active while editing. Native Lex and served N4→N5 replay remain UNRUN at this
+commit boundary. B09 overlapping helper work follows this actual postimage.
+No governed epoch, receipt, register, plan, environment or production_data is written.

@@ -2761,3 +2761,47 @@ Ruff on all nine paths and diff-check returned zero before commit. Native
 post-integration replay is UNRUN at this boundary; B09/B12 are not closed by
 source review. No native group was active during edits. No governed family,
 receipt, epoch, environment, new worktree or production-data write is leased.
+
+
+## R1/R13 test resource cleanup and owner-bound CG1 diagnosis — 2026-10-02
+
+Root integrates the remaining three test-only cleanups in test_cycle_substrate,
+test_generation_source and test_generation_cycle. FileSystemCAS has no close
+API or persistent open handle; the invalid finally blocks could replace a
+meaningful assertion failure with AttributeError. The prior bodies, fixture
+prefixes, positive assertions and negatives remain unchanged. The fourth known
+site was the WMR cleanup integrated at the prior B09/B12 boundary.
+
+The complete pinned census contains 645 close calls in 2,673 tracked test*.py
+files, all parsed: three automatically resolved FileSystemCAS receivers and
+642 unresolved receivers. The WMR helper-return receiver was independently
+traced within that unresolved set. The reconciled split is four confirmed and
+641 still unresolved, not four plus 642. The instrument does not establish the
+types of the remaining receivers.
+`/Users/deniskopylov/.codex/scratch/E02R2_B09_CLOSE_CLEANUP_DELTA_20261002/census/COUNT_RECONCILIATION.py@sha256:426f0b9d0fec782743f8e24a1b355feb4843e7f815531051e3bd3ea398317fa6`;
+its count erratum JSON sha256 is
+`f8c7c8bd80d0cbb2fdf83bcc5e39a3a6235d3165e7e8f7d4069d95c2ad22f6af`.
+
+Patch `revision-9/FILESYSTEM_CAS_TEST_CLEANUP_REMAINING_3.patch@sha256:098a1f3c4754b1154fe3facf59e403676ed8480c4c79568be01da4aa8632913b`
+and independent GO `INDEPENDENT_REVIEW_REV9_CG1_20261002.md@sha256:3552c4ab8397746cfdc73eb156edc65fc5afa3bff0f308cfa802cc4a9d98b577`
+are in the cleanup packet above. The configured-context and selected-NCM
+cases were introduced in this lane at b7c64aee0a and are absent at the three
+historical bases. The source-controller case exists at those bases but its
+new owner_store.close call was introduced in this lane at065929f51b; historical
+runs of that case failed earlier in actual_n4_source setup. These are owned
+cleanup defects, not evidence of a previously passing historical capability.
+Whole-file replay obligations remain recorded separately.
+
+The source fixture's diagnostic delta records the real CG1 owner's certificate
+on the same call, bound to each disposition's certificate hash. It retains
+assert candidates, performs no second solver call and changes no production
+predicate. `/Users/deniskopylov/.codex/scratch/E02R2_R1_CG1_TEST_DIAGNOSTIC_42C4_20261002/CG1_TEST_DIAGNOSTIC_ONLY.patch@sha256:cdc6b28c252edff2e31577c9b843a7cf46f2043f24d0e35180d50ca36f7d65db`;
+reviewed with the cleanup by the independent GO above. A finite PT007 tuple
+to list correction retains the two hostile_location parameter values/order;
+independent static GO `PT007_ERRATUM_STATIC_REVIEW_20261002.md@sha256:0655bba1435eb48b33d02a78880fc73e13fa12147bb74ce6363868e3cd99987b`
+in the cleanup packet. Ruff on all three files and diff-check return zero.
+Native replays are UNRUN at this commit boundary. The B09 whole35 run ended
+before editing: 33P/2F; both failures precede the new acquired-world bridge
+and are being repaired through valid typed test inputs and actual owner APIs.
+No source, expectation relaxation, new environment, worktree, governed record
+or production-data write is leased here.

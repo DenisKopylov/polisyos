@@ -1155,52 +1155,49 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         model_declarations=(declaration,),
         store=store,
     )
-    try:
-        offer = owner.admit_context(
-            problem=problem,
-            job_id="job-declared-candidate",
-            run_id="run-declared-candidate",
-            tenant_id="tenant-declared-candidate",
-            cell_id="cell-declared-candidate",
-        )
-        from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextOffer
+    offer = owner.admit_context(
+        problem=problem,
+        job_id="job-declared-candidate",
+        run_id="run-declared-candidate",
+        tenant_id="tenant-declared-candidate",
+        cell_id="cell-declared-candidate",
+    )
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextOffer
 
-        assert type(offer) is CandidateSimulationContextOffer
-        assert offer.profile == profile
-        assert offer.model_declaration == declaration
-        assert offer.model_declaration_ref is not None
-        assert offer.ncm_ref is not None
-        assert str(offer.ncm_ref.artifact_id) in (
-            offer.context.world_model_record.simulation_model_ref.ncm_refs
-        )
-        assert offer.context.world_model_record.authority_status == "limited"
-        assert offer.context.s8_status == "blocked"
+    assert type(offer) is CandidateSimulationContextOffer
+    assert offer.profile == profile
+    assert offer.model_declaration == declaration
+    assert offer.model_declaration_ref is not None
+    assert offer.ncm_ref is not None
+    assert str(offer.ncm_ref.artifact_id) in (
+        offer.context.world_model_record.simulation_model_ref.ncm_refs
+    )
+    assert offer.context.world_model_record.authority_status == "limited"
+    assert offer.context.s8_status == "blocked"
 
-        profile_only_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
-            profiles=(profile,)
-        )
-        profile_only = profile_only_owner.admit_context(
-            problem=problem,
-            job_id="job-profile-only",
-            run_id="run-profile-only",
-            tenant_id="tenant-profile-only",
-            cell_id="cell-profile-only",
-        )
-        assert type(profile_only) is CandidateSimulationContextOffer
-        assert profile_only.model_declaration is None
-        assert profile_only.model_declaration_ref is None
-        assert profile_only.ncm_ref is None
-        assert profile_only.context.world_model_record == world
+    profile_only_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+        profiles=(profile,)
+    )
+    profile_only = profile_only_owner.admit_context(
+        problem=problem,
+        job_id="job-profile-only",
+        run_id="run-profile-only",
+        tenant_id="tenant-profile-only",
+        cell_id="cell-profile-only",
+    )
+    assert type(profile_only) is CandidateSimulationContextOffer
+    assert profile_only.model_declaration is None
+    assert profile_only.model_declaration_ref is None
+    assert profile_only.ncm_ref is None
+    assert profile_only.context.world_model_record == world
 
-        changed_time = problem.jurisdiction_time.model_copy(
-            update={"as_of": "2026-06-30"}
-        )
-        assert owner.admit_context(
-            problem=problem.model_copy(update={"jurisdiction_time": changed_time}),
-            job_id="job-declared-candidate",
-            run_id="run-declared-candidate",
-            tenant_id="tenant-declared-candidate",
-            cell_id="cell-declared-candidate",
-        ) is None
-    finally:
-        store.close()
+    changed_time = problem.jurisdiction_time.model_copy(
+        update={"as_of": "2026-06-30"}
+    )
+    assert owner.admit_context(
+        problem=problem.model_copy(update={"jurisdiction_time": changed_time}),
+        job_id="job-declared-candidate",
+        run_id="run-declared-candidate",
+        tenant_id="tenant-declared-candidate",
+        cell_id="cell-declared-candidate",
+    ) is None

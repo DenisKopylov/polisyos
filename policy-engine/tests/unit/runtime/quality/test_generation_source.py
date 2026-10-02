@@ -426,10 +426,15 @@ def actual_n4_source():
     from dataclasses import replace
     from decimal import Decimal
     from pathlib import Path
+    from typing import Any
 
     from polisyos.core import artifacts
     from polisyos.runtime.quality.credal_reference import _component_versions, _reference_hash
     from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+    from polisyos.runtime.quality.grounding_relation import (
+        GroundingRelationCertificate,
+        GroundingRelationEngine,
+    )
     from polisyos.runtime.quality.intervention_substrate import (
         load_l6_intervention_substrate,
         production_composed_world_model_record,
@@ -507,6 +512,28 @@ def actual_n4_source():
         }
     )
     bundle = _bundle([intervention])
+
+    class _RecordingGroundingRelationEngine(GroundingRelationEngine):
+        def __init__(self, selected_reference: Any) -> None:
+            super().__init__(selected_reference)
+            self.owner_certificates: list[GroundingRelationCertificate] = []
+
+        def certificate_for(
+            self,
+            proposal: Any,
+            *,
+            proposal_id: str | None = None,
+            include_adversarial_countercandidates: bool = True,
+        ) -> GroundingRelationCertificate:
+            certificate = super().certificate_for(
+                proposal,
+                proposal_id=proposal_id,
+                include_adversarial_countercandidates=include_adversarial_countercandidates,
+            )
+            self.owner_certificates.append(certificate)
+            return certificate
+
+    relation_engine = _RecordingGroundingRelationEngine(reference)
     capture = n4._N4SourceCapture()
     candidates, dispositions = n4._content_bound_candidates(
         design_problem=problem,
@@ -521,10 +548,57 @@ def actual_n4_source():
         repo_root=root,
         world_model_record_ref=world.world_model_record_id,
         reference=reference,
+        relation_engine=relation_engine,
         cycle_substrate_context=context,
         source_capture=capture,
     )
-    assert candidates, [(item.disposition, item.rejected_cause) for item in dispositions]
+
+    def _cg1_owner_report(certificate: GroundingRelationCertificate) -> dict[str, Any]:
+        return {
+            "proposal_id": certificate.proposal_id,
+            "certificate_id": certificate.certificate_id,
+            "content_hash": certificate.content_hash,
+            "selected_relation": certificate.selected_relation,
+            "solver_status": certificate.solver_status,
+            "solver_backend": certificate.cross_modal_witnesses.get("solver"),
+            "unsat_core_if_any": certificate.unsat_core_if_any,
+            "candidate_atom_ids": certificate.candidate_atom_ids,
+            "known_space_coverage": certificate.relation_set.get("known_space_coverage", {}),
+            "candidate_results": certificate.relation_set.get("candidate_results", ()),
+            "proposal_signature": certificate.proposal_signature,
+            "candidate_signatures": certificate.atom_signature_or_bundle,
+            "axis_witnesses": [
+                item.model_dump(mode="json") for item in certificate.axis_witnesses
+            ],
+            "critical_contradictions": certificate.critical_contradictions,
+            "unresolved_axes": certificate.unresolved_axes,
+        }
+
+    def _candidate_failure_diagnostic() -> str:
+        certificates_by_hash = {
+            certificate.content_hash: certificate
+            for certificate in relation_engine.owner_certificates
+        }
+        owner_reports = [
+            {
+                "disposition_cg1_hash": disposition.certificate_chain.cg1_content_hash,
+                "certificate": _cg1_owner_report(
+                    certificates_by_hash[disposition.certificate_chain.cg1_content_hash]
+                )
+                if disposition.certificate_chain.cg1_content_hash in certificates_by_hash
+                else None,
+            }
+            for disposition in dispositions
+        ]
+        return (
+            "actual N4 fixture expected the existing CG1 owner to identify a shadow candidate; "
+            "this direct _content_bound_candidates call does not run N4 model-profile preflight; "
+            f"owner_bound_cg1={owner_reports!r}; "
+            f"typed_dispositions="
+            f"{[item.model_dump(mode='json') for item in dispositions]!r}"
+        )
+
+    assert candidates, _candidate_failure_diagnostic()
     result = n4.GenerationUnderAResult(
         status="generated",
         design_problem_ref=problem_ref,
@@ -1155,84 +1229,81 @@ async def test_default_controller_custody_and_missing_protected_admission(
         tmp_path / "runtime"
     ).with_ambient_ownership_enforcement()
     store = guard_runtime_cas(owner_store)
-    try:
-        with tenant_scope(None, tenant_id="tenant-source-a", cell_id="cell-source-a"):
-            runtime = PromotionRuntime(store=store)
-            controller = GenerationCycleController(
-                model_id="synthetic-c2",
-                repo_root=Path(__file__).resolve().parents[4],
-                cycle_substrate_context=organ.cycle_substrate_context,
-                promotion_runtime=runtime,
-                value_port=PendingN8ValuePort(),
-                authority_scope="contract_testing",
-            )
-            run = await controller.run(
-                problem, budget_state=_budget(), min_cycles=1, max_cycles=1
-            )
-            assert run.synthetic is True
-            assert run.source_preservation_receipt.synthetic is True
-            assert run.source_preservation_receipt.status == "strangled", (
-                run.source_preservation_receipt.issues
-            )
-            assert run.source_handoff_refs
-            assert not run.promotion_port.certified_candidate_ids
-            assert controller._promotion_port(admitted_batch=None, problem=problem).reason == (
-                "epoch_validity_refused:pre_n9_admitted_batch_missing"
-            )
-            assert supplied_budgets and supplied_budgets[0] is controller._grounding_run_budget
-            for source in actual_emissions[0].candidate_sources:
-                admission = source.grounding_decision_certificate.run_admission
-                assert admission.run_id == run.run_id
-                assert admission.charged_this_attempt == 0
-            repository = controller._source_repository
-            assert repository is not None
-            assert repository.store is store
-            summary = next(
-                row
-                for row in run.candidate_summaries
-                if row.candidate_id == organ.result.candidates[0].candidate_id
-            )
-            resolved = repository.resolve(
-                refs=run.source_handoff_refs,
-                run_id=run.run_id,
-                summary=summary,
-                problem=problem,
-            )
-            assert resolved.status == "resolved", resolved.code
-            assert resolved.source_ref in run.source_handoff_refs
-            before = controller._grounding_run_budget
-            controller._restore_source_run(run)
-            assert controller._grounding_run_budget is before
-            assert tuple(controller._source_handoff_refs) == run.source_handoff_refs
-            # Repeating the actual default N4 handoff is permitted without changing the problem.
-            await controller._generate_node({"problem": problem, "cycle_index": 1})
-            assert supplied_budgets[-1] is before
-            receipt = controller._source_preservation_receipt()
-            assert receipt.status == "strangled", receipt.issues
-            retained_organ = actual_emissions[0]
-            actual_context = controller._promotion_source_context(
-                _source_summary(retained_organ), problem
-            )
-            assert (
-                actual_context["world_model_record"]
-                == organ.cycle_substrate_context.world_model_record
-            )
-            assert (
-                actual_context["effect_obligation_writer_input"].intervention_atom
-                == retained_organ.result.candidates[0].atom
-            )
+    with tenant_scope(None, tenant_id="tenant-source-a", cell_id="cell-source-a"):
+        runtime = PromotionRuntime(store=store)
+        controller = GenerationCycleController(
+            model_id="synthetic-c2",
+            repo_root=Path(__file__).resolve().parents[4],
+            cycle_substrate_context=organ.cycle_substrate_context,
+            promotion_runtime=runtime,
+            value_port=PendingN8ValuePort(),
+            authority_scope="contract_testing",
+        )
+        run = await controller.run(
+            problem, budget_state=_budget(), min_cycles=1, max_cycles=1
+        )
+        assert run.synthetic is True
+        assert run.source_preservation_receipt.synthetic is True
+        assert run.source_preservation_receipt.status == "strangled", (
+            run.source_preservation_receipt.issues
+        )
+        assert run.source_handoff_refs
+        assert not run.promotion_port.certified_candidate_ids
+        assert controller._promotion_port(admitted_batch=None, problem=problem).reason == (
+            "epoch_validity_refused:pre_n9_admitted_batch_missing"
+        )
+        assert supplied_budgets and supplied_budgets[0] is controller._grounding_run_budget
+        for source in actual_emissions[0].candidate_sources:
+            admission = source.grounding_decision_certificate.run_admission
+            assert admission.run_id == run.run_id
+            assert admission.charged_this_attempt == 0
+        repository = controller._source_repository
+        assert repository is not None
+        assert repository.store is store
+        summary = next(
+            row
+            for row in run.candidate_summaries
+            if row.candidate_id == organ.result.candidates[0].candidate_id
+        )
+        resolved = repository.resolve(
+            refs=run.source_handoff_refs,
+            run_id=run.run_id,
+            summary=summary,
+            problem=problem,
+        )
+        assert resolved.status == "resolved", resolved.code
+        assert resolved.source_ref in run.source_handoff_refs
+        before = controller._grounding_run_budget
+        controller._restore_source_run(run)
+        assert controller._grounding_run_budget is before
+        assert tuple(controller._source_handoff_refs) == run.source_handoff_refs
+        # Repeating the actual default N4 handoff is permitted without changing the problem.
+        await controller._generate_node({"problem": problem, "cycle_index": 1})
+        assert supplied_budgets[-1] is before
+        receipt = controller._source_preservation_receipt()
+        assert receipt.status == "strangled", receipt.issues
+        retained_organ = actual_emissions[0]
+        actual_context = controller._promotion_source_context(
+            _source_summary(retained_organ), problem
+        )
+        assert (
+            actual_context["world_model_record"]
+            == organ.cycle_substrate_context.world_model_record
+        )
+        assert (
+            actual_context["effect_obligation_writer_input"].intervention_atom
+            == retained_organ.result.candidates[0].atom
+        )
 
-        with tenant_scope(None, tenant_id="tenant-source-b", cell_id="cell-source-b"):
-            refused = repository.resolve(
-                refs=run.source_handoff_refs,
-                run_id=run.run_id,
-                summary=summary,
-                problem=problem,
-            )
-            assert refused.status == "not_established"
-            assert refused.code == "source_replay_failed"
-    finally:
-        owner_store.close()
+    with tenant_scope(None, tenant_id="tenant-source-b", cell_id="cell-source-b"):
+        refused = repository.resolve(
+            refs=run.source_handoff_refs,
+            run_id=run.run_id,
+            summary=summary,
+            problem=problem,
+        )
+        assert refused.status == "not_established"
+        assert refused.code == "source_replay_failed"
 
 
 @pytest.mark.asyncio

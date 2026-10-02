@@ -204,10 +204,10 @@ Supported relation rows: 19 grouped owner scopes representing 35 distinct findin
 | B147 | OBS-02 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | B148 | CAS-02 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | B149 | CAS-02 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
-| B150 | CAS-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
+| B150 | CAS-01 | — | Closed bounded to the persisted manifest-profile card behavior. All audited register/GY/Atlas target cells remain `not_established`; this is not proof of no dependency and does not close R9 as a class. |
 | B151 | CAS-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | B152 | CAS-03 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
-| B153 | CAS-01 | — | B153 has bounded local evidence but remains partial pending exception-release progress for a same-ID writer using a distinct scoped view. The complete owner-scope pass establishes no direct live register, GY, or Atlas edge; that absence is `not_established`, not proof of no dependency. No R9 closure follows. |
+| B153 | CAS-01 | — | Closed bounded to one FileSystemCAS instance and its process-local lock pool after the normal/restored whole-file controls and marker-retaining pool-removal discriminator. The owner-scope pass establishes no direct register/GY/Atlas edge; `not_established` is not proof of no dependency. No broader R9 closure follows. |
 | B154 | CAS-03 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | B155 | CAS-03 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |
 | B156 | FUN-01 | — | All target cells `not_established` after the complete owner-scope pass; this is not proof of no dependency. |

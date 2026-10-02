@@ -1,6 +1,6 @@
 {
   "schema": "policyos.e02r2.residual-ledger.v1",
-  "census_head": "b5622447f9b2eeefc95f6b4faac2016ebb84f76f",
+  "census_head": "88e6ea1618acf8510511a5baf402dea87bc1b9a0",
   "denominator": {
     "B": 225,
     "LA": 57,
@@ -8,8 +8,8 @@
     "unique": 282
   },
   "status_counts": {
-    "closed": 7,
-    "partial": 262,
+    "closed": 9,
+    "partial": 260,
     "held": 12,
     "open": 1
   },
@@ -20,7 +20,7 @@
     "no_finding_level_record": 18
   },
   "p_triage_counts": {
-    "a": 87,
+    "a": 86,
     "b": 13,
     "c": 18
   },
@@ -28,7 +28,7 @@
     "The ledger writer ran no behavioral tests; Appendix A/B attribution belongs to the baseline broker. Complete four-base P41 status remains UNRUN unless a row cites a complete four-base receipt; current-head finding-specific witnesses do not fill that matrix. E02 package receipts remain package-level context and do not independently close a finding; LA-021 has a separate bounded corpus/vector instrument.",
     "Of the 71 rows formerly labeled closed, 69 remain partial for lacking an inspectable E02 package selector/result link to the card discriminator; B150 is closed bounded on a separate direct current-head 11/11 FileSystemCAS finding-level witness. B84 remains partial for its distinct bounded historical counterexample: its exact accepted J1107 selector records the first admitted chunk exceeding both configured caps before pressure is counted; its remaining controls/replay are UNRUN. Other Appendix-C closed_bounded candidates retain their row-specific residuals. No behavior failure is inferred from evidence-only downgrades. That 782-pinned census predates the 2026-09-28 N and LA-021 reconciliation. The current combined row census at 93affc59 is 5 closed / 264 partial / 12 held / 1 open across 282 findings.",
     "The 18 Appendix-C no-record IDs retain their historical Appendix-C label. The 2026-09-28 finding-level reconciliation covers 13 rows from CYC-03, RES-02, STA-01, and SIM-03: B59 is closed bounded to declared-leaf isolation; B09 is open because a positive newly admitted-evidence discriminator is absent; the other 11 are partial. LA-021 is separately closed bounded after a complete 7,762-record tracked JSON/JSONL corpus comparison and owner behavioral tests. At the 2026-09-28 cutoff this added a second closed row (2 closed / 15 partial / 1 open among 18). The later B88 exact-card closure on 2026-09-29 moves that historical no-record group to 3 closed / 14 partial / 1 open; B09 remains the single open row. The CYC/SIM tests retain their recorded 9e0/031e execution snapshots; the LA-021 JUnits ran at 031e and its 12 owner plus five test source blobs are unchanged through 93aff (receipt cited in the LA-021 row). This is not a full four-base P41 run. Exact 418-input architect selector and 140 shared caller-file replay remain UNRUN. See row-specific source and test evidence; package acceptance and source inference are not current test passes.",
-    "Historical P118 snapshots include 77/16/25 and 87/16/15; neither is current. Current 118-row P triage is 87 engineering / 13 principal decision drafts / 18 typed blockers, as summarized in FINAL_REPORT.md. This reclassification does not change finding status or provide implementation evidence. B153 moved from c to a because its lock-pool property can be tested at the existing owner; production lifetime/cardinality remains a priority witness, not a closure prerequisite. Triage is not closure evidence, and no behavioral replay was run for B153 or the ten subsequent classification changes.",
+    "Historical P118 snapshots include 77/16/25 and 87/16/15; neither is current. The original P118 set contained 118 items; B153 was a member and is now closed bounded, leaving 117 active P items (86 engineering / 13 principal decisions / 18 typed blockers). B150 was not a member of the original P118 set. This reclassification does not change finding status or provide implementation evidence. B153 moved from c to a because its lock-pool property can be tested at the existing owner; production lifetime/cardinality remains a priority witness, not a closure prerequisite. Triage is not closure evidence, and no behavioral replay was run for B153 or the ten subsequent classification changes.",
     "H14 current add75 row walk (14 IDs): status=12 held, 2 bounded closed (LA-010, LA-049), 0 open; blocker kinds among the 12 held are owner_decision=6 (B31, B201, B202, LA-005, LA-026, LA-027), data_record=3 (B61, B219, LA-031), smallest_missing_capability=3 (B194, B197, LA-032). The LA-only migration audit memo's 6/2/4 partition places B219 in smallest_missing_capability; the separate B219 current audit and ledger row establish data_record because the pinned NetworkX 3.6.1 runtime artifact is unavailable while the implementation owner exists. This disagreement is explicit and resolved from the complete 14-row current ledger plus B219 owner audit. Current head add75e473; source census receipts: /Users/deniskopylov/.codex/scratch/e02-r2-held-la-migrations-20260927/HELD_LA_MIGRATIONS_CURRENT_HEAD_AUDIT.md@sha256:cec3e25b3bf4eedc2127160cf323663d67cad6c8a695654658d59a5746b6bf9b; /Users/deniskopylov/.codex/scratch/e02-r2-held-b194-b219-20260927/H_B194_B219_CURRENT_HEAD_AUDIT.md@sha256:3b351908c5f4b597bd942b28a4f9a1120bccf8e21e2354a50b2dff019fa5caa4. The two LA closures are bounded to in-repository owner/caller contracts; external/history compatibility is not blanket-scoped. No four-base P41 is claimed.",
     "LA-021 exception review classified four historical TypeError-to-CanonViolation deltas (malformed `_type` list/object in Core/IR encode-only) as outside the supported old-payload profile; the exact 418-input selector remains UNRUN. Receipt: /Users/deniskopylov/.codex/scratch/e02-r2-la021-exception-review-addendum-20260924.md@sha256:807db36996f6ae7cdb6126fc367a77718d4b10563cbb0144f3c5131d678bc60d.",
     "R1 N4 context is not established: _build_cycle_substrate_context_from_owner uses a separate .tmp/gy-s-composed-wmr-cas store; runtime-supplied tenant custody and caller provenance are not proven. N7 has no owner-issued post-growth context. S8 authority remains blocked while ordinary candidate computation should carry a typed unknown.",
@@ -13329,12 +13329,12 @@
       "closure_owner": "CAS-01",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "closed_bounded",
-      "status": "partial",
+      "status": "closed",
       "appendix_c_comparison": {
-          "relation": "disagrees",
-          "detail": "Appendix C retains its historical closed_bounded label. The current ledger status is partial because the exact 401fa13d full file leaves concurrent profile publication and active-waiter behavior unverified: one test times out on a retired .blob write hook, and two stop in fixture setup on retired _artifact_lock(s) members. None fails a persisted-profile or custody assertion. The file is absent at the original execution and audit bases, so these are not pass-to-fail evidence and do not establish a production regression. Retain the earlier direct-profile witness as historical. Revisit after the CAS owner migrates the behavioral witness to the root transaction coordinator and current semantics."
+        "relation": "aligned_refined",
+        "detail": "Appendix C historical closed_bounded agrees with the bounded closure. The complete file passes 18/18 in normal and restored runs; distinct typed views over identical bytes resolve to exact persisted manifests; same-profile reuse preserves the first manifest/ref; and the marker-retaining selected-view removal test is red when resolution is removed. Stripe-removal reds occur at early lease entry before ref/readback assertions, proving exclusion but not dishonest profile issuance."
       },
-      "residual": "The earlier d966d007c 11/11 direct FileSystemCAS profile witness remains historical bounded evidence. The latest available whole test_cas_01.py run at 401fa13d is 15/18; its three reds are stale harness/setup observations at retired private write/lock hooks, not failed persisted-profile or custody assertions. The concurrent publication and active-waiter properties remain unverified on the root transaction coordinator, and the current-only run gives no pass-to-fail attribution. Keep partial pending the CAS owner’s transaction-aware replacement witness; do not restore retired per-instance aliases, classify the reds as inherited, or call them a proven production defect. Broader consumer selection, custody/backends and the four-base replay remain open.",
+      "residual": "No open residual within the source-card scope. Broader R9 consumers/backends/custody and the lane-wide four-base P41 matrix are separate; no class-level R9 closure or regression ownership is inferred.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "E02-R2 four-base baseline broker for the full-file replay; CAS-01 owner for broader R9 consumers/backends",
@@ -13344,16 +13344,24 @@
       "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
-          "identity": "B150 direct CAS manifest-view discriminator and controls at d966d007c",
-          "kind": "bounded_behavioral_test_receipt",
-          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R9_B150_DIRECT_CURRENT.junit.xml@sha256:29c60011605e65e6a8b335661779327cd3975c5aae1a60857ae76877efe01095",
+          "kind": "bounded_current_head_behavioral_witness",
+          "identity": "B150 persisted FileSystemCAS manifest-profile view and selected-view removal discriminator; complete current file at 88e6",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:454e8d432fe630ddf1f9cb6f6161e5e50bb8d70e71d864e69d86e0a5b5ec2c62",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "The complete tests/unit/remediation/test_cas_01.py file passes 11/11. The exact positive proves distinct typed manifest profiles for one blob; same-profile reuse is the preserving control; the selected-view resolution removal probe turns red while both sidecars remain; selectorless projection and historical-signature controls preserve history. The receipt is at ancestor source state d966d007c; the 077147d86 commit only changes B219 graph source/tests and coordination documentation. This direct view behavior does not complete R9 consumers/backends/custody or four-base P41.",
-          "package_test_selector_groups": [],
+          "scope": "test_distinct_profiles_get_honest_views_of_one_blob asserts two exact honest manifests for identical bytes and byte identity; test_reuse_with_same_profile_preserves_first_manifest_and_ref is the positive control; test_view_resolution_removal_fails_with_both_sidecars_present is the marker-retaining removal probe. Concurrent write cases pass with the runtime coordinator. Stripe removal establishes exclusion only.",
           "witness_refs": [
-            "/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R9_B150_DIRECT_CURRENT.junit.xml@sha256:29c60011605e65e6a8b335661779327cd3975c5aae1a60857ae76877efe01095",
-            "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:997cecb2871b696ac4076464af5edd8c9ff1224a"
-          ]
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:454e8d432fe630ddf1f9cb6f6161e5e50bb8d70e71d864e69d86e0a5b5ec2c62",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:4d1b17bde96cf9bd20c1bb7c62434ed16e20c7106b627619d9ffeba45960973e",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:2b6a21faba5329228a961f5c5a7d1b8230c78e0bccf05ac117f8b12ac3615a41",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:5d691800af275814aebf1e2558fb1713fcff97b9752dbd9553229d3d518a5fd7",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:03cedce8db4690326ffd0a99f6b0ebbfb9fccfcacec3431433f0b2a85ae721c5",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:8441ee10a6cb706080ca3c83e768725b02882502a627aeed8c9d554c024fddbe",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:d1efbfea495c0ce32961f34b4b598f8f27e27b82f0e5c980a74dcf0a89b1164a",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:72f39c7f3160076e6a9c3c99fcb678ae9834b29610ec4960df61e5581e11a7bd",
+            "/Users/deniskopylov/.codex/scratch/E02R2_LEDGER_INDEPENDENT_REVIEW_20261002.md@sha256:34ac4864328be028f9b786ef62a39243def9afed2f959a74eaa1e6230019f5f8",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CAS01_B150_B153_CLASSIFICATION_20261001_FINAL.md@sha256:e07c01c76f48bb5edb5efd47d6d19e746ee9bf1f525f450c5608fe7810d17d42"
+          ],
+          "four_base_p41": "UNRUN"
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": "R9",
@@ -13386,7 +13394,6 @@
           "scope": "No inspectable selector-to-result mapping was found for the source-card discriminator 'Возвращаемая ссылка обещает профиль новой записи, а сохранённый манифест остаётся первым' (criterion excerpt: 'S/M.'). Package selector groups are bundle-level only; this source/receipt reconciliation does not run behavior.",
           "package_test_selector_groups": []
         },
-
         "current_wholefile_401fa_20261001": {
           "identity": "B150 current full test_cas_01.py file at integration 401fa13d",
           "kind": "whole_file_current_head_result",
@@ -13415,6 +13422,18 @@
           "behavioral_verdict": "FAIL",
           "regression_ownership": "NO_PASS_TO_FAIL_BASELINE; current behavior not established",
           "scope": "Single current whole file; no four-base or regression ownership claim."
+        },
+        "prior_finding_test_or_probe_before_2026_10_02": {
+          "identity": "B150 direct CAS manifest-view discriminator and controls at d966d007c",
+          "kind": "bounded_behavioral_test_receipt",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R9_B150_DIRECT_CURRENT.junit.xml@sha256:29c60011605e65e6a8b335661779327cd3975c5aae1a60857ae76877efe01095",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "The complete tests/unit/remediation/test_cas_01.py file passes 11/11. The exact positive proves distinct typed manifest profiles for one blob; same-profile reuse is the preserving control; the selected-view resolution removal probe turns red while both sidecars remain; selectorless projection and historical-signature controls preserve history. The receipt is at ancestor source state d966d007c; the 077147d86 commit only changes B219 graph source/tests and coordination documentation. This direct view behavior does not complete R9 consumers/backends/custody or four-base P41.",
+          "package_test_selector_groups": [],
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/e02-r7-fixture-current-20260927/R9_B150_DIRECT_CURRENT.junit.xml@sha256:29c60011605e65e6a8b335661779327cd3975c5aae1a60857ae76877efe01095",
+            "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:997cecb2871b696ac4076464af5edd8c9ff1224a"
+          ]
         }
       },
       "r9_projection_owner_review_20260927": {
@@ -13433,6 +13452,95 @@
           "serve a named production v2 producer and all readers or prevent v2 emission until readers migrate"
         ],
         "p40": "Treat downstream v2 rejection as the same R9 projection class. Stop per-site serializer patches; widen the owner path or retain this bounded residual."
+      },
+      "finding_test_status": "PASS_BOUNDED",
+      "current_wholefile_88e6": {
+        "execution_head": "88e6ea1618acf8510511a5baf402dea87bc1b9a0",
+        "test_source": "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:9b9898162c7f32190af9b17be8a4706b57c5782f",
+        "classification_review": "/Users/deniskopylov/.codex/scratch/E02R2_CAS01_B150_B153_CLASSIFICATION_20261001_FINAL.md@sha256:e07c01c76f48bb5edb5efd47d6d19e746ee9bf1f525f450c5608fe7810d17d42",
+        "independent_ledger_review": "/Users/deniskopylov/.codex/scratch/E02R2_LEDGER_INDEPENDENT_REVIEW_20261002.md@sha256:34ac4864328be028f9b786ef62a39243def9afed2f959a74eaa1e6230019f5f8",
+        "runs": [
+          {
+            "variant": "cas01-whole18-default-off-88e6-v2-20261001T200418195625Z",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "cases": 18,
+            "counts": {
+              "passed": 18
+            },
+            "behavior_verdict": "PASS",
+            "readback_verdict": "PASS",
+            "result": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/result.json@sha256:5a2a7813a62f4eeb64c71c4d9b28941f2b2d733d3587fce1db8810b2e7dd3ef5",
+            "root_readback": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:454e8d432fe630ddf1f9cb6f6161e5e50bb8d70e71d864e69d86e0a5b5ec2c62",
+            "junit": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:03cedce8db4690326ffd0a99f6b0ebbfb9fccfcacec3431433f0b2a85ae721c5",
+            "source_freeze": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/source-freeze.json@sha256:3cb7a5b6223d78d4edda8ca20047754b52ebdb44b4cbcbfb01eecb07bcd497a9",
+            "input_denominator": 6733,
+            "loaded_modules": 63,
+            "support_modules": 5,
+            "elapsed_seconds": 3.144
+          },
+          {
+            "variant": "cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "cases": 18,
+            "counts": {
+              "passed": 15,
+              "failed": 3
+            },
+            "behavior_verdict": "FAIL",
+            "readback_verdict": "PASS",
+            "result": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/result.json@sha256:ee143c54ece72ed85288d5c3d83cc68543dd0c1d787d0b7b8ba4ca5e063ae8d2",
+            "root_readback": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:4d1b17bde96cf9bd20c1bb7c62434ed16e20c7106b627619d9ffeba45960973e",
+            "junit": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:8441ee10a6cb706080ca3c83e768725b02882502a627aeed8c9d554c024fddbe",
+            "source_freeze": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/source-freeze.json@sha256:3cb7a5b6223d78d4edda8ca20047754b52ebdb44b4cbcbfb01eecb07bcd497a9",
+            "input_denominator": 6733,
+            "loaded_modules": 63,
+            "support_modules": 5,
+            "elapsed_seconds": 2.116
+          },
+          {
+            "variant": "cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "cases": 18,
+            "counts": {
+              "passed": 17,
+              "failed": 1
+            },
+            "behavior_verdict": "FAIL",
+            "readback_verdict": "PASS",
+            "result": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/result.json@sha256:782a95e545da55ba20b862beac72c5a08dc8843f02ac19ee1b764d3b2442532a",
+            "root_readback": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:2b6a21faba5329228a961f5c5a7d1b8230c78e0bccf05ac117f8b12ac3615a41",
+            "junit": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:d1efbfea495c0ce32961f34b4b598f8f27e27b82f0e5c980a74dcf0a89b1164a",
+            "source_freeze": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/source-freeze.json@sha256:3cb7a5b6223d78d4edda8ca20047754b52ebdb44b4cbcbfb01eecb07bcd497a9",
+            "input_denominator": 6733,
+            "loaded_modules": 63,
+            "support_modules": 5,
+            "elapsed_seconds": 4.222
+          },
+          {
+            "variant": "cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "cases": 18,
+            "counts": {
+              "passed": 18
+            },
+            "behavior_verdict": "PASS",
+            "readback_verdict": "PASS",
+            "result": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/result.json@sha256:0c952061f648fa01c5f9e72b4cdbd956956c08d0fab098c057ef43e44e73631e",
+            "root_readback": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:5d691800af275814aebf1e2558fb1713fcff97b9752dbd9553229d3d518a5fd7",
+            "junit": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:72f39c7f3160076e6a9c3c99fcb678ae9834b29610ec4960df61e5581e11a7bd",
+            "source_freeze": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/source-freeze.json@sha256:3cb7a5b6223d78d4edda8ca20047754b52ebdb44b4cbcbfb01eecb07bcd497a9",
+            "input_denominator": 6733,
+            "loaded_modules": 63,
+            "support_modules": 5,
+            "elapsed_seconds": 3.145
+          }
+        ],
+        "scope": "One FileSystemCAS owner/card only. Does not establish four-base P41, close broader R9, cover other backends/consumers, or make a production resource-savings claim."
+      },
+      "current_r2_replay": {
+        "identity": "four-base whole-file P41 replay at execution, E02 head, main and current integration",
+        "behavioral_verdict": "UNRUN",
+        "scope": "Only the complete current integration file at 88e6 is recorded here; regression attribution remains unestablished."
       }
     },
     {
@@ -13708,35 +13816,39 @@
       "closure_owner": "CAS-01",
       "mapping_ref": "finding_to_bundle",
       "appendix_c_status": "partial",
-      "status": "partial",
+      "status": "closed",
       "appendix_c_comparison": {
-        "relation": "aligned_refined",
-        "detail": "Appendix C partial status is retained and refined. The source card is explicitly per-FileSystemCAS-instance. The fixed-pool mechanism, 3,000-ID bound, same-ID exclusion, collision/readback behavior, and scoped-view waiter progress after an exception now have bounded current-head evidence. The exception-release selector passes with the production lock behavior and turns red under a marker-retaining success-only-release mutation. No cross-process or distributed lock is required or claimed. Keep the finding partial because representative long-lived production workload and production RSS/throughput effects are not measured, and the added selector has no four-base replay. This does not close the broader R9 consumer/backend/custody class."
+        "relation": "disagrees",
+        "detail": "Appendix C partial is historical: it predates the exception-release scoped-view waiter discriminator. The whole file passes 18/18 in normal/restored runs; the 3,000-ID lease case checks actual fixed-pool acquisition and active same-ID exclusion; collision/readback and exception-release waiter cases pass. The marker-retaining pool-removal mutant turns the table acquisition assertion red (0 vs 3,000). Close only the single-FileSystemCAS-instance process-local card scope; distributed locks and production RSS/throughput are not card requirements."
       },
-      "residual": "Partial; one FileSystemCAS instance has a fixed returned-lock pool that remains bounded across 3,000 deterministic IDs; same-ID exclusion, collision byte/manifest readback, and recovery of a distinct scoped-view writer after a holder exception are verified. The targeted selector's normal control passes 1/1; a marker-retaining mutation that omits release on exceptional exit fails 1/1 at the waiting-writer outcome. The complete test file passes 18/18 at 14091ba031c7ab9b10cc677aef8068dc72018063. B153's source-card scope is process-local to one CAS instance; no cross-process service is required. Remaining evidence: a named representative long-lived production workload and measured production RSS/throughput effects; the added selector is current-head evidence only, not a four-base replay. No broader R9 consumer/backend/custody closure is claimed.",
+      "residual": "No open residual within the source-card scope. Broader R9 consumers/backends/custody and the lane-wide four-base P41 matrix are separate; no class-level R9 closure or regression ownership is inferred.",
       "residual_owner": {
         "kind": "verification_owner",
         "name": "FileSystemCAS lock owner and tests/unit/remediation/test_cas_01.py witness owner",
         "appointment_status": "The fixed-pool mechanism and same-ID exceptional scoped-view waiter discriminator are authored, independently reviewed, and verified at current head. Remaining measurement work is representative long-lived single-process production workload and RSS/throughput effects if those savings are claimed. Owner role is identified; no individual appointment is claimed, and no distributed-lock owner is required by this finding."
       },
       "r_class": null,
-      "p_triage": {
-        "class": "a",
-        "disposition": "engineering",
-        "owner": "FileSystemCAS lock owner and tests/unit/remediation/test_cas_01.py witness owner",
-        "blocker_kind": null,
-        "next_step": "If claiming deployed resource savings, identify a representative long-lived single-process CAS workload and measure per-instance lock-pool residency plus throughput/RSS effects. The exception-release/scoped-view behavioral discriminator is already witnessed. Record any remaining four-base attribution for the added selector; do not build a distributed lock service for this source-card scope or infer wider R9 closure.",
-        "scope": "The B153 bounded in-process mechanism and exception-release acceptance now have current-head behavioral evidence. Partial status remains for the unmeasured representative production workload/resource effect and current-only attribution of the added selector.",
-        "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/PARTIAL_TRIAGE.md@git-blob:478fcba12a67e15990292e637358fbb1f5821f0b#B153"
-      },
+      "p_triage": null,
       "evidence_refs": {
         "finding_test_or_probe": {
           "kind": "bounded_current_head_behavioral_witness",
-          "identity": "B153 complete CAS-01 test file and same-ID scoped-view waiter after exceptional writer exit; control plus marker-retaining removal",
-          "path_at_sha": "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:aaf39987f1898f6bf5a4157dc0bec73867b30888#test_exception_releases_same_id_lock_for_scoped_view_waiter; /Users/deniskopylov/.codex/scratch/e02-b153-removal-probe-20260930/B153_removal_probe.receipt.json@sha256:ee6ddcfa8431373eec69a99a7d5a6996de71d6c8669dc6cde718fab7745e526a",
+          "identity": "B153 process-local bounded lock pool under 3,000 distinct IDs, same-ID waiter/collision/exception cases, and marker-retaining pool removal; complete current file at 88e6",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:454e8d432fe630ddf1f9cb6f6161e5e50bb8d70e71d864e69d86e0a5b5ec2c62",
           "behavioral_verdict": "PASS_BOUNDED",
-          "scope": "Complete file 18/18 at current HEAD; exact selector normal control passes and verifies scoped-view readback; exception-release removal mutant turns red at waiting-writer outcome. One FileSystemCAS instance only. No long-lived production workload/RSS measure or four-base replay of the added selector.",
-          "package_test_selector_groups": []
+          "scope": "test_lock_registry_is_bounded_without_evicting_active_waiters observes 3,000 deterministic IDs and same-ID exclusion; collision and exception-release scoped-view waiter tests pass. Pool removal leaves markers but causes the actual owner-table acquisition assertion to fail (0 vs 3,000). No production RSS/throughput, cross-process, or four-base claim.",
+          "witness_refs": [
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:454e8d432fe630ddf1f9cb6f6161e5e50bb8d70e71d864e69d86e0a5b5ec2c62",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:4d1b17bde96cf9bd20c1bb7c62434ed16e20c7106b627619d9ffeba45960973e",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:2b6a21faba5329228a961f5c5a7d1b8230c78e0bccf05ac117f8b12ac3615a41",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:5d691800af275814aebf1e2558fb1713fcff97b9752dbd9553229d3d518a5fd7",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:03cedce8db4690326ffd0a99f6b0ebbfb9fccfcacec3431433f0b2a85ae721c5",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:8441ee10a6cb706080ca3c83e768725b02882502a627aeed8c9d554c024fddbe",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:d1efbfea495c0ce32961f34b4b598f8f27e27b82f0e5c980a74dcf0a89b1164a",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:72f39c7f3160076e6a9c3c99fcb678ae9834b29610ec4960df61e5581e11a7bd",
+            "/Users/deniskopylov/.codex/scratch/E02R2_LEDGER_INDEPENDENT_REVIEW_20261002.md@sha256:34ac4864328be028f9b786ef62a39243def9afed2f959a74eaa1e6230019f5f8",
+            "/Users/deniskopylov/.codex/scratch/E02R2_CAS01_B150_B153_CLASSIFICATION_20261001_FINAL.md@sha256:e07c01c76f48bb5edb5efd47d6d19e746ee9bf1f525f450c5608fe7810d17d42"
+          ],
+          "four_base_p41": "UNRUN"
         },
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
@@ -13859,9 +13971,105 @@
             "broader R9 consumer/backend/custody closure is not claimed",
             "cross-process/distributed locking is not required by B153"
           ]
+        },
+        "prior_finding_test_or_probe_before_2026_10_02": {
+          "kind": "bounded_current_head_behavioral_witness",
+          "identity": "B153 complete CAS-01 test file and same-ID scoped-view waiter after exceptional writer exit; control plus marker-retaining removal",
+          "path_at_sha": "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:aaf39987f1898f6bf5a4157dc0bec73867b30888#test_exception_releases_same_id_lock_for_scoped_view_waiter; /Users/deniskopylov/.codex/scratch/e02-b153-removal-probe-20260930/B153_removal_probe.receipt.json@sha256:ee6ddcfa8431373eec69a99a7d5a6996de71d6c8669dc6cde718fab7745e526a",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "scope": "Complete file 18/18 at current HEAD; exact selector normal control passes and verifies scoped-view readback; exception-release removal mutant turns red at waiting-writer outcome. One FileSystemCAS instance only. No long-lived production workload/RSS measure or four-base replay of the added selector.",
+          "package_test_selector_groups": []
         }
       },
-      "finding_test_status": "PASS_BOUNDED"
+      "finding_test_status": "PASS_BOUNDED",
+      "current_wholefile_88e6": {
+        "execution_head": "88e6ea1618acf8510511a5baf402dea87bc1b9a0",
+        "test_source": "policy-engine/tests/unit/remediation/test_cas_01.py@git-blob:9b9898162c7f32190af9b17be8a4706b57c5782f",
+        "classification_review": "/Users/deniskopylov/.codex/scratch/E02R2_CAS01_B150_B153_CLASSIFICATION_20261001_FINAL.md@sha256:e07c01c76f48bb5edb5efd47d6d19e746ee9bf1f525f450c5608fe7810d17d42",
+        "independent_ledger_review": "/Users/deniskopylov/.codex/scratch/E02R2_LEDGER_INDEPENDENT_REVIEW_20261002.md@sha256:34ac4864328be028f9b786ef62a39243def9afed2f959a74eaa1e6230019f5f8",
+        "runs": [
+          {
+            "variant": "cas01-whole18-default-off-88e6-v2-20261001T200418195625Z",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "cases": 18,
+            "counts": {
+              "passed": 18
+            },
+            "behavior_verdict": "PASS",
+            "readback_verdict": "PASS",
+            "result": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/result.json@sha256:5a2a7813a62f4eeb64c71c4d9b28941f2b2d733d3587fce1db8810b2e7dd3ef5",
+            "root_readback": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:454e8d432fe630ddf1f9cb6f6161e5e50bb8d70e71d864e69d86e0a5b5ec2c62",
+            "junit": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:03cedce8db4690326ffd0a99f6b0ebbfb9fccfcacec3431433f0b2a85ae721c5",
+            "source_freeze": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-default-off-88e6-v2-20261001T200418195625Z/source-freeze.json@sha256:3cb7a5b6223d78d4edda8ca20047754b52ebdb44b4cbcbfb01eecb07bcd497a9",
+            "input_denominator": 6733,
+            "loaded_modules": 63,
+            "support_modules": 5,
+            "elapsed_seconds": 3.144
+          },
+          {
+            "variant": "cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "cases": 18,
+            "counts": {
+              "passed": 15,
+              "failed": 3
+            },
+            "behavior_verdict": "FAIL",
+            "readback_verdict": "PASS",
+            "result": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/result.json@sha256:ee143c54ece72ed85288d5c3d83cc68543dd0c1d787d0b7b8ba4ca5e063ae8d2",
+            "root_readback": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:4d1b17bde96cf9bd20c1bb7c62434ed16e20c7106b627619d9ffeba45960973e",
+            "junit": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:8441ee10a6cb706080ca3c83e768725b02882502a627aeed8c9d554c024fddbe",
+            "source_freeze": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-stripe-exclusion-removal-88e6-v5only-20261001T200609704935Z/source-freeze.json@sha256:3cb7a5b6223d78d4edda8ca20047754b52ebdb44b4cbcbfb01eecb07bcd497a9",
+            "input_denominator": 6733,
+            "loaded_modules": 63,
+            "support_modules": 5,
+            "elapsed_seconds": 2.116
+          },
+          {
+            "variant": "cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "cases": 18,
+            "counts": {
+              "passed": 17,
+              "failed": 1
+            },
+            "behavior_verdict": "FAIL",
+            "readback_verdict": "PASS",
+            "result": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/result.json@sha256:782a95e545da55ba20b862beac72c5a08dc8843f02ac19ee1b764d3b2442532a",
+            "root_readback": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:2b6a21faba5329228a961f5c5a7d1b8230c78e0bccf05ac117f8b12ac3615a41",
+            "junit": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:d1efbfea495c0ce32961f34b4b598f8f27e27b82f0e5c980a74dcf0a89b1164a",
+            "source_freeze": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-bounded-pool-removal-88e6-v5only-20261001T200911250476Z/source-freeze.json@sha256:3cb7a5b6223d78d4edda8ca20047754b52ebdb44b4cbcbfb01eecb07bcd497a9",
+            "input_denominator": 6733,
+            "loaded_modules": 63,
+            "support_modules": 5,
+            "elapsed_seconds": 4.222
+          },
+          {
+            "variant": "cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z",
+            "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+            "cases": 18,
+            "counts": {
+              "passed": 18
+            },
+            "behavior_verdict": "PASS",
+            "readback_verdict": "PASS",
+            "result": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/result.json@sha256:0c952061f648fa01c5f9e72b4cdbd956956c08d0fab098c057ef43e44e73631e",
+            "root_readback": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:5d691800af275814aebf1e2558fb1713fcff97b9752dbd9553229d3d518a5fd7",
+            "junit": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/cells/current_explicit/test_cas_01-d1a780141739.junit.xml@sha256:72f39c7f3160076e6a9c3c99fcb678ae9834b29610ec4960df61e5581e11a7bd",
+            "source_freeze": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/cas01-whole18-restored-env-unset-88e6-v2-20261001T201521331202Z/source-freeze.json@sha256:3cb7a5b6223d78d4edda8ca20047754b52ebdb44b4cbcbfb01eecb07bcd497a9",
+            "input_denominator": 6733,
+            "loaded_modules": 63,
+            "support_modules": 5,
+            "elapsed_seconds": 3.145
+          }
+        ],
+        "scope": "One FileSystemCAS owner/card only. Does not establish four-base P41, close broader R9, cover other backends/consumers, or make a production resource-savings claim."
+      },
+      "current_r2_replay": {
+        "identity": "four-base whole-file P41 replay at execution, E02 head, main and current integration",
+        "behavioral_verdict": "UNRUN",
+        "scope": "Only the complete current integration file at 88e6 is recorded here; regression attribution remains unestablished."
+      }
     },
         {
       "id": "B154",

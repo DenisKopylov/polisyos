@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import os
 import sys
+from dataclasses import replace
 
 
 def test_common_config_import_is_side_effect_free(monkeypatch) -> None:
@@ -61,3 +62,33 @@ def test_validate_process_bootstrap_detects_conflicting_jax_platforms() -> None:
     conflicts = config_module.validate_process_bootstrap_config(config)
 
     assert conflicts == ["JAX_PLATFORM_NAME must be included in JAX_PLATFORMS when both are set"]
+
+
+def test_cp_sat_worker_budget_is_positive_and_within_allowed_cores() -> None:
+    config_module = importlib.import_module("polisyos.common.config")
+
+    for total_cores in (1, 4, 8, 16):
+        config = config_module.build_process_bootstrap_config(
+            env={}, total_cores=total_cores
+        )
+
+        assert config.cp_sat_num_search_workers == 1
+        assert 1 <= config.cp_sat_num_search_workers <= config.allowed_cores
+        assert config_module.validate_process_bootstrap_config(config) == []
+
+
+def test_cp_sat_worker_budget_rejects_invalid_values() -> None:
+    config_module = importlib.import_module("polisyos.common.config")
+    config = config_module.build_process_bootstrap_config(env={}, total_cores=8)
+
+    nonpositive = replace(config, cp_sat_num_search_workers=0)
+    over_budget = replace(
+        config, cp_sat_num_search_workers=config.allowed_cores + 1
+    )
+
+    assert "cp_sat_num_search_workers must be >= 1" in (
+        config_module.validate_process_bootstrap_config(nonpositive)
+    )
+    assert "cp_sat_num_search_workers must not exceed allowed_cores" in (
+        config_module.validate_process_bootstrap_config(over_budget)
+    )

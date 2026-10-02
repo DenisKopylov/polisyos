@@ -625,8 +625,13 @@ class GroundingRelationEngine:
         model.Add(score == _soft_score_basis_points(hypothesis.signature))
         model.Maximize(score)
 
+        from polisyos.common.config import build_process_bootstrap_config
+
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = 5.0
+        solver.parameters.num_search_workers = (
+            build_process_bootstrap_config().cp_sat_num_search_workers
+        )
         status = solver.Solve(model)
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             return _SolverResult(

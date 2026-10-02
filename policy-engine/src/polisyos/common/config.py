@@ -53,6 +53,7 @@ class ProcessBootstrapConfig:
     total_cores: int
     reserved_cores: int
     allowed_cores: int
+    cp_sat_num_search_workers: int
     log_level: str
     duckdb_memory_limit: str
     duckdb_threads: int
@@ -221,6 +222,7 @@ def build_process_bootstrap_config(
         total_cores=cores,
         reserved_cores=reserved_cores,
         allowed_cores=allowed_cores,
+        cp_sat_num_search_workers=1,
         log_level=(source.get("LOG_LEVEL", "DEBUG").strip() or "DEBUG"),
         duckdb_memory_limit=(source.get("DUCKDB_MEMORY_LIMIT", "4GB").strip() or "4GB"),
         duckdb_threads=max(1, parse_int(source.get("DUCKDB_THREADS"), allowed_cores)),
@@ -268,6 +270,10 @@ def validate_process_bootstrap_config(config: ProcessBootstrapConfig) -> list[st
         conflicts.append("DUCKDB_THREADS must be >= 1")
     if config.allowed_cores < 1:
         conflicts.append("allowed_cores must remain >= 1")
+    if config.cp_sat_num_search_workers < 1:
+        conflicts.append("cp_sat_num_search_workers must be >= 1")
+    elif config.cp_sat_num_search_workers > config.allowed_cores:
+        conflicts.append("cp_sat_num_search_workers must not exceed allowed_cores")
     if config.jax_platform_name and config.jax_platforms:
         platforms = {
             token.strip().lower() for token in config.jax_platforms.split(",") if token.strip()

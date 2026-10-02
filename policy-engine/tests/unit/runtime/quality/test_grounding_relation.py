@@ -42,7 +42,38 @@ class AlwaysSupportsWitnessProvider:
         )
 
 
-def test_synonym_alias_resolves_without_surface_exact_match() -> None:
+def _record_cp_sat_parameters(monkeypatch):
+    """Observe the parameters passed to the real CP-SAT solver."""
+    from ortools.sat.python import cp_model
+
+    real_solver = cp_model.CpSolver
+    observed: list[tuple[int, float]] = []
+
+    class RecordingSolver:
+        def __init__(self) -> None:
+            self._solver = real_solver()
+            self.parameters = self._solver.parameters
+
+        def Solve(self, model, solution_callback=None):  # noqa: N802 - OR-Tools API
+            observed.append(
+                (
+                    self.parameters.num_search_workers,
+                    self.parameters.max_time_in_seconds,
+                )
+            )
+            return self._solver.Solve(model, solution_callback)
+
+        def __getattr__(self, name: str):
+            return getattr(self._solver, name)
+
+    monkeypatch.setattr(cp_model, "CpSolver", RecordingSolver)
+    return observed
+
+
+def test_synonym_alias_resolves_without_surface_exact_match(monkeypatch) -> None:
+    from polisyos.common.config import build_process_bootstrap_config
+
+    observed = _record_cp_sat_parameters(monkeypatch)
     engine = _engine()
     cert = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="unit-synonym")
 
@@ -52,6 +83,54 @@ def test_synonym_alias_resolves_without_surface_exact_match() -> None:
     assert cert.axis_witnesses
     assert _axis_relations(cert)["op"] == "equivalent"
     assert _axis_relations(cert)["target"] == "equivalent"
+    expected_workers = build_process_bootstrap_config().cp_sat_num_search_workers
+    assert observed
+    assert all(workers == expected_workers == 1 for workers, _ in observed)
+    assert all(timeout == 5.0 for _, timeout in observed)
+
+
+def test_cp_sat_unknown_remains_unknown_under_worker_budget(monkeypatch) -> None:
+    from ortools.sat.python import cp_model
+
+    from polisyos.common.config import build_process_bootstrap_config
+
+    real_solver = cp_model.CpSolver
+    observed: list[tuple[int, float]] = []
+
+    class UnknownSolver:
+        def __init__(self) -> None:
+            self._solver = real_solver()
+            self.parameters = self._solver.parameters
+
+        def Solve(self, model, solution_callback=None):  # noqa: N802 - OR-Tools API
+            del model, solution_callback
+            observed.append(
+                (
+                    self.parameters.num_search_workers,
+                    self.parameters.max_time_in_seconds,
+                )
+            )
+            return cp_model.UNKNOWN
+
+        def __getattr__(self, name: str):
+            return getattr(self._solver, name)
+
+    monkeypatch.setattr(cp_model, "CpSolver", UnknownSolver)
+    engine = _engine()
+    proposal = parse_n4_proposal(
+        _pure_synonym_probe(engine),
+        proposal_id="unit-cp-sat-unknown",
+        reference=engine.reference,
+    )
+
+    result = engine._solve_joint_cross_modal(proposal.hypotheses[0])
+
+    expected_workers = build_process_bootstrap_config().cp_sat_num_search_workers
+    assert result.status == "UNKNOWN"
+    assert result.unsat_core == ("cp_sat_timeout_or_unknown",)
+    assert result.cross_modal_witnesses is not None
+    assert result.cross_modal_witnesses["solver"] == "ortools_cp_sat"
+    assert observed == [(expected_workers, 5.0)]
 
 
 def test_concrete_alias_is_certified_specialization() -> None:
@@ -76,7 +155,10 @@ def test_false_analog_is_vetoed_not_bound() -> None:
     )
 
 
-def test_joint_cross_modal_inconsistency_blocks_with_unsat_core() -> None:
+def test_joint_cross_modal_inconsistency_blocks_with_unsat_core(monkeypatch) -> None:
+    from polisyos.common.config import build_process_bootstrap_config
+
+    observed = _record_cp_sat_parameters(monkeypatch)
     cert = _engine().certificate_for(_greedy_inconsistent_probe(), proposal_id="unit-greedy")
 
     assert cert.selected_relation == "blocked"
@@ -87,6 +169,10 @@ def test_joint_cross_modal_inconsistency_blocks_with_unsat_core() -> None:
         "knob_maps_to(tax_relief_rate, government.balance)" in item
         for item in cert.unsat_core_if_any
     )
+    expected_workers = build_process_bootstrap_config().cp_sat_num_search_workers
+    assert observed
+    assert all(workers == expected_workers == 1 for workers, _ in observed)
+    assert all(timeout == 5.0 for _, timeout in observed)
 
 
 def test_gy_k_witness_does_not_decide_relation() -> None:

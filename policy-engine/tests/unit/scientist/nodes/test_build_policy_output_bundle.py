@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -407,7 +408,9 @@ def test_build_policy_output_bundle_skips_outside_policy_mode(execution_context,
     assert outcome.status == "skip"
 
 
-def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state, cas_store):
+def test_build_policy_output_bundle_writes_refs(
+    execution_context, minimal_state, cas_store, monkeypatch
+):
     candidate = _candidate()
     welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
     state = minimal_state.model_copy(deep=True)
@@ -430,6 +433,34 @@ def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state
     assert ownerless.status == "fail"
     assert ownerless.error is not None
     assert ownerless.error.code == "claim_ledger_owner_not_established"
+
+    mutant = os.environ.get("POLISYOS_B111_FALLBACK_MUTANT")
+    if mutant not in (None, "membership"):
+        raise ValueError(f"Unsupported B111 fallback mutant: {mutant}")
+    if mutant == "membership":
+        build_frontier_report = PolicyArtifactBuilder._build_frontier_report
+
+        def _without_fallback_membership(builder, build_input):
+            report = build_frontier_report(builder, build_input)
+            if (
+                build_input.pareto_snapshot is None
+                and build_input.run_local_frontier_report_ref is None
+            ):
+                assert report.schema_version == "3.0"
+                assert report.source_feasible_candidate_hashes == ()
+                limited = report.view_projections["global_feasible"]
+                assert limited.assessment.status == "basis_limited"
+                assert limited.assessment.basis_scope.scope == "not_established"
+                payload = report.model_dump(mode="python")
+                payload["view_membership"] = {}
+                return type(report).model_validate(payload)
+            return report
+
+        monkeypatch.setattr(
+            PolicyArtifactBuilder,
+            "_build_frontier_report",
+            _without_fallback_membership,
+        )
 
     outcome = BuildPolicyOutputBundleNode().execute(
         _claim_capable_context(execution_context), state

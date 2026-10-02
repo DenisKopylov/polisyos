@@ -334,6 +334,11 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
             identity=producer_identities[name],
         )
 
+    signed_fixture_artifacts: dict[
+        tuple[bytes, tuple[str, str, str, str, str, str]],
+        dict[str, object],
+    ] = {}
+
     def _persist_model(
         payload: Any,
         *,
@@ -343,7 +348,46 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         schema_version: str,
         sign: bool = True,
     ) -> str:
-        return _persist_signed(
+        payload_bytes = _fixture_payload_bytes(payload, kind=kind)
+        writer_profile = (
+            family,
+            kind,
+            schema_name,
+            schema_version,
+            producer_identities[family],
+            signers[family].key_id,
+        )
+        cache_key = (payload_bytes, writer_profile)
+        if sign:
+            previous = signed_fixture_artifacts.get(cache_key)
+            if previous is not None:
+                artifact_ref = str(previous["reference"])
+                current = _fixture_artifact_profile(
+                    artifact_ref,
+                    payload_bytes,
+                    family=family,
+                    kind=kind,
+                    schema_name=schema_name,
+                    schema_version=schema_version,
+                )
+                if (
+                    current["writer"] != writer_profile
+                    or current["manifest_sha256"] != previous["manifest_sha256"]
+                    or current["signature_sha256"] != previous["signature_sha256"]
+                ):
+                    raise AssertionError(
+                        "fixture reuse found a changed manifest profile or signature"
+                    )
+                return artifact_ref
+        elif any(
+            previous["payload_bytes"] == payload_bytes
+            for previous in signed_fixture_artifacts.values()
+        ):
+            raise AssertionError(
+                "unsigned fixture write would reuse bytes already held by a signed artifact"
+            )
+
+        artifact_ref = _persist_signed(
             harness,
             payload,
             kind=kind,
@@ -358,8 +402,19 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
                 else None
             ),
         )
-
-    initial_signed_artifacts: dict[str, dict[str, object]] = {}
+        if sign:
+            profile = _fixture_artifact_profile(
+                artifact_ref,
+                payload_bytes,
+                family=family,
+                kind=kind,
+                schema_name=schema_name,
+                schema_version=schema_version,
+            )
+            if profile["writer"] != writer_profile:
+                raise AssertionError("fixture writer profile changed after persistence")
+            signed_fixture_artifacts[cache_key] = profile
+        return artifact_ref
 
     def _fixture_payload_bytes(payload: Any, *, kind: str) -> bytes:
         dumped = payload.model_dump(mode="json") if hasattr(payload, "model_dump") else payload
@@ -436,73 +491,6 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
                 expected_key_id,
             ),
         }
-
-    def _remember_initial_signed_artifact(
-        slot: str,
-        artifact_ref: str,
-        payload: Any,
-        *,
-        family: str,
-        kind: str,
-        schema_name: str,
-        schema_version: str,
-    ) -> None:
-        payload_bytes = _fixture_payload_bytes(payload, kind=kind)
-        initial_signed_artifacts[slot] = _fixture_artifact_profile(
-            artifact_ref,
-            payload_bytes,
-            family=family,
-            kind=kind,
-            schema_name=schema_name,
-            schema_version=schema_version,
-        )
-
-    def _reuse_initial_signed_artifact(
-        slot: str,
-        payload: Any,
-        *,
-        family: str,
-        kind: str,
-        schema_name: str,
-        schema_version: str,
-        sign: bool,
-    ) -> str | None:
-        if not sign:
-            return None
-        baseline = initial_signed_artifacts.get(slot)
-        if baseline is None:
-            return None
-
-        payload_bytes = _fixture_payload_bytes(payload, kind=kind)
-        if payload_bytes != baseline["payload_bytes"]:
-            return None
-
-        expected_writer = (
-            family,
-            kind,
-            schema_name,
-            schema_version,
-            producer_identities[family],
-            signers[family].key_id,
-        )
-        if baseline["writer"] != expected_writer:
-            raise AssertionError("fixture reuse changed its signer or manifest contract")
-
-        artifact_ref = str(baseline["reference"])
-        current = _fixture_artifact_profile(
-            artifact_ref,
-            payload_bytes,
-            family=family,
-            kind=kind,
-            schema_name=schema_name,
-            schema_version=schema_version,
-        )
-        if (
-            current["manifest_sha256"] != baseline["manifest_sha256"]
-            or current["signature_sha256"] != baseline["signature_sha256"]
-        ):
-            raise AssertionError("fixture reuse found a changed manifest profile or signature")
-        return artifact_ref
 
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 
@@ -663,8 +651,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         audit_path.write_text("", encoding="utf-8")
         effective_principal_ref = principal_ref_override or principal_ref
         current_digest = authority.agent_action_content_hash(current_request)
-        source_ref = _reuse_initial_signed_artifact(
-            "source",
+        source_ref = _persist_model(
             current_source,
             family="source",
             kind=authority.AGENT_ACTION_DECISION_ARTIFACT_KIND,
@@ -672,15 +659,6 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
             schema_version=authority.AGENT_ACTION_AUTHORITY_SCHEMA_VERSION,
             sign=sign_source,
         )
-        if source_ref is None:
-            source_ref = _persist_model(
-                current_source,
-                family="source",
-                kind=authority.AGENT_ACTION_DECISION_ARTIFACT_KIND,
-                schema_name="polisyos.runtime.AgentActionAuthorityDecision",
-                schema_version=authority.AGENT_ACTION_AUTHORITY_SCHEMA_VERSION,
-                sign=sign_source,
-            )
         separation = contracts.ReviewerSeparationCredential(
             credential_id=f"separation-{current_digest[7:19]}",
             credential_ref=f"governance://separation/{current_digest[7:]}",
@@ -707,17 +685,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
             separation = separation.model_copy(update=separation_update)
         separation_payload.clear()
         separation_payload.update(separation.model_dump(mode="json"))
-        separation_ref = _reuse_initial_signed_artifact(
-            "separation",
-            separation,
-            family="separation",
-            kind=contracts.REVIEWER_SEPARATION_CREDENTIAL_ARTIFACT_KIND,
-            schema_name="polisyos.runtime.ReviewerSeparationCredential",
-            schema_version=contracts.REVIEWER_SEPARATION_CREDENTIAL_MANIFEST_VERSION,
-            sign=True,
-        )
-        if separation_ref is None:
-            separation_ref = _sign_separation(separation_payload)
+        separation_ref = _sign_separation(separation_payload)
         presentation = contracts.HumanDecisionPresentationContract(
             contract_id=f"presentation-{current_digest[7:19]}",
             contract_ref=f"governance://presentation/{current_digest[7:]}",
@@ -859,24 +827,6 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         }
 
     bundle = _persist_bundle(request, source_decision)
-    _remember_initial_signed_artifact(
-        "source",
-        bundle["source_ref"],
-        source_decision,
-        family="source",
-        kind=authority.AGENT_ACTION_DECISION_ARTIFACT_KIND,
-        schema_name="polisyos.runtime.AgentActionAuthorityDecision",
-        schema_version=authority.AGENT_ACTION_AUTHORITY_SCHEMA_VERSION,
-    )
-    _remember_initial_signed_artifact(
-        "separation",
-        bundle["reviewer_separation_ref"],
-        separation_payload,
-        family="separation",
-        kind=contracts.REVIEWER_SEPARATION_CREDENTIAL_ARTIFACT_KIND,
-        schema_name="polisyos.runtime.ReviewerSeparationCredential",
-        schema_version=contracts.REVIEWER_SEPARATION_CREDENTIAL_MANIFEST_VERSION,
-    )
     trust_policy = contracts.HumanDecisionTrustPolicy(
         verifier_epoch="ds9-test-epoch",
         trusted_producers=(
@@ -1449,7 +1399,6 @@ def _write_nonempty_v2_owner_pair(
     from polisyos.core.canon.canon_json import to_canonical_bytes
 
     index = ArtifactOwnershipIndex(root)
-    index.path.parent.mkdir(parents=True)
     artifacts = {
         str(ArtifactID.model_validate(artifact_ref)): [
             {

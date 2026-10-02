@@ -26,7 +26,6 @@ from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.quality import grounding_relation as _cg1
 from polisyos.runtime.quality.grounding_relation import (
     CRITICAL_AXES,
-    GROUNDING_RELATION_SCHEMA_VERSION,
     GROUNDING_RELATION_VALIDATOR_VERSION,
     GroundingRelationCertificate,
     GroundingRelationEngine,
@@ -41,8 +40,8 @@ from polisyos.runtime.quality.grounding_risk import (
 if TYPE_CHECKING:
     from polisyos.runtime.quality.credal_reference import CredalReference
 
-GROUNDING_BIND_SCHEMA_VERSION = "policyos.runtime.grounding_decision_certificate.v2"
-GROUNDING_BIND_VALIDATOR_VERSION = "policyos.runtime.grounding_bind.cg2.v2"
+GROUNDING_BIND_SCHEMA_VERSION = "policyos.runtime.grounding_decision_certificate.v3"
+GROUNDING_BIND_VALIDATOR_VERSION = "policyos.runtime.grounding_bind.cg2.v3"
 
 type GroundingDecision = Literal["bind", "abstain", "novel_candidate"]
 type CalibrationStatus = Literal["calibrated", "cold_start", "drift", "frozen"]
@@ -226,6 +225,7 @@ class GroundingRevalidationRecord(_StrictModel):
     expected_content_hash: str
     reference_versions_match: bool
     stale_reasons: tuple[str, ...] = ()
+    currentness_reasons: tuple[str, ...] = ()
     replayed: bool = False
     replayed_certificate_id: str | None = None
     replayed_content_hash: str | None = None
@@ -380,6 +380,7 @@ class GroundingDecisionCertificate(_StrictModel):
     schema_version: Literal[
         "policyos.runtime.grounding_decision_certificate.v1",
         "policyos.runtime.grounding_decision_certificate.v2",
+        "policyos.runtime.grounding_decision_certificate.v3",
     ] = GROUNDING_BIND_SCHEMA_VERSION
     certificate_id: str = Field(..., pattern=r"^cg2_cert_[a-f0-9]{16}$")
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -418,6 +419,10 @@ class GroundingDecisionCertificate(_StrictModel):
             payload.pop("synthetic", None)
             payload.pop("run_admission", None)
             payload.pop("admission_strangle", None)
+        if self.schema_version.endswith((".v1", ".v2")):
+            revalidation = payload.get("revalidation")
+            if isinstance(revalidation, dict):
+                revalidation.pop("currentness_reasons", None)
         return payload
 
     @model_validator(mode="after")
@@ -428,7 +433,12 @@ class GroundingDecisionCertificate(_StrictModel):
         expected_id = _decision_certificate_id(expected_hash)
         if self.certificate_id != expected_id:
             raise ValueError("decision_certificate_id_mismatch")
-        if self.schema_version.endswith(".v2"):
+        if (
+            self.schema_version.endswith((".v1", ".v2"))
+            and self.revalidation.currentness_reasons
+        ):
+            raise ValueError("historical_cg2_currentness_reasons_forbidden")
+        if self.schema_version.endswith((".v2", ".v3")):
             if self.run_admission is None:
                 raise ValueError("decision_certificate_requires_run_custody")
             expected_strangle = GroundingAdmissionStrangleReceipt.recompute(
@@ -641,6 +651,7 @@ class GroundingBindGate:
             critical_matches = (
                 critical_tuple_matches if bind_relevant else critical_presence_matches
             )
+            currentness_reasons = _cg1_currentness_reasons(cg1_certificate, replayed)
             not_more_permissive = not (
                 replayed.selected_relation in _BIND_ELIGIBLE_RELATIONS
                 and cg1_certificate.selected_relation not in _BIND_ELIGIBLE_RELATIONS
@@ -653,7 +664,8 @@ class GroundingBindGate:
                     and not cg1_certificate.critical_contradictions
                 )
             revalidation_passed = (
-                selected_matches
+                not currentness_reasons
+                and selected_matches
                 and critical_matches
                 and (selected_atom_matches or not bind_relevant)
                 and not_more_permissive
@@ -661,6 +673,7 @@ class GroundingBindGate:
             revalidation = revalidation.model_copy(
                 update={
                     "status": "passed" if revalidation_passed else "mismatch",
+                    "currentness_reasons": currentness_reasons,
                     "replayed": True,
                     "replayed_certificate_id": replayed.certificate_id,
                     "replayed_content_hash": replayed.content_hash,
@@ -875,76 +888,10 @@ class GroundingBindGate:
             *base_candidates,
             *_cg1._adversarial_countercandidates(base_candidates, parsed),
         )
-        pair_results = self._engine._candidate_relation_results(parsed, candidates)
-        verdict = _cg1._proposal_verdict(
-            pair_results,
-            candidates=candidates,
-            parsed=parsed,
-            reference=self.reference,
+        return self._engine._certificate_for_parsed(
+            parsed,
+            candidates,
             retrieval_indexed_edge_count=len(self.reference.essential_edges),
-            policy=self._engine.policy,
-        )
-        selected = verdict.representative
-        if selected is None:
-            selected_relation = verdict.selected_relation
-            solver_status = "SAT"
-            axis_witnesses = ()
-            critical = ()
-            unresolved = ()
-            residual = ()
-            unsat_core = ()
-        else:
-            selected_relation = verdict.selected_relation
-            solver_status = selected.solver_status
-            axis_witnesses = selected.axis_witnesses
-            critical = selected.critical_contradictions
-            unresolved = selected.unresolved_axes
-            residual = selected.residual_constraints
-            unsat_core = selected.unsat_core_if_any
-        raw_payload = {
-            "candidate_atom_ids": [candidate.atom_id for candidate in candidates],
-            "proposal_id": parsed.proposal_id,
-            "raw_text_hash": parsed.raw_text_hash,
-            "proposal_signature": _cg1._proposal_signature_payload(parsed),
-            "atom_signature_or_bundle": _cg1._atom_signature_payload(candidates),
-            "relation_set": _cg1._relation_set_payload(
-                pair_results,
-                candidates=candidates,
-                coverage_claim=verdict.coverage_claim,
-            ),
-            "selected_relation": selected_relation,
-            "reference_versions": dict(sorted(self.reference.component_versions.items())),
-            "axis_witnesses": [item.model_dump(mode="json") for item in axis_witnesses],
-            "critical_contradictions": list(critical),
-            "unresolved_axes": list(unresolved),
-            "residual_constraints": list(residual),
-            "compositional_cover": None,
-            "cross_modal_witnesses": _cg1._cross_modal_payload(
-                pair_results,
-                selected,
-                gy_k_witness_mode="structural_only_no_runtime_gy_k_provider",
-            ),
-            "solver_status": solver_status,
-            "unsat_core_if_any": list(unsat_core),
-            "recommended_transition": _cg1._recommended_transition(
-                selected_relation,
-                allow_bind_recommendations=False,
-            ),
-            "validator_version": GROUNDING_RELATION_VALIDATOR_VERSION,
-            "stale_conditions": _cg1._stale_conditions(),
-            "shadow_only": True,
-            "no_bind_admit_promote": True,
-        }
-        content_hash = gy_content_hash(
-            {
-                "schema_version": GROUNDING_RELATION_SCHEMA_VERSION,
-                **raw_payload,
-            }
-        )
-        return GroundingRelationCertificate(
-            certificate_id=f"cg1_cert_{content_hash.removeprefix('sha256:')[:16]}",
-            content_hash=content_hash,
-            **raw_payload,
         )
 
     def _safe_set(self, certificate: GroundingRelationCertificate) -> GroundingSafeSet:
@@ -1664,6 +1611,54 @@ def _stale_reasons(
     if epoch is not None and epoch != reference.reference_epoch:
         reasons.append("epoch_argument_not_current_reference_epoch")
     return tuple(reasons)
+
+
+def _cg1_currentness_reasons(
+    consumed: GroundingRelationCertificate,
+    replayed: GroundingRelationCertificate,
+) -> tuple[str, ...]:
+    """Explain semantic CG1 differences while preserving historical hash validity."""
+
+    reasons: list[str] = []
+    if consumed.schema_version != replayed.schema_version:
+        reasons.append(
+            "cg1_schema_version_mismatch:"
+            f"{consumed.schema_version}->{replayed.schema_version}"
+        )
+    if consumed.validator_version != replayed.validator_version:
+        reasons.append(
+            "cg1_validator_version_mismatch:"
+            f"{consumed.validator_version}->{replayed.validator_version}"
+        )
+    if replayed.validator_version != GROUNDING_RELATION_VALIDATOR_VERSION:
+        reasons.append("cg1_replay_validator_not_current")
+    if consumed.solver_status != replayed.solver_status:
+        reasons.append(
+            f"cg1_solver_status_mismatch:{consumed.solver_status}->{replayed.solver_status}"
+        )
+    if tuple(consumed.unresolved_axes) != tuple(replayed.unresolved_axes):
+        reasons.append("cg1_unresolved_axes_mismatch")
+    if _solver_attempt_currentness_projection(consumed) != _solver_attempt_currentness_projection(
+        replayed
+    ):
+        reasons.append("cg1_solver_attempts_mismatch")
+    return tuple(reasons)
+
+
+def _solver_attempt_currentness_projection(
+    certificate: GroundingRelationCertificate,
+) -> tuple[tuple[str, str, str, bool | None, str | None, tuple[str, ...]], ...]:
+    return tuple(
+        (
+            attempt.hypothesis_id,
+            attempt.solver,
+            attempt.solver_status,
+            attempt.available,
+            attempt.native_status,
+            attempt.unsat_core,
+        )
+        for attempt in certificate.solver_attempts
+    )
 
 
 def _proposal_from_certificate(certificate: GroundingRelationCertificate) -> dict[str, Any]:

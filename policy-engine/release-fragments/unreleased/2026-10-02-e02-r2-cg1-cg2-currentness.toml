@@ -1,0 +1,35 @@
+id = "2026-10-02-e02-r2-cg1-cg2-currentness"
+title = "Preserve grounding solver uncertainty and replay currentness"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "CG1 records per-hypothesis solver attempts and aggregates actual solver status; UNKNOWN remains a quarantined candidate while SAT with an unresolved relation remains shadow. CG2 records semantic currentness separately from reference or epoch staleness."
+evidence = [
+  "tests/unit/runtime/quality/test_grounding_relation.py",
+  "tests/unit/runtime/quality/test_grounding_bind.py",
+  "architecture/policy_design_case/grounding_relation_contract.json",
+  "architecture/policy_design_case/grounding_bind_contract.json",
+]
+compatibility = "The internal CG1 certificate advances to schema v2 and CG2 to schema v3. Historical CG1 v1 and CG2 v1/v2 projections remain byte-exact through versioned serializers that omit fields introduced after those versions. No historical record is rewritten."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: polisyos.runtime.quality.grounding_relation certificates and polisyos.runtime.quality.grounding_bind certificates"
+migration = "Current writers emit CG1 v2 per-hypothesis attempts and CG2 v3 currentness reasons. Consumers that decode current certificates must accept these versions before current emission. Historical v1/v2 readers remain available through their version-specific projections; no bulk migration or restamping is authorized."
+api = "No supported polisyos.runtime.quality facade export, HTTP route, OpenAPI schema, or generated client changes. HypothesisSolverAttempt is an internal grounding_relation module type, not a new supported package entrypoint."
+limitations = "A solver UNKNOWN does not identify a relation and remains quarantined; a SAT attempt with an unresolved relation remains candidate-only shadow. Neither outcome grants bind, admission, promotion, or publication authority. Semantic currentness is not epoch staleness. This fragment does not authorize reissue, restamping, or authority advancement, and its evidence remains pending the reviewed V2 implementation and owner-generated contract checks."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-cg1-cg2-currentness-schema-v2-v3"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: persisted CG1 GroundingRelationCertificate and CG2 GroundingDecisionCertificate"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "Historical CG1 v1 and CG2 v1/v2 records remain immutable and replayable; no historical version retirement is scheduled."
+release_note = "New internal CG1 and CG2 certificates use schema v2 and v3 respectively, preserving historical projections while separating semantic currentness from epoch staleness."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

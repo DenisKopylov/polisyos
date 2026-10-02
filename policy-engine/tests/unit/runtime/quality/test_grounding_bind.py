@@ -22,7 +22,12 @@ from polisyos.runtime.quality.grounding_bind import (
     resolve_grounding_decision_promotability,
     resolve_grounding_decision_promotability_for_contract_testing,
 )
-from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
+from polisyos.runtime.quality.grounding_relation import (
+    GROUNDING_RELATION_VALIDATOR_VERSION,
+    GroundingRelationCertificate,
+    GroundingRelationEngine,
+    _SolverResult,
+)
 
 
 def test_calibrated_exact_robust_singleton_binds_and_records_risk() -> None:
@@ -39,6 +44,8 @@ def test_calibrated_exact_robust_singleton_binds_and_records_risk() -> None:
     assert decision.decisive_reason == "bind_eligible"
     assert decision.authority_scope == "contract_testing"
     assert decision.production_promotable is False
+    assert decision.revalidation.status == "passed"
+    assert decision.revalidation.currentness_reasons == ()
     assert decision.cg1_certificate_id == cg1.certificate_id
     assert decision.cg1_content_hash == cg1.content_hash
     assert decision.reference_epoch == reference.reference_epoch
@@ -49,6 +56,158 @@ def test_calibrated_exact_robust_singleton_binds_and_records_risk() -> None:
     assert decision.calibration.calibration_source == "cg2_contract_seed_anchor"
     assert decision.safe_t.safe_atom_ids == (decision.bound_atom_id,)
     assert not decision.open_obligations
+
+
+def test_hash_valid_historical_cg1_unknown_attempt_is_not_current(monkeypatch) -> None:
+    reference = _reference()
+
+    def unknown_attempt(_self, _hypothesis):
+        return _SolverResult(
+            status="UNKNOWN",
+            unsat_core=("cp_sat_timeout_or_unknown",),
+            cross_modal_witnesses={
+                "solver": "ortools_cp_sat",
+                "status": "forced-unknown-historical-replay",
+            },
+        )
+
+    monkeypatch.setattr(GroundingRelationEngine, "_solve_joint_cross_modal", unknown_attempt)
+    current = GroundingRelationEngine(reference).certificate_for(
+        _pure_synonym_probe(GroundingRelationEngine(reference)),
+        proposal_id="cg2-history-currentness",
+    )
+    assert current.solver_status == "UNKNOWN"
+    assert current.selected_relation == "unknown"
+
+    # Build an ephemeral v1-shaped, hash-valid historical record. Its body keeps
+    # all original markers; only the false aggregate SAT claim is the subject.
+    legacy_payload = current.model_dump(mode="json")
+    legacy_payload.pop("solver_attempts")
+    legacy_payload["schema_version"] = "policyos.runtime.grounding_relation_certificate.v1"
+    legacy_payload["validator_version"] = "policyos.runtime.grounding_relation.cg1.v1"
+    legacy_payload["solver_status"] = "SAT"
+    legacy_payload["certificate_id"] = "cg1_cert_0000000000000000"
+    legacy_payload["content_hash"] = "sha256:" + "0" * 64
+    provisional = GroundingRelationCertificate.model_validate(legacy_payload)
+    historical_hash = recompute_grounding_relation_content_hash(provisional)
+    legacy_payload["content_hash"] = historical_hash
+    legacy_payload["certificate_id"] = (
+        f"cg1_cert_{historical_hash.removeprefix('sha256:')[:16]}"
+    )
+    historical = GroundingRelationCertificate.model_validate(legacy_payload)
+
+    assert historical.model_dump(mode="json") == legacy_payload
+    assert recompute_grounding_relation_content_hash(historical) == historical.content_hash
+    assert GROUNDING_RELATION_VALIDATOR_VERSION.endswith(".v2")
+
+    decision = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+    ).certificate_for(historical)
+
+    assert decision.decision == "abstain"
+    assert decision.decisive_reason == "relation_revalidation_mismatch"
+    assert decision.revalidation.content_hash_valid is True
+    assert decision.revalidation.status == "mismatch"
+    assert decision.revalidation.replayed is True
+    assert "cg1_solver_status_mismatch:SAT->UNKNOWN" in decision.revalidation.currentness_reasons
+    assert any(
+        reason.startswith("cg1_validator_version_mismatch:")
+        for reason in decision.revalidation.currentness_reasons
+    )
+    assert "cg1_solver_attempts_mismatch" in decision.revalidation.currentness_reasons
+
+
+@pytest.mark.parametrize(
+    ("replayed_native_status", "replayed_unsat_core"),
+    [
+        ("cp_sat_unknown_after", ("cp_sat_timeout_or_unknown",)),
+        ("cp_sat_unknown_before", ("cp_sat_timeout_or_unknown", "changed-core-detail")),
+    ],
+)
+def test_currentness_tracks_retained_native_solver_attempt_details(
+    monkeypatch,
+    replayed_native_status: str,
+    replayed_unsat_core: tuple[str, ...],
+) -> None:
+    reference = _reference()
+    source_attempt = _SolverResult(
+        status="UNKNOWN",
+        solver="ortools_cp_sat",
+        native_status="cp_sat_unknown_before",
+        available=True,
+        unsat_core=("cp_sat_timeout_or_unknown",),
+    )
+    replay_attempt = _SolverResult(
+        status="UNKNOWN",
+        solver="ortools_cp_sat",
+        native_status=replayed_native_status,
+        available=True,
+        unsat_core=replayed_unsat_core,
+    )
+    attempts = iter((source_attempt, replay_attempt))
+
+    def unknown_attempt(_self, _hypothesis):
+        return next(attempts)
+
+    monkeypatch.setattr(GroundingRelationEngine, "_solve_joint_cross_modal", unknown_attempt)
+    engine = GroundingRelationEngine(reference)
+    cg1 = engine.certificate_for(
+        _pure_synonym_probe(engine),
+        proposal_id="cg2-native-attempt-currentness",
+    )
+    assert cg1.solver_status == "UNKNOWN"
+    assert len(cg1.solver_attempts) == 1
+    assert cg1.solver_attempts[0].solver_status == "UNKNOWN"
+    assert cg1.solver_attempts[0].available is True
+
+    decision = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+    ).certificate_for(cg1)
+
+    assert decision.decision == "abstain"
+    assert decision.decisive_reason == "relation_revalidation_mismatch"
+    assert decision.revalidation.content_hash_valid is True
+    assert decision.revalidation.status == "mismatch"
+    assert decision.revalidation.replayed is True
+    assert decision.revalidation.currentness_reasons == ("cg1_solver_attempts_mismatch",)
+    assert decision.revalidation.replayed_content_hash != cg1.content_hash
+    assert next(attempts, None) is None
+
+
+def test_historical_cg2_v2_projection_omits_new_currentness_field() -> None:
+    reference = _reference()
+    engine = GroundingRelationEngine(reference)
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="cg2-v2-history")
+    current = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+    ).certificate_for(cg1)
+
+    legacy_payload = current.model_dump(mode="json")
+    legacy_payload["schema_version"] = "policyos.runtime.grounding_decision_certificate.v2"
+    legacy_payload["validator_version"] = "policyos.runtime.grounding_bind.cg2.v2"
+    legacy_payload["revalidation"].pop("currentness_reasons")
+    legacy_payload["certificate_id"] = "cg2_cert_0000000000000000"
+    legacy_payload["content_hash"] = "sha256:" + "0" * 64
+    historical_hash = recompute_grounding_decision_content_hash(legacy_payload)
+    legacy_payload["content_hash"] = historical_hash
+    legacy_payload["certificate_id"] = (
+        f"cg2_cert_{historical_hash.removeprefix('sha256:')[:16]}"
+    )
+    historical = GroundingDecisionCertificate.model_validate(legacy_payload)
+
+    assert historical.model_dump(mode="json") == legacy_payload
+    assert recompute_grounding_decision_content_hash(historical) == historical.content_hash
+
+    injected_unhashed_reason = dict(legacy_payload)
+    injected_unhashed_reason["revalidation"] = {
+        **legacy_payload["revalidation"],
+        "currentness_reasons": ["unhashed-currentness-claim"],
+    }
+    with pytest.raises(ValidationError, match="historical_cg2_currentness_reasons_forbidden"):
+        GroundingDecisionCertificate.model_validate(injected_unhashed_reason)
 
 
 def test_public_policy_rejects_bind_authority_knobs() -> None:

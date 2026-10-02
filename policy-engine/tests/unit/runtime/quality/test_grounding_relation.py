@@ -18,8 +18,12 @@ from polisyos.runtime.quality.grounding_relation import (
     GroundingCandidateAtom,
     GroundingEnginePolicy,
     GroundingRelationEngine,
+    HypothesisSolverAttempt,
     MechanisticSignature,
+    SolverStatus,
+    _aggregate_solver_status,
     _rank_candidate_results,
+    _SolverResult,
     grounding_candidate_semantic_sort_key,
     parse_n4_proposal,
 )
@@ -131,6 +135,113 @@ def test_cp_sat_unknown_remains_unknown_under_worker_budget(monkeypatch) -> None
     assert result.cross_modal_witnesses is not None
     assert result.cross_modal_witnesses["solver"] == "ortools_cp_sat"
     assert observed == [(expected_workers, 5.0)]
+
+
+@pytest.mark.parametrize(
+    ("statuses", "expected"),
+    [
+        ((), "UNKNOWN"),
+        (("UNSAT",), "UNSAT"),
+        (("UNSAT", "UNSAT"), "UNSAT"),
+        (("SAT",), "SAT"),
+        (("SAT", "UNKNOWN"), "SAT"),
+        (("UNSAT", "UNKNOWN"), "UNKNOWN"),
+        (("UNKNOWN", "UNKNOWN"), "UNKNOWN"),
+    ],
+)
+def test_hypothesis_solver_status_aggregation_is_existential_and_lossless(
+    statuses: tuple[SolverStatus, ...], expected: SolverStatus
+) -> None:
+    attempts = tuple(
+        HypothesisSolverAttempt(
+            hypothesis_id=f"proposal:h{index}",
+            solver="ortools_cp_sat",
+            solver_status=status,
+            native_status=f"native:{status}",
+            unsat_core=(f"reason:{index}",) if status != "SAT" else (),
+        )
+        for index, status in enumerate(statuses)
+    )
+
+    assert _aggregate_solver_status(attempts) == expected
+    assert tuple(attempt.hypothesis_id for attempt in attempts) == tuple(
+        f"proposal:h{index}" for index in range(len(statuses))
+    )
+    assert tuple(attempt.solver_status for attempt in attempts) == statuses
+
+
+def test_unknown_attempt_is_not_laundered_when_no_candidate_is_selected(monkeypatch) -> None:
+    engine = _engine()
+    observed_hypotheses: list[str] = []
+
+    def unknown_attempt(hypothesis):
+        observed_hypotheses.append(hypothesis.hypothesis_id)
+        return _SolverResult(
+            status="UNKNOWN",
+            native_status="forced-unknown-removal-probe",
+            unsat_core=("cp_sat_timeout_or_unknown",),
+            cross_modal_witnesses={
+                "solver": "ortools_cp_sat",
+                "status": "forced-unknown-removal-probe",
+            },
+        )
+
+    monkeypatch.setattr(engine, "_solve_joint_cross_modal", unknown_attempt)
+    certificate = engine.certificate_for(_unknown_probe(), proposal_id="unit-unknown-removal")
+
+    pair_results = certificate.relation_set["candidate_results"]
+    assert certificate.solver_status == "UNKNOWN"
+    assert certificate.selected_relation == "unknown"
+    assert certificate.shadow_only is True
+    assert certificate.no_bind_admit_promote is True
+    assert observed_hypotheses == [attempt.hypothesis_id for attempt in certificate.solver_attempts]
+    assert len(certificate.solver_attempts) == 1
+    assert certificate.solver_attempts[0].solver_status == "UNKNOWN"
+    assert certificate.solver_attempts[0].native_status == "forced-unknown-removal-probe"
+    assert certificate.solver_attempts[0].unsat_core == ("cp_sat_timeout_or_unknown",)
+    assert pair_results
+    assert {row["solver_status"] for row in pair_results} == {"UNKNOWN"}
+    assert any(row["unresolved_axes"] for row in pair_results)
+
+
+@pytest.mark.parametrize(
+    ("attempt_status", "expected_transition"),
+    [("SAT", "shadow"), ("UNKNOWN", "quarantine")],
+)
+def test_empty_candidate_set_uses_the_actual_solver_attempt(
+    monkeypatch, attempt_status: SolverStatus, expected_transition: str
+) -> None:
+    engine = _engine()
+    monkeypatch.setattr(
+        engine,
+        "retrieve_candidates",
+        lambda parsed, *, include_adversarial_countercandidates=True: (),
+    )
+    monkeypatch.setattr(
+        engine,
+        "_solve_joint_cross_modal",
+        lambda hypothesis: _SolverResult(
+            status=attempt_status,
+            unsat_core=("cp_sat_timeout_or_unknown",) if attempt_status != "SAT" else (),
+            cross_modal_witnesses={
+                "solver": "ortools_cp_sat",
+                "status": f"forced-{attempt_status.lower()}-empty-candidate-control",
+            },
+        ),
+    )
+
+    certificate = engine.certificate_for(_unknown_probe(), proposal_id="unit-empty-candidates")
+
+    assert certificate.solver_status == attempt_status
+    assert certificate.selected_relation == "unknown"
+    assert certificate.recommended_transition == expected_transition
+    assert certificate.candidate_atom_ids == ()
+    assert certificate.relation_set["candidate_results"] == []
+    assert len(certificate.solver_attempts) == 1
+    assert certificate.solver_attempts[0].solver_status == attempt_status
+    assert certificate.solver_attempts[0].unsat_core == (
+        ("cp_sat_timeout_or_unknown",) if attempt_status != "SAT" else ()
+    )
 
 
 def test_concrete_alias_is_certified_specialization() -> None:

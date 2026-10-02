@@ -10,8 +10,14 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from tools.quality.validation.check_grounding_relation_contract import (
+    _GROUNDING_CHECK_UNRESOLVED_BY_CONSTRUCTION,
+    _print_instrumented_report,
+    _run_instrumented_inspection,
+)
+
 OUTPUT_PATH = "architecture/policy_design_case/grounding_bind_contract.json"
-SCHEMA_VERSION = "policyos.policy_design_case.grounding_bind_contract.v3"
+SCHEMA_VERSION = "policyos.policy_design_case.grounding_bind_contract.v4"
 EXPECTED_MUTATIONS = {
     "calibration_owner_validation_removed",
     "certificate_revalidation_removed",
@@ -35,6 +41,32 @@ RELATION_OUTCOME_SET = {
     "blocked",
 }
 
+
+_CG2_SOURCE_MODULES = (
+    "src/polisyos/common/config.py",
+    "src/polisyos/core/artifacts/backends/config.py",
+    "src/polisyos/core/artifacts/store.py",
+    "src/polisyos/data_forge/read_api/academic.py",
+    "src/polisyos/pdc/__init__.py",
+    "src/polisyos/runtime/quality/credal_reference.py",
+    "src/polisyos/runtime/quality/grounding_bind.py",
+    "src/polisyos/runtime/quality/grounding_calibration.py",
+    "src/polisyos/runtime/quality/grounding_relation.py",
+    "src/polisyos/runtime/quality/grounding_risk.py",
+    "src/polisyos/runtime/quality/intervention_atom_binding.py",
+    "src/polisyos/runtime/quality/intervention_substrate.py",
+    "src/polisyos/runtime/quality/substrate_registry.py",
+    "src/polisyos/runtime/quality/world_model_record.py",
+    "tools/quality/validation/check_grounding_bind_contract.py",
+    "tools/quality/validation/check_grounding_relation_contract.py",
+    "tools/quality/validation/check_layer3_gy_design_generation_contract.py",
+)
+_CG2_DIRECT_ARTIFACT_INPUTS = (
+    "architecture/policy_design_case/corr/grounding_proof_world_input.json",
+    "architecture/policy_design_case/layer3_gy_design_generation_contract.json",
+    "architecture/policy_design_case/grounding_bind_contract.json (read in --check; write target in --write)",
+    "production_data L1-L7 artifacts through existing CG0/credal-reference owners",
+)
 
 def declared_outputs() -> list[str]:
     """Return generated artifacts owned by this validator."""
@@ -138,6 +170,9 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "cold_start_freeze": _decision_summary(gate.certificate_for(exact_cert)),
         "false_analog_hard_abstain": _decision_summary(seed_gate.certificate_for(false_cert)),
         "real_n4_out_of_lever_handoff": real_n4_novel_handoff,
+        "historical_cg1_solver_currentness": _historical_cg1_solver_currentness_probe(
+            reference,
+        ),
     }
     probes["tampered_fail_closed"] = _decision_summary(
         seed_gate.certificate_for(_tampered_certificate(exact_cert))
@@ -186,15 +221,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "runtime_schema_version": GROUNDING_BIND_SCHEMA_VERSION,
         "cg1_schema_version": GROUNDING_RELATION_SCHEMA_VERSION,
         "owner": "polisyos.runtime.quality.grounding_bind",
-        "source_modules": [
-            "src/polisyos/runtime/quality/grounding_bind.py",
-            "src/polisyos/runtime/quality/grounding_risk.py",
-            "src/polisyos/runtime/quality/grounding_calibration.py",
-            "src/polisyos/runtime/quality/grounding_relation.py",
-            "src/polisyos/runtime/quality/credal_reference.py",
-            "tools/quality/validation/check_grounding_bind_contract.py",
-            "tools/quality/validation/check_grounding_relation_contract.py",
-        ],
+        "source_modules": list(_CG2_SOURCE_MODULES),
         "reuse_existing_owners": [
             "CG0 canonical reference attempt plus separately marked full L6/WMR structural controls",
             "CG1 GroundingRelationEngine.certificate_for and relation_set",
@@ -249,7 +276,8 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "typed_contract_artifact": (
                 "GroundingDecisionCertificate + GroundingSafeSet + "
                 "GroundingRiskLedger + GroundingCalibrationDecision + "
-                "GroundingRunAdmission + GroundingAdmissionStrangleReceipt"
+                "GroundingRunAdmission + GroundingAdmissionStrangleReceipt + "
+                "GroundingRevalidationRecord.currentness_reasons"
             ),
             "producer": "GroundingBindGate.certificate_for",
             "persisted_artifact_event": (
@@ -267,6 +295,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "surface": "generated Policy Design Case CG2 contract artifact",
             "semantic_test": (
                 "forged/stale/tampered fail closed, false analog hard abstains, "
+                "hash-valid historical CG1 semantic changes mismatch separately from epoch staleness, "
                 "cold-start freezes, out-of-lever N4 hands off, and unsafe mutations go red"
             ),
         },
@@ -366,6 +395,18 @@ def corrupt_field_drift_check(repo_root: Path | None = None) -> dict[str, Any]:
     corrupted["relation_outcome_map"]["generalization"]["decision"] = "bind"
     corrupted["behavioral_mutations"][0]["status"] = "green"
     corrupted["admission_run_probes"]["persisted_snapshot"]["admitted_spend"] = 0.0
+    corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"][
+        "currentness_reasons"
+    ] = []
+    corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"][
+        "status"
+    ] = "passed"
+    corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"][
+        "currentness_reasons"
+    ] = []
+    corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"][
+        "status"
+    ] = "passed"
     report = validate_payload(corrupted)
     return {
         "status": "pass" if report["status"] == "fail" else "fail",
@@ -472,11 +513,67 @@ def _core_issues(
             "stale_cg1_certificate",
         )
     )
+    historical = _probe(probes, "historical_cg1_solver_currentness")
+    historical_revalidation = historical.get("revalidation", {})
+    if not isinstance(historical_revalidation, dict):
+        historical_revalidation = {}
+    currentness_reasons = historical_revalidation.get("currentness_reasons") or []
+    if not isinstance(currentness_reasons, (list, tuple)):
+        currentness_reasons = []
+    if historical.get("historical_hash_recomputed") is not True:
+        issues.append({"code": "grounding_bind_historical_cg1_hash_not_recomputed"})
+    if historical_revalidation.get("content_hash_valid") is not True:
+        issues.append({"code": "grounding_bind_historical_cg1_hash_not_valid"})
+    if historical_revalidation.get("reference_versions_match") is not True:
+        issues.append({"code": "grounding_bind_historical_cg1_reference_not_same"})
+    if historical_revalidation.get("stale_reasons"):
+        issues.append({"code": "grounding_bind_historical_currentness_misclassified_as_stale"})
+    if (
+        historical_revalidation.get("status") != "mismatch"
+        or historical_revalidation.get("replayed") is not True
+    ):
+        issues.append({"code": "grounding_bind_historical_cg1_not_replayed_as_mismatch"})
+    if not any(
+        isinstance(reason, str) and reason.startswith("cg1_schema_version_mismatch:")
+        for reason in currentness_reasons
+    ):
+        issues.append({"code": "grounding_bind_cg1_schema_currentness_missing"})
+    if not any(
+        isinstance(reason, str) and reason.startswith("cg1_solver_status_mismatch:")
+        for reason in currentness_reasons
+    ):
+        issues.append({"code": "grounding_bind_cg1_solver_status_currentness_missing"})
+    if "cg1_solver_attempts_mismatch" not in currentness_reasons:
+        issues.append({"code": "grounding_bind_cg1_solver_attempt_currentness_missing"})
+    if "cg1_unresolved_axes_mismatch" not in currentness_reasons:
+        issues.append({"code": "grounding_bind_cg1_unresolved_axes_currentness_missing"})
+    if not any(
+        isinstance(reason, str) and reason.startswith("cg1_validator_version_mismatch:")
+        for reason in currentness_reasons
+    ):
+        issues.append({"code": "grounding_bind_cg1_validator_currentness_missing"})
+    if (
+        historical.get("decision") != "abstain"
+        or historical.get("decisive_reason") != "relation_revalidation_mismatch"
+    ):
+        issues.append({"code": "grounding_bind_historical_currentness_did_not_abstain"})
+    if (
+        historical.get("current_solver_status") != "UNKNOWN"
+        or historical.get("current_recommended_transition") != "quarantine"
+    ):
+        issues.append({"code": "grounding_bind_current_unknown_not_quarantined"})
     exact = _probe(probes, "exact_bind")
     if exact.get("risk_spend", 1.0) > exact.get("risk_budget", 0.0):
         issues.append({"code": "grounding_bind_exact_over_budget"})
     if exact.get("safe_count") != 1:
         issues.append({"code": "grounding_bind_exact_not_robust_singleton"})
+    exact_revalidation = exact.get("revalidation", {})
+    if (
+        not isinstance(exact_revalidation, dict)
+        or exact_revalidation.get("status") != "passed"
+        or exact_revalidation.get("currentness_reasons")
+    ):
+        issues.append({"code": "grounding_bind_current_cg1_control_not_current"})
     if _probe(probes, "deterministic_decision").get("same_content_hash") is not True:
         issues.append({"code": "grounding_bind_decision_not_deterministic"})
     production = _probe(probes, "production_default_freeze")
@@ -1250,6 +1347,94 @@ def _decision_summary(decision: Any) -> dict[str, Any]:
     }
 
 
+def _historical_cg1_solver_currentness_probe(reference: Any) -> dict[str, Any]:
+    """Replay an ephemeral hash-valid CG1 v1 claim against controlled current UNKNOWN.
+
+    This exercises the real CG1 issuer, historical serializer/hash owner, CG2 gate replay,
+    currentness classification and abstention. The solver result is injected only at the shared
+    CG1 owner method so the probe makes no claim that CP-SAT itself was executed.
+    """
+
+    from unittest.mock import patch
+
+    from polisyos.runtime.quality.grounding_bind import (
+        GroundingBindGate,
+        recompute_grounding_relation_content_hash,
+    )
+    from polisyos.runtime.quality.grounding_relation import (
+        RELATION_AXES,
+        GroundingRelationCertificate,
+        GroundingRelationEngine,
+        _SolverResult,
+    )
+    from tools.quality.validation.check_grounding_relation_contract import (
+        _pure_synonym_probe,
+    )
+
+    def controlled_unknown(_self: Any, _hypothesis: Any) -> Any:
+        return _SolverResult(
+            status="UNKNOWN",
+            solver="contract_probe_controlled_result",
+            native_status="forced_unknown_historical_currentness_probe",
+            available=True,
+            unsat_core=("controlled_historical_currentness_probe",),
+            cross_modal_witnesses={
+                "solver": "contract_probe_controlled_result",
+                "status": "forced_unknown_historical_currentness_probe",
+            },
+        )
+
+    with patch.object(GroundingRelationEngine, "_solve_joint_cross_modal", controlled_unknown):
+        engine = GroundingRelationEngine(reference)
+        current = engine.certificate_for(
+            _pure_synonym_probe(engine),
+            proposal_id="cg2-historical-currentness-probe",
+        )
+        legacy_payload = current.model_dump(mode="json")
+        legacy_payload.pop("solver_attempts", None)
+        legacy_payload["schema_version"] = "policyos.runtime.grounding_relation_certificate.v1"
+        legacy_payload["validator_version"] = "policyos.runtime.grounding_relation.cg1.v1"
+        legacy_payload["solver_status"] = "SAT"
+        historical_axes = list(current.unresolved_axes)
+        if historical_axes:
+            historical_axes.pop()
+        else:
+            historical_axes.append(RELATION_AXES[0])
+        legacy_payload["unresolved_axes"] = historical_axes
+        legacy_payload["certificate_id"] = "cg1_cert_0000000000000000"
+        legacy_payload["content_hash"] = "sha256:" + "0" * 64
+        provisional = GroundingRelationCertificate.model_validate(legacy_payload)
+        historical_hash = recompute_grounding_relation_content_hash(provisional)
+        legacy_payload["content_hash"] = historical_hash
+        legacy_payload["certificate_id"] = (
+            f"cg1_cert_{historical_hash.removeprefix('sha256:')[:16]}"
+        )
+        historical_certificate = GroundingRelationCertificate.model_validate(legacy_payload)
+        decision = GroundingBindGate.for_contract_testing(
+            reference,
+            calibration_seed_anchor=True,
+        ).certificate_for(historical_certificate)
+
+    summary = _decision_summary(decision)
+    summary.update(
+        {
+            "historical_hash_recomputed": (
+                recompute_grounding_relation_content_hash(historical_certificate)
+                == historical_certificate.content_hash
+            ),
+            "historical_schema_version": historical_certificate.schema_version,
+            "historical_solver_status": historical_certificate.solver_status,
+            "current_solver_status": current.solver_status,
+            "current_unresolved_axes": list(current.unresolved_axes),
+            "historical_unresolved_axes": list(historical_certificate.unresolved_axes),
+            "current_recommended_transition": current.recommended_transition,
+            "current_selected_relation": current.selected_relation,
+            "solver_control": "contract_probe_controlled_result_not_backend_execution",
+        }
+    )
+    return summary
+
+
 def _fabricated_calibration_ledger(certificate: Any, reference: Any) -> Any:
     from polisyos.runtime.quality.grounding_bind import (
         CalibrationStratumRecord,
@@ -1407,29 +1592,42 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
+    operation = (
+        "corrupt-field-drift-check"
+        if args.corrupt_field_drift_check
+        else "write"
+        if args.write
+        else "check"
+    )
 
-    repo_root = args.repo_root.resolve()
-    inserted = [str(repo_root), str(repo_root / "src")]
-    for item in reversed(inserted):
-        if item not in sys.path:
-            sys.path.insert(0, item)
-
-    if args.corrupt_field_drift_check:
-        report = corrupt_field_drift_check(repo_root)
-    else:
+    def inspect() -> dict[str, Any]:
+        repo_root = args.repo_root.resolve()
+        inserted = [str(repo_root), str(repo_root / "src")]
+        for item in reversed(inserted):
+            if item not in sys.path:
+                sys.path.insert(0, item)
+        if args.corrupt_field_drift_check:
+            return corrupt_field_drift_check(repo_root)
         live_payload = build_live_payload(repo_root) if args.write else None
         if args.write:
             write(repo_root, payload=live_payload)
-        report = validate(repo_root) if not args.write else validate_payload(live_payload)
+            return validate_payload(live_payload)
+        return validate(repo_root)
 
-    if args.output_format == "json":
-        print(json.dumps(report, indent=2, sort_keys=True))
-    elif report["status"] != "pass":
-        for issue in report["issues"]:
-            print(f"{issue.get('code')}: {issue}")
-    else:
-        print("grounding bind contract: pass")
-    return 0 if report["status"] == "pass" else 1
+    report, exit_code = _run_instrumented_inspection(
+        inspect,
+        repo_root=args.repo_root,
+        operation=operation,
+        source_modules=_CG2_SOURCE_MODULES,
+        direct_artifact_inputs=_CG2_DIRECT_ARTIFACT_INPUTS,
+        unresolved_by_construction=_GROUNDING_CHECK_UNRESOLVED_BY_CONSTRUCTION,
+    )
+    _print_instrumented_report(
+        report,
+        output_format=args.output_format,
+        label="grounding bind contract",
+    )
+    return exit_code
 
 
 if __name__ == "__main__":

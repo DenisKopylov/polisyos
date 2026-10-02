@@ -7,11 +7,13 @@ import argparse
 import json
 import os
 import sys
+import traceback
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 OUTPUT_PATH = "architecture/policy_design_case/grounding_relation_contract.json"
-SCHEMA_VERSION = "policyos.policy_design_case.grounding_relation_contract.v1"
+SCHEMA_VERSION = "policyos.policy_design_case.grounding_relation_contract.v2"
 EXPECTED_MUTATIONS = {
     "surface_similarity_selected_exact_on_false_analog",
     "greedy_inconsistent_accepted_without_joint_solve",
@@ -24,6 +26,30 @@ EXPECTED_MUTATIONS = {
     "adversarial_counter_family_disabled",
 }
 
+
+_CG1_SOURCE_MODULES = (
+    "src/polisyos/common/config.py",
+    "src/polisyos/data_forge/read_api/academic.py",
+    "src/polisyos/pdc/__init__.py",
+    "src/polisyos/runtime/quality/credal_reference.py",
+    "src/polisyos/runtime/quality/grounding_relation.py",
+    "src/polisyos/runtime/quality/intervention_atom_binding.py",
+    "src/polisyos/runtime/quality/intervention_substrate.py",
+    "src/polisyos/runtime/quality/substrate_registry.py",
+    "src/polisyos/runtime/quality/world_model_record.py",
+    "tools/quality/validation/check_grounding_relation_contract.py",
+    "tools/quality/validation/check_layer3_gy_design_generation_contract.py",
+)
+_CG1_DIRECT_ARTIFACT_INPUTS = (
+    "architecture/policy_design_case/layer3_gy_design_generation_contract.json",
+    "architecture/policy_design_case/grounding_relation_contract.json (read in --check; write target in --write)",
+    "production_data L1-L7 artifacts through existing CG0/credal-reference owners",
+)
+_GROUNDING_CHECK_UNRESOLVED_BY_CONSTRUCTION = (
+    "source_modules are curated owner-level provenance, not a complete transitive import or loaded-origin census.",
+    "Runtime-selected import origins, dynamic imports, third-party package code, and native solver/database libraries are not individually inventoried here; the frozen loaded-origin receipt owns that measurement.",
+    "The full production_data file/row population read through canonical owners is not walked by this checker; owner epochs, references, and content hashes remain the evidence for those inputs.",
+)
 
 def declared_outputs() -> list[str]:
     """Return generated artifacts owned by this validator."""
@@ -155,13 +181,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "contract_id": "policyos.runtime.grounding_relation_shadow",
         "runtime_schema_version": GROUNDING_RELATION_SCHEMA_VERSION,
         "owner": "polisyos.runtime.quality.grounding_relation",
-        "source_modules": [
-            "src/polisyos/runtime/quality/grounding_relation.py",
-            "src/polisyos/runtime/quality/credal_reference.py",
-            "src/polisyos/runtime/quality/intervention_atom_binding.py",
-            "tools/quality/validation/check_grounding_relation_contract.py",
-            "tools/quality/validation/check_layer3_gy_design_generation_contract.py",
-        ],
+        "source_modules": list(_CG1_SOURCE_MODULES),
         "reuse_existing_owners": [
             "CG0 CredalReference over L2/L3/L6/WMR",
             "N2 InterventionAtomBinding for N4 candidate atom shape",
@@ -204,9 +224,11 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "dense_embeddings": "deferred_by_CG0_backend_gate",
         },
         "probes": probes,
+        "solver_aggregation_table": _solver_aggregation_summary(),
         "capability_reality": {
             "typed_contract_artifact": (
-                "GroundingRelationCertificate + MechanisticSignature + CandidateRelationResult"
+                "GroundingRelationCertificate + HypothesisSolverAttempt + MechanisticSignature + "
+                "CandidateRelationResult"
             ),
             "producer": "GroundingRelationEngine.certificate_for",
             "persisted_artifact_event": OUTPUT_PATH,
@@ -219,7 +241,9 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "surface": "generated Policy Design Case CG1 contract artifact",
             "semantic_test": (
                 "false-analog veto, joint unsat core, cross-modal blocked, "
-                "synonym resolution, GY-K witness-only, shadow-only, unknown no over-veto"
+                "synonym resolution, GY-K witness-only, per-hypothesis solver aggregation, "
+                "UNKNOWN quarantine, SAT-with-unknown-relation shadow control, and candidate-empty "
+                "solver outcomes"
             ),
         },
         "pattern_pass": {
@@ -323,6 +347,8 @@ def corrupt_field_drift_check(repo_root: Path | None = None) -> dict[str, Any]:
     corrupted["probes"]["real_n4_recorded_proposal"]["selected_relation"] = "blocked"
     corrupted["probes"]["real_n4_recorded_proposal"]["known_space_verdict"] = "in_lever_space"
     corrupted["probes"]["shadow_only"]["forbidden_transition_count"] = 1
+    corrupted["probes"]["unknown_solver_quarantine"]["recommended_transition"] = "shadow"
+    corrupted["probes"]["empty_candidate_solver_sat"]["solver_status"] = "UNKNOWN"
     report = validate_payload(corrupted)
     return {
         "status": "pass" if report["status"] == "fail" else "fail",
@@ -350,6 +376,24 @@ def _run_positive_probes(engine: Any, repo_root: Path) -> dict[str, Any]:
         proposal_id="cg1-specialization",
     )
     unknown_cert = engine.certificate_for(_unknown_unproven_probe(), proposal_id="cg1-unknown")
+    solver_unknown = _forced_solver_probe(
+        engine,
+        solver_status="UNKNOWN",
+        empty_candidates=False,
+        proposal_id="cg1-solver-unknown-with-candidates",
+    )
+    empty_candidate_sat = _forced_solver_probe(
+        engine,
+        solver_status="SAT",
+        empty_candidates=True,
+        proposal_id="cg1-empty-candidates-sat-attempt",
+    )
+    empty_candidate_unknown = _forced_solver_probe(
+        engine,
+        solver_status="UNKNOWN",
+        empty_candidates=True,
+        proposal_id="cg1-empty-candidates-unknown-attempt",
+    )
     fake_cert = engine.certificate_for(_fake_atom_probe(), proposal_id="cg1-fake")
 
     gyk_engine = _clone_engine(
@@ -409,6 +453,9 @@ def _run_positive_probes(engine: Any, repo_root: Path) -> dict[str, Any]:
             "bind_admit_promote_emitted": False,
         },
         "unknown_unproven_contradiction": _certificate_summary(unknown_cert),
+        "unknown_solver_quarantine": solver_unknown,
+        "empty_candidate_solver_sat": empty_candidate_sat,
+        "empty_candidate_solver_unknown": empty_candidate_unknown,
         "fake_atom_not_exact": _certificate_summary(fake_cert),
         "deterministic_certificate": {
             "first_content_hash": deterministic_a.content_hash,
@@ -577,6 +624,35 @@ def _core_issues(
         issues.append({"code": "grounding_relation_dense_not_deferred"})
 
     probes = payload.get("probes", {})
+    aggregation_rows = payload.get("solver_aggregation_table", [])
+    expected_aggregates = {
+        (): "UNKNOWN",
+        ("UNSAT",): "UNSAT",
+        ("UNSAT", "UNSAT"): "UNSAT",
+        ("SAT",): "SAT",
+        ("SAT", "UNKNOWN"): "SAT",
+        ("UNSAT", "UNKNOWN"): "UNKNOWN",
+        ("UNKNOWN", "UNKNOWN"): "UNKNOWN",
+    }
+    observed_aggregates: dict[tuple[str, ...], str] = {}
+    for row in aggregation_rows:
+        if not isinstance(row, dict):
+            issues.append({"code": "grounding_relation_solver_aggregate_row_invalid"})
+            continue
+        statuses = tuple(str(status) for status in row.get("attempt_statuses", []))
+        observed_aggregates[statuses] = str(row.get("aggregate_status"))
+        if row.get("aggregate_status") != row.get("expected_status"):
+            issues.append({"code": "grounding_relation_solver_aggregate_expected_mismatch"})
+        attempt_rows = row.get("attempts", [])
+        if len(attempt_rows) != len(statuses) or [
+            attempt.get("solver_status") for attempt in attempt_rows if isinstance(attempt, dict)
+        ] != list(statuses):
+            issues.append({"code": "grounding_relation_solver_attempt_vector_not_lossless"})
+    if (
+        len(aggregation_rows) != len(expected_aggregates)
+        or observed_aggregates != expected_aggregates
+    ):
+        issues.append({"code": "grounding_relation_solver_aggregate_table_mismatch"})
     issues.extend(
         _probe_issues(
             "false_analog_minimal_swap_set",
@@ -600,6 +676,19 @@ def _core_issues(
             "unknown_unproven_contradiction", probes.get("unknown_unproven_contradiction", {})
         )
     )
+    sat_unknown_relation = probes.get("unknown_unproven_contradiction", {})
+    if (
+        sat_unknown_relation.get("solver_status") != "SAT"
+        or sat_unknown_relation.get("selected_relation") != "unknown"
+        or sat_unknown_relation.get("recommended_transition") != "shadow"
+    ):
+        issues.append({"code": "grounding_relation_sat_unknown_relation_control_failed"})
+    for probe_id in (
+        "unknown_solver_quarantine",
+        "empty_candidate_solver_sat",
+        "empty_candidate_solver_unknown",
+    ):
+        issues.extend(_probe_issues(probe_id, probes.get(probe_id, {})))
     issues.extend(_probe_issues("fake_atom_not_exact", probes.get("fake_atom_not_exact", {})))
     issues.extend(_probe_issues("data_only_free_grow", probes.get("data_only_free_grow", {})))
     shadow = probes.get("shadow_only", {})
@@ -719,6 +808,67 @@ def _probe_issues(probe_id: str, probe: dict[str, Any]) -> list[dict[str, Any]]:
             issues.append({"code": "unproven_contradiction_relation_set_over_vetoed"})
         if relation == "blocked":
             issues.append({"code": "unproven_contradiction_blocked"})
+    elif probe_id in {
+        "unknown_solver_quarantine",
+        "empty_candidate_solver_unknown",
+    }:
+        if solver != "UNKNOWN":
+            issues.append({"code": "cg1_unknown_solver_aggregate_not_unknown"})
+        if relation != "unknown":
+            issues.append({"code": "cg1_unknown_solver_relation_not_unknown"})
+        if probe.get("recommended_transition") != "quarantine":
+            issues.append({"code": "cg1_unknown_solver_not_quarantined"})
+        attempts = probe.get("solver_attempts") or []
+        attempt_ids = [row.get("hypothesis_id") for row in attempts if isinstance(row, dict)]
+        if (
+            not attempts
+            or len(attempt_ids) != len(attempts)
+            or len(set(attempt_ids)) != len(attempt_ids)
+        ):
+            issues.append({"code": "cg1_unknown_solver_attempt_lineage_missing_or_duplicate"})
+        if any(row.get("solver_status") != "UNKNOWN" for row in attempts if isinstance(row, dict)):
+            issues.append({"code": "cg1_unknown_solver_attempt_status_mismatch"})
+        if any(
+            row.get("solver") != "contract_probe_controlled_result"
+            or not row.get("native_status")
+            or not row.get("unsat_core")
+            for row in attempts
+            if isinstance(row, dict)
+        ):
+            issues.append({"code": "cg1_unknown_solver_attempt_provenance_incomplete"})
+        invoked_ids = probe.get("solver_invocation_hypothesis_ids") or []
+        if (
+            not all(isinstance(value, str) for value in [*attempt_ids, *invoked_ids])
+            or sorted(attempt_ids) != sorted(invoked_ids)
+        ):
+            issues.append({"code": "cg1_unknown_solver_attempt_denominator_mismatch"})
+        if probe_id == "unknown_solver_quarantine":
+            if probe.get("candidate_atom_count", 0) <= 0:
+                issues.append({"code": "cg1_unknown_solver_candidate_lineage_missing"})
+            pair_statuses = set(probe.get("candidate_solver_statuses") or [])
+            if pair_statuses != {"UNKNOWN"}:
+                issues.append({"code": "cg1_unknown_solver_candidate_status_not_unknown"})
+        elif probe.get("candidate_atom_count") != 0 or probe.get("candidate_result_count") != 0:
+            issues.append({"code": "cg1_empty_candidate_unknown_probe_not_empty"})
+    elif probe_id == "empty_candidate_solver_sat":
+        if solver != "SAT" or relation != "unknown":
+            issues.append({"code": "cg1_empty_candidate_sat_attempt_not_preserved"})
+        if probe.get("recommended_transition") != "shadow":
+            issues.append({"code": "cg1_empty_candidate_sat_attempt_not_candidate_band"})
+        if probe.get("candidate_atom_count") != 0 or probe.get("candidate_result_count") != 0:
+            issues.append({"code": "cg1_empty_candidate_sat_probe_not_empty"})
+        attempts = probe.get("solver_attempts") or []
+        attempt_ids = [row.get("hypothesis_id") for row in attempts if isinstance(row, dict)]
+        if (
+            len(attempts) != 1
+            or len(attempt_ids) != 1
+            or attempt_ids != probe.get("solver_invocation_hypothesis_ids")
+            or not isinstance(attempts[0], dict)
+            or attempts[0].get("solver_status") != "SAT"
+            or attempts[0].get("solver") != "contract_probe_controlled_result"
+            or not attempts[0].get("native_status")
+        ):
+            issues.append({"code": "cg1_empty_candidate_sat_attempt_evidence_missing"})
     elif probe_id == "fake_atom_not_exact":
         if relation == "exact":
             issues.append({"code": "fake_atom_selected_exact"})
@@ -771,6 +921,9 @@ def _certificate_summary(certificate: Any) -> dict[str, Any]:
         "content_hash": certificate.content_hash,
         "selected_relation": certificate.selected_relation,
         "solver_status": certificate.solver_status,
+        "solver_attempts": [
+            attempt.model_dump(mode="json") for attempt in certificate.solver_attempts
+        ],
         "recommended_transition": certificate.recommended_transition,
         "candidate_atom_count": len(certificate.candidate_atom_ids),
         "candidate_atom_ids": list(certificate.candidate_atom_ids[:8]),
@@ -790,6 +943,128 @@ def _certificate_summary(certificate: Any) -> dict[str, Any]:
             coverage.get("adversarial_countercandidate_reasons") or []
         ),
     }
+
+
+def _forced_solver_probe(
+    engine: Any,
+    *,
+    solver_status: Literal["SAT", "UNKNOWN"],
+    empty_candidates: bool,
+    proposal_id: str,
+) -> dict[str, Any]:
+    """Exercise the production CG1 certificate builder with a controlled solver result.
+
+    The probe calls the real parser, candidate builder, relation aggregation, certificate
+    serializer and content-hash owner. Only the solver return value is controlled; the output
+    explicitly identifies that control so it is not mistaken for a CP-SAT execution receipt.
+    """
+
+    from polisyos.runtime.quality.grounding_relation import (
+        GroundingRelationEngine,
+        _SolverResult,
+    )
+
+    class ControlledSolverEngine(GroundingRelationEngine):
+        def __init__(self, reference: Any) -> None:
+            super().__init__(reference)
+            self._reference_atoms = engine.reference_atoms
+            self._fts_index = engine._fts_index
+            self.invoked_hypotheses: list[str] = []
+
+        def retrieve_candidates(
+            self,
+            parsed: Any,
+            *,
+            include_adversarial_countercandidates: bool = True,
+        ) -> tuple[Any, ...]:
+            if empty_candidates:
+                return ()
+            return super().retrieve_candidates(
+                parsed,
+                include_adversarial_countercandidates=include_adversarial_countercandidates,
+            )
+
+        def _solve_joint_cross_modal(self, hypothesis: Any) -> Any:
+            self.invoked_hypotheses.append(hypothesis.hypothesis_id)
+            return _SolverResult(
+                status=solver_status,
+                solver="contract_probe_controlled_result",
+                native_status=f"forced_{solver_status.lower()}",
+                available=True,
+                unsat_core=("controlled_contract_probe_unknown",)
+                if solver_status == "UNKNOWN"
+                else (),
+                cross_modal_witnesses={
+                    "solver": "contract_probe_controlled_result",
+                    "status": f"forced_{solver_status.lower()}",
+                },
+            )
+
+    probe_engine = ControlledSolverEngine(engine.reference)
+    certificate = probe_engine.certificate_for(
+        _unknown_unproven_probe(),
+        proposal_id=proposal_id,
+    )
+    summary = _certificate_summary(certificate)
+    candidate_results = certificate.relation_set.get("candidate_results", [])
+    summary.update(
+        {
+            "solver_invocation_hypothesis_ids": list(probe_engine.invoked_hypotheses),
+            "candidate_result_count": len(candidate_results),
+            "candidate_solver_statuses": sorted(
+                {
+                    str(row.get("solver_status"))
+                    for row in candidate_results
+                    if isinstance(row, dict)
+                }
+            ),
+            "solver_control": "contract_probe_controlled_result_not_backend_execution",
+        }
+    )
+    return summary
+
+
+def _solver_aggregation_summary() -> list[dict[str, Any]]:
+    """Run CG1's typed aggregate over the complete decision table, including empty input."""
+
+    from polisyos.runtime.quality.grounding_relation import (
+        HypothesisSolverAttempt,
+        SolverStatus,
+        _aggregate_solver_status,
+    )
+
+    cases: tuple[tuple[tuple[SolverStatus, ...], SolverStatus], ...] = (
+        ((), "UNKNOWN"),
+        (("UNSAT",), "UNSAT"),
+        (("UNSAT", "UNSAT"), "UNSAT"),
+        (("SAT",), "SAT"),
+        (("SAT", "UNKNOWN"), "SAT"),
+        (("UNSAT", "UNKNOWN"), "UNKNOWN"),
+        (("UNKNOWN", "UNKNOWN"), "UNKNOWN"),
+    )
+    rows: list[dict[str, Any]] = []
+    for statuses, expected in cases:
+        attempts = tuple(
+            HypothesisSolverAttempt(
+                hypothesis_id=f"cg1-contract-aggregate:h{index}",
+                solver="contract_probe_controlled_result",
+                solver_status=status,
+                native_status=f"forced_{status.lower()}",
+                available=True,
+                unsat_core=(f"forced_reason:{index}",) if status != "SAT" else (),
+            )
+            for index, status in enumerate(statuses)
+        )
+        rows.append(
+            {
+                "attempt_statuses": list(statuses),
+                "attempts": [attempt.model_dump(mode="json") for attempt in attempts],
+                "expected_status": expected,
+                "aggregate_status": _aggregate_solver_status(attempts),
+                "solver_control": "contract_probe_controlled_result_not_backend_execution",
+            }
+        )
+    return rows
 
 
 def _gyk_witness_count(certificate: Any) -> int:
@@ -1290,6 +1565,121 @@ def _json_stable(payload: dict[str, Any]) -> dict[str, Any]:
     return _copy(payload)
 
 
+
+
+class _InvalidInspectionVerdictError(Exception):
+    """Raised when an inspection did not return a typed pass/fail result."""
+
+
+def _inspection_failure_descriptor(exc: Exception, repo_root: Path) -> dict[str, Any]:
+    """Return exception type and one source frame without message or local values."""
+
+    try:
+        frames = traceback.extract_tb(exc.__traceback__)
+    except Exception:
+        frames = []
+    if not frames:
+        return {
+            "error_type": type(exc).__name__,
+            "source_frame": {"path": "<unknown>", "line": None, "function": "<unknown>"},
+        }
+    frame = frames[-1]
+    source_path = Path(frame.filename)
+    try:
+        source_path = source_path.resolve().relative_to(repo_root.resolve())
+        display_path = source_path.as_posix()
+    except Exception:
+        display_path = source_path.name
+    return {
+        "error_type": type(exc).__name__,
+        "source_frame": {
+            "path": display_path,
+            "line": frame.lineno,
+            "function": frame.name,
+        },
+    }
+
+
+def _run_instrumented_inspection(
+    inspection: Callable[[], dict[str, Any]],
+    *,
+    repo_root: Path,
+    operation: str,
+    source_modules: tuple[str, ...],
+    direct_artifact_inputs: tuple[str, ...],
+    unresolved_by_construction: tuple[str, ...],
+) -> tuple[dict[str, Any], int]:
+    """Run an owner inspection and return PASS, FAIL, or UNRUN with disclosure."""
+
+    try:
+        report = inspection()
+        if (
+            not isinstance(report, dict)
+            or report.get("status") not in {"pass", "fail"}
+            or not isinstance(report.get("issues"), list)
+        ):
+            raise _InvalidInspectionVerdictError
+        json.dumps(report)
+    except Exception as exc:
+        report = {
+            "status": "UNRUN",
+            "issues": [{"code": "inspection_unrun"}],
+            "inspection_failure": _inspection_failure_descriptor(exc, repo_root),
+        }
+    report = {
+        **report,
+        "measurement": {
+            "operation": operation,
+            "input_basis": (
+                "curated owner-level source_modules provenance; not a complete transitive "
+                "import-origin census"
+            ),
+            "declared_inputs": {
+                "source_modules": list(source_modules),
+                "direct_artifact_inputs": list(direct_artifact_inputs),
+            },
+            "unresolved_by_construction": list(unresolved_by_construction),
+        },
+    }
+    return report, {"pass": 0, "fail": 1, "UNRUN": 2}[report["status"]]
+
+
+def _print_instrumented_report(
+    report: dict[str, Any],
+    *,
+    output_format: str,
+    label: str,
+) -> None:
+    """Render a typed inspection report without exposing exception values."""
+
+    if output_format == "json":
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return
+    print(f"{label}: {report['status']}")
+    measurement = report["measurement"]
+    print("Declared owner source modules:")
+    for item in measurement["declared_inputs"]["source_modules"]:
+        print(f"  - {item}")
+    print("Declared direct artifact inputs:")
+    for item in measurement["declared_inputs"]["direct_artifact_inputs"]:
+        print(f"  - {item}")
+    print("Unresolved by construction:")
+    for item in measurement["unresolved_by_construction"]:
+        print(f"  - {item}")
+    if report["status"] == "UNRUN":
+        failure = report["inspection_failure"]
+        frame = failure["source_frame"]
+        print(
+            "inspection_unrun: "
+            f"{failure['error_type']} at "
+            f"{frame['path']}:{frame['line']}:{frame['function']}"
+        )
+    elif report["status"] == "fail":
+        for issue in report["issues"]:
+            if isinstance(issue, dict):
+                print(f"{issue.get('code')}: {issue}")
+            else:
+                print(f"inspection_issue: {issue}")
 def main(argv: list[str] | None = None) -> int:
     """Run the CGF GY-CG1 grounding relation contract validator."""
 
@@ -1300,29 +1690,42 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
+    operation = (
+        "corrupt-field-drift-check"
+        if args.corrupt_field_drift_check
+        else "write"
+        if args.write
+        else "check"
+    )
 
-    repo_root = args.repo_root.resolve()
-    inserted = [str(repo_root), str(repo_root / "src")]
-    for item in reversed(inserted):
-        if item not in sys.path:
-            sys.path.insert(0, item)
-
-    if args.corrupt_field_drift_check:
-        report = corrupt_field_drift_check(repo_root)
-    else:
+    def inspect() -> dict[str, Any]:
+        repo_root = args.repo_root.resolve()
+        inserted = [str(repo_root), str(repo_root / "src")]
+        for item in reversed(inserted):
+            if item not in sys.path:
+                sys.path.insert(0, item)
+        if args.corrupt_field_drift_check:
+            return corrupt_field_drift_check(repo_root)
         live_payload = build_live_payload(repo_root) if args.write else None
         if args.write:
             write(repo_root, payload=live_payload)
-        report = validate(repo_root) if not args.write else validate_payload(live_payload)
+            return validate_payload(live_payload)
+        return validate(repo_root)
 
-    if args.output_format == "json":
-        print(json.dumps(report, indent=2, sort_keys=True))
-    elif report["status"] != "pass":
-        for issue in report["issues"]:
-            print(f"{issue.get('code')}: {issue}")
-    else:
-        print("grounding relation contract: pass")
-    return 0 if report["status"] == "pass" else 1
+    report, exit_code = _run_instrumented_inspection(
+        inspect,
+        repo_root=args.repo_root,
+        operation=operation,
+        source_modules=_CG1_SOURCE_MODULES,
+        direct_artifact_inputs=_CG1_DIRECT_ARTIFACT_INPUTS,
+        unresolved_by_construction=_GROUNDING_CHECK_UNRESOLVED_BY_CONSTRUCTION,
+    )
+    _print_instrumented_report(
+        report,
+        output_format=args.output_format,
+        label="grounding relation contract",
+    )
+    return exit_code
 
 
 if __name__ == "__main__":

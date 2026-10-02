@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-09-13
+- Last updated: 2026-10-02
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 authority/status composition, evidence and claim binding, replay, closeout
@@ -379,14 +379,31 @@ mechanical proof does not supply the requirement
 
 ## CG2 admission accounting and pre-outcome frames
 
-`grounding_bind.GroundingBindGate` remains the sole binder. Its v2 decisions
+`grounding_bind.GroundingBindGate` remains the sole binder. Its v3 decisions
 carry synthetic ancestry, a run-admission observation and a recomputed strangle
 of per-attempt charging. `grounding_risk.GroundingRunBudget` extends existing
 Core CAS and Fabric locking: only admitted bindings debit the configured run
 allowance. Replayed admissions are idempotent; missing cache heads cannot reset
 spend, and unresolved durable state cannot create a new balance. Exhaustion or
 missing persistence retains candidate custody under INT-K06 with no correctness
-number. Historical v1 certificate serialization omits the added v2 fields.
+number. Historical v1 certificate serialization omits the added v2 fields;
+historical v1/v2 projections also omit v3 semantic-currentness reasons.
+
+CG1 relation certificates use schema v2 and retain the actual solver attempt for
+each parsed hypothesis, even when there are no candidate levers. Empty or
+unresolved solver results are UNKNOWN and quarantined; a SAT result with an
+unresolved relation remains candidate-only shadow. The attempt vector records
+the backend, native status, availability and unsatisfiable core. Historical v1
+hashing and serialization omit that new vector.
+
+CG2 replays that same CG1 owner computation before binding. Changed solver
+status, unresolved axes, validator or attempt vector produce semantic
+`currentness_reasons`, separately from reference/epoch `stale_reasons`. Neither
+candidate shadow nor a green mechanism report establishes authority. The CG1
+and CG2 contract CLIs return pass/fail/UNRUN with exits 0/1/2 and disclose curated
+owner inputs plus the import-origin and production-row populations they do not
+measure. Current contract outputs are regenerated only by those two owners;
+standing certificate epochs and historical receipts are not restamped.
 
 `grounding_calibration` owns dated input-only frames and constructed-mismatch
 suite declarations. Difficulty depends on input structure; source-sharing

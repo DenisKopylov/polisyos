@@ -17,7 +17,14 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 import duckdb
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.credal_reference import (
@@ -30,8 +37,9 @@ from polisyos.runtime.quality.credal_reference import (
 if TYPE_CHECKING:
     from pathlib import Path
 
-GROUNDING_RELATION_SCHEMA_VERSION = "policyos.runtime.grounding_relation_certificate.v1"
-GROUNDING_RELATION_VALIDATOR_VERSION = "policyos.runtime.grounding_relation.cg1.v1"
+GROUNDING_RELATION_SCHEMA_VERSION_V1 = "policyos.runtime.grounding_relation_certificate.v1"
+GROUNDING_RELATION_SCHEMA_VERSION = "policyos.runtime.grounding_relation_certificate.v2"
+GROUNDING_RELATION_VALIDATOR_VERSION = "policyos.runtime.grounding_relation.cg1.v2"
 NUMERIC_SCALING = "basis_points"
 
 AxisRelation = Literal[
@@ -228,6 +236,17 @@ class CandidateRelationResult(_StrictModel):
     retrieval_score: float = Field(0.0, ge=0.0)
 
 
+class HypothesisSolverAttempt(_StrictModel):
+    """One CP-SAT result for one unique parsed proposal hypothesis."""
+
+    hypothesis_id: str = Field(..., min_length=1)
+    solver: str = Field(..., min_length=1)
+    solver_status: SolverStatus
+    native_status: str | None = None
+    available: bool | None = None
+    unsat_core: tuple[str, ...] = ()
+
+
 class GroundingEnginePolicy(_StrictModel):
     """Test-only mutation switches for P29 behavioral contract probes."""
 
@@ -245,9 +264,10 @@ class GroundingEnginePolicy(_StrictModel):
 class GroundingRelationCertificate(_StrictModel):
     """Content-addressed CG1 shadow relation certificate."""
 
-    schema_version: Literal["policyos.runtime.grounding_relation_certificate.v1"] = (
-        GROUNDING_RELATION_SCHEMA_VERSION
-    )
+    schema_version: Literal[
+        "policyos.runtime.grounding_relation_certificate.v1",
+        "policyos.runtime.grounding_relation_certificate.v2",
+    ] = GROUNDING_RELATION_SCHEMA_VERSION
     certificate_id: str = Field(..., pattern=r"^cg1_cert_[a-f0-9]{16}$")
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     proposal_id: str = Field(..., min_length=1)
@@ -266,6 +286,7 @@ class GroundingRelationCertificate(_StrictModel):
     compositional_cover: dict[str, Any] | None = None
     cross_modal_witnesses: dict[str, Any]
     solver_status: SolverStatus
+    solver_attempts: tuple[HypothesisSolverAttempt, ...] = ()
     unsat_core_if_any: tuple[str, ...] = ()
     recommended_transition: RecommendedTransition
     validator_version: str = GROUNDING_RELATION_VALIDATOR_VERSION
@@ -273,8 +294,24 @@ class GroundingRelationCertificate(_StrictModel):
     shadow_only: bool = True
     no_bind_admit_promote: bool = True
 
+    @model_serializer(mode="wrap")
+    def _serialize_historical_schema(
+        self, handler: SerializerFunctionWrapHandler
+    ) -> dict[str, Any]:
+        """Preserve the v1 body exactly; solver attempts first exist in v2."""
+
+        payload = handler(self)
+        if self.schema_version == GROUNDING_RELATION_SCHEMA_VERSION_V1:
+            payload.pop("solver_attempts", None)
+        return payload
+
     @model_validator(mode="after")
     def _shadow_only_boundary(self) -> GroundingRelationCertificate:
+        if (
+            self.schema_version == GROUNDING_RELATION_SCHEMA_VERSION_V1
+            and self.solver_attempts
+        ):
+            raise ValueError("cg1_v1_solver_attempts_forbidden")
         if self.recommended_transition not in _SHADOW_TRANSITIONS:
             raise ValueError("cg1_recommended_transition_not_shadow_only")
         if self.recommended_transition in _BIND_TRANSITIONS:
@@ -289,6 +326,15 @@ class _SolverResult:
     status: SolverStatus
     unsat_core: tuple[str, ...] = ()
     cross_modal_witnesses: dict[str, Any] | None = None
+    solver: str = "ortools_cp_sat"
+    native_status: str | None = None
+    available: bool | None = None
+
+
+@dataclass(frozen=True)
+class _GroundingRelationEvaluation:
+    pair_results: tuple[CandidateRelationResult, ...]
+    solver_attempts: tuple[HypothesisSolverAttempt, ...]
 
 
 @dataclass(frozen=True)
@@ -341,21 +387,37 @@ class GroundingRelationEngine:
             parsed,
             include_adversarial_countercandidates=include_adversarial_countercandidates,
         )
-        pair_results = self._candidate_relation_results(parsed, candidates)
+        return self._certificate_for_parsed(parsed, candidates)
+
+    def _certificate_for_parsed(
+        self,
+        parsed: ParsedProposal,
+        candidates: Sequence[GroundingCandidateAtom],
+        *,
+        retrieval_indexed_edge_count: int | None = None,
+    ) -> GroundingRelationCertificate:
+        """Build issuer and replay certificates through one CG1 owner."""
+
+        evaluation = self._candidate_relation_results(parsed, candidates)
+        pair_results = evaluation.pair_results
         verdict = _proposal_verdict(
             pair_results,
             candidates=candidates,
             parsed=parsed,
             reference=self.reference,
-            retrieval_indexed_edge_count=self._fts_index.indexed_edge_count
-            if self._fts_index is not None
-            else 0,
+            retrieval_indexed_edge_count=(
+                retrieval_indexed_edge_count
+                if retrieval_indexed_edge_count is not None
+                else self._fts_index.indexed_edge_count
+                if self._fts_index is not None
+                else 0
+            ),
             policy=self.policy,
         )
         selected = verdict.representative
+        solver_status = _aggregate_solver_status(evaluation.solver_attempts)
         if selected is None:
             selected_relation = verdict.selected_relation
-            solver_status: SolverStatus = "SAT"
             axis_witnesses: tuple[AxisRelationWitness, ...] = ()
             critical: tuple[str, ...] = ()
             unresolved: tuple[str, ...] = ()
@@ -363,7 +425,6 @@ class GroundingRelationEngine:
             unsat_core: tuple[str, ...] = ()
         else:
             selected_relation = verdict.selected_relation
-            solver_status = selected.solver_status
             axis_witnesses = selected.axis_witnesses
             critical = selected.critical_contradictions
             unresolved = selected.unresolved_axes
@@ -371,6 +432,7 @@ class GroundingRelationEngine:
             unsat_core = selected.unsat_core_if_any
         recommended = _recommended_transition(
             selected_relation,
+            solver_status=solver_status,
             allow_bind_recommendations=self.policy.allow_bind_recommendations,
         )
         raw_payload = {
@@ -401,6 +463,9 @@ class GroundingRelationEngine:
                 ),
             ),
             "solver_status": solver_status,
+            "solver_attempts": [
+                attempt.model_dump(mode="json") for attempt in evaluation.solver_attempts
+            ],
             "unsat_core_if_any": list(unsat_core),
             "recommended_transition": recommended,
             "validator_version": GROUNDING_RELATION_VALIDATOR_VERSION,
@@ -501,10 +566,21 @@ class GroundingRelationEngine:
         self,
         parsed: ParsedProposal,
         candidates: Sequence[GroundingCandidateAtom],
-    ) -> tuple[CandidateRelationResult, ...]:
+    ) -> _GroundingRelationEvaluation:
         results: list[CandidateRelationResult] = []
+        attempts: list[HypothesisSolverAttempt] = []
         for hypothesis in parsed.hypotheses:
             solver = self._solve_joint_cross_modal(hypothesis)
+            attempts.append(
+                HypothesisSolverAttempt(
+                    hypothesis_id=hypothesis.hypothesis_id,
+                    solver=solver.solver,
+                    solver_status=solver.status,
+                    native_status=solver.native_status,
+                    available=solver.available,
+                    unsat_core=solver.unsat_core,
+                )
+            )
             for candidate in candidates:
                 if self.policy.allow_surface_similarity_exact and candidate.retrieval_score >= 0.8:
                     results.append(
@@ -563,7 +639,10 @@ class GroundingRelationEngine:
                         retrieval_score=candidate.retrieval_score,
                     )
                 )
-        return tuple(results)
+        return _GroundingRelationEvaluation(
+            pair_results=tuple(results),
+            solver_attempts=tuple(attempts),
+        )
 
     def _solve_joint_cross_modal(self, hypothesis: ProposalHypothesis) -> _SolverResult:
         """Run the CP-SAT joint typed cross-modal consistency check."""
@@ -571,6 +650,7 @@ class GroundingRelationEngine:
         if self.policy.use_greedy_solver:
             return _SolverResult(
                 status="SAT",
+                solver="greedy_mutation_probe",
                 cross_modal_witnesses={
                     "solver": "greedy_mutation_probe",
                     "warning": "joint constraints bypassed",
@@ -583,6 +663,7 @@ class GroundingRelationEngine:
                 status="UNKNOWN",
                 unsat_core=("ortools_cp_sat_unavailable",),
                 cross_modal_witnesses={"solver": "ortools_cp_sat", "available": False},
+                available=False,
             )
 
         claims = _compile_modal_claims(hypothesis.signature, self.reference)
@@ -636,6 +717,8 @@ class GroundingRelationEngine:
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             return _SolverResult(
                 status="SAT",
+                native_status=str(status),
+                available=True,
                 cross_modal_witnesses={
                     "NL": _modal_claim_payload(claims, "NL"),
                     "L3": _modal_claim_payload(claims, "L3"),
@@ -655,6 +738,8 @@ class GroundingRelationEngine:
             return _SolverResult(
                 status="UNSAT",
                 unsat_core=core,
+                native_status=str(status),
+                available=True,
                 cross_modal_witnesses={
                     "NL": _modal_claim_payload(claims, "NL"),
                     "L3": _modal_claim_payload(claims, "L3"),
@@ -669,6 +754,8 @@ class GroundingRelationEngine:
         return _SolverResult(
             status="UNKNOWN",
             unsat_core=("cp_sat_timeout_or_unknown",),
+            native_status=str(status),
+            available=True,
             cross_modal_witnesses={"solver": "ortools_cp_sat", "status": str(status)},
         )
 
@@ -1422,6 +1509,22 @@ def _relation_from_axes(
     return "partial"
 
 
+def _aggregate_solver_status(
+    attempts: Sequence[HypothesisSolverAttempt],
+) -> SolverStatus:
+    """Aggregate one actual solver result per unique hypothesis existentially."""
+
+    hypothesis_ids = tuple(attempt.hypothesis_id for attempt in attempts)
+    if len(hypothesis_ids) != len(set(hypothesis_ids)):
+        raise ValueError("cg1_duplicate_hypothesis_solver_attempt")
+    statuses = tuple(attempt.solver_status for attempt in attempts)
+    if "SAT" in statuses:
+        return "SAT"
+    if statuses and all(status == "UNSAT" for status in statuses):
+        return "UNSAT"
+    return "UNKNOWN"
+
+
 def _proposal_verdict(
     results: Sequence[CandidateRelationResult],
     *,
@@ -1637,8 +1740,11 @@ def _known_space_coverage_claim(
 def _recommended_transition(
     relation: SelectedRelation,
     *,
+    solver_status: SolverStatus,
     allow_bind_recommendations: bool,
 ) -> RecommendedTransition:
+    if solver_status != "SAT":
+        return "quarantine"
     if allow_bind_recommendations and relation in {"exact", "certified-specialization"}:
         return "exact_bind"  # type: ignore[return-value]
     if relation == "false-analog" or relation == "blocked":
@@ -2775,6 +2881,7 @@ __all__ = [
     "GroundingEnginePolicy",
     "GroundingRelationCertificate",
     "GroundingRelationEngine",
+    "HypothesisSolverAttempt",
     "MechanisticSignature",
     "ParsedProposal",
     "ProposalHypothesis",

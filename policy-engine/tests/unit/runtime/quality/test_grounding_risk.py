@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
@@ -160,38 +161,69 @@ def test_synthetic_production_refusal_is_not_an_absent_calibration_mask() -> Non
 
 
 def test_existing_v1_records_stay_readable_without_claiming_run_accounting() -> None:
-    source = Path("architecture/policy_design_case/layer3_gy_promotion_contract.json")
-    payload = json.loads(source.read_bytes())
+    """Replay every recorded CG2-v1 body without adding current-version fields."""
+    repository_root = Path(__file__).resolve().parents[4]
+    historical_sources = (
+        (
+            repository_root
+            / "docs/superpowers/journals/gy-phase5-evidence/pr1/"
+            "promotion-comparison-complete-observation.json",
+            "7d8da6840453491a3194a8830ca4a5f732324b42e8511a731450c086b82eb979",
+            8,
+        ),
+        (
+            repository_root
+            / "tests/repo_quality/tools/fixtures/"
+            "layer3_gy_promotion_contract_credal_v1.json",
+            "4825fd7adac74ef35a351d023dbd0069952b602b26b1c124c7795ef696f1a59a",
+            2,
+        ),
+    )
+    schema = "policyos.runtime.grounding_decision_certificate.v1"
+    expected_content_hash = (
+        "sha256:ead440ec743262d1262cc24a0698a1966ef0fc2d90b23d503dbaa41da308e69a"
+    )
     records = []
-    pending = [payload]
-    while pending:
-        value = pending.pop()
-        if isinstance(value, dict):
-            if value.get("schema_version") == "policyos.runtime.grounding_decision_certificate.v1":
-                records.append(value)
-            pending.extend(value.values())
-        elif isinstance(value, list):
-            pending.extend(value)
-    assert records
+    independently_found = []
+
+    for source, expected_file_hash, expected_count in historical_sources:
+        raw = source.read_bytes()
+        assert hashlib.sha256(raw).hexdigest() == expected_file_hash, source
+        payload = json.loads(raw)
+        source_records = []
+        pending = [payload]
+        while pending:
+            value = pending.pop()
+            if isinstance(value, dict):
+                if value.get("schema_version") == schema:
+                    source_records.append(value)
+                pending.extend(value.values())
+            elif isinstance(value, list):
+                pending.extend(value)
+        assert len(source_records) == expected_count, source
+        records.extend(source_records)
+
+        json.loads(
+            raw,
+            object_hook=lambda row: independently_found.append(row)
+            if row.get("schema_version") == schema
+            else row,
+        )
+
+    assert len(records) == 10
+    assert {record["content_hash"] for record in records} == {expected_content_hash}
+    assert {record["content_hash"] for record in independently_found} == {
+        record["content_hash"] for record in records
+    }
     for record in records:
         decoded = GroundingDecisionCertificate.model_validate(record)
-        assert decoded.content_hash == record["content_hash"]
+        assert decoded.content_hash == expected_content_hash
         assert decoded.run_admission is None
+        # Exact projection equality keeps v1 bytes free of fields introduced later.
         assert decoded.model_dump(mode="json") == record
         assert TypeAdapter(dict[str, GroundingDecisionCertificate]).dump_python(
             {"historical": decoded}, mode="json"
         ) == {"historical": record}
-    independently_found = []
-    json.loads(
-        source.read_bytes(),
-        object_hook=lambda row: independently_found.append(row)
-        if row.get("schema_version") == "policyos.runtime.grounding_decision_certificate.v1"
-        else row,
-    )
-    assert {row["content_hash"] for row in independently_found} == {
-        row["content_hash"] for row in records
-    }
-
 
 def test_preemptive_cap_removal_is_detected(tmp_path: Path, monkeypatch) -> None:
     from polisyos.runtime.quality import grounding_risk

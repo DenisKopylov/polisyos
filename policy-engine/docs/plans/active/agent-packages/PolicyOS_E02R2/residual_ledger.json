@@ -4283,6 +4283,49 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-temporal-replay-design-20260929/R2_INDEPENDENT_REVIEW.md@sha256:0e7894e2c3a39d1c1643e4a22cd56d2ad05e02f4e93286e0bf9b1a20c83f60e7",
             "/Users/deniskopylov/.codex/scratch/e02-r2-temporal-replay-design-20260929/R2_SECOND_INDEPENDENT_REVIEW.md@sha256:395a0024554d5e1c31d69963509f02f7ec70f1269713954bd6de7b85bafa1eaf"
           ]
+        },
+        "r2_history_removal_probe_42c4_2026_10_02": {
+          "kind": "bounded_historical_replay_removal_probe",
+          "identity": "tests.unit.runtime.quality.test_generation_cycle_history::test_history_replay_is_read_only_and_does_not_consult_current_source",
+          "commit": "42c4ae1d45f4c6cc744677f587304ed2e72a6a25",
+          "normal": {
+            "behavioral_verdict": "PASS_BOUNDED",
+            "case_counts": "33 passed",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r2-history-normal-42c4ae1-v7-current-testpin-20261002T120147254115Z/result.json@sha256:bd1030df91719a4be0c64c3bcec5af22b6d197378569a8b7319ad6576cc25604"
+          },
+          "marker_retaining_removal": {
+            "behavioral_verdict": "EXPECTED_RED",
+            "case_counts": "32 passed / 1 failed at the intended history replay selector",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r2-history-removal-42c4ae1-v7-current-testpin-20261002T120409509128Z/result.json@sha256:0850dec3e6af2308b606af0e837da13c287dee7bcf28393cbf30f336b0ebbdbb"
+          },
+          "restored": {
+            "behavioral_verdict": "PASS_BOUNDED",
+            "case_counts": "33 passed",
+            "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r2-history-restored-42c4ae1-v7-current-testpin-20261002T120659789703Z/result.json@sha256:582ed5f1379e724a1b783234886bbfe5ff2d1fc4ae5cabcddecd8471fd241aba"
+          },
+          "scope": "Same 33 identities/test blob and 6,733 frozen inputs. Shows bounded historical replay independence from the live source check. Does not establish canonical loaded-deployment identity/currentness issuance, significant-dependency invalidation, packaged positive currentness, or four-base P41. The approved source packet remains immutable: /Users/deniskopylov/.codex/scratch/E02R2_EVIDENCE_APPEND_42C4_R2TRIAD_B09PRECODE_20261002_REVISION2/manifest.json@sha256:99f13191d1b6b09468cbc1c1ae73361e0a00cc0957144906244d124fc86dec18.",
+          "test_blob_oid": "af5732738256914d9263a0d042eb6770768103ba",
+          "input_freeze_sha256": "78e55946ca3d2a43693d0304b0e002f1c13b491eff8249224bc6e96445bf3851",
+          "expected_removal_error": "historical_replay_consulted_live_source"
+        },
+        "r2_current_head_cohort_resource_guard_b22_2026_10_02": {
+          "kind": "resource_guarded_attempt",
+          "identity": "B22 current source/cycle/substrate whole-file cohort",
+          "behavioral_verdict": "UNRUN",
+          "configured_scope": "61 expected cases across test_generation_source.py and test_cycle_substrate.py; only the first file began, the second was not started",
+          "result_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r2-source-cycle-substrate-whole61-b22b593-v4-cpu700-20261002T132242457399Z/result.json@sha256:409758fbbaed26a26924082726ab89cdbe18a65de56d2355fddbb5e00eb0b41f",
+          "resource_observation": {
+            "resource_guard_code": "maximum_swap_growth_exceeded",
+            "peak_aggregate_cpu_percent": 451.3,
+            "peak_process_group_rss_kib": 3028400,
+            "minimum_free_ram_percent": 33,
+            "minimum_scratch_free_bytes": 14555222016,
+            "swap_growth_bytes": 1427185336,
+            "process_groups_reaped": true,
+            "elapsed_seconds_before_guard": 20.201,
+            "configured_max_swap_growth_bytes": 268435456
+          },
+          "scope": "No verified JUnit, origin readback or case counts for the first file; the second was not launched. Stdout progress dots are not outcomes. This is a resource-limited UNRUN, not a functional failure or pass. It does not discharge currentness or the four-base P41."
         }
       }
     },

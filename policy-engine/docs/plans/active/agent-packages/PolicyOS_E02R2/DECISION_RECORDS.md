@@ -4836,3 +4836,44 @@ The two options are mutually exclusive on whether to select strict-local as a qu
 **Premises:** generators, output census and byte comparison remain under their existing owners; actual top-level imported origins are recomputed, family membership is supplied by the manifest. Complete manifest adequacy, later arbitrary imports and OS-wide write confinement are not established. **Remainder:** offline lock availability, owner tests/probes and complete sole gate still require execution; no authority or artifact reissue follows. **Revisit falsifier:** reject the design if a canonical-origin process can report a family verdict, if a retained workspace disappears on any outcome, if an existing path is changed, or if locked dependencies cannot be provisioned offline.
 
 Full draft and cost/source premises: `/Users/deniskopylov/.codex/scratch/E02R2_ARCH_GUARDRAIL_RETAINED_WORKSPACE_20261002_V2/DECISION_DRAFT_DELTA.md`; its SHA-256 is recorded in the root integration receipt. This supersedes the initial CoW-first proposal, preserving that prior record.
+
+
+## R9 root-custody scope draft, source-state correction — 2026-10-02
+
+# R9 root-custody scope — separate principal decision draft, not adopted
+
+## Question
+
+Should production GPR issuance, anonymous verification (including retained history), and private reconciliation require an owner-issued root-custody appointment, as the separate ROOT_OWNER_RECOVERY_V3 candidate proposes? This is a distinct question from Denis’s accepted HumanDecisionService V2 production-approval hold.
+
+## Distinct source states
+
+1. **Canonical b22/240.** The canonical `governed_public_record.py` source has no synthetic root-custody marker or gate. Its Git blob is `43eab558118390f503cb5efafa08df9a3c02879e` at both b22 and current patch base `2409567ebadc6f9a4fa41198659e4bff9e5a8921`.
+2. **Separate 0e987 candidate.** Its source blob is `f670da804986f0fe9739139ca36bce857d08505a`. It defaults `_synthetic_public_read_root_custody_for_tests` to `False` and checks that marker in `_authorized_public_index()`, so anonymous verification, including retained-history verification, refuses when no appointment marker is available. Its `issue()` path does not perform this root-custody check.
+3. **ROOT_OWNER_RECOVERY_V3 candidate.** The separate patch `/Users/deniskopylov/.codex/scratch/R9_GPR_FIRST_DENIAL_TRACE_PREP_20261001/ROOT_OWNER_RECOVERY_V3/e02-r2-r9-owner-reconciliation.patch@sha256:d6b5c7e61cf11bc4afe34bcd2529efb721d4eded95b841836dc2fa9153e1d4c8` adds a custody check to issuance after candidate preparation and before signing, and gates `reconcile_public_read_closures()` plus anonymous verification. The resulting `governed_public_record.py` postimage is `/Users/deniskopylov/.codex/scratch/R9_GPR_FIRST_DENIAL_TRACE_PREP_20261001/ROOT_OWNER_RECOVERY_V3/review-tree-b22/policy-engine/src/polisyos/scientist/governance/continuous/governed_public_record.py@sha256:df3d53d6f1a5bee236e1dfbee7fd94af2c648d04412e44a7839743637805d41a`.
+
+Neither candidate behavior is the accepted HumanDecisionService V2 ruling. The production root-custody appointment remains `not_established`; neither candidate is canonical integration or production closure.
+
+## Options and costs
+
+1. **Adopt ROOT_OWNER_RECOVERY_V3’s broader refusal boundary.** Require a real appointment for production issuance, anonymous verification, and private reconciliation, including retained history. Cost: production GPR issuance and history verification remain unavailable until the appointment producer and recovery path exist. Benefit: those operations cannot proceed under an unappointed root.
+2. **Keep this broader scope undecided and carry `not_established`.** Do not claim a production-positive GPR capability or treat the narrower 0e987 candidate as having an issuance gate. Cost: the authority boundary and production closure remain open. Benefit: this avoids silently promoting either candidate’s behavior into a principal ruling and allows non-authority candidate work to continue.
+
+## Premises
+
+- Canonical b22 and current patch base `2409567` have no GPR root-custody gate.
+- The 0e987 source gate applies to `_authorized_public_index()`; it does not gate `issue()`.
+- ROOT_OWNER_RECOVERY_V3 adds the issuance gate and separate private reconciliation mechanism. Its independent review states the real production appointment is still missing: `/Users/deniskopylov/.codex/scratch/R9_GPR_FIRST_DENIAL_TRACE_PREP_20261001/ROOT_OWNER_RECOVERY_V3/R9_ROOT_OWNER_RECOVERY_V3_INDEPENDENT_REVIEW_20261002.md@sha256:7ed33c75fab4931179a7b532ff79619f7d376bba5c548148ebf8173a4a7da62c#6`.
+- This draft selects no option and changes no ledger status.
+
+## Remainder
+
+The real root-custody appointment producer and the required issuance/history recovery path are not established in production. The V3 test-only marker does not appoint a production owner.
+
+## Revisit trigger and falsifier
+
+Revisit after an appointed production-root producer is wired through the existing owner and a served positive, anonymous retained-history replay, unappointed-root negative, crash/recovery probe, and marker-retaining removal probe are available. If issuance or verification succeeds in the selected production boundary after its root-custody gate is removed while markers remain, the selected refusal property is not enforced. Also demonstrate that an actually appointed context remains usable.
+
+## Where this binds
+
+If adopted, this proposed rule binds only production GPR issuance, anonymous verification including retained history, and the specified private reconciliation path. It does not broaden Denis’s accepted HumanDecisionService V2 rule, refuse unrelated artifact families, or block ordinary candidate computation. No option is selected here.

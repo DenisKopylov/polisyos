@@ -578,3 +578,10 @@ At pinned ledger checkpoint `8c1c3fc`, status counts were **7 closed / 262 parti
 ## 2026-10-02 bounded evidence refresh
 
 The complete282-row JSON census remains9closed /260partial /12held /1open. B57/B58 now cite the actual81f worker15/15 and serializer32/32 receipts. B111 cites the93ef output-owner whole15/15 witness after the common v3 fallback fix; authenticated population/provenance and unmeasured callers remain partial. R9 candidate97/97 is not a production issuer appointment. R2 loaded-identity mismatch and Temporal SDK absence remain explicit measured limitations; see newest BASELINES.md receipts. No status, owner decision or register closure is inferred from these additions.
+
+
+## B30 bounded history evidence append — 2026-10-02
+
+B30 remains partial under R2. The source-pinned 42c4 history triad is 33/33 normal, 32/33 plus the intended live-source replay failure under marker-retaining removal, then 33/33 restored. The later B22 source/substrate cohort is UNRUN with no verified cases: the system swap-growth guard stopped its first file. Both records are appended to B30 evidence_refs without changing prior evidence or current_r2_replay. Currentness admission, authorized deployment-identity reissue, and full four-base P41 remain unresolved. Exact receipts and limits: [EVIDENCE_APPEND_20261002.md](EVIDENCE_APPEND_20261002.md).
+
+The complete JSON walk still contains 282 unique rows: 9 closed, 260 partial, 12 held, 1 open. No status or residual owner changes.

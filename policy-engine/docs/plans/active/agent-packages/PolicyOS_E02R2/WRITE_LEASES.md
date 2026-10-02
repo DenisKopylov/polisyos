@@ -2868,3 +2868,10 @@ No native process group remained active before editing. Native postimage
 replay is UNRUN at this commit boundary; Ruff/diff results are recorded below.
 
 Ruff on both executable paths returned exit 0; git diff --check returned exit 0.
+
+
+## L / B30 evidence checkpoint — 2026-10-02
+
+Root alone appends the measured B22 B09 33P/2F and R2 resource-limited UNRUN receipts to BASELINES/FINAL_REPORT; adds EVIDENCE_APPEND_20261002.md; appends the separately pending R9 scope decision draft; and adds exactly two B30 evidence keys surgically to residual_ledger.json with its paired prose addendum. All 282 old statuses/residuals/owners and existing evidence stay unchanged: 9/260/12/1. No debt register, plan or governed record is modified.
+
+Immutable packet `/Users/deniskopylov/.codex/scratch/E02R2_EVIDENCE_APPEND_B22_B09_R2_20261002_V3/manifest.json@sha256:016da3e9c00791cdb3e4be29e7d982f4a47a2ece3ee2f8913eb03988a4048062`; independent GO `/Users/deniskopylov/.codex/scratch/E02R2_EVIDENCE_APPEND_B22_B09_R2_20261002_V3_INDEPENDENT_REVIEW_FINAL.md@sha256:c6207c19ac0a8db8cb6436932644acefdcebe0d693413372931313d182d3b6d8`. Root corrects the two scratch payload links to the actual installed baseline/evidence documents, as reviewed. Canonical b22/240 lacks the proposed GPR root gate; 0e987 gates anonymous verification only; V3 also gates issuance/private reconciliation. Neither candidate broadens the accepted HumanDecisionService V2 ruling. No native job was active before these seven documentation paths were edited.

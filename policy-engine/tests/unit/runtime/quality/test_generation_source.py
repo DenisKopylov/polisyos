@@ -1453,9 +1453,12 @@ def test_data_only_new_candidate_preserves_complete_source_identity(actual_n4_so
         identity for ref in refs for identity in repository.load(ref, run_id=run_id).identities()
     }
     assert restored == expected
-    for value in originals:
+    for cycle_index, value in enumerate(originals):
         resolved = repository.resolve(
-            refs=refs, run_id=run_id, summary=_source_summary(value), problem=problem
+            refs=refs,
+            run_id=run_id,
+            summary=_source_summary(value, cycle=cycle_index),
+            problem=problem,
         )
         assert resolved.status == "resolved", resolved.code
         assert resolved.context["effect_obligation_writer_input"].intervention_atom == (
@@ -1899,8 +1902,10 @@ def test_conflicting_complete_source_for_same_triple_refuses(actual_n4_source, t
     other = replace(organ, result=organ.result.model_copy(update={"candidates": (altered,)}))
     repository = GenerationSourceRepository(artifacts.FileSystemCAS(tmp_path / "cas"))
     refs = tuple(
-        repository.persist(run_id="synthetic-conflict", cycle_index=i, problem=problem, organ=value)
-        for i, value in enumerate((organ, other))
+        repository.persist(
+            run_id="synthetic-conflict", cycle_index=0, problem=problem, organ=value
+        )
+        for value in (organ, other)
     )
     resolved = repository.resolve(
         refs=refs, run_id="synthetic-conflict", summary=_source_summary(organ), problem=problem
@@ -2017,6 +2022,12 @@ def test_candidate_scenario_identity_separates_semantics_from_refreshed_baseline
         def __init__(self, payload):
             self.payload = payload
 
+        def __getattr__(self, name):
+            try:
+                return self.payload[name]
+            except KeyError as exc:
+                raise AttributeError(name) from exc
+
         def model_dump(self, *, mode="json", exclude=None):
             del mode
             result = dict(self.payload)
@@ -2118,6 +2129,45 @@ def test_candidate_scenario_identity_separates_semantics_from_refreshed_baseline
         candidate=before[1],
         profile=before[2],
     )
+
+
+def test_n6_stop_projection_covers_canonical_terminal_denominator():
+    """Every typed terminal has a deliberate stop, abstain, or non-stop projection."""
+
+    from polisyos.pdc import SearchTerminalKind
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        _stop_projection_decision,
+    )
+
+    expected = {
+        SearchTerminalKind.A_SPEC_GAP: "not_stop",
+        SearchTerminalKind.TOOL_FAILURE: "not_stop",
+        SearchTerminalKind.COMPOSITION_INVALID: "not_stop",
+        SearchTerminalKind.RECURSIVE_BLOCKED: "not_stop",
+        SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED: "stop",
+        SearchTerminalKind.HUMAN_DECISION_REQUIRED: "not_stop",
+        SearchTerminalKind.ACQUISITION_REQUIRED: "not_stop",
+        SearchTerminalKind.BUDGET_EXHAUSTED: "stop",
+        SearchTerminalKind.FRONTIER_STABLE: "stop",
+        SearchTerminalKind.GROUNDED_ADMISSIBLE: "stop",
+        SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE: "stop",
+        SearchTerminalKind.GROUNDED_ABSTENTION: "abstain",
+    }
+    assert set(expected) == set(SearchTerminalKind)
+
+    for terminal_kind, projection in expected.items():
+        if projection == "not_stop":
+            with pytest.raises(
+                GenerationCycleError,
+                match="unsupported_stop_terminal_projection",
+            ):
+                _stop_projection_decision(terminal_kind.value)
+        else:
+            assert _stop_projection_decision(terminal_kind.value) == projection
+
+    with pytest.raises(GenerationCycleError, match="unsupported_stop_terminal_projection"):
+        _stop_projection_decision("not_a_search_terminal_kind")
 
 
 @pytest.mark.parametrize("schema_version", ["v3", "v4", "v5"])

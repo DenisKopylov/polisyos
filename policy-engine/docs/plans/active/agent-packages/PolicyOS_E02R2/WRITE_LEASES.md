@@ -3082,3 +3082,10 @@ Root integrates three reviewed test corrections from E02R2_R9_PROVISIONAL_TEST_H
 The served helper now wires the existing configured context admission owner. The foreign-source negative reads the typed compiled run and exact selected N4 source CAS reference under admitted job scope; it preserves the no-N5, no-N8 and no-N9 assertions. No production authority gate changes.
 
 Root applied E02R2_R1_CONFIGURED_SERVED_FAILURE_RCA_20261003/V2/minimal-candidate.patch@sha256:c6ea1be0a6e8510d7fee8e774bc4ddebbacb238a26707bda89ec43d9a59e916f after independent static GO E02R2_R1_CONFIGURED_SERVED_FAILURE_RCA_20261003/V2/INDEPENDENT_REVIEW.md@sha256:83a7060aeac3c380be04f9a7914940f827315752fd666997d0f97cc766ad4172. Native integrated verification remains UNRUN at this boundary. Root alone writes canonical source; no native group was active. The reviewed packet remains immutable; committed readback is stored separately in E02R2_ROOT_BATCH_READBACK_20261003.
+
+
+## R11 TERMINAL reviewed integration — 2026-10-03
+
+The existing N6 terminal projection now partitions all 12 canonical terminal kinds, including search_ceiling_repair_required, with an enum-denominator guard and typed unknown/non-stop refusal. The principal ruling blocked means no N9 remains active. Source tests bind exact persisted cycle occurrence and real intervention fields. Historical serializers and receipts are unchanged.
+
+Root applied E02R2_GENERATION_SOURCE_26_RCA_20261003/final-candidate/candidate.patch@sha256:8a34f31d4d19b87301da0667ccdecc85ac39bc5317cb554da5ed222faff63da3 after independent static GO E02R2_GENERATION_SOURCE_26_RCA_20261003/final-candidate/R11_INDEPENDENT_REVIEW.md@sha256:bf6507518dac54e6fd32f4f60fcd9e8d0aaa14bbd76015e0288a9cc5f89575c0. Native integrated verification remains UNRUN at this boundary. Root alone writes canonical source; no native group was active. The reviewed packet remains immutable; committed readback is stored separately in E02R2_ROOT_BATCH_READBACK_20261003.

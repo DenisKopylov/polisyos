@@ -240,14 +240,24 @@ _SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
 _N8_CANDIDATE_SIMULATION_LIMITATIONS = frozenset(
     {*_SIMULATION_AUTHORITY_LIMITATIONS, "interaction_evidence_incomplete"}
 )
-_N6_STOP_TERMINAL_KINDS = frozenset(
-    {
-        SearchTerminalKind.FRONTIER_STABLE.value,
-        SearchTerminalKind.BUDGET_EXHAUSTED.value,
-        SearchTerminalKind.GROUNDED_ADMISSIBLE.value,
-        SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value,
-    }
-)
+# Exhaustive typed projection partition. A new canonical terminal must be
+# assigned deliberately before N6 may turn a selected stop into a cycle result.
+_N6_TERMINAL_STOP_PROJECTIONS: dict[
+    SearchTerminalKind, Literal["stop", "abstain", "not_stop"]
+] = {
+    SearchTerminalKind.A_SPEC_GAP: "not_stop",
+    SearchTerminalKind.TOOL_FAILURE: "not_stop",
+    SearchTerminalKind.COMPOSITION_INVALID: "not_stop",
+    SearchTerminalKind.RECURSIVE_BLOCKED: "not_stop",
+    SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED: "stop",
+    SearchTerminalKind.HUMAN_DECISION_REQUIRED: "not_stop",
+    SearchTerminalKind.ACQUISITION_REQUIRED: "not_stop",
+    SearchTerminalKind.BUDGET_EXHAUSTED: "stop",
+    SearchTerminalKind.FRONTIER_STABLE: "stop",
+    SearchTerminalKind.GROUNDED_ADMISSIBLE: "stop",
+    SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE: "stop",
+    SearchTerminalKind.GROUNDED_ABSTENTION: "abstain",
+}
 
 FrontKind = Literal["decision", "research", "quarantine", "portfolio"]
 GenerationChannel = Literal["n4_owner", "grammar_fallback"]
@@ -12510,15 +12520,27 @@ def _default_revision_request(
 
 
 def _stop_projection_decision(terminal_kind: str) -> Literal["stop", "abstain"]:
-    """Map a terminal stop to its typed epistemic projection."""
+    """Project an already-selected stop through the complete typed terminal map."""
 
-    if terminal_kind == SearchTerminalKind.GROUNDED_ABSTENTION.value:
-        return "abstain"
-    if terminal_kind in _N6_STOP_TERMINAL_KINDS:
+    if set(_N6_TERMINAL_STOP_PROJECTIONS) != set(SearchTerminalKind):
+        raise GenerationCycleError(
+            "n6_stop_terminal_projection_denominator_mismatch"
+        )
+    try:
+        kind = SearchTerminalKind(terminal_kind)
+    except (TypeError, ValueError) as exc:
+        raise GenerationCycleError(
+            "unsupported_stop_terminal_projection",
+            str(terminal_kind),
+        ) from exc
+    projection = _N6_TERMINAL_STOP_PROJECTIONS[kind]
+    if projection == "stop":
         return "stop"
+    if projection == "abstain":
+        return "abstain"
     raise GenerationCycleError(
         "unsupported_stop_terminal_projection",
-        terminal_kind,
+        kind.value,
     )
 
 

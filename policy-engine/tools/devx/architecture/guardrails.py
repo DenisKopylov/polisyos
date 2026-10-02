@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import contextlib
 import datetime as dt
 import difflib
 import fnmatch
@@ -16,7 +17,7 @@ import subprocess
 import sys
 import tempfile
 import tomllib
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -224,6 +225,10 @@ class GeneratedArtifactCheckUnrunError(RuntimeError):
         )
 
 
+class _RetainedFreshnessWorkspaceError(RuntimeError):
+    """The caller-selected retained workspace could not be safely created."""
+
+
 @dataclass(frozen=True)
 class ReadmeGateSubject:
     module: str
@@ -305,6 +310,22 @@ def _parse_args() -> argparse.Namespace:
         help=(
             "Compare generator-observed candidates with a mirrored expected-output root "
             "instead of the worktree."
+        ),
+    )
+    check.add_argument(
+        "--generated-freshness-workspace-root",
+        type=Path,
+        help=(
+            "Retain the generated-freshness source, private environment, and outputs under "
+            "a new per-run directory. Existing paths are rejected and never removed."
+        ),
+    )
+    check.add_argument(
+        "--generated-freshness-uv-cache-dir",
+        type=Path,
+        help=(
+            "Use this existing uv cache offline for a retained generated-freshness run. "
+            "Required together with --generated-freshness-workspace-root."
         ),
     )
     check.add_argument(
@@ -1513,9 +1534,15 @@ def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:
         linked.symlink_to(source, target_is_directory=True)
 
 
-def _isolated_probe_environment(source_root: Path) -> dict[str, str]:
-    """Bind probe imports and uv's disposable environment to the copied source."""
+def _isolated_probe_environment(
+    source_root: Path,
+    *,
+    uv_cache_dir: Path | None = None,
+    offline: bool = False,
+) -> dict[str, str]:
+    """Bind probe imports, private environment, and selected cache to copied source."""
     private_environment = source_root.parent / "environment"
+    cache_root = uv_cache_dir or source_root.parent / "uv-cache"
     environment = os.environ.copy()
     for name in (
         "VIRTUAL_ENV",
@@ -1534,7 +1561,7 @@ def _isolated_probe_environment(source_root: Path) -> dict[str, str]:
             "UV_FROZEN": "1",
             "UV_PROJECT": str(source_root),
             "UV_PROJECT_ENVIRONMENT": str(private_environment),
-            "UV_CACHE_DIR": str(source_root.parent / "uv-cache"),
+            "UV_CACHE_DIR": str(cache_root),
             "UV_WORKING_DIR": str(source_root),
             "UV_PYTHON": sys.executable,
             "UV_NO_ENV_FILE": "1",
@@ -1546,7 +1573,92 @@ def _isolated_probe_environment(source_root: Path) -> dict[str, str]:
             ),
         }
     )
+    if offline:
+        environment["UV_OFFLINE"] = "1"
     return environment
+
+
+def _create_retained_generated_freshness_workspace(workspace_root: Path) -> Path:
+    """Create a new caller-owned run directory without reusing or removing any path."""
+    requested_root = workspace_root.expanduser()
+    if requested_root.exists() or requested_root.is_symlink():
+        raise FileExistsError(
+            f"Retained generated-freshness workspace already exists: {requested_root}"
+        )
+    retained_root = requested_root.resolve()
+    if retained_root.exists() or retained_root.is_symlink():
+        raise FileExistsError(
+            f"Retained generated-freshness workspace resolves to an existing path: "
+            f"{retained_root}"
+        )
+
+    repository_root = REPO_ROOT.resolve()
+    if retained_root.is_relative_to(repository_root):
+        raise ValueError(
+            "Retained generated-freshness workspace must be outside the repository root."
+        )
+    production_data = REPO_ROOT / "production_data"
+    if production_data.exists() and retained_root.is_relative_to(production_data.resolve()):
+        raise ValueError(
+            "Retained generated-freshness workspace must be outside production_data."
+        )
+    retained_root.mkdir(parents=True, exist_ok=False)
+    print(f"Generated-artifact measurement workspace retained at {retained_root}.")
+    return retained_root
+
+
+@contextlib.contextmanager
+def _generated_freshness_workspace(workspace_root: Path | None) -> Iterator[Path]:
+    """Preserve the existing temporary default or yield a retained caller-owned workspace."""
+    if workspace_root is None:
+        with tempfile.TemporaryDirectory(prefix="polisyos_generated_freshness_") as name:
+            yield Path(name)
+        return
+    try:
+        retained_root = _create_retained_generated_freshness_workspace(workspace_root)
+    except (OSError, ValueError) as error:
+        raise _RetainedFreshnessWorkspaceError(str(error)) from error
+    yield retained_root
+
+
+def _verify_isolated_python_import_origins(
+    source_root: Path,
+    *,
+    python_executable: Path,
+    environment: dict[str, str],
+) -> None:
+    """Import the copied product/tool packages and reject canonical-checkout origins."""
+    if not (source_root / "src/polisyos").is_dir() or not (source_root / "tools").is_dir():
+        raise FileNotFoundError(
+            "Copied source is missing the product or tools package required for import-origin "
+            "preflight."
+        )
+    preflight = """\
+import importlib
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1]).resolve()
+for name, allowed_root in (("polisyos", root / "src"), ("tools", root)):
+    module = importlib.import_module(name)
+    origins = []
+    module_file = getattr(module, "__file__", None)
+    if module_file is not None:
+        origins.append(pathlib.Path(module_file).resolve())
+    module_path = getattr(module, "__path__", ())
+    origins.extend(pathlib.Path(item).resolve() for item in module_path)
+    if not origins or any(not origin.is_relative_to(allowed_root) for origin in origins):
+        rendered = ", ".join(str(origin) for origin in origins) or "<no origin>"
+        raise SystemExit(f"canonical_source_origin: {name} imported from {rendered}")
+"""
+    subprocess.run(
+        [str(python_executable), "-c", preflight, str(source_root)],
+        cwd=source_root,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
 
 
 def _prepare_isolated_probe_environment(source_root: Path, environment: dict[str, str]) -> None:
@@ -1932,6 +2044,8 @@ def _run_required_generated_artifact_checks(
     families: list[GeneratedArtifactFamily],
     *,
     expected_root: Path,
+    retained_workspace_root: Path | None = None,
+    uv_cache_dir: Path | None = None,
 ) -> list[GuardrailViolation]:
     required_families = tuple(
         family for family in families if _requires_default_generated_freshness(family)
@@ -1943,7 +2057,11 @@ def _run_required_generated_artifact_checks(
     )
     try:
         return _measure_required_generated_artifacts(
-            families, expected_root=expected_root, cursor=cursor,
+            families,
+            expected_root=expected_root,
+            cursor=cursor,
+            retained_workspace_root=retained_workspace_root,
+            uv_cache_dir=uv_cache_dir,
         )
     except GeneratedArtifactCheckUnrunError:
         raise
@@ -1965,11 +2083,71 @@ def _run_required_generated_artifact_checks(
         ) from error
 
 
+def _measure_required_generated_artifacts_in_workspace(
+    *,
+    scratch_root: Path,
+    required_families: tuple[GeneratedArtifactFamily, ...],
+    cursor: _GeneratedArtifactMeasurementCursor,
+    expected_root: Path,
+    expected_outputs: dict[str, bytes | None],
+    declared_owners: dict[str, list[str]],
+    uv_cache_dir: Path | None,
+    offline: bool,
+) -> None:
+    isolated_repo_root = scratch_root / "source"
+    output_root = scratch_root / "outputs"
+    output_root.mkdir(parents=True, exist_ok=True)
+    try:
+        _copy_isolated_probe_source(REPO_ROOT, isolated_repo_root)
+        environment = _isolated_probe_environment(
+            isolated_repo_root,
+            uv_cache_dir=uv_cache_dir,
+            offline=offline,
+        )
+        _prepare_isolated_probe_environment(isolated_repo_root, environment)
+        if (REPO_ROOT / "src/polisyos").is_dir():
+            _verify_isolated_python_import_origins(
+                isolated_repo_root,
+                python_executable=Path(environment["UV_PROJECT_ENVIRONMENT"])
+                / "bin/python",
+                environment=environment,
+            )
+    except (OSError, subprocess.CalledProcessError) as error:
+        detail = (
+            ((error.stdout or "") + (error.stderr or "")).strip()
+            if isinstance(error, subprocess.CalledProcessError)
+            else str(error)
+        )
+        cursor.unrun_checks.extend(
+            UnrunGeneratedCheck(family.family_id, "environment", detail)
+            for family in required_families
+        )
+        raise GeneratedArtifactCheckUnrunError(
+            cursor.unrun_checks,
+            cursor.violations,
+        ) from error
+
+    for family_index, family in enumerate(required_families):
+        _measure_required_generated_artifact_family(
+            family,
+            family_index=family_index,
+            cursor=cursor,
+            family_scratch_root=output_root / family.family_id,
+            isolated_repo_root=isolated_repo_root,
+            environment=environment,
+            expected_root=expected_root,
+            expected_outputs=expected_outputs,
+            declared_owners=declared_owners,
+        )
+
+
 def _measure_required_generated_artifacts(
     families: list[GeneratedArtifactFamily],
     *,
     expected_root: Path,
     cursor: _GeneratedArtifactMeasurementCursor,
+    retained_workspace_root: Path | None,
+    uv_cache_dir: Path | None,
 ) -> list[GuardrailViolation]:
     required_families = cursor.required_families
     if not required_families:
@@ -1988,42 +2166,76 @@ def _measure_required_generated_artifacts(
     )
 
     cursor.run_phase = "environment"
-    with tempfile.TemporaryDirectory(prefix="polisyos_generated_freshness_") as scratch_name:
-        scratch_root = Path(scratch_name)
-        isolated_repo_root = scratch_root / "source"
-        output_root = scratch_root / "outputs"
-        try:
-            _copy_isolated_probe_source(REPO_ROOT, isolated_repo_root)
-            environment = _isolated_probe_environment(isolated_repo_root)
-            _prepare_isolated_probe_environment(isolated_repo_root, environment)
-        except (OSError, subprocess.CalledProcessError) as error:
-            detail = (
-                ((error.stdout or "") + (error.stderr or "")).strip()
-                if isinstance(error, subprocess.CalledProcessError)
-                else str(error)
+    try:
+        if (retained_workspace_root is None) != (uv_cache_dir is None):
+            raise ValueError(
+                "Retained generated-freshness workspace and uv cache must be supplied together."
             )
-            cursor.unrun_checks.extend(
-                UnrunGeneratedCheck(family.family_id, "environment", detail)
-                for family in required_families
-            )
-            raise GeneratedArtifactCheckUnrunError(
-                cursor.unrun_checks,
-                cursor.violations,
-            ) from error
+        resolved_cache_dir: Path | None = None
+        if uv_cache_dir is not None:
+            resolved_cache_dir = uv_cache_dir.expanduser().resolve()
+            if not resolved_cache_dir.is_dir():
+                raise NotADirectoryError(
+                    f"Existing uv cache directory is required: {resolved_cache_dir}"
+                )
+            if resolved_cache_dir.is_relative_to(REPO_ROOT.resolve()):
+                raise ValueError("The uv cache used by this gate must be outside the repository.")
+            production_data = REPO_ROOT / "production_data"
+            if (
+                production_data.exists()
+                and resolved_cache_dir.is_relative_to(production_data.resolve())
+            ):
+                raise ValueError("The uv cache must be outside production_data.")
+        resolved_workspace_root = (
+            retained_workspace_root.expanduser().resolve()
+            if retained_workspace_root is not None
+            else None
+        )
+        if resolved_workspace_root is not None and resolved_cache_dir is not None:
+            if (
+                resolved_workspace_root.is_relative_to(resolved_cache_dir)
+                or resolved_cache_dir.is_relative_to(resolved_workspace_root)
+            ):
+                raise ValueError(
+                    "Retained workspace and existing uv cache must be separate paths."
+                )
+    except (OSError, ValueError) as error:
+        detail = str(error)
+        cursor.unrun_checks.extend(
+            UnrunGeneratedCheck(family.family_id, "environment", detail)
+            for family in required_families
+        )
+        raise GeneratedArtifactCheckUnrunError(
+            cursor.unrun_checks,
+            cursor.violations,
+        ) from error
 
-        for family_index, family in enumerate(required_families):
-            _measure_required_generated_artifact_family(
-                family,
-                family_index=family_index,
+    try:
+        with _generated_freshness_workspace(retained_workspace_root) as scratch_root:
+            _measure_required_generated_artifacts_in_workspace(
+                scratch_root=scratch_root,
+                required_families=required_families,
                 cursor=cursor,
-                family_scratch_root=output_root / family.family_id,
-                isolated_repo_root=isolated_repo_root,
-                environment=environment,
                 expected_root=expected_root,
                 expected_outputs=expected_outputs,
                 declared_owners=declared_owners,
+                uv_cache_dir=resolved_cache_dir,
+                offline=retained_workspace_root is not None,
             )
-        cursor.run_phase = "scratch_cleanup"
+            cursor.run_phase = (
+                "scratch_cleanup"
+                if retained_workspace_root is None
+                else "aggregate_verdict"
+            )
+    except _RetainedFreshnessWorkspaceError as error:
+        cursor.unrun_checks.extend(
+            UnrunGeneratedCheck(family.family_id, "environment", str(error))
+            for family in required_families
+        )
+        raise GeneratedArtifactCheckUnrunError(
+            cursor.unrun_checks,
+            cursor.violations,
+        ) from error
 
     cursor.run_phase = "aggregate_verdict"
     if cursor.unrun_checks:
@@ -2385,10 +2597,18 @@ def run_check(args: argparse.Namespace) -> int:
         expected_root = args.generated_expected_root
         if not expected_root.is_absolute():
             expected_root = (Path.cwd() / expected_root).resolve()
+        retained_workspace_root = args.generated_freshness_workspace_root
+        if retained_workspace_root is not None and not retained_workspace_root.is_absolute():
+            retained_workspace_root = (Path.cwd() / retained_workspace_root).resolve()
+        uv_cache_dir = args.generated_freshness_uv_cache_dir
+        if uv_cache_dir is not None and not uv_cache_dir.is_absolute():
+            uv_cache_dir = (Path.cwd() / uv_cache_dir).resolve()
         try:
             generated_violations = _run_required_generated_artifact_checks(
                 families,
                 expected_root=expected_root,
+                retained_workspace_root=retained_workspace_root,
+                uv_cache_dir=uv_cache_dir,
             )
         except GeneratedArtifactCheckUnrunError as error:
             unrun_checks = error.unrun_checks

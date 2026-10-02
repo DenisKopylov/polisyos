@@ -442,6 +442,296 @@ def test_generated_probe_prepares_private_python_and_cache(
     assert not (caller / "_cache").exists()
 
 
+@pytest.mark.parametrize("outcome", ["pass", "finding", "unrun", "interrupt"])
+def test_retained_generated_probe_workspace_survives_every_measurement_outcome(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    outcome: str,
+) -> None:
+    """An explicit workspace remains available after a pass, finding, or interruption."""
+    caller = tmp_path / "caller"
+    caller.mkdir()
+    package = caller / "src/polisyos"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("MARKER = 'copied'\n", encoding="utf-8")
+    tools_package = caller / "tools"
+    tools_package.mkdir()
+    (tools_package / "__init__.py").write_text("MARKER = 'copied'\n", encoding="utf-8")
+    source_data = tmp_path / "source-data"
+    source_data.mkdir()
+    (source_data / "private.csv").write_text("must not be copied\n", encoding="utf-8")
+    (caller / "production_data").symlink_to(source_data, target_is_directory=True)
+    cache = tmp_path / "shared-uv-cache"
+    cache.mkdir()
+    cache_marker = cache / "existing-wheel-cache-marker"
+    cache_marker.write_text("reuse without copying\n", encoding="utf-8")
+    retained = tmp_path / "retained-run"
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "generated.txt", "generated\n")
+    emitted = "different\n" if outcome == "finding" else "generated\n"
+    family = _generated_client_family(
+        caller,
+        family_id="retention-control",
+        declared_outputs=("generated.txt",),
+        emitted_outputs=(),
+        output_probe_command=(
+            sys.executable,
+            "-c",
+            textwrap.dedent(
+                """\
+                import os
+                import sys
+                from pathlib import Path
+
+                cache = Path(os.environ["UV_CACHE_DIR"]).resolve()
+                assert os.environ["UV_OFFLINE"] == "1"
+                assert cache == Path(sys.argv[1]).resolve()
+                output = Path(sys.argv[2])
+                output.mkdir(parents=True, exist_ok=True)
+                (output / "generated.txt").write_text(sys.argv[3], encoding="utf-8")
+                """
+            ),
+            str(cache),
+            "{output_root}",
+            emitted,
+        ),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", caller)
+    monkeypatch.setattr(guardrails, "_snapshot_git_visible_worktree", lambda _root: {})
+
+    def prepare_environment(_source_root: Path, environment: dict[str, str]) -> None:
+        private_environment = Path(environment["UV_PROJECT_ENVIRONMENT"])
+        python_bin = private_environment / "bin/python"
+        python_bin.parent.mkdir(parents=True)
+        python_bin.symlink_to(sys.executable)
+        (_source_root / ".venv").symlink_to(private_environment, target_is_directory=True)
+        if outcome == "unrun":
+            raise OSError("offline dependency unavailable")
+
+    monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", prepare_environment)
+    if outcome == "interrupt":
+        real_run = guardrails.subprocess.run
+        origin_preflight_completed = False
+        generator_interrupted = False
+
+        def interrupt_first_family_generator(*args, **kwargs):
+            nonlocal origin_preflight_completed, generator_interrupted
+            command = args[0] if args else kwargs.get("args")
+            if isinstance(command, (list, tuple)) and "-c" in command:
+                code = command[command.index("-c") + 1]
+                if "canonical_source_origin" in str(code):
+                    result = real_run(*args, **kwargs)
+                    origin_preflight_completed = True
+                    return result
+            if origin_preflight_completed:
+                generator_interrupted = True
+                raise KeyboardInterrupt("fixture")
+            return real_run(*args, **kwargs)
+
+        monkeypatch.setattr(guardrails.subprocess, "run", interrupt_first_family_generator)
+
+    if outcome in {"unrun", "interrupt"}:
+        with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
+            guardrails._run_required_generated_artifact_checks(
+                [family],
+                expected_root=expected,
+                retained_workspace_root=retained,
+                uv_cache_dir=cache,
+            )
+        assert failure.value.unrun_checks[0].phase == (
+            "environment" if outcome == "unrun" else "generator"
+        )
+        if outcome == "interrupt":
+            assert origin_preflight_completed
+            assert generator_interrupted
+    else:
+        findings = guardrails._run_required_generated_artifact_checks(
+            [family],
+            expected_root=expected,
+            retained_workspace_root=retained,
+            uv_cache_dir=cache,
+        )
+        assert bool(findings) is (outcome == "finding")
+
+    assert (retained / "source").is_dir()
+    assert (retained / "environment").is_dir()
+    assert (retained / "outputs").is_dir()
+    assert not (retained / "source/production_data").exists()
+    if outcome in {"pass", "finding"}:
+        assert (retained / "outputs/retention-control/generated.txt").read_text(
+            encoding="utf-8"
+        ) == emitted
+    assert cache_marker.read_text(encoding="utf-8") == "reuse without copying\n"
+
+
+def test_retained_generated_probe_rejects_existing_root_without_removing_contents(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    caller = tmp_path / "caller"
+    caller.mkdir()
+    retained = tmp_path / "already-retained"
+    retained.mkdir()
+    sentinel = retained / "keep-me.txt"
+    sentinel.write_text("do not remove\n", encoding="utf-8")
+    cache = tmp_path / "shared-uv-cache"
+    cache.mkdir()
+    expected = tmp_path / "expected"
+    family = _generated_client_family(
+        caller,
+        family_id="existing-workspace",
+        declared_outputs=(),
+        emitted_outputs=(),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", caller)
+
+    with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
+        guardrails._run_required_generated_artifact_checks(
+            [family],
+            expected_root=expected,
+            retained_workspace_root=retained,
+            uv_cache_dir=cache,
+        )
+
+    assert [(item.family_id, item.phase) for item in failure.value.unrun_checks] == [
+        (family.family_id, "environment")
+    ]
+    assert sentinel.read_text(encoding="utf-8") == "do not remove\n"
+
+
+def test_guardrail_check_parses_retained_workspace_and_offline_cache(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "guardrails",
+            "check",
+            "--generated-freshness-workspace-root",
+            "/tmp/run-123",
+            "--generated-freshness-uv-cache-dir",
+            "/tmp/uv-cache",
+        ],
+    )
+
+    args = guardrails._parse_args()
+
+    assert args.generated_freshness_workspace_root == Path("/tmp/run-123")
+    assert args.generated_freshness_uv_cache_dir == Path("/tmp/uv-cache")
+
+
+@pytest.mark.parametrize("provide_workspace", [False, True])
+def test_retained_freshness_options_must_be_supplied_as_a_pair(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    provide_workspace: bool,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    cache = tmp_path / "existing-cache"
+    cache.mkdir()
+    expected = tmp_path / "expected"
+    workspace = tmp_path / "new-workspace"
+    family = _generated_client_family(
+        source,
+        family_id="option-pair",
+        declared_outputs=(),
+        emitted_outputs=(),
+    )
+    monkeypatch.setattr(guardrails, "REPO_ROOT", source)
+
+    with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
+        guardrails._run_required_generated_artifact_checks(
+            [family],
+            expected_root=expected,
+            retained_workspace_root=workspace if provide_workspace else None,
+            uv_cache_dir=None if provide_workspace else cache,
+        )
+
+    assert failure.value.unrun_checks[0].family_id == family.family_id
+    assert failure.value.unrun_checks[0].phase == "environment"
+    assert not workspace.exists()
+
+
+def test_isolated_python_import_origin_rejects_canonical_source_with_matching_bytes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = tmp_path / "copied-source"
+    canonical = tmp_path / "canonical-source"
+    for root in (source, canonical):
+        package = root / "src/polisyos"
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("MARKER = 'same'\n", encoding="utf-8")
+        tools_package = root / "tools"
+        tools_package.mkdir()
+        (tools_package / "__init__.py").write_text("MARKER = 'same'\n", encoding="utf-8")
+    assert (source / "src/polisyos/__init__.py").read_bytes() == (
+        canonical / "src/polisyos/__init__.py"
+    ).read_bytes()
+    expected = tmp_path / "expected"
+    _write_expected_output(expected, "generated.txt", "byte-identical\n")
+    family = _generated_client_family(
+        source,
+        family_id="canonical-origin-removal-probe",
+        declared_outputs=("generated.txt",),
+        emitted_outputs=(("generated.txt", "byte-identical\n"),),
+    )
+    cache = tmp_path / "uv-cache"
+    cache.mkdir()
+    retained = tmp_path / "retained"
+    monkeypatch.setattr(guardrails, "REPO_ROOT", source)
+    monkeypatch.setattr(guardrails, "_snapshot_git_visible_worktree", lambda _root: {})
+
+    def prepare_private_python(source_root: Path, environment: dict[str, str]) -> None:
+        private_environment = Path(environment["UV_PROJECT_ENVIRONMENT"])
+        python_bin = private_environment / "bin/python"
+        python_bin.parent.mkdir(parents=True)
+        python_bin.symlink_to(sys.executable)
+        (source_root / ".venv").symlink_to(private_environment, target_is_directory=True)
+
+    monkeypatch.setattr(guardrails, "_prepare_isolated_probe_environment", prepare_private_python)
+    environment_builder = guardrails._isolated_probe_environment
+
+    def redirect_import_to_canonical(
+        source_root: Path,
+        *,
+        uv_cache_dir: Path | None = None,
+        offline: bool = False,
+    ) -> dict[str, str]:
+        environment = environment_builder(
+            source_root,
+            uv_cache_dir=uv_cache_dir,
+            offline=offline,
+        )
+        environment["PYTHONPATH"] = os.pathsep.join(
+            (str(canonical / "src"), str(canonical))
+        )
+        return environment
+
+    monkeypatch.setattr(
+        guardrails,
+        "_isolated_probe_environment",
+        redirect_import_to_canonical,
+    )
+
+    with pytest.raises(guardrails.GeneratedArtifactCheckUnrunError) as failure:
+        guardrails._run_required_generated_artifact_checks(
+            [family],
+            expected_root=expected,
+            retained_workspace_root=retained,
+            uv_cache_dir=cache,
+        )
+
+    assert failure.value.unrun_checks[0].phase == "environment"
+    assert "canonical_source_origin" in failure.value.unrun_checks[0].diagnostic
+    assert not (retained / "outputs/canonical-origin-removal-probe/generated.txt").exists()
+    assert (retained / "source/src/polisyos/__init__.py").read_bytes() == (
+        canonical / "src/polisyos/__init__.py"
+    ).read_bytes()
+
+
 def test_generated_probe_refuses_unprepared_project_environment(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

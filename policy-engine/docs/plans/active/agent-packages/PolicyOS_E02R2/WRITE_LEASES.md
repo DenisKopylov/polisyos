@@ -2614,3 +2614,9 @@ review: `INDEPENDENT_REVIEW_20261002.md@sha256:8e98b20446c0b7173afa8c04a41569478
 in that packet. No source path or authority/journal predicate is weakened.
 Root must admit the exact flag/test hash in the existing mutation runner before
 execution. Normal, mutant and restored runs remain UNRUN at this commit.
+
+## R14 architecture-freshness retention and origin witness — 2026-10-02
+
+Root integrates the independently reviewed two-file V2 candidate in `tools/devx/architecture/guardrails.py` and `tests/repo_quality/tools/test_architecture_phase3.py`. An opt-in new retained workspace provisions a fresh private environment from the existing uv cache offline; the actual copied-source product/tool import origins are checked before owner generators. All required families/outputs remain manifest-derived. Existing roots are refused without removal, and pass/fail/UNRUN/interrupted workspaces remain available for readback. No governed artifact, epoch, baseline, family exemption or production-data copy is leased. Root alone writes canonical source, after all R7/V5 jobs ended with verified dead test groups.
+
+Packet `/Users/deniskopylov/.codex/scratch/E02R2_ARCH_GUARDRAIL_RETAINED_WORKSPACE_20261002_V2/candidate.patch@sha256:628a53a1dd9c7e520769c9d59b96547b99e6dde2c416321ce9cbbc017070b69e`; V1 product review required the finite interrupt-witness correction; V2 delta GO `INDEPENDENT_DELTA_REVIEW_20261002.md@sha256:75c82902d2f89b4337b1829610f441c8c00e5af2a8e1568a8d2674231ab07950` in that directory. Two-path Ruff exits 0 and exact postimage AST/hash checks pass. Runtime, removal controls and the sole architecture gate are UNRUN until the next frozen owner replay.

@@ -117,12 +117,9 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
         replay_args = {**kwargs, "effect_handler": effects.append}
         instant = datetime.now(UTC)
         source_path = Path(inspect.getsourcefile(ProductionAcquisitionAuthorityProvider))
-        retained_paths: dict[Path, bool] = {}
-        artifact_ids = tuple(provider._store.iter_artifact_ids())
-        for artifact_id in artifact_ids:
-            for path in provider._store._paths(artifact_id):
-                retained_paths[path] = False
-            retained_paths[provider._store._sig_path(artifact_id)] = True
+        decision_ref = kwargs["decision_ref"]
+        decision_artifact_id = str(getattr(decision_ref, "artifact_id", decision_ref))
+        decision_profile = getattr(decision_ref, "manifest_profile_sha256", None)
 
         def file_receipt(path: Path, *, optional_signature: bool) -> dict[str, object]:
             try:
@@ -137,23 +134,41 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
             except OSError as exc:
                 return {"status": "UNRUN", "error": repr(exc)}
 
-        def retained_bytes() -> dict[str, dict[str, object]]:
+        def appointment_summary(deployment_config) -> dict[str, object]:
+            authority_config = deployment_config.acquisition_authority
+            appointment = (
+                authority_config.decision_signer if authority_config is not None else None
+            )
             return {
-                str(path): file_receipt(path, optional_signature=retained_paths[path])
-                for path in sorted(retained_paths)
+                "decision_signer_appointed": appointment is not None,
+                "decision_signer_identity": (
+                    appointment.signer_identity if appointment is not None else None
+                ),
+                "decision_signer_purpose": (
+                    appointment.purpose if appointment is not None else None
+                ),
+                "verifier_provenance_ref": (
+                    appointment.verifier_provenance_ref if appointment is not None else None
+                ),
             }
 
-        initial_bytes = retained_bytes()
+        def model_sha256(value) -> str:
+            payload = json.dumps(
+                value.model_dump(mode="json"),
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode()
+            return hashlib.sha256(payload).hexdigest()
+
         witness = {
-            "cas_blob_manifest_signature_files": initial_bytes,
-            "selected_artifact_denominator": len(artifact_ids),
-            "selected_file_denominator": len(retained_paths),
-            "configured_deployment": config.model_dump(mode="json"),
-            "empty_decision_slot_deployment": missing.config.model_dump(mode="json"),
-            "closure": kwargs["closure"].model_dump(mode="json"),
-            "request": kwargs["request"].model_dump(mode="json"),
+            "decision_ref": decision_artifact_id,
+            "decision_manifest_profile_sha256": decision_profile,
+            "cas_scope": "exact refs and selected views observed through owner methods",
+            "configured_decision_appointment": appointment_summary(config),
+            "empty_decision_appointment": appointment_summary(missing.config),
+            "closure_sha256": model_sha256(kwargs["closure"]),
+            "request_sha256": model_sha256(kwargs["request"]),
             "job_id": kwargs["job_id"],
-            "decision_ref": kwargs["decision_ref"],
             "evaluation_time": instant.isoformat(),
         }
         witness_sha = hashlib.sha256(
@@ -168,11 +183,38 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
             },
             "mutation": "ProductionAcquisitionAuthorityProvider._require_worker_decision_verification",
             "same_provider_object": id(restarted),
-            "read_boundary": "Actual FileSystemCAS get_bytes/get_manifest/get_signature beneath unchanged guarded proxies, across instances",
+            "read_boundary": [
+                "has",
+                "get_bytes",
+                "get_manifest",
+                "get_manifest_bytes",
+                "get_signature",
+                "get_signature_bytes",
+                "verify",
+                "verify_signature",
+            ],
+            "write_boundary": [
+                "record_artifact_owner",
+                "import_exact_view",
+                "put_signature",
+                "sign_artifact",
+                "sign_all_artifacts",
+                "put_bytes",
+                "put_json",
+                "import_subgraph",
+            ],
+            "forbidden_global_inventory": [
+                "iter_artifact_ids",
+                "inventory_snapshot",
+                "_bulk_inventory_artifact_ids",
+                "_iter_artifact_ids_lazy",
+                "verify_all_signatures",
+            ],
             "outside_read_boundary": [
                 "Existing diagnostic event store and DS9 exposure audit remain the same objects; their backing files are not claimed as CAS bytes.",
                 "Deployment keys are factory-captured; configured/empty attestation states remain fixed.",
                 "No connector or original worker callback is called in the measurement phases.",
+                "Direct filesystem actors outside FileSystemCAS are unresolved by construction.",
             ],
             "phases": [],
         }
@@ -197,58 +239,226 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
             phase_patch.setattr(provider._human_decisions, "_clock", lambda: instant)
             store_type = authority.artifacts.FileSystemCAS
             actual_reads: list[dict[str, object]] = []
+            actual_writes: list[dict[str, object]] = []
+            phase_input_paths: dict[Path, bool] = {}
 
-            def traced(method_name, method):
-                def read(store, artifact_id, *args, **kwargs):
+            def selected_identity(reference):
+                identity = authority.artifacts.ArtifactID.model_validate(
+                    getattr(reference, "artifact_id", reference)
+                )
+                profile_sha256 = getattr(reference, "manifest_profile_sha256", None)
+                return identity, profile_sha256
+
+            def selected_member_paths(store, reference, method_name):
+                identity, profile_sha256 = selected_identity(reference)
+                if method_name == "get_bytes":
+                    paths = (store._paths(identity)[0],)
+                elif method_name in {"get_manifest", "get_manifest_bytes"}:
+                    paths = (store._manifest_path_for_ref(identity, profile_sha256),)
+                elif method_name in {"get_signature", "get_signature_bytes"}:
+                    paths = (store._sig_path(identity, profile_sha256),)
+                elif method_name == "has" or method_name == "verify":
+                    paths = (
+                        store._paths(identity)[0],
+                        store._manifest_path_for_ref(identity, profile_sha256),
+                    )
+                elif method_name == "verify_signature":
+                    paths = (
+                        store._paths(identity)[0],
+                        store._manifest_path_for_ref(identity, profile_sha256),
+                        store._sig_path(identity, profile_sha256),
+                    )
+                else:
+                    paths = ()
+                return paths, identity, profile_sha256
+
+            def traced_read(method_name, method):
+                def read(store, artifact_ref, *args, **kwargs):
                     attempt: dict[str, object] = {
                         "operation": method_name,
-                        "artifact_id": str(artifact_id),
+                        "artifact_id": str(
+                            getattr(artifact_ref, "artifact_id", artifact_ref)
+                        ),
+                        "manifest_profile_sha256": getattr(
+                            artifact_ref, "manifest_profile_sha256", None
+                        ),
                         "status": "attempted",
                     }
                     actual_reads.append(attempt)
-                    path = None
+                    paths = ()
                     try:
-                        identity = authority.artifacts.ArtifactID.model_validate(artifact_id)
-                        blob, manifest = store._paths(identity)
-                        path = {
-                            "get_bytes": blob,
-                            "get_manifest": manifest,
-                            "get_signature": store._sig_path(identity),
-                        }[method_name]
-                        attempt["path"] = str(path)
+                        paths, identity, profile_sha256 = selected_member_paths(
+                            store, artifact_ref, method_name
+                        )
+                        attempt["artifact_id"] = str(identity)
+                        attempt["manifest_profile_sha256"] = profile_sha256
+                        if paths:
+                            attempt["paths"] = [str(path) for path in paths]
+                            optional_signature = method_name in {
+                                "get_signature",
+                                "verify_signature",
+                            }
+                            before_files = {}
+                            for path in paths:
+                                path_is_optional_signature = (
+                                    optional_signature and path == paths[-1]
+                                )
+                                phase_input_paths.setdefault(
+                                    path,
+                                    path_is_optional_signature,
+                                )
+                                before_files[str(path)] = file_receipt(
+                                    path,
+                                    optional_signature=path_is_optional_signature,
+                                )
+                            attempt["files_before"] = before_files
                     except Exception as exc:
                         attempt["path_binding"] = {"status": "UNRUN", "error": repr(exc)}
                     try:
-                        value = method(store, artifact_id, *args, **kwargs)
+                        value = method(store, artifact_ref, *args, **kwargs)
                     except Exception as exc:
                         attempt.update(status="failed_read", error=repr(exc))
+                        if paths:
+                            after_files = {
+                                str(path): file_receipt(
+                                    path,
+                                    optional_signature=method_name
+                                    in {"get_signature", "verify_signature"}
+                                    and path == paths[-1],
+                                )
+                                for path in paths
+                            }
+                            attempt["files_after"] = after_files
+                            attempt["files_unchanged"] = (
+                                attempt["files_before"] == after_files
+                            )
                         raise
-                    attempt["status"] = "read" if path is not None else "UNRUN"
-                    if path is not None:
-                        receipt = file_receipt(
-                            path,
-                            optional_signature=method_name == "get_signature" and value is None,
-                        )
-                        attempt["file_read"] = receipt
-                        if receipt["status"] == "UNRUN":
+                    attempt["status"] = "read"
+                    if paths:
+                        after_files = {
+                            str(path): file_receipt(
+                                path,
+                                optional_signature=(method_name == "get_signature"
+                                and value is None)
+                                or (method_name == "verify_signature"
+                                and path == paths[-1]),
+                            )
+                            for path in paths
+                        }
+                        attempt["files_after"] = after_files
+                        attempt["files_unchanged"] = attempt["files_before"] == after_files
+                        if any(item["status"] == "UNRUN" for item in after_files.values()):
                             attempt["status"] = "UNRUN"
+                        if method_name == "get_bytes" and isinstance(value, bytes):
+                            returned_sha256 = hashlib.sha256(value).hexdigest()
+                            attempt["returned_sha256"] = "sha256:" + returned_sha256
+                            attempt["returned_content_matches_artifact_id"] = (
+                                returned_sha256 == identity.hex
+                            )
+                        if method_name == "verify":
+                            attempt["verified"] = bool(getattr(value, "ok", False))
+                        elif method_name == "verify_signature":
+                            status = getattr(value, "status", "unknown")
+                            attempt["signature_status"] = getattr(status, "value", str(status))
+                    if method_name == "has":
+                        attempt["exists"] = bool(value)
                     return value
 
                 return read
 
-            for method_name in ("get_bytes", "get_manifest", "get_signature"):
+            def traced_write(method_name, method):
+                def write(store, *args, **kwargs):
+                    entry: dict[str, object] = {
+                        "operation": method_name,
+                        "status": "attempted",
+                    }
+                    ref_arguments = []
+                    for value in (*args, *kwargs.values()):
+                        candidate = getattr(value, "artifact_id", value)
+                        if isinstance(candidate, str) and candidate.startswith("sha256:"):
+                            ref_arguments.append(candidate)
+                    if ref_arguments:
+                        entry["artifact_refs"] = sorted(set(ref_arguments))
+                    actual_writes.append(entry)
+                    result = method(store, *args, **kwargs)
+                    entry["status"] = "completed"
+                    return result
+
+                return write
+
+            def forbid_global_inventory(method_name):
+                def forbidden(_store, *args, **kwargs):
+                    actual_reads.append(
+                        {
+                            "operation": method_name,
+                            "status": "forbidden_global_inventory_attempt",
+                        }
+                    )
+                    raise AssertionError("provider replay attempted a global CAS inventory")
+
+                return forbidden
+
+            read_methods = (
+                "has",
+                "get_bytes",
+                "get_manifest",
+                "get_manifest_bytes",
+                "get_signature",
+                "get_signature_bytes",
+                "verify",
+                "verify_signature",
+            )
+            write_methods = (
+                "record_artifact_owner",
+                "import_exact_view",
+                "put_signature",
+                "sign_artifact",
+                "sign_all_artifacts",
+                "put_bytes",
+                "put_json",
+                "import_subgraph",
+            )
+            forbidden_inventory_methods = (
+                "iter_artifact_ids",
+                "inventory_snapshot",
+                "_bulk_inventory_artifact_ids",
+                "_iter_artifact_ids_lazy",
+                "verify_all_signatures",
+            )
+            assert all(callable(getattr(store_type, name, None)) for name in read_methods)
+            assert all(callable(getattr(store_type, name, None)) for name in write_methods)
+            assert all(
+                callable(getattr(store_type, name, None))
+                for name in forbidden_inventory_methods
+            )
+            for method_name in read_methods:
                 phase_patch.setattr(
-                    store_type, method_name, traced(method_name, getattr(store_type, method_name))
+                    store_type,
+                    method_name,
+                    traced_read(method_name, getattr(store_type, method_name)),
+                )
+            for method_name in write_methods:
+                phase_patch.setattr(
+                    store_type,
+                    method_name,
+                    traced_write(method_name, getattr(store_type, method_name)),
+                )
+            for method_name in forbidden_inventory_methods:
+                phase_patch.setattr(
+                    store_type,
+                    method_name,
+                    forbid_global_inventory(method_name),
                 )
             enforcement = (
                 ProductionAcquisitionAuthorityProvider._require_worker_decision_verification
             )
             try:
                 for phase in ("baseline", "removed", "restored"):
-                    before_bytes = retained_bytes()
                     effects.clear()
                     loaded_decisions.clear()
                     actual_reads.clear()
+                    actual_writes.clear()
+                    phase_input_paths.clear()
                     phase_patch.setattr(
                         ProductionAcquisitionAuthorityProvider,
                         "_require_worker_decision_verification",
@@ -258,12 +468,6 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
                     failure = None
                     unexpected = None
                     try:
-                        if before_bytes != initial_bytes or any(
-                            row["status"] == "UNRUN" for row in before_bytes.values()
-                        ):
-                            raise RuntimeError(
-                                "provider replay witness input changed or unreadable"
-                            )
                         require_refusal()
                     except pytest.fail.Exception as exc:
                         code = 1
@@ -272,14 +476,66 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
                         code = 2
                         failure = repr(exc)
                         unexpected = exc
-                    final_bytes = retained_bytes()
+                    final_files = {
+                        str(path): file_receipt(
+                            path,
+                            optional_signature=optional_signature,
+                        )
+                        for path, optional_signature in sorted(
+                            phase_input_paths.items(), key=lambda item: str(item[0])
+                        )
+                    }
+                    changed_or_failed_files = {}
+                    for attempt in actual_reads:
+                        if "paths" not in attempt:
+                            continue
+                        before_files = attempt.get("files_before", {})
+                        for path in attempt["paths"]:
+                            before = before_files.get(path)
+                            after = final_files[path]
+                            if before != after or after["status"] == "UNRUN":
+                                changed_or_failed_files[path] = {
+                                    "before": before,
+                                    "after": after,
+                                }
+                    decision_read_operations = {
+                        attempt.get("operation")
+                        for attempt in actual_reads
+                        if attempt.get("artifact_id") == decision_artifact_id
+                    }
                     complete = (
-                        all(row["status"] != "UNRUN" for row in initial_bytes.values())
-                        and before_bytes == initial_bytes
-                        and final_bytes == initial_bytes
-                        and all(row["status"] == "read" for row in actual_reads)
+                        all(attempt["status"] == "read" for attempt in actual_reads)
+                        and all("path_binding" not in attempt for attempt in actual_reads)
+                        and all(
+                            attempt.get("files_unchanged", True) for attempt in actual_reads
+                        )
+                        and all(
+                            attempt.get("returned_content_matches_artifact_id", True)
+                            for attempt in actual_reads
+                        )
+                        and all(
+                            attempt.get("verified", True) for attempt in actual_reads
+                        )
+                        and all(
+                            attempt.get("signature_status", "valid") == "valid"
+                            for attempt in actual_reads
+                        )
+                        and not changed_or_failed_files
+                        and not actual_writes
                         and unexpected is None
                     )
+                    if phase == "removed":
+                        assert {"get_bytes", "get_manifest"}.issubset(
+                            decision_read_operations
+                        )
+                        assert any(
+                            attempt["operation"] == "has"
+                            and attempt["artifact_id"] == decision_artifact_id
+                            and attempt.get("exists") is True
+                            for attempt in actual_reads
+                        )
+                    else:
+                        assert actual_reads == []
                     record["phases"].append(
                         {
                             "phase": phase,
@@ -289,17 +545,26 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
                             "allowed_decision_refs": list(loaded_decisions),
                             "same_witness_sha256": witness_sha,
                             "actual_reads": list(actual_reads),
+                            "actual_writes": list(actual_writes),
+                            "selected_cas_refs": sorted(
+                                {
+                                    attempt["artifact_id"]
+                                    for attempt in actual_reads
+                                    if isinstance(attempt.get("artifact_id"), str)
+                                }
+                            ),
+                            "cas_read_denominator": len(actual_reads),
+                            "cas_write_denominator": len(actual_writes),
                             "retained_input_readback_sha256": hashlib.sha256(
-                                json.dumps(final_bytes, sort_keys=True).encode()
+                                json.dumps(final_files, sort_keys=True).encode()
                             ).hexdigest(),
-                            "changed_or_failed_input_reads": {
-                                path: {"before": before_bytes[path], "after": final_bytes[path]}
-                                for path in initial_bytes
-                                if before_bytes[path] != initial_bytes[path]
-                                or final_bytes[path] != initial_bytes[path]
-                                or initial_bytes[path]["status"] == "UNRUN"
-                            },
-                            "coverage": "COMPLETE" if complete else "UNRUN; partial coverage",
+                            "observed_cas_files": final_files,
+                            "changed_or_failed_input_reads": changed_or_failed_files,
+                            "coverage": (
+                                "COMPLETE_FOR_OBSERVED_OWNER_READS"
+                                if complete
+                                else "UNRUN; partial owner-boundary coverage"
+                            ),
                         }
                     )
                     output_path.write_text(
@@ -311,7 +576,7 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
                     assert code == (1 if phase == "removed" else 0)
                     assert effects == []
                     assert loaded_decisions == (
-                        [kwargs["decision_ref"]] if phase == "removed" else []
+                        [decision_artifact_id] if phase == "removed" else []
                     )
             finally:
                 phase_patch.setattr(

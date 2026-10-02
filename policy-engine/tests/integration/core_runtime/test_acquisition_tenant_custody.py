@@ -25,7 +25,19 @@ async def test_actual_acquisition_producers_preserve_tenant_custody_through_reen
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
 ) -> None:
     """Reconstructing any producer's store loses ownership and breaks this chain."""
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+    )
+
     stores = []
+    admitted_snapshot_views: list[artifacts.ArtifactRef] = []
+    original_admit = AcquisitionWorldGrowthBridge.admit
+
+    def capture_admission_source(bridge, **kwargs):
+        admitted_snapshot_views.append(kwargs["evidence"].data_snapshot_ref)
+        return original_admit(bridge, **kwargs)
+
+    monkeypatch.setattr(AcquisitionWorldGrowthBridge, "admit", capture_admission_source)
 
     def build_owned_store(path: Path):
         store = guard_runtime_cas(
@@ -37,7 +49,7 @@ async def test_actual_acquisition_producers_preserve_tenant_custody_through_reen
 
     monkeypatch.setattr(control_fixture, "FileSystemCAS", build_owned_store)
     with tenant_scope(None, tenant_id=_TENANT_A, cell_id=_CELL_A):
-        await run_actual_chain(
+        served = await run_actual_chain(
             tmp_path,
             monkeypatch,
             request,
@@ -47,12 +59,23 @@ async def test_actual_acquisition_producers_preserve_tenant_custody_through_reen
         )
         assert len(stores) == 1
         store = stores[0]
-        snapshots = [
-            ref
-            for ref in store.iter_artifact_ids()
-            if store.get_manifest(ref).kind == "fabric.data_snapshot"
-        ]
+        assert admitted_snapshot_views
+        assert all(isinstance(ref, artifacts.ArtifactRef) for ref in admitted_snapshot_views)
+        snapshots_by_view = {
+            (
+                str(ref.artifact_id),
+                ref.manifest_profile_sha256,
+                ref.kind,
+                ref.media_type,
+            ): ref
+            for ref in admitted_snapshot_views
+        }
+        snapshots = tuple(snapshots_by_view.values())
         assert snapshots
+        assert all(store.get_manifest(ref).kind == "fabric.data_snapshot" for ref in snapshots)
+        assert {
+            str(ref.artifact_id) for ref in snapshots
+        }.issubset(served.committed.owner_receipt_refs)
         original = {str(ref): store.get_bytes(ref) for ref in snapshots}
         assert all(store.verify(ref).ok for ref in snapshots)
 

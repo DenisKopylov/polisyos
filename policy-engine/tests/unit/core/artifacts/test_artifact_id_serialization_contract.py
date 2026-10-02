@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import threading
 import warnings
-from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -180,6 +181,7 @@ def test_unscoped_cas_loser_refuses_default_claimed_during_write(
     tmp_path,
     monkeypatch,
 ) -> None:
+    """A same-ID ambient contender waits for publication, then sees the tenant claim."""
     shared_root = tmp_path / "shared"
     ambient = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
     tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
@@ -189,51 +191,132 @@ def test_unscoped_cas_loser_refuses_default_claimed_during_write(
     artifact_id = CoreArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
     default_path = ambient._manifest_path_for_ref(artifact_id, None)
 
-    manifest_write_entered = threading.Event()
-    allow_manifest_write = threading.Event()
-    foreign_default_reads: list[Path] = []
-    original_write_once = ambient._files.write_once
-    original_read = ambient._manifests.read
+    tenant_publication_ready = threading.Event()
+    release_tenant_publication = threading.Event()
+    ambient_lease_attempted = threading.Event()
+    ambient_lease_entered = threading.Event()
+    outcomes: dict[str, ArtifactRef | Exception] = {}
+    coordinator = ambient._coordinator
+    original_artifact_lease = coordinator.artifact_lease
+    lease_removal_probe = os.environ.get(
+        "POLISYOS_ARTIFACT_ID_REMOVE_SAME_ID_LEASE_PROBE"
+    )
+    if lease_removal_probe not in {None, "1"}:
+        raise ValueError(
+            "POLISYOS_ARTIFACT_ID_REMOVE_SAME_ID_LEASE_PROBE must be unset or 1"
+        )
 
-    def pause_before_default_write(path: Path, data: bytes) -> bool:
-        if path == default_path:
-            manifest_write_entered.set()
-            if not allow_manifest_write.wait(timeout=5):
-                raise AssertionError("tenant writer did not complete the default claim")
-        return original_write_once(path, data)
+    if lease_removal_probe == "1":
+        original_stripe = coordinator._stripe
 
-    def spy_manifest_read(path: Path):
-        if path == default_path:
-            foreign_default_reads.append(path)
-        return original_read(path)
+        def route_contender_to_another_stripe(candidate_id: CoreArtifactID) -> int:
+            stripe = original_stripe(candidate_id)
+            if (
+                candidate_id == artifact_id
+                and threading.current_thread().name == "ambient-contender"
+            ):
+                return (stripe + 1) % len(coordinator._artifact_locks)
+            return stripe
 
-    monkeypatch.setattr(ambient._files, "write_once", pause_before_default_write)
-    monkeypatch.setattr(ambient._manifests, "read", spy_manifest_read)
+        monkeypatch.setattr(coordinator, "_stripe", route_contender_to_another_stripe)
 
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        ambient_write = executor.submit(ambient.put_bytes, payload, ambient_opts)
+    @contextmanager
+    def observe_contender_lease(candidate_id, *, exclusive):
+        is_contender = (
+            candidate_id == artifact_id
+            and threading.current_thread().name == "ambient-contender"
+        )
+        if is_contender:
+            ambient_lease_attempted.set()
+        with original_artifact_lease(candidate_id, exclusive=exclusive) as lease:
+            if is_contender:
+                ambient_lease_entered.set()
+            yield lease
+
+    monkeypatch.setattr(coordinator, "artifact_lease", observe_contender_lease)
+
+    original_publish = tenant_a._publish_transaction_member
+
+    def pause_at_default_publication(
+        stage_path: Path | None,
+        final_path: Path,
+        *,
+        expected_sha256: str,
+    ) -> bool:
+        if (
+            final_path == default_path
+            and threading.current_thread().name == "tenant-owner"
+        ):
+            intent = tenant_a._ownership_index._read_transaction_intent(artifact_id)
+            assert intent is not None
+            assert intent["status"] == "pending"
+            tenant_publication_ready.set()
+            if not release_tenant_publication.wait(timeout=5):
+                raise AssertionError("tenant publication was never released")
+        return original_publish(
+            stage_path,
+            final_path,
+            expected_sha256=expected_sha256,
+        )
+
+    monkeypatch.setattr(
+        tenant_a,
+        "_publish_transaction_member",
+        pause_at_default_publication,
+    )
+
+    def run_tenant_owner() -> None:
         try:
-            assert manifest_write_entered.wait(timeout=5)
-            owner_ref = tenant_a.put_bytes(payload, owner_opts)
-            assert owner_ref.manifest_profile_sha256 is None
-            assert tenant_a._ownership_index.is_owned_by(
-                artifact_id,
-                tenant_id="tenant-a",
-                cell_id=None,
-            )
-        finally:
-            allow_manifest_write.set()
+            outcomes["tenant"] = tenant_a.put_bytes(payload, owner_opts)
+        except Exception as exc:  # surfaced below after both workers are joined
+            outcomes["tenant"] = exc
 
+    def run_ambient_contender() -> None:
         try:
-            ambient_write.result(timeout=5)
-        except ArtifactOwnershipError:
-            pass
-        else:
-            assert foreign_default_reads == []
-            pytest.fail("unscoped writer returned a ref after losing the default claim")
+            outcomes["ambient"] = ambient.put_bytes(payload, ambient_opts)
+        except Exception as exc:  # surfaced below after both workers are joined
+            outcomes["ambient"] = exc
 
-    assert foreign_default_reads == []
-    assert tenant_a.put_bytes(payload, owner_opts).manifest_profile_sha256 is None
+    tenant_thread = threading.Thread(
+        target=run_tenant_owner,
+        name="tenant-owner",
+        daemon=True,
+    )
+    ambient_thread = threading.Thread(
+        target=run_ambient_contender,
+        name="ambient-contender",
+        daemon=True,
+    )
+    tenant_thread.start()
+    try:
+        assert tenant_publication_ready.wait(timeout=5)
+        assert not default_path.exists()
+        ambient_thread.start()
+        assert ambient_lease_attempted.wait(timeout=5)
+        if lease_removal_probe == "1":
+            assert ambient_lease_entered.wait(timeout=2)
+        assert not ambient_lease_entered.wait(timeout=0.1)
+    finally:
+        release_tenant_publication.set()
+        tenant_thread.join(timeout=6)
+        if ambient_thread.ident is not None:
+            ambient_thread.join(timeout=6)
+
+    assert not tenant_thread.is_alive()
+    assert not ambient_thread.is_alive()
+    owner_result = outcomes.get("tenant")
+    ambient_result = outcomes.get("ambient")
+    assert isinstance(owner_result, ArtifactRef)
+    assert owner_result.manifest_profile_sha256 is None
+    assert isinstance(ambient_result, ArtifactOwnershipError)
+    assert tenant_a._ownership_index.is_owned_by(
+        artifact_id,
+        tenant_id="tenant-a",
+        cell_id=None,
+    )
+    with pytest.raises(ArtifactOwnershipError):
+        ambient.get_bytes(artifact_id)
+    assert tenant_a.get_bytes(owner_result) == payload
 
     unclaimed_ref = ambient.put_bytes(
         b"separate anonymous candidate remains available",
@@ -462,56 +545,55 @@ def test_ambient_claim_cache_revalidates_after_separate_instance_claim(
         PutOptions(kind="test.cache_claim", media_type="text/plain"),
     )
     ambient = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
-    index_path = shared_root / "artifacts" / "ownership" / "index.json"
-    signature_path = index_path.with_name("index.signature.json")
-    original_loader = ownership_module._load_json_file
-    parsed_paths: list[Path] = []
 
-    def counted_load(path: Path):
-        parsed_paths.append(path)
-        return original_loader(path)
-
-    monkeypatch.setattr(ownership_module, "_load_json_file", counted_load)
+    ambient_candidate = ambient.put_bytes(
+        b"unclaimed ambient candidate remains readable",
+        PutOptions(kind="test.ambient_candidate", media_type="text/plain"),
+    )
+    assert ambient.get_bytes(ambient_candidate.artifact_id) == (
+        b"unclaimed ambient candidate remains readable"
+    )
 
     for _ in range(4):
         with pytest.raises(ArtifactOwnershipError):
             ambient.get_bytes(ref_a.artifact_id)
 
-    assert Counter(parsed_paths) == Counter({index_path: 1, signature_path: 1})
+    cached_claims = ambient._ownership_index.claimed_artifact_ids()
+    assert str(ref_a.artifact_id) in cached_claims
 
     store_b = FileSystemCAS(shared_root, tenant_id="tenant-b")
+    payload_b = b"tenant B newly claimed bytes"
+    expected_id_b = CoreArtifactID.from_sha256_hex(
+        hashlib.sha256(payload_b).hexdigest()
+    )
+    assert str(expected_id_b) not in cached_claims
+    cached_file_identities = ambient._ownership_index._claim_file_identities
+    assert cached_file_identities is not None
+    invalidation_removal_probe = os.environ.get(
+        "POLISYOS_ARTIFACT_ID_REMOVE_CLAIM_IDENTITY_REFRESH_PROBE"
+    )
+    if invalidation_removal_probe not in {None, "1"}:
+        raise ValueError(
+            "POLISYOS_ARTIFACT_ID_REMOVE_CLAIM_IDENTITY_REFRESH_PROBE "
+            "must be unset or 1"
+        )
+    if invalidation_removal_probe == "1":
+        monkeypatch.setattr(
+            ambient._ownership_index,
+            "_current_file_identities",
+            lambda: cached_file_identities,
+        )
+
     ref_b = store_b.put_bytes(
-        b"tenant B newly claimed bytes",
+        payload_b,
         PutOptions(kind="test.cache_claim", media_type="text/plain"),
     )
-    parsed_paths.clear()
+    assert ref_b.artifact_id == expected_id_b
 
     with pytest.raises(ArtifactOwnershipError):
         ambient.get_bytes(ref_b.artifact_id)
 
-    assert Counter(parsed_paths) == Counter({index_path: 1, signature_path: 1})
-
-    index_bytes = index_path.read_bytes()
-    signature_bytes = signature_path.read_bytes()
-    index_replacement = index_path.with_name("index.replacement.json")
-    index_replacement.write_bytes(index_bytes)
-    index_replacement.replace(index_path)
-    parsed_paths.clear()
-
-    with pytest.raises(ArtifactOwnershipError):
-        ambient.get_bytes(ref_b.artifact_id)
-
-    assert Counter(parsed_paths) == Counter({index_path: 1, signature_path: 1})
-
-    signature_replacement = signature_path.with_name("signature.replacement.json")
-    signature_replacement.write_bytes(signature_bytes)
-    signature_replacement.replace(signature_path)
-    parsed_paths.clear()
-
-    with pytest.raises(ArtifactOwnershipError):
-        ambient.get_bytes(ref_b.artifact_id)
-
-    assert Counter(parsed_paths) == Counter({index_path: 1, signature_path: 1})
+    assert store_b.get_bytes(ref_b) == payload_b
 
 
 def test_tenant_scoped_cas_accepts_ir_dict_lineage_inputs(tmp_path) -> None:

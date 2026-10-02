@@ -153,6 +153,9 @@ def test_empty_slot_prepares_private_candidate_without_public_index(case):
         index_root=owner.index_root,
         slot=PublicationSigningSlot.empty(),
     )
+    # Appoint this test-only owner root explicitly so the call reaches the
+    # intended next gate: the empty signing slot, not unknown root custody.
+    empty._synthetic_public_read_root_custody_for_tests = True
     with pytest.raises(GovernedPublicRecordError, match="publication_signer_not_configured"):
         empty.issue(decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW)
     assert empty.issued_record_ids() == ()
@@ -607,15 +610,24 @@ def test_arbitrary_metadata_is_refused_without_lossy_projection(tmp_path):
     assert owner.issued_record_ids() == ()
 
 
-def test_absence_reads_are_private_and_unresolved_scope_is_declared(case):
+def test_unclosed_record_is_not_a_receipt_and_does_not_disclose_owner_path(
+    case, monkeypatch: pytest.MonkeyPatch
+):
     owner, _, _, _, _ = case
     record_id = "gpr_" + "x" * 32
+
+    def locator_must_not_be_read(_record_id: str):
+        pytest.fail("an unclosed record must not authorize a locator read")
+
+    monkeypatch.setattr(owner, "_index", locator_must_not_be_read)
     with pytest.raises(GovernedPublicRecordError) as error:
         owner.resolve_custody_binding(record_id)
-    assert error.value.reads[0].operation == "issued_index.read_bytes"
-    assert error.value.reads[0].outcome == "absent"
-    assert error.value.reads[0].unresolved_by_construction
+    assert error.value.code == "public_read_closure_not_established"
+    assert error.value.reads == ()
+
     response = owner.verify(record_id)
+    assert response.report_authentication == "not_established"
+    assert response.reason_codes == ("public_read_closure_not_established",)
     assert response.public_document is None
     assert str(owner.index_root) not in response.model_dump_json()
 

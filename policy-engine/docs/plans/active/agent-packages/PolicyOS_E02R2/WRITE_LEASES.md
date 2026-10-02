@@ -2977,3 +2977,40 @@ Root Ruff on all four paths and git diff --check returned zero. No native job
 was active while editing. Native Lex and served N4→N5 replay remain UNRUN at this
 commit boundary. B09 overlapping helper work follows this actual postimage.
 No governed epoch, receipt, register, plan, environment or production_data is written.
+
+## R9 exact read closure and behavioral fixture integration — 2026-10-02
+
+Root integrated the two reviewed candidate commits as f02991e98 and 88bd4a027.
+All seven source/test postimages equal candidate 834c9fbc; the committed readback
+is `E02R2_R9_V4_COMMITTED_READBACK_20261002.json@sha256:99d1805a9efbbe11702aab5d45f761c69dbd5db3bc8102b854c9fd78f78b6087`
+in shared scratch. Independent review `E02R2_R9_PRODUCTION_CLOSURE_INDEPENDENT_REVIEW_20261002/INDEPENDENT_REVIEW.md@sha256:cd4830c9a1d89c016eaa5071883cc3b50a91c16ccebb80ec2c33d5859e3be9d0`
+admits the bounded controlled/history mechanism. E02-ARCH-37 production read-root
+appointment remains not_established and issuance stays refused. This is separate
+from the principal-approved temporary V2 production-approval refusal. No appointment,
+concurrent revocation lease or full historical-generation closure is claimed.
+
+The completed four-base replay is 16 cells: 12 executed and four structurally
+missing, 394 actual JUnit cases. Result `raw/p41-custom-20261002T191745Z-63626/results.json@sha256:370a645efdd93061f6c84920dcfefef5a910c7c2260c9c684e120734d21606a9`
+under this package preserves the measured pass→fail cases. Input-closure
+comparability is a separate unresolved question; measured reds are not erased.
+
+Root now applies three independently reviewed test packets, four test paths total:
+human-decision fixture reuse of exact unchanged signed bytes/profile/signer;
+ArtifactID actual same-ID publication lease and separate-instance claim refresh;
+GPR closure-before-locator refusal and explicitly scoped synthetic population.
+Patch hashes respectively `3882192bdf9eee5391998872b8233c034319d2fdde9ca23726e080db6d2f7136`,
+`93e8f9e2aa15127066a8cff3862013e5cd2d808a5e6ceaa029d5f23623c6f20b`,
+and `ba0c5804d82cbe93d26cc5f2c80a2e843d6709b4d95ab569eb2fcb5791c3eb1d`.
+The source signature immutability and production authority gates remain active.
+Existing 43 human-decision setup failures do not establish the accepted V2 hold;
+the post-fix whole file must reach those assertions before any outcome decision.
+ArtifactID tests include two marker-retaining removal flags and retain the bounded
+100 ms lease-observation limitation. Native integrated verification remains UNRUN
+at this boundary. No native group was active during source/test editing; root is
+the sole integration writer. Ruff and diff checks are recorded at commit.
+
+Root corrected the ArtifactID test import ordering with Ruff's I-only formatter.
+Both GPR test files are under tests/unit/scientist/governance/continuous; an initial
+Ruff invocation named incorrect paths, which was an invocation error. The corrected
+four-file Ruff and git diff --check returned zero. Test mechanisms/assertions are
+otherwise the exact reviewed postimages; native verification is still UNRUN.

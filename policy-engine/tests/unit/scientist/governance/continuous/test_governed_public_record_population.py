@@ -24,7 +24,11 @@ from tests.unit.scientist.governance.continuous.test_governed_public_record impo
 @pytest.fixture
 def issued_owner(tmp_path: Path) -> tuple[GovernedPublicRecordOwner, tuple[str, ...]]:
     """Issue two real signatures using explicitly synthetic institutional evidence."""
-    store = FileSystemCAS(tmp_path / "cas")
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=False,
+    )
     owner, _, packet_ref, institution, slot = build_governed_owner_case(
         store=store,
         index_root=tmp_path,

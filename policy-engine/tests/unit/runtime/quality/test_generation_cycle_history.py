@@ -1212,7 +1212,7 @@ def test_currentness_uses_ledger_observation_without_source_replay(
     )
 
     loaded_identity = capture_loaded_deployment_identity()
-    assert loaded_identity.status == "established"
+    assert loaded_identity.status == "established", loaded_identity.reason_code
     run = run.model_copy(
         update={
             "deployment_identity_status": "established",

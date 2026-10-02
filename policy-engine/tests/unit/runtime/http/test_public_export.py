@@ -46,6 +46,9 @@ from polisyos.scientist.governance.continuous.governed_public_record import (
     GovernedPublicRecordOwner,
     PublicationMandateStatement,
 )
+from polisyos.scientist.governance.continuous.governed_public_record_contracts import (
+    GovernedPublicRecordBoundaryRead,
+)
 from polisyos.scientist.governance.continuous.lifecycle_bridge import load_lifecycle_bridge_result
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from tests._helpers.artifacts import overwrite_signature_sidecar_for_test
@@ -568,6 +571,8 @@ def test_private_reconciler_closes_retained_locator_without_rewriting_signed_rec
             _transaction_raw: bytes,
             index_raw: bytes,
             index: SimpleNamespace,
+            *,
+            boundary_reads: list[GovernedPublicRecordBoundaryRead],
         ) -> None:
             owner._atomic_new(
                 owner.index_root / "issued" / (index.record_id + ".json"), index_raw

@@ -95,7 +95,14 @@ def test_supplied_inventory_cannot_hide_or_invent_controlled_records(issued_owne
         str(owner.index_root / "issued" / f"{record_id}.json") for record_id in record_ids
     }
     serialized = result.model_dump(mode="json")
-    assert serialized["inventory_reads"][1]["input_reads"]
+    serialized_inventory_reads = serialized["inventory_reads"]
+    serialized_reads = {
+        item["boundary"]: item for item in serialized_inventory_reads
+    }
+    assert len(serialized_reads) == len(serialized_inventory_reads)
+    assert set(serialized_reads) == {"admission_owner", "report_source"}
+    assert serialized_reads["report_source"]["input_reads"] == []
+    assert serialized_reads["admission_owner"]["input_reads"]
     assert "unselected_index_extensions" in reads["admission_owner"].unresolved_by_construction
 
 

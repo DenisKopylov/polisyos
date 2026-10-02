@@ -1392,7 +1392,6 @@ def _write_nonempty_v2_owner_pair(
 
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.artifacts.ownership import (
-        OWNERSHIP_INDEX_SCHEMA_VERSION,
         OWNERSHIP_MODE_SHARED_CAS,
         ArtifactOwnershipIndex,
     )
@@ -1415,8 +1414,10 @@ def _write_nonempty_v2_owner_pair(
         ]
         for artifact_ref in artifact_refs
     }
+    # Pin this historical fixture to V2; V3 requires public_read_closures.
+    v2_schema_version = "policyos.artifact_ownership_index.v2"
     payload: dict[str, Any] = {
-        "schema_version": OWNERSHIP_INDEX_SCHEMA_VERSION,
+        "schema_version": v2_schema_version,
         "mode": OWNERSHIP_MODE_SHARED_CAS,
         "artifacts": artifacts,
         "blob_readers": {},
@@ -1435,7 +1436,7 @@ def _write_nonempty_v2_owner_pair(
         "cell-a": index.evidence(tenant_id="tenant-a", cell_id="cell-a"),
     }
     for evidence in evidence_by_cell.values():
-        assert evidence["schema_version"] == OWNERSHIP_INDEX_SCHEMA_VERSION
+        assert evidence["schema_version"] == v2_schema_version
         assert "ownership_index_format" not in evidence
         assert evidence["artifact_count"] == len(artifacts) > 0
         assert evidence["tenant_artifact_count"] == len(artifacts) > 0

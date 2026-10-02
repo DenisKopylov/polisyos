@@ -170,7 +170,7 @@ def make_wdi_port_case(
                 if item.get("kind") == "procurement_shock_intensity"
             )
             intervention["kind"] = "budget_allocation_multiplier"
-            intervention["params"] = {"multiplier": 1}
+            intervention["params"] = {"multiplier": 2}
             intervention["notes"] = [
                 "do.target=government.balance sign=increase "
                 "outcome=global.tax_rate "

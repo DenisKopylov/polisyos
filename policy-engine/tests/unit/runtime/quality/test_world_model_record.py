@@ -432,27 +432,35 @@ def _build_record(tmp_path: Path):
 def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
     tmp_path: Path,
 ) -> None:
-    """A declared candidate model remains candidate-only and preserves its WMR basis."""
+    """WMRv2 retains exact selected NCM views, including same-blob siblings."""
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
     _store, result, _model_spec, _registry_ref = _build_record(tmp_path)
-    base_record = result.record.model_copy(
-        update={"authority_status": "limited"}
+    base_record = result.record.model_copy(update={"authority_status": "limited"})
+    artifact_id = "sha256:" + "d" * 64
+    selected_ncm_ref = ArtifactRef(
+        artifact_id=artifact_id,
+        kind="ir.ncm_spec",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "a" * 64,
     )
-    selected_ncm_ref = "sha256:" + "d" * 64
+    sibling_ncm_ref = selected_ncm_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "b" * 64}
+    )
     declaration_hash = "sha256:" + "e" * 64
 
     derived = derive_candidate_scenario_world_model_record(
         base_record,
-        ncm_artifact_id=selected_ncm_ref,
+        ncm_artifact_ref=selected_ncm_ref,
         declaration_content_hash=declaration_hash,
     )
 
-    assert result.record.simulation_model_ref.ncm_refs == (
-        base_record.simulation_model_ref.ncm_refs
-    )
-    assert set(derived.simulation_model_ref.ncm_refs) == {
-        *base_record.simulation_model_ref.ncm_refs,
-        selected_ncm_ref,
-    }
+    assert result.record.simulation_model_ref.ncm_refs == base_record.simulation_model_ref.ncm_refs
+    assert derived.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+    assert world_model_artifact_views(derived).ncm_refs == (selected_ncm_ref,)
+    assert derived.simulation_model_ref.ncm_refs == (artifact_id,)
     assert derived.authority_status == "limited"
     assert derived.simulation_model_ref.calibrated is False
     assert derived.simulation_model_ref.calibration_ref is None
@@ -467,14 +475,35 @@ def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
         "world_model_record_" + derived.content_hash.removeprefix("sha256:")[:16]
     )
 
+    repeated = derive_candidate_scenario_world_model_record(
+        derived,
+        ncm_artifact_ref=selected_ncm_ref,
+        declaration_content_hash=declaration_hash,
+    )
+    assert world_model_artifact_views(repeated).ncm_refs == (selected_ncm_ref,)
+    sibling = derive_candidate_scenario_world_model_record(
+        derived,
+        ncm_artifact_ref=sibling_ncm_ref,
+        declaration_content_hash=declaration_hash,
+    )
+    assert world_model_artifact_views(sibling).ncm_refs == (
+        selected_ncm_ref,
+        sibling_ncm_ref,
+    )
+    assert sibling.simulation_model_ref.ncm_refs == (artifact_id, artifact_id)
+
     with pytest.raises(WorldModelRecordError, match="basis_not_limited"):
         derive_candidate_scenario_world_model_record(
             result.record,
-            ncm_artifact_id=selected_ncm_ref,
+            ncm_artifact_ref=selected_ncm_ref,
             declaration_content_hash=declaration_hash,
         )
-
-
+    with pytest.raises(WorldModelRecordError, match="ncm_view_invalid"):
+        derive_candidate_scenario_world_model_record(
+            base_record,
+            ncm_artifact_ref=selected_ncm_ref.model_copy(update={"kind": "core.registry_bundle"}),
+            declaration_content_hash=declaration_hash,
+        )
 
 def _build_record_with_substrate_registry_ref(
     tmp_path: Path,
@@ -1103,12 +1132,12 @@ def test_world_model_record_source_does_not_create_parallel_world_store() -> Non
     "selected_boundary",
     ["data_snapshot", "bound_state_snapshot"],
 )
-def test_wmr_v1_refuses_selected_views_before_record_persistence(
+def test_wmr_v2_persists_selected_views_before_record_persistence(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     selected_boundary: str,
 ) -> None:
-    """Candidate refs survive, but WMR v1 refuses views it can only name by ID."""
+    """Selected input views survive through the versioned WMR owner."""
     import polisyos.runtime.quality.world_model_record as world_model_module
 
     store = FileSystemCAS(tmp_path / "cas")
@@ -1184,28 +1213,37 @@ def test_wmr_v1_refuses_selected_views_before_record_persistence(
 
     monkeypatch.setattr(store, "put_json", _record_writes)
 
-    with pytest.raises(WorldModelRecordError) as exc_info:
-        build_world_model_record(
-            store,
-            fabric_world_ref=_fabric_ref(tmp_path),
-            data_forge_snapshot_binding_path=_write_data_forge_binding(tmp_path),
-            data_snapshot_ref=data_snapshot_ref,
-            model_spec=model_spec,
-            skg_causal_prior_ref=_skg_ref(tmp_path),
-            substrate_registry=_substrate_registry(),
-            region_or_jurisdiction="UA-30",
-            population_scope="wartime_msme",
-            policy_domain="fiscal_credit",
-            valid_time_scope="2026-05-24/2026-12-31",
-            tx_time_scope="2026-05-24T12:00:00+00:00",
-            resolution="firm_month",
-            branch_mode=BranchMode.OBSERVED,
-            policy_slot_ids=("agents.income", "government.balance"),
-            producer_ref="test.world_model_record_builder",
-            required_substrate_families=("firm_fundamentals",),
-        )
+    built = build_world_model_record(
+        store,
+        fabric_world_ref=_fabric_ref(tmp_path),
+        data_forge_snapshot_binding_path=_write_data_forge_binding(tmp_path),
+        data_snapshot_ref=data_snapshot_ref,
+        model_spec=model_spec,
+        skg_causal_prior_ref=_skg_ref(tmp_path),
+        substrate_registry=_substrate_registry(),
+        region_or_jurisdiction="UA-30",
+        population_scope="wartime_msme",
+        policy_domain="fiscal_credit",
+        valid_time_scope="2026-05-24/2026-12-31",
+        tx_time_scope="2026-05-24T12:00:00+00:00",
+        resolution="firm_month",
+        branch_mode=BranchMode.OBSERVED,
+        policy_slot_ids=("agents.income", "government.balance"),
+        producer_ref="test.world_model_record_builder",
+        required_substrate_families=("firm_fundamentals",),
+    )
 
-    assert exc_info.value.code == "selected_manifest_view_not_expressible_by_wmr_v1"
+    assert built.record.schema_version == "policyos.runtime.world_model_record.v2"
+    assert built.record.artifact_views is not None
+    if selected_boundary == "data_snapshot":
+        actual_selected_ref = built.record.artifact_views.data_snapshot_ref
+    else:
+        actual_selected_ref = built.record.artifact_views.bound_state_snapshot_ref
+        selected_ref = actual_selected_ref
+    assert actual_selected_ref.manifest_profile_sha256 == (
+        selected_ref.manifest_profile_sha256
+    )
+    assert load_world_model_record(store, built.record_ref) == built.record
     binding_writes = [item for item in writes if item[0] == "foundry.input_bindings"]
     assert len(binding_writes) == 1
     binding_ref = binding_writes[0][2]
@@ -1220,7 +1258,7 @@ def test_wmr_v1_refuses_selected_views_before_record_persistence(
         assert actual_selected_ref.manifest_profile_sha256 is not None
         selected_ref = actual_selected_ref
     assert any(item[0] == "foundry.input_binding_report" for item in writes)
-    assert not any(
+    assert any(
         item[0] == world_model_module.WORLD_MODEL_RECORD_ARTIFACT_KIND
         for item in writes
     )
@@ -1230,3 +1268,131 @@ def test_wmr_v1_refuses_selected_views_before_record_persistence(
         and item.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
         for item in binding_inputs
     )
+
+
+def test_wmr_loader_rejects_sibling_n5_views_when_markers_are_rehashed(
+    tmp_path: Path,
+) -> None:
+    """A valid sibling CAS view cannot replace the exact persisted WMR input."""
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.pdc import WorldModelArtifactViews
+
+    store, _base, model_spec, _registry_ref = _build_record(tmp_path)
+    graph_payload = {"graph": "same content"}
+    graph_default = store.put_json(
+        graph_payload,
+        PutOptions(kind="foundry.program_graph", media_type="application/json"),
+    )
+    graph_manifest = store.get_manifest(graph_default)
+    graph_sibling = store.put_bytes(
+        store.get_bytes(graph_default),
+        PutOptions(
+            kind=graph_manifest.kind,
+            media_type=graph_manifest.media_type,
+            schema=graph_manifest.artifact_schema,
+            inputs=graph_manifest.inputs,
+            warnings=[
+                WarningRecord(
+                    code="fixture.second_program_graph_view",
+                    msg="Same graph bytes, independently typed manifest view.",
+                )
+            ],
+        ),
+    )
+    ncm_payload = {"model": "same content"}
+    ncm_default = store.put_json(
+        ncm_payload,
+        PutOptions(kind="ir.ncm_spec", media_type="application/json"),
+    )
+    ncm_manifest = store.get_manifest(ncm_default)
+    ncm_sibling = store.put_bytes(
+        store.get_bytes(ncm_default),
+        PutOptions(
+            kind=ncm_manifest.kind,
+            media_type=ncm_manifest.media_type,
+            schema=ncm_manifest.artifact_schema,
+            inputs=ncm_manifest.inputs,
+            warnings=[
+                WarningRecord(
+                    code="fixture.second_ncm_view",
+                    msg="Same NCM bytes, independently typed manifest view.",
+                )
+            ],
+        ),
+    )
+    assert graph_default.artifact_id == graph_sibling.artifact_id
+    assert ncm_default.artifact_id == ncm_sibling.artifact_id
+    assert graph_sibling.manifest_profile_sha256 is not None
+    assert ncm_sibling.manifest_profile_sha256 is not None
+
+    built = build_world_model_record(
+        store,
+        fabric_world_ref=_fabric_ref(tmp_path),
+        data_forge_snapshot_binding_path=_write_data_forge_binding(tmp_path),
+        data_snapshot_ref=_data_snapshot_ref(store),
+        model_spec=model_spec,
+        skg_causal_prior_ref=_skg_ref(tmp_path),
+        substrate_registry=_substrate_registry(),
+        region_or_jurisdiction="UA-30",
+        population_scope="wartime_msme",
+        policy_domain="fiscal_credit",
+        valid_time_scope="2026-05-24/2026-12-31",
+        tx_time_scope="2026-05-24T12:00:00+00:00",
+        resolution="firm_month",
+        branch_mode=BranchMode.OBSERVED,
+        policy_slot_ids=("agents.income", "government.balance"),
+        producer_ref="test.world_model_record_builder",
+        required_substrate_families=("firm_fundamentals",),
+        program_graph_refs=(str(graph_default.artifact_id),),
+        program_graph_view_refs=(graph_default,),
+        ncm_refs=(str(ncm_default.artifact_id),),
+        ncm_view_refs=(ncm_default,),
+    )
+    assert built.record.artifact_views is not None
+    assert built.record.artifact_views.program_graph_refs == (graph_default,)
+    assert built.record.artifact_views.ncm_refs == (ncm_default,)
+    assert load_world_model_record(store, built.record_ref) == built.record
+
+    sibling_graph_ref = ArtifactRef.model_validate(
+        graph_sibling.model_dump(mode="python")
+    )
+    sibling_ncm_ref = ArtifactRef.model_validate(ncm_sibling.model_dump(mode="python"))
+    changed_views = WorldModelArtifactViews.model_validate(
+        {
+            **built.record.artifact_views.model_dump(mode="python"),
+            "program_graph_refs": (sibling_graph_ref,),
+            "ncm_refs": (sibling_ncm_ref,),
+        }
+    )
+    draft = built.record.model_copy(
+        update={
+            "artifact_views": changed_views,
+            "world_model_record_id": "world_model_record_0000000000000000",
+            "content_hash": "sha256:" + "0" * 64,
+        }
+    )
+    forged_hash = world_model_record_content_hash(draft)
+    forged = WorldModelRecord.model_validate(
+        {
+            **built.record.model_dump(mode="json"),
+            "artifact_views": changed_views.model_dump(mode="json"),
+            "world_model_record_id": (
+                f"world_model_record_{forged_hash.removeprefix('sha256:')[:16]}"
+            ),
+            "content_hash": forged_hash,
+        }
+    )
+    original_manifest = store.get_manifest(built.record_ref)
+    forged_ref = store.put_json(
+        forged,
+        PutOptions(
+            kind=original_manifest.kind,
+            media_type=original_manifest.media_type,
+            schema=original_manifest.artifact_schema,
+            inputs=original_manifest.inputs,
+        ),
+    )
+
+    with pytest.raises(WorldModelRecordError, match=r"lineage|integrity"):
+        load_world_model_record(store, forged_ref)

@@ -268,7 +268,7 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
         target_world_slot="government.balance",
         unit_id=slot_units["government.balance"],
         minimum=1,
-        maximum=1,
+        maximum=2,
     )
     n5 = CandidateScenarioN5Config(
         budget_ref="budget://e02r2/b09-controlled-acquisition-candidate",
@@ -323,7 +323,7 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
         "target_baseline": target_baseline,
         "outcome_baseline": outcome_baseline,
         "outcome_per_target_unit": 0.001,
-        "outcome_noise_stddev": 0.01,
+        "outcome_noise_stddev": 0.0,
         "assumption": "declared_candidate_scm_not_empirically_grounded",
     }
     declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
@@ -1102,8 +1102,11 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             diagnostics = cycle.simulation.diagnostics
             assert diagnostics["candidate_simulation_purpose"] == "candidate_scenario_n5_only"
 
-            from polisyos.core.artifacts import ArtifactID, ArtifactRef
-            from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+            from polisyos.core.artifacts import ArtifactRef
+            from polisyos.core.artifacts.manifest import (
+                artifact_ref_identity_key,
+                input_ref_from_artifact_ref,
+            )
             from polisyos.core.contracts import epoch as epoch_contract
             from polisyos.core.contracts.fabric import DataSnapshot
             from polisyos.data_forge.domains.catalog.knowledge.overlay import (
@@ -1115,7 +1118,10 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             )
             from polisyos.runtime.quality.cycle_substrate import (
                 CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA,
+                CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA,
+                CycleSubstrateContextArtifactOwner,
                 CycleSubstrateContextJobArtifactV2,
+                CycleSubstrateContextJobArtifactV3,
             )
             from polisyos.runtime.quality.design_problem import (
                 _QualifiedOutcomeOfInterestV3,
@@ -1125,6 +1131,11 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             )
             from polisyos.runtime.quality.generation_source import (
                 GenerationSourceRepository,
+                N4CandidateScenarioSourceRecordV3,
+                candidate_scenario_semantic_identity_hash,
+            )
+            from polisyos.runtime.quality.world_model_record import (
+                world_model_artifact_views,
             )
 
             n5_input_ref = ArtifactRef.model_validate(
@@ -1147,18 +1158,6 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 n5_input.profile.context_inputs.world_model_record.limitations.admissibility_blockers
             )
 
-            context_job = CycleSubstrateContextJobArtifactV2.model_validate(
-                canon.from_canonical_bytes(
-                    _within_fixture_owner(
-                        control._artifact_store.get_bytes,
-                        n5_input.context_job_ref,
-                    )
-                )
-            )
-            context_job_manifest = _within_fixture_owner(
-                control._artifact_store.get_manifest,
-                n5_input.context_job_ref,
-            )
             source_record = _within_fixture_owner(
                 GenerationSourceRepository(
                     control._artifact_store
@@ -1169,7 +1168,70 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 expected_tenant_id=n5_input.tenant_id,
                 expected_cell_id=n5_input.cell_id,
             )
-            assert context_job.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
+            assert type(source_record) is N4CandidateScenarioSourceRecordV3
+            assert source_record.origin_source_ref is None
+            context_job = _within_fixture_owner(
+                CycleSubstrateContextArtifactOwner(
+                    store=control._artifact_store
+                ).resolve_historical_job_artifact,
+                n5_input.context_job_ref,
+                problem=source_record.problem,
+                expected_job_id=n5_input.job_id,
+                expected_run_id=n5_input.run_id,
+                expected_tenant_id=n5_input.tenant_id,
+                expected_cell_id=n5_input.cell_id,
+            )
+            context_job_manifest = _within_fixture_owner(
+                control._artifact_store.get_manifest,
+                n5_input.context_job_ref,
+            )
+            assert source_record.profile_selection_ref == n5_input.profile.profile_selection_ref
+            assert source_record.stable_subject_ref == closure.design_problem_ref
+            assert source_record.candidate_occurrence_hash == (
+                source_record.candidate.atom.content_hash
+            )
+            assert n5_input.original_candidate_id == source_record.candidate.candidate_id
+            assert n5_input.original_candidate_hash == source_record.candidate_occurrence_hash
+            assert source_record.candidate.candidate_id == (
+                "candidate_"
+                + source_record.semantic_identity_hash.removeprefix("sha256:")[:16]
+            )
+            assert candidate_scenario_semantic_identity_hash(
+                stable_subject_ref=source_record.stable_subject_ref,
+                proposal=source_record.proposal,
+                candidate=source_record.candidate,
+                profile=source_record.profile,
+            ) == source_record.semantic_identity_hash
+            n4_selected_ref = ArtifactRef.model_validate(
+                diagnostics["candidate_simulation_n4_source_selected_ref"]
+            )
+            assert artifact_ref_identity_key(n4_selected_ref) == artifact_ref_identity_key(
+                n5_input.n4_source_ref
+            )
+            n4_manifest = _within_fixture_owner(
+                control._artifact_store.get_manifest,
+                n5_input.n4_source_ref,
+            )
+            assert input_ref_from_artifact_ref(
+                source_record.source_ref,
+                role="n4_source_v2",
+            ) in n4_manifest.inputs
+            source_v2 = source_record.source_record
+            assert (
+                source_v2.model_declaration.profile_selection_ref
+                == model_declaration.profile_selection_ref
+            )
+            assert source_record.s8_status == "blocked"
+            assert source_record.n9_status == "not_admitted"
+            if (
+                context_job.context.world_model_record.schema_version
+                == "policyos.runtime.world_model_record.v2"
+            ):
+                assert type(context_job) is CycleSubstrateContextJobArtifactV3
+                assert context_job.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
+            else:
+                assert type(context_job) is CycleSubstrateContextJobArtifactV2
+                assert context_job.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
             assert type(context_job.problem.outcome_of_interest) is (
                 _QualifiedOutcomeOfInterestV3
             )
@@ -1182,10 +1244,12 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 "runtime.quality.cycle_substrate_context_job"
             )
             assert context_job_manifest.artifact_schema is not None
-            assert context_job_manifest.artifact_schema.name == (
-                CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
+            assert context_job_manifest.artifact_schema.name == context_job.schema_version
+            assert context_job_manifest.artifact_schema.version == (
+                "3.0"
+                if context_job.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
+                else "2.0"
             )
-            assert context_job_manifest.artifact_schema.version == "2.0"
             assert context_job_manifest.tenant_context is not None
             assert context_job_manifest.tenant_context.tenant_id == n5_input.tenant_id
             assert context_job_manifest.tenant_context.cell_id == n5_input.cell_id
@@ -1229,12 +1293,11 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert len(selected_rows) == 1
             selected = selected_rows[0]
             acquired_world = n5_input.profile.context_inputs.world_model_record
-            data_snapshot_ref = ArtifactRef(
-                artifact_id=ArtifactID.model_validate(
-                    acquired_world.simulation_model_ref.data_snapshot_ref
-                ),
-                kind="fabric.data_snapshot",
-                media_type="application/json",
+            data_snapshot_ref = world_model_artifact_views(
+                acquired_world
+            ).data_snapshot_ref
+            assert str(data_snapshot_ref.artifact_id) == (
+                acquired_world.simulation_model_ref.data_snapshot_ref
             )
             data_snapshot = DataSnapshot.model_validate(
                 canon.from_canonical_bytes(
@@ -1265,6 +1328,36 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert n5_result.world_model_record_content_hash == (
                 n5_input.materialization.world_model_record_hash
             )
+            assert n5_input.materialization.value == 2
+            assert source_v2.model_declaration.target_baseline == pytest.approx(
+                float(selected.observation.value)
+            )
+            assert source_v2.model_declaration.target_baseline != pytest.approx(
+                model_declaration.target_baseline
+            )
+            trajectory = n5_result.trajectory_for(
+                "joint",
+                (n5_input.materialization.derived_n5_atom.intervention_id,),
+            )
+            computed_outcome = trajectory.points[-1].outcomes["global.tax_rate"]
+            acquired_value_outcome = (
+                source_v2.model_declaration.outcome_baseline
+                + source_v2.model_declaration.outcome_per_target_unit
+                * (
+                    n5_input.materialization.value
+                    - source_v2.model_declaration.target_baseline
+                )
+            )
+            unacquired_value_outcome = (
+                model_declaration.outcome_baseline
+                + model_declaration.outcome_per_target_unit
+                * (
+                    n5_input.materialization.value
+                    - model_declaration.target_baseline
+                )
+            )
+            assert computed_outcome == pytest.approx(acquired_value_outcome, abs=1e-9)
+            assert computed_outcome != pytest.approx(unacquired_value_outcome, abs=1e-9)
 
     finally:
         port_patch.undo()

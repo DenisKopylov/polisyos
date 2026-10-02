@@ -72,6 +72,7 @@ from polisyos.runtime.quality.world_model_record import (
     _load_substrate_registry_artifact_ref,
     build_world_model_record,
     consume_world_model_record_for_simulation,
+    world_model_artifact_views,
 )
 
 L5SchemaRegimeDenominatorReceipt = core_contracts.L5SchemaRegimeDenominatorReceipt
@@ -890,23 +891,19 @@ def build_acquired_observation_candidate_world(
     current causal evidence. Fabric facts use unknown valid time and the
     supplied transaction time only for the snapshot transaction.
     """
-    from polisyos.core.artifacts import ArtifactID
     from polisyos.foundry.data_plane.bindings import load_input_bindings
     from polisyos.ir.model_layer.model_spec import ModelSpec
 
     if transaction_time.tzinfo is None or transaction_time.utcoffset() is None:
         raise DataStateSubstrateError("acquisition_transaction_time_must_be_aware")
     base = WorldModelRecord.model_validate(base_world_model.model_dump(mode="json"))
+    base_views = world_model_artifact_views(base)
     selected_slot = materialization.foundry_binding_rule.target_slot_id
     base_slots = tuple(binding.slot_id for binding in base.policy_slot_map)
     if selected_slot not in base_slots:
         raise DataStateSubstrateError("acquisition_target_slot_not_in_base_world")
 
-    base_model_ref = ArtifactRef(
-        artifact_id=ArtifactID.model_validate(base.simulation_model_ref.model_spec_ref),
-        kind="ir.model_spec",
-        media_type="application/json",
-    )
+    base_model_ref = base_views.model_spec_ref
     model_manifest = store.get_manifest(base_model_ref)
     if model_manifest.kind != "ir.model_spec" or not store.verify(base_model_ref).ok:
         raise DataStateSubstrateError("acquisition_base_model_spec_unverified")
@@ -931,18 +928,8 @@ def build_acquired_observation_candidate_world(
             ],
         }
     )
-    registry_bundle_ref = ArtifactRef(
-        artifact_id=ArtifactID.model_validate(
-            base.simulation_model_ref.registry_bundle_ref
-        ),
-        kind="core.registry_bundle",
-        media_type="application/json",
-    )
-    base_bindings_ref = ArtifactRef(
-        artifact_id=ArtifactID.model_validate(base.foundry_binding_ref.input_bindings_ref),
-        kind="foundry.input_bindings",
-        media_type="application/json",
-    )
+    registry_bundle_ref = base_views.registry_bundle_ref
+    base_bindings_ref = base_views.input_bindings_ref
     base_bindings = load_input_bindings(store, base_bindings_ref)
     retained_rules = [
         rule for rule in base_bindings.rules if rule.target_slot_id != selected_slot
@@ -1000,12 +987,23 @@ def build_acquired_observation_candidate_world(
         ),
         data_forge_role=materialization.data_forge_role,
         substrate_registry_artifact_ref=substrate_registry_artifact_ref,
+        registry_bundle_artifact_ref=registry_bundle_ref,
         _loaded_substrate_registry=substrate_registry,
         foundry_binding_rules=retained_rules,
         mechanism_refs=base.simulation_model_ref.mechanism_refs,
         gcm_refs=base.simulation_model_ref.gcm_refs,
         ncm_refs=base.simulation_model_ref.ncm_refs,
         program_graph_refs=base.simulation_model_ref.program_graph_refs,
+        program_graph_view_refs=(
+            base_views.program_graph_refs
+            if base.schema_version == "policyos.runtime.world_model_record.v2"
+            else None
+        ),
+        ncm_view_refs=(
+            base_views.ncm_refs
+            if base.schema_version == "policyos.runtime.world_model_record.v2"
+            else None
+        ),
         limitations=limitations,
         candidate_only=True,
         deployment_update_refs=base.deployment_update_refs,

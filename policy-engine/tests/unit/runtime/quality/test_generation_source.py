@@ -2005,6 +2005,121 @@ def test_n4_candidate_scenario_source_locator_is_versioned_and_kind_bound():
         )
 
 
+def test_candidate_scenario_identity_separates_semantics_from_refreshed_baseline():
+    """Stable identity keeps the same declared action while N5 state changes."""
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.generation_source import (
+        candidate_scenario_semantic_identity_hash,
+    )
+
+    class _Dump:
+        def __init__(self, payload):
+            self.payload = payload
+
+        def model_dump(self, *, mode="json", exclude=None):
+            del mode
+            result = dict(self.payload)
+            for key in exclude or ():
+                result.pop(key, None)
+            return result
+
+    def _source(*, baseline, amount=1, profile_selection_ref=None):
+        intervention = _Dump(
+            {
+                "intervention_id": "tax-relief",
+                "kind": "budget_allocation_multiplier",
+                "params": {"multiplier": amount},
+                "target": {"slot": "government.balance"},
+                "schedule": {"period": "2026"},
+            }
+        )
+        policy = _Dump(
+            {
+                "policy_id": "budget-policy",
+                "problem_frame_ref": "sha256:" + "a" * 64,
+                "interventions": [intervention.model_dump()],
+                "parameters": [],
+                "mechanism_bindings": [],
+            }
+        )
+        policy.interventions = (intervention,)
+        proposal = SimpleNamespace(
+            trinity_bundle=SimpleNamespace(
+                problem_frame=_Dump({"problem_id": "public-budget"}),
+                policy_spec=policy,
+                model_spec=_Dump({"model_id": "synthetic-candidate"}),
+            )
+        )
+        profile = SimpleNamespace(
+            profile_id="controlled-budget-profile",
+            profile_selection_ref=(profile_selection_ref or "sha256:" + "b" * 64),
+            rule=_Dump(
+                {
+                    "operator_kind": "budget_allocation_multiplier",
+                    "parameter_id": "multiplier",
+                    "target_world_slot": "government.balance",
+                    "unit_id": "fraction",
+                    "minimum": 0,
+                    "maximum": 2,
+                }
+            ),
+            n5=_Dump(
+                {
+                    "budget_ref": "candidate-budget-v1",
+                    "horizon": {"steps": 1},
+                    "baseline_state": {"government.balance": baseline},
+                    "comparator_refs": [],
+                    "seed": 13,
+                    "replications": 1,
+                }
+            ),
+        )
+        candidate = SimpleNamespace(intervention_id="tax-relief")
+        return proposal, candidate, profile
+
+    stable_subject_ref = "sha256:" + "c" * 64
+    before = _source(baseline=0)
+    after = _source(baseline=7)
+    before_hash = candidate_scenario_semantic_identity_hash(
+        stable_subject_ref=stable_subject_ref,
+        proposal=before[0],
+        candidate=before[1],
+        profile=before[2],
+    )
+    after_hash = candidate_scenario_semantic_identity_hash(
+        stable_subject_ref=stable_subject_ref,
+        proposal=after[0],
+        candidate=after[1],
+        profile=after[2],
+    )
+    changed_action = _source(baseline=7, amount=2)
+    changed_selector = _source(
+        baseline=7,
+        profile_selection_ref="sha256:" + "d" * 64,
+    )
+
+    assert before_hash == after_hash
+    assert before_hash != candidate_scenario_semantic_identity_hash(
+        stable_subject_ref=stable_subject_ref,
+        proposal=changed_action[0],
+        candidate=changed_action[1],
+        profile=changed_action[2],
+    )
+    assert before_hash != candidate_scenario_semantic_identity_hash(
+        stable_subject_ref=stable_subject_ref,
+        proposal=changed_selector[0],
+        candidate=changed_selector[1],
+        profile=changed_selector[2],
+    )
+    assert before_hash != candidate_scenario_semantic_identity_hash(
+        stable_subject_ref="sha256:" + "e" * 64,
+        proposal=before[0],
+        candidate=before[1],
+        profile=before[2],
+    )
+
+
 @pytest.mark.parametrize("schema_version", ["v3", "v4", "v5"])
 @pytest.mark.parametrize("view_profile_token", ["a", "f"])
 def test_candidate_simulation_execution_versions_roundtrip_selected_views(

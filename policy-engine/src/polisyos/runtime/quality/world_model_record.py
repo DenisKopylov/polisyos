@@ -40,6 +40,7 @@ from polisyos.core.contracts import (
 from polisyos.pdc import (
     WORLD_MODEL_RECORD_ARTIFACT_KIND,
     WORLD_MODEL_RECORD_SCHEMA_NAME,
+    WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
     WORLD_MODEL_RECORD_SCHEMA_VERSION,
     BranchMode,
     DataForgeBindingRef,
@@ -51,9 +52,11 @@ from polisyos.pdc import (
     SimulationModelRef,
     SkgCausalPriorRef,
     SubstrateRegistryRef,
+    WorldModelArtifactViews,
     WorldModelLimitations,
     WorldModelRecord,
     gy_content_hash,
+    serialize_world_model_record_for_storage,
     world_model_record_content_hash_from_fields,
 )
 from polisyos.pdc import (
@@ -255,6 +258,75 @@ def _reject_selected_manifest_views_for_wmr_v1(
         )
 
 
+def _view_ref_for_id(
+    artifact_id: str,
+    *,
+    kind: str,
+) -> ArtifactRef:
+    """Construct the explicitly historical default-view ref for WMR v1."""
+
+    return ArtifactRef(
+        artifact_id=artifact_id,
+        kind=kind,
+        media_type="application/json",
+    )
+
+
+def world_model_artifact_views(record: WorldModelRecord) -> WorldModelArtifactViews:
+    """Return revalidated selected views, reconstructing defaults only for v1."""
+
+    validated = WorldModelRecord.model_validate(record.model_dump(mode="json"))
+    if validated.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
+        if validated.artifact_views is None:
+            raise WorldModelRecordError("world_model_v2_artifact_views_missing")
+        return validated.artifact_views
+    if validated.schema_version != WORLD_MODEL_RECORD_SCHEMA_VERSION:
+        raise WorldModelRecordError("world_model_record_schema_unsupported")
+    world = validated
+    simulation = world.simulation_model_ref
+    foundry = world.foundry_binding_ref
+    substrate_id = world.substrate_registry_ref.registry_artifact_ref
+    return WorldModelArtifactViews(
+        data_snapshot_ref=_view_ref_for_id(
+            simulation.data_snapshot_ref,
+            kind="fabric.data_snapshot",
+        ),
+        registry_bundle_ref=_view_ref_for_id(
+            simulation.registry_bundle_ref,
+            kind="core.registry_bundle",
+        ),
+        model_spec_ref=_view_ref_for_id(simulation.model_spec_ref, kind="ir.model_spec"),
+        input_bindings_ref=_view_ref_for_id(
+            foundry.input_bindings_ref,
+            kind="foundry.input_bindings",
+        ),
+        bound_state_snapshot_ref=_view_ref_for_id(
+            foundry.bound_state_snapshot_ref,
+            kind="foundry.state_snapshot",
+        ),
+        input_binding_report_ref=_view_ref_for_id(
+            foundry.mapping_rules_ref,
+            kind="foundry.input_binding_report",
+        ),
+        substrate_registry_ref=(
+            _view_ref_for_id(
+                substrate_id,
+                kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+            )
+            if substrate_id is not None and substrate_id.startswith("sha256:")
+            else None
+        ),
+        program_graph_refs=tuple(
+            _view_ref_for_id(value, kind="foundry.program_graph")
+            for value in simulation.program_graph_refs
+        ),
+        ncm_refs=tuple(
+            _view_ref_for_id(value, kind="ir.ncm_spec")
+            for value in simulation.ncm_refs
+        ),
+    )
+
+
 def build_world_model_record(
     store: ArtifactStore,
     *,
@@ -277,12 +349,15 @@ def build_world_model_record(
     required_substrate_sources: Sequence[str] = (),
     required_substrate_families: Sequence[str] = (),
     substrate_registry_artifact_ref: ArtifactRef | str | None = None,
+    registry_bundle_artifact_ref: ArtifactRef | None = None,
     _loaded_substrate_registry: SubstrateRegistry | None = None,
     foundry_binding_rules: Sequence[FoundryInputBindingRule] | None = None,
     mechanism_refs: Sequence[str] = (),
     gcm_refs: Sequence[str] = (),
     ncm_refs: Sequence[str] = (),
     program_graph_refs: Sequence[str] = (),
+    program_graph_view_refs: Sequence[ArtifactRef] | None = None,
+    ncm_view_refs: Sequence[ArtifactRef] | None = None,
     limitations: WorldModelLimitations | None = None,
     candidate_only: bool = False,
     deployment_update_refs: DeploymentUpdateRefs | None = None,
@@ -315,6 +390,8 @@ def build_world_model_record(
         required_substrate_families: Family ids that must resolve in S0.
         substrate_registry_artifact_ref: Optional CAS ref to the persisted S0
             registry artifact.
+        registry_bundle_artifact_ref: Optional exact registry bundle view;
+            selected manifest metadata is retained in WMRv2.
         _loaded_substrate_registry: Internal S1 handoff that avoids rereading
             a registry already loaded and validated from this CAS.
         foundry_binding_rules: Optional explicit Foundry input binding rules.
@@ -323,6 +400,10 @@ def build_world_model_record(
         gcm_refs: Existing GCM refs to name.
         ncm_refs: Existing NCM refs to name.
         program_graph_refs: Existing program graph refs to name.
+        program_graph_view_refs: Exact typed CAS views paired in order with
+            ``program_graph_refs``; supplying them selects WMRv2.
+        ncm_view_refs: Exact typed CAS views paired in order with ``ncm_refs``;
+            supplying them selects WMRv2.
         limitations: Explicit limitation record, if already known.
         candidate_only: Mark this bound substrate as candidate-band only. The
             status is ``limited`` and requires at least one typed
@@ -386,16 +467,20 @@ def build_world_model_record(
         ),
     )
 
-    registry_bundle_ref = ArtifactRef(
+    registry_bundle_ref = registry_bundle_artifact_ref or ArtifactRef(
         artifact_id=model_spec.registry_bundle_ref,
         kind="core.registry_bundle",
         media_type="application/json",
     )
+    if str(registry_bundle_ref.artifact_id) != model_spec.registry_bundle_ref:
+        raise WorldModelRecordError("world_model_registry_bundle_ref_id_mismatch")
     from polisyos.core.registry import load_registry_bundle_content
     from polisyos.foundry.data_plane import build_input_bindings, load_input_bindings
     from polisyos.foundry.execute.executor import load_state_snapshot
 
     registry_content = load_registry_bundle_content(store, registry_bundle_ref)
+    if registry_content.bundle_ref != registry_bundle_ref:
+        raise WorldModelRecordError("world_model_registry_bundle_view_not_preserved")
     policy_slot_map = _policy_slot_map(
         registry_content.slot_registry,
         policy_slot_ids=policy_slot_ids,
@@ -433,18 +518,70 @@ def build_world_model_record(
         )
     else:
         substrate_registry_view_ref = None
-    _reject_selected_manifest_views_for_wmr_v1(
-        {
-            "input.data_snapshot_ref": data_snapshot_ref,
-            # ModelSpec v1 stores the registry as a bare ID, so this reconstructed
-            # ref is explicitly default-view-only.
-            "input.registry_bundle_ref": registry_content.bundle_ref,
-            "artifact.model_spec_ref": model_spec_ref,
-            "artifact.input_bindings_ref": input_bindings.input_bindings_ref,
-            "artifact.bound_state_snapshot_ref": input_bindings.bound_state_snapshot_ref,
-            "artifact.input_binding_report_ref": input_bindings.input_binding_report_ref,
-            "input.substrate_registry_ref": substrate_registry_view_ref,
-        }
+    selected_graph_views = tuple(program_graph_view_refs or ())
+    selected_ncm_views = tuple(ncm_view_refs or ())
+    graph_views = selected_graph_views or tuple(
+        _view_ref_for_id(value, kind="foundry.program_graph")
+        for value in program_graph_refs
+    )
+    ncm_views = selected_ncm_views or tuple(
+        _view_ref_for_id(value, kind="ir.ncm_spec")
+        for value in ncm_refs
+    )
+    if tuple(str(ref.artifact_id) for ref in graph_views) != tuple(program_graph_refs):
+        raise WorldModelRecordError("world_model_program_graph_view_id_mismatch")
+    if tuple(str(ref.artifact_id) for ref in ncm_views) != tuple(ncm_refs):
+        raise WorldModelRecordError("world_model_ncm_view_id_mismatch")
+    view_refs = {
+        "input.data_snapshot_ref": data_snapshot_ref,
+        "input.registry_bundle_ref": registry_content.bundle_ref,
+        "artifact.model_spec_ref": model_spec_ref,
+        "artifact.input_bindings_ref": input_bindings.input_bindings_ref,
+        "artifact.bound_state_snapshot_ref": input_bindings.bound_state_snapshot_ref,
+        "artifact.input_binding_report_ref": input_bindings.input_binding_report_ref,
+        "input.substrate_registry_ref": substrate_registry_view_ref,
+        **{
+            f"input.program_graph_refs.{index}": ref
+            for index, ref in enumerate(graph_views)
+        },
+        **{f"input.ncm_refs.{index}": ref for index, ref in enumerate(ncm_views)},
+    }
+    use_v2_views = (
+        program_graph_view_refs is not None
+        or ncm_view_refs is not None
+        or any(
+            ref is not None and ref.manifest_profile_sha256 is not None
+            for ref in view_refs.values()
+        )
+    )
+    if use_v2_views:
+        for ref in view_refs.values():
+            if ref is None:
+                continue
+            try:
+                if not store.verify(ref).ok:
+                    raise ValueError("artifact verification failed")
+                store.get_manifest(ref)
+            except Exception as exc:
+                raise WorldModelRecordError(
+                    "world_model_selected_artifact_view_unresolved"
+                ) from exc
+    else:
+        _reject_selected_manifest_views_for_wmr_v1(view_refs)
+    artifact_views = (
+        WorldModelArtifactViews(
+            data_snapshot_ref=data_snapshot_ref,
+            registry_bundle_ref=registry_content.bundle_ref,
+            model_spec_ref=model_spec_ref,
+            input_bindings_ref=input_bindings.input_bindings_ref,
+            bound_state_snapshot_ref=input_bindings.bound_state_snapshot_ref,
+            input_binding_report_ref=input_bindings.input_binding_report_ref,
+            substrate_registry_ref=substrate_registry_view_ref,
+            program_graph_refs=graph_views,
+            ncm_refs=ncm_views,
+        )
+        if use_v2_views
+        else None
     )
     state_slot_digest = gy_content_hash(
         {
@@ -453,7 +590,11 @@ def build_world_model_record(
         }
     )
     fields: dict[str, Any] = {
-        "schema_version": WORLD_MODEL_RECORD_SCHEMA_VERSION,
+        "schema_version": (
+            WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+            if use_v2_views
+            else WORLD_MODEL_RECORD_SCHEMA_VERSION
+        ),
         "authority_status": "limited" if candidate_only else "bound",
         "producer_ref": producer_ref,
         "region_or_jurisdiction": region_or_jurisdiction,
@@ -494,6 +635,8 @@ def build_world_model_record(
         "limitations": effective_limitations,
         "deployment_update_refs": deployment_update_refs or DeploymentUpdateRefs(),
     }
+    if artifact_views is not None:
+        fields["artifact_views"] = artifact_views
     content_hash = world_model_record_content_hash_from_fields(fields)
     record = WorldModelRecord(
         world_model_record_id=f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}",
@@ -523,6 +666,15 @@ def build_world_model_record(
                 substrate_registry_view_ref,
                 role="input.substrate_registry_ref",
             )
+        )
+    if artifact_views is not None:
+        record_inputs.extend(
+            input_ref_from_artifact_ref(ref, role=f"input.program_graph_refs.{index}")
+            for index, ref in enumerate(artifact_views.program_graph_refs)
+        )
+        record_inputs.extend(
+            input_ref_from_artifact_ref(ref, role=f"input.ncm_refs.{index}")
+            for index, ref in enumerate(artifact_views.ncm_refs)
         )
     record_ref = persist_world_model_record(
         store,
@@ -638,7 +790,7 @@ def persist_world_model_record(
 
     validated = WorldModelRecord.model_validate(record.model_dump(mode="json"))
     return store.put_json(
-        validated,
+        serialize_world_model_record_for_storage(validated),
         PutOptions(
             kind=WORLD_MODEL_RECORD_ARTIFACT_KIND,
             media_type="application/json",
@@ -653,11 +805,107 @@ def persist_world_model_record(
 
 
 def load_world_model_record(store: FileSystemCAS, ref: ArtifactRef | str) -> WorldModelRecord:
-    """Load a persisted ``WorldModelRecord`` from CAS and verify its hash."""
+    """Load and verify one WMR through its selected manifest and lineage."""
 
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
-    payload = from_canonical_bytes(store.get_bytes(artifact_id))
-    return WorldModelRecord.model_validate(payload)
+    selected_ref: ArtifactRef | str = ref
+    try:
+        if isinstance(ref, ArtifactRef):
+            manifest = store.get_manifest(ref)
+            if not store.verify(ref).ok:
+                raise ValueError("world model artifact verification failed")
+        else:
+            manifest = store.get_manifest(ref)
+            if not store.verify(ref).ok:
+                raise ValueError("world model artifact verification failed")
+        payload = from_canonical_bytes(store.get_bytes(selected_ref))
+        record = WorldModelRecord.model_validate(payload)
+        if (
+            manifest.kind != WORLD_MODEL_RECORD_ARTIFACT_KIND
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != WORLD_MODEL_RECORD_SCHEMA_NAME
+            or manifest.artifact_schema.version != record.schema_version
+        ):
+            raise ValueError("world model manifest schema mismatch")
+        expected_inputs = _world_model_record_manifest_inputs(record)
+        actual_inputs = tuple(
+            sorted(
+                (
+                    str(item.artifact_id),
+                    item.role,
+                    item.manifest_profile_sha256,
+                )
+                for item in manifest.inputs
+            )
+        )
+        if actual_inputs != expected_inputs:
+            raise ValueError("world model manifest lineage mismatch")
+        for view_ref in _iter_world_model_view_refs(record):
+            if not store.verify(view_ref).ok:
+                raise ValueError("world model selected input verification failed")
+            store.get_manifest(view_ref)
+        return record
+    except WorldModelRecordError:
+        raise
+    except Exception as exc:
+        raise WorldModelRecordError(
+            "world_model_record_integrity_or_lineage_invalid",
+            str(exc),
+        ) from exc
+
+
+def _world_model_record_manifest_inputs(
+    record: WorldModelRecord,
+) -> tuple[tuple[str, str, str | None], ...]:
+    """Derive exact direct WMR lineage from its versioned view contract."""
+
+    views = world_model_artifact_views(record)
+    expected = [
+        (views.data_snapshot_ref, "input.data_snapshot_ref"),
+        (views.registry_bundle_ref, "input.registry_bundle_ref"),
+        (views.model_spec_ref, "input.model_spec_ref"),
+        (views.input_bindings_ref, "artifact.input_bindings_ref"),
+        (views.bound_state_snapshot_ref, "artifact.bound_state_snapshot_ref"),
+        (views.input_binding_report_ref, "artifact.input_binding_report_ref"),
+    ]
+    if views.substrate_registry_ref is not None:
+        expected.append((views.substrate_registry_ref, "input.substrate_registry_ref"))
+    expected.extend(
+        (ref, f"input.program_graph_refs.{index}")
+        for index, ref in enumerate(views.program_graph_refs)
+    )
+    expected.extend(
+        (ref, f"input.ncm_refs.{index}") for index, ref in enumerate(views.ncm_refs)
+    )
+    return tuple(
+        sorted(
+            (
+                str(ref.artifact_id),
+                role,
+                ref.manifest_profile_sha256,
+            )
+            for ref, role in expected
+        )
+    )
+
+
+def _iter_world_model_view_refs(record: WorldModelRecord) -> tuple[ArtifactRef, ...]:
+    """Return every direct selected CAS view, preserving its declared selector."""
+
+    views = world_model_artifact_views(record)
+    refs = [
+        views.data_snapshot_ref,
+        views.registry_bundle_ref,
+        views.model_spec_ref,
+        views.input_bindings_ref,
+        views.bound_state_snapshot_ref,
+        views.input_binding_report_ref,
+        *views.program_graph_refs,
+        *views.ncm_refs,
+    ]
+    if views.substrate_registry_ref is not None:
+        refs.append(views.substrate_registry_ref)
+    return tuple(refs)
 
 
 def _load_data_snapshot(store: FileSystemCAS, ref: ArtifactRef) -> DataSnapshot:

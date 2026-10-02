@@ -117,6 +117,7 @@ def test_world_model_record_runtime_module_reexports_pdc_contract_identities() -
         "PolicySlotBinding",
         "WorldModelLimitations",
         "DeploymentUpdateRefs",
+        "WorldModelArtifactViews",
         "WorldModelRecord",
         "world_model_record_content_hash",
     )
@@ -135,3 +136,103 @@ def test_world_model_record_pdc_round_trip_preserves_schema_and_hash() -> None:
     assert pdc.WORLD_MODEL_RECORD_SCHEMA_NAME == "polisyos.runtime.quality.WorldModelRecord"
     assert pdc.WORLD_MODEL_RECORD_ARTIFACT_KIND == "runtime.quality.world_model_record"
     assert pdc.world_model_record_content_hash(round_tripped) == record.content_hash
+
+
+def test_world_model_record_v1_projection_omits_new_view_bundle() -> None:
+    record = _world_model_record()
+
+    assert record.artifact_views is None
+    assert "artifact_views" not in record.model_dump(mode="json")
+    assert "artifact_views" not in pdc.serialize_world_model_record_for_storage(record)
+    assert pdc.world_model_record_content_hash(record) == record.content_hash
+
+
+def test_world_model_record_v2_hash_binds_ordered_program_and_ncm_views() -> None:
+    base = _world_model_record()
+    graph_id = "sha256:" + "e" * 64
+    ncm_id = "sha256:" + "f" * 64
+
+    def build_record(profile: str) -> pdc.WorldModelRecord:
+        views = pdc.WorldModelArtifactViews(
+            data_snapshot_ref=pdc.ArtifactRef(
+                artifact_id=base.simulation_model_ref.data_snapshot_ref,
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+            ),
+            registry_bundle_ref=pdc.ArtifactRef(
+                artifact_id=base.simulation_model_ref.registry_bundle_ref,
+                kind="core.registry_bundle",
+                media_type="application/json",
+            ),
+            model_spec_ref=pdc.ArtifactRef(
+                artifact_id=base.simulation_model_ref.model_spec_ref,
+                kind="ir.model_spec",
+                media_type="application/json",
+            ),
+            input_bindings_ref=pdc.ArtifactRef(
+                artifact_id=base.foundry_binding_ref.input_bindings_ref,
+                kind="foundry.input_bindings",
+                media_type="application/json",
+            ),
+            bound_state_snapshot_ref=pdc.ArtifactRef(
+                artifact_id=base.foundry_binding_ref.bound_state_snapshot_ref,
+                kind="foundry.state_snapshot",
+                media_type="application/json",
+            ),
+            input_binding_report_ref=pdc.ArtifactRef(
+                artifact_id=base.foundry_binding_ref.mapping_rules_ref,
+                kind="foundry.input_binding_report",
+                media_type="application/json",
+            ),
+            substrate_registry_ref=pdc.ArtifactRef(
+                artifact_id=base.substrate_registry_ref.registry_artifact_ref,
+                kind="runtime.quality.substrate_registry",
+                media_type="application/json",
+            ),
+            program_graph_refs=(
+                pdc.ArtifactRef(
+                    artifact_id=graph_id,
+                    kind="foundry.program_graph",
+                    media_type="application/json",
+                    manifest_profile_sha256=profile,
+                ),
+            ),
+            ncm_refs=(
+                pdc.ArtifactRef(
+                    artifact_id=ncm_id,
+                    kind="ir.ncm_spec",
+                    media_type="application/json",
+                    manifest_profile_sha256=profile,
+                ),
+            ),
+        )
+        fields = base.model_dump(mode="json")
+        fields.update(
+            {
+                "schema_version": pdc.WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+                "simulation_model_ref": {
+                    **fields["simulation_model_ref"],
+                    "program_graph_refs": [graph_id],
+                    "ncm_refs": [ncm_id],
+                },
+                "artifact_views": views.model_dump(mode="json"),
+                "world_model_record_id": "world_model_record_0000000000000000",
+                "content_hash": "sha256:" + "0" * 64,
+            }
+        )
+        content_hash = pdc.world_model_record_content_hash_from_fields(fields)
+        fields["content_hash"] = content_hash
+        fields["world_model_record_id"] = (
+            f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}"
+        )
+        return pdc.WorldModelRecord.model_validate(fields)
+
+    first = build_record("sha256:" + "1" * 64)
+    sibling = build_record("sha256:" + "2" * 64)
+
+    assert first.simulation_model_ref.program_graph_refs == (
+        sibling.simulation_model_ref.program_graph_refs
+    )
+    assert first.simulation_model_ref.ncm_refs == sibling.simulation_model_ref.ncm_refs
+    assert first.artifact_views is not None and sibling.artifact_views is not None
+    assert first.content_hash != sibling.content_hash

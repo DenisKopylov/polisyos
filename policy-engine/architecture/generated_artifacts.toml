@@ -2766,7 +2766,7 @@ gy_lifecycle_family = true
 verifier = "Existing semantic owner and generated artifact lifecycle accounting"
 promotion_target = "Custody and audit projection only; registration grants no task completion or evidence authority"
 stale_output_behavior = "fail"
-source_of_truth = "tools/quality/validation/check_layer3_gy_world_model_record_contract.py"
+source_of_truth = "src/polisyos/pdc/_impl/world_model_record.py, src/polisyos/runtime/quality/world_model_record.py, and tools/quality/validation/check_layer3_gy_world_model_record_contract.py"
 outputs = [
   "architecture/policy_design_case/layer3_gy_world_model_record_contract.json",
 ]

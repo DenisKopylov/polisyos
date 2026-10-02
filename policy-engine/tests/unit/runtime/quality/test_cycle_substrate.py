@@ -10,20 +10,25 @@ import pytest
 from pydantic import create_model
 
 from polisyos.core import canon
-from polisyos.core.artifacts import ArtifactOwnershipError, FileSystemCAS
+from polisyos.core.artifacts import ArtifactOwnershipError, ArtifactRef, FileSystemCAS
 from polisyos.core.security import (
     AccessScope,
     reset_current_access_scope,
     set_current_access_scope,
     tenant_scope,
 )
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import (
+    WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+    WorldModelArtifactViews,
+    gy_content_hash,
+)
 from polisyos.runtime.quality import cycle_substrate as cycle_substrate_owner
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
     CycleSubstrateContext,
     CycleSubstrateContextArtifactOwner,
     CycleSubstrateContextJobArtifact,
+    CycleSubstrateContextJobArtifactV3,
     CycleSubstrateContextOwnerError,
     TransportContextEvidence,
     TransportCovariateObservation,
@@ -911,6 +916,103 @@ def _world_record(
     )
 
 
+def _world_record_with_selected_views(
+    domain: str,
+    registry: SubstrateRegistry,
+    *,
+    selected_profile: str,
+) -> WorldModelRecord:
+    """Build a content-bound WMRv2 fixture whose same IDs have selected views."""
+
+    base = _world_record(domain, registry)
+    graph_id = _hash(f"{domain}:program-graph")
+    ncm_id = _hash(f"{domain}:ncm")
+    substrate_ref = base.substrate_registry_ref.model_copy(
+        update={"registry_artifact_ref": _hash(f"{domain}:substrate-registry")}
+    )
+    simulation = base.simulation_model_ref.model_copy(
+        update={
+            "program_graph_refs": (graph_id,),
+            "ncm_refs": (ncm_id,),
+        }
+    )
+    views = WorldModelArtifactViews(
+        data_snapshot_ref=ArtifactRef(
+            artifact_id=simulation.data_snapshot_ref,
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+        ),
+        registry_bundle_ref=ArtifactRef(
+            artifact_id=simulation.registry_bundle_ref,
+            kind="core.registry_bundle",
+            media_type="application/json",
+        ),
+        model_spec_ref=ArtifactRef(
+            artifact_id=simulation.model_spec_ref,
+            kind="ir.model_spec",
+            media_type="application/json",
+        ),
+        input_bindings_ref=ArtifactRef(
+            artifact_id=base.foundry_binding_ref.input_bindings_ref,
+            kind="foundry.input_bindings",
+            media_type="application/json",
+        ),
+        bound_state_snapshot_ref=ArtifactRef(
+            artifact_id=base.foundry_binding_ref.bound_state_snapshot_ref,
+            kind="foundry.state_snapshot",
+            media_type="application/json",
+        ),
+        input_binding_report_ref=ArtifactRef(
+            artifact_id=base.foundry_binding_ref.mapping_rules_ref,
+            kind="foundry.input_binding_report",
+            media_type="application/json",
+        ),
+        substrate_registry_ref=ArtifactRef(
+            artifact_id=substrate_ref.registry_artifact_ref,
+            kind="runtime.quality.substrate_registry",
+            media_type="application/json",
+        ),
+        program_graph_refs=(
+            ArtifactRef(
+                artifact_id=graph_id,
+                kind="foundry.program_graph",
+                media_type="application/json",
+                manifest_profile_sha256=selected_profile,
+            ),
+        ),
+        ncm_refs=(
+            ArtifactRef(
+                artifact_id=ncm_id,
+                kind="ir.ncm_spec",
+                media_type="application/json",
+                manifest_profile_sha256=selected_profile,
+            ),
+        ),
+    )
+    fields = base.model_dump(mode="python")
+    fields.update(
+        {
+            "schema_version": WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+            "simulation_model_ref": simulation,
+            "substrate_registry_ref": substrate_ref,
+            "artifact_views": views,
+            "world_model_record_id": "world_model_record_0000000000000000",
+            "content_hash": _hash("pending WMRv2 hash"),
+        }
+    )
+    draft = WorldModelRecord.model_construct(**fields)
+    content_hash = world_model_record_content_hash(draft)
+    return WorldModelRecord.model_validate(
+        {
+            **fields,
+            "world_model_record_id": (
+                f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}"
+            ),
+            "content_hash": content_hash,
+        }
+    )
+
+
 def _cycle_context(
     *,
     domain: str = "education",
@@ -1659,3 +1761,88 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         tenant_id="tenant-declared-candidate",
         cell_id="cell-declared-candidate",
     ) is None
+
+
+def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
+    tmp_path: Any,
+) -> None:
+    """WMRv2 selectors survive the job owner without changing V1/V2 maps."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA,
+        _serialize_context_job_v2_value,
+        cycle_job_design_problem_ref,
+        cycle_substrate_context_job_content_hash,
+        is_supported_cycle_substrate_context_job_artifact,
+    )
+
+    problem = _qualified_v3_design_problem()
+    problem_ref = cycle_job_design_problem_ref(problem)
+    registry = _registry("education")
+    world = _world_record_with_selected_views(
+        "education",
+        registry,
+        selected_profile=_hash("selected-view"),
+    )
+    context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+    )
+    store = FileSystemCAS(
+        tmp_path / "cycle-context-v3-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    owner = CycleSubstrateContextArtifactOwner(
+        store=store,
+        control_store=_TestCurrentJobExecutionOwner(
+            "job-context-v3-owner", "run-context-v3-owner"
+        ),
+    )
+
+    with _authenticated_tenant_scope(
+        tenant_id="tenant-context-v3-owner", cell_id="cell-context-v3-owner"
+    ):
+        ref = owner.persist_for_current_job(context, problem=problem)
+        resolved = owner.resolve_for_current_job(ref, problem=problem)
+        payload = canon.from_canonical_bytes(store.get_bytes(ref))
+
+    assert type(resolved) is CycleSubstrateContextJobArtifactV3
+    assert is_supported_cycle_substrate_context_job_artifact(resolved)
+    assert resolved.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
+    assert resolved.context.world_model_record.schema_version == (
+        WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+    )
+    assert resolved.context.world_model_record.artifact_views is not None
+    assert (
+        resolved.context.world_model_record.artifact_views.program_graph_refs[0]
+        .manifest_profile_sha256
+        == _hash("selected-view")
+    )
+    assert payload["schema_version"] == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
+    assert cycle_substrate_context_job_content_hash(payload) == payload["content_hash"]
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_v2_nested_schema_unsupported",
+    ):
+        _serialize_context_job_v2_value(world)
+
+    sibling_world = _world_record_with_selected_views(
+        "education",
+        registry,
+        selected_profile=_hash("sibling-view"),
+    )
+    sibling_context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=sibling_world,
+    )
+    sibling_payload = {
+        **resolved.model_dump(mode="python"),
+        "context": sibling_context,
+        "content_hash": "sha256:" + "0" * 64,
+    }
+    assert cycle_substrate_context_job_content_hash(sibling_payload) != (
+        resolved.content_hash
+    )

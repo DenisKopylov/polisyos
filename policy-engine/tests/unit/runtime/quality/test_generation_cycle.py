@@ -2630,6 +2630,58 @@ def _record_with_selected_ncm_ref(record: Any, ncm_ref: str) -> Any:
     return type(record).model_validate(payload)
 
 
+def _record_with_selected_ncm_view(record: Any, ncm_ref: Any) -> Any:
+    """Bind an exact typed NCM view in a new WMR schema, retaining V1 history."""
+
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.pdc import (
+        WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+        WorldModelArtifactViews,
+    )
+    from polisyos.runtime.quality.world_model_record import (
+        world_model_artifact_views,
+        world_model_record_content_hash,
+    )
+
+    selected_ref = ArtifactRef.model_validate(ncm_ref.model_dump(mode="python"))
+    views = world_model_artifact_views(record)
+    simulation = record.simulation_model_ref.model_copy(
+        update={"ncm_refs": (str(selected_ref.artifact_id),)}
+    )
+    substrate_registry = record.substrate_registry_ref
+    substrate_ref = views.substrate_registry_ref
+    if substrate_ref is None and substrate_registry.registry_artifact_ref is not None:
+        substrate_registry = substrate_registry.model_copy(
+            update={"registry_artifact_ref": None}
+        )
+    selected_views = WorldModelArtifactViews.model_validate(
+        {
+            **views.model_dump(mode="python"),
+            "ncm_refs": (selected_ref,),
+        }
+    )
+    draft = record.model_copy(
+        update={
+            "schema_version": WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+            "simulation_model_ref": simulation,
+            "substrate_registry_ref": substrate_registry,
+            "artifact_views": selected_views,
+            "world_model_record_id": "world_model_record_0000000000000000",
+            "content_hash": "sha256:" + "0" * 64,
+        }
+    )
+    content_hash = world_model_record_content_hash(draft)
+    return type(record).model_validate(
+        {
+            **draft.model_dump(mode="json"),
+            "world_model_record_id": (
+                f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}"
+            ),
+            "content_hash": content_hash,
+        }
+    )
+
+
 def _owner_n5_case_with_selected_ncm_ref(
     ncm_ref: str,
     *,
@@ -2732,6 +2784,7 @@ def _owner_program_graph_n5_witness(
     income_values: tuple[float, float],
     problem_seed: DesignProblem | None = None,
     select_state_blob_view: bool = False,
+    select_program_graph_view: bool = False,
     monkeypatch: pytest.MonkeyPatch | None = None,
 ) -> _OwnerProgramGraphN5Witness:
     """Build an owner WMR and consume its state through the ordinary N5 builder.
@@ -2740,10 +2793,11 @@ def _owner_program_graph_n5_witness(
     Callers must close the guarded artifact store.
     """
 
+    from polisyos.core.artifacts import WarningRecord
     from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
     from polisyos.core.artifacts.store import PutOptions
     from polisyos.core.contracts.fabric import DataSnapshot
-    from polisyos.core.contracts.foundry import StateSnapshot
+    from polisyos.core.contracts.foundry import ExecPlan, ProgramGraphRef, StateSnapshot
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.foundry.data_plane import bindings as bindings_module
@@ -2823,6 +2877,53 @@ def _owner_program_graph_n5_witness(
             graph_plan = _program_graph_plan(case_root, store=store).model_copy(
                 update={"variable_map": {"firm_survival": "agents.income"}}
             )
+            if select_program_graph_view:
+                graph_manifest = store.get_manifest(graph_plan.program_graph_ref)
+                selected_graph_ref = store.put_bytes(
+                    store.get_bytes(graph_plan.program_graph_ref),
+                    PutOptions(
+                        kind=graph_manifest.kind,
+                        media_type=graph_manifest.media_type,
+                        schema=graph_manifest.artifact_schema,
+                        inputs=graph_manifest.inputs,
+                        warnings=[
+                            WarningRecord(
+                                code="fixture.selected_program_graph_view",
+                                msg="The same graph bytes have a selected manifest profile.",
+                            )
+                        ],
+                    ),
+                )
+                selected_graph_ref = ProgramGraphRef.model_validate(
+                    selected_graph_ref.model_dump(mode="python")
+                )
+                plan_manifest = store.get_manifest(graph_plan.exec_plan_ref)
+                plan = ExecPlan.model_validate(
+                    canon.from_canonical_bytes(
+                        store.get_bytes(graph_plan.exec_plan_ref)
+                    )
+                ).model_copy(update={"program_ref": selected_graph_ref})
+                selected_plan_ref = store.put_json(
+                    plan,
+                    PutOptions(
+                        kind=plan_manifest.kind,
+                        media_type=plan_manifest.media_type,
+                        schema=plan_manifest.artifact_schema,
+                        inputs=[
+                            *plan_manifest.inputs,
+                            input_ref_from_artifact_ref(
+                                selected_graph_ref,
+                                role="program_graph",
+                            ),
+                        ],
+                    ),
+                )
+                graph_plan = graph_plan.model_copy(
+                    update={
+                        "program_graph_ref": selected_graph_ref,
+                        "exec_plan_ref": selected_plan_ref,
+                    }
+                )
             raw_plan = graph_plan.model_dump(mode="python")
             # EnginePlan excludes runtime refs from model_dump; retain the refs
             # needed by the ordinary owner request builder.
@@ -2891,6 +2992,11 @@ def _owner_program_graph_n5_witness(
                 policy_slot_ids=("agents.income", "government.balance"),
                 producer_ref="test.cycle_owner_program_graph_n5",
                 program_graph_refs=(str(graph_plan.program_graph_ref.artifact_id),),
+                program_graph_view_refs=(
+                    (graph_plan.program_graph_ref,)
+                    if select_program_graph_view
+                    else None
+                ),
             )
             context, candidate = _rebind_owner_cycle_record(
                 seed_context,
@@ -3101,9 +3207,9 @@ def test_joint_port_resolves_exact_selected_candidate_ncm_view(
             cell_id=cell_id,
             profile_content_hash=declaration.profile_content_hash,
         )
-        selected_world = _record_with_selected_ncm_ref(
+        selected_world = _record_with_selected_ncm_view(
             context.world_model_record,
-            str(selected_ref.artifact_id),
+            selected_ref,
         )
         port = JointSimulationPort(
             repo_root=tmp_path / "empty-repo",
@@ -3119,6 +3225,8 @@ def test_joint_port_resolves_exact_selected_candidate_ncm_view(
         )
         assert resolved.model_dump(mode="json") == selected_ncm.model_dump(mode="json")
         assert selected_ref.manifest_profile_sha256 is not None
+        assert selected_world.artifact_views is not None
+        assert selected_world.artifact_views.ncm_refs == (selected_ref,)
 
         stripped_ref = selected_ref.model_copy(
             update={"manifest_profile_sha256": None}
@@ -3132,7 +3240,7 @@ def test_joint_port_resolves_exact_selected_candidate_ncm_view(
                 tenant_id=tenant_id,
                 cell_id=cell_id,
             )
-        assert raised.value.code == "joint_simulation_ncm_spec_unresolved"
+        assert raised.value.code == "joint_simulation_ncm_selected_view_not_wmr_bound"
 
 
 def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
@@ -3316,6 +3424,106 @@ def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits
     finally:
         low.store.close()
         high.store.close()
+
+
+def test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling(
+    tmp_path: Path,
+) -> None:
+    """N5 executes the exact graph view named by WMRv2, not its same-blob sibling."""
+
+    from polisyos.core.artifacts import WarningRecord
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.pdc import WorldModelArtifactViews, WorldModelRecord
+    from polisyos.runtime.quality.world_model_record import (
+        load_world_model_record,
+        world_model_record_content_hash,
+    )
+
+    witness = _owner_program_graph_n5_witness(
+        tmp_path,
+        income_values=(1000.0, 2000.0),
+        select_program_graph_view=True,
+    )
+    try:
+        record = witness.world_model_build.record
+        assert record.artifact_views is not None
+        selected_graph_ref = record.artifact_views.program_graph_refs[0]
+        assert selected_graph_ref.manifest_profile_sha256 is not None
+        assert witness.result.state_consumption is not None
+        assert witness.result.state_consumption.program_graph_ref == str(
+            selected_graph_ref.artifact_id
+        )
+        assert load_world_model_record(
+            witness.store,
+            witness.world_model_build.record_ref,
+        ) == record
+
+        selected_manifest = witness.store.get_manifest(selected_graph_ref)
+        sibling_graph_ref = witness.store.put_bytes(
+            witness.store.get_bytes(selected_graph_ref),
+            PutOptions(
+                kind=selected_manifest.kind,
+                media_type=selected_manifest.media_type,
+                schema=selected_manifest.artifact_schema,
+                inputs=selected_manifest.inputs,
+                warnings=[
+                    WarningRecord(
+                        code="fixture.sibling_program_graph_view",
+                        msg="The same graph bytes have a different manifest profile.",
+                    )
+                ],
+            ),
+        )
+        assert sibling_graph_ref.artifact_id == selected_graph_ref.artifact_id
+        assert sibling_graph_ref.manifest_profile_sha256 != (
+            selected_graph_ref.manifest_profile_sha256
+        )
+        sibling_views = WorldModelArtifactViews.model_validate(
+            {
+                **record.artifact_views.model_dump(mode="python"),
+                "program_graph_refs": (sibling_graph_ref,),
+            }
+        )
+        draft = record.model_copy(
+            update={
+                "artifact_views": sibling_views,
+                "world_model_record_id": "world_model_record_0000000000000000",
+                "content_hash": "sha256:" + "0" * 64,
+            }
+        )
+        sibling_hash = world_model_record_content_hash(draft)
+        sibling_record = WorldModelRecord.model_validate(
+            {
+                **draft.model_dump(mode="json"),
+                "world_model_record_id": (
+                    f"world_model_record_{sibling_hash.removeprefix('sha256:')[:16]}"
+                ),
+                "content_hash": sibling_hash,
+            }
+        )
+        sibling_context, sibling_candidate = _rebind_owner_cycle_record(
+            witness.context,
+            witness.candidate,
+            sibling_record,
+        )
+        sibling_port = JointSimulationPort(
+            repo_root=REPO_ROOT,
+            cycle_substrate_context=sibling_context,
+            artifact_store=witness.store,
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            request = sibling_port._build_joint_simulation_request(
+                candidate=sibling_candidate,
+                problem=witness.problem,
+            )
+            with pytest.raises(
+                WorldModelRecordError,
+                match="n5_program_graph_view_not_wmr_bound",
+            ):
+                sibling_port._bound_program_plan(request, request.engine_plan[0])
+    finally:
+        witness.store.close()
 
 
 def test_owner_program_graph_n5_consumes_selected_state_blob_view(

@@ -100,6 +100,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.generation_source import (
         N4CandidateScenarioSourceRecordV1,
         N4CandidateScenarioSourceRecordV2,
+        N4CandidateScenarioSourceRecordV3,
     )
 
 INTERVENTION_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.intervention_substrate_lift.v2"
@@ -735,7 +736,11 @@ def materialize_candidate_scenario_action(
 def materialize_candidate_scenario_proposal_action(
     bundle: InterventionSubstrateBundle,
     *,
-    source_record: N4CandidateScenarioSourceRecordV1 | N4CandidateScenarioSourceRecordV2,
+    source_record: (
+        N4CandidateScenarioSourceRecordV1
+        | N4CandidateScenarioSourceRecordV2
+        | N4CandidateScenarioSourceRecordV3
+    ),
     source_ref: artifacts.ArtifactRef,
     profile: CandidateSimulationScenarioProfile,
     candidate: N4CandidateScenarioProposalCandidate,
@@ -767,6 +772,7 @@ def materialize_candidate_scenario_proposal_action(
     from polisyos.runtime.quality.generation_source import (
         N4CandidateScenarioSourceRecordV1,
         N4CandidateScenarioSourceRecordV2,
+        N4CandidateScenarioSourceRecordV3,
     )
     from polisyos.runtime.quality.intervention_atom_binding import (
         derive_candidate_scenario_atom,
@@ -776,11 +782,18 @@ def materialize_candidate_scenario_proposal_action(
         resolve_intervention_atom_world_binding,
     )
 
-    source_v1 = (
-        source_record
-        if type(source_record) is N4CandidateScenarioSourceRecordV1
-        else source_record.source_record
+    source_v2 = (
+        source_record.source_record
+        if type(source_record) is N4CandidateScenarioSourceRecordV3
+        else source_record
         if type(source_record) is N4CandidateScenarioSourceRecordV2
+        else None
+    )
+    source_v1 = (
+        source_v2.source_record
+        if type(source_v2) is N4CandidateScenarioSourceRecordV2
+        else source_record
+        if type(source_record) is N4CandidateScenarioSourceRecordV1
         else None
     )
     if source_v1 is None:
@@ -885,14 +898,14 @@ def materialize_candidate_scenario_proposal_action(
         code = str(getattr(exc, "code", None) or "candidate_scenario_atom_derivation_failed")
         raise InterventionSubstrateError(code, str(exc)) from exc
 
-    if type(source_record) is N4CandidateScenarioSourceRecordV2:
-        declaration = source_record.model_declaration
+    if source_v2 is not None:
+        declaration = source_v2.model_declaration
         world_slot_units = {item.slot_id: item.unit for item in world.policy_slot_map}
         if (
-            source_record.model_declaration_ref.kind
+            source_v2.model_declaration_ref.kind
             != "runtime.quality.candidate_simulation_model_declaration"
-            or source_record.ncm_ref.kind != "ir.ncm_spec"
-            or source_record.world_model_record_id != world.world_model_record_id
+            or source_v2.ncm_ref.kind != "ir.ncm_spec"
+            or source_v2.world_model_record_id != world.world_model_record_id
             or declaration.profile_content_hash != profile.content_hash
             or declaration.profile_selection_ref != profile.profile_selection_ref
             or declaration.target_world_slot != rule.target_world_slot
@@ -918,8 +931,8 @@ def materialize_candidate_scenario_proposal_action(
             "context_job_ref": context_job_ref,
             "world_model_record_hash": world.content_hash,
             "n4_source_ref": source_ref,
-            "model_declaration_ref": source_record.model_declaration_ref,
-            "ncm_ref": source_record.ncm_ref,
+            "model_declaration_ref": source_v2.model_declaration_ref,
+            "ncm_ref": source_v2.ncm_ref,
             "candidate_id": candidate.candidate_id,
             "original_candidate_hash": candidate.atom.content_hash,
             "original_atom_hash": candidate.atom.content_hash,

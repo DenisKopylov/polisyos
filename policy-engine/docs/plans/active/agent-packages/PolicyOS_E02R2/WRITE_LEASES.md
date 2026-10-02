@@ -3014,3 +3014,12 @@ Both GPR test files are under tests/unit/scientist/governance/continuous; an ini
 Ruff invocation named incorrect paths, which was an invocation error. The corrected
 four-file Ruff and git diff --check returned zero. Test mechanisms/assertions are
 otherwise the exact reviewed postimages; native verification is still UNRUN.
+
+
+## R1/R13 selected acquired inputs in N5 — 2026-10-03
+
+Root is the only canonical writer. The independently reviewed V8 packet has 18 paths (9 production Python files, 1 generated-owner input declaration, 7 test files, 1 shared test helper). Exact pre/postimages are recorded by `/Users/deniskopylov/.codex/scratch/E02R2_B09_V8_CODE_PACKET_20261002/PATCH_MANIFEST.txt@sha256:8773b59c193e34264454556e66a949a735996b9572137bee1e21d3130a1946c8`; independent bounded integration GO is `INDEPENDENT_REVIEW_V8.md` in that packet at sha256:edcce7e062365d3425a9dcb38f713e683817c0816c434477d5f46a1b1317365c. All 18 canonical postimages were read back (`ROOT_APPLY_READBACK_18.json@sha256:0a874cfa4f41c0e63e9ca5242c003df3117ae0675777d1be97b6e6179575533d`).
+
+The existing WMR owner now carries an exact selected-view bundle in WMR v2, the Context Job owner dispatches its v3 wrapper, and the generation source owner wraps its exact historical v2 child in source v3. Historical WMR v1 and Context Job v1/v2 projections remain versioned. The served WDI witness checks admitted-row identity/value, N5 baseline and actual downstream outcome against the unacquired baseline. Ruff passed all 17 Python postimages; native served verification and marker-preserving removal remain UNRUN at integration.
+
+B09 stays partial: `stable_candidate_identity_source_not_reconciled_on_originless_replay` is a bounded replay-provenance residual. The production controller binds the original subject, but standalone source-v3 replay has no externally resolved run-root subject witness. Exact problem/candidate/context/WMR checks still prevent a foreign world from shaping N5. This slice establishes no cross-source continuity, source-time contract, real-world causal coupling, S8 authority or N9 admission. New residual engineering is deferred under Denis's narrowed scope. The finite acquired-input removal hook is owned by the same candidate author and requires independent delta review before the root integrates it. Generated outputs are regenerated only by their owners; governed epochs/receipts are not restamped.

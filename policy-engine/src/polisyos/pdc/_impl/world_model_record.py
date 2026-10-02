@@ -16,11 +16,14 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+# Pydantic resolves these selected CAS-view fields when it builds the schema.
+from polisyos.core.artifacts import ArtifactRef  # noqa: TC001
 from polisyos.ir.kernel import SLOT_ID_PATTERN
 
 from .gy_waist import gy_artifact_self_identity_projection, gy_content_hash
 
 WORLD_MODEL_RECORD_SCHEMA_VERSION = "policyos.runtime.world_model_record.v1"
+WORLD_MODEL_RECORD_SCHEMA_V2_VERSION = "policyos.runtime.world_model_record.v2"
 WORLD_MODEL_RECORD_SCHEMA_NAME = "polisyos.runtime.quality.WorldModelRecord"
 WORLD_MODEL_RECORD_ARTIFACT_KIND = "runtime.quality.world_model_record"
 
@@ -97,6 +100,48 @@ class SimulationModelRef(_StrictModel):
     fidelity_level: str = Field(..., min_length=1)
     calibration_ref: str | None = Field(None, pattern=r"^sha256:[0-9a-f]{64}$")
     calibrated: bool = False
+
+
+class WorldModelArtifactViews(_StrictModel):
+    """Exact CAS views selected by a versioned world-model record.
+
+    Domain IDs remain stable projections for existing consumers. This bundle
+    carries the manifest profile selectors needed to custody selected bytes.
+    """
+
+    data_snapshot_ref: ArtifactRef
+    registry_bundle_ref: ArtifactRef
+    model_spec_ref: ArtifactRef
+    input_bindings_ref: ArtifactRef
+    bound_state_snapshot_ref: ArtifactRef
+    input_binding_report_ref: ArtifactRef
+    substrate_registry_ref: ArtifactRef | None = None
+    program_graph_refs: tuple[ArtifactRef, ...] = ()
+    ncm_refs: tuple[ArtifactRef, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_view_contract(self) -> WorldModelArtifactViews:
+        typed_pairs = (
+            (self.data_snapshot_ref, "fabric.data_snapshot"),
+            (self.registry_bundle_ref, "core.registry_bundle"),
+            (self.model_spec_ref, "ir.model_spec"),
+            (self.input_bindings_ref, "foundry.input_bindings"),
+            (self.bound_state_snapshot_ref, "foundry.state_snapshot"),
+            (self.input_binding_report_ref, "foundry.input_binding_report"),
+            *((ref, "foundry.program_graph") for ref in self.program_graph_refs),
+            *((ref, "ir.ncm_spec") for ref in self.ncm_refs),
+        )
+        if any(
+            ref.kind != expected_kind or ref.media_type != "application/json"
+            for ref, expected_kind in typed_pairs
+        ):
+            raise ValueError("world_model_artifact_view_type_invalid")
+        if self.substrate_registry_ref is not None and (
+            self.substrate_registry_ref.kind != "runtime.quality.substrate_registry"
+            or self.substrate_registry_ref.media_type != "application/json"
+        ):
+            raise ValueError("world_model_artifact_view_type_invalid")
+        return self
 
 
 class FoundryBindingRef(_StrictModel):
@@ -192,7 +237,10 @@ class WorldModelRecord(_StrictModel):
     """Name one versioned, simulatable world built from existing substrates."""
 
     world_model_record_id: str = Field(..., pattern=r"^world_model_record_[a-f0-9]{16}$")
-    schema_version: str = WORLD_MODEL_RECORD_SCHEMA_VERSION
+    schema_version: Literal[
+        "policyos.runtime.world_model_record.v1",
+        "policyos.runtime.world_model_record.v2",
+    ] = WORLD_MODEL_RECORD_SCHEMA_VERSION
     authority_status: Literal[
         "candidate_unverified",
         "bound",
@@ -222,6 +270,10 @@ class WorldModelRecord(_StrictModel):
     policy_slot_map: tuple[PolicySlotBinding, ...]
     limitations: WorldModelLimitations = Field(default_factory=WorldModelLimitations)
     deployment_update_refs: DeploymentUpdateRefs = Field(default_factory=DeploymentUpdateRefs)
+    artifact_views: WorldModelArtifactViews | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
 
     @field_validator("policy_slot_map")
     @classmethod
@@ -247,6 +299,13 @@ class WorldModelRecord(_StrictModel):
             raise ValueError("fabric_world_content_query_digest_missing")
         if not self.fabric_world_ref.content_query_row_count:
             raise ValueError("fabric_world_empty")
+        if self.schema_version == WORLD_MODEL_RECORD_SCHEMA_VERSION:
+            if self.artifact_views is not None:
+                raise ValueError("world_model_v1_artifact_views_not_supported")
+        elif self.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
+            if self.artifact_views is None:
+                raise ValueError("world_model_v2_artifact_views_missing")
+            _validate_world_model_artifact_views(self)
         expected = world_model_record_content_hash(self)
         if self.content_hash != expected:
             raise ValueError(f"content_hash_mismatch: expected {expected}, got {self.content_hash}")
@@ -273,8 +332,24 @@ def world_model_record_content_hash_from_fields(fields: Mapping[str, Any]) -> st
     return gy_content_hash(_content_payload_from_fields(fields))
 
 
+def serialize_world_model_record_for_storage(
+    record: WorldModelRecord,
+) -> dict[str, Any]:
+    """Serialize one versioned WMR without widening historical v1 bytes."""
+
+    validated = WorldModelRecord.model_validate(record.model_dump(mode="json"))
+    payload = validated.model_dump(mode="json")
+    if validated.schema_version == WORLD_MODEL_RECORD_SCHEMA_VERSION:
+        payload.pop("artifact_views", None)
+    return payload
+
+
 def _content_payload_from_record(record: WorldModelRecord) -> dict[str, Any]:
     payload = gy_artifact_self_identity_projection(record)
+    if record.schema_version == WORLD_MODEL_RECORD_SCHEMA_VERSION:
+        # V1 is a historical wire contract. A new optional field must not
+        # perturb either its persisted bytes or its content hash.
+        payload.pop("artifact_views", None)
     for field in ("world_model_record_id", "created_at", "producer_ref", "authority_status"):
         payload.pop(field, None)
     return _strip_non_content_locations(payload)
@@ -282,6 +357,10 @@ def _content_payload_from_record(record: WorldModelRecord) -> dict[str, Any]:
 
 def _content_payload_from_fields(fields: Mapping[str, Any]) -> dict[str, Any]:
     payload = gy_artifact_self_identity_projection({**fields, "content_hash": "pending"})
+    if fields.get("schema_version", WORLD_MODEL_RECORD_SCHEMA_VERSION) == (
+        WORLD_MODEL_RECORD_SCHEMA_VERSION
+    ):
+        payload.pop("artifact_views", None)
     return _strip_non_content_locations(
         {
             key: _json_ready(value)
@@ -295,6 +374,37 @@ def _content_payload_from_fields(fields: Mapping[str, Any]) -> dict[str, Any]:
             }
         }
     )
+
+
+def _validate_world_model_artifact_views(record: WorldModelRecord) -> None:
+    views = record.artifact_views
+    if views is None:
+        raise ValueError("world_model_v2_artifact_views_missing")
+    simulation = record.simulation_model_ref
+    foundry = record.foundry_binding_ref
+    pairs = (
+        (views.data_snapshot_ref, simulation.data_snapshot_ref),
+        (views.registry_bundle_ref, simulation.registry_bundle_ref),
+        (views.model_spec_ref, simulation.model_spec_ref),
+        (views.input_bindings_ref, foundry.input_bindings_ref),
+        (views.bound_state_snapshot_ref, foundry.bound_state_snapshot_ref),
+        (views.input_binding_report_ref, foundry.mapping_rules_ref),
+    )
+    if any(str(ref.artifact_id) != identifier for ref, identifier in pairs):
+        raise ValueError("world_model_artifact_view_id_mismatch")
+    substrate_id = record.substrate_registry_ref.registry_artifact_ref
+    if (views.substrate_registry_ref is None) != (substrate_id is None):
+        raise ValueError("world_model_substrate_registry_view_mismatch")
+    if views.substrate_registry_ref is not None and str(
+        views.substrate_registry_ref.artifact_id
+    ) != substrate_id:
+        raise ValueError("world_model_substrate_registry_view_mismatch")
+    graph_ids = tuple(str(ref.artifact_id) for ref in views.program_graph_refs)
+    ncm_ids = tuple(str(ref.artifact_id) for ref in views.ncm_refs)
+    if graph_ids != simulation.program_graph_refs:
+        raise ValueError("world_model_program_graph_view_id_mismatch")
+    if ncm_ids != simulation.ncm_refs:
+        raise ValueError("world_model_ncm_view_id_mismatch")
 
 
 def _strip_non_content_locations(payload: dict[str, Any]) -> dict[str, Any]:
@@ -356,6 +466,7 @@ def _json_ready(value: object) -> object:
 __all__ = [
     "WORLD_MODEL_RECORD_ARTIFACT_KIND",
     "WORLD_MODEL_RECORD_SCHEMA_NAME",
+    "WORLD_MODEL_RECORD_SCHEMA_V2_VERSION",
     "WORLD_MODEL_RECORD_SCHEMA_VERSION",
     "BranchMode",
     "DataForgeBindingRef",
@@ -368,8 +479,10 @@ __all__ = [
     "SkgCausalPriorRef",
     "SubstrateLayer",
     "SubstrateRegistryRef",
+    "WorldModelArtifactViews",
     "WorldModelLimitations",
     "WorldModelRecord",
+    "serialize_world_model_record_for_storage",
     "world_model_record_content_hash",
     "world_model_record_content_hash_from_fields",
 ]

@@ -4990,11 +4990,10 @@ class ControlPlaneService(
                         from polisyos.runtime.quality.cycle_substrate import (
                             ConfiguredCandidateSimulationContextAdmissionOwner,
                             CycleSubstrateContextArtifactOwner,
-                            CycleSubstrateContextJobArtifact,
-                            CycleSubstrateContextJobArtifactV2,
                             VerifiedNLJobScope,
                             cycle_job_design_problem_ref,
                             cycle_job_profile_selection_ref,
+                            is_supported_cycle_substrate_context_job_artifact,
                         )
                         from polisyos.runtime.quality.design_problem import DesignProblem
 
@@ -5035,11 +5034,9 @@ class ControlPlaneService(
                         )
                         if (
                             type(current_offer) is not CandidateSimulationContextOffer
-                            or type(current_context_job)
-                            not in {
-                                CycleSubstrateContextJobArtifact,
-                                CycleSubstrateContextJobArtifactV2,
-                            }
+                            or not is_supported_cycle_substrate_context_job_artifact(
+                                current_context_job
+                            )
                         ):
                             return False
                         expected_problem_ref = cycle_job_design_problem_ref(problem)
@@ -5268,6 +5265,7 @@ class ControlPlaneService(
                             N4CandidateScenarioSourceLocator,
                             N4CandidateScenarioSourceRecordV1,
                             N4CandidateScenarioSourceRecordV2,
+                            N4CandidateScenarioSourceRecordV3,
                         )
 
                         run_id = str(job.run_id or "")
@@ -5301,10 +5299,11 @@ class ControlPlaneService(
                                     raw_request=str(payload.get("request") or ""),
                                     expected_design_problem=compiled.design_problem,
                                 )
-                                if type(loaded) not in {
+                                if type(loaded) not in (
                                     N4CandidateScenarioSourceRecordV1,
                                     N4CandidateScenarioSourceRecordV2,
-                                }:
+                                    N4CandidateScenarioSourceRecordV3,
+                                ):
                                     raise RuntimeError(
                                         "n4_candidate_scenario_projection_owner_mismatch"
                                     )

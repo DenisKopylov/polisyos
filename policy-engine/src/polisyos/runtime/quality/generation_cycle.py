@@ -3062,6 +3062,7 @@ class JointSimulationPort:
         if self._artifact_store is None:
             raise WorldModelRecordError("n5_runtime_store_not_established")
 
+        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
         from polisyos.core.contracts.foundry import (
             ExecPlan,
             ExecPlanRef,
@@ -3074,9 +3075,11 @@ class JointSimulationPort:
         from polisyos.core.registry import load_registry_bundle_content
         from polisyos.foundry.data_plane import load_input_bindings
         from polisyos.foundry.execute.executor import load_state_snapshot
+        from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
         from polisyos.runtime.quality.world_model_record import (
             consume_world_model_record_for_simulation,
             resolve_intervention_atom_world_binding,
+            world_model_artifact_views,
         )
 
         if plan.program_graph_ref is None or plan.exec_plan_ref is None:
@@ -3091,8 +3094,6 @@ class JointSimulationPort:
             if isinstance(plan.exec_plan_ref, BaseModel)
             else plan.exec_plan_ref
         )
-        # WMR v1 lists bare graph IDs. A selected non-default graph view cannot
-        # be inferred from that ID and is therefore not a controlled selection.
         if (
             graph_ref.kind != "foundry.program_graph"
             or graph_ref.media_type != "application/json"
@@ -3100,13 +3101,23 @@ class JointSimulationPort:
             or exec_plan_ref.media_type != "application/json"
         ):
             raise WorldModelRecordError("n5_program_artifact_ref_profile_invalid")
-        if graph_ref.manifest_profile_sha256 is not None:
-            raise WorldModelRecordError("n5_program_graph_view_not_wmr_bound")
-        if (
-            str(graph_ref.artifact_id)
-            not in request.world_model_record.simulation_model_ref.program_graph_refs
-        ):
-            raise WorldModelRecordError("n5_program_graph_not_wmr_listed")
+        selected_world_views = world_model_artifact_views(request.world_model_record)
+        if request.world_model_record.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
+            matching_views = tuple(
+                ref
+                for ref in selected_world_views.program_graph_refs
+                if artifact_ref_identity_key(ref) == artifact_ref_identity_key(graph_ref)
+            )
+            if len(matching_views) != 1:
+                raise WorldModelRecordError("n5_program_graph_view_not_wmr_bound")
+        else:
+            if graph_ref.manifest_profile_sha256 is not None:
+                raise WorldModelRecordError("n5_program_graph_view_not_wmr_bound")
+            if (
+                str(graph_ref.artifact_id)
+                not in request.world_model_record.simulation_model_ref.program_graph_refs
+            ):
+                raise WorldModelRecordError("n5_program_graph_not_wmr_listed")
         graph_manifest = self._artifact_store.get_manifest(graph_ref)
         plan_manifest = self._artifact_store.get_manifest(exec_plan_ref)
         if (
@@ -3134,9 +3145,12 @@ class JointSimulationPort:
             raise WorldModelRecordError("n5_exec_plan_program_graph_mismatch")
 
         world_input = consume_world_model_record_for_simulation(request.world_model_record)
-        bindings_ref = FoundryInputBindingsRef(
-            artifact_id=world_input.input_bindings_ref
+        selected_world_views = world_model_artifact_views(request.world_model_record)
+        bindings_ref = FoundryInputBindingsRef.model_validate(
+            selected_world_views.input_bindings_ref.model_dump(mode="python")
         )
+        if not self._artifact_store.verify(bindings_ref).ok:
+            raise WorldModelRecordError("n5_input_bindings_view_unverified")
         bindings_manifest = self._artifact_store.get_manifest(bindings_ref)
         if (
             bindings_manifest.kind != "foundry.input_bindings"
@@ -3150,38 +3164,44 @@ class JointSimulationPort:
         persisted_bindings = load_input_bindings(self._artifact_store, bindings_ref)
         if persisted_bindings.schema_version != "1.0":
             raise WorldModelRecordError("n5_input_bindings_payload_version_invalid")
-        # WMR v1 persists bare IDs, so only default typed views can cross its
-        # boundary. Reconcile all three nested refs before opening any state.
+        # Reconcile each nested binding ref against the versioned WMR view set
+        # before opening any state. V1 reconstructs default refs; V2 retains CAS
+        # selectors and requires exact view identity.
         declared_views = (
             (
                 persisted_bindings.bound_state_snapshot_ref,
-                world_input.bound_state_snapshot_ref,
+                selected_world_views.bound_state_snapshot_ref,
                 "foundry.state_snapshot",
             ),
             (
                 persisted_bindings.registry_bundle_ref,
-                world_input.registry_bundle_ref,
+                selected_world_views.registry_bundle_ref,
                 "core.registry_bundle",
             ),
             (
                 persisted_bindings.data_snapshot_ref,
-                request.world_model_record.simulation_model_ref.data_snapshot_ref,
+                selected_world_views.data_snapshot_ref,
                 "fabric.data_snapshot",
             ),
         )
-        for declared_ref, expected_id, expected_kind in declared_views:
-            if declared_ref.manifest_profile_sha256 is not None:
-                raise WorldModelRecordError("n5_wmr_selected_view_not_expressible")
+        for declared_ref, expected_ref, expected_kind in declared_views:
             if (
-                str(declared_ref.artifact_id) != expected_id
+                artifact_ref_identity_key(declared_ref)
+                != artifact_ref_identity_key(expected_ref)
                 or declared_ref.kind != expected_kind
                 or declared_ref.media_type != "application/json"
             ):
                 raise WorldModelRecordError("n5_wmr_input_bindings_mismatch")
             manifest = self._artifact_store.get_manifest(declared_ref)
-            if manifest.kind != expected_kind or manifest.media_type != "application/json":
+            if (
+                manifest.kind != expected_kind
+                or manifest.media_type != "application/json"
+                or not self._artifact_store.verify(declared_ref).ok
+            ):
                 raise WorldModelRecordError("n5_wmr_default_view_profile_invalid")
-        snapshot_ref = StateSnapshotRef(artifact_id=world_input.bound_state_snapshot_ref)
+        snapshot_ref = StateSnapshotRef.model_validate(
+            selected_world_views.bound_state_snapshot_ref.model_dump(mode="python")
+        )
         expected_slot_digest = gy_content_hash(
             {
                 "bound_state_snapshot_ref": str(snapshot_ref.artifact_id),
@@ -3193,12 +3213,13 @@ class JointSimulationPort:
         )
         if request.world_model_record.foundry_binding_ref.state_slot_digest != expected_slot_digest:
             raise WorldModelRecordError("n5_wmr_state_slot_digest_mismatch")
-        # WMR v1 binds the snapshot wrapper by bare ID, so keep this wrapper
-        # view selectorless. The v2.2 wrapper payload then binds its exact state
-        # blob view transitively through the immutable manifest lineage.
-        snapshot_manifest = self._artifact_store.get_manifest(snapshot_ref.artifact_id)
+        # The WMR selects the exact snapshot wrapper; its versioned lineage then
+        # binds the state blob view transitively.
+        snapshot_manifest = self._artifact_store.get_manifest(snapshot_ref)
+        if not self._artifact_store.verify(snapshot_ref).ok:
+            raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
         snapshot = StateSnapshot.model_validate(
-            from_canonical_bytes(self._artifact_store.get_bytes(snapshot_ref.artifact_id))
+            from_canonical_bytes(self._artifact_store.get_bytes(snapshot_ref))
         )
         supported_snapshot_schemas = {"2.1": "2.1.0", "2.2": "2.2.0"}
         expected_snapshot_schema = supported_snapshot_schemas.get(snapshot.schema_version)
@@ -3225,13 +3246,24 @@ class JointSimulationPort:
         ):
             raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
         expected_lineage = (
-            (request.world_model_record.simulation_model_ref.data_snapshot_ref,
-             "input.data_snapshot_ref"),
-            (world_input.registry_bundle_ref, "input.registry_bundle_ref"),
-            (str(snapshot.state_ref.artifact_id), "state_blob"),
+            (
+                str(selected_world_views.data_snapshot_ref.artifact_id),
+                "input.data_snapshot_ref",
+                selected_world_views.data_snapshot_ref.manifest_profile_sha256,
+            ),
+            (
+                str(selected_world_views.registry_bundle_ref.artifact_id),
+                "input.registry_bundle_ref",
+                selected_world_views.registry_bundle_ref.manifest_profile_sha256,
+            ),
+            (
+                str(snapshot.state_ref.artifact_id),
+                "state_blob",
+                snapshot.state_ref.manifest_profile_sha256,
+            ),
         )
         actual_lineage = tuple(
-            (str(item.artifact_id), item.role)
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
             for item in (snapshot.lineage_inputs or ())
         )
         if actual_lineage != expected_lineage:
@@ -3243,10 +3275,6 @@ class JointSimulationPort:
                 or state_blob_edge is None
                 or state_blob_edge.manifest_profile_sha256
                 != snapshot.state_ref.manifest_profile_sha256
-                or any(
-                    item.manifest_profile_sha256 is not None
-                    for item in snapshot.lineage_inputs[:-1]
-                )
             ):
                 raise WorldModelRecordError("n5_bound_state_lineage_mismatch")
         elif (
@@ -3255,10 +3283,8 @@ class JointSimulationPort:
         ):
             raise WorldModelRecordError("n5_bound_state_lineage_mismatch")
         bound_state = load_state_snapshot(self._artifact_store, snapshot_ref=snapshot_ref)
-        registry_ref = CASArtifactRef(
-            artifact_id=world_input.registry_bundle_ref,
-            kind="core.registry_bundle",
-            media_type="application/json",
+        registry_ref = CASArtifactRef.model_validate(
+            selected_world_views.registry_bundle_ref.model_dump(mode="python")
         )
         registries = load_registry_bundle_content(self._artifact_store, registry_ref)
         slot_paths = tuple(
@@ -3787,6 +3813,28 @@ class JointSimulationPort:
             store = self._artifact_store
             if store is None:
                 raise WorldModelRecordError("joint_simulation_ncm_store_not_established")
+            from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+            from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+            from polisyos.runtime.quality.world_model_record import (
+                world_model_artifact_views,
+            )
+
+            views = world_model_artifact_views(world_record)
+            if world_record.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
+                matching_views = tuple(
+                    ref
+                    for ref in views.ncm_refs
+                    if artifact_ref_identity_key(ref)
+                    == artifact_ref_identity_key(selected_ncm_ref)
+                )
+                if len(matching_views) != 1:
+                    raise WorldModelRecordError(
+                        "joint_simulation_ncm_selected_view_not_wmr_bound"
+                    )
+            elif selected_ncm_ref.manifest_profile_sha256 is not None:
+                raise WorldModelRecordError(
+                    "joint_simulation_ncm_selected_ref_not_in_world_model"
+                )
             try:
                 from polisyos.ir.analytics.ncm import load_ncm_spec_selected_view
 
@@ -3805,18 +3853,38 @@ class JointSimulationPort:
                 raise WorldModelRecordError(
                     "joint_simulation_ncm_spec_unresolved", str(exc)
                 ) from exc
-        if len(refs) != 1 or not refs[0].startswith("sha256:"):
-            raise WorldModelRecordError("joint_simulation_ncm_spec_missing")
-        try:
-            ref = NCMSpecRef(
-                artifact_id=refs[0],
-                kind="ir.ncm_spec",
-                media_type="application/json",
-            )
-            if str(ref.artifact_id) != refs[0]:
-                raise ValueError("joint_simulation_ncm_selected_ref_not_canonical")
-        except (TypeError, ValueError) as exc:
-            raise WorldModelRecordError("joint_simulation_ncm_spec_unresolved", str(exc)) from exc
+        from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+        from polisyos.runtime.quality.world_model_record import (
+            world_model_artifact_views,
+        )
+
+        views = world_model_artifact_views(world_record)
+        if world_record.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
+            if len(views.ncm_refs) != 1:
+                raise WorldModelRecordError("joint_simulation_ncm_spec_missing")
+            selected_default_view = views.ncm_refs[0]
+            if selected_default_view.manifest_profile_sha256 is not None:
+                raise WorldModelRecordError(
+                    "joint_simulation_ncm_selected_view_requires_owner_context"
+                )
+            if str(selected_default_view.artifact_id) not in refs:
+                raise WorldModelRecordError("joint_simulation_ncm_spec_missing")
+            ref = NCMSpecRef.model_validate(selected_default_view.model_dump(mode="python"))
+        else:
+            if len(refs) != 1 or not refs[0].startswith("sha256:"):
+                raise WorldModelRecordError("joint_simulation_ncm_spec_missing")
+            try:
+                ref = NCMSpecRef(
+                    artifact_id=refs[0],
+                    kind="ir.ncm_spec",
+                    media_type="application/json",
+                )
+                if str(ref.artifact_id) != refs[0]:
+                    raise ValueError("joint_simulation_ncm_selected_ref_not_canonical")
+            except (TypeError, ValueError) as exc:
+                raise WorldModelRecordError(
+                    "joint_simulation_ncm_spec_unresolved", str(exc)
+                ) from exc
 
         store = self._artifact_store
         if store is None:
@@ -5975,6 +6043,26 @@ class GenerationCycleController:
                 "observation_family": existing_port.observation_family,
                 "runtime_budget_ms": existing_port.runtime_budget_ms,
             }
+        origin_source_ref: CASArtifactRef | None = None
+        source_diagnostics = source_cycle.simulation.diagnostics
+        selected_source_payload = source_diagnostics.get(
+            "candidate_simulation_n4_source_selected_ref"
+        )
+        if selected_source_payload is not None:
+            if not isinstance(selected_source_payload, Mapping):
+                raise GenerationCycleError(
+                    "acquisition_reentry_n4_source_selected_ref_invalid"
+                )
+            try:
+                origin_source_ref = CASArtifactRef.model_validate(selected_source_payload)
+            except (TypeError, ValueError) as exc:
+                raise GenerationCycleError(
+                    "acquisition_reentry_n4_source_selected_ref_invalid"
+                ) from exc
+        elif source_diagnostics.get("candidate_simulation_n4_source_ref") is not None:
+            raise GenerationCycleError(
+                "acquisition_reentry_n4_source_selected_ref_missing"
+            )
         reentry_value_port = _DefaultSimulationBoundFoundryValuePort(
             repo_root=self._repo_root,
             artifact_store=self._artifact_store,
@@ -5997,6 +6085,7 @@ class GenerationCycleController:
             previous_cycle=source_cycle,
             value_port_override=reentry_value_port,
             stable_design_problem_ref=original_run.design_problem_ref,
+            candidate_scenario_origin_source_ref=origin_source_ref,
         )
         if (
             new_cycle.design_problem_ref != original_run.design_problem_ref
@@ -6267,6 +6356,7 @@ class GenerationCycleController:
         previous_cycle: GenerationCycleRecord | None,
         value_port_override: ValuePort | None = None,
         stable_design_problem_ref: str | None = None,
+        candidate_scenario_origin_source_ref: CASArtifactRef | None = None,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
         state: dict[str, Any] = {
             "problem": problem,
@@ -6275,6 +6365,7 @@ class GenerationCycleController:
             "previous_cycle": previous_cycle,
             "value_port_override": value_port_override,
             "stable_design_problem_ref": stable_design_problem_ref,
+            "candidate_scenario_origin_source_ref": candidate_scenario_origin_source_ref,
         }
         finished = await self._engine.run_async(state)
         return finished["cycle"], tuple(finished["candidate_summaries"])
@@ -7596,6 +7687,8 @@ class GenerationCycleController:
         proposal_run: object,
         *,
         problem: DesignProblem,
+        stable_subject_ref: str,
+        origin_source_ref: CASArtifactRef | None,
     ) -> _N4CandidateScenarioGenerationResult:
         """Bind and persist the existing N4 proposal for the selected N5 profile."""
 
@@ -7612,6 +7705,8 @@ class GenerationCycleController:
         from polisyos.runtime.quality.generation_source import (
             N4CandidateScenarioSourceRecordV1,
             N4CandidateScenarioSourceRecordV2,
+            N4CandidateScenarioSourceRecordV3,
+            candidate_scenario_semantic_identity_hash,
         )
 
         if type(proposal_run) is not N4CandidateScenarioProposalRun:
@@ -7638,7 +7733,26 @@ class GenerationCycleController:
                     context=handoff.context,
                     repo_root=self._repo_root,
                 )
+                if candidate is not None:
+                    semantic_identity_hash = candidate_scenario_semantic_identity_hash(
+                        stable_subject_ref=stable_subject_ref,
+                        proposal=proposal_run.proposal,
+                        candidate=candidate,
+                        profile=handoff.profile,
+                    )
+                    candidate = candidate.model_copy(
+                        update={
+                            "candidate_id": (
+                                "candidate_"
+                                + semantic_identity_hash.removeprefix("sha256:")[:16]
+                            )
+                        }
+                    )
+                    candidate = type(candidate).model_validate(
+                        candidate.model_dump(mode="python")
+                    )
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                candidate = None
                 error_code = str(
                     getattr(exc, "code", None)
                     or "candidate_scenario_proposal_atom_not_established"
@@ -7651,6 +7765,36 @@ class GenerationCycleController:
         repository = self._source_repository
         source_ref: CASArtifactRef | None = None
         source_persistence_limiter: str | None = None
+        origin_source_ref_for_v3: CASArtifactRef | None = None
+        if candidate is not None and origin_source_ref is not None:
+            if repository is None:
+                raise GenerationCycleError(
+                    "n4_candidate_scenario_origin_repository_unavailable"
+                )
+            prior_source = repository.load_candidate_scenario_source_for_n5(
+                origin_source_ref,
+                expected_run_id=handoff.run_id,
+                expected_job_id=handoff.job_id,
+                expected_tenant_id=handoff.tenant_id,
+                expected_cell_id=handoff.cell_id,
+            )
+            if type(prior_source) is N4CandidateScenarioSourceRecordV3:
+                prior_semantic_hash = candidate_scenario_semantic_identity_hash(
+                    stable_subject_ref=prior_source.stable_subject_ref,
+                    proposal=prior_source.proposal,
+                    candidate=prior_source.candidate,
+                    profile=prior_source.profile,
+                )
+                if (
+                    prior_source.stable_subject_ref == stable_subject_ref
+                    and prior_semantic_hash == semantic_identity_hash
+                    and prior_source.candidate.candidate_id == candidate.candidate_id
+                    and prior_source.profile_selection_ref
+                    == handoff.profile.profile_selection_ref
+                ):
+                    origin_source_ref_for_v3 = (
+                        prior_source.origin_source_ref or origin_source_ref
+                    )
         if repository is not None and self._source_run_id is not None:
             try:
                 source_record_v1 = repository.create_candidate_scenario_source_v1(
@@ -7710,9 +7854,25 @@ class GenerationCycleController:
                     source_record = source_record_v2
                     if type(source_record) is not N4CandidateScenarioSourceRecordV2:
                         raise TypeError("n4_candidate_scenario_source_v2_untyped")
-                    source_ref = repository.persist_candidate_scenario_source_v2(
-                        source_record=source_record_v2
-                    )
+                    if candidate is None:
+                        source_ref = repository.persist_candidate_scenario_source_v2(
+                            source_record=source_record_v2
+                        )
+                    else:
+                        source_record_v2_ref = (
+                            repository.persist_candidate_scenario_source_v2(
+                                source_record=source_record_v2
+                            )
+                        )
+                        source_record_v3 = repository.create_candidate_scenario_source_v3(
+                            source_record=source_record_v2,
+                            source_ref=source_record_v2_ref,
+                            stable_subject_ref=stable_subject_ref,
+                            origin_source_ref=origin_source_ref_for_v3,
+                        )
+                        source_ref = repository.persist_candidate_scenario_source_v3(
+                            source_record=source_record_v3
+                        )
                 if candidate is not None:
                     identity = (candidate.candidate_id, candidate.atom.content_hash)
                     self._candidate_scenario_source_refs[identity] = source_ref
@@ -7770,6 +7930,10 @@ class GenerationCycleController:
             result = self._candidate_scenario_proposal_result(
                 result,
                 problem=state["problem"],
+                stable_subject_ref=(
+                    state.get("stable_design_problem_ref") or _problem_ref(state["problem"])
+                ),
+                origin_source_ref=state.get("candidate_scenario_origin_source_ref"),
             )
         if (
             type(result) is _N4CandidateScenarioGenerationResult
@@ -8285,6 +8449,7 @@ class GenerationCycleController:
         from polisyos.runtime.quality.generation_source import (
             N4CandidateScenarioSourceRecordV1,
             N4CandidateScenarioSourceRecordV2,
+            N4CandidateScenarioSourceRecordV3,
         )
         from polisyos.runtime.quality.intervention_substrate import (
             _link_candidate_scenario_intervention,
@@ -8336,9 +8501,16 @@ class GenerationCycleController:
                 expected_tenant_id=handoff.tenant_id,
                 expected_cell_id=handoff.cell_id,
             )
-            source_v1 = (
+            source_v2 = (
                 source_record.source_record
+                if type(source_record) is N4CandidateScenarioSourceRecordV3
+                else source_record
                 if type(source_record) is N4CandidateScenarioSourceRecordV2
+                else None
+            )
+            source_v1 = (
+                source_v2.source_record
+                if type(source_v2) is N4CandidateScenarioSourceRecordV2
                 else source_record
                 if type(source_record) is N4CandidateScenarioSourceRecordV1
                 else None
@@ -8349,12 +8521,12 @@ class GenerationCycleController:
                 or source_v1.status != "candidate_unverified"
                 or source_v1.proposal.trinity_bundle is None
                 or (
-                    type(source_record) is N4CandidateScenarioSourceRecordV2
+                    source_v2 is not None
                     and (
-                        source_record.model_declaration_ref
+                        source_v2.model_declaration_ref
                         != handoff.model_declaration_ref
-                        or source_record.ncm_ref != handoff.ncm_ref
-                        or source_record.model_declaration != handoff.model_declaration
+                        or source_v2.ncm_ref != handoff.ncm_ref
+                        or source_v2.model_declaration != handoff.model_declaration
                     )
                 )
                 or (
@@ -8416,8 +8588,8 @@ class GenerationCycleController:
             if not outcome:
                 raise ValueError("candidate_simulation_outcome_not_established")
             profile_ref = candidate_simulation_profile_ref(handoff.profile)
-            if type(source_record) is N4CandidateScenarioSourceRecordV2:
-                if outcome != source_record.model_declaration.outcome_variable:
+            if source_v2 is not None:
+                if outcome != source_v2.model_declaration.outcome_variable:
                     raise ValueError("candidate_simulation_n5_model_outcome_mismatch")
                 input_payload = {
                     "schema_version": "policyos.runtime.candidate_simulation.n5_input.v5",
@@ -8427,8 +8599,8 @@ class GenerationCycleController:
                     "profile_config_ref": profile_ref,
                     "n4_source_ref": source_ref,
                     "context_job_ref": handoff.context_job_ref,
-                    "model_declaration_ref": source_record.model_declaration_ref,
-                    "ncm_ref": source_record.ncm_ref,
+                    "model_declaration_ref": source_v2.model_declaration_ref,
+                    "ncm_ref": source_v2.ncm_ref,
                     "job_id": handoff.job_id,
                     "run_id": handoff.run_id,
                     "tenant_id": handoff.tenant_id,
@@ -8562,10 +8734,29 @@ class GenerationCycleController:
                 getattr(exc, "code", None)
                 or "candidate_simulation_n5_admission_failed"
             )
-            return self._candidate_scenario_refusal(
+            refusal = self._candidate_scenario_refusal(
                 candidate_id=candidate_id,
                 code=code,
                 status="simulation_blocked",
+            )
+            return refusal.model_copy(
+                update={
+                    "diagnostics": {
+                        **refusal.diagnostics,
+                        **(
+                            {
+                                "candidate_simulation_n4_source_ref": str(
+                                    source_ref.artifact_id
+                                ),
+                                "candidate_simulation_n4_source_selected_ref": (
+                                    source_ref.model_dump(mode="json")
+                                ),
+                            }
+                            if source_ref is not None
+                            else {}
+                        ),
+                    }
+                }
             )
 
     @staticmethod

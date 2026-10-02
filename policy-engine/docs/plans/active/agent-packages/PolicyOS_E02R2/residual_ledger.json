@@ -6053,6 +6053,18 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67#B57",
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f"
           ]
+        },
+        {
+          "behavioral_verdict": "PASS_BOUNDED",
+          "identity": "current 81f serialized journal preserves same-value and delete operations; test_journaled_outcome_round_trip_preserves_same_value_and_delete_ops",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/sta-b111-r2history-current-81f6321c-v4-wholefile-corrected-20261002T095405972741Z/cells/current_explicit/test_serialization-a85443ac0a8b.junit.xml@sha256:bc07296070e0116c7a59013ee90438242adbd0fa7284be59cb3365e844624068",
+          "scope": "Part of 32/32 serialization whole-file pass. Narrow codec witness only; not combined cache-hit/same-value/deletion/non-resurrection, nor Temporal/distributed replay. Overall five-file result: /Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/sta-b111-r2history-current-81f6321c-v4-wholefile-corrected-20261002T095405972741Z/result.json@sha256:abaea8d1ba8daf4efe3805c0734ad273e7d0f45cee6f22fa71fab140b5751e8d"
+        },
+        {
+          "behavioral_verdict": "PASS_BOUNDED",
+          "identity": "current 81f worker path replays only declared timeout branch operations; test_remote_worker_timeout_wire_replays_only_declared_branch_operations",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/sta-b111-r2history-current-81f6321c-v4-wholefile-corrected-20261002T095405972741Z/cells/current_explicit/test_activity_worker-ea31057eb89d.junit.xml@sha256:722ff7f6d293bb7bd5fcf8d59b6f82247c1b9e6662febd9c7a133bffa5954eb5",
+          "scope": "Part of 15/15 activity-worker whole-file pass. Bounded worker witness; does not establish production distributed journal/cached outcome replay. Overall five-file result: /Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/sta-b111-r2history-current-81f6321c-v4-wholefile-corrected-20261002T095405972741Z/result.json@sha256:abaea8d1ba8daf4efe3805c0734ad273e7d0f45cee6f22fa71fab140b5751e8d"
         }
       ],
       "n18_behavioral_audit_20260927": {
@@ -6259,6 +6271,18 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-sta-res-ing-can-20260927/READ_ONLY_FINDING_AUDIT.md@sha256:9a9739ebdfa9c7b5cefaa26c8c6eecbf9cc9152716e65b10adc67e27ba800d67#B58",
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/current-head.junit.xml@sha256:32cb6f55dd4c394180c3db4a729704f9b5eac9e2138edb693d8b86f7a788428f"
           ]
+        },
+        {
+          "behavioral_verdict": "PASS_BOUNDED",
+          "identity": "current 81f serialized journal round-trip preserves explicit delete alongside same-value operation; test_journaled_outcome_round_trip_preserves_same_value_and_delete_ops",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/sta-b111-r2history-current-81f6321c-v4-wholefile-corrected-20261002T095405972741Z/cells/current_explicit/test_serialization-a85443ac0a8b.junit.xml@sha256:bc07296070e0116c7a59013ee90438242adbd0fa7284be59cb3365e844624068",
+          "scope": "Part of 32/32 serialization whole-file pass. Does not establish allowed deletion through parallel/warm-cache/Temporal consumers or conflict behavior. Overall five-file result: /Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/sta-b111-r2history-current-81f6321c-v4-wholefile-corrected-20261002T095405972741Z/result.json@sha256:abaea8d1ba8daf4efe3805c0734ad273e7d0f45cee6f22fa71fab140b5751e8d"
+        },
+        {
+          "behavioral_verdict": "PASS_BOUNDED",
+          "identity": "current 81f worker wire replays only declared branch operations; test_remote_worker_timeout_wire_replays_only_declared_branch_operations",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/sta-b111-r2history-current-81f6321c-v4-wholefile-corrected-20261002T095405972741Z/cells/current_explicit/test_activity_worker-ea31057eb89d.junit.xml@sha256:722ff7f6d293bb7bd5fcf8d59b6f82247c1b9e6662febd9c7a133bffa5954eb5",
+          "scope": "Part of 15/15 activity-worker whole-file pass. No Temporal SDK was available; distributed delete replay remains UNRUN. Overall five-file result: /Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/sta-b111-r2history-current-81f6321c-v4-wholefile-corrected-20261002T095405972741Z/result.json@sha256:abaea8d1ba8daf4efe3805c0734ad273e7d0f45cee6f22fa71fab140b5751e8d"
         }
       ],
       "n18_behavioral_audit_20260927": {
@@ -11016,6 +11040,13 @@
             "/Users/deniskopylov/.codex/scratch/e02-r2-n-opt01-sta01-20260926/B111/removal_probe_restored_green.junit.xml@sha256:5a64a564c0a17acd50ba0ecc66c16d2b5e1b6376881dc510ae6591b5fc307090",
             "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a"
           ]
+        },
+        {
+          "behavioral_verdict": "PASS_BOUNDED",
+          "identity": "B111 ordinary output-bundle whole file at candidate 93ef25b: 15/15 cases passed; native exit 0",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b111-fallback-normal-whole15-93ef25b-v4-20261002T102527640855Z/result.json@sha256:cf0f6c10bc8d966651ebdf051994c6adabb4e37e5512cfbbcd97cd95585b8ae5",
+          "test_artifact_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b111-fallback-normal-whole15-93ef25b-v4-20261002T102527640855Z/cells/current_explicit/test_build_policy_output_bundle-83afbfbbf7d7.junit.xml@sha256:a06eca3f4863232a656a9864f2a91931ac5e7d3c8514d46077d645c8c8d3bb5c",
+          "scope": "Positive ordinary-path test-file observation at candidate 93ef25b only. It does not replay integrated 1b6 or close the finding; retain status partial."
         }
       ],
       "n18_behavioral_audit_20260927": {

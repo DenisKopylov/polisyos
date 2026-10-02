@@ -573,3 +573,8 @@ B73's current test_checkpoint_resume.py whole-file run at `401fa13d` is 11/11 PA
 B150 moves from closed to partial: current `test_cas_01.py` is 15/18, with three reds at retired private `_file`, `_artifact_lock`, and `_artifact_locks` test hooks. The run does not decide stale-test versus production defect and supplies no regression ownership; an owner diagnosis and behavior-level whole-file witness are next. The earlier bounded direct-profile witness remains historical. B198 remains closed_bounded; current `test_propagate_welfare.py` passes 25/25, which is one file and not the historical five-file/58-case cohort.
 
 At pinned ledger checkpoint `8c1c3fc`, status counts were **7 closed / 262 partial / 12 held / 1 open** (282 rows). Appendix C source counts remain **132 closed_bounded / 118 partial / 14 held / 18 no_finding_level_record**. B73's full four-base replay and distributed/external semantics, B150 cause/ownership, and B198's broader adjacent GE-entry/matrix/CREDIBLE residuals remain unresolved.
+
+
+## 2026-10-02 bounded evidence refresh
+
+The complete282-row JSON census remains9closed /260partial /12held /1open. B57/B58 now cite the actual81f worker15/15 and serializer32/32 receipts. B111 cites the93ef output-owner whole15/15 witness after the common v3 fallback fix; authenticated population/provenance and unmeasured callers remain partial. R9 candidate97/97 is not a production issuer appointment. R2 loaded-identity mismatch and Temporal SDK absence remain explicit measured limitations; see newest BASELINES.md receipts. No status, owner decision or register closure is inferred from these additions.

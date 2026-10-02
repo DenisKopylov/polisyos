@@ -28,14 +28,21 @@ from ._atomic_write import (
 )
 from .ids import ArtifactID
 
-OWNERSHIP_INDEX_SCHEMA_VERSION = "policyos.artifact_ownership_index.v2"
-OWNERSHIP_SIGNATURE_SCHEMA_VERSION = "policyos.artifact_ownership_index_signature.v2"
+OWNERSHIP_INDEX_SCHEMA_VERSION = "policyos.artifact_ownership_index.v3"
+OWNERSHIP_SIGNATURE_SCHEMA_VERSION = "policyos.artifact_ownership_index_signature.v3"
 OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION = "policyos.artifact_ownership_index_pointer.v1"
 OWNERSHIP_INDEX_GENERATION_SCHEMA_VERSION = "policyos.artifact_ownership_index_generation.v1"
 OWNERSHIP_EVIDENCE_SCHEMA_VERSION_V3 = "policyos.artifact_ownership_evidence.v3"
 OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1 = "pointer_generation_v1"
 _OWNERSHIP_INDEX_SCHEMA_VERSION_V1 = "policyos.artifact_ownership_index.v1"
 _OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V1 = "policyos.artifact_ownership_index_signature.v1"
+_OWNERSHIP_INDEX_SCHEMA_VERSION_V2 = "policyos.artifact_ownership_index.v2"
+_OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V2 = "policyos.artifact_ownership_index_signature.v2"
+_PUBLIC_READ_CLOSURE_SCHEMA_VERSION = "policyos.governed_public_read_closure.v1"
+_PUBLIC_READ_OPERATIONS = frozenset(
+    {"get_bytes", "get_manifest", "get_manifest_bytes", "get_signature_bytes", "verify"}
+)
+_PUBLIC_RECORD_ID = re.compile(r"^gpr_[A-Za-z0-9_-]{32}$")
 OWNERSHIP_MODE_SHARED_CAS = "shared_immutable_cas"
 _FileIdentity = tuple[int, ...] | None
 _HEX_SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
@@ -108,6 +115,17 @@ class ArtifactTransactionPendingError(ArtifactOwnershipError):
             f"artifact_transaction_pending: {artifact_id} publication surface {surface} "
             "has not been reconciled with the current owner generation"
         )
+
+
+class ArtifactPublicReadClosureUnavailableError(ArtifactOwnershipError):
+    """An owner-scoped public read lacks a current exact closure."""
+
+    code = "public_read_closure_not_established"
+
+    def __init__(self, record_id: str, *, operation: str) -> None:
+        self.record_id = record_id
+        self.operation = operation
+        super().__init__(self.code)
 
 
 @dataclass(frozen=True)
@@ -1156,6 +1174,103 @@ class ArtifactOwnershipIndex:
             f"{_owner_label(normalized_tenant, normalized_cell)} for {operation}"
         )
 
+    def _record_public_read_closure(
+        self,
+        record_id: str,
+        *,
+        store_identity: str,
+        operation_refs: Iterable[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Persist the actual owner-replayed read set for one governed public record.
+
+        This is an owner-internal record, not an authenticator. Production use
+        remains conditional on separately established ownership-root custody.
+        """
+        normalized = _normalize_public_read_operation_refs(operation_refs)
+        if not normalized:
+            raise ValueError("public_read_closure_empty")
+        if (
+            not _PUBLIC_RECORD_ID.fullmatch(record_id)
+            or _HEX_SHA256.fullmatch(store_identity) is None
+        ):
+            raise ValueError("public_read_closure_identity_invalid")
+        with self._lock, self._cross_instance_write_lock():
+            payload = self._load_payload()
+            closures = dict(_public_read_closures_mapping(payload))
+            previous = closures.get(record_id)
+            if previous is not None:
+                if (
+                    previous["status"] == "active"
+                    and previous["store_identity"] == store_identity
+                    and previous["operation_refs"] == normalized
+                ):
+                    return _copy_public_read_closure(previous)
+                raise ValueError("public_read_closure_already_exists")
+            closure = {
+                "schema_version": _PUBLIC_READ_CLOSURE_SCHEMA_VERSION,
+                "record_id": record_id,
+                "purpose": "governed_public_record_replay",
+                "audience": "governed_public_owner_internal",
+                "store_identity": store_identity,
+                "status": "active",
+                "epoch": 1,
+                "operation_refs": normalized,
+                "issued_at": _utc_now(),
+                "revoked_at": None,
+            }
+            closures[record_id] = closure
+            payload["public_read_closures"] = dict(sorted(closures.items()))
+            self._write_payload(payload)
+            return _copy_public_read_closure(closure)
+
+    def _revoke_public_read_closure(self, record_id: str) -> bool:
+        """Withdraw the current per-record closure through the canonical owner index."""
+        if not _PUBLIC_RECORD_ID.fullmatch(record_id):
+            raise ValueError("public_read_closure_identity_invalid")
+        with self._lock, self._cross_instance_write_lock():
+            payload = self._load_payload()
+            closures = dict(_public_read_closures_mapping(payload))
+            closure = closures.get(record_id)
+            if closure is None or closure["status"] == "revoked":
+                return False
+            revoked = _copy_public_read_closure(closure)
+            revoked["status"] = "revoked"
+            revoked["epoch"] += 1
+            revoked["revoked_at"] = _utc_now()
+            closures[record_id] = revoked
+            payload["public_read_closures"] = dict(sorted(closures.items()))
+            self._write_payload(payload)
+            return True
+
+    def _get_public_read_closure(self, record_id: str) -> dict[str, Any] | None:
+        """Return a copied, schema-validated closure row from the latest snapshot."""
+        if not _PUBLIC_RECORD_ID.fullmatch(record_id):
+            return None
+        with self._lock:
+            closure = _public_read_closures_mapping(self._load_snapshot().payload).get(record_id)
+            return _copy_public_read_closure(closure) if closure is not None else None
+
+    def _public_read_closure_matches(
+        self,
+        record_id: str,
+        *,
+        store_identity: str,
+        epoch: int,
+        operation: str,
+        ref_identity: tuple[str, str, str, str | None],
+    ) -> bool:
+        """Recompute one current record/ref/operation admission from the latest owner index."""
+        closure = self._get_public_read_closure(record_id)
+        if (
+            closure is None
+            or closure["status"] != "active"
+            or closure["epoch"] != epoch
+            or closure["store_identity"] != store_identity
+        ):
+            return False
+        expected = _public_read_operation_ref(operation, ref_identity)
+        return expected in closure["operation_refs"]
+
     def record_view_owner(
         self,
         artifact_id: ArtifactID | str,
@@ -1494,6 +1609,7 @@ class ArtifactOwnershipIndex:
         }
         if snapshot.source_format in {
             _OWNERSHIP_INDEX_SCHEMA_VERSION_V1,
+            _OWNERSHIP_INDEX_SCHEMA_VERSION_V2,
             OWNERSHIP_INDEX_SCHEMA_VERSION,
         }:
             evidence["ownership_index_signature_path"] = str(self.signature_path)
@@ -1610,6 +1726,7 @@ class ArtifactOwnershipIndex:
                     "mode": OWNERSHIP_MODE_SHARED_CAS,
                     "artifacts": {},
                     "blob_readers": {},
+                    "public_read_closures": {},
                 },
                 signature=None,
                 source_format="ephemeral_empty_v2",
@@ -1653,7 +1770,7 @@ class ArtifactOwnershipIndex:
                 {"schema_version", "mode", "artifacts"}
             ):
                 raise ValueError("ownership_index_signature_invalid")
-        elif schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
+        elif schema_version == _OWNERSHIP_INDEX_SCHEMA_VERSION_V2:
             required_v2_fields = {
                 "schema_version",
                 "mode",
@@ -1666,13 +1783,32 @@ class ArtifactOwnershipIndex:
                 required_v2_fields
             ):
                 raise ValueError("ownership_index_signature_invalid")
+        elif schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
+            required_v3_fields = {
+                "schema_version",
+                "mode",
+                "artifacts",
+                "blob_readers",
+                "public_read_closures",
+            }
+            if set(raw) != required_v3_fields:
+                raise ValueError("ownership_index_signature_invalid")
+            if not isinstance(raw.get("blob_readers"), dict):
+                raise ValueError("ownership_index_signature_invalid")
+            try:
+                _public_read_closures_mapping(raw)
+            except (TypeError, ValueError):
+                raise ValueError("ownership_index_signature_invalid") from None
         else:
             raise ValueError("ownership_index_signature_invalid")
         if raw.get("mode") != OWNERSHIP_MODE_SHARED_CAS:
             raise ValueError("ownership_index_signature_invalid")
         try:
             _artifacts_mapping(raw)
-            if schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
+            if schema_version in {
+                _OWNERSHIP_INDEX_SCHEMA_VERSION_V2,
+                OWNERSHIP_INDEX_SCHEMA_VERSION,
+            }:
                 _blob_readers_mapping(raw)
         except (TypeError, ValueError):
             raise ValueError("ownership_index_signature_invalid") from None
@@ -1757,7 +1893,7 @@ class ArtifactOwnershipIndex:
             raise ValueError("ownership_index_generation_invalid")
 
         payload = generation.get("payload")
-        self._validate_v2_payload(payload)
+        self._validate_payload(payload)
         payload_sha256 = generation.get("payload_sha256")
         if (
             not isinstance(payload_sha256, str)
@@ -1790,7 +1926,7 @@ class ArtifactOwnershipIndex:
         if (
             not isinstance(payload, dict)
             or set(payload) != required_fields
-            or payload.get("schema_version") != OWNERSHIP_INDEX_SCHEMA_VERSION
+            or payload.get("schema_version") != _OWNERSHIP_INDEX_SCHEMA_VERSION_V2
             or payload.get("mode") != OWNERSHIP_MODE_SHARED_CAS
         ):
             raise ValueError("ownership_index_generation_invalid")
@@ -1799,6 +1935,36 @@ class ArtifactOwnershipIndex:
             _blob_readers_mapping(payload)
         except (TypeError, ValueError):
             raise ValueError("ownership_index_generation_invalid") from None
+
+    def _validate_v3_payload(self, payload: object) -> None:
+        required_fields = {
+            "schema_version",
+            "mode",
+            "artifacts",
+            "blob_readers",
+            "public_read_closures",
+        }
+        if (
+            not isinstance(payload, dict)
+            or set(payload) != required_fields
+            or payload.get("schema_version") != OWNERSHIP_INDEX_SCHEMA_VERSION
+            or payload.get("mode") != OWNERSHIP_MODE_SHARED_CAS
+        ):
+            raise ValueError("ownership_index_generation_invalid")
+        try:
+            _artifacts_mapping(payload)
+            _blob_readers_mapping(payload)
+            _public_read_closures_mapping(payload)
+        except (TypeError, ValueError):
+            raise ValueError("ownership_index_generation_invalid") from None
+
+    def _validate_payload(self, payload: object) -> None:
+        if isinstance(payload, dict) and payload.get("schema_version") == (
+            _OWNERSHIP_INDEX_SCHEMA_VERSION_V2
+        ):
+            self._validate_v2_payload(payload)
+            return
+        self._validate_v3_payload(payload)
 
     def _validate_legacy_source(self, legacy_source: Any) -> _OwnershipSnapshot:
         fields = {
@@ -1856,7 +2022,8 @@ class ArtifactOwnershipIndex:
         next_payload["mode"] = OWNERSHIP_MODE_SHARED_CAS
         next_payload.setdefault("artifacts", {})
         next_payload.setdefault("blob_readers", {})
-        self._validate_v2_payload(next_payload)
+        next_payload.setdefault("public_read_closures", {})
+        self._validate_v3_payload(next_payload)
 
         payload_sha256 = _digest_payload(next_payload)
         signature = self._signature_payload(next_payload, digest=payload_sha256)
@@ -1934,6 +2101,8 @@ class ArtifactOwnershipIndex:
         index_schema_version = str(payload.get("schema_version") or OWNERSHIP_INDEX_SCHEMA_VERSION)
         if index_schema_version == _OWNERSHIP_INDEX_SCHEMA_VERSION_V1:
             signature_schema_version = _OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V1
+        elif index_schema_version == _OWNERSHIP_INDEX_SCHEMA_VERSION_V2:
+            signature_schema_version = _OWNERSHIP_SIGNATURE_SCHEMA_VERSION_V2
         elif index_schema_version == OWNERSHIP_INDEX_SCHEMA_VERSION:
             signature_schema_version = OWNERSHIP_SIGNATURE_SCHEMA_VERSION
         else:
@@ -1970,6 +2139,145 @@ def _blob_readers_mapping(payload: dict[str, Any]) -> dict[str, list[dict[str, A
         payload.get("blob_readers"),
         allow_manifest_views=False,
     )
+
+
+def _public_read_closures_mapping(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """Validate the current per-record release closures without treating them as signatures."""
+    raw = payload.get("public_read_closures")
+    if raw is None and payload.get("schema_version") in {
+        _OWNERSHIP_INDEX_SCHEMA_VERSION_V1,
+        _OWNERSHIP_INDEX_SCHEMA_VERSION_V2,
+    }:
+        return {}
+    if not isinstance(raw, dict):
+        raise ValueError("public_read_closures_invalid")
+    for record_id, closure in raw.items():
+        if not _PUBLIC_RECORD_ID.fullmatch(record_id):
+            raise ValueError("public_read_closure_identity_invalid")
+        fields = {
+            "schema_version",
+            "record_id",
+            "purpose",
+            "audience",
+            "store_identity",
+            "status",
+            "epoch",
+            "operation_refs",
+            "issued_at",
+            "revoked_at",
+        }
+        if (
+            not isinstance(closure, dict)
+            or set(closure) != fields
+            or closure.get("schema_version") != _PUBLIC_READ_CLOSURE_SCHEMA_VERSION
+            or closure.get("record_id") != record_id
+            or closure.get("purpose") != "governed_public_record_replay"
+            or closure.get("audience") != "governed_public_owner_internal"
+            or not isinstance(closure.get("store_identity"), str)
+            or _HEX_SHA256.fullmatch(closure["store_identity"]) is None
+            or closure.get("status") not in {"active", "revoked"}
+            or type(closure.get("epoch")) is not int
+            or closure["epoch"] < 1
+            or not isinstance(closure.get("issued_at"), str)
+            or not closure["issued_at"].strip()
+        ):
+            raise ValueError("public_read_closure_invalid")
+        operation_refs = closure.get("operation_refs")
+        if not isinstance(operation_refs, list) or not operation_refs:
+            raise ValueError("public_read_closure_invalid")
+        if _normalize_public_read_operation_refs(operation_refs) != operation_refs:
+            raise ValueError("public_read_closure_operation_refs_invalid")
+        revoked_at = closure.get("revoked_at")
+        if closure["status"] == "active" and revoked_at is not None:
+            raise ValueError("public_read_closure_revocation_invalid")
+        if closure["status"] == "revoked" and (
+            not isinstance(revoked_at, str) or not revoked_at.strip()
+        ):
+            raise ValueError("public_read_closure_revocation_invalid")
+    return raw
+
+
+def _normalize_public_read_operation_refs(
+    operation_refs: Iterable[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    items = list(operation_refs)
+    rows: set[tuple[str, str, str, str, str | None]] = set()
+    for row in items:
+        if not isinstance(row, dict) or set(row) != {
+            "operation",
+            "artifact_id",
+            "kind",
+            "media_type",
+            "manifest_profile_sha256",
+        }:
+            raise ValueError("public_read_closure_operation_ref_invalid")
+        operation = row["operation"]
+        if not isinstance(operation, str) or operation not in _PUBLIC_READ_OPERATIONS:
+            raise ValueError("public_read_closure_operation_invalid")
+        try:
+            artifact_id = str(ArtifactID.model_validate(row["artifact_id"]))
+        except (TypeError, ValueError):
+            raise ValueError("public_read_closure_artifact_id_invalid") from None
+        kind = row["kind"]
+        media_type = row["media_type"]
+        profile = row["manifest_profile_sha256"]
+        if (
+            not isinstance(kind, str)
+            or not kind.strip()
+            or not isinstance(media_type, str)
+            or not media_type.strip()
+            or (
+                profile is not None
+                and (
+                    not isinstance(profile, str)
+                    or _HEX_SHA256.fullmatch(profile) is None
+                )
+            )
+        ):
+            raise ValueError("public_read_closure_artifact_ref_invalid")
+        rows.add((operation, artifact_id, kind, media_type, profile))
+    if len(rows) != len(items):
+        raise ValueError("public_read_closure_operation_ref_duplicate")
+    return [
+        {
+            "operation": operation,
+            "artifact_id": artifact_id,
+            "kind": kind,
+            "media_type": media_type,
+            "manifest_profile_sha256": profile,
+        }
+        for operation, artifact_id, kind, media_type, profile in sorted(
+            rows,
+            key=lambda item: (
+                item[0],
+                item[1],
+                item[2],
+                item[3],
+                item[4] or "",
+            ),
+        )
+    ]
+
+
+def _public_read_operation_ref(
+    operation: str,
+    ref_identity: tuple[str, str, str, str | None],
+) -> dict[str, Any]:
+    artifact_id, kind, media_type, profile = ref_identity
+    return {
+        "operation": operation,
+        "artifact_id": artifact_id,
+        "kind": kind,
+        "media_type": media_type,
+        "manifest_profile_sha256": profile,
+    }
+
+
+def _copy_public_read_closure(closure: dict[str, Any]) -> dict[str, Any]:
+    return {
+        **closure,
+        "operation_refs": [dict(row) for row in closure["operation_refs"]],
+    }
 
 
 def _validated_claim_mapping(

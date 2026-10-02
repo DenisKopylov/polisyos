@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Literal, TypeVar
 from pydantic import AwareDatetime, BaseModel, JsonValue
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
 from polisyos.core import artifacts, canon
 from polisyos.scientist.evidence.claims.audit import _load_append_only_claim_ledger
@@ -640,11 +640,21 @@ class GovernedPublicRecordOwner:
             raise GovernedPublicRecordError(code) from exc
 
     @staticmethod
-    def _publish_immutable(path: Path, raw: bytes, *, code: str) -> None:
+    def _publish_immutable(
+        path: Path,
+        raw: bytes,
+        *,
+        code: str,
+        existing_reader: Callable[[Path, str], bytes] | None = None,
+    ) -> None:
         try:
             GovernedPublicRecordOwner._atomic_new(path, raw)
         except FileExistsError:
-            existing = GovernedPublicRecordOwner._read_regular_file(path, code=code)
+            existing = (
+                existing_reader(path, code)
+                if existing_reader is not None
+                else GovernedPublicRecordOwner._read_regular_file(path, code=code)
+            )
             if existing != raw:
                 raise GovernedPublicRecordError(code)
 
@@ -763,22 +773,103 @@ class GovernedPublicRecordOwner:
         closure = self.store._ownership_index._get_public_read_closure(record_id)
         return closure is not None and closure["status"] == "revoked"
 
+    def _record_issued_index_boundary_read(
+        self,
+        boundary_reads: list[GovernedPublicRecordBoundaryRead],
+        path: Path,
+        *,
+        operation: Literal["issued_index.lstat", "issued_index.read_bytes"],
+        outcome: Literal["read", "absent", "invalid"],
+    ) -> None:
+        boundary_reads.append(
+            GovernedPublicRecordBoundaryRead(
+                operation=operation,
+                selector=str(path),
+                outcome=outcome,
+                unresolved_by_construction=(
+                    "unselected_index_extensions",
+                    "other_owner_stores",
+                    "unregistered_external_publications",
+                ),
+            )
+        )
+        self.last_boundary_reads = tuple(boundary_reads)
+
+    def _classify_issued_index_locator(
+        self,
+        path: Path,
+        *,
+        boundary_reads: list[GovernedPublicRecordBoundaryRead],
+    ) -> Literal["regular", "absent", "invalid"]:
+        """Classify one locator without converting inspection failures into absence."""
+        try:
+            metadata = path.lstat()
+        except FileNotFoundError:
+            self._record_issued_index_boundary_read(
+                boundary_reads, path, operation="issued_index.lstat", outcome="absent"
+            )
+            return "absent"
+        except OSError:
+            self._record_issued_index_boundary_read(
+                boundary_reads, path, operation="issued_index.lstat", outcome="invalid"
+            )
+            return "invalid"
+        if not stat.S_ISREG(metadata.st_mode):
+            self._record_issued_index_boundary_read(
+                boundary_reads, path, operation="issued_index.lstat", outcome="invalid"
+            )
+            return "invalid"
+        self._record_issued_index_boundary_read(
+            boundary_reads, path, operation="issued_index.lstat", outcome="read"
+        )
+        return "regular"
+
+    def _read_issued_index_bytes(
+        self,
+        path: Path,
+        *,
+        code: str,
+        boundary_reads: list[GovernedPublicRecordBoundaryRead],
+    ) -> bytes:
+        """Read a previously classified regular locator and record actual I/O."""
+        try:
+            raw = path.read_bytes()
+        except OSError as exc:
+            self._record_issued_index_boundary_read(
+                boundary_reads, path, operation="issued_index.read_bytes", outcome="invalid"
+            )
+            raise GovernedPublicRecordError(code) from exc
+        self._record_issued_index_boundary_read(
+            boundary_reads, path, operation="issued_index.read_bytes", outcome="read"
+        )
+        return raw
+
     def _complete_issuance_transaction(
         self,
         transaction: _IssuanceTransaction,
         transaction_raw: bytes,
         index_raw: bytes,
         index: _IssuanceIndex,
+        *,
+        boundary_reads: list[GovernedPublicRecordBoundaryRead],
     ) -> None:
         """Replay exact source, persist closure, publish locator, and append completion."""
         self._validate_owner_directory_set()
         if self._public_read_closure_is_revoked(index.record_id):
             raise GovernedPublicRecordError("public_read_closure_not_established")
         locator_path = self.index_root / "issued" / (index.record_id + ".json")
-        if locator_path.is_symlink():
+        locator_state = self._classify_issued_index_locator(
+            locator_path, boundary_reads=boundary_reads
+        )
+        if locator_state == "invalid":
             raise GovernedPublicRecordError("issuance_index_invalid")
-        if locator_path.exists():
-            if self._read_regular_file(locator_path, code="issuance_index_invalid") != index_raw:
+        if locator_state == "regular":
+            existing = self._read_issued_index_bytes(
+                locator_path,
+                code="issuance_index_invalid",
+                boundary_reads=boundary_reads,
+            )
+            if existing != index_raw:
                 raise GovernedPublicRecordError("issuance_transaction_locator_conflict")
 
         closure = self._record_and_replay_public_read_closure(index)
@@ -787,11 +878,25 @@ class GovernedPublicRecordOwner:
 
         # The public locator is the visibility boundary. It follows the durable
         # closure and its exact owner-authorized replay, never the other way round.
-        if not locator_path.exists():
+        # Remember the first lstat result: if it was absent, attempt atomic
+        # publication unconditionally so FileExistsError must read and compare
+        # any locator another writer created during closure replay.
+        if locator_state == "absent":
+            def read_existing_locator(path: Path, code: str) -> bytes:
+                state = self._classify_issued_index_locator(
+                    path, boundary_reads=boundary_reads
+                )
+                if state != "regular":
+                    raise GovernedPublicRecordError(code)
+                return self._read_issued_index_bytes(
+                    path, code=code, boundary_reads=boundary_reads
+                )
+
             self._publish_immutable(
                 locator_path,
                 index_raw,
                 code="issuance_transaction_locator_conflict",
+                existing_reader=read_existing_locator,
             )
 
         current_closure = self.store._ownership_index._get_public_read_closure(index.record_id)
@@ -884,6 +989,7 @@ class GovernedPublicRecordOwner:
                 transaction_raw,
                 index_raw,
                 index,
+                boundary_reads=reads,
             )
             completed_ids.add(record_id)
             reads.append(
@@ -922,11 +1028,16 @@ class GovernedPublicRecordOwner:
                     continue
                 if path.suffix != ".json" or _ID.fullmatch(path.stem) is None:
                     raise GovernedPublicRecordError("issuance_index_invalid")
-                if path.is_symlink() or not path.is_file():
-                    raise GovernedPublicRecordError("issuance_index_invalid")
                 if path.stem in transaction_paths:
                     continue
-                index_raw = self._read_regular_file(path, code="issuance_index_invalid")
+                locator_state = self._classify_issued_index_locator(
+                    path, boundary_reads=reads
+                )
+                if locator_state != "regular":
+                    raise GovernedPublicRecordError("issuance_index_invalid")
+                index_raw = self._read_issued_index_bytes(
+                    path, code="issuance_index_invalid", boundary_reads=reads
+                )
                 try:
                     index = _IssuanceIndex.model_validate_json(index_raw)
                 except (ValueError, TypeError) as exc:
@@ -958,6 +1069,7 @@ class GovernedPublicRecordOwner:
                     transaction_raw,
                     index_raw,
                     parsed_index,
+                    boundary_reads=reads,
                 )
                 completed_ids.add(index.record_id)
                 reads.append(
@@ -1265,12 +1377,15 @@ class GovernedPublicRecordOwner:
         transaction, transaction_raw, parsed_index = self._persist_issuance_transaction(
             index_raw
         )
+        issuance_reads: list[GovernedPublicRecordBoundaryRead] = []
         self._complete_issuance_transaction(
             transaction,
             transaction_raw,
             index_raw,
             parsed_index,
+            boundary_reads=issuance_reads,
         )
+        self.last_boundary_reads = tuple(issuance_reads)
         return record.record_id
 
     def _resolve_index(

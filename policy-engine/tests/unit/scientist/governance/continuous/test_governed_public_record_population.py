@@ -97,3 +97,138 @@ def test_supplied_inventory_cannot_hide_or_invent_controlled_records(issued_owne
     serialized = result.model_dump(mode="json")
     assert serialized["inventory_reads"][1]["input_reads"]
     assert "unselected_index_extensions" in reads["admission_owner"].unresolved_by_construction
+
+
+def test_locator_inspection_oserror_is_invalid_not_absent(issued_owner, monkeypatch):
+    """An uninspectable controlled locator cannot become an absent-input success."""
+    owner, record_ids = issued_owner
+    locator = owner.index_root / "issued" / f"{record_ids[0]}.json"
+    original_lstat = Path.lstat
+    original_stat = Path.stat
+
+    def denied_for_locator(path, *args, **kwargs):
+        if path == locator:
+            raise PermissionError("synthetic locator inspection denial")
+        return original_lstat(path, *args, **kwargs)
+
+    def denied_stat_for_locator(path, *args, **kwargs):
+        if path == locator:
+            raise PermissionError("synthetic locator inspection denial")
+        return original_stat(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "lstat", denied_for_locator)
+    monkeypatch.setattr(Path, "stat", denied_stat_for_locator)
+    result = custody.PublicVerificationRecordPopulationProvider(
+        source=_InventoryView(owner, record_ids), admission_source=owner, store=owner.store
+    ).resolve()
+
+    assert isinstance(result, custody.PublicSignaturePopulationNonReceipt)
+    assert result.reason == "governed_public_inventory_unresolvable"
+    owner_read = next(item for item in result.inventory_reads if item.boundary == "admission_owner")
+    assert owner_read.outcome == "read_failed"
+    assert any(
+        item.operation == "issued_index.lstat"
+        and item.selector == str(locator)
+        and item.outcome == "invalid"
+        for item in owner_read.input_reads
+    )
+    assert not any(
+        item.selector == str(locator) and item.outcome == "absent"
+        for item in owner_read.input_reads
+    )
+
+
+def _preserve_locator(locator: Path, tmp_path: Path) -> Path:
+    """Move a fixture locator into an exclusive sibling directory without clobbering."""
+    preserved_directory = tmp_path.parent / f"{tmp_path.name}-preserved-locators"
+    preserved_directory.mkdir(exist_ok=False)
+    preserved_locator = preserved_directory / locator.name
+    locator.rename(preserved_locator)
+    return preserved_locator
+
+def test_absent_locator_is_reconciled_as_absent(issued_owner, tmp_path: Path):
+    """A genuine missing locator remains recoverable through its owner transaction."""
+    owner, record_ids = issued_owner
+    locator = owner.index_root / "issued" / f"{record_ids[0]}.json"
+    original_raw = locator.read_bytes()
+    preserved_locator = _preserve_locator(locator, tmp_path)
+
+    result = custody.PublicVerificationRecordPopulationProvider(
+        source=_InventoryView(owner, record_ids), admission_source=owner, store=owner.store
+    ).resolve()
+
+    assert isinstance(result, custody.PersistedPublicSignaturePopulation)
+    assert locator.is_file()
+    assert preserved_locator.read_bytes() == original_raw
+    owner_read = next(item for item in result.inventory_reads if item.boundary == "admission_owner")
+    assert any(
+        item.operation == "issued_index.lstat"
+        and item.selector == str(locator)
+        and item.outcome == "absent"
+        for item in owner_read.input_reads
+    )
+
+
+def _resolve_with_locator_race(issued_owner, monkeypatch, tmp_path: Path, *, suffix: bytes):
+    owner, record_ids = issued_owner
+    raced_record_id = record_ids[0]
+    locator = owner.index_root / "issued" / f"{raced_record_id}.json"
+    expected_raw = locator.read_bytes()
+    preserved_locator = _preserve_locator(locator, tmp_path)
+    original_replay = owner._record_and_replay_public_read_closure
+    races = []
+
+    def replay_then_race(index):
+        closure = original_replay(index)
+        if index.record_id == raced_record_id:
+            with locator.open("xb") as stream:
+                stream.write(expected_raw + suffix)
+            races.append(index.record_id)
+        return closure
+
+    monkeypatch.setattr(owner, "_record_and_replay_public_read_closure", replay_then_race)
+    result = custody.PublicVerificationRecordPopulationProvider(
+        source=_InventoryView(owner, record_ids), admission_source=owner, store=owner.store
+    ).resolve()
+    assert preserved_locator.read_bytes() == expected_raw
+    return result, locator, races, preserved_locator
+
+
+def test_locator_race_refuses_bytes_that_differ_from_owner_intent(
+    issued_owner, monkeypatch, tmp_path: Path
+):
+    """A byte-different JSON encoding cannot replace the intended locator."""
+    result, locator, races, preserved_locator = _resolve_with_locator_race(
+        issued_owner, monkeypatch, tmp_path, suffix=b"\n"
+    )
+
+    assert races
+    assert preserved_locator.is_file()
+    assert isinstance(result, custody.PublicSignaturePopulationNonReceipt)
+    assert result.reason == "governed_public_inventory_unresolvable"
+    owner_read = next(item for item in result.inventory_reads if item.boundary == "admission_owner")
+    assert owner_read.outcome == "read_failed"
+    assert any(
+        item.operation == "issued_index.read_bytes"
+        and item.selector == str(locator)
+        and item.outcome == "read"
+        for item in owner_read.input_reads
+    )
+
+
+def test_locator_race_accepts_exact_owner_intent_bytes(issued_owner, monkeypatch, tmp_path: Path):
+    """An atomic-publication race accepts the identical intended bytes."""
+    result, locator, races, preserved_locator = _resolve_with_locator_race(
+        issued_owner, monkeypatch, tmp_path, suffix=b""
+    )
+
+    assert races
+    assert preserved_locator.is_file()
+    assert isinstance(result, custody.PersistedPublicSignaturePopulation)
+    owner_read = next(item for item in result.inventory_reads if item.boundary == "admission_owner")
+    assert any(
+        item.operation == "issued_index.read_bytes"
+        and item.selector == str(locator)
+        and item.outcome == "read"
+        for item in owner_read.input_reads
+    )

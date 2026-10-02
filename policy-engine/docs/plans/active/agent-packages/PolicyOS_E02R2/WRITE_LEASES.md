@@ -3089,3 +3089,10 @@ Root applied E02R2_R1_CONFIGURED_SERVED_FAILURE_RCA_20261003/V2/minimal-candidat
 The existing N6 terminal projection now partitions all 12 canonical terminal kinds, including search_ceiling_repair_required, with an enum-denominator guard and typed unknown/non-stop refusal. The principal ruling blocked means no N9 remains active. Source tests bind exact persisted cycle occurrence and real intervention fields. Historical serializers and receipts are unchanged.
 
 Root applied E02R2_GENERATION_SOURCE_26_RCA_20261003/final-candidate/candidate.patch@sha256:8a34f31d4d19b87301da0667ccdecc85ac39bc5317cb554da5ed222faff63da3 after independent static GO E02R2_GENERATION_SOURCE_26_RCA_20261003/final-candidate/R11_INDEPENDENT_REVIEW.md@sha256:bf6507518dac54e6fd32f4f60fcd9e8d0aaa14bbd76015e0288a9cc5f89575c0. Native integrated verification remains UNRUN at this boundary. Root alone writes canonical source; no native group was active. The reviewed packet remains immutable; committed readback is stored separately in E02R2_ROOT_BATCH_READBACK_20261003.
+
+
+## R1 N5 FIXTURE reviewed integration — 2026-10-03
+
+The N5 selected-view fixture performs CAS readback and the same-ID sibling-profile negative under the existing tenant scope. The reentry fake accepts the forwarded origin and asserts the actual None premise. The separate N9 refusal is not patched: the durable ledger binds the historical v7 projection while the current owner is v8; an authorized reissue or owner-supported isolation remains required. Four-base attribution is unestablished.
+
+Root applied E02R2_GENERATION_CYCLE_CLOSED3_RCA_20261003_V3/TEST_CANDIDATE.patch@sha256:f61f593ae89f0a92b8c288256c96de1b86c587c671695f2509bfe4a7db2345e3 after independent static GO E02R2_INDEPENDENT_PACKET_REVIEW_20261003/REVIEW.md@sha256:c816fe9a3922abad353bffc54e8f5219af6f3aa7dfae61572c4b0f4e770c1e7f. Native integrated verification remains UNRUN at this boundary. Root alone writes canonical source; no native group was active. The reviewed packet remains immutable; committed readback is stored separately in E02R2_ROOT_BATCH_READBACK_20261003.

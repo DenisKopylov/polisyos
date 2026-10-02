@@ -3454,65 +3454,65 @@ def test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling(
         assert witness.result.state_consumption.program_graph_ref == str(
             selected_graph_ref.artifact_id
         )
-        assert load_world_model_record(
-            witness.store,
-            witness.world_model_build.record_ref,
-        ) == record
-
-        selected_manifest = witness.store.get_manifest(selected_graph_ref)
-        sibling_graph_ref = witness.store.put_bytes(
-            witness.store.get_bytes(selected_graph_ref),
-            PutOptions(
-                kind=selected_manifest.kind,
-                media_type=selected_manifest.media_type,
-                schema=selected_manifest.artifact_schema,
-                inputs=selected_manifest.inputs,
-                warnings=[
-                    WarningRecord(
-                        code="fixture.sibling_program_graph_view",
-                        msg="The same graph bytes have a different manifest profile.",
-                    )
-                ],
-            ),
-        )
-        assert sibling_graph_ref.artifact_id == selected_graph_ref.artifact_id
-        assert sibling_graph_ref.manifest_profile_sha256 != (
-            selected_graph_ref.manifest_profile_sha256
-        )
-        sibling_views = WorldModelArtifactViews.model_validate(
-            {
-                **record.artifact_views.model_dump(mode="python"),
-                "program_graph_refs": (sibling_graph_ref,),
-            }
-        )
-        draft = record.model_copy(
-            update={
-                "artifact_views": sibling_views,
-                "world_model_record_id": "world_model_record_0000000000000000",
-                "content_hash": "sha256:" + "0" * 64,
-            }
-        )
-        sibling_hash = world_model_record_content_hash(draft)
-        sibling_record = WorldModelRecord.model_validate(
-            {
-                **draft.model_dump(mode="json"),
-                "world_model_record_id": (
-                    f"world_model_record_{sibling_hash.removeprefix('sha256:')[:16]}"
-                ),
-                "content_hash": sibling_hash,
-            }
-        )
-        sibling_context, sibling_candidate = _rebind_owner_cycle_record(
-            witness.context,
-            witness.candidate,
-            sibling_record,
-        )
-        sibling_port = JointSimulationPort(
-            repo_root=REPO_ROOT,
-            cycle_substrate_context=sibling_context,
-            artifact_store=witness.store,
-        )
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            assert load_world_model_record(
+                witness.store,
+                witness.world_model_build.record_ref,
+            ) == record
+
+            selected_manifest = witness.store.get_manifest(selected_graph_ref)
+            sibling_graph_ref = witness.store.put_bytes(
+                witness.store.get_bytes(selected_graph_ref),
+                PutOptions(
+                    kind=selected_manifest.kind,
+                    media_type=selected_manifest.media_type,
+                    schema=selected_manifest.artifact_schema,
+                    inputs=selected_manifest.inputs,
+                    warnings=[
+                        WarningRecord(
+                            code="fixture.sibling_program_graph_view",
+                            msg="The same graph bytes have a different manifest profile.",
+                        )
+                    ],
+                ),
+            )
+            assert sibling_graph_ref.artifact_id == selected_graph_ref.artifact_id
+            assert sibling_graph_ref.manifest_profile_sha256 != (
+                selected_graph_ref.manifest_profile_sha256
+            )
+            sibling_views = WorldModelArtifactViews.model_validate(
+                {
+                    **record.artifact_views.model_dump(mode="python"),
+                    "program_graph_refs": (sibling_graph_ref,),
+                }
+            )
+            draft = record.model_copy(
+                update={
+                    "artifact_views": sibling_views,
+                    "world_model_record_id": "world_model_record_0000000000000000",
+                    "content_hash": "sha256:" + "0" * 64,
+                }
+            )
+            sibling_hash = world_model_record_content_hash(draft)
+            sibling_record = WorldModelRecord.model_validate(
+                {
+                    **draft.model_dump(mode="json"),
+                    "world_model_record_id": (
+                        f"world_model_record_{sibling_hash.removeprefix('sha256:')[:16]}"
+                    ),
+                    "content_hash": sibling_hash,
+                }
+            )
+            sibling_context, sibling_candidate = _rebind_owner_cycle_record(
+                witness.context,
+                witness.candidate,
+                sibling_record,
+            )
+            sibling_port = JointSimulationPort(
+                repo_root=REPO_ROOT,
+                cycle_substrate_context=sibling_context,
+                artifact_store=witness.store,
+            )
             request = sibling_port._build_joint_simulation_request(
                 candidate=sibling_candidate,
                 problem=witness.problem,
@@ -7904,9 +7904,11 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         previous_cycle: object,
         value_port_override: object,
         stable_design_problem_ref: str,
+        candidate_scenario_origin_source_ref: object | None,
     ) -> tuple[object, tuple[CandidateSummary, ...]]:
         assert received_problem is problem
         assert stable_design_problem_ref == source_run.design_problem_ref
+        assert candidate_scenario_origin_source_ref is None
         assert cycle_index == source_cycle.cycle_index + 1
         assert previous_cycle is source_cycle
         assert isinstance(

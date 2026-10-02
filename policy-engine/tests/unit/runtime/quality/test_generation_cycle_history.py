@@ -910,15 +910,25 @@ def test_v2_history_rejects_post_version_nested_fields_with_markers_retained(
 
 
 def test_history_replay_is_read_only_and_does_not_consult_current_source(
-    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Historical replay has no writer capability and no live-source dependency."""
+    """Source-only comment changes preserve history and do not mint currentness."""
 
-    _tracked_file_count, occurrences = _tracked_n6_runs()
-    _path, _pointer, payload = next(
-        row for row in occurrences
-        if row[2]["schema_version"] == "policyos.runtime.generation_cycle_controller.v1"
-    )
+    source = tmp_path / "src/polisyos/lex/simulator/report.py"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"def unrelated_report():\n    return 'unchanged'\n")
+    source_receipt = StrangleReceipt.recompute(tmp_path)
+    assert source_receipt.status == "strangled"
+
+    _fixture_name, fixture = _v3_history_fixtures()[0]
+    payload = copy.deepcopy(fixture)
+    payload["strangle_receipt"] = source_receipt.model_dump(mode="json")
+    run = GenerationCycleRun.model_validate(payload)
+    assert isinstance(run.strangle_receipt, StrangleReceipt)
+    payload = run.model_dump(mode="json")
+    currentness_before = generation.currentness_for_generation_cycle_run(run)
+    assert currentness_before.status == "not_established"
+    assert currentness_before.reason_code == "historical_deployment_identity_not_recorded"
 
     def source_probe_must_not_run(
         self: StrangleReceipt, repo_root: Path | None = None
@@ -939,15 +949,16 @@ def test_history_replay_is_read_only_and_does_not_consult_current_source(
     before = canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False))
     current_validator = generation._validate_generation_cycle_run
     history_owner = generation.validate_generation_cycle_run_history
+    original_verify_current = StrangleReceipt.verify_current
 
     def consult_current_source_then_replay(
         candidate: object,
     ) -> tuple[dict[str, Any], ...]:
-        """Test-only removed-property mutant; the installed tripwire makes it red."""
+        """Mutant restores the original source-byte check before history replay."""
 
         run = GenerationCycleRun.model_validate(candidate)
         assert isinstance(run.strangle_receipt, StrangleReceipt)
-        run.strangle_receipt.verify_current(repo_root=REPO_ROOT)
+        original_verify_current(run.strangle_receipt, repo_root=tmp_path)
         return history_owner(candidate)
 
     history_mutant = os.environ.get("POLISYOS_R2_HISTORY_MUTANT")
@@ -975,8 +986,20 @@ def test_history_replay_is_read_only_and_does_not_consult_current_source(
                 consult_current_source_then_replay,
             )
         assert generation.validate_generation_cycle_run_history(payload) == ()
+        source.write_bytes(
+            b"def unrelated_report():\n    return 'unchanged'\n# harmless edit\n"
+        )
+        changed_receipt = StrangleReceipt.recompute(tmp_path)
+        assert changed_receipt.status == source_receipt.status
+        assert changed_receipt.source_content_hash != source_receipt.source_content_hash
+        assert changed_receipt.model_copy(
+            update={"source_content_hash": source_receipt.source_content_hash}
+        ) == source_receipt
+        assert generation.validate_generation_cycle_run_history(payload) == ()
     after = canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False))
     assert before == after
+    currentness_after = generation.currentness_for_generation_cycle_run(payload)
+    assert currentness_after == currentness_before
     assert "strangle_receipt_currentness_not_established" in {
         str(issue.get("code")) for issue in validate_generation_cycle_run(payload)
     }

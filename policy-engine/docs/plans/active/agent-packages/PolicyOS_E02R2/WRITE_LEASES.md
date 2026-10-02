@@ -1,5 +1,11 @@
 # E02-R2 write leases
 
+## R2 actual source-hash removal witness — 2026-10-02
+
+Root alone changes `tests/unit/runtime/quality/test_generation_cycle_history.py` and this lease. The historical owner must replay the same canonical payload after an unrelated comment edit without consulting live source; typed deployment currentness remains `not_established`. The removal mode calls the captured real `StrangleReceipt.verify_current` against a controlled source tree, preserving the run's markers while reinstating the obsolete source-byte dependency. Its second replay must fail at the real stale-hash comparison. The fixture's source receipt is computed before construction for that controlled tree; this witness does not restamp a standing historical record or claim original fixture byte identity, issuer appointment, census completeness or S8 authority.
+
+Patch `/Users/deniskopylov/.codex/scratch/E02R2_R2_SOURCE_HASH_REMOVAL_8EA3_20261002/source-hash-removal.patch@sha256:f6b7fdcc795d093d1965ddc29bba24c3596a34a2d5150830dfb8c0e4e8f934cc`; independent GO `INDEPENDENT_REVIEW.md@sha256:8a17d262f225a58b66b4ae98f948476c1bb6d55e12b469559b0ce6cd80fe93e8` in that directory. Native normal/removal/restored runs remain UNRUN at integration. The earlier method-tripwire receipts retain their narrower meaning.
+
 ## CG1/CG2 semantic truth, replay and checker verdicts — 2026-10-02
 
 Root integrates the two grounding owners (`runtime/quality/grounding_relation.py`, `grounding_bind.py`), their three mirrored unit files (`test_grounding_relation.py`, `test_grounding_bind.py`, `test_grounding_risk.py`), both existing owner checkers and `tests/repo_quality/tools/test_grounding_contract_verdicts.py`. Mandatory companions are this lease, `runtime/quality/README.md`, the two source-of-truth entries in `architecture/generated_artifacts.toml`, its owner-rendered `docs/reference/generated-artifacts.md`, and release fragment `2026-10-02-e02-r2-cg1-cg2-currentness.toml`. No supported facade, OpenAPI/client, historical receipt or dated epoch is leased. The recorded write sets and reviews are below; runtime remains UNRUN at source integration.

@@ -248,17 +248,14 @@ def test_gpr_historical_replay_reads_the_pinned_receipt_without_issuing(
 
 
 @pytest.mark.parametrize("tamper", ["selected_ref", "receipt_digest", "provenance"])
-def test_gpr_historical_replay_refuses_a_falsified_receipt_pin(
-    case, monkeypatch: pytest.MonkeyPatch, tamper: str
+def test_gpr_prepare_refuses_a_falsified_retained_receipt_pin(
+    case, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, tamper: str
 ):
     owner, _, packet_ref, institution, slot = case
     configured, _ = appoint_synthetic_publication(owner, packet_ref, institution, slot)
-    record_id = configured.issue(
-        decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
-    )
     claim_owner = owner.claim_owner
     owner_type = type(claim_owner)
-    original_historical_verifier = owner_type.verify_historical_packet_snapshot
+    original_snapshot_resolver = owner_type.resolve_current_for_packet
     snapshot = claim_owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
     head = snapshot.head
     receipt = _read_profiled_statement(
@@ -317,21 +314,36 @@ def test_gpr_historical_replay_refuses_a_falsified_receipt_pin(
         }
     )
 
-    def verify_falsified_retained_snapshot(self, *, snapshot):
-        if self is claim_owner:
-            return original_historical_verifier(self, snapshot=falsified_snapshot)
-        return original_historical_verifier(self, snapshot=snapshot)
+    def resolve_falsified_retained_snapshot(self, *, decision_packet_ref):
+        if self is claim_owner and decision_packet_ref == packet_ref:
+            return falsified_snapshot
+        return original_snapshot_resolver(
+            self,
+            decision_packet_ref=decision_packet_ref,
+        )
 
     monkeypatch.setattr(
         owner_type,
-        "verify_historical_packet_snapshot",
-        verify_falsified_retained_snapshot,
+        "resolve_current_for_packet",
+        resolve_falsified_retained_snapshot,
     )
+    publication_probe = GovernedPublicRecordOwner(
+        store=owner.store,
+        claim_owner=claim_owner,
+        index_root=tmp_path / "publication-probe",
+        slot=configured.slot,
+    )
+    publication_probe._synthetic_public_read_root_custody_for_tests = True
 
-    response = configured.verify(record_id)
-
-    assert response.report_authentication == "invalid"
-    assert response.reason_codes == ("historical_source_admission_not_established",)
+    with pytest.raises(
+        GovernedPublicRecordError,
+        match="historical_source_admission_not_established",
+    ):
+        publication_probe.prepare(
+            decision_id="packet-snapshot",
+            decision_packet_ref=packet_ref,
+            issued_at=NOW,
+        )
 
 
 def test_public_reader_keeps_root_custody_unestablished_by_default(

@@ -78,6 +78,28 @@ _CANDIDATE_MODEL_DECLARATION_KIND = (
 )
 
 
+def _validated_content_bound_record[ContentBoundModelT: BaseModel](
+    model_type: type[ContentBoundModelT],
+    payload: Mapping[str, object],
+) -> ContentBoundModelT:
+    """Hash the model's canonical JSON projection before content-bound validation."""
+
+    draft = model_type.model_construct(
+        **payload,
+        content_hash="sha256:" + "0" * 64,
+    )
+    normalized_payload = draft.model_dump(
+        mode="json",
+        exclude={"content_hash"},
+    )
+    return model_type.model_validate(
+        {
+            **normalized_payload,
+            "content_hash": gy_content_hash(normalized_payload),
+        }
+    )
+
+
 def _source_write_options() -> artifacts.ArtifactWriteOptions:
     return artifacts.ArtifactWriteOptions(
         kind=SOURCE_KIND,
@@ -1670,8 +1692,9 @@ class GenerationSourceRepository:
             "k_world_ref_before": str(simulation.k_world_ref_before),
             "k_world_ref_after": str(simulation.k_world_ref_after),
         }
-        record = CandidateSimulationExecutionV3.model_validate(
-            {**payload, "content_hash": gy_content_hash(payload)}
+        record = _validated_content_bound_record(
+            CandidateSimulationExecutionV3,
+            payload,
         )
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_EXECUTION_KIND,
@@ -1760,8 +1783,9 @@ class GenerationSourceRepository:
             "k_world_ref_before": str(simulation.k_world_ref_before),
             "k_world_ref_after": str(simulation.k_world_ref_after),
         }
-        record = CandidateSimulationExecutionV4.model_validate(
-            {**payload, "content_hash": gy_content_hash(payload)}
+        record = _validated_content_bound_record(
+            CandidateSimulationExecutionV4,
+            payload,
         )
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_EXECUTION_KIND,
@@ -1856,8 +1880,9 @@ class GenerationSourceRepository:
             "k_world_ref_before": str(simulation.k_world_ref_before),
             "k_world_ref_after": str(simulation.k_world_ref_after),
         }
-        record = CandidateSimulationExecutionV5.model_validate(
-            {**payload, "content_hash": gy_content_hash(payload)}
+        record = _validated_content_bound_record(
+            CandidateSimulationExecutionV5,
+            payload,
         )
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_EXECUTION_KIND,

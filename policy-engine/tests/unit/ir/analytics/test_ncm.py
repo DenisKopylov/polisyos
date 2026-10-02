@@ -164,5 +164,3 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
                 expected_cell_id=cell_id,
                 expected_declaration_ref=declaration_ref,
             )
-
-    store.close()

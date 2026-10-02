@@ -2541,3 +2541,31 @@ Root remains sole integration writer. The later R9 b2ee attempt stopped before t
 The R1 test-census path `tests/unit/pdc/test_world_model_record.py` is corrected to the existing `tests/unit/runtime/quality/test_world_model_record.py`: complete tracked filename enumeration at the candidate finds only the latter. The original census is retained; the ten-mechanism/eight-test denominator is unchanged. No second WMR test owner is created.
 
 R13's scratch V2 proceeds after the R9 candidate freeze: the shared `tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py` has identical bytes at canonical `1281fd36e` and frozen R9 `b2ee072d`. R9 has no active writer, and R13 edits only its separate four-path scratch packet. Root checks exact postimages before ordered integration. R1's overlapping HTTP paths remain excluded.
+
+
+## 2026-10-02: shared N5 execution serialization and independent scratch writers
+
+Root is the sole integration writer. The R1 mechanism lease is exactly
+`runtime/quality/generation_source.py`, its mirrored `test_generation_source.py`,
+and `tests/unit/ir/analytics/test_ncm.py`, under `policy-engine/`. The existing
+V3/V4/V5 owner writers must hash the same JSON projection their validators
+recompute, preserving complete selected refs and their manifest profiles.
+V2, schemas and historical projections remain unchanged. The NCM test removes
+an unsupported raw-store close call. Review required removing one unused
+local import. Ruff also required equivalent Python 3.14 type-parameter syntax,
+and the NCM edit needed removal of a trailing blank line. These are the
+mechanical deltas from the immutable V2 patch.
+
+Candidate: `/Users/deniskopylov/.codex/scratch/E02R2_R1_EXECUTION_HASH_CANDIDATE_V2_20261002/manifest.json@sha256:fc8c30d73de461807802b424e0e95a799b38c699838f6b5b58a3ae1c91c0d33b`;
+review: `review.md@sha256:c9924defa977e7b6fdc0dfaa82205cb73a3b53e565ff68701a051e859a1d4df5`
+in that packet. Runtime verification is pending after commit and source freeze;
+the served hash-mismatch cause remains an inference until that replay.
+
+Separate direct agents prepare scratch postimages only: R13-C owns
+`acquisition_planner.py` and `test_acquisition_planner.py`; R7 owns
+`test_live_acquisition_executor.py`; B164 owns the existing FUN-03 test owner.
+These mechanism sets are disjoint. No agent edits the canonical checkout or
+launches a test. Root sequences their reviewed integrations and admits jobs.
+R2, R3, B09/B12, B79, architecture and TypeScript preparation use read-only
+source and scratch reports/instruments. Generated families and governed
+records remain serialized through their owners. No Trash is emptied.

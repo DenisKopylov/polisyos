@@ -1927,3 +1927,196 @@ def test_n4_candidate_scenario_source_locator_is_versioned_and_kind_bound():
                 media_type="application/json",
             )
         )
+
+
+@pytest.mark.parametrize("schema_version", ["v3", "v4", "v5"])
+@pytest.mark.parametrize("view_profile_token", ["a", "f"])
+def test_candidate_simulation_execution_versions_roundtrip_selected_views(
+    schema_version,
+    view_profile_token,
+    tmp_path,
+    monkeypatch,
+):
+    """V3-V5 owners hash the JSON projection and preserve each selected ref."""
+    from types import SimpleNamespace
+
+    from polisyos.core import canon
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationContextHandoff,
+        CandidateSimulationExecutionV3,
+        CandidateSimulationExecutionV4,
+        CandidateSimulationExecutionV5,
+        CandidateSimulationN5InputV3,
+        CandidateSimulationN5InputV4,
+        CandidateSimulationN5InputV5,
+    )
+    from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    token = view_profile_token
+
+    def ref(artifact_token, kind):
+        return ArtifactRef(
+            artifact_id="sha256:" + artifact_token * 64,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + token * 64,
+        )
+
+    job_id = f"job-{schema_version}-execution"
+    run_id = f"run-{schema_version}-execution"
+    tenant_id = "tenant-execution-roundtrip"
+    cell_id = "cell-execution-roundtrip"
+    context_hash = "sha256:" + "8" * 64
+    profile_hash = "sha256:" + "9" * 64
+    world_hash = "sha256:" + "b" * 64
+    input_ref = ref("1", "runtime.quality.candidate_simulation_n5_input")
+    n4_kind = (
+        "runtime.generation_source_handoff"
+        if schema_version == "v3"
+        else "runtime.quality.n4_candidate_scenario_source"
+    )
+    n4_ref = ref("2", n4_kind)
+    context_ref = ref("3", "runtime.quality.cycle_substrate_context_job")
+    declaration_ref = ref(
+        "4", "runtime.quality.candidate_simulation_model_declaration"
+    )
+    # Both profile-token cases refer to the same NCM bytes/ArtifactID but select
+    # different well-formed manifest-profile hashes.
+    ncm_ref = ref("5", "ir.ncm_spec")
+    result_ref = ref("6", "polisyos.runtime.joint_simulation_result")
+    materialization = SimpleNamespace(
+        context_hash=context_hash,
+        world_model_record_hash=world_hash,
+        derived_n5_atom=SimpleNamespace(content_hash="sha256:" + "c" * 64),
+        problem_ref="sha256:" + "d" * 64,
+    )
+    profile = SimpleNamespace(content_hash=profile_hash)
+
+    input_types = {
+        "v3": CandidateSimulationN5InputV3,
+        "v4": CandidateSimulationN5InputV4,
+        "v5": CandidateSimulationN5InputV5,
+    }
+    execution_types = {
+        "v3": CandidateSimulationExecutionV3,
+        "v4": CandidateSimulationExecutionV4,
+        "v5": CandidateSimulationExecutionV5,
+    }
+    input_fields = {
+        "n4_source_ref": n4_ref,
+        "context_job_ref": context_ref,
+        "job_id": job_id,
+        "run_id": run_id,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "profile": profile,
+        "profile_config_ref": f"runtime-config:candidate-simulation:{schema_version}",
+        "materialization": materialization,
+        "original_candidate_id": f"candidate-{schema_version}",
+        "original_candidate_hash": "sha256:" + "e" * 64,
+        "original_n4_atom_hash": "sha256:" + "e" * 64,
+    }
+    if schema_version == "v5":
+        input_fields.update(
+            {
+                "model_declaration_ref": declaration_ref,
+                "ncm_ref": ncm_ref,
+            }
+        )
+    input_record = input_types[schema_version].model_construct(**input_fields)
+    handoff = CandidateSimulationContextHandoff.model_construct(
+        context=SimpleNamespace(content_hash=context_hash),
+        context_job_ref=context_ref,
+        profile=profile,
+        profile_config_ref=input_record.profile_config_ref,
+        job_id=job_id,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        model_declaration_ref=(declaration_ref if schema_version == "v5" else None),
+        ncm_ref=(ncm_ref if schema_version == "v5" else None),
+    )
+    simulation = SimulationPortObservation(
+        candidate_id=input_record.original_candidate_id,
+        status="joint_simulated",
+        simulation_ref="sha256:" + "f" * 64,
+        simulation_result_ref=result_ref,
+        k_world_ref_before=world_hash,
+        k_world_ref_after=world_hash,
+    )
+    repository = GenerationSourceRepository(
+        FileSystemCAS(tmp_path / f"execution-{schema_version}-cas")
+    )
+    monkeypatch.setattr(
+        repository,
+        f"_load_candidate_simulation_input_{schema_version}",
+        lambda _ref: input_record,
+    )
+
+    execution_ref = getattr(
+        repository, f"persist_candidate_simulation_execution_{schema_version}"
+    )(
+        input_ref=input_ref,
+        simulation=simulation,
+        handoff=handoff,
+    )
+    payload = canon.from_canonical_bytes(repository.store.get_bytes(execution_ref))
+    execution = execution_types[schema_version].model_validate(payload)
+
+    assert execution.authority_purpose == "candidate_scenario_n5_only"
+    assert execution.n5_input_ref == input_ref
+    assert execution.n4_source_ref == n4_ref
+    assert execution.context_job_ref == context_ref
+    assert execution.n5_result_ref == result_ref
+    assert execution.job_id == job_id
+    assert execution.run_id == run_id
+    assert execution.tenant_id == tenant_id
+    assert execution.cell_id == cell_id
+    expected_inputs = {
+        ("n5_input", str(input_ref.artifact_id), input_ref.manifest_profile_sha256),
+        ("n4_source", str(n4_ref.artifact_id), n4_ref.manifest_profile_sha256),
+        (
+            "cycle_substrate_context_job",
+            str(context_ref.artifact_id),
+            context_ref.manifest_profile_sha256,
+        ),
+    }
+    if schema_version == "v5":
+        assert execution.model_declaration_ref == declaration_ref
+        assert execution.ncm_ref == ncm_ref
+        expected_inputs.update(
+            {
+                (
+                    "candidate_model_declaration",
+                    str(declaration_ref.artifact_id),
+                    declaration_ref.manifest_profile_sha256,
+                ),
+                (
+                    "candidate_ncm_spec",
+                    str(ncm_ref.artifact_id),
+                    ncm_ref.manifest_profile_sha256,
+                ),
+            }
+        )
+    expected_inputs.add(
+        ("n5_result", str(result_ref.artifact_id), result_ref.manifest_profile_sha256)
+    )
+    manifest = repository.store.get_manifest(execution_ref)
+    assert {
+        (item.role, str(item.artifact_id), item.manifest_profile_sha256)
+        for item in manifest.inputs
+    } == expected_inputs
+
+    # A changed selected view with the same content-addressed NCM bytes must
+    # be rejected while schema and purpose markers remain unchanged.
+    tampered = dict(payload)
+    tampered_source_ref = dict(tampered["n4_source_ref"])
+    tampered_source_ref["manifest_profile_sha256"] = "sha256:" + "7" * 64
+    tampered["n4_source_ref"] = tampered_source_ref
+    with pytest.raises(
+        ValueError,
+        match="candidate_simulation_execution_content_hash_mismatch",
+    ):
+        execution_types[schema_version].model_validate(tampered)

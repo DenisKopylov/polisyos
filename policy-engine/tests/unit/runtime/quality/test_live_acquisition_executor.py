@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import os
 import socket
 import threading
 from collections.abc import Iterator, Mapping
@@ -1421,6 +1422,13 @@ def test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_tra
             with pytest.raises(AttributeError):
                 object.__setattr__(permit, name, value)
         assert AppendOnlyEvidenceJournal._live_acquire_permits.get(permit) is issued
+        if os.environ.get("POLISYOS_R7_REMOVE_ACTIVE_PROBE_SUPPRESSION") == "1":
+            _consume_live_acquire_permit(
+                permit,
+                connector_id=connector_id,
+                dataset_id=dataset_id,
+            )
+            return await pool.acquire_with_connector()
         return await original_acquire(
             pool,
             permit,

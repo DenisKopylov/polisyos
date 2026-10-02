@@ -2596,3 +2596,21 @@ The architecture owner may prepare scratch changes only to
 `tests/repo_quality/tools/test_architecture_phase3.py`: opt-in retained run
 workspace, populated offline UV cache, private venv and copied-source import
 proof. No generated manifest/output or governed record is leased.
+
+
+## 2026-10-02: R7 substantive test-local removal admission
+
+Root integrates only `tests/unit/runtime/quality/test_live_acquisition_executor.py`.
+The opt-in `POLISYOS_R7_REMOVE_ACTIVE_PROBE_SUPPRESSION=1` retains the actual
+governed executor, issued permit and journal assertions, consumes that exact
+permit, and obtains the ordinary handle from the same pool. This removes the
+passive-acquisition property: normal validate-on-acquire should issue the
+intercepted US GDP health request before the authorized UKR request. The
+unchanged exact-call assertion must turn red; flag-unset uses the original path.
+The ordinary control file has 19 whole-file cases, rather than the stale two.
+
+Candidate: `/Users/deniskopylov/.codex/scratch/E02R2_R7_ACTIVE_PROBE_REMOVAL_CANDIDATE_20261002/R7_ACTIVE_PROBE_REMOVAL_CANDIDATE_MANIFEST.json@sha256:c5b140099d498dc18709bda3e4330d30c2dd8b126b34600458d2b1041f3ebbe9`;
+review: `INDEPENDENT_REVIEW_20261002.md@sha256:8e98b20446c0b7173afa8c04a4156947874f9c6c4c8f38b11f52ffc4f4e1213d`
+in that packet. No source path or authority/journal predicate is weakened.
+Root must admit the exact flag/test hash in the existing mutation runner before
+execution. Normal, mutant and restored runs remain UNRUN at this commit.

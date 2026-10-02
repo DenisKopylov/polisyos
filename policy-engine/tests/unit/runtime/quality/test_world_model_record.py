@@ -73,7 +73,6 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecordError,
     build_world_model_record,
     consume_world_model_record_for_simulation,
-    derive_candidate_scenario_world_model_record,
     load_world_model_record,
     resolve_intervention_atom_world_binding,
     world_model_record_content_hash,
@@ -432,35 +431,205 @@ def _build_record(tmp_path: Path):
 def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
     tmp_path: Path,
 ) -> None:
-    """WMRv2 retains exact selected NCM views, including same-blob siblings."""
-    from polisyos.core.artifacts import ArtifactRef
-    from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
-    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
-
-    _store, result, _model_spec, _registry_ref = _build_record(tmp_path)
-    base_record = result.record.model_copy(update={"authority_status": "limited"})
-    artifact_id = "sha256:" + "d" * 64
-    selected_ncm_ref = ArtifactRef(
-        artifact_id=artifact_id,
-        kind="ir.ncm_spec",
-        media_type="application/json",
-        manifest_profile_sha256="sha256:" + "a" * 64,
+    """WMRv2 retains owner-issued selected NCM views and preserves V1 history."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
+    from polisyos.pdc import (
+        WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+        gy_content_hash,
+        serialize_world_model_record_for_storage,
     )
-    sibling_ncm_ref = selected_ncm_ref.model_copy(
-        update={"manifest_profile_sha256": "sha256:" + "b" * 64}
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
     )
-    declaration_hash = "sha256:" + "e" * 64
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.world_model_record import (
+        derive_candidate_scenario_world_model_record,
+        world_model_artifact_views,
+        world_model_record_content_hash,
+    )
 
+    store, result, _model_spec, _registry_ref = _build_record(tmp_path)
+    original_v1_payload = store.get_bytes(result.record_ref)
+
+    def rehash_record(record: WorldModelRecord, **updates: object) -> WorldModelRecord:
+        draft = record.model_copy(
+            update={
+                **updates,
+                "world_model_record_id": "world_model_record_0000000000000000",
+                "content_hash": "sha256:" + "0" * 64,
+            }
+        )
+        content_hash = world_model_record_content_hash(draft)
+        return WorldModelRecord.model_validate(
+            {
+                **draft.model_dump(mode="json"),
+                "world_model_record_id": (
+                    "world_model_record_" + content_hash.removeprefix("sha256:")[:16]
+                ),
+                "content_hash": content_hash,
+            }
+        )
+
+    base_record = rehash_record(result.record, authority_status="limited")
+    assert base_record.schema_version != WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+    assert base_record.artifact_views is None
+    base_v1_storage = serialize_world_model_record_for_storage(base_record)
+
+    context_inputs = CandidateSimulationContextInputs(
+        substrate_registry=_substrate_registry(),
+        selected_registry_entry_hashes=(),
+        world_model_record=base_record,
+    )
+    rule = CandidateScenarioSetToRule(
+        operator_kind="set_to",
+        parameter_id="income",
+        target_world_slot="agents.income",
+        unit_id="score",
+        minimum=0,
+        maximum=1,
+    )
+    n5 = CandidateScenarioN5Config(
+        budget_ref="budget://world-model-record/selected-ncm",
+        horizon=HorizonSpec(start=0, end=0, step=1),
+        baseline_state={"agents.income": 2.0, "firm_survival": 10.0},
+    )
+    limitations = (
+        "scenario_only",
+        "real_profile_not_established",
+        "real_time_not_established",
+        "grounding_not_established",
+        "s8_blocked",
+        "n9_not_admitted",
+    )
+
+    def profile_and_declaration(label: str):
+        profile_fields = {
+            "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
+            "profile_id": f"test.world-model-record.{label}",
+            "profile_selection_ref": gy_content_hash(
+                {"fixture": "candidate-ncm-profile", "label": label}
+            ),
+            "context_inputs": context_inputs,
+            "rule": rule,
+            "n5": n5,
+            "limitations": limitations,
+        }
+        profile_draft = CandidateSimulationScenarioProfile.model_construct(
+            **profile_fields,
+            content_hash="sha256:" + "0" * 64,
+        )
+        profile = CandidateSimulationScenarioProfile.model_validate(
+            {
+                **profile_fields,
+                "content_hash": gy_content_hash(
+                    profile_draft.model_dump(mode="json", exclude={"content_hash"})
+                ),
+            }
+        )
+        declaration_fields = {
+            "schema_version": (
+                "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
+            ),
+            "profile_config_ref": candidate_simulation_profile_ref(profile),
+            "profile_content_hash": profile.content_hash,
+            "profile_selection_ref": profile.profile_selection_ref,
+            "target_world_slot": rule.target_world_slot,
+            "outcome_variable": "firm_survival",
+            "target_unit_id": rule.unit_id,
+            "outcome_unit_id": "score",
+            "target_baseline": 2.0,
+            "outcome_baseline": 10.0,
+            "outcome_per_target_unit": 3.0,
+            "outcome_noise_stddev": 0.01,
+            "assumption": "declared_candidate_scm_not_empirically_grounded",
+        }
+        declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+            **declaration_fields,
+            content_hash="sha256:" + "0" * 64,
+        )
+        declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+            {
+                **declaration_fields,
+                "content_hash": gy_content_hash(
+                    declaration_draft.model_dump(mode="json", exclude={"content_hash"})
+                ),
+            }
+        )
+        return profile, declaration
+
+    selected_profile, selected_declaration = profile_and_declaration("selected")
+    sibling_profile, sibling_declaration = profile_and_declaration("sibling")
+    repository = GenerationSourceRepository(store)
+    tenant_id = "tenant-world-model-record"
+    cell_id = "cell-world-model-record"
+    job_id = "job-world-model-record"
+    run_id = "run-world-model-record"
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        selected_declaration_ref = repository.persist_candidate_model_declaration(
+            declaration=selected_declaration,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        sibling_declaration_ref = repository.persist_candidate_model_declaration(
+            declaration=sibling_declaration,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        selected_ncm = candidate_ncm_spec_from_declaration(selected_declaration)
+        sibling_ncm = candidate_ncm_spec_from_declaration(sibling_declaration)
+        selected_ncm_ref = repository.persist_candidate_ncm_selected_view(
+            ncm_spec=selected_ncm,
+            declaration_ref=selected_declaration_ref,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_content_hash=selected_profile.content_hash,
+        )
+        sibling_ncm_ref = repository.persist_candidate_ncm_selected_view(
+            ncm_spec=sibling_ncm,
+            declaration_ref=sibling_declaration_ref,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_content_hash=sibling_profile.content_hash,
+        )
+
+    assert selected_ncm.model_dump(mode="json") == sibling_ncm.model_dump(mode="json")
+    assert selected_ncm_ref.artifact_id == sibling_ncm_ref.artifact_id
+    assert selected_ncm_ref.manifest_profile_sha256 is not None
+    assert sibling_ncm_ref.manifest_profile_sha256 is not None
+    assert selected_ncm_ref.manifest_profile_sha256 != sibling_ncm_ref.manifest_profile_sha256
+    assert store.get_manifest(selected_ncm_ref).inputs[0].artifact_id == (
+        selected_declaration_ref.artifact_id
+    )
+    assert store.get_manifest(sibling_ncm_ref).inputs[0].artifact_id == (
+        sibling_declaration_ref.artifact_id
+    )
+
+    declaration_hash = selected_declaration.content_hash
     derived = derive_candidate_scenario_world_model_record(
         base_record,
         ncm_artifact_ref=selected_ncm_ref,
         declaration_content_hash=declaration_hash,
     )
 
-    assert result.record.simulation_model_ref.ncm_refs == base_record.simulation_model_ref.ncm_refs
+    assert result.record.simulation_model_ref.ncm_refs == ()
     assert derived.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
     assert world_model_artifact_views(derived).ncm_refs == (selected_ncm_ref,)
-    assert derived.simulation_model_ref.ncm_refs == (artifact_id,)
+    assert derived.simulation_model_ref.ncm_refs == (str(selected_ncm_ref.artifact_id),)
     assert derived.authority_status == "limited"
     assert derived.simulation_model_ref.calibrated is False
     assert derived.simulation_model_ref.calibration_ref is None
@@ -484,13 +653,19 @@ def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
     sibling = derive_candidate_scenario_world_model_record(
         derived,
         ncm_artifact_ref=sibling_ncm_ref,
-        declaration_content_hash=declaration_hash,
+        declaration_content_hash=sibling_declaration.content_hash,
     )
     assert world_model_artifact_views(sibling).ncm_refs == (
         selected_ncm_ref,
         sibling_ncm_ref,
     )
-    assert sibling.simulation_model_ref.ncm_refs == (artifact_id, artifact_id)
+    assert sibling.simulation_model_ref.ncm_refs == (
+        str(selected_ncm_ref.artifact_id),
+        str(sibling_ncm_ref.artifact_id),
+    )
+    assert serialize_world_model_record_for_storage(base_record) == base_v1_storage
+    assert store.get_bytes(result.record_ref) == original_v1_payload
+    assert result.record.artifact_views is None
 
     with pytest.raises(WorldModelRecordError, match="basis_not_limited"):
         derive_candidate_scenario_world_model_record(
@@ -501,7 +676,21 @@ def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
     with pytest.raises(WorldModelRecordError, match="ncm_view_invalid"):
         derive_candidate_scenario_world_model_record(
             base_record,
-            ncm_artifact_ref=selected_ncm_ref.model_copy(update={"kind": "core.registry_bundle"}),
+            ncm_artifact_ref=selected_ncm_ref.model_copy(
+                update={"kind": "core.registry_bundle"}
+            ),
+            declaration_content_hash=declaration_hash,
+        )
+    legacy_ncm_base = rehash_record(
+        base_record,
+        simulation_model_ref=base_record.simulation_model_ref.model_copy(
+            update={"ncm_refs": ("legacy:ncm",)}
+        ),
+    )
+    with pytest.raises(WorldModelRecordError, match="basis_ncm_ref_not_cas"):
+        derive_candidate_scenario_world_model_record(
+            legacy_ncm_base,
+            ncm_artifact_ref=selected_ncm_ref,
             declaration_content_hash=declaration_hash,
         )
 

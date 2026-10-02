@@ -17,7 +17,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 # Pydantic resolves these selected CAS-view fields when it builds the schema.
-from polisyos.core.artifacts import ArtifactRef  # noqa: TC001
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.ir.kernel import SLOT_ID_PATTERN
 
 from .gy_waist import gy_artifact_self_identity_projection, gy_content_hash
@@ -118,6 +118,22 @@ class WorldModelArtifactViews(_StrictModel):
     substrate_registry_ref: ArtifactRef | None = None
     program_graph_refs: tuple[ArtifactRef, ...] = ()
     ncm_refs: tuple[ArtifactRef, ...] = ()
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def _normalize_reference_subclasses(cls, value: object) -> object:
+        """Normalize ArtifactRef subtypes without dropping selected-view data."""
+
+        def normalize(item: object) -> object:
+            if isinstance(item, ArtifactRef) and type(item) is not ArtifactRef:
+                return ArtifactRef(**item.model_dump(mode="python"))
+            return item
+
+        if isinstance(value, ArtifactRef):
+            return normalize(value)
+        if isinstance(value, (tuple, list)):
+            return tuple(normalize(item) for item in value)
+        return value
 
     @model_validator(mode="after")
     def _validate_view_contract(self) -> WorldModelArtifactViews:

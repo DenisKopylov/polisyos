@@ -257,9 +257,13 @@ def test_cycle_substrate_context_owner_rejects_matching_marker_scope_without_iss
         control_store.close()
 
 
-def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_membership() -> None:
+def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_membership(
+    tmp_path: Any,
+) -> None:
     """The persisted worker handoff carries the owner-selected NCM identity."""
     from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioN5Config,
         CandidateScenarioSetToRule,
@@ -273,6 +277,7 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
         _cycle_job_v1_design_problem_ref,
         _cycle_job_v1_profile_selection_ref,
     )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
     from polisyos.runtime.quality.world_model_record import (
         derive_candidate_scenario_world_model_record,
@@ -369,22 +374,39 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
             ),
         }
     )
-    declaration_ref = ArtifactRef(
-        artifact_id="sha256:" + "a" * 64,
-        kind="runtime.quality.candidate_simulation_model_declaration",
-        media_type="application/json",
+    tenant_id = "tenant-candidate-handoff"
+    cell_id = "cell-candidate-handoff"
+    job_id = "job-candidate-handoff"
+    run_id = "run-candidate-handoff"
+    store = FileSystemCAS(
+        tmp_path / "candidate-handoff-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
     )
-    ncm_ref = ArtifactRef(
-        artifact_id="sha256:" + "b" * 64,
-        kind="ir.ncm_spec",
-        media_type="application/json",
-    )
+    repository = GenerationSourceRepository(store)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        declaration_ref = repository.persist_candidate_model_declaration(
+            declaration=declaration,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        ncm_ref = repository.persist_candidate_ncm_selected_view(
+            ncm_spec=candidate_ncm_spec_from_declaration(declaration),
+            declaration_ref=declaration_ref,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_content_hash=profile.content_hash,
+        )
     context = _cycle_context(
         design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
         registry=registry,
         world_model_record=derive_candidate_scenario_world_model_record(
             base_context.world_model_record,
-            ncm_artifact_id=str(ncm_ref.artifact_id),
+            ncm_artifact_ref=ncm_ref,
             declaration_content_hash=declaration.content_hash,
         ),
     )
@@ -397,10 +419,10 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
         ),
         "profile": profile,
         "profile_config_ref": candidate_simulation_profile_ref(profile),
-        "job_id": "job-candidate-handoff",
-        "run_id": "run-candidate-handoff",
-        "tenant_id": "tenant-candidate-handoff",
-        "cell_id": "cell-candidate-handoff",
+        "job_id": job_id,
+        "run_id": run_id,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
         "model_declaration": declaration,
         "model_declaration_ref": declaration_ref,
         "ncm_ref": ncm_ref,
@@ -408,7 +430,9 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
 
     handoff = CandidateSimulationContextHandoff.model_validate(payload)
     assert handoff.ncm_ref == ncm_ref
-    assert handoff.ncm_ref.manifest_profile_sha256 is None
+    assert handoff.ncm_ref.manifest_profile_sha256 is not None
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        assert store.get_manifest(ncm_ref).inputs[0].artifact_id == declaration_ref.artifact_id
 
     with pytest.raises(ValueError, match="model_binding_incomplete"):
         CandidateSimulationContextHandoff.model_validate(

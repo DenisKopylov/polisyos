@@ -2265,7 +2265,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
         )
         candidate_world = derive_candidate_scenario_world_model_record(
             world_model_record,
-            ncm_artifact_id=str(ncm_ref.artifact_id),
+            ncm_artifact_ref=ncm_ref,
             declaration_content_hash=declaration.content_hash,
         )
         inputs = configured.context_inputs
@@ -2408,7 +2408,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             )
             world_model_record = derive_candidate_scenario_world_model_record(
                 inputs.world_model_record,
-                ncm_artifact_id=str(ncm_ref.artifact_id),
+                ncm_artifact_ref=ncm_ref,
                 declaration_content_hash=declaration.content_hash,
             )
         context = build_cycle_substrate_context(

@@ -138,6 +138,66 @@ def test_world_model_record_pdc_round_trip_preserves_schema_and_hash() -> None:
     assert pdc.world_model_record_content_hash(round_tripped) == record.content_hash
 
 
+def test_world_model_artifact_views_normalize_ref_subclasses_losslessly() -> None:
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.contracts.foundry import (
+        FoundryInputBindingReportRef,
+        FoundryInputBindingsRef,
+        ProgramGraphRef,
+        StateSnapshotRef,
+    )
+
+    def base_ref(label: str, kind: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id="sha256:" + label * 64,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+
+    inputs = {
+        "data_snapshot_ref": base_ref("1", "fabric.data_snapshot"),
+        "registry_bundle_ref": base_ref("2", "core.registry_bundle"),
+        "model_spec_ref": base_ref("3", "ir.model_spec"),
+        "input_bindings_ref": FoundryInputBindingsRef(
+            **base_ref("4", "foundry.input_bindings").model_dump(mode="python")
+        ),
+        "bound_state_snapshot_ref": StateSnapshotRef(
+            **base_ref("5", "foundry.state_snapshot").model_dump(mode="python")
+        ),
+        "input_binding_report_ref": FoundryInputBindingReportRef(
+            **base_ref("6", "foundry.input_binding_report").model_dump(mode="python")
+        ),
+        "substrate_registry_ref": base_ref(
+            "7", "runtime.quality.production_data_substrate_registry"
+        ),
+        "program_graph_refs": (
+            ProgramGraphRef(
+                **base_ref("8", "foundry.program_graph").model_dump(mode="python")
+            ),
+        ),
+        "ncm_refs": (base_ref("9", "ir.ncm_spec"),),
+    }
+
+    views = pdc.WorldModelArtifactViews.model_validate(inputs)
+
+    for field_name, original in inputs.items():
+        normalized = getattr(views, field_name)
+        if isinstance(original, tuple):
+            assert isinstance(normalized, tuple)
+            assert len(normalized) == len(original)
+            for actual_ref, original_ref in zip(normalized, original, strict=True):
+                assert type(actual_ref) is ArtifactRef
+                assert actual_ref.model_dump(mode="python") == original_ref.model_dump(
+                    mode="python"
+                )
+        else:
+            assert type(normalized) is ArtifactRef
+            assert normalized.model_dump(mode="python") == original.model_dump(
+                mode="python"
+            )
+
+
 def test_world_model_record_v1_projection_omits_new_view_bundle() -> None:
     record = _world_model_record()
 

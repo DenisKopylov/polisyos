@@ -31,6 +31,7 @@ from polisyos.core.artifacts import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.manifest import artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import (
     ExecPlanRef,
@@ -98,27 +99,83 @@ class WorldModelRecordError(ValueError):
 def derive_candidate_scenario_world_model_record(
     base_record: WorldModelRecord,
     *,
-    ncm_artifact_id: str,
+    ncm_artifact_ref: ArtifactRef,
     declaration_content_hash: str,
 ) -> WorldModelRecord:
-    """Derive one limited WMR that names a declared candidate NCM.
+    """Derive one limited WMR that names a declared candidate NCM view.
 
     This pure projection preserves the supplied WMR's substrates and status.
     It does not write the world, acquire data, or grant empirical authority.
+    The selected view is the full owner-issued CAS reference, including its
+    manifest profile selector; the domain-level NCM IDs remain a projection.
     """
     if type(base_record) is not WorldModelRecord:
         raise WorldModelRecordError("candidate_scenario_base_wmr_untyped")
-    if (
-        base_record.authority_status != "limited"
-        or not ncm_artifact_id.startswith("sha256:")
-        or not declaration_content_hash.startswith("sha256:")
-    ):
+    if base_record.authority_status != "limited":
         raise WorldModelRecordError("candidate_scenario_wmr_basis_not_limited")
-    prior_refs = tuple(base_record.simulation_model_ref.ncm_refs)
-    selected_refs = tuple(dict.fromkeys((*prior_refs, ncm_artifact_id)))
+    if not isinstance(ncm_artifact_ref, ArtifactRef):
+        raise WorldModelRecordError("candidate_scenario_ncm_view_invalid")
+
+    try:
+        selected_ncm_ref = ArtifactRef(
+            **ncm_artifact_ref.model_dump(mode="python")
+        )
+        canonical_declaration_hash = str(ArtifactID(declaration_content_hash))
+        if canonical_declaration_hash != declaration_content_hash:
+            raise ValueError("candidate declaration hash is not canonical")
+    except (TypeError, ValueError) as exc:
+        raise WorldModelRecordError(
+            "candidate_scenario_ncm_view_invalid", str(exc)
+        ) from exc
+    if (
+        selected_ncm_ref.kind != "ir.ncm_spec"
+        or selected_ncm_ref.media_type != "application/json"
+    ):
+        raise WorldModelRecordError(
+            "candidate_scenario_ncm_view_invalid",
+            "expected an owner-issued JSON ir.ncm_spec ref",
+        )
+
+    try:
+        for prior_id in base_record.simulation_model_ref.ncm_refs:
+            if str(ArtifactID(prior_id)) != prior_id:
+                raise ValueError("WMR basis NCM ref is not canonical")
+    except (TypeError, ValueError) as exc:
+        raise WorldModelRecordError(
+            "candidate_scenario_wmr_basis_ncm_ref_not_cas", str(exc)
+        ) from exc
+
+    try:
+        base_views = world_model_artifact_views(base_record)
+    except (TypeError, ValueError) as exc:
+        raise WorldModelRecordError(
+            "candidate_scenario_wmr_basis_views_invalid", str(exc)
+        ) from exc
+
+    selected_views: list[ArtifactRef] = []
+    seen_view_identities: set[tuple[str, str, str, str | None]] = set()
+    for ref in (*base_views.ncm_refs, selected_ncm_ref):
+        identity = artifact_ref_identity_key(ref)
+        if identity in seen_view_identities:
+            continue
+        selected_views.append(ref)
+        seen_view_identities.add(identity)
+
+    try:
+        artifact_views = WorldModelArtifactViews.model_validate(
+            {
+                **base_views.model_dump(mode="python"),
+                "ncm_refs": tuple(selected_views),
+            }
+        )
+    except (TypeError, ValueError) as exc:
+        raise WorldModelRecordError(
+            "candidate_scenario_ncm_view_invalid", str(exc)
+        ) from exc
+
     model_ref = base_record.simulation_model_ref.model_copy(
         update={
-            "ncm_refs": selected_refs,
+            "ncm_refs": tuple(str(ref.artifact_id) for ref in selected_views),
             "assumptions": (
                 *base_record.simulation_model_ref.assumptions,
                 {
@@ -134,6 +191,8 @@ def derive_candidate_scenario_world_model_record(
     )
     draft = base_record.model_copy(
         update={
+            "schema_version": WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+            "artifact_views": artifact_views,
             "producer_ref": (
                 "polisyos.runtime.quality.world_model_record."
                 "derive_candidate_scenario_world_model_record"
@@ -145,14 +204,21 @@ def derive_candidate_scenario_world_model_record(
         }
     )
     content_hash = world_model_record_content_hash(draft)
-    return draft.model_copy(
-        update={
+    payload = draft.model_dump(mode="json")
+    payload.update(
+        {
             "world_model_record_id": (
                 f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}"
             ),
             "content_hash": content_hash,
         }
     )
+    try:
+        return WorldModelRecord.model_validate(payload)
+    except (TypeError, ValueError) as exc:
+        raise WorldModelRecordError(
+            "candidate_scenario_wmr_invalid", str(exc)
+        ) from exc
 
 
 class _StrictModel(BaseModel):

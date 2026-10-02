@@ -1273,7 +1273,10 @@ async def test_failed_source_handoff_cannot_supply_authority(
         assert _problem == problem and cycle_index == 0
         return organ
 
-    def fail_persist(self, **_kwargs):
+    persist_ref_attempts: list[tuple[str, int]] = []
+
+    def fail_persist_ref(self, **kwargs):
+        persist_ref_attempts.append((kwargs["run_id"], kwargs["cycle_index"]))
         raise OSError("injected source-store write failure")
 
     class _StopAfterCandidate(GenerationCycleController):
@@ -1283,7 +1286,7 @@ async def test_failed_source_handoff_cannot_supply_authority(
                 update={"next_action": "stop", "reason": "source_failure_candidate_control"}
             )
 
-    monkeypatch.setattr(GenerationSourceRepository, "persist", fail_persist)
+    monkeypatch.setattr(GenerationSourceRepository, "persist_ref", fail_persist_ref)
     store = artifacts.FileSystemCAS(tmp_path / "runtime")
     controller = _StopAfterCandidate(
         generation_port=produce,
@@ -1293,6 +1296,9 @@ async def test_failed_source_handoff_cannot_supply_authority(
         authority_scope="contract_testing",
     )
     run = await controller.run(problem, budget_state=_budget(), min_cycles=1, max_cycles=1)
+    assert len(persist_ref_attempts) == 1
+    assert persist_ref_attempts[0][0]
+    assert persist_ref_attempts[0][1] == 0
     assert run.cycles and run.candidate_summaries
     assert run.terminal_status == "completed"
     assert run.source_preservation_receipt is not None
@@ -1915,7 +1921,6 @@ def test_n4_candidate_scenario_source_locator_is_versioned_and_kind_bound():
             "artifact_id": "sha256:" + "a" * 64,
             "kind": "runtime.quality.n4_candidate_scenario_source",
             "media_type": "application/json",
-            "manifest_profile_sha256": None,
         },
     }
 

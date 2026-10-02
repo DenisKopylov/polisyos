@@ -758,6 +758,11 @@ class GovernedPublicRecordOwner:
             raise GovernedPublicRecordError("public_read_closure_owner_readset_mismatch")
         return closure
 
+    def _public_read_closure_is_revoked(self, record_id: str) -> bool:
+        """Return whether the owner index has terminally withdrawn this closure."""
+        closure = self.store._ownership_index._get_public_read_closure(record_id)
+        return closure is not None and closure["status"] == "revoked"
+
     def _complete_issuance_transaction(
         self,
         transaction: _IssuanceTransaction,
@@ -767,6 +772,8 @@ class GovernedPublicRecordOwner:
     ) -> None:
         """Replay exact source, persist closure, publish locator, and append completion."""
         self._validate_owner_directory_set()
+        if self._public_read_closure_is_revoked(index.record_id):
+            raise GovernedPublicRecordError("public_read_closure_not_established")
         locator_path = self.index_root / "issued" / (index.record_id + ".json")
         if locator_path.is_symlink():
             raise GovernedPublicRecordError("issuance_index_invalid")
@@ -858,6 +865,20 @@ class GovernedPublicRecordOwner:
         completed_ids: set[str] = set()
         for record_id, path in sorted(transaction_paths.items()):
             transaction, transaction_raw, index_raw, index = self._load_issuance_transaction(path)
+            if self._public_read_closure_is_revoked(record_id):
+                reads.append(
+                    GovernedPublicRecordBoundaryRead(
+                        operation="public_read_closure.reconcile",
+                        selector=record_id,
+                        outcome="read",
+                        unresolved_by_construction=(
+                            "other_owner_stores",
+                            "unregistered_external_publications",
+                        ),
+                    )
+                )
+                self.last_boundary_reads = tuple(reads)
+                continue
             self._complete_issuance_transaction(
                 transaction,
                 transaction_raw,
@@ -903,7 +924,7 @@ class GovernedPublicRecordOwner:
                     raise GovernedPublicRecordError("issuance_index_invalid")
                 if path.is_symlink() or not path.is_file():
                     raise GovernedPublicRecordError("issuance_index_invalid")
-                if path.stem in completed_ids:
+                if path.stem in transaction_paths:
                     continue
                 index_raw = self._read_regular_file(path, code="issuance_index_invalid")
                 try:
@@ -912,6 +933,20 @@ class GovernedPublicRecordOwner:
                     raise GovernedPublicRecordError("issuance_index_invalid") from exc
                 if index.record_id != path.stem:
                     raise GovernedPublicRecordError("issuance_index_invalid")
+                if self._public_read_closure_is_revoked(index.record_id):
+                    reads.append(
+                        GovernedPublicRecordBoundaryRead(
+                            operation="public_read_closure.reconcile",
+                            selector=index.record_id,
+                            outcome="read",
+                            unresolved_by_construction=(
+                                "other_owner_stores",
+                                "unregistered_external_publications",
+                            ),
+                        )
+                    )
+                    self.last_boundary_reads = tuple(reads)
+                    continue
                 # Validate the historical record before persisting an intent for it.
                 with self.store._capture_public_read_set():
                     self._resolve_index(index)

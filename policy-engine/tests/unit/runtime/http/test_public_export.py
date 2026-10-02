@@ -497,6 +497,51 @@ def test_anonymous_publication_refuses_after_only_current_closure_is_withdrawn(
         assert not watched.monitor_event_refs
         assert protected_reads == []
 
+        # Exercise the locator-only recovery path without discarding the durable
+        # receipts: hidden pending names model the interrupted inventory state.
+        transaction_path = owner._issuance_transaction_path(record_id)
+        completion_path = owner._issuance_completion_path(record_id)
+        transaction_raw = transaction_path.read_bytes()
+        completion_raw = completion_path.read_bytes()
+        pending_transaction = transaction_path.with_name(f".pending-{transaction_path.name}")
+        pending_completion = completion_path.with_name(f".pending-{completion_path.name}")
+        assert not (pending_transaction.exists() or pending_transaction.is_symlink())
+        assert not (pending_completion.exists() or pending_completion.is_symlink())
+        try:
+            transaction_path.rename(pending_transaction)
+            completion_path.rename(pending_completion)
+            with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
+                watched_locator_only = (
+                    client.app.state.runtime_container.control_service
+                    .run_published_signature_custody_maintenance()
+                )
+            assert watched_locator_only.status == "not_established", watched_locator_only
+            assert not watched_locator_only.monitor_event_refs
+            assert protected_reads == []
+            assert pending_transaction.read_bytes() == transaction_raw
+            assert pending_completion.read_bytes() == completion_raw
+        finally:
+            restoration_conflicts: list[str] = []
+            for pending_path, original_path, expected_raw in (
+                (pending_transaction, transaction_path, transaction_raw),
+                (pending_completion, completion_path, completion_raw),
+            ):
+                if pending_path.is_symlink() or not pending_path.is_file():
+                    restoration_conflicts.append(f"missing regular retained {pending_path.name}")
+                    continue
+                if original_path.exists() or original_path.is_symlink():
+                    restoration_conflicts.append(
+                        f"refusing to replace recreated {original_path.name}"
+                    )
+                    continue
+                pending_path.rename(original_path)
+                if original_path.read_bytes() != expected_raw:
+                    restoration_conflicts.append(
+                        f"restored bytes changed for {original_path.name}"
+                    )
+            if restoration_conflicts:
+                pytest.fail("; ".join(restoration_conflicts))
+
 
 def test_private_reconciler_closes_retained_locator_without_rewriting_signed_record(
     publication_case: _PublicationCase,

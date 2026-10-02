@@ -1,0 +1,10 @@
+id = "2026-10-02-e02-r2-context-evidence-refresh"
+title = "Keep candidate work available when context evidence cannot be refreshed"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Normal declared-model rebases and acquired-world re-entry share an owner refusal for context-bound lever or transport evidence that cannot be revalidated. The candidate NL front door persists its N4 proposal with profile_refresh_unavailable and the exact limitation code; N5 and authority stages remain not_run."
+surface_classification = "internal: configured CycleSubstrateContext owner and control compilation; public_experimental: persisted control-job progress projection"
+evidence = ["tests/unit/runtime/quality/test_cycle_substrate.py", "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py"]
+compatibility = "Persisted signed contexts are unchanged. No old binding is restamped; profiles without context-bound evidence continue through the existing declared-model route."
+limitations = "A source-backed issuer/revalidator for lever and transport evidence after a WMR rebase is not established. This candidate continuation grants no N5, promotion, publication or S8 authority. Behavioral verification is recorded separately."

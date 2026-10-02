@@ -731,7 +731,9 @@ class N4CandidateProposalExecution:
     target_world_scope_profile_status: Literal[
         "profile_not_requested",
         "profile_admission_missing",
+        "profile_refresh_unavailable",
     ] = "profile_not_requested"
+    target_world_scope_profile_limitation_code: str | None = None
     target_world_model_record_ref: str | None = None
 
 
@@ -918,12 +920,24 @@ async def compile_and_run_recursive_generation_cycle(
         )
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None
+    context_refresh_limitation_code: str | None = None
     if cycle_substrate_context_resolver is not None:
         from polisyos.runtime.quality.candidate_simulation import (
             CandidateSimulationContextHandoff,
         )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextOwnerError,
+        )
 
-        resolved_context = cycle_substrate_context_resolver(problem)
+        try:
+            resolved_context = cycle_substrate_context_resolver(problem)
+        except CycleSubstrateContextOwnerError as exc:
+            if exc.code != "candidate_simulation_context_evidence_refresh_not_established":
+                raise
+            if not (n4_proposal_only or execution_intent == "candidate_only"):
+                raise
+            context_refresh_limitation_code = exc.code
+            resolved_context = None
         if type(resolved_context) is CandidateSimulationContextHandoff:
             candidate_simulation_handoff = resolved_context
             cycle_substrate_context = resolved_context.context
@@ -966,10 +980,13 @@ async def compile_and_run_recursive_generation_cycle(
             target_world_scope_profile_id=target_world_scope_profile_id,
             target_world_scope_status="not_established",
             target_world_scope_profile_status=(
-                scope_selection.status
+                "profile_refresh_unavailable"
+                if context_refresh_limitation_code is not None
+                else scope_selection.status
                 if scope_selection is not None
                 else "profile_not_requested"
             ),
+            target_world_scope_profile_limitation_code=context_refresh_limitation_code,
             target_world_model_record_ref=None,
         )
     # Generic simulate_only calls retain the recursive route unless the served

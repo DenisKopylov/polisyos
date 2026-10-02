@@ -535,6 +535,220 @@ def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
         close_runtime_api_env(env)
 
 
+def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A selected profile with stale context evidence remains N4-only with a typed reason."""
+
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CandidateLeverEvidence,
+        cycle_job_design_problem_ref,
+        cycle_substrate_context_binding_hash,
+    )
+    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+    from tests._helpers.control_worker import dispatch_one_control_job
+    from tests.unit.runtime.http.test_control_job_execution_intent import (
+        _valid_intake_for_mode,
+    )
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _DeterministicSpanSupportClient,
+        _FakeDesignProblemGateway,
+    )
+
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    monkeypatch.setenv(
+        "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+    )
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+
+    recording = next(
+        item
+        for item in n4_contract._load_recordings(REPO_ROOT)
+        if item.get("design_problem_id") == _RECORDING_ID
+    )
+    recorded_problem = _current_compiler_problem(recording)
+    raw_request = recorded_problem.nl_provenance.raw_request
+    model_id = str(recording["model_id"])
+    compiler_gateway = _FakeDesignProblemGateway(
+        models=[model_id],
+        arguments=recorded_problem.model_dump(mode="json"),
+    )
+    recorded_n4_client = n4_contract.RecordedGenerationReplayClient(recording)
+
+    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+
+    original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+    compiled_problems = []
+
+    async def run_real_compiler(**kwargs):
+        kwargs["gateway_client"] = compiler_gateway
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        problem = await original_compiler(**kwargs)
+        compiled_problems.append(problem)
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        run_real_compiler,
+    )
+    monkeypatch.setattr(
+        llm_factory,
+        "create_traced_gateway_client",
+        lambda **_kwargs: recorded_n4_client,
+    )
+
+    profile, declaration = _configured_procurement_profile(
+        recorded_problem=recorded_problem,
+        cas_root=tmp_path / ".polisyos",
+    )
+    inputs = profile.context_inputs
+    context_binding = cycle_substrate_context_binding_hash(
+        design_problem_ref=cycle_job_design_problem_ref(recorded_problem),
+        domain=recorded_problem.domain,
+        substrate_input_content_hash=inputs.substrate_input_content_hash,
+        substrate_registry_content_hash=inputs.substrate_registry.content_hash,
+        world_model_record_id=inputs.world_model_record.world_model_record_id,
+        world_model_record_content_hash=inputs.world_model_record.content_hash,
+        world_model_record_authority_status=inputs.world_model_record.authority_status,
+        selected_registry_entry_hashes=inputs.selected_registry_entry_hashes,
+    )
+    stale_evidence = CandidateLeverEvidence(
+        lever_id="procurement_shock_intensity",
+        instrument="procurement_shock_intensity",
+        target_concept="cells.distress_score",
+        entry_content_hash=gy_content_hash({"fixture": "R6 lever row"}),
+        substrate_input_content_hash=inputs.substrate_input_content_hash,
+        selected_registry_entry_hash=inputs.selected_registry_entry_hashes[0],
+        context_binding_hash=context_binding,
+        source_refs=("fixture://R6/unrefreshable-profile-evidence",),
+    )
+    profile_payload = profile.model_dump(mode="json", exclude={"content_hash"})
+    profile_payload["context_inputs"]["candidate_levers"] = [
+        stale_evidence.model_dump(mode="json")
+    ]
+    profile_payload["content_hash"] = gy_content_hash(profile_payload)
+    profile = CandidateSimulationScenarioProfile.model_validate(profile_payload)
+
+    declaration_payload = declaration.model_dump(mode="json", exclude={"content_hash"})
+    declaration_payload.update(
+        {
+            "profile_config_ref": candidate_simulation_profile_ref(profile),
+            "profile_content_hash": profile.content_hash,
+        }
+    )
+    declaration_payload["content_hash"] = gy_content_hash(declaration_payload)
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        declaration_payload
+    )
+
+    n5_calls = []
+
+    def reject_n5_call(_port, *args, **kwargs):
+        n5_calls.append((args, kwargs))
+        raise AssertionError("unrefreshable candidate evidence must stop before N5")
+
+    monkeypatch.setattr(JointSimulationPort, "__call__", reject_n5_call)
+    env = build_runtime_api_env(
+        tmp_path,
+        include_test_client=True,
+        app_kwargs={
+            "candidate_simulation_profiles": (profile,),
+            "candidate_simulation_model_declarations": (declaration,),
+        },
+    )
+    try:
+        client = env["client"]
+        if client is None:
+            pytest.skip("fastapi is not installed")
+        app = env["app"]
+        with client:
+            response = client.post(
+                "/api/v1/control/runs/nl",
+                json={
+                    "request": raw_request,
+                    "llm_model": model_id,
+                    "context": {
+                        "evaluation_safety_attempt": _valid_intake_for_mode(
+                            "simulate_only"
+                        ).model_dump(mode="json")
+                    },
+                },
+            )
+            assert response.status_code == 200, response.text
+            accepted = response.json()
+            assert accepted["status"] == "accepted"
+            service = app.state._control_service
+            assert service._cycle_substrate_context_admission_owner is not None
+            job_id = accepted["job_id"]
+            assert dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=job_id,
+            ) == job_id
+
+            job = service._control_store.get_job(job_id)
+            assert job is not None and job.state == "completed"
+            assert len(compiled_problems) == 1
+            progress = job.progress
+            assert progress["execution_intent_band"] == "simulate_only_attempt"
+            assert progress["candidate_computation_status"] == "completed"
+            assert progress["stage"] == "n4_proposal_only"
+            assert progress["candidate_proposal_ref"]
+            locator = N4CandidateProposalLocator.model_validate(
+                progress["candidate_proposal_ref"]
+            )
+            proposal = _read_private_artifact_in_job_scope(
+                service=service,
+                operation=lambda tenant_id, cell_id: GenerationSourceRepository(
+                    service._artifact_store
+                ).load_candidate_proposal_for_served_job(
+                    locator,
+                    job_id=job.job_id,
+                    run_id=str(job.run_id),
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    raw_request=raw_request,
+                ),
+                job_id=job.job_id,
+                run_id=str(job.run_id),
+            )
+            assert type(proposal) is N4CandidateProposalSimulationRecord
+            assert proposal.problem == compiled_problems[0]
+            assert proposal.proposal.status == "candidate_limited"
+            assert proposal.simulation_disposition.reason_code == (
+                "cycle_substrate_context_not_established"
+            )
+            assert proposal.n5_status == proposal.n8_status == "not_run"
+            assert proposal.n9_status == proposal.s8_status == "not_run"
+            assert progress["target_world_scope_profile_status"] == (
+                "profile_refresh_unavailable"
+            )
+            assert progress["target_world_scope_profile_status"] != (
+                "profile_not_requested"
+            )
+            assert progress["target_world_scope_profile_limitation_code"] == (
+                "candidate_simulation_context_evidence_refresh_not_established"
+            )
+            assert progress["n5_status"] == "not_run"
+            assert progress["n8_status"] == "not_run"
+            assert progress["n9_status"] == "not_run"
+            assert progress["s8_status"] == "not_run"
+            assert not progress.get("cycle_substrate_context_job_ref")
+            assert n5_calls == []
+    finally:
+        close_runtime_api_env(env)
+
+
 def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

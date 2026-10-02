@@ -910,6 +910,21 @@ class CycleSubstrateContextOwnerError(ValueError):
         super().__init__(f"{code}: {message or code}")
 
 
+def _require_context_evidence_refreshable(
+    *,
+    candidate_levers: Sequence[CandidateLeverEvidence],
+    transport_context: TransportContextEvidence | None,
+) -> None:
+    """Refuse to carry profile evidence across a changed context without reissue."""
+
+    if candidate_levers or transport_context is not None:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_simulation_context_evidence_refresh_not_established",
+            "the profile evidence is bound to a prior context and no source-backed "
+            "issuer can revalidate it for the refreshed world model",
+        )
+
+
 class VerifiedNLJobScope(_StrictModel):
     """Ephemeral, purpose-limited scope for replayed simulate-only NL work.
 
@@ -1829,8 +1844,9 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
         through GenerationSourceRepository, then persists no context itself.
         Caller-owned world construction is accepted only as a limited WMR with
         explicit acquisition, measurement, and causal-coupling blockers. Source
-        time remains unresolved. Profiles with transport context are refused
-        until its target profile can be owner-recomputed for the new world.
+        time remains unresolved. Profiles with candidate-lever or transport
+        evidence are refused until a source-backed owner can revalidate them for
+        the new world.
         """
 
         from polisyos.runtime.quality.candidate_simulation import (
@@ -1873,14 +1889,10 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             raise CycleSubstrateContextOwnerError(
                 "candidate_simulation_profile_untyped"
             )
-        if configured.context_inputs.transport_context is not None:
-            raise CycleSubstrateContextOwnerError(
-                "candidate_simulation_acquisition_transport_refresh_not_established"
-            )
-        if configured.context_inputs.candidate_levers:
-            raise CycleSubstrateContextOwnerError(
-                "candidate_simulation_acquisition_lever_refresh_not_established"
-            )
+        _require_context_evidence_refreshable(
+            candidate_levers=configured.context_inputs.candidate_levers,
+            transport_context=configured.context_inputs.transport_context,
+        )
         if self._store is None:
             raise CycleSubstrateContextOwnerError(
                 "candidate_simulation_model_store_not_supplied"
@@ -2141,6 +2153,10 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 raise CycleSubstrateContextOwnerError(
                     "candidate_simulation_model_unit_binding_mismatch"
                 )
+            _require_context_evidence_refreshable(
+                candidate_levers=inputs.candidate_levers,
+                transport_context=inputs.transport_context,
+            )
             from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
             from polisyos.runtime.quality.generation_source import GenerationSourceRepository
             from polisyos.runtime.quality.world_model_record import (

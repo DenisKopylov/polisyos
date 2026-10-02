@@ -1083,11 +1083,34 @@ def test_cycle_substrate_context_rejects_cross_context_candidate() -> None:
         transport_covariate="watershed_slope",
     )
     payload = education.model_dump(mode="python")
-    payload["candidate_levers"] = [
-        water.candidate_levers[0].model_dump(mode="python")
-    ]
+    stale_candidate = education.candidate_levers[0].model_copy(
+        update={"context_binding_hash": water.context_binding_hash}
+    )
+    payload["candidate_levers"] = [stale_candidate.model_dump(mode="python")]
+    # Recompute the outer envelope so this probe isolates the candidate binding.
+    payload["content_hash"] = cycle_substrate_context_content_hash(payload)
 
     with pytest.raises(ValueError, match="candidate_context_binding_mismatch"):
+        CycleSubstrateContext.model_validate(payload)
+
+
+def test_cycle_substrate_context_rejects_foreign_transport_binding_with_valid_envelope() -> None:
+    education = _cycle_context()
+    water = _cycle_context(
+        domain="water_quality",
+        lever_id="riparian_buffer_width",
+        instrument="water.riparian_buffer_width",
+        target_concept="water.nutrient_load",
+        transport_covariate="watershed_slope",
+    )
+    payload = education.model_dump(mode="python")
+    transport = dict(payload["transport_context"])
+    transport["context_binding_hash"] = water.context_binding_hash
+    payload["transport_context"] = transport
+    # Recompute the outer envelope so this probe isolates the transport binding.
+    payload["content_hash"] = cycle_substrate_context_content_hash(payload)
+
+    with pytest.raises(ValueError, match="transport_context_binding_mismatch"):
         CycleSubstrateContext.model_validate(payload)
 
 
@@ -1385,8 +1408,13 @@ def test_cycle_substrate_context_rejects_content_hash_tamper() -> None:
         CycleSubstrateContext.model_validate(payload)
 
 
+@pytest.mark.parametrize(
+    "refresh_case",
+    ["candidate_levers", "transport_context", "both", "none"],
+)
 def test_configured_candidate_owner_persists_declared_model_in_exact_context(
     tmp_path: Any,
+    refresh_case: str,
 ) -> None:
     """The existing context owner emits only a limited declared NCM selection."""
     from polisyos.runtime.quality.candidate_simulation import (
@@ -1436,8 +1464,16 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         selected_registry_entry_hashes=context.selected_registry_entry_hashes,
         world_model_record=world,
         intervention_substrate=context.intervention_substrate,
-        candidate_levers=context.candidate_levers,
-        transport_context=context.transport_context,
+        candidate_levers=(
+            context.candidate_levers
+            if refresh_case in {"candidate_levers", "both"}
+            else ()
+        ),
+        transport_context=(
+            context.transport_context
+            if refresh_case in {"transport_context", "both"}
+            else None
+        ),
         source_pack_content_hash=context.source_pack_content_hash,
         substrate_input_content_hash=context.substrate_input_content_hash,
     )
@@ -1522,6 +1558,61 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         model_declarations=(declaration,),
         store=store,
     )
+    if refresh_case != "none":
+        with pytest.raises(CycleSubstrateContextOwnerError) as normal_error:
+            owner.admit_context(
+                problem=problem,
+                job_id="job-declared-candidate",
+                run_id="run-declared-candidate",
+                tenant_id="tenant-declared-candidate",
+                cell_id="cell-declared-candidate",
+            )
+        assert (
+            normal_error.value.code
+            == "candidate_simulation_context_evidence_refresh_not_established"
+        )
+
+        from polisyos.pdc import WorldModelLimitations
+
+        required_blockers = (
+            "source_time_not_established",
+            "source_to_target_measurement_contract_not_established",
+            "causal_coupling_not_established",
+        )
+        acquired_draft = world.model_copy(
+            update={
+                "limitations": WorldModelLimitations(
+                    admissibility_blockers=required_blockers
+                ),
+                "world_model_record_id": "world_model_record_" + "0" * 16,
+                "content_hash": "sha256:" + "0" * 64,
+            }
+        )
+        acquired_hash = world_model_record_content_hash(acquired_draft)
+        acquired_world = acquired_draft.model_copy(
+            update={
+                "world_model_record_id": (
+                    "world_model_record_" + acquired_hash.removeprefix("sha256:")[:16]
+                ),
+                "content_hash": acquired_hash,
+            }
+        )
+        with pytest.raises(CycleSubstrateContextOwnerError) as acquired_error:
+            owner.admit_context_for_acquired_world(
+                problem=problem,
+                profile_selection_ref=profile.profile_selection_ref,
+                world_model_record=acquired_world,
+                job_id="job-declared-candidate",
+                run_id="run-declared-candidate",
+                tenant_id="tenant-declared-candidate",
+                cell_id="cell-declared-candidate",
+            )
+        assert (
+            acquired_error.value.code
+            == "candidate_simulation_context_evidence_refresh_not_established"
+        )
+        return
+
     offer = owner.admit_context(
         problem=problem,
         job_id="job-declared-candidate",

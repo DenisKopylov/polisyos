@@ -5455,6 +5455,13 @@ class ControlPlaneService(
                                 compiled.target_world_model_record_ref
                             ),
                         }
+                        if (
+                            compiled.target_world_scope_profile_limitation_code
+                            is not None
+                        ):
+                            target_scope_progress[
+                                "target_world_scope_profile_limitation_code"
+                            ] = compiled.target_world_scope_profile_limitation_code
 
                         proposal_result = compiled.proposal
                         if isinstance(proposal_result, DesignGenerationOrganRun):

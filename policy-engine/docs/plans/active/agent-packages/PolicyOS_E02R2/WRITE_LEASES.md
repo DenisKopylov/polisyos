@@ -2912,3 +2912,10 @@ The principal explicitly raised the CPU budget to seven cores. Current admission
 | ledger_update_oct02 / ledger_review_oct02 | Evidence addendum and residual ledger companions only; source evidence is not behavioral closure. Native R1/R9 results remain pending before final immutable packet. | Root only. |
 
 No source under test is edited while a native run is active. Generated families, governed epochs/receipts, production_data, other lanes, debt register and plans remain outside these leases. Reusable environments and read-only data links are retained. The clean inactive R9 publication checkout was moved through git worktree move to macOS Trash; its named branch and unique commits remain, and Trash was not emptied (`E02R2_R9_RETIRED_WORKTREE_20261002T155138Z.completed.json@sha256:279d745c3305b2467ec0b9e66730ee483cb58f8b85167e0191b60fea8df8ba16` in the shared scratch).
+
+
+## R6 shared context refresh integration — 2026-10-02
+
+Root applies the five-path R6 candidate after independent review at `E02R2_R6_CONTEXT_REFRESH_CANDIDATE_20261002/INDEPENDENT_REVIEW.md@sha256:2a8bb300d1d8bd90327d568d2b53e44015e8594759f14515d240166a913fee32` in the shared scratch. The normal and acquired-world owner paths share one typed refresh refusal. Only ordinary N4 candidate work catches that refusal; protected modes rethrow it, and N5 stays not_run. No source-backed issuer/revalidator is established; no lever, transport record, historical context or epoch is restamped.
+
+Full-file root Ruff found an import-order issue, a duplicate transport-test identity and tuple parameter formatting in the proposed tests. Root fixes the three test-only issues as one finite delta: the new same-envelope foreign-binding probe has a distinct identity, the older full foreign-transport witness remains, and all parameter cases remain. The rollout fragment records the new typed progress limitation. Source behavior and the five reviewed production/test scopes are otherwise unchanged. Native replay remains UNRUN at this clean commit boundary; no finding closure is claimed. Root is the only canonical writer; B09 overlapping files follow this postimage.

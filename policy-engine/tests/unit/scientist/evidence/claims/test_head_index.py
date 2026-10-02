@@ -1594,12 +1594,12 @@ class _FixtureRootIssuer:
 class _FixtureIssuanceVerifier:
     store: FileSystemCAS
 
-    def verify_exact(
+    def _verify_root_exact(
         self,
         *,
         root_receipt_ref: ArtifactRef,
         expected_owner_key: ClaimLedgerOwnerKey | None = None,
-    ) -> VerifiedClaimLedgerIssuance | ClaimLedgerIssuanceNonReceipt:
+    ) -> PersistedClaimLedgerRoot | ClaimLedgerIssuanceNonReceipt:
         try:
             root = _read_profiled_statement(
                 store=self.store,
@@ -1631,12 +1631,12 @@ class _FixtureIssuanceVerifier:
                 model=ClaimLedgerRootDenominatorReceipt,
             )
             assert isinstance(denominator, ClaimLedgerRootDenominatorReceipt)
-            packet_raw = self.store.get_bytes(basis.decision_packet_ref.artifact_id)
+            packet_raw = self.store.get_bytes(basis.decision_packet_ref)
             packet = from_canonical_bytes(packet_raw)
-            initial_raw = self.store.get_bytes(basis.initial_ledger_ref.artifact_id)
+            initial_raw = self.store.get_bytes(basis.initial_ledger_ref)
             _load_append_only_claim_ledger(self.store, basis.initial_ledger_ref)
-            policy_raw = self.store.get_bytes(preparation.initialization_policy_ref.artifact_id)
-            verifier_raw = self.store.get_bytes(root.issuance_verifier_provenance_ref.artifact_id)
+            policy_raw = self.store.get_bytes(preparation.initialization_policy_ref)
+            verifier_raw = self.store.get_bytes(root.issuance_verifier_provenance_ref)
             if (
                 c4_semantic_digest("claim_ledger_root_basis", basis) != root.basis_content_hash
                 or c4_semantic_digest("claim_ledger_preparation", preparation)
@@ -1664,7 +1664,7 @@ class _FixtureIssuanceVerifier:
                 != str(root.issuance_verifier_provenance_ref.artifact_id)
             ):
                 raise ValueError("root closure mismatch")
-            evidence_raw = self.store.get_bytes(root.issuance_evidence_ref.artifact_id)
+            evidence_raw = self.store.get_bytes(root.issuance_evidence_ref)
             evidence = from_canonical_bytes(evidence_raw)
             if not isinstance(evidence, dict):
                 raise ValueError("bad evidence")
@@ -1680,24 +1680,89 @@ class _FixtureIssuanceVerifier:
                 != root.issuance_verifier_provenance_ref.model_dump(mode="json")
             ):
                 raise ValueError("issuance binding mismatch")
-            verification = ClaimLedgerRootVerificationReceipt(
-                root_ref=root_receipt_ref,
-                root_content_hash=c4_semantic_digest("claim_ledger_root", root),
-                verifier_provenance_ref=root.issuance_verifier_provenance_ref,
+            return PersistedClaimLedgerRoot(
+                root_receipt_ref=root_receipt_ref,
+                root_receipt_content_hash=c4_semantic_digest("claim_ledger_root", root),
+                statement=root,
             )
-            verifier_ref, verifier_hash = _persist_profiled_statement(
-                store=self.store,
+        except (AssertionError, KeyError, OSError, TypeError, ValueError):
+            return ClaimLedgerIssuanceNonReceipt(
+                status="rejected",
+                code="claim_root_provenance_untrusted",
+            )
+
+    def verify_and_persist_exact(
+        self,
+        *,
+        root_receipt_ref: ArtifactRef,
+        expected_owner_key: ClaimLedgerOwnerKey | None = None,
+    ) -> VerifiedClaimLedgerIssuance | ClaimLedgerIssuanceNonReceipt:
+        root = self._verify_root_exact(
+            root_receipt_ref=root_receipt_ref,
+            expected_owner_key=expected_owner_key,
+        )
+        if isinstance(root, ClaimLedgerIssuanceNonReceipt):
+            return root
+        verification = ClaimLedgerRootVerificationReceipt(
+            root_ref=root.root_receipt_ref,
+            root_content_hash=root.root_receipt_content_hash,
+            verifier_provenance_ref=root.statement.issuance_verifier_provenance_ref,
+        )
+        verifier_ref, verifier_hash = _persist_profiled_statement(
+            store=self.store,
+            record="claim_ledger_root_verification",
+            value=verification,
+        )
+        return VerifiedClaimLedgerIssuance(
+            root=root,
+            verifier_receipt_ref=verifier_ref,
+            verifier_receipt_content_hash=verifier_hash,
+        )
+
+    def verify_retained_exact(
+        self,
+        *,
+        store: FileSystemCAS,
+        root_receipt_ref: ArtifactRef,
+        root_receipt_content_hash: str,
+        expected_owner_key: ClaimLedgerOwnerKey,
+        verifier_receipt_ref: ArtifactRef,
+        verifier_receipt_content_hash: str,
+    ) -> VerifiedClaimLedgerIssuance | ClaimLedgerIssuanceNonReceipt:
+        if store is not self.store:
+            return ClaimLedgerIssuanceNonReceipt(
+                status="not_established",
+                code="claim_root_issuance_not_established",
+            )
+        root = self._verify_root_exact(
+            root_receipt_ref=root_receipt_ref,
+            expected_owner_key=expected_owner_key,
+        )
+        if isinstance(root, ClaimLedgerIssuanceNonReceipt):
+            return root
+        try:
+            retained = _read_profiled_statement(
+                store=store,
                 record="claim_ledger_root_verification",
-                value=verification,
+                ref=verifier_receipt_ref,
+                model=ClaimLedgerRootVerificationReceipt,
             )
+            if not isinstance(retained, ClaimLedgerRootVerificationReceipt):
+                raise ValueError("claim_root_verification_receipt_type_mismatch")
+            if (
+                root.root_receipt_content_hash != root_receipt_content_hash
+                or retained.root_ref != root_receipt_ref
+                or retained.root_content_hash != root_receipt_content_hash
+                or retained.verifier_provenance_ref
+                != root.statement.issuance_verifier_provenance_ref
+                or c4_semantic_digest("claim_ledger_root_verification", retained)
+                != verifier_receipt_content_hash
+            ):
+                raise ValueError("claim_root_verification_receipt_binding_mismatch")
             return VerifiedClaimLedgerIssuance(
-                root=PersistedClaimLedgerRoot(
-                    root_receipt_ref=root_receipt_ref,
-                    root_receipt_content_hash=verification.root_content_hash,
-                    statement=root,
-                ),
-                verifier_receipt_ref=verifier_ref,
-                verifier_receipt_content_hash=verifier_hash,
+                root=root,
+                verifier_receipt_ref=verifier_receipt_ref,
+                verifier_receipt_content_hash=verifier_receipt_content_hash,
             )
         except (AssertionError, KeyError, OSError, TypeError, ValueError):
             return ClaimLedgerIssuanceNonReceipt(
@@ -2460,6 +2525,30 @@ def test_historical_packet_snapshot_replays_the_real_owner(packet_bound_owner_ca
         ),
         ClaimLedgerHeadResolutionNonReceipt,
     )
+
+
+def test_retained_root_replay_refuses_a_foreign_runtime_store(
+    packet_bound_owner_case, tmp_path: Path
+) -> None:
+    store, owner, _, packet_ref, _ = packet_bound_owner_case
+    snapshot = owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+    assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
+    assert owner.issuance_verifier is not None
+
+    result = owner.issuance_verifier.verify_retained_exact(
+        store=FileSystemCAS(tmp_path / "foreign-cas"),
+        root_receipt_ref=snapshot.head.statement.root_receipt_ref,
+        root_receipt_content_hash=snapshot.head.statement.root_receipt_content_hash,
+        expected_owner_key=snapshot.head.statement.owner_key,
+        verifier_receipt_ref=snapshot.head.statement.issuance_verifier_receipt_ref,
+        verifier_receipt_content_hash=(
+            snapshot.head.statement.issuance_verifier_receipt_content_hash
+        ),
+    )
+
+    assert isinstance(result, ClaimLedgerIssuanceNonReceipt)
+    assert result.status == "not_established"
+    assert result.code == "claim_root_issuance_not_established"
 
 
 def test_historical_packet_snapshot_rejects_removed_selected_head_view(

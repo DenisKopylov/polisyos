@@ -15,6 +15,14 @@ from pydantic import ValidationError
 from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, SchemaInfo
 from polisyos.core.artifacts.signing import Ed25519Signer
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.c4_persisted_profiles import c4_profile
+from polisyos.scientist.evidence.claims.head_index import (
+    ClaimLedgerRootVerificationReceipt,
+    PersistedClaimLedgerHead,
+    _persist_profiled_statement,
+    _read_profiled_statement,
+    project_claim_ledger_current_head,
+)
 from polisyos.scientist.governance.continuous.governed_public_record import (
     GovernedPublicRecordDimensions,
     GovernedPublicRecordError,
@@ -78,6 +86,7 @@ def build_governed_owner_case(
     owner = GovernedPublicRecordOwner(
         store=store, claim_owner=claim_owner, index_root=index_root / "publication", slot=slot
     )
+    owner._synthetic_public_read_root_custody_for_tests = True
     return owner, prepared, packet_ref, institution, slot
 
 
@@ -120,12 +129,17 @@ def appoint_synthetic_publication(
         index_root=owner.index_root,
         slot=replace(slot, mandate_ref=mandate_ref),
     )
+    configured._synthetic_public_read_root_custody_for_tests = True
     return configured, draft
 
 
 @pytest.fixture
 def case(tmp_path):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=False,
+    )
     return build_governed_owner_case(
         store=store, index_root=tmp_path, completed_batches=DecisionValidityService(store)
     )
@@ -146,7 +160,9 @@ def test_empty_slot_prepares_private_candidate_without_public_index(case):
     assert not (empty.index_root / "issued").exists()
 
 
-def test_real_owner_signed_mandate_issuance_readback_and_custody(case):
+def test_real_owner_signed_mandate_issuance_readback_and_custody(
+    case, monkeypatch: pytest.MonkeyPatch
+):
     owner, _, packet_ref, institution, slot = case
     configured, draft = appoint_synthetic_publication(owner, packet_ref, institution, slot)
     later = NOW + timedelta(minutes=1)
@@ -159,8 +175,32 @@ def test_real_owner_signed_mandate_issuance_readback_and_custody(case):
     record_id = configured.issue(
         decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=later
     )
+    historical_owner = configured.claim_owner
+    owner_type = type(historical_owner)
+    original_verifier = owner_type.verify_historical_packet_snapshot
+
+    def expose_typed_historical_result(self, *, snapshot):
+        result = original_verifier(self, snapshot=snapshot)
+        if self is historical_owner:
+            assert type(result) is type(snapshot.ledger), (
+                "historical source owner returned "
+                f"{type(result).__module__}.{type(result).__qualname__} "
+                f"status={getattr(result, 'status', None)!r} "
+                f"code={getattr(result, 'code', None)!r}"
+            )
+        return result
+
+    monkeypatch.setattr(
+        owner_type,
+        "verify_historical_packet_snapshot",
+        expose_typed_historical_result,
+    )
+    configured._resolve_public_index(record_id)
     response = configured.verify(record_id)
-    assert response.report_authentication == "verified"
+    assert response.report_authentication == "verified", (
+        f"reason_codes={response.reason_codes!r}; "
+        f"boundary_reads={configured.last_boundary_reads!r}"
+    )
     assert response.public_document == draft.public_document
     assert response.dimensions.current_authority == "not_established"
     assert response.dimensions.issuer_issuance == "established"
@@ -177,13 +217,176 @@ def test_real_owner_signed_mandate_issuance_readback_and_custody(case):
         index_root=owner.index_root,
         slot=configured.slot,
     )
+    restarted._synthetic_public_read_root_custody_for_tests = True
     assert restarted.verify(record_id) == response
     assert restarted.resolve_custody_binding(record_id) == binding
 
 
+def test_gpr_historical_replay_reads_the_pinned_receipt_without_issuing(
+    case, monkeypatch: pytest.MonkeyPatch
+):
+    owner, _, packet_ref, institution, slot = case
+    configured, _ = appoint_synthetic_publication(owner, packet_ref, institution, slot)
+    record_id = configured.issue(
+        decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
+    )
+    receipt_kind = c4_profile("claim_ledger_root_verification").kind
+    original_put = type(owner.store).put_bytes
+    write_attempts: list[str] = []
+
+    def forbid_retained_receipt_issue(self, data, options):
+        if self is owner.store and options.kind == receipt_kind:
+            write_attempts.append(options.kind)
+            raise AssertionError("historical replay attempted receipt issuance")
+        return original_put(self, data, options)
+
+    monkeypatch.setattr(type(owner.store), "put_bytes", forbid_retained_receipt_issue)
+    response = configured.verify(record_id)
+
+    assert response.report_authentication == "verified", response.reason_codes
+    assert write_attempts == []
+
+
+@pytest.mark.parametrize("tamper", ["selected_ref", "receipt_digest", "provenance"])
+def test_gpr_prepare_refuses_a_falsified_retained_receipt_pin(
+    case, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, tamper: str
+):
+    owner, _, packet_ref, institution, slot = case
+    configured, _ = appoint_synthetic_publication(owner, packet_ref, institution, slot)
+    claim_owner = owner.claim_owner
+    owner_type = type(claim_owner)
+    original_snapshot_resolver = owner_type.resolve_current_for_packet
+    snapshot = claim_owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+    head = snapshot.head
+    receipt = _read_profiled_statement(
+        store=owner.store,
+        record="claim_ledger_root_verification",
+        ref=head.statement.issuance_verifier_receipt_ref,
+        model=ClaimLedgerRootVerificationReceipt,
+    )
+    assert isinstance(receipt, ClaimLedgerRootVerificationReceipt)
+    pin_ref = head.statement.issuance_verifier_receipt_ref
+    pin_hash = head.statement.issuance_verifier_receipt_content_hash
+    if tamper == "selected_ref":
+        forged_receipt = receipt.model_copy(update={"root_ref": packet_ref})
+        pin_ref, pin_hash = _persist_profiled_statement(
+            store=owner.store,
+            record="claim_ledger_root_verification",
+            value=forged_receipt,
+        )
+    elif tamper == "receipt_digest":
+        pin_hash = "sha256:" + "0" * 64
+    elif tamper == "provenance":
+        forged_receipt = receipt.model_copy(
+            update={"verifier_provenance_ref": packet_ref}
+        )
+        pin_ref, pin_hash = _persist_profiled_statement(
+            store=owner.store,
+            record="claim_ledger_root_verification",
+            value=forged_receipt,
+        )
+    else:  # pragma: no cover - closed parameter set
+        raise AssertionError(f"unexpected tamper case: {tamper}")
+
+    forged_statement = head.statement.model_copy(
+        update={
+            "issuance_verifier_receipt_ref": pin_ref,
+            "issuance_verifier_receipt_content_hash": pin_hash,
+        }
+    )
+    forged_ref, forged_hash = _persist_profiled_statement(
+        store=owner.store,
+        record="claim_ledger_head",
+        value=forged_statement,
+    )
+    forged_head = PersistedClaimLedgerHead(
+        head_ref=forged_ref,
+        head_content_hash=forged_hash,
+        statement=forged_statement,
+    )
+    falsified_snapshot = snapshot.model_copy(
+        update={
+            "head": forged_head,
+            "current_head_projection": project_claim_ledger_current_head(
+                head=forged_head,
+                claim_export=snapshot.public_export,
+            ),
+        }
+    )
+
+    def resolve_falsified_retained_snapshot(self, *, decision_packet_ref):
+        if self is claim_owner and decision_packet_ref == packet_ref:
+            return falsified_snapshot
+        return original_snapshot_resolver(
+            self,
+            decision_packet_ref=decision_packet_ref,
+        )
+
+    monkeypatch.setattr(
+        owner_type,
+        "resolve_current_for_packet",
+        resolve_falsified_retained_snapshot,
+    )
+    publication_probe = GovernedPublicRecordOwner(
+        store=owner.store,
+        claim_owner=claim_owner,
+        index_root=tmp_path / "publication-probe",
+        slot=configured.slot,
+    )
+    publication_probe._synthetic_public_read_root_custody_for_tests = True
+
+    with pytest.raises(
+        GovernedPublicRecordError,
+        match="historical_source_admission_not_established",
+    ):
+        publication_probe.prepare(
+            decision_id="packet-snapshot",
+            decision_packet_ref=packet_ref,
+            issued_at=NOW,
+        )
+
+
+def test_public_reader_keeps_root_custody_unestablished_by_default(
+    case: tuple[
+        GovernedPublicRecordOwner,
+        object,
+        ArtifactRef,
+        Ed25519Signer,
+        PublicationSigningSlot,
+    ],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A signed record does not establish anonymous CAS-root access by itself."""
+    owner, _, packet_ref, institution, slot = case
+    configured, _ = appoint_synthetic_publication(owner, packet_ref, institution, slot)
+    record_id = configured.issue(
+        decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
+    )
+    default_owner = GovernedPublicRecordOwner(
+        store=owner.store,
+        claim_owner=owner.claim_owner,
+        index_root=owner.index_root,
+        slot=configured.slot,
+    )
+
+    def issuance_locator_must_not_be_read(_record_id: str) -> None:
+        pytest.fail("issuance locator was read without root-custody evidence")
+
+    monkeypatch.setattr(default_owner, "_index", issuance_locator_must_not_be_read)
+    response = default_owner.verify(record_id)
+    assert response.report_authentication == "not_established"
+    assert response.cryptographic_signature == "not_established"
+    assert response.reason_codes == ("public_read_root_custody_not_established",)
+    assert response.public_document is None
+
+
 def test_real_owner_publication_relocates_selected_manifest_views(tmp_path):
     """The served owner publishes selected view identity without exposing selectors."""
-    store = FileSystemCAS(tmp_path / "cas")
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=False,
+    )
     raw = b"Explicitly synthetic evidence with two honest manifest profiles."
     def options(version: str) -> ArtifactWriteOptions:
         return ArtifactWriteOptions(
@@ -359,6 +562,7 @@ def test_historical_revocation_does_not_erase_issuance_or_custody(case):
         index_root=owner.index_root,
         slot=revoked_slot,
     )
+    revoked._synthetic_public_read_root_custody_for_tests = True
     response = revoked.verify(record_id)
     assert response.report_authentication == "verified"
     assert response.cryptographic_signature == "valid"
@@ -387,7 +591,11 @@ def test_exact_unsigned_sidecar_fields_cannot_change_after_issuance(case):
 
 
 def test_arbitrary_metadata_is_refused_without_lossy_projection(tmp_path):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        ownership_enforced=True,
+        ownership_requires_scope=False,
+    )
     owner, _, packet_ref, _, _ = build_governed_owner_case(
         store=store,
         index_root=tmp_path,

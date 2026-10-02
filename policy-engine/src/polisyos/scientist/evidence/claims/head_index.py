@@ -1385,15 +1385,34 @@ class ClaimLedgerRootIssuer(Protocol):
 
 @runtime_checkable
 class ClaimLedgerIssuanceVerifier(Protocol):
-    """Independently reload and verify one exact persisted root."""
+    """Verify a root at issuance, then replay only its exact retained receipt."""
 
-    def verify_exact(
+    def verify_and_persist_exact(
         self,
         *,
         root_receipt_ref: ArtifactRef,
         expected_owner_key: ClaimLedgerOwnerKey | None = None,
     ) -> VerifiedClaimLedgerIssuance | ClaimLedgerIssuanceNonReceipt:
-        """Return only an independently reconciled positive receipt."""
+        """Verify a transition input and persist its issuance receipt."""
+        ...
+
+    def verify_retained_exact(
+        self,
+        *,
+        store: ArtifactStore,
+        root_receipt_ref: ArtifactRef,
+        root_receipt_content_hash: Digest,
+        expected_owner_key: ClaimLedgerOwnerKey,
+        verifier_receipt_ref: ArtifactRef,
+        verifier_receipt_content_hash: Digest,
+    ) -> VerifiedClaimLedgerIssuance | ClaimLedgerIssuanceNonReceipt:
+        """Read and verify the exact historical receipt without writing artifacts.
+
+        The implementation must bind ``store`` to its appointed runtime store,
+        resolve the full selected refs and manifests, and recompute both semantic
+        digests and the verifier-provenance join. It must never issue a replacement
+        receipt when the retained one is absent or invalid.
+        """
         ...
 
 
@@ -2981,7 +3000,7 @@ class _RepositoryClaimLedgerOwner:
 
         if self.issuance_verifier is None:
             return ClaimLedgerHeadResolutionNonReceipt(
-                status="rejected",
+                status="not_established",
                 code="claim_head_issuance_unverified",
             )
         try:
@@ -3262,13 +3281,31 @@ class _RepositoryClaimLedgerOwner:
                 code="claim_head_content_mismatch",
             )
 
-        verified = self.issuance_verifier.verify_exact(
-            root_receipt_ref=head.statement.root_receipt_ref,
-            expected_owner_key=head.statement.owner_key,
-        )
+        retained_verifier = getattr(self.issuance_verifier, "verify_retained_exact", None)
+        if not callable(retained_verifier):
+            return ClaimLedgerHeadResolutionNonReceipt(
+                status="not_established",
+                code="claim_head_issuance_unverified",
+            )
+        try:
+            verified = retained_verifier(
+                store=self.store,
+                root_receipt_ref=head.statement.root_receipt_ref,
+                root_receipt_content_hash=head.statement.root_receipt_content_hash,
+                expected_owner_key=head.statement.owner_key,
+                verifier_receipt_ref=head.statement.issuance_verifier_receipt_ref,
+                verifier_receipt_content_hash=(
+                    head.statement.issuance_verifier_receipt_content_hash
+                ),
+            )
+        except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return ClaimLedgerHeadResolutionNonReceipt(
+                status="not_established",
+                code="claim_head_issuance_unverified",
+            )
         if isinstance(verified, ClaimLedgerIssuanceNonReceipt):
             return ClaimLedgerHeadResolutionNonReceipt(
-                status="rejected",
+                status=verified.status,
                 code="claim_head_issuance_unverified",
             )
         if (
@@ -3529,6 +3566,9 @@ class _RepositoryClaimLedgerOwner:
         if (
             self.root_issuer is None
             or self.issuance_verifier is None
+            or not callable(
+                getattr(self.issuance_verifier, "verify_and_persist_exact", None)
+            )
             or self.head_index_root is None
             or self.decision_packets is None
             or self.independent_walk is None
@@ -3634,7 +3674,7 @@ class _RepositoryClaimLedgerOwner:
                 record="claim_ledger_root",
                 value=root,
             )
-            verified = self.issuance_verifier.verify_exact(
+            verified = self.issuance_verifier.verify_and_persist_exact(
                 root_receipt_ref=root_ref,
                 expected_owner_key=preparation.owner_key,
             )
@@ -4388,6 +4428,9 @@ class _RepositoryClaimLedgerOwner:
     ) -> tuple[ClaimLedgerHeadAdvanceReceipt | ClaimLedgerHeadResolutionNonReceipt, ...]:
         if (
             self.issuance_verifier is None
+            or not callable(
+                getattr(self.issuance_verifier, "verify_and_persist_exact", None)
+            )
             or self.head_index_root is None
             or self.decision_packets is None
             or self.independent_walk is None
@@ -4431,13 +4474,20 @@ class _RepositoryClaimLedgerOwner:
                     )
                 )
                 continue
-            verified = self.issuance_verifier.verify_exact(
+            verified = self.issuance_verifier.verify_and_persist_exact(
                 root_receipt_ref=assessment.root_receipt_ref,
                 expected_owner_key=assessment.owner_key,
             )
+            if isinstance(verified, ClaimLedgerIssuanceNonReceipt):
+                outcomes.append(
+                    ClaimLedgerHeadResolutionNonReceipt(
+                        status=verified.status,
+                        code="claim_head_issuance_unverified",
+                    )
+                )
+                continue
             if (
-                isinstance(verified, ClaimLedgerIssuanceNonReceipt)
-                or verified.root.root_receipt_ref != assessment.root_receipt_ref
+                verified.root.root_receipt_ref != assessment.root_receipt_ref
                 or verified.root.root_receipt_content_hash != assessment.root_receipt_content_hash
                 or verified.root.statement.root_identity != assessment.root_identity
                 or verified.root.statement.issuance_evidence_ref

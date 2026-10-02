@@ -773,7 +773,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
     case = served.case
     closure = served.closure
     store = served.control._artifact_store
-    growth = case.bridge.project_world_growth(closure)
+    growth = case.port.project_world_growth(closure)
     assert growth is not None
 
     observation_matches = tuple(

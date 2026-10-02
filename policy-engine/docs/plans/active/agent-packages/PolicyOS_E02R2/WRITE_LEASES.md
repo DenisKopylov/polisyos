@@ -2805,3 +2805,34 @@ before editing: 33P/2F; both failures precede the new acquired-world bridge
 and are being repaired through valid typed test inputs and actual owner APIs.
 No source, expectation relaxation, new environment, worktree, governed record
 or production-data write is leased here.
+
+
+## B09/B12 valid controlled witnesses — 2026-10-02
+
+Root integrates two test-only corrections after the frozen whole35 wave at
+aa753824 completed: 33 passed, two failed, inspection errors empty. Result
+`/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/b09-served-growth-wmr-whole35-aa753824-v4-cpu700-20261002T124020773392Z/result.json@sha256:6645d8948897c16fa7d1dbdabc5c3af63f1d21591b4a1d3ffce222e792deca93`.
+The existing served case is our pass-to-fail: its new controlled fixture
+bypassed DesignProblem validation while adding qualified target/outcome names
+to a V1 model. The revision owner correctly refused it. The fixture now
+validates one complete V3 payload through the existing model owner. The new
+row test now calls the execution port's actual project_world_growth method,
+which forwards to the bridge's project_growth owner. No compatibility shim,
+production-gate relaxation, or assertion change is introduced.
+
+Patch `/Users/deniskopylov/.codex/scratch/E02R2_B09_B12_BRIDGE_CANDIDATE_20261002/B09_SERVED_WITNESS_AA753_R1/patch.diff@sha256:28a5be88869c0c09e88e9c0fb88548546aa76c49160fb4853d021eeb84fdf4ed`;
+independent finite GO `INDEPENDENT_REVIEW_GO.md@sha256:471ef3cd0c03f00bf60d35050a238136887954497bc2e0764fb39bc295d3898c`
+in that packet. Ruff on the two paths and diff-check returned zero. Native
+replay is UNRUN at this boundary.
+
+B09/B12 remain bounded advances, not closures. B09's card requires the same
+candidate/occurrence to continue on changed data, original/revised subject
+binding, and refusal of renamed repeats on unchanged inputs. The current
+witness compares the new cycle with its new N5 input, not the prior candidate
+occurrence. B12 still needs a pre-acquisition control showing the dependent
+outcome changes, beyond refreshed input-state/readback. Default production
+factory refresh remains unverified; the controlled fixture replaces that
+factory. Card mapping `B09_CARD_TEST_MAPPING.md@sha256:cc063af490a7751407cb517a1be9cedd650eaf4270221ff8ba6935ae9febd0b7`
+in the packet identifies the production owners and smallest next witness.
+No native process group remained active before editing. No product source,
+governed record, environment, worktree or production-data write is leased.

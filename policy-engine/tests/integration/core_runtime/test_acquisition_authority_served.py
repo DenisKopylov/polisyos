@@ -526,47 +526,40 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
 
     def controlled_fiscal_problem(problem_id="served_wdi_acquisition"):
         problem = original_problem(problem_id)
-        objective = problem.objectives[0].model_copy(
-            update={
+        payload = problem.model_dump(mode="json")
+        payload["schema_version"] = "policyos.runtime.design_problem.v3"
+        payload["problem_statement"] = (
+            "Explore the tax-rate outcome from a bounded government-balance "
+            "candidate while carrying acquisition limitations."
+        )
+        payload["domain"] = "fiscal"
+        payload["objectives"][0].update(
+            {
                 "objective_id": "tax_rate",
                 "description": "Explore the tax rate under a candidate-only scenario.",
                 "metric_id": "tax_rate",
             }
         )
-        lever_space = problem.candidate_lever_space
-        levers = tuple(
-            lever.model_copy(
-                update={
+        payload["outcome_of_interest"].update(
+            {
+                "target_variable": "global.tax_rate",
+                "metric_id": "tax_rate",
+                "estimand": "synthetic candidate change in tax rate",
+            }
+        )
+        lever_space = payload["candidate_lever_space"]
+        lever_space["allowed_operator_kinds"] = ["budget_allocation_multiplier"]
+        for lever in lever_space["candidate_levers"]:
+            lever.update(
+                {
                     "operator_kind": "budget_allocation_multiplier",
                     "instrument": "candidate budget allocation multiplier",
                     "target_slot": "government.balance",
                 }
             )
-            for lever in lever_space.candidate_levers
-        )
-        return problem.model_copy(
-            update={
-                "problem_statement": (
-                    "Explore the tax-rate outcome from a bounded government-balance "
-                    "candidate while carrying acquisition limitations."
-                ),
-                "domain": "fiscal",
-                "objectives": [objective],
-                "outcome_of_interest": problem.outcome_of_interest.model_copy(
-                    update={
-                        "target_variable": "global.tax_rate",
-                        "metric_id": "tax_rate",
-                        "estimand": "synthetic candidate change in tax rate",
-                    }
-                ),
-                "candidate_lever_space": lever_space.model_copy(
-                    update={
-                        "allowed_operator_kinds": ["budget_allocation_multiplier"],
-                        "candidate_levers": levers,
-                    }
-                ),
-            }
-        )
+        # Re-parse the complete V3 payload so qualified variable identities use
+        # the versioned DesignProblem owner instead of bypassing its validator.
+        return type(problem).model_validate(payload)
 
     monkeypatch.setattr(cycle_fixtures, "_problem", controlled_fiscal_problem)
 

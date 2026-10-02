@@ -1,5 +1,11 @@
 # E02-R2 write leases
 
+## R1 exact finalizer-contract diagnostic — 2026-10-02
+
+Root changes only `tests/integration/core_runtime/test_acquisition_authority_served.py` and this lease. The actual `4375949` run established a `ValidationError` at `semantic_epoch.finalize_admitted_epoch:2871` in `_collect`, with `quarantined_no_growth`; it did not establish a missing time contract or appointment as the cause. The additional diagnostic retains only Pydantic field locations/type codes and the complete flat sequence of ValueError-subclass source-coordinate events inside the finalizer call. Events are not unique exception objects. Messages, input values, contexts, locals, titles, reprs and exception identities are excluded. The prior tracer is restored in `finally`; the expected `reentry_completed` result and actor/tenant assertions remain.
+
+Metadata patch `/Users/deniskopylov/.codex/scratch/E02R2_R1_EPOCH_TRACE_METADATA_ONLY_20261002_V2/diagnostic.patch@sha256:830f1a0a38db1d4b4f7d48df62ffd2779921844df980d44f0b4038abf1414f26` received independent GO. Finite coordinate-census delta `/Users/deniskopylov/.codex/scratch/E02R2_R1_EPOCH_TRACE_VALUEERROR_CENSUS_20261002_V1/valueerror_census.delta.patch@sha256:5a3ed94be110f2acfc79ff768c34c1db59616a1918eeb9d2a50706c7872f5a95` is independently inspected by root against the approved metadata postimage. Only the deciding native rerun can identify the failed owner predicate; no production gate, schema or epoch is changed here.
+
 ## R2 actual source-hash removal witness — 2026-10-02
 
 Root alone changes `tests/unit/runtime/quality/test_generation_cycle_history.py` and this lease. The historical owner must replay the same canonical payload after an unrelated comment edit without consulting live source; typed deployment currentness remains `not_established`. The removal mode calls the captured real `StrangleReceipt.verify_current` against a controlled source tree, preserving the run's markers while reinstating the obsolete source-byte dependency. Its second replay must fail at the real stale-hash comparison. The fixture's source receipt is computed before construction for that controlled tree; this witness does not restamp a standing historical record or claim original fixture byte identity, issuer appointment, census completeness or S8 authority.

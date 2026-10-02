@@ -49,12 +49,49 @@ def _within_fixture_owner(call, *args, **kwargs):
 
 
 
+def _safe_validation_error_fields(exception):
+    """Keep only Pydantic location names and error type identifiers."""
+    exception_type = type(exception)
+    if (
+        exception_type.__name__ != "ValidationError"
+        or exception_type.__module__.split(".", maxsplit=1)[0]
+        not in {"pydantic", "pydantic_core"}
+    ):
+        return ()
+    errors = getattr(exception, "errors", None)
+    if not callable(errors):
+        return ()
+    try:
+        rows = errors(include_input=False, include_context=False, include_url=False)
+    except Exception:
+        return ()
+    if not isinstance(rows, list):
+        return ()
+    safe_rows = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        location = row.get("loc")
+        error_type = row.get("type")
+        if (
+            not isinstance(location, (tuple, list))
+            or type(error_type) is not str
+            or any(type(part) not in (str, int) for part in location)
+        ):
+            continue
+        safe_rows.append(
+            {"loc": tuple(location), "type": error_type}
+        )
+    return tuple(safe_rows)
+
+
 def _capture_semantic_epoch_finalizer_failure(call):
-    """Capture only exception type and source coordinates at finalizer catch."""
+    """Capture safe exception coordinates and Pydantic field/type metadata."""
     prior_trace = sys.gettrace()
     target_frames = set()
     by_exception = {}
     captured = []
+    value_error_event_rows = []
 
     def trace(frame, event, argument):
         is_finalizer = (
@@ -73,18 +110,29 @@ def _capture_semantic_epoch_finalizer_failure(call):
                     break
                 ancestor = ancestor.f_back
             if inside_finalizer:
+                module_name = frame.f_globals.get("__name__", "")
                 row = (
-                    frame.f_globals.get("__name__", ""),
+                    module_name,
                     frame.f_code.co_name,
                     frame.f_lineno,
                     exception_type.__name__,
                 )
+                if isinstance(exception_type, type) and issubclass(
+                    exception_type, ValueError
+                ):
+                    value_error_event_rows.append(row)
                 rows = by_exception.setdefault(id(exception), [])
                 if not rows or rows[-1] != row:
                     rows.append(row)
                 if is_finalizer:
                     captured.append(
-                        {"exception_type": exception_type.__name__, "frames": tuple(rows)}
+                        {
+                            "exception_type": exception_type.__name__,
+                            "frames": tuple(rows),
+                            "validation_error_fields": _safe_validation_error_fields(
+                                exception
+                            ),
+                        }
                     )
         elif event == "return" and is_finalizer:
             target_frames.discard(id(frame))
@@ -92,7 +140,11 @@ def _capture_semantic_epoch_finalizer_failure(call):
 
     sys.settrace(trace)
     try:
-        return call(), captured
+        return call(), captured, {
+            "scope": "all_value_error_trace_events_inside_finalizer_call",
+            "identity": "trace_events_not_unique_exception_objects",
+            "events": tuple(value_error_event_rows),
+        }
     finally:
         sys.settrace(prior_trace)
 
@@ -997,7 +1049,11 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert admitted_scope["actor_subject"] == job.submitted_by
             assert admitted_scope["actor_authenticated"] is True
             assert admitted_scope["actor_roles"] == sorted(set(admitted_scope["actor_roles"]))
-            _dispatched_job_id, semantic_epoch_finalizer_exceptions = (
+            (
+                _dispatched_job_id,
+                semantic_epoch_finalizer_exceptions,
+                semantic_epoch_value_error_event_census,
+            ) = (
                 _capture_semantic_epoch_finalizer_failure(
                     lambda: dispatch_one_control_job(
                         store=control._control_store,  # noqa: SLF001
@@ -1012,10 +1068,18 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert result["receipt_phase"] == "terminal", result
             receipt = _read_owned_terminal(control._artifact_store, result["terminal_receipt_ref"])
             assert receipt.action_generation == 2
-            assert receipt.terminal_outcome == "reentry_completed", {
-                "terminal_outcome": receipt.terminal_outcome,
-                "semantic_epoch_finalizer_exceptions": semantic_epoch_finalizer_exceptions,
-            }
+            terminal_diagnostic = json.dumps(
+                {
+                    "terminal_outcome": receipt.terminal_outcome,
+                    "semantic_epoch_finalizer_exceptions": semantic_epoch_finalizer_exceptions,
+                    "semantic_epoch_value_error_event_census": (
+                        semantic_epoch_value_error_event_census
+                    ),
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            assert receipt.terminal_outcome == "reentry_completed", terminal_diagnostic
             assert not cases[-1].transport_calls
             assert control._control_store.get_job(first_job_id).progress == first_progress
             assert all(

@@ -137,7 +137,7 @@ class WorldModelArtifactViews(_StrictModel):
         ):
             raise ValueError("world_model_artifact_view_type_invalid")
         if self.substrate_registry_ref is not None and (
-            self.substrate_registry_ref.kind != "runtime.quality.substrate_registry"
+            self.substrate_registry_ref.kind != "runtime.quality.production_data_substrate_registry"
             or self.substrate_registry_ref.media_type != "application/json"
         ):
             raise ValueError("world_model_artifact_view_type_invalid")

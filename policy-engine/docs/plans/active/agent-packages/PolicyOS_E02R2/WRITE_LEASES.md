@@ -3096,3 +3096,10 @@ Root applied E02R2_GENERATION_SOURCE_26_RCA_20261003/final-candidate/candidate.p
 The N5 selected-view fixture performs CAS readback and the same-ID sibling-profile negative under the existing tenant scope. The reentry fake accepts the forwarded origin and asserts the actual None premise. The separate N9 refusal is not patched: the durable ledger binds the historical v7 projection while the current owner is v8; an authorized reissue or owner-supported isolation remains required. Four-base attribution is unestablished.
 
 Root applied E02R2_GENERATION_CYCLE_CLOSED3_RCA_20261003_V3/TEST_CANDIDATE.patch@sha256:f61f593ae89f0a92b8c288256c96de1b86c587c671695f2509bfe4a7db2345e3 after independent static GO E02R2_INDEPENDENT_PACKET_REVIEW_20261003/REVIEW.md@sha256:c816fe9a3922abad353bffc54e8f5219af6f3aa7dfae61572c4b0f4e770c1e7f. Native integrated verification remains UNRUN at this boundary. Root alone writes canonical source; no native group was active. The reviewed packet remains immutable; committed readback is stored separately in E02R2_ROOT_BATCH_READBACK_20261003.
+
+
+## R1 PDC KIND reviewed integration — 2026-10-03
+
+The strict PDC selected-view validator now expects the existing registry owner kind runtime.quality.production_data_substrate_registry; both exact fixtures follow the owner. The completed served measurement stopped here before N5. This repairs the owner contract correspondence without weakening kind/media validation. No schema field, historical WMR projection, epoch or receipt is reissued.
+
+Root applied E02R2_B09_SERVED_WMR_SUBSTRATE_KIND_20261003_V3/candidate.patch@sha256:325b520fda23d182bc27c372909ce052149f1fee4357ce1616148657ccc81368 after independent static GO E02R2_INDEPENDENT_PACKET_REVIEW_20261003/REVIEW.md@sha256:c816fe9a3922abad353bffc54e8f5219af6f3aa7dfae61572c4b0f4e770c1e7f. Native integrated verification remains UNRUN at this boundary. Root alone writes canonical source; no native group was active. The reviewed packet remains immutable; committed readback is stored separately in E02R2_ROOT_BATCH_READBACK_20261003.

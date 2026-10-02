@@ -188,7 +188,7 @@ def test_world_model_record_v2_hash_binds_ordered_program_and_ncm_views() -> Non
             ),
             substrate_registry_ref=ArtifactRef(
                 artifact_id=base.substrate_registry_ref.registry_artifact_ref,
-                kind="runtime.quality.substrate_registry",
+                kind="runtime.quality.production_data_substrate_registry",
                 media_type="application/json",
             ),
             program_graph_refs=(

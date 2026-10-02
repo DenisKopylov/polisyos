@@ -974,7 +974,7 @@ def _world_record_with_selected_views(
         ),
         substrate_registry_ref=ArtifactRef(
             artifact_id=substrate_ref.registry_artifact_ref,
-            kind="runtime.quality.substrate_registry",
+            kind="runtime.quality.production_data_substrate_registry",
             media_type="application/json",
         ),
         program_graph_refs=(

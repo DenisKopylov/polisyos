@@ -15,6 +15,7 @@ from pydantic import ValidationError
 from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, SchemaInfo
 from polisyos.core.artifacts.signing import Ed25519Signer
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.c4_persisted_profiles import c4_profile
 from polisyos.scientist.governance.continuous.governed_public_record import (
     GovernedPublicRecordDimensions,
     GovernedPublicRecordError,
@@ -25,6 +26,13 @@ from polisyos.scientist.governance.continuous.governed_public_record import (
     PublicationTrustedKey,
     _PrivateDraft,
     publication_trust_epoch,
+)
+from polisyos.scientist.evidence.claims.head_index import (
+    ClaimLedgerRootVerificationReceipt,
+    PersistedClaimLedgerHead,
+    _persist_profiled_statement,
+    _read_profiled_statement,
+    project_claim_ledger_current_head,
 )
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from tests.unit.scientist.evidence.claims.test_head_index import _build_packet_bound_owner_case
@@ -212,6 +220,118 @@ def test_real_owner_signed_mandate_issuance_readback_and_custody(
     restarted._synthetic_public_read_root_custody_for_tests = True
     assert restarted.verify(record_id) == response
     assert restarted.resolve_custody_binding(record_id) == binding
+
+
+def test_gpr_historical_replay_reads_the_pinned_receipt_without_issuing(
+    case, monkeypatch: pytest.MonkeyPatch
+):
+    owner, _, packet_ref, institution, slot = case
+    configured, _ = appoint_synthetic_publication(owner, packet_ref, institution, slot)
+    record_id = configured.issue(
+        decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
+    )
+    receipt_kind = c4_profile("claim_ledger_root_verification").kind
+    original_put = type(owner.store).put_bytes
+    write_attempts: list[str] = []
+
+    def forbid_retained_receipt_issue(self, data, options):
+        if self is owner.store and options.kind == receipt_kind:
+            write_attempts.append(options.kind)
+            raise AssertionError("historical replay attempted receipt issuance")
+        return original_put(self, data, options)
+
+    monkeypatch.setattr(type(owner.store), "put_bytes", forbid_retained_receipt_issue)
+    response = configured.verify(record_id)
+
+    assert response.report_authentication == "verified", response.reason_codes
+    assert write_attempts == []
+
+
+@pytest.mark.parametrize("tamper", ["selected_ref", "receipt_digest", "provenance"])
+def test_gpr_historical_replay_refuses_a_falsified_receipt_pin(
+    case, monkeypatch: pytest.MonkeyPatch, tamper: str
+):
+    owner, _, packet_ref, institution, slot = case
+    configured, _ = appoint_synthetic_publication(owner, packet_ref, institution, slot)
+    record_id = configured.issue(
+        decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
+    )
+    claim_owner = owner.claim_owner
+    owner_type = type(claim_owner)
+    original_historical_verifier = owner_type.verify_historical_packet_snapshot
+    snapshot = claim_owner.resolve_current_for_packet(decision_packet_ref=packet_ref)
+    head = snapshot.head
+    receipt = _read_profiled_statement(
+        store=owner.store,
+        record="claim_ledger_root_verification",
+        ref=head.statement.issuance_verifier_receipt_ref,
+        model=ClaimLedgerRootVerificationReceipt,
+    )
+    assert isinstance(receipt, ClaimLedgerRootVerificationReceipt)
+    pin_ref = head.statement.issuance_verifier_receipt_ref
+    pin_hash = head.statement.issuance_verifier_receipt_content_hash
+    if tamper == "selected_ref":
+        forged_receipt = receipt.model_copy(update={"root_ref": packet_ref})
+        pin_ref, pin_hash = _persist_profiled_statement(
+            store=owner.store,
+            record="claim_ledger_root_verification",
+            value=forged_receipt,
+        )
+    elif tamper == "receipt_digest":
+        pin_hash = "sha256:" + "0" * 64
+    elif tamper == "provenance":
+        forged_receipt = receipt.model_copy(
+            update={"verifier_provenance_ref": packet_ref}
+        )
+        pin_ref, pin_hash = _persist_profiled_statement(
+            store=owner.store,
+            record="claim_ledger_root_verification",
+            value=forged_receipt,
+        )
+    else:  # pragma: no cover - closed parameter set
+        raise AssertionError(f"unexpected tamper case: {tamper}")
+
+    forged_statement = head.statement.model_copy(
+        update={
+            "issuance_verifier_receipt_ref": pin_ref,
+            "issuance_verifier_receipt_content_hash": pin_hash,
+        }
+    )
+    forged_ref, forged_hash = _persist_profiled_statement(
+        store=owner.store,
+        record="claim_ledger_head",
+        value=forged_statement,
+    )
+    forged_head = PersistedClaimLedgerHead(
+        head_ref=forged_ref,
+        head_content_hash=forged_hash,
+        statement=forged_statement,
+    )
+    falsified_snapshot = snapshot.model_copy(
+        update={
+            "head": forged_head,
+            "current_head_projection": project_claim_ledger_current_head(
+                head=forged_head,
+                claim_export=snapshot.public_export,
+            ),
+        }
+    )
+
+    def verify_falsified_retained_snapshot(self, *, snapshot):
+        if self is claim_owner:
+            return original_historical_verifier(self, snapshot=falsified_snapshot)
+        return original_historical_verifier(self, snapshot=snapshot)
+
+    monkeypatch.setattr(
+        owner_type,
+        "verify_historical_packet_snapshot",
+        verify_falsified_retained_snapshot,
+    )
+
+    response = configured.verify(record_id)
+
+    assert response.report_authentication == "invalid"
+    assert response.reason_codes == ("historical_source_admission_not_established",)
 
 
 def test_public_reader_keeps_root_custody_unestablished_by_default(

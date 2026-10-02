@@ -756,6 +756,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         CatalogAcquisitionOverlay,
+        content_sha256,
     )
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.data_state_substrate import (
@@ -856,9 +857,14 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         workspace_dir=tmp_path / "candidate-fabric-world",
         transaction_time=datetime(2026, 10, 2, 12, 0, tzinfo=UTC),
     )
-    assert float(np.asarray(built.world_model.bound_global_state.government_balance)) == (
-        selected.observation.value
-    )
+    base_balance = np.asarray(base_world.bound_global_state.government_balance)
+    bound_balance = np.asarray(built.world_model.bound_global_state.government_balance)
+    assert base_balance.dtype == bound_balance.dtype == np.dtype(np.float32)
+    assert base_balance.shape == bound_balance.shape == ()
+    expected_bound_balance = np.asarray(
+        selected.observation.value, dtype=base_balance.dtype
+    ).item()
+    assert bound_balance.item() == expected_bound_balance
     assert built.world_model.record.authority_status == "limited"
     assert set(ACQUIRED_DATA_STATE_LIMITATION_CODES).issubset(
         built.world_model.record.limitations.admissibility_blockers
@@ -873,6 +879,21 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         from_canonical_bytes(store.get_bytes(materialized.data_snapshot_ref))
     )
     payload = from_canonical_bytes(store.get_bytes(snapshot.data_ref))
+    persisted_selected = payload["acquisition"]["selected"]
+    assert persisted_selected["value"] == selected.observation.value
+    assert persisted_selected["observation_id"] == selected.observation.observation_id
+    assert persisted_selected["row_content_sha256"] == selected.row_content_sha256
+    persisted_admission = payload["_policyos_acquisition"]
+    assert persisted_admission["selected_row_content_sha256"] == selected.row_content_sha256
+    assert persisted_admission["projection_content_sha256"] == (
+        admitted.projection.projection_content_sha256
+    )
+    assert persisted_admission["passport_ref"] == admitted.projection.passport_ref.model_dump(
+        mode="json"
+    )
+    assert persisted_admission["passport_content_sha256"] == (
+        admitted.projection.passport_content_sha256
+    ) == content_sha256(passport_payload)
     payload["acquisition"]["selected"].pop("value")
     removed_payload_ref = store.put_json(
         payload,

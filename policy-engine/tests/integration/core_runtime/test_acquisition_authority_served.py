@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import sys
 import time
 import uuid
 from dataclasses import replace
@@ -44,6 +45,56 @@ def _within_fixture_owner(call, *args, **kwargs):
     """Emit external fixture inputs under their actual tenant/cell ownership."""
     with tenant_scope(None, tenant_id=TENANT, cell_id=CELL):
         return call(*args, **kwargs)
+
+
+
+
+def _capture_semantic_epoch_finalizer_failure(call):
+    """Capture only exception type and source coordinates at finalizer catch."""
+    prior_trace = sys.gettrace()
+    target_frames = set()
+    by_exception = {}
+    captured = []
+
+    def trace(frame, event, argument):
+        is_finalizer = (
+            frame.f_globals.get("__name__") == "polisyos.runtime.quality.semantic_epoch"
+            and frame.f_code.co_name == "finalize_admitted_epoch"
+        )
+        if event == "call" and is_finalizer:
+            target_frames.add(id(frame))
+        elif event == "exception":
+            exception_type, exception, _traceback = argument
+            ancestor = frame
+            inside_finalizer = False
+            while ancestor is not None:
+                if id(ancestor) in target_frames:
+                    inside_finalizer = True
+                    break
+                ancestor = ancestor.f_back
+            if inside_finalizer:
+                row = (
+                    frame.f_globals.get("__name__", ""),
+                    frame.f_code.co_name,
+                    frame.f_lineno,
+                    exception_type.__name__,
+                )
+                rows = by_exception.setdefault(id(exception), [])
+                if not rows or rows[-1] != row:
+                    rows.append(row)
+                if is_finalizer:
+                    captured.append(
+                        {"exception_type": exception_type.__name__, "frames": tuple(rows)}
+                    )
+        elif event == "return" and is_finalizer:
+            target_frames.discard(id(frame))
+        return trace
+
+    sys.settrace(trace)
+    try:
+        return call(), captured
+    finally:
+        sys.settrace(prior_trace)
 
 
 def _read_owned_terminal(store, ref):
@@ -946,10 +997,14 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert admitted_scope["actor_subject"] == job.submitted_by
             assert admitted_scope["actor_authenticated"] is True
             assert admitted_scope["actor_roles"] == sorted(set(admitted_scope["actor_roles"]))
-            dispatch_one_control_job(
-                store=control._control_store,  # noqa: SLF001
-                handler=control._process_control_job,  # noqa: SLF001
-                expected_job_id=job_id,
+            _dispatched_job_id, semantic_epoch_finalizer_exceptions = (
+                _capture_semantic_epoch_finalizer_failure(
+                    lambda: dispatch_one_control_job(
+                        store=control._control_store,  # noqa: SLF001
+                        handler=control._process_control_job,  # noqa: SLF001
+                        expected_job_id=job_id,
+                    )
+                )
             )
             completed_job = control._control_store.get_job(job_id)
             assert completed_job.state == "completed", completed_job
@@ -957,7 +1012,10 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert result["receipt_phase"] == "terminal", result
             receipt = _read_owned_terminal(control._artifact_store, result["terminal_receipt_ref"])
             assert receipt.action_generation == 2
-            assert receipt.terminal_outcome == "reentry_completed"
+            assert receipt.terminal_outcome == "reentry_completed", {
+                "terminal_outcome": receipt.terminal_outcome,
+                "semantic_epoch_finalizer_exceptions": semantic_epoch_finalizer_exceptions,
+            }
             assert not cases[-1].transport_calls
             assert control._control_store.get_job(first_job_id).progress == first_progress
             assert all(

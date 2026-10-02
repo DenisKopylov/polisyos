@@ -1206,10 +1206,11 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert n4_source.world_model_record_hash == (
             context_job.context.world_model_record.content_hash
         )
-        assert n4_source.l2_confidence_vintage.consumer_action == (
-            "withhold_confidence_forwarding"
+        assert n4_source.k_ref_limitation_code == (
+            "full_credal_reference_not_established"
         )
-        assert n4_source.l2_confidence_vintage.snapshot_sha256
+        assert n4_source.l2_confidence_vintage is None
+        assert n4_source.l2_confidence_forwarded is False
         assert n4_source.credal_reference_payload is None
         assert n4_source.candidate is not None
         full_interventions = n4_source.proposal.trinity_bundle.policy_spec.interventions

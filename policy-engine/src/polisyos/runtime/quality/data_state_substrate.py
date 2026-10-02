@@ -43,7 +43,10 @@ from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
-from polisyos.data_forge.kernel.snapshot import finalize_snapshot
+from polisyos.data_forge.kernel.snapshot import (
+    PIPELINE_BINDING_SURFACES,
+    finalize_snapshot,
+)
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.substrate_registry import (
@@ -77,6 +80,10 @@ canonical_epoch_bytes = core_contracts.canonical_epoch_bytes
 
 DATA_STATE_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.data_state_substrate.v1"
 ACQUIRED_DATA_STATE_SCHEMA_VERSION = "policyos.runtime.acquisition_data_state.v1"
+_DATA_FORGE_SNAPSHOT_PIPELINE = "ukraine"
+_DATA_FORGE_SNAPSHOT_ROLE = PIPELINE_BINDING_SURFACES[
+    _DATA_FORGE_SNAPSHOT_PIPELINE
+][0]
 ACQUIRED_DATA_STATE_LIMITATION_CODES = (
     "source_time_not_established",
     "source_to_target_measurement_contract_not_established",
@@ -207,6 +214,7 @@ class DataStateMaterializationResult:
 
     data_snapshot_ref: ArtifactRef
     data_forge_snapshot_binding_path: Path
+    data_forge_role: str
     data_snapshot_stats: dict[str, Any]
     l1_availability: tuple[L1VariableAvailability, ...]
     l5_profile: L5FamilyBindingProfile
@@ -220,6 +228,7 @@ class AcquiredObservationDataSnapshotResult:
 
     data_snapshot_ref: ArtifactRef
     data_forge_snapshot_binding_path: Path
+    data_forge_role: str
     snapshot_id: str
     payload_content_hash: str
     selected_dataset_id: str
@@ -534,6 +543,7 @@ def materialize_l4_data_state_snapshot(
     return DataStateMaterializationResult(
         data_snapshot_ref=data_snapshot_ref,
         data_forge_snapshot_binding_path=binding_path,
+        data_forge_role=_DATA_FORGE_SNAPSHOT_ROLE,
         data_snapshot_stats=stats,
         l1_availability=availability,
         l5_profile=l5_profile,
@@ -851,6 +861,7 @@ def materialize_acquired_observation_snapshot(
     return AcquiredObservationDataSnapshotResult(
         data_snapshot_ref=data_snapshot_ref,
         data_forge_snapshot_binding_path=binding_path,
+        data_forge_role=_DATA_FORGE_SNAPSHOT_ROLE,
         snapshot_id=snapshot_id,
         payload_content_hash=payload_content_hash,
         selected_dataset_id=observation.dataset_id,
@@ -987,7 +998,7 @@ def build_acquired_observation_candidate_world(
             "polisyos.runtime.quality.data_state_substrate."
             "build_acquired_observation_candidate_world"
         ),
-        data_forge_role=base.data_forge_binding_ref.role,
+        data_forge_role=materialization.data_forge_role,
         substrate_registry_artifact_ref=substrate_registry_artifact_ref,
         _loaded_substrate_registry=substrate_registry,
         foundry_binding_rules=retained_rules,
@@ -1140,7 +1151,7 @@ def build_production_data_state_world_model_record(
                 "polisyos.runtime.quality.data_state_substrate."
                 "build_production_data_state_world_model_record"
             ),
-            data_forge_role="domain",
+            data_forge_role=materialized.data_forge_role,
             required_substrate_families=required_substrate_families,
             limitations=limitations,
         )
@@ -1774,7 +1785,7 @@ def _write_data_forge_snapshot_binding(
     claim_requirement_bindings: Sequence[Mapping[str, Any]] | None = None,
 ) -> Path:
     snapshot_root = workspace_dir / snapshot_id
-    pipeline_root = snapshot_root / "ukraine"
+    pipeline_root = snapshot_root / _DATA_FORGE_SNAPSHOT_PIPELINE
     artifact_path = pipeline_root / "data_state_payload.json"
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
     artifact_path.write_text(
@@ -1783,7 +1794,7 @@ def _write_data_forge_snapshot_binding(
     )
     write_publish_manifest(
         manifest_path=pipeline_root / "publish" / "manifest.json",
-        pipeline="ukraine",
+        pipeline=_DATA_FORGE_SNAPSHOT_PIPELINE,
         artifacts=(artifact_path,),
         published_at=published_at,
         extra={
@@ -1821,7 +1832,7 @@ def _write_data_forge_snapshot_binding(
     finalize_snapshot(
         snapshot_root,
         update_latest_symlink=False,
-        pipelines=("ukraine",),
+        pipelines=(_DATA_FORGE_SNAPSHOT_PIPELINE,),
     )
     return snapshot_root / "data_forge_snapshot_binding.json"
 

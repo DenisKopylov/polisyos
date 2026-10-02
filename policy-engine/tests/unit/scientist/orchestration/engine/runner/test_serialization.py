@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,10 @@ from polisyos.scientist.orchestration.engine.runner.serialization import (
     serialize_state_safe,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state,
+    mutation_journal_for_state,
+)
 
 # ---------------------------------------------------------------------------
 # State round-trip
@@ -81,6 +86,49 @@ class TestSerializeOutcome:
         assert isinstance(restored, NodeOutcome)
         assert restored.status == "ok"
         assert restored.state.run_id == "outcome-run"
+
+    def test_journaled_outcome_round_trip_preserves_same_value_and_delete_ops(self) -> None:
+        source = ExperimentState(
+            run_id="outcome-mutation-journal",
+            params={"same": 4, "stale": 1},
+        )
+        branch = branch_state(source, write_paths=("params",)).state
+        branch.params["same"] = 4
+        del branch.params["stale"]
+
+        restored = deserialize_outcome(
+            serialize_outcome(NodeOutcome(status="ok", state=branch))
+        )
+        journal = mutation_journal_for_state(restored.state)
+        assert journal is not None
+        assert [(row.path, row.operation, row.value) for row in journal.operations] == [
+            ("params.same", "set", 4),
+            ("params.stale", "delete", None),
+        ]
+
+        plain = NodeOutcome(status="ok", state=ExperimentState(run_id="plain-outcome"))
+        plain_wire = json.loads(serialize_outcome(plain))
+        assert set(plain_wire) == {
+            "status", "state", "artifacts", "events", "error", "skip_blocker"
+        }
+        assert deserialize_outcome(serialize_outcome(plain)).state.run_id == "plain-outcome"
+
+    @pytest.mark.parametrize("invalid_mutation", ["extra", "foreign_path"])
+    def test_journaled_outcome_decoder_rejects_invalid_mutation_fields(
+        self, invalid_mutation: str
+    ) -> None:
+        source = ExperimentState(run_id="outcome-invalid-mutation", params={"value": 1})
+        branch = branch_state(source, write_paths=("params",)).state
+        branch.params["value"] = 2
+        payload = json.loads(serialize_outcome(NodeOutcome(status="ok", state=branch)))
+        mutation = payload["state_mutations"][0]["value"]
+        if invalid_mutation == "extra":
+            mutation["unexpected"] = True
+        else:
+            mutation["path"] = "not_an_experiment_state_field.child"
+
+        with pytest.raises(DeserializationError):
+            deserialize_outcome(json.dumps(payload, separators=(",", ":")).encode())
 
     def test_round_trip_preserves_empty_collections(self) -> None:
         state = ExperimentState(run_id="empty-cols")

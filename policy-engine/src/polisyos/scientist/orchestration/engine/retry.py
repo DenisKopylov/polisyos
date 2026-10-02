@@ -1245,6 +1245,12 @@ def _execute_with_timeout_process(
         _close_result_queue(result_queue)
 
     if status == "ok":
+        from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
+
+        if isinstance(payload, (bytes, bytearray, memoryview, str)) or (
+            isinstance(payload, list) and all(isinstance(item, int) for item in payload)
+        ):
+            return deserialize_outcome(payload)
         return decode_node_outcome(payload)
     if status == "error":
         raise RuntimeError(str(payload))
@@ -1320,6 +1326,12 @@ async def _execute_with_timeout_process_async(
         _close_result_queue(result_queue)
 
     if status == "ok":
+        from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
+
+        if isinstance(payload, (bytes, bytearray, memoryview, str)) or (
+            isinstance(payload, list) and all(isinstance(item, int) for item in payload)
+        ):
+            return deserialize_outcome(payload)
         return decode_node_outcome(payload)
     if status == "error":
         raise RuntimeError(str(payload))
@@ -1402,7 +1414,15 @@ def _node_execute_worker(
     try:
         outcome = node.execute(ctx, state)
         _mark_completion()
-        if hasattr(outcome, "model_dump"):
+        if isinstance(outcome, NodeOutcome):
+            from polisyos.scientist.orchestration.engine.runner.serialization import (
+                serialize_outcome,
+            )
+
+            _send("ok", serialize_outcome(outcome))
+        elif hasattr(outcome, "model_dump"):
+            # Preserve the established diagnostic when an attempted model dump
+            # itself fails; the parent still validates the returned wire type.
             _send("ok", outcome.model_dump(mode="python"))
         else:
             _send("error", f"invalid node outcome: {type(outcome).__name__}")

@@ -162,6 +162,9 @@ if _HAS_TEMPORAL:
             from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 
             carries_node_status = workflow.patched("distributed-node-outcome-status-v1")
+            uses_node_spec_write_scope = workflow.patched(
+                "temporal-node-outcome-bound-write-scope-v1"
+            )
             spec = WorkflowSpec.model_validate(payload_dict["workflow_spec_json"])
             state_bytes: bytes = payload_dict["initial_state_bytes"]
             max_par = max(1, int(payload_dict.get("max_parallelism", 4) or 4))
@@ -277,23 +280,51 @@ if _HAS_TEMPORAL:
                             break
                     else:
                         if carries_node_status:
-                            outcome_merge = merge_tier_outcomes(
-                                tier_state_bytes,
-                                tier_results,
-                                requested_aliases=tier,
-                                conflict_policy=conflict_policy,
-                            )
-                            tier_failed = any(
-                                outcome.status == "fail"
-                                for outcome in outcome_merge.node_outcomes.values()
-                            )
-                            state_bytes = (
-                                tier_state_bytes
-                                if tier_failed and spec.error_policy == "fail_fast"
-                                else outcome_merge.state_bytes
-                            )
-                            if tier_failed and spec.error_policy == "fail_fast":
-                                break
+                            if uses_node_spec_write_scope:
+                                merge_payload = {
+                                    "workflow_spec_json": payload_dict["workflow_spec_json"],
+                                    "tier_aliases": list(tier),
+                                    "result_bytes_by_alias": tier_results,
+                                    "base_state_bytes": tier_state_bytes,
+                                    "context_meta": ctx_meta,
+                                    "workflow_fingerprint": workflow_fingerprint,
+                                    "completed_nodes": completed_nodes,
+                                    "merge_conflict_policy": conflict_policy.value,
+                                    "checkpoint_hook_meta": None,
+                                    "result_format": "node_outcome",
+                                }
+                                merge_result = await workflow.execute_activity(
+                                    merge_checkpoint_tier_activity,
+                                    merge_payload,
+                                    start_to_close_timeout=timedelta(minutes=10),
+                                    retry_policy=TemporalRetryPolicy(maximum_attempts=1),
+                                )
+                                state_bytes = merge_result["state_bytes"]
+                                completed_nodes = list(
+                                    merge_result.get("completed_nodes") or completed_nodes
+                                )
+                                if bool(merge_result.get("should_abort")):
+                                    break
+                            else:
+                                # Replay histories created before the bound-scope patch
+                                # marker with their original inline merge sequence.
+                                outcome_merge = merge_tier_outcomes(
+                                    tier_state_bytes,
+                                    tier_results,
+                                    requested_aliases=tier,
+                                    conflict_policy=conflict_policy,
+                                )
+                                tier_failed = any(
+                                    outcome.status == "fail"
+                                    for outcome in outcome_merge.node_outcomes.values()
+                                )
+                                state_bytes = (
+                                    tier_state_bytes
+                                    if tier_failed and spec.error_policy == "fail_fast"
+                                    else outcome_merge.state_bytes
+                                )
+                                if tier_failed and spec.error_policy == "fail_fast":
+                                    break
                         else:
                             from polisyos.scientist.orchestration.engine.runner.state_merge import (
                                 merge_tier_states,

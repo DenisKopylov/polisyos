@@ -64,6 +64,7 @@ _WIRE_MAPPING = "mapping"
 _WIRE_DATE = "date"
 _WIRE_DATETIME = "datetime"
 NATIVE_NODE_OUTCOME_STATUS_CONTRACT = "native_node_outcome_v1"
+_OUTCOME_MUTATION_WIRE_SCHEMA = "polisyos.scientist.node_outcome.mutations.v1"
 
 
 @dataclass(frozen=True)
@@ -137,6 +138,7 @@ def _wire_model_types() -> dict[str, type[BaseModel]]:
             OutputAwareNodeOutcome,
         )
         from polisyos.scientist.orchestration.engine.state import ExperimentState
+        from polisyos.scientist.orchestration.engine.state_branching import StateMutation
 
         models = (
             ArtifactID,
@@ -149,6 +151,7 @@ def _wire_model_types() -> dict[str, type[BaseModel]]:
             NodeOutputRefusal,
             NodeOutputRule,
             OutputAwareNodeOutcome,
+            StateMutation,
             SkippedNodeBlocker,
         )
         _WIRE_MODEL_TYPES = {
@@ -500,20 +503,112 @@ def deserialize_state(data: bytes) -> Any:
         raise DeserializationError(f"Failed to deserialize state: {exc}") from exc
 
 
+def _wire_state_mutation(mutation: Any) -> Any:
+    """Normalize reference-valued operations before typed wire encoding."""
+    from polisyos.scientist.orchestration.engine.state_branching import StateMutation
+
+    if not isinstance(mutation, StateMutation):
+        raise TypeError("State mutation journal contains an untyped operation")
+    value = mutation.value
+    if mutation.value_kind == "artifact_ref":
+        if isinstance(value, BaseModel):
+            value = value.model_dump(mode="python", by_alias=True, exclude_none=False)
+        if not isinstance(value, Mapping):
+            raise TypeError("Artifact reference mutation must carry a typed mapping")
+        value = dict(value)
+        artifact_id = value.get("artifact_id")
+        if artifact_id is None:
+            raise TypeError("Artifact reference mutation is missing artifact_id")
+        value["artifact_id"] = str(artifact_id)
+    return mutation.model_copy(update={"value": value})
+
+
 def serialize_outcome(outcome: Any) -> bytes:
-    """Serialize ``NodeOutcome`` to bytes for cross-process transfer."""
-    return _dumps(_encode_wire_value(outcome))
+    """Serialize a node outcome and its private mutation journal, when present."""
+    from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.state_branching import mutation_journal_for_state
+
+    if not isinstance(outcome, NodeOutcome):
+        return _dumps(_encode_wire_value(outcome))
+    journal = mutation_journal_for_state(outcome.state)
+    if journal is None:
+        return _dumps(_encode_wire_value(outcome))
+
+    # A branch is implemented as an ExperimentState subclass for write tracking.
+    # The subclass itself is process-local; only the declared model fields and
+    # the typed operations cross the wire.
+    state = ExperimentState.model_validate(
+        outcome.state.model_dump(mode="python", by_alias=True, exclude_none=False)
+    )
+    serializable_outcome = outcome.model_copy(update={"state": state})
+    return _dumps(
+        {
+            "wire_schema": _OUTCOME_MUTATION_WIRE_SCHEMA,
+            "outcome": _encode_wire_value(serializable_outcome),
+            "state_mutations": _encode_wire_value(
+                [_wire_state_mutation(mutation) for mutation in tuple(journal.operations)]
+            ),
+        }
+    )
+
+
+def _decode_journaled_outcome(payload: Mapping[str, Any]) -> Any:
+    """Decode the bounded operation sidecar and reattach it to the state."""
+    from polisyos.scientist.orchestration.engine.protocol import (
+        NodeOutcome,
+        decode_node_outcome,
+    )
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.state_branching import (
+        StateMutation,
+        mutation_journal_from_operations,
+    )
+
+    if set(payload) != {"wire_schema", "outcome", "state_mutations"}:
+        raise DeserializationError("Malformed journaled NodeOutcome envelope")
+    if payload.get("wire_schema") != _OUTCOME_MUTATION_WIRE_SCHEMA:
+        raise DeserializationError("Unsupported journaled NodeOutcome schema")
+
+    raw_outcome = _validate_decoded_state(_decode_wire_value(payload["outcome"]))
+    outcome = decode_node_outcome(raw_outcome)
+    if not isinstance(outcome, NodeOutcome):
+        raise DeserializationError("Journal envelope does not contain a NodeOutcome")
+
+    operations = _decode_wire_value(payload["state_mutations"])
+    if not isinstance(operations, list) or any(
+        not isinstance(operation, StateMutation) for operation in operations
+    ):
+        raise DeserializationError("State mutation sidecar must contain typed operations")
+    for operation in operations:
+        parts = operation.path.split(".")
+        if (
+            not parts
+            or any(not part for part in parts)
+            or parts[0] not in ExperimentState.model_fields
+        ):
+            raise DeserializationError("State mutation path is not rooted in ExperimentState")
+
+    object.__setattr__(
+        outcome.state,
+        "_polisyos_state_mutation_journal",
+        mutation_journal_from_operations(operations),
+    )
+    return outcome
 
 
 def deserialize_outcome(data: bytes) -> Any:
-    """Deserialize ``NodeOutcome`` from bytes."""
+    """Deserialize ``NodeOutcome`` bytes, restoring its typed journal if supplied."""
     from polisyos.scientist.orchestration.engine.protocol import decode_node_outcome
 
     try:
         data = _coerce_wire_bytes(data)
         if data and data[:1] == _VERSION_1:
             data = _unwrap_safe(data)
-        decoded = _validate_decoded_state(_decode_wire_value(_loads(data)))
+        raw = _loads(data)
+        if isinstance(raw, Mapping) and "wire_schema" in raw:
+            return _decode_journaled_outcome(raw)
+        decoded = _validate_decoded_state(_decode_wire_value(raw))
         return decode_node_outcome(decoded)
     except DeserializationError:
         raise

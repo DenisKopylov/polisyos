@@ -46,6 +46,7 @@ from polisyos.scientist.orchestration.engine.runner.serialization import (
     deserialize_state,
     serialize_state,
 )
+from polisyos.scientist.orchestration.engine.runner.state_merge import merge_tier_outcomes
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
@@ -333,6 +334,24 @@ class PolicyOutputNode:
         return NodeOutcome(status="ok", state=state)
 
 
+class JournalReplayWorkerNode:
+    _spec = NodeSpec(
+        metadata=_meta("scientist.node_journal_replay@1.0.0", "JournalReplay"),
+        state_reads=["params"],
+        state_writes=["params"],
+    )
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx, state) -> NodeOutcome:
+        del ctx
+        state.params["y"] = 4
+        del state.params["stale"]
+        return NodeOutcome(status="ok", state=state)
+
+
 class SkippedWorkerNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_worker_skip@1.0.0", "WorkerSkip"),
@@ -393,6 +412,65 @@ class FailedWorkerNode:
             events=[NodeEvent(code="worker.fail", message="worker failed")],
             error=NodeError(code="node.worker_failure", message="returned failure"),
         )
+
+
+def test_remote_worker_timeout_wire_replays_only_declared_branch_operations(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    def _discover_nodes(registry) -> None:
+        registry.register(JournalReplayWorkerNode())
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+        _discover_nodes,
+    )
+    producer_state = ExperimentState(
+        run_id="R_worker_mutation_journal",
+        params={"y": 4, "unrelated": "old", "stale": 1, "removed": "old"},
+    )
+    current_state = ExperimentState(
+        run_id=producer_state.run_id,
+        params={"y": 9, "unrelated": "new", "stale": 1, "keep": 2},
+    )
+
+    outcome_bytes = asyncio.run(
+        run_node_in_worker(
+            {
+                "node_id": "scientist.node_journal_replay@1.0.0",
+                "alias": "mutate",
+                "params": {},
+                "state_bytes": serialize_state(producer_state),
+                "timeout_s": 2.0,
+                "max_retries": 0,
+                "context_meta": {
+                    "run_id": producer_state.run_id,
+                    "store_config": {"backend": "filesystem", "root": str(tmp_path)},
+                },
+            }
+        )
+    )
+    outcome = deserialize_outcome(outcome_bytes)
+    assert outcome.status == "ok"
+
+    merged = merge_tier_outcomes(
+        serialize_state(current_state),
+        {"mutate": outcome_bytes},
+        requested_aliases=["mutate"],
+        write_specs={"mutate": ["params"]},
+    )
+    params = deserialize_state(merged.state_bytes).params
+    assert params == {"y": 4, "unrelated": "new", "keep": 2}
+    assert outcome.state.params == {"y": 4, "unrelated": "old", "removed": "old"}
+
+    narrowed = merge_tier_outcomes(
+        serialize_state(current_state),
+        {"mutate": outcome_bytes},
+        requested_aliases=["mutate"],
+        write_specs={"mutate": ["params.y"]},
+    )
+    narrowed_params = deserialize_state(narrowed.state_bytes).params
+    assert narrowed_params == {"y": 4, "unrelated": "new", "stale": 1, "keep": 2}
 
 
 @pytest.mark.parametrize(

@@ -2648,3 +2648,14 @@ Patch `/Users/deniskopylov/.codex/scratch/E02R2_TEST_SEAM_LOCATOR_CANDIDATE_1F60
 The R2 whole33 normal/removal/restored wave ended before this edit, with every test group absent and all 6,733 frozen inputs re-read. Paired property receipt `/Users/deniskopylov/.codex/scratch/E02R2_R2_WHOLEFILE_PROBE_REVIEW_20261002/R2_WHOLEFILE_PROBE_READBACK.json@sha256:977db28ceb4843fdeaca3c7335a942d185c765eef6963fdf03bba709b8838036` records the sole new mutant red and restored green; the separate deployment-identity precondition failure remains in all three runs. No R2 class closure is inferred.
 
 Denis authorizes up to seven cores. Subsequent reviewed admissions may use CPU 700%, aggregate RSS 6 GiB, free RAM at least 25%, disk at least 8 GiB and swap growth at most 256 MiB. Heavy source-generation jobs run alone until measured; light independent suites may share the existing bounded batch owner. No new scheduler or worktree is leased.
+
+
+## STA-01 B57/B58 distributed write-journal integration — 2026-10-02
+
+Root integrates seven reviewed worker/serialization/retry/Temporal paths after the 16-cell four-base pre-code wave ended. Remote workers establish the existing NodeSpec write journal; the typed private outcome sidecar carries actual operations through transport. New bound-marker no-checkpoint Temporal runs use the existing registry-bound merge owner; no checkpoint hook creates no checkpoint store/cache. The ordinary declared write and forged artifacts_index operation are the preserving and negative witnesses.
+
+V2 patch `/Users/deniskopylov/.codex/scratch/e02-r2-sta-journal-candidate-20261002-v2/candidate.patch@sha256:305687ea92c8a289c43cffcf074595d05357c434111b6e277be3e43a24b7ad3d`; independent V2 GO `INDEPENDENT_REVIEW_V2.md@sha256:edc7e94c9926451f769649291ad553fe14579afc49e4170724c08a3fbf4fa214` in that directory. The reviewed two-comment Temporal E402 lint delta is `/Users/deniskopylov/.codex/scratch/E02R2_STA01_LINT_DELTA_20261002/LINT_DELTA.patch@sha256:7eb519329cfd7a83932c5437091379aeef1a70880a9d3d0a65c2fda6cfc71784`.
+
+The pre-code matrix is `raw/p41-custom-20261002T093002Z-84556/results.json@sha256:763f90e682a9583f26b16aa400caf2a162ed40ae22ad00df8451b6886d488436`: all four files exist at all four bases; four Temporal cells are UNRUN because the optional dependency is absent. Native wrapper exit 2 records those UNRUN cells, not a product crash. Whole-file candidate replay and property-removal tests remain UNRUN.
+
+Bounded remainder: state-only histories and status-bearing histories before the new bound-scope marker retain their former inline broad merge for replay determinism. Actual external Temporal history replay, cross-deployment producer/consumer code binding, and exactly-once effects are unverified. B57/B58 remain partial; the local protocol is no claim of distributed production closure. No governed artifact family, epoch, production-data write, new environment or worktree is leased.

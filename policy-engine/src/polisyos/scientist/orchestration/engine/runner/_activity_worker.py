@@ -79,6 +79,16 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
 
         node = bind_node_params(node, params)
 
+        # Remote inputs cross the state wire without branch-local metadata.
+        # Establish the same declared-write journal used by local executors
+        # before the node can mutate its working state.
+        from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+        state = branch_state(
+            state,
+            write_paths=getattr(node.spec, "state_writes", ()),
+        ).state
+
         # Execute with retry/timeout under a child span
         from polisyos.scientist.orchestration.engine.retry import (
             RetryPolicy,
@@ -145,7 +155,7 @@ def run_node_state_in_worker_sync(payload: dict[str, Any]) -> bytes:
 
 
 async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[str, Any]:
-    """Merge one distributed tier and checkpoint it using serialized runtime metadata."""
+    """Merge one distributed tier and checkpoint when runtime metadata provides a hook."""
     context_meta: dict[str, Any] = payload.get("context_meta", {})
     trace_carrier: dict[str, str] = payload.get("trace_carrier", {})
 
@@ -162,7 +172,6 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
 
         checkpoint_meta = payload.get("checkpoint_hook_meta")
         checkpoint_hook = restore_checkpoint_hook_from_runtime_metadata(checkpoint_meta)
-        ctx = _build_worker_context(context_meta)
 
         from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
         from polisyos.scientist.orchestration.engine.runner.distributed_tier import (
@@ -181,34 +190,37 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
         registry = NodeRegistry()
         discover_nodes(registry)
 
-        seed_refs = []
-        if isinstance(checkpoint_meta, dict):
-            from polisyos.core.artifacts.manifest import ArtifactRef
+        cache = None
+        if checkpoint_meta is not None:
+            ctx = _build_worker_context(context_meta)
+            seed_refs = []
+            if isinstance(checkpoint_meta, dict):
+                from polisyos.core.artifacts.manifest import ArtifactRef
 
-            for raw_ref in checkpoint_meta.get("cache_entry_refs") or []:
-                if not isinstance(raw_ref, dict):
-                    continue
-                try:
-                    seed_refs.append(ArtifactRef.model_validate(raw_ref))
-                except _REGISTRY_REF_ERRORS as exc:
-                    emit_degraded_path(
-                        component="engine.runner.activity_worker",
-                        operation="parse_checkpoint_cache_seed_ref",
-                        reason="checkpoint_cache_seed_ref_invalid",
-                        exc=exc,
-                        details={
-                            "run_id": str(context_meta.get("run_id") or "worker-run"),
-                            "raw_ref": raw_ref,
-                        },
-                        log=_logger,
-                    )
-                    continue
-        cache = seed_runner_cache(
-            store=ctx.store,
-            run_id=str(context_meta.get("run_id") or "worker-run"),
-            checkpoint_cache_seed_refs=seed_refs,
-            logger=_logger,
-        )
+                for raw_ref in checkpoint_meta.get("cache_entry_refs") or []:
+                    if not isinstance(raw_ref, dict):
+                        continue
+                    try:
+                        seed_refs.append(ArtifactRef.model_validate(raw_ref))
+                    except _REGISTRY_REF_ERRORS as exc:
+                        emit_degraded_path(
+                            component="engine.runner.activity_worker",
+                            operation="parse_checkpoint_cache_seed_ref",
+                            reason="checkpoint_cache_seed_ref_invalid",
+                            exc=exc,
+                            details={
+                                "run_id": str(context_meta.get("run_id") or "worker-run"),
+                                "raw_ref": raw_ref,
+                            },
+                            log=_logger,
+                        )
+                        continue
+            cache = seed_runner_cache(
+                store=ctx.store,
+                run_id=str(context_meta.get("run_id") or "worker-run"),
+                checkpoint_cache_seed_refs=seed_refs,
+                logger=_logger,
+            )
 
         tier_result = merge_and_checkpoint_tier(
             workflow=workflow,

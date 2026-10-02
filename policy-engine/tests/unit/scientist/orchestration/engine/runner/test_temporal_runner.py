@@ -1,3 +1,5 @@
+# ruff: noqa: E402
+# Optional Temporal imports follow the intentional importorskip dependency guard.
 from __future__ import annotations
 
 import logging
@@ -10,6 +12,7 @@ temporalio = pytest.importorskip("temporalio")
 from temporalio.testing import WorkflowEnvironment
 from temporalio.worker import UnsandboxedWorkflowRunner, Worker
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
@@ -38,6 +41,7 @@ from polisyos.scientist.orchestration.engine.runner.temporal_runner import (
     merge_checkpoint_tier_activity,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
@@ -102,6 +106,25 @@ class TemporalFinalizeNode:
             new_state.params.get("right", 0)
         )
         return NodeOutcome(status="ok", state=new_state)
+
+
+class TemporalJournalProducerNode:
+    _spec = NodeSpec(
+        metadata=_meta(
+            "scientist.node_temporal_journal_producer@1.0.0",
+            "TemporalJournalProducer",
+        ),
+        state_writes=["params.accepted"],
+    )
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        del ctx
+        state.params["accepted"] = True
+        return NodeOutcome(status="ok", state=state)
 
 
 def _registry() -> NodeRegistry:
@@ -237,6 +260,7 @@ async def test_temporal_runner_executes_remote_checkpoint_merge_activity(
 
 @pytest.mark.asyncio
 async def test_temporal_no_checkpoint_branch_preserves_skip_and_ok_statuses(
+    tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     workflow_spec = WorkflowSpec(
@@ -250,27 +274,60 @@ async def test_temporal_no_checkpoint_branch_preserves_skip_and_ok_statuses(
             ),
             NodeInvocation(
                 alias="accepted",
-                node_id=ComponentId.parse("scientist.node_temporal_right@1.0.0"),
+                node_id=ComponentId.parse("scientist.node_temporal_journal_producer@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="forged",
+                node_id=ComponentId.parse("scientist.node_temporal_left@1.0.0"),
             ),
         ],
     )
     base_state = ExperimentState(run_id="R_temporal_status_without_checkpoint")
+    merge_payloads: list[dict[str, object]] = []
+
+    def _discover_nodes(registry: NodeRegistry) -> None:
+        registry.register(TemporalLeftNode())
+        registry.register(TemporalRightNode())
+        registry.register(TemporalFinalizeNode())
+        registry.register(TemporalJournalProducerNode())
 
     async def _execute_node(payload: dict[str, object]) -> bytes:
         state = deserialize_state(payload["state_bytes"])
         alias = str(payload["alias"])
         if alias == "skipped":
-            skipped_state = state.model_copy(deep=True)
-            skipped_state.params["discarded"] = True
-            return serialize_outcome(NodeOutcome(status="skip", state=skipped_state))
-        accepted_state = state.model_copy(deep=True)
-        accepted_state.params["accepted"] = True
-        return serialize_outcome(NodeOutcome(status="ok", state=accepted_state))
+            return serialize_outcome(NodeOutcome(status="skip", state=state))
+        if alias == "forged":
+            forged_state = branch_state(
+                state,
+                write_paths=("artifacts_index.injected",),
+            ).state
+            forged_state.artifacts_index["injected"] = ArtifactRef(
+                artifact_id="sha256:" + "a" * 64,
+                kind="test.untrusted",
+                media_type="application/json",
+            )
+            return serialize_outcome(NodeOutcome(status="ok", state=forged_state))
+        return await activity_worker_module.run_node_in_worker(
+            {
+                **payload,
+                "context_meta": {
+                    "run_id": base_state.run_id,
+                    "store_config": {"backend": "filesystem", "root": str(tmp_path)},
+                },
+            }
+        )
 
     async def _execute_activity(activity_fn, payload, **kwargs):
         del kwargs
+        if activity_fn is temporal_runner_module.merge_checkpoint_tier_activity:
+            merge_payloads.append(payload)
+            return await activity_worker_module.run_merge_checkpoint_tier_in_worker(payload)
         return await activity_fn(payload)
 
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+        _discover_nodes,
+    )
     monkeypatch.setattr(temporal_runner_module.workflow, "patched", lambda _patch: True)
     monkeypatch.setattr(
         temporal_runner_module.workflow,
@@ -287,18 +344,86 @@ async def test_temporal_no_checkpoint_branch_preserves_skip_and_ok_statuses(
         {
             "workflow_spec_json": workflow_spec.model_dump(mode="json"),
             "initial_state_bytes": serialize_state(base_state),
-            "context_meta": {},
+            "context_meta": {
+                "run_id": base_state.run_id,
+                "store_config": {"backend": "filesystem", "root": str(tmp_path)},
+            },
             "max_parallelism": 2,
             "merge_conflict_policy": "error",
         }
     )
 
     assert isinstance(result, dict)
-    assert deserialize_state(result["state_bytes"]).params == {"accepted": True}
+    merged_state = deserialize_state(result["state_bytes"])
+    assert merged_state.params == {"accepted": True}
+    assert merged_state.artifacts_index == {}
+    assert len(merge_payloads) == 1
+    assert merge_payloads[0]["checkpoint_hook_meta"] is None
+    assert merge_payloads[0]["result_format"] == "node_outcome"
     reports = result["node_reports_by_alias"]
     assert reports["skipped"]["status"] == "skip"
     assert reports["accepted"]["status"] == "ok"
+    assert reports["forged"]["status"] == "ok"
     assert "state" not in reports["skipped"]
+
+
+@pytest.mark.asyncio
+async def test_temporal_status_history_without_bound_scope_marker_keeps_inline_merge(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workflow_spec = WorkflowSpec(
+        workflow_id="wf_temporal_status_history_before_bound_scope",
+        required_binds=["run_id"],
+        error_policy="continue",
+        nodes=[
+            NodeInvocation(
+                alias="left",
+                node_id=ComponentId.parse("scientist.node_temporal_left@1.0.0"),
+            )
+        ],
+    )
+    base_state = ExperimentState(run_id="R_temporal_status_history_before_bound_scope")
+
+    async def _recorded_status_activity(payload: dict[str, object]) -> bytes:
+        state = deserialize_state(payload["state_bytes"])
+        state.params["left"] = 1
+        return serialize_outcome(NodeOutcome(status="ok", state=state))
+
+    async def _execute_activity(activity_fn, payload, **kwargs):
+        del kwargs
+        if activity_fn is temporal_runner_module.merge_checkpoint_tier_activity:
+            raise AssertionError("recorded status history scheduled a new merge activity")
+        return await activity_fn(payload)
+
+    monkeypatch.setattr(
+        temporal_runner_module.workflow,
+        "patched",
+        lambda patch: patch == "distributed-node-outcome-status-v1",
+    )
+    monkeypatch.setattr(
+        temporal_runner_module.workflow,
+        "execute_activity",
+        _execute_activity,
+    )
+    monkeypatch.setattr(
+        temporal_runner_module,
+        "execute_node_outcome_activity",
+        _recorded_status_activity,
+    )
+
+    result = await ScientistWorkflow().run(
+        {
+            "workflow_spec_json": workflow_spec.model_dump(mode="json"),
+            "initial_state_bytes": serialize_state(base_state),
+            "context_meta": {},
+            "max_parallelism": 1,
+            "merge_conflict_policy": "error",
+        }
+    )
+
+    assert isinstance(result, dict)
+    assert deserialize_state(result["state_bytes"]).params == {"left": 1}
+    assert result["node_reports_by_alias"]["left"]["status"] == "ok"
 
 
 @pytest.mark.asyncio

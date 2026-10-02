@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.scientist import GovernanceAccountabilityArtifactRef
 from polisyos.ir.analytics.decision_layer import (
@@ -37,7 +38,10 @@ from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, M
 from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.evidence.claims.head_index import build_default_claim_ledger_owner
+from polisyos.scientist.evidence.claims.head_index import (
+    ClaimLedgerOwnerPort,
+    build_default_claim_ledger_owner,
+)
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboardEntry,
@@ -60,6 +64,9 @@ from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import 
     BuildPolicyOutputBundleNode,
     _dedupe_artifact_refs,
 )
+from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+    _persist_frontier_report,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -67,6 +74,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF,
     ARTIFACT_POLICY_BRIEF_REF,
+    ARTIFACT_POLICY_FRONTIER_REPORT_REF,
     ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
     ARTIFACT_WELFARE_BUNDLE_REF,
     INPUT_DATA_SNAPSHOT_REF,
@@ -88,9 +96,12 @@ from polisyos.scientist.policy_design.objectives import (
     PolicyEvaluationVector,
 )
 from polisyos.scientist.policy_design.output import (
+    PolicyArtifactBuilder,
+    PolicyArtifactBuildInput,
     PolicyBrief,
     load_champion_policy_dossier,
     load_policy_artifact_bundle,
+    load_policy_frontier_report,
     load_replayable_audit_bundle,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema, TargetPopulationSpec
@@ -260,6 +271,43 @@ def _evaluation_vector(candidate: PolicyCandidateSchema) -> PolicyEvaluationVect
     )
 
 
+def _hierarchical_search_result_with_unknown(
+    known: PolicyCandidateSchema,
+    unknown: PolicyCandidateSchema,
+) -> SimpleNamespace:
+    """Build the hierarchy owner's real result shape with one missing evaluation."""
+    known_id = "known"
+    unknown_id = "unknown"
+
+    def _history(candidate: PolicyCandidateSchema, evaluation: PolicyEvaluationVector | None):
+        return SimpleNamespace(
+            history=[
+                SimpleNamespace(
+                    candidate=candidate.model_dump(mode="json"),
+                    best_candidate=None,
+                    policy_evaluation=evaluation,
+                    objective_value=0.0,
+                    is_promising=evaluation is not None and evaluation.feasible,
+                    stage_b_result={},
+                )
+            ]
+        )
+
+    return SimpleNamespace(
+        state=SimpleNamespace(
+            structure_candidates=[
+                SimpleNamespace(structure_id=known_id, candidate=known, accepted=True),
+                SimpleNamespace(structure_id=unknown_id, candidate=unknown, accepted=True),
+            ],
+            parameter_search_results={
+                known_id: _history(known, _evaluation_vector(known)),
+                unknown_id: _history(unknown, None),
+            },
+        ),
+        pareto_projection=None,
+    )
+
+
 def _readiness_contract() -> DecisionReadinessContract:
     return DecisionReadinessContract(
         readiness_level=DecisionReadiness.RECOMMENDATION_READY,
@@ -399,10 +447,219 @@ def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state
     assert bundle.claims_ref == outcome.state.artifacts_index[ARTIFACT_CLAIMS_REF]
     assert bundle.welfare_bundle_ref == welfare_ref
     assert bundle.ambiguity_certificate_ref == ambiguity_ref
+    frontier_report = load_policy_frontier_report(cas_store, bundle.policy_frontier_report_ref)
+    assert frontier_report.global_frontier == []
+    assert frontier_report.candidate_frontier == []
+    assert frontier_report.view_projections["global_feasible"].assessment.status == "basis_limited"
     assert (
         outcome.state.policy_output_bundle_ref
         == outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
     )
+
+
+def test_build_policy_output_bundle_preserves_run_local_candidate_frontier(
+    execution_context,
+    minimal_state,
+    cas_store,
+):
+    known = _candidate()
+    unknown = known.model_copy(update={"candidate_id": "candidate_without_evaluation"})
+    source_state = minimal_state.model_copy(deep=True)
+    source_ref = _persist_frontier_report(
+        execution_context,
+        state=source_state,
+        loop_id=f"{source_state.run_id}:policy_search",
+        search_result=_hierarchical_search_result_with_unknown(known, unknown),
+    )
+    source_report = load_policy_frontier_report(cas_store, source_ref)
+    known_hash = known.candidate_hash()
+    unknown_hash = unknown.candidate_hash()
+    assert source_report.source_feasible_candidate_hashes == (known_hash,)
+    assert source_report.eligibility_unknown_candidate_hashes == (unknown_hash,)
+    assert source_report.global_frontier == []
+
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": known.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(known).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
+        }
+    )
+    state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] = source_ref
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
+
+    outcome = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), state
+    )
+
+    assert outcome.status == "ok"
+    bundle = load_policy_artifact_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
+    )
+    assert bundle.policy_frontier_report_ref == source_ref
+    assert outcome.state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] == source_ref
+    report = load_policy_frontier_report(cas_store, bundle.policy_frontier_report_ref)
+    assert report.source_feasible_candidate_hashes == (known_hash,)
+    assert report.eligibility_unknown_candidate_hashes == (unknown_hash,)
+    assert {entry.candidate_hash for entry in report.candidate_frontier} == {
+        known_hash,
+        unknown_hash,
+    }
+    projection = report.view_projections["global_feasible"]
+    assert report.global_frontier == []
+    assert projection.ranked_frontier_hashes == ()
+    assert projection.assessment.status == "denominator_limited"
+    assert projection.assessment.basis_scope.scope == "not_established"
+
+
+def test_build_policy_output_bundle_removal_probe_keeps_report_but_loses_candidate_rows(
+    execution_context,
+    minimal_state,
+    cas_store,
+):
+    known = _candidate()
+    unknown = known.model_copy(update={"candidate_id": "candidate_without_evaluation"})
+    source_state = minimal_state.model_copy(deep=True)
+    source_ref = _persist_frontier_report(
+        execution_context,
+        state=source_state,
+        loop_id=f"{source_state.run_id}:policy_search",
+        search_result=_hierarchical_search_result_with_unknown(known, unknown),
+    )
+    source_report = load_policy_frontier_report(cas_store, source_ref)
+    assert source_report.candidate_frontier
+
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": known.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(known).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
+        }
+    )
+    # Keep the report, ref, and content markers in CAS and state. Remove only the
+    # validated handoff from the actual output node into the actual builder.
+    state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] = source_ref
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
+
+    original_build = PolicyArtifactBuilder.build
+    captured_build_input: PolicyArtifactBuildInput | None = None
+
+    def _build_without_run_local_frontier_handoff(
+        builder: PolicyArtifactBuilder,
+        store: FileSystemCAS,
+        build_input: PolicyArtifactBuildInput,
+        *,
+        claim_owner: ClaimLedgerOwnerPort,
+    ) -> ArtifactRef:
+        nonlocal captured_build_input
+        captured_build_input = build_input
+        return original_build(
+            builder,
+            store,
+            build_input.model_copy(
+                update={
+                    "run_local_frontier_report_ref": None,
+                    "run_local_frontier_report_loop_id": None,
+                }
+            ),
+            claim_owner=claim_owner,
+        )
+
+    with patch.object(
+        PolicyArtifactBuilder,
+        "build",
+        _build_without_run_local_frontier_handoff,
+    ):
+        outcome = BuildPolicyOutputBundleNode().execute(
+            _claim_capable_context(execution_context), state
+        )
+
+    assert outcome.status == "ok"
+    assert captured_build_input is not None
+    assert captured_build_input.run_local_frontier_report_ref == source_ref
+    assert state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] == source_ref
+    assert load_policy_frontier_report(cas_store, source_ref).candidate_frontier
+    bundle = load_policy_artifact_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
+    )
+    assert bundle.policy_frontier_report_ref != source_ref
+    limited_report = load_policy_frontier_report(cas_store, bundle.policy_frontier_report_ref)
+    assert limited_report.candidate_frontier == []
+    assert limited_report.global_frontier == []
+    assert limited_report.view_projections["global_feasible"].assessment.status == "basis_limited"
+
+
+def test_build_policy_output_bundle_mismatched_frontier_run_does_not_block_candidate_output(
+    execution_context,
+    minimal_state,
+    cas_store,
+):
+    known = _candidate()
+    unknown = known.model_copy(update={"candidate_id": "candidate_without_evaluation"})
+    prior_run_state = minimal_state.model_copy(update={"run_id": "R_prior"}, deep=True)
+    prior_ref = _persist_frontier_report(
+        execution_context,
+        state=prior_run_state,
+        loop_id=f"{prior_run_state.run_id}:policy_search",
+        search_result=_hierarchical_search_result_with_unknown(known, unknown),
+    )
+    prior_report = load_policy_frontier_report(cas_store, prior_ref)
+    assert prior_report.metadata["source_run_id"] == "R_prior"
+    assert prior_report.candidate_frontier
+
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": known.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(known).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
+        }
+    )
+    state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] = prior_ref
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
+
+    outcome = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), state
+    )
+
+    assert outcome.status == "ok"
+    assert any(
+        event.code == "policy_output_bundle.frontier_source_not_preserved"
+        and event.attrs.get("reason") == "frontier_source_report_run_mismatch"
+        for event in outcome.events
+    )
+    bundle = load_policy_artifact_bundle(
+        cas_store,
+        outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
+    )
+    limited_report = load_policy_frontier_report(cas_store, bundle.policy_frontier_report_ref)
+    assert limited_report.candidate_frontier == []
+    assert limited_report.view_projections["global_feasible"].assessment.status == "basis_limited"
 
 
 def test_build_policy_output_bundle_propagates_actionable_side_information(

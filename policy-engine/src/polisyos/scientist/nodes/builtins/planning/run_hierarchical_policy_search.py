@@ -1258,6 +1258,7 @@ def _persist_frontier_report(
         view_projections={"global_feasible": projection},
         metadata={
             "source": "c6c_hierarchical_policy_search",
+            "source_run_id": state.run_id,
         },
     )
     inputs = [InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()]

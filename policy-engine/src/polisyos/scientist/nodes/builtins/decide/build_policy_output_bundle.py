@@ -74,6 +74,7 @@ from polisyos.scientist.policy_design.output import (
     PolicyArtifactBuilder,
     PolicyArtifactBuildInput,
     PolicyBrief,
+    _resolve_run_local_candidate_frontier_report_ref,
     load_policy_artifact_bundle,
 )
 from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
@@ -229,12 +230,44 @@ class BuildPolicyOutputBundleNode:
             state.params.get("pareto_registry_snapshot"),
             ParetoRegistrySnapshot,
         )
+        expected_frontier_loop_id = str(
+            state.params.get("policy_loop_id") or f"{state.run_id}:policy_search"
+        )
+        run_local_frontier_ref, frontier_ref_reason = (
+            _resolve_run_local_candidate_frontier_report_ref(
+                ctx.store,
+                state.artifacts_index.get(ARTIFACT_POLICY_FRONTIER_REPORT_REF),
+                expected_run_id=state.run_id,
+                expected_loop_id=expected_frontier_loop_id,
+            )
+        )
         policy_brief = _parse_model(state.params.get("policy_brief"), PolicyBrief)
         translator_compliance = _parse_model(
             state.params.get("translator_compliance"),
             TranslatorComplianceResult,
         )
         degraded_events: list[NodeEvent] = []
+        if frontier_ref_reason not in {None, "frontier_source_report_absent"}:
+            degraded_events.append(
+                NodeEvent(
+                    level="warn",
+                    message="Run-local frontier evidence was not preserved into the policy bundle.",
+                    code="policy_output_bundle.frontier_source_not_preserved",
+                    attrs={"reason": frontier_ref_reason},
+                )
+            )
+        if pareto_snapshot is not None:
+            degraded_events.append(
+                NodeEvent(
+                    level="warn",
+                    message=(
+                        "Registry snapshot was not used as a complete source denominator; "
+                        "the frontier remains candidate-limited."
+                    ),
+                    code="policy_output_bundle.frontier_source_denominator_not_established",
+                    attrs={"reason": "independent_source_reconciliation_missing"},
+                )
+            )
 
         stress_test_ref = state.artifacts_index.get(ARTIFACT_STRESS_TEST_REPORT_REF)
         calibration_validation_ref = state.artifacts_index.get(
@@ -312,7 +345,9 @@ class BuildPolicyOutputBundleNode:
             candidate_ref=candidate_ref,
             evaluation_vector=evaluation_vector,
             evaluation_ref=_maybe_artifact_ref(state.params.get("policy_evaluation_ref")),
-            pareto_snapshot=pareto_snapshot,
+            pareto_snapshot=None,
+            run_local_frontier_report_ref=run_local_frontier_ref,
+            run_local_frontier_report_loop_id=expected_frontier_loop_id,
             promotion_result=promotion_result,
             judge_verdict=judge_verdict,
             readiness_contract=readiness_contract,

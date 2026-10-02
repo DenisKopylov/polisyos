@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -586,6 +586,8 @@ class PolicyArtifactBuildInput(BaseModel):
     evaluation_vector: PolicyEvaluationVector | None = None
     evaluation_ref: ArtifactRef | None = None
     pareto_snapshot: ParetoRegistrySnapshot | None = None
+    run_local_frontier_report_ref: PolicyFrontierReportRef | None = None
+    run_local_frontier_report_loop_id: str | None = None
     promotion_result: PolicyPromotionResult | None = None
     judge_verdict: JudgeVerdict | None = None
     readiness_contract: DecisionReadinessContract | None = None
@@ -632,12 +634,34 @@ class PolicyArtifactBuilder:
             if source.readiness_contract is not None
             else Phase3CertificateStatus.missing()
         )
-        frontier_report = self._build_frontier_report(source)
-        frontier_ref = persist_policy_frontier_report(
-            store,
-            frontier_report,
-            inputs=_bundle_inputs(source),
-        )
+        run_local_frontier_ref = None
+        if source.run_local_frontier_report_loop_id is not None:
+            run_local_frontier_ref, _ = _resolve_run_local_candidate_frontier_report_ref(
+                store,
+                source.run_local_frontier_report_ref,
+                expected_run_id=source.run_id,
+                expected_loop_id=source.run_local_frontier_report_loop_id,
+            )
+            # A registry-local projection is not an independent source denominator.
+            # Keep this output-node path candidate-limited even when its source ref
+            # is absent or fails run/loop/source-owner binding.
+            source = source.model_copy(
+                update={
+                    "pareto_snapshot": None,
+                    "run_local_frontier_report_ref": run_local_frontier_ref,
+                }
+            )
+        if run_local_frontier_ref is not None:
+            # Reuse the source owner's already-persisted, candidate-limited artifact.
+            # Re-putting identical bytes under a different input profile is invalid.
+            frontier_ref = run_local_frontier_ref
+        else:
+            frontier_report = self._build_frontier_report(source)
+            frontier_ref = persist_policy_frontier_report(
+                store,
+                frontier_report,
+                inputs=_bundle_inputs(source),
+            )
 
         constraint_report = self._build_constraint_report(source)
         constraint_ref = persist_constraint_satisfaction_report(
@@ -1635,6 +1659,60 @@ def load_policy_frontier_report(
 ) -> PolicyFrontierReport:
     """Load policy frontier report."""
     return _load_model(store, ref, PolicyFrontierReport)
+
+
+def _resolve_run_local_candidate_frontier_report_ref(
+    store: FileSystemCAS,
+    ref: Any,
+    *,
+    expected_run_id: str,
+    expected_loop_id: str,
+) -> tuple[PolicyFrontierReportRef | None, str | None]:
+    """Resolve the current run's candidate-only hierarchy report, or return a typed reason."""
+    if ref is None:
+        return None, "frontier_source_report_absent"
+    try:
+        artifact_ref = (
+            ref
+            if isinstance(ref, ArtifactRef)
+            else ArtifactRef.model_validate(ref)
+        )
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValidationError, ValueError):
+        return None, "frontier_source_report_ref_malformed"
+    if artifact_ref.kind != "scientist.policy_frontier_report":
+        return None, "frontier_source_report_kind_mismatch"
+    try:
+        typed_ref = PolicyFrontierReportRef.model_validate(artifact_ref.model_dump(mode="json"))
+        report = load_policy_frontier_report(store, typed_ref)
+    except (
+        AttributeError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValidationError,
+        ValueError,
+    ):
+        return None, "frontier_source_report_unreadable"
+
+    projection = report.view_projections.get("global_feasible")
+    if report.schema_version != "3.0":
+        return None, "frontier_source_report_schema_unverified"
+    if report.metadata.get("source") != "c6c_hierarchical_policy_search":
+        return None, "frontier_source_report_owner_mismatch"
+    if report.metadata.get("source_run_id") != expected_run_id:
+        return None, "frontier_source_report_run_mismatch"
+    if report.loop_id != expected_loop_id:
+        return None, "frontier_source_report_loop_mismatch"
+    if (
+        projection is None
+        or projection.assessment.status not in {"basis_limited", "denominator_limited"}
+        or projection.assessment.basis_scope.scope != "not_established"
+        or projection.ranked_frontier_hashes
+        or report.global_frontier
+    ):
+        return None, "frontier_source_report_not_candidate_limited"
+    return typed_ref, None
 
 
 def load_champion_policy_dossier(

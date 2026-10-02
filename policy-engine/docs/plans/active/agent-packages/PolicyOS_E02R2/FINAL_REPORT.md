@@ -1124,3 +1124,12 @@ R4's sole-command gate completed with native exit 2 and a typed `UNRUN` verdict 
 
 - Native verdict: `/Users/deniskopylov/.codex/scratch/E02R2_R4_FRESH_GATE_20261002/r4-88e6.json@sha256:f4e32293d957475e3249fa4ee32c4657948e9fded5c9b36bd11b49dd4fb33a73`.
 - Root readback: `/Users/deniskopylov/.codex/scratch/E02R2_R4_FRESH_GATE_20261002/ROOT_READBACK.json@sha256:45acf1f2b9c38a79dc9ff3b11d30a5dbe5d018e5b68b1aabf85f6149038bfae2`.
+
+
+## R13 repaired-witness whole-file replay at `cab21acec41e07c447af6cdab192836f7aea7ab4` (2026-10-02)
+
+**Discrepancy first.** The prior complete file at `88e6ea1` was 51/53; the two reds did not establish production defects. One test's purported historical run was only an incomplete two-field stub, and one signature assertion attempted to hash unhashable `ArtifactID` instances. The reviewed repair is test-only for these predicates: it uses owner-fixture historical v1/v2/current payloads and compares canonical string IDs after asserting the values are `ArtifactID` objects. The production implementation is not credited with a new repair from this result.
+
+**Bounded result.** At `cab21acec41e07c447af6cdab192836f7aea7ab4`, the complete 53-case `test_design_axes_value_choice_provenance.py` file passes 53/53 (native exit 0). Root readback verifies the 53-case JUnit against the complete 6,733-input origin census and records one process group, 785,920 KiB peak RSS, 73% minimum free RAM, and no swap growth. This is a test-witness replay at one head only: it supplies no four-base P41 attribution, no served-custody closure, and no ledger status change; R13 remains within its existing residual scope.
+
+Receipts: result `/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r13-design-axes-whole53-cab21-testrepair-v2-20261002T052406504255Z/result.json@sha256:456a83696664f05c6a2e3595b536f6a72d2338ba624f5db4a503f8690b18857c`; root readback `/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r13-design-axes-whole53-cab21-testrepair-v2-20261002T052406504255Z/ROOT_WHOLEFILE_READBACK_V1.json@sha256:23c41299722855a188d5735c6189c33802c49647f6edb580cbb9ea6d3dba78e0`; JUnit `/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/r13-design-axes-whole53-cab21-testrepair-v2-20261002T052406504255Z/cells/current_explicit/test_design_axes_value_choice_provenance-ab5609c83219.junit.xml@sha256:9c4752f6acd32d6fc57f4598bf2b8a4dff12e71790872ca96ae9464aede2fae3`. The prior 51/53 result and its unchanged status boundary remain in [BASELINES.md](BASELINES.md).

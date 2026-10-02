@@ -20,6 +20,8 @@ _V1_INDEX_SCHEMA = "policyos.artifact_ownership_index.v1"
 _V1_SIGNATURE_SCHEMA = "policyos.artifact_ownership_index_signature.v1"
 _V2_INDEX_SCHEMA = "policyos.artifact_ownership_index.v2"
 _V2_SIGNATURE_SCHEMA = "policyos.artifact_ownership_index_signature.v2"
+_V3_INDEX_SCHEMA = "policyos.artifact_ownership_index.v3"
+_V3_SIGNATURE_SCHEMA = "policyos.artifact_ownership_index_signature.v3"
 _POINTER_SCHEMA = "policyos.artifact_ownership_index_pointer.v1"
 _GENERATION_SCHEMA = "policyos.artifact_ownership_index_generation.v1"
 _EVIDENCE_SCHEMA_V3 = "policyos.artifact_ownership_evidence.v3"
@@ -51,7 +53,6 @@ def _write_signed_v1_index(
         },
     }
     index = ArtifactOwnershipIndex(root)
-    index.path.parent.mkdir(parents=True)
     index_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
     index.path.write_bytes(index_bytes)
 
@@ -97,7 +98,6 @@ def _write_signed_v2_index(
     payload: dict[str, Any],
 ) -> tuple[ArtifactOwnershipIndex, bytes, bytes]:
     index = ArtifactOwnershipIndex(root)
-    index.path.parent.mkdir(parents=True)
     payload = {
         "schema_version": _V2_INDEX_SCHEMA,
         "mode": _MODE,
@@ -130,7 +130,6 @@ def _write_signed_index_documents(
     signed_projection: dict[str, Any],
 ) -> tuple[ArtifactOwnershipIndex, bytes, bytes]:
     index = ArtifactOwnershipIndex(root)
-    index.path.parent.mkdir(parents=True)
     index_bytes = (json.dumps(raw_payload, indent=2, sort_keys=True) + "\n").encode()
     index.path.write_bytes(index_bytes)
     schema_version = str(signed_projection["schema_version"])
@@ -525,8 +524,9 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
     assert generation["mode"] == _MODE
     assert generation["parent_generation_sha256"] is None
     migrated = generation["payload"]
-    assert migrated["schema_version"] == _V2_INDEX_SCHEMA
+    assert migrated["schema_version"] == _V3_INDEX_SCHEMA
     assert migrated["artifacts"] == original_payload["artifacts"]
+    assert migrated["public_read_closures"] == {}
     assert migrated["blob_readers"][str(reader_id)][0]["tenant_id"] == "tenant-b"
     assert migrated["blob_readers"][str(reader_id)][0]["cell_id"] == "cell-b"
     assert migrated["blob_readers"][str(reader_id)][0]["writer"] == ("explicit-reader-admission")
@@ -534,7 +534,7 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
 
     signature = generation["signature"]
     statement = {key: value for key, value in signature.items() if key != "signature"}
-    assert signature["schema_version"] == _V2_SIGNATURE_SCHEMA
+    assert signature["schema_version"] == _V3_SIGNATURE_SCHEMA
     assert signature["index_sha256"] == generation["payload_sha256"]
     assert signature["signature"] == _canonical_sha256(statement)
 
@@ -551,6 +551,7 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
     assert base64.b64decode(legacy_source["signature_bytes_base64"], validate=True) == (
         legacy_signature_bytes
     )
+
     assert legacy_source["index_bytes_sha256"] == (
         "sha256:" + hashlib.sha256(legacy_index_bytes).hexdigest()
     )
@@ -611,9 +612,81 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
     )
 
 
+def test_public_read_closure_is_per_record_replayable_and_revocable(tmp_path: Path) -> None:
+    """Closure mutation advances only that record and persists in the canonical index."""
+    artifact_id = ArtifactID.from_sha256_hex("4" * 64)
+    record_id = "gpr_" + "r" * 32
+    index = ArtifactOwnershipIndex(tmp_path)
+    operation_refs = [
+        {
+            "operation": "get_bytes",
+            "artifact_id": str(artifact_id),
+            "kind": "test.public_member",
+            "media_type": "application/json",
+            "manifest_profile_sha256": None,
+        }
+    ]
+
+    first = index._record_public_read_closure(
+        record_id,
+        store_identity="sha256:" + "a" * 64,
+        operation_refs=operation_refs,
+    )
+    assert first["status"] == "active"
+    assert first["epoch"] == 1
+    assert first["operation_refs"] == operation_refs
+    assert index._get_public_read_closure(record_id) == first
+    assert (
+        index._record_public_read_closure(
+            record_id,
+            store_identity="sha256:" + "a" * 64,
+            operation_refs=operation_refs,
+        )
+        == first
+    )
+    with pytest.raises(ValueError, match="public_read_closure_already_exists"):
+        index._record_public_read_closure(
+            record_id,
+            store_identity="sha256:" + "a" * 64,
+            operation_refs=[
+                {
+                    **operation_refs[0],
+                    "kind": "test.foreign_profile",
+                }
+            ],
+        )
+
+    assert index._revoke_public_read_closure(record_id) is True
+    withdrawn = index._get_public_read_closure(record_id)
+    assert withdrawn is not None
+    assert withdrawn["status"] == "revoked"
+    assert withdrawn["epoch"] == 2
+    assert withdrawn["operation_refs"] == operation_refs
+    assert index._public_read_closure_matches(
+        record_id,
+        store_identity="sha256:" + "a" * 64,
+        epoch=1,
+        operation="get_bytes",
+        ref_identity=(str(artifact_id), "test.public_member", "application/json", None),
+    ) is False
+
+
 def test_empty_index_evidence_is_ephemeral_and_read_only(tmp_path: Path) -> None:
     root = tmp_path / "empty-cas"
     index = ArtifactOwnershipIndex(root)
+
+    def filesystem_state() -> dict[Path, tuple[str, int, int, bytes]]:
+        state = {}
+        for path in (root, *root.rglob("*")):
+            stat = path.stat()
+            relative = path.relative_to(root.parent)
+            if path.is_dir():
+                state[relative] = ("directory", stat.st_mtime_ns, stat.st_ino, b"")
+            else:
+                state[relative] = ("file", stat.st_mtime_ns, stat.st_ino, path.read_bytes())
+        return state
+
+    before_evidence = filesystem_state()
 
     evidence = index.evidence()
 
@@ -627,7 +700,10 @@ def test_empty_index_evidence_is_ephemeral_and_read_only(tmp_path: Path) -> None
     assert evidence["ownership_index_generation_sha256"] is None
     assert evidence["ownership_index_signature_locator"] is None
     assert evidence["ownership_index_pre_v3_history_status"] == "no_pre_v3_pair"
-    assert not (root / "artifacts").exists()
+    assert not index.path.exists()
+    assert not index.signature_path.exists()
+    assert not (index.directory / "generations").exists()
+    assert filesystem_state() == before_evidence
 
 
 def test_noop_legacy_mutation_preserves_pair_without_migration(tmp_path: Path) -> None:

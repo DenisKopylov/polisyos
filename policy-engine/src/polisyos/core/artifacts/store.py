@@ -12,6 +12,7 @@ import threading
 import time
 import uuid
 from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import datetime
 from functools import wraps
@@ -100,6 +101,7 @@ from .manifest import (
     ArtifactRef,
     CanonInfo,
     _coerce_input_ref,
+    artifact_ref_identity_key,
 )
 from .manifest import (
     artifact_reference_parts as _artifact_reference,
@@ -107,6 +109,7 @@ from .manifest import (
 from .ownership import (
     ArtifactOwnershipError,
     ArtifactOwnershipIndex,
+    ArtifactPublicReadClosureUnavailableError,
     ArtifactTransactionPendingError,
     _ArtifactTransactionLease,
 )
@@ -133,6 +136,57 @@ if TYPE_CHECKING:
 
 PutOptions = ArtifactWriteOptions
 ArtifactMemberKind = Literal["blob", "manifest", "signature"]
+
+
+@dataclass
+class _PublicReadSetCapture:
+    """Actual successful public CAS operation/ref pairs during one owner replay."""
+
+    store_token: object
+    operation_refs: set[tuple[str, str, str, str, str | None]]
+
+    def serialized_operation_refs(self) -> list[dict[str, Any]]:
+        return [
+            {
+                "operation": operation,
+                "artifact_id": artifact_id,
+                "kind": kind,
+                "media_type": media_type,
+                "manifest_profile_sha256": profile,
+            }
+            for operation, artifact_id, kind, media_type, profile in sorted(
+                self.operation_refs,
+                key=lambda item: (
+                    item[0],
+                    item[1],
+                    item[2],
+                    item[3],
+                    item[4] or "",
+                ),
+            )
+        ]
+
+
+@dataclass(frozen=True)
+class _GovernedPublicReadCapability:
+    """Opaque, one-store capability to replay one record's exact owner reads."""
+
+    store_token: object
+    record_id: str
+    store_identity: str
+    epoch: int
+    operation_refs: frozenset[tuple[str, str, str, str, str | None]]
+
+
+_PUBLIC_READ_CAPTURE: ContextVar[_PublicReadSetCapture | None] = ContextVar(
+    "polisyos_public_read_set_capture", default=None
+)
+_GOVERNED_PUBLIC_READ: ContextVar[_GovernedPublicReadCapability | None] = ContextVar(
+    "polisyos_governed_public_read", default=None
+)
+_PUBLIC_READ_OPERATION: ContextVar[str | None] = ContextVar(
+    "polisyos_public_read_operation", default=None
+)
 
 
 def _canonical_artifact_id_sequence(
@@ -333,7 +387,13 @@ def _transactional_read(
                     manifest_profile_sha256=profile_sha256,
                     signature_profile=(profile_sha256 or "default") if signature_surface else None,
                 )
-                return method(self, artifact_id, *args, **kwargs)
+                operation_token = _PUBLIC_READ_OPERATION.set(method.__name__)
+                try:
+                    result = method(self, artifact_id, *args, **kwargs)
+                finally:
+                    _PUBLIC_READ_OPERATION.reset(operation_token)
+                self._capture_public_read_operation(method.__name__, artifact_id)
+                return result
 
         return wrapped
 
@@ -376,6 +436,11 @@ class FileSystemCAS:
         if self._ownership_index.root != canonical_root:
             raise ValueError("filesystem_cas_ownership_root_mismatch")
         self.root = canonical_root
+        self._public_read_store_identity = "sha256:" + hashlib.sha256(
+            os.fsencode(str(self.root))
+        ).hexdigest()
+        self._public_read_store_token = object()
+        self._governed_public_read_owner_tokens: set[object] = set()
         self._coordinator = self._ownership_index._coordinator
         self._layout = _CASPathLayout(self.root)
         self.base = self._layout.base
@@ -402,6 +467,170 @@ class FileSystemCAS:
         )
         self._ownership_requires_scope = bool(ownership_requires_scope)
         self._ownership_index.recover_orphan_stages()
+
+    @contextmanager
+    def _capture_public_read_set(self) -> Iterator[_PublicReadSetCapture]:
+        """Capture successful typed CAS reads made by this exact store instance."""
+        if _PUBLIC_READ_CAPTURE.get() is not None:
+            raise RuntimeError("nested_public_read_set_capture_not_supported")
+        capture = _PublicReadSetCapture(
+            store_token=self._public_read_store_token,
+            operation_refs=set(),
+        )
+        token = _PUBLIC_READ_CAPTURE.set(capture)
+        try:
+            yield capture
+        finally:
+            _PUBLIC_READ_CAPTURE.reset(token)
+
+    def _register_governed_public_read_owner(self) -> object:
+        """Bind a private owner token to this exact CAS instance."""
+        token = object()
+        self._governed_public_read_owner_tokens.add(token)
+        return token
+
+    @contextmanager
+    def _authorize_governed_public_read(
+        self,
+        record_id: str,
+        *,
+        owner_token: object,
+    ) -> Iterator[_GovernedPublicReadCapability]:
+        """Install one current owner-index closure for the exact store and record."""
+        if (
+            not self._ownership_enforced
+            or owner_token not in self._governed_public_read_owner_tokens
+        ):
+            raise ArtifactPublicReadClosureUnavailableError(
+                record_id,
+                operation="owner_read_capability",
+            )
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            raise RuntimeError("nested_governed_public_read_not_supported")
+        closure = self._ownership_index._get_public_read_closure(record_id)
+        if (
+            closure is None
+            or closure["status"] != "active"
+            or closure["purpose"] != "governed_public_record_replay"
+            or closure["audience"] != "governed_public_owner_internal"
+            or closure["store_identity"] != self._public_read_store_identity
+        ):
+            raise ArtifactPublicReadClosureUnavailableError(
+                record_id,
+                operation="owner_read_capability",
+            )
+        operation_refs = frozenset(
+            (
+                row["operation"],
+                row["artifact_id"],
+                row["kind"],
+                row["media_type"],
+                row["manifest_profile_sha256"],
+            )
+            for row in closure["operation_refs"]
+        )
+        capability = _GovernedPublicReadCapability(
+            store_token=self._public_read_store_token,
+            record_id=record_id,
+            store_identity=self._public_read_store_identity,
+            epoch=closure["epoch"],
+            operation_refs=operation_refs,
+        )
+        token = _GOVERNED_PUBLIC_READ.set(capability)
+        try:
+            yield capability
+        finally:
+            _GOVERNED_PUBLIC_READ.reset(token)
+
+    def _record_governed_public_read_closure(
+        self,
+        record_id: str,
+        capture: _PublicReadSetCapture,
+        *,
+        owner_token: object,
+    ) -> dict[str, Any]:
+        """Persist only a read set captured from this store's successful owner calls."""
+        if (
+            capture.store_token is not self._public_read_store_token
+            or owner_token not in self._governed_public_read_owner_tokens
+        ):
+            raise ValueError("public_read_capture_store_mismatch")
+        return self._ownership_index._record_public_read_closure(
+            record_id,
+            store_identity=self._public_read_store_identity,
+            operation_refs=capture.serialized_operation_refs(),
+        )
+
+    def _revoke_governed_public_read_closure(
+        self,
+        record_id: str,
+        *,
+        owner_token: object,
+    ) -> bool:
+        """Withdraw one record's current closure through the canonical owner index."""
+        if owner_token not in self._governed_public_read_owner_tokens:
+            raise ArtifactPublicReadClosureUnavailableError(
+                record_id,
+                operation="closure_withdrawal",
+            )
+        return self._ownership_index._revoke_public_read_closure(record_id)
+
+    def _capture_public_read_operation(
+        self,
+        operation: str,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> None:
+        capture = _PUBLIC_READ_CAPTURE.get()
+        if capture is None or capture.store_token is not self._public_read_store_token:
+            return
+        _aid, _profile, ref = _artifact_reference(artifact_id)
+        if ref is None:
+            raise ValueError("public_read_capture_requires_full_artifact_ref")
+        identity = artifact_ref_identity_key(ref)
+        capture.operation_refs.add((operation, *identity))
+
+    def _require_governed_public_read(
+        self,
+        artifact_id: ArtifactID,
+        manifest_profile_sha256: str | None,
+        *,
+        operation: str,
+        ref: ArtifactRef | None,
+    ) -> None:
+        capability = _GOVERNED_PUBLIC_READ.get()
+        current_operation = _PUBLIC_READ_OPERATION.get()
+        if (
+            capability is None
+            or capability.store_token is not self._public_read_store_token
+            or ref is None
+            or current_operation is None
+        ):
+            raise ArtifactPublicReadClosureUnavailableError(
+                capability.record_id if capability is not None else "",
+                operation=operation,
+            )
+        identity = artifact_ref_identity_key(ref)
+        if (
+            identity[0] != str(artifact_id)
+            or identity[3] != manifest_profile_sha256
+            or current_operation
+            not in {
+                row[0]
+                for row in capability.operation_refs
+                if row[1:] == identity
+            }
+            or not self._ownership_index._public_read_closure_matches(
+                capability.record_id,
+                store_identity=capability.store_identity,
+                epoch=capability.epoch,
+                operation=current_operation,
+                ref_identity=identity,
+            )
+        ):
+            raise ArtifactPublicReadClosureUnavailableError(
+                capability.record_id,
+                operation=operation,
+            )
 
     def _paths(self, artifact_id: ArtifactID) -> tuple[Path, Path]:
         return self._layout.paths(artifact_id)
@@ -449,14 +678,19 @@ class FileSystemCAS:
                 manifest_profile_sha256=profile_sha256,
                 signature_profile=(profile_sha256 or "default") if member == "signature" else None,
             )
-            self._require_blob_owner(aid, operation=f"read_{member}")
+            self._require_blob_owner(aid, operation=f"read_{member}", ref=ref)
             if profile_sha256 is None:
-                self._require_default_manifest_access(aid, operation=f"read_{member}")
+                self._require_default_manifest_access(
+                    aid,
+                    operation=f"read_{member}",
+                    ref=ref,
+                )
             else:
                 self._require_manifest_view_owner(
                     aid,
                     profile_sha256,
                     operation=f"read_{member}_manifest",
+                    ref=ref,
                 )
 
             manifest_path = self._manifest_path_for_ref(aid, profile_sha256)
@@ -675,12 +909,32 @@ class FileSystemCAS:
             )
         return owner_tenant, owner_cell
 
-    def _require_artifact_owner(self, artifact_id: ArtifactID, *, operation: str) -> None:
+    def _require_artifact_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+    ) -> None:
         if not self._ownership_enforced:
             return
+        closure_active = self._require_current_public_read_if_active(
+            artifact_id,
+            ref.manifest_profile_sha256 if ref is not None else None,
+            operation=operation,
+            ref=ref,
+        )
         tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
         if tenant_id is None:
-            self._require_unclaimed_without_owner(artifact_id, operation=operation)
+            if not closure_active:
+                self._require_unclaimed_without_owner(
+                    artifact_id,
+                    operation=operation,
+                    ref=ref,
+                    manifest_profile_sha256=(
+                        ref.manifest_profile_sha256 if ref is not None else None
+                    ),
+                )
             return
         self._ownership_index.require_owner(
             artifact_id,
@@ -689,12 +943,32 @@ class FileSystemCAS:
             operation=operation,
         )
 
-    def _require_blob_owner(self, artifact_id: ArtifactID, *, operation: str) -> None:
+    def _require_blob_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+    ) -> None:
         if not self._ownership_enforced:
             return
+        closure_active = self._require_current_public_read_if_active(
+            artifact_id,
+            ref.manifest_profile_sha256 if ref is not None else None,
+            operation=operation,
+            ref=ref,
+        )
         tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
         if tenant_id is None:
-            self._require_unclaimed_without_owner(artifact_id, operation=operation)
+            if not closure_active:
+                self._require_unclaimed_without_owner(
+                    artifact_id,
+                    operation=operation,
+                    ref=ref,
+                    manifest_profile_sha256=(
+                        ref.manifest_profile_sha256 if ref is not None else None
+                    ),
+                )
             return
         self._ownership_index.require_blob_reader(
             artifact_id,
@@ -709,15 +983,28 @@ class FileSystemCAS:
         manifest_profile_sha256: str | None,
         *,
         operation: str,
+        ref: ArtifactRef | None = None,
     ) -> None:
         if manifest_profile_sha256 is None:
-            self._require_artifact_owner(artifact_id, operation=operation)
+            self._require_artifact_owner(artifact_id, operation=operation, ref=ref)
             return
         if not self._ownership_enforced:
             return
+        closure_active = self._require_current_public_read_if_active(
+            artifact_id,
+            manifest_profile_sha256,
+            operation=operation,
+            ref=ref,
+        )
         tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
         if tenant_id is None:
-            self._require_unclaimed_without_owner(artifact_id, operation=operation)
+            if not closure_active:
+                self._require_unclaimed_without_owner(
+                    artifact_id,
+                    operation=operation,
+                    ref=ref,
+                    manifest_profile_sha256=manifest_profile_sha256,
+                )
             return
         self._ownership_index.require_view_owner(
             artifact_id,
@@ -732,21 +1019,50 @@ class FileSystemCAS:
         artifact_id: ArtifactID,
         *,
         operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
     ) -> None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
         if self._ownership_index.has_any_tenant_claim(artifact_id):
             raise ArtifactOwnershipError(
                 f"Artifact {artifact_id} has tenant ownership claims; an active owner "
                 f"is required for {operation}"
             )
 
+    def _require_current_public_read_if_active(
+        self,
+        artifact_id: ArtifactID,
+        manifest_profile_sha256: str | None,
+        *,
+        operation: str,
+        ref: ArtifactRef | None,
+    ) -> bool:
+        if _GOVERNED_PUBLIC_READ.get() is None:
+            return False
+        self._require_governed_public_read(
+            artifact_id,
+            manifest_profile_sha256,
+            operation=operation,
+            ref=ref,
+        )
+        return True
+
     def _require_default_manifest_access(
         self,
         artifact_id: ArtifactID,
         *,
         operation: str,
+        ref: ArtifactRef | None = None,
     ) -> None:
         """Authorize a default-view read using ownership evidence only."""
-        self._require_artifact_owner(artifact_id, operation=operation)
+        self._require_artifact_owner(artifact_id, operation=operation, ref=ref)
 
     def _record_write_owner(
         self,
@@ -933,9 +1249,14 @@ class FileSystemCAS:
             OSError: If the blob file cannot be read.
         """
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
-        self._require_blob_owner(aid, operation="read")
+        self._require_blob_owner(aid, operation="read", ref=ref)
         if profile_sha256 is not None:
-            self._require_manifest_view_owner(aid, profile_sha256, operation="read_manifest")
+            self._require_manifest_view_owner(
+                aid,
+                profile_sha256,
+                operation="read_manifest",
+                ref=ref,
+            )
         blob, _ = self._paths(aid)
         if not self._hpc_enabled or self._tracer is None:
             return self._read_verified_blob(aid, blob, manifest_ref=ref)
@@ -1109,11 +1430,13 @@ class FileSystemCAS:
                 aid,
                 profile_sha256,
                 operation="read_manifest",
+                ref=ref,
             )
         else:
             self._require_default_manifest_access(
                 aid,
                 operation="read_manifest",
+                ref=ref,
             )
         manp = self._manifest_path_for_ref(aid, profile_sha256)
         manifest = self._manifests.read(manp)
@@ -2157,13 +2480,14 @@ class FileSystemCAS:
         """Check blob and exact selected manifest view integrity."""
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
         if profile_sha256 is None:
-            self._require_artifact_owner(aid, operation="verify")
+            self._require_artifact_owner(aid, operation="verify", ref=ref)
         else:
-            self._require_blob_owner(aid, operation="verify")
+            self._require_blob_owner(aid, operation="verify", ref=ref)
             self._require_manifest_view_owner(
                 aid,
                 profile_sha256,
                 operation="verify_manifest",
+                ref=ref,
             )
         blob, _default_manifest = self._paths(aid)
         manp = self._manifest_path_for_ref(aid, profile_sha256)

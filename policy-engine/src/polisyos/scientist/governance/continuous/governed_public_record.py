@@ -12,12 +12,17 @@ import json
 import os
 import re
 import secrets
+import stat
 import tempfile
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, TypeVar
+from typing import TYPE_CHECKING, Literal, TypeVar
 
 from pydantic import AwareDatetime, BaseModel, JsonValue
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 from polisyos.core import artifacts, canon
 from polisyos.scientist.evidence.claims.audit import _load_append_only_claim_ledger
@@ -236,6 +241,33 @@ class _IssuanceIndex(_StrictModel):
     admission: _ExactSignature
 
 
+class _IssuanceTransaction(_StrictModel):
+    """Immutable private intent that permits exact retry across issuance crashes."""
+
+    schema_version: Literal["polisyos.governed_public_issuance_transaction.v1"] = (
+        "polisyos.governed_public_issuance_transaction.v1"
+    )
+    record_id: str
+    locator_sha256: str
+    index_json: str
+
+
+class _IssuanceCompletion(_StrictModel):
+    """Immutable receipt tying one locator to its exact active read closure."""
+
+    schema_version: Literal["polisyos.governed_public_issuance_completion.v1"] = (
+        "polisyos.governed_public_issuance_completion.v1"
+    )
+    record_id: str
+    transaction_sha256: str
+    locator_sha256: str
+    closure_sha256: str
+
+
+def _sha256(raw: bytes) -> str:
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
 def _document_version(document: dict[str, JsonValue]) -> Literal["v1", "v2"]:
     schema_version = document.get("schema_version")
     profile = document.get("profile")
@@ -406,6 +438,17 @@ class GovernedPublicRecordOwner:
         self.index_root = Path(index_root)
         self.slot = slot
         self.last_boundary_reads: tuple[GovernedPublicRecordBoundaryRead, ...] = ()
+        register_public_reader = getattr(
+            store,
+            "_register_governed_public_read_owner",
+            None,
+        )
+        self._public_read_owner_token = (
+            register_public_reader() if callable(register_public_reader) else None
+        )
+        # Production stays unavailable until deployment-root custody is independently
+        # established. Tests may set this private marker only for a synthetic temp CAS.
+        self._synthetic_public_read_root_custody_for_tests = False
         self._publisher_verifier, self._publisher_keys = self._trust(slot.publisher_trusted_keys)
         self._mandate_verifier, self._mandate_keys = self._trust(slot.mandate_trusted_keys)
 
@@ -465,6 +508,19 @@ class GovernedPublicRecordOwner:
             ):
                 raise ValueError("CAS binding invalid")
             return raw
+        except artifacts.ArtifactOwnershipError as exc:
+            if getattr(exc, "code", None) == "public_read_closure_not_established":
+                raise GovernedPublicRecordError("public_read_closure_not_established") from exc
+            raise GovernedPublicRecordError(
+                "record_evidence_unavailable",
+                reads=(
+                    GovernedPublicRecordBoundaryRead(
+                        operation="cas.verify_and_get_bytes",
+                        selector=str(ref.artifact_id),
+                        outcome="invalid",
+                    ),
+                ),
+            ) from exc
         except (OSError, ValueError, KeyError) as exc:
             raise GovernedPublicRecordError(
                 "record_evidence_unavailable",
@@ -543,7 +599,21 @@ class GovernedPublicRecordOwner:
 
     @staticmethod
     def _atomic_new(path: Path, raw: bytes) -> None:
+        missing_directories: list[Path] = []
+        ancestor = path.parent
+        while not ancestor.exists():
+            missing_directories.append(ancestor)
+            parent = ancestor.parent
+            if parent == ancestor:
+                raise OSError("issuance_path_has_no_existing_ancestor")
+            ancestor = parent
         path.parent.mkdir(parents=True, exist_ok=True)
+        for directory in reversed(missing_directories):
+            parent_fd = os.open(directory.parent, os.O_RDONLY)
+            try:
+                os.fsync(parent_fd)
+            finally:
+                os.close(parent_fd)
         descriptor, temporary_name = tempfile.mkstemp(prefix=".pending-", dir=path.parent)
         temporary = Path(temporary_name)
         try:
@@ -559,6 +629,315 @@ class GovernedPublicRecordOwner:
                 os.close(directory_fd)
         finally:
             temporary.unlink(missing_ok=True)
+
+    @staticmethod
+    def _read_regular_file(path: Path, *, code: str) -> bytes:
+        if path.is_symlink() or not path.is_file():
+            raise GovernedPublicRecordError(code)
+        try:
+            return path.read_bytes()
+        except OSError as exc:
+            raise GovernedPublicRecordError(code) from exc
+
+    @staticmethod
+    def _publish_immutable(path: Path, raw: bytes, *, code: str) -> None:
+        try:
+            GovernedPublicRecordOwner._atomic_new(path, raw)
+        except FileExistsError:
+            existing = GovernedPublicRecordOwner._read_regular_file(path, code=code)
+            if existing != raw:
+                raise GovernedPublicRecordError(code)
+
+    def _require_public_read_root_custody(self) -> None:
+        """Fail closed until the deployment root's publication appointment exists."""
+        if not self._synthetic_public_read_root_custody_for_tests:
+            raise GovernedPublicRecordError("public_read_root_custody_not_established")
+        if self._public_read_owner_token is None:
+            raise GovernedPublicRecordError("public_read_closure_store_unsupported")
+
+    def _validate_owner_directory_set(self) -> None:
+        """Reject symlinked or non-directory paths in the owner-controlled index tree.
+
+        The check covers the configured owner root and every directory directly
+        containing issuance transactions, completions, or public locators. The
+        configured parent outside ``index_root`` remains a runtime custody input.
+        """
+        for directory in (
+            self.index_root,
+            self.index_root / "transactions",
+            self.index_root / "completions",
+            self.index_root / "issued",
+        ):
+            try:
+                mode = directory.lstat().st_mode
+            except FileNotFoundError:
+                continue
+            except OSError as exc:
+                raise GovernedPublicRecordError(
+                    "issuance_owner_directory_invalid"
+                ) from exc
+            if not stat.S_ISDIR(mode):
+                raise GovernedPublicRecordError("issuance_owner_directory_invalid")
+
+    def _issuance_transaction_path(self, record_id: str) -> Path:
+        return self.index_root / "transactions" / (record_id + ".json")
+
+    def _issuance_completion_path(self, record_id: str) -> Path:
+        return self.index_root / "completions" / (record_id + ".json")
+
+    def _persist_issuance_transaction(
+        self, index_raw: bytes
+    ) -> tuple[_IssuanceTransaction, bytes, _IssuanceIndex]:
+        self._validate_owner_directory_set()
+        try:
+            index = _IssuanceIndex.model_validate_json(index_raw)
+        except (ValueError, TypeError) as exc:
+            raise GovernedPublicRecordError("issuance_index_invalid") from exc
+        if _ID.fullmatch(index.record_id) is None:
+            raise GovernedPublicRecordError("issuance_index_invalid")
+        transaction = _IssuanceTransaction(
+            record_id=index.record_id,
+            locator_sha256=_sha256(index_raw),
+            index_json=index_raw.decode("utf-8"),
+        )
+        transaction_raw = _bytes(transaction)
+        self._publish_immutable(
+            self._issuance_transaction_path(index.record_id),
+            transaction_raw,
+            code="issuance_transaction_conflict",
+        )
+        return transaction, transaction_raw, index
+
+    def _load_issuance_transaction(
+        self, path: Path
+    ) -> tuple[_IssuanceTransaction, bytes, bytes, _IssuanceIndex]:
+        if path.suffix != ".json" or _ID.fullmatch(path.stem) is None:
+            raise GovernedPublicRecordError("issuance_transaction_invalid")
+        raw = self._read_regular_file(path, code="issuance_transaction_invalid")
+        try:
+            transaction = _IssuanceTransaction.model_validate_json(raw)
+            index_raw = transaction.index_json.encode("utf-8")
+            index = _IssuanceIndex.model_validate_json(index_raw)
+        except (ValueError, TypeError, UnicodeError) as exc:
+            raise GovernedPublicRecordError("issuance_transaction_invalid") from exc
+        if (
+            transaction.record_id != path.stem
+            or transaction.record_id != index.record_id
+            or _ID.fullmatch(transaction.record_id) is None
+            or transaction.locator_sha256 != _sha256(index_raw)
+        ):
+            raise GovernedPublicRecordError("issuance_transaction_binding_invalid")
+        return transaction, raw, index_raw, index
+
+    def _record_and_replay_public_read_closure(
+        self, index: _IssuanceIndex
+    ) -> dict[str, object]:
+        """Derive a closure from successful exact owner reads, then replay it."""
+        capture_read_set = getattr(self.store, "_capture_public_read_set", None)
+        record_closure = getattr(self.store, "_record_governed_public_read_closure", None)
+        authorize_read = getattr(self.store, "_authorize_governed_public_read", None)
+        if not all(callable(item) for item in (capture_read_set, record_closure, authorize_read)):
+            raise GovernedPublicRecordError("public_read_closure_store_unsupported")
+        with capture_read_set() as observed:
+            self._resolve_index(index)
+        closure = record_closure(
+            index.record_id,
+            observed,
+            owner_token=self._public_read_owner_token,
+        )
+        try:
+            with authorize_read(index.record_id, owner_token=self._public_read_owner_token):
+                with capture_read_set() as replayed:
+                    self._resolve_index(index)
+        except artifacts.ArtifactOwnershipError as exc:
+            code = getattr(exc, "code", None)
+            if code is not None:
+                raise GovernedPublicRecordError(str(code)) from exc
+            raise
+        if frozenset(observed.operation_refs) != frozenset(replayed.operation_refs):
+            raise GovernedPublicRecordError("public_read_closure_owner_readset_mismatch")
+        return closure
+
+    def _complete_issuance_transaction(
+        self,
+        transaction: _IssuanceTransaction,
+        transaction_raw: bytes,
+        index_raw: bytes,
+        index: _IssuanceIndex,
+    ) -> None:
+        """Replay exact source, persist closure, publish locator, and append completion."""
+        self._validate_owner_directory_set()
+        locator_path = self.index_root / "issued" / (index.record_id + ".json")
+        if locator_path.is_symlink():
+            raise GovernedPublicRecordError("issuance_index_invalid")
+        if locator_path.exists():
+            if self._read_regular_file(locator_path, code="issuance_index_invalid") != index_raw:
+                raise GovernedPublicRecordError("issuance_transaction_locator_conflict")
+
+        closure = self._record_and_replay_public_read_closure(index)
+        if closure.get("status") != "active" or closure.get("record_id") != index.record_id:
+            raise GovernedPublicRecordError("public_read_closure_not_established")
+
+        # The public locator is the visibility boundary. It follows the durable
+        # closure and its exact owner-authorized replay, never the other way round.
+        if not locator_path.exists():
+            self._publish_immutable(
+                locator_path,
+                index_raw,
+                code="issuance_transaction_locator_conflict",
+            )
+
+        current_closure = self.store._ownership_index._get_public_read_closure(index.record_id)
+        if current_closure != closure:
+            raise GovernedPublicRecordError("public_read_closure_changed_during_issuance")
+        completion = _IssuanceCompletion(
+            record_id=index.record_id,
+            transaction_sha256=_sha256(transaction_raw),
+            locator_sha256=transaction.locator_sha256,
+            closure_sha256=_sha256(_bytes(current_closure)),
+        )
+        self._publish_immutable(
+            self._issuance_completion_path(index.record_id),
+            _bytes(completion),
+            code="issuance_completion_conflict",
+        )
+
+    def reconcile_public_read_closures(self) -> tuple[str, ...]:
+        """Privately close retained exact issuance and retry interrupted transitions.
+
+        This is an owner maintenance operation. Public verification never calls it.
+        The only positive root-custody setting in this finite slice is synthetic
+        test setup; production remains not established until an appointment exists.
+        """
+        self.last_boundary_reads = ()
+        self._require_public_read_root_custody()
+        self._validate_owner_directory_set()
+        reads: list[GovernedPublicRecordBoundaryRead] = []
+        transactions_dir = self.index_root / "transactions"
+        transaction_paths: dict[str, Path] = {}
+        if transactions_dir.exists():
+            if transactions_dir.is_symlink() or not transactions_dir.is_dir():
+                raise GovernedPublicRecordError("issuance_transaction_inventory_invalid")
+            for path in transactions_dir.iterdir():
+                if path.name.startswith(".pending-"):
+                    continue
+                if path.suffix != ".json" or _ID.fullmatch(path.stem) is None:
+                    raise GovernedPublicRecordError("issuance_transaction_inventory_invalid")
+                if path.is_symlink() or not path.is_file():
+                    raise GovernedPublicRecordError("issuance_transaction_inventory_invalid")
+                transaction_paths[path.stem] = path
+        reads.append(
+            GovernedPublicRecordBoundaryRead(
+                operation="issuance_transaction.iterdir",
+                selector=str(transactions_dir),
+                outcome="read" if transactions_dir.exists() else "absent",
+                unresolved_by_construction=(
+                    "other_owner_stores",
+                    "unregistered_external_publications",
+                ),
+            )
+        )
+        self.last_boundary_reads = tuple(reads)
+
+        completions_dir = self.index_root / "completions"
+        if completions_dir.exists():
+            if completions_dir.is_symlink() or not completions_dir.is_dir():
+                raise GovernedPublicRecordError("issuance_completion_inventory_invalid")
+            for path in completions_dir.iterdir():
+                if path.name.startswith(".pending-"):
+                    continue
+                if (
+                    path.suffix != ".json"
+                    or _ID.fullmatch(path.stem) is None
+                    or path.is_symlink()
+                    or not path.is_file()
+                    or path.stem not in transaction_paths
+                ):
+                    raise GovernedPublicRecordError("issuance_completion_inventory_invalid")
+
+        completed_ids: set[str] = set()
+        for record_id, path in sorted(transaction_paths.items()):
+            transaction, transaction_raw, index_raw, index = self._load_issuance_transaction(path)
+            self._complete_issuance_transaction(
+                transaction,
+                transaction_raw,
+                index_raw,
+                index,
+            )
+            completed_ids.add(record_id)
+            reads.append(
+                GovernedPublicRecordBoundaryRead(
+                    operation="public_read_closure.reconcile",
+                    selector=record_id,
+                    outcome="read",
+                    unresolved_by_construction=(
+                        "other_owner_stores",
+                        "unregistered_external_publications",
+                    ),
+                )
+            )
+            self.last_boundary_reads = tuple(reads)
+
+        issued_dir = self.index_root / "issued"
+        if issued_dir.exists():
+            if issued_dir.is_symlink() or not issued_dir.is_dir():
+                raise GovernedPublicRecordError("issuance_index_invalid")
+        reads.append(
+            GovernedPublicRecordBoundaryRead(
+                operation="issued_index.iterdir",
+                selector=str(issued_dir),
+                outcome="read" if issued_dir.exists() else "absent",
+                unresolved_by_construction=(
+                    "unselected_index_extensions",
+                    "other_owner_stores",
+                    "unregistered_external_publications",
+                ),
+            )
+        )
+        self.last_boundary_reads = tuple(reads)
+        if issued_dir.exists():
+            for path in sorted(issued_dir.iterdir()):
+                if path.name.startswith(".pending-"):
+                    continue
+                if path.suffix != ".json" or _ID.fullmatch(path.stem) is None:
+                    raise GovernedPublicRecordError("issuance_index_invalid")
+                if path.is_symlink() or not path.is_file():
+                    raise GovernedPublicRecordError("issuance_index_invalid")
+                if path.stem in completed_ids:
+                    continue
+                index_raw = self._read_regular_file(path, code="issuance_index_invalid")
+                try:
+                    index = _IssuanceIndex.model_validate_json(index_raw)
+                except (ValueError, TypeError) as exc:
+                    raise GovernedPublicRecordError("issuance_index_invalid") from exc
+                if index.record_id != path.stem:
+                    raise GovernedPublicRecordError("issuance_index_invalid")
+                # Validate the historical record before persisting an intent for it.
+                with self.store._capture_public_read_set():
+                    self._resolve_index(index)
+                transaction, transaction_raw, parsed_index = self._persist_issuance_transaction(
+                    index_raw
+                )
+                self._complete_issuance_transaction(
+                    transaction,
+                    transaction_raw,
+                    index_raw,
+                    parsed_index,
+                )
+                completed_ids.add(index.record_id)
+                reads.append(
+                    GovernedPublicRecordBoundaryRead(
+                        operation="public_read_closure.reconcile",
+                        selector=index.record_id,
+                        outcome="read",
+                        unresolved_by_construction=(
+                            "other_owner_stores",
+                            "unregistered_external_publications",
+                        ),
+                    )
+                )
+                self.last_boundary_reads = tuple(reads)
+        return tuple(sorted(completed_ids))
 
     def prepare(
         self,
@@ -774,9 +1153,13 @@ class GovernedPublicRecordOwner:
         decision_packet_ref: artifacts.ArtifactRef,
         issued_at: datetime,
     ) -> str:
+        self._validate_owner_directory_set()
         candidate = self.prepare(
             decision_id=decision_id, decision_packet_ref=decision_packet_ref, issued_at=issued_at
         )
+        # Candidate preparation remains available under unknown deployment-root
+        # custody. Authority-bearing issuance requires the appointed root owner.
+        self._require_public_read_root_custody()
         slot = self.slot
         if slot.signer is None or slot.issuer_id is None or slot.verifier_epoch is None:
             raise GovernedPublicRecordError("publication_signer_not_configured")
@@ -843,8 +1226,16 @@ class GovernedPublicRecordOwner:
             admission_ref.artifact_id, slot.signer, signer_identity=slot.issuer_id
         )
         index = _IssuanceIndex(record_id=record.record_id, admission=self._capture(admission_ref))
-        self._resolve_index(index)
-        self._atomic_new(self.index_root / "issued" / (record.record_id + ".json"), _bytes(index))
+        index_raw = _bytes(index)
+        transaction, transaction_raw, parsed_index = self._persist_issuance_transaction(
+            index_raw
+        )
+        self._complete_issuance_transaction(
+            transaction,
+            transaction_raw,
+            index_raw,
+            parsed_index,
+        )
         return record.record_id
 
     def _resolve_index(
@@ -903,6 +1294,7 @@ class GovernedPublicRecordOwner:
                     ),
                 ),
             )
+        self._validate_owner_directory_set()
         path = self.index_root / "issued" / (record_id + ".json")
         try:
             if path.is_symlink():
@@ -921,10 +1313,64 @@ class GovernedPublicRecordOwner:
             raise GovernedPublicRecordError("issuance_index_invalid")
         return result
 
+    def _resolve_public_index(
+        self,
+        record_id: str,
+    ) -> tuple[
+        GovernedPublicRecord,
+        _PrivateDraft,
+        PublicationMandateStatement,
+        PublicationTrustedKey,
+        _PrivateAdmission,
+    ]:
+        """Resolve one anonymous record only through its exact current read closure."""
+        with self._authorized_public_index(record_id) as resolved:
+            return resolved
+
+    @contextmanager
+    def _authorized_public_index(
+        self,
+        record_id: str,
+    ) -> Iterator[
+        tuple[
+            GovernedPublicRecord,
+            _PrivateDraft,
+            PublicationMandateStatement,
+            PublicationTrustedKey,
+            _PrivateAdmission,
+        ]
+    ]:
+        """Keep the exact current record capability active for owner-mediated reads."""
+        self._require_public_read_root_custody()
+        try:
+            with self.store._authorize_governed_public_read(
+                record_id,
+                owner_token=self._public_read_owner_token,
+            ) as capability:
+                index = self._index(record_id)
+                with self.store._capture_public_read_set() as observed:
+                    resolved = self._resolve_index(index)
+                if frozenset(observed.operation_refs) != capability.operation_refs:
+                    raise GovernedPublicRecordError("public_read_closure_owner_readset_mismatch")
+                yield resolved
+        except artifacts.ArtifactOwnershipError as exc:
+            if getattr(exc, "code", None) == "public_read_closure_not_established":
+                raise GovernedPublicRecordError("public_read_closure_not_established") from exc
+            raise
+
+    def _revoke_public_read_closure_for_test(self, record_id: str) -> bool:
+        """Withdraw one closure in a synthetic test deployment's owner path."""
+        if self._public_read_owner_token is None:
+            raise GovernedPublicRecordError("public_read_closure_store_unsupported")
+        return self.store._revoke_governed_public_read_closure(
+            record_id,
+            owner_token=self._public_read_owner_token,
+        )
+
     def verify(self, record_id: str) -> GovernedPublicRecordVerificationResponse:
         """Reverify exact historical admission; never promote it to current authority."""
         try:
-            record, draft, _, key, _ = self._resolve_index(self._index(record_id))
+            record, draft, _, key, _ = self._resolve_public_index(record_id)
         except (GovernedPublicRecordError, OSError, ValueError, TypeError, KeyError) as exc:
             code = (
                 exc.code
@@ -943,7 +1389,15 @@ class GovernedPublicRecordOwner:
             return GovernedPublicRecordVerificationResponse(
                 record_id=record_id,
                 report_authentication="not_established"
-                if code in {"record_not_issued", "client_token_not_server_issued"}
+                if code
+                in {
+                    "record_not_issued",
+                    "client_token_not_server_issued",
+                    "public_read_root_custody_not_established",
+                    "public_read_closure_not_established",
+                    "public_read_closure_owner_readset_mismatch",
+                    "public_read_closure_store_unsupported",
+                }
                 else "invalid",
                 reason_codes=(code,),
                 cryptographic_signature="invalid"
@@ -1029,9 +1483,9 @@ class GovernedPublicRecordOwner:
         return tuple(sorted(record_ids))
 
     def resolve_custody_binding(self, record_id: str) -> GovernedPublicCustodyBinding:
-        """Resolve a historical admitted signature for the private custody bridge."""
+        """Return observed refs; callers must re-enter the owner for every protected open."""
         try:
-            record, draft, mandate, _, admission = self._resolve_index(self._index(record_id))
+            record, draft, mandate, _, admission = self._resolve_public_index(record_id)
         except GovernedPublicRecordError:
             raise
         except (OSError, ValueError, TypeError, KeyError) as exc:
@@ -1053,6 +1507,35 @@ class GovernedPublicRecordOwner:
             published_at=record.issued_at,
             staleness_after_seconds=mandate.staleness_after_seconds,
         )
+
+    def verify_custody_binding_artifacts(
+        self,
+        record_id: str,
+        *,
+        signature_ref: artifacts.ArtifactRef,
+        decision_packet_ref: artifacts.ArtifactRef,
+    ) -> None:
+        """Re-resolve and verify only this record's exact artifacts under its live closure.
+
+        The returned refs from :meth:`resolve_custody_binding` are observations, not read
+        authority. This method replays the current owner record and retains its scoped
+        capability across the artifact reads so revocation is checked at each CAS operation.
+        """
+        with self._authorized_public_index(record_id) as resolved:
+            record, draft, mandate, _, admission = resolved
+            expected_signature_ref = admission.publication.artifact_ref
+            expected_decision_packet_ref = draft.snapshot.decision_packet_ref
+            if (
+                artifacts.artifact_ref_identity_key(signature_ref)
+                != artifacts.artifact_ref_identity_key(expected_signature_ref)
+                or artifacts.artifact_ref_identity_key(decision_packet_ref)
+                != artifacts.artifact_ref_identity_key(expected_decision_packet_ref)
+                or record.record_id != record_id
+                or mandate.decision_packet_ref != expected_decision_packet_ref
+            ):
+                raise GovernedPublicRecordError("record_custody_binding_mismatch")
+            self._raw(signature_ref)
+            self._raw(decision_packet_ref)
 
 
 __all__ = [

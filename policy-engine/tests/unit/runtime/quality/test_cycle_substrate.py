@@ -921,10 +921,15 @@ def _world_record_with_selected_views(
     registry: SubstrateRegistry,
     *,
     selected_profile: str,
+    region_or_jurisdiction: str | None = None,
 ) -> WorldModelRecord:
     """Build a content-bound WMRv2 fixture whose same IDs have selected views."""
 
-    base = _world_record(domain, registry)
+    base = _world_record(
+        domain,
+        registry,
+        region_or_jurisdiction=region_or_jurisdiction,
+    )
     graph_id = _hash(f"{domain}:program-graph")
     ncm_id = _hash(f"{domain}:ncm")
     substrate_ref = base.substrate_registry_ref.model_copy(
@@ -1733,7 +1738,12 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         offer.context.world_model_record.simulation_model_ref.ncm_refs
     )
     assert offer.context.world_model_record.authority_status == "limited"
-    assert offer.context.s8_status == "blocked"
+    assert offer.context.authority_purpose == "cycle_input_candidate_only"
+    assert {
+        "grounding_authority",
+        "transport_authority",
+        "promotion_authority",
+    }.issubset(offer.context.may_not_use_for)
 
     profile_only_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
         profiles=(profile,)
@@ -1783,6 +1793,7 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
         "education",
         registry,
         selected_profile=_hash("selected-view"),
+        region_or_jurisdiction=problem.jurisdiction_time.region,
     )
     context = _cycle_context(
         design_problem_ref=problem_ref,
@@ -1810,6 +1821,8 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
 
     assert type(resolved) is CycleSubstrateContextJobArtifactV3
     assert is_supported_cycle_substrate_context_job_artifact(resolved)
+    assert resolved.profile_admission_status == "not_established"
+    assert resolved.s8_status == "blocked"
     assert resolved.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
     assert resolved.context.world_model_record.schema_version == (
         WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
@@ -1832,6 +1845,7 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
         "education",
         registry,
         selected_profile=_hash("sibling-view"),
+        region_or_jurisdiction=problem.jurisdiction_time.region,
     )
     sibling_context = _cycle_context(
         design_problem_ref=problem_ref,

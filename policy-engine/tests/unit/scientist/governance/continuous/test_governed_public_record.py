@@ -167,29 +167,26 @@ def test_real_owner_signed_mandate_issuance_readback_and_custody(
     record_id = configured.issue(
         decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=later
     )
-    original_raw = configured._raw
+    historical_owner = configured.claim_owner
+    owner_type = type(historical_owner)
+    original_verifier = owner_type.verify_historical_packet_snapshot
 
-    def expose_first_cas_failure(ref: ArtifactRef) -> bytes:
-        try:
-            return original_raw(ref)
-        except Exception as exc:
-            chain = []
-            current = exc
-            seen = set()
-            while current is not None and id(current) not in seen:
-                seen.add(id(current))
-                chain.append(
-                    f"{type(current).__module__}.{type(current).__qualname__}"
-                    f"(code={getattr(current, 'code', None)!r})"
-                )
-                current = current.__cause__ or current.__context__
-            raise AssertionError(
-                "public-record owner CAS read failed: "
-                f"artifact_id={ref.artifact_id} kind={ref.kind!r} "
-                f"media_type={ref.media_type!r}; exception_chain={chain!r}"
-            ) from None
+    def expose_typed_historical_result(self, *, snapshot):
+        result = original_verifier(self, snapshot=snapshot)
+        if self is historical_owner:
+            assert type(result) is type(snapshot.ledger), (
+                "historical source owner returned "
+                f"{type(result).__module__}.{type(result).__qualname__} "
+                f"status={getattr(result, 'status', None)!r} "
+                f"code={getattr(result, 'code', None)!r}"
+            )
+        return result
 
-    monkeypatch.setattr(configured, "_raw", expose_first_cas_failure)
+    monkeypatch.setattr(
+        owner_type,
+        "verify_historical_packet_snapshot",
+        expose_typed_historical_result,
+    )
     configured._resolve_public_index(record_id)
     response = configured.verify(record_id)
     assert response.report_authentication == "verified", (

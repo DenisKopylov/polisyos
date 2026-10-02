@@ -3243,6 +3243,294 @@ def test_joint_port_resolves_exact_selected_candidate_ncm_view(
         assert raised.value.code == "joint_simulation_ncm_selected_view_not_wmr_bound"
 
 
+
+def test_joint_port_refuses_same_id_sibling_ncm_views_before_n5(
+    tmp_path: Path,
+) -> None:
+    """N5 binds the full selected profile identity, not only a shared blob ID."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.world_model_record import (
+        derive_candidate_scenario_world_model_record,
+        world_model_record_content_hash,
+    )
+
+    problem, context, candidate = _cyc01_owner_bound_n5_case()
+    tenant_id = "tenant-sibling-selected-ncm"
+    cell_id = "cell-sibling-selected-ncm"
+    job_id = "job-sibling-selected-ncm"
+    run_id = "run-sibling-selected-ncm"
+    store = FileSystemCAS(tmp_path / "sibling-selected-ncm-cas")
+    repository = GenerationSourceRepository(store)
+    context_inputs = CandidateSimulationContextInputs(
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=context.world_model_record,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=context.candidate_levers,
+        transport_context=context.transport_context,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=context.substrate_input_content_hash,
+    )
+    outcome = problem.outcome_of_interest.target_variable
+    rule = CandidateScenarioSetToRule(
+        operator_kind="set_to",
+        parameter_id="selected-ncm-target",
+        target_world_slot="agents.income",
+        unit_id="score",
+        minimum=0,
+        maximum=1,
+    )
+    n5 = CandidateScenarioN5Config(
+        budget_ref="budget://same-id-sibling-ncm",
+        horizon=HorizonSpec(start=0, end=0, step=1),
+        baseline_state={rule.target_world_slot: 2.0, outcome: 10.0},
+    )
+    limitations = (
+        "scenario_only",
+        "real_profile_not_established",
+        "real_time_not_established",
+        "grounding_not_established",
+        "s8_blocked",
+        "n9_not_admitted",
+    )
+
+    def declaration_for(label: str):
+        profile_fields = {
+            "profile_id": f"test.same-id-ncm.{label}",
+            "profile_selection_ref": gy_content_hash(
+                {"fixture": "same-id-sibling-ncm", "profile": label}
+            ),
+            "context_inputs": context_inputs,
+            "rule": rule,
+            "n5": n5,
+            "limitations": limitations,
+        }
+        profile_draft = CandidateSimulationScenarioProfile.model_construct(
+            **profile_fields,
+            content_hash="sha256:" + "0" * 64,
+        )
+        profile = CandidateSimulationScenarioProfile.model_validate(
+            {
+                **profile_fields,
+                "content_hash": gy_content_hash(
+                    profile_draft.model_dump(mode="json", exclude={"content_hash"})
+                ),
+            }
+        )
+        declaration_fields = {
+            "profile_config_ref": candidate_simulation_profile_ref(profile),
+            "profile_content_hash": profile.content_hash,
+            "profile_selection_ref": profile.profile_selection_ref,
+            "target_world_slot": rule.target_world_slot,
+            "outcome_variable": outcome,
+            "target_unit_id": rule.unit_id,
+            "outcome_unit_id": "score",
+            "target_baseline": 2.0,
+            "outcome_baseline": 10.0,
+            "outcome_per_target_unit": 3.0,
+            "outcome_noise_stddev": 0.01,
+            "assumption": "declared_candidate_scm_not_empirically_grounded",
+        }
+        declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+            **declaration_fields,
+            content_hash="sha256:" + "0" * 64,
+        )
+        declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+            {
+                **declaration_fields,
+                "content_hash": gy_content_hash(
+                    declaration_draft.model_dump(mode="json", exclude={"content_hash"})
+                ),
+            }
+        )
+        return profile, declaration
+
+    selected_profile, selected_declaration = declaration_for("selected")
+    sibling_profile, sibling_declaration = declaration_for("sibling")
+    try:
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            selected_declaration_ref = repository.persist_candidate_model_declaration(
+                declaration=selected_declaration,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            sibling_declaration_ref = repository.persist_candidate_model_declaration(
+                declaration=sibling_declaration,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            selected_ncm = candidate_ncm_spec_from_declaration(selected_declaration)
+            sibling_ncm = candidate_ncm_spec_from_declaration(sibling_declaration)
+            selected_ncm_ref = repository.persist_candidate_ncm_selected_view(
+                ncm_spec=selected_ncm,
+                declaration_ref=selected_declaration_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                profile_content_hash=selected_profile.content_hash,
+            )
+            sibling_ncm_ref = repository.persist_candidate_ncm_selected_view(
+                ncm_spec=sibling_ncm,
+                declaration_ref=sibling_declaration_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                profile_content_hash=sibling_profile.content_hash,
+            )
+
+        assert selected_ncm.model_dump(mode="json") == sibling_ncm.model_dump(mode="json")
+        assert selected_ncm_ref.artifact_id == sibling_ncm_ref.artifact_id
+        assert selected_ncm_ref.manifest_profile_sha256 is not None
+        assert sibling_ncm_ref.manifest_profile_sha256 is not None
+        assert selected_ncm_ref.manifest_profile_sha256 != sibling_ncm_ref.manifest_profile_sha256
+        assert store.get_manifest(selected_ncm_ref).inputs[0].artifact_id == (
+            selected_declaration_ref.artifact_id
+        )
+        assert store.get_manifest(sibling_ncm_ref).inputs[0].artifact_id == (
+            sibling_declaration_ref.artifact_id
+        )
+
+        base_record = context.world_model_record
+        limited_draft = base_record.model_copy(
+            update={
+                "authority_status": "limited",
+                "world_model_record_id": "world_model_record_0000000000000000",
+                "content_hash": "sha256:" + "0" * 64,
+            }
+        )
+        limited_hash = world_model_record_content_hash(limited_draft)
+        limited_base = type(base_record).model_validate(
+            {
+                **limited_draft.model_dump(mode="json"),
+                "world_model_record_id": (
+                    "world_model_record_" + limited_hash.removeprefix("sha256:")[:16]
+                ),
+                "content_hash": limited_hash,
+            }
+        )
+        selected_world = derive_candidate_scenario_world_model_record(
+            limited_base,
+            ncm_artifact_ref=selected_ncm_ref,
+            declaration_content_hash=selected_declaration.content_hash,
+        )
+        sibling_world = derive_candidate_scenario_world_model_record(
+            selected_world,
+            ncm_artifact_ref=sibling_ncm_ref,
+            declaration_content_hash=sibling_declaration.content_hash,
+        )
+        assert sibling_world.simulation_model_ref.ncm_refs == (
+            str(selected_ncm_ref.artifact_id),
+            str(sibling_ncm_ref.artifact_id),
+        )
+        assert sibling_world.artifact_views is not None
+        assert sibling_world.artifact_views.ncm_refs == (
+            selected_ncm_ref,
+            sibling_ncm_ref,
+        )
+
+        port = JointSimulationPort(
+            repo_root=tmp_path / "empty-repo",
+            artifact_store=store,
+        )
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            resolved = port._resolve_joint_simulation_ncm(
+                problem=problem,
+                world_record=selected_world,
+                selected_ncm_ref=selected_ncm_ref,
+                declaration_ref=selected_declaration_ref,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            with pytest.raises(WorldModelRecordError) as unbound:
+                port._resolve_joint_simulation_ncm(
+                    problem=problem,
+                    world_record=selected_world,
+                    selected_ncm_ref=sibling_ncm_ref,
+                    declaration_ref=sibling_declaration_ref,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+            with pytest.raises(WorldModelRecordError) as ambiguous:
+                port._resolve_joint_simulation_ncm(
+                    problem=problem,
+                    world_record=sibling_world,
+                )
+        assert resolved.model_dump(mode="json") == selected_ncm.model_dump(mode="json")
+        assert unbound.value.code == "joint_simulation_ncm_selected_view_not_wmr_bound"
+        assert ambiguous.value.code == "joint_simulation_ncm_spec_missing"
+
+        sibling_context = build_cycle_substrate_context(
+            design_problem_ref=context.design_problem_ref,
+            domain=context.domain,
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=sibling_world,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=context.candidate_levers,
+            transport_context=context.transport_context,
+            source_pack_content_hash=context.source_pack_content_hash,
+            substrate_input_content_hash=context.substrate_input_content_hash,
+        )
+        rebound_atoms = []
+        for atom in candidate.intervention_atoms:
+            rebound = atom.model_copy(
+                update={"world_model_record_ref": sibling_world.world_model_record_id}
+            )
+            rebound = rebound.model_copy(
+                update={"content_hash": intervention_atom_content_hash(rebound)}
+            )
+            rebound_atoms.append(type(atom).model_validate(rebound.model_dump(mode="python")))
+        sibling_candidate = SimpleNamespace(
+            candidate_id=candidate.candidate_id,
+            atom=rebound_atoms[0],
+            intervention_atoms=tuple(rebound_atoms),
+        )
+        controller_calls = []
+
+        class _UnreachableN5Controller:
+            def run(self, request: object) -> object:
+                controller_calls.append(request)
+                raise AssertionError("ambiguous selected NCM views must not reach N5")
+
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            blocked = JointSimulationPort(
+                controller=_UnreachableN5Controller(),
+                repo_root=tmp_path / "empty-repo",
+                cycle_substrate_context=sibling_context,
+                artifact_store=store,
+            )(
+                candidate=sibling_candidate,
+                problem=problem,
+                cycle_index=0,
+            )
+        assert blocked.status == "simulation_blocked"
+        assert blocked.authority_blockers == ("joint_simulation_ncm_spec_missing",)
+        assert controller_calls == []
+    finally:
+        store.close()
+
+
 def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
     tmp_path: Path,
 ) -> None:

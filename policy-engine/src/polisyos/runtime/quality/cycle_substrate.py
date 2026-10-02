@@ -33,7 +33,7 @@ from polisyos.core.security import (
     get_current_tenant_id_or_none,
 )
 from polisyos.pdc import gy_content_hash
-from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
+from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
 )
@@ -1226,6 +1226,267 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             raise ValueError("candidate_simulation_model_store_not_supplied")
         self._model_declarations = declarations_by_profile
         self._store = store
+
+    def configured_profile_for_selection_ref(self, profile_selection_ref: str) -> object:
+        """Resolve one exact immutable configured profile without admitting it."""
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationScenarioProfile,
+        )
+
+        matches = tuple(
+            profile
+            for profile in self._profiles
+            if profile.profile_selection_ref == profile_selection_ref
+        )
+        if len(matches) != 1 or type(matches[0]) is not CandidateSimulationScenarioProfile:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_profile_selection_unresolved"
+            )
+        return matches[0]
+
+    def admit_context_for_acquired_world(
+        self,
+        *,
+        problem: DesignProblem,
+        profile_selection_ref: str,
+        world_model_record: WorldModelRecord,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> object:
+        """Rebind an exact configured candidate profile to an owner-built world.
+
+        This reissues the existing candidate model declaration and NCM views
+        through GenerationSourceRepository, then persists no context itself.
+        Caller-owned world construction is accepted only as a limited WMR with
+        explicit acquisition, measurement, and causal-coupling blockers. Source
+        time remains unresolved. Profiles with transport context are refused
+        until its target profile can be owner-recomputed for the new world.
+        """
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextOffer,
+            CandidateSimulationScenarioProfile,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.world_model_record import (
+            derive_candidate_scenario_world_model_record,
+        )
+
+        if type(problem) is not DesignProblem or type(world_model_record) is not WorldModelRecord:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_acquisition_context_inputs_untyped"
+            )
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (job_id, run_id, tenant_id, cell_id, profile_selection_ref)
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_job_scope_not_established"
+            )
+        required_blockers = {
+            "source_time_not_established",
+            "source_to_target_measurement_contract_not_established",
+            "causal_coupling_not_established",
+        }
+        if (
+            world_model_record.authority_status != "limited"
+            or not required_blockers.issubset(
+                set(world_model_record.limitations.admissibility_blockers)
+            )
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_acquisition_world_limitations_not_established"
+            )
+        configured = self.configured_profile_for_selection_ref(profile_selection_ref)
+        if type(configured) is not CandidateSimulationScenarioProfile:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_profile_untyped"
+            )
+        if configured.context_inputs.transport_context is not None:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_transport_refresh_not_established"
+            )
+        if configured.context_inputs.candidate_levers:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_lever_refresh_not_established"
+            )
+        if self._store is None:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_model_store_not_supplied"
+            )
+        original_profile_ref = candidate_simulation_profile_ref(configured)
+        original_declaration = self._model_declarations.get(original_profile_ref)
+        if original_declaration is None:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_model_declaration_missing"
+            )
+        if (
+            original_declaration.outcome_variable
+            != problem.outcome_of_interest.target_variable
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_problem_outcome_mismatch"
+            )
+        if (
+            configured.profile_selection_ref != _cycle_job_v1_profile_selection_ref(problem)
+            or world_model_record.region_or_jurisdiction
+            != configured.context_inputs.world_model_record.region_or_jurisdiction
+            or configured.rule.target_world_slot
+            not in {binding.slot_id for binding in world_model_record.policy_slot_map}
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_profile_world_mismatch"
+            )
+
+        from polisyos.core.artifacts import ArtifactID
+        from polisyos.core.contracts.foundry import StateSnapshotRef
+        from polisyos.foundry.data_plane.bindings import load_state_snapshot
+        from polisyos.foundry.execute.executor import get_state_path
+
+        state_ref = StateSnapshotRef(
+            artifact_id=ArtifactID.model_validate(
+                world_model_record.foundry_binding_ref.bound_state_snapshot_ref
+            ),
+            kind="foundry.state_snapshot",
+            media_type="application/json",
+        )
+        if not self._store.verify(state_ref).ok:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_state_snapshot_unverified"
+            )
+        state = load_state_snapshot(self._store, snapshot_ref=state_ref)
+        slot_bindings = {
+            binding.slot_id: binding for binding in world_model_record.policy_slot_map
+        }
+        target_binding = slot_bindings.get(original_declaration.target_world_slot)
+        outcome_binding = slot_bindings.get(original_declaration.outcome_variable)
+        if (
+            target_binding is None
+            or outcome_binding is None
+            or target_binding.unit != original_declaration.target_unit_id
+            or outcome_binding.unit != original_declaration.outcome_unit_id
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_model_slot_unit_mismatch"
+            )
+        required_baseline_slots = set(configured.n5.baseline_state)
+        if not required_baseline_slots:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_baseline_missing"
+            )
+        refreshed_baseline: dict[str, float] = {}
+        import math
+
+        for slot_id in sorted(required_baseline_slots):
+            binding = slot_bindings.get(slot_id)
+            if binding is None or not binding.state_path:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_acquisition_baseline_slot_unresolved",
+                    slot_id,
+                )
+            try:
+                value = get_state_path(state, binding.state_path)
+                scalar = float(value)
+            except (AttributeError, TypeError, ValueError) as exc:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_acquisition_baseline_not_scalar",
+                    slot_id,
+                ) from exc
+            if not math.isfinite(scalar):
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_acquisition_baseline_non_finite",
+                    slot_id,
+                )
+            refreshed_baseline[slot_id] = scalar
+
+        profile_payload = configured.model_dump(mode="json")
+        profile_payload["context_inputs"]["world_model_record"] = (
+            world_model_record.model_dump(mode="json")
+        )
+        profile_payload["n5"]["baseline_state"] = refreshed_baseline
+        profile_payload["content_hash"] = gy_content_hash(
+            {key: value for key, value in profile_payload.items() if key != "content_hash"}
+        )
+        profile = CandidateSimulationScenarioProfile.model_validate(profile_payload)
+        profile_config_ref = candidate_simulation_profile_ref(profile)
+
+        declaration_payload = original_declaration.model_dump(mode="json")
+        outcome_variable = original_declaration.outcome_variable
+        target_slot = original_declaration.target_world_slot
+        if (
+            target_slot != configured.rule.target_world_slot
+            or outcome_variable not in refreshed_baseline
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_declaration_baseline_unresolved"
+            )
+        declaration_payload.update(
+            {
+                "profile_config_ref": profile_config_ref,
+                "profile_content_hash": profile.content_hash,
+                "target_baseline": refreshed_baseline[target_slot],
+                "outcome_baseline": refreshed_baseline[outcome_variable],
+            }
+        )
+        declaration_payload["content_hash"] = gy_content_hash(
+            {
+                key: value
+                for key, value in declaration_payload.items()
+                if key != "content_hash"
+            }
+        )
+        declaration = type(original_declaration).model_validate(declaration_payload)
+        repository = GenerationSourceRepository(store=self._store)
+        declaration_ref = repository.persist_candidate_model_declaration(
+            declaration=declaration,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
+
+        ncm_ref = repository.persist_candidate_ncm_selected_view(
+            ncm_spec=candidate_ncm_spec_from_declaration(declaration),
+            declaration_ref=declaration_ref,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            profile_content_hash=profile.content_hash,
+        )
+        candidate_world = derive_candidate_scenario_world_model_record(
+            world_model_record,
+            ncm_artifact_id=str(ncm_ref.artifact_id),
+            declaration_content_hash=declaration.content_hash,
+        )
+        inputs = configured.context_inputs
+        selected_hashes = tuple(inputs.selected_registry_entry_hashes)
+        context = build_cycle_substrate_context(
+            design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
+            domain=problem.domain,
+            substrate_registry=inputs.substrate_registry,
+            selected_registry_entry_hashes=selected_hashes,
+            world_model_record=candidate_world,
+            intervention_substrate=inputs.intervention_substrate,
+            candidate_levers=(),
+            transport_context=None,
+            source_pack_content_hash=inputs.source_pack_content_hash,
+            substrate_input_content_hash=inputs.substrate_input_content_hash,
+        )
+        _validate_problem_world_match(problem, context)
+        context = revalidate_cycle_substrate_context(context)
+        return CandidateSimulationContextOffer(
+            context=context,
+            profile=profile,
+            profile_config_ref=profile_config_ref,
+            model_declaration=declaration,
+            model_declaration_ref=declaration_ref,
+            ncm_ref=ncm_ref,
+        )
 
     @property
     def profiles(self) -> tuple[object, ...]:

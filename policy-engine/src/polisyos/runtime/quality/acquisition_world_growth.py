@@ -67,6 +67,27 @@ class _Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class AcquisitionCandidateWorldRefresh(_Strict):
+    """Explicit controlled-candidate mapping for one admitted route variable."""
+
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=_SHA)
+    profile_selection_ref: str = Field(pattern=_SHA)
+    canonical_variable_id: str = Field(min_length=1)
+    target_slot_id: str = Field(min_length=1)
+    mapping_semantics: Literal["candidate_value_forwarded_without_conversion"] = (
+        "candidate_value_forwarded_without_conversion"
+    )
+
+    @property
+    def key(self) -> tuple[str, str, str, str]:
+        """Exact served route key selected by this candidate-only mapping."""
+
+        return self.tenant_id, self.cell_id, self.run_id, self.route_id
+
+
 class AcquisitionWorldGrowthRoute(_Strict):
     """Explicit deployment selection for one route; it conveys no admission."""
 
@@ -91,14 +112,21 @@ class AcquisitionWorldGrowthRoute(_Strict):
 
 
 class AcquisitionWorldGrowthConfig(_Strict):
-    """Typed empty-by-default evidence-selection slots."""
+    """Typed empty-by-default evidence and controlled-refresh selections."""
 
     routes: tuple[AcquisitionWorldGrowthRoute, ...] = ()
+    candidate_world_refreshes: tuple[AcquisitionCandidateWorldRefresh, ...] = ()
 
     @model_validator(mode="after")
     def _unique_routes(self) -> Self:
-        if len({route.key for route in self.routes}) != len(self.routes):
+        route_keys = {route.key for route in self.routes}
+        if len(route_keys) != len(self.routes):
             raise ValueError("acquisition_world_growth_route_ambiguous")
+        refresh_keys = {refresh.key for refresh in self.candidate_world_refreshes}
+        if len(refresh_keys) != len(self.candidate_world_refreshes):
+            raise ValueError("acquisition_candidate_world_refresh_ambiguous")
+        if not refresh_keys.issubset(route_keys):
+            raise ValueError("acquisition_candidate_world_refresh_route_unconfigured")
         return self
 
 
@@ -206,6 +234,8 @@ class AcquisitionWorldGrowthBridge:
         event_log: RuntimeDiagnosticEventLog,
         epoch_deployment: EpochDeployment | None,
         promotion_runtime: PromotionRuntime | None = None,
+        cycle_substrate_context_admission_owner: object | None = None,
+        control_store: object | None = None,
     ) -> None:
         if type(config) is not AcquisitionWorldGrowthConfig:
             raise TypeError("acquisition world growth selection must be typed")
@@ -218,6 +248,10 @@ class AcquisitionWorldGrowthBridge:
         self.event_log = event_log
         self.epoch_deployment = epoch_deployment
         self.promotion_runtime = promotion_runtime
+        self.cycle_substrate_context_admission_owner = (
+            cycle_substrate_context_admission_owner
+        )
+        self.control_store = control_store
 
     def selection(
         self, closure: VerifiedAcquisitionRouteClosure
@@ -797,9 +831,6 @@ class AcquisitionWorldGrowthBridge:
             payload = json.loads(self.artifact_store.get_bytes(closure.source_payload_ref))
             models = payload.get("llm_models")
             model = str(models[0]) if isinstance(models, list) and models else None
-            controller = GenerationCycleController(
-                repo_root=self.repo_root, model_id=model, promotion_runtime=self.promotion_runtime
-            )
             if model is None:
                 raise ValueError("acquisition_reentry_model_unconfigured")
             passport = acquisition_executor.AdmissionPassport.model_validate(
@@ -832,6 +863,34 @@ class AcquisitionWorldGrowthBridge:
                 or observation_projection.passport_id != admitted.passport_id
             ):
                 raise ValueError("acquisition_world_growth_selected_observation_binding_mismatch")
+            refresh = next(
+                (
+                    candidate_refresh
+                    for candidate_refresh in self.config.candidate_world_refreshes
+                    if candidate_refresh.key == growth.selection.key
+                ),
+                None,
+            )
+            controller_kwargs: dict[str, object] = {}
+            if refresh is not None:
+                context, handoff, currentness_resolver = self._candidate_world_context_handoff(
+                    closure=closure,
+                    growth=growth,
+                    overlay=overlay,
+                    observation_projection=observation_projection,
+                    refresh=refresh,
+                )
+                controller_kwargs = {
+                    "cycle_substrate_context": context,
+                    "candidate_simulation_handoff": handoff,
+                    "candidate_simulation_currentness_resolver": currentness_resolver,
+                }
+            controller = GenerationCycleController(
+                repo_root=self.repo_root,
+                model_id=model,
+                promotion_runtime=self.promotion_runtime,
+                **controller_kwargs,
+            )
             with fence.open("x") as stream:
                 stream.write(growth_refs[0])
                 stream.flush()
@@ -868,6 +927,230 @@ class AcquisitionWorldGrowthBridge:
             )
             self._write_pointer(pointer, ref)
             return ref
+
+    def _candidate_world_context_handoff(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        growth: AcquisitionWorldGrowthReceipt,
+        overlay: data_forge_read_api.catalog.CatalogAcquisitionOverlay,
+        observation_projection: (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        ),
+        refresh: AcquisitionCandidateWorldRefresh,
+    ) -> tuple[object, object, object]:
+        """Materialize one owner-read-back row and persist a fresh leased context."""
+
+        from polisyos.core.artifacts import ArtifactID, ArtifactRef
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            CycleSubstrateContextArtifactOwner,
+        )
+        from polisyos.runtime.quality.data_state_substrate import (
+            ControlledAcquisitionSlotBinding,
+            build_acquired_observation_candidate_world,
+            materialize_acquired_observation_snapshot,
+        )
+        from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+
+        admission_owner = self.cycle_substrate_context_admission_owner
+        control_store = self.control_store
+        if (
+            type(admission_owner) is not ConfiguredCandidateSimulationContextAdmissionOwner
+            or control_store is None
+            or not callable(getattr(control_store, "current_execution_job_record", None))
+        ):
+            raise ValueError("acquisition_candidate_context_owner_unavailable")
+        configured_profile = admission_owner.configured_profile_for_selection_ref(
+            refresh.profile_selection_ref
+        )
+        if (
+            configured_profile.profile_selection_ref != refresh.profile_selection_ref
+            or configured_profile.rule.target_world_slot != refresh.target_slot_id
+            or configured_profile.context_inputs.world_model_record.authority_status
+            not in {"bound", "limited"}
+        ):
+            raise ValueError("acquisition_candidate_context_profile_binding_mismatch")
+        selected_rows = tuple(
+            row
+            for row in observation_projection.observations
+            if row.observation.canonical_var == refresh.canonical_variable_id
+        )
+        if len(selected_rows) != 1:
+            raise ValueError("acquisition_candidate_observation_not_unique")
+        selected_row = selected_rows[0]
+        base_world = configured_profile.context_inputs.world_model_record
+        base_data_snapshot_ref = ArtifactRef(
+            artifact_id=ArtifactID.model_validate(
+                base_world.simulation_model_ref.data_snapshot_ref
+            ),
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+        )
+        if not self.artifact_store.verify(base_data_snapshot_ref).ok:
+            raise ValueError("acquisition_candidate_base_snapshot_unverified")
+        store_registry_ref = base_world.substrate_registry_ref.registry_artifact_ref
+        if store_registry_ref is None:
+            substrate_registry_ref = persist_substrate_registry(
+                self.artifact_store,
+                configured_profile.context_inputs.substrate_registry,
+            )
+        else:
+            manifest = self.artifact_store.get_manifest(store_registry_ref)
+            substrate_registry_ref = ArtifactRef(
+                artifact_id=ArtifactID.model_validate(store_registry_ref),
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+            )
+            if manifest.kind != "runtime.quality.production_data_substrate_registry":
+                raise ValueError("acquisition_candidate_substrate_registry_kind_mismatch")
+        from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+
+        passport_payload = contracts.epoch.load_verified_epoch_statement(
+            store=self.artifact_store,
+            ref=growth.activation.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+        passport = AdmissionPassport.model_validate(passport_payload)
+        if passport.variable_id != refresh.canonical_variable_id:
+            raise ValueError("acquisition_candidate_context_profile_variable_mismatch")
+        current_job = control_store.current_execution_job_record()
+        if current_job.run_id != closure.run_id:
+            raise ValueError("acquisition_candidate_context_current_job_mismatch")
+        selected_profile_binding = ControlledAcquisitionSlotBinding(
+            profile_selection_ref=refresh.profile_selection_ref,
+            canonical_variable_id=refresh.canonical_variable_id,
+            target_slot_id=refresh.target_slot_id,
+        )
+        workspace_dir = (
+            self.runtime_root
+            / "runtime/acquisition/world-growth/candidate-snapshots"
+            / hashlib.sha256(
+                canon.to_canonical_bytes(
+                    [
+                        closure.tenant_id,
+                        closure.cell_id,
+                        closure.run_id,
+                        closure.route_id,
+                        current_job.job_id,
+                        str(growth.activation.overlay_admission_receipt_ref.artifact_id),
+                    ]
+                )
+            ).hexdigest()
+        )
+        transaction_time = datetime.now(UTC)
+        materialization = materialize_acquired_observation_snapshot(
+            self.artifact_store,
+            base_data_snapshot_ref=base_data_snapshot_ref,
+            overlay=overlay,
+            receipt_ref=growth.activation.overlay_admission_receipt_ref,
+            passport=passport,
+            authority=self.authority,
+            observation_id=selected_row.observation.observation_id,
+            slot_binding=selected_profile_binding,
+            workspace_dir=workspace_dir / "data-forge",
+            transaction_time=transaction_time,
+        )
+        candidate_world = build_acquired_observation_candidate_world(
+            self.artifact_store,
+            base_world_model=base_world,
+            substrate_registry=configured_profile.context_inputs.substrate_registry,
+            substrate_registry_artifact_ref=substrate_registry_ref,
+            materialization=materialization,
+            workspace_dir=workspace_dir / "fabric-world",
+            transaction_time=transaction_time,
+        )
+        offer = admission_owner.admit_context_for_acquired_world(
+            problem=closure.design_problem_basis,
+            profile_selection_ref=refresh.profile_selection_ref,
+            world_model_record=candidate_world.world_model.record,
+            job_id=current_job.job_id,
+            run_id=current_job.run_id,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+        )
+        context_owner = CycleSubstrateContextArtifactOwner(
+            store=self.artifact_store,
+            control_store=control_store,
+        )
+        context_ref = context_owner.persist_for_current_job(
+            offer.context,
+            problem=closure.design_problem_basis,
+        )
+        resolved = context_owner.resolve_for_current_job(
+            context_ref,
+            problem=closure.design_problem_basis,
+        )
+        if (
+            resolved.context.content_hash != offer.context.content_hash
+            or resolved.tenant_id != closure.tenant_id
+            or resolved.cell_id != closure.cell_id
+            or resolved.job_id != current_job.job_id
+            or resolved.run_id != current_job.run_id
+        ):
+            raise ValueError("acquisition_candidate_context_replay_changed_content")
+        handoff = CandidateSimulationContextHandoff(
+            context=resolved.context,
+            context_job_ref=context_ref,
+            profile=offer.profile,
+            profile_config_ref=offer.profile_config_ref,
+            job_id=current_job.job_id,
+            run_id=current_job.run_id,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            model_declaration=offer.model_declaration,
+            model_declaration_ref=offer.model_declaration_ref,
+            ncm_ref=offer.ncm_ref,
+        )
+
+        def currentness_resolver() -> bool:
+            """Recheck Data Forge readback and the context under the live job lease."""
+
+            try:
+                current_job_record = control_store.current_execution_job_record()
+                if (
+                    current_job_record.job_id != handoff.job_id
+                    or current_job_record.run_id != handoff.run_id
+                    or current_job_record.run_id != closure.run_id
+                ):
+                    return False
+                replayed_job = context_owner.resolve_for_current_job(
+                    context_ref,
+                    problem=closure.design_problem_basis,
+                )
+                latest_projection = overlay.read_activated_semantic_epoch_observations(
+                    receipt_ref=growth.activation.overlay_admission_receipt_ref,
+                    artifact_store=self.artifact_store,
+                    passport=passport,
+                    authority=self.authority,
+                )
+                current_offer = admission_owner.admit_context_for_acquired_world(
+                    problem=closure.design_problem_basis,
+                    profile_selection_ref=refresh.profile_selection_ref,
+                    world_model_record=candidate_world.world_model.record,
+                    job_id=current_job_record.job_id,
+                    run_id=current_job_record.run_id,
+                    tenant_id=closure.tenant_id,
+                    cell_id=closure.cell_id,
+                )
+                return (
+                    latest_projection.projection_content_sha256
+                    == materialization.observation_projection.projection_content_sha256
+                    and replayed_job.context.content_hash == handoff.context.content_hash
+                    and current_offer == offer
+                    and current_offer.context == handoff.context
+                    and current_offer.profile == handoff.profile
+                    and current_offer.model_declaration == handoff.model_declaration
+                    and current_offer.model_declaration_ref == handoff.model_declaration_ref
+                    and current_offer.ncm_ref == handoff.ncm_ref
+                )
+            except Exception:
+                return False
+
+        return offer.context, handoff, currentness_resolver
 
     @staticmethod
     def _validate_reentry(

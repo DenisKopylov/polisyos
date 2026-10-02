@@ -11,19 +11,33 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from polisyos.core.contracts.foundry import FoundryInputBindingRule
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        ActivatedAcquisitionObservationProjection,
+    )
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import contracts as core_contracts
-from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, InputRef, PutOptions, SchemaInfo
-from polisyos.core.canon import CanonSpec
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    ArtifactStore,
+    FileSystemCAS,
+    InputRef,
+    PutOptions,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
@@ -49,6 +63,7 @@ from polisyos.runtime.quality.world_model_record import (
     SkgCausalPriorRef,
     WorldModelBuildResult,
     WorldModelLimitations,
+    WorldModelRecord,
     WorldModelRecordError,
     WorldModelSimulationInput,
     _load_substrate_registry_artifact_ref,
@@ -61,6 +76,12 @@ ScopedSchemaRegimeProjection = core_contracts.ScopedSchemaRegimeProjection
 canonical_epoch_bytes = core_contracts.canonical_epoch_bytes
 
 DATA_STATE_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.data_state_substrate.v1"
+ACQUIRED_DATA_STATE_SCHEMA_VERSION = "policyos.runtime.acquisition_data_state.v1"
+ACQUIRED_DATA_STATE_LIMITATION_CODES = (
+    "source_time_not_established",
+    "source_to_target_measurement_contract_not_established",
+    "causal_coupling_not_established",
+)
 DEFAULT_L4_SNAPSHOT_ID = "ukraine_server_support_20260410"
 DEFAULT_DATA_STATE_PERIOD_START = "2021-12"
 DEFAULT_DATA_STATE_PERIOD_END = "2023-07"
@@ -161,6 +182,25 @@ class L5FamilyBindingProfile(_StrictModel):
         raise DataStateSubstrateError("l5_family_unidentified", family_id)
 
 
+class ControlledAcquisitionSlotBinding(_StrictModel):
+    """Declared candidate-only mapping from an admitted variable to a Foundry slot.
+
+    This profile forwards one scalar without unit conversion. It records the
+    requested target while keeping measurement and causal contracts unresolved.
+    A production mapping requires its own admitted source contract; this DTO
+    cannot make one authoritative.
+    """
+
+    schema_version: Literal["polisyos.runtime.controlled_acquisition_slot_binding.v1"] = (
+        "polisyos.runtime.controlled_acquisition_slot_binding.v1"
+    )
+    profile_selection_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    canonical_variable_id: str = Field(..., min_length=1)
+    target_slot_id: str = Field(..., min_length=1)
+    source_to_target_semantics: Literal[
+        "candidate_value_forwarded_without_conversion"
+    ] = "candidate_value_forwarded_without_conversion"
+
 @dataclass(frozen=True)
 class DataStateMaterializationResult:
     """CAS and Data Forge artifacts emitted before N3 binds the world."""
@@ -172,6 +212,33 @@ class DataStateMaterializationResult:
     l5_profile: L5FamilyBindingProfile
     payload_content_hash: str
     snapshot_id: str
+
+
+@dataclass(frozen=True)
+class AcquiredObservationDataSnapshotResult:
+    """Candidate DataSnapshot emitted from one owner-activated observation."""
+
+    data_snapshot_ref: ArtifactRef
+    data_forge_snapshot_binding_path: Path
+    snapshot_id: str
+    payload_content_hash: str
+    selected_dataset_id: str
+    selected_observation_id: str
+    source_time_status: Literal["not_established"]
+    observation_projection: ActivatedAcquisitionObservationProjection
+    foundry_binding_rule: FoundryInputBindingRule
+
+
+@dataclass(frozen=True)
+class AcquiredObservationWorldBuildResult:
+    """Candidate-limited WMR and Foundry state for an admitted acquisition row."""
+
+    materialization: AcquiredObservationDataSnapshotResult
+    world_model: WorldModelBuildResult
+    simulation_input: WorldModelSimulationInput
+    model_spec: ModelSpec
+    registry_bundle_ref: ArtifactRef
+    substrate_registry_ref: ArtifactRef
 
 
 @dataclass(frozen=True)
@@ -472,6 +539,477 @@ def materialize_l4_data_state_snapshot(
         l5_profile=l5_profile,
         payload_content_hash=payload_content_hash,
         snapshot_id=snapshot_id,
+    )
+
+
+def materialize_acquired_observation_snapshot(
+    store: ArtifactStore,
+    *,
+    base_data_snapshot_ref: ArtifactRef,
+    overlay: object,
+    receipt_ref: ArtifactRef,
+    passport: object,
+    authority: object,
+    observation_id: str,
+    slot_binding: ControlledAcquisitionSlotBinding,
+    workspace_dir: Path,
+    transaction_time: datetime,
+) -> AcquiredObservationDataSnapshotResult:
+    """Extend an existing S1 snapshot with one activated row for candidate work.
+
+    The projection is resolved again through Data Forge's canonical active-state
+    reader. This S1 owner checks the selected row against that owner readback,
+    preserves the existing snapshot payload, emits a new owner DataSnapshot,
+    and asks Data Forge's existing snapshot finalizer to issue the binding.
+    Source time, source-to-target measurement equivalence, and causal coupling
+    remain declared limitations. ``transaction_time`` records only this
+    materialization event; it is never substituted for source observation time.
+
+    Args:
+        store: The exact runtime-supplied ArtifactStore used by the tenant.
+        base_data_snapshot_ref: Current DataSnapshot whose world payload is
+            extended by the admitted observation.
+        overlay: Canonical Data Forge ``CatalogAcquisitionOverlay`` owner.
+        receipt_ref: Exact activated receipt selected by the world-growth owner.
+        passport: Owner-verified acquisition passport for ``receipt_ref``.
+        authority: The same canonical acquisition authority used for admission.
+        observation_id: Exact row identity selected from the active projection.
+        slot_binding: Explicit controlled-candidate map to one Foundry slot.
+        workspace_dir: Per-job workspace for Data Forge's normal snapshot owner.
+        transaction_time: Time this controlled candidate snapshot is emitted.
+
+    Returns:
+        The new DataSnapshot and Data Forge binding plus the required Foundry
+        rule that consumes the selected row.
+
+    Raises:
+        DataStateSubstrateError: If the base snapshot, selected row, candidate
+            mapping, or transaction time cannot be verified.
+    """
+    from polisyos.core.contracts.foundry import FoundryInputBindingRule
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        ActivatedAcquisitionObservationProjection,
+        CatalogAcquisitionOverlay,
+    )
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+
+    if not isinstance(slot_binding, ControlledAcquisitionSlotBinding):
+        raise DataStateSubstrateError("acquisition_slot_binding_untyped")
+    if type(overlay) is not CatalogAcquisitionOverlay:
+        raise DataStateSubstrateError("acquisition_overlay_owner_untyped")
+    if type(passport) is not AdmissionPassport:
+        raise DataStateSubstrateError("acquisition_passport_owner_untyped")
+    if not isinstance(receipt_ref, ArtifactRef):
+        raise DataStateSubstrateError("acquisition_activation_ref_untyped")
+    try:
+        owner_projection = overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=receipt_ref,
+            artifact_store=store,
+            passport=passport,
+            authority=authority,
+        )
+        selected_profile = ControlledAcquisitionSlotBinding.model_validate(
+            slot_binding.model_dump(mode="python")
+        )
+        selected_projection = ActivatedAcquisitionObservationProjection.model_validate(
+            owner_projection.model_dump(mode="python")
+        )
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise DataStateSubstrateError(
+            "acquisition_projection_or_mapping_invalid", str(exc)
+        ) from exc
+    if not observation_id.strip():
+        raise DataStateSubstrateError("acquisition_observation_id_empty")
+    if (
+        selected_projection.source_time_status != "not_established"
+        or selected_projection.variable_id != selected_profile.canonical_variable_id
+    ):
+        raise DataStateSubstrateError("acquisition_projection_mapping_mismatch")
+    selected_rows = [
+        row
+        for row in selected_projection.observations
+        if row.observation.observation_id == observation_id
+    ]
+    if len(selected_rows) != 1:
+        raise DataStateSubstrateError(
+            "acquisition_selected_observation_not_unique",
+            observation_id,
+        )
+    selected_row = selected_rows[0]
+    observation = selected_row.observation
+    if observation.canonical_var != selected_profile.canonical_variable_id:
+        raise DataStateSubstrateError("acquisition_selected_variable_mismatch")
+    if transaction_time.tzinfo is None or transaction_time.utcoffset() is None:
+        raise DataStateSubstrateError("acquisition_transaction_time_must_be_aware")
+
+    try:
+        base_manifest = store.get_manifest(base_data_snapshot_ref)
+        if (
+            base_manifest.kind != "fabric.data_snapshot"
+            or base_manifest.media_type != "application/json"
+        ):
+            raise DataStateSubstrateError("acquisition_base_snapshot_manifest_invalid")
+        base_snapshot = DataSnapshot.model_validate(
+            from_canonical_bytes(store.get_bytes(base_data_snapshot_ref))
+        )
+        snapshot_stats = base_snapshot.stats
+        base_snapshot_id = (
+            str(snapshot_stats.get("snapshot_id") or snapshot_stats.get("version_id") or "")
+            if isinstance(snapshot_stats, dict)
+            else ""
+        )
+        if not base_snapshot_id:
+            raise DataStateSubstrateError("acquisition_base_snapshot_version_missing")
+        base_payload_manifest = store.get_manifest(base_snapshot.data_ref)
+        if base_payload_manifest.media_type != "application/json":
+            raise DataStateSubstrateError("acquisition_base_payload_not_json")
+        raw_payload = from_canonical_bytes(store.get_bytes(base_snapshot.data_ref))
+    except DataStateSubstrateError:
+        raise
+    except Exception as exc:
+        raise DataStateSubstrateError("acquisition_base_snapshot_unresolved", str(exc)) from exc
+    if not isinstance(raw_payload, dict):
+        raise DataStateSubstrateError("acquisition_base_payload_not_object")
+
+    payload = dict(raw_payload)
+    raw_acquisition = payload.get("acquisition", {})
+    if not isinstance(raw_acquisition, dict):
+        raise DataStateSubstrateError("acquisition_payload_owner_field_invalid")
+    acquisition = dict(raw_acquisition)
+    history = payload.get("_policyos_acquisition_history", [])
+    if not isinstance(history, list) or any(not isinstance(item, dict) for item in history):
+        raise DataStateSubstrateError("acquisition_history_invalid")
+    prior_rows = [
+        item
+        for item in history
+        if item.get("dataset_id") == observation.dataset_id
+        and item.get("observation_id") == observation.observation_id
+    ]
+    if prior_rows and any(
+        item.get("row_content_sha256") != selected_row.row_content_sha256
+        for item in prior_rows
+    ):
+        raise DataStateSubstrateError("acquisition_observation_identity_reused")
+    if not prior_rows:
+        history.append(
+            {
+                "observation_id": observation.observation_id,
+                "dataset_id": observation.dataset_id,
+                "row_content_sha256": selected_row.row_content_sha256,
+                "projection_content_sha256": (
+                    selected_projection.projection_content_sha256
+                ),
+                "observation": observation.model_dump(mode="json"),
+            }
+        )
+    selected_value = {
+        "value": observation.value,
+        "canonical_variable_id": observation.canonical_var,
+        "observation_id": observation.observation_id,
+        "dataset_id": observation.dataset_id,
+        "row_content_sha256": selected_row.row_content_sha256,
+        "source_time_status": "not_established",
+        "reported_time_coordinate": {
+            "year": observation.year,
+            "survey_year": observation.survey_year,
+            "wave": observation.wave,
+        },
+    }
+    acquisition["selected"] = selected_value
+    payload["acquisition"] = acquisition
+    payload["_policyos_acquisition_history"] = history
+    transaction_time_text = transaction_time.astimezone(UTC).isoformat()
+    payload["_policyos_acquisition"] = {
+        "schema_version": ACQUIRED_DATA_STATE_SCHEMA_VERSION,
+        "base_data_snapshot_id": base_snapshot_id,
+        "source_time_status": "not_established",
+        "selected_observation_id": observation.observation_id,
+        "selected_dataset_id": observation.dataset_id,
+        "selected_row_content_sha256": selected_row.row_content_sha256,
+        "projection_content_sha256": selected_projection.projection_content_sha256,
+        "receipt_ref": selected_projection.receipt_ref.model_dump(mode="json"),
+        "receipt_content_sha256": selected_projection.receipt_content_sha256,
+        "passport_ref": selected_projection.passport_ref.model_dump(mode="json"),
+        "passport_content_sha256": selected_projection.passport_content_sha256,
+        "admission_content_sha256": selected_projection.admission_content_sha256,
+        "epoch_id": selected_projection.epoch_id,
+        "slot_binding": selected_profile.model_dump(mode="json"),
+        "materialized_at_transaction_time": transaction_time_text,
+        "limitation_codes": list(ACQUIRED_DATA_STATE_LIMITATION_CODES),
+    }
+
+    lineage_inputs = (
+        input_ref_from_artifact_ref(base_data_snapshot_ref, role="input.base_data_snapshot"),
+        input_ref_from_artifact_ref(
+            selected_projection.receipt_ref,
+            role="evidence.overlay_admission_receipt",
+        ),
+        input_ref_from_artifact_ref(
+            selected_projection.passport_ref,
+            role="evidence.acquisition_passport",
+        ),
+    )
+    payload_ref = store.put_json(
+        payload,
+        PutOptions(
+            kind="fabric.production_data_state_payload",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.runtime.quality.AcquisitionDataStatePayload",
+                version=ACQUIRED_DATA_STATE_SCHEMA_VERSION,
+            ),
+            inputs=list(lineage_inputs),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    payload_content_hash = str(payload_ref.artifact_id)
+    snapshot_id = "gy-s1-acquisition-overlay-" + payload_content_hash.removeprefix(
+        "sha256:"
+    )[:20]
+    data_snapshot = DataSnapshot(
+        data_ref=payload_ref,
+        stats={
+            "snapshot_id": snapshot_id,
+            "source_mode": "candidate_acquisition_overlay",
+            "base_snapshot_id": base_snapshot_id,
+            "selected_observation_id": observation.observation_id,
+            "selected_dataset_id": observation.dataset_id,
+            "selected_row_content_sha256": selected_row.row_content_sha256,
+            "projection_content_sha256": selected_projection.projection_content_sha256,
+            "source_time_status": "not_established",
+            "materialized_at_transaction_time": transaction_time_text,
+        },
+        notes=[
+            "candidate_acquisition_overlay",
+            "source_time_status:not_established",
+            "source_to_target_measurement_contract_not_established",
+            "causal_coupling_not_established",
+            "data_forge_snapshot_binding:finalize_snapshot",
+            "foundry_binding_owner:polisyos.foundry.data_plane.build_input_bindings",
+        ],
+    )
+    data_snapshot_ref = store.put_json(
+        data_snapshot,
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=[
+                input_ref_from_artifact_ref(
+                    payload_ref,
+                    role="payload.acquired_observation_candidate",
+                ),
+                *lineage_inputs,
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    binding_path = _write_data_forge_snapshot_binding(
+        workspace_dir=workspace_dir,
+        snapshot_id=snapshot_id,
+        payload=payload,
+        payload_content_hash=payload_content_hash,
+        published_at=transaction_time_text,
+        corpus_id="candidate-acquisition-observation-overlay",
+        builder_revision=(
+            "polisyos.runtime.quality.data_state_substrate."
+            "materialize_acquired_observation_snapshot"
+        ),
+        lineage_refs=(
+            _cas_data_forge_ref(base_data_snapshot_ref),
+            _cas_data_forge_ref(selected_projection.receipt_ref),
+            _cas_data_forge_ref(selected_projection.passport_ref),
+            _cas_data_forge_ref(payload_ref),
+        ),
+        claim_requirement_bindings=(
+            {
+                "claim_id": "candidate-acquired-world-state",
+                "requirement_id": (
+                    f"candidate-observation:{selected_profile.canonical_variable_id}"
+                ),
+                "requirement_kind": "candidate_acquisition_observation",
+                "authority_level": "candidate",
+                "time_role": "transaction_time",
+            },
+        ),
+    )
+    token = re.sub(r"[^a-zA-Z0-9_-]+", "_", observation.canonical_var).strip("_")
+    foundry_binding_rule = FoundryInputBindingRule(
+        binding_id=f"acquisition.{token}.candidate",
+        source_path="acquisition.selected.value",
+        target_slot_id=selected_profile.target_slot_id,
+        required=True,
+        notes=[
+            "candidate_only_controlled_mapping",
+            "source_time_not_established",
+            "source_to_target_measurement_contract_not_established",
+            f"profile_selection_ref:{selected_profile.profile_selection_ref}",
+            f"dataset_id:{observation.dataset_id}",
+            f"observation_id:{observation.observation_id}",
+        ],
+    )
+    return AcquiredObservationDataSnapshotResult(
+        data_snapshot_ref=data_snapshot_ref,
+        data_forge_snapshot_binding_path=binding_path,
+        snapshot_id=snapshot_id,
+        payload_content_hash=payload_content_hash,
+        selected_dataset_id=observation.dataset_id,
+        selected_observation_id=observation.observation_id,
+        source_time_status="not_established",
+        observation_projection=selected_projection,
+        foundry_binding_rule=foundry_binding_rule,
+    )
+
+
+def build_acquired_observation_candidate_world(
+    store: ArtifactStore,
+    *,
+    base_world_model: WorldModelRecord,
+    substrate_registry: SubstrateRegistry,
+    substrate_registry_artifact_ref: ArtifactRef,
+    materialization: AcquiredObservationDataSnapshotResult,
+    workspace_dir: Path,
+    transaction_time: datetime,
+) -> AcquiredObservationWorldBuildResult:
+    """Extend the existing WMR owner with one admitted row as limited candidate state.
+
+    The prior SKG snapshot is retained byte-for-byte. Its source DataSnapshot
+    remains the prior version and the resulting WMR carries
+    ``causal_coupling_not_established``; this builder never relabels a prior as
+    current causal evidence. Fabric facts use unknown valid time and the
+    supplied transaction time only for the snapshot transaction.
+    """
+    from polisyos.core.artifacts import ArtifactID
+    from polisyos.foundry.data_plane.bindings import load_input_bindings
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+
+    if transaction_time.tzinfo is None or transaction_time.utcoffset() is None:
+        raise DataStateSubstrateError("acquisition_transaction_time_must_be_aware")
+    base = WorldModelRecord.model_validate(base_world_model.model_dump(mode="json"))
+    selected_slot = materialization.foundry_binding_rule.target_slot_id
+    base_slots = tuple(binding.slot_id for binding in base.policy_slot_map)
+    if selected_slot not in base_slots:
+        raise DataStateSubstrateError("acquisition_target_slot_not_in_base_world")
+
+    base_model_ref = ArtifactRef(
+        artifact_id=ArtifactID.model_validate(base.simulation_model_ref.model_spec_ref),
+        kind="ir.model_spec",
+        media_type="application/json",
+    )
+    model_manifest = store.get_manifest(base_model_ref)
+    if model_manifest.kind != "ir.model_spec" or not store.verify(base_model_ref).ok:
+        raise DataStateSubstrateError("acquisition_base_model_spec_unverified")
+    model_spec = ModelSpec.model_validate(
+        from_canonical_bytes(store.get_bytes(base_model_ref))
+    )
+    if (
+        gy_content_hash(model_spec.model_dump(mode="json"))
+        != base.simulation_model_ref.model_spec_hash
+    ):
+        raise DataStateSubstrateError("acquisition_base_model_spec_hash_mismatch")
+    model_spec = model_spec.model_copy(
+        update={
+            "data_snapshot_ref": str(materialization.data_snapshot_ref.artifact_id),
+            "calibrated": False,
+            "calibration_ref": None,
+            "notes": [
+                *model_spec.notes,
+                "candidate_acquisition_world",
+                "source_time_not_established",
+                "causal_coupling_not_established",
+            ],
+        }
+    )
+    registry_bundle_ref = ArtifactRef(
+        artifact_id=ArtifactID.model_validate(
+            base.simulation_model_ref.registry_bundle_ref
+        ),
+        kind="core.registry_bundle",
+        media_type="application/json",
+    )
+    base_bindings_ref = ArtifactRef(
+        artifact_id=ArtifactID.model_validate(base.foundry_binding_ref.input_bindings_ref),
+        kind="foundry.input_bindings",
+        media_type="application/json",
+    )
+    base_bindings = load_input_bindings(store, base_bindings_ref)
+    retained_rules = [
+        rule for rule in base_bindings.rules if rule.target_slot_id != selected_slot
+    ]
+    retained_rules.append(materialization.foundry_binding_rule)
+
+    tx_time = transaction_time.astimezone(UTC).isoformat()
+    fabric_root = _write_acquired_candidate_fabric_snapshot(
+        workspace_dir=workspace_dir,
+        snapshot_id=materialization.snapshot_id,
+        payload_hash=materialization.payload_content_hash,
+        transaction_time=tx_time,
+        as_of_valid_time=(base.fabric_world_ref.as_of_valid_time or tx_time),
+    )
+    limitations = base.limitations.model_copy(
+        update={
+            "admissibility_blockers": tuple(
+                sorted(
+                    set(base.limitations.admissibility_blockers)
+                    | set(ACQUIRED_DATA_STATE_LIMITATION_CODES)
+                )
+            )
+        }
+    )
+    data_snapshot_ref = materialization.data_snapshot_ref
+    built = build_world_model_record(
+        store,
+        fabric_world_ref=FabricWorldRef(
+            snapshot_root=str(fabric_root),
+            snapshot_id=materialization.snapshot_id,
+            branch="candidate",
+            as_of_valid_time=(base.fabric_world_ref.as_of_valid_time or tx_time),
+            as_of_tx_time=tx_time,
+            world_query_policy=base.fabric_world_ref.world_query_policy,
+            provenance_manifest_ref=f"cas://{materialization.payload_content_hash.removeprefix('sha256:')}",
+        ),
+        data_forge_snapshot_binding_path=(
+            materialization.data_forge_snapshot_binding_path
+        ),
+        data_snapshot_ref=data_snapshot_ref,
+        model_spec=model_spec,
+        skg_causal_prior_ref=base.skg_causal_prior_ref,
+        substrate_registry=substrate_registry,
+        region_or_jurisdiction=base.region_or_jurisdiction,
+        population_scope=base.population_scope,
+        policy_domain=base.policy_domain,
+        valid_time_scope="not_established",
+        tx_time_scope=tx_time,
+        resolution=base.resolution,
+        branch_mode=base.branch_mode,
+        policy_slot_ids=base_slots,
+        producer_ref=(
+            "polisyos.runtime.quality.data_state_substrate."
+            "build_acquired_observation_candidate_world"
+        ),
+        data_forge_role=base.data_forge_binding_ref.role,
+        substrate_registry_artifact_ref=substrate_registry_artifact_ref,
+        _loaded_substrate_registry=substrate_registry,
+        foundry_binding_rules=retained_rules,
+        mechanism_refs=base.simulation_model_ref.mechanism_refs,
+        gcm_refs=base.simulation_model_ref.gcm_refs,
+        ncm_refs=base.simulation_model_ref.ncm_refs,
+        program_graph_refs=base.simulation_model_ref.program_graph_refs,
+        limitations=limitations,
+        candidate_only=True,
+        deployment_update_refs=base.deployment_update_refs,
+    )
+    if built.record.skg_causal_prior_ref != base.skg_causal_prior_ref:
+        raise DataStateSubstrateError("acquisition_candidate_skg_prior_changed")
+    if built.record.authority_status != "limited":
+        raise DataStateSubstrateError("acquisition_candidate_world_not_limited")
+    return AcquiredObservationWorldBuildResult(
+        materialization=materialization,
+        world_model=built,
+        simulation_input=consume_world_model_record_for_simulation(built.record),
+        model_spec=model_spec,
+        registry_bundle_ref=registry_bundle_ref,
+        substrate_registry_ref=substrate_registry_artifact_ref,
     )
 
 
@@ -1226,6 +1764,14 @@ def _write_data_forge_snapshot_binding(
     snapshot_id: str,
     payload: Mapping[str, Any],
     payload_content_hash: str,
+    published_at: str = "2026-05-01T00:00:00+00:00",
+    corpus_id: str = "ukraine-real-l4-data-state",
+    builder_revision: str = (
+        "polisyos.runtime.quality.data_state_substrate."
+        "materialize_l4_data_state_snapshot"
+    ),
+    lineage_refs: Sequence[str] | None = None,
+    claim_requirement_bindings: Sequence[Mapping[str, Any]] | None = None,
 ) -> Path:
     snapshot_root = workspace_dir / snapshot_id
     pipeline_root = snapshot_root / "ukraine"
@@ -1239,27 +1785,36 @@ def _write_data_forge_snapshot_binding(
         manifest_path=pipeline_root / "publish" / "manifest.json",
         pipeline="ukraine",
         artifacts=(artifact_path,),
-        published_at="2026-05-01T00:00:00+00:00",
+        published_at=published_at,
         extra={
-            "corpus_id": "ukraine-real-l4-data-state",
-            "builder_revision": (
-                "polisyos.runtime.quality.data_state_substrate.materialize_l4_data_state_snapshot"
+            "corpus_id": corpus_id,
+            "builder_revision": builder_revision,
+            "lineage_refs": list(
+                lineage_refs
+                if lineage_refs is not None
+                else (
+                    payload_content_hash,
+                    "repo://production_data/canonical/local_data_20260501/"
+                    "ukraine_server_support_20260410/normalized_corpus",
+                    "repo://production_data/datasets_full_phase3full_20260327_183054/"
+                    "dataset_catalog.duckdb",
+                )
             ),
-            "lineage_refs": [
-                payload_content_hash,
-                "repo://production_data/canonical/local_data_20260501/"
-                "ukraine_server_support_20260410/normalized_corpus",
-                "repo://production_data/datasets_full_phase3full_20260327_183054/"
-                "dataset_catalog.duckdb",
-            ],
             "claim_requirement_bindings": [
-                {
-                    "claim_id": "gy-s1-real-l4-data-state",
-                    "requirement_id": "gy-s1-l1-l4-l5-data-state",
-                    "requirement_kind": "production_data_state",
-                    "authority_level": "closeout",
-                    "time_role": "observation_time",
-                }
+                dict(item)
+                for item in (
+                    claim_requirement_bindings
+                    if claim_requirement_bindings is not None
+                    else (
+                        {
+                            "claim_id": "gy-s1-real-l4-data-state",
+                            "requirement_id": "gy-s1-l1-l4-l5-data-state",
+                            "requirement_kind": "production_data_state",
+                            "authority_level": "closeout",
+                            "time_role": "observation_time",
+                        },
+                    )
+                )
             ],
         },
     )
@@ -1269,6 +1824,13 @@ def _write_data_forge_snapshot_binding(
         pipelines=("ukraine",),
     )
     return snapshot_root / "data_forge_snapshot_binding.json"
+
+
+def _cas_data_forge_ref(ref: ArtifactRef) -> str:
+    """Return the Data Forge CAS URI form for one content-addressed artifact."""
+
+    digest = str(ref.artifact_id).removeprefix("sha256:")
+    return f"cas://sha256/{digest}"
 
 
 def _write_fabric_world_snapshot(
@@ -1336,6 +1898,68 @@ def _write_fabric_world_snapshot(
             provenance={"producer": "polisyos.runtime.quality.data_state_substrate"},
             nodes=(world_node,),
             facts=(bound_agent_count_fact, payload_hash_fact),
+        ),
+    )
+    return snapshot_root
+
+
+def _write_acquired_candidate_fabric_snapshot(
+    *,
+    workspace_dir: Path,
+    snapshot_id: str,
+    payload_hash: str,
+    transaction_time: str,
+    as_of_valid_time: str,
+) -> Path:
+    """Use Fabric's snapshot writer with unknown valid time for acquired facts."""
+    from polisyos.fabric.world import (
+        WorldSnapshotFactWrite,
+        WorldSnapshotNodeWrite,
+        WorldSnapshotWriteRequest,
+        write_world_snapshot,
+    )
+
+    snapshot_root = workspace_dir / "fabric-world"
+    db_path = workspace_dir / "fabric-world.duckdb"
+    node_id = f"world.acquisition-candidate.{snapshot_id}"
+    node = WorldSnapshotNodeWrite(
+        node_id=node_id,
+        kind="candidate_acquired_data_state",
+        label="Candidate state with unresolved source time and causal coupling",
+        artifact_id=payload_hash,
+        props_ref=None,
+    )
+    facts = (
+        WorldSnapshotFactWrite(
+            fact_id=f"fact:{snapshot_id}:candidate_data_snapshot",
+            schema_version="1.0",
+            subject_id=node_id,
+            predicate_id="data_state.candidate_snapshot",
+            object_value=payload_hash,
+            target_id=None,
+            valid_time=None,
+            tx_time=transaction_time,
+            provenance_json={"producer": "data_state_substrate"},
+            trust_json=None,
+            legal_json=None,
+            segment_id=f"seg:{snapshot_id}:candidate",
+        ),
+    )
+    write_world_snapshot(
+        db_path,
+        WorldSnapshotWriteRequest(
+            snapshot_root=snapshot_root,
+            snapshot_id=snapshot_id,
+            branch_name="candidate",
+            as_of_valid_time=as_of_valid_time,
+            as_of_tx_time=transaction_time,
+            provenance={
+                "producer": "polisyos.runtime.quality.data_state_substrate",
+                "source_time_status": "not_established",
+                "valid_time_role": "unknown",
+            },
+            nodes=(node,),
+            facts=facts,
         ),
     )
     return snapshot_root
@@ -1590,7 +2214,11 @@ def _mean_or_zero(values: object) -> float:
 
 
 __all__ = [
+    "ACQUIRED_DATA_STATE_LIMITATION_CODES",
+    "ACQUIRED_DATA_STATE_SCHEMA_VERSION",
     "DATA_STATE_SUBSTRATE_SCHEMA_VERSION",
+    "AcquiredObservationDataSnapshotResult",
+    "ControlledAcquisitionSlotBinding",
     "DataStateMaterializationResult",
     "DataStateSubstrateError",
     "L1VariableAvailability",
@@ -1600,5 +2228,6 @@ __all__ = [
     "build_l5_family_binding_profile",
     "build_production_data_state_world_model_record",
     "l1_dcat_variable_availability",
+    "materialize_acquired_observation_snapshot",
     "materialize_l4_data_state_snapshot",
 ]

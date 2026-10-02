@@ -55,6 +55,188 @@ def _read_owned_terminal(store, ref):
         )
 
 
+def _served_wdi_candidate_profile(*, tmp_path, store, problem):
+    """Build one typed synthetic N5 profile over a real owner-built base WMR."""
+
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        _cycle_job_v1_design_problem_ref,
+        _cycle_job_v1_profile_selection_ref,
+        build_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.intervention_substrate import (
+        load_l6_intervention_substrate,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+    from polisyos.runtime.quality.world_model_record import (
+        BranchMode,
+        build_world_model_record,
+    )
+    from tests.unit.runtime.quality import test_world_model_record as wmr_fixture
+
+    snapshot_id = "served-wdi-controlled-candidate-base"
+    base_data_snapshot_ref = wmr_fixture._data_snapshot_ref(
+        store, snapshot_id=snapshot_id
+    )
+    substrate_registry = wmr_fixture._substrate_registry()
+    substrate_registry_ref = persist_substrate_registry(store, substrate_registry)
+    registry_bundle = build_default_registry_bundle(store)
+    model_spec = wmr_fixture._model_spec(
+        base_data_snapshot_ref,
+        registry_bundle.bundle_ref,
+    )
+    wmr_fixture._write_fabric_world_snapshot(tmp_path, snapshot_id=snapshot_id)
+    base_world = build_world_model_record(
+        store,
+        fabric_world_ref=wmr_fixture._fabric_ref(tmp_path, snapshot_id=snapshot_id),
+        data_forge_snapshot_binding_path=wmr_fixture._write_data_forge_binding(
+            tmp_path, snapshot_id=snapshot_id
+        ),
+        data_snapshot_ref=base_data_snapshot_ref,
+        model_spec=model_spec,
+        skg_causal_prior_ref=wmr_fixture._skg_ref(tmp_path, snapshot_id=snapshot_id),
+        substrate_registry=substrate_registry,
+        region_or_jurisdiction=problem.jurisdiction_time.region,
+        population_scope="served_controlled_candidate_fixture",
+        policy_domain=problem.domain,
+        valid_time_scope="controlled_fixture_baseline_only",
+        tx_time_scope="2026-05-24T12:00:00+00:00",
+        resolution="country_year",
+        branch_mode=BranchMode.OBSERVED,
+        policy_slot_ids=("government.balance", "global.tax_rate"),
+        producer_ref="test.served_wdi_candidate_profile",
+        required_substrate_families=("firm_fundamentals",),
+        substrate_registry_artifact_ref=substrate_registry_ref,
+    )
+    slot_units = {
+        binding.slot_id: binding.unit for binding in base_world.record.policy_slot_map
+    }
+    target_baseline = float(base_world.bound_global_state.government_balance)
+    outcome_baseline = float(base_world.bound_global_state.tax_rate)
+    selected_hashes = tuple(
+        entry.entry_content_hash for entry in substrate_registry.entries
+    )
+    substrate_input_hash = gy_content_hash(
+        {
+            "purpose": "served-controlled-candidate-profile",
+            "substrate_registry_content_hash": substrate_registry.content_hash,
+        }
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
+        domain=problem.domain,
+        substrate_registry=substrate_registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=base_world.record,
+        intervention_substrate=load_l6_intervention_substrate(
+            Path(__file__).resolve().parents[3]
+        ),
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=gy_content_hash(
+            "served-wdi-controlled-candidate-source-pack"
+        ),
+        substrate_input_content_hash=substrate_input_hash,
+    )
+    inputs = CandidateSimulationContextInputs(
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=base_world.record,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=context.substrate_input_content_hash,
+    )
+    rule = CandidateScenarioSetToRule(
+        operator_kind="budget_allocation_multiplier",
+        parameter_id="multiplier",
+        target_world_slot="government.balance",
+        unit_id=slot_units["government.balance"],
+        minimum=1,
+        maximum=1,
+    )
+    n5 = CandidateScenarioN5Config(
+        budget_ref="budget://e02r2/b09-controlled-acquisition-candidate",
+        horizon=HorizonSpec(start=0, end=0, step=1),
+        baseline_state={
+            "government.balance": target_baseline,
+            problem.outcome_of_interest.target_variable: outcome_baseline,
+        },
+        seed=17,
+        replications=2,
+    )
+    profile_fields = {
+        "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
+        "profile_id": "e02r2.b09.served.wdi.controlled",
+        "profile_selection_ref": _cycle_job_v1_profile_selection_ref(problem),
+        "context_inputs": inputs,
+        "rule": rule,
+        "n5": n5,
+        "limitations": (
+            "scenario_only",
+            "real_profile_not_established",
+            "real_time_not_established",
+            "grounding_not_established",
+            "s8_blocked",
+            "n9_not_admitted",
+        ),
+    }
+    profile_draft = CandidateSimulationScenarioProfile.model_construct(
+        **profile_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    profile = CandidateSimulationScenarioProfile.model_validate(
+        {
+            **profile_fields,
+            "content_hash": gy_content_hash(
+                profile_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    outcome_variable = problem.outcome_of_interest.target_variable
+    declaration_fields = {
+        "schema_version": (
+            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
+        ),
+        "profile_config_ref": candidate_simulation_profile_ref(profile),
+        "profile_content_hash": profile.content_hash,
+        "profile_selection_ref": profile.profile_selection_ref,
+        "target_world_slot": rule.target_world_slot,
+        "outcome_variable": outcome_variable,
+        "target_unit_id": slot_units[rule.target_world_slot],
+        "outcome_unit_id": slot_units[outcome_variable],
+        "target_baseline": target_baseline,
+        "outcome_baseline": outcome_baseline,
+        "outcome_per_target_unit": 0.001,
+        "outcome_noise_stddev": 0.01,
+        "assumption": "declared_candidate_scm_not_empirically_grounded",
+    }
+    declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+        **declaration_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {
+            **declaration_fields,
+            "content_hash": gy_content_hash(
+                declaration_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    return profile, declaration
+
+
 class _ExternalTrust:
     """Fixture institutional JWT/JWKS/OPA endpoints; runtime verifiers remain real."""
 
@@ -298,6 +480,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
         install_fixture_wdi_cost_basis,
         intercepted_wdi_transport,
     )
+    from tests.unit.runtime.quality import test_generation_cycle as cycle_fixtures
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
@@ -322,6 +505,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
     port_patch = pytest.MonkeyPatch()
     signers, identities = _key_config(tmp_path, trust)
     cas_root = tmp_path / "cas"
+    candidate_profiles = []
+    candidate_model_declarations = []
+    candidate_generation_mode = [False]
 
     def app():
         return create_runtime_api_app(
@@ -332,7 +518,57 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             ),
             enable_security_middlewares=True,
             enable_csrf_protection=False,
+            candidate_simulation_profiles=tuple(candidate_profiles),
+            candidate_simulation_model_declarations=tuple(candidate_model_declarations),
         )
+
+    original_problem = cycle_fixtures._problem
+
+    def controlled_fiscal_problem(problem_id="served_wdi_acquisition"):
+        problem = original_problem(problem_id)
+        objective = problem.objectives[0].model_copy(
+            update={
+                "objective_id": "tax_rate",
+                "description": "Explore the tax rate under a candidate-only scenario.",
+                "metric_id": "tax_rate",
+            }
+        )
+        lever_space = problem.candidate_lever_space
+        levers = tuple(
+            lever.model_copy(
+                update={
+                    "operator_kind": "budget_allocation_multiplier",
+                    "instrument": "candidate budget allocation multiplier",
+                    "target_slot": "government.balance",
+                }
+            )
+            for lever in lever_space.candidate_levers
+        )
+        return problem.model_copy(
+            update={
+                "problem_statement": (
+                    "Explore the tax-rate outcome from a bounded government-balance "
+                    "candidate while carrying acquisition limitations."
+                ),
+                "domain": "fiscal",
+                "objectives": [objective],
+                "outcome_of_interest": problem.outcome_of_interest.model_copy(
+                    update={
+                        "target_variable": "global.tax_rate",
+                        "metric_id": "tax_rate",
+                        "estimand": "synthetic candidate change in tax rate",
+                    }
+                ),
+                "candidate_lever_space": lever_space.model_copy(
+                    update={
+                        "allowed_operator_kinds": ["budget_allocation_multiplier"],
+                        "candidate_levers": levers,
+                    }
+                ),
+            }
+        )
+
+    monkeypatch.setattr(cycle_fixtures, "_problem", controlled_fiscal_problem)
 
     def appoint_mandate(control, request, resource_digest):
         store = control._artifact_store
@@ -475,6 +711,14 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 asyncio.run, persist_wdi_route(control, tenant_id=TENANT, cell_id=CELL)
             )
             store = control._artifact_store
+            profile, model_declaration = _within_fixture_owner(
+                _served_wdi_candidate_profile,
+                tmp_path=tmp_path / "served-candidate-profile",
+                store=store,
+                problem=closure.design_problem,
+            )
+            candidate_profiles.append(profile)
+            candidate_model_declarations.append(model_declaration)
             with tenant_scope(None, tenant_id=TENANT, cell_id=CELL):
                 registry = store.put_json(
                     {"fixture": "registry"},
@@ -529,6 +773,23 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             # Each restart discards the prior transport/candidate fixture hooks
             # and reopens the same external inputs with a fresh owner bridge.
             port_patch.undo()
+            refreshes = ()
+            if candidate_generation_mode[0]:
+                from polisyos.runtime.quality.acquisition_world_growth import (
+                    AcquisitionCandidateWorldRefresh,
+                )
+
+                refreshes = (
+                    AcquisitionCandidateWorldRefresh(
+                        tenant_id=closure.tenant_id,
+                        cell_id=closure.cell_id,
+                        run_id=closure.run_id,
+                        route_id=closure.route_id,
+                        profile_selection_ref=profile.profile_selection_ref,
+                        canonical_variable_id="government.balance",
+                        target_slot_id="government.balance",
+                    ),
+                )
             case = _within_fixture_owner(
                 acquisition_chain.make_wdi_port_case,
                 tmp_path / "wdi",
@@ -536,6 +797,8 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 control=control_service,
                 closure=closure,
                 previous_case=cases[-1] if cases else None,
+                candidate_world_refreshes=refreshes,
+                candidate_scenario_generation=candidate_generation_mode[0],
             )
             cases.append(case)
             return case.port
@@ -636,6 +899,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert new_slot["delegation_contract_ref"] != slot["delegation_contract_ref"]
             trust.raw["acquisition_authority"]["mandates"].append(new_slot)
             slot = new_slot
+            candidate_generation_mode[0] = True
 
         with TestClient(app()) as client:
             source, human_ref = approve_request(client, request, resource_digest)
@@ -709,6 +973,113 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert growth_refs, receipt
             growth = _within_fixture_owner(cases[-1].port.project_world_growth, closure)
             assert growth.admitted_observation_delta == 1
+            cycle = receipt.new_cycle
+            assert cycle.simulation.status == "joint_simulated", cycle.simulation
+            assert cycle.simulation.candidate_id == cycle.selected_candidate_ref
+            assert cycle.simulation.simulation_result_ref is not None
+            diagnostics = cycle.simulation.diagnostics
+            assert diagnostics["candidate_simulation_purpose"] == "candidate_scenario_n5_only"
+
+            from polisyos.core.artifacts import ArtifactID, ArtifactRef
+            from polisyos.core.contracts import epoch as epoch_contract
+            from polisyos.core.contracts.fabric import DataSnapshot
+            from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+                CatalogAcquisitionOverlay,
+            )
+            from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+            from polisyos.runtime.quality.candidate_simulation import (
+                CandidateSimulationN5InputV5,
+            )
+            from polisyos.runtime.quality.generation_cycle import (
+                load_joint_simulation_result,
+            )
+
+            n5_input_ref = ArtifactRef.model_validate(
+                diagnostics["candidate_simulation_n5_input_selected_ref"]
+            )
+            n5_input = CandidateSimulationN5InputV5.model_validate(
+                canon.from_canonical_bytes(
+                    _within_fixture_owner(control._artifact_store.get_bytes, n5_input_ref)
+                )
+            )
+            assert n5_input.original_candidate_id == cycle.selected_candidate_ref
+            assert n5_input.outcome_variable == "global.tax_rate"
+            assert n5_input.profile.rule.target_world_slot == "government.balance"
+            assert n5_input.profile.context_inputs.world_model_record.authority_status == "limited"
+            assert {
+                "source_time_not_established",
+                "source_to_target_measurement_contract_not_established",
+                "causal_coupling_not_established",
+            }.issubset(
+                n5_input.profile.context_inputs.world_model_record.limitations.admissibility_blockers
+            )
+
+            growth = _within_fixture_owner(cases[-1].port.project_world_growth, closure)
+            assert growth is not None
+            overlay_path, _ = cases[-1].bridge._paths(growth.selection, create=False)
+            overlay = CatalogAcquisitionOverlay(
+                cases[-1].authority.baseline_path,
+                overlay_path=overlay_path,
+            )
+            passport = AdmissionPassport.model_validate(
+                _within_fixture_owner(
+                    epoch_contract.load_verified_epoch_statement,
+                    store=control._artifact_store,
+                    ref=growth.activation.passport_ref,
+                    expected_kind="epoch.acquisition_passport_snapshot",
+                )
+            )
+            projection = _within_fixture_owner(
+                overlay.read_activated_semantic_epoch_observations,
+                receipt_ref=growth.activation.overlay_admission_receipt_ref,
+                artifact_store=control._artifact_store,
+                passport=passport,
+                authority=cases[-1].authority,
+            )
+            selected_rows = tuple(
+                item
+                for item in projection.observations
+                if item.observation.canonical_var == "government.balance"
+            )
+            assert len(selected_rows) == 1
+            selected = selected_rows[0]
+            acquired_world = n5_input.profile.context_inputs.world_model_record
+            data_snapshot_ref = ArtifactRef(
+                artifact_id=ArtifactID.model_validate(
+                    acquired_world.simulation_model_ref.data_snapshot_ref
+                ),
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+            )
+            data_snapshot = DataSnapshot.model_validate(
+                canon.from_canonical_bytes(
+                    _within_fixture_owner(control._artifact_store.get_bytes, data_snapshot_ref)
+                )
+            )
+            snapshot_payload = canon.from_canonical_bytes(
+                _within_fixture_owner(
+                    control._artifact_store.get_bytes,
+                    data_snapshot.data_ref,
+                )
+            )
+            acquired_value = snapshot_payload["acquisition"]["selected"]
+            assert acquired_value["observation_id"] == selected.observation.observation_id
+            assert acquired_value["value"] == selected.observation.value
+            assert acquired_value["source_time_status"] == "not_established"
+            assert n5_input.profile.n5.baseline_state["government.balance"] == float(
+                selected.observation.value
+            )
+
+            n5_result = _within_fixture_owner(
+                load_joint_simulation_result,
+                cycle.simulation.simulation_result_ref,
+                store=control._artifact_store,
+            )
+            assert n5_result.state_consumption is not None
+            assert "global.tax_rate" in n5_result.selected_outcomes
+            assert n5_result.world_model_record_content_hash == (
+                n5_input.materialization.world_model_record_hash
+            )
 
     finally:
         port_patch.undo()

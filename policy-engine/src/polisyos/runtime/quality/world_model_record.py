@@ -24,6 +24,7 @@ from pydantic import (
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
+    ArtifactStore,
     FileSystemCAS,
     InputRef,
     PutOptions,
@@ -255,7 +256,7 @@ def _reject_selected_manifest_views_for_wmr_v1(
 
 
 def build_world_model_record(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     fabric_world_ref: FabricWorldRef,
     data_forge_snapshot_binding_path: str | Path,
@@ -283,6 +284,7 @@ def build_world_model_record(
     ncm_refs: Sequence[str] = (),
     program_graph_refs: Sequence[str] = (),
     limitations: WorldModelLimitations | None = None,
+    candidate_only: bool = False,
     deployment_update_refs: DeploymentUpdateRefs | None = None,
 ) -> WorldModelBuildResult:
     """Build and persist one versioned world record from existing substrates.
@@ -322,6 +324,9 @@ def build_world_model_record(
         ncm_refs: Existing NCM refs to name.
         program_graph_refs: Existing program graph refs to name.
         limitations: Explicit limitation record, if already known.
+        candidate_only: Mark this bound substrate as candidate-band only. The
+            status is ``limited`` and requires at least one typed
+            ``admissibility_blocker``; this does not confer authority.
         deployment_update_refs: Phase-6 forward hooks, not write-back logic.
 
     Raises:
@@ -338,6 +343,9 @@ def build_world_model_record(
             "model_spec_registry_bundle_missing",
             "ModelSpec must name the registry bundle used by Foundry binding",
         )
+    effective_limitations = limitations or WorldModelLimitations()
+    if candidate_only and not effective_limitations.admissibility_blockers:
+        raise WorldModelRecordError("candidate_only_wmr_requires_admissibility_blocker")
     data_snapshot = _load_data_snapshot(store, data_snapshot_ref)
     data_snapshot_id = _data_snapshot_version_id(data_snapshot)
     if not data_snapshot_id:
@@ -371,6 +379,11 @@ def build_world_model_record(
         data_snapshot_ref=data_snapshot_ref,
         data_snapshot_id=data_snapshot_id,
         skg_causal_prior_ref=skg_causal_prior_ref,
+        allow_candidate_skg_source_mismatch=(
+            candidate_only
+            and "causal_coupling_not_established"
+            in effective_limitations.admissibility_blockers
+        ),
     )
 
     registry_bundle_ref = ArtifactRef(
@@ -441,7 +454,7 @@ def build_world_model_record(
     )
     fields: dict[str, Any] = {
         "schema_version": WORLD_MODEL_RECORD_SCHEMA_VERSION,
-        "authority_status": "bound",
+        "authority_status": "limited" if candidate_only else "bound",
         "producer_ref": producer_ref,
         "region_or_jurisdiction": region_or_jurisdiction,
         "population_scope": population_scope,
@@ -478,7 +491,7 @@ def build_world_model_record(
         "skg_causal_prior_ref": skg_causal_prior_ref,
         "substrate_registry_ref": substrate_registry_ref,
         "policy_slot_map": tuple(policy_slot_map),
-        "limitations": limitations or WorldModelLimitations(),
+        "limitations": effective_limitations,
         "deployment_update_refs": deployment_update_refs or DeploymentUpdateRefs(),
     }
     content_hash = world_model_record_content_hash_from_fields(fields)
@@ -1105,15 +1118,20 @@ def _assert_same_world_version(
     data_snapshot_ref: ArtifactRef,
     data_snapshot_id: str,
     skg_causal_prior_ref: SkgCausalPriorRef,
+    allow_candidate_skg_source_mismatch: bool = False,
 ) -> None:
     snapshot_ids = {
         "fabric_world_ref.snapshot_id": fabric_world_ref.snapshot_id,
         "data_forge_binding_ref.snapshot_id": data_forge_binding_ref.snapshot_id,
         "data_snapshot_ref.snapshot_id": data_snapshot_id,
-        "skg_causal_prior_ref.source_data_snapshot_id": (
-            skg_causal_prior_ref.source_data_snapshot_id
-        ),
     }
+    if (
+        not allow_candidate_skg_source_mismatch
+        or skg_causal_prior_ref.source_data_snapshot_id == data_snapshot_id
+    ):
+        snapshot_ids["skg_causal_prior_ref.source_data_snapshot_id"] = (
+            skg_causal_prior_ref.source_data_snapshot_id
+        )
     if len(set(snapshot_ids.values())) != 1:
         raise WorldModelRecordError(
             "world_substrate_version_mismatch",

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -33,7 +34,16 @@ from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority 
 from tests.unit.runtime.quality.test_live_acquisition_executor import _ATTEMPT_ID, _family_receipt
 
 
-def make_wdi_port_case(tmp_path, monkeypatch, *, control, closure, previous_case=None):
+def make_wdi_port_case(
+    tmp_path,
+    monkeypatch,
+    *,
+    control,
+    closure,
+    previous_case=None,
+    candidate_world_refreshes=(),
+    candidate_scenario_generation=False,
+):
     """Create the real port; external policy appointment follows a terminal refusal.
 
     No native producer is patched. The caller executes once, observes quarantine,
@@ -99,25 +109,92 @@ def make_wdi_port_case(tmp_path, monkeypatch, *, control, closure, previous_case
             if appointments
             else None
         )
+    bridge_repo_root = (
+        Path(__file__).resolve().parents[2] if candidate_scenario_generation else repo
+    )
     bridge = AcquisitionWorldGrowthBridge(
-        config=AcquisitionWorldGrowthConfig(routes=(selected,)),
-        repo_root=repo,
+        config=AcquisitionWorldGrowthConfig(
+            routes=(selected,),
+            candidate_world_refreshes=tuple(candidate_world_refreshes),
+        ),
+        repo_root=bridge_repo_root,
         runtime_root=runtime_root,
         authority=authority,
         artifact_store=store,
         event_log=control._diagnostic_event_log,
         epoch_deployment=deployment,
         promotion_runtime=control._promotion_runtime,
+        cycle_substrate_context_admission_owner=(
+            control._cycle_substrate_context_admission_owner
+        ),
+        control_store=control._control_store,
     )
     transport_calls = intercepted_wdi_transport(monkeypatch)
     # Only candidate generation is a fixture; every re-entry owner still runs.
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
     from tests.unit.runtime.quality.test_generation_cycle import _CgfGenerationPort
 
-    candidates = _CgfGenerationPort(target_world_slots=("government.balance",))
+    if candidate_scenario_generation:
+        import copy
 
-    async def fixture_candidates(_port, problem, *, cycle_index):
-        return await candidates(problem, cycle_index=cycle_index)
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.design_generation import (
+            generate_design_candidate_scenario_proposal_under_a,
+        )
+        from tools.quality.validation import (
+            check_layer3_gy_design_generation_contract as n4_contract,
+        )
+
+        repo_root = bridge_repo_root
+        recording = next(
+            item
+            for item in n4_contract._load_recordings(repo_root)
+            if item.get("design_problem_id")
+            == "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+        )
+        controlled = copy.deepcopy(recording)
+        responses = controlled.get("responses")
+        if not isinstance(responses, list):
+            raise ValueError("controlled_candidate_recording_responses_missing")
+        for index in (4, 8):
+            response = responses[index]
+            if not isinstance(response, dict):
+                raise ValueError("controlled_candidate_recording_response_invalid")
+            raw = response.get("raw_response")
+            if not isinstance(raw, str):
+                raise ValueError("controlled_candidate_recording_body_missing")
+            trinity = json.loads(raw)
+            intervention = next(
+                item
+                for item in trinity["policy_spec"]["interventions"]
+                if item.get("kind") == "procurement_shock_intensity"
+            )
+            intervention["kind"] = "budget_allocation_multiplier"
+            intervention["params"] = {"multiplier": 1}
+            intervention["notes"] = [
+                "do.target=government.balance sign=increase "
+                "outcome=global.tax_rate "
+                "effect_path=government.balance,global.tax_rate"
+            ]
+            rewritten = json.dumps(trinity, sort_keys=True, separators=(",", ":"))
+            response["raw_response"] = rewritten
+            response["raw_response_hash"] = gy_content_hash(rewritten)
+        recorded_client = n4_contract.RecordedGenerationReplayClient(controlled)
+
+        async def fixture_candidates(port, problem, *, cycle_index):
+            del cycle_index
+            return await generate_design_candidate_scenario_proposal_under_a(
+                problem,
+                model_id=port._model_id,
+                llm_client=recorded_client,
+                repo_root=bridge_repo_root,
+                cycle_substrate_context=port._cycle_substrate_context,
+            )
+    else:
+        candidates = _CgfGenerationPort(target_world_slots=("government.balance",))
+
+        async def fixture_candidates(_port, problem, *, cycle_index):
+            return await candidates(problem, cycle_index=cycle_index)
 
     monkeypatch.setattr(N4GenerationPort, "__call__", fixture_candidates)
 

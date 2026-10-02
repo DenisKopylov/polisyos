@@ -2714,3 +2714,50 @@ Patch `/Users/deniskopylov/.codex/scratch/E02R2_R2_DECORATED_WRAPPER_CANDIDATE_V
 Pre-edit current whole5 packaged witness at1b6 gave4P/1F, with fresh source control refusing canonical_loaded_runtime_mismatch; the exact owner diagnostic found99 modules/one inconsistent CAS module/11 wrapped methods. The latest four-file/four-base attempt at83d is `raw/p41-custom-20261002T110652Z-2335/results.json@sha256:4ab4fe795f40ad5f98c226922db0d71c3d80632b2cdffadf09d56989c682a731`: Main served1P, growth5P, WMR15P; Main confidence ledger timed out at600s with no JUnit, four structural MISSING and eight scheduler-stopped UNRUN cells. It proves no four-base confidence-ledger comparison. The timed-out group was independently absent and the existing owner appended verification `raw/process-group-fences/verified-edc747fbb87a4d1bb28c0c608aeaea3d.json@sha256:7f9eec4e727d20435b947224d9a4dc8c7ca92e45755abba6295437b8d3bf1142`. All native groups ended before these edits. Proceeding with measured R2 repair retains the principal-authorized UNRUN/fix/reverify direction; complete touched-file replay is still a completion gate.
 
 Versioned historical serializers and records are unchanged. Newly captured deployment identity may differ; an active confidence-ledger root that cannot reopen under that identity needs an authorized transition with its premise. No root, pin, manifest, receipt or epoch is restamped. No environment, worktree, production-data write or governed regeneration is leased.
+
+
+## B09/B12 controlled acquired-world re-entry — 2026-10-02
+
+Root integrates nine reviewed paths: the existing acquisition HTTP factory,
+AcquisitionWorldGrowthBridge, cycle-substrate admission owner, S1 DataState
+owner, WMR owner, acquisition-chain test helper, served authority test,
+world-growth-chain test and WMR test. Data enters through Data Forge overlay
+admission, passport and native semantic epoch readback before the existing S1
+and Foundry owners consume the selected scalar. The runtime-supplied tenant
+store and current leased job are retained; no root-rebuilt store is introduced.
+The candidate profile, declaration, NCM and context are rebound and read back
+through their existing owners. Unknown source time, measurement equivalence
+and causal coupling remain typed limitations; this does not admit S8 or N9.
+
+Production wiring is RuntimeContainer -> AcquisitionActionService -> existing
+world-growth factory. The controlled served witness still substitutes the
+factory with the fixture helper; default-factory refresh is explicitly UNRUN.
+Profiles with candidate levers or transport context retain a named unsupported
+refresh capability instead of silently retaining stale context.
+
+Exact rev2 patch:
+`/Users/deniskopylov/.codex/scratch/E02R2_B09_B12_BRIDGE_CANDIDATE_20261002/integration_packet/revision-2/B09_B12_CONTROLLED_BRIDGE.patch@sha256:af0c5f8e234ff194ee1f1283dcc05e8215acb5addce272f42d60f761c48065e7`;
+independent rev2 GO `DELTA_REVIEW_20261002.md@sha256:d7f04a64dc0bb030a3019ceaf0935cad9ccc2beae76b8ce055b6b91e79b66395`
+in the same directory. The finite Ruff delta is revision-3
+`R3_LINT_ONLY_DELTA.patch@sha256:0e95654d00c1fb9555e614e8fb77a8bbd62ce43dc391e4aa16d35d522f0c3eab`;
+independent GO `DELTA_REVIEW_20261002.md@sha256:ea5035608467a65bd36b3f8135f4984be9b4913790c3c95b42619e60654ba721`.
+Its manifest has a recorded metadata-only method-name erratum; the actual
+removed pure hash precomputation was in
+ConfiguredCandidateSimulationContextAdmissionOwner.admit_context_for_acquired_world.
+The existing builder still recomputes the same binding and validates it.
+
+Pre-code four-base replay covered all three changed test files: twelve cells,
+eight complete and four structurally missing. Complete JUnit outcomes were
+87 passed and one current-only teardown failure, across 34 unique identities;
+there was no shared-case pass-to-fail among available comparisons.
+`raw/p41-custom-20261002T114837Z-11178/results.json@sha256:43bc71b8589a81576609efc94bbd1f421e1db40e99db73debfd25e20c0260b7c`.
+Independent readback:
+`/Users/deniskopylov/.codex/scratch/E02R2_B09_R2_HISTORY_P41_ADMISSION_20261002/B09_42C_INDEPENDENT_READBACK.md@sha256:99f8f2e41fa9fb8bbabd457c72e01aff282fcfd70d827f4c51b6a6636fdea45b`.
+The invalid FileSystemCAS.close teardown is removed without changing the nine
+WMR assertions or basis_not_limited negative. Cleanup patch:
+`/Users/deniskopylov/.codex/scratch/E02R2_B09_CLOSE_CLEANUP_DELTA_20261002/revision-5/B09_WMR_TEST_CLEANUP_DELTA.patch@sha256:113a791443ce6edd24174161b9443ad68a3dfe479712881d5c6bb16f9b4752e7`;
+independent GO `../WMR_STATIC_REVIEW_REV5_20261002.md@sha256:ac5dd5eb2d9ad7727de3ab0f3cb076f49d8e310d37df69ec947fe6e985280306`.
+Ruff on all nine paths and diff-check returned zero before commit. Native
+post-integration replay is UNRUN at this boundary; B09/B12 are not closed by
+source review. No native group was active during edits. No governed family,
+receipt, epoch, environment, new worktree or production-data write is leased.

@@ -773,6 +773,10 @@ def build_production_world_bank_wdi_execution_port(
             event_log=control_service._diagnostic_event_log,
             epoch_deployment=epoch_deployment,
             promotion_runtime=control_service._promotion_runtime,
+            cycle_substrate_context_admission_owner=(
+                control_service._cycle_substrate_context_admission_owner
+            ),
+            control_store=control_service._control_store,
         )
     return WorldBankWDIAcquisitionExecutionPort(
         world_growth_bridge=world_growth_bridge,

@@ -741,6 +741,182 @@ async def _admit_served_wdi_projection(
 
 
 @pytest.mark.asyncio
+async def test_active_dataforge_row_builds_limited_candidate_world_with_source_time_unknown(
+    tmp_path, monkeypatch, request
+):
+    """Owner-read-back WDI data reaches Foundry without inventing source time or SKG."""
+    from dataclasses import replace
+    from datetime import UTC, datetime
+
+    import numpy as np
+
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.contracts import epoch as epoch_contract
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        CatalogAcquisitionOverlay,
+    )
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+    from polisyos.runtime.quality.data_state_substrate import (
+        ACQUIRED_DATA_STATE_LIMITATION_CODES,
+        ControlledAcquisitionSlotBinding,
+        build_acquired_observation_candidate_world,
+        materialize_acquired_observation_snapshot,
+    )
+    from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+    from polisyos.runtime.quality.world_model_record import build_world_model_record
+    from tests.unit.runtime.quality import test_world_model_record as wmr_fixture
+
+    admitted = await _admit_served_wdi_projection(tmp_path, monkeypatch, request)
+    served = admitted.served
+    case = served.case
+    closure = served.closure
+    store = served.control._artifact_store
+    growth = case.bridge.project_world_growth(closure)
+    assert growth is not None
+
+    observation_matches = tuple(
+        row
+        for row in admitted.projection.observations
+        if row.observation.canonical_var == "government.balance"
+    )
+    assert len(observation_matches) == 1
+    selected = observation_matches[0]
+    overlay_path, _ = case.bridge._paths(growth.selection, create=False)
+    overlay = CatalogAcquisitionOverlay(
+        case.bridge.authority.baseline_path,
+        overlay_path=overlay_path,
+    )
+    passport_payload = epoch_contract.load_verified_epoch_statement(
+        store=store,
+        ref=growth.activation.passport_ref,
+        expected_kind="epoch.acquisition_passport_snapshot",
+    )
+    passport = AdmissionPassport.model_validate(passport_payload)
+
+    base_snapshot_ref = wmr_fixture._data_snapshot_ref(store)
+    registry = wmr_fixture._substrate_registry()
+    registry_ref = persist_substrate_registry(store, registry)
+    registry_bundle = build_default_registry_bundle(store)
+    base_model_spec = wmr_fixture._model_spec(
+        base_snapshot_ref,
+        registry_bundle.bundle_ref,
+    )
+    wmr_fixture._write_fabric_world_snapshot(tmp_path)
+    base_world = build_world_model_record(
+        store,
+        fabric_world_ref=wmr_fixture._fabric_ref(tmp_path),
+        data_forge_snapshot_binding_path=wmr_fixture._write_data_forge_binding(tmp_path),
+        data_snapshot_ref=base_snapshot_ref,
+        model_spec=base_model_spec,
+        skg_causal_prior_ref=wmr_fixture._skg_ref(tmp_path),
+        substrate_registry=registry,
+        region_or_jurisdiction="UA-30",
+        population_scope="controlled_candidate_fixture",
+        policy_domain="fiscal_credit",
+        valid_time_scope="2026-05-24/2026-12-31",
+        tx_time_scope="2026-05-24T12:00:00+00:00",
+        resolution="firm_month",
+        branch_mode=wmr_fixture.BranchMode.OBSERVED,
+        policy_slot_ids=("agents.income", "government.balance"),
+        producer_ref="test.world_model_record_builder",
+        required_substrate_families=("firm_fundamentals",),
+        substrate_registry_artifact_ref=registry_ref,
+    )
+    assert base_world.record.authority_status == "bound"
+    assert float(np.asarray(base_world.bound_global_state.government_balance)) == 0.0
+
+    materialized = materialize_acquired_observation_snapshot(
+        store,
+        base_data_snapshot_ref=base_snapshot_ref,
+        overlay=overlay,
+        receipt_ref=growth.activation.overlay_admission_receipt_ref,
+        passport=passport,
+        authority=case.bridge.authority,
+        observation_id=selected.observation.observation_id,
+        slot_binding=ControlledAcquisitionSlotBinding(
+            profile_selection_ref="sha256:" + "7" * 64,
+            canonical_variable_id="government.balance",
+            target_slot_id="government.balance",
+        ),
+        workspace_dir=tmp_path / "candidate-data-forge",
+        transaction_time=datetime(2026, 10, 2, 12, 0, tzinfo=UTC),
+    )
+    assert materialized.observation_projection.projection_content_sha256 == (
+        admitted.projection.projection_content_sha256
+    )
+    assert materialized.source_time_status == "not_established"
+    built = build_acquired_observation_candidate_world(
+        store,
+        base_world_model=base_world.record,
+        substrate_registry=registry,
+        substrate_registry_artifact_ref=registry_ref,
+        materialization=materialized,
+        workspace_dir=tmp_path / "candidate-fabric-world",
+        transaction_time=datetime(2026, 10, 2, 12, 0, tzinfo=UTC),
+    )
+    assert float(np.asarray(built.world_model.bound_global_state.government_balance)) == (
+        selected.observation.value
+    )
+    assert built.world_model.record.authority_status == "limited"
+    assert set(ACQUIRED_DATA_STATE_LIMITATION_CODES).issubset(
+        built.world_model.record.limitations.admissibility_blockers
+    )
+    assert built.world_model.record.skg_causal_prior_ref == base_world.record.skg_causal_prior_ref
+    assert (
+        built.world_model.record.skg_causal_prior_ref.source_data_snapshot_id
+        == base_world.record.skg_causal_prior_ref.source_data_snapshot_id
+    )
+
+    snapshot = DataSnapshot.model_validate(
+        from_canonical_bytes(store.get_bytes(materialized.data_snapshot_ref))
+    )
+    payload = from_canonical_bytes(store.get_bytes(snapshot.data_ref))
+    payload["acquisition"]["selected"].pop("value")
+    removed_payload_ref = store.put_json(
+        payload,
+        wmr_fixture.PutOptions(
+            kind="fabric.production_data_state_payload",
+            media_type="application/json",
+            schema=wmr_fixture.SchemaInfo(
+                name="polisyos.runtime.quality.AcquisitionDataStatePayload",
+                version="policyos.runtime.acquisition_data_state.v1",
+            ),
+        ),
+        canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+    )
+    removed_snapshot = snapshot.model_copy(update={"data_ref": removed_payload_ref})
+    removed_snapshot_ref = store.put_json(
+        removed_snapshot,
+        wmr_fixture.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=wmr_fixture.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.2.0",
+            ),
+        ),
+        canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+    )
+    removed = replace(
+        materialized,
+        data_snapshot_ref=removed_snapshot_ref,
+        payload_content_hash=str(removed_payload_ref.artifact_id),
+    )
+    with pytest.raises(ValueError, match="required source_path missing"):
+        build_acquired_observation_candidate_world(
+            store,
+            base_world_model=base_world.record,
+            substrate_registry=registry,
+            substrate_registry_artifact_ref=registry_ref,
+            materialization=removed,
+            workspace_dir=tmp_path / "removed-candidate-fabric-world",
+            transaction_time=datetime(2026, 10, 2, 12, 1, tzinfo=UTC),
+        )
+
+
+@pytest.mark.asyncio
 async def test_served_wdi_admits_selected_row_but_n5_refusal_prevents_n8(
     tmp_path, monkeypatch, request
 ):

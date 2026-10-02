@@ -10418,7 +10418,7 @@
         "relation": "source_review_refines_no_record",
         "detail": "Appendix C no_finding_level_record is E02 historical provenance. Reviewed evidence adds bounded local comparator proof only. Overall status remains partial because the default served registry provider, persisted frontier consumer, and current whole-file four-base P41 are not established."
       },
-      "residual": "The local comparator subproperty is closure-ready within a bounded profile: retained test_pareto.py JUnit at 0cf4afa19 is 31/31 and includes exact 2D/3D equal-secondary selectors plus independent slow-oracle cases; the comparator implementation is unchanged at audit head 2913062b. Historical execution/main 8-case and E02/Phase-0 25-case whole-file receipts have different selector sets; they are not four runs of the later 31-case file. Current whole-file four-base P41 is UNRUN. The served RunHierarchicalPolicySearchNode lacks an established default run/tenant/cell-bound ParetoRegistry provider and persisted frontier consumer; the bounded source census found no literal production ParetoRegistry( construction among 3,659 tracked non-test Python files, but does not rule out reflective or external construction. Without the registry snapshot, a feasible dominated candidate can still be reported global_feasible. Keep overall status partial; preserve ordinary candidate evaluation with a typed limitation.",
+      "residual": "The local comparator subproperty has a retained 31/31 whole-file witness at 0cf4afa19; historical execution/main 8-case and E02/Phase-0 25-case counts use different selector sets and are not a four-base replay of that later file. The current six-file whole-file P41 remains UNRUN. A complete source review at 612a enumerated 2,697 production policy-engine/src/polisyos/**/*.py files: zero literal production ParetoRegistry( constructions, zero writes to pareto_registry_snapshot, and three textual occurrences across two production files (one declared read-scope plus two downstream reads). In the no-projection fallback, the node creates an unranked basis-limited projection; denominator reconciliation preserves eligible/unknown candidates in candidate_frontier, marks the projection denominator_limited, and emits an empty global_frontier/ranked-membership list. Thus the older claim that a feasible dominated candidate can be reported global_feasible is false for this reviewed fallback. Residual: a run/tenant/cell-bound runtime Pareto provider is not wired through ExecutionContext/workflow construction to the persisted frontier consumer. Registered positive, marker-removal, preserving control, and current six-file P41 remain UNRUN; literal census does not establish reflective or external providers. Preserve ordinary candidate work with a typed scope limitation; keep status partial.",
       "reviewed_evidence_2026_09_30": {
         "identity": "final CYC-03/OPT-01 reviewed audit:B109",
         "classification_at_review": "partial",
@@ -10520,11 +10520,11 @@
         },
         "h_n_review_disposition": {
           "kind": "implementation_owner",
-          "summary": "Both exact 2D/3D equal-secondary selectors and the exact-duplicate tie control pass in the recorded current 88-case wave. They are NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1, and pass at E02 00d946c2b and Phase 0 73c656744. This exact selector lineage does not prove a complete permutation × direction × tie matrix or a removal probe. The served RunHierarchicalPolicySearchNode reconstructs its global frontier from every feasible candidate; no evidence shows it consumes the ParetoRegistry snapshot that the output builder can project. Keep partial; whole-file four-base counts are not exact-selector evidence.",
+          "summary": "Historical N18 source assessment at 679f: both exact 2D/3D equal-secondary selectors and the exact-duplicate tie control passed in the then-current 88-case wave; the selectors were NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1, and present/pass at E02 00d946c2b and Phase 0 73c656744. This selector lineage does not prove the full direction/permutation/tie matrix or a removal probe. The 679f source report’s statement that the served node reconstructed its global frontier from every feasible candidate is superseded by the 612a source refresh: the current no-projection fallback is unranked, denominator-limited, preserves candidate/unknown records, and emits no global membership. The run/tenant/cell-bound registry provider and persisted consumer remain unestablished; keep partial and the current whole-file four-base P41 UNRUN.",
           "next_step": "Add the full bounded direction/permutation/tie matrix and marker-retaining removal probe, then trace served candidate selection through one global-frontier owner and its output consumer. Preserve NOT_PRESENT at the two earlier bases in P41 reporting."
         },
         "h_n_review_notes": [
-          "Do not accept the N audit’s “exact card discriminator closed bounded” conclusion. BASELINES lists the exact 2D/3D selectors as NOT_PRESENT at execution base and main, passing only at E02 head and Phase 0.",
+          "Historical 2026-09-27 N audit note at 679f: the exact 2D/3D selectors were absent at execution base and main and passed only at E02/Phase 0. Its served-output statement that all feasible candidates are global is superseded by the 612a source review, which found no-projection fallback emits no ranked/global membership and preserves candidate/unknown records under a typed denominator limitation.",
           "The 8/25/8/25 values are whole-file case counts, not exact-selector four-base outcomes.",
           "Correct the residual’s claim that the equal-secondary case has four-base passing evidence. Keep partial pending a base-equivalent distinguishing probe, current-head behavior plus marker-retaining removal probe, and the separate served hierarchical frontier consumer work.",
           "Clarify residual owner to include RunHierarchicalPolicySearchNode/ParetoRegistry served snapshot owner, with ParetoFront local comparator owner as bounded scope."
@@ -10575,7 +10575,7 @@
             "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py@git-blob:678a78222cedf1f41e8f9cdb910904deec3dc91a",
             "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@sha256:2b5caa7718acc0d6efcfaf13ada0a2fa92a578f0613c1e8118efc4ecaf3978a1"
           ],
-          "residual": "Both exact 2D/3D equal-secondary selectors and the exact-duplicate tie control pass in the recorded current 88-case wave. They are NOT_PRESENT at execution base 78187878e and main 5fd3ebcc1, and pass at E02 00d946c2b and Phase 0 73c656744. This exact selector lineage does not prove a complete permutation × direction × tie matrix or a removal probe. The served RunHierarchicalPolicySearchNode reconstructs its global frontier from every feasible candidate; no evidence shows it consumes the ParetoRegistry snapshot that the output builder can project. Keep partial; whole-file four-base counts are not exact-selector evidence.",
+          "residual": "Historical N18 residual at 679f: both exact 2D/3D equal-secondary selectors and the exact-duplicate tie control passed in that then-current 88-case wave. The N18 selector result does not prove a complete permutation × direction × tie matrix or a removal probe. Its source statement that the served node reconstructs its global frontier from every feasible candidate is superseded by the 612a source refresh: the no-projection fallback is an unranked, denominator-limited candidate/unknown report with no global frontier. The run/tenant/cell-bound provider and persisted consumer remain unestablished; keep partial and current whole-file four-base counts UNRUN.",
           "residual_owner": "ParetoFront exact comparator; RunHierarchicalPolicySearchNode/global-frontier producer; ParetoRegistry snapshot/output consumer",
           "next_step": "Add the full bounded direction/permutation/tie matrix and marker-retaining removal probe, then trace served candidate selection through one global-frontier owner and its output consumer. Preserve NOT_PRESENT at the two earlier bases in P41 reporting."
         },
@@ -10583,7 +10583,7 @@
           "identity": "B109 served hierarchy owner/provider source census measured at 768ef3ca",
           "kind": "read_only_complete_source_census_and_owner_trace",
           "behavioral_verdict": "UNRUN",
-          "scope": "The existing Pareto comparator is distinct from served frontier production. The default registered hierarchy adapter omits the existing ParetoRegistry owner; the current output builder projects every feasible evaluation to global_feasible. ExecutionContext/workflow composition has no scoped provider. The source census is static and is not a runtime test.",
+          "scope": "This read-only census measured source snapshot 768ef3ca. Its then-current output-builder statement that every feasible evaluation became global_feasible is historical and superseded by the 612a source review: in the current no-projection fallback, no candidate is assigned ranked/global membership; the report preserves candidate/unknown records under denominator_limited status with an empty global_frontier. The current census is static, not a runtime test; the registered run/tenant/cell provider and persisted consumer path remain unestablished.",
           "census": {
             "root": "policy-engine/src/polisyos",
             "file_type": "*.py",
@@ -10624,6 +10624,38 @@
           "path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r2-b109-p27-blocker-20260927.md@sha256:2677fb66cd8c4c5f1ddd9663fb4ade678b5e6dfa447485f2c44835ec937c5c3f",
           "behavioral_verdict": "UNRUN",
           "scope": "Source inspection and complete AST census only; no test process was launched. The local comparator evidence remains bounded; the run/tenant/cell-scoped served owner/provider and its consumer witness remain missing."
+        },
+        "b109_current_source_fallback_review_612a": {
+          "identity": "B109 current no-registry fallback/source census at 612a78f",
+          "path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_OPT01_INDEPENDENT_REVIEW_612a78f_20261002.md@sha256:3daa3e5933700579bf360b637afdc209970240ddcba423412bb4807985d9a60c",
+          "reviewed_snapshot": "612a78f05f12e440323dcba52cfd7215121ef04e",
+          "behavioral_verdict": "UNRUN",
+          "source_census": {
+            "root": "policy-engine/src/polisyos",
+            "file_type": "*.py",
+            "production_source_files": 2697,
+            "test_source_files": 2751,
+            "literal_production_ParetoRegistry_constructors": 0,
+            "pareto_registry_snapshot_text_occurrences": 3,
+            "pareto_registry_snapshot_production_files": 2,
+            "pareto_registry_snapshot_literal_writes": 0,
+            "global_feasible_production_lines": 18,
+            "global_feasible_production_files": 5,
+            "package_reference_inventory": "/Users/deniskopylov/.codex/scratch/E02R2_612A_B109_CORRECTION_PREP_V4/B109_PACKAGE_CLAIM_CENSUS_PINNED_612A.json@sha256:a5cc4a716107924821cf22da1e1f4adfb802118f8a9d5f35def15316f69eed37"
+          },
+          "fallback_behavior_found_in_source": "No projection yields an unranked basis_limited projection; denominator reconciliation preserves candidate/unknown records as a denominator_limited candidate_frontier and emits no global_frontier membership.",
+          "source_witnesses": [
+            "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py@git-blob:8455c27a65345179f783a0e52fbf5c42c8fe10d1",
+            "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py@git-blob:c1671e0ee1b0c5b597f1c1724f23c1f804afa761"
+          ],
+          "reconciliation_receipt": "/Users/deniskopylov/.codex/scratch/E02R2_612A_B109_CORRECTION_PREP_V4/B109_COMPLETE_BINDING_RECONCILIATION_V1.json@sha256:ecdb9fc9d5ea5f583ea49d6fe7bb638c801d38557131491d01bf970a65f8ca08",
+          "candidate_task_path_at_sha": "/Users/deniskopylov/.codex/scratch/E02R2_612A_B109_CORRECTION_PREP_V4/candidate/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/B109_P27_TASK.md@sha256:d5daa805195df108ca4550384e293f4e9e3e4a3cd7745b4b0847558842a63791",
+          "unresolved_by_construction": [
+            "registered runtime provider/consumer behavior and persisted positive frontier readback",
+            "current six-file whole-file four-base P41",
+            "reflective or external ParetoRegistry construction and callers"
+          ],
+          "no_tests_run": true
         },
         "n18_independent_card_review_20261001": {
           "identity": "N18 independent card-source inspection at 1281fd36:B109",

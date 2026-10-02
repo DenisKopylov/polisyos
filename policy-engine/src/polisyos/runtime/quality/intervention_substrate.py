@@ -612,8 +612,8 @@ def materialize_candidate_scenario_action(
     )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContext,
-        _cycle_job_v1_design_problem_ref,
-        _cycle_job_v1_profile_selection_ref,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
         revalidate_cycle_substrate_context,
     )
     from polisyos.runtime.quality.design_generation import (
@@ -641,9 +641,9 @@ def materialize_candidate_scenario_action(
 
     verified_bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     verified_context = revalidate_cycle_substrate_context(context)
-    if profile.profile_selection_ref != _cycle_job_v1_profile_selection_ref(problem):
+    if profile.profile_selection_ref != cycle_job_profile_selection_ref(problem):
         raise InterventionSubstrateError("candidate_scenario_profile_selection_ref_mismatch")
-    problem_ref = _cycle_job_v1_design_problem_ref(problem)
+    problem_ref = cycle_job_design_problem_ref(problem)
     if verified_context.design_problem_ref != problem_ref:
         raise InterventionSubstrateError("candidate_scenario_context_problem_mismatch")
     if verified_context.intervention_substrate is None:
@@ -756,8 +756,8 @@ def materialize_candidate_scenario_proposal_action(
     )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContext,
-        _cycle_job_v1_design_problem_ref,
-        _cycle_job_v1_profile_selection_ref,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
         revalidate_cycle_substrate_context,
     )
     from polisyos.runtime.quality.design_generation import (
@@ -815,10 +815,10 @@ def materialize_candidate_scenario_proposal_action(
         raise InterventionSubstrateError("candidate_scenario_source_problem_mismatch")
     if (
         source_v1.profile_config_ref != candidate_simulation_profile_ref(profile)
-        or profile.profile_selection_ref != _cycle_job_v1_profile_selection_ref(problem)
+        or profile.profile_selection_ref != cycle_job_profile_selection_ref(problem)
     ):
         raise InterventionSubstrateError("candidate_scenario_profile_selection_ref_mismatch")
-    problem_ref = _cycle_job_v1_design_problem_ref(problem)
+    problem_ref = cycle_job_design_problem_ref(problem)
     if (
         verified_context.design_problem_ref != problem_ref
         or source_v1.cycle_problem_ref != problem_ref

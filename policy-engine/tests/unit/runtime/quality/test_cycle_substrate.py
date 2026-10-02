@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import pytest
+from pydantic import create_model
 
 from polisyos.core import canon
 from polisyos.core.artifacts import ArtifactOwnershipError, FileSystemCAS
@@ -30,7 +31,12 @@ from polisyos.runtime.quality.cycle_substrate import (
     cycle_substrate_context_binding_hash,
     cycle_substrate_context_content_hash,
 )
-from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.design_problem import (
+    DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+    DesignProblem,
+    OutcomeOfInterest,
+    _QualifiedOutcomeOfInterestV3,
+)
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateBundle,
     InterventionSubstrateError,
@@ -139,6 +145,101 @@ def _design_problem() -> DesignProblem:
     )
 
 
+def _qualified_v3_design_problem() -> DesignProblem:
+    """Return a current problem whose dotted outcome uses its exact owner type."""
+
+    payload = _design_problem().model_dump(mode="python")
+    payload["schema_version"] = DESIGN_PROBLEM_V3_SCHEMA_VERSION
+    payload["outcome_of_interest"] = {
+        "target_variable": "education.learning_outcomes",
+        "metric_id": "learning_outcomes",
+        "estimand": "P(learning_outcomes | do(teaching_method))",
+        "direction": "maximize",
+    }
+    problem = DesignProblem.model_validate(payload)
+    assert type(problem.outcome_of_interest) is _QualifiedOutcomeOfInterestV3
+    return problem
+
+
+def test_current_cycle_job_refs_preserve_plain_v3_projection_and_support_qualified_v3() -> None:
+    """Current identity dispatch keeps old plain V3 refs and admits typed V3 outcomes."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        _cycle_job_v1_design_problem_ref,
+        _cycle_job_v1_profile_selection_ref,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
+    )
+
+    problem_v2 = _design_problem()
+    assert cycle_job_design_problem_ref(problem_v2) == (
+        _cycle_job_v1_design_problem_ref(problem_v2)
+    )
+    assert cycle_job_profile_selection_ref(problem_v2) == (
+        _cycle_job_v1_profile_selection_ref(problem_v2)
+    )
+
+    payload = _design_problem().model_dump(mode="python")
+    payload["schema_version"] = DESIGN_PROBLEM_V3_SCHEMA_VERSION
+    plain_v3 = DesignProblem.model_validate(payload)
+    assert type(plain_v3.outcome_of_interest) is OutcomeOfInterest
+    assert cycle_job_design_problem_ref(plain_v3) == (
+        _cycle_job_v1_design_problem_ref(plain_v3)
+    )
+    assert cycle_job_profile_selection_ref(plain_v3) == (
+        _cycle_job_v1_profile_selection_ref(plain_v3)
+    )
+
+    qualified_v3 = _qualified_v3_design_problem()
+    assert cycle_job_design_problem_ref(qualified_v3).startswith("sha256:")
+    assert cycle_job_profile_selection_ref(qualified_v3).startswith("sha256:")
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_v1_serializer_model_unregistered",
+    ):
+        _cycle_job_v1_design_problem_ref(qualified_v3)
+
+    unknown_version = plain_v3.model_copy(
+        update={"schema_version": "policyos.runtime.design_problem.v_future"}
+    )
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_design_problem_schema_unsupported",
+    ):
+        cycle_job_design_problem_ref(unknown_version)
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_design_problem_schema_unsupported",
+    ):
+        cycle_job_profile_selection_ref(unknown_version)
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_v1_nested_schema_unsupported",
+    ):
+        _cycle_job_v1_design_problem_ref(unknown_version)
+
+
+def test_cycle_substrate_context_job_parser_returns_typed_failure_for_non_object() -> None:
+    """Malformed persisted JSON roots fail through the owner error contract."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        parse_cycle_substrate_context_job_artifact,
+    )
+
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_record_invalid: payload_root_not_object",
+    ):
+        parse_cycle_substrate_context_job_artifact([])  # type: ignore[arg-type]
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_schema_version_unsupported",
+    ):
+        parse_cycle_substrate_context_job_artifact(
+            {"schema_version": "policyos.runtime.cycle_substrate_context_job_artifact.v_future"}
+        )
+
+
 @dataclass
 class _TestControlJobRecord:
     job_id: str
@@ -212,6 +313,21 @@ def test_cycle_substrate_context_owner_persists_exact_job_scope_and_reads_direct
         assert resolved.content_hash == (
             "sha256:e93b6eb4245991820146b9a7233d4639d6675cab2fcfdf54ac9000c9066960b2"
         )
+        assert manifest.artifact_schema is not None
+        assert manifest.artifact_schema.name == (
+            cycle_substrate_owner.CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA
+        )
+        assert manifest.artifact_schema.version == "1.0"
+        historical = owner.resolve_historical_job_artifact(
+            ref,
+            problem=problem,
+            expected_job_id="job-context-owner",
+            expected_run_id="run-context-owner",
+            expected_tenant_id="tenant-context-owner",
+            expected_cell_id="cell-context-owner",
+        )
+        assert type(historical) is CycleSubstrateContextJobArtifact
+        assert historical.content_hash == resolved.content_hash
 
     assert resolved.design_problem_ref == problem_ref
     assert resolved.problem == problem
@@ -238,6 +354,257 @@ def test_cycle_substrate_context_owner_persists_exact_job_scope_and_reads_direct
     assert manifest.same_input_closure.job_id == "job-context-owner"
     assert manifest.same_input_closure.tenant_id == "tenant-context-owner"
     assert manifest.same_input_closure.cell_id == "cell-context-owner"
+
+
+def test_cycle_substrate_context_job_v2_roundtrips_qualified_v3_and_removal_turns_red(
+    tmp_path: Any,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The V2 owner stores/replays exact qualified V3 while its removal probe fails."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA,
+        CycleSubstrateContextJobArtifactV2,
+        cycle_job_design_problem_ref,
+        cycle_substrate_context_job_content_hash,
+    )
+
+    problem = _qualified_v3_design_problem()
+    problem_ref = cycle_job_design_problem_ref(problem)
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method",),
+    )
+    context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+    )
+    store = FileSystemCAS(
+        tmp_path / "cycle-context-v2-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    owner = CycleSubstrateContextArtifactOwner(
+        store=store,
+        control_store=_TestCurrentJobExecutionOwner(
+            "job-context-v2-owner", "run-context-v2-owner"
+        ),
+    )
+
+    with _authenticated_tenant_scope(
+        tenant_id="tenant-context-v2-owner", cell_id="cell-context-v2-owner"
+    ):
+        ref = owner.persist_for_current_job(context, problem=problem)
+        resolved = owner.resolve_for_current_job(ref, problem=problem)
+        manifest = store.get_manifest(ref)
+        payload = canon.from_canonical_bytes(store.get_bytes(ref))
+        historical = owner.resolve_historical_job_artifact(
+            ref,
+            problem=problem,
+            expected_job_id="job-context-v2-owner",
+            expected_run_id="run-context-v2-owner",
+            expected_tenant_id="tenant-context-v2-owner",
+            expected_cell_id="cell-context-v2-owner",
+        )
+
+    assert type(resolved) is CycleSubstrateContextJobArtifactV2
+    assert type(historical) is CycleSubstrateContextJobArtifactV2
+    assert type(resolved.problem.outcome_of_interest) is _QualifiedOutcomeOfInterestV3
+    assert resolved.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
+    assert resolved.problem == problem
+    assert resolved.design_problem_ref == problem_ref
+    assert resolved.context.content_hash == context.content_hash
+    assert resolved.profile_admission_status == "not_established"
+    assert resolved.s8_status == "blocked"
+    assert resolved.authority_purpose == "cycle_input_candidate_only"
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
+    assert manifest.artifact_schema.version == "2.0"
+    assert manifest.kind == cycle_substrate_owner.CYCLE_SUBSTRATE_CONTEXT_JOB_KIND
+    assert payload["schema_version"] == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
+    assert cycle_substrate_context_job_content_hash(payload) == payload["content_hash"]
+
+    # `model_construct` bypasses Pydantic validators. The serializer and
+    # manifest-profile selector must still reject a forged nested schema.
+    forged_problem = DesignProblem.model_construct(
+        **{
+            **resolved.problem.model_dump(mode="python"),
+            "schema_version": "policyos.runtime.design_problem.v_future",
+        }
+    )
+    forged_nested_artifact = CycleSubstrateContextJobArtifactV2.model_construct(
+        **{**resolved.model_dump(mode="python"), "problem": forged_problem}
+    )
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_v2_nested_schema_unsupported",
+    ):
+        cycle_substrate_owner._serialize_cycle_substrate_context_job_artifact(
+            forged_nested_artifact
+        )
+
+    forged_outer_artifact = CycleSubstrateContextJobArtifactV2.model_construct(
+        **{
+            **resolved.model_dump(mode="python"),
+            "schema_version": "policyos.runtime.cycle_substrate_context_job_artifact.v_future",
+        }
+    )
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_schema_version_unsupported",
+    ):
+        cycle_substrate_owner._context_job_write_options(forged_outer_artifact)
+
+    v2_fields_without_qualified_outcome = {
+        model_type: fields
+        for model_type, fields in cycle_substrate_owner._CONTEXT_JOB_V2_EXACT_MODEL_FIELDS.items()
+        if model_type is not _QualifiedOutcomeOfInterestV3
+    }
+    put_json_calls = 0
+    original_put_json = store.put_json
+
+    def observe_put_json(*args: Any, **kwargs: Any) -> Any:
+        nonlocal put_json_calls
+        put_json_calls += 1
+        return original_put_json(*args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(
+            cycle_substrate_owner,
+            "_CONTEXT_JOB_V2_EXACT_MODEL_FIELDS",
+            v2_fields_without_qualified_outcome,
+        )
+        patch.setattr(store, "put_json", observe_put_json)
+        with _authenticated_tenant_scope(
+            tenant_id="tenant-context-v2-owner", cell_id="cell-context-v2-owner"
+        ):
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="cycle_substrate_context_job_v2_serializer_model_unregistered",
+            ):
+                owner.persist_for_current_job(context, problem=problem)
+            assert store.verify(ref).ok
+    assert put_json_calls == 0
+
+    foreign_outcome_type = create_model(
+        "_QualifiedOutcomeOfInterestV3",
+        __module__="polisyos.runtime.quality.design_problem",
+        target_variable=(str, "education.learning_outcomes"),
+        metric_id=(str, "learning_outcomes"),
+        estimand=(str, "P(learning_outcomes | do(teaching_method))"),
+        direction=(str, "maximize"),
+    )
+    foreign_outcome = foreign_outcome_type()
+    assert type(foreign_outcome) is not _QualifiedOutcomeOfInterestV3
+    assert type(foreign_outcome).__module__ == (
+        _QualifiedOutcomeOfInterestV3.__module__
+    )
+    assert type(foreign_outcome).__qualname__ == (
+        _QualifiedOutcomeOfInterestV3.__qualname__
+    )
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_v2_serializer_model_unregistered",
+    ):
+        cycle_substrate_owner._serialize_context_job_v2_value(foreign_outcome)
+
+    foreign_problem_type = create_model(
+        "DesignProblem",
+        __module__="polisyos.runtime.quality.design_problem",
+        schema_version=(str, DESIGN_PROBLEM_V3_SCHEMA_VERSION),
+    )
+    foreign_problem = foreign_problem_type()
+    assert type(foreign_problem) is not DesignProblem
+    assert type(foreign_problem).__module__ == DesignProblem.__module__
+    assert type(foreign_problem).__qualname__ == DesignProblem.__qualname__
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_v2_serializer_model_unregistered",
+    ):
+        cycle_substrate_owner._serialize_context_job_v2_value(foreign_problem)
+
+    foreign_outer_type = create_model(
+        "CycleSubstrateContextJobArtifactV2",
+        __module__="polisyos.runtime.quality.cycle_substrate",
+        schema_version=(str, CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA),
+    )
+    foreign_outer = foreign_outer_type()
+    assert type(foreign_outer) is not CycleSubstrateContextJobArtifactV2
+    assert type(foreign_outer).__module__ == (
+        CycleSubstrateContextJobArtifactV2.__module__
+    )
+    assert type(foreign_outer).__qualname__ == (
+        CycleSubstrateContextJobArtifactV2.__qualname__
+    )
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_v2_serializer_model_unregistered",
+    ):
+        cycle_substrate_owner._serialize_cycle_substrate_context_job_artifact(
+            foreign_outer
+        )
+
+
+def test_cycle_substrate_context_job_v2_keeps_plain_v3_candidate_work_available(
+    tmp_path: Any,
+) -> None:
+    """Plain V3 outcomes use V2 storage without gaining authority or refusing."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA,
+        CycleSubstrateContextJobArtifactV2,
+        _cycle_job_v1_design_problem_ref,
+        cycle_job_design_problem_ref,
+    )
+
+    problem_payload = _design_problem().model_dump(mode="python")
+    problem_payload["schema_version"] = DESIGN_PROBLEM_V3_SCHEMA_VERSION
+    problem = DesignProblem.model_validate(problem_payload)
+    assert type(problem.outcome_of_interest) is OutcomeOfInterest
+    problem_ref = cycle_job_design_problem_ref(problem)
+    assert problem_ref == _cycle_job_v1_design_problem_ref(problem)
+
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method",),
+    )
+    context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+    )
+    store = FileSystemCAS(
+        tmp_path / "cycle-context-v2-plain-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    owner = CycleSubstrateContextArtifactOwner(
+        store=store,
+        control_store=_TestCurrentJobExecutionOwner(
+            "job-context-v2-plain", "run-context-v2-plain"
+        ),
+    )
+
+    with _authenticated_tenant_scope(
+        tenant_id="tenant-context-v2-plain", cell_id="cell-context-v2-plain"
+    ):
+        ref = owner.persist_for_current_job(context, problem=problem)
+        resolved = owner.resolve_for_current_job(ref, problem=problem)
+
+    assert type(resolved) is CycleSubstrateContextJobArtifactV2
+    assert resolved.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
+    assert resolved.problem == problem
+    assert type(resolved.problem.outcome_of_interest) is OutcomeOfInterest
+    assert resolved.design_problem_ref == problem_ref
+    assert resolved.profile_admission_status == "not_established"
+    assert resolved.s8_status == "blocked"
 
 
 def test_cycle_substrate_context_owner_refuses_wrong_problem_or_job(tmp_path: Any) -> None:

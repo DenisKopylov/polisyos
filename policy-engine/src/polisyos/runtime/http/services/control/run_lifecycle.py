@@ -4991,9 +4991,10 @@ class ControlPlaneService(
                             ConfiguredCandidateSimulationContextAdmissionOwner,
                             CycleSubstrateContextArtifactOwner,
                             CycleSubstrateContextJobArtifact,
+                            CycleSubstrateContextJobArtifactV2,
                             VerifiedNLJobScope,
-                            _cycle_job_v1_design_problem_ref,
-                            _cycle_job_v1_profile_selection_ref,
+                            cycle_job_design_problem_ref,
+                            cycle_job_profile_selection_ref,
                         )
                         from polisyos.runtime.quality.design_problem import DesignProblem
 
@@ -5034,12 +5035,16 @@ class ControlPlaneService(
                         )
                         if (
                             type(current_offer) is not CandidateSimulationContextOffer
-                            or type(current_context_job) is not CycleSubstrateContextJobArtifact
+                            or type(current_context_job)
+                            not in {
+                                CycleSubstrateContextJobArtifact,
+                                CycleSubstrateContextJobArtifactV2,
+                            }
                         ):
                             return False
-                        expected_problem_ref = _cycle_job_v1_design_problem_ref(problem)
+                        expected_problem_ref = cycle_job_design_problem_ref(problem)
                         return (
-                            _cycle_job_v1_profile_selection_ref(problem)
+                            cycle_job_profile_selection_ref(problem)
                             == handoff.profile.profile_selection_ref
                             and current_offer.profile == admitted_offer.profile
                             and current_offer.profile == handoff.profile

@@ -70,9 +70,9 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
         candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.cycle_substrate import (
-        _cycle_job_v1_design_problem_ref,
-        _cycle_job_v1_profile_selection_ref,
         build_cycle_substrate_context,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
     )
     from polisyos.runtime.quality.intervention_substrate import (
         load_l6_intervention_substrate,
@@ -134,7 +134,7 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
         }
     )
     context = build_cycle_substrate_context(
-        design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
+        design_problem_ref=cycle_job_design_problem_ref(problem),
         domain=problem.domain,
         substrate_registry=substrate_registry,
         selected_registry_entry_hashes=selected_hashes,
@@ -180,7 +180,7 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
     profile_fields = {
         "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
         "profile_id": "e02r2.b09.served.wdi.controlled",
-        "profile_selection_ref": _cycle_job_v1_profile_selection_ref(problem),
+        "profile_selection_ref": cycle_job_profile_selection_ref(problem),
         "context_inputs": inputs,
         "rule": rule,
         "n5": n5,
@@ -526,6 +526,10 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
     original_problem = cycle_fixtures._problem
 
     def controlled_fiscal_problem(problem_id="served_wdi_acquisition"):
+        from polisyos.runtime.quality.design_problem import (
+            _QualifiedOutcomeOfInterestV3,
+        )
+
         problem = original_problem(problem_id)
         payload = problem.model_dump(mode="json")
         payload["schema_version"] = "policyos.runtime.design_problem.v3"
@@ -560,7 +564,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             )
         # Re-parse the complete V3 payload so qualified variable identities use
         # the versioned DesignProblem owner instead of bypassing its validator.
-        return type(problem).model_validate(payload)
+        problem = type(problem).model_validate(payload)
+        assert type(problem.outcome_of_interest) is _QualifiedOutcomeOfInterestV3
+        return problem
 
     monkeypatch.setattr(cycle_fixtures, "_problem", controlled_fiscal_problem)
 
@@ -975,6 +981,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert diagnostics["candidate_simulation_purpose"] == "candidate_scenario_n5_only"
 
             from polisyos.core.artifacts import ArtifactID, ArtifactRef
+            from polisyos.core.artifacts.manifest import artifact_ref_identity_key
             from polisyos.core.contracts import epoch as epoch_contract
             from polisyos.core.contracts.fabric import DataSnapshot
             from polisyos.data_forge.domains.catalog.knowledge.overlay import (
@@ -984,8 +991,18 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             from polisyos.runtime.quality.candidate_simulation import (
                 CandidateSimulationN5InputV5,
             )
+            from polisyos.runtime.quality.cycle_substrate import (
+                CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA,
+                CycleSubstrateContextJobArtifactV2,
+            )
+            from polisyos.runtime.quality.design_problem import (
+                _QualifiedOutcomeOfInterestV3,
+            )
             from polisyos.runtime.quality.generation_cycle import (
                 load_joint_simulation_result,
+            )
+            from polisyos.runtime.quality.generation_source import (
+                GenerationSourceRepository,
             )
 
             n5_input_ref = ArtifactRef.model_validate(
@@ -1007,6 +1024,58 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             }.issubset(
                 n5_input.profile.context_inputs.world_model_record.limitations.admissibility_blockers
             )
+
+            context_job = CycleSubstrateContextJobArtifactV2.model_validate(
+                canon.from_canonical_bytes(
+                    _within_fixture_owner(
+                        control._artifact_store.get_bytes,
+                        n5_input.context_job_ref,
+                    )
+                )
+            )
+            context_job_manifest = _within_fixture_owner(
+                control._artifact_store.get_manifest,
+                n5_input.context_job_ref,
+            )
+            source_record = _within_fixture_owner(
+                GenerationSourceRepository(
+                    control._artifact_store
+                ).load_candidate_scenario_source_for_n5,
+                n5_input.n4_source_ref,
+                expected_run_id=n5_input.run_id,
+                expected_job_id=n5_input.job_id,
+                expected_tenant_id=n5_input.tenant_id,
+                expected_cell_id=n5_input.cell_id,
+            )
+            assert context_job.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
+            assert type(context_job.problem.outcome_of_interest) is (
+                _QualifiedOutcomeOfInterestV3
+            )
+            assert context_job.problem == source_record.problem
+            assert context_job.design_problem_ref == source_record.cycle_problem_ref
+            assert artifact_ref_identity_key(n5_input.context_job_ref) == (
+                artifact_ref_identity_key(source_record.context_job_ref)
+            )
+            assert context_job_manifest.kind == (
+                "runtime.quality.cycle_substrate_context_job"
+            )
+            assert context_job_manifest.artifact_schema is not None
+            assert context_job_manifest.artifact_schema.name == (
+                CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
+            )
+            assert context_job_manifest.artifact_schema.version == "2.0"
+            assert context_job_manifest.tenant_context is not None
+            assert context_job_manifest.tenant_context.tenant_id == n5_input.tenant_id
+            assert context_job_manifest.tenant_context.cell_id == n5_input.cell_id
+            assert context_job_manifest.same_input_closure is not None
+            assert context_job_manifest.same_input_closure.status == "candidate_only"
+            assert context_job_manifest.same_input_closure.run_id == n5_input.run_id
+            assert context_job_manifest.same_input_closure.job_id == n5_input.job_id
+            assert context_job_manifest.same_input_closure.tenant_id == n5_input.tenant_id
+            assert context_job_manifest.same_input_closure.cell_id == n5_input.cell_id
+            assert context_job.profile_admission_status == "not_established"
+            assert context_job.s8_status == "blocked"
+            assert context_job.authority_purpose == "cycle_input_candidate_only"
 
             growth = _within_fixture_owner(cases[-1].port.project_world_growth, closure)
             assert growth is not None

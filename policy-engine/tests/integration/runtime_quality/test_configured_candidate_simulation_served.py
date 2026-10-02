@@ -118,8 +118,8 @@ def test_profile_selection_ref_ignores_only_server_execution_ids() -> None:
     """Static selection is stable across job IDs and changes with semantic basis."""
 
     from polisyos.runtime.quality.cycle_substrate import (
-        _cycle_job_v1_design_problem_ref,
-        _cycle_job_v1_profile_selection_ref,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
     )
 
     recording = next(
@@ -149,10 +149,10 @@ def test_profile_selection_ref_ignores_only_server_execution_ids() -> None:
 
     first = with_source_context(execution_ids)
     second = with_source_context(alternate_ids)
-    assert _cycle_job_v1_profile_selection_ref(first) == (
-        _cycle_job_v1_profile_selection_ref(second)
+    assert cycle_job_profile_selection_ref(first) == (
+        cycle_job_profile_selection_ref(second)
     )
-    assert _cycle_job_v1_design_problem_ref(first) != _cycle_job_v1_design_problem_ref(second)
+    assert cycle_job_design_problem_ref(first) != cycle_job_design_problem_ref(second)
 
     for retained in (
         {"operator_note": "retained"},
@@ -160,19 +160,19 @@ def test_profile_selection_ref_ignores_only_server_execution_ids() -> None:
         {"candidate_context": {"population": "different"}},
     ):
         altered = with_source_context({**execution_ids, **retained})
-        assert _cycle_job_v1_profile_selection_ref(altered) != (
-            _cycle_job_v1_profile_selection_ref(first)
+        assert cycle_job_profile_selection_ref(altered) != (
+            cycle_job_profile_selection_ref(first)
         )
     changed_time = problem.jurisdiction_time.model_copy(update={"as_of": "2026-06-30"})
-    assert _cycle_job_v1_profile_selection_ref(
+    assert cycle_job_profile_selection_ref(
         problem.model_copy(update={"jurisdiction_time": changed_time})
-    ) != _cycle_job_v1_profile_selection_ref(problem)
+    ) != cycle_job_profile_selection_ref(problem)
     changed_request = problem.nl_provenance.model_copy(
         update={"raw_request": problem.nl_provenance.raw_request + " revised"}
     )
-    assert _cycle_job_v1_profile_selection_ref(
+    assert cycle_job_profile_selection_ref(
         problem.model_copy(update={"nl_provenance": changed_request})
-    ) != _cycle_job_v1_profile_selection_ref(problem)
+    ) != cycle_job_profile_selection_ref(problem)
 
 
 def _configured_procurement_profile(
@@ -200,7 +200,7 @@ def _configured_procurement_profile(
         candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.cycle_substrate import (
-        _cycle_job_v1_profile_selection_ref,
+        cycle_job_profile_selection_ref,
     )
     from polisyos.runtime.quality.generation_cycle import (
         _build_boundary_world_model_record,
@@ -332,7 +332,7 @@ def _configured_procurement_profile(
     fields = {
         "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
         "profile_id": "r1.controlled.synthetic.procurement",
-        "profile_selection_ref": _cycle_job_v1_profile_selection_ref(recorded_problem),
+        "profile_selection_ref": cycle_job_profile_selection_ref(recorded_problem),
         "context_inputs": context_inputs,
         "rule": rule,
         "n5": n5,
@@ -564,9 +564,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.cycle_substrate import (
-        CycleSubstrateContextJobArtifact,
-        _cycle_job_v1_design_problem_ref,
-        _cycle_job_v1_profile_selection_ref,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
+        parse_cycle_substrate_context_job_artifact,
     )
     from polisyos.runtime.quality.generation_cycle import (
         FoundryValuePort,
@@ -635,7 +635,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         recorded_problem=recorded_problem,
         cas_root=cas_root,
     )
-    assert profile.profile_selection_ref == _cycle_job_v1_profile_selection_ref(
+    assert profile.profile_selection_ref == cycle_job_profile_selection_ref(
         recorded_problem
     )
 
@@ -774,11 +774,11 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             job_id=completed.job_id,
             run_id=str(completed.run_id),
         )
-        context_job = CycleSubstrateContextJobArtifact.model_validate(
+        context_job = parse_cycle_substrate_context_job_artifact(
             canon.from_canonical_bytes(context_job_bytes)
         )
         assert context_job.problem == compiled_problem
-        assert context_job.design_problem_ref == _cycle_job_v1_design_problem_ref(
+        assert context_job.design_problem_ref == cycle_job_design_problem_ref(
             compiled_problem
         )
         assert context_job.design_problem_ref != profile.profile_selection_ref
@@ -1415,7 +1415,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         second_job = service._control_store.get_job(second_job_id)
         assert second_job is not None and second_job.state == "completed"
         assert len(compiled_problems) == 3
-        assert _cycle_job_v1_profile_selection_ref(compiled_problems[2]) != (
+        assert cycle_job_profile_selection_ref(compiled_problems[2]) != (
             profile.profile_selection_ref
         )
         assert second_job.progress["stage"] == "n4_proposal_only"
@@ -1488,7 +1488,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         third_job = service._control_store.get_job(third_job_id)
         assert third_job is not None and third_job.state == "completed"
         assert len(compiled_problems) == 4
-        assert _cycle_job_v1_profile_selection_ref(compiled_problems[3]) == (
+        assert cycle_job_profile_selection_ref(compiled_problems[3]) == (
             profile.profile_selection_ref
         )
         assert third_job.progress["stage"] == "n4_proposal_only"
@@ -1741,7 +1741,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             profile,
             zero_budget_handoff.profile_config_ref,
             compiled_problems[-1],
-            _cycle_job_v1_profile_selection_ref(compiled_problems[-1]),
+            cycle_job_profile_selection_ref(compiled_problems[-1]),
             zero_budget_handoff.context.content_hash,
             zero_budget_handoff.job_id,
             zero_budget_handoff.run_id,

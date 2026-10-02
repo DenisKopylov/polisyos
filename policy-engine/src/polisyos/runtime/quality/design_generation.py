@@ -1103,8 +1103,8 @@ def build_candidate_scenario_proposal_candidate(
         candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.cycle_substrate import (
-        _cycle_job_v1_design_problem_ref,
-        _cycle_job_v1_profile_selection_ref,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
         revalidate_cycle_substrate_context,
     )
     from polisyos.runtime.quality.design_problem import DesignProblem as DesignProblemModel
@@ -1125,9 +1125,9 @@ def build_candidate_scenario_proposal_candidate(
         raise DesignGenerationError("n4_candidate_scenario_trinity_missing")
 
     verified_context = revalidate_cycle_substrate_context(context)
-    if verified_context.design_problem_ref != _cycle_job_v1_design_problem_ref(problem):
+    if verified_context.design_problem_ref != cycle_job_design_problem_ref(problem):
         raise DesignGenerationError("n4_candidate_scenario_context_problem_mismatch")
-    if profile.profile_selection_ref != _cycle_job_v1_profile_selection_ref(problem):
+    if profile.profile_selection_ref != cycle_job_profile_selection_ref(problem):
         return None
     if profile.context_inputs.intervention_substrate is None:
         return None

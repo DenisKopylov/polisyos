@@ -3474,8 +3474,8 @@ class JointSimulationPort:
             CandidateSimulationN5InputV5,
         )
         from polisyos.runtime.quality.cycle_substrate import (
-            _cycle_job_v1_design_problem_ref,
-            _cycle_job_v1_profile_selection_ref,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
             revalidate_cycle_substrate_context,
         )
         from polisyos.runtime.quality.design_generation import (
@@ -3536,9 +3536,9 @@ class JointSimulationPort:
             or input_record.profile.content_hash != handoff.profile.content_hash
         ):
             raise WorldModelRecordError("candidate_simulation_n5_job_binding_mismatch")
-        problem_ref = _cycle_job_v1_design_problem_ref(problem)
+        problem_ref = cycle_job_design_problem_ref(problem)
         if (
-            _cycle_job_v1_profile_selection_ref(problem)
+            cycle_job_profile_selection_ref(problem)
             != input_record.profile.profile_selection_ref
         ):
             raise WorldModelRecordError(
@@ -7603,7 +7603,7 @@ class GenerationCycleController:
             CandidateSimulationContextHandoff,
         )
         from polisyos.runtime.quality.cycle_substrate import (
-            _cycle_job_v1_design_problem_ref,
+            cycle_job_design_problem_ref,
         )
         from polisyos.runtime.quality.design_generation import (
             N4CandidateScenarioProposalRun,
@@ -7663,7 +7663,7 @@ class GenerationCycleController:
                     cell_id=handoff.cell_id,
                     design_problem_ref=proposal_run.proposal.design_problem_ref,
                     cycle_problem_ref=(
-                        _cycle_job_v1_design_problem_ref(problem)
+                        cycle_job_design_problem_ref(problem)
                     ),
                     problem=problem,
                     proposal=proposal_run.proposal,

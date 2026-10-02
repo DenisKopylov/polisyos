@@ -691,8 +691,8 @@ class N4CandidateScenarioSourceRecordV1(_StrictModel):
     @model_validator(mode="after")
     def _verify_proposal_source_bindings(self) -> N4CandidateScenarioSourceRecordV1:
         from polisyos.runtime.quality.cycle_substrate import (
-            _cycle_job_v1_design_problem_ref,
-            _cycle_job_v1_profile_selection_ref,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
         )
 
         if type(self.profile) is not CandidateSimulationScenarioProfile:
@@ -706,9 +706,9 @@ class N4CandidateScenarioSourceRecordV1(_StrictModel):
         if (
             self.design_problem_ref != gy_content_hash(self.problem.model_dump(mode="json"))
             or self.proposal.design_problem_ref != self.design_problem_ref
-            or self.cycle_problem_ref != _cycle_job_v1_design_problem_ref(self.problem)
+            or self.cycle_problem_ref != cycle_job_design_problem_ref(self.problem)
             or self.profile.profile_selection_ref
-            != _cycle_job_v1_profile_selection_ref(self.problem)
+            != cycle_job_profile_selection_ref(self.problem)
         ):
             raise ValueError("n4_candidate_scenario_problem_binding_mismatch")
         if self.candidate is None:

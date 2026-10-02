@@ -862,7 +862,7 @@ class RecursiveGenerationCycleController:
                 CandidateSimulationContextHandoff,
             )
             from polisyos.runtime.quality.cycle_substrate import (
-                _cycle_job_v1_design_problem_ref,
+                cycle_job_design_problem_ref,
             )
 
             if not set(candidate_simulation_handoffs_by_node).issubset(leaf_refs):
@@ -876,7 +876,7 @@ class RecursiveGenerationCycleController:
                     )
                 if (
                     handoff.context.design_problem_ref
-                    != _cycle_job_v1_design_problem_ref(problems_by_node[node_ref])
+                    != cycle_job_design_problem_ref(problems_by_node[node_ref])
                     or (cycle_substrate_contexts_by_node or {}).get(node_ref)
                     != handoff.context
                 ):

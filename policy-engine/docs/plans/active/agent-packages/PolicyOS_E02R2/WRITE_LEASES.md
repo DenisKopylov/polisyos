@@ -3075,3 +3075,10 @@ The exact foreign-jurisdiction negative is absent from the pinned test census, n
 ## R9 historical fixture and public-owner readback alignment — 2026-10-03
 
 Root integrates three reviewed test corrections from E02R2_R9_PROVISIONAL_TEST_HELPER_FIXES_6CCE_V2_20261002T223719Z/candidate-v2.patch@sha256:d822f8d9aa95979bd338f770b8fa96650b85b179b0bfd538d4973259d1637b13. Independent review E02R2_R9_PROVISIONAL_TEST_HELPER_REVIEW_6CCE_V2_20261003 has verdict GO, receipt sha256:47966ed1d99364547fd438ec285a14387b2411216fee0d05dea2787071d5357f. The V2 historical fixture pins its actual schema version rather than the current V3 alias; the public-record measurement locates its exact named boundary instead of its list position; the failure-injection fake accepts the owner's typed read collector. Production V2 refusal, owner-first ordering, signatures and downstream byte-preservation assertions remain active. Native whole-file verification is UNRUN at this commit. Root is the sole canonical writer and no native job was active.
+
+
+## R1 CONFIGURED reviewed integration — 2026-10-03
+
+The served helper now wires the existing configured context admission owner. The foreign-source negative reads the typed compiled run and exact selected N4 source CAS reference under admitted job scope; it preserves the no-N5, no-N8 and no-N9 assertions. No production authority gate changes.
+
+Root applied E02R2_R1_CONFIGURED_SERVED_FAILURE_RCA_20261003/V2/minimal-candidate.patch@sha256:c6ea1be0a6e8510d7fee8e774bc4ddebbacb238a26707bda89ec43d9a59e916f after independent static GO E02R2_R1_CONFIGURED_SERVED_FAILURE_RCA_20261003/V2/INDEPENDENT_REVIEW.md@sha256:83a7060aeac3c380be04f9a7914940f827315752fd666997d0f97cc766ad4172. Native integrated verification remains UNRUN at this boundary. Root alone writes canonical source; no native group was active. The reviewed packet remains immutable; committed readback is stored separately in E02R2_ROOT_BATCH_READBACK_20261003.

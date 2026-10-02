@@ -1403,8 +1403,40 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert len(n5_calls) == n5_calls_before_foreign_ref
         assert n8_owner_calls == []
         assert n9_owner_calls == []
-        foreign_ref_locator = N4CandidateScenarioSourceLocator.model_validate(
-            foreign_ref_job.progress["candidate_proposal_ref"]
+        foreign_ref_compiled_ref = foreign_ref_job.progress.get(
+            "compiled_recursive_generation_cycle_ref"
+        )
+        assert foreign_ref_compiled_ref is not None
+        foreign_ref_compiled_bytes = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_bytes(foreign_ref_compiled_ref),
+            job_id=foreign_ref_job.job_id,
+            run_id=str(foreign_ref_job.run_id),
+        )
+        foreign_ref_compiled_record = CompiledRecursiveGenerationCycleRun.model_validate(
+            canon.from_canonical_bytes(foreign_ref_compiled_bytes)
+        )
+        foreign_ref_cycles = tuple(
+            cycle
+            for node in foreign_ref_compiled_record.recursive_run.leaf_nodes
+            if node.cycle_run is not None
+            for cycle in node.cycle_run.cycles
+        )
+        foreign_ref_cycle = next(
+            cycle
+            for cycle in foreign_ref_cycles
+            if cycle.simulation.diagnostics.get(
+                "candidate_simulation_n4_source_selected_ref"
+            )
+            is not None
+        )
+        assert foreign_ref_cycle.simulation.status == "simulation_blocked"
+        foreign_ref_source_ref = ArtifactRef.model_validate(
+            foreign_ref_cycle.simulation.diagnostics[
+                "candidate_simulation_n4_source_selected_ref"
+            ]
+        )
+        foreign_ref_locator = N4CandidateScenarioSourceLocator(
+            artifact_ref=foreign_ref_source_ref
         )
         foreign_ref_event = service._control_store.get_job_created_event_payload(
             foreign_ref_job.job_id

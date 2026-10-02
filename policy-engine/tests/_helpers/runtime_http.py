@@ -1406,6 +1406,9 @@ def build_runtime_api_env(
                     "promotion_runtime": container.promotion_runtime,
                     "epoch_claim_lifecycle_bridge": container.epoch_claim_lifecycle_bridge,
                     "normative_authority_trust": container.config.normative_authority_trust,
+                    "cycle_substrate_context_admission_owner": (
+                        container.candidate_simulation_context_admission_owner
+                    ),
                 }
                 if container is not None
                 else {}

@@ -152,7 +152,9 @@ def test_empty_slot_prepares_private_candidate_without_public_index(case):
     assert not (empty.index_root / "issued").exists()
 
 
-def test_real_owner_signed_mandate_issuance_readback_and_custody(case):
+def test_real_owner_signed_mandate_issuance_readback_and_custody(
+    case, monkeypatch: pytest.MonkeyPatch
+):
     owner, _, packet_ref, institution, slot = case
     configured, draft = appoint_synthetic_publication(owner, packet_ref, institution, slot)
     later = NOW + timedelta(minutes=1)
@@ -165,8 +167,35 @@ def test_real_owner_signed_mandate_issuance_readback_and_custody(case):
     record_id = configured.issue(
         decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=later
     )
+    original_raw = configured._raw
+
+    def expose_first_cas_failure(ref: ArtifactRef) -> bytes:
+        try:
+            return original_raw(ref)
+        except Exception as exc:
+            chain = []
+            current = exc
+            seen = set()
+            while current is not None and id(current) not in seen:
+                seen.add(id(current))
+                chain.append(
+                    f"{type(current).__module__}.{type(current).__qualname__}"
+                    f"(code={getattr(current, 'code', None)!r})"
+                )
+                current = current.__cause__ or current.__context__
+            raise AssertionError(
+                "public-record owner CAS read failed: "
+                f"artifact_id={ref.artifact_id} kind={ref.kind!r} "
+                f"media_type={ref.media_type!r}; exception_chain={chain!r}"
+            ) from None
+
+    monkeypatch.setattr(configured, "_raw", expose_first_cas_failure)
+    configured._resolve_public_index(record_id)
     response = configured.verify(record_id)
-    assert response.report_authentication == "verified"
+    assert response.report_authentication == "verified", (
+        f"reason_codes={response.reason_codes!r}; "
+        f"boundary_reads={configured.last_boundary_reads!r}"
+    )
     assert response.public_document == draft.public_document
     assert response.dimensions.current_authority == "not_established"
     assert response.dimensions.issuer_issuance == "established"

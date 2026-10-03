@@ -1445,6 +1445,13 @@ def _write_nonempty_v2_owner_pair(
     return index, evidence_by_cell, index_bytes, signature_bytes
 
 
+def _ephemeral_empty_owner_evidence(root: Path) -> dict[str, Any]:
+    """Return the actual owner projection for an absent, ephemeral index."""
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipIndex
+
+    return ArtifactOwnershipIndex(root).evidence(tenant_id="tenant-a")
+
+
 def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitute(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1517,16 +1524,25 @@ def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitut
 
     sink_type = type(fixture.base.service._sink)
     original_reader = sink_type.ownership_evidence
-    owner_states = (
-        {
-            "schema_version": "policyos.artifact_ownership_index.v2",
-            "ownership_index_format": "ephemeral_empty_v2",
-        },
-        v2_evidence_by_cell[None],
-        {"schema_version": "policyos.artifact_ownership_index.v1"},
-        owner_after,
+    empty_owner_evidence = _ephemeral_empty_owner_evidence(
+        tmp_path / "ephemeral-empty-owner"
     )
-    for evidence in owner_states:
+    requires_v3 = "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
+    unresolved = "DS9-APPROVAL-OWNER-BINDING-UNRESOLVED"
+    owner_states = (
+        (empty_owner_evidence, requires_v3),
+        (v2_evidence_by_cell[None], requires_v3),
+        ({"schema_version": "policyos.artifact_ownership_index.v1"}, requires_v3),
+        (owner_after, requires_v3),
+        (
+            {
+                "schema_version": "policyos.artifact_ownership_index.v2",
+                "ownership_index_format": "ephemeral_empty_v2",
+            },
+            unresolved,
+        ),
+    )
+    for evidence, expected_code in owner_states:
         monkeypatch.setattr(
             sink_type,
             "ownership_evidence",
@@ -1547,7 +1563,7 @@ def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitut
                 expected_audience="polisyos-runtime",
                 evaluated_at=NOW,
             )
-        assert owner_error.value.code == "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
+        assert owner_error.value.code == expected_code
     monkeypatch.setattr(sink_type, "ownership_evidence", original_reader)
 
     # Historical bytes and their custody signature remain readable even though
@@ -1649,18 +1665,27 @@ def test_v2_packet_issuer_refuses_empty_legacy_and_pointer_owner_states(
     )
     packets_before = _production_approval_packet_ids(fixture.base.store)
 
+    empty_owner_evidence = _ephemeral_empty_owner_evidence(
+        tmp_path / "ephemeral-empty-owner"
+    )
+    requires_v3 = "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
+    unresolved = "DS9-APPROVAL-OWNER-BINDING-UNRESOLVED"
     owner_states = (
-        {
-            "schema_version": "policyos.artifact_ownership_index.v2",
-            "ownership_index_format": "ephemeral_empty_v2",
-        },
-        v2_evidence_by_cell["cell-a"],
-        {"schema_version": "policyos.artifact_ownership_index.v1"},
-        owner_evidence,
+        (empty_owner_evidence, requires_v3),
+        (v2_evidence_by_cell["cell-a"], requires_v3),
+        ({"schema_version": "policyos.artifact_ownership_index.v1"}, requires_v3),
+        (owner_evidence, requires_v3),
+        (
+            {
+                "schema_version": "policyos.artifact_ownership_index.v2",
+                "ownership_index_format": "ephemeral_empty_v2",
+            },
+            unresolved,
+        ),
     )
     sink_type = type(fixture.base.service._sink)
     original_reader = sink_type.ownership_evidence
-    for evidence in owner_states:
+    for evidence, expected_code in owner_states:
         monkeypatch.setattr(
             sink_type,
             "ownership_evidence",
@@ -1675,7 +1700,7 @@ def test_v2_packet_issuer_refuses_empty_legacy_and_pointer_owner_states(
                 packet,
                 write_context=fixture.base.write_context,
             )
-        assert refusal.value.code == "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
+        assert refusal.value.code == expected_code
         assert _production_approval_packet_ids(fixture.base.store) == packets_before
     monkeypatch.setattr(sink_type, "ownership_evidence", original_reader)
 

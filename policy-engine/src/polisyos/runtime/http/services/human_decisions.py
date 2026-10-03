@@ -2291,12 +2291,18 @@ class HumanDecisionService:
         index_format = evidence.get("ownership_index_format")
         supported_schema_versions = {
             "policyos.artifact_ownership_index.v1",
+            "policyos.artifact_ownership_index.v2",
             OWNERSHIP_INDEX_SCHEMA_VERSION,
         }
         if schema_version not in supported_schema_versions:
             if for_issuance:
                 raise HumanDecisionPersistenceError(unresolved_code, code=unresolved_code)
             raise HumanDecisionOperationalResolutionError(unresolved_code)
+        if index_format is not None and schema_version != OWNERSHIP_INDEX_SCHEMA_VERSION:
+            if for_issuance:
+                raise HumanDecisionPersistenceError(unresolved_code, code=unresolved_code)
+            raise HumanDecisionOperationalResolutionError(unresolved_code)
+
         if index_format not in {
             None,
             "ephemeral_empty_v2",

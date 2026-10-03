@@ -1,19 +1,21 @@
 from __future__ import annotations
 
-import copy
-import json
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, get_args
 
 import pytest
 from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
+from tests._helpers.controlled_candidate_profile import (
+    _configured_procurement_profile,
+    _controlled_procurement_recording,
+    _current_compiler_problem,
+)
 
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.runtime.http.container import RuntimeContainerOverrides
+from polisyos.runtime.http.dependencies import build_runtime_api_context
 from polisyos.runtime.quality.design_generation import N4CandidateProposalSource
-from polisyos.runtime.quality.design_problem import (
-    DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
-)
 from polisyos.runtime.quality.generation_source import (
     GenerationSourceRepository,
     N4CandidateProposalLocator,
@@ -26,65 +28,6 @@ from tools.quality.validation import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 _RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
-
-
-def _current_compiler_problem(recording: dict[str, object]):
-    """Build honest current-schema compiler arguments without rewriting replay bytes."""
-
-    historical = n4_contract._design_problem(recording)
-    source_text = "all proposals remain candidate-only"
-    assert source_text in historical.nl_provenance.raw_request
-    constraints = [
-        constraint.model_copy(
-            update={
-                "description": "All proposals remain candidate-only.",
-                "source_text": source_text,
-            }
-        )
-        if constraint.constraint_id == "no_authority_without_a"
-        else constraint
-        for constraint in historical.constraints
-    ]
-    return historical.model_copy(
-        update={
-            "schema_version": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
-            "constraints": constraints,
-        }
-    )
-
-
-def _controlled_procurement_recording(
-    recording: dict[str, object], *, outcome_variable: str, intensity: int = 1
-) -> dict[str, object]:
-    """Keep the real N4 replay path while making its one direct value integer-only."""
-
-    from polisyos.pdc import gy_content_hash
-
-    controlled = copy.deepcopy(recording)
-    responses = controlled.get("responses")
-    assert isinstance(responses, list)
-    for index in (4, 8):
-        response = responses[index]
-        assert isinstance(response, dict)
-        raw = response.get("raw_response")
-        assert isinstance(raw, str)
-        trinity = json.loads(raw)
-        interventions = trinity["policy_spec"]["interventions"]
-        procurement = next(
-            item
-            for item in interventions
-            if item.get("kind") == "procurement_shock_intensity"
-        )
-        procurement["params"] = {"intensity": intensity}
-        procurement["notes"] = [
-            "do.target=cells.distress_score sign=decrease "
-            f"outcome={outcome_variable} "
-            f"effect_path=cells.distress_score,{outcome_variable}"
-        ]
-        rewritten = json.dumps(trinity, sort_keys=True, separators=(",", ":"))
-        response["raw_response"] = rewritten
-        response["raw_response_hash"] = gy_content_hash(rewritten)
-    return controlled
 
 
 def _read_private_artifact_in_job_scope(
@@ -175,220 +118,6 @@ def test_profile_selection_ref_ignores_only_server_execution_ids() -> None:
     ) != cycle_job_profile_selection_ref(problem)
 
 
-def _configured_procurement_profile(
-    *,
-    recorded_problem: object,
-    cas_root: Path,
-):
-    """Return a configured candidate profile and its explicit synthetic SCM."""
-
-    from polisyos.core.artifacts import FileSystemCAS
-    from polisyos.core.security.tenant_context import tenant_scope
-    from polisyos.ir.analytics.ncm import (
-        ExogenousSpec,
-        NCMSpec,
-        StructuralEquation,
-        persist_ncm_spec,
-    )
-    from polisyos.pdc import gy_content_hash, world_model_record_content_hash
-    from polisyos.runtime.quality.candidate_simulation import (
-        CandidateScenarioN5Config,
-        CandidateScenarioSetToRule,
-        CandidateSimulationContextInputs,
-        CandidateSimulationScenarioProfile,
-        CandidateSimulationSyntheticModelDeclarationV1,
-        candidate_simulation_profile_ref,
-    )
-    from polisyos.runtime.quality.cycle_substrate import (
-        cycle_job_profile_selection_ref,
-    )
-    from polisyos.runtime.quality.generation_cycle import (
-        _build_boundary_world_model_record,
-    )
-    from polisyos.runtime.quality.intervention_substrate import (
-        load_l6_intervention_substrate,
-    )
-    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        _cyc01_owner_bound_n5_case,
-        _record_with_selected_ncm_ref,
-    )
-
-    base_problem, base_context, _candidate = _cyc01_owner_bound_n5_case(
-        problem_seed=recorded_problem
-    )
-    outcome_variable = recorded_problem.outcome_of_interest.target_variable
-    ncm = NCMSpec(
-        endogenous_vars=["cells.distress_score", outcome_variable],
-        exogenous_specs=[
-            ExogenousSpec(
-                variable="u_distress",
-                associated_endogenous="cells.distress_score",
-                distribution_params={"mean": 0.0, "std": 0.01},
-            ),
-            ExogenousSpec(
-                variable="u_output",
-                associated_endogenous=outcome_variable,
-                distribution_params={"mean": 0.0, "std": 0.01},
-            ),
-        ],
-        structural_equations=[
-            StructuralEquation(
-                variable="cells.distress_score",
-                parents=[],
-                exogenous="u_distress",
-                equation_type="linear",
-                equation_params={"intercept": 0.0, "coefficients": {}},
-            ),
-            StructuralEquation(
-                variable=outcome_variable,
-                parents=["cells.distress_score"],
-                exogenous="u_output",
-                equation_type="linear",
-                equation_params={
-                    "intercept": 0.0,
-                    "coefficients": {"cells.distress_score": 0.5},
-                },
-            ),
-        ],
-        is_acyclic=True,
-        markov_condition_verified=True,
-        independence_model="dag_markov",
-        fit_method="synthetic_candidate_profile_fixture",
-    )
-    store = FileSystemCAS(cas_root)
-    with tenant_scope(
-        None,
-        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-        cell_id="cell-a",
-    ):
-        ncm_ref = persist_ncm_spec(store, ncm)
-
-    candidate_slots = tuple(
-        dict.fromkeys(
-            [
-                lever.target_slot
-                for lever in recorded_problem.candidate_lever_space.candidate_levers
-            ]
-            + ["global.tax_rate", "cells.distress_score", outcome_variable]
-        )
-    )
-    world = _build_boundary_world_model_record(
-        repo_root=REPO_ROOT,
-        problem=base_problem,
-        outcome=outcome_variable,
-        policy_slot_ids=candidate_slots,
-        substrate_registry=base_context.substrate_registry,
-        selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
-    )
-    bindings = tuple(
-        item.model_copy(update={"unit": "synthetic_score"})
-        for item in world.policy_slot_map
-    )
-    foundry = world.foundry_binding_ref.model_copy(
-        update={
-            "state_slot_digest": gy_content_hash(
-                {
-                    "boundary": "state_slots",
-                    "slots": [item.model_dump(mode="json") for item in bindings],
-                }
-            )
-        }
-    )
-    draft = world.model_copy(update={"policy_slot_map": bindings, "foundry_binding_ref": foundry})
-    world = draft.model_copy(
-        update={
-            "content_hash": world_model_record_content_hash(draft),
-            "world_model_record_id": (
-                "world_model_record_"
-                + world_model_record_content_hash(draft).removeprefix("sha256:")[:16]
-            ),
-        }
-    )
-    world = _record_with_selected_ncm_ref(world, str(ncm_ref.artifact_id))
-    context_inputs = CandidateSimulationContextInputs(
-        substrate_registry=base_context.substrate_registry,
-        selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
-        world_model_record=world,
-        intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
-        source_pack_content_hash=base_context.source_pack_content_hash,
-        substrate_input_content_hash=base_context.substrate_input_content_hash,
-    )
-    rule = CandidateScenarioSetToRule(
-        operator_kind="procurement_shock_intensity",
-        parameter_id="intensity",
-        target_world_slot="cells.distress_score",
-        unit_id="synthetic_score",
-        minimum=0,
-        maximum=1,
-    )
-    n5 = CandidateScenarioN5Config(
-        budget_ref="budget://r1/controlled-candidate-n5",
-        horizon=HorizonSpec(start=0, end=0, step=1),
-        baseline_state={"cells.distress_score": 0.0, outcome_variable: 0.0},
-        seed=11,
-        replications=2,
-    )
-    fields = {
-        "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
-        "profile_id": "r1.controlled.synthetic.procurement",
-        "profile_selection_ref": cycle_job_profile_selection_ref(recorded_problem),
-        "context_inputs": context_inputs,
-        "rule": rule,
-        "n5": n5,
-        "limitations": (
-            "scenario_only",
-            "real_profile_not_established",
-            "real_time_not_established",
-            "grounding_not_established",
-            "s8_blocked",
-            "n9_not_admitted",
-        ),
-    }
-    draft_profile = CandidateSimulationScenarioProfile.model_construct(
-        **fields,
-        content_hash="sha256:" + "0" * 64,
-    )
-    profile = CandidateSimulationScenarioProfile.model_validate(
-        {
-            **fields,
-            "content_hash": gy_content_hash(
-                draft_profile.model_dump(mode="json", exclude={"content_hash"})
-            ),
-        }
-    )
-    declaration_fields = {
-        "schema_version": (
-            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
-        ),
-        "profile_config_ref": candidate_simulation_profile_ref(profile),
-        "profile_content_hash": profile.content_hash,
-        "profile_selection_ref": profile.profile_selection_ref,
-        "target_world_slot": rule.target_world_slot,
-        "outcome_variable": outcome_variable,
-        "target_unit_id": rule.unit_id,
-        "outcome_unit_id": rule.unit_id,
-        "target_baseline": 0.0,
-        "outcome_baseline": 0.0,
-        "outcome_per_target_unit": 0.5,
-        "outcome_noise_stddev": 0.01,
-        "assumption": "declared_candidate_scm_not_empirically_grounded",
-    }
-    declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
-        **declaration_fields,
-        content_hash="sha256:" + "0" * 64,
-    )
-    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
-        {
-            **declaration_fields,
-            "content_hash": gy_content_hash(
-                declaration_draft.model_dump(mode="json", exclude={"content_hash"})
-            ),
-        }
-    )
-    return profile, declaration
-
-
 def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -425,7 +154,9 @@ def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
     )
     recorded_n4_client = n4_contract.RecordedGenerationReplayClient(recording)
 
-    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
 
     original_compiler = generation_cycle_service.build_design_problem_from_nl_request
     compiled_problems = []
@@ -584,7 +315,9 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
     )
     recorded_n4_client = n4_contract.RecordedGenerationReplayClient(recording)
 
-    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
 
     original_compiler = generation_cycle_service.build_design_problem_from_nl_request
     compiled_problems = []
@@ -607,9 +340,16 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
         lambda **_kwargs: recorded_n4_client,
     )
 
+    cas_root = tmp_path / ".polisyos"
+    runtime_api_context = build_runtime_api_context(
+        cas_root=cas_root,
+        core_runs_root=cas_root / "runs",
+    )
     profile, declaration = _configured_procurement_profile(
         recorded_problem=recorded_problem,
-        cas_root=tmp_path / ".polisyos",
+        artifact_store=runtime_api_context.store,
+        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        cell_id="cell-a",
     )
     inputs = profile.context_inputs
     context_binding = cycle_substrate_context_binding_hash(
@@ -662,6 +402,9 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
         tmp_path,
         include_test_client=True,
         app_kwargs={
+            "container_overrides": RuntimeContainerOverrides(
+                runtime_api_context=runtime_api_context
+            ),
             "candidate_simulation_profiles": (profile,),
             "candidate_simulation_model_declarations": (declaration,),
         },
@@ -689,6 +432,10 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
             assert accepted["status"] == "accepted"
             service = app.state._control_service
             assert service._cycle_substrate_context_admission_owner is not None
+            assert (
+                service._cycle_substrate_context_admission_owner.store
+                is runtime_api_context.store
+            )
             job_id = accepted["job_id"]
             assert dispatch_one_control_job(
                 store=service._control_store,
@@ -766,7 +513,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     )
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
-    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
@@ -847,9 +596,15 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         arguments=recorded_problem.model_dump(mode="json"),
     )
     cas_root = tmp_path / ".polisyos"
+    runtime_api_context = build_runtime_api_context(
+        cas_root=cas_root,
+        core_runs_root=cas_root / "runs",
+    )
     profile, model_declaration = _configured_procurement_profile(
         recorded_problem=recorded_problem,
-        cas_root=cas_root,
+        artifact_store=runtime_api_context.store,
+        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        cell_id="cell-a",
     )
     assert profile.profile_selection_ref == cycle_job_profile_selection_ref(
         recorded_problem
@@ -942,6 +697,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
 
     app = create_runtime_api_app(
         cas_root=cas_root,
+        container_overrides=RuntimeContainerOverrides(
+            runtime_api_context=runtime_api_context
+        ),
         allow_fixture_identity=True,
         candidate_simulation_profiles=(profile,),
         candidate_simulation_model_declarations=(model_declaration,),
@@ -964,6 +722,10 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert accepted["status"] == "accepted"
         service = app.state._control_service
         assert service._cycle_substrate_context_admission_owner is not None
+        assert (
+            service._cycle_substrate_context_admission_owner.store
+            is runtime_api_context.store
+        )
         assert dispatch_one_control_job(
             store=service._control_store,
             handler=service._process_control_job,

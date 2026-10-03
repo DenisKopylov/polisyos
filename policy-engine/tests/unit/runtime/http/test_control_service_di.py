@@ -114,9 +114,29 @@ def _fixture_claims() -> UserIdentityClaims:
 def _build_control_service(
     tmp_path,
     *,
+    artifact_store: FileSystemCAS | None = None,
     cycle_substrate_context_admission_owner=None,
+    candidate_simulation_profiles=(),
+    candidate_simulation_model_declarations=(),
 ) -> ControlPlaneService:
-    store = FileSystemCAS(tmp_path / ".polisyos")
+    store = (
+        artifact_store
+        if artifact_store is not None
+        else FileSystemCAS(tmp_path / ".polisyos")
+    )
+    admission_owner = cycle_substrate_context_admission_owner
+    if candidate_simulation_profiles or candidate_simulation_model_declarations:
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+        )
+
+        if admission_owner is not None:
+            raise ValueError("candidate_simulation_context_owner_duplicate")
+        admission_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+            profiles=candidate_simulation_profiles,
+            model_declarations=candidate_simulation_model_declarations,
+            store=store,
+        )
     resolver = RuntimeExecutionPolicyResolver(
         default_profile="dev",
         worker_backend="external",
@@ -131,7 +151,7 @@ def _build_control_service(
         retrieval_service=_NoOpRetrievalService(),
         policy_resolver=resolver,
         registry_providers=_build_registry_providers(),
-        cycle_substrate_context_admission_owner=(cycle_substrate_context_admission_owner),
+        cycle_substrate_context_admission_owner=admission_owner,
     )
 
 
@@ -1208,7 +1228,9 @@ def test_control_service_uses_injected_registry_providers(
     from polisyos.fabric.connectors.bindings.registry import BindingProfileRegistry
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
-    from polisyos.scientist.orchestration.llm.profiles.registry import ModelProfileRegistry
+    from polisyos.scientist.orchestration.llm.profiles.registry import (
+        ModelProfileRegistry,
+    )
 
     monkeypatch.setattr(SourceProfileRegistry, "get_instance", classmethod(_unexpected))
     monkeypatch.setattr(BindingProfileRegistry, "get_instance", classmethod(_unexpected))
@@ -1773,130 +1795,105 @@ async def _run_controlled_simulate_only_job_fixture(
     resolution, real-data grounding, production profile admission, N9, S8, or
     publication authority.
     """
+    from tests._helpers.controlled_candidate_profile import (
+        _configured_procurement_profile,
+        _controlled_procurement_recording,
+        _current_compiler_problem,
+    )
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.security import (
         get_current_access_scope_or_none,
         tenant_scope,
     )
-    from polisyos.ir.analytics.ncm import persist_ncm_spec
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationContextOffer,
+        CandidateSimulationN5InputV5,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
+    )
     from polisyos.runtime.quality.cycle_substrate import (
-        CycleSubstrateContext,
+        ConfiguredCandidateSimulationContextAdmissionOwner,
         CycleSubstrateContextArtifactOwner,
         CycleSubstrateContextJobArtifact,
         CycleSubstrateContextOwnerError,
-        build_cycle_substrate_context,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
     )
     from polisyos.runtime.quality.design_generation import (
-        DesignGenerationOrganRun,
-        ShadowGeneratedCandidate,
+        N4CandidateScenarioProposalCandidate,
+        N4CandidateScenarioProposalRun,
     )
-    from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_cycle import (
-        GenerationCycleController,
         JointSimulationPort,
-        PendingN8ValuePort,
+        load_joint_simulation_result,
     )
-    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceRepository,
+        N4CandidateScenarioSourceRecordV3,
+    )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
     )
     from tests.unit.runtime.http.test_control_job_execution_intent import (
         _valid_intake_for_mode,
     )
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        REPO_ROOT,
-        _CurrentValidGrounding,
-        _cyc01_owner_bound_n5_case,
-        _record_with_selected_ncm_ref,
-    )
-    from tests.unit.runtime.quality.test_joint_simulation_horizon import (
-        _ncm_with_cross_term,
-    )
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
     from tools.quality.validation import (
         check_layer3_gy_design_generation_contract as n4_contract,
     )
 
-    profile_id = "fixture.controlled.profile"
-
-    class _FixtureControlledProfileOwner:
-        def __init__(self) -> None:
-            self.calls: list[dict[str, object]] = []
-            self.context: CycleSubstrateContext | None = None
-
-        def admit_context(
-            self,
-            *,
-            target_world_scope_profile_id: str,
-            problem: DesignProblem,
-            job_id: str,
-            run_id: str,
-            tenant_id: str,
-            cell_id: str,
-        ) -> CycleSubstrateContext | None:
-            self.calls.append(
-                {
-                    "target_world_scope_profile_id": target_world_scope_profile_id,
-                    "problem": problem,
-                    "job_id": job_id,
-                    "run_id": run_id,
-                    "tenant_id": tenant_id,
-                    "cell_id": cell_id,
-                }
-            )
-            return self.context
-
-    source_owner = _FixtureControlledProfileOwner()
+    recording_id = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+    recording_matches = tuple(
+        item
+        for item in n4_contract._load_recordings(REPO_ROOT)
+        if item.get("design_problem_id") == recording_id
+    )
+    assert len(recording_matches) == 1
+    recording = recording_matches[0]
+    problem = _current_compiler_problem(recording)
+    outcome_variable = problem.outcome_of_interest.target_variable
+    controlled_recording = _controlled_procurement_recording(
+        recording,
+        outcome_variable=outcome_variable,
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    profile, model_declaration = _configured_procurement_profile(
+        recorded_problem=problem,
+        artifact_store=store,
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+    )
+    assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
     with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
         service = _build_control_service(
             tmp_path,
-            cycle_substrate_context_admission_owner=source_owner,
+            artifact_store=store,
+            candidate_simulation_profiles=(profile,),
+            candidate_simulation_model_declarations=(model_declaration,),
         )
-        try:
-            ncm_ref = persist_ncm_spec(
-                service._artifact_store,
-                _ncm_with_cross_term(),
-            )
-            recording_id = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
-            recording_matches = tuple(
-                item
-                for item in n4_contract._load_recordings(REPO_ROOT)
-                if item.get("design_problem_id") == recording_id
-            )
-            assert len(recording_matches) == 1
-            recording = recording_matches[0]
-            recorded_problem = n4_contract._design_problem(recording)
-            base_problem, base_context, _ = _cyc01_owner_bound_n5_case(
-                problem_seed=recorded_problem
-            )
-            problem = recorded_problem.model_copy(
-                update={
-                    "runtime_hints": {
-                        **recorded_problem.runtime_hints,
-                        **base_problem.runtime_hints,
-                        "joint_simulation_baseline_state": {"firm_survival": 0.0},
-                    },
-                }
-            )
-            problem_ref = generation_cycle_service.gy_content_hash(problem.model_dump(mode="json"))
-            world_record = _record_with_selected_ncm_ref(
-                base_context.world_model_record,
-                str(ncm_ref.artifact_id),
-            )
-            context = build_cycle_substrate_context(
-                design_problem_ref=problem_ref,
-                domain=problem.domain,
-                substrate_registry=base_context.substrate_registry,
-                selected_registry_entry_hashes=(base_context.selected_registry_entry_hashes),
-                world_model_record=world_record,
-                intervention_substrate=base_context.intervention_substrate,
-                candidate_levers=base_context.candidate_levers,
-                transport_context=base_context.transport_context,
-                source_pack_content_hash=base_context.source_pack_content_hash,
-                substrate_input_content_hash=base_context.substrate_input_content_hash,
-            )
-            source_owner.context = context
-        except Exception:
-            service.close()
-            raise
+    assert service._artifact_store is store
+    source_owner = service._cycle_substrate_context_admission_owner
+    assert type(source_owner) is ConfiguredCandidateSimulationContextAdmissionOwner
+    assert source_owner.store is service._artifact_store
+    problem_ref = cycle_job_design_problem_ref(problem)
+    admission_observations: list[tuple[dict[str, object], object]] = []
+    admission_attempts: list[tuple[object, dict[str, object]]] = []
+    original_admit = ConfiguredCandidateSimulationContextAdmissionOwner.admit_context
+
+    def record_admission(owner, **kwargs):
+        admission_attempts.append((owner, dict(kwargs)))
+        offer = original_admit(owner, **kwargs)
+        if owner is source_owner:
+            admission_observations.append((dict(kwargs), offer))
+        return offer
+
+    monkeypatch.setattr(
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+        "admit_context",
+        record_admission,
+    )
     owner_refs = []
     owner_replays = []
     verified_scope_observations = []
@@ -1905,7 +1902,50 @@ async def _run_controlled_simulate_only_job_fixture(
     compiler_calls = []
     compiled_runs = []
     n4_organ_runs = []
-    recorded_n4_client = n4_contract.RecordedGenerationReplayClient(recording)
+    n4_port_attempts = []
+
+    original_n4_port = N4GenerationPort.__call__
+
+    async def record_n4_port(port, problem_for_cycle, *, cycle_index):
+        n4_port_attempts.append((problem_for_cycle, cycle_index))
+        return await original_n4_port(
+            port,
+            problem_for_cycle,
+            cycle_index=cycle_index,
+        )
+
+    monkeypatch.setattr(N4GenerationPort, "__call__", record_n4_port)
+
+    original_n5_port = JointSimulationPort.__call__
+    original_n5_engine = JointSimulationHorizonController.run
+
+    def record_n5_port(port, *, candidate, problem, cycle_index, **kwargs):
+        observation = original_n5_port(
+            port,
+            candidate=candidate,
+            problem=problem,
+            cycle_index=cycle_index,
+            **kwargs,
+        )
+        n5_port_observations.append(
+            SimpleNamespace(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+                context=port._cycle_substrate_context,
+                observation=observation,
+                input_record=kwargs.get("candidate_simulation_input"),
+                input_ref=kwargs.get("candidate_simulation_input_ref"),
+            )
+        )
+        return observation
+
+    def record_n5_engine(controller, request):
+        n5_engine_requests.append(request)
+        return original_n5_engine(controller, request)
+
+    monkeypatch.setattr(JointSimulationPort, "__call__", record_n5_port)
+    monkeypatch.setattr(JointSimulationHorizonController, "run", record_n5_engine)
 
     async def compile_fixture_problem(**kwargs):
         compiler_calls.append(kwargs)
@@ -1916,6 +1956,91 @@ async def _run_controlled_simulate_only_job_fixture(
         "build_design_problem_from_nl_request",
         compile_fixture_problem,
     )
+
+    context_persist_attempts = []
+    original_context_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
+
+    def record_context_persist_attempt(owner, context, *, problem, verified_nl_job_scope=None):
+        context_persist_attempts.append((context, problem, verified_nl_job_scope))
+        return original_context_persist(
+            owner,
+            context,
+            problem=problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
+
+    monkeypatch.setattr(
+        CycleSubstrateContextArtifactOwner,
+        "persist_for_current_job",
+        record_context_persist_attempt,
+    )
+
+    # Rebind the profile to a different active outcome while preserving all
+    # self-hashes. The exact configured owner must reject the mismatched model
+    # declaration before it persists a context or reaches N4/N5.
+    probe_outcome_variable = f"{outcome_variable}_negative_control"
+    probe_problem = problem.model_copy(
+        update={
+            "outcome_of_interest": problem.outcome_of_interest.model_copy(
+                update={"target_variable": probe_outcome_variable}
+            )
+        }
+    )
+    probe_profile_fields = profile.model_dump(mode="json", exclude={"content_hash"})
+    probe_profile_fields["profile_selection_ref"] = cycle_job_profile_selection_ref(
+        probe_problem
+    )
+    probe_profile = CandidateSimulationScenarioProfile.model_validate(
+        {
+            **probe_profile_fields,
+            "content_hash": generation_cycle_service.gy_content_hash(
+                probe_profile_fields
+            ),
+        }
+    )
+    probe_declaration_fields = model_declaration.model_dump(
+        mode="json", exclude={"content_hash"}
+    )
+    probe_declaration_fields.update(
+        {
+            "profile_config_ref": candidate_simulation_profile_ref(probe_profile),
+            "profile_content_hash": probe_profile.content_hash,
+            "profile_selection_ref": probe_profile.profile_selection_ref,
+        }
+    )
+    probe_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {
+            **probe_declaration_fields,
+            "content_hash": generation_cycle_service.gy_content_hash(
+                probe_declaration_fields
+            ),
+        }
+    )
+    probe_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+        profiles=(probe_profile,),
+        model_declarations=(probe_declaration,),
+        store=service._artifact_store,
+    )
+    with pytest.raises(CycleSubstrateContextOwnerError) as mismatch:
+        probe_owner.admit_context(
+            problem=probe_problem,
+            job_id="negative-control-job",
+            run_id="negative-control-run",
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+        )
+    assert mismatch.value.code == "candidate_simulation_model_outcome_problem_mismatch"
+    assert len(admission_attempts) == 1
+    assert admission_attempts[0][0] is probe_owner
+    assert admission_attempts[0][1]["problem"] is probe_problem
+    assert admission_observations == []
+    assert context_persist_attempts == []
+    assert owner_refs == owner_replays == verified_scope_observations == []
+    assert n5_port_observations == n5_engine_requests == []
+    assert n4_port_attempts == []
+    assert compiler_calls == compiled_runs == n4_organ_runs == []
+
+    recorded_n4_client = n4_contract.RecordedGenerationReplayClient(controlled_recording)
 
     original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
     original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
@@ -1975,28 +2100,6 @@ async def _run_controlled_simulate_only_job_fixture(
         record_resolve,
     )
 
-    original_n5_port = JointSimulationPort.__call__
-    original_n5_engine = JointSimulationHorizonController.run
-
-    def record_n5_port(port, *, candidate, problem, cycle_index):
-        observation = original_n5_port(
-            port,
-            candidate=candidate,
-            problem=problem,
-            cycle_index=cycle_index,
-        )
-        n5_port_observations.append(
-            (candidate, problem, cycle_index, port._cycle_substrate_context, observation)
-        )
-        return observation
-
-    def record_n5_engine(controller, request):
-        n5_engine_requests.append(request)
-        return original_n5_engine(controller, request)
-
-    monkeypatch.setattr(JointSimulationPort, "__call__", record_n5_port)
-    monkeypatch.setattr(JointSimulationHorizonController, "run", record_n5_engine)
-
     original_controller_builder = (
         generation_cycle_service.build_default_recursive_generation_cycle_controller
     )
@@ -2004,42 +2107,43 @@ async def _run_controlled_simulate_only_job_fixture(
     def build_fixture_recursive_controller(**kwargs):
         recursive = original_controller_builder(**kwargs)
         original_run = recursive.run
+        assert recursive._cycle_controller_factory is None
 
         async def run_with_fixture_generation(*args, **run_kwargs):
             contexts = run_kwargs["cycle_substrate_contexts_by_node"]
+            handoffs = run_kwargs["candidate_simulation_handoffs_by_node"]
+            currentness_resolvers = run_kwargs[
+                "candidate_simulation_currentness_resolvers_by_node"
+            ]
             assert contexts is not None and len(contexts) == 1
-            resolved_context = next(iter(contexts.values()))
+            assert handoffs is not None and len(handoffs) == 1
+            assert currentness_resolvers is not None and len(currentness_resolvers) == 1
+            node_ref = next(iter(contexts))
+            resolved_context = contexts[node_ref]
+            handoff = handoffs[node_ref]
+            currentness_resolver = currentness_resolvers[node_ref]
+            assert callable(currentness_resolver)
+            assert handoff.context == resolved_context
+            assert handoff.profile == profile
+            assert handoff.model_declaration == model_declaration
 
             class _ControlledN4GenerationPort(N4GenerationPort):
                 async def __call__(self, problem_for_cycle, *, cycle_index):
-                    organ = await super().__call__(
+                    proposal_run = await super().__call__(
                         problem_for_cycle,
                         cycle_index=cycle_index,
                     )
-                    n4_organ_runs.append(organ)
-                    return organ
+                    n4_organ_runs.append(proposal_run)
+                    return proposal_run
 
             generator = _ControlledN4GenerationPort(
                 model_id=str(recording["model_id"]),
                 llm_client=recorded_n4_client,
                 repo_root=kwargs["repo_root"],
                 cycle_substrate_context=resolved_context,
+                candidate_simulation_handoff=handoff,
             )
-
-            recursive._cycle_controller_factory = lambda _node_ref, _problem: (
-                GenerationCycleController(
-                    generation_port=generator,
-                    grounding_port=_CurrentValidGrounding(),
-                    value_port=PendingN8ValuePort(),
-                    repo_root=kwargs["repo_root"],
-                    model_id=kwargs["model_id"],
-                    cycle_substrate_context=resolved_context,
-                    promotion_runtime=recursive._promotion_runtime,
-                    artifact_store=recursive._artifact_store,
-                    eval_safety_verifier=recursive._eval_safety_verifier,
-                    authority_scope="contract_testing",
-                )
-            )
+            run_kwargs["n4_generation_ports_by_node"] = {node_ref: generator}
             compiled = await original_run(*args, **run_kwargs)
             compiled_runs.append(compiled)
             return compiled
@@ -2064,7 +2168,6 @@ async def _run_controlled_simulate_only_job_fixture(
             request=problem.nl_provenance.raw_request,
             llm_model=str(recording["model_id"]),
             context=context_payload,
-            target_world_scope_profile_id=profile_id,
             max_iterations=1,
         )
         claims = _fixture_claims()
@@ -2100,15 +2203,32 @@ async def _run_controlled_simulate_only_job_fixture(
         assert progress["cycle_substrate_context_job_ref"]
         assert len(compiler_calls) == 1
         assert compiler_calls[0]["nl_request"] == problem.nl_provenance.raw_request
-        assert len(source_owner.calls) == 1
-        admission_call = source_owner.calls[0]
-        assert admission_call["target_world_scope_profile_id"] == profile_id
-        assert admission_call["problem"] is problem
-        assert admission_call["job_id"] == launch.job_id
-        assert admission_call["run_id"] == str(job.run_id)
-        assert admission_call["tenant_id"] == "tenant-fixture"
-        assert admission_call["cell_id"] == "cell-fixture"
+        assert len(admission_observations) >= 2
+        admitted_offer = admission_observations[0][1]
+        assert type(source_owner) is ConfiguredCandidateSimulationContextAdmissionOwner
+        assert source_owner.store is service._artifact_store
+        assert all(
+            type(offer) is CandidateSimulationContextOffer
+            for _, offer in admission_observations
+        )
+        assert all(
+            call["problem"] is problem
+            and call["job_id"] == launch.job_id
+            and call["run_id"] == str(job.run_id)
+            and call["tenant_id"] == "tenant-fixture"
+            and call["cell_id"] == "cell-fixture"
+            for call, _ in admission_observations
+        )
+        assert all(
+            offer.profile == profile
+            and offer.model_declaration == model_declaration
+            and offer.context.design_problem_ref == problem_ref
+            for _, offer in admission_observations
+        )
         assert len(owner_refs) == len(owner_replays) == 1
+        assert len(context_persist_attempts) == 4
+        assert context_persist_attempts[-1][1] is problem
+        assert context_persist_attempts[-1][2] is verified_scope_observations[0]
         assert len(verified_scope_observations) == 2
         assert verified_scope_observations[0] is verified_scope_observations[1]
         assert verified_scope_observations[0]._was_issued_by_verified_nl_execution_owner
@@ -2121,7 +2241,9 @@ async def _run_controlled_simulate_only_job_fixture(
         assert str(owner_refs[0].artifact_id) == progress["cycle_substrate_context_job_ref"]
 
         context_artifact = CycleSubstrateContextJobArtifact.model_validate(
-            canon.from_canonical_bytes(service._artifact_store.get_bytes(owner_refs[0].artifact_id))
+            canon.from_canonical_bytes(
+                service._artifact_store.get_bytes(owner_refs[0].artifact_id)
+            )
         )
         assert context_artifact.job_id == launch.job_id
         assert context_artifact.run_id == str(job.run_id)
@@ -2131,34 +2253,51 @@ async def _run_controlled_simulate_only_job_fixture(
         assert context_artifact.context.content_hash == owner_replays[0].context.content_hash
         assert context_artifact.profile_admission_status == "not_established"
         assert context_artifact.s8_status == "blocked"
+        assert context_artifact.context.world_model_record.authority_status == "limited"
+        assert context_artifact.context.world_model_record.simulation_model_ref.calibrated is False
         assert n5_port_observations
         assert len(n4_organ_runs) == 1
-        organ = n4_organ_runs[0]
-        assert isinstance(organ, DesignGenerationOrganRun)
-        assert organ.result.status == "generated"
-        assert organ.result.candidates
-        assert all(isinstance(item, ShadowGeneratedCandidate) for item in organ.result.candidates)
-        assert organ.result.design_problem_ref == problem_ref
-        for (
-            n5_candidate,
-            n5_problem,
-            _,
-            n5_context,
-            n5_observation,
-        ) in n5_port_observations:
-            assert isinstance(n5_candidate, ShadowGeneratedCandidate)
-            assert n5_observation.candidate_id == n5_candidate.candidate_id
-            assert n5_problem == problem
-            assert n5_context.content_hash == context_artifact.context.content_hash
-            assert n5_observation.status == "joint_simulated"
-            if n5_observation.world_model_record is not None:
-                assert n5_observation.world_model_record.content_hash == (
-                    context_artifact.context.world_model_record.content_hash
-                )
+        assert len(n4_port_attempts) == 1
+        assert n4_port_attempts[0][0] is problem
+        proposal_run = n4_organ_runs[0]
+        assert type(proposal_run) is N4CandidateScenarioProposalRun
+        proposal_problem_ref = generation_cycle_service.gy_content_hash(
+            problem.model_dump(mode="json")
+        )
+        assert proposal_run.proposal.design_problem_ref == proposal_problem_ref
+        assert proposal_run.proposal.trinity_bundle is not None
+        assert n5_engine_requests
         for request in n5_engine_requests:
             assert request.world_model_record.content_hash == (
                 context_artifact.context.world_model_record.content_hash
             )
+        for observed in n5_port_observations:
+            assert type(observed.candidate) is N4CandidateScenarioProposalCandidate
+            assert observed.problem == problem
+            assert observed.context.content_hash == context_artifact.context.content_hash
+            assert observed.observation.candidate_id == observed.candidate.candidate_id
+            assert observed.observation.status == "joint_simulated"
+            assert type(observed.input_record) is CandidateSimulationN5InputV5
+            assert type(observed.input_ref) is ArtifactRef
+            assert observed.input_record.context_job_ref == owner_refs[0]
+            assert observed.input_record.profile_config_ref == admitted_offer.profile_config_ref
+            assert (
+                observed.input_record.model_declaration_ref
+                == admitted_offer.model_declaration_ref
+            )
+            assert observed.input_record.ncm_ref == admitted_offer.ncm_ref
+            assert observed.input_record.materialization.operator_kind == profile.rule.operator_kind
+            assert observed.input_record.materialization.parameter_id == profile.rule.parameter_id
+            assert (
+                observed.input_record.materialization.target_world_slot
+                == profile.rule.target_world_slot
+            )
+            assert observed.input_record.materialization.unit_id == profile.rule.unit_id
+            assert observed.input_record.materialization.value == 1
+            if observed.observation.world_model_record is not None:
+                assert observed.observation.world_model_record.content_hash == (
+                    context_artifact.context.world_model_record.content_hash
+                )
         assert len(compiled_runs) == 1
         recursive_run = compiled_runs[0]
         assert len(recursive_run.leaf_nodes) == 1
@@ -2175,200 +2314,162 @@ async def _run_controlled_simulate_only_job_fixture(
         assert progress["s8_status"] == "not_run"
         assert progress["publication_status"] == "not_run"
 
-        # The source property is identity continuity: a typed N4 candidate
-        # observed at the N5 call is present in the same N6 run's persisted
-        # handoff and resolves through the runtime-supplied artifact store.
+        # Candidate-scenario N4 uses its own typed source record; this is not
+        # the ordinary GenerationSource handoff path. Resolve the exact source
+        # named by the N5 input and bind its proposal, selected atom, profile,
+        # context, model declaration, numeric materialization, and result.
         repository = GenerationSourceRepository(service._artifact_store)
-        assert leaf_run.synthetic is True
-        assert leaf_run.source_handoff_refs
-        source_receipt = leaf_run.source_preservation_receipt
-        assert source_receipt is not None
-        assert source_receipt.synthetic is True
-        assert source_receipt.status == "strangled"
-        assert source_receipt.issues == ()
-        assert source_receipt.expected_identity_count > 0
-        assert source_receipt.expected_identity_count == source_receipt.retained_identity_count
-        assert source_receipt.expected_identity_digest == source_receipt.retained_identity_digest
-
-        handoffs = tuple(
-            repository.load(ref, run_id=leaf_run.run_id) for ref in leaf_run.source_handoff_refs
+        assert len(n5_port_observations) == 1
+        observed = n5_port_observations[0]
+        candidate = observed.candidate
+        input_record = observed.input_record
+        assert type(candidate) is N4CandidateScenarioProposalCandidate
+        assert type(input_record) is CandidateSimulationN5InputV5
+        selected_source = repository.load_candidate_scenario_source_for_n5(
+            input_record.n4_source_ref,
+            expected_run_id=str(completed.run_id),
+            expected_job_id=completed.job_id,
+            expected_tenant_id="tenant-fixture",
+            expected_cell_id="cell-fixture",
         )
-        expected_identities = tuple(
-            (
-                problem_ref,
-                item.candidate_id,
-                item.atom.content_hash,
-            )
-            for item in organ.result.candidates
+        assert type(selected_source) is N4CandidateScenarioSourceRecordV3
+        assert selected_source.origin_source_ref is None
+        assert selected_source.profile == profile
+        assert selected_source.candidate.candidate_id == candidate.candidate_id
+        assert selected_source.candidate.atom.content_hash == candidate.atom.content_hash
+        assert selected_source.candidate.atom.content_hash == input_record.original_n4_atom_hash
+        assert selected_source.context_hash == context_artifact.context.content_hash
+        assert selected_source.world_model_record_hash == (
+            context_artifact.context.world_model_record.content_hash
         )
-        retained_identities = tuple(
-            identity for handoff in handoffs for identity in handoff.identities()
+        selected_v2_source = selected_source.source_record
+        selected_v1_source = selected_v2_source.source_record
+        assert selected_v1_source.profile == profile
+        assert selected_v1_source.problem == problem
+        assert selected_v1_source.proposal.design_problem_ref == proposal_problem_ref
+        assert selected_v1_source.cycle_problem_ref == problem_ref
+        assert selected_v1_source.k_ref_limitation_code == (
+            "full_credal_reference_not_established"
         )
-        assert expected_identities
-        assert set(expected_identities) == set(retained_identities)
-        assert all(handoff.run_id == leaf_run.run_id for handoff in handoffs)
-        assert all(handoff.problem == problem for handoff in handoffs)
-        assert all(handoff.synthetic is True for handoff in handoffs)
-        assert all(handoff.cycle_substrate_context is not None for handoff in handoffs)
-        assert all(
-            handoff.cycle_substrate_context.content_hash == context_artifact.context.content_hash
-            for handoff in handoffs
-            if handoff.cycle_substrate_context is not None
+        assert selected_v1_source.l2_confidence_vintage is None
+        assert selected_v1_source.l2_confidence_forwarded is False
+        assert selected_v1_source.credal_reference_payload is None
+        assert selected_v2_source.model_declaration == model_declaration
+        assert selected_v2_source.model_declaration_ref == input_record.model_declaration_ref
+        assert selected_v2_source.ncm_ref == input_record.ncm_ref
+        assert selected_v2_source.world_model_record_id == (
+            context_artifact.context.world_model_record.world_model_record_id
         )
 
-        for (
-            n5_candidate,
-            n5_problem,
-            n5_cycle_index,
-            _,
-            _n5_observation,
-        ) in n5_port_observations:
-            assert isinstance(n5_candidate, ShadowGeneratedCandidate)
-            source_summary = next(
-                summary
-                for summary in leaf_run.candidate_summaries
-                if summary.candidate_id == n5_candidate.candidate_id
-                and summary.cycle_index == n5_cycle_index
-            )
-            matching_identity = (
-                problem_ref,
-                n5_candidate.candidate_id,
-                n5_candidate.atom.content_hash,
-            )
-            matching_handoff = next(
-                handoff
-                for handoff in handoffs
-                if handoff.cycle_index == n5_cycle_index
-                and matching_identity in handoff.identities()
-            )
-            handoff_candidate = next(
-                item
-                for item in matching_handoff.generation_result.candidates
-                if item.candidate_id == n5_candidate.candidate_id
-            )
-            assert handoff_candidate.candidate_id == n5_candidate.candidate_id
-            assert handoff_candidate.atom.content_hash == n5_candidate.atom.content_hash
-            resolution_summary = source_summary
-            if source_summary.source_content_hash is not None:
-                resolution_summary = source_summary.model_copy(
-                    update={"content_hash": source_summary.source_content_hash}
-                )
-            resolution = repository.resolve(
-                refs=leaf_run.source_handoff_refs,
-                run_id=leaf_run.run_id,
-                summary=resolution_summary,
-                problem=n5_problem,
-            )
-            assert resolution.status == "resolved"
-            assert resolution.source_ref in leaf_run.source_handoff_refs
-            assert resolution.source_ref == next(
-                handoff_ref
-                for handoff_ref, handoff in zip(
-                    leaf_run.source_handoff_refs,
-                    handoffs,
-                    strict=True,
-                )
-                if handoff is matching_handoff
-            )
-            assert (
-                resolution.context["world_model_record"].content_hash
-                == context_artifact.context.world_model_record.content_hash
-            )
-            matching_requests = tuple(
-                request
-                for request in n5_engine_requests
-                if any(
-                    atom.content_hash == n5_candidate.atom.content_hash
-                    for atom in request.intervention_atoms
-                )
-            )
-            assert matching_requests
-            assert all(
-                request.world_model_record.content_hash
-                == context_artifact.context.world_model_record.content_hash
-                for request in matching_requests
-            )
-            matching_cycles = tuple(
-                cycle
-                for cycle in leaf_run.cycles
-                if cycle.cycle_index == n5_cycle_index
-                and cycle.selected_candidate_ref == n5_candidate.candidate_id
-                and cycle.selected_candidate_content_hash == n5_candidate.atom.content_hash
-                and cycle.simulation.candidate_id == n5_candidate.candidate_id
-            )
-            assert matching_cycles
-            assert all(
-                cycle.simulation.status == "joint_simulated"
-                and cycle.simulation.candidate_id == n5_candidate.candidate_id
-                for cycle in matching_cycles
-            )
-
-        # Marker-retaining removal probe: keep the nonempty run refs, candidate,
-        # problem, profile, context, and N5 call fixed. A read-only fault seam
-        # makes the persisted source unavailable without mutating the artifact.
-        first_candidate, first_problem, first_cycle_index, _, _ = n5_port_observations[0]
-        assert isinstance(first_candidate, ShadowGeneratedCandidate)
-        source_refs = leaf_run.source_handoff_refs
-        assert source_refs
-        assert source_receipt.source_refs == source_refs
-        first_summary = next(
-            summary
-            for summary in leaf_run.candidate_summaries
-            if summary.candidate_id == first_candidate.candidate_id
-            and summary.cycle_index == first_cycle_index
+        full_interventions = selected_v1_source.proposal.trinity_bundle.policy_spec.interventions
+        selected_interventions = tuple(
+            intervention
+            for intervention in full_interventions
+            if intervention.intervention_id == candidate.intervention_id
         )
-        if first_summary.source_content_hash is not None:
-            first_summary = first_summary.model_copy(
-                update={"content_hash": first_summary.source_content_hash}
-            )
-        original_get_bytes = service._artifact_store.get_bytes
+        assert len(selected_interventions) == 1
+        selected_intervention = selected_interventions[0]
+        assert selected_intervention.kind == profile.rule.operator_kind
+        assert selected_intervention.params == {profile.rule.parameter_id: 1}
+        assert candidate.atom.target_world_slots == (profile.rule.target_world_slot,)
+        assert candidate.atom.direct_effect_bundle.params == selected_intervention.params
+        assert input_record.materialization.operator_kind == selected_intervention.kind
+        assert input_record.materialization.parameter_id == profile.rule.parameter_id
+        assert input_record.materialization.value == 1
+        assert input_record.materialization.target_world_slot == profile.rule.target_world_slot
+        assert input_record.materialization.unit_id == profile.rule.unit_id
 
-        def hide_source_handoff_read(artifact_id):
-            if str(artifact_id) in source_refs:
-                raise KeyError("r1_source_handoff_unavailable_probe")
-            return original_get_bytes(artifact_id)
-
-        with monkeypatch.context() as source_probe:
-            source_probe.setattr(
-                service._artifact_store,
-                "get_bytes",
-                hide_source_handoff_read,
-            )
-            removed_resolution = repository.resolve(
-                refs=source_refs,
-                run_id=leaf_run.run_id,
-                summary=first_summary,
-                problem=first_problem,
-            )
-            assert removed_resolution.status == "not_established"
-            assert removed_resolution.code == "source_replay_failed"
-            removed_receipt = repository.preservation_receipt(
-                run_id=leaf_run.run_id,
-                refs=source_refs,
-                expected=expected_identities,
-                scope_synthetic=True,
-            )
-        assert removed_receipt.status == "drift"
-        assert removed_receipt.source_refs == source_refs
-        assert removed_receipt.expected_identity_count == source_receipt.expected_identity_count
-        assert removed_receipt.expected_identity_digest == source_receipt.expected_identity_digest
-        assert "source_replay_failed" in removed_receipt.issues
-        assert "source_identity_set_mismatch" in removed_receipt.issues
-        from polisyos.runtime.quality.generation_cycle import validate_generation_cycle_run
-
-        drift_run = leaf_run.model_copy(
-            update={
-                "source_preservation_receipt": removed_receipt,
-            }
-        )
-        assert drift_run.source_handoff_refs == source_refs
-        assert drift_run.source_preservation_receipt.source_refs == source_refs
-        authority_issues = validate_generation_cycle_run(drift_run)
+        context_world = context_artifact.context.world_model_record
+        assert context_world.simulation_model_ref.calibrated is False
+        assert str(input_record.ncm_ref.artifact_id) in context_world.simulation_model_ref.ncm_refs
+        problem_slot_ids = {
+            lever.target_slot
+            for lever in problem.candidate_lever_space.candidate_levers
+        }
+        context_slot_ids = {
+            binding.slot_id for binding in context_world.policy_slot_map
+        }
+        assert problem_slot_ids <= context_slot_ids
         assert any(
-            issue.get("code") == "generation_cycle_source_preservation_not_established"
-            and issue.get("reason") == "drift"
-            for issue in authority_issues
+            item.get("declaration_content_hash") == model_declaration.content_hash
+            and item.get("status") == "candidate_only_not_empirically_grounded"
+            for item in context_world.simulation_model_ref.assumptions
         )
+        from polisyos.ir.analytics.ncm import load_ncm_spec_selected_view
+
+        selected_ncm = load_ncm_spec_selected_view(
+            service._artifact_store,
+            input_record.ncm_ref,
+            expected_tenant_id="tenant-fixture",
+            expected_cell_id="cell-fixture",
+            expected_declaration_ref=input_record.model_declaration_ref,
+        )
+        assert set(selected_ncm.endogenous_vars) == {
+            model_declaration.target_world_slot,
+            model_declaration.outcome_variable,
+        }
+        outcome_equation = next(
+            equation
+            for equation in selected_ncm.structural_equations
+            if equation.variable == model_declaration.outcome_variable
+        )
+        assert outcome_equation.parents == [model_declaration.target_world_slot]
+        assert outcome_equation.equation_params["coefficients"] == {
+            model_declaration.target_world_slot: model_declaration.outcome_per_target_unit
+        }
+        assert outcome_equation.equation_params["intercept"] == (
+            model_declaration.outcome_baseline
+            - model_declaration.outcome_per_target_unit
+            * model_declaration.target_baseline
+        )
+        assert input_record.outcome_variable == model_declaration.outcome_variable
+        assert input_record.outcome_variable == problem.outcome_of_interest.target_variable
+        target_baseline = profile.n5.baseline_state[model_declaration.target_world_slot]
+        outcome_baseline = profile.n5.baseline_state[model_declaration.outcome_variable]
+        assert target_baseline == model_declaration.target_baseline == 0.0
+        assert outcome_baseline == model_declaration.outcome_baseline == 0.0
+        assert model_declaration.outcome_variable == outcome_variable
+        assert model_declaration.outcome_unit_id == model_declaration.target_unit_id
+
+        observation = observed.observation
+        assert observation.status == "joint_simulated"
+        assert observation.uncertainty_kind == "K_sim"
+        assert observation.k_world_ref_before == observation.k_world_ref_after
+        assert observation.k_world_ref_before == context_world.content_hash
+        assert type(observation.simulation_result_ref) is ArtifactRef
+        n5_result = load_joint_simulation_result(
+            observation.simulation_result_ref,
+            store=service._artifact_store,
+            expected_world_model_record_content_hash=context_world.content_hash,
+            expected_selected_outcomes=(outcome_variable,),
+        )
+        assert n5_result.uncertainty_kind == "K_sim"
+        assert n5_result.world_credal_state_before == n5_result.world_credal_state_after
+        effects = [
+            point.effect[outcome_variable]
+            for trajectory in n5_result.trajectories
+            for point in trajectory.points
+            if outcome_variable in point.effect
+        ]
+        expected_quantity = model_declaration.outcome_per_target_unit * (
+            input_record.materialization.value - target_baseline
+        )
+        assert expected_quantity == pytest.approx(0.5, abs=1e-12)
+        assert len(effects) == profile.n5.replications
+        assert effects == pytest.approx(
+            [expected_quantity] * profile.n5.replications,
+            abs=0.02,
+        )
+
+        assert leaf_run.cycles[-1].selected_candidate_ref == candidate.candidate_id
+        assert leaf_run.cycles[-1].simulation.status == "joint_simulated"
+        assert leaf_run.cycles[-1].simulation.candidate_id == candidate.candidate_id
+        assert leaf_run.value_port.status == "value_pending_n8"
+        assert leaf_run.value_port.authority_blockers == ("candidate_scenario_n5_only",)
+        assert leaf_run.promotion_port.status == "not_promoted"
+        assert leaf_run.promotion_port.certified_candidate_ids == ()
+        assert all(not summary.certified_by_n9 for summary in leaf_run.candidate_summaries)
+        assert all(summary.front != "decision" for summary in leaf_run.candidate_summaries)
 
         compiled_ref = ArtifactID.model_validate(
             progress["compiled_recursive_generation_cycle_ref"]
@@ -2543,7 +2644,9 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
 
 
 def test_diagnostic_events_bind_admitted_scope_and_declare_unknown_attribution(tmp_path) -> None:
-    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionScope,
+    )
 
     service = _build_control_service(tmp_path)
 
@@ -2638,7 +2741,9 @@ def test_eval_safety_closure_refuses_absent_tenant_instead_of_fabricating_one(
     from polisyos.runtime.http.services.control.workspace_loop_transition import (
         _WorkflowExecutionNonAuthorityError,
     )
-    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionScope,
+    )
 
     service = _build_control_service(tmp_path)
     intake = SimpleNamespace(

@@ -941,7 +941,6 @@ class AcquisitionWorldGrowthBridge:
     ) -> tuple[object, object, object]:
         """Materialize one owner-read-back row and persist a fresh leased context."""
 
-        from polisyos.core.artifacts import ArtifactID, ArtifactRef
         from polisyos.runtime.quality.candidate_simulation import (
             CandidateSimulationContextHandoff,
         )
@@ -955,6 +954,9 @@ class AcquisitionWorldGrowthBridge:
             materialize_acquired_observation_snapshot,
         )
         from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+        from polisyos.runtime.quality.world_model_record import (
+            world_model_artifact_views,
+        )
 
         admission_owner = self.cycle_substrate_context_admission_owner
         control_store = self.control_store
@@ -974,6 +976,9 @@ class AcquisitionWorldGrowthBridge:
             not in {"bound", "limited"}
         ):
             raise ValueError("acquisition_candidate_context_profile_binding_mismatch")
+        base_world_views = world_model_artifact_views(
+            configured_profile.context_inputs.world_model_record
+        )
         selected_rows = tuple(
             row
             for row in observation_projection.observations
@@ -983,28 +988,17 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_candidate_observation_not_unique")
         selected_row = selected_rows[0]
         base_world = configured_profile.context_inputs.world_model_record
-        base_data_snapshot_ref = ArtifactRef(
-            artifact_id=ArtifactID.model_validate(
-                base_world.simulation_model_ref.data_snapshot_ref
-            ),
-            kind="fabric.data_snapshot",
-            media_type="application/json",
-        )
+        base_data_snapshot_ref = base_world_views.data_snapshot_ref
         if not self.artifact_store.verify(base_data_snapshot_ref).ok:
             raise ValueError("acquisition_candidate_base_snapshot_unverified")
-        store_registry_ref = base_world.substrate_registry_ref.registry_artifact_ref
-        if store_registry_ref is None:
+        substrate_registry_ref = base_world_views.substrate_registry_ref
+        if substrate_registry_ref is None:
             substrate_registry_ref = persist_substrate_registry(
                 self.artifact_store,
                 configured_profile.context_inputs.substrate_registry,
             )
         else:
-            manifest = self.artifact_store.get_manifest(store_registry_ref)
-            substrate_registry_ref = ArtifactRef(
-                artifact_id=ArtifactID.model_validate(store_registry_ref),
-                kind=manifest.kind,
-                media_type=manifest.media_type,
-            )
+            manifest = self.artifact_store.get_manifest(substrate_registry_ref)
             if manifest.kind != "runtime.quality.production_data_substrate_registry":
                 raise ValueError("acquisition_candidate_substrate_registry_kind_mismatch")
         from polisyos.runtime.quality.acquisition_executor import AdmissionPassport

@@ -4,13 +4,20 @@ import hashlib
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import pytest
 from pydantic import create_model
 
 from polisyos.core import canon
-from polisyos.core.artifacts import ArtifactOwnershipError, ArtifactRef, FileSystemCAS
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactOwnershipError,
+    ArtifactRef,
+    FileSystemCAS,
+    VerificationReport,
+)
 from polisyos.core.security import (
     AccessScope,
     reset_current_access_scope,
@@ -1860,3 +1867,279 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
     assert cycle_substrate_context_job_content_hash(sibling_payload) != (
         resolved.content_hash
     )
+
+
+@pytest.mark.parametrize(
+    "schema_version",
+    ["policyos.runtime.world_model_record.v1", WORLD_MODEL_RECORD_SCHEMA_V2_VERSION],
+)
+def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    schema_version: str,
+) -> None:
+    """The N5 owner resolves a WMRv2 state view and keeps the WMRv1 default."""
+
+    from polisyos.core.artifacts import ProducerInfo, PutOptions
+    from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+    from polisyos.foundry.contracts.state import GlobalState
+    from polisyos.foundry.execute.executor import put_state_snapshot
+    from polisyos.pdc import WorldModelLimitations
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextInputs,
+        CandidateSimulationContextOffer,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+        _cycle_job_v1_design_problem_ref,
+        _cycle_job_v1_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.world_model_record import (
+        world_model_artifact_views,
+    )
+
+    problem = _design_problem()
+    registry = _registry("education")
+    store = FileSystemCAS(tmp_path / "selected-state-view-cas")
+    default_state_ref = put_state_snapshot(
+        store,
+        state=GlobalState.empty(n_agents=1, n_firms=1),
+    )
+    default_manifest = store.get_manifest(default_state_ref)
+    selected_state_ref = store.put_bytes(
+        store.get_bytes(default_state_ref),
+        PutOptions(
+            kind=default_manifest.kind,
+            media_type=default_manifest.media_type,
+            schema=default_manifest.artifact_schema,
+            producer=ProducerInfo(
+                component="tests.unit.runtime.quality.selected_state_view",
+                version="selected",
+            ),
+            inputs=default_manifest.inputs,
+            canon=default_manifest.canon,
+            warnings=default_manifest.warnings,
+        ),
+    )
+    assert selected_state_ref.artifact_id == default_state_ref.artifact_id
+    assert selected_state_ref.manifest_profile_sha256 is not None
+    assert selected_state_ref.manifest_profile_sha256 != (
+        default_state_ref.manifest_profile_sha256
+    )
+
+    base_world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method", "learning_outcomes"),
+    )
+    slots = tuple(
+        binding.model_copy(
+            update={
+                "unit": "synthetic_score",
+                "state_path": {
+                    "education.teaching_method": "government_balance",
+                    "learning_outcomes": "gdp",
+                }[binding.slot_id],
+            }
+        )
+        for binding in base_world.policy_slot_map
+    )
+    state_view = (
+        selected_state_ref
+        if schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+        else default_state_ref
+    )
+    views = world_model_artifact_views(base_world).model_copy(
+        update={"bound_state_snapshot_ref": state_view}
+    )
+    world = _rehash_world_record_fixture(
+        base_world,
+        policy_slot_map=slots,
+        foundry_binding_ref=base_world.foundry_binding_ref.model_copy(
+            update={"bound_state_snapshot_ref": str(state_view.artifact_id)}
+        ),
+        schema_version=schema_version,
+        artifact_views=(
+            views
+            if schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+            else None
+        ),
+    )
+    context = _cycle_context(
+        registry=registry,
+        world_model_record=world,
+        design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
+    )
+    context_inputs = CandidateSimulationContextInputs(
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=world,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=context.substrate_input_content_hash,
+    )
+    rule = CandidateScenarioSetToRule(
+        operator_kind="teaching_method_set_to",
+        parameter_id="intensity",
+        target_world_slot="education.teaching_method",
+        unit_id="synthetic_score",
+        minimum=0,
+        maximum=1,
+    )
+    n5 = CandidateScenarioN5Config(
+        budget_ref="budget://selected-state-view",
+        horizon=HorizonSpec(start=0, end=0, step=1),
+        baseline_state={
+            "education.teaching_method": 0.0,
+            "learning_outcomes": 0.0,
+        },
+        seed=7,
+        replications=2,
+    )
+    profile_fields = {
+        "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
+        "profile_id": "selected-state-view-candidate",
+        "profile_selection_ref": _cycle_job_v1_profile_selection_ref(problem),
+        "context_inputs": context_inputs,
+        "rule": rule,
+        "n5": n5,
+        "limitations": (
+            "scenario_only",
+            "real_profile_not_established",
+            "real_time_not_established",
+            "grounding_not_established",
+            "s8_blocked",
+            "n9_not_admitted",
+        ),
+    }
+    profile_draft = CandidateSimulationScenarioProfile.model_construct(
+        **profile_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    profile = CandidateSimulationScenarioProfile.model_validate(
+        {
+            **profile_fields,
+            "content_hash": gy_content_hash(
+                profile_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    declaration_fields = {
+        "schema_version": (
+            "policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"
+        ),
+        "profile_config_ref": candidate_simulation_profile_ref(profile),
+        "profile_content_hash": profile.content_hash,
+        "profile_selection_ref": profile.profile_selection_ref,
+        "target_world_slot": rule.target_world_slot,
+        "outcome_variable": "learning_outcomes",
+        "target_unit_id": "synthetic_score",
+        "outcome_unit_id": "synthetic_score",
+        "target_baseline": 0.0,
+        "outcome_baseline": 0.0,
+        "outcome_per_target_unit": 0.5,
+        "outcome_noise_stddev": 0.01,
+        "assumption": "declared_candidate_scm_not_empirically_grounded",
+    }
+    declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+        **declaration_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {
+            **declaration_fields,
+            "content_hash": gy_content_hash(
+                declaration_draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+        profiles=(profile,),
+        model_declarations=(declaration,),
+        store=store,
+    )
+    required_blockers = (
+        "source_time_not_established",
+        "source_to_target_measurement_contract_not_established",
+        "causal_coupling_not_established",
+    )
+    acquired_world = _rehash_world_record_fixture(
+        world,
+        limitations=WorldModelLimitations(
+            admissibility_blockers=required_blockers
+        ),
+    )
+    expected_manifest_profile = ManifestLifecycle.profile_sha256(
+        store.get_manifest(state_view)
+    )
+    state_reads: list[str] = []
+    verify = store.verify
+
+    def record_state_view(
+        ref: ArtifactID | ArtifactRef | str,
+    ) -> VerificationReport:
+        if str(getattr(ref, "artifact_id", ref)) == str(state_view.artifact_id):
+            state_reads.append(
+                ManifestLifecycle.profile_sha256(store.get_manifest(ref))
+            )
+        return verify(ref)
+
+    monkeypatch.setattr(store, "verify", record_state_view)
+    offer = owner.admit_context_for_acquired_world(
+        problem=problem,
+        profile_selection_ref=profile.profile_selection_ref,
+        world_model_record=acquired_world,
+        job_id="job-selected-state-view",
+        run_id="run-selected-state-view",
+        tenant_id="tenant-selected-state-view",
+        cell_id="cell-selected-state-view",
+    )
+
+    assert type(offer) is CandidateSimulationContextOffer
+    assert state_reads == [expected_manifest_profile]
+    assert offer.context.world_model_record.authority_status == "limited"
+    assert {
+        "grounding_authority",
+        "transport_authority",
+        "promotion_authority",
+    }.issubset(offer.context.may_not_use_for)
+    assert offer.context.world_model_record.artifact_views is not None
+    assert (
+        offer.context.world_model_record.artifact_views.bound_state_snapshot_ref
+        == state_view
+    )
+
+
+def _rehash_world_record_fixture(
+    world: WorldModelRecord, **updates: object
+) -> WorldModelRecord:
+    """Recompute the fixture WMR identity after a test-only view mutation."""
+
+    values = world.model_dump(mode="python")
+    values.update(updates)
+    values.update(
+        {
+            "world_model_record_id": "world_model_record_0000000000000000",
+            "content_hash": "sha256:" + "0" * 64,
+        }
+    )
+    draft = WorldModelRecord.model_construct(**values)
+    content_hash = world_model_record_content_hash(draft)
+    values.update(
+        {
+            "world_model_record_id": (
+                "world_model_record_" + content_hash.removeprefix("sha256:")[:16]
+            ),
+            "content_hash": content_hash,
+        }
+    )
+    return WorldModelRecord.model_validate(values)

@@ -2147,18 +2147,13 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 "candidate_simulation_acquisition_profile_world_mismatch"
             )
 
-        from polisyos.core.artifacts import ArtifactID
-        from polisyos.core.contracts.foundry import StateSnapshotRef
         from polisyos.foundry.data_plane.bindings import load_state_snapshot
         from polisyos.foundry.execute.executor import get_state_path
+        from polisyos.runtime.quality.world_model_record import world_model_artifact_views
 
-        state_ref = StateSnapshotRef(
-            artifact_id=ArtifactID.model_validate(
-                world_model_record.foundry_binding_ref.bound_state_snapshot_ref
-            ),
-            kind="foundry.state_snapshot",
-            media_type="application/json",
-        )
+        state_ref = world_model_artifact_views(
+            world_model_record
+        ).bound_state_snapshot_ref
         if not self._store.verify(state_ref).ok:
             raise CycleSubstrateContextOwnerError(
                 "candidate_simulation_acquisition_state_snapshot_unverified"

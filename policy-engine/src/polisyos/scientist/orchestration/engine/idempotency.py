@@ -24,7 +24,7 @@ from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.cache import LRUCache
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
-from polisyos.core.security.tenant_context import (
+from polisyos.core.security import (
     get_current_access_scope_or_none,
     get_current_cell_id,
     get_current_tenant_id_or_none,

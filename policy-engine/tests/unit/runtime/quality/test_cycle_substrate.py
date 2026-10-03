@@ -2088,14 +2088,20 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
     assert resolved.context.world_model_record.schema_version == (
         WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
     )
-    assert resolved.context.world_model_record.artifact_views is not None
+    artifact_views = resolved.context.world_model_record.artifact_views
+    assert artifact_views is not None
     assert (
-        resolved.context.world_model_record.artifact_views.program_graph_refs[0]
-        .manifest_profile_sha256
+        artifact_views.program_graph_refs[0].manifest_profile_sha256
         == _hash("selected-view")
     )
     assert payload["schema_version"] == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
     assert cycle_substrate_context_job_content_hash(payload) == payload["content_hash"]
+    selected_ref = artifact_views.program_graph_refs[0]
+    serialized_ref = payload["context"]["world_model_record"]["artifact_views"][
+        "program_graph_refs"
+    ][0]
+    assert serialized_ref["artifact_id"] == str(selected_ref.artifact_id)
+    assert type(serialized_ref["artifact_id"]) is str
     with pytest.raises(
         CycleSubstrateContextOwnerError,
         match="cycle_substrate_context_job_v2_nested_schema_unsupported",
@@ -2120,6 +2126,35 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
     assert cycle_substrate_context_job_content_hash(sibling_payload) != (
         resolved.content_hash
     )
+
+
+def test_cycle_substrate_context_job_v3_artifact_id_scalar_and_strictness() -> None:
+    """V3 emits the core ArtifactID wire string and keeps unknown roots closed."""
+
+    from pydantic import RootModel
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        _serialize_context_job_v3_value,
+    )
+
+    artifact_id = ArtifactID.from_sha256_hex("a" * 64)
+    assert _serialize_context_job_v3_value(artifact_id) == str(artifact_id)
+
+    class UnknownRootScalar(RootModel[str]):
+        pass
+
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_v3_serializer_model_unregistered",
+    ):
+        _serialize_context_job_v3_value(UnknownRootScalar("sha256:" + "a" * 64))
+
+    malformed_artifact_id = ArtifactID.model_construct(root="not-a-valid-artifact-id")
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="cycle_substrate_context_job_v3_artifact_id_invalid",
+    ):
+        _serialize_context_job_v3_value(malformed_artifact_id)
 
 
 @pytest.mark.parametrize(

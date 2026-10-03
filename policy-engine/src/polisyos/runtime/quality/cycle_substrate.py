@@ -1305,6 +1305,9 @@ _CONTEXT_JOB_V3_EXACT_MODEL_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
         {CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA}
     ),
 }
+_CONTEXT_JOB_V3_ROOT_SCALAR_TYPES: frozenset[type[BaseModel]] = frozenset(
+    {artifacts.ArtifactID}
+)
 
 
 def _validate_problem_world_match(
@@ -1518,6 +1521,18 @@ def _serialize_context_job_v2_value(value: object) -> object:
 def _serialize_context_job_v3_value(value: object) -> object:
     """Serialize V3's frozen WMRv2 tree with typed CAS view selectors."""
 
+    if type(value) in _CONTEXT_JOB_V3_ROOT_SCALAR_TYPES:
+        # ArtifactID's canonical wire form is its normalized string, not a
+        # model object with a synthetic ``root`` field.
+        try:
+            artifact_id = artifacts.ArtifactID.model_validate(
+                cast("artifacts.ArtifactID", value).root
+            )
+        except (TypeError, ValueError) as exc:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v3_artifact_id_invalid", str(exc)
+            ) from exc
+        return str(artifact_id)
     if isinstance(value, BaseModel):
         model_name = f"{type(value).__module__}.{type(value).__qualname__}"
         fields = _CONTEXT_JOB_V3_EXACT_MODEL_FIELDS.get(type(value))

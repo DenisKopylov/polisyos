@@ -8285,17 +8285,17 @@ class GenerationCycleController:
             )
             if len(interventions) != 1:
                 raise ValueError("candidate_simulation_trinity_intervention_ambiguous")
-            if self._repo_root is None:
-                raise ValueError("candidate_simulation_linker_registry_owner_missing")
+            context_bundle = handoff.context.intervention_substrate
+            if context_bundle is None:
+                raise ValueError("candidate_simulation_l6_bundle_missing")
             linked_intervention, _selected_policy_spec_ref = (
                 _link_candidate_scenario_intervention(
                     source.trinity_bundle,
                     intervention_id=source_item.intervention_id,
                     repo_root=self._repo_root,
+                    substrate_bundle=context_bundle,
                 )
             )
-            if handoff.context.intervention_substrate is None:
-                raise ValueError("candidate_simulation_l6_bundle_missing")
             intervention = interventions[0]
             context_job_id = str(handoff.context_job_ref.artifact_id)
             source_id = (
@@ -8496,13 +8496,6 @@ class GenerationCycleController:
                 code="candidate_simulation_n4_proposal_source_not_persisted",
                 status="simulation_pending_n5",
             )
-        if self._repo_root is None:
-            return self._candidate_scenario_refusal(
-                candidate_id=candidate_id,
-                code="candidate_simulation_linker_registry_owner_missing",
-                status="simulation_pending_n5",
-            )
-
         try:
             source_record = repository.load_candidate_scenario_source_for_n5(
                 source_ref,
@@ -8552,11 +8545,15 @@ class GenerationCycleController:
                 )
             ):
                 raise ValueError("candidate_simulation_n4_proposal_source_binding_mismatch")
+            l6_bundle = handoff.context.intervention_substrate
+            if l6_bundle is None:
+                raise ValueError("candidate_simulation_l6_bundle_missing")
             linked_intervention, selected_policy_spec_ref = (
                 _link_candidate_scenario_intervention(
                     source_v1.proposal.trinity_bundle,
                     intervention_id=candidate.intervention_id,
                     repo_root=self._repo_root,
+                    substrate_bundle=l6_bundle,
                 )
             )
             full_policy_spec_ref = gy_content_hash(
@@ -8579,9 +8576,6 @@ class GenerationCycleController:
             )
             if len(interventions) != 1:
                 raise ValueError("candidate_simulation_linked_intervention_ambiguous")
-            l6_bundle = handoff.context.intervention_substrate
-            if l6_bundle is None:
-                raise ValueError("candidate_simulation_l6_bundle_missing")
             materialization = materialize_candidate_scenario_proposal_action(
                 l6_bundle,
                 source_record=source_record,

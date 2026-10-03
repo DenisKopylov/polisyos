@@ -532,7 +532,8 @@ def _link_candidate_scenario_intervention(
     trinity_bundle: TrinityBundle,
     *,
     intervention_id: str,
-    repo_root: str | Path,
+    repo_root: str | Path | None = None,
+    substrate_bundle: InterventionSubstrateBundle | None = None,
 ) -> tuple[LinkedIntervention, str]:
     """Link one source-bound candidate action through the existing L6 registry.
 
@@ -564,7 +565,10 @@ def _link_candidate_scenario_intervention(
     )
     linked_bundle, link_report = link_trinity(
         selected_bundle,
-        intervention_generation_registry_bundle(repo_root),
+        intervention_generation_registry_bundle(
+            repo_root,
+            substrate_bundle=substrate_bundle,
+        ),
         allow_extra_params=True,
         strict=True,
     )
@@ -2604,10 +2608,26 @@ def production_composed_world_model_record(repo_root: str | Path) -> WorldModelR
     return _production_composed_world_model_record(Path(repo_root).resolve().as_posix())
 
 
-def intervention_generation_registry_bundle(repo_root: str | Path) -> RegistryBundle:
-    """Return the existing L6 slot/mechanism registries for the N4 linker."""
+def intervention_generation_registry_bundle(
+    repo_root: str | Path | None = None,
+    *,
+    substrate_bundle: InterventionSubstrateBundle | None = None,
+) -> RegistryBundle:
+    """Build the existing L6 registries from one verified bundle or its source root.
 
-    bundle = load_l6_intervention_substrate(Path(repo_root).resolve())
+    An explicitly supplied bundle is revalidated from its complete serialized
+    payload and takes precedence over filesystem discovery. The source-root
+    route remains for callers that do not already hold context-bound L6 input.
+    """
+
+    if substrate_bundle is not None:
+        if type(substrate_bundle) is not InterventionSubstrateBundle:
+            raise InterventionSubstrateError("l6_registry_bundle_untyped")
+        bundle = verify_intervention_substrate_bundle_content_hash(substrate_bundle)
+    else:
+        if repo_root is None:
+            raise InterventionSubstrateError("l6_registry_source_missing")
+        bundle = load_l6_intervention_substrate(Path(repo_root).resolve())
     slots = _owner_slot_registry(bundle)
     mechanisms = _owner_mechanism_registry(bundle, slot_registry=slots)
     return _owner_registry_bundle(mechanism_registry=mechanisms, slot_registry=slots)

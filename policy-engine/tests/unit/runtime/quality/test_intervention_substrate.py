@@ -152,7 +152,15 @@ def test_candidate_scenario_linker_selects_only_the_source_bound_intervention(
         )
         return linked, LinkReport(ok=True)
 
-    monkeypatch.setattr(owner, "intervention_generation_registry_bundle", lambda _root: object())
+    def registry_bundle(_root, *, substrate_bundle=None):
+        observed["registry_source"] = substrate_bundle
+        return object()
+
+    monkeypatch.setattr(
+        owner,
+        "intervention_generation_registry_bundle",
+        registry_bundle,
+    )
     monkeypatch.setattr(owner, "link_trinity", link_selected)
 
     linked, selected_spec_ref = owner._link_candidate_scenario_intervention(
@@ -164,6 +172,7 @@ def test_candidate_scenario_linker_selects_only_the_source_bound_intervention(
     assert observed == {
         "interventions": ("selected_procurement",),
         "flags": (True, True),
+        "registry_source": None,
     }
     assert linked.intervention_id == "selected_procurement"
     expected_selected_spec = source.policy_spec.model_copy(
@@ -182,6 +191,121 @@ def test_candidate_scenario_linker_selects_only_the_source_bound_intervention(
             intervention_id="not_in_source",
             repo_root=REPO_ROOT,
         )
+
+
+def test_candidate_scenario_linker_uses_revalidated_context_bundle_without_root_files(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real L6 linker uses the exact supplied bundle when the root is unrelated."""
+    from polisyos.ir.governance.policy_spec import PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    operator_kind = "budget_allocation_multiplier"
+    raw_knob = bundle.knob_dictionary[operator_kind]
+    slots = owner._owner_slot_registry(bundle)
+    mechanisms = owner._owner_mechanism_registry(bundle, slot_registry=slots)
+    mechanism_id = owner._knob_mechanism_id(
+        operator_kind,
+        raw_knob,
+        mechanism_registry=mechanisms,
+    )
+    parameter_id = owner._knob_param_id(
+        raw_knob,
+        mechanism_id=mechanism_id,
+        mechanism_registry=mechanisms,
+    )
+    intervention = owner._owner_intervention_spec(
+        operator_kind=operator_kind,
+        mechanism_id=mechanism_id,
+        param_id=parameter_id,
+        parameter_value=1.25,
+    )
+    source = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="candidate_l6_registry_probe",
+            domain=ProblemDomain.FISCAL,
+        ),
+        policy_spec=PolicySpec(
+            policy_id="candidate_l6_registry_probe",
+            interventions=[intervention],
+        ),
+        model_spec=ModelSpec(
+            model_id="candidate_l6_registry_probe",
+            data_snapshot_ref="sha256:" + "b" * 64,
+        ),
+    )
+
+    # Existing callers without a context-bound bundle still use the root path.
+    root_link, root_policy_ref = owner._link_candidate_scenario_intervention(
+        source,
+        intervention_id=intervention.intervention_id,
+        repo_root=REPO_ROOT,
+    )
+
+    def reject_filesystem_reload(_root: Path) -> object:
+        raise AssertionError("bound_l6_bundle_must_not_reload_from_repo_root")
+
+    monkeypatch.setattr(owner, "load_l6_intervention_substrate", reject_filesystem_reload)
+    bound_link, bound_policy_ref = owner._link_candidate_scenario_intervention(
+        source,
+        intervention_id=intervention.intervention_id,
+        repo_root=tmp_path,
+        substrate_bundle=bundle,
+    )
+    no_root_link, no_root_policy_ref = owner._link_candidate_scenario_intervention(
+        source,
+        intervention_id=intervention.intervention_id,
+        repo_root=None,
+        substrate_bundle=bundle,
+    )
+    assert bound_link.writes_slots == root_link.writes_slots == ["government.balance"]
+    assert no_root_link.writes_slots == bound_link.writes_slots
+    assert bound_policy_ref == root_policy_ref
+    assert no_root_policy_ref == bound_policy_ref
+    assert tuple(item.intervention_id for item in source.policy_spec.interventions) == (
+        intervention.intervention_id,
+    )
+    assert operator_kind in bundle.knob_dictionary
+
+    forged_payload = bundle.model_copy(
+        update={"content_hash": "sha256:" + "0" * 64}
+    )
+    with pytest.raises(
+        InterventionSubstrateError,
+        match="intervention_substrate_bundle_content_hash_mismatch",
+    ):
+        owner._link_candidate_scenario_intervention(
+            source,
+            intervention_id=intervention.intervention_id,
+            repo_root=REPO_ROOT,
+            substrate_bundle=forged_payload,
+        )
+
+    mechanisms_payload = copy.deepcopy(bundle.world_mechanism_manifest)
+    mechanisms_payload["mechanisms"].pop(mechanism_id)
+    definition_removed = owner.replace_intervention_substrate_bundle(
+        bundle,
+        update={"world_mechanism_manifest": mechanisms_payload},
+    )
+    assert definition_removed.content_hash != bundle.content_hash
+    intervention_id_marker = source.policy_spec.interventions[0].intervention_id
+    assert intervention_id_marker == intervention.intervention_id
+    assert operator_kind in definition_removed.knob_dictionary
+    with pytest.raises(InterventionSubstrateError) as missing_definition:
+        owner._link_candidate_scenario_intervention(
+            source,
+            intervention_id=intervention_id_marker,
+            repo_root=tmp_path,
+            substrate_bundle=definition_removed,
+        )
+    assert missing_definition.value.code == (
+        "candidate_scenario_selected_intervention_not_linked"
+    )
 
 
 def test_phase5_n8_default_rejects_every_corrupted_real_route() -> None:

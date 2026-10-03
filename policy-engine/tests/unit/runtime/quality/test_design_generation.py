@@ -3555,6 +3555,186 @@ def test_fake_surrogate_owner_ref_resolver_rejects() -> None:
         dg._resolve_owner_symbol("polisyos.fake.DoesNotExist")
 
 
+def test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Candidate linking rejects profile/context drift and forwards verified context."""
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+    )
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+    from polisyos.runtime.quality.design_generation import N4CandidateProposalSource
+    from polisyos.runtime.quality.intervention_substrate import (
+        InterventionSubstrateError,
+        replace_intervention_substrate_bundle,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+
+    problem, context = _education_cycle_context()
+    context_bundle = context.intervention_substrate
+    assert context_bundle is not None
+    rule = CandidateScenarioSetToRule(
+        operator_kind="budget_allocation_multiplier",
+        parameter_id="multiplier",
+        target_world_slot="government.balance",
+        unit_id="usd",
+        minimum=1,
+        maximum=2,
+    )
+
+    def profile_for(bundle, *, bypass_nested_validation: bool = False):
+        context_fields = {
+            "substrate_registry": context.substrate_registry,
+            "selected_registry_entry_hashes": context.selected_registry_entry_hashes,
+            "world_model_record": context.world_model_record,
+            "intervention_substrate": bundle,
+            "candidate_levers": context.candidate_levers,
+            "transport_context": context.transport_context,
+            "source_pack_content_hash": context.source_pack_content_hash,
+            "substrate_input_content_hash": context.substrate_input_content_hash,
+        }
+        context_inputs = (
+            CandidateSimulationContextInputs.model_construct(**context_fields)
+            if bypass_nested_validation
+            else CandidateSimulationContextInputs.model_validate(context_fields)
+        )
+        profile_fields = {
+            "profile_id": "candidate_proposal_l6_bundle_probe",
+            "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+            "context_inputs": context_inputs,
+            "rule": rule,
+            "n5": CandidateScenarioN5Config(
+                budget_ref="candidate-proposal-l6-bundle-probe",
+                horizon=HorizonSpec(start=0, end=0, step=1),
+            ),
+            "limitations": (
+                "scenario_only",
+                "real_profile_not_established",
+                "real_time_not_established",
+                "grounding_not_established",
+                "s8_blocked",
+                "n9_not_admitted",
+            ),
+        }
+        if bypass_nested_validation:
+            return CandidateSimulationScenarioProfile.model_construct(
+                **profile_fields,
+                content_hash="sha256:" + "0" * 64,
+            )
+        draft = CandidateSimulationScenarioProfile.model_construct(
+            **profile_fields,
+            content_hash="sha256:" + "0" * 64,
+        )
+        return CandidateSimulationScenarioProfile.model_validate(
+            {
+                **profile_fields,
+                "content_hash": gy_content_hash(
+                    draft.model_dump(mode="json", exclude={"content_hash"})
+                ),
+            }
+        )
+
+    proposal_bundle = _bundle(
+        [
+            InterventionSpec(
+                intervention_id="candidate_proposal_l6_bundle_probe",
+                kind=rule.operator_kind,
+                target=_selector(),
+                schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                params={rule.parameter_id: 1},
+            )
+        ]
+    )
+    proposal = N4CandidateProposalSource.model_construct(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        trinity_bundle=proposal_bundle,
+    )
+    link_inputs: list[object] = []
+
+    def stop_after_verified_route(
+        _proposal_bundle,
+        *,
+        intervention_id: str,
+        repo_root: Path | None = None,
+        substrate_bundle=None,
+    ):
+        del _proposal_bundle, intervention_id, repo_root
+        link_inputs.append(substrate_bundle)
+        raise InterventionSubstrateError("candidate_proposal_link_probe_complete")
+
+    monkeypatch.setattr(
+        "polisyos.runtime.quality.intervention_substrate._link_candidate_scenario_intervention",
+        stop_after_verified_route,
+    )
+
+    valid_sibling = replace_intervention_substrate_bundle(
+        context_bundle,
+        update={
+            "policy_scenario_templates": {
+                **context_bundle.policy_scenario_templates,
+                "probe": {"content": "different but valid L6 view"},
+            }
+        },
+    )
+    assert valid_sibling.content_hash != context_bundle.content_hash
+    mismatched_profile = profile_for(valid_sibling)
+    assert (
+        mismatched_profile.context_inputs.intervention_substrate.content_hash
+        != context_bundle.content_hash
+    )
+    assert dg.build_candidate_scenario_proposal_candidate(
+        proposal,
+        problem=problem,
+        profile=mismatched_profile,
+        context=context,
+        repo_root=tmp_path,
+    ) is None
+    assert link_inputs == []
+
+    forged_same_claim = context_bundle.model_copy(
+        update={
+            "knob_dictionary": {
+                **context_bundle.knob_dictionary,
+                "probe_marker": {"operator": "budget_allocation_multiplier"},
+            }
+        }
+    )
+    assert forged_same_claim.content_hash == context_bundle.content_hash
+    forged_profile = profile_for(forged_same_claim, bypass_nested_validation=True)
+    assert dg.build_candidate_scenario_proposal_candidate(
+        proposal,
+        problem=problem,
+        profile=forged_profile,
+        context=context,
+        repo_root=tmp_path,
+    ) is None
+    assert link_inputs == []
+
+    matching_profile = profile_for(context_bundle)
+    assert {
+        "scenario_only",
+        "real_profile_not_established",
+        "real_time_not_established",
+        "grounding_not_established",
+        "s8_blocked",
+        "n9_not_admitted",
+    }.issubset(matching_profile.limitations)
+    assert dg.build_candidate_scenario_proposal_candidate(
+        proposal,
+        problem=problem,
+        profile=matching_profile,
+        context=context,
+        repo_root=tmp_path,
+    ) is None
+    assert len(link_inputs) == 1
+    assert link_inputs[0].content_hash == context_bundle.content_hash
+
+
 def test_strangle_receipts_recompute_as_strangled() -> None:
     assert validate_design_generation_strangle_receipts(REPO_ROOT) == ()
 

@@ -1109,8 +1109,10 @@ def build_candidate_scenario_proposal_candidate(
     )
     from polisyos.runtime.quality.design_problem import DesignProblem as DesignProblemModel
     from polisyos.runtime.quality.intervention_substrate import (
+        InterventionSubstrateBundle,
         _link_candidate_scenario_intervention,
         candidate_scenario_set_to_value,
+        verify_intervention_substrate_bundle_content_hash,
     )
 
     if type(proposal) is not N4CandidateProposalSource:
@@ -1131,11 +1133,27 @@ def build_candidate_scenario_proposal_candidate(
         return None
     if profile.context_inputs.intervention_substrate is None:
         return None
+    context_bundle = verified_context.intervention_substrate
+    profile_bundle = profile.context_inputs.intervention_substrate
     if (
-        verified_context.intervention_substrate is None
-        or verified_context.intervention_substrate.content_hash
-        != profile.context_inputs.intervention_substrate.content_hash
+        type(context_bundle) is not InterventionSubstrateBundle
+        or type(profile_bundle) is not InterventionSubstrateBundle
+        or context_bundle.content_hash != profile_bundle.content_hash
     ):
+        return None
+    try:
+        # Recompute both complete payload identities before selecting the
+        # context's bundle as the linker input. A model instance's claimed
+        # content_hash is not evidence by itself.
+        verified_context_bundle = verify_intervention_substrate_bundle_content_hash(
+            context_bundle
+        )
+        verified_profile_bundle = verify_intervention_substrate_bundle_content_hash(
+            profile_bundle
+        )
+    except InterventionSubstrateError:
+        return None
+    if verified_context_bundle.content_hash != verified_profile_bundle.content_hash:
         return None
 
     rule = profile.rule
@@ -1149,6 +1167,7 @@ def build_candidate_scenario_proposal_candidate(
                 proposal.trinity_bundle,
                 intervention_id=intervention.intervention_id,
                 repo_root=repo_root,
+                substrate_bundle=verified_context_bundle,
             )
         except InterventionSubstrateError:
             continue

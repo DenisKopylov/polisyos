@@ -1537,6 +1537,9 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
     refresh_case: str,
 ) -> None:
     """The configured owner emits a limited NCM and a CAS-bound registry view."""
+    import os
+
+    from polisyos.runtime.quality import world_model_record as world_model_record_owner
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioN5Config,
         CandidateScenarioSetToRule,
@@ -1742,13 +1745,58 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         )
         return
 
-    offer = owner.admit_context(
-        problem=problem,
-        job_id="job-declared-candidate",
-        run_id="run-declared-candidate",
-        tenant_id="tenant-declared-candidate",
-        cell_id="cell-declared-candidate",
-    )
+    removal = os.environ.get("POLISYOS_R13_REMOVE_CANDIDATE_REGISTRY_HANDOFF")
+    if removal is not None and removal != "1":
+        pytest.fail(
+            "R13 registry-handoff removal flag must be exactly '1'",
+            pytrace=False,
+        )
+    if removal == "1" and refresh_case == "none_missing_registry_locator":
+        original_derive = (
+            world_model_record_owner.derive_candidate_scenario_world_model_record
+        )
+
+        def derive_without_registry_handoff(
+            base_record: WorldModelRecord,
+            *,
+            ncm_artifact_ref: ArtifactRef,
+            declaration_content_hash: str,
+            substrate_registry_view_ref: ArtifactRef | None = None,
+        ) -> WorldModelRecord:
+            """Remove only the owner-selected registry handoff, keeping its CAS view."""
+
+            assert type(substrate_registry_view_ref) is ArtifactRef
+            assert store.verify(substrate_registry_view_ref).ok
+            assert load_substrate_registry(
+                store, substrate_registry_view_ref
+            ).model_dump(mode="json") == registry.model_dump(mode="json")
+            return original_derive(
+                base_record,
+                ncm_artifact_ref=ncm_artifact_ref,
+                declaration_content_hash=declaration_content_hash,
+            )
+
+        with monkeypatch.context() as removal_probe:
+            removal_probe.setattr(
+                world_model_record_owner,
+                "derive_candidate_scenario_world_model_record",
+                derive_without_registry_handoff,
+            )
+            offer = owner.admit_context(
+                problem=problem,
+                job_id="job-declared-candidate",
+                run_id="run-declared-candidate",
+                tenant_id="tenant-declared-candidate",
+                cell_id="cell-declared-candidate",
+            )
+    else:
+        offer = owner.admit_context(
+            problem=problem,
+            job_id="job-declared-candidate",
+            run_id="run-declared-candidate",
+            tenant_id="tenant-declared-candidate",
+            cell_id="cell-declared-candidate",
+        )
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextOffer
 
     assert type(offer) is CandidateSimulationContextOffer
@@ -2016,8 +2064,11 @@ def test_configured_candidate_owner_preserves_profiled_registry_sibling_view(
 
 def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
     tmp_path: Any,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """WMRv2 selectors survive the job owner without changing V1/V2 maps."""
+
+    import os
 
     from polisyos.runtime.quality.cycle_substrate import (
         CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA,
@@ -2076,7 +2127,22 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
     )
 
     with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
-        ref = owner.persist_for_current_job(context, problem=problem)
+        removal = os.environ.get("POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR")
+        if removal is not None and removal != "1":
+            pytest.fail(
+                "R1 V3 ArtifactID-scalar removal flag must be exactly '1'",
+                pytrace=False,
+            )
+        if removal == "1":
+            with monkeypatch.context() as removal_probe:
+                removal_probe.setattr(
+                    cycle_substrate_owner,
+                    "_CONTEXT_JOB_V3_ROOT_SCALAR_TYPES",
+                    frozenset(),
+                )
+                ref = owner.persist_for_current_job(context, problem=problem)
+        else:
+            ref = owner.persist_for_current_job(context, problem=problem)
         resolved = owner.resolve_for_current_job(ref, problem=problem)
         payload = canon.from_canonical_bytes(store.get_bytes(ref))
 

@@ -1795,13 +1795,7 @@ async def _run_controlled_simulate_only_job_fixture(
     resolution, real-data grounding, production profile admission, N9, S8, or
     publication authority.
     """
-    from tests._helpers.controlled_candidate_profile import (
-        _configured_procurement_profile,
-        _controlled_procurement_recording,
-        _current_compiler_problem,
-    )
-
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
     from polisyos.core.security import (
         get_current_access_scope_or_none,
         tenant_scope,
@@ -1816,7 +1810,6 @@ async def _run_controlled_simulate_only_job_fixture(
     from polisyos.runtime.quality.cycle_substrate import (
         ConfiguredCandidateSimulationContextAdmissionOwner,
         CycleSubstrateContextArtifactOwner,
-        CycleSubstrateContextJobArtifact,
         CycleSubstrateContextOwnerError,
         cycle_job_design_problem_ref,
         cycle_job_profile_selection_ref,
@@ -1835,6 +1828,11 @@ async def _run_controlled_simulate_only_job_fixture(
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
+    )
+    from tests._helpers.controlled_candidate_profile import (
+        _configured_procurement_profile,
+        _controlled_procurement_recording,
+        _current_compiler_problem,
     )
     from tests.unit.runtime.http.test_control_job_execution_intent import (
         _valid_intake_for_mode,
@@ -1896,6 +1894,7 @@ async def _run_controlled_simulate_only_job_fixture(
     )
     owner_refs = []
     owner_replays = []
+    owner_replay_refs = []
     verified_scope_observations = []
     n5_port_observations = []
     n5_engine_requests = []
@@ -2035,7 +2034,7 @@ async def _run_controlled_simulate_only_job_fixture(
     assert admission_attempts[0][1]["problem"] is probe_problem
     assert admission_observations == []
     assert context_persist_attempts == []
-    assert owner_refs == owner_replays == verified_scope_observations == []
+    assert owner_refs == owner_replays == owner_replay_refs == verified_scope_observations == []
     assert n5_port_observations == n5_engine_requests == []
     assert n4_port_attempts == []
     assert compiler_calls == compiled_runs == n4_organ_runs == []
@@ -2087,6 +2086,7 @@ async def _run_controlled_simulate_only_job_fixture(
             verified_nl_job_scope=verified_nl_job_scope,
         )
         owner_replays.append(artifact)
+        owner_replay_refs.append(ref)
         return artifact
 
     monkeypatch.setattr(
@@ -2203,7 +2203,7 @@ async def _run_controlled_simulate_only_job_fixture(
         assert progress["cycle_substrate_context_job_ref"]
         assert len(compiler_calls) == 1
         assert compiler_calls[0]["nl_request"] == problem.nl_provenance.raw_request
-        assert len(admission_observations) >= 2
+        assert len(admission_observations) == len(owner_replays) >= 2
         admitted_offer = admission_observations[0][1]
         assert type(source_owner) is ConfiguredCandidateSimulationContextAdmissionOwner
         assert source_owner.store is service._artifact_store
@@ -2225,12 +2225,21 @@ async def _run_controlled_simulate_only_job_fixture(
             and offer.context.design_problem_ref == problem_ref
             for _, offer in admission_observations
         )
-        assert len(owner_refs) == len(owner_replays) == 1
+        assert len(owner_refs) == 1
+        assert len(owner_replay_refs) == len(owner_replays)
+        assert all(
+            artifact_ref_identity_key(ref)
+            == artifact_ref_identity_key(owner_refs[0])
+            for ref in owner_replay_refs
+        )
         assert len(context_persist_attempts) == 4
         assert context_persist_attempts[-1][1] is problem
         assert context_persist_attempts[-1][2] is verified_scope_observations[0]
-        assert len(verified_scope_observations) == 2
-        assert verified_scope_observations[0] is verified_scope_observations[1]
+        assert len(verified_scope_observations) == len(owner_replays) + 1
+        assert all(
+            scope is verified_scope_observations[0]
+            for scope in verified_scope_observations
+        )
         assert verified_scope_observations[0]._was_issued_by_verified_nl_execution_owner
         assert verified_scope_observations[0].job_id == launch.job_id
         assert verified_scope_observations[0].run_id == str(job.run_id)
@@ -2240,17 +2249,30 @@ async def _run_controlled_simulate_only_job_fixture(
         assert verified_scope_observations[0].attempt == leased.attempt
         assert str(owner_refs[0].artifact_id) == progress["cycle_substrate_context_job_ref"]
 
-        context_artifact = CycleSubstrateContextJobArtifact.model_validate(
-            canon.from_canonical_bytes(
-                service._artifact_store.get_bytes(owner_refs[0].artifact_id)
-            )
-        )
+        # Use the last live N5-bound owner replay; it verified the current
+        # artifact schema, CAS bytes, and full job scope before simulation.
+        context_artifact = owner_replays[-1]
         assert context_artifact.job_id == launch.job_id
         assert context_artifact.run_id == str(job.run_id)
         assert context_artifact.tenant_id == "tenant-fixture"
         assert context_artifact.cell_id == "cell-fixture"
         assert context_artifact.problem == problem
-        assert context_artifact.context.content_hash == owner_replays[0].context.content_hash
+        assert all(
+            replay.job_id == launch.job_id
+            and replay.run_id == str(job.run_id)
+            and replay.tenant_id == "tenant-fixture"
+            and replay.cell_id == "cell-fixture"
+            and replay.problem == problem
+            and replay.context.content_hash == context_artifact.context.content_hash
+            for replay in owner_replays
+        )
+        assert all(
+            offer.context.content_hash == context_artifact.context.content_hash
+            and offer.profile_config_ref == admitted_offer.profile_config_ref
+            and offer.model_declaration_ref == admitted_offer.model_declaration_ref
+            and offer.ncm_ref == admitted_offer.ncm_ref
+            for _, offer in admission_observations
+        )
         assert context_artifact.profile_admission_status == "not_established"
         assert context_artifact.s8_status == "blocked"
         assert context_artifact.context.world_model_record.authority_status == "limited"

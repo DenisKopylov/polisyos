@@ -3201,6 +3201,39 @@ async def test_recorded_llm_organs_emit_diverse_cg3_dispositions_without_authori
     assert firewall_issues_for_result(result) == ()
 
 
+def test_cg1_index_prewarm_builds_real_index_for_unit_reference() -> None:
+    """Exercise real CG1 prewarm mechanics without claiming production K_ref."""
+    from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
+    from tests.unit.runtime.quality.test_grounding_relation import (
+        _reference as grounding_relation_test_reference,
+    )
+
+    # The helper uses explicit unit-* component versions and content hashes.
+    # This is a mechanism fixture, not a production-owner epoch or authority.
+    reference = grounding_relation_test_reference()
+    engine = GroundingRelationEngine(reference)
+
+    elapsed = dg._prewarm_grounding_relation_index(
+        engine,
+        design_problem=_test_design_problem(),
+    )
+
+    assert elapsed >= 0.0
+    assert engine._fts_index is not None
+    assert engine._fts_index._con is not None
+    indexed_edges = {
+        (str(modality), str(edge_id))
+        for modality, edge_id in engine._fts_index._con.execute(
+            "SELECT modality, edge_id FROM cg0_reference_edges"
+        ).fetchall()
+    }
+    expected_edges = {
+        (edge.modality, edge.edge_id) for edge in reference.essential_edges.values()
+    }
+    assert len(expected_edges) == 13
+    assert indexed_edges == expected_edges
+
+
 @pytest.mark.asyncio
 async def test_problem_variation_recordings_produce_different_candidate_sets() -> None:
     recordings = _recordings()
@@ -3349,6 +3382,55 @@ async def test_proposal_only_n4_preserves_gateway_unavailable_terminal(
     assert result.result.status == "generation_unavailable"
     assert result.result.preflight.status == "gateway_unavailable"
     assert result.result.candidates == ()
+
+
+@pytest.mark.asyncio
+async def test_candidate_scenario_skips_unused_cg1_prewarm_but_grounded_lane_refuses(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Candidate N4 keeps its typed L2 limit; grounded N4 still requires CG1."""
+    recording = copy.deepcopy(_recordings()[0])
+    problem = contract._design_problem(recording)
+
+    def _credal_reference_unavailable(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        raise ValueError("credal reference unavailable for control")
+
+    monkeypatch.setattr(dg, "build_credal_reference", _credal_reference_unavailable)
+    with contract._recorded_runtime_environment(recording) as recorded_config:
+        assert recorded_config.cg1_index_prewarm_enabled is True
+
+        candidate = await dg.generate_design_candidate_scenario_proposal_under_a(
+            problem,
+            model_id=str(recording["model_id"]),
+            llm_client=contract.RecordedGenerationReplayClient(copy.deepcopy(recording)),
+            repo_root=REPO_ROOT,
+        )
+
+        assert isinstance(candidate, dg.N4CandidateScenarioProposalRun)
+        assert candidate.k_ref_limitation_code == "candidate_scenario_l2_not_consumed"
+        assert candidate.l2_confidence_vintage is None
+        assert candidate.proposal.authority_purpose == "candidate_proposal"
+        assert candidate.proposal.substrate_status == "unknown"
+        assert candidate.proposal.n5_status == "not_run"
+        assert candidate.proposal.n9_status == "not_run"
+        assert candidate.proposal.s8_status == "not_run"
+
+        grounded = await dg.generate_design_candidate_bundle_under_a(
+            problem,
+            model_id=str(recording["model_id"]),
+            llm_client=contract.RecordedGenerationReplayClient(copy.deepcopy(recording)),
+            repo_root=REPO_ROOT,
+        )
+
+    assert isinstance(grounded, dg.DesignGenerationOrganRun)
+    assert grounded.result.status == "generation_unavailable"
+    assert grounded.result.degraded_artifacts[0].reason == (
+        "cg1_index_prewarm_reference_unavailable"
+    )
+    assert grounded.result.candidates == ()
+    assert grounded.result.effective_runtime_config is not None
+    assert grounded.result.effective_runtime_config.cg1_index_prewarm_wall_seconds is None
 
 
 @pytest.mark.asyncio

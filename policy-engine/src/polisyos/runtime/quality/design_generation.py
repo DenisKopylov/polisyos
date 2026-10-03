@@ -1497,7 +1497,8 @@ async def _generate_design_candidate_bundle_under_a(
     relation_engine: GroundingRelationEngine | None = None
     if reference is not None:
         relation_engine = GroundingRelationEngine(reference)
-    if _cg1_index_prewarm_enabled():
+    # Candidate-only N4 does not consume CG1 grounding, so this prewarm is unused.
+    if _cg1_index_prewarm_enabled() and not candidate_proposal_only:
         if relation_engine is None:
             return _terminal_result(
                 design_problem_ref=design_problem_ref,

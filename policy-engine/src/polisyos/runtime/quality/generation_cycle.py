@@ -10396,10 +10396,10 @@ def _build_boundary_world_model_record(
         FabricWorldRef,
         FoundryBindingRef,
         PolicySlotBinding,
-        ResolvedSubstrateEntryRef,
         SimulationModelRef,
         SkgCausalPriorRef,
         SubstrateRegistryRef,
+        _resolved_substrate_entry_ref_from_registry_entry,
         world_model_record_content_hash,
     )
 
@@ -10437,20 +10437,7 @@ def _build_boundary_world_model_record(
         )
     selected_entries = tuple(entries_by_hash[entry_hash] for entry_hash in sorted(selected_hashes))
     resolved_entries = tuple(
-        ResolvedSubstrateEntryRef(
-            source_id=entry.source_id,
-            family_id=entry.family_id,
-            layer=entry.layer,
-            coverage_score=entry.coverage.coverage_score,
-            trust_tier=entry.trust_tier.tier,
-            trust_cap=entry.trust_tier.trust_cap,
-            identification_mode=entry.identification_mode,
-            schema_regime_id=entry.schema_regime.schema_regime_id,
-            data_version=entry.data_version,
-            snapshot_id=entry.snapshot_id,
-            source_snapshot_id=entry.source_snapshot_id,
-            entry_content_hash=entry.entry_content_hash,
-        )
+        _resolved_substrate_entry_ref_from_registry_entry(entry)
         for entry in selected_entries
     )
     registry_artifact_ref = (

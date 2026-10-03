@@ -101,6 +101,7 @@ def derive_candidate_scenario_world_model_record(
     *,
     ncm_artifact_ref: ArtifactRef,
     declaration_content_hash: str,
+    substrate_registry_view_ref: ArtifactRef | None = None,
 ) -> WorldModelRecord:
     """Derive one limited WMR that names a declared candidate NCM view.
 
@@ -152,6 +153,35 @@ def derive_candidate_scenario_world_model_record(
             "candidate_scenario_wmr_basis_views_invalid", str(exc)
         ) from exc
 
+    selected_registry_view: ArtifactRef | None = None
+    if substrate_registry_view_ref is not None:
+        try:
+            selected_registry_view = ArtifactRef(
+                **substrate_registry_view_ref.model_dump(mode="python")
+            )
+            ArtifactID.model_validate(str(selected_registry_view.artifact_id))
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise WorldModelRecordError(
+                "candidate_scenario_substrate_registry_view_invalid", str(exc)
+            ) from exc
+        if (
+            selected_registry_view.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
+            or selected_registry_view.media_type != "application/json"
+        ):
+            raise WorldModelRecordError(
+                "candidate_scenario_substrate_registry_view_invalid",
+                "expected an owner-selected JSON substrate-registry ref",
+            )
+        existing_registry_view = base_views.substrate_registry_ref
+        if (
+            existing_registry_view is not None
+            and artifact_ref_identity_key(existing_registry_view)
+            != artifact_ref_identity_key(selected_registry_view)
+        ):
+            raise WorldModelRecordError(
+                "candidate_scenario_substrate_registry_view_conflict"
+            )
+
     selected_views: list[ArtifactRef] = []
     seen_view_identities: set[tuple[str, str, str, str | None]] = set()
     for ref in (*base_views.ncm_refs, selected_ncm_ref):
@@ -165,6 +195,11 @@ def derive_candidate_scenario_world_model_record(
         artifact_views = WorldModelArtifactViews.model_validate(
             {
                 **base_views.model_dump(mode="python"),
+                **(
+                    {"substrate_registry_ref": selected_registry_view}
+                    if selected_registry_view is not None
+                    else {}
+                ),
                 "ncm_refs": tuple(selected_views),
             }
         )
@@ -189,6 +224,33 @@ def derive_candidate_scenario_world_model_record(
             "calibration_ref": None,
         }
     )
+    registry_ref = base_record.substrate_registry_ref
+    fabric_world_ref = base_record.fabric_world_ref
+    data_forge_binding_ref = base_record.data_forge_binding_ref
+    if selected_registry_view is not None:
+        previous_registry_locator = registry_ref.registry_artifact_ref
+        selected_registry_id = str(selected_registry_view.artifact_id)
+        registry_ref = registry_ref.model_copy(
+            update={"registry_artifact_ref": selected_registry_id}
+        )
+        # The boundary producer can use the same legacy registry locator for
+        # these provenance fields. Rebind only exact aliases; preserve unrelated
+        # provenance references and never rewrite the supplied v1 record.
+        if (
+            previous_registry_locator is not None
+            and fabric_world_ref.provenance_manifest_ref == previous_registry_locator
+        ):
+            fabric_world_ref = fabric_world_ref.model_copy(
+                update={"provenance_manifest_ref": selected_registry_id}
+            )
+        if (
+            previous_registry_locator is not None
+            and data_forge_binding_ref.provenance_manifest_ref
+            == previous_registry_locator
+        ):
+            data_forge_binding_ref = data_forge_binding_ref.model_copy(
+                update={"provenance_manifest_ref": selected_registry_id}
+            )
     draft = base_record.model_copy(
         update={
             "schema_version": WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
@@ -198,6 +260,9 @@ def derive_candidate_scenario_world_model_record(
                 "derive_candidate_scenario_world_model_record"
             ),
             "authority_status": "limited",
+            "substrate_registry_ref": registry_ref,
+            "fabric_world_ref": fabric_world_ref,
+            "data_forge_binding_ref": data_forge_binding_ref,
             "simulation_model_ref": model_ref,
             "world_model_record_id": "world_model_record_0000000000000000",
             "content_hash": "sha256:" + "0" * 64,
@@ -1329,6 +1394,27 @@ def _substrate_registry_entries_for_comparison(
     )
 
 
+def _resolved_substrate_entry_ref_from_registry_entry(
+    entry: SubstrateRegistryEntry,
+) -> ResolvedSubstrateEntryRef:
+    """Project one canonical registry entry into its WMR resolved reference."""
+
+    return ResolvedSubstrateEntryRef(
+        source_id=entry.source_id,
+        family_id=entry.family_id,
+        layer=entry.layer,
+        coverage_score=entry.coverage.coverage_score,
+        trust_tier=entry.trust_tier.tier,
+        trust_cap=entry.trust_tier.trust_cap,
+        identification_mode=entry.identification_mode,
+        schema_regime_id=entry.schema_regime.schema_regime_id,
+        data_version=entry.data_version,
+        snapshot_id=entry.snapshot_id,
+        source_snapshot_id=entry.source_snapshot_id,
+        entry_content_hash=entry.entry_content_hash,
+    )
+
+
 def _resolve_substrate_registry_ref(
     store: FileSystemCAS,
     substrate_registry: SubstrateRegistry,
@@ -1385,20 +1471,7 @@ def _resolve_substrate_registry_ref(
             else None
         ),
         resolved_entries=tuple(
-            ResolvedSubstrateEntryRef(
-                source_id=entry.source_id,
-                family_id=entry.family_id,
-                layer=entry.layer,
-                coverage_score=entry.coverage.coverage_score,
-                trust_tier=entry.trust_tier.tier,
-                trust_cap=entry.trust_tier.trust_cap,
-                identification_mode=entry.identification_mode,
-                schema_regime_id=entry.schema_regime.schema_regime_id,
-                data_version=entry.data_version,
-                snapshot_id=entry.snapshot_id,
-                source_snapshot_id=entry.source_snapshot_id,
-                entry_content_hash=entry.entry_content_hash,
-            )
+            _resolved_substrate_entry_ref_from_registry_entry(entry)
             for entry in unique.values()
         ),
     )

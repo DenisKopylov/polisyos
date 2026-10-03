@@ -49,11 +49,12 @@ from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
     verify_intervention_substrate_bundle_content_hash,
 )
-from polisyos.runtime.quality.substrate_registry import SubstrateRegistry  # noqa: TC001
+from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
 from polisyos.runtime.quality.world_model_record import (
     ResolvedWorldModelAtomBinding,
     WorldModelRecord,
     WorldModelRecordError,
+    _resolved_substrate_entry_ref_from_registry_entry,
     resolve_intervention_atom_world_binding,
 )
 
@@ -847,21 +848,12 @@ class CycleSubstrateContext(_StrictModel):
             )
         for entry_hash in selected:
             registry_entry = registry_by_hash[entry_hash]
-            expected_projection = {
-                "source_id": registry_entry.source_id,
-                "family_id": registry_entry.family_id,
-                "layer": registry_entry.layer.value,
-                "coverage_score": registry_entry.coverage.coverage_score,
-                "trust_tier": registry_entry.trust_tier.tier,
-                "trust_cap": registry_entry.trust_tier.trust_cap,
-                "identification_mode": registry_entry.identification_mode,
-                "schema_regime_id": registry_entry.schema_regime.schema_regime_id,
-                "data_version": registry_entry.data_version,
-                "snapshot_id": registry_entry.snapshot_id,
-                "source_snapshot_id": registry_entry.source_snapshot_id,
-                "entry_content_hash": registry_entry.entry_content_hash,
-            }
-            if wmr_by_hash[entry_hash].model_dump(mode="json") != expected_projection:
+            if (
+                wmr_by_hash[entry_hash].model_dump(mode="json")
+                != _resolved_substrate_entry_ref_from_registry_entry(
+                    registry_entry
+                ).model_dump(mode="json")
+            ):
                 raise ValueError(
                     "cycle_substrate_selected_entry_projection_mismatch:"
                     + entry_hash
@@ -2053,6 +2045,138 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             )
         return matches[0]
 
+    def _candidate_world_model_substrate_registry_view(
+        self,
+        *,
+        world_model_record: WorldModelRecord,
+        substrate_registry: SubstrateRegistry,
+    ) -> artifacts.ArtifactRef:
+        """Bind a candidate WMR to the configured registry in this runtime store.
+
+        Legacy WMR v1 records may carry the boundary builder's deterministic
+        ``substrate-registry://`` locator because that builder has no storage
+        owner. Materialize its typed view through this admission owner's
+        supplied store. Existing CAS views are selected and verified through
+        the same store; this method never creates or rebuilds a store.
+        """
+
+        from polisyos.runtime.quality.substrate_registry import (
+            SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+            load_substrate_registry,
+            persist_substrate_registry,
+        )
+        from polisyos.runtime.quality.world_model_record import (
+            world_model_artifact_views,
+        )
+
+        if self._store is None:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_model_store_not_supplied"
+            )
+        try:
+            registry = SubstrateRegistry.model_validate(
+                substrate_registry.model_dump(mode="json")
+            )
+            views = world_model_artifact_views(world_model_record)
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_substrate_registry_binding_invalid", str(exc)
+            ) from exc
+
+        wmr_registry = world_model_record.substrate_registry_ref
+        if (
+            wmr_registry.substrate_version_id != registry.substrate_version_id
+            or wmr_registry.content_hash != registry.content_hash
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_substrate_registry_binding_mismatch"
+            )
+
+        entries_by_hash = {
+            entry.entry_content_hash: entry for entry in registry.entries
+        }
+        if len(entries_by_hash) != len(registry.entries):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_substrate_registry_entry_hash_ambiguous"
+            )
+        for resolved in wmr_registry.resolved_entries:
+            entry = entries_by_hash.get(resolved.entry_content_hash)
+            if (
+                entry is None
+                or resolved.model_dump(mode="json")
+                != _resolved_substrate_entry_ref_from_registry_entry(
+                    entry
+                ).model_dump(mode="json")
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_substrate_registry_entry_mismatch",
+                    resolved.entry_content_hash,
+                )
+
+        existing_view = views.substrate_registry_ref
+        legacy_locator = wmr_registry.registry_artifact_ref
+        if existing_view is None:
+            expected_legacy_locator = (
+                f"substrate-registry://{registry.substrate_version_id}/"
+                f"{registry.content_hash.removeprefix('sha256:')}"
+            )
+            if legacy_locator not in {None, expected_legacy_locator}:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_substrate_registry_legacy_locator_mismatch"
+                )
+            selected_ref: artifacts.ArtifactRef | None = None
+        elif (
+            existing_view.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
+            or existing_view.media_type != "application/json"
+            or legacy_locator != str(existing_view.artifact_id)
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_substrate_registry_view_mismatch"
+            )
+        else:
+            # A null selector is the ArtifactStore's exact default-view
+            # identity, not a missing ref. Preserve it and verify that view.
+            selected_ref = existing_view
+
+        try:
+            if selected_ref is None:
+                persisted_ref = persist_substrate_registry(self._store, registry)
+                if not isinstance(persisted_ref, artifacts.ArtifactRef):
+                    raise TypeError("substrate registry owner returned an untyped ref")
+                if existing_view is not None and (
+                    persisted_ref.artifact_id != existing_view.artifact_id
+                ):
+                    raise ValueError(
+                        "substrate registry persistence changed the WMR's CAS identity"
+                    )
+                selected_ref = persisted_ref
+            if selected_ref is None:
+                raise TypeError("substrate registry persistence returned no view")
+            selected_ref = artifacts.ArtifactRef(**selected_ref.model_dump(mode="python"))
+            if (
+                selected_ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
+                or selected_ref.media_type != "application/json"
+            ):
+                raise ValueError("substrate registry view has an invalid owner selection")
+            verification = self._store.verify(selected_ref)
+            if not verification.ok:
+                raise ValueError(
+                    verification.error or "substrate registry CAS verification failed"
+                )
+            persisted_registry = load_substrate_registry(self._store, selected_ref)
+            if (
+                persisted_registry.model_dump(mode="json")
+                != registry.model_dump(mode="json")
+            ):
+                raise ValueError(
+                    "persisted substrate registry differs from the configured registry"
+                )
+        except Exception as exc:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_substrate_registry_custody_unverified", str(exc)
+            ) from exc
+        return selected_ref
+
     def admit_context_for_acquired_world(
         self,
         *,
@@ -2240,6 +2364,10 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             }
         )
         declaration = type(original_declaration).model_validate(declaration_payload)
+        substrate_registry_view_ref = self._candidate_world_model_substrate_registry_view(
+            world_model_record=world_model_record,
+            substrate_registry=configured.context_inputs.substrate_registry,
+        )
         repository = GenerationSourceRepository(store=self._store)
         declaration_ref = repository.persist_candidate_model_declaration(
             declaration=declaration,
@@ -2263,6 +2391,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             world_model_record,
             ncm_artifact_ref=ncm_ref,
             declaration_content_hash=declaration.content_hash,
+            substrate_registry_view_ref=substrate_registry_view_ref,
         )
         inputs = configured.context_inputs
         selected_hashes = tuple(inputs.selected_registry_entry_hashes)
@@ -2385,6 +2514,12 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 derive_candidate_scenario_world_model_record,
             )
 
+            substrate_registry_view_ref = (
+                self._candidate_world_model_substrate_registry_view(
+                    world_model_record=inputs.world_model_record,
+                    substrate_registry=inputs.substrate_registry,
+                )
+            )
             repository = GenerationSourceRepository(store=self._store)
             model_declaration_ref = repository.persist_candidate_model_declaration(
                 declaration=declaration,
@@ -2406,6 +2541,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 inputs.world_model_record,
                 ncm_artifact_ref=ncm_ref,
                 declaration_content_hash=declaration.content_hash,
+                substrate_registry_view_ref=substrate_registry_view_ref,
             )
         context = build_cycle_substrate_context(
             design_problem_ref=problem_ref,

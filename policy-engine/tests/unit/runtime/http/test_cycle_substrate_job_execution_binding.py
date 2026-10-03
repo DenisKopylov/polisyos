@@ -25,6 +25,60 @@ from tests.unit.runtime.quality.test_cycle_substrate import (
 )
 
 
+def _create_execution_scoped_job(
+    control_store: Any,
+    *,
+    job_id: str,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+    actor_subject: str,
+    kind: str = "acquisition",
+    actor_authenticated: bool = True,
+) -> Any:
+    """Create a job with a typed immutable tenant/cell admission envelope."""
+
+    control_store.create_job(
+        job_id=job_id,
+        kind=kind,
+        run_id=run_id,
+        pipeline_id=None,
+        requested_execution_profile="research",
+        effective_execution_profile="research",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref="payload:" + job_id,
+        submitted_by=actor_subject,
+        creation_event_payload={
+            "job_id": job_id,
+            "run_id": run_id,
+            "job_kind": kind,
+            "pipeline_id": None,
+            "payload_ref": "payload:" + job_id,
+            "submitted_by": actor_subject,
+            "requested_execution_profile": "research",
+            "effective_execution_profile": "research",
+            "policy_flags": {},
+            "capability_manifest_ref": None,
+            "execution_scope": {
+                "schema_version": "polisyos.runtime.control_execution_scope.v1",
+                "status": "established",
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "actor_subject": actor_subject,
+                "actor_authenticated": actor_authenticated,
+                "actor_roles": [],
+            },
+        },
+    )
+    leased = control_store.lease_next_job(
+        worker_id="worker:" + job_id,
+        lease_seconds=60,
+    )
+    assert leased is not None and leased.job_id == job_id
+    return leased
+
+
 def test_cycle_substrate_context_owner_uses_guarded_current_job_execution(
     tmp_path: Any,
 ) -> None:
@@ -127,6 +181,197 @@ def test_cycle_substrate_context_owner_uses_guarded_current_job_execution(
         assert resolved_a.run_id == lease_a.run_id
         assert resolved_b.job_id == lease_b.job_id
         assert resolved_b.run_id == lease_b.run_id
+    finally:
+        artifact_store.close()
+        control_store.close()
+
+
+def test_cycle_substrate_context_owner_uses_persisted_worker_admission_without_access_scope(
+    tmp_path: Any,
+) -> None:
+    """Candidate context replay uses the admitted job scope, not request privileges."""
+    from polisyos.core.security import get_current_access_scope_or_none
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    problem = _design_problem()
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method",),
+    )
+    context = _cycle_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        registry=registry,
+        world_model_record=world,
+    )
+    raw_control_store = ControlPlaneStore(
+        backend="sqlite",
+        sqlite_path=tmp_path / "admitted-control-plane.sqlite3",
+    )
+    control_store = guard_runtime_control_store(raw_control_store)
+    raw_artifact_store = FileSystemCAS(
+        tmp_path / "admitted-cycle-context-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    artifact_store = guard_runtime_cas(raw_artifact_store)
+    owner = CycleSubstrateContextArtifactOwner(
+        store=artifact_store,
+        control_store=control_store,
+    )
+    tenant_id = "tenant-admitted-worker"
+    cell_id = "cell-admitted-worker"
+    lease = _create_execution_scoped_job(
+        control_store,
+        job_id="job-admitted-worker",
+        run_id="run-admitted-worker",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        actor_subject="actor-admitted-worker",
+    )
+    try:
+        with (
+            tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id),
+            control_store.job_execution_fence(
+                job_id=lease.job_id,
+                worker_id=lease.lease_owner,
+                attempt=lease.attempt,
+            ),
+        ):
+            assert get_current_access_scope_or_none() is None
+            admission = control_store.current_execution_job_admission()
+            assert admission.scope.status == "established"
+            ref = owner.persist_for_current_job(context, problem=problem)
+            resolved = owner.resolve_for_current_job(ref, problem=problem)
+
+        assert resolved.job_id == lease.job_id
+        assert resolved.run_id == lease.run_id
+        assert resolved.tenant_id == tenant_id
+        assert resolved.cell_id == cell_id
+        assert resolved.status == "candidate_limited"
+        assert resolved.profile_admission_status == "not_established"
+        assert resolved.s8_status == "blocked"
+
+        with (
+            tenant_scope(None, tenant_id="tenant-foreign", cell_id=cell_id),
+            control_store.job_execution_fence(
+                job_id=lease.job_id,
+                worker_id=lease.lease_owner,
+                attempt=lease.attempt,
+            ),
+        ):
+            assert get_current_access_scope_or_none() is None
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="cycle_substrate_context_job_authenticated_scope_mismatch",
+            ):
+                owner.resolve_for_current_job(ref, problem=problem)
+    finally:
+        artifact_store.close()
+        control_store.close()
+
+
+def test_cycle_substrate_context_owner_rejects_unknown_worker_scope_and_generic_nl_admission(
+    tmp_path: Any,
+) -> None:
+    """Payload IDs cannot fill missing scope; generic admission cannot replace NL proof."""
+    from polisyos.core.security import get_current_access_scope_or_none
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    problem = _design_problem()
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method",),
+    )
+    context = _cycle_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        registry=registry,
+        world_model_record=world,
+    )
+    raw_control_store = ControlPlaneStore(
+        backend="sqlite",
+        sqlite_path=tmp_path / "unknown-control-plane.sqlite3",
+    )
+    control_store = guard_runtime_control_store(raw_control_store)
+    raw_artifact_store = FileSystemCAS(
+        tmp_path / "unknown-cycle-context-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    artifact_store = guard_runtime_cas(raw_artifact_store)
+    owner = CycleSubstrateContextArtifactOwner(
+        store=artifact_store,
+        control_store=control_store,
+    )
+    try:
+        control_store.create_job(
+            job_id="job-legacy-worker",
+            kind="acquisition",
+            run_id="run-legacy-worker",
+            pipeline_id=None,
+            requested_execution_profile="research",
+            effective_execution_profile="research",
+            policy_flags={},
+            capability_manifest_ref=None,
+            payload_ref="payload:job-legacy-worker",
+            submitted_by="anonymous",
+        )
+        legacy_lease = control_store.lease_next_job(
+            worker_id="worker:job-legacy-worker",
+            lease_seconds=60,
+        )
+        assert legacy_lease is not None
+        with (
+            tenant_scope(
+                None,
+                tenant_id="tenant-from-untrusted-payload",
+                cell_id="cell-from-untrusted-payload",
+            ),
+            control_store.job_execution_fence(
+                job_id=legacy_lease.job_id,
+                worker_id=legacy_lease.lease_owner,
+                attempt=legacy_lease.attempt,
+            ),
+        ):
+            assert get_current_access_scope_or_none() is None
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="cycle_substrate_context_job_authenticated_scope_not_established",
+            ):
+                owner.persist_for_current_job(context, problem=problem)
+
+        nl_lease = _create_execution_scoped_job(
+            control_store,
+            job_id="job-nl-generic-scope",
+            run_id="run-nl-generic-scope",
+            tenant_id="tenant-nl-generic-scope",
+            cell_id="cell-nl-generic-scope",
+            actor_subject="actor-nl-generic-scope",
+            kind="natural_language_run",
+        )
+        with (
+            tenant_scope(
+                None,
+                tenant_id="tenant-nl-generic-scope",
+                cell_id="cell-nl-generic-scope",
+            ),
+            control_store.job_execution_fence(
+                job_id=nl_lease.job_id,
+                worker_id=nl_lease.lease_owner,
+                attempt=nl_lease.attempt,
+            ),
+        ):
+            assert get_current_access_scope_or_none() is None
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="cycle_substrate_context_job_verified_scope_mismatch",
+            ):
+                owner.persist_for_current_job(context, problem=problem)
     finally:
         artifact_store.close()
         control_store.close()

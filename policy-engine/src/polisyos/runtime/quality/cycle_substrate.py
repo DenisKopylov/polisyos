@@ -958,6 +958,7 @@ class _CurrentControlJobRecord(Protocol):
     """Minimal persisted job identity exposed by the control-store owner."""
 
     job_id: str
+    kind: str
     run_id: str | None
     submitted_by: str | None
     state: str
@@ -965,10 +966,32 @@ class _CurrentControlJobRecord(Protocol):
     attempt: int
 
 
+class _CurrentControlJobExecutionScope(Protocol):
+    """Creation-time identity admitted by the control-plane job owner."""
+
+    status: str
+    tenant_id: str | None
+    cell_id: str | None
+    actor_subject: str | None
+    actor_authenticated: bool
+
+
+class _CurrentControlJobExecutionAdmission(Protocol):
+    """Existing control-plane admission resolved under the active job fence."""
+
+    job: _CurrentControlJobRecord
+    scope: _CurrentControlJobExecutionScope
+    attempt: int
+
+
 class _CurrentControlJobExecutionOwner(Protocol):
     """Resolve the authenticated worker's persisted job through its lease fence."""
 
     def current_execution_job_record(self) -> _CurrentControlJobRecord: ...
+
+    def current_execution_job_admission(
+        self,
+    ) -> _CurrentControlJobExecutionAdmission: ...
 
 
 class CycleSubstrateContextJobArtifact(_StrictModel):
@@ -1315,13 +1338,61 @@ def _current_job_scope(
     *,
     current_job: _CurrentControlJobRecord,
     verified_nl_job_scope: VerifiedNLJobScope | None = None,
+    execution_admission: _CurrentControlJobExecutionAdmission | None = None,
 ) -> tuple[str, str]:
-    """Resolve the authenticated request scope or a replayed NL worker scope."""
+    """Resolve request, admitted-worker, or purpose-limited NL worker scope."""
 
     tenant_id = get_current_tenant_id_or_none()
     cell_id = get_current_cell_id()
     access_scope = get_current_access_scope_or_none()
     if verified_nl_job_scope is None:
+        if execution_admission is not None:
+            admitted_job = execution_admission.job
+            admitted_scope = execution_admission.scope
+            if current_job.kind == "natural_language_run":
+                raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_job_verified_scope_mismatch"
+                )
+            if (
+                admitted_job.job_id != current_job.job_id
+                or admitted_job.run_id != current_job.run_id
+                or admitted_job.kind != current_job.kind
+                or admitted_job.submitted_by != current_job.submitted_by
+                or admitted_job.state != current_job.state
+                or admitted_job.lease_owner != current_job.lease_owner
+                or admitted_job.attempt != current_job.attempt
+                or execution_admission.attempt != current_job.attempt
+                or current_job.state != "running"
+                or not current_job.lease_owner
+                or admitted_scope.status != "established"
+                or admitted_scope.actor_authenticated is not True
+                or not admitted_scope.actor_subject
+                or admitted_scope.actor_subject != current_job.submitted_by
+                or not admitted_scope.tenant_id
+                or not admitted_scope.cell_id
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_job_authenticated_scope_not_established"
+                )
+            if not tenant_id or not cell_id:
+                raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_job_authenticated_scope_not_established"
+                )
+            if (
+                admitted_scope.tenant_id != tenant_id
+                or admitted_scope.cell_id != cell_id
+                or (
+                    access_scope is not None
+                    and (
+                        access_scope.tenant_id != tenant_id
+                        or access_scope.cell_id != cell_id
+                    )
+                )
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_job_authenticated_scope_mismatch"
+                )
+            return admitted_scope.tenant_id, admitted_scope.cell_id
         if access_scope is None or not tenant_id or not cell_id:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_authenticated_scope_not_established"
@@ -1669,6 +1740,7 @@ def _build_cycle_substrate_context_job_artifact(
     problem: DesignProblem,
     current_job: _CurrentControlJobRecord,
     verified_nl_job_scope: VerifiedNLJobScope | None = None,
+    execution_admission: _CurrentControlJobExecutionAdmission | None = None,
 ) -> (
     CycleSubstrateContextJobArtifact
     | CycleSubstrateContextJobArtifactV2
@@ -1688,6 +1760,7 @@ def _build_cycle_substrate_context_job_artifact(
     tenant_id, cell_id = _current_job_scope(
         current_job=current_job,
         verified_nl_job_scope=verified_nl_job_scope,
+        execution_admission=execution_admission,
     )
     verified_context = revalidate_cycle_substrate_context(context)
     problem_ref = cycle_job_design_problem_ref(problem)
@@ -1795,6 +1868,38 @@ class CycleSubstrateContextArtifactOwner:
         self._store = store
         self._control_store = control_store
 
+    def _current_job_execution_binding(
+        self,
+        *,
+        verified_nl_job_scope: VerifiedNLJobScope | None,
+    ) -> tuple[
+        _CurrentControlJobRecord,
+        _CurrentControlJobExecutionAdmission | None,
+    ]:
+        """Use the admitted job envelope when a worker has no request scope."""
+
+        if self._control_store is None:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_current_job_owner_unavailable"
+            )
+        if (
+            verified_nl_job_scope is None
+            and get_current_access_scope_or_none() is None
+        ):
+            admission_reader = getattr(
+                self._control_store, "current_execution_job_admission", None
+            )
+            if not callable(admission_reader):
+                raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_current_job_owner_unavailable"
+                )
+            admission = cast(
+                "_CurrentControlJobExecutionAdmission",
+                admission_reader(),
+            )
+            return admission.job, admission
+        return self._control_store.current_execution_job_record(), None
+
     def persist_for_current_job(
         self,
         context: CycleSubstrateContext,
@@ -1808,12 +1913,15 @@ class CycleSubstrateContextArtifactOwner:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_current_job_owner_unavailable"
             )
-        current_job = self._control_store.current_execution_job_record()
+        current_job, execution_admission = self._current_job_execution_binding(
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
         artifact = _build_cycle_substrate_context_job_artifact(
             context,
             problem=problem,
             current_job=current_job,
             verified_nl_job_scope=verified_nl_job_scope,
+            execution_admission=execution_admission,
         )
         return self._store.put_json(
             _serialize_cycle_substrate_context_job_artifact(artifact),
@@ -1838,7 +1946,9 @@ class CycleSubstrateContextArtifactOwner:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_current_job_owner_unavailable"
             )
-        current_job = self._control_store.current_execution_job_record()
+        current_job, execution_admission = self._current_job_execution_binding(
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
         if not current_job.job_id.strip() or not current_job.run_id:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_persisted_identity_missing"
@@ -1846,6 +1956,7 @@ class CycleSubstrateContextArtifactOwner:
         tenant_id, cell_id = _current_job_scope(
             current_job=current_job,
             verified_nl_job_scope=verified_nl_job_scope,
+            execution_admission=execution_admission,
         )
         expected_problem_ref = cycle_job_design_problem_ref(problem)
         if not self._store.verify(ref).ok:

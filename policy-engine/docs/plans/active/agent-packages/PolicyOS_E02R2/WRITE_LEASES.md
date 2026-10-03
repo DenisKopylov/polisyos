@@ -3383,3 +3383,6 @@ Write set: the existing served configured-candidate test, the existing acquisiti
 
 
 The two-file postimage replay passes: configured served candidate 4/4 in 55.618s; acquisition route execution binding 17/17 in 25.204s, both exit 0. Both native groups are reaped, the complete tracked non-dotenv and foreign-document working-source snapshot is unchanged, and no authority assertion was weakened. Receipt: `/Users/deniskopylov/.codex/scratch/E02R2_ROOT_FINAL_FIXTURE_PAIR_20261003_V2/RESULT.json@sha256:097ec29ccb0aaa6ecbabe08db339b9ace2e4abf5bd52811a66c837456afe384c`. These are current uncommitted postimage whole-file results over the 81e96e3 parent, not four-base closure. An earlier wrapper omitted a required display label and raised after its first native job; its script and output are preserved, and its missing owner receipt is not used as the deciding verdict. The corrected V2 repeats both files and is the cited evidence.
+
+
+R13 factory fixture is committed as a separate class boundary after the same 17/17 postimage witness. Its optional `None` fields preserve the pre-N5 scope; the positive same-store construction and both foreign-store refusal paths are now executed. The journal's preceding two-file receipt is retained as the exact test evidence; no production context or authority is supplied by this fixture.

@@ -292,6 +292,10 @@ def _production_factory_context(
         _artifact_store=artifact_store,
         _diagnostic_event_log=object(),
         _promotion_runtime=promotion_runtime,
+        # This test double covers the pre-N5 store-binding seam only. It does not
+        # claim candidate-context admission or a fully composed ControlPlaneService.
+        _cycle_substrate_context_admission_owner=None,
+        _control_store=None,
     )
     return control_service, artifact_store, promotion_runtime
 

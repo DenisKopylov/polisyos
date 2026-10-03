@@ -1200,6 +1200,8 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             diagnostics = cycle.simulation.diagnostics
             assert diagnostics["candidate_simulation_purpose"] == "candidate_scenario_n5_only"
 
+            import numpy as np
+
             from polisyos.core.artifacts import ArtifactRef
             from polisyos.core.artifacts.manifest import (
                 artifact_ref_identity_key,
@@ -1207,8 +1209,13 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             )
             from polisyos.core.contracts import epoch as epoch_contract
             from polisyos.core.contracts.fabric import DataSnapshot
+            from polisyos.core.contracts.foundry import StateSnapshot
             from polisyos.data_forge.domains.catalog.knowledge.overlay import (
                 CatalogAcquisitionOverlay,
+            )
+            from polisyos.foundry.execute.executor import (
+                get_state_path,
+                load_state_snapshot,
             )
             from polisyos.ir.analytics.ncm import (
                 candidate_ncm_spec_from_declaration,
@@ -1216,6 +1223,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             )
             from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
             from polisyos.runtime.quality.candidate_simulation import (
+                CandidateSimulationExecutionV5,
                 CandidateSimulationN5InputV5,
             )
             from polisyos.runtime.quality.cycle_substrate import (
@@ -1237,6 +1245,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 candidate_scenario_semantic_identity_hash,
             )
             from polisyos.runtime.quality.world_model_record import (
+                derive_candidate_scenario_world_model_record,
                 world_model_artifact_views,
             )
 
@@ -1260,10 +1269,11 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 n5_input.profile.context_inputs.world_model_record.limitations.admissibility_blockers
             )
 
+            source_repository = GenerationSourceRepository(
+                control._artifact_store
+            )
             source_record = _within_fixture_owner(
-                GenerationSourceRepository(
-                    control._artifact_store
-                ).load_candidate_scenario_source_for_n5,
+                source_repository.load_candidate_scenario_source_for_n5,
                 n5_input.n4_source_ref,
                 expected_run_id=n5_input.run_id,
                 expected_job_id=n5_input.job_id,
@@ -1391,9 +1401,74 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert n5_input.materialization.world_model_record_hash == (
                 context_world.content_hash
             )
-            assert n5_input.profile.context_inputs.world_model_record.content_hash == (
-                context_world.content_hash
+            acquired_world = n5_input.profile.context_inputs.world_model_record
+            assert acquired_world.authority_status == "limited"
+            assert context_world.authority_status == acquired_world.authority_status
+            assert context_world.limitations == acquired_world.limitations
+            assert context_world.simulation_model_ref.calibrated is False
+            assert context_world.simulation_model_ref.calibration_ref is None
+            assert (
+                context_world.simulation_model_ref.fidelity_level
+                == "declared_candidate_scenario"
             )
+            assert any(
+                item.get("declaration_content_hash")
+                == source_v2.model_declaration.content_hash
+                and item.get("status") == "candidate_only_not_empirically_grounded"
+                for item in context_world.simulation_model_ref.assumptions
+            )
+
+            context_owner_for_wmr = CycleSubstrateContextArtifactOwner(
+                store=control._artifact_store
+            )
+            acquired_world_views = world_model_artifact_views(acquired_world)
+            acquired_registry_view_ref = acquired_world_views.substrate_registry_ref
+            assert acquired_registry_view_ref is not None
+            resolved_registry_view_ref = _within_fixture_owner(
+                context_owner_for_wmr._candidate_world_model_substrate_registry_view,
+                world_model_record=acquired_world,
+                substrate_registry=n5_input.profile.context_inputs.substrate_registry,
+            )
+            assert artifact_ref_identity_key(acquired_registry_view_ref) == (
+                artifact_ref_identity_key(resolved_registry_view_ref)
+            )
+
+            expected_context_world = derive_candidate_scenario_world_model_record(
+                acquired_world,
+                ncm_artifact_ref=selected_ncm_ref,
+                declaration_content_hash=source_v2.model_declaration.content_hash,
+                substrate_registry_view_ref=resolved_registry_view_ref,
+            )
+            assert context_world.model_dump(mode="json") == (
+                expected_context_world.model_dump(mode="json")
+            )
+            context_world_views = world_model_artifact_views(context_world)
+            expected_context_world_views = world_model_artifact_views(
+                expected_context_world
+            )
+            assert context_world_views.model_dump(mode="json") == (
+                expected_context_world_views.model_dump(mode="json")
+            )
+            assert context_world_views.substrate_registry_ref is not None
+            assert artifact_ref_identity_key(
+                context_world_views.substrate_registry_ref
+            ) == artifact_ref_identity_key(resolved_registry_view_ref)
+            acquired_views_payload = acquired_world_views.model_dump(mode="json")
+            context_views_payload = context_world_views.model_dump(mode="json")
+            for view_field, acquired_view in acquired_views_payload.items():
+                if view_field in {"ncm_refs", "substrate_registry_ref"}:
+                    continue
+                assert context_views_payload[view_field] == acquired_view
+
+            expected_context_ncm_refs = []
+            seen_context_ncm_ref_identities = set()
+            for ref in (*acquired_world_views.ncm_refs, selected_ncm_ref):
+                identity = artifact_ref_identity_key(ref)
+                if identity in seen_context_ncm_ref_identities:
+                    continue
+                expected_context_ncm_refs.append(ref)
+                seen_context_ncm_ref_identities.add(identity)
+            assert context_world_views.ncm_refs == tuple(expected_context_ncm_refs)
             context_ncm_views = world_model_artifact_views(context_world).ncm_refs
             selected_context_ncm_views = tuple(
                 ref
@@ -1465,30 +1540,145 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert acquired_value["observation_id"] == selected.observation.observation_id
             assert acquired_value["value"] == selected.observation.value
             assert acquired_value["source_time_status"] == "not_established"
-            assert n5_input.profile.n5.baseline_state["government.balance"] == float(
-                selected.observation.value
+            acquired_world_views = world_model_artifact_views(acquired_world)
+            bound_state_ref = acquired_world_views.bound_state_snapshot_ref
+            assert bound_state_ref is not None
+            bound_state_verification = _within_fixture_owner(
+                control._artifact_store.verify,
+                bound_state_ref,
+            )
+            assert bound_state_verification.ok, bound_state_verification.error
+            bound_state_manifest = _within_fixture_owner(
+                control._artifact_store.get_manifest,
+                bound_state_ref,
+            )
+            bound_state_snapshot = StateSnapshot.model_validate(
+                canon.from_canonical_bytes(
+                    _within_fixture_owner(
+                        control._artifact_store.get_bytes,
+                        bound_state_ref,
+                    )
+                )
+            )
+            assert bound_state_manifest.inputs == bound_state_snapshot.lineage_inputs
+            assert input_ref_from_artifact_ref(
+                data_snapshot_ref,
+                role="input.data_snapshot_ref",
+            ) in bound_state_snapshot.lineage_inputs
+            bound_state = _within_fixture_owner(
+                load_state_snapshot,
+                control._artifact_store,
+                snapshot_ref=bound_state_ref,
             )
 
+            typed_state_by_slot = {}
+            expected_profile_baseline = {}
+            for slot_id in sorted(n5_input.profile.n5.baseline_state):
+                binding = acquired_world.slot_binding(slot_id)
+                assert binding is not None, slot_id
+                assert binding.state_path
+                typed_value = np.asarray(
+                    _within_fixture_owner(
+                        get_state_path,
+                        bound_state,
+                        binding.state_path,
+                    )
+                )
+                assert typed_value.size == 1, slot_id
+                typed_state_by_slot[slot_id] = typed_value
+                expected_profile_baseline[slot_id] = float(typed_value.item())
+            assert n5_input.profile.n5.baseline_state == expected_profile_baseline
+
+            target_slot = n5_input.profile.rule.target_world_slot
+            typed_target_value = typed_state_by_slot[target_slot]
+            selected_value_in_bound_dtype = np.asarray(
+                selected.observation.value,
+                dtype=typed_target_value.dtype,
+            ).item()
+            assert selected_value_in_bound_dtype == typed_target_value.item()
+            declaration = source_v2.model_declaration
+            assert declaration.target_baseline == expected_profile_baseline[
+                declaration.target_world_slot
+            ]
+            assert declaration.outcome_baseline == expected_profile_baseline[
+                declaration.outcome_variable
+            ]
+
+            n5_result_ref = cycle.simulation.simulation_result_ref
             n5_result = _within_fixture_owner(
                 load_joint_simulation_result,
-                cycle.simulation.simulation_result_ref,
+                n5_result_ref,
                 store=control._artifact_store,
             )
-            assert n5_result.state_consumption is not None
+            selected_result_decisions = tuple(
+                decision
+                for decision in n5_result.engine_decisions
+                if decision.decision == "selected"
+            )
+            assert len(selected_result_decisions) == 1
+            selected_result_decision = selected_result_decisions[0]
+            assert n5_input.n5.engine_kind == "ncm_parallel_worlds"
+            assert selected_result_decision.engine_kind == n5_input.n5.engine_kind
+            assert n5_result.receipt.engine_kind == selected_result_decision.engine_kind
+            joint_atom_ids = (
+                n5_input.materialization.derived_n5_atom.intervention_id,
+            )
+            joint_trajectories = tuple(
+                item
+                for item in n5_result.trajectories
+                if item.run_level == "joint" and item.atom_ids == joint_atom_ids
+            )
+            assert len(joint_trajectories) == 1
+            trajectory = joint_trajectories[0]
+            assert trajectory.engine_kind == selected_result_decision.engine_kind
+            assert trajectory.method_fqn == selected_result_decision.method_fqn
             assert "global.tax_rate" in n5_result.selected_outcomes
             assert n5_result.world_model_record_content_hash == (
                 n5_input.materialization.world_model_record_hash
             )
             assert n5_input.materialization.value == 2
-            assert source_v2.model_declaration.target_baseline == pytest.approx(
-                float(selected.observation.value)
+
+            execution_ref = ArtifactRef.model_validate(
+                diagnostics["candidate_simulation_execution_selected_ref"]
             )
+            execution = _within_fixture_owner(
+                source_repository.resolve_candidate_simulation_v5,
+                ref=execution_ref,
+                expected_run_id=n5_input.run_id,
+                expected_job_id=n5_input.job_id,
+                expected_tenant_id=n5_input.tenant_id,
+                expected_cell_id=n5_input.cell_id,
+            )
+            assert type(execution) is CandidateSimulationExecutionV5
+            assert execution.authority_purpose == "candidate_scenario_n5_only"
+            assert execution.run_id == n5_input.run_id
+            assert execution.job_id == n5_input.job_id
+            assert execution.tenant_id == n5_input.tenant_id
+            assert execution.cell_id == n5_input.cell_id
+            assert artifact_ref_identity_key(execution.n5_input_ref) == (
+                artifact_ref_identity_key(n5_input_ref)
+            )
+            assert artifact_ref_identity_key(execution.n4_source_ref) == (
+                artifact_ref_identity_key(n5_input.n4_source_ref)
+            )
+            assert artifact_ref_identity_key(execution.context_job_ref) == (
+                artifact_ref_identity_key(n5_input.context_job_ref)
+            )
+            assert artifact_ref_identity_key(execution.model_declaration_ref) == (
+                artifact_ref_identity_key(source_v2.model_declaration_ref)
+            )
+            assert artifact_ref_identity_key(execution.ncm_ref) == (
+                artifact_ref_identity_key(selected_ncm_ref)
+            )
+            assert artifact_ref_identity_key(execution.n5_result_ref) == (
+                artifact_ref_identity_key(n5_result_ref)
+            )
+            assert execution.world_model_record_hash == (
+                n5_input.materialization.world_model_record_hash
+            )
+            assert execution.n5_result_content_hash == n5_result.receipt.payload_hash
             assert source_v2.model_declaration.target_baseline != pytest.approx(
                 model_declaration.target_baseline
-            )
-            trajectory = n5_result.trajectory_for(
-                "joint",
-                (n5_input.materialization.derived_n5_atom.intervention_id,),
             )
             computed_outcome = trajectory.points[-1].outcomes["global.tax_rate"]
             if remove_acquired_n5_baseline:

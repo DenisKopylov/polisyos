@@ -9,6 +9,7 @@ import signal
 import subprocess
 import sys
 import threading
+import time
 from functools import lru_cache
 from pathlib import Path
 from types import ModuleType
@@ -917,3 +918,220 @@ def test_reaped_leader_is_never_signaled_by_numeric_pgid(
     assert attempted == []
     assert outcome["status"] == "leader_already_exited"
     assert outcome["group_state"] == "unknown_after_leader_exit"
+
+
+def _pilot_snapshot(
+    *,
+    active_count: int = 0,
+    aggregate_rss_kib: int = 0,
+    aggregate_cpu_percent: float = 0,
+    group_rss: dict[str, int] | None = None,
+    free_memory_percent: int = 75,
+    total_memory_bytes: int = 64 * 1024**3,
+    disk_free_bytes: int = 16 * 1024**3,
+) -> dict[str, object]:
+    return {
+        "active_process_group_count": active_count,
+        "aggregate_process_group_rss_kib_sum": aggregate_rss_kib,
+        "aggregate_process_group_cpu_percent_sum": aggregate_cpu_percent,
+        "aggregate_process_group_rss_by_group_kib": group_rss or {},
+        "system_memory_free_percent": free_memory_percent,
+        "system_memory_total_bytes": total_memory_bytes,
+        "scratch_volume_free_bytes": disk_free_bytes,
+    }
+
+
+def _pilot_job(
+    harness: ModuleType,
+    *,
+    path: str = "policy-engine/tests/unit/example.py",
+    native: bool = False,
+):
+    return harness.Job("fixture", path, "0" * 40, 10, "synthetic", native)
+
+
+def test_unprofiled_pilot_admission_projects_rss_and_cpu_without_profile_entries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    harness = _harness()
+    reason, hard_block = harness._unprofiled_pilot_admission_reason(
+        _pilot_job(harness), _pilot_snapshot(), {}
+    )
+    assert reason is None
+    assert hard_block is False
+
+    pilot_group = {
+        "unprofiled_pilot_rss_cap_kib": 2 * 1024**2,
+        "unprofiled_pilot_cpu_projection_percent": 200.0,
+        "expected_profile": None,
+    }
+    monkeypatch.setattr(harness, "ADAPTIVE_MAX_BATCH_RSS_KIB", 4_000_000)
+    tight_rss = _pilot_snapshot(
+        active_count=1,
+        aggregate_rss_kib=1_800_000,
+        aggregate_cpu_percent=0,
+        group_rss={"7001": 1_800_000},
+    )
+    reason, _ = harness._unprofiled_pilot_admission_reason(
+        _pilot_job(harness), tight_rss, {7001: pilot_group}
+    )
+    assert reason is not None and "projected active pytest RSS" in reason
+
+    tight_cpu = _pilot_snapshot(aggregate_cpu_percent=501)
+    reason, _ = harness._unprofiled_pilot_admission_reason(
+        _pilot_job(harness), tight_cpu, {}
+    )
+    assert reason is not None and "projected active pytest CPU" in reason
+
+    tight_memory = _pilot_snapshot(
+        free_memory_percent=35,
+        total_memory_bytes=32 * 1024**3,
+    )
+    reason, _ = harness._unprofiled_pilot_admission_reason(
+        _pilot_job(harness), tight_memory, {}
+    )
+    assert reason is not None and "hard memory reserve" in reason
+
+    tight_disk = _pilot_snapshot(disk_free_bytes=8 * 1024**3 - 1)
+    reason, _ = harness._unprofiled_pilot_admission_reason(
+        _pilot_job(harness), tight_disk, {}
+    )
+    assert reason is not None and "scratch free-space floor" in reason
+
+    two_active_pilots = {7001: pilot_group, 7002: pilot_group}
+    reason, _ = harness._unprofiled_pilot_admission_reason(
+        _pilot_job(harness),
+        _pilot_snapshot(
+            active_count=2,
+            aggregate_rss_kib=2_000_000,
+            aggregate_cpu_percent=100,
+            group_rss={"7001": 1_000_000, "7002": 1_000_000},
+        ),
+        two_active_pilots,
+    )
+    assert reason is not None and "two-group pilot limit" in reason
+
+    assert harness._measured_light_profiles([]) == {}
+
+
+def test_unprofiled_pilot_never_admits_native_or_resource_exclusive_jobs() -> None:
+    harness = _harness()
+    ordinary_snapshot = _pilot_snapshot()
+    reason, _ = harness._unprofiled_pilot_admission_reason(
+        _pilot_job(harness, native=True), ordinary_snapshot, {}
+    )
+    assert reason is not None and "native or resource-exclusive" in reason
+
+    for resource_exclusive in harness.RESOURCE_EXCLUSIVE_TEST_PATHS:
+        reason, _ = harness._unprofiled_pilot_admission_reason(
+            _pilot_job(harness, path=resource_exclusive), ordinary_snapshot, {}
+        )
+        assert reason is not None and "native or resource-exclusive" in reason
+
+
+def test_scheduler_default_keeps_unknown_jobs_serial_and_opt_in_caps_at_two(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    harness = _harness()
+    harness._SCHEDULER_HALT_REASON = None
+    monkeypatch.setattr(harness, "_stop_requested_reason", lambda: None)
+    monkeypatch.setattr(
+        harness,
+        "_machine_admission_state",
+        lambda *_: (_pilot_snapshot(), None),
+    )
+    monkeypatch.setattr(
+        harness,
+        "_can_admit_unprofiled_pilot_job",
+        lambda *_: (True, None, False),
+    )
+    jobs = [
+        _pilot_job(harness, path=f"policy-engine/tests/unit/item_{index}.py")
+        for index in range(3)
+    ]
+    revision = {
+        "key": "fixture",
+        "label": "fixture",
+        "commit": "1" * 40,
+        "checkout": str(tmp_path / "checkout"),
+    }
+
+    def measure_max_active(
+        unprofiled_pilot_groups: int,
+        *,
+        measured_heavy: bool = False,
+    ) -> tuple[int, dict[tuple[str, str, str], dict[str, object]]]:
+        lock = threading.Lock()
+        active = 0
+        max_active = 0
+
+        def fake_run(
+            job,
+            _revision,
+            _run,
+            _home,
+            _scratch,
+            _swap,
+            ready,
+            _profile,
+            *,
+            unprofiled_pilot_rss_cap_kib=None,
+        ):
+            nonlocal active, max_active
+            ready.set()
+            with lock:
+                active += 1
+                max_active = max(max_active, active)
+            if unprofiled_pilot_rss_cap_kib is not None:
+                time.sleep(0.65)
+            else:
+                time.sleep(0.01)
+            with lock:
+                active -= 1
+            return {
+                "revision_key": job.revision_key,
+                "test_path": job.test_path,
+                "suite_status": "passed",
+                "resource_guard": None,
+                "worker_error": None,
+                "process_group_verification_required": False,
+                "resource_group_live_after_exit": False,
+            }
+
+        monkeypatch.setattr(harness, "_run_job", fake_run)
+        profiles: dict[tuple[str, str, str], dict[str, object]] = (
+            {
+                harness._profile_key(job): {
+                    "elapsed_seconds": 61,
+                    "peak_process_group_rss_kib": 3 * 1024**2,
+                    "peak_process_group_cpu_percent_sum": 250.0,
+                    "swap_growth_bytes": 0,
+                }
+                for job in jobs
+            }
+            if measured_heavy
+            else {}
+        )
+        harness._schedule(
+            jobs,
+            {"fixture": revision},
+            tmp_path / "run",
+            tmp_path / "home",
+            tmp_path,
+            0,
+            workers=5 if unprofiled_pilot_groups == 2 else 2,
+            light_profiles=profiles,
+            unprofiled_pilot_groups=unprofiled_pilot_groups,
+        )
+        return max_active, profiles
+
+    default_max, default_profiles = measure_max_active(0)
+    assert default_max == 1
+    assert default_profiles == {}
+
+    pilot_max, pilot_profiles = measure_max_active(2)
+    assert pilot_max == 2
+    assert pilot_profiles == {}
+
+    heavy_max, _ = measure_max_active(2, measured_heavy=True)
+    assert heavy_max == 1

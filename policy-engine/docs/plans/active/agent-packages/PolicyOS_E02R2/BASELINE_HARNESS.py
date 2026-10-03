@@ -85,6 +85,8 @@ NUMERIC_THREAD_ENV = MappingProxyType({
     "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
 })
 ADAPTIVE_RSS_PROJECTION_MULTIPLIER = 1.25
+UNPROFILED_PILOT_MAX_GROUPS = 2
+UNPROFILED_PILOT_MAX_GROUP_RSS_KIB = 2 * 1024**2
 PROCESS_GROUP_LAUNCH_STAGGER_SECONDS = 0.5
 PROCESS_GROUP_STARTUP_SECONDS = 60.0
 HARD_MEMORY_RESERVE_PERCENT = 30
@@ -2258,7 +2260,21 @@ def _run_job(
     baseline_swap_used_bytes: int,
     launch_ready: threading.Event | None = None,
     expected_profile: dict[str, Any] | None = None,
+    *,
+    unprofiled_pilot_rss_cap_kib: int | None = None,
 ) -> dict[str, Any]:
+    def job_resource_guard_reason(snapshot: dict[str, Any]) -> str | None:
+        if (
+            unprofiled_pilot_rss_cap_kib is not None
+            and snapshot["process_group_rss_kib_sum"] > unprofiled_pilot_rss_cap_kib
+        ):
+            return _typed_hard_resource_guard(
+                "process_group_rss_limit_exceeded",
+                "unprofiled pilot process-group RSS exceeded "
+                f"{unprofiled_pilot_rss_cap_kib} KiB sampled cap",
+            )
+        return _resource_guard_reason(snapshot, baseline_swap_used_bytes)
+
     stop_reason = _stop_requested_reason()
     if stop_reason is not None:
         if launch_ready is not None:
@@ -2481,6 +2497,14 @@ def _run_job(
                         "expected_profile": expected_profile,
                         "revision_key": job.revision_key,
                         "test_path": job.test_path,
+                        "exclusive_native": job.exclusive_native,
+                        "resource_exclusive": job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS,
+                        "unprofiled_pilot_rss_cap_kib": unprofiled_pilot_rss_cap_kib,
+                        "unprofiled_pilot_cpu_projection_percent": (
+                            ADAPTIVE_MAX_GROUP_CPU_PERCENT
+                            if unprofiled_pilot_rss_cap_kib is not None
+                            else None
+                        ),
                     }
                     process_group_registered = True
                 except Exception as exc:
@@ -2500,10 +2524,7 @@ def _run_job(
                     try:
                         initial_sample = _child_resource_snapshot(process, scratch_root)
                         resource_samples.append(initial_sample)
-                        resource_guard = _resource_guard_reason(
-                            initial_sample,
-                            baseline_swap_used_bytes,
-                        )
+                        resource_guard = job_resource_guard_reason(initial_sample)
                         if resource_guard is not None:
                             request_termination("initial_resource_guard")
                     except Exception as exc:
@@ -2538,10 +2559,7 @@ def _run_job(
                         request_termination("resource_inspection_failure")
                         break
                     resource_samples.append(snapshot)
-                    resource_guard = _resource_guard_reason(
-                        snapshot,
-                        baseline_swap_used_bytes,
-                    )
+                    resource_guard = job_resource_guard_reason(snapshot)
                     if resource_guard is not None:
                         request_termination("sampled_resource_guard")
                         break
@@ -2622,10 +2640,7 @@ def _run_job(
                             "no_live_members_observed_at_final_sample"
                         )
                 if resource_guard is None:
-                    resource_guard = _resource_guard_reason(
-                        final_sample,
-                        baseline_swap_used_bytes,
-                    )
+                    resource_guard = job_resource_guard_reason(final_sample)
             except Exception as exc:
                 resource_guard = (
                     f"final resource inspection unavailable: {type(exc).__name__}: {exc}"
@@ -2733,6 +2748,14 @@ def _run_job(
             and process_group_termination.get("owner_verification_required")
         ),
         "resource_exclusive": job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS,
+        **(
+            {
+                "resource_admission_mode": "unprofiled_two_group_pilot",
+                "unprofiled_pilot_sampled_rss_cap_kib": unprofiled_pilot_rss_cap_kib,
+            }
+            if unprofiled_pilot_rss_cap_kib is not None
+            else {}
+        ),
         "resource_metrics": _resource_summary(resource_samples) if resource_samples else None,
         "elapsed_seconds": round(elapsed, 3),
         "suite_status": suite_status,
@@ -2966,6 +2989,142 @@ def _profile_light(job: Job, profiles: dict[tuple[str, str, str], dict[str, Any]
     )
 
 
+def _unprofiled_pilot_admission_reason(
+    job: Job,
+    snapshot: dict[str, Any],
+    active_groups: dict[int, dict[str, Any]],
+) -> tuple[str | None, bool]:
+    """Project one opt-in unprofiled job against live RSS, CPU, RAM, and disk bounds."""
+    if job.exclusive_native or job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS:
+        return "native or resource-exclusive jobs cannot enter the unprofiled pilot", False
+
+    try:
+        active_count = snapshot["active_process_group_count"]
+        aggregate_rss_kib = snapshot["aggregate_process_group_rss_kib_sum"]
+        aggregate_cpu = snapshot["aggregate_process_group_cpu_percent_sum"]
+        rss_by_group = snapshot["aggregate_process_group_rss_by_group_kib"]
+        free_memory_percent = snapshot["system_memory_free_percent"]
+        total_memory_bytes = snapshot["system_memory_total_bytes"]
+        disk_free_bytes = snapshot["scratch_volume_free_bytes"]
+    except (KeyError, TypeError):
+        return "resource projection is missing a required live metric", True
+
+    numeric_values = (
+        active_count,
+        aggregate_rss_kib,
+        free_memory_percent,
+        total_memory_bytes,
+        disk_free_bytes,
+    )
+    if any(not isinstance(value, int) or isinstance(value, bool) for value in numeric_values):
+        return "resource projection contains a non-integer live metric", True
+    if (
+        not isinstance(aggregate_cpu, (int, float))
+        or isinstance(aggregate_cpu, bool)
+        or not math.isfinite(float(aggregate_cpu))
+        or not isinstance(rss_by_group, dict)
+        or active_count < 0
+        or aggregate_rss_kib < 0
+        or not 0 <= free_memory_percent <= 100
+        or total_memory_bytes <= 0
+        or disk_free_bytes < 0
+    ):
+        return "resource projection contains an invalid live metric", True
+    if active_count >= MAX_PROCESS_GROUPS:
+        return f"already at {MAX_PROCESS_GROUPS} active pytest process groups", False
+    if free_memory_percent < ADAPTIVE_MIN_MEMORY_FREE_PERCENT:
+        return f"admission reserve below {ADAPTIVE_MIN_MEMORY_FREE_PERCENT}% free memory", False
+    if disk_free_bytes < MIN_DISK_FREE_BYTES:
+        return "scratch free-space floor is not available", False
+
+    try:
+        observed_group_ids = {int(group_id) for group_id in rss_by_group}
+    except (TypeError, ValueError):
+        return "active process-group RSS census has an invalid PGID", True
+    active_group_ids = set(active_groups)
+    if observed_group_ids != active_group_ids or len(observed_group_ids) != active_count:
+        return "active process-group RSS census does not match tracked PGIDs", True
+
+    active_pilot_count = 0
+    active_rss_growth_kib = 0
+    active_cpu_projection = 0.0
+    for process_group_id, active_group in active_groups.items():
+        actual_rss_kib = rss_by_group.get(str(process_group_id))
+        if (
+            not isinstance(actual_rss_kib, int)
+            or isinstance(actual_rss_kib, bool)
+            or actual_rss_kib < 0
+        ):
+            return f"active process-group RSS is unavailable for PGID {process_group_id}", True
+        if active_group.get("exclusive_native") or active_group.get("resource_exclusive"):
+            return "native or resource-exclusive active groups block pilot admission", False
+
+        pilot_cap = active_group.get("unprofiled_pilot_rss_cap_kib")
+        if pilot_cap is None:
+            return "active non-pilot pytest group blocks unprofiled pilot admission", True
+        active_pilot_count += 1
+        pilot_cpu = active_group.get("unprofiled_pilot_cpu_projection_percent")
+        if pilot_cap != UNPROFILED_PILOT_MAX_GROUP_RSS_KIB:
+            return "active pilot group has a different RSS admission cap", True
+        if actual_rss_kib > pilot_cap:
+            return "active pilot group exceeded its sampled RSS cap", False
+        if (
+            not isinstance(pilot_cpu, (int, float))
+            or isinstance(pilot_cpu, bool)
+            or not math.isfinite(float(pilot_cpu))
+            or pilot_cpu < 0
+        ):
+            return "active pilot group has no valid CPU projection", True
+        projected_group_rss_kib = math.ceil(pilot_cap * ADAPTIVE_RSS_PROJECTION_MULTIPLIER)
+        active_cpu_projection += float(pilot_cpu)
+        active_rss_growth_kib += max(0, projected_group_rss_kib - actual_rss_kib)
+
+    if active_pilot_count >= UNPROFILED_PILOT_MAX_GROUPS:
+        return "two-group pilot limit is already occupied", False
+
+    new_group_rss_kib = math.ceil(
+        UNPROFILED_PILOT_MAX_GROUP_RSS_KIB * ADAPTIVE_RSS_PROJECTION_MULTIPLIER
+    )
+    projected_batch_rss_kib = aggregate_rss_kib + active_rss_growth_kib + new_group_rss_kib
+    if projected_batch_rss_kib > ADAPTIVE_MAX_BATCH_RSS_KIB:
+        return "projected active pytest RSS exceeds batch cap", False
+
+    cpu_limit = min(ADAPTIVE_MAX_BATCH_CPU_PERCENT, MAX_RUNNING_BATCH_CPU_PERCENT)
+    projected_cpu = (
+        float(aggregate_cpu)
+        + active_cpu_projection
+        + ADAPTIVE_MAX_GROUP_CPU_PERCENT
+    )
+    if projected_cpu > cpu_limit:
+        return "projected active pytest CPU exceeds batch cap", False
+
+    free_headroom_bytes = max(
+        0,
+        total_memory_bytes * (free_memory_percent - HARD_MEMORY_RESERVE_PERCENT) // 100,
+    )
+    projected_growth_bytes = (active_rss_growth_kib + new_group_rss_kib) * 1024
+    if projected_growth_bytes > free_headroom_bytes:
+        return "projected active growth plus new job would cross the hard memory reserve", False
+    return None, False
+
+
+def _can_admit_unprofiled_pilot_job(
+    job: Job,
+    scratch_root: Path,
+    baseline_swap_used_bytes: int,
+) -> tuple[bool, str | None, bool]:
+    """Admit an ordinary unknown job only with a fresh, complete projection."""
+    if job.exclusive_native or job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS:
+        return False, "native or resource-exclusive jobs cannot enter the unprofiled pilot", False
+    snapshot, hard_reason = _machine_admission_state(scratch_root, baseline_swap_used_bytes)
+    if hard_reason is not None or snapshot is None:
+        return False, hard_reason or "resource inspection did not return a sample", True
+    with _PROCESS_GROUPS_LOCK:
+        active_groups = dict(_LIVE_PROCESS_GROUPS)
+    reason, hard_block = _unprofiled_pilot_admission_reason(job, snapshot, active_groups)
+    return reason is None, reason, hard_block
+
+
 def _can_admit_profiled_job(
     job: Job,
     profiles: dict[tuple[str, str, str], dict[str, Any]],
@@ -3048,28 +3207,42 @@ def _schedule(
     workers: int,
     light_profiles: dict[tuple[str, str, str], dict[str, Any]] | None = None,
     on_complete: Callable[[dict[str, Any]], None] | None = None,
+    unprofiled_pilot_groups: int = 0,
 ) -> list[dict[str, Any]]:
     global _SCHEDULER_HALT_REASON
     by_revision = {record["key"]: record for record in records.values()}
     completed: list[dict[str, Any]] = []
     profiles = light_profiles if light_profiles is not None else {}
     halt_reason = _SCHEDULER_HALT_REASON or _stop_requested_reason()
+    if unprofiled_pilot_groups not in {0, UNPROFILED_PILOT_MAX_GROUPS}:
+        raise ValueError("unprofiled pilot group count must be 0 or 2")
 
-    def not_admitted(job: Job, reason: str) -> dict[str, Any]:
+    def not_admitted(
+        job: Job,
+        reason: str,
+        *,
+        unprofiled_pilot: bool = False,
+    ) -> dict[str, Any]:
         record = by_revision[job.revision_key]
         row = _unrun_before_process_admission(job, record, reason)
+        if unprofiled_pilot:
+            row["resource_admission_mode"] = "unprofiled_two_group_pilot"
+            row["unprofiled_pilot_sampled_rss_cap_kib"] = UNPROFILED_PILOT_MAX_GROUP_RSS_KIB
         completed.append(row)
         if on_complete is not None:
             on_complete(row)
         return row
 
-    def execute_batch(batch: list[Job]) -> None:
+    def execute_batch(batch: list[Job], *, unprofiled_pilot: bool = False) -> None:
         global _SCHEDULER_HALT_REASON
         nonlocal halt_reason
         if not batch:
             return
         pending: dict[concurrent.futures.Future[dict[str, Any]], Job] = {}
         next_index = 0
+
+        def reject(job: Job, reason: str) -> dict[str, Any]:
+            return not_admitted(job, reason, unprofiled_pilot=unprofiled_pilot)
 
         def record_future(
             future: concurrent.futures.Future[dict[str, Any]],
@@ -3080,6 +3253,9 @@ def _schedule(
                 row = future.result()
             except Exception as exc:
                 row = _unrun_after_worker_exception(job, by_revision[job.revision_key], exc)
+            if unprofiled_pilot:
+                row["resource_admission_mode"] = "unprofiled_two_group_pilot"
+                row["unprofiled_pilot_sampled_rss_cap_kib"] = UNPROFILED_PILOT_MAX_GROUP_RSS_KIB
             profiles.update(_measured_light_profiles([row]))
             completed.append(row)
             if on_complete is not None:
@@ -3114,7 +3290,7 @@ def _schedule(
                     _SCHEDULER_HALT_REASON = requested_stop
                 if halt_reason is not None:
                     for job in batch[next_index:]:
-                        not_admitted(job, halt_reason)
+                        reject(job, halt_reason)
                     next_index = len(batch)
                     if not pending:
                         break
@@ -3132,6 +3308,12 @@ def _schedule(
                             scratch_root,
                             baseline_swap_used_bytes,
                         )
+                    elif unprofiled_pilot:
+                        can_launch, admission_reason, hard_block = _can_admit_unprofiled_pilot_job(
+                            job,
+                            scratch_root,
+                            baseline_swap_used_bytes,
+                        )
                     elif not pending:
                         _, admission_reason = _machine_admission_state(
                             scratch_root,
@@ -3142,8 +3324,7 @@ def _schedule(
 
                     if can_launch and len(pending) < pool_size:
                         ready = threading.Event()
-                        future = pool.submit(
-                            _run_job,
+                        run_args = (
                             job,
                             by_revision[job.revision_key],
                             run_dir,
@@ -3153,6 +3334,14 @@ def _schedule(
                             ready,
                             profiles.get(_profile_key(job)) if is_profiled else None,
                         )
+                        if unprofiled_pilot:
+                            future = pool.submit(
+                                _run_job,
+                                *run_args,
+                                unprofiled_pilot_rss_cap_kib=UNPROFILED_PILOT_MAX_GROUP_RSS_KIB,
+                            )
+                        else:
+                            future = pool.submit(_run_job, *run_args)
                         if not ready.wait(PROCESS_GROUP_STARTUP_SECONDS) and not future.done():
                             halt_reason = (
                                 f"process admission handshake exceeded {PROCESS_GROUP_STARTUP_SECONDS}s; "
@@ -3173,7 +3362,7 @@ def _schedule(
                     if hard_block:
                         halt_reason = admission_reason or "resource inspection failed before Popen"
                         for unrun_job in batch[next_index:]:
-                            not_admitted(unrun_job, halt_reason)
+                            reject(unrun_job, halt_reason)
                         next_index = len(batch)
                         continue
                     if pending:
@@ -3191,7 +3380,7 @@ def _schedule(
                         f"{admission_reason or 'projected resource reserve was insufficient'}"
                     )
                     for unrun_job in batch[next_index:]:
-                        not_admitted(unrun_job, halt_reason)
+                        reject(unrun_job, halt_reason)
                     next_index = len(batch)
                     continue
 
@@ -3206,11 +3395,11 @@ def _schedule(
                         record_future(future, completed_job)
 
     # Up to five exact-runtime/test measured-light groups may overlap. Every launch is
-    # staggered and re-sampled against live aggregate CPU/RSS, with 35% free
-    # memory at admission and a projected 30% hard reserve. Unknown, native,
-    # and measured-heavy jobs run alone; red or unavailable guards yield
-    # checkpointed UNRUN cells without starting a process.
+    # staggered and re-sampled against live aggregate CPU/RSS. Unknown jobs stay serial
+    # unless the caller explicitly opts into the two-group pilot; native and
+    # resource-exclusive jobs always stay serial.
     pending_light: list[Job] = []
+    pending_unprofiled_pilot: list[Job] = []
     for job in jobs:
         requested_stop = _stop_requested_reason()
         if requested_stop is not None:
@@ -3219,6 +3408,43 @@ def _schedule(
         if halt_reason is not None:
             not_admitted(job, halt_reason)
             continue
+
+        if _profile_light(job, profiles):
+            if pending_unprofiled_pilot:
+                execute_batch(pending_unprofiled_pilot, unprofiled_pilot=True)
+                pending_unprofiled_pilot = []
+            if workers < 2:
+                if pending_light:
+                    execute_batch(pending_light)
+                    pending_light = []
+                if halt_reason is not None:
+                    not_admitted(job, halt_reason)
+                    continue
+                execute_batch([job])
+                continue
+
+        if (
+            unprofiled_pilot_groups == UNPROFILED_PILOT_MAX_GROUPS
+            and workers >= 2
+            and _profile_key(job) not in profiles
+            and not job.exclusive_native
+            and job.test_path not in RESOURCE_EXCLUSIVE_TEST_PATHS
+        ):
+            if pending_light:
+                execute_batch(pending_light)
+                pending_light = []
+            if halt_reason is not None:
+                not_admitted(job, halt_reason)
+                continue
+            pending_unprofiled_pilot.append(job)
+            if len(pending_unprofiled_pilot) == UNPROFILED_PILOT_MAX_GROUPS:
+                execute_batch(pending_unprofiled_pilot, unprofiled_pilot=True)
+                pending_unprofiled_pilot = []
+            continue
+
+        if pending_unprofiled_pilot:
+            execute_batch(pending_unprofiled_pilot, unprofiled_pilot=True)
+            pending_unprofiled_pilot = []
         if workers < 2 or not _profile_light(job, profiles):
             if pending_light:
                 execute_batch(pending_light)
@@ -3254,6 +3480,16 @@ def _schedule(
                 not_admitted(job, halt_reason)
             else:
                 pending_light = [job]
+    if pending_unprofiled_pilot:
+        if halt_reason is None:
+            execute_batch(pending_unprofiled_pilot, unprofiled_pilot=True)
+        else:
+            for job in pending_unprofiled_pilot:
+                not_admitted(
+                    job,
+                    halt_reason,
+                    unprofiled_pilot=True,
+                )
     if pending_light:
         if halt_reason is None:
             execute_batch(pending_light)
@@ -4181,6 +4417,17 @@ def _write_report(
             f"maximum swap growth {resource_metrics['maximum_swap_growth_bytes']} bytes; "
             f"minimum scratch free space {resource_metrics['minimum_scratch_volume_free_bytes']} bytes."
         )
+    pilot_groups = report["environment_policy"].get("unprofiled_pilot_max_groups", 0)
+    pilot_policy = (
+        "The invocation opted into at most two ordinary unprofiled jobs, each with a "
+        f"{UNPROFILED_PILOT_MAX_GROUP_RSS_KIB} KiB sampled RSS cap and a "
+        "1.25x admission projection; "
+        "live CPU, free-memory, and disk guards remain active. Growth between samples is not an "
+        "OS-enforced limit. Native and resource-exclusive groups remain serial. "
+        if pilot_groups == UNPROFILED_PILOT_MAX_GROUPS
+        else "The unprofiled pilot is disabled; unprofiled, native, measured-heavy, and "
+        "resource-exclusive groups run alone. "
+    )
     resource_policy = (
         f"This invocation admits at most {report['environment_policy']['max_process_groups']} "
         f"pytest process groups (harness maximum {MAX_PROCESS_GROUPS}; CLI default {DEFAULT_PROCESS_GROUPS}). "
@@ -4188,17 +4435,21 @@ def _write_report(
         f"{ADAPTIVE_MAX_GROUP_RSS_KIB} KiB RSS and at most {ADAPTIVE_MAX_GROUP_CPU_PERCENT}% CPU, "
         "with zero swap growth. Each launch is staggered by 0.5 seconds and rechecked against "
         "current process-group RSS/CPU, memory free percent, swap and disk. Reserve admission "
-        "projects 1.25x RSS and the remaining peak-growth budget of every active profiled group, "
+        "projects 1.25x RSS and the remaining peak-growth budget of every active profiled or "
+        "pilot-budgeted group, "
         "plus the candidate against free memory above the "
         f"{HARD_MEMORY_RESERVE_PERCENT}% hard reserve. "
         f"Projected admission CPU is capped at {ADAPTIVE_MAX_BATCH_CPU_PERCENT}%; the sampled running "
         f"hard limit is {MAX_RUNNING_BATCH_CPU_PERCENT}% to tolerate short accounting jitter while "
-        "the five-second sampler can miss shorter bursts above five CPU cores. Profiles are scoped to the pinned runtime revision and "
+        f"the {RESOURCE_SAMPLE_SECONDS:g}-second sampler can miss shorter bursts. "
+        "Profiles are scoped to the pinned runtime revision and "
         "test blob. Each revision/path cell in this matrix is unique; completed exact cells "
         "are reused rather than dispatched again. This pre-repair scope has no safe profiled "
-        "overlap. Unprofiled, native, measured-heavy and resource-exclusive groups run alone "
+        "overlap. "
+        f"{pilot_policy} "
+        "Measured-heavy and resource-exclusive groups run alone "
         "and are scheduled after bounded ordinary cells. Each child is sampled "
-        "every five seconds. A red or unavailable guard "
+        f"every {RESOURCE_SAMPLE_SECONDS:g} seconds. A red or unavailable guard "
         "pauses dispatch and checkpoints unstarted cells as UNRUN. SIGINT/SIGTERM sets a cooperative "
         "stop event; active workers terminate only their own PGID, and the scheduler drains and "
         "checkpoints active and unstarted cells as UNRUN. Live descendants left after the leader "
@@ -4781,6 +5032,7 @@ def run_matrix(args: argparse.Namespace) -> int:
                 workers,
                 light_profiles,
                 checkpoint_row,
+                unprofiled_pilot_groups=args.unprofiled_pilot_groups,
             )
             runs.extend(sibling_rows)
             light_profiles.update(_measured_light_profiles(sibling_rows))
@@ -4805,6 +5057,7 @@ def run_matrix(args: argparse.Namespace) -> int:
                 workers,
                 light_profiles,
                 checkpoint_row,
+                unprofiled_pilot_groups=args.unprofiled_pilot_groups,
             )
             runs.extend(pilot_rows)
             if pilot_rows:
@@ -4894,6 +5147,7 @@ def run_matrix(args: argparse.Namespace) -> int:
             workers,
             light_profiles,
             checkpoint_row,
+            unprofiled_pilot_groups=args.unprofiled_pilot_groups,
         )
     )
     for revision in revision_records:
@@ -5047,6 +5301,17 @@ def run_matrix(args: argparse.Namespace) -> int:
                 row["key"]: row["module_import_origins"] for row in revision_records
             },
             "max_process_groups": workers,
+            "unprofiled_pilot_max_groups": args.unprofiled_pilot_groups,
+            "unprofiled_pilot_sampled_rss_cap_kib": (
+                UNPROFILED_PILOT_MAX_GROUP_RSS_KIB
+                if args.unprofiled_pilot_groups
+                else None
+            ),
+            "unprofiled_pilot_projected_cpu_per_group_percent": (
+                ADAPTIVE_MAX_GROUP_CPU_PERCENT
+                if args.unprofiled_pilot_groups
+                else None
+            ),
             "resource_guard": {
                 "max_process_group_rss_kib": MAX_PROCESS_GROUP_RSS_KIB,
                 "minimum_system_memory_free_percent": MIN_MEMORY_FREE_PERCENT,
@@ -5070,6 +5335,22 @@ def run_matrix(args: argparse.Namespace) -> int:
                 "cooperative_stop_signals": ["SIGINT", "SIGTERM"],
                 "max_active_process_groups": MAX_PROCESS_GROUPS,
                 "resource_exclusive_paths": sorted(RESOURCE_EXCLUSIVE_TEST_PATHS),
+                "unprofiled_pilot_policy": (
+                    {
+                        "mode": "opt_in_only; never fabricates admission profiles",
+                        "max_groups": UNPROFILED_PILOT_MAX_GROUPS,
+                        "sampled_group_rss_cap_kib": UNPROFILED_PILOT_MAX_GROUP_RSS_KIB,
+                        "rss_projection_multiplier": ADAPTIVE_RSS_PROJECTION_MULTIPLIER,
+                        "projected_cpu_per_group_percent": ADAPTIVE_MAX_GROUP_CPU_PERCENT,
+                        "shared_resource_exclusions": sorted(RESOURCE_EXCLUSIVE_TEST_PATHS),
+                        "late_allocation": (
+                            "RSS, CPU, and disk remain sampled guards; allocation or growth "
+                            "between configured samples is not a strict OS-enforced limit"
+                        ),
+                    }
+                    if args.unprofiled_pilot_groups
+                    else None
+                ),
             },
         },
         "revisions": revision_records,
@@ -5642,6 +5923,13 @@ def main() -> int:
     )
     parser.add_argument("--timeout-seconds", type=int, default=1800)
     parser.add_argument("--workers", type=int, default=DEFAULT_PROCESS_GROUPS)
+    parser.add_argument(
+        "--unprofiled-pilot-groups",
+        type=int,
+        choices=(0, UNPROFILED_PILOT_MAX_GROUPS),
+        default=0,
+        help="opt in to at most two sampled-guarded ordinary jobs without measured profiles",
+    )
     parser.add_argument("--scratch-root", type=Path, default=SCRATCH_ROOT)
     parser.add_argument(
         "--resolve-process-group-fence",
@@ -5671,6 +5959,13 @@ def main() -> int:
             parser.error("fence resolution requires --verified-by and --verification-note")
     elif args.run == args.rerun_timeouts:
         parser.error("pass exactly one of --run or --rerun-timeouts")
+    if args.unprofiled_pilot_groups and (
+        resolving_fence
+        or args.rerun_timeouts
+        or args.reuse_results
+        or args.resume_run is not None
+    ):
+        parser.error("unprofiled pilot groups require a fresh matrix run without reuse or resume")
     if not resolving_fence and not 1 <= args.workers <= MAX_PROCESS_GROUPS:
         parser.error(f"--workers must be between 1 and {MAX_PROCESS_GROUPS}")
 

@@ -593,6 +593,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
     )
     from tests.unit.runtime.quality import test_generation_cycle as cycle_fixtures
 
+    served_n4_recording = acquisition_chain.load_served_wdi_generation_recording()
+    served_n4_model_id = str(served_n4_recording["model_id"])
+
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
@@ -822,8 +825,24 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             container = client.app.state.runtime_container
             control = container.control_service
             closure, request = _within_fixture_owner(
-                asyncio.run, persist_wdi_route(control, tenant_id=TENANT, cell_id=CELL)
+                asyncio.run,
+                persist_wdi_route(
+                    control,
+                    tenant_id=TENANT,
+                    cell_id=CELL,
+                    llm_model_id=served_n4_model_id,
+                ),
             )
+            job = control._control_store.get_job("job-natural-language")
+            assert job is not None
+            persisted_job_payload = canon.from_canonical_bytes(
+                _within_fixture_owner(
+                    control._artifact_store.get_bytes, job.payload_ref
+                )
+            )
+            assert persisted_job_payload["llm_models"] == [
+                str(served_n4_recording["model_id"])
+            ]
             store = control._artifact_store
             profile, model_declaration = _within_fixture_owner(
                 _served_wdi_candidate_profile,
@@ -913,6 +932,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 previous_case=cases[-1] if cases else None,
                 candidate_world_refreshes=refreshes,
                 candidate_scenario_generation=candidate_generation_mode[0],
+                candidate_generation_recording=(
+                    served_n4_recording if candidate_generation_mode[0] else None
+                ),
                 # The initial route carries one N6-stage cap through restarts.
                 # A compute cap establishes neither authority nor causal coupling.
                 reentry_budget_usd=Decimal("0.50"),

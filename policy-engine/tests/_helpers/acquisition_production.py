@@ -121,6 +121,7 @@ async def persist_wdi_route(
     run_id: str = "run-acquisition",
     generation_cycle_repo_root: Path | None = None,
     revised_source: bool = False,
+    llm_model_id: str = "fixture-model",
 ):
     """Install a real compiled fixture case into the supplied app's canonical owners."""
     problem = fixtures._problem("served_wdi_acquisition")
@@ -203,7 +204,7 @@ async def persist_wdi_route(
             "tenant_id": tenant_id,
             "cell_id": cell_id,
             "run_id": run_id,
-            "llm_models": ["fixture-model"],
+            "llm_models": [llm_model_id],
         },
         kind="runtime.control_job_payload.natural_language_run",
         schema_name="polisyos.runtime.ControlJobPayload",

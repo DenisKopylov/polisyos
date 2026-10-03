@@ -7,6 +7,7 @@ import json
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 from polisyos.core import canon, contracts
 from polisyos.data_forge import read_api
@@ -33,6 +34,24 @@ from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority 
 )
 from tests.unit.runtime.quality.test_live_acquisition_executor import _ATTEMPT_ID, _family_receipt
 
+_SERVED_WDI_N4_RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+
+
+def load_served_wdi_generation_recording(
+    repo_root: Path | None = None,
+) -> dict[str, Any]:
+    """Select the captured N4 recording used by the served acquisition witness."""
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    generation_repo_root = repo_root or Path(__file__).resolve().parents[2]
+    return next(
+        item
+        for item in n4_contract._load_recordings(generation_repo_root)
+        if item.get("design_problem_id") == _SERVED_WDI_N4_RECORDING_ID
+    )
+
 
 def make_wdi_port_case(
     tmp_path,
@@ -43,6 +62,7 @@ def make_wdi_port_case(
     previous_case=None,
     candidate_world_refreshes=(),
     candidate_scenario_generation=False,
+    candidate_generation_recording: dict[str, Any] | None = None,
     reentry_budget_usd: Decimal = Decimal("0.10"),
 ):
     """Create the real port; external policy appointment follows a terminal refusal.
@@ -146,14 +166,13 @@ def make_wdi_port_case(
         from tools.quality.validation import (
             check_layer3_gy_design_generation_contract as n4_contract,
         )
-
-        recording = next(
-            item
-            for item in n4_contract._load_recordings(generation_repo_root)
-            if item.get("design_problem_id")
-            == "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+        recording = (
+            candidate_generation_recording
+            if candidate_generation_recording is not None
+            else load_served_wdi_generation_recording(generation_repo_root)
         )
         controlled = copy.deepcopy(recording)
+        recording_model_id = str(recording["model_id"])
         responses = controlled.get("responses")
         if not isinstance(responses, list):
             raise ValueError("controlled_candidate_recording_responses_missing")
@@ -184,6 +203,7 @@ def make_wdi_port_case(
 
         async def fixture_candidates(port, problem, *, cycle_index):
             del cycle_index
+            assert port._model_id == recording_model_id
             return await generate_design_candidate_scenario_proposal_under_a(
                 problem,
                 model_id=port._model_id,

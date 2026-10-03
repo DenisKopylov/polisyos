@@ -3293,3 +3293,18 @@ The existing served controlled N4-to-N5 positive now reads all five facets throu
 - Frozen candidate: /Users/deniskopylov/.codex/scratch/E02R2_R1_WMR_BASE_DERIVED_CANDIDATE_20261003_V2/manifest.json@sha256:052698d206f613c37ed3b864a3671dfc813b3b3b2a053079729a385ed2846fb1; patch@sha256:b35facf073a8dc2134be9d89882948a563cb42ee1b7fd628c36fcfaf1a101820; postimage@sha256:4f10a7a675c926f5b7394edceb16facd19b734dca65bca59b878355d940f6b07. Independent exact-delta review GO; native postimage is UNRUN until root served replay.
 - Candidate manifest Git-blob fields are ordinary SHA-1 mislabeled as Git IDs. Measured actual pre/post Git blobs: 64ebeb9f506d6b66e246baa31ba5f1b24327bc8d / d222c713533c510bb5a65267325e0257b2d58884. Content SHA-256 pins are correct; root readback records the erratum without changing frozen packet bytes.
 - Canonical Ruff required only import ordering (data_forge before foundry): delta@sha256:60bc26ab21b82a5f7be3885605348cc094ed99fa1f8fe57458ba1fbc0a594d02; independent delta-only GO; final target@sha256:7c681478acd3764056e37cec58d59191af4c3681c9c22bd46bb6612b3ddd556b, Git blob 406129ac3ec7cc4d81ea753c46cdea3732615b73. Ruff exit 0; native remains UNRUN.
+
+
+## R1/R13 injected registry-owner test correction — 2026-10-03
+
+Root is the sole canonical writer. Write set: the existing served acquisition test and this mandatory lease record. All native groups were reaped before application.
+
+The cb2249 served whole file is FAIL (one case) at line 1428: the test attributed the registry resolver to the historical context-job owner. Root readback: `/Users/deniskopylov/.codex/scratch/E02R2_ROOT_CB2249D_SERVED_OWNER_CALL_FAILURE_20261003/READBACK.json@sha256:aeeabafbd2579030938e98f1b843c21afb46f10ac4256ae9aee64529c4ffc526`. P40: the second owner-call attribution finding widens review to the complete V2 added import/call/reference inventory. The existing configured admission owner, already injected into the acquisition bridge, supplies the server-configured profile and registry. No semantic assertion is weakened and no owner or write path is added.
+
+Exact candidate patch: `/Users/deniskopylov/.codex/scratch/E02R2_R1_WMR_OWNER_ROUTE_CANDIDATE_20261003_V3/candidate.patch@sha256:288f1c1fedd0eabb71066af113675a63525a428044bf540f25204feff250f543`. Independent delta GO: `/Users/deniskopylov/.codex/scratch/E02R2_R1_V3_OWNER_ROUTE_DELTA_REVIEW_20261003_V1/review.md@sha256:51deacb213f497b1695a3195b67ae7609dfef58261f9185d18a06a3da275ad75`.
+
+Frozen candidate prose contains a result-hash typo; the actual cb2249 result is `/Users/deniskopylov/.codex/scratch/E02R2_CURRENT_WHOLEFILE_RUNS_20261001/e02r2-r1-served-normal-one-v7-20261003T100705300963Z/result.json@sha256:7de2961a757a8b8de38a643da6ed70f63791a4761adae5acb8b2a0587e1c3f84`. The root readback and independent erratum supersede that citation.
+
+CG2 completed separately on cb2249 with exit 2 / typed UNRUN. CG1/N6 were not admitted after a probe used the default checkout; the canonical branch never moved. Erratum: `/Users/deniskopylov/.codex/scratch/E02R2_CG_CB2249D_CWD_ERRATUM_READBACK_20261003/ERRATUM_READBACK.json@sha256:bf393ec3b7fb2fb7a78790bd09b952331b505e828363d462ee29bf351f151499`.
+
+Corrected served replay and normal/removal/restored evidence remain UNRUN until the next committed-source run. Source-time, measurement, causal coupling, and S8/N9 authority limitations remain explicit.

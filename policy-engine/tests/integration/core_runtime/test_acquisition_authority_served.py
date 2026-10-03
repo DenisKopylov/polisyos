@@ -1229,6 +1229,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             from polisyos.runtime.quality.cycle_substrate import (
                 CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA,
                 CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA,
+                ConfiguredCandidateSimulationContextAdmissionOwner,
                 CycleSubstrateContextArtifactOwner,
                 CycleSubstrateContextJobArtifactV2,
                 CycleSubstrateContextJobArtifactV3,
@@ -1418,16 +1419,28 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 for item in context_world.simulation_model_ref.assumptions
             )
 
-            context_owner_for_wmr = CycleSubstrateContextArtifactOwner(
-                store=control._artifact_store
+            registry_admission_owner = (
+                cases[-1].bridge.cycle_substrate_context_admission_owner
+            )
+            assert type(registry_admission_owner) is (
+                ConfiguredCandidateSimulationContextAdmissionOwner
+            )
+            configured_profile_for_registry = _within_fixture_owner(
+                registry_admission_owner.configured_profile_for_selection_ref,
+                n5_input.profile.profile_selection_ref,
+            )
+            assert configured_profile_for_registry.profile_selection_ref == (
+                n5_input.profile.profile_selection_ref
             )
             acquired_world_views = world_model_artifact_views(acquired_world)
             acquired_registry_view_ref = acquired_world_views.substrate_registry_ref
             assert acquired_registry_view_ref is not None
             resolved_registry_view_ref = _within_fixture_owner(
-                context_owner_for_wmr._candidate_world_model_substrate_registry_view,
+                registry_admission_owner._candidate_world_model_substrate_registry_view,
                 world_model_record=acquired_world,
-                substrate_registry=n5_input.profile.context_inputs.substrate_registry,
+                substrate_registry=(
+                    configured_profile_for_registry.context_inputs.substrate_registry
+                ),
             )
             assert artifact_ref_identity_key(acquired_registry_view_ref) == (
                 artifact_ref_identity_key(resolved_registry_view_ref)

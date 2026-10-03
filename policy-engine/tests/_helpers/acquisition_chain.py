@@ -43,6 +43,7 @@ def make_wdi_port_case(
     previous_case=None,
     candidate_world_refreshes=(),
     candidate_scenario_generation=False,
+    reentry_budget_usd: Decimal = Decimal("0.10"),
 ):
     """Create the real port; external policy appointment follows a terminal refusal.
 
@@ -91,7 +92,7 @@ def make_wdi_port_case(
             run_id=closure.run_id,
             route_id=closure.route_id,
             design_problem_ref=closure.design_problem_ref,
-            reentry_budget_usd=Decimal("0.10"),
+            reentry_budget_usd=reentry_budget_usd,
         )
         appointments = []
         deployment = None

@@ -10,6 +10,7 @@ import time
 import uuid
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
@@ -912,6 +913,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 previous_case=cases[-1] if cases else None,
                 candidate_world_refreshes=refreshes,
                 candidate_scenario_generation=candidate_generation_mode[0],
+                # The initial route carries one N6-stage cap through restarts.
+                # A compute cap establishes neither authority nor causal coupling.
+                reentry_budget_usd=Decimal("0.50"),
             )
             cases.append(case)
             if candidate_generation_mode[0] and remove_acquired_n5_baseline:

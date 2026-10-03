@@ -57,6 +57,7 @@ from polisyos.runtime.quality.intervention_substrate import (
     route_observation_family_method,
 )
 from polisyos.runtime.quality.substrate_registry import (
+    SUBSTRATE_REGISTRY_ARTIFACT_KIND,
     SubstrateCoverage,
     SubstrateLayer,
     SubstrateRegistration,
@@ -65,6 +66,8 @@ from polisyos.runtime.quality.substrate_registry import (
     SubstrateTrustTier,
     build_substrate_registry,
     build_substrate_registry_entry,
+    load_substrate_registry,
+    persist_substrate_registry,
 )
 from polisyos.runtime.quality.world_model_record import (
     BranchMode,
@@ -924,24 +927,24 @@ def _world_record(
 
 
 def _world_record_with_selected_views(
-    domain: str,
-    registry: SubstrateRegistry,
+    base: WorldModelRecord,
     *,
+    substrate_registry_artifact_ref: ArtifactRef,
     selected_profile: str,
-    region_or_jurisdiction: str | None = None,
 ) -> WorldModelRecord:
-    """Build a content-bound WMRv2 fixture whose same IDs have selected views."""
+    """Build WMRv2 selected views from an owner-backed education WMRv1."""
 
-    base = _world_record(
-        domain,
-        registry,
-        region_or_jurisdiction=region_or_jurisdiction,
+    assert base.schema_version == "policyos.runtime.world_model_record.v1"
+    assert base.authority_status == "limited"
+    assert base.substrate_registry_ref.registry_artifact_ref == str(
+        substrate_registry_artifact_ref.artifact_id
     )
+    assert substrate_registry_artifact_ref.kind == SUBSTRATE_REGISTRY_ARTIFACT_KIND
+    assert substrate_registry_artifact_ref.media_type == "application/json"
+    domain = base.policy_domain
     graph_id = _hash(f"{domain}:program-graph")
     ncm_id = _hash(f"{domain}:ncm")
-    substrate_ref = base.substrate_registry_ref.model_copy(
-        update={"registry_artifact_ref": _hash(f"{domain}:substrate-registry")}
-    )
+    substrate_ref = base.substrate_registry_ref
     simulation = base.simulation_model_ref.model_copy(
         update={
             "program_graph_refs": (graph_id,),
@@ -979,11 +982,7 @@ def _world_record_with_selected_views(
             kind="foundry.input_binding_report",
             media_type="application/json",
         ),
-        substrate_registry_ref=ArtifactRef(
-            artifact_id=substrate_ref.registry_artifact_ref,
-            kind="runtime.quality.production_data_substrate_registry",
-            media_type="application/json",
-        ),
+        substrate_registry_ref=substrate_registry_artifact_ref,
         program_graph_refs=(
             ArtifactRef(
                 artifact_id=graph_id,
@@ -1524,13 +1523,20 @@ def test_cycle_substrate_context_rejects_content_hash_tamper() -> None:
 
 @pytest.mark.parametrize(
     "refresh_case",
-    ["candidate_levers", "transport_context", "both", "none"],
+    [
+        "candidate_levers",
+        "transport_context",
+        "both",
+        "none",
+        "none_missing_registry_locator",
+    ],
 )
 def test_configured_candidate_owner_persists_declared_model_in_exact_context(
     tmp_path: Any,
+    monkeypatch: pytest.MonkeyPatch,
     refresh_case: str,
 ) -> None:
-    """The existing context owner emits only a limited declared NCM selection."""
+    """The configured owner emits a limited NCM and a CAS-bound registry view."""
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioN5Config,
         CandidateScenarioSetToRule,
@@ -1544,30 +1550,40 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
         _cycle_job_v1_design_problem_ref,
         _cycle_job_v1_profile_selection_ref,
     )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.world_model_record import persist_world_model_record
 
     problem = _design_problem()
     registry = _registry("education")
+    store = FileSystemCAS(tmp_path / "candidate-context-cas")
     base_world = _world_record(
         "education",
         registry,
         region_or_jurisdiction="UA",
         policy_slot_ids=("education.teaching_method", "learning_outcomes"),
     )
+    legacy_registry_locator = (
+        None
+        if refresh_case == "none_missing_registry_locator"
+        else (
+            f"substrate-registry://{registry.substrate_version_id}/"
+            f"{registry.content_hash.removeprefix('sha256:')}"
+        )
+    )
+    base_world = _rehash_world_record_fixture(
+        base_world,
+        substrate_registry_ref=base_world.substrate_registry_ref.model_copy(
+            update={"registry_artifact_ref": legacy_registry_locator}
+        ),
+    )
     slots = tuple(
         slot.model_copy(update={"unit": "synthetic_score"})
         for slot in base_world.policy_slot_map
     )
-    draft_world = base_world.model_copy(update={"policy_slot_map": slots})
-    world_hash = world_model_record_content_hash(draft_world)
-    world = draft_world.model_copy(
-        update={
-            "content_hash": world_hash,
-            "world_model_record_id": (
-                "world_model_record_" + world_hash.removeprefix("sha256:")[:16]
-            ),
-        }
-    )
+    world = _rehash_world_record_fixture(base_world, policy_slot_map=slots)
+    source_world_ref = persist_world_model_record(store, world)
+    source_world_bytes = store.get_bytes(source_world_ref)
     context = _cycle_context(
         registry=registry,
         world_model_record=world,
@@ -1666,13 +1682,12 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
             ),
         }
     )
-    store = FileSystemCAS(tmp_path / "candidate-context-cas")
     owner = ConfiguredCandidateSimulationContextAdmissionOwner(
         profiles=(profile,),
         model_declarations=(declaration,),
         store=store,
     )
-    if refresh_case != "none":
+    if refresh_case not in {"none", "none_missing_registry_locator"}:
         with pytest.raises(CycleSubstrateContextOwnerError) as normal_error:
             owner.admit_context(
                 problem=problem,
@@ -1744,13 +1759,152 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
     assert str(offer.ncm_ref.artifact_id) in (
         offer.context.world_model_record.simulation_model_ref.ncm_refs
     )
-    assert offer.context.world_model_record.authority_status == "limited"
+    candidate_world = offer.context.world_model_record
+    assert candidate_world.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+    assert candidate_world.authority_status == "limited"
+    assert candidate_world.artifact_views is not None
+    selected_registry_ref = candidate_world.artifact_views.substrate_registry_ref
+    assert type(selected_registry_ref) is ArtifactRef
+    assert selected_registry_ref.kind == SUBSTRATE_REGISTRY_ARTIFACT_KIND
+    assert selected_registry_ref.media_type == "application/json"
+    assert selected_registry_ref.manifest_profile_sha256 is None
+    assert candidate_world.substrate_registry_ref.registry_artifact_ref == str(
+        selected_registry_ref.artifact_id
+    )
+    assert store.verify(selected_registry_ref).ok
+    assert load_substrate_registry(store, selected_registry_ref).model_dump(
+        mode="json"
+    ) == registry.model_dump(mode="json")
+    assert store.get_bytes(source_world_ref) == source_world_bytes
+    assert world.schema_version == "policyos.runtime.world_model_record.v1"
+    assert world.substrate_registry_ref.registry_artifact_ref == legacy_registry_locator
     assert offer.context.authority_purpose == "cycle_input_candidate_only"
+    assert "s8_blocked" in offer.profile.limitations
+    assert "n9_not_admitted" in offer.profile.limitations
     assert {
         "grounding_authority",
         "transport_authority",
         "promotion_authority",
     }.issubset(offer.context.may_not_use_for)
+
+    if refresh_case == "none":
+        from polisyos.runtime.quality import (
+            substrate_registry as substrate_registry_owner,
+        )
+
+        def unexpected_registry_rewrite(*_args: object, **_kwargs: object) -> object:
+            raise AssertionError("default_substrate_registry_view_must_be_reused")
+
+        with monkeypatch.context() as reuse_probe:
+            reuse_probe.setattr(
+                substrate_registry_owner,
+                "persist_substrate_registry",
+                unexpected_registry_rewrite,
+            )
+            reused_ref = owner._candidate_world_model_substrate_registry_view(
+                world_model_record=candidate_world,
+                substrate_registry=registry,
+            )
+        assert reused_ref == selected_registry_ref
+
+        mismatched_registry = build_substrate_registry(
+            registry.entries,
+            producer_ref=f"{registry.producer_ref}.mismatch_probe",
+            source_catalog_refs=registry.source_catalog_refs,
+        )
+        assert mismatched_registry.content_hash != registry.content_hash
+
+        def configured_owner_for_inputs(
+            context_inputs: CandidateSimulationContextInputs,
+        ) -> ConfiguredCandidateSimulationContextAdmissionOwner:
+            bad_profile_payload = profile.model_dump(mode="json")
+            bad_profile_payload["context_inputs"] = context_inputs.model_dump(
+                mode="json"
+            )
+            bad_profile_payload["content_hash"] = gy_content_hash(
+                {
+                    key: value
+                    for key, value in bad_profile_payload.items()
+                    if key != "content_hash"
+                }
+            )
+            bad_profile = CandidateSimulationScenarioProfile.model_validate(
+                bad_profile_payload
+            )
+            bad_declaration_payload = declaration.model_dump(mode="json")
+            bad_declaration_payload.update(
+                {
+                    "profile_config_ref": candidate_simulation_profile_ref(bad_profile),
+                    "profile_content_hash": bad_profile.content_hash,
+                }
+            )
+            bad_declaration_payload["content_hash"] = gy_content_hash(
+                {
+                    key: value
+                    for key, value in bad_declaration_payload.items()
+                    if key != "content_hash"
+                }
+            )
+            bad_declaration = (
+                CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+                    bad_declaration_payload
+                )
+            )
+            return ConfiguredCandidateSimulationContextAdmissionOwner(
+                profiles=(bad_profile,),
+                model_declarations=(bad_declaration,),
+                store=store,
+            )
+
+        foreign_registry_inputs = profile.context_inputs.model_copy(
+            update={"substrate_registry": mismatched_registry}
+        )
+        changed_row = world.substrate_registry_ref.resolved_entries[0].model_copy(
+            update={"family_id": "foreign_family"}
+        )
+        changed_registry_ref = world.substrate_registry_ref.model_copy(
+            update={"resolved_entries": (changed_row,)}
+        )
+        changed_world = _rehash_world_record_fixture(
+            world,
+            substrate_registry_ref=changed_registry_ref,
+        )
+        foreign_row_inputs = profile.context_inputs.model_copy(
+            update={"world_model_record": changed_world}
+        )
+        ncm_writes: list[object] = []
+
+        def unexpected_ncm_write(*args: object, **kwargs: object) -> object:
+            ncm_writes.append((args, kwargs))
+            raise AssertionError("registry_binding_mismatch_reached_ncm_write")
+
+        with monkeypatch.context() as rejection_probe:
+            rejection_probe.setattr(
+                GenerationSourceRepository,
+                "persist_candidate_ncm_selected_view",
+                unexpected_ncm_write,
+            )
+            for invalid_inputs, expected_code in (
+                (
+                    foreign_registry_inputs,
+                    "candidate_simulation_substrate_registry_binding_mismatch",
+                ),
+                (
+                    foreign_row_inputs,
+                    "candidate_simulation_substrate_registry_entry_mismatch",
+                ),
+            ):
+                invalid_owner = configured_owner_for_inputs(invalid_inputs)
+                with pytest.raises(CycleSubstrateContextOwnerError) as error:
+                    invalid_owner.admit_context(
+                        problem=problem,
+                        job_id="job-declared-candidate-invalid-registry",
+                        run_id="run-declared-candidate-invalid-registry",
+                        tenant_id="tenant-declared-candidate",
+                        cell_id="cell-declared-candidate",
+                    )
+                assert error.value.code == expected_code
+                assert ncm_writes == []
 
     profile_only_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
         profiles=(profile,)
@@ -1780,6 +1934,86 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
     ) is None
 
 
+def test_configured_candidate_owner_preserves_profiled_registry_sibling_view(
+    tmp_path: Any,
+) -> None:
+    """The owner preserves an explicit sibling CAS view alongside the default."""
+
+    from polisyos.core.artifacts import InputRef
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+    )
+    from polisyos.runtime.quality.world_model_record import persist_world_model_record
+
+    registry = _registry("education")
+    store = FileSystemCAS(tmp_path / "profiled-substrate-registry-view-cas")
+    declared_world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method", "education.learning_outcomes"),
+    )
+    default_ref, bound_world = _fixture_world_with_persisted_substrate_registry(
+        store, registry, declared_world
+    )
+    assert default_ref.manifest_profile_sha256 is None
+    source_world_ref = persist_world_model_record(store, bound_world)
+    assert store.verify(source_world_ref).ok
+    sibling_inputs = (
+        InputRef(
+            artifact_id=source_world_ref.artifact_id,
+            role="registry_sibling_view_source_world",
+        ),
+    )
+    sibling_ref = ArtifactRef.model_validate(
+        persist_substrate_registry(store, registry, inputs=sibling_inputs)
+    )
+    sibling_manifest = store.get_manifest(sibling_ref)
+
+    assert sibling_ref.artifact_id == default_ref.artifact_id
+    assert sibling_ref != default_ref
+    assert sibling_ref.manifest_profile_sha256 is not None
+    assert sibling_manifest.inputs == sibling_inputs
+    assert store.verify(sibling_ref).ok
+    assert load_substrate_registry(
+        store, sibling_ref, expected_inputs=sibling_inputs
+    ) == registry
+
+    sibling_base = _rehash_world_record_fixture(
+        bound_world,
+        substrate_registry_ref=bound_world.substrate_registry_ref.model_copy(
+            update={"registry_artifact_ref": str(sibling_ref.artifact_id)}
+        ),
+    )
+    selected_world = _world_record_with_selected_views(
+        sibling_base,
+        substrate_registry_artifact_ref=sibling_ref,
+        selected_profile=_hash("profiled-registry-sibling-view"),
+    )
+    assert selected_world.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+    assert selected_world.artifact_views is not None
+    assert selected_world.artifact_views.substrate_registry_ref == sibling_ref
+    assert selected_world.substrate_registry_ref.registry_artifact_ref == str(
+        sibling_ref.artifact_id
+    )
+    assert world_model_record_content_hash(selected_world) == selected_world.content_hash
+
+    owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+        profiles=(),
+        store=store,
+    )
+    reused_ref = owner._candidate_world_model_substrate_registry_view(
+        world_model_record=selected_world,
+        substrate_registry=registry,
+    )
+    assert reused_ref == sibling_ref
+    assert reused_ref.manifest_profile_sha256 == sibling_ref.manifest_profile_sha256
+    assert store.verify(reused_ref).ok
+    assert load_substrate_registry(
+        store, reused_ref, expected_inputs=sibling_inputs
+    ) == registry
+
+
 def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
     tmp_path: Any,
 ) -> None:
@@ -1796,21 +2030,43 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
     problem = _qualified_v3_design_problem()
     problem_ref = cycle_job_design_problem_ref(problem)
     registry = _registry("education")
-    world = _world_record_with_selected_views(
-        "education",
-        registry,
-        selected_profile=_hash("selected-view"),
-        region_or_jurisdiction=problem.jurisdiction_time.region,
-    )
-    context = _cycle_context(
-        design_problem_ref=problem_ref,
-        registry=registry,
-        world_model_record=world,
-    )
+    tenant_id = "tenant-context-v3-owner"
+    cell_id = "cell-context-v3-owner"
     store = FileSystemCAS(
         tmp_path / "cycle-context-v3-cas",
         ownership_enforced=True,
         ownership_requires_scope=True,
+    )
+    declared_world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction=problem.jurisdiction_time.region,
+        policy_slot_ids=("education.teaching_method", "education.learning_outcomes"),
+    )
+    with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+        substrate_registry_artifact_ref, declared_world = (
+            _fixture_world_with_persisted_substrate_registry(
+                store,
+                registry,
+                declared_world,
+            )
+        )
+    world = _world_record_with_selected_views(
+        declared_world,
+        substrate_registry_artifact_ref=substrate_registry_artifact_ref,
+        selected_profile=_hash("selected-view"),
+    )
+    assert world.policy_domain == problem.domain == "education"
+    assert world.region_or_jurisdiction == problem.jurisdiction_time.region
+    assert {
+        "education.teaching_method",
+        "education.learning_outcomes",
+    }.issubset({slot.slot_id for slot in world.policy_slot_map})
+    assert world.authority_status == "limited"
+    context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
     )
     owner = CycleSubstrateContextArtifactOwner(
         store=store,
@@ -1819,9 +2075,7 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
         ),
     )
 
-    with _authenticated_tenant_scope(
-        tenant_id="tenant-context-v3-owner", cell_id="cell-context-v3-owner"
-    ):
+    with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
         ref = owner.persist_for_current_job(context, problem=problem)
         resolved = owner.resolve_for_current_job(ref, problem=problem)
         payload = canon.from_canonical_bytes(store.get_bytes(ref))
@@ -1849,10 +2103,9 @@ def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
         _serialize_context_job_v2_value(world)
 
     sibling_world = _world_record_with_selected_views(
-        "education",
-        registry,
+        declared_world,
+        substrate_registry_artifact_ref=substrate_registry_artifact_ref,
         selected_profile=_hash("sibling-view"),
-        region_or_jurisdiction=problem.jurisdiction_time.region,
     )
     sibling_context = _cycle_context(
         design_problem_ref=problem_ref,
@@ -1939,6 +2192,9 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         region_or_jurisdiction="UA",
         policy_slot_ids=("education.teaching_method", "learning_outcomes"),
     )
+    substrate_registry_artifact_ref, base_world = (
+        _fixture_world_with_persisted_substrate_registry(store, registry, base_world)
+    )
     slots = tuple(
         binding.model_copy(
             update={
@@ -1957,7 +2213,10 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         else default_state_ref
     )
     views = world_model_artifact_views(base_world).model_copy(
-        update={"bound_state_snapshot_ref": state_view}
+        update={
+            "bound_state_snapshot_ref": state_view,
+            "substrate_registry_ref": substrate_registry_artifact_ref,
+        }
     )
     world = _rehash_world_record_fixture(
         base_world,
@@ -2117,6 +2376,45 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         offer.context.world_model_record.artifact_views.bound_state_snapshot_ref
         == state_view
     )
+
+
+def _fixture_world_with_persisted_substrate_registry(
+    store: FileSystemCAS,
+    registry: SubstrateRegistry,
+    world: WorldModelRecord,
+) -> tuple[ArtifactRef, WorldModelRecord]:
+    """Persist the declared fixture registry and bind its real CAS ref into WMRv1."""
+
+    if world.schema_version != "policyos.runtime.world_model_record.v1":
+        raise ValueError("fixture_world_model_record_v1_required")
+    if world.authority_status != "limited":
+        raise ValueError("fixture_world_model_record_must_remain_limited")
+    if world.substrate_registry_ref.content_hash != registry.content_hash:
+        raise ValueError("fixture_world_substrate_registry_content_mismatch")
+    registry_ref = ArtifactRef.model_validate(
+        persist_substrate_registry(store, registry)
+    )
+    manifest = store.get_manifest(registry_ref)
+    persisted_registry = load_substrate_registry(store, registry_ref)
+    if (
+        registry_ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
+        or manifest.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
+        or registry_ref.media_type != "application/json"
+        or manifest.media_type != "application/json"
+    ):
+        raise ValueError("fixture_substrate_registry_owner_ref_invalid")
+    if persisted_registry.content_hash != registry.content_hash:
+        raise ValueError("fixture_substrate_registry_owner_content_mismatch")
+    substrate_ref = world.substrate_registry_ref.model_copy(
+        update={"registry_artifact_ref": str(registry_ref.artifact_id)}
+    )
+    bound_world = _rehash_world_record_fixture(
+        world,
+        substrate_registry_ref=substrate_ref,
+    )
+    if world_model_record_content_hash(bound_world) != bound_world.content_hash:
+        raise ValueError("fixture_world_model_record_rehash_failed")
+    return registry_ref, bound_world
 
 
 def _rehash_world_record_fixture(

@@ -524,15 +524,65 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
     )
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.substrate_registry import (
+        SUBSTRATE_REGISTRY_ARTIFACT_KIND,
+        persist_substrate_registry,
+    )
     from polisyos.runtime.quality.world_model_record import (
+        WorldModelRecord,
         derive_candidate_scenario_world_model_record,
+        world_model_record_content_hash,
     )
 
     problem = _design_problem()
     registry = _registry("education")
+    tenant_id = "tenant-candidate-handoff"
+    cell_id = "cell-candidate-handoff"
+    job_id = "job-candidate-handoff"
+    run_id = "run-candidate-handoff"
+    store = FileSystemCAS(
+        tmp_path / "candidate-handoff-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        substrate_registry_artifact_ref = persist_substrate_registry(store, registry)
+        substrate_registry_manifest = store.get_manifest(
+            substrate_registry_artifact_ref
+        )
+    assert substrate_registry_artifact_ref.kind == SUBSTRATE_REGISTRY_ARTIFACT_KIND
+    assert substrate_registry_manifest.kind == SUBSTRATE_REGISTRY_ARTIFACT_KIND
+
+    synthetic_world_record = _world_record("education", registry)
+    persisted_registry_ref = synthetic_world_record.substrate_registry_ref.model_copy(
+        update={
+            "registry_artifact_ref": str(substrate_registry_artifact_ref.artifact_id)
+        }
+    )
+    world_record_draft = synthetic_world_record.model_copy(
+        update={"substrate_registry_ref": persisted_registry_ref}
+    )
+    world_record_content_hash = world_model_record_content_hash(world_record_draft)
+    world_record = WorldModelRecord.model_validate(
+        {
+            **world_record_draft.model_dump(mode="python"),
+            "content_hash": world_record_content_hash,
+            "world_model_record_id": (
+                "world_model_record_"
+                + world_record_content_hash.removeprefix("sha256:")[:16]
+            ),
+        }
+    )
+    assert world_record.schema_version == "policyos.runtime.world_model_record.v1"
+    assert world_record.substrate_registry_ref.registry_artifact_ref == str(
+        substrate_registry_artifact_ref.artifact_id
+    )
+    assert world_model_record_content_hash(world_record) == world_record.content_hash
+
     base_context = _cycle_context(
         design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
         registry=registry,
+        world_model_record=world_record,
     )
     inputs = CandidateSimulationContextInputs(
         substrate_registry=base_context.substrate_registry,
@@ -618,15 +668,6 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
                 declaration_draft.model_dump(mode="json", exclude={"content_hash"})
             ),
         }
-    )
-    tenant_id = "tenant-candidate-handoff"
-    cell_id = "cell-candidate-handoff"
-    job_id = "job-candidate-handoff"
-    run_id = "run-candidate-handoff"
-    store = FileSystemCAS(
-        tmp_path / "candidate-handoff-cas",
-        ownership_enforced=True,
-        ownership_requires_scope=True,
     )
     repository = GenerationSourceRepository(store)
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):

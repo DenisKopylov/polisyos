@@ -552,6 +552,16 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     indexed_run = runtime_context.run_index.get_run(run_id)
     rebound_fixture_counter = 0
 
+    def _get_candidate_in_owner_scope(run: Any, *, alias: str) -> Any:
+        """Call the service as the persisted run owner, as HTTP middleware does."""
+        tenant_id = run.details.tenant_id
+        cell_id = run.details.cell_id
+        assert (tenant_id, cell_id) == (_TENANT_ID, _CELL_ID)
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            return runtime_context.debug.get_simulation_result_candidate(
+                run, alias=alias
+            )
+
     def _run_rebound_to(
         candidate_ref: ArtifactRef,
         *,
@@ -764,67 +774,67 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     wrong_kind_ref = foreign_ref.model_copy(update={"kind": "wrong.artifact_kind"})
     wrong_media_ref = foreign_ref.model_copy(update={"media_type": "text/plain"})
     with pytest.raises(SimulationResultProjectionError) as unscoped_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(unscoped_ref),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as foreign_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(foreign_ref),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as malformed_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(malformed_ref),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as wrong_schema_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(wrong_schema_ref),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as wrong_kind_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(wrong_kind_ref),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as wrong_media_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(wrong_media_ref),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as stale_state_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(unscoped_ref, state_run_id="R_res03_stale"),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as missing_state_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             replace(_run_rebound_to(foreign_ref), experiment_state_ref=None),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as foreign_cell_state_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(simulation_ref, state_cell_id="cell-foreign"),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as foreign_cell_report_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(simulation_ref, report_cell_id="cell-foreign"),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as unsupported_state_schema_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(simulation_ref, state_schema_version="9.9"),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as unsupported_report_schema_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(simulation_ref, report_schema_version="9.9"),
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as state_ref_kind_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(
                 simulation_ref,
                 state_ref_kind="wrong.binding_kind",
@@ -832,7 +842,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as report_ref_media_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(
                 simulation_ref,
                 report_ref_media_type="text/plain",
@@ -840,7 +850,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as node_ref_kind_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(
                 simulation_ref,
                 node_ref_kind="wrong.binding_kind",
@@ -848,7 +858,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as node_ref_media_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(
                 simulation_ref,
                 node_ref_media_type="text/plain",
@@ -856,7 +866,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as mixed_node_ref_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(
                 simulation_ref,
                 node_ref_conflicting_kind="wrong.binding_kind",
@@ -864,7 +874,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as state_payload_schema_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(
                 simulation_ref,
                 state_payload_schema_version="9.9",
@@ -872,7 +882,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             alias="run_simulation",
         )
     with pytest.raises(SimulationResultProjectionError) as report_payload_schema_error:
-        runtime_context.debug.get_simulation_result_candidate(
+        _get_candidate_in_owner_scope(
             _run_rebound_to(
                 simulation_ref,
                 report_payload_schema_version="9.9",

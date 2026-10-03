@@ -3406,3 +3406,9 @@ Patch `/Users/deniskopylov/.codex/scratch/E02R2_P41_CLAIM_LIFECYCLE_SCOPE_CANDID
 
 
 Complete custody-lifecycle postimage now passes the full claim-lifecycle file, 4/4, exit 0 in 35.285s. The configured signed-owner positive path, unappointed-owner limitation, absent monitor and wrong-vocabulary refusals all execute. The native group is reaped and the complete tracked non-dotenv and foreign-document snapshot is unchanged. Receipt `/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R14_CLAIM_LIFECYCLE_COMPLETE_SCOPE_20261003/RESULT.json@sha256:1a4540f8b74a7905bccf5e20020385a733387bd67ef7eb72c8564fa45a2ab950`. This supersedes the preceding four failing post-claim fixture reads for the current postimage only; mandatory four-base replay remains incomplete.
+
+## R14 RES-03 direct consumer custody — 2026-10-03
+
+Root changes only `tests/integration/scientist/test_res_03_real_simulation_route.py` and this lease. The direct DebugService consumer now enters the persisted run owner's tenant/cell for all 19 direct calls, while all 12 served HTTP calls remain outside that test helper. All 20 typed error assertions are unchanged; these fixtures exercise manifest tenant/cell mismatch after CAS ownership admission. No production guard or HTTP middleware is changed. This widens the same fixture-custody lifecycle class under P40, rather than teaching the first error assertion to accept an earlier refusal.
+
+Candidate `/Users/deniskopylov/.codex/scratch/E02R2_RES03_OWNER_SCOPE_CANDIDATE_20261003_V2/candidate.patch@sha256:6eb9910e47b7e2d64f5df746f4d8be502040225d240f9aa2e3cc9a36364ea80b`; independent delta GO `REVIEW_V2.md@sha256:7f4205c991e427556d09635cd077c3d3655cd6bbf4a20bdae967f66010db3ef0` in that directory. Source postimage is `sha256:38fa5c5a098c67a2fa8b30fcbfa90eb989177b817c5a66f81bfedc1aa64eb76d`; native whole-file acceptance is pending at application.

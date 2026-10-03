@@ -954,13 +954,19 @@ def test_unprofiled_pilot_admission_projects_rss_and_cpu_without_profile_entries
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     harness = _harness()
+    candidate_checkout_root = "/tmp/candidate/policy-engine"
+    active_checkout_root = "/tmp/active/policy-engine"
     reason, hard_block = harness._unprofiled_pilot_admission_reason(
-        _pilot_job(harness), _pilot_snapshot(), {}
+        _pilot_job(harness),
+        _pilot_snapshot(),
+        {},
+        checkout_root=candidate_checkout_root,
     )
     assert reason is None
     assert hard_block is False
 
     pilot_group = {
+        "checkout_root": active_checkout_root,
         "unprofiled_pilot_rss_cap_kib": 2 * 1024**2,
         "unprofiled_pilot_cpu_projection_percent": 200.0,
         "expected_profile": None,
@@ -973,13 +979,19 @@ def test_unprofiled_pilot_admission_projects_rss_and_cpu_without_profile_entries
         group_rss={"7001": 1_800_000},
     )
     reason, _ = harness._unprofiled_pilot_admission_reason(
-        _pilot_job(harness), tight_rss, {7001: pilot_group}
+        _pilot_job(harness),
+        tight_rss,
+        {7001: pilot_group},
+        checkout_root=candidate_checkout_root,
     )
     assert reason is not None and "projected active pytest RSS" in reason
 
     tight_cpu = _pilot_snapshot(aggregate_cpu_percent=501)
     reason, _ = harness._unprofiled_pilot_admission_reason(
-        _pilot_job(harness), tight_cpu, {}
+        _pilot_job(harness),
+        tight_cpu,
+        {},
+        checkout_root=candidate_checkout_root,
     )
     assert reason is not None and "projected active pytest CPU" in reason
 
@@ -988,13 +1000,19 @@ def test_unprofiled_pilot_admission_projects_rss_and_cpu_without_profile_entries
         total_memory_bytes=32 * 1024**3,
     )
     reason, _ = harness._unprofiled_pilot_admission_reason(
-        _pilot_job(harness), tight_memory, {}
+        _pilot_job(harness),
+        tight_memory,
+        {},
+        checkout_root=candidate_checkout_root,
     )
     assert reason is not None and "hard memory reserve" in reason
 
     tight_disk = _pilot_snapshot(disk_free_bytes=8 * 1024**3 - 1)
     reason, _ = harness._unprofiled_pilot_admission_reason(
-        _pilot_job(harness), tight_disk, {}
+        _pilot_job(harness),
+        tight_disk,
+        {},
+        checkout_root=candidate_checkout_root,
     )
     assert reason is not None and "scratch free-space floor" in reason
 
@@ -1008,6 +1026,7 @@ def test_unprofiled_pilot_admission_projects_rss_and_cpu_without_profile_entries
             group_rss={"7001": 1_000_000, "7002": 1_000_000},
         ),
         two_active_pilots,
+        checkout_root=candidate_checkout_root,
     )
     assert reason is not None and "two-group pilot limit" in reason
 
@@ -1018,13 +1037,19 @@ def test_unprofiled_pilot_never_admits_native_or_resource_exclusive_jobs() -> No
     harness = _harness()
     ordinary_snapshot = _pilot_snapshot()
     reason, _ = harness._unprofiled_pilot_admission_reason(
-        _pilot_job(harness, native=True), ordinary_snapshot, {}
+        _pilot_job(harness, native=True),
+        ordinary_snapshot,
+        {},
+        checkout_root="/tmp/candidate/policy-engine",
     )
     assert reason is not None and "native or resource-exclusive" in reason
 
     for resource_exclusive in harness.RESOURCE_EXCLUSIVE_TEST_PATHS:
         reason, _ = harness._unprofiled_pilot_admission_reason(
-            _pilot_job(harness, path=resource_exclusive), ordinary_snapshot, {}
+            _pilot_job(harness, path=resource_exclusive),
+            ordinary_snapshot,
+            {},
+            checkout_root="/tmp/candidate/policy-engine",
         )
         assert reason is not None and "native or resource-exclusive" in reason
 
@@ -1043,7 +1068,7 @@ def test_scheduler_default_keeps_unknown_jobs_serial_and_opt_in_caps_at_two(
     monkeypatch.setattr(
         harness,
         "_can_admit_unprofiled_pilot_job",
-        lambda *_: (True, None, False),
+        lambda *_, **__: (True, None, False),
     )
     jobs = [
         _pilot_job(harness, path=f"policy-engine/tests/unit/item_{index}.py")

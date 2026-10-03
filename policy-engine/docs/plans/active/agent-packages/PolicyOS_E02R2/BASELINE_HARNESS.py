@@ -2497,6 +2497,7 @@ def _run_job(
                         "expected_profile": expected_profile,
                         "revision_key": job.revision_key,
                         "test_path": job.test_path,
+                        "checkout_root": _checkout_root_identity(revision),
                         "exclusive_native": job.exclusive_native,
                         "resource_exclusive": job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS,
                         "unprofiled_pilot_rss_cap_kib": unprofiled_pilot_rss_cap_kib,
@@ -2873,8 +2874,31 @@ def _verify_published_artifacts(
     return verified
 
 
+def _require_byproduct_retirement_admitted() -> None:
+    """Refuse byproduct moves until active groups are reaped and fences are clear."""
+    with _PROCESS_GROUPS_LOCK:
+        _require(
+            not _LIVE_PROCESS_GROUPS,
+            "refusing byproduct retirement while owner process groups remain active",
+        )
+        try:
+            fence_state = _process_group_fence_state()
+        except Exception as exc:
+            raise RuntimeError(
+                "refusing byproduct retirement because process-group fence inspection failed: "
+                f"{type(exc).__name__}: {exc}"
+            ) from exc
+    verdict = fence_state.get("verdict") if isinstance(fence_state, dict) else None
+    _require(
+        verdict == "CLEAR",
+        "refusing byproduct retirement because process-group fence state is "
+        f"{verdict or 'UNKNOWN'}",
+    )
+
+
 def _move_test_byproducts(run_dir: Path, scratch_root: Path, run_id: str) -> Path:
     """Keep pytest temp/cache trees external to the durable receipt directory."""
+    _require_byproduct_retirement_admitted()
     byproduct_root = scratch_root / "byproducts" / run_id
     for cell_dir in sorted((run_dir / "cells").glob("*")):
         if not cell_dir.is_dir():
@@ -2894,6 +2918,7 @@ def _move_completed_byproducts_to_trash(
     package_raw: Path,
 ) -> dict[str, Any]:
     """Retire completed pytest byproducts into Trash and retain a mapping receipt."""
+    _require_byproduct_retirement_admitted()
     if not byproduct_root.exists():
         return {"path": None, "manifest_path": None, "manifest_sha256": None, "directory_count": 0}
 
@@ -2971,6 +2996,32 @@ def _move_completed_byproducts_to_trash(
     }
 
 
+def _checkout_root_identity(revision: dict[str, Any]) -> str:
+    """Return the canonical product cwd whose mutable state a job may share."""
+    return str((Path(revision["checkout"]) / "policy-engine").resolve())
+
+
+def _checkout_root_admission_reason(
+    checkout_root: str,
+    active_groups: dict[int, dict[str, Any]],
+    reserved_checkout_roots: set[str] | frozenset[str],
+) -> tuple[str | None, bool]:
+    """Keep one live or starting pytest group per mutable product checkout."""
+    if not isinstance(checkout_root, str) or not checkout_root:
+        return "candidate checkout-root lease is unavailable", True
+    if checkout_root in reserved_checkout_roots:
+        return "same checkout root is reserved by a pending process group", False
+    for active_group in active_groups.values():
+        if not isinstance(active_group, dict):
+            return "active process group checkout-root lease is malformed", True
+        active_root = active_group.get("checkout_root")
+        if not isinstance(active_root, str) or not active_root:
+            return "active process group has no checkout-root lease", True
+        if active_root == checkout_root:
+            return "same checkout root already has an active process group", False
+    return None, False
+
+
 def _profile_key(job: Job) -> tuple[str, str, str]:
     """Keep resource evidence scoped to the pinned runtime revision as well as the test bytes."""
     return (job.revision_key, job.test_path, job.test_blob_oid)
@@ -2993,10 +3044,20 @@ def _unprofiled_pilot_admission_reason(
     job: Job,
     snapshot: dict[str, Any],
     active_groups: dict[int, dict[str, Any]],
+    *,
+    checkout_root: str,
+    reserved_checkout_roots: set[str] | frozenset[str] = frozenset(),
 ) -> tuple[str | None, bool]:
     """Project one opt-in unprofiled job against live RSS, CPU, RAM, and disk bounds."""
     if job.exclusive_native or job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS:
         return "native or resource-exclusive jobs cannot enter the unprofiled pilot", False
+    checkout_reason, checkout_hard_block = _checkout_root_admission_reason(
+        checkout_root,
+        active_groups,
+        reserved_checkout_roots,
+    )
+    if checkout_reason is not None:
+        return checkout_reason, checkout_hard_block
 
     try:
         active_count = snapshot["active_process_group_count"]
@@ -3112,6 +3173,9 @@ def _can_admit_unprofiled_pilot_job(
     job: Job,
     scratch_root: Path,
     baseline_swap_used_bytes: int,
+    *,
+    checkout_root: str,
+    reserved_checkout_roots: set[str] | frozenset[str] = frozenset(),
 ) -> tuple[bool, str | None, bool]:
     """Admit an ordinary unknown job only with a fresh, complete projection."""
     if job.exclusive_native or job.test_path in RESOURCE_EXCLUSIVE_TEST_PATHS:
@@ -3121,7 +3185,13 @@ def _can_admit_unprofiled_pilot_job(
         return False, hard_reason or "resource inspection did not return a sample", True
     with _PROCESS_GROUPS_LOCK:
         active_groups = dict(_LIVE_PROCESS_GROUPS)
-    reason, hard_block = _unprofiled_pilot_admission_reason(job, snapshot, active_groups)
+    reason, hard_block = _unprofiled_pilot_admission_reason(
+        job,
+        snapshot,
+        active_groups,
+        checkout_root=checkout_root,
+        reserved_checkout_roots=reserved_checkout_roots,
+    )
     return reason is None, reason, hard_block
 
 
@@ -3130,6 +3200,9 @@ def _can_admit_profiled_job(
     profiles: dict[tuple[str, str, str], dict[str, Any]],
     scratch_root: Path,
     baseline_swap_used_bytes: int,
+    *,
+    checkout_root: str,
+    reserved_checkout_roots: set[str] | frozenset[str] = frozenset(),
 ) -> tuple[bool, str | None, bool]:
     """Check one staggered launch against current aggregate load and reserve."""
     profile = profiles.get(_profile_key(job))
@@ -3142,6 +3215,15 @@ def _can_admit_profiled_job(
         return False, f"already at {MAX_PROCESS_GROUPS} active pytest process groups", False
     if snapshot["system_memory_free_percent"] < ADAPTIVE_MIN_MEMORY_FREE_PERCENT:
         return False, f"admission reserve below {ADAPTIVE_MIN_MEMORY_FREE_PERCENT}% free memory", False
+    with _PROCESS_GROUPS_LOCK:
+        active_groups = dict(_LIVE_PROCESS_GROUPS)
+    checkout_reason, checkout_hard_block = _checkout_root_admission_reason(
+        checkout_root,
+        active_groups,
+        reserved_checkout_roots,
+    )
+    if checkout_reason is not None:
+        return False, checkout_reason, checkout_hard_block
     # The hard resource guard already caps swap growth; a change within that
     # bound, including a decrease, is not a separate admission failure.
 
@@ -3161,8 +3243,6 @@ def _can_admit_profiled_job(
         return False, "projected active pytest CPU exceeds batch cap", False
 
     active_rss_by_group = snapshot.get("aggregate_process_group_rss_by_group_kib", {})
-    with _PROCESS_GROUPS_LOCK:
-        active_groups = dict(_LIVE_PROCESS_GROUPS)
     measured_group_ids = {int(group_id) for group_id in active_rss_by_group}
     missing_group_ids = set(active_groups) - measured_group_ids
     unaccounted_group_ids = measured_group_ids - set(active_groups)
@@ -3297,6 +3377,11 @@ def _schedule(
 
                 if next_index < len(batch):
                     job = batch[next_index]
+                    checkout_root = _checkout_root_identity(by_revision[job.revision_key])
+                    reserved_checkout_roots = {
+                        _checkout_root_identity(by_revision[pending_job.revision_key])
+                        for pending_job in pending.values()
+                    }
                     is_profiled = _profile_light(job, profiles)
                     can_launch = False
                     admission_reason: str | None = None
@@ -3307,12 +3392,16 @@ def _schedule(
                             profiles,
                             scratch_root,
                             baseline_swap_used_bytes,
+                            checkout_root=checkout_root,
+                            reserved_checkout_roots=reserved_checkout_roots,
                         )
                     elif unprofiled_pilot:
                         can_launch, admission_reason, hard_block = _can_admit_unprofiled_pilot_job(
                             job,
                             scratch_root,
                             baseline_swap_used_bytes,
+                            checkout_root=checkout_root,
+                            reserved_checkout_roots=reserved_checkout_roots,
                         )
                     elif not pending:
                         _, admission_reason = _machine_admission_state(

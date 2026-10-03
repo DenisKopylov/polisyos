@@ -3309,7 +3309,10 @@ def test_joint_port_refuses_same_id_sibling_ncm_views_before_n5(
         CandidateSimulationSyntheticModelDeclarationV1,
         candidate_simulation_profile_ref,
     )
-    from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+        build_cycle_substrate_context,
+    )
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.intervention_atom_binding import (
         intervention_atom_content_hash,
@@ -3488,10 +3491,21 @@ def test_joint_port_refuses_same_id_sibling_ncm_views_before_n5(
             "content_hash": limited_hash,
         }
     )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        substrate_registry_view_ref = (
+            ConfiguredCandidateSimulationContextAdmissionOwner(
+                profiles=(),
+                store=store,
+            )._candidate_world_model_substrate_registry_view(
+                world_model_record=limited_base,
+                substrate_registry=context.substrate_registry,
+            )
+        )
     selected_world = derive_candidate_scenario_world_model_record(
         limited_base,
         ncm_artifact_ref=selected_ncm_ref,
         declaration_content_hash=selected_declaration.content_hash,
+        substrate_registry_view_ref=substrate_registry_view_ref,
     )
     sibling_world = derive_candidate_scenario_world_model_record(
         selected_world,

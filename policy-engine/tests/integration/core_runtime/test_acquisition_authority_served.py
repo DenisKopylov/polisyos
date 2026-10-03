@@ -1303,6 +1303,43 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert context_job.profile_admission_status == "not_established"
             assert context_job.s8_status == "blocked"
             assert context_job.authority_purpose == "cycle_input_candidate_only"
+            # Compare the complete persisted source/context/WMR selector chain,
+            # including CAS manifest profiles rather than only artifact IDs.
+            selected_ncm_ref = n5_input.ncm_ref
+            selected_ncm_identity = artifact_ref_identity_key(selected_ncm_ref)
+            assert selected_ncm_ref.manifest_profile_sha256 is not None
+            assert artifact_ref_identity_key(source_record.ncm_ref) == selected_ncm_identity
+            assert artifact_ref_identity_key(n5_input.materialization.ncm_ref) == (
+                selected_ncm_identity
+            )
+            context_world = context_job.context.world_model_record
+            assert source_record.world_model_record_hash == context_world.content_hash
+            assert n5_input.materialization.world_model_record_hash == (
+                context_world.content_hash
+            )
+            assert n5_input.profile.context_inputs.world_model_record.content_hash == (
+                context_world.content_hash
+            )
+            context_ncm_views = world_model_artifact_views(context_world).ncm_refs
+            selected_context_ncm_views = tuple(
+                ref
+                for ref in context_ncm_views
+                if artifact_ref_identity_key(ref) == selected_ncm_identity
+            )
+            assert len(selected_context_ncm_views) == 1
+            assert selected_context_ncm_views[0] == selected_ncm_ref
+            assert selected_context_ncm_views[0].manifest_profile_sha256 is not None
+            acquired_world = n5_input.profile.context_inputs.world_model_record
+            context_data_snapshot_ref = world_model_artifact_views(
+                context_world
+            ).data_snapshot_ref
+            data_snapshot_ref = world_model_artifact_views(
+                acquired_world
+            ).data_snapshot_ref
+            assert artifact_ref_identity_key(data_snapshot_ref) == (
+                artifact_ref_identity_key(context_data_snapshot_ref)
+            )
+            assert source_record.context_hash == context_job.context.content_hash
 
             growth = _within_fixture_owner(cases[-1].port.project_world_growth, closure)
             assert growth is not None

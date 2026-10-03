@@ -2872,6 +2872,32 @@ class GenerationSourceRepository:
         ):
             raise ValueError("candidate_simulation_v4_identity_mismatch")
 
+        # The N5 input owns the profile. Execution V4 persists only its
+        # profile reference, so replay must resolve that exact input before
+        # checking source membership.
+        input_record = (
+            record
+            if is_input
+            else self._load_candidate_simulation_input_v4(record.n5_input_ref)
+        )
+        if not is_input and (
+            type(input_record) is not CandidateSimulationN5InputV4
+            or artifact_ref_identity_key(input_record.n4_source_ref)
+            != artifact_ref_identity_key(record.n4_source_ref)
+            or artifact_ref_identity_key(input_record.context_job_ref)
+            != artifact_ref_identity_key(record.context_job_ref)
+            or input_record.profile_config_ref != record.profile_config_ref
+            or input_record.original_candidate_id != record.original_candidate_id
+            or input_record.original_candidate_hash != record.original_candidate_hash
+            or input_record.original_n4_atom_hash != record.original_n4_atom_hash
+            or input_record.materialization.derived_n5_atom.content_hash
+            != record.derived_n5_atom_hash
+            or input_record.materialization.problem_ref != record.problem_ref
+            or input_record.materialization.world_model_record_hash
+            != record.world_model_record_hash
+        ):
+            raise ValueError("candidate_simulation_v4_execution_input_mismatch")
+
         source = self.load_candidate_scenario_source_v1(
             record.n4_source_ref,
             expected_run_id=record.run_id,
@@ -2884,8 +2910,8 @@ class GenerationSourceRepository:
             or source.candidate.candidate_id != record.original_candidate_id
             or source.candidate.atom.content_hash != record.original_n4_atom_hash
             or source.candidate.atom.content_hash != record.original_candidate_hash
-            or source.profile.content_hash != record.profile.content_hash
-            or source.profile_config_ref != record.profile_config_ref
+            or source.profile.content_hash != input_record.profile.content_hash
+            or source.profile_config_ref != input_record.profile_config_ref
             or artifact_ref_identity_key(source.context_job_ref)
             != artifact_ref_identity_key(record.context_job_ref)
         ):
@@ -2906,24 +2932,6 @@ class GenerationSourceRepository:
             ):
                 raise ValueError("candidate_simulation_v4_input_context_mismatch")
         else:
-            input_record = self._load_candidate_simulation_input_v4(record.n5_input_ref)
-            if (
-                type(input_record) is not CandidateSimulationN5InputV4
-                or artifact_ref_identity_key(input_record.n4_source_ref)
-                != artifact_ref_identity_key(record.n4_source_ref)
-                or artifact_ref_identity_key(input_record.context_job_ref)
-                != artifact_ref_identity_key(record.context_job_ref)
-                or input_record.profile_config_ref != record.profile_config_ref
-                or input_record.original_candidate_id != record.original_candidate_id
-                or input_record.original_candidate_hash != record.original_candidate_hash
-                or input_record.original_n4_atom_hash != record.original_n4_atom_hash
-                or input_record.materialization.derived_n5_atom.content_hash
-                != record.derived_n5_atom_hash
-                or input_record.materialization.problem_ref != record.problem_ref
-                or input_record.materialization.world_model_record_hash
-                != record.world_model_record_hash
-            ):
-                raise ValueError("candidate_simulation_v4_execution_input_mismatch")
             from polisyos.runtime.quality.generation_cycle import (
                 JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
                 load_joint_simulation_result,
@@ -3049,6 +3057,34 @@ class GenerationSourceRepository:
         ):
             raise ValueError("candidate_simulation_v5_identity_mismatch")
 
+        # The N5 input owns the profile. Execution V5 persists only its
+        # profile reference, so replay must resolve that exact input before
+        # checking source membership.
+        input_record = (
+            record
+            if is_input
+            else self._load_candidate_simulation_input_v5(record.n5_input_ref)
+        )
+        if not is_input and (
+            type(input_record) is not CandidateSimulationN5InputV5
+            or artifact_ref_identity_key(input_record.n4_source_ref)
+            != artifact_ref_identity_key(record.n4_source_ref)
+            or artifact_ref_identity_key(input_record.context_job_ref)
+            != artifact_ref_identity_key(record.context_job_ref)
+            or input_record.model_declaration_ref != record.model_declaration_ref
+            or input_record.ncm_ref != record.ncm_ref
+            or input_record.profile_config_ref != record.profile_config_ref
+            or input_record.original_candidate_id != record.original_candidate_id
+            or input_record.original_candidate_hash != record.original_candidate_hash
+            or input_record.original_n4_atom_hash != record.original_n4_atom_hash
+            or input_record.materialization.derived_n5_atom.content_hash
+            != record.derived_n5_atom_hash
+            or input_record.materialization.problem_ref != record.problem_ref
+            or input_record.materialization.world_model_record_hash
+            != record.world_model_record_hash
+        ):
+            raise ValueError("candidate_simulation_v5_execution_input_mismatch")
+
         source = self.load_candidate_scenario_source_for_n5(
             record.n4_source_ref,
             expected_run_id=record.run_id,
@@ -3071,8 +3107,8 @@ class GenerationSourceRepository:
             != artifact_ref_identity_key(record.context_job_ref)
             or source_v2.model_declaration_ref != record.model_declaration_ref
             or source_v2.ncm_ref != record.ncm_ref
-            or source_v1.profile.content_hash != record.profile.content_hash
-            or source_v1.profile_config_ref != record.profile_config_ref
+            or source_v1.profile.content_hash != input_record.profile.content_hash
+            or source_v1.profile_config_ref != input_record.profile_config_ref
             or source_v1.candidate is None
             or source_v1.candidate.candidate_id != record.original_candidate_id
             or source_v1.candidate.atom.content_hash != record.original_candidate_hash
@@ -3100,26 +3136,6 @@ class GenerationSourceRepository:
             ):
                 raise ValueError("candidate_simulation_v5_input_context_mismatch")
         else:
-            input_record = self._load_candidate_simulation_input_v5(record.n5_input_ref)
-            if (
-                type(input_record) is not CandidateSimulationN5InputV5
-                or artifact_ref_identity_key(input_record.n4_source_ref)
-                != artifact_ref_identity_key(record.n4_source_ref)
-                or artifact_ref_identity_key(input_record.context_job_ref)
-                != artifact_ref_identity_key(record.context_job_ref)
-                or input_record.model_declaration_ref != record.model_declaration_ref
-                or input_record.ncm_ref != record.ncm_ref
-                or input_record.profile_config_ref != record.profile_config_ref
-                or input_record.original_candidate_id != record.original_candidate_id
-                or input_record.original_candidate_hash != record.original_candidate_hash
-                or input_record.original_n4_atom_hash != record.original_n4_atom_hash
-                or input_record.materialization.derived_n5_atom.content_hash
-                != record.derived_n5_atom_hash
-                or input_record.materialization.problem_ref != record.problem_ref
-                or input_record.materialization.world_model_record_hash
-                != record.world_model_record_hash
-            ):
-                raise ValueError("candidate_simulation_v5_execution_input_mismatch")
             from polisyos.runtime.quality.generation_cycle import (
                 JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
                 load_joint_simulation_result,

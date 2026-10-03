@@ -2185,7 +2185,7 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     tmp_path,
     monkeypatch,
 ):
-    """V3-V5 owners hash the JSON projection and preserve each selected ref."""
+    """Execution replay uses the selected N5 input as profile owner (V3-V5)."""
     from types import SimpleNamespace
 
     from polisyos.core import canon
@@ -2200,7 +2200,10 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         CandidateSimulationN5InputV5,
     )
     from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
-    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceRepository,
+        N4CandidateScenarioSourceRecordV2,
+    )
 
     token = view_profile_token
 
@@ -2237,10 +2240,16 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     materialization = SimpleNamespace(
         context_hash=context_hash,
         world_model_record_hash=world_hash,
-        derived_n5_atom=SimpleNamespace(content_hash="sha256:" + "c" * 64),
+        derived_n5_atom=SimpleNamespace(
+            content_hash="sha256:" + "c" * 64,
+            intervention_id=f"n5-{schema_version}",
+        ),
         problem_ref="sha256:" + "d" * 64,
     )
-    profile = SimpleNamespace(content_hash=profile_hash)
+    profile = SimpleNamespace(
+        profile_id=f"profile-{schema_version}",
+        content_hash=profile_hash,
+    )
 
     input_types = {
         "v3": CandidateSimulationN5InputV3,
@@ -2260,7 +2269,9 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         "tenant_id": tenant_id,
         "cell_id": cell_id,
         "profile": profile,
-        "profile_config_ref": f"runtime-config:candidate-simulation:{schema_version}",
+        "profile_config_ref": (
+            f"runtime-config:candidate-simulation/{profile.profile_id}@{profile.content_hash}"
+        ),
         "materialization": materialization,
         "original_candidate_id": f"candidate-{schema_version}",
         "original_candidate_hash": "sha256:" + "e" * 64,
@@ -2368,3 +2379,116 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         match="candidate_simulation_execution_content_hash_mismatch",
     ):
         execution_types[schema_version].model_validate(tampered)
+
+    if schema_version in {"v4", "v5"}:
+        from polisyos.runtime.quality import generation_cycle as generation_cycle_module
+
+        source_candidate = SimpleNamespace(
+            candidate_id=input_record.original_candidate_id,
+            atom=SimpleNamespace(content_hash=input_record.original_candidate_hash),
+        )
+        source_v1 = SimpleNamespace(
+            context_job_ref=context_ref,
+            profile=profile,
+            profile_config_ref=input_record.profile_config_ref,
+            candidate=source_candidate,
+        )
+        if schema_version == "v4":
+            monkeypatch.setattr(
+                repository,
+                "load_candidate_scenario_source_v1",
+                lambda *_args, **_kwargs: source_v1,
+            )
+        else:
+            source_v2 = N4CandidateScenarioSourceRecordV2.model_construct(
+                source_record=source_v1,
+                model_declaration_ref=declaration_ref,
+                ncm_ref=ncm_ref,
+            )
+            monkeypatch.setattr(
+                repository,
+                "load_candidate_scenario_source_for_n5",
+                lambda *_args, **_kwargs: source_v2,
+            )
+        monkeypatch.setattr(
+            generation_cycle_module,
+            "load_joint_simulation_result",
+            lambda *_args, **_kwargs: SimpleNamespace(
+                receipt=SimpleNamespace(payload_hash=execution.n5_result_content_hash)
+            ),
+        )
+        resolver = getattr(repository, f"resolve_candidate_simulation_{schema_version}")
+        replayed = resolver(
+            ref=execution_ref,
+            expected_run_id=run_id,
+            expected_job_id=job_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+        )
+        assert replayed == execution
+
+        # A valid source with a different profile body cannot join the selected
+        # input merely because its execution/profile reference string is alike.
+        source_v1.profile = SimpleNamespace(
+            profile_id="foreign-profile",
+            content_hash="sha256:" + "a" * 64,
+        )
+        with pytest.raises(
+            ValueError,
+            match=f"candidate_simulation_{schema_version}_n4_source_membership_mismatch",
+        ):
+            resolver(
+                ref=execution_ref,
+                expected_run_id=run_id,
+                expected_job_id=job_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
+        source_v1.profile = profile
+
+        # The profile owner is the selected input. A foreign input/profile pair
+        # must fail the execution-to-input join before result replay.
+        foreign_profile = SimpleNamespace(
+            profile_id="foreign-profile",
+            content_hash="sha256:" + "a" * 64,
+        )
+        foreign_input = input_record.model_copy(
+            update={
+                "profile": foreign_profile,
+                "profile_config_ref": (
+                    f"runtime-config:candidate-simulation/{foreign_profile.profile_id}"
+                    f"@{foreign_profile.content_hash}"
+                ),
+            }
+        )
+        monkeypatch.setattr(
+            repository,
+            f"_load_candidate_simulation_input_{schema_version}",
+            lambda _ref: foreign_input,
+        )
+        with pytest.raises(
+            ValueError,
+            match=f"candidate_simulation_{schema_version}_execution_input_mismatch",
+        ):
+            resolver(
+                ref=execution_ref,
+                expected_run_id=run_id,
+                expected_job_id=job_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
+
+        # Restoring the selected source and input preserves replay of the exact
+        # previously written execution, including its selected CAS views.
+        monkeypatch.setattr(
+            repository,
+            f"_load_candidate_simulation_input_{schema_version}",
+            lambda _ref: input_record,
+        )
+        assert resolver(
+            ref=execution_ref,
+            expected_run_id=run_id,
+            expected_job_id=job_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+        ) == execution

@@ -862,6 +862,26 @@ class N4CandidateScenarioSourceRecordV2(_StrictModel):
         return self.source_record.status
 
     @property
+    def authority_purpose(self) -> Literal["candidate_scenario_n5_only"]:
+        return self.source_record.authority_purpose
+
+    @property
+    def n5_status(self) -> Literal["not_run"]:
+        return self.source_record.n5_status
+
+    @property
+    def n8_status(self) -> Literal["not_run"]:
+        return self.source_record.n8_status
+
+    @property
+    def n9_status(self) -> Literal["not_admitted"]:
+        return self.source_record.n9_status
+
+    @property
+    def s8_status(self) -> Literal["blocked"]:
+        return self.source_record.s8_status
+
+    @property
     def job_id(self) -> str:
         return self.source_record.job_id
 

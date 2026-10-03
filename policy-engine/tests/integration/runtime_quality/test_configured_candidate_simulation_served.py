@@ -790,6 +790,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         load_joint_simulation_result,
     )
     from polisyos.runtime.quality.generation_source import (
+        _SOURCE_CANON,
         GenerationSourceRepository,
         N4CandidateProposalLocator,
         N4CandidateProposalSimulationRecord,
@@ -1112,6 +1113,39 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             + selected_source.semantic_identity_hash.removeprefix("sha256:")[:16]
         )
         selected_v2_source = selected_source.source_record
+        selected_v1_source = selected_v2_source.source_record
+        candidate_control_facets = {
+            "authority_purpose": "candidate_scenario_n5_only",
+            "n5_status": "not_run",
+            "n8_status": "not_run",
+            "n9_status": "not_admitted",
+            "s8_status": "blocked",
+        }
+        for field_name, expected_value in candidate_control_facets.items():
+            assert getattr(selected_v1_source, field_name) == expected_value
+            assert getattr(selected_v2_source, field_name) == expected_value
+            assert getattr(selected_source, field_name) == expected_value
+
+        # Facade properties must leave both exact, already-persisted payloads unchanged.
+        selected_v2_bytes = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_bytes(selected_source.source_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert selected_v2_bytes == canon.to_canonical_bytes(
+            selected_v2_source,
+            _SOURCE_CANON,
+        )
+        selected_v3_bytes = read_private_artifact_in_job_scope(
+            lambda: service._artifact_store.get_bytes(input_record.n4_source_ref),
+            job_id=completed.job_id,
+            run_id=str(completed.run_id),
+        )
+        assert selected_v3_bytes == canon.to_canonical_bytes(
+            selected_source,
+            _SOURCE_CANON,
+        )
+
         assert selected_v2_source.model_declaration == model_declaration
         assert selected_v2_source.model_declaration_ref == input_record.model_declaration_ref
         assert selected_v2_source.ncm_ref == input_record.ncm_ref

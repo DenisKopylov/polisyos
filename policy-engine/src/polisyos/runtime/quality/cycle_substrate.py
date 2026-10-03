@@ -2256,6 +2256,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             job_id=job_id,
             run_id=run_id,
             tenant_id=tenant_id,
+            cell_id=cell_id,
             profile_content_hash=profile.content_hash,
         )
         candidate_world = derive_candidate_scenario_world_model_record(

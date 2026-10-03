@@ -10,6 +10,7 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityEvaluation,
     DecisionValidityStatus,
 )
+from polisyos.core.security import tenant_scope
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.runtime.http.container import RuntimeContainerOverrides
 from polisyos.runtime.http.dependencies import build_runtime_api_context
@@ -77,15 +78,16 @@ def _http_client(http_owner_case, *, owner=None):
     envelope = DecisionValidityEnvelope(
         decision_lineage_key="claim-owner-http-lineage", policy_fingerprint="claim-owner-http-v1"
     )
-    client.app.state.runtime_container.decision_validity_service.register_decision_packet(
-        packet_ref=str(monitor.event.decision_packet_ref.artifact_id),
-        envelope=envelope,
-        baseline=DecisionValidityEvaluation(
-            decision_lineage_key=envelope.decision_lineage_key,
-            status=DecisionValidityStatus.ACTIVE,
-        ),
-    )
-    return client, bearer, tenant
+    with tenant_scope(None, tenant_id=tenant, cell_id=cell.cell_id):
+        client.app.state.runtime_container.decision_validity_service.register_decision_packet(
+            packet_ref=str(monitor.event.decision_packet_ref.artifact_id),
+            envelope=envelope,
+            baseline=DecisionValidityEvaluation(
+                decision_lineage_key=envelope.decision_lineage_key,
+                status=DecisionValidityStatus.ACTIVE,
+            ),
+        )
+    return client, bearer, tenant, cell.cell_id
 
 
 def _post_monitor(client, bearer, tenant, monitor_ref):
@@ -100,10 +102,11 @@ def _post_monitor(client, bearer, tenant, monitor_ref):
     )
 
 
-def _read_http_bridge(store, response):
+def _read_http_bridge(store, response, *, tenant_id, cell_id):
     assert response.status_code == 200, response.text
     ref = ArtifactRef.model_validate(response.json()["lifecycle_bridge_result_ref"])
-    return load_lifecycle_bridge_result(store, ref)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        return load_lifecycle_bridge_result(store, ref)
 
 
 def test_monitor_event_persists_claim_supersession_without_in_place_edit(http_owner_case) -> None:
@@ -112,32 +115,44 @@ def test_monitor_event_persists_claim_supersession_without_in_place_edit(http_ow
     store, _, prepared, initial, monitor, _ = case
     owner, signer = _signed_authority(case)
     old_bytes = store.get_bytes(prepared.initial_ledger_ref.artifact_id)
-    client, bearer, tenant = _http_client(http_owner_case, owner=owner)
+    client, bearer, tenant, cell_id = _http_client(http_owner_case, owner=owner)
     with client:
         container = client.app.state.runtime_container
         assert container.runtime_api_context is context
         assert container.claim_ledger_owner is owner
         assert container.epoch_claim_lifecycle_bridge.claim_owner is owner
-        first = _read_http_bridge(store, _post_monitor(client, bearer, tenant, monitor.event_ref))
+        first = _read_http_bridge(
+            store, _post_monitor(client, bearer, tenant, monitor.event_ref),
+            tenant_id=tenant, cell_id=cell_id,
+        )
         assert first.owner_event_outcome.code == "claim_owner_event_rejected"
         event_ref = ArtifactRef.model_validate(first.metadata["owner_event_ref"])
-        store.sign_artifact(
-            event_ref.artifact_id, signer, signer_identity="fixture-supersession-owner"
+        with tenant_scope(None, tenant_id=tenant, cell_id=cell_id):
+            store.sign_artifact(
+                event_ref.artifact_id, signer, signer_identity="fixture-supersession-owner"
+            )
+        bridged = _read_http_bridge(
+            store, _post_monitor(client, bearer, tenant, monitor.event_ref),
+            tenant_id=tenant, cell_id=cell_id,
         )
-        bridged = _read_http_bridge(store, _post_monitor(client, bearer, tenant, monitor.event_ref))
         assert bridged.owner_event_outcome.result_kind == "advanced"
         assert bridged.monitor_projection_authority == "advisory"
         assert bridged.updated_ledger.events[-1].action is ClaimLifecycleAction.REVIEW_REQUIRED
-        for audience in (ClaimExportAudience.EXPERT, ClaimExportAudience.PUBLIC):
-            export = owner.export_current(owner_key=prepared.owner_key, audience=audience)
-            assert isinstance(export, ClaimLedgerExport)
-            assert export.superseded_claim_ids == ["predecessor"]
-            assert "actual-successor" not in {claim.claim_id for claim in export.claims}
-        current = owner.resolve_current(owner_key=prepared.owner_key)
+        with tenant_scope(None, tenant_id=tenant, cell_id=cell_id):
+            for audience in (ClaimExportAudience.EXPERT, ClaimExportAudience.PUBLIC):
+                export = owner.export_current(owner_key=prepared.owner_key, audience=audience)
+                assert isinstance(export, ClaimLedgerExport)
+                assert export.superseded_claim_ids == ["predecessor"]
+                assert "actual-successor" not in {claim.claim_id for claim in export.claims}
+            current = owner.resolve_current(owner_key=prepared.owner_key)
         assert current.statement.generation == initial.new_head.statement.generation + 1
-        again = _read_http_bridge(store, _post_monitor(client, bearer, tenant, monitor.event_ref))
+        again = _read_http_bridge(
+            store, _post_monitor(client, bearer, tenant, monitor.event_ref),
+            tenant_id=tenant, cell_id=cell_id,
+        )
         assert again.owner_event_outcome.new_head == current
-        assert store.get_bytes(prepared.initial_ledger_ref.artifact_id) == old_bytes
+        with tenant_scope(None, tenant_id=tenant, cell_id=cell_id):
+            assert store.get_bytes(prepared.initial_ledger_ref.artifact_id) == old_bytes
 
 
 def test_default_http_supersession_request_preserves_unappointed_owner_limit(
@@ -147,17 +162,21 @@ def test_default_http_supersession_request_preserves_unappointed_owner_limit(
     _, case = http_owner_case
     store, _, prepared, _, monitor, _ = case
     old_bytes = store.get_bytes(prepared.initial_ledger_ref.artifact_id)
-    client, bearer, tenant = _http_client(http_owner_case)
+    client, bearer, tenant, cell_id = _http_client(http_owner_case)
     with client:
         owner = client.app.state.runtime_container.claim_ledger_owner
         assert isinstance(owner, UnappointedClaimLedgerOwner)
-        result = _read_http_bridge(store, _post_monitor(client, bearer, tenant, monitor.event_ref))
+        result = _read_http_bridge(
+            store, _post_monitor(client, bearer, tenant, monitor.event_ref),
+            tenant_id=tenant, cell_id=cell_id,
+        )
         assert result.metadata["owner_event_production_result"]["code"] == "claim_head_absent"
         assert result.owner_event_outcome is None
         assert result.updated_ledger.events[-1].action is ClaimLifecycleAction.REVIEW_REQUIRED
-        assert owner.resolve_current(owner_key=prepared.owner_key).code == "claim_head_absent"
+        with tenant_scope(None, tenant_id=tenant, cell_id=cell_id):
+            assert owner.resolve_current(owner_key=prepared.owner_key).code == "claim_head_absent"
+            assert store.get_bytes(prepared.initial_ledger_ref.artifact_id) == old_bytes
         assert "owner_event_ref" not in result.metadata
-        assert store.get_bytes(prepared.initial_ledger_ref.artifact_id) == old_bytes
 
 
 @pytest.mark.parametrize("failure", ["absent", "wrong_vocabulary"])
@@ -181,10 +200,11 @@ def test_http_supersession_rejects_unresolved_monitor_before_owner_effect(
                 kind="fixture.wrong-monitor-vocabulary", media_type="application/json"
             ),
         )
-    client, bearer, tenant = _http_client(http_owner_case)
+    client, bearer, tenant, cell_id = _http_client(http_owner_case)
     with client:
         response = _post_monitor(client, bearer, tenant, bad_ref)
         assert response.status_code == 422, response.text
         assert response.json()["code"] == "monitor_event_unresolvable"
         assert "lifecycle_bridge_result_ref" not in response.json()
-        assert store.get_bytes(prepared.initial_ledger_ref.artifact_id) == old_bytes
+        with tenant_scope(None, tenant_id=tenant, cell_id=cell_id):
+            assert store.get_bytes(prepared.initial_ledger_ref.artifact_id) == old_bytes

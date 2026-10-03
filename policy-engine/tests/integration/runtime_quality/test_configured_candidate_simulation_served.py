@@ -1763,6 +1763,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         alter_next_compilation[0] = False
         controlled_recording = _controlled_procurement_recording(
             recording,
+            outcome_variable=model_declaration.outcome_variable,
             intensity=2,
         )
         calls_before_nonmatch = len(n5_calls)
@@ -1874,7 +1875,10 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             "persist_candidate_scenario_source_v3",
             refuse_scenario_source_persistence,
         )
-        controlled_recording = _controlled_procurement_recording(recording)
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=model_declaration.outcome_variable,
+        )
         calls_before_persistence_refusal = len(n5_calls)
         fourth_response = client.post(
             "/api/v1/control/runs/nl",

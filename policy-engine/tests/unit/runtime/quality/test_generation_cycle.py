@@ -1927,7 +1927,10 @@ def test_post_n9_packet_binds_exact_subject_and_gate_receipt(
         problem=problem,
         deployment_identity=_canonical_loaded_deployment_identity(),
     )
-    assert observation.receipts
+    assert observation.receipts, (
+        "expected N9 to emit the owner-bound subject/gate receipt; "
+        f"status={observation.status!r}; reason={observation.reason!r}"
+    )
     receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
     projection = receipt.owner_projection.epoch_validity_projection
 
@@ -3292,6 +3295,10 @@ def test_joint_port_refuses_same_id_sibling_ncm_views_before_n5(
     tmp_path: Path,
 ) -> None:
     """N5 binds the full selected profile identity, not only a shared blob ID."""
+    from polisyos.core.artifacts.manifest import (
+        artifact_ref_identity_key,
+        input_ref_from_artifact_ref,
+    )
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
     from polisyos.runtime.quality.candidate_simulation import (
@@ -3444,15 +3451,24 @@ def test_joint_port_refuses_same_id_sibling_ncm_views_before_n5(
 
     assert selected_ncm.model_dump(mode="json") == sibling_ncm.model_dump(mode="json")
     assert selected_ncm_ref.artifact_id == sibling_ncm_ref.artifact_id
-    assert selected_ncm_ref.manifest_profile_sha256 is not None
-    assert sibling_ncm_ref.manifest_profile_sha256 is not None
-    assert selected_ncm_ref.manifest_profile_sha256 != sibling_ncm_ref.manifest_profile_sha256
-    assert store.get_manifest(selected_ncm_ref).inputs[0].artifact_id == (
-        selected_declaration_ref.artifact_id
+    assert artifact_ref_identity_key(selected_ncm_ref) != artifact_ref_identity_key(
+        sibling_ncm_ref
     )
-    assert store.get_manifest(sibling_ncm_ref).inputs[0].artifact_id == (
-        sibling_declaration_ref.artifact_id
-    )
+    selected_manifest = store.get_manifest(selected_ncm_ref)
+    sibling_manifest = store.get_manifest(sibling_ncm_ref)
+    assert selected_manifest.inputs == [
+        input_ref_from_artifact_ref(
+            selected_declaration_ref,
+            role="candidate_model_declaration",
+        )
+    ]
+    assert sibling_manifest.inputs == [
+        input_ref_from_artifact_ref(
+            sibling_declaration_ref,
+            role="candidate_model_declaration",
+        )
+    ]
+    assert selected_manifest.inputs != sibling_manifest.inputs
 
     base_record = context.world_model_record
     limited_draft = base_record.model_copy(

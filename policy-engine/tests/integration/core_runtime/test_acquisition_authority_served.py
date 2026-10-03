@@ -1210,6 +1210,10 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             from polisyos.data_forge.domains.catalog.knowledge.overlay import (
                 CatalogAcquisitionOverlay,
             )
+            from polisyos.ir.analytics.ncm import (
+                candidate_ncm_spec_from_declaration,
+                load_ncm_spec_selected_view,
+            )
             from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
             from polisyos.runtime.quality.candidate_simulation import (
                 CandidateSimulationN5InputV5,
@@ -1362,9 +1366,22 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert context_job.authority_purpose == "cycle_input_candidate_only"
             # Compare the complete persisted source/context/WMR selector chain,
             # including CAS manifest profiles rather than only artifact IDs.
+            # None selects the owner default; the NCM loader still validates it.
             selected_ncm_ref = n5_input.ncm_ref
             selected_ncm_identity = artifact_ref_identity_key(selected_ncm_ref)
-            assert selected_ncm_ref.manifest_profile_sha256 is not None
+            selected_ncm_spec = _within_fixture_owner(
+                load_ncm_spec_selected_view,
+                control._artifact_store,
+                selected_ncm_ref,
+                expected_tenant_id=n5_input.tenant_id,
+                expected_cell_id=n5_input.cell_id,
+                expected_declaration_ref=source_v2.model_declaration_ref,
+            )
+            assert selected_ncm_spec.model_dump(mode="json") == (
+                candidate_ncm_spec_from_declaration(
+                    source_v2.model_declaration
+                ).model_dump(mode="json")
+            )
             assert artifact_ref_identity_key(source_record.ncm_ref) == selected_ncm_identity
             assert artifact_ref_identity_key(n5_input.materialization.ncm_ref) == (
                 selected_ncm_identity
@@ -1385,7 +1402,6 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             )
             assert len(selected_context_ncm_views) == 1
             assert selected_context_ncm_views[0] == selected_ncm_ref
-            assert selected_context_ncm_views[0].manifest_profile_sha256 is not None
             acquired_world = n5_input.profile.context_inputs.world_model_record
             context_data_snapshot_ref = world_model_artifact_views(
                 context_world

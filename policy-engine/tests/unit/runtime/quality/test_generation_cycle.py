@@ -31,6 +31,7 @@ from polisyos.data_requirement import (
 from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import confidence_ledger as confidence_ledger_module
+from polisyos.runtime.quality import cycle_substrate as cycle_substrate_module
 from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade_module
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCaptureProvenance,
@@ -131,6 +132,9 @@ from tools.quality.validation import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL_ENV = (
+    "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL"
+)
 
 
 def _canonical_loaded_deployment_identity() -> str:
@@ -2262,7 +2266,9 @@ def test_joint_port_uses_verified_candidate_unbound_resolution_for_context_wmr()
     assert not hasattr(candidate, "atom")
 
 
-def test_joint_port_rejects_candidate_unbound_resolution_from_another_context() -> None:
+def test_joint_port_rejects_candidate_unbound_resolution_from_another_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """A valid refusal from another problem cannot act as shaped world identity."""
 
     problem, context = _lane0_cycle_context()
@@ -2272,6 +2278,44 @@ def test_joint_port_rejects_candidate_unbound_resolution_from_another_context() 
         status="candidate_unbound",
         lever_resolution=_candidate_unbound_refusal(other_context),
     )
+    assert candidate.status == "candidate_unbound"
+    assert candidate.lever_resolution.status == "candidate_unbound"
+
+    removal = os.environ.get(_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL_ENV)
+    if removal is not None:
+        if removal != "1":
+            pytest.fail(
+                "R6 removal flag must be exactly '1'",
+                pytrace=False,
+            )
+
+        def _resolve_without_context_identity_match(
+            active_context: CycleSubstrateContext,
+            *,
+            refusal: InterventionLeverRefusal,
+        ) -> CandidateLeverEvidence:
+            """Keep typed refusal and lever checks, but remove context binding."""
+
+            validated_refusal = InterventionLeverRefusal.model_validate(
+                refusal.model_dump(mode="python")
+            )
+            assert validated_refusal.status == "candidate_unbound"
+            matches = tuple(
+                lever
+                for lever in active_context.candidate_levers
+                if lever.lever_id == validated_refusal.lever_id
+                and lever.instrument == validated_refusal.instrument
+                and lever.entry_content_hash
+                == validated_refusal.candidate_entry_content_hash
+            )
+            assert len(matches) == 1
+            return matches[0]
+
+        monkeypatch.setattr(
+            cycle_substrate_module,
+            "resolve_candidate_lever_world_identity",
+            _resolve_without_context_identity_match,
+        )
 
     observation = JointSimulationPort(
         repo_root=REPO_ROOT,

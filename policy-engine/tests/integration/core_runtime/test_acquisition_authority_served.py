@@ -580,6 +580,10 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
         acquisition_action_service,
         acquisition_surface_execution,
     )
+    from polisyos.runtime.quality.authority_reconciliation import (
+        reconcile_authority_ref,
+    )
+    from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
     from tests._helpers import acquisition_chain
     from tests._helpers.acquisition_human_decision import persist_signed, prepare_human_decision
     from tests._helpers.acquisition_production import (
@@ -1136,7 +1140,34 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert growth_refs, receipt
             growth = _within_fixture_owner(cases[-1].port.project_world_growth, closure)
             assert growth.admitted_observation_delta == 1
-            cycle = receipt.new_cycle
+            assert receipt.tenant_id == closure.tenant_id
+            assert receipt.cell_id == closure.cell_id
+            assert receipt.run_id == closure.run_id
+            assert receipt.source_job_id == closure.source_job_id
+            reentry_ref = receipt.reentry_receipt_ref
+            assert reentry_ref is not None, receipt
+            reentry_scope = _within_fixture_owner(
+                reconcile_authority_ref,
+                artifact_store=control._artifact_store,
+                event_log=cases[-1].bridge.event_log,
+                cas_ref=reentry_ref,
+                expected_tenant_id=closure.tenant_id,
+                expected_cell_id=closure.cell_id,
+                expected_run_id=closure.run_id,
+                expected_job_id=closure.source_job_id,
+            )
+            assert reentry_scope.durable_event_id is not None
+            reentry = AcquisitionOverlayReentryReceipt.model_validate(
+                _within_fixture_owner(
+                    cases[-1].bridge._read,
+                    reentry_ref,
+                    "runtime_quality.acquisition_overlay_reentry_receipt",
+                )
+            )
+            _within_fixture_owner(
+                cases[-1].bridge._validate_reentry, closure, growth, reentry
+            )
+            cycle = reentry.new_cycle
             assert cycle.simulation.status == "joint_simulated", cycle.simulation
             assert cycle.simulation.candidate_id == cycle.selected_candidate_ref
             assert cycle.simulation.simulation_result_ref is not None

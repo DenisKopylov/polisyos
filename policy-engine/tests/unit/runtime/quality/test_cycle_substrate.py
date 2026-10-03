@@ -1855,12 +1855,30 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
             )
         assert reused_ref == selected_registry_ref
 
+        entry = registry.entries[0]
+        foreign_registration_fields = entry.model_dump(
+            mode="python", exclude={"entry_content_hash"}
+        )
+        foreign_registration_fields.update(
+            {
+                "data_version": f"{entry.data_version}.foreign-snapshot",
+                "snapshot_id": f"{entry.snapshot_id}.foreign-snapshot",
+                "source_snapshot_id": f"{entry.source_snapshot_id}.foreign-snapshot",
+            }
+        )
+        foreign_entry = build_substrate_registry_entry(
+            SubstrateRegistration.model_validate(foreign_registration_fields)
+        )
         mismatched_registry = build_substrate_registry(
-            registry.entries,
+            (foreign_entry, *registry.entries[1:]),
             producer_ref=f"{registry.producer_ref}.mismatch_probe",
             source_catalog_refs=registry.source_catalog_refs,
         )
         assert mismatched_registry.content_hash != registry.content_hash
+        assert (
+            mismatched_registry.entries[0].entry_content_hash
+            != registry.entries[0].entry_content_hash
+        )
 
         def configured_owner_for_inputs(
             context_inputs: CandidateSimulationContextInputs,
@@ -2021,7 +2039,7 @@ def test_configured_candidate_owner_preserves_profiled_registry_sibling_view(
     assert sibling_ref.artifact_id == default_ref.artifact_id
     assert sibling_ref != default_ref
     assert sibling_ref.manifest_profile_sha256 is not None
-    assert sibling_manifest.inputs == sibling_inputs
+    assert tuple(sibling_manifest.inputs) == sibling_inputs
     assert store.verify(sibling_ref).ok
     assert load_substrate_registry(
         store, sibling_ref, expected_inputs=sibling_inputs

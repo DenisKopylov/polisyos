@@ -505,10 +505,13 @@ def test_cycle_substrate_context_owner_rejects_matching_marker_scope_without_iss
 def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_membership(
     tmp_path: Any,
 ) -> None:
-    """The persisted worker handoff carries the owner-selected NCM identity."""
-    from polisyos.core.artifacts import ArtifactRef
+    """The handoff preserves the selected NCM; its loader checks exact lineage."""
+    from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
     from polisyos.core.security.tenant_context import tenant_scope
-    from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
+    from polisyos.ir.analytics.ncm import (
+        candidate_ncm_spec_from_declaration,
+        load_ncm_spec_selected_view,
+    )
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioN5Config,
         CandidateScenarioSetToRule,
@@ -678,8 +681,9 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
+        selected_ncm_spec = candidate_ncm_spec_from_declaration(declaration)
         ncm_ref = repository.persist_candidate_ncm_selected_view(
-            ncm_spec=candidate_ncm_spec_from_declaration(declaration),
+            ncm_spec=selected_ncm_spec,
             declaration_ref=declaration_ref,
             job_id=job_id,
             run_id=run_id,
@@ -687,6 +691,125 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
             cell_id=cell_id,
             profile_content_hash=profile.content_hash,
         )
+    # Create an owner-produced sibling view for the same NCM bytes but a
+    # different, valid declaration/profile. The sibling is not the view chosen
+    # by this handoff; its manifest must not replay against the original
+    # declaration selector.
+    foreign_profile_fields = profile.model_dump(
+        mode="python", exclude={"content_hash"}
+    )
+    foreign_profile_fields.update(
+        {
+            "profile_id": "handoff-controlled-candidate-sibling",
+            "profile_selection_ref": gy_content_hash(
+                {"fixture": "candidate-handoff", "view": "foreign-sibling"}
+            ),
+        }
+    )
+    foreign_profile_draft = CandidateSimulationScenarioProfile.model_construct(
+        **foreign_profile_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    foreign_profile = CandidateSimulationScenarioProfile.model_validate(
+        {
+            **foreign_profile_fields,
+            "content_hash": gy_content_hash(
+                foreign_profile_draft.model_dump(
+                    mode="json", exclude={"content_hash"}
+                )
+            ),
+        }
+    )
+    foreign_declaration_fields = declaration.model_dump(
+        mode="python", exclude={"content_hash"}
+    )
+    foreign_declaration_fields.update(
+        {
+            "profile_config_ref": candidate_simulation_profile_ref(foreign_profile),
+            "profile_content_hash": foreign_profile.content_hash,
+            "profile_selection_ref": foreign_profile.profile_selection_ref,
+        }
+    )
+    foreign_declaration_draft = (
+        CandidateSimulationSyntheticModelDeclarationV1.model_construct(
+            **foreign_declaration_fields,
+            content_hash="sha256:" + "0" * 64,
+        )
+    )
+    foreign_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {
+            **foreign_declaration_fields,
+            "content_hash": gy_content_hash(
+                foreign_declaration_draft.model_dump(
+                    mode="json", exclude={"content_hash"}
+                )
+            ),
+        }
+    )
+    foreign_ncm_spec = candidate_ncm_spec_from_declaration(foreign_declaration)
+    assert foreign_ncm_spec.model_dump(mode="json") == selected_ncm_spec.model_dump(
+        mode="json"
+    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        foreign_declaration_ref = repository.persist_candidate_model_declaration(
+            declaration=foreign_declaration,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        foreign_ncm_ref = repository.persist_candidate_ncm_selected_view(
+            ncm_spec=foreign_ncm_spec,
+            declaration_ref=foreign_declaration_ref,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_content_hash=foreign_profile.content_hash,
+        )
+        selected_manifest = store.get_manifest(ncm_ref)
+        foreign_manifest = store.get_manifest(foreign_ncm_ref)
+        assert store.verify(ncm_ref).ok
+        assert store.verify(foreign_ncm_ref).ok
+        assert store.get_bytes(ncm_ref) == store.get_bytes(foreign_ncm_ref)
+        selected_lineage = next(iter(selected_manifest.inputs))
+        foreign_lineage = next(iter(foreign_manifest.inputs))
+        assert (
+            selected_lineage.artifact_id,
+            selected_lineage.role,
+            selected_lineage.manifest_profile_sha256,
+        ) == (
+            declaration_ref.artifact_id,
+            "candidate_model_declaration",
+            declaration_ref.manifest_profile_sha256,
+        )
+        assert (
+            foreign_lineage.artifact_id,
+            foreign_lineage.role,
+            foreign_lineage.manifest_profile_sha256,
+        ) == (
+            foreign_declaration_ref.artifact_id,
+            "candidate_model_declaration",
+            foreign_declaration_ref.manifest_profile_sha256,
+        )
+        assert load_ncm_spec_selected_view(
+            store,
+            ncm_ref,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+            expected_declaration_ref=declaration_ref,
+        ) == selected_ncm_spec
+        with pytest.raises(
+            ValueError,
+            match=r"^ncm_selected_view_declaration_lineage_mismatch$",
+        ):
+            load_ncm_spec_selected_view(
+                store,
+                foreign_ncm_ref,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                expected_declaration_ref=declaration_ref,
+            )
     context = _cycle_context(
         design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
         registry=registry,
@@ -715,8 +838,13 @@ def test_candidate_handoff_requires_complete_model_binding_and_exact_ncm_members
     }
 
     handoff = CandidateSimulationContextHandoff.model_validate(payload)
-    assert handoff.ncm_ref == ncm_ref
-    assert handoff.ncm_ref.manifest_profile_sha256 is not None
+    assert artifact_ref_identity_key(handoff.ncm_ref) == artifact_ref_identity_key(ncm_ref)
+    assert handoff.ncm_ref.manifest_profile_sha256 is None
+    assert foreign_ncm_ref.artifact_id == handoff.ncm_ref.artifact_id
+    assert artifact_ref_identity_key(foreign_ncm_ref) != artifact_ref_identity_key(
+        handoff.ncm_ref
+    )
+    assert foreign_ncm_ref.manifest_profile_sha256 is not None
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         assert store.get_manifest(ncm_ref).inputs[0].artifact_id == declaration_ref.artifact_id
 

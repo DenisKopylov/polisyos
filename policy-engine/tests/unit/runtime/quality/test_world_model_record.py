@@ -74,6 +74,7 @@ from polisyos.runtime.quality.world_model_record import (
     build_world_model_record,
     consume_world_model_record_for_simulation,
     load_world_model_record,
+    persist_world_model_record,
     resolve_intervention_atom_world_binding,
     world_model_record_content_hash,
 )
@@ -609,7 +610,7 @@ def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
 
     assert selected_ncm.model_dump(mode="json") == sibling_ncm.model_dump(mode="json")
     assert selected_ncm_ref.artifact_id == sibling_ncm_ref.artifact_id
-    assert selected_ncm_ref.manifest_profile_sha256 is not None
+    assert selected_ncm_ref.manifest_profile_sha256 is None
     assert sibling_ncm_ref.manifest_profile_sha256 is not None
     assert selected_ncm_ref.manifest_profile_sha256 != sibling_ncm_ref.manifest_profile_sha256
     assert store.get_manifest(selected_ncm_ref).inputs[0].artifact_id == (
@@ -1573,14 +1574,10 @@ def test_wmr_loader_rejects_sibling_n5_views_when_markers_are_rehashed(
         }
     )
     original_manifest = store.get_manifest(built.record_ref)
-    forged_ref = store.put_json(
+    forged_ref = persist_world_model_record(
+        store,
         forged,
-        PutOptions(
-            kind=original_manifest.kind,
-            media_type=original_manifest.media_type,
-            schema=original_manifest.artifact_schema,
-            inputs=original_manifest.inputs,
-        ),
+        inputs=original_manifest.inputs,
     )
 
     with pytest.raises(WorldModelRecordError, match=r"lineage|integrity"):

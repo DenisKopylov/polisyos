@@ -1208,7 +1208,10 @@ async def test_default_controller_custody_and_missing_protected_admission(
         PendingN8ValuePort,
     )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
-    from tests.unit.runtime.quality.test_generation_cycle import _budget
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _budget,
+        _canonical_loaded_deployment_identity,
+    )
 
     problem, organ = actual_n4_source
     supplied_budgets = []
@@ -1249,7 +1252,11 @@ async def test_default_controller_custody_and_missing_protected_admission(
         )
         assert run.source_handoff_refs
         assert not run.promotion_port.certified_candidate_ids
-        assert controller._promotion_port(admitted_batch=None, problem=problem).reason == (
+        assert controller._promotion_port(
+            admitted_batch=None,
+            problem=problem,
+            deployment_identity=_canonical_loaded_deployment_identity(),
+        ).reason == (
             "epoch_validity_refused:pre_n9_admitted_batch_missing"
         )
         assert supplied_budgets and supplied_budgets[0] is controller._grounding_run_budget

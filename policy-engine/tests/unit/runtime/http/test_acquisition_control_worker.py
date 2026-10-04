@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -187,6 +188,7 @@ class _Provider:
         raise AssertionError("worker cannot recreate HTTP authority")
 
 
+@asynccontextmanager
 async def _worker_harness(
     tmp_path: Path,
     *,
@@ -307,19 +309,51 @@ async def _worker_harness(
         for artifact_ref in owned_refs:
             with pytest.raises(ArtifactOwnershipError):
                 artifact_store.get_bytes(artifact_ref)
-    return control, service, calls, requested, artifact_store
+    created_payload = control._control_store.get_job_created_event_payload(
+        persisted_job.job_id
+    )
+    created_outbox = control._control_store.get_job_created_outbox_event(
+        persisted_job.job_id
+    )
+    assert created_outbox is not None
+    assert created_outbox.topic == "control.job.created"
+    assert created_outbox.job_id == persisted_job.job_id
+    assert created_outbox.run_id == persisted_job.run_id
+    assert created_payload.get("job_id") == persisted_job.job_id
+    assert created_payload.get("run_id") == persisted_job.run_id
+    persisted_scope = control_plane_store_module._control_job_execution_scope_from_event(
+        created_payload
+    )
+    outbox_scope = control_plane_store_module._control_job_execution_scope_from_event(
+        created_outbox.payload
+    )
+    assert persisted_scope == outbox_scope
+    assert persisted_scope.status == "established"
+    assert persisted_scope.tenant_id is not None
+    assert persisted_scope.cell_id is not None
+    assert persisted_scope.actor_subject == persisted_job.submitted_by
+
+    # Keep every consumer and teardown operation under the persisted job owner.
+    with tenant_scope(
+        None,
+        tenant_id=persisted_scope.tenant_id,
+        cell_id=persisted_scope.cell_id,
+    ):
+        try:
+            yield control, service, calls, requested, artifact_store
+        finally:
+            control.close()
 
 
 @pytest.mark.asyncio
 async def test_worker_missing_durable_decision_fails_before_owner_effect(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    control, _service, calls, requested, _artifact_store = await _worker_harness(
+    async with _worker_harness(
         tmp_path,
         decision_missing=True,
         monkeypatch=monkeypatch,
-    )
-    try:
+    ) as (control, _service, calls, requested, _artifact_store):
         job = control._control_store.get_job("job-acquisition")
         assert job is not None
 
@@ -336,20 +370,17 @@ async def test_worker_missing_durable_decision_fails_before_owner_effect(
         head = control.acquisition_route_sink.get_head(requested)
         assert head is not None
         assert head.receipt_phase == "executing"
-    finally:
-        control.close()
 
 
 @pytest.mark.asyncio
 async def test_worker_loads_durable_decision_before_sealed_effect_and_terminal(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    control, _service, calls, requested, _artifact_store = await _worker_harness(
+    async with _worker_harness(
         tmp_path,
         decision_missing=False,
         monkeypatch=monkeypatch,
-    )
-    try:
+    ) as (control, _service, calls, requested, _artifact_store):
         job = control._control_store.get_job("job-acquisition")
         assert job is not None
 
@@ -373,8 +404,6 @@ async def test_worker_loads_durable_decision_before_sealed_effect_and_terminal(
         assert head is not None
         assert head.receipt_phase == "terminal"
         assert head.recovery_state == "complete"
-    finally:
-        control.close()
 
 def _new_lease_fence_job(store, *, job_id: str = "job-lease-fence"):
     store.create_job(
@@ -534,121 +563,120 @@ async def test_stale_guarded_worker_terminal_evidence_does_not_advance_head_afte
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A visible stale terminal artifact/event is not current in the acquisition head."""
-    control, service, calls, requested, _artifact_store = await _worker_harness(
+    async with _worker_harness(
         tmp_path,
         decision_missing=False,
         monkeypatch=monkeypatch,
-    )
-    service._execution_port.disposition = "world_committed"
-    service._execution_port.admitted_observation_delta = 1
-    service._execution_port.overlay_admission_receipt_ref = service._execution_port.owner_ref
-    service._execution_port.post_epoch_event_ref = service._execution_port.owner_ref
-    service._execution_port.reentry_ref = "sha256:" + "a" * 64
+    ) as (control, service, calls, requested, _artifact_store):
+        service._execution_port.disposition = "world_committed"
+        service._execution_port.admitted_observation_delta = 1
+        service._execution_port.overlay_admission_receipt_ref = service._execution_port.owner_ref
+        service._execution_port.post_epoch_event_ref = service._execution_port.owner_ref
+        service._execution_port.reentry_ref = "sha256:" + "a" * 64
 
-    clock = [datetime.now(UTC).replace(microsecond=0)]
-    monkeypatch.setattr(control_plane_store_module, "_utc_now", lambda: clock[0])
-    entered = Event()
-    resume = Event()
-    errors: list[BaseException] = []
-    terminal_refs: list[str] = []
-    original_writer = run_lifecycle_module.write_runtime_authority_artifact
+        clock = [datetime.now(UTC).replace(microsecond=0)]
+        monkeypatch.setattr(control_plane_store_module, "_utc_now", lambda: clock[0])
+        entered = Event()
+        resume = Event()
+        errors: list[BaseException] = []
+        terminal_refs: list[str] = []
+        original_writer = run_lifecycle_module.write_runtime_authority_artifact
 
-    def _persist_terminal_then_pause(*args, **kwargs):
-        result = original_writer(*args, **kwargs)
-        if kwargs.get("event_type") == "polisyos.runtime.acquisition.route_loop.v1":
-            terminal_refs.append(str(result.cas_ref.artifact_id))
-            entered.set()
-            assert resume.wait(timeout=5), "test did not release the terminal evidence barrier"
-        return result
+        def _persist_terminal_then_pause(*args, **kwargs):
+            result = original_writer(*args, **kwargs)
+            if kwargs.get("event_type") == "polisyos.runtime.acquisition.route_loop.v1":
+                terminal_refs.append(str(result.cas_ref.artifact_id))
+                entered.set()
+                assert resume.wait(timeout=5), "test did not release the terminal evidence barrier"
+            return result
 
-    monkeypatch.setattr(
-        run_lifecycle_module,
-        "write_runtime_authority_artifact",
-        _persist_terminal_then_pause,
-    )
-    store = control._control_store
-    job = store.lease_next_job(worker_id="worker-a", lease_seconds=5)
-    assert job is not None and job.attempt == 1
-    worker = ControlWorker(
-        store=store,
-        handler=control._process_control_job,
-        worker_id="worker-a",
-        lease_seconds=5,
-    )
-    worker._heartbeat_interval_s = 60.0
+        monkeypatch.setattr(
+            run_lifecycle_module,
+            "write_runtime_authority_artifact",
+            _persist_terminal_then_pause,
+        )
+        store = control._control_store
+        job = store.lease_next_job(worker_id="worker-a", lease_seconds=5)
+        assert job is not None and job.attempt == 1
+        worker = ControlWorker(
+            store=store,
+            handler=control._process_control_job,
+            worker_id="worker-a",
+            lease_seconds=5,
+        )
+        worker._heartbeat_interval_s = 60.0
 
-    def _run() -> None:
+        def _run() -> None:
+            try:
+                worker._run_with_lease_heartbeat(job)
+            except BaseException as exc:  # surfaced in the test thread below
+                errors.append(exc)
+
+        thread = Thread(target=_run, name="test-worker-a-acquisition")
+        thread.start()
         try:
-            worker._run_with_lease_heartbeat(job)
-        except BaseException as exc:  # surfaced in the test thread below
-            errors.append(exc)
+            assert entered.wait(timeout=5), (
+                "terminal authority artifact/event did not reach the barrier"
+            )
+            pending = control.acquisition_route_sink.get_head(requested)
+            assert pending is not None
+            assert pending.receipt_phase == "world_committed_reentry_pending"
+            assert len(terminal_refs) == 1
 
-    thread = Thread(target=_run, name="test-worker-a-acquisition")
-    thread.start()
-    try:
-        assert entered.wait(timeout=5), (
-            "terminal authority artifact/event did not reach the barrier"
-        )
-        pending = control.acquisition_route_sink.get_head(requested)
-        assert pending is not None
-        assert pending.receipt_phase == "world_committed_reentry_pending"
-        assert len(terminal_refs) == 1
+            # At this exact barrier the CAS artifact and authority event have been
+            # durably written, while the action-head append has not yet run.
+            event_rows = control._diagnostic_event_log.list_events(
+                run_id="run-ds15",
+                job_id="job-acquisition",
+            )
+            terminal_events = [
+                row
+                for row in event_rows
+                if row.event.event_type == "polisyos.runtime.acquisition.route_loop.v1"
+                and row.event.state_after == "terminal"
+            ]
+            assert len(terminal_events) == 1
+            orphan_ref = terminal_events[0].event.payload_ref
+            assert orphan_ref is not None and orphan_ref == terminal_refs[0]
+            control._artifact_store.get_bytes(orphan_ref)
 
-        # At this exact barrier the CAS artifact and authority event have been
-        # durably written, while the action-head append has not yet run.
-        event_rows = control._diagnostic_event_log.list_events(
-            run_id="run-ds15",
-            job_id="job-acquisition",
-        )
-        terminal_events = [
-            row
-            for row in event_rows
-            if row.event.event_type == "polisyos.runtime.acquisition.route_loop.v1"
-            and row.event.state_after == "terminal"
-        ]
-        assert len(terminal_events) == 1
-        orphan_ref = terminal_events[0].event.payload_ref
-        assert orphan_ref is not None and orphan_ref == terminal_refs[0]
-        control._artifact_store.get_bytes(orphan_ref)
+            clock[0] += timedelta(seconds=6)
+            replacement = store.lease_next_job(worker_id="worker-b", lease_seconds=20)
+            assert replacement is not None
+            assert replacement.attempt == 2
+            assert replacement.lease_owner == "worker-b"
 
-        clock[0] += timedelta(seconds=6)
-        replacement = store.lease_next_job(worker_id="worker-b", lease_seconds=20)
-        assert replacement is not None
-        assert replacement.attempt == 2
-        assert replacement.lease_owner == "worker-b"
+            resume.set()
+            thread.join(timeout=10)
+            assert not thread.is_alive(), "stale acquisition worker did not finish"
+            assert len(errors) == 1
+            assert isinstance(errors[0], ControlJobLeaseLostError)
+            current = store.get_job(job.job_id)
+            assert current is not None
+            assert (current.state, current.lease_owner, current.attempt) == (
+                "running",
+                "worker-b",
+                2,
+            )
+            head = control.acquisition_route_sink.get_head(requested)
+            assert head is not None
+            assert head.receipt_phase == "world_committed_reentry_pending"
+            assert head.receipt_ref == pending.receipt_ref
+            assert head.receipt_ref != orphan_ref
+            assert calls == ["load-decision", "execute-bound-effect", "effect"]
 
-        resume.set()
-        thread.join(timeout=10)
-        assert not thread.is_alive(), "stale acquisition worker did not finish"
-        assert len(errors) == 1
-        assert isinstance(errors[0], ControlJobLeaseLostError)
-        current = store.get_job(job.job_id)
-        assert current is not None
-        assert (current.state, current.lease_owner, current.attempt) == (
-            "running",
-            "worker-b",
-            2,
-        )
-        head = control.acquisition_route_sink.get_head(requested)
-        assert head is not None
-        assert head.receipt_phase == "world_committed_reentry_pending"
-        assert head.receipt_ref == pending.receipt_ref
-        assert head.receipt_ref != orphan_ref
-        assert calls == ["load-decision", "execute-bound-effect", "effect"]
-
-        movement = AcquisitionMovementService(
-            control_store=store,
-            artifact_store=control._artifact_store,
-            event_log=control._diagnostic_event_log,
-        )
-        movement.bind_completed_control_job_core_source_resolver(
-            control.resolve_completed_control_job_core_run_source
-        )
-        projection = movement.consume_terminal(supplier_receipt_ref=orphan_ref)
-        assert projection.status == "refused"
-        assert projection.reason == "supplier_terminal_head_not_current"
-        assert projection.movement_record is None
-    finally:
-        resume.set()
-        thread.join(timeout=10)
-        control.close()
+            movement = AcquisitionMovementService(
+                control_store=store,
+                artifact_store=control._artifact_store,
+                event_log=control._diagnostic_event_log,
+            )
+            movement.bind_completed_control_job_core_source_resolver(
+                control.resolve_completed_control_job_core_run_source
+            )
+            projection = movement.consume_terminal(supplier_receipt_ref=orphan_ref)
+            assert projection.status == "refused"
+            assert projection.reason == "supplier_terminal_head_not_current"
+            assert projection.movement_record is None
+        finally:
+            resume.set()
+            thread.join(timeout=10)

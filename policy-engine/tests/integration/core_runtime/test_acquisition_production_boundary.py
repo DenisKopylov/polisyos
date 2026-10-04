@@ -15,14 +15,17 @@ from tests.unit.runtime.http.test_acquisition_control_worker import _worker_harn
 
 
 @pytest.mark.asyncio
-async def test_badged_dependencies_cannot_project_ready(tmp_path: Path) -> None:
+async def test_badged_dependencies_cannot_project_ready(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Injected behavioral collaborators must not project production readiness."""
 
-    control, service, _calls, _requested = await _worker_harness(
+    async with _worker_harness(
         tmp_path,
         decision_missing=False,
-    )
-    try:
+        monkeypatch=monkeypatch,
+    ) as (_control, service, _calls, _requested, _artifact_store):
         closure = service._resolve(
             tenant_id="tenant-a",
             cell_id="cell-a",
@@ -34,21 +37,20 @@ async def test_badged_dependencies_cannot_project_ready(tmp_path: Path) -> None:
         assert projection.authority_badge == "behavioral_fixture_not_production"
         assert projection.authority_capability == "producer_missing"
         assert projection.execution_capability == "producer_missing"
-    finally:
-        control.close()
 
 
 @pytest.mark.asyncio
 async def test_badged_dependencies_fail_before_reservation_or_job_creation(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The fixture path must stop before authority use or durable enqueueing."""
 
-    control, service, calls, _requested = await _worker_harness(
+    async with _worker_harness(
         tmp_path,
         decision_missing=False,
-    )
-    try:
+        monkeypatch=monkeypatch,
+    ) as (control, service, calls, _requested, _artifact_store):
         closure = service._resolve(
             tenant_id="tenant-a",
             cell_id="cell-a",
@@ -82,5 +84,3 @@ async def test_badged_dependencies_fail_before_reservation_or_job_creation(
 
         assert calls == []
         assert control._control_store.get_job(job_id) is None
-    finally:
-        control.close()

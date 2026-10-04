@@ -1998,6 +1998,20 @@ def _assert_passed_owner_inventory_scans(controlled, *, expected_calls: int) -> 
     assert all(isinstance(snapshot.entries, tuple) for snapshot in controlled.snapshots)
 
 
+def _inventory_entry_identity_key(entry) -> tuple[str, str, str, str | None]:
+    entry_ref = entry.artifact_ref
+    if isinstance(entry_ref, artifacts.ArtifactID):
+        selected_ref = artifacts.ArtifactRef(
+            artifact_id=entry_ref,
+            kind=entry.manifest.kind,
+            media_type=entry.manifest.media_type,
+        )
+    else:
+        assert isinstance(entry_ref, artifacts.ArtifactRef)
+        selected_ref = entry_ref
+    return artifacts.artifact_ref_identity_key(selected_ref)
+
+
 def _c4_write_options(profile_record: str) -> artifacts.ArtifactWriteOptions:
     profile = c4_profile(profile_record)
     return artifacts.ArtifactWriteOptions(
@@ -2250,12 +2264,13 @@ def test_owner_rechecks_exact_inventory_after_write_for_competing_view(tmp_path)
     competing_statement = race_evidence["statement"]
     assert isinstance(competing_ref, artifacts.ArtifactRef)
     assert isinstance(competing_statement, PromotionCandidateDenominatorStatement)
+    competing_identity = artifacts.artifact_ref_identity_key(competing_ref)
     assert not any(
-        entry.artifact_ref == competing_ref
+        _inventory_entry_identity_key(entry) == competing_identity
         for entry in controlled.snapshots[0].entries
     )
     assert any(
-        entry.artifact_ref == competing_ref
+        _inventory_entry_identity_key(entry) == competing_identity
         for entry in controlled.snapshots[1].entries
     )
     loaded_competing_denominator, loaded_competing_snapshot = (

@@ -15,6 +15,17 @@ The exact current residual ledger SHA is `610255c2c8718b997b114357c93df7fd6001e8
 
 ---
 
+
+## A85 two-file focus and diagnostic boundary — 2026-10-04
+
+- **Measured denominator:** only two whole-file JUnit rows are present: `test_generation_cycle.py` 169/1/0 of 170 and `test_open_world_risk.py` 29/2/0 of 31; total 198/3/0 of 201. The raw aggregate carries a stale generic “four jobs” scope literal. Its independent root readback and separate correction JSON state two actual paths. Do not infer the two unenumerated jobs or four-base completion.
+- **R6/N9:** the scoped R6 outcome is reported PASS. The generation-cycle whole-file failure is a later N9 receipt expectation; runtime returned `not_promoted` with `confidence_ledger_refused:ledger_scope_binding_mismatch`. Stored ignored ledger root says rule v7 while current runtime is v8; exact conflict branch, pre-run ignored-state provenance, and a sanctioned migration are not established. The test does not use the R4 cycle basis fields; do not attribute this to R4. Do not reset, rewrite, rekey or reissue the canonical root/epoch.
+- **R9:** the two OWR reds remain distinct. The independent query preimage differs from the production raw-value hash because `manifest_profile_sha256: null` is represented in the raw typed walk but excluded by normal canonical serialization. `e66388e` is a likely introduction, not a P41 finding until the exact test is replayed at the correct base. The exact-inventory race assertion also fails; the reviewed V3 test-only representation repair has not yet run. Neither red establishes a production authority escape or global epoch closure.
+- **R11:** the normal 76ad whole file remains 15/1. The a85 faulthandler follow-up is UNRUN after a 600-second process alarm, with no JUnit and only a partial stack. That is not a deadlock diagnosis. The reviewed 121-second test-only wait is static-applied only; runtime outcome remains UNRUN.
+- **Input/source boundary:** a85 result reports source, config, cache, FTS, and production-manifest stability, with both test groups absent after reaping. It also records the 16 foreign inputs before/after; preserve that manifest and the original raw result. No new status or authority claim follows.
+
+Exact denominators, root receipt rows, corrections and independent diagnoses are pinned in BASELINES. The residual ledger is unchanged at 282 rows (9 closed / 260 partial / 12 held / 1 open).
+
 ## Evidence boundary at source cut `c3730424df8dde4dbe2daf8dde238052f464f812` (2026-10-03)
 
 This queue pins branch `codex/e02-r2` at c373 (tree `da0189f21550f4a193375183ead4eb5e4d9adfeb`). Four direct owner checks ran at this cut: WMR PASS/exit 0; CG1, CG2, and N6 typed UNRUN/exit 2. Current whole-file WMR/N5, served acquired-CAS→N5, and current four-base behavior remain UNRUN. Dated measurements below remain bound to their own commits and test blobs; this front supersedes older current-boundary wording where it conflicts.

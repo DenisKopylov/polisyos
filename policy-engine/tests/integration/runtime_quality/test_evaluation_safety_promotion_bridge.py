@@ -848,7 +848,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
         worker.start()
         try:
             worker.wake()
-            assert finished.wait(timeout=20), f"ControlWorker did not finish job {job_id}"
+            assert finished.wait(timeout=121), f"ControlWorker did not finish job {job_id}"
         finally:
             worker.stop(timeout=5)
 

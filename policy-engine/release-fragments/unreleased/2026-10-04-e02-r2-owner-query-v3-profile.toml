@@ -1,0 +1,36 @@
+id = "2026-10-04-e02-r2-owner-query-v3-profile"
+title = "Version current promotion owner-query persistence"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Current promotion owner-query artifacts use the additive C4 aggregate_context_v3 profile, while v2 remains an exact historical replay format."
+evidence = [
+  "src/polisyos/core/contracts/c4_persisted_profiles.py",
+  "src/polisyos/runtime/quality/epoch_validity_cascade.py",
+  "tests/unit/runtime/quality/test_open_world_risk.py",
+  "docs/reference/public-surface.md",
+  "architecture/public_surface/inventory.json",
+]
+compatibility = "The exported C4_PERSISTED_PROFILE_SPECS map adds aggregate_context_v3 with schema polisyos.promotion.owner-query-context.v3 and semantic prefix polisyos.promotion-owner-query-context.v3\\0. New owner-query writes select that profile, whose semantic projection binds selected ArtifactRef manifest-profile digests. The aggregate_context v2 profile remains frozen; its pre-001b and post-001b byte projections are recognized only by the historical replay path. No stored v2 record is rewritten or restamped."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: polisyos.core.contracts.C4_PERSISTED_PROFILE_SPECS; internal: promotion owner-query persisted artifact"
+migration = "No bulk migration is required. Keep v2 artifacts on their versioned historical reader and create new v3 owner-query artifacts through the existing owner writer when a current query is needed. This change does not authorize reissue of an epoch, receipt, approval, or other governed artifact."
+api = "The C4 profile registry gains an additive aggregate_context_v3 row. Current owner-query persistence writes the v3 schema/profile, and its reader dispatches from the exact stored schema and verifies the selected bytes before returning current_serialization. No HTTP route or generated-client contract changes."
+limitations = "A valid v2 artifact is reported as historical_valid with predicate_class=not_established and limitation_code=historical_serialization_requires_current_owner_query; it is not a current N9 query witness. The new serialization profile establishes no owner appointment, epoch-finalization evidence, promotion, deployment, or publication authority, and does not change the temporary V2 approval refusal."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "c4-owner-query-v3-profile"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_stable: polisyos.core.contracts.C4_PERSISTED_PROFILE_SPECS; internal: promotion owner-query persisted artifact"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "The C4 registry adds aggregate_context_v3 for new promotion owner-query artifacts; existing v2 artifacts retain exact historical replay and do not gain current authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

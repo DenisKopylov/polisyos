@@ -16,6 +16,7 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_by
 from polisyos.core.contracts.c4_persisted_profiles import (
     C4_PERSISTED_PROFILE_SPECS,
     c4_canonical_mapping,
+    c4_framed_semantic_projection_digest,
     c4_profile,
 )
 from polisyos.pdc import PromotionObligationClass
@@ -41,6 +42,8 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     PromotionCandidateOccurrenceStatement,
     PromotionOwnerQueryContextNonReceipt,
     _persist_model,
+    _promotion_owner_query_v2_post_001b_digest,
+    _promotion_owner_query_v2_pre_001b_digest,
     _seal_completed_generation_candidate_batch,
     _semantic_hash,
     promotion_candidate_summary_content_hash,
@@ -175,6 +178,24 @@ _INDEPENDENT_C4_PROFILE_ROWS = {
         "runtime.promotion.owner_query_context",
         "polisyos.promotion.owner-query-context.v2",
         b"polisyos.promotion-owner-query-context.v2\0",
+        (
+            "design_problem_binding_ref",
+            "design_problem_binding_content_hash",
+            "authority_purpose",
+            "candidate_denominator_ref",
+            "candidate_denominator_content_hash",
+            "ordered_candidate_contexts",
+            "requested_query_context_ref",
+            "owner_resolution_provenance_ref",
+            "predicate_class",
+        ),
+        (),
+        (),
+    ),
+    "aggregate_context_v3": (
+        "runtime.promotion.owner_query_context",
+        "polisyos.promotion.owner-query-context.v3",
+        b"polisyos.promotion-owner-query-context.v3\0",
         (
             "design_problem_binding_ref",
             "design_problem_binding_content_hash",
@@ -1207,6 +1228,346 @@ def test_open_world_vector_persists_and_round_trips(tmp_path) -> None:
     )
 
 
+def test_owner_query_v3_profile_uses_artifact_ref_owned_projection() -> None:
+    legacy = c4_profile("aggregate_context")
+    current = c4_profile("aggregate_context_v3")
+    assert legacy.schema_name == "polisyos.promotion.owner-query-context.v2"
+    assert legacy.semantic_prefix == b"polisyos.promotion-owner-query-context.v2\0"
+    assert current.schema_name == "polisyos.promotion.owner-query-context.v3"
+    assert current.semantic_prefix == b"polisyos.promotion-owner-query-context.v3\0"
+    assert current.kind == legacy.kind
+    assert current.raw_mapping_fields == legacy.raw_mapping_fields
+
+    artifact_id = artifacts.ArtifactID.model_validate(_digest("owner-query-selected-view"))
+    default_ref = artifacts.ArtifactRef(
+        artifact_id=artifact_id,
+        kind="runtime.test.owner_query_input",
+        media_type="application/octet-stream",
+    )
+    selected_a = artifacts.ArtifactRef(
+        artifact_id=artifact_id,
+        kind=default_ref.kind,
+        media_type=default_ref.media_type,
+        manifest_profile_sha256=_digest("selected-profile-a"),
+    )
+    selected_b = artifacts.ArtifactRef(
+        artifact_id=artifact_id,
+        kind=default_ref.kind,
+        media_type=default_ref.media_type,
+        manifest_profile_sha256=_digest("selected-profile-b"),
+    )
+
+    def independent_digest(mapping: dict[str, object]) -> str:
+        encoded = to_canonical_bytes(
+            mapping,
+            CanonSpec(
+                name="polisyos.canon.json",
+                version="0.2.0",
+                forbid_floats=True,
+                forbid_nan_inf=True,
+                exclude_none=False,
+                max_depth=128,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ),
+        )
+        return (
+            "sha256:"
+            + hashlib.sha256(
+                b"polisyos.promotion-owner-query-context.v3\0"
+                + len(encoded).to_bytes(8, "big")
+                + encoded
+            ).hexdigest()
+        )
+
+    expected_default = {
+        "input_ref": {
+            "artifact_id": str(artifact_id),
+            "kind": default_ref.kind,
+            "media_type": default_ref.media_type,
+        }
+    }
+    assert c4_framed_semantic_projection_digest(
+        "aggregate_context_v3", {"input_ref": default_ref}
+    ) == independent_digest(expected_default)
+    expected_selected_a = {
+        "input_ref": {
+            **expected_default["input_ref"],
+            "manifest_profile_sha256": selected_a.manifest_profile_sha256,
+        }
+    }
+    assert c4_framed_semantic_projection_digest(
+        "aggregate_context_v3", {"input_ref": selected_a}
+    ) == independent_digest(expected_selected_a)
+    assert c4_framed_semantic_projection_digest(
+        "aggregate_context_v3", {"input_ref": selected_a}
+    ) != c4_framed_semantic_projection_digest(
+        "aggregate_context_v3", {"input_ref": selected_b}
+    )
+
+
+def test_owner_query_v2_replay_helpers_preserve_both_historical_projections() -> None:
+    ref = artifacts.ArtifactRef(
+        artifact_id=artifacts.ArtifactID.model_validate(_digest("historical-query-input")),
+        kind="runtime.test.owner_query_input",
+        media_type="application/octet-stream",
+    )
+    value = {"input_ref": ref, "optional_value": None}
+    canon_spec = CanonSpec(
+        name="polisyos.canon.json",
+        version="0.2.0",
+        forbid_floats=True,
+        forbid_nan_inf=True,
+        exclude_none=False,
+        max_depth=128,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+
+    def independent_digest(mapping: dict[str, object]) -> str:
+        encoded = to_canonical_bytes(mapping, canon_spec)
+        return (
+            "sha256:"
+            + hashlib.sha256(
+                b"polisyos.promotion-owner-query-context.v2\0"
+                + len(encoded).to_bytes(8, "big")
+                + encoded
+            ).hexdigest()
+        )
+
+    pre_001b = {
+        "input_ref": {
+            "artifact_id": str(ref.artifact_id),
+            "kind": ref.kind,
+            "media_type": ref.media_type,
+        },
+        "optional_value": None,
+    }
+    post_001b = {
+        "input_ref": {
+            "artifact_id": str(ref.artifact_id),
+            "kind": ref.kind,
+            "media_type": ref.media_type,
+            "manifest_profile_sha256": None,
+        },
+        "optional_value": None,
+    }
+    assert _promotion_owner_query_v2_pre_001b_digest(value) == independent_digest(pre_001b)
+    assert _promotion_owner_query_v2_post_001b_digest(value) == independent_digest(post_001b)
+    assert independent_digest(pre_001b) != independent_digest(post_001b)
+
+    selected_ref = ref.model_copy(update={"manifest_profile_sha256": _digest("old-view")})
+    with pytest.raises(ValueError, match="pre_001b_selected_artifact_view_unrepresentable"):
+        _promotion_owner_query_v2_pre_001b_digest({"input_ref": selected_ref})
+    post_selected = {
+        "input_ref": {
+            "artifact_id": str(ref.artifact_id),
+            "kind": ref.kind,
+            "media_type": ref.media_type,
+            "manifest_profile_sha256": selected_ref.manifest_profile_sha256,
+        }
+    }
+    assert _promotion_owner_query_v2_post_001b_digest(
+        {"input_ref": selected_ref}
+    ) == independent_digest(post_selected)
+
+
+@pytest.mark.parametrize("algorithm", ["pre_001b", "post_001b"])
+def test_owner_query_v2_exact_history_is_limited_by_current_reader(tmp_path, algorithm: str) -> None:
+    runtime, batch = _prepared(tmp_path)
+    current_statement = batch.contexts.aggregate_context.statement
+    projection = epoch_cascade_module._promotion_owner_query_context_projection(
+        design_problem_binding_ref=current_statement.design_problem_binding_ref,
+        design_problem_binding_content_hash=(
+            current_statement.design_problem_binding_content_hash
+        ),
+        authority_purpose=current_statement.authority_purpose,
+        candidate_denominator_ref=current_statement.candidate_denominator_ref,
+        candidate_denominator_content_hash=(
+            current_statement.candidate_denominator_content_hash
+        ),
+        ordered_candidate_contexts=current_statement.ordered_candidate_contexts,
+    )
+    historical_digest = getattr(
+        epoch_cascade_module,
+        f"_promotion_owner_query_v2_{algorithm}_digest",
+    )(projection)
+    historical_statement = current_statement.model_copy(
+        update={"requested_query_context_ref": historical_digest}
+    )
+    historical_ref, _, historical_bytes = _persist_model(
+        store=runtime.store,
+        value=historical_statement,
+        profile_record="aggregate_context",
+    )
+
+    exact = runtime.context_repository.verify_exact(
+        context_ref=historical_ref,
+        context_bytes=historical_bytes,
+    )
+    assert type(exact) is epoch_cascade_module.HistoricalPromotionOwnerQueryContext
+    assert exact.historical_statement == historical_statement
+    assert exact.serialization_status == "historical_valid"
+    assert exact.predicate_class == "not_established"
+    assert exact.limitation_code == "historical_serialization_requires_current_owner_query"
+    assert not hasattr(exact, "statement")
+
+    current_read = runtime.context_repository.resolve_verified(context_ref=historical_ref)
+    assert isinstance(current_read, PromotionOwnerQueryContextNonReceipt)
+    assert current_read.status == "not_established"
+    assert current_read.code == "historical_serialization_requires_current_owner_query"
+    assert runtime.context_repository.resolve_verified(
+        context_ref=batch.contexts.aggregate_context.context_ref
+    ) == batch.contexts.aggregate_context
+
+    wrong_bytes = runtime.context_repository.verify_exact(
+        context_ref=historical_ref,
+        context_bytes=historical_bytes + b" ",
+    )
+    assert isinstance(wrong_bytes, PromotionOwnerQueryContextNonReceipt)
+    assert wrong_bytes.status == "rejected"
+
+    corrupt_statement = historical_statement.model_copy(
+        update={"requested_query_context_ref": _digest("corrupt-historical-query")}
+    )
+    corrupt_ref, _, corrupt_bytes = _persist_model(
+        store=runtime.store,
+        value=corrupt_statement,
+        profile_record="aggregate_context",
+    )
+    corrupt = runtime.context_repository.verify_exact(
+        context_ref=corrupt_ref,
+        context_bytes=corrupt_bytes,
+    )
+    assert isinstance(corrupt, PromotionOwnerQueryContextNonReceipt)
+    assert corrupt.status == "rejected"
+
+
+@pytest.mark.parametrize(
+    ("source_profile", "sibling_profile"),
+    [
+        ("aggregate_context_v3", "aggregate_context"),
+        ("aggregate_context", "aggregate_context_v3"),
+    ],
+)
+def test_owner_query_reader_dispatches_from_exact_selected_manifest_profile(
+    tmp_path, source_profile: str, sibling_profile: str
+) -> None:
+    """A sibling schema view of the same bytes cannot change query-version dispatch."""
+
+    runtime, batch = _prepared(tmp_path)
+    current_statement = batch.contexts.aggregate_context.statement
+    if source_profile == "aggregate_context_v3":
+        source_ref = batch.contexts.aggregate_context.context_ref
+        source_bytes = runtime.store.get_bytes(source_ref)
+        source_manifest = runtime.store.get_manifest(source_ref)
+        assert source_manifest.artifact_schema == artifacts.SchemaInfo(
+            name=c4_profile(source_profile).schema_name,
+            version=c4_profile(source_profile).schema_version,
+        )
+        exact_source = runtime.context_repository.verify_exact(
+            context_ref=source_ref,
+            context_bytes=source_bytes,
+        )
+        assert type(exact_source) is epoch_cascade_module.PersistedPromotionOwnerQueryContext
+        assert exact_source.serialization_status == "current_serialization"
+        source_default_read = runtime.context_repository.resolve_verified(
+            context_ref=source_ref
+        )
+        assert type(source_default_read) is epoch_cascade_module.PersistedPromotionOwnerQueryContext
+    else:
+        projection = epoch_cascade_module._promotion_owner_query_context_projection(
+            design_problem_binding_ref=current_statement.design_problem_binding_ref,
+            design_problem_binding_content_hash=(
+                current_statement.design_problem_binding_content_hash
+            ),
+            authority_purpose=current_statement.authority_purpose,
+            candidate_denominator_ref=current_statement.candidate_denominator_ref,
+            candidate_denominator_content_hash=(
+                current_statement.candidate_denominator_content_hash
+            ),
+            ordered_candidate_contexts=current_statement.ordered_candidate_contexts,
+        )
+        historical_statement = current_statement.model_copy(
+            update={
+                "requested_query_context_ref": (
+                    _promotion_owner_query_v2_post_001b_digest(projection)
+                )
+            }
+        )
+        source_ref, _, source_bytes = _persist_model(
+            store=runtime.store,
+            value=historical_statement,
+            profile_record=source_profile,
+        )
+        source_manifest = runtime.store.get_manifest(source_ref)
+        assert source_manifest.artifact_schema == artifacts.SchemaInfo(
+            name=c4_profile(source_profile).schema_name,
+            version=c4_profile(source_profile).schema_version,
+        )
+        exact_source = runtime.context_repository.verify_exact(
+            context_ref=source_ref,
+            context_bytes=source_bytes,
+        )
+        assert type(exact_source) is epoch_cascade_module.HistoricalPromotionOwnerQueryContext
+        assert exact_source.historical_statement == historical_statement
+        source_default_read = runtime.context_repository.resolve_verified(
+            context_ref=source_ref
+        )
+        assert isinstance(source_default_read, PromotionOwnerQueryContextNonReceipt)
+        assert source_default_read.status == "not_established"
+        assert (
+            source_default_read.code
+            == "historical_serialization_requires_current_owner_query"
+        )
+
+    sibling = c4_profile(sibling_profile)
+    sibling_ref = runtime.store.put_bytes(
+        source_bytes,
+        artifacts.ArtifactWriteOptions(
+            kind=sibling.kind,
+            media_type=sibling.media_type,
+            schema=artifacts.SchemaInfo(
+                name=sibling.schema_name,
+                version=sibling.schema_version,
+            ),
+            canon=artifacts.CanonInfo.from_spec(sibling.canon_spec),
+        ),
+    )
+
+    sibling_manifest = runtime.store.get_manifest(sibling_ref)
+    assert sibling_ref.artifact_id == source_ref.artifact_id
+    assert sibling_ref.kind == source_ref.kind
+    assert sibling_ref.media_type == source_ref.media_type
+    assert sibling_ref.manifest_profile_sha256 is not None
+    assert sibling_ref.manifest_profile_sha256 != source_ref.manifest_profile_sha256
+    assert sibling_manifest.artifact_schema == artifacts.SchemaInfo(
+        name=sibling.schema_name,
+        version=sibling.schema_version,
+    )
+    assert runtime.store.get_bytes(source_ref) == source_bytes
+    assert runtime.store.get_bytes(sibling_ref) == source_bytes
+    assert runtime.store.verify(source_ref).ok
+    assert runtime.store.verify(sibling_ref).ok
+
+    exact_sibling = runtime.context_repository.verify_exact(
+        context_ref=sibling_ref,
+        context_bytes=source_bytes,
+    )
+    assert isinstance(exact_sibling, PromotionOwnerQueryContextNonReceipt)
+    assert exact_sibling.status == "rejected"
+    assert exact_sibling.code == "promotion_query_context_binding_mismatch"
+
+    default_sibling_read = runtime.context_repository.resolve_verified(
+        context_ref=sibling_ref
+    )
+    assert isinstance(default_sibling_read, PromotionOwnerQueryContextNonReceipt)
+    assert default_sibling_read.status == "rejected"
+    assert default_sibling_read.code == "promotion_query_context_binding_mismatch"
+
+
 def test_promotion_artifacts_use_the_frozen_profiles_and_independent_preimages(
     tmp_path,
 ) -> None:
@@ -1244,7 +1605,7 @@ def test_promotion_artifacts_use_the_frozen_profiles_and_independent_preimages(
             bound.statement.member_context_ref,
             bound.statement.member_context_content_hash,
         ),
-        ("aggregate_context", aggregate.context_ref, aggregate.semantic_hash),
+        ("aggregate_context_v3", aggregate.context_ref, aggregate.semantic_hash),
         ("bound_member", bound.bound_member_ref, bound.bound_member_content_hash),
         ("open_world_risk_vector", gate.vector_artifact_ref, gate.semantic_hash),
     )
@@ -1351,7 +1712,7 @@ def test_promotion_artifacts_use_the_frozen_profiles_and_independent_preimages(
     independently_requested = (
         "sha256:"
         + hashlib.sha256(
-            b"polisyos.promotion-owner-query-context.v2\0"
+            b"polisyos.promotion-owner-query-context.v3\0"
             + len(requested_bytes).to_bytes(8, "big")
             + requested_bytes
         ).hexdigest()

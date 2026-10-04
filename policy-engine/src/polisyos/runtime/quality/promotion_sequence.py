@@ -94,6 +94,7 @@ from polisyos.runtime.quality.credal_reference import (
     replace_reference_edge,
 )
 from polisyos.runtime.quality.epoch_validity_cascade import (
+    PersistedPromotionOwnerQueryContext,
     _persist_model,
     _raw_hash,
     _read_model,
@@ -3607,7 +3608,10 @@ def _resolve_pre_n9_batch_owner_binding(
     aggregate = promotion_runtime.context_repository.resolve_verified(
         context_ref=admitted_batch.aggregate_context_ref
     )
-    if not hasattr(aggregate, "statement"):
+    if (
+        type(aggregate) is not PersistedPromotionOwnerQueryContext
+        or aggregate.serialization_status != "current_serialization"
+    ):
         raise ValueError("pre_n9_admitted_batch_aggregate_unresolved")
     denominator = promotion_runtime.context_repository.resolve_denominator(
         denominator_ref=admitted_batch.candidate_denominator_ref

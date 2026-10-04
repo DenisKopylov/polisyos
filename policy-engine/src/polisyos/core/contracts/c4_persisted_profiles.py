@@ -63,9 +63,10 @@ def _profile(
     )
 
 
-# Task 4.3's seven frozen promotion rows plus the required OpenWorldRisk vector
-# row.  The latter closes the plan's fixed-profile omission without appointing
-# an owner or changing any capability/property result.
+# Frozen promotion profiles retain aggregate_context as v2 history and use the
+# separately versioned aggregate_context_v3 profile for current owner queries.
+# The OpenWorldRisk vector row closes the plan's fixed-profile omission without
+# appointing an owner or changing any capability/property result.
 _PROMOTION_PROFILE_SPECS = {
     "generation_owner_snapshot": _profile(
         "generation_owner_snapshot",
@@ -165,6 +166,23 @@ _PROMOTION_PROFILE_SPECS = {
         "runtime.promotion.owner_query_context",
         "polisyos.promotion.owner-query-context.v2",
         b"polisyos.promotion-owner-query-context.v2\0",
+        (
+            "design_problem_binding_ref",
+            "design_problem_binding_content_hash",
+            "authority_purpose",
+            "candidate_denominator_ref",
+            "candidate_denominator_content_hash",
+            "ordered_candidate_contexts",
+            "requested_query_context_ref",
+            "owner_resolution_provenance_ref",
+            "predicate_class",
+        ),
+    ),
+    "aggregate_context_v3": _profile(
+        "aggregate_context_v3",
+        "runtime.promotion.owner_query_context",
+        "polisyos.promotion.owner-query-context.v3",
+        b"polisyos.promotion-owner-query-context.v3\0",
         (
             "design_problem_binding_ref",
             "design_problem_binding_content_hash",
@@ -505,17 +523,20 @@ def c4_profile(record: str) -> C4PersistedProfileSpec:
         raise ValueError(f"c4_persisted_profile_unregistered:{record}") from exc
 
 
-def _raw_value(value: Any) -> Any:
+def _raw_value(value: Any, *, by_alias: bool = False) -> Any:
     if isinstance(value, ArtifactID):
         return str(value)
     if isinstance(value, Enum):
         return value.value
     if isinstance(value, BaseModel):
-        return _raw_value(value.model_dump(mode="python", exclude_none=False))
+        return _raw_value(
+            value.model_dump(mode="python", by_alias=by_alias, exclude_none=False),
+            by_alias=by_alias,
+        )
     if isinstance(value, Mapping):
-        return {str(key): _raw_value(item) for key, item in value.items()}
+        return {str(key): _raw_value(item, by_alias=by_alias) for key, item in value.items()}
     if isinstance(value, tuple | list):
-        return [_raw_value(item) for item in value]
+        return [_raw_value(item, by_alias=by_alias) for item in value]
     return value
 
 
@@ -565,6 +586,28 @@ def c4_semantic_digest(record: str, value: BaseModel | Mapping[str, object]) -> 
         if field not in spec.self_field_exclusions
     }
     canonical = to_canonical_bytes(semantic_mapping, spec.canon_spec)
+    preimage = spec.semantic_prefix + len(canonical).to_bytes(8, "big") + canonical
+    return "sha256:" + hashlib.sha256(preimage).hexdigest()
+
+
+def c4_framed_semantic_projection_digest(
+    record: str, value: BaseModel | Mapping[str, object]
+) -> str:
+    """Hash a named owner's derived projection through its C4 serializer.
+
+    This supports an owner-defined subprojection whose digest shares the C4
+    profile's canonicalization and ArtifactRef serialization contract. The
+    caller remains responsible for selecting the exact projection fields;
+    full persisted records must use :func:`c4_semantic_digest`.
+    """
+
+    spec = c4_profile(record)
+    projection = _raw_value(value, by_alias=True)
+    if not isinstance(projection, dict):
+        raise TypeError("c4_semantic_projection_must_be_mapping")
+    canonical = to_canonical_bytes(projection, spec.canon_spec)
+    if len(canonical) >= 1 << 64:
+        raise ValueError("c4_semantic_projection_exceeds_uint64_frame")
     preimage = spec.semantic_prefix + len(canonical).to_bytes(8, "big") + canonical
     return "sha256:" + hashlib.sha256(preimage).hexdigest()
 

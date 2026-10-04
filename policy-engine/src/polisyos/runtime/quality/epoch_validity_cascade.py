@@ -17,12 +17,16 @@ import hashlib
 import json
 from collections.abc import Mapping, Sequence  # noqa: TC003
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, Protocol, Self
+from enum import Enum
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
+from polisyos.core.contracts.c4_persisted_profiles import (
+    c4_framed_semantic_projection_digest,
+)
 from polisyos.core.contracts import EpochPerturbationClass  # noqa: TC001
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
@@ -82,6 +86,102 @@ def _framed_semantic_hash(domain: str, value: BaseModel | Mapping[str, object]) 
     raw_value = core_contracts.chronology._raw_value(value)
     canonical = core_contracts.chronology._canonical_raw_bytes(raw_value)
     return _raw_hash(domain.encode("utf-8") + b"\0" + len(canonical).to_bytes(8, "big") + canonical)
+
+
+def _promotion_owner_query_context_projection(
+    *,
+    design_problem_binding_ref: ArtifactRef,
+    design_problem_binding_content_hash: Digest,
+    authority_purpose: str,
+    candidate_denominator_ref: ArtifactRef,
+    candidate_denominator_content_hash: Digest,
+    ordered_candidate_contexts: Sequence[PromotionCandidateOwnerContext],
+) -> dict[str, object]:
+    """Build the frozen owner-selected input mapping for the query identity."""
+
+    return {
+        "design_problem_binding_ref": design_problem_binding_ref,
+        "design_problem_binding_content_hash": design_problem_binding_content_hash,
+        "authority_purpose": authority_purpose,
+        "candidate_denominator_ref": candidate_denominator_ref,
+        "candidate_denominator_content_hash": candidate_denominator_content_hash,
+        "ordered_candidate_contexts": tuple(
+            {
+                "candidate": row.candidate,
+                "member_query_context_ref": row.member_query_context_ref,
+            }
+            for row in ordered_candidate_contexts
+        ),
+    }
+
+
+def _promotion_owner_query_v2_pre_001b_raw_value(value: Any) -> Any:
+    """Recreate the v2 walk from before ArtifactRef could select manifest views."""
+
+    if isinstance(value, artifacts.ArtifactID):
+        return str(value)
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, ArtifactRef):
+        if value.manifest_profile_sha256 is not None:
+            raise ValueError("pre_001b_selected_artifact_view_unrepresentable")
+        return {
+            field.alias or name: _promotion_owner_query_v2_pre_001b_raw_value(
+                getattr(value, name)
+            )
+            for name, field in value.__class__.model_fields.items()
+            if name != "manifest_profile_sha256"
+        }
+    if isinstance(value, BaseModel):
+        return {
+            field.alias or name: _promotion_owner_query_v2_pre_001b_raw_value(
+                getattr(value, name)
+            )
+            for name, field in value.__class__.model_fields.items()
+        }
+    if isinstance(value, tuple | list):
+        return [_promotion_owner_query_v2_pre_001b_raw_value(item) for item in value]
+    if isinstance(value, Mapping):
+        return {
+            str(key): _promotion_owner_query_v2_pre_001b_raw_value(item)
+            for key, item in value.items()
+        }
+    return value
+
+
+def _framed_owner_query_digest_from_raw(prefix: bytes, raw_value: Any) -> Digest:
+    canonical = core_contracts.chronology._canonical_raw_bytes(raw_value)
+    if len(canonical) >= 1 << 64:
+        raise ValueError("promotion_owner_query_frame_exceeds_uint64")
+    return _raw_hash(prefix + len(canonical).to_bytes(8, "big") + canonical)
+
+
+def _promotion_owner_query_v2_pre_001b_digest(
+    value: BaseModel | Mapping[str, object],
+) -> Digest:
+    """Replay the pre-001b v2 identity, rejecting refs that era could not encode."""
+
+    raw_value = _promotion_owner_query_v2_pre_001b_raw_value(value)
+    prefix = c4_profile("aggregate_context").semantic_prefix
+    return _framed_owner_query_digest_from_raw(prefix, raw_value)
+
+
+def _promotion_owner_query_v2_post_001b_digest(
+    value: BaseModel | Mapping[str, object],
+) -> Digest:
+    """Replay the post-001b v2 identity with the frozen chronology raw walk."""
+
+    raw_value = core_contracts.chronology._raw_value(value)
+    prefix = c4_profile("aggregate_context").semantic_prefix
+    return _framed_owner_query_digest_from_raw(prefix, raw_value)
+
+
+def _promotion_owner_query_v3_digest(
+    value: BaseModel | Mapping[str, object],
+) -> Digest:
+    """Hash a current owner-query projection through its versioned C4 owner."""
+
+    return c4_framed_semantic_projection_digest("aggregate_context_v3", value)
 
 
 def promotion_candidate_summary_content_hash(summary: CandidateSummary) -> Digest:
@@ -1443,6 +1543,20 @@ class PersistedPromotionOwnerQueryContext(_StrictModel):
     semantic_hash: Digest
     statement: PromotionOwnerQueryContextStatement
     verifier_provenance_ref: ArtifactRef
+    serialization_status: Literal["current_serialization"]
+
+
+class HistoricalPromotionOwnerQueryContext(_StrictModel):
+    """Exact v2 replay evidence that is not admitted as a current owner query."""
+
+    context_ref: ArtifactRef
+    raw_cas_hash: Digest
+    semantic_hash: Digest
+    historical_statement: PromotionOwnerQueryContextStatement
+    verifier_provenance_ref: ArtifactRef
+    serialization_status: Literal["historical_valid"]
+    predicate_class: Literal["not_established"]
+    limitation_code: Literal["historical_serialization_requires_current_owner_query"]
 
 
 class BoundPromotionCandidateContextStatement(_StrictModel):
@@ -1469,6 +1583,7 @@ class PromotionOwnerQueryContextNonReceipt(_StrictModel):
     status: Literal["not_established", "rejected"]
     code: Literal[
         "promotion_query_context_owner_unavailable",
+        "historical_serialization_requires_current_owner_query",
         "epoch_query_unresolved",
         "deployment_query_unresolved",
         "promotion_query_context_binding_mismatch",
@@ -1573,7 +1688,11 @@ class PromotionOwnerQueryContextVerifier(Protocol):
 
     def verify_exact(
         self, *, context_ref: ArtifactRef, context_bytes: bytes
-    ) -> PersistedPromotionOwnerQueryContext | PromotionOwnerQueryContextNonReceipt: ...
+    ) -> (
+        PersistedPromotionOwnerQueryContext
+        | HistoricalPromotionOwnerQueryContext
+        | PromotionOwnerQueryContextNonReceipt
+    ): ...
 
 
 def _load_verified_candidate_denominator(
@@ -1900,39 +2019,115 @@ class ArtifactPromotionOwnerQueryContextRepository:
         self, *, context_ref: ArtifactRef
     ) -> PersistedPromotionOwnerQueryContext | PromotionOwnerQueryContextNonReceipt:
         try:
-            context_bytes = self._artifacts.get_bytes(context_ref.artifact_id)
+            context_bytes = self._artifacts.get_bytes(context_ref)
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_query_context_binding_mismatch"
             )
         verifier = self._verifier or self
-        return verifier.verify_exact(context_ref=context_ref, context_bytes=context_bytes)
+        verified = verifier.verify_exact(context_ref=context_ref, context_bytes=context_bytes)
+        if isinstance(verified, HistoricalPromotionOwnerQueryContext):
+            return PromotionOwnerQueryContextNonReceipt(
+                status="not_established",
+                code="historical_serialization_requires_current_owner_query",
+            )
+        if not isinstance(
+            verified, (PersistedPromotionOwnerQueryContext, PromotionOwnerQueryContextNonReceipt)
+        ):
+            return PromotionOwnerQueryContextNonReceipt(
+                status="rejected", code="promotion_query_context_binding_mismatch"
+            )
+        return verified
 
     def verify_exact(
         self, *, context_ref: ArtifactRef, context_bytes: bytes
-    ) -> PersistedPromotionOwnerQueryContext | PromotionOwnerQueryContextNonReceipt:
+    ) -> (
+        PersistedPromotionOwnerQueryContext
+        | HistoricalPromotionOwnerQueryContext
+        | PromotionOwnerQueryContextNonReceipt
+    ):
         try:
+            manifest = self._artifacts.get_manifest(context_ref)
+            if manifest.artifact_schema == artifacts.SchemaInfo(
+                name=c4_profile("aggregate_context_v3").schema_name,
+                version=c4_profile("aggregate_context_v3").schema_version,
+            ):
+                profile_record = "aggregate_context_v3"
+            elif manifest.artifact_schema == artifacts.SchemaInfo(
+                name=c4_profile("aggregate_context").schema_name,
+                version=c4_profile("aggregate_context").schema_version,
+            ):
+                profile_record = "aggregate_context"
+            else:
+                raise ValueError("promotion_query_context_manifest_schema_unsupported")
             statement = _read_model(
                 store=self._artifacts,
                 ref=context_ref,
                 model=PromotionOwnerQueryContextStatement,
-                profile_record="aggregate_context",
+                profile_record=profile_record,
             )
             if not isinstance(statement, PromotionOwnerQueryContextStatement):
                 raise TypeError("promotion_owner_query_context_model_mismatch")
-            if self._artifacts.get_bytes(context_ref.artifact_id) != context_bytes:
+            if self._artifacts.get_bytes(context_ref) != context_bytes:
                 raise ValueError("promotion_owner_query_context_byte_mismatch")
-            self._verify_aggregate(statement)
-        except (OSError, TypeError, ValueError):
+            projection = _promotion_owner_query_context_projection(
+                design_problem_binding_ref=statement.design_problem_binding_ref,
+                design_problem_binding_content_hash=(
+                    statement.design_problem_binding_content_hash
+                ),
+                authority_purpose=statement.authority_purpose,
+                candidate_denominator_ref=statement.candidate_denominator_ref,
+                candidate_denominator_content_hash=(
+                    statement.candidate_denominator_content_hash
+                ),
+                ordered_candidate_contexts=statement.ordered_candidate_contexts,
+            )
+            historical_algorithm: str | None = None
+            if profile_record == "aggregate_context_v3":
+                expected_requested = _promotion_owner_query_v3_digest(projection)
+            else:
+                matches: list[tuple[str, Digest]] = []
+                try:
+                    pre_001b = _promotion_owner_query_v2_pre_001b_digest(projection)
+                except ValueError as exc:
+                    if str(exc) != "pre_001b_selected_artifact_view_unrepresentable":
+                        raise
+                else:
+                    if pre_001b == statement.requested_query_context_ref:
+                        matches.append(("pre_001b", pre_001b))
+                post_001b = _promotion_owner_query_v2_post_001b_digest(projection)
+                if post_001b == statement.requested_query_context_ref:
+                    matches.append(("post_001b", post_001b))
+                if len(matches) != 1:
+                    raise ValueError("promotion_query_context_historical_projection_ambiguous")
+                historical_algorithm, expected_requested = matches[0]
+            self._verify_aggregate(statement, expected_requested_context_ref=expected_requested)
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_query_context_binding_mismatch"
+            )
+        if profile_record == "aggregate_context":
+            if historical_algorithm is None:
+                return PromotionOwnerQueryContextNonReceipt(
+                    status="rejected", code="promotion_query_context_binding_mismatch"
+                )
+            return HistoricalPromotionOwnerQueryContext(
+                context_ref=context_ref,
+                raw_cas_hash=_raw_hash(context_bytes),
+                semantic_hash=c4_semantic_digest("aggregate_context", statement),
+                historical_statement=statement,
+                verifier_provenance_ref=statement.owner_resolution_provenance_ref,
+                serialization_status="historical_valid",
+                predicate_class="not_established",
+                limitation_code="historical_serialization_requires_current_owner_query",
             )
         return PersistedPromotionOwnerQueryContext(
             context_ref=context_ref,
             raw_cas_hash=_raw_hash(context_bytes),
-            semantic_hash=c4_semantic_digest("aggregate_context", statement),
+            semantic_hash=c4_semantic_digest("aggregate_context_v3", statement),
             statement=statement,
             verifier_provenance_ref=statement.owner_resolution_provenance_ref,
+            serialization_status="current_serialization",
         )
 
     def resolve_bound_member(
@@ -2015,7 +2210,12 @@ class ArtifactPromotionOwnerQueryContextRepository:
             raise TypeError("promotion_candidate_denominator_model_mismatch")
         return statement
 
-    def _verify_aggregate(self, statement: PromotionOwnerQueryContextStatement) -> None:
+    def _verify_aggregate(
+        self,
+        statement: PromotionOwnerQueryContextStatement,
+        *,
+        expected_requested_context_ref: Digest,
+    ) -> None:
         denominator, owner_snapshot = _load_verified_candidate_denominator(
             artifacts=self._artifacts,
             denominator_ref=statement.candidate_denominator_ref,
@@ -2105,28 +2305,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
             if context.member_query_context_ref != expected_member_ref:
                 raise ValueError("promotion_query_context_binding_mismatch")
 
-        expected_requested = _framed_semantic_hash(
-            "polisyos.promotion-owner-query-context.v2",
-            {
-                "design_problem_binding_ref": statement.design_problem_binding_ref,
-                "design_problem_binding_content_hash": (
-                    statement.design_problem_binding_content_hash
-                ),
-                "authority_purpose": statement.authority_purpose,
-                "candidate_denominator_ref": statement.candidate_denominator_ref,
-                "candidate_denominator_content_hash": (
-                    statement.candidate_denominator_content_hash
-                ),
-                "ordered_candidate_contexts": tuple(
-                    {
-                        "candidate": row.candidate,
-                        "member_query_context_ref": row.member_query_context_ref,
-                    }
-                    for row in statement.ordered_candidate_contexts
-                ),
-            },
-        )
-        if statement.requested_query_context_ref != expected_requested:
+        if statement.requested_query_context_ref != expected_requested_context_ref:
             raise ValueError("promotion_query_context_binding_mismatch")
 
     def _verify_design_problem_binding(
@@ -2380,22 +2559,15 @@ class PromotionOwnerQueryContextAuthority:
                     member_query_context_ref=member_context_ref,
                 )
             )
-        requested = _framed_semantic_hash(
-            "polisyos.promotion-owner-query-context.v2",
-            {
-                "design_problem_binding_ref": design_problem_ref,
-                "design_problem_binding_content_hash": (design_problem_content_hash),
-                "authority_purpose": authority_purpose,
-                "candidate_denominator_ref": denominator.denominator_ref,
-                "candidate_denominator_content_hash": (denominator.denominator_content_hash),
-                "ordered_candidate_contexts": tuple(
-                    {
-                        "candidate": row.candidate,
-                        "member_query_context_ref": row.member_query_context_ref,
-                    }
-                    for row in contexts
-                ),
-            },
+        requested = _promotion_owner_query_v3_digest(
+            _promotion_owner_query_context_projection(
+                design_problem_binding_ref=design_problem_ref,
+                design_problem_binding_content_hash=design_problem_content_hash,
+                authority_purpose=authority_purpose,
+                candidate_denominator_ref=denominator.denominator_ref,
+                candidate_denominator_content_hash=denominator.denominator_content_hash,
+                ordered_candidate_contexts=contexts,
+            )
         )
         aggregate_statement = PromotionOwnerQueryContextStatement(
             design_problem_binding_ref=design_problem_ref,
@@ -2411,7 +2583,7 @@ class PromotionOwnerQueryContextAuthority:
         aggregate_ref, aggregate_hash, raw = _persist_model(
             store=self._artifacts,
             value=aggregate_statement,
-            profile_record="aggregate_context",
+            profile_record="aggregate_context_v3",
         )
         aggregate = PersistedPromotionOwnerQueryContext(
             context_ref=aggregate_ref,
@@ -2419,6 +2591,7 @@ class PromotionOwnerQueryContextAuthority:
             semantic_hash=aggregate_hash,
             statement=aggregate_statement,
             verifier_provenance_ref=self._verifier_provenance_ref,
+            serialization_status="current_serialization",
         )
         bound: list[PersistedBoundPromotionCandidateContext] = []
         for ordinal, ((member_ref, member_hash), context) in enumerate(

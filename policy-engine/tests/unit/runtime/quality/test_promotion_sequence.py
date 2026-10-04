@@ -24,10 +24,12 @@ from uuid import uuid4
 import pytest
 
 import polisyos.runtime.quality.confidence_ledger as confidence_ledger_module
+import polisyos.runtime.quality.epoch_validity_cascade as epoch_cascade_module
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
+from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.contracts.c4_persisted_profiles import c4_profile
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
@@ -4086,6 +4088,130 @@ def test_production_n9_port_persists_and_consumes_dependent_independence_evidenc
         )
         == ()
     )
+
+
+def test_historical_v2_owner_context_is_refused_before_n9_ledger_open(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A verified v2 history witness cannot cross the current N9 owner gate."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem(f"historical_owner_context_{uuid4().hex}")
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_summary(),),
+    )
+
+    current_owner, _ = promotion_sequence_module._resolve_pre_n9_batch_owner_binding(
+        admitted_batch=admitted,
+        promotion_runtime=runtime,
+    )
+    assert type(current_owner) is epoch_cascade_module.PersistedPromotionOwnerQueryContext
+    assert current_owner.serialization_status == "current_serialization"
+
+    statement = current_owner.statement
+    projection = epoch_cascade_module._promotion_owner_query_context_projection(
+        design_problem_binding_ref=statement.design_problem_binding_ref,
+        design_problem_binding_content_hash=statement.design_problem_binding_content_hash,
+        authority_purpose=statement.authority_purpose,
+        candidate_denominator_ref=statement.candidate_denominator_ref,
+        candidate_denominator_content_hash=statement.candidate_denominator_content_hash,
+        ordered_candidate_contexts=statement.ordered_candidate_contexts,
+    )
+    historical_statement = statement.model_copy(
+        update={
+            "requested_query_context_ref": (
+                epoch_cascade_module._promotion_owner_query_v2_post_001b_digest(projection)
+            )
+        }
+    )
+    historical_ref, historical_hash, historical_bytes = epoch_cascade_module._persist_model(
+        store=runtime.store,
+        value=historical_statement,
+        profile_record="aggregate_context",
+    )
+    exact_history = runtime.context_repository.verify_exact(
+        context_ref=historical_ref,
+        context_bytes=historical_bytes,
+    )
+    assert type(exact_history) is epoch_cascade_module.HistoricalPromotionOwnerQueryContext
+    assert not hasattr(exact_history, "statement")
+
+    admissions = tuple(
+        row.model_copy(
+            update={
+                "aggregate_context_ref": historical_ref,
+                "aggregate_context_content_hash": historical_hash,
+            }
+        )
+        for row in admitted.ordered_admissions
+    )
+    historical_batch = admitted.model_copy(
+        update={
+            "aggregate_context_ref": historical_ref,
+            "aggregate_context_content_hash": historical_hash,
+            "ordered_admissions": admissions,
+        }
+    )
+    historical_batch = historical_batch.model_copy(
+        update={
+            "batch_content_hash": core_contracts.c4_semantic_digest(
+                "pre_n9_admitted_candidate_batch", historical_batch
+            )
+        }
+    )
+
+    original_resolver = runtime.context_repository.resolve_verified
+    # Keep the marker current: only the concrete witness-type check rejects this value.
+    monkeypatch.setattr(
+        runtime.context_repository,
+        "resolve_verified",
+        lambda **_kwargs: SimpleNamespace(
+            statement=exact_history.historical_statement,
+            serialization_status="current_serialization",
+        ),
+    )
+    with pytest.raises(
+        ValueError,
+        match="pre_n9_admitted_batch_aggregate_unresolved",
+    ):
+        promotion_sequence_module._resolve_pre_n9_batch_owner_binding(
+            admitted_batch=historical_batch,
+            promotion_runtime=runtime,
+        )
+    monkeypatch.setattr(runtime.context_repository, "resolve_verified", original_resolver)
+
+    port = CanonicalN9PromotionPort(
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+    monkeypatch.setattr(port, "deployment_identity_refusal", lambda _identity: None)
+    ledger_opened = False
+
+    def reject_ledger_open(_binding: N9DesignProblemBinding) -> ConfidenceLedgerSession:
+        nonlocal ledger_opened
+        ledger_opened = True
+        raise AssertionError("historical owner reached the confidence ledger")
+
+    monkeypatch.setattr(port, "_open_confidence_ledger_session", reject_ledger_open)
+    with pytest.raises(
+        ValueError,
+        match="pre_n9_admitted_batch_aggregate_unresolved",
+    ):
+        port(
+            admitted_batch=historical_batch,
+            problem=problem,
+            deployment_identity="test-deployment",
+        )
+    assert ledger_opened is False
 
 
 def test_production_n9_port_persists_and_consumes_measurement_root_evidence(

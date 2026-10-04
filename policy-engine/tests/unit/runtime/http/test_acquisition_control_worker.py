@@ -10,6 +10,9 @@ import pytest
 
 import polisyos.runtime.http.services.control.run_lifecycle as run_lifecycle_module
 import polisyos.runtime.http.services.control_plane_store as control_plane_store_module
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.resilience import guard_runtime_control_store
 from polisyos.runtime.http.services.acquisition_action_service import (
@@ -23,12 +26,9 @@ from polisyos.runtime.http.services.control_plane_store import (
 )
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
+from tests._helpers.acquisition_production import persist_wdi_route
 from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.runtime.http.test_control_service_di import _build_control_service
-from tests.unit.runtime.quality.test_acquisition_route_loop import (
-    _append_terminal,
-    _compiled,
-)
 
 _R8_THREAD_LOCAL_FENCE_REMOVAL_ENV = "POLISYOS_R8_THREAD_LOCAL_FENCE_REMOVAL"
 _THREAD_LOCAL_UNSET = object()
@@ -185,53 +185,14 @@ class _Provider:
 
 
 async def _worker_harness(tmp_path: Path, *, decision_missing: bool):
-    control = _build_control_service(tmp_path)
-    compiled = await _compiled()
-    compiled_ref = control._put_json_artifact(
-        compiled.model_dump(mode="json"),
-        kind="runtime.compiled_recursive_generation_cycle",
-        schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
-    )
-    manifest_ref = control._put_json_artifact(
-        {"capability": "ds15"},
-        kind="runtime.capability_manifest",
-        schema_name="CapabilityManifest",
-    )
-    source_payload_ref = control._put_json_artifact(
-        {"tenant_id": "tenant-a", "cell_id": "cell-a", "run_id": "run-ds15"},
-        kind="runtime.control_job_payload.natural_language_run",
-        schema_name="polisyos.runtime.ControlJobPayload",
-    )
-    store = control._control_store
-    store.create_job(
-        job_id="job-natural-language",
-        kind="natural_language_run",
-        run_id="run-ds15",
-        pipeline_id=None,
-        requested_execution_profile="dev",
-        effective_execution_profile="dev",
-        policy_flags={},
-        capability_manifest_ref=manifest_ref,
-        payload_ref=source_payload_ref,
-        submitted_by="tester",
-    )
-    store.complete_job(
-        job_id="job-natural-language",
-        run_id="run-ds15",
-        capability_manifest_ref=manifest_ref,
-        progress={
-            "state": "completed",
-            "phase": "natural_language_run",
-            "run_id": "run-ds15",
-            "compiled_recursive_generation_cycle_ref": compiled_ref,
-        },
-    )
-    _append_terminal(
-        control._diagnostic_event_log,
+    artifact_store = FileSystemCAS(tmp_path / ".polisyos").with_ambient_ownership_enforcement()
+    control = _build_control_service(tmp_path, artifact_store=artifact_store)
+    fixture_closure, _source_request = await persist_wdi_route(
+        control,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
         run_id="run-ds15",
         job_id="job-natural-language",
-        compiled_ref=compiled_ref,
-        manifest_ref=manifest_ref,
     )
 
     service = object.__new__(AcquisitionActionService)
@@ -239,12 +200,17 @@ async def _worker_harness(tmp_path: Path, *, decision_missing: bool):
     service.human_decision_service = object()
     calls: list[str] = []
     service._authority_provider = _Provider(calls=calls, decision_missing=decision_missing)
-    closure = service._resolve(tenant_id="tenant-a", cell_id="cell-a", run_id="run-ds15")
-    owner_ref = control._put_json_artifact(
-        {"disposition": "quarantined_no_growth"},
-        kind="runtime_quality.acquisition_owner_receipt",
-        schema_name="polisyos.runtime.AcquisitionOwnerReceipt",
-    )
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        closure = service._resolve(
+            tenant_id="tenant-a", cell_id="cell-a", run_id="run-ds15"
+        )
+        assert closure.source_job_id == fixture_closure.source_job_id
+        assert closure.compiled_ref == fixture_closure.compiled_ref
+        owner_ref = control._put_json_artifact(
+            {"disposition": "quarantined_no_growth"},
+            kind="runtime_quality.acquisition_owner_receipt",
+            schema_name="polisyos.runtime.AcquisitionOwnerReceipt",
+        )
     service._execution_port = _Port(
         service=service,
         closure=closure,
@@ -272,35 +238,72 @@ async def _worker_harness(tmp_path: Path, *, decision_missing: bool):
         "invocation": invocation.model_dump(mode="json"),
         "intent": intent.model_dump(mode="json"),
     }
-    # Issue the real worker admission; the synthetic completed NL source above
-    # limits this witness to durable-decision ordering and lease recovery.
-    control.enqueue_acquisition_job(
-        job_id="job-acquisition",
-        run_id="run-ds15",
-        payload=payload,
-        principal=RuntimePrincipal(
-            subject="tester",
+    # Queue and phase writers persist actual payload/manifest/receipt bytes.
+    # Keep their complete write and readback sequence inside the caller's
+    # tenant scope; the worker itself later installs the admitted job scope.
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        queued = control.enqueue_acquisition_job(
+            job_id="job-acquisition",
+            run_id="run-ds15",
+            payload=payload,
+            principal=RuntimePrincipal(
+                subject="tester",
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+                authenticated=True,
+                roles=frozenset({"analyst"}),
+            ),
+        )
+        requested = service._phase_receipt(
+            closure=closure,
+            job_id="job-acquisition",
+            decision_ref="sha256:" + "9" * 64,
+            receipt_phase="requested",
+            predecessor_receipt_ref=None,
+            owner_receipt_refs=(),
+        )
+        requested_head = control.acquisition_route_sink.persist_phase(requested)
+
+        persisted_job = control._control_store.get_job("job-acquisition")
+        assert persisted_job is not None
+        assert persisted_job.payload_ref == queued.payload_ref
+        assert persisted_job.capability_manifest_ref == queued.capability_manifest_ref
+        assert queued.payload_ref is not None
+        assert queued.capability_manifest_ref is not None
+        owned_refs = (
+            queued.payload_ref,
+            queued.capability_manifest_ref,
+            requested_head.receipt_ref,
+        )
+        expected_kinds = (
+            "runtime.control_job_payload.acquisition",
+            "runtime.capability_manifest",
+            "runtime_quality.acquisition_route_phase_receipt",
+        )
+        for artifact_ref, expected_kind in zip(owned_refs, expected_kinds, strict=True):
+            manifest = artifact_store.get_manifest(artifact_ref)
+            assert manifest.kind == expected_kind
+            assert artifact_store.get_bytes(artifact_ref)
+
+        assert control.acquisition_route_sink.resolve_action_generation(
             tenant_id="tenant-a",
             cell_id="cell-a",
-            authenticated=True,
-            roles=frozenset({"analyst"}),
-        ),
-    )
-    requested = service._phase_receipt(
-        closure=closure,
-        job_id="job-acquisition",
-        decision_ref="sha256:" + "9" * 64,
-        receipt_phase="requested",
-        predecessor_receipt_ref=None,
-        owner_receipt_refs=(),
-    )
-    control.acquisition_route_sink.persist_phase(requested)
-    return control, service, calls, requested
+            run_id=requested.run_id,
+            source_job_id=requested.source_job_id,
+            route_id=requested.route_id,
+            job_id=requested.job_id,
+        ) == requested.action_generation
+
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        for artifact_ref in owned_refs:
+            with pytest.raises(ArtifactOwnershipError):
+                artifact_store.get_bytes(artifact_ref)
+    return control, service, calls, requested, artifact_store
 
 
 @pytest.mark.asyncio
 async def test_worker_missing_durable_decision_fails_before_owner_effect(tmp_path: Path) -> None:
-    control, _service, calls, requested = await _worker_harness(
+    control, _service, calls, requested, artifact_store = await _worker_harness(
         tmp_path,
         decision_missing=True,
     )
@@ -323,13 +326,14 @@ async def test_worker_missing_durable_decision_fails_before_owner_effect(tmp_pat
         assert head.receipt_phase == "executing"
     finally:
         control.close()
+        artifact_store.close()
 
 
 @pytest.mark.asyncio
 async def test_worker_loads_durable_decision_before_sealed_effect_and_terminal(
     tmp_path: Path,
 ) -> None:
-    control, _service, calls, requested = await _worker_harness(
+    control, _service, calls, requested, artifact_store = await _worker_harness(
         tmp_path,
         decision_missing=False,
     )
@@ -359,6 +363,7 @@ async def test_worker_loads_durable_decision_before_sealed_effect_and_terminal(
         assert head.recovery_state == "complete"
     finally:
         control.close()
+        artifact_store.close()
 
 def _new_lease_fence_job(store, *, job_id: str = "job-lease-fence"):
     store.create_job(
@@ -518,7 +523,7 @@ async def test_stale_guarded_worker_terminal_evidence_does_not_advance_head_afte
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A visible stale terminal artifact/event is not current in the acquisition head."""
-    control, service, calls, requested = await _worker_harness(
+    control, service, calls, requested, artifact_store = await _worker_harness(
         tmp_path,
         decision_missing=False,
     )
@@ -635,3 +640,4 @@ async def test_stale_guarded_worker_terminal_evidence_does_not_advance_head_afte
         resume.set()
         thread.join(timeout=10)
         control.close()
+        artifact_store.close()

@@ -151,7 +151,7 @@ def test_retry_selects_only_winning_attempt_core_trace_and_manifest(tmp_path) ->
         sqlite_path=tmp_path / "control.sqlite3",
     )
     guarded_store = guard_runtime_control_store(raw_store)
-    artifact_store = FileSystemCAS(tmp_path / "artifacts")
+    artifact_store = FileSystemCAS(tmp_path / "artifacts").with_ambient_ownership_enforcement()
     service = _build_control_service(
         tmp_path,
         artifact_store=artifact_store,
@@ -180,60 +180,61 @@ def test_retry_selects_only_winning_attempt_core_trace_and_manifest(tmp_path) ->
         ):
             admission = guarded_store.current_execution_job_admission()
             first_job = admission.job
-            first_core_run_id, first_context = service._start_generation_run_context(
-                job=first_job,
-                execution_scope=admission.scope,
-            )
-            first_trace_path = first_context.trace_path
-            assert first_trace_path is not None
-            first_trace_bytes = first_trace_path.read_bytes()
-            first_attempt_observation.update(
-                {
-                    "job": first_job,
-                    "core_run_id": first_core_run_id,
-                    "context": first_context,
-                    "trace_path": first_trace_path,
-                    "trace_bytes": first_trace_bytes,
-                }
-            )
-            first_core_started.set()
-            assert let_first_finalize.wait(timeout=30), "retry did not release stale handler"
-
-            with pytest.raises(ControlJobLeaseLostError):
-                service._finish_generation_run_context(
+            with service._install_execution_scope(admission.scope):
+                first_core_run_id, first_context = service._start_generation_run_context(
                     job=first_job,
                     execution_scope=admission.scope,
-                    core_run_id=first_core_run_id,
-                    context=first_context,
-                    outputs=[],
-                    status="ok",
                 )
-            assert first_trace_path.read_bytes() == first_trace_bytes
-
-            winning_manifest_ref = winning_attempt_observation["manifest_ref"]
-            assert hasattr(winning_manifest_ref, "model_dump")
-            stale_progress = {
-                "state": "completed",
-                "phase": "natural_language_run",
-                "run_id": control_run_id,
-                "core_run_id": first_core_run_id,
-                "core_run_attempt": first_lease.attempt,
-                "core_manifest_artifact_ref": winning_manifest_ref.model_dump(mode="json"),
-                "manifest_ref": str(winning_manifest_ref.artifact_id),
-            }
-            with pytest.raises(ControlJobLeaseLostError):
-                guarded_store.complete_job(
-                    job_id=first_lease.job_id,
-                    run_id=control_run_id,
-                    progress=stale_progress,
+                first_trace_path = first_context.trace_path
+                assert first_trace_path is not None
+                first_trace_bytes = first_trace_path.read_bytes()
+                first_attempt_observation.update(
+                    {
+                        "job": first_job,
+                        "core_run_id": first_core_run_id,
+                        "context": first_context,
+                        "trace_path": first_trace_path,
+                        "trace_bytes": first_trace_bytes,
+                    }
                 )
+                first_core_started.set()
+                assert let_first_finalize.wait(timeout=30), "retry did not release stale handler"
 
-            persisted = raw_store.get_job(first_lease.job_id)
-            assert persisted is not None
-            assert persisted.state == "completed"
-            assert persisted.progress == winning_attempt_observation["progress"]
-            first_attempt_observation["stale_finalize_refused"] = True
-            first_attempt_observation["stale_publish_refused"] = True
+                with pytest.raises(ControlJobLeaseLostError):
+                    service._finish_generation_run_context(
+                        job=first_job,
+                        execution_scope=admission.scope,
+                        core_run_id=first_core_run_id,
+                        context=first_context,
+                        outputs=[],
+                        status="ok",
+                    )
+                assert first_trace_path.read_bytes() == first_trace_bytes
+
+                winning_manifest_ref = winning_attempt_observation["manifest_ref"]
+                assert hasattr(winning_manifest_ref, "model_dump")
+                stale_progress = {
+                    "state": "completed",
+                    "phase": "natural_language_run",
+                    "run_id": control_run_id,
+                    "core_run_id": first_core_run_id,
+                    "core_run_attempt": first_lease.attempt,
+                    "core_manifest_artifact_ref": winning_manifest_ref.model_dump(mode="json"),
+                    "manifest_ref": str(winning_manifest_ref.artifact_id),
+                }
+                with pytest.raises(ControlJobLeaseLostError):
+                    guarded_store.complete_job(
+                        job_id=first_lease.job_id,
+                        run_id=control_run_id,
+                        progress=stale_progress,
+                    )
+
+                persisted = raw_store.get_job(first_lease.job_id)
+                assert persisted is not None
+                assert persisted.state == "completed"
+                assert persisted.progress == winning_attempt_observation["progress"]
+                first_attempt_observation["stale_finalize_refused"] = True
+                first_attempt_observation["stale_publish_refused"] = True
 
     executor = ThreadPoolExecutor(max_workers=1)
     try:
@@ -243,7 +244,6 @@ def test_retry_selects_only_winning_attempt_core_trace_and_manifest(tmp_path) ->
         first_job = first_attempt_observation["job"]
         first_core_run_id = first_attempt_observation["core_run_id"]
         first_trace_path = first_attempt_observation["trace_path"]
-        first_trace_bytes = first_attempt_observation["trace_bytes"]
         assert first_job.attempt == 1
         assert first_trace_path.is_file()
 
@@ -277,60 +277,62 @@ def test_retry_selects_only_winning_attempt_core_trace_and_manifest(tmp_path) ->
             admission = guarded_store.current_execution_job_admission()
             assert admission.attempt == second_lease.attempt
             second_job = admission.job
-            second_core_run_id, second_context = service._start_generation_run_context(
-                job=second_job,
-                execution_scope=admission.scope,
-            )
-            assert second_core_run_id != first_core_run_id
-            assert second_context.trace_path != first_trace_path
-            proposal_ref = _fixture_proposal(
-                artifact_store,
-                attempt=second_lease.attempt,
-            )
-            second_manifest_ref = service._finish_generation_run_context(
-                job=second_job,
-                execution_scope=admission.scope,
-                core_run_id=second_core_run_id,
-                context=second_context,
-                outputs=[proposal_ref],
-                status="ok",
-            )
-            progress = {
-                "state": "completed",
-                "phase": "natural_language_run",
-                "status": "simulation_only",
-                "run_id": control_run_id,
-                **service._core_run_progress_fields(
+            with service._install_execution_scope(admission.scope):
+                second_core_run_id, second_context = service._start_generation_run_context(
                     job=second_job,
+                    execution_scope=admission.scope,
+                )
+                assert second_core_run_id != first_core_run_id
+                assert second_context.trace_path != first_trace_path
+                proposal_ref = _fixture_proposal(
+                    artifact_store,
+                    attempt=second_lease.attempt,
+                )
+                second_manifest_ref = service._finish_generation_run_context(
+                    job=second_job,
+                    execution_scope=admission.scope,
                     core_run_id=second_core_run_id,
-                    manifest_ref=second_manifest_ref,
-                ),
-            }
-            guarded_store.complete_job(
-                job_id=second_job.job_id,
-                run_id=control_run_id,
-                progress=progress,
-            )
-            completed = guarded_store.current_execution_completed_job_record()
-            assert completed.attempt == 2
-            selected = load_completed_control_job_core_run_source(
-                store=artifact_store,
-                core_runs_root=service._core_runs_root,
-                job=completed,
-                expected_control_run_id=control_run_id,
-                tenant_id=admission.scope.tenant_id,
-                cell_id=admission.scope.cell_id,
-            )
-            assert selected.run_id == second_core_run_id
-            assert selected.manifest_ref == second_manifest_ref
-            assert selected.manifest.outputs == [proposal_ref]
-            winning_attempt_observation.update(
-                {
-                    "manifest_ref": second_manifest_ref,
-                    "progress": completed.progress,
-                    "core_run_id": second_core_run_id,
+                    context=second_context,
+                    outputs=[proposal_ref],
+                    status="ok",
+                )
+                progress = {
+                    "state": "completed",
+                    "phase": "natural_language_run",
+                    "status": "simulation_only",
+                    "run_id": control_run_id,
+                    **service._core_run_progress_fields(
+                        job=second_job,
+                        core_run_id=second_core_run_id,
+                        manifest_ref=second_manifest_ref,
+                    ),
                 }
-            )
+                guarded_store.complete_job(
+                    job_id=second_job.job_id,
+                    run_id=control_run_id,
+                    progress=progress,
+                )
+                completed = guarded_store.current_execution_completed_job_record()
+                assert completed.attempt == 2
+                selected = load_completed_control_job_core_run_source(
+                    store=artifact_store,
+                    core_runs_root=service._core_runs_root,
+                    job=completed,
+                    expected_control_run_id=control_run_id,
+                    tenant_id=admission.scope.tenant_id,
+                    cell_id=admission.scope.cell_id,
+                )
+                assert selected.run_id == second_core_run_id
+                assert selected.manifest_ref == second_manifest_ref
+                assert selected.manifest.outputs == [proposal_ref]
+                winning_attempt_observation.update(
+                    {
+                        "manifest_ref": second_manifest_ref,
+                        "progress": completed.progress,
+                        "core_run_id": second_core_run_id,
+                        "scope": admission.scope,
+                    }
+                )
 
         let_first_finalize.set()
         first_future.result(timeout=30)
@@ -354,14 +356,15 @@ def test_retry_selects_only_winning_attempt_core_trace_and_manifest(tmp_path) ->
         assert first_attempt_observation["stale_finalize_refused"] is True
         assert first_attempt_observation["stale_publish_refused"] is True
 
-        selected_after_stale_write = load_completed_control_job_core_run_source(
-            store=artifact_store,
-            core_runs_root=service._core_runs_root,
-            job=persisted,
-            expected_control_run_id=control_run_id,
-            tenant_id="tenant-core-attempt",
-            cell_id="cell-core-attempt",
-        )
+        with service._install_execution_scope(winning_attempt_observation["scope"]):
+            selected_after_stale_write = load_completed_control_job_core_run_source(
+                store=artifact_store,
+                core_runs_root=service._core_runs_root,
+                job=persisted,
+                expected_control_run_id=control_run_id,
+                tenant_id="tenant-core-attempt",
+                cell_id="cell-core-attempt",
+            )
         assert selected_after_stale_write.run_id == winning_attempt_observation["core_run_id"]
         assert (
             selected_after_stale_write.manifest_ref
@@ -372,3 +375,4 @@ def test_retry_selects_only_winning_attempt_core_trace_and_manifest(tmp_path) ->
         executor.shutdown(wait=True)
         service.close()
         guarded_store.close()
+        artifact_store.close()

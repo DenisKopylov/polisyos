@@ -1,3 +1,13 @@
+# E02-R2 latest evidence boundary — 2026-10-04
+
+**Discrepancies first.** The latest whole-file measurement is the 6bfb checkpoint: 140 PASS / 37 FAIL / 14 ERROR across 191 cases in 15 files. Subsequent reviewed test-fixture corrections are awaiting frozen-source replay. The four-base matrix, final removal/restored probes, architecture gate and workspace type checks are incomplete; no final handoff or finding closure is claimed.
+
+**Measured functionality.** Served acquired data reaches candidate N5 through exact selected CAS refs. Controlled N4→N5 also executes. N6’s handoff-only preservation receipt does not cover the controlled V3 source, and its currentness issuer is unappointed; S8 authority remains blocked. These are separate recorded residuals. The passing served run did not emit finalizer-exception fields, so their exact current cause remains unmeasured.
+
+**Ledger and next work.** The complete JSON ledger remains 282 rows: 9 closed / 260 partial / 12 held / 1 open; no status is upgraded. Finish the reviewed fixture replay, mandatory four-base comparisons and final gates, then prepare the architect handoff. Deferred H/N/P engineering remains outside this selected slice. Exact receipt/census pins are in the dated 6bfb entry of BASELINES.md and OPEN_PREMISES.md.
+
+---
+
 # E02-R2 evidence checkpoint at source cut `c3730424df8dde4dbe2daf8dde238052f464f812` — discrepancies first (2026-10-03)
 
 This packet pins branch `codex/e02-r2` at `c3730424df8dde4dbe2daf8dde238052f464f812` (tree `da0189f21550f4a193375183ead4eb5e4d9adfeb`). It records the current evidence boundary for this source/test cut; later work must be reported at its own readback.

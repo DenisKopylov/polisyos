@@ -4892,3 +4892,15 @@ This records implementation of Denis's existing controlled owner-bound bridge di
 **Revisit trigger / falsifier:** revise this mechanism if a stale guarded worker can publish/finalize after takeover, if a completed job can select another attempt or manifest view, or if an error/no-output terminal can supply N5/N9/S8. Run the actual served positive, source-persistence negative, retained-marker terminal-removal and guarded lease-takeover tests.
 
 **Where it binds:** completed NL-job Core source intake and the enumerated acquisition/normative/EvalSafety consumers. Ordinary candidate work with declared unknown context continues; authority actions require their separate owner predicates.
+
+## R1/R2 controlled V3 source versus N6 preservation — decision draft, 2026-10-04
+
+**Options and costs.** A: carry the measured candidate N4→N5 result with explicit unestablished N6 preservation/currentness, retaining blocked S8; cost is unresolved positive S8 coverage. B: extend the existing preservation owner to resolve selected V3 lineage; cost is a separate reviewed engineering slice and fresh behavioral/removal replay, and currentness still needs its issuer. C: obtain the appointed issuer and its authorized currentness/reissue transition after B; cost is the owner/principal premise and authorized epoch/deployment work. No option permits invented issuer evidence or restamping historical records.
+
+**Premises and present disposition.** Principal accepted controlled owner-bound engineering while real source-time/data contracts and S8 remain limited. A records that existing ruling at the 6bfb evidence boundary; B/C are proposed next steps, not new rulings or newly assigned scope. The actual V3 source is persisted and consumed at N5; the N6 handoff-only receipt’s input set is empty, and its census is UNRUN with an unappointed issuer.
+
+**Remainder.** Exact selected V3 preservation, genuine currentness, real-data time/unit/coupling, positive S8 and separate N9 append-only owner continuity remain unresolved. The 19 source-invalid plus 2 missing-leaf normative cases do not measure independent S8 escapes because their required source admission fails first.
+
+**Revisit falsifier.** Once the existing owner resolves the exact selected V3/candidate and an appointed issuer emits replayable currentness, rerun the original P20 tests. Removing source bytes or substituting the candidate occurrence with markers retained must invalidate preservation; otherwise this draft’s proposed bridge is insufficient.
+
+**Binding.** Controlled-profile V3→N5 and its N6 preservation/currentness interpretation at 6bfb only; no universal S8 permission, owner appointment, source-time contract, N9 scope transition or four-base attribution. Full evidence/identity census: `/Users/deniskopylov/.codex/scratch/E02R2_R1_CONTROLLED_N6_PRESERVATION_RCA_20261004.md@sha256:410597f85ba7ea106f1d426d7135b9db9d92fd44b0f225d30e6cf8610d7e84d3`.

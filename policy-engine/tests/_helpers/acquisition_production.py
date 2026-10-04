@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 import aiohttp
 import pytest
 
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionRouteMutationRequest,
@@ -119,6 +120,7 @@ async def persist_wdi_route(
     tenant_id: str = "tenant-a",
     cell_id: str = "cell-a",
     run_id: str = "run-acquisition",
+    job_id: str = "job-natural-language",
     generation_cycle_repo_root: Path | None = None,
     revised_source: bool = False,
     llm_model_id: str = "fixture-model",
@@ -173,21 +175,22 @@ async def persist_wdi_route(
         cycle_controller_factory=cycle_controller_factory,
         repo_root=generation_cycle_repo_root,
     )
-    manifest_ref = control._put_json_artifact(
-        {"capability": "acquisition_fixture"},
-        kind="runtime.capability_manifest",
-        schema_name="CapabilityManifest",
-    )
-    source_payload_ref = control._put_json_artifact(
-        {
-            "tenant_id": tenant_id,
-            "cell_id": cell_id,
-            "run_id": run_id,
-            "llm_models": [llm_model_id],
-        },
-        kind="runtime.control_job_payload.natural_language_run",
-        schema_name="polisyos.runtime.ControlJobPayload",
-    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        manifest_ref = control._put_json_artifact(
+            {"capability": "acquisition_fixture"},
+            kind="runtime.capability_manifest",
+            schema_name="CapabilityManifest",
+        )
+        source_payload_ref = control._put_json_artifact(
+            {
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "run_id": run_id,
+                "llm_models": [llm_model_id],
+            },
+            kind="runtime.control_job_payload.natural_language_run",
+            schema_name="polisyos.runtime.ControlJobPayload",
+        )
     store = control._control_store
     actor = "explicit-fixture"
     execution_scope = {
@@ -200,7 +203,7 @@ async def persist_wdi_route(
         "actor_roles": ["analyst"],
     }
     store.create_job(
-        job_id="job-natural-language",
+        job_id=job_id,
         kind="natural_language_run",
         run_id=run_id,
         pipeline_id=None,
@@ -211,7 +214,7 @@ async def persist_wdi_route(
         payload_ref=source_payload_ref,
         submitted_by=actor,
         creation_event_payload={
-            "job_id": "job-natural-language",
+            "job_id": job_id,
             "run_id": run_id,
             "job_kind": "natural_language_run",
             "pipeline_id": None,
@@ -225,7 +228,7 @@ async def persist_wdi_route(
         },
     )
     leased = store.lease_next_job(worker_id="acquisition-fixture-worker")
-    if leased is None or leased.job_id != "job-natural-language":
+    if leased is None or leased.job_id != job_id:
         raise AssertionError("acquisition fixture did not lease its source job")
     with store.job_execution_fence(
         job_id=leased.job_id,
@@ -233,122 +236,124 @@ async def persist_wdi_route(
         attempt=leased.attempt,
     ):
         admission = store.current_execution_job_admission()
-        core_run_id, core_context = control._start_generation_run_context(
-            job=admission.job,
-            execution_scope=admission.scope,
-        )
-        run = await controller.run(
-            graph,
-            problems_by_node={root_ref: problem},
-            budget_state=fixtures._budget(),
-            recursive_budget=cycle_budget,
-        )
-        payload = {
-            "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
-            "design_problem_ref": problem_ref,
-            "design_problem": problem.model_dump(mode="json"),
-            "cycle_substrate_context_ref": None,
-            "recursive_run": run.model_dump(mode="json", exclude={"leaf_nodes"}),
-        }
-        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-            {**payload, "content_hash": gy_content_hash(payload)}
-        )
-        compiled_artifact_ref = control._put_json_artifact_ref(
-            compiled.model_dump(mode="json"),
-            kind="runtime.compiled_recursive_generation_cycle",
-            schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
-        )
-        core_manifest_ref = control._finish_generation_run_context(
-            job=admission.job,
-            execution_scope=admission.scope,
-            core_run_id=core_run_id,
-            context=core_context,
-            outputs=[compiled_artifact_ref],
-            status="ok",
-        )
-        compiled_ref = str(compiled_artifact_ref.artifact_id)
-        progress = {
-            "state": "completed",
-            "phase": "natural_language_run",
-            "run_id": run_id,
-            "compiled_recursive_generation_cycle_ref": compiled_ref,
-            "compiled_recursive_generation_cycle_artifact_ref": (
-                compiled_artifact_ref.model_dump(mode="json")
-            ),
-            **control._core_run_progress_fields(
+        with control._install_execution_scope(admission.scope):
+            core_run_id, core_context = control._start_generation_run_context(
                 job=admission.job,
+                execution_scope=admission.scope,
+            )
+            run = await controller.run(
+                graph,
+                problems_by_node={root_ref: problem},
+                budget_state=fixtures._budget(),
+                recursive_budget=cycle_budget,
+            )
+            payload = {
+                "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+                "design_problem_ref": problem_ref,
+                "design_problem": problem.model_dump(mode="json"),
+                "cycle_substrate_context_ref": None,
+                "recursive_run": run.model_dump(mode="json", exclude={"leaf_nodes"}),
+            }
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                {**payload, "content_hash": gy_content_hash(payload)}
+            )
+            compiled_artifact_ref = control._put_json_artifact_ref(
+                compiled.model_dump(mode="json"),
+                kind="runtime.compiled_recursive_generation_cycle",
+                schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+            )
+            core_manifest_ref = control._finish_generation_run_context(
+                job=admission.job,
+                execution_scope=admission.scope,
                 core_run_id=core_run_id,
-                manifest_ref=core_manifest_ref,
+                context=core_context,
+                outputs=[compiled_artifact_ref],
+                status="ok",
+            )
+            compiled_ref = str(compiled_artifact_ref.artifact_id)
+            progress = {
+                "state": "completed",
+                "phase": "natural_language_run",
+                "run_id": run_id,
+                "compiled_recursive_generation_cycle_ref": compiled_ref,
+                "compiled_recursive_generation_cycle_artifact_ref": (
+                    compiled_artifact_ref.model_dump(mode="json")
+                ),
+                **control._core_run_progress_fields(
+                    job=admission.job,
+                    core_run_id=core_run_id,
+                    manifest_ref=core_manifest_ref,
+                ),
+            }
+            store.complete_job(
+                job_id=leased.job_id,
+                run_id=run_id,
+                capability_manifest_ref=manifest_ref,
+                progress=progress,
+                expected_lease_owner=leased.lease_owner,
+                expected_attempt=leased.attempt,
+            )
+    with control._install_execution_scope(admission.scope):
+        control._diagnostic_event_log.append(
+            DiagnosticEvent(
+                event_id=f"evt-{run_id}-nl-terminal",
+                event_source="polisyos.runtime.control",
+                event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                event_time=datetime.now(UTC),
+                event_subject=f"run/{run_id}/job/{job_id}/phase/job_execution",
+                schema_name="polisyos.runtime.quality.diagnostic_event",
+                schema_version="1.0",
+                trace_id=f"trace-{run_id}",
+                span_id=f"span-{run_id}",
+                parent_span_id=None,
+                run_id=run_id,
+                job_id=job_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                producer_component="polisyos.runtime.control",
+                producer_version="test",
+                execution_profile="governed",
+                phase="job_execution",
+                state_before="running",
+                state_after="completed",
+                payload_ref=None,
+                artifact_refs=(manifest_ref, compiled_ref),
+                input_refs=(),
+                blocking_status=None,
+                redaction_policy_ref=None,
+                duplicate_of=None,
+                dedupe_key=None,
             ),
-        }
-        store.complete_job(
-            job_id=leased.job_id,
-            run_id=run_id,
-            capability_manifest_ref=manifest_ref,
-            progress=progress,
-            expected_lease_owner=leased.lease_owner,
-            expected_attempt=leased.attempt,
+            payload={
+                "job_kind": "natural_language_run",
+                "capability_manifest_ref": manifest_ref,
+                "compiled_recursive_generation_cycle_ref": compiled_ref,
+            },
         )
-    control._diagnostic_event_log.append(
-        DiagnosticEvent(
-            event_id=f"evt-{run_id}-nl-terminal",
-            event_source="polisyos.runtime.control",
-            event_type="polisyos.runtime.diagnostic.phase_transition.v1",
-            event_time=datetime.now(UTC),
-            event_subject=f"run/{run_id}/job/job-natural-language/phase/job_execution",
-            schema_name="polisyos.runtime.quality.diagnostic_event",
-            schema_version="1.0",
-            trace_id=f"trace-{run_id}",
-            span_id=f"span-{run_id}",
-            parent_span_id=None,
-            run_id=run_id,
-            job_id="job-natural-language",
+        closure = AcquisitionRouteLoop(
+            control_store=store,
+            artifact_store=control._artifact_store,
+            event_log=control._diagnostic_event_log,
+            core_source_resolver=(
+                control.resolve_completed_control_job_core_run_source
+            ),
             tenant_id=tenant_id,
             cell_id=cell_id,
-            producer_component="polisyos.runtime.control",
-            producer_version="test",
-            execution_profile="governed",
-            phase="job_execution",
-            state_before="running",
-            state_after="completed",
-            payload_ref=None,
-            artifact_refs=(manifest_ref, compiled_ref),
-            input_refs=(),
-            blocking_status=None,
-            redaction_policy_ref=None,
-            duplicate_of=None,
-            dedupe_key=None,
-        ),
-        payload={
-            "job_kind": "natural_language_run",
-            "capability_manifest_ref": manifest_ref,
-            "compiled_recursive_generation_cycle_ref": compiled_ref,
-        },
-    )
-    closure = AcquisitionRouteLoop(
-        control_store=store,
-        artifact_store=control._artifact_store,
-        event_log=control._diagnostic_event_log,
-        core_source_resolver=(
-            control.resolve_completed_control_job_core_run_source
-        ),
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-    ).resolve_current_route(run_id=run_id)
-    request = AcquisitionRouteMutationRequest(
-        route_projection_hash=closure.route_id,
-        planner_report_hash=agent_action_content_hash(closure.planner_report),
-        replay_pins=AcquisitionRouteReplayPins(
-            source_job_id=closure.source_job_id,
-            compiled_ref=closure.compiled_ref,
-            compiled_content_hash=closure.compiled_content_hash,
-            terminal_event_id=closure.terminal_event_id,
-            design_problem_ref=closure.design_problem_ref,
-            cost_basis_hash=closure.cost_basis_hash,
-        ),
-        idempotency_key="served-acquisition-fixture",
-    )
-    return closure, request
+        ).resolve_current_route(run_id=run_id)
+        request = AcquisitionRouteMutationRequest(
+            route_projection_hash=closure.route_id,
+            planner_report_hash=agent_action_content_hash(closure.planner_report),
+            replay_pins=AcquisitionRouteReplayPins(
+                source_job_id=closure.source_job_id,
+                compiled_ref=closure.compiled_ref,
+                compiled_content_hash=closure.compiled_content_hash,
+                terminal_event_id=closure.terminal_event_id,
+                design_problem_ref=closure.design_problem_ref,
+                cost_basis_hash=closure.cost_basis_hash,
+            ),
+            idempotency_key="served-acquisition-fixture",
+        )
+        return closure, request
 
 
 def intercepted_wdi_transport(

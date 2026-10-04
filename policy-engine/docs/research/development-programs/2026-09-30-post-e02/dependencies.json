@@ -1,0 +1,669 @@
+{
+  "schema": "policyos.development_programs.dependencies.v1",
+  "status": "analytical_conditional_graph_not_runtime_call_graph",
+  "nodes": [
+    {
+      "id": "DEV-E1",
+      "type": "program",
+      "title": "Измерение и смысл источника",
+      "short_label": "E1"
+    },
+    {
+      "id": "DEV-E2",
+      "type": "program",
+      "title": "Идентификация синтез и приобретение основания",
+      "short_label": "E2"
+    },
+    {
+      "id": "DEV-M1",
+      "type": "program",
+      "title": "Совместная модель состояние и прогноз",
+      "short_label": "M1"
+    },
+    {
+      "id": "DEV-M2",
+      "type": "program",
+      "title": "Диагноз и обучение о мире",
+      "short_label": "M2"
+    },
+    {
+      "id": "DEV-P1",
+      "type": "program",
+      "title": "Совместный дизайн и осмысленный выбор",
+      "short_label": "P1"
+    },
+    {
+      "id": "DEV-P2",
+      "type": "program",
+      "title": "Адаптивные правила с сохранённым продолжением",
+      "short_label": "P2"
+    },
+    {
+      "id": "DEV-P3",
+      "type": "program",
+      "title": "Исполнение масштаб и реакция участников",
+      "short_label": "P3"
+    },
+    {
+      "id": "DEV-N",
+      "type": "conditional_scientific_branch",
+      "title": "Численный эксперимент и вычисление нужной величины",
+      "short_label": "N"
+    },
+    {
+      "id": "DEV-R",
+      "type": "conditional_scientific_branch",
+      "title": "Улучшение исследовательской процедуры",
+      "short_label": "R"
+    },
+    {
+      "id": "DEV-H",
+      "type": "conditional_behavioral_branch",
+      "title": "Человеческое употребление и обучение",
+      "short_label": "H"
+    },
+    {
+      "id": "DEV-A",
+      "type": "conditional_access_branch",
+      "title": "Ограниченный ответ у владельца данных",
+      "short_label": "A"
+    },
+    {
+      "id": "DEV-C",
+      "type": "shared_condition",
+      "title": "Происхождение актуальность и историческое воспроизведение",
+      "short_label": "C"
+    },
+    {
+      "id": "DEV-V",
+      "type": "shared_condition_with_conditional_research",
+      "title": "Независимая проверка",
+      "short_label": "V"
+    },
+    {
+      "id": "DEV-O",
+      "type": "shared_operational_condition",
+      "title": "Эксплуатация и независимая runtime authority",
+      "short_label": "O"
+    },
+    {
+      "id": "DEV-S",
+      "type": "shared_semantic_condition",
+      "title": "Идентичность вопроса и сохранение смысла",
+      "short_label": "S"
+    },
+    {
+      "id": "DEV-L",
+      "type": "application_branch",
+      "title": "Правовая применимость и содержательная детализация",
+      "short_label": "L"
+    },
+    {
+      "id": "DEV-F",
+      "type": "application_branch",
+      "title": "Украинская информация о путях финансирования",
+      "short_label": "F"
+    },
+    {
+      "id": "DEV-B",
+      "type": "application_branch",
+      "title": "Знания компании для бизнес агентов",
+      "short_label": "B"
+    },
+    {
+      "id": "DEV-PORTFOLIO",
+      "type": "analytical_investment_lens",
+      "title": "Выбор и развитие портфеля способностей",
+      "short_label": "PORTFOLIO"
+    },
+    {
+      "id": "EXT:WP01_WP02",
+      "type": "external_condition",
+      "short_label": "WP01_WP02"
+    },
+    {
+      "id": "EXT:GY_O1_AND_O3",
+      "type": "external_condition",
+      "short_label": "GY_O1_AND_O3"
+    },
+    {
+      "id": "EXT:DS21",
+      "type": "external_condition",
+      "short_label": "DS21"
+    },
+    {
+      "id": "EXT:E02_OUTPUT",
+      "type": "external_condition",
+      "short_label": "E02_OUTPUT"
+    },
+    {
+      "id": "EXT:FA1",
+      "type": "external_condition",
+      "short_label": "FA1"
+    },
+    {
+      "id": "EXT:SHARED_N5_N8_OWNER",
+      "type": "external_condition",
+      "short_label": "SHARED_N5_N8_OWNER"
+    },
+    {
+      "id": "EXT:INDEPENDENT_REVIEWER",
+      "type": "external_condition",
+      "short_label": "INDEPENDENT_REVIEWER"
+    }
+  ],
+  "edge_types": [
+    "hard_prerequisite",
+    "shared_asset",
+    "positive_reuse",
+    "complement",
+    "feedback",
+    "use_condition",
+    "harmful_coupling",
+    "contention"
+  ],
+  "edges": [
+    {
+      "id": "DEV-EDGE-01",
+      "from": "DEV-E1",
+      "to": "DEV-E2",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Source/measurement relation",
+      "condition": "Нужна выбранному identification/transport question.",
+      "does_not_imply": "Завершение всей E1 не требуется.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-02",
+      "from": "DEV-E2",
+      "to": "DEV-E1",
+      "type": "feedback",
+      "artifact_or_property": "Различающий observation/source request",
+      "condition": "Тот же target получает полезный следующий вопрос.",
+      "does_not_imply": "Новый request не становится установленным фактом.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-03",
+      "from": "DEV-E1",
+      "to": "DEV-M1",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Observation frame, units, time, required joint structure",
+      "condition": "Эмпирический target требует этих входов.",
+      "does_not_imply": "Stipulated модель может исследоваться отдельно.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-04",
+      "from": "DEV-E2",
+      "to": "DEV-M1",
+      "type": "use_condition",
+      "artifact_or_property": "Identification/transport basis",
+      "condition": "Только для causal interpretation.",
+      "does_not_imply": "Обычный forecast не всегда требует causal certificate.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-05",
+      "from": "DEV-M1",
+      "to": "DEV-P1",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Target-bound joint evaluation",
+      "condition": "Выбранный policy comparison требует нового результата; existing input допустим.",
+      "does_not_imply": "Не новый общий evaluator.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-06",
+      "from": "DEV-P1",
+      "to": "DEV-P2",
+      "type": "shared_asset",
+      "artifact_or_property": "Exact action identity, constraints, evaluator",
+      "condition": "Совпадают действия и смысл.",
+      "does_not_imply": "Static programme completion не blanket gate.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-07",
+      "from": "DEV-M1",
+      "to": "DEV-P2",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Transition/signal/information model",
+      "condition": "Нужна выбранной finite rule family.",
+      "does_not_imply": "Модель может быть явно условной; law не эмпирически validated по умолчанию.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-08",
+      "from": "DEV-P3",
+      "to": "DEV-P1",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Shared capacity/exposure response",
+      "condition": "Только материально coupled выбранная задача.",
+      "does_not_imply": "Все политики не требуют ABM/queue.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-09",
+      "from": "DEV-P3",
+      "to": "DEV-P2",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Timing/resource continuation",
+      "condition": "Когда последовательная допустимость зависит от процесса.",
+      "does_not_imply": "Не universal workflow engine.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-10",
+      "from": "DEV-P1",
+      "to": "DEV-M2",
+      "type": "shared_asset",
+      "artifact_or_property": "Predeclared prediction/action version",
+      "condition": "Для future observed comparison; historical existing prediction также подходит.",
+      "does_not_imply": "P1 development не всегда predecessor O1.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-11",
+      "from": "DEV-P2",
+      "to": "DEV-M2",
+      "type": "shared_asset",
+      "artifact_or_property": "Saved rule/history/prediction",
+      "condition": "Есть действительная delivery и mature outcome.",
+      "does_not_imply": "Rollout не является наблюдавшимся исходом.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-12",
+      "from": "DEV-E1",
+      "to": "DEV-M2",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Measurement/selection evidence",
+      "condition": "Нужно для различения причин residual.",
+      "does_not_imply": "Schema validity не independent attribution.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-13",
+      "from": "DEV-P3",
+      "to": "DEV-M2",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Delivery/process evidence",
+      "condition": "Когда model-vs-delivery различение существенно.",
+      "does_not_imply": "Доступность журнала не identification.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-14",
+      "from": "DEV-M2",
+      "to": "DEV-E2",
+      "type": "feedback",
+      "artifact_or_property": "Competing explanations/candidate hypothesis",
+      "condition": "Следующий опыт различает допустимые альтернативы.",
+      "does_not_imply": "Candidate hypothesis не world edit.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-15",
+      "from": "DEV-M2",
+      "to": "DEV-M1",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Admitted O3 world branch",
+      "condition": "Только после update policy и actual next-cycle consumption.",
+      "does_not_imply": "O1 или O2 не дают это право.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-16",
+      "from": "EXT:WP01_WP02",
+      "to": "DEV-M2",
+      "type": "use_condition",
+      "artifact_or_property": "Принятое update policy",
+      "condition": "Только posterior/routine update/O3 scope.",
+      "does_not_imply": "Не blanket block O1/O2 engineering.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-17",
+      "from": "EXT:GY_O1_AND_O3",
+      "to": "EXT:DS21",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Два фактических backend результата",
+      "condition": "Оба условия gate.",
+      "does_not_imply": "O2 не обязательный gate.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-18",
+      "from": "DEV-N",
+      "to": "DEV-M1",
+      "type": "positive_reuse",
+      "artifact_or_property": "Target-preserving numerical plan",
+      "condition": "Реальный общий bottleneck и measured full-cost benefit.",
+      "does_not_imply": "Скорость kernel не равна end-to-end benefit.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-19",
+      "from": "DEV-N",
+      "to": "DEV-P1",
+      "type": "positive_reuse",
+      "artifact_or_property": "Target-preserving numerical plan",
+      "condition": "Реальный общий bottleneck и measured full-cost benefit.",
+      "does_not_imply": "Скорость kernel не равна end-to-end benefit.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-20",
+      "from": "DEV-N",
+      "to": "DEV-P2",
+      "type": "positive_reuse",
+      "artifact_or_property": "Target-preserving numerical plan",
+      "condition": "Реальный общий bottleneck и measured full-cost benefit.",
+      "does_not_imply": "Скорость kernel не равна end-to-end benefit.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-21",
+      "from": "DEV-N",
+      "to": "DEV-P3",
+      "type": "positive_reuse",
+      "artifact_or_property": "Target-preserving numerical plan",
+      "condition": "Реальный общий bottleneck и measured full-cost benefit.",
+      "does_not_imply": "Скорость kernel не равна end-to-end benefit.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-22",
+      "from": "DEV-R",
+      "to": "DEV-E1",
+      "type": "positive_reuse",
+      "artifact_or_property": "Полезное procedural next-choice правило",
+      "condition": "Unseen workload и selection-aware acceptance.",
+      "does_not_imply": "Не причинное обучение мира.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-23",
+      "from": "DEV-R",
+      "to": "DEV-E2",
+      "type": "positive_reuse",
+      "artifact_or_property": "Полезное procedural next-choice правило",
+      "condition": "Unseen workload и selection-aware acceptance.",
+      "does_not_imply": "Не причинное обучение мира.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-24",
+      "from": "DEV-R",
+      "to": "DEV-N",
+      "type": "positive_reuse",
+      "artifact_or_property": "Полезное procedural next-choice правило",
+      "condition": "Unseen workload и selection-aware acceptance.",
+      "does_not_imply": "Не причинное обучение мира.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-25",
+      "from": "DEV-H",
+      "to": "DEV-P1",
+      "type": "feedback",
+      "artifact_or_property": "Task error/comprehension evidence",
+      "condition": "Настоящие role/task observations.",
+      "does_not_imply": "Behavioral result не меняет scientific authority.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-26",
+      "from": "DEV-H",
+      "to": "DEV-E1",
+      "type": "feedback",
+      "artifact_or_property": "Task error/comprehension evidence",
+      "condition": "Настоящие role/task observations.",
+      "does_not_imply": "Behavioral result не меняет scientific authority.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-27",
+      "from": "DEV-H",
+      "to": "DEV-E2",
+      "type": "feedback",
+      "artifact_or_property": "Task error/comprehension evidence",
+      "condition": "Настоящие role/task observations.",
+      "does_not_imply": "Behavioral result не меняет scientific authority.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-28",
+      "from": "DEV-H",
+      "to": "DEV-M2",
+      "type": "feedback",
+      "artifact_or_property": "Task error/comprehension evidence",
+      "condition": "Настоящие role/task observations.",
+      "does_not_imply": "Behavioral result не меняет scientific authority.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-29",
+      "from": "DEV-A",
+      "to": "DEV-E1",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Разрешённый holder release",
+      "condition": "Только unavailable-elsewhere нужный input.",
+      "does_not_imply": "Public sources не требуют federation/DP.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-30",
+      "from": "DEV-A",
+      "to": "DEV-E2",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Разрешённый holder release",
+      "condition": "Только unavailable-elsewhere нужный input.",
+      "does_not_imply": "Public sources не требуют federation/DP.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-31",
+      "from": "DEV-A",
+      "to": "DEV-M1",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Разрешённый holder release",
+      "condition": "Только unavailable-elsewhere нужный input.",
+      "does_not_imply": "Public sources не требуют federation/DP.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-32",
+      "from": "DEV-C",
+      "to": "DEV-E1",
+      "type": "shared_asset",
+      "artifact_or_property": "Native identity/history/currentness",
+      "condition": "Exact нужный scope.",
+      "does_not_imply": "Не новая universal custody platform.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-33",
+      "from": "DEV-C",
+      "to": "DEV-E2",
+      "type": "shared_asset",
+      "artifact_or_property": "Native identity/history/currentness",
+      "condition": "Exact нужный scope.",
+      "does_not_imply": "Не новая universal custody platform.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-34",
+      "from": "DEV-C",
+      "to": "DEV-M1",
+      "type": "shared_asset",
+      "artifact_or_property": "Native identity/history/currentness",
+      "condition": "Exact нужный scope.",
+      "does_not_imply": "Не новая universal custody platform.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-35",
+      "from": "DEV-C",
+      "to": "DEV-M2",
+      "type": "shared_asset",
+      "artifact_or_property": "Native identity/history/currentness",
+      "condition": "Exact нужный scope.",
+      "does_not_imply": "Не новая universal custody platform.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-36",
+      "from": "DEV-C",
+      "to": "DEV-P1",
+      "type": "shared_asset",
+      "artifact_or_property": "Native identity/history/currentness",
+      "condition": "Exact нужный scope.",
+      "does_not_imply": "Не новая universal custody platform.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-37",
+      "from": "DEV-C",
+      "to": "DEV-P2",
+      "type": "shared_asset",
+      "artifact_or_property": "Native identity/history/currentness",
+      "condition": "Exact нужный scope.",
+      "does_not_imply": "Не новая universal custody platform.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-38",
+      "from": "DEV-C",
+      "to": "DEV-P3",
+      "type": "shared_asset",
+      "artifact_or_property": "Native identity/history/currentness",
+      "condition": "Exact нужный scope.",
+      "does_not_imply": "Не новая universal custody platform.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-39",
+      "from": "EXT:E02_OUTPUT",
+      "to": "DEV-P1",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Принятые B109/B110/B111 outputs",
+      "condition": "Только выбранный затронутый served path.",
+      "does_not_imply": "Expected closure не observed fact.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-40",
+      "from": "EXT:E02_OUTPUT",
+      "to": "DEV-E1",
+      "type": "hard_prerequisite",
+      "artifact_or_property": "Actual consumed source/time/lineage",
+      "condition": "Только затронутые B61/LA031/LA032/D3 routes.",
+      "does_not_imply": "Repair не supply semantic truth.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-41",
+      "from": "EXT:FA1",
+      "to": "DEV-O",
+      "type": "use_condition",
+      "artifact_or_property": "Writer-independent runtime boundary",
+      "condition": "Named stronger claim требует её.",
+      "does_not_imply": "Не prerequisite candidate science.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-42",
+      "from": "DEV-E1",
+      "to": "DEV-E2",
+      "type": "complement",
+      "artifact_or_property": "Измерение и калибровка общего nuisance",
+      "condition": "Настоящий общий nuisance и noise law.",
+      "does_not_imply": "Два похожих источника не дают complement автоматически.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-43",
+      "from": "DEV-P1",
+      "to": "DEV-M1",
+      "type": "complement",
+      "artifact_or_property": "Сохранённое действие и пригодная оценка",
+      "condition": "Оба нужны для useful comparison.",
+      "does_not_imply": "Нельзя оплачивать новый registry при существующем owner.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-44",
+      "from": "DEV-E1",
+      "to": "DEV-M2",
+      "type": "harmful_coupling",
+      "artifact_or_property": "Ошибка общей measurement/identity",
+      "condition": "Один источник питает прогноз и якобы независимое подтверждение.",
+      "does_not_imply": "Новый hash не устраняет общий bias.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-45",
+      "from": "DEV-R",
+      "to": "DEV-V",
+      "type": "harmful_coupling",
+      "artifact_or_property": "Holdout leakage через память/challenges",
+      "condition": "Разрешённая информация chooser изменилась.",
+      "does_not_imply": "Разные агенты/файлы не доказательство independence.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-46",
+      "from": "DEV-N",
+      "to": "DEV-P2",
+      "type": "harmful_coupling",
+      "artifact_or_property": "Сжатие histories/rule/joint law",
+      "condition": "Оптимизация сохраняет недостаточную статистику.",
+      "does_not_imply": "Меньшее storage не оправдывает потерю нового вопроса.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-47",
+      "from": "DEV-P3",
+      "to": "DEV-M2",
+      "type": "harmful_coupling",
+      "artifact_or_property": "Policy меняет observation process",
+      "condition": "Калибровка и reporting regime зависят от вмешательства.",
+      "does_not_imply": "Улучшенный KPI не автоматически improved independent outcome.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-48",
+      "from": "DEV-C",
+      "to": "DEV-O",
+      "type": "harmful_coupling",
+      "artifact_or_property": "Overbroad invalidation/all-refusal",
+      "condition": "Unrelated write ошибочно stales все claims.",
+      "does_not_imply": "Безопасность не оценивается только refusal rate.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-49",
+      "from": "EXT:SHARED_N5_N8_OWNER",
+      "to": "DEV-P1",
+      "type": "contention",
+      "artifact_or_property": "Один semantic contract/result owner",
+      "condition": "Одновременные P1/M1/P2/N изменения.",
+      "does_not_imply": "Число agents не линейный speedup.",
+      "status": "proposed_conditional_relation"
+    },
+    {
+      "id": "DEV-EDGE-50",
+      "from": "EXT:INDEPENDENT_REVIEWER",
+      "to": "DEV-V",
+      "type": "contention",
+      "artifact_or_property": "Компетентная независимая проверка",
+      "condition": "Общий specialist/labels queue.",
+      "does_not_imply": "Новый builder не создаёт новое независимое основание.",
+      "status": "proposed_conditional_relation"
+    }
+  ],
+  "shared_cost_rule": "Оплачивать unique new work node один раз; scientific acceptance разных targets не считается дубликатом по имени verification.",
+  "not_a_schedule": "Feedback и shared edges не создают обязательного последовательного waterfall."
+}

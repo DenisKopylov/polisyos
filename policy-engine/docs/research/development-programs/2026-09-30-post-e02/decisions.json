@@ -1,0 +1,2517 @@
+{
+  "schema": "policyos.development_programs.decisions.v2",
+  "status": "recommendations_not_rulings",
+  "historical_materialized_e02_observation_time": "2026-09-30T17:57:48Z",
+  "historical_materialized_decision_files_observation_time": "2026-09-30T17:31:36Z",
+  "current_reported_readback": {
+    "observation_started_at": "2026-10-01T05:01:10Z",
+    "observation_finished_at": "2026-10-01T05:01:44Z",
+    "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+    "reported_branch": "codex/e02-r2",
+    "working_tree_clean_reported": true,
+    "source_observation_is_atomic": false,
+    "verification_mode": "reported_read_only_local_source_inspection_no_materialized_fresh_source_export",
+    "source_bytes_rehashed_here": false,
+    "initial_observation": {
+      "observation_started_at": "2026-10-01T03:46:49Z",
+      "observation_finished_at": "2026-10-01T03:48:10Z",
+      "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2",
+      "reported_branch": "codex/e02-r2",
+      "working_tree_clean_on_both_reads_reported": true,
+      "report_sha256": "4390062c6c635d4e44af202f0f1abb76dbb6589e0a37369e2f53c9e3a3bf8a38",
+      "report_hash_scope": "local_readback_report_bytes_only_not_underlying_repository_source",
+      "reported_change_summary": {
+        "compared_with_head": "a7f589c4aa98d2c763a217b9b3c944ef69609703",
+        "changed_files": 131,
+        "added_lines": 16401,
+        "removed_lines": 1846,
+        "use_limit": "Not coding-effort or scientific-benefit measurements."
+      },
+      "ledger_overlay": {
+        "all282_ids_preserved_reported": true,
+        "per_id_status_changes_reported": 0,
+        "status_counts": {
+          "closed": 8,
+          "partial": 261,
+          "held": 12,
+          "open": 1
+        },
+        "changed_row_content_ids_reported": [
+          "B197"
+        ],
+        "full_current_ledger_materialized": false,
+        "baseline_is_historical": true,
+        "current_hash_source_key": "LEDGER_JSON",
+        "B197_changed_selector_paths_reported": [
+          "/appendix_c_comparison/detail",
+          "/residual",
+          "/residual_owner/name",
+          "/residual_owner/appointment_status",
+          "/h13_remaining_audit_20260927/scope",
+          "/h13_remaining_audit_20260927/typed_blocker/owner",
+          "/h13_remaining_audit_20260927/typed_blocker/source_audit_blocker",
+          "/h_current_add75_audit_20260927/disposition",
+          "/evidence_refs/blocker_path_at_sha",
+          "/evidence_refs/blocker_path_scope",
+          "/evidence_refs/canonical_bounded_internal_persistence_v2",
+          "/evidence_refs/current_frontier_recheck/scope",
+          "/evidence_refs/current_hn_review/identity",
+          "/evidence_refs/current_hn_review/scope",
+          "/evidence_refs/finding_test_or_probe/identity",
+          "/evidence_refs/finding_test_or_probe/scope",
+          "/evidence_refs/h14_source_review/identity",
+          "/evidence_refs/h14_source_review/scope",
+          "/evidence_refs/h_n_review_disposition",
+          "/evidence_refs/held_audit_receipt_status",
+          "/evidence_refs/held_current_head_recheck_20260928/identity",
+          "/evidence_refs/held_current_head_recheck_20260928/named_blocker",
+          "/evidence_refs/held_current_head_recheck_20260928/owner_refinement",
+          "/evidence_refs/held_current_head_recheck_20260928/residual_refinement",
+          "/evidence_refs/held_review/identity",
+          "/evidence_refs/held_review/scope",
+          "/evidence_refs/independent_card_audit/scope",
+          "/evidence_refs/independent_design_source/scope",
+          "/evidence_refs/latest_h14_source_review/identity",
+          "/evidence_refs/latest_h14_source_review/scope",
+          "/evidence_refs/served_producer_census_20261001"
+        ],
+        "B197_new_literal_values_materialized": false
+      }
+    },
+    "clarification_observation": {
+      "started_at": "2026-10-01T03:51:48Z",
+      "finished_at": "2026-10-01T03:52:18Z",
+      "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2",
+      "report_sha256": "7a5e237c7b862240cf5b2af9b91e2fd2bc623496f2fbd536663647f813377fe9",
+      "hash_scope": "local_clarification_report_bytes_only_not_underlying_repository_source",
+      "fresh_full_source_export": false,
+      "working_tree_clean_recheck_reported": false
+    },
+    "final_observation": {
+      "started_at": "2026-10-01T05:01:10Z",
+      "finished_at": "2026-10-01T05:01:44Z",
+      "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+      "reported_branch": "codex/e02-r2",
+      "working_tree_clean_reported": true,
+      "dirty_state_checked_separately_from_head": true,
+      "report_sha256": "b3a730a4a7e5c2e02aa948065207bb7c1c735dbbb389aadd3345b3e4eacb9424",
+      "hash_scope": "local_final_readback_report_bytes_only_not_underlying_repository_source",
+      "source_bytes_materialized_here": false,
+      "source_bytes_rehashed_here": false,
+      "bounded_freshness_check_complete": true,
+      "repository_destination": "docs/research/development-programs/2026-09-30-post-e02/",
+      "repository_destination_absent_reported": true,
+      "repository_transfer_verified": false,
+      "limit": "Bounded reported local observation at the exact stated cut; no complete current repository source audit or product execution."
+    },
+    "ledger_overlay": {
+      "all282_ids_preserved_reported": true,
+      "per_id_status_changes_reported": 0,
+      "status_counts": {
+        "closed": 8,
+        "partial": 261,
+        "held": 12,
+        "open": 1
+      },
+      "changed_row_content_ids_reported": [
+        "B197",
+        "B61",
+        "B152",
+        "B154",
+        "B155"
+      ],
+      "full_current_ledger_materialized": false,
+      "baseline_is_historical": true,
+      "current_hash_source_key": "LEDGER_JSON_FINAL",
+      "B197_changed_selector_paths_reported": [
+        "/appendix_c_comparison/detail",
+        "/residual",
+        "/residual_owner/name",
+        "/residual_owner/appointment_status",
+        "/h13_remaining_audit_20260927/scope",
+        "/h13_remaining_audit_20260927/typed_blocker/owner",
+        "/h13_remaining_audit_20260927/typed_blocker/source_audit_blocker",
+        "/h_current_add75_audit_20260927/disposition",
+        "/evidence_refs/blocker_path_at_sha",
+        "/evidence_refs/blocker_path_scope",
+        "/evidence_refs/canonical_bounded_internal_persistence_v2",
+        "/evidence_refs/current_frontier_recheck/scope",
+        "/evidence_refs/current_hn_review/identity",
+        "/evidence_refs/current_hn_review/scope",
+        "/evidence_refs/finding_test_or_probe/identity",
+        "/evidence_refs/finding_test_or_probe/scope",
+        "/evidence_refs/h14_source_review/identity",
+        "/evidence_refs/h14_source_review/scope",
+        "/evidence_refs/h_n_review_disposition",
+        "/evidence_refs/held_audit_receipt_status",
+        "/evidence_refs/held_current_head_recheck_20260928/identity",
+        "/evidence_refs/held_current_head_recheck_20260928/named_blocker",
+        "/evidence_refs/held_current_head_recheck_20260928/owner_refinement",
+        "/evidence_refs/held_current_head_recheck_20260928/residual_refinement",
+        "/evidence_refs/held_review/identity",
+        "/evidence_refs/held_review/scope",
+        "/evidence_refs/independent_card_audit/scope",
+        "/evidence_refs/independent_design_source/scope",
+        "/evidence_refs/latest_h14_source_review/identity",
+        "/evidence_refs/latest_h14_source_review/scope",
+        "/evidence_refs/served_producer_census_20261001"
+      ],
+      "B197_new_literal_values_materialized": false,
+      "changed_row_content_basis": "Union of reported changed rows since materialized September30 baseline across the two morning comparisons; not new literal rows.",
+      "final_delta_changed_row_content_ids_reported": [
+        "B61",
+        "B152",
+        "B154",
+        "B155"
+      ],
+      "final_delta_compared_with_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2",
+      "B197_unchanged_in_final_comparison_reported": true,
+      "final_changed_row_new_literal_values_materialized": false
+    },
+    "reported_unchanged_comparisons": [
+      {
+        "baseline_snapshot_id": "code_1749",
+        "source_count": 47,
+        "reported_unchanged_count": 47,
+        "comparison_kind": "reported_hash_comparison_not_fresh_source_copy",
+        "observation_window": "2026-10-01T03:46:49Z/2026-10-01T03:48:10Z",
+        "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2"
+      },
+      {
+        "baseline_snapshot_id": "causal_1757",
+        "subjects": [
+          "causal frontier.py",
+          "causal validator"
+        ],
+        "reported_unchanged": true,
+        "comparison_kind": "reported_hash_comparison_not_fresh_source_copy",
+        "observation_window": "2026-10-01T03:46:49Z/2026-10-01T03:48:10Z",
+        "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2"
+      },
+      {
+        "baseline_snapshot_id": "data_1809",
+        "source_count": 52,
+        "changed_source_keys": [
+          "CALIBRATOR",
+          "TRANSPORT"
+        ],
+        "comparison_kind": "reported_hash_comparison_not_fresh_source_copy",
+        "observation_window": "2026-10-01T03:46:49Z/2026-10-01T03:48:10Z",
+        "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2"
+      }
+    ],
+    "final_unchanged_comparison": {
+      "compared_with_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2",
+      "observed_at": "2026-10-01T05:01:10Z/2026-10-01T05:01:44Z",
+      "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+      "source_keys": [
+        "OP",
+        "DR",
+        "P_DRAFTS",
+        "RP",
+        "FINAL",
+        "B197_RECEIPT",
+        "B61_RECEIPT",
+        "R14_RECEIPT",
+        "CALIBRATOR",
+        "TRANSPORT",
+        "UNCERTAINTY_ADAPTER",
+        "COVARIANCE",
+        "WELFARE"
+      ],
+      "comparison_kind": "reported_hash_comparison_not_fresh_source_copy",
+      "earlier_source_record_observations_preserved": true,
+      "scope": "Five named E02 documents, three named receipts and five named code owners; no fresh comparison of all historical514 representations."
+    },
+    "updates": [
+      {
+        "id": "MORNING-B197",
+        "subject": "B197",
+        "official_status": "held",
+        "standing": "internal_vertical_integrated_production_intake_not_established",
+        "current_summary": "Внутренняя Calibrator → persisted report v2 → welfare Delta/MC цепочка интегрирована. Tied/singular Normal dependence сохраняется без jitter; mixed non-Normal covariance withholding сохраняет candidate point и отдельный robust outer bound.",
+        "remaining": "Frozen census at28ea3bb found no configured production construction Calibrator/CalibratorInputs or executable put_calibration_report caller; it is not a full current8b40f8f5 runtime census. Reachable internal typed intake seam remains: same INPUT_CALIBRATION_REPORT_REF is consumed as a distinct Funnel report schema.",
+        "historical_claim_superseded_only_in_scope": "Внутренняя persisted/numerical vertical ещё не passing или не реализована. Исторические неудачные receipts сохраняются как история.",
+        "source_keys": [
+          "OP",
+          "CALIBRATOR",
+          "UNCERTAINTY_ADAPTER",
+          "COVARIANCE",
+          "WELFARE",
+          "LEDGER_JSON",
+          "B197_RECEIPT",
+          "BLUEPRINT_CALLER",
+          "FUNNEL_PARSER"
+        ],
+        "receipt": {
+          "reported_document_name": "B197_COVARIANCE_RECEIPT.md",
+          "reported_lines": [
+            [
+              3,
+              24
+            ]
+          ],
+          "canonical_path": "docs/plans/active/agent-packages/PolicyOS_E02R2/B197_COVARIANCE_RECEIPT.md",
+          "sha256": "9019cb605e10d07149e7a5415e104ed42394d059e7ab4f9b76c3184c6dc28c89",
+          "reported_result": "58/58 canonical witness",
+          "rerun_in_morning_inspection": false,
+          "hash_verification": "reported_local_not_rehashed_here",
+          "underlying_witness_independently_rechecked": false
+        },
+        "programme_effect": "Reuse internal covariance/projection/welfare chain. Do not fund it again as new M1/N build; qualify only the actual configured producer, report intake and new scientific question.",
+        "frozen_producer_census": {
+          "head": "28ea3bb56bc4e751bf1303615d79219b56d7a24c",
+          "tracked_source_paths": 2906,
+          "production_python_AST": 2696,
+          "deployment_config_paths": 272,
+          "found_production_construction_Calibrator_or_CalibratorInputs": false,
+          "found_executable_put_calibration_report_caller": false,
+          "current_252f6b_complete_census_claimed": false,
+          "tests_or_live_runtime_executed": false,
+          "independently_rechecked_58_witness": false,
+          "current_8b40f8f5_complete_census_claimed": false
+        },
+        "typed_intake_seam": {
+          "shared_key": "INPUT_CALIBRATION_REPORT_REF",
+          "shared_key_value": "inputs.calibration_report_ref",
+          "B197_report": {
+            "type": "CalibrationReport",
+            "kind": "foundry.calibration_report",
+            "schema": "polisyos.foundry.CalibrationReport@2.0"
+          },
+          "Funnel_report": {
+            "type": "FunnelCalibrationReport",
+            "kind": "scientist.search.calibration_report",
+            "schema": "polisyos.scientist.search.FunnelCalibrationReport@1.0"
+          },
+          "caller_source_key": "BLUEPRINT_CALLER",
+          "parser_source_key": "FUNNEL_PARSER",
+          "reachable_internal_seam_reported": true,
+          "served_report_production_or_authority_emission_proved": false
+        },
+        "final_readback": "B197 full ledger row and named internal source/receipt hashes reported unchanged versus03:48."
+      },
+      {
+        "id": "MORNING-B61",
+        "subject": "B61",
+        "official_status": "held",
+        "standing": "prepared_read_consumers_integrated_authority_held",
+        "current_summary": "Prepared source-read подключён к workflow consumers до cache lookup, с matching-path проверкой и сохранением borrowed-query lifecycle. Финальный ledger явно supersedes прежний v2 stale-ref blocker bounded V11 evidence.",
+        "remaining": "Held остаток — owner-issued SKG provenance/read handle и K_ref custody; техническая интеграция не назначает authority.",
+        "historical_claim_superseded_only_in_scope": "Более широкий prepared-read маршрут описывался только как неинтегрированный v2 candidate/NO-GO.",
+        "source_keys": [
+          "TRANSPORT",
+          "B61_RECEIPT",
+          "LEDGER_MD_FINAL",
+          "LEDGER_JSON_FINAL"
+        ],
+        "receipt": {
+          "reported_document_name": "B61_PREPARED_READ_V11_INTEGRATION_RECEIPT.md",
+          "reported_lines": [
+            [
+              3,
+              29
+            ],
+            [
+              39,
+              46
+            ]
+          ],
+          "canonical_path": "docs/plans/active/agent-packages/PolicyOS_E02R2/B61_PREPARED_READ_V11_INTEGRATION_RECEIPT.md",
+          "sha256": "f2dc99d219790756a46c8eebcde625fb3be152befe2606dc71937c6c3482bdc4",
+          "reported_result": "121/121 across13 whole files",
+          "rerun_in_morning_inspection": false,
+          "hash_verification": "reported_local_not_rehashed_here"
+        },
+        "programme_effect": "Reuse prepared-read implementation. New E1/C work concerns the selected meaning, authority and useful source/currentness question, not the same cache bridge.",
+        "ledger_reported_evidence": {
+          "source_key": "LEDGER_MD_FINAL",
+          "selectors": [
+            "L249",
+            "L525"
+          ],
+          "present_whole_file_PASS_cells": 49,
+          "reported_outcomes": 393,
+          "historical_Git_absent_UNRUN": 3,
+          "earlier_receipt_count_additive": false,
+          "rerun_here": false,
+          "limit": "Current ledger records this bounded evidence scope; unchanged V11 receipt previously reported121/121 across13 whole files. These are not disjoint results to add, a new run here, or authority closure."
+        }
+      },
+      {
+        "id": "MORNING-R14",
+        "subject": "R14",
+        "standing": "actor_lease_attempt_custody_and_completion_reconciliation_integrated",
+        "current_summary": "Durable actor/lease/attempt custody и completion reconciliation интегрированы.",
+        "remaining": "Nine producer-fixture setup errors occurred before N4 and did not execute their intended properties. SearchExit→closeout/promotion is separately bridge_missing at receiptL12,L105; purpose-aware projection and WorkspaceSearchExitContract producer do not establish orchestration/admission. Underlying seam census was not independently repeated in the clarification.",
+        "historical_claim_superseded_only_in_scope": "53-pass/one-setup-error frozen v3 остаётся ранним историческим срезом, не текущим итогом интеграции.",
+        "source_keys": [
+          "R14_RECEIPT"
+        ],
+        "receipt": {
+          "reported_document_name": "R14_WORKER_CUSTODY_RECEIPT.md",
+          "reported_lines": [
+            [
+              3,
+              20
+            ]
+          ],
+          "canonical_path": "docs/plans/active/agent-packages/PolicyOS_E02R2/R14_WORKER_CUSTODY_RECEIPT.md",
+          "sha256": "1e0ff40270e383cf3d0eadcebb3734e856196f7b1efdf761b8134bcbdc9c6229",
+          "reported_result": "158 passes and9 producer-fixture setup errors",
+          "rerun_in_morning_inspection": false,
+          "hash_verification": "reported_local_not_rehashed_here"
+        },
+        "programme_effect": "Reuse integrated worker custody. Preserve the unexecuted property coverage and exact promotion handoff; do not infer public authority.",
+        "unexecuted_property_groups": [
+          {
+            "property": "existing producer read-before-candidate-absence",
+            "cases": 1
+          },
+          {
+            "property": "source-content binding with retained semantic markers",
+            "cases": 1
+          },
+          {
+            "property": "foreign candidate bytes refused despite matching label",
+            "cases": 1
+          },
+          {
+            "property": "exact compiled-source custody",
+            "fields": [
+              "artifact ID",
+              "integrity",
+              "byte size",
+              "media type",
+              "artifact schema"
+            ],
+            "cases": 5
+          },
+          {
+            "property": "real negative N9 source to offer CAS to authoritative classifier",
+            "cases": 1
+          }
+        ],
+        "unexecuted_case_count_reported": 9
+      },
+      {
+        "id": "MORNING-R1-V3",
+        "subject": "R1 V3",
+        "standing": "bounded_engineering_draft_not_served_readiness",
+        "current_summary": "Engineering draft предлагает static profile selection, исключающую только tenant_id, cell_id, job_id и run_id из nl_provenance.source_context selector basis, при сохранении полной execution identity/custody.",
+        "remaining": "Engineering decision draft with bounded reviewer design GO inside already chosen Option A; no separate owner acceptance, new principal permission, integration or B01–B03 change is established. Truthful configured served/compiler/source-time/grounding/LEX/S8/N9/promotion/publication and four-base evidence remain unestablished. Last served attempt was resource-guard UNRUN.",
+        "source_keys": [
+          "DR",
+          "FINAL"
+        ],
+        "programme_effect": "No new selector platform or assumed premise resolution; use only the separately admitted bounded profile and current source/view identity.",
+        "selector_exclusions": {
+          "field": "nl_provenance.source_context",
+          "server_injected_ids": [
+            "tenant_id",
+            "cell_id",
+            "job_id",
+            "run_id"
+          ],
+          "complete_execution_identity_and_custody_retained": true
+        },
+        "additional_bounded_GO_scope": "Removal of nonempty profile-ID prerequisite in existing scope issuer while preserving simulate-only admission, actor, lease and attempt checks; design GO is not a behavior receipt."
+      },
+      {
+        "id": "MORNING-R9",
+        "subject": "R9",
+        "standing": "canonical_ID_patch_integrated_V2_authority_boundary_and_failures_remain",
+        "current_summary": "Canonical-ID patch интегрирован в HEAD8b40f8f5: store deduplicates typed IDs by .hex while preserving typed return values. Eager full input materialization remains. Refusal сохраняет точный scope V2 production-approval issuance/currentness.",
+        "remaining": "New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration.",
+        "source_keys": [
+          "DR",
+          "FINAL",
+          "R9_CANONICAL_RECEIPT",
+          "ARTIFACT_STORE_FINAL"
+        ],
+        "programme_effect": "Reuse integrated canonical-ID repair within existing R9 owner. Keep remaining CAS, report authentication, production all-confirmations and scoped issuance/currentness boundaries; no new custody platform or automatic closure.",
+        "cohorts": [
+          {
+            "id": "pre_repair",
+            "head": "d0e65aa",
+            "source_key": "FINAL",
+            "selector": "L7",
+            "reported_pass_to_fail": 9,
+            "breakdown": {
+              "hashability_inventory": 8,
+              "manifest_read_count": 1
+            },
+            "scope": "E02 to d0 bounded protocol/CAS-03 comparison, not whole-product regression."
+          },
+          {
+            "id": "canonical_ID_candidate",
+            "candidate": "codex/e02-r2-r9-publication@336d0ab",
+            "source_key": "FINAL",
+            "selector": "L8–9",
+            "integrated_at_report_cut": false,
+            "static_design_GO": true,
+            "protocol_reported_outcome": "9/1",
+            "CAS03_reported_outcome": "5/4",
+            "public_export_outcomes_blocked_before_HTTP_assertions": 8,
+            "scope": "Separate later candidate attempt; do not sum with pre-repair or earlier replay cohorts."
+          },
+          {
+            "id": "earlier_public_export_design_axes",
+            "source_key": "FINAL",
+            "selector": "L11",
+            "scope": "Separate earlier replay; no denominator or new run inferred here."
+          }
+        ],
+        "historical_claim_superseded_only_in_scope": "The canonical-ID patch being unintegrated is superseded as a current-HEAD claim; frozen FINAL_REPORT and earlier cohort outcomes remain historical evidence.",
+        "current_integration": {
+          "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+          "patch_integrated": true,
+          "source_key": "ARTIFACT_STORE_FINAL",
+          "receipt_source_key": "R9_CANONICAL_RECEIPT",
+          "receipt_selector": "L5–26",
+          "CAS03_failures_reported": 4,
+          "corrected_fixture_HTTP_issuance": 201,
+          "corrected_fixture_HTTP_verification": 200,
+          "report_authentication": "invalid",
+          "closure_established": false,
+          "new_product_run_here": false,
+          "frozen_FINAL_REPORT_updated": false,
+          "earlier_cohorts_additive": false,
+          "eager_full_input_materialization_remains": true
+        }
+      },
+      {
+        "id": "MORNING-N6",
+        "subject": "N6 selected source-view reuse",
+        "standing": "exact_manifest_view_custody_required_existing_boundary",
+        "current_summary": "Bare artifact ID недостаточен для повторного открытия exact selected manifest view.",
+        "remaining": "Proposed engineering repair preserves typed ArtifactRef plus exact manifest-profile selector through versioned run/preservation source-ref projection and existing readers. GenerationSourceRepository.persist609–640 currently receives typed store ref but returns str(ref.artifact_id); historical v1–v4 bytes must remain intact. Closure is not reported.",
+        "source_keys": [
+          "OP",
+          "GENERATION_SOURCE"
+        ],
+        "programme_effect": "Carry exact native view identity through the selected consumer; no new general custody programme or fabricated historical view."
+      },
+      {
+        "id": "MORNING-B152",
+        "subject": "B152",
+        "official_status": "partial",
+        "standing": "owner_scope_refined_individual_appointment_not_established",
+        "current_summary": "Ledger owner scope уточнён как R9 CAS runtime + finding-level verification.",
+        "remaining": "Индивидуальные appointments не установлены.",
+        "source_keys": [
+          "LEDGER_MD_FINAL",
+          "LEDGER_JSON_FINAL"
+        ],
+        "selectors": [
+          "L340"
+        ],
+        "programme_effect": "Use the existing finding-level repair boundary; owner wording is not an appointment, integrated consumer or closure.",
+        "new_literal_values_materialized": false
+      },
+      {
+        "id": "MORNING-B154",
+        "subject": "B154",
+        "official_status": "partial",
+        "standing": "owner_scope_refined_individual_appointment_not_established",
+        "current_summary": "Ledger owner scope уточнён как R9 CAS runtime + finding-level verification.",
+        "remaining": "Индивидуальные appointments не установлены. Отдельно consumer_missing для production all-confirmations.",
+        "source_keys": [
+          "LEDGER_MD_FINAL",
+          "LEDGER_JSON_FINAL"
+        ],
+        "selectors": [
+          "L342"
+        ],
+        "programme_effect": "Use the existing finding-level repair boundary; owner wording is not an appointment, integrated consumer or closure.",
+        "new_literal_values_materialized": false
+      },
+      {
+        "id": "MORNING-B155",
+        "subject": "B155",
+        "official_status": "partial",
+        "standing": "owner_scope_refined_individual_appointment_not_established",
+        "current_summary": "Ledger owner scope уточнён как R9 CAS runtime + finding-level verification.",
+        "remaining": "Индивидуальные appointments не установлены.",
+        "source_keys": [
+          "LEDGER_MD_FINAL",
+          "LEDGER_JSON_FINAL"
+        ],
+        "selectors": [
+          "L343"
+        ],
+        "programme_effect": "Use the existing finding-level repair boundary; owner wording is not an appointment, integrated consumer or closure.",
+        "new_literal_values_materialized": false
+      }
+    ],
+    "limits": [
+      "No product tests, providers or pipelines ran during this inspection.",
+      "Receipt test counts are locally read historical records, not reruns by this synthesis.",
+      "No full new ledger, complete131-file audit, independent mathematical revalidation or repository transfer is claimed.",
+      "Final bounded freshness is complete only for05:01:10–05:01:44UTC at8b40f8f5; repository transfer and any later product state are not verified."
+    ],
+    "final_refresh_pending": false,
+    "final_brief_freshness_verified": true,
+    "repository_transfer_verified": false
+  },
+  "source_key_paths": {
+    "OPEN_PREMISES": "docs/plans/active/agent-packages/PolicyOS_E02R2/OPEN_PREMISES.md",
+    "DECISION_RECORDS": "docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md",
+    "P_DECISION_DRAFTS": "docs/plans/active/agent-packages/PolicyOS_E02R2/P_DECISION_DRAFTS.md",
+    "REGISTER_PROPOSALS": "docs/plans/active/agent-packages/PolicyOS_E02R2/REGISTER_PROPOSALS.md"
+  },
+  "settled_directions": [
+    {
+      "subject": "R1 Option A",
+      "ruling": "Выбран реальный served owner-bound N4→N5→S8 путь; fake authority-positive fixtures заменяются реальными owner-bound witnesses",
+      "date": "2026-09-26",
+      "refs": [
+        "DECISION_RECORDS:411–535"
+      ],
+      "not_decided_or_complete": "Нет доказанной полной positive source/consumer chain, source-time semantics, S8 trust/currentness или closure. Отдельные Appendix-A selector decisions и per-active-basis proposal остаются."
+    },
+    {
+      "subject": "R1 controlled first slice",
+      "ruling": "Сначала controlled test-only owner-bound N4→N5 slice через runtime store; не ждать всех real-data premises",
+      "date": "2026-09-28",
+      "refs": [
+        "DECISION_RECORDS:610–622"
+      ],
+      "not_decided_or_complete": "Механический fixture N5 positive не source-grounded numeric intervention effect и не S8; actual N4/source handoff, matching model и materialization различны."
+    },
+    {
+      "subject": "R5 protected modes",
+      "ruling": "sandbox_pilot/field_pilot/deployment требуют current exact-leaf EvalSafety; candidate/simulate remain separate; DataTrust modes have their own owner",
+      "date": "recorded 2026-09-27 implementation addendum",
+      "refs": [
+        "DECISION_RECORDS:1923–2055",
+        "OPEN_PREMISES:1087–1094"
+      ],
+      "not_decided_or_complete": "Five-band direction/implementation не DataTrust-positive recursion или complete P41; per-active-basis refresh не выбран этим ruling. Latest documentary clarification: raw selected pass→fail has unmeasured input closure and unresolved owner; later 28/28 repair is bounded. Positive served chain and current expanded replay remain unestablished."
+    },
+    {
+      "subject": "R11 blocked-v3 exclusion",
+      "ruling": "Каждый current v3 N6 terminal_status=blocked исключается до N9 независимо от причины; исторические v1/v2 не переписываются",
+      "date": "2026-09-26",
+      "refs": [
+        "DECISION_RECORDS:3056–3245"
+      ],
+      "not_decided_or_complete": "Truth of repeated-candidate cause, cap provenance, candidate limitation projection, board membership и все served consumers не доказаны одной status rule."
+    },
+    {
+      "subject": "R9 temporary all-format V2 suspension",
+      "ruling": "Сохраняется shared-owner отказ V2 production-approval issuance и operational currentness до owner-bound V3; принята потеря доступности даже potentially-valid historical signed-pair packets",
+      "date": "2026-09-30",
+      "refs": [
+        "DECISION_RECORDS:4737–4747",
+        "OPEN_PREMISES:1010–1016"
+      ],
+      "not_decided_or_complete": "V3 resolver/writer/readers, live inventory, owner-atomic pointer control и deployment-bound transition открыты. Ruling не global pointer rollout; bytes/signatures/history и candidate writes сохраняются."
+    },
+    {
+      "subject": "Merged-state transition principle",
+      "ruling": "Правило transition от merge base уже ruled Sep10; exact owner implementation и readback остаются",
+      "date": "2026-09-10 existing register ruling",
+      "refs": [
+        "DECISION_RECORDS:968–975",
+        "REGISTER_PROPOSALS:261–270"
+      ],
+      "not_decided_or_complete": "Не разрешает этому исследованию reissue/restamp, не заменяет последующую собственную authorization и owner receipt."
+    }
+  ],
+  "decision_families": [
+    {
+      "id": "DEV-DEC-r1_source_temporal",
+      "title": "Родное время и байты DataState",
+      "observed_standing": "Source semantics not_established; implementation owner identified; Option A already selected",
+      "question": "Какой смысл, grain, interval boundary и selection/aggregation rule у каждого реально потреблённого source input?",
+      "recommendation_not_adopted": "Сначала одна минимально достаточная source-supported temporal profile у existing DataState/S1 owner. Вариант interval и as-of — разные вопросы, не два способа получить один и тот же ответ. Сохранить unknown отдельно от доказанного out-of-scope.",
+      "options": [
+        "Source-specific interval selection: больше reconciliation, сохраняет нужный interval target",
+        "Evidence-supported as-of view: потенциально меньше вычисления, но другой declared case",
+        "Interim scope-limited candidate result: no currentness claim; если N5 не умеет нести ограничение, только этот WMR route not_run",
+        "Generic VARCHAR/date comparison и Fabric processing-time substitution отвергнуть"
+      ],
+      "scope": "Пять DataState inputs и selected WMR; не общий запрет всех WMR/N5",
+      "owner_or_missing_allocation": "DataState/S1 projection; DataForge normalized-artifact source/normalizer binding",
+      "reversible_discriminator": "Synthetic-Parquet interval change + actual source metadata dossier; change only out-of-range rows and byte binding with markers fixed",
+      "defer_commitment": "Общий temporal vocabulary, исторический backfill неизвестных значений, universal source date; не устанавливать источнику meaning кодом",
+      "external_or_decision_wait": "Owner design может быть коротким; реальное source evidence/normalizer provenance неизвестно по календарю",
+      "remaining_scope": [
+        "S8 signer/currentness и real source-positive N4→N5 separate",
+        "DataState row selection does not choose WDI publisher vintage or N5 horizon alignment"
+      ],
+      "analytical_homes": [
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-E1",
+        "DEV-E2",
+        "DEV-C",
+        "DEV-M2"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:13–20",
+        "DECISION_RECORDS:536–608"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-r1_numeric_action",
+      "title": "Grounded atom в численное действие",
+      "observed_standing": "producer_missing in inspected N4→N5 mapping; no new principal ruling",
+      "question": "Как operator/parameter/units/domain/target slot задаёт set-to или offset numerical assignment?",
+      "recommendation_not_adopted": "Расширять L6 resolver/atom-binding owner для одного declared operator; сохранять materialization ref и exact direct assignments. Descriptive value_expr нельзя исполнять общим evaluator по догадке.",
+      "options": [
+        "Owner-specific typed materialization: маленький scientific contract, strong exact input/output test",
+        "Explicit symbolic/mechanism result: полезный candidate without numerical effect",
+        "New expression interpreter: широкая семантика и security/compatibility cost без установленного consumer; отложить"
+      ],
+      "scope": "N4 Interventions→N5 direct assignment only",
+      "owner_or_missing_allocation": "Existing resolve_intervention_lever / atom-binding + N5 consumer",
+      "reversible_discriminator": "Материализовать одну известную supported action; фиксировать все прочие inputs; удалить только materializer и измерить input/output effect",
+      "defer_commitment": "Universal action DSL и silently chosen unit conversions",
+      "external_or_decision_wait": "Сначала scientific assignment meaning; coding estimate нельзя выдавать за время получения source support",
+      "remaining_scope": [
+        "Candidate identity/N5 completion не intervention effect",
+        "World-model graph/plan, time alignment and causal model support independently required"
+      ],
+      "analytical_homes": [
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-P2",
+        "DEV-P3",
+        "DEV-N",
+        "DEV-R"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:22–29"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-l2_vintage",
+      "title": "Подлинный новый L2 input или честный unknown",
+      "observed_standing": "Restricted existing L2 owner intentionally withholds confidence; replacement source not established",
+      "question": "Нужен owner-issued current source occurrence/snapshot либо разрешённый candidate projection без исторической confidence?",
+      "recommendation_not_adopted": "Сначала candidate-unknown projection, если она действительно полезна и не передаёт restricted values. Калиброванную positive chain строить на bounded source-family record с independent meaning, не полным corpus pass ради unblock.",
+      "options": [
+        "Unknown projection: меньше data cost, ниже permissible claim",
+        "New admitted snapshot or owner-defined complete slice: сильнее support, source/labels/production cycle cost",
+        "Copy/subset/rename DB or remove vintage guard: недопустимая подмена"
+      ],
+      "scope": "SKG/L2 forwardability; не общий missing-data verdict",
+      "owner_or_missing_allocation": "Existing SKG/L2 vintage owner, CG reference owner; real re-extraction/issuer allocation unresolved",
+      "reversible_discriminator": "Prompt/reference/downstream inspection на отсутствие restricted confidence; source-family positive and harmful/harmless controls",
+      "defer_commitment": "Full re-extraction campaign до source frame, measured operating envelope и consuming task",
+      "external_or_decision_wait": "Labels/source rights/admission календарь не установлен",
+      "remaining_scope": [
+        "DATA normalizer prerequisite stale: normalizer already closed per debt reconciliation",
+        "New L2 does not resolve numeric do(), source time or S8"
+      ],
+      "analytical_homes": [
+        "DEV-E1",
+        "DEV-E2",
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:121–153",
+        "DECISION_RECORDS:594–608"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-r1_basis_context",
+      "title": "Каждый active basis получает собственный context",
+      "observed_standing": "Reported local source readback 2026-10-01: Engineering draft предлагает static profile selection, исключающую только tenant_id, cell_id, job_id и run_id из nl_provenance.source_context selector basis, при сохранении полной execution identity/custody. Engineering decision draft with bounded reviewer design GO inside already chosen Option A; no separate owner acceptance, new principal permission, integration or B01–B03 change is established. Truthful configured served/compiler/source-time/grounding/LEX/S8/N9/promotion/publication and four-base evidence remain unestablished. Last served attempt was resource-guard UNRUN.",
+      "question": "Как пересоздать context после P0→P1 и acquisition W0→E→W1, не смешав subject, basis и occurrence?",
+      "recommendation_not_adopted": "Один owner transition при material basis change; reuse неизменных subrecords по evidence, но заново bind exact B/W. Для protected mode сохранять отдельный fresh EvalSafety/DataTrust contract; это не функция cycle-context.",
+      "options": [
+        "Per-basis existing-owner resolution: integration and replay cost, сохраняет meaning",
+        "Root context reuse: дешёво, но stale basis; отвергнуть",
+        "All-candidate refusal: лишает независимой пользы; сузить до требующего контекста N5 use"
+      ],
+      "scope": "Same subject S, complete basis B, candidate occurrence, WMR context distinct",
+      "owner_or_missing_allocation": "CycleSubstrateContext/GenerationSource/Control plus native world; production provider and revised-basis bridge not established",
+      "reversible_discriminator": "Два cycle с тем же subject, changed model/population и one new context; stale predecessor mutation under retained markers",
+      "defer_commitment": "Subject ref becomes basis ref everywhere, arbitrary context rebind or copied SKG snapshot ID",
+      "external_or_decision_wait": "Cross-owner decision before new persisted fields; qualified source and live reentry scope have independent wait",
+      "remaining_scope": [
+        "N11 budget lifetime not decided by subject/basis split",
+        "Later CandidateOccurrence→N9/OWR acceptance distinct from context production"
+      ],
+      "analytical_homes": [
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-E1",
+        "DEV-E2",
+        "DEV-C",
+        "DEV-P2",
+        "DEV-P3"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:650–668",
+        "DECISION_RECORDS:2057–2150,3789–3929",
+        "REGISTER_PROPOSALS:68–98",
+        "OPEN_PREMISES:1083–1094",
+        "REGISTER_PROPOSALS:295",
+        "FINAL_REPORT:3–9,512",
+        "RESIDUAL_LEDGER:189,524",
+        "residual_ledger.json:434–436,560–570",
+        "OPEN_PREMISES:1095–1104",
+        "REGISTER_PROPOSALS:267,296",
+        "RESIDUAL_LEDGER:226",
+        "residual_ledger.json:4661–4663,4697–4704",
+        "RESIDUAL_LEDGER:189",
+        "residual_ledger.json:436,537–557,692–709,835–852"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes",
+      "historical_evidence": {
+        "observed_standing": "R1 Option A settled; per-active-basis R1/R5 draft pending",
+        "recommendation_not_adopted": "Один owner transition при material basis change; reuse неизменных subrecords по evidence, но заново bind exact B/W. Для protected mode сохранять отдельный fresh EvalSafety/DataTrust contract; это не функция cycle-context.",
+        "source_locators": [
+          "OPEN_PREMISES:650–668",
+          "DECISION_RECORDS:2057–2150,3789–3929",
+          "REGISTER_PROPOSALS:68–98",
+          "OPEN_PREMISES:1083–1094",
+          "REGISTER_PROPOSALS:295",
+          "FINAL_REPORT:3–9,512",
+          "RESIDUAL_LEDGER:189,524",
+          "residual_ledger.json:434–436,560–570",
+          "OPEN_PREMISES:1095–1104",
+          "REGISTER_PROPOSALS:267,296",
+          "RESIDUAL_LEDGER:226",
+          "residual_ledger.json:4661–4663,4697–4704",
+          "RESIDUAL_LEDGER:189",
+          "residual_ledger.json:436,537–557,692–709,835–852"
+        ],
+        "materialized_E02_cut": "2026-09-30T17:57:48Z",
+        "materialized_decision_file_cut": "2026-09-30T17:31:36Z"
+      },
+      "current_reported_readback": [
+        {
+          "id": "MORNING-R1-V3",
+          "subject": "R1 V3",
+          "standing": "bounded_engineering_draft_not_served_readiness",
+          "current_summary": "Engineering draft предлагает static profile selection, исключающую только tenant_id, cell_id, job_id и run_id из nl_provenance.source_context selector basis, при сохранении полной execution identity/custody.",
+          "remaining": "Engineering decision draft with bounded reviewer design GO inside already chosen Option A; no separate owner acceptance, new principal permission, integration or B01–B03 change is established. Truthful configured served/compiler/source-time/grounding/LEX/S8/N9/promotion/publication and four-base evidence remain unestablished. Last served attempt was resource-guard UNRUN.",
+          "source_keys": [
+            "DR",
+            "FINAL"
+          ],
+          "programme_effect": "No new selector platform or assumed premise resolution; use only the separately admitted bounded profile and current source/view identity.",
+          "selector_exclusions": {
+            "field": "nl_provenance.source_context",
+            "server_injected_ids": [
+              "tenant_id",
+              "cell_id",
+              "job_id",
+              "run_id"
+            ],
+            "complete_execution_identity_and_custody_retained": true
+          },
+          "additional_bounded_GO_scope": "Removal of nonempty profile-ID prerequisite in existing scope issuer while preserving simulate-only admission, actor, lease and attempt checks; design GO is not a behavior receipt."
+        }
+      ],
+      "current_remaining_scope_delta_non_exhaustive": [
+        "Engineering decision draft with bounded reviewer design GO inside already chosen Option A; no separate owner acceptance, new principal permission, integration or B01–B03 change is established. Truthful configured served/compiler/source-time/grounding/LEX/S8/N9/promotion/publication and four-base evidence remain unestablished. Last served attempt was resource-guard UNRUN."
+      ],
+      "unaddressed_scope_rule": "This is a non-exhaustive morning delta. Unaddressed historical scientific, data, issuer/root-completeness, authority and other scope limits remain unresolved unless this readback expressly supersedes them; in particular B194 is not discharged by B197 progress.",
+      "other_fields_basis": "Historical analytical options and source limits, not a new current-code audit. Current reported readback supersedes only its expressly named scope."
+    },
+    {
+      "id": "DEV-DEC-worker_scope",
+      "title": "Purpose-limited worker и later re-entry authority",
+      "observed_standing": "Reported local source readback 2026-10-01: Durable actor/lease/attempt custody и completion reconciliation интегрированы. Nine producer-fixture setup errors occurred before N4 and did not execute their intended properties. SearchExit→closeout/promotion is separately bridge_missing at receiptL12,L105; purpose-aware projection and WorkspaceSearchExitContract producer do not establish orchestration/admission. Underlying seam census was not independently repeated in the clarification.",
+      "question": "Какой scope нужен asynchronous candidate context operation и кто допускает новое WDI re-entry после завершённого source job?",
+      "recommendation_not_adopted": "Сохранять узкий issued job scope на existing NL/Control owner. Для completed source job нужен отдельно admitted current worker/job; request AccessScope не сериализовать целиком ради этого одного действия.",
+      "options": [
+        "Bounded operation capability derived after persisted binding+lease: low blast radius",
+        "Durable original AccessScope: роли/PII/MFA/revocation создают большую security scope",
+        "Delay exact handoff while candidate-only result continues: честный interim"
+      ],
+      "scope": "Job/run/tenant/cell/worker/attempt/purpose; не general user/ACQUIRE/S8 grant",
+      "owner_or_missing_allocation": "Runtime Control/RunLifecycle lease owner and context owner; original-principal security policy separate",
+      "reversible_discriminator": "Stale lease, forged matching markers, wrong purpose and completed-source-job controls through same store",
+      "defer_commitment": "Persistent role/token/delegation promises and broadened scope issuer",
+      "external_or_decision_wait": "Security decision applies only when wider lineage/revocation claim needed; candidate bridge already usable within proved bounds",
+      "remaining_scope": [
+        "Private sentinel not cryptographic boundary",
+        "Tenant-bound protected worker EvalSafety witness still separate from request-scope tests"
+      ],
+      "analytical_homes": [
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-E1",
+        "DEV-E2",
+        "DEV-O"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:60–68,196–214",
+        "DECISION_RECORDS:4391–4411,4464–4485",
+        "OPEN_PREMISES:1095–1104",
+        "REGISTER_PROPOSALS:267,296",
+        "RESIDUAL_LEDGER:226",
+        "residual_ledger.json:4661–4663,4697–4704"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes",
+      "historical_evidence": {
+        "observed_standing": "VerifiedNLJobScope bounded bridge implemented; principal/delegation and revocation beyond lease unresolved",
+        "recommendation_not_adopted": "Сохранять узкий issued job scope на existing NL/Control owner. Для completed source job нужен отдельно admitted current worker/job; request AccessScope не сериализовать целиком ради этого одного действия.",
+        "source_locators": [
+          "OPEN_PREMISES:60–68,196–214",
+          "DECISION_RECORDS:4391–4411,4464–4485",
+          "OPEN_PREMISES:1095–1104",
+          "REGISTER_PROPOSALS:267,296",
+          "RESIDUAL_LEDGER:226",
+          "residual_ledger.json:4661–4663,4697–4704"
+        ],
+        "materialized_E02_cut": "2026-09-30T17:57:48Z",
+        "materialized_decision_file_cut": "2026-09-30T17:31:36Z"
+      },
+      "current_reported_readback": [
+        {
+          "id": "MORNING-R14",
+          "subject": "R14",
+          "standing": "actor_lease_attempt_custody_and_completion_reconciliation_integrated",
+          "current_summary": "Durable actor/lease/attempt custody и completion reconciliation интегрированы.",
+          "remaining": "Nine producer-fixture setup errors occurred before N4 and did not execute their intended properties. SearchExit→closeout/promotion is separately bridge_missing at receiptL12,L105; purpose-aware projection and WorkspaceSearchExitContract producer do not establish orchestration/admission. Underlying seam census was not independently repeated in the clarification.",
+          "historical_claim_superseded_only_in_scope": "53-pass/one-setup-error frozen v3 остаётся ранним историческим срезом, не текущим итогом интеграции.",
+          "source_keys": [
+            "R14_RECEIPT"
+          ],
+          "receipt": {
+            "reported_document_name": "R14_WORKER_CUSTODY_RECEIPT.md",
+            "reported_lines": [
+              [
+                3,
+                20
+              ]
+            ],
+            "canonical_path": "docs/plans/active/agent-packages/PolicyOS_E02R2/R14_WORKER_CUSTODY_RECEIPT.md",
+            "sha256": "1e0ff40270e383cf3d0eadcebb3734e856196f7b1efdf761b8134bcbdc9c6229",
+            "reported_result": "158 passes and9 producer-fixture setup errors",
+            "rerun_in_morning_inspection": false,
+            "hash_verification": "reported_local_not_rehashed_here"
+          },
+          "programme_effect": "Reuse integrated worker custody. Preserve the unexecuted property coverage and exact promotion handoff; do not infer public authority.",
+          "unexecuted_property_groups": [
+            {
+              "property": "existing producer read-before-candidate-absence",
+              "cases": 1
+            },
+            {
+              "property": "source-content binding with retained semantic markers",
+              "cases": 1
+            },
+            {
+              "property": "foreign candidate bytes refused despite matching label",
+              "cases": 1
+            },
+            {
+              "property": "exact compiled-source custody",
+              "fields": [
+                "artifact ID",
+                "integrity",
+                "byte size",
+                "media type",
+                "artifact schema"
+              ],
+              "cases": 5
+            },
+            {
+              "property": "real negative N9 source to offer CAS to authoritative classifier",
+              "cases": 1
+            }
+          ],
+          "unexecuted_case_count_reported": 9
+        }
+      ],
+      "current_remaining_scope_delta_non_exhaustive": [
+        "Nine producer-fixture setup errors occurred before N4 and did not execute their intended properties. SearchExit→closeout/promotion is separately bridge_missing at receiptL12,L105; purpose-aware projection and WorkspaceSearchExitContract producer do not establish orchestration/admission. Underlying seam census was not independently repeated in the clarification."
+      ],
+      "unaddressed_scope_rule": "This is a non-exhaustive morning delta. Unaddressed historical scientific, data, issuer/root-completeness, authority and other scope limits remain unresolved unless this readback expressly supersedes them; in particular B194 is not discharged by B197 progress.",
+      "other_fields_basis": "Historical analytical options and source limits, not a new current-code audit. Current reported readback supersedes only its expressly named scope."
+    },
+    {
+      "id": "DEV-DEC-r2_currentness",
+      "title": "История отдельно; package currentness отдельно",
+      "observed_standing": "Reported local source readback 2026-10-01: Bare artifact ID недостаточен для повторного открытия exact selected manifest view. Proposed engineering repair preserves typed ArtifactRef plus exact manifest-profile selector through versioned run/preservation source-ref projection and existing readers. GenerationSourceRepository.persist609–640 currently receives typed store ref but returns str(ref.artifact_id); historical v1–v4 bytes must remain intact. Closure is not reported.",
+      "question": "Кто выпускает production route attestation и как installed runtime связывает его с canonical loaded-code/lock identity?",
+      "recommendation_not_adopted": "Не расширять baseline R2 replay repair до обязательной release platform. Для consumer требующего N9 currentness выбрать отдельный bounded deployment-trust tranche: one canonical identity plus N6-scoped receipt with independently derived served roots and offline verifier.",
+      "options": [
+        "Extend canonical identity closure: меньше records, шире compatibility/reissue footprint",
+        "Separate N6 receipt bound to canonical identity: уже рекомендован поздним source draft; дополнительная retention/verifier choreography",
+        "Leave production issuer unappointed: candidate/history continue, protected currentness unavailable",
+        "Unsigned co-packaged self-manifest или repeated whole-source scan: не решает issuer/semantic reachability"
+      ],
+      "scope": "N6 source/deploy route currentness before N9, not whole system semantic truth",
+      "owner_or_missing_allocation": "ConfidenceLedger sole identity calculator; release/security/deployment issuer appointment absent in inspected scope; route registry/dispatch owners supply complete roots",
+      "reversible_discriminator": "Installed wheel from unrelated CWD, no checkout; add unsafe served helper/alias/rebinding while keeping markers; history same bytes survives unrelated source change",
+      "defer_commitment": "Issuer trust root, workflow/repository identity, rotation policy, package evidence retention and authorized identity/epoch transition",
+      "external_or_decision_wait": "Receiver protocol buildable; real issuer admission and exact deployment inventory calendar unknown",
+      "remaining_scope": [
+        "Tracked source no-hit does not establish served-root completeness or dynamic reachability",
+        "Latest a3d51fb source census remains UNRUN; no wrong semantic upgrade",
+        "No exact R2→N12/DS18 debt edge admitted by E02 crosswalk; architecture relevance is analytical"
+      ],
+      "analytical_homes": [
+        "DEV-C",
+        "DEV-H",
+        "DEV-O",
+        "DEV-P1",
+        "DEV-P2",
+        "DEV-P3"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:216–271,525–547,844–859,1018–1023,1046–1052,1071–1081",
+        "DECISION_RECORDS:636–1680"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes",
+      "historical_evidence": {
+        "observed_standing": "Historical repairs have bounded evidence; package issuer/root-complete attestation not established",
+        "recommendation_not_adopted": "Не расширять baseline R2 replay repair до обязательной release platform. Для consumer требующего N9 currentness выбрать отдельный bounded deployment-trust tranche: one canonical identity plus N6-scoped receipt with independently derived served roots and offline verifier.",
+        "source_locators": [
+          "OPEN_PREMISES:216–271,525–547,844–859,1018–1023,1046–1052,1071–1081",
+          "DECISION_RECORDS:636–1680"
+        ],
+        "materialized_E02_cut": "2026-09-30T17:57:48Z",
+        "materialized_decision_file_cut": "2026-09-30T17:31:36Z"
+      },
+      "current_reported_readback": [
+        {
+          "id": "MORNING-N6",
+          "subject": "N6 selected source-view reuse",
+          "standing": "exact_manifest_view_custody_required_existing_boundary",
+          "current_summary": "Bare artifact ID недостаточен для повторного открытия exact selected manifest view.",
+          "remaining": "Proposed engineering repair preserves typed ArtifactRef plus exact manifest-profile selector through versioned run/preservation source-ref projection and existing readers. GenerationSourceRepository.persist609–640 currently receives typed store ref but returns str(ref.artifact_id); historical v1–v4 bytes must remain intact. Closure is not reported.",
+          "source_keys": [
+            "OP",
+            "GENERATION_SOURCE"
+          ],
+          "programme_effect": "Carry exact native view identity through the selected consumer; no new general custody programme or fabricated historical view."
+        }
+      ],
+      "current_remaining_scope_delta_non_exhaustive": [
+        "Proposed engineering repair preserves typed ArtifactRef plus exact manifest-profile selector through versioned run/preservation source-ref projection and existing readers. GenerationSourceRepository.persist609–640 currently receives typed store ref but returns str(ref.artifact_id); historical v1–v4 bytes must remain intact. Closure is not reported."
+      ],
+      "unaddressed_scope_rule": "This is a non-exhaustive morning delta. Unaddressed historical scientific, data, issuer/root-completeness, authority and other scope limits remain unresolved unless this readback expressly supersedes them; in particular B194 is not discharged by B197 progress.",
+      "other_fields_basis": "Historical analytical options and source limits, not a new current-code audit. Current reported readback supersedes only its expressly named scope."
+    },
+    {
+      "id": "DEV-DEC-history_rules",
+      "title": "Байты, typed view и historical meaning",
+      "observed_standing": "Outer v1 wire replay bounded; historical evaluator choice not adopted",
+      "question": "Как неизменный v1 disposition сохраняет прежний meaning после изменения current composition code?",
+      "recommendation_not_adopted": "Первым проверить version-dispatched frozen evaluator у existing normative owner. Rule artifact оправдан только если rule evidence cannot be reproduced from versioned native evaluator. Currentness remains a separate observation/projected result.",
+      "options": [
+        "Frozen evaluator + serializer: проще здесь, но ongoing historical-code testing",
+        "Content-bound admitted rule artifact: flexible, adds custody/interpreter/retention",
+        "Typed semantic-history limitation: interim without invented validity"
+      ],
+      "scope": "S8 outer composition replay, original N6 exact bytes; selected-view schema separately versioned",
+      "owner_or_missing_allocation": "Runtime Control persisted-source intake; Runtime Quality history serializer; normative owner composition rules",
+      "reversible_discriminator": "При unchanged v1 bytes изменить current rule; old result stays same, fresh v2 follows new rule; unsupported rule refuses",
+      "defer_commitment": "Re-dumping old objects through expanded Pydantic model or embedding changing currentness into old hash",
+      "external_or_decision_wait": "Cross-owner semantic contract before migration; genuine historical packet inventory may dominate",
+      "remaining_scope": [
+        "Wire-byte equality != original semantic interpretation",
+        "R2 original raw-byte removal UNRUN superseded by later bounded GO at OP541–547; full served path still open"
+      ],
+      "analytical_homes": [
+        "DEV-C",
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-O"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:113–119,262–271,853–859",
+        "DECISION_RECORDS:1379–1393,4550,4574–4584"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-n11_lifetime",
+      "title": "Необнуляемый риск через revised basis",
+      "observed_standing": "Owner/principal choice pending; strict mismatch is existing safe behavior",
+      "question": "Риск принадлежит stable policy subject через revised bases или каждому exact basis отдельно?",
+      "recommendation_not_adopted": "Если claimed guarantee is lifetime per continuing policy subject, предпочесть subject-wide nonresettable account с явно approved basis transitions и per-basis projections. Если target действительно независимые experiments, basis accounts возможны только с отдельным anti-reset/aggregate rule; не делать выбор из текущего scope_id.",
+      "options": [
+        "Subject-wide: continuity, но сложные transition/projection/history",
+        "Per-basis: exact snapshot, но infinite revision/reset hazard and aggregate accounting",
+        "Retain typed mismatch: candidate work proceeds, authority unavailable across new basis"
+      ],
+      "scope": "N11 risk spend and prior lineage across DesignProblem revision only",
+      "owner_or_missing_allocation": "ConfidenceLedger/N11 and principal; checker-local late-bound session is already separate repair",
+      "reversible_discriminator": "Same S, B0→B1, preserve spend; duplicate basis/retry/relabel cannot create new budget",
+      "defer_commitment": "Re-key/delete/reissue durable ledger roots; choosing statistical family identity in storage code",
+      "external_or_decision_wait": "Scientific risk-family decision before coding transition; cannot estimate by schema-days alone",
+      "remaining_scope": [
+        "Distinct from tenant/global journal scope and CG2 admission-only budget",
+        "Successful temporary checker session does not test existing durable production root"
+      ],
+      "analytical_homes": [
+        "DEV-C",
+        "DEV-P1",
+        "DEV-P2",
+        "DEV-P3",
+        "DEV-N",
+        "DEV-R",
+        "DEV-H",
+        "DEV-O"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:273–292",
+        "DECISION_RECORDS:1705–1851"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-n11_tenant_scope",
+      "title": "Общий риск или tenant/cell budget",
+      "observed_standing": "Principal and ledger/storage owner choice pending; no migration authorized",
+      "question": "Одна shared deployment-level risk bound или отдельные tenant/cell budgets с aggregate cap?",
+      "recommendation_not_adopted": "Сначала указать protected guarantee and authorized audience. При tenant service boundary разумен tenant-scoped operational state плюс explicit aggregate cap where needed, но это рекомендация only; сохранение единого risk bound может потребовать genuinely global budget. Нельзя вывести ответ из filenames.",
+      "options": [
+        "Global: one bound, shared availability and cross-tenant permissions/audit",
+        "Tenant/cell: isolation, potential risk multiplication; new keys/migration/no-reset proof",
+        "Interim preserve history and refuse unestablished authority: least commitment"
+      ],
+      "scope": "N9 ConfidenceLedger CAS writer, independent replay reader, WAL/head/scope; not generic ArtifactStore tenancy",
+      "owner_or_missing_allocation": "Trusted serving composition issues store+deployment+registry+risk-scope capability; both writer and replay reader consume it",
+      "reversible_discriminator": "Two authenticated tenants same design_problem_id; raw same-root CAS/no-active-scope mutant must fail exact capability check",
+      "defer_commitment": "Tenant rekeying and adoption of historical unowned refs; default global sharing without explicit permission",
+      "external_or_decision_wait": "Principal scope choice and historical inventory precede irreversible migration; architecture can design both projections",
+      "remaining_scope": [
+        "Store injection/object identity/root equality insufficient for authority scope",
+        "Existing WAL only local POSIX coordinating behavior; not distributed proof"
+      ],
+      "analytical_homes": [
+        "DEV-C",
+        "DEV-H",
+        "DEV-O",
+        "DEV-N",
+        "DEV-R"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:504–514",
+        "DECISION_RECORDS:4552–4572"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-r9_views",
+      "title": "Один blob, несколько смысловых views",
+      "observed_standing": "Reported local source readback 2026-10-01: Canonical-ID patch интегрирован в HEAD8b40f8f5: store deduplicates typed IDs by .hex while preserving typed return values. Eager full input materialization remains. Refusal сохраняет точный scope V2 production-approval issuance/currentness. New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration. Bare artifact ID недостаточен для повторного открытия exact selected manifest view. Proposed engineering repair preserves typed ArtifactRef plus exact manifest-profile selector through versioned run/preservation source-ref projection and existing readers. GenerationSourceRepository.persist609–640 currently receives typed store ref but returns str(ref.artifact_id); historical v1–v4 bytes must remain intact. Closure is not reported.",
+      "question": "Нужны одновременно две честные consumer-distinguishable profiles одних bytes либо ошибка находится в producer lineage?",
+      "recommendation_not_adopted": "Сначала исправлять ложный producer profile там, где checks не выполнялись/fixture kind неверен. Для реально разных нужных views сохранять существующий manifest_profile_sha256 end-to-end через native versioned refs; не вводить второй identity type по старому draft.",
+      "options": [
+        "Strict single-profile + truthful producer: smallest repair where one meaning intended",
+        "Selected views for demonstrated dual consumer: migration of refs/input lineage/transfer/signing/caches",
+        "Typed use record only when existing run/evidence record cannot express occurrence relation",
+        "Universal all-backend conversion: substantial cost, not justified by noun census"
+      ],
+      "scope": "Selected immutable profile identity and exact raw bytes, not empirical provenance truth",
+      "owner_or_missing_allocation": "Core ArtifactRef/serializer/store; R2/WMR/Foundry/NL consumers; broader backend contracts per owner",
+      "reversible_discriminator": "Two nondefault views same content ID; schema-same/different-profile and schema-different controls; delete selector only; default-only history preserved",
+      "defer_commitment": "All-461-syntactic-file rewrite, global optional-field addition to hashed DTO, public API promise for unsupported backends",
+      "external_or_decision_wait": "Class-level semantic read/write route inventory before migration; actual executed DAG across five workflows matters",
+      "remaining_scope": [
+        "Sep25 lean superseded initial generic multiview recommendation only for measured regressions; not later implementation facts",
+        "Selected typed value Decimal-to-string transport may alter source semantics even with JSON-looking equality",
+        "Production reachability and historical population still independently measured"
+      ],
+      "analytical_homes": [
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-C",
+        "DEV-N",
+        "DEV-R",
+        "DEV-O"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:888–895,971–977,1032–1037",
+        "DECISION_RECORDS:2152–2861",
+        "REGISTER_PROPOSALS:285–289"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes",
+      "historical_evidence": {
+        "observed_standing": "Generic semantic decision pending; bounded direct-CAS selected-view code exists; broad consumers incomplete",
+        "recommendation_not_adopted": "Сначала исправлять ложный producer profile там, где checks не выполнялись/fixture kind неверен. Для реально разных нужных views сохранять существующий manifest_profile_sha256 end-to-end через native versioned refs; не вводить второй identity type по старому draft.",
+        "source_locators": [
+          "OPEN_PREMISES:888–895,971–977,1032–1037",
+          "DECISION_RECORDS:2152–2861",
+          "REGISTER_PROPOSALS:285–289"
+        ],
+        "materialized_E02_cut": "2026-09-30T17:57:48Z",
+        "materialized_decision_file_cut": "2026-09-30T17:31:36Z"
+      },
+      "current_reported_readback": [
+        {
+          "id": "MORNING-R9",
+          "subject": "R9",
+          "standing": "canonical_ID_patch_integrated_V2_authority_boundary_and_failures_remain",
+          "current_summary": "Canonical-ID patch интегрирован в HEAD8b40f8f5: store deduplicates typed IDs by .hex while preserving typed return values. Eager full input materialization remains. Refusal сохраняет точный scope V2 production-approval issuance/currentness.",
+          "remaining": "New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration.",
+          "source_keys": [
+            "DR",
+            "FINAL",
+            "R9_CANONICAL_RECEIPT",
+            "ARTIFACT_STORE_FINAL"
+          ],
+          "programme_effect": "Reuse integrated canonical-ID repair within existing R9 owner. Keep remaining CAS, report authentication, production all-confirmations and scoped issuance/currentness boundaries; no new custody platform or automatic closure.",
+          "cohorts": [
+            {
+              "id": "pre_repair",
+              "head": "d0e65aa",
+              "source_key": "FINAL",
+              "selector": "L7",
+              "reported_pass_to_fail": 9,
+              "breakdown": {
+                "hashability_inventory": 8,
+                "manifest_read_count": 1
+              },
+              "scope": "E02 to d0 bounded protocol/CAS-03 comparison, not whole-product regression."
+            },
+            {
+              "id": "canonical_ID_candidate",
+              "candidate": "codex/e02-r2-r9-publication@336d0ab",
+              "source_key": "FINAL",
+              "selector": "L8–9",
+              "integrated_at_report_cut": false,
+              "static_design_GO": true,
+              "protocol_reported_outcome": "9/1",
+              "CAS03_reported_outcome": "5/4",
+              "public_export_outcomes_blocked_before_HTTP_assertions": 8,
+              "scope": "Separate later candidate attempt; do not sum with pre-repair or earlier replay cohorts."
+            },
+            {
+              "id": "earlier_public_export_design_axes",
+              "source_key": "FINAL",
+              "selector": "L11",
+              "scope": "Separate earlier replay; no denominator or new run inferred here."
+            }
+          ],
+          "historical_claim_superseded_only_in_scope": "The canonical-ID patch being unintegrated is superseded as a current-HEAD claim; frozen FINAL_REPORT and earlier cohort outcomes remain historical evidence.",
+          "current_integration": {
+            "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+            "patch_integrated": true,
+            "source_key": "ARTIFACT_STORE_FINAL",
+            "receipt_source_key": "R9_CANONICAL_RECEIPT",
+            "receipt_selector": "L5–26",
+            "CAS03_failures_reported": 4,
+            "corrected_fixture_HTTP_issuance": 201,
+            "corrected_fixture_HTTP_verification": 200,
+            "report_authentication": "invalid",
+            "closure_established": false,
+            "new_product_run_here": false,
+            "frozen_FINAL_REPORT_updated": false,
+            "earlier_cohorts_additive": false,
+            "eager_full_input_materialization_remains": true
+          }
+        },
+        {
+          "id": "MORNING-N6",
+          "subject": "N6 selected source-view reuse",
+          "standing": "exact_manifest_view_custody_required_existing_boundary",
+          "current_summary": "Bare artifact ID недостаточен для повторного открытия exact selected manifest view.",
+          "remaining": "Proposed engineering repair preserves typed ArtifactRef plus exact manifest-profile selector through versioned run/preservation source-ref projection and existing readers. GenerationSourceRepository.persist609–640 currently receives typed store ref but returns str(ref.artifact_id); historical v1–v4 bytes must remain intact. Closure is not reported.",
+          "source_keys": [
+            "OP",
+            "GENERATION_SOURCE"
+          ],
+          "programme_effect": "Carry exact native view identity through the selected consumer; no new general custody programme or fabricated historical view."
+        }
+      ],
+      "current_remaining_scope_delta_non_exhaustive": [
+        "New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration.",
+        "Proposed engineering repair preserves typed ArtifactRef plus exact manifest-profile selector through versioned run/preservation source-ref projection and existing readers. GenerationSourceRepository.persist609–640 currently receives typed store ref but returns str(ref.artifact_id); historical v1–v4 bytes must remain intact. Closure is not reported."
+      ],
+      "unaddressed_scope_rule": "This is a non-exhaustive morning delta. Unaddressed historical scientific, data, issuer/root-completeness, authority and other scope limits remain unresolved unless this readback expressly supersedes them; in particular B194 is not discharged by B197 progress.",
+      "other_fields_basis": "Historical analytical options and source limits, not a new current-code audit. Current reported readback supersedes only its expressly named scope."
+    },
+    {
+      "id": "DEV-DEC-r9_publication_atomic",
+      "title": "Owner-index commit и raw-path lifetime",
+      "observed_standing": "Reported local source readback 2026-10-01: Canonical-ID patch интегрирован в HEAD8b40f8f5: store deduplicates typed IDs by .hex while preserving typed return values. Eager full input materialization remains. Refusal сохраняет точный scope V2 production-approval issuance/currentness. New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration. Ledger owner scope уточнён как R9 CAS runtime + finding-level verification. Индивидуальные appointments не установлены. Ledger owner scope уточнён как R9 CAS runtime + finding-level verification. Индивидуальные appointments не установлены. Отдельно consumer_missing для production all-confirmations. Ledger owner scope уточнён как R9 CAS runtime + finding-level verification. Индивидуальные appointments не установлены.",
+      "question": "Где единый linearization point для blob/manifest/owner admission/read и какой crash/recovery contract?",
+      "recommendation_not_adopted": "Сохранить existing owner generation direction как current baseline; получить precise capability-mediated commit/read protocol and failure-point tests. SQLite versus JSON — measurement-driven storage choice, а не решение о tenant authority. Raw Path выдача требует отдельного scoped handle/guarded open решения.",
+      "options": [
+        "Immutable generation + atomic pointer: clear history, fsync/recovery complexity",
+        "Single envelope/journal: alternate commit shape, still same ownership/retention obligations",
+        "SQLite indexed owner: lower asymptotic lookup/update costs if measured, expensive persisted migration",
+        "Per-site locks alone: cannot cover shared publisher/readers or retained OS path"
+      ],
+      "scope": "Core ownership publication/mutation/read lease, not policy execution",
+      "owner_or_missing_allocation": "FileSystemCAS + ArtifactOwnershipIndex; exact outside-raw-filesystem actor set unresolved",
+      "reversible_discriminator": "Pause after sidecar before owner commit; ambient read must wait/refuse; crash each fsync boundary; retained raw-path after claim test",
+      "defer_commitment": "Persisted source-of-truth replacement, lost historical pairs, unconditional deployment rollout",
+      "external_or_decision_wait": "Owner decision + read/write caller census first; crash/inventory environment time separate",
+      "remaining_scope": [
+        "O(N)/Θ(N²) scale unmeasured; no automatic storage rewrite",
+        "Current index.lock exists; missing CAS-wide transaction is not absence of cross-instance index serialization",
+        "Hash cannot reconstruct overwritten legacy bytes"
+      ],
+      "analytical_homes": [
+        "DEV-C",
+        "DEV-H",
+        "DEV-O",
+        "DEV-N",
+        "DEV-R"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:334–341,419–448,897–904,952–959",
+        "DECISION_RECORDS:4337–4389,4661–4675"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes",
+      "historical_evidence": {
+        "observed_standing": "Immutable generations/pointer landed; operational safety and full lease coverage unresolved",
+        "recommendation_not_adopted": "Сохранить existing owner generation direction как current baseline; получить precise capability-mediated commit/read protocol and failure-point tests. SQLite versus JSON — measurement-driven storage choice, а не решение о tenant authority. Raw Path выдача требует отдельного scoped handle/guarded open решения.",
+        "source_locators": [
+          "OPEN_PREMISES:334–341,419–448,897–904,952–959",
+          "DECISION_RECORDS:4337–4389,4661–4675"
+        ],
+        "materialized_E02_cut": "2026-09-30T17:57:48Z",
+        "materialized_decision_file_cut": "2026-09-30T17:31:36Z"
+      },
+      "current_reported_readback": [
+        {
+          "id": "MORNING-R9",
+          "subject": "R9",
+          "standing": "canonical_ID_patch_integrated_V2_authority_boundary_and_failures_remain",
+          "current_summary": "Canonical-ID patch интегрирован в HEAD8b40f8f5: store deduplicates typed IDs by .hex while preserving typed return values. Eager full input materialization remains. Refusal сохраняет точный scope V2 production-approval issuance/currentness.",
+          "remaining": "New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration.",
+          "source_keys": [
+            "DR",
+            "FINAL",
+            "R9_CANONICAL_RECEIPT",
+            "ARTIFACT_STORE_FINAL"
+          ],
+          "programme_effect": "Reuse integrated canonical-ID repair within existing R9 owner. Keep remaining CAS, report authentication, production all-confirmations and scoped issuance/currentness boundaries; no new custody platform or automatic closure.",
+          "cohorts": [
+            {
+              "id": "pre_repair",
+              "head": "d0e65aa",
+              "source_key": "FINAL",
+              "selector": "L7",
+              "reported_pass_to_fail": 9,
+              "breakdown": {
+                "hashability_inventory": 8,
+                "manifest_read_count": 1
+              },
+              "scope": "E02 to d0 bounded protocol/CAS-03 comparison, not whole-product regression."
+            },
+            {
+              "id": "canonical_ID_candidate",
+              "candidate": "codex/e02-r2-r9-publication@336d0ab",
+              "source_key": "FINAL",
+              "selector": "L8–9",
+              "integrated_at_report_cut": false,
+              "static_design_GO": true,
+              "protocol_reported_outcome": "9/1",
+              "CAS03_reported_outcome": "5/4",
+              "public_export_outcomes_blocked_before_HTTP_assertions": 8,
+              "scope": "Separate later candidate attempt; do not sum with pre-repair or earlier replay cohorts."
+            },
+            {
+              "id": "earlier_public_export_design_axes",
+              "source_key": "FINAL",
+              "selector": "L11",
+              "scope": "Separate earlier replay; no denominator or new run inferred here."
+            }
+          ],
+          "historical_claim_superseded_only_in_scope": "The canonical-ID patch being unintegrated is superseded as a current-HEAD claim; frozen FINAL_REPORT and earlier cohort outcomes remain historical evidence.",
+          "current_integration": {
+            "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+            "patch_integrated": true,
+            "source_key": "ARTIFACT_STORE_FINAL",
+            "receipt_source_key": "R9_CANONICAL_RECEIPT",
+            "receipt_selector": "L5–26",
+            "CAS03_failures_reported": 4,
+            "corrected_fixture_HTTP_issuance": 201,
+            "corrected_fixture_HTTP_verification": 200,
+            "report_authentication": "invalid",
+            "closure_established": false,
+            "new_product_run_here": false,
+            "frozen_FINAL_REPORT_updated": false,
+            "earlier_cohorts_additive": false,
+            "eager_full_input_materialization_remains": true
+          }
+        },
+        {
+          "id": "MORNING-B152",
+          "subject": "B152",
+          "official_status": "partial",
+          "standing": "owner_scope_refined_individual_appointment_not_established",
+          "current_summary": "Ledger owner scope уточнён как R9 CAS runtime + finding-level verification.",
+          "remaining": "Индивидуальные appointments не установлены.",
+          "source_keys": [
+            "LEDGER_MD_FINAL",
+            "LEDGER_JSON_FINAL"
+          ],
+          "selectors": [
+            "L340"
+          ],
+          "programme_effect": "Use the existing finding-level repair boundary; owner wording is not an appointment, integrated consumer or closure.",
+          "new_literal_values_materialized": false
+        },
+        {
+          "id": "MORNING-B154",
+          "subject": "B154",
+          "official_status": "partial",
+          "standing": "owner_scope_refined_individual_appointment_not_established",
+          "current_summary": "Ledger owner scope уточнён как R9 CAS runtime + finding-level verification.",
+          "remaining": "Индивидуальные appointments не установлены. Отдельно consumer_missing для production all-confirmations.",
+          "source_keys": [
+            "LEDGER_MD_FINAL",
+            "LEDGER_JSON_FINAL"
+          ],
+          "selectors": [
+            "L342"
+          ],
+          "programme_effect": "Use the existing finding-level repair boundary; owner wording is not an appointment, integrated consumer or closure.",
+          "new_literal_values_materialized": false
+        },
+        {
+          "id": "MORNING-B155",
+          "subject": "B155",
+          "official_status": "partial",
+          "standing": "owner_scope_refined_individual_appointment_not_established",
+          "current_summary": "Ledger owner scope уточнён как R9 CAS runtime + finding-level verification.",
+          "remaining": "Индивидуальные appointments не установлены.",
+          "source_keys": [
+            "LEDGER_MD_FINAL",
+            "LEDGER_JSON_FINAL"
+          ],
+          "selectors": [
+            "L343"
+          ],
+          "programme_effect": "Use the existing finding-level repair boundary; owner wording is not an appointment, integrated consumer or closure.",
+          "new_literal_values_materialized": false
+        }
+      ],
+      "current_remaining_scope_delta_non_exhaustive": [
+        "New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration.",
+        "Индивидуальные appointments не установлены.",
+        "Индивидуальные appointments не установлены. Отдельно consumer_missing для production all-confirmations.",
+        "Индивидуальные appointments не установлены."
+      ],
+      "unaddressed_scope_rule": "This is a non-exhaustive morning delta. Unaddressed historical scientific, data, issuer/root-completeness, authority and other scope limits remain unresolved unless this readback expressly supersedes them; in particular B194 is not discharged by B197 progress.",
+      "other_fields_basis": "Historical analytical options and source limits, not a new current-code audit. Current reported readback supersedes only its expressly named scope."
+    },
+    {
+      "id": "DEV-DEC-r9_approval_v3",
+      "title": "Scoped V3 approval и принятая потеря V2 availability",
+      "observed_standing": "Reported local source readback 2026-10-01: Canonical-ID patch интегрирован в HEAD8b40f8f5: store deduplicates typed IDs by .hex while preserving typed return values. Eager full input materialization remains. Refusal сохраняет точный scope V2 production-approval issuance/currentness. New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration.",
+      "question": "Как issue/currentness recompute exact packet-scoped claims under same store lease without staling on unrelated tenant writes?",
+      "recommendation_not_adopted": "Следовать принятой V2 suspension. Исследовать V3 strict nested binding of exact scorecard/basis/decision/request/tenant/cell/selected profiles, с independent owner resolver; activation/drain only after deployed inventory and approved transition.",
+      "options": [
+        "Scoped V3 projection: meaningful currentness, coordinated API/schema/owner migration",
+        "Global-generation compare: simpler but unrelated writes invalidate all; reject absent explicit product need",
+        "Format-only/digest-only V2 exception: superseded/rejected, TOCTOU and missing scoped truth",
+        "Narrow interim only after owner-atomic publication plus scoped resolver; fresh principal review required"
+      ],
+      "scope": "Served production approval issuer/currentness at shared HumanDecisionService only",
+      "owner_or_missing_allocation": "Core ownership/store; control DTO; approval builder; HumanDecisionService/sink; routes/composition; deployment; generated API owners",
+      "reversible_discriminator": "Relevant owner-claim removal under intact signature must stale/refuse; unrelated tenant mutation preserves current; no new publication required for research",
+      "defer_commitment": "First v3 persisted write/one-way rollout, drain old writers, history mapping and currentness promise",
+      "external_or_decision_wait": "High cross-owner decision lead and live-store inventory wait; not a small packet-field change",
+      "remaining_scope": [
+        "V2 bytes/signatures readable != approval operationally current",
+        "Pointer writer unconditional in code; ruling does not authorize global production activation",
+        "Zero committed raw fixtures != zero live packets; complete importer census remains open"
+      ],
+      "analytical_homes": [
+        "DEV-H",
+        "DEV-O",
+        "DEV-C",
+        "DEV-M1",
+        "DEV-P1"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:978–1016",
+        "DECISION_RECORDS:4677–4747"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes",
+      "historical_evidence": {
+        "observed_standing": "Temporary all-format V2 refusal ruled; V3 design/rollout remains open",
+        "recommendation_not_adopted": "Следовать принятой V2 suspension. Исследовать V3 strict nested binding of exact scorecard/basis/decision/request/tenant/cell/selected profiles, с independent owner resolver; activation/drain only after deployed inventory and approved transition.",
+        "source_locators": [
+          "OPEN_PREMISES:978–1016",
+          "DECISION_RECORDS:4677–4747"
+        ],
+        "materialized_E02_cut": "2026-09-30T17:57:48Z",
+        "materialized_decision_file_cut": "2026-09-30T17:31:36Z"
+      },
+      "current_reported_readback": [
+        {
+          "id": "MORNING-R9",
+          "subject": "R9",
+          "standing": "canonical_ID_patch_integrated_V2_authority_boundary_and_failures_remain",
+          "current_summary": "Canonical-ID patch интегрирован в HEAD8b40f8f5: store deduplicates typed IDs by .hex while preserving typed return values. Eager full input materialization remains. Refusal сохраняет точный scope V2 production-approval issuance/currentness.",
+          "remaining": "New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration.",
+          "source_keys": [
+            "DR",
+            "FINAL",
+            "R9_CANONICAL_RECEIPT",
+            "ARTIFACT_STORE_FINAL"
+          ],
+          "programme_effect": "Reuse integrated canonical-ID repair within existing R9 owner. Keep remaining CAS, report authentication, production all-confirmations and scoped issuance/currentness boundaries; no new custody platform or automatic closure.",
+          "cohorts": [
+            {
+              "id": "pre_repair",
+              "head": "d0e65aa",
+              "source_key": "FINAL",
+              "selector": "L7",
+              "reported_pass_to_fail": 9,
+              "breakdown": {
+                "hashability_inventory": 8,
+                "manifest_read_count": 1
+              },
+              "scope": "E02 to d0 bounded protocol/CAS-03 comparison, not whole-product regression."
+            },
+            {
+              "id": "canonical_ID_candidate",
+              "candidate": "codex/e02-r2-r9-publication@336d0ab",
+              "source_key": "FINAL",
+              "selector": "L8–9",
+              "integrated_at_report_cut": false,
+              "static_design_GO": true,
+              "protocol_reported_outcome": "9/1",
+              "CAS03_reported_outcome": "5/4",
+              "public_export_outcomes_blocked_before_HTTP_assertions": 8,
+              "scope": "Separate later candidate attempt; do not sum with pre-repair or earlier replay cohorts."
+            },
+            {
+              "id": "earlier_public_export_design_axes",
+              "source_key": "FINAL",
+              "selector": "L11",
+              "scope": "Separate earlier replay; no denominator or new run inferred here."
+            }
+          ],
+          "historical_claim_superseded_only_in_scope": "The canonical-ID patch being unintegrated is superseded as a current-HEAD claim; frozen FINAL_REPORT and earlier cohort outcomes remain historical evidence.",
+          "current_integration": {
+            "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+            "patch_integrated": true,
+            "source_key": "ARTIFACT_STORE_FINAL",
+            "receipt_source_key": "R9_CANONICAL_RECEIPT",
+            "receipt_selector": "L5–26",
+            "CAS03_failures_reported": 4,
+            "corrected_fixture_HTTP_issuance": 201,
+            "corrected_fixture_HTTP_verification": 200,
+            "report_authentication": "invalid",
+            "closure_established": false,
+            "new_product_run_here": false,
+            "frozen_FINAL_REPORT_updated": false,
+            "earlier_cohorts_additive": false,
+            "eager_full_input_materialization_remains": true
+          }
+        }
+      ],
+      "current_remaining_scope_delta_non_exhaustive": [
+        "New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration."
+      ],
+      "unaddressed_scope_rule": "This is a non-exhaustive morning delta. Unaddressed historical scientific, data, issuer/root-completeness, authority and other scope limits remain unresolved unless this readback expressly supersedes them; in particular B194 is not discharged by B197 progress.",
+      "other_fields_basis": "Historical analytical options and source limits, not a new current-code audit. Current reported readback supersedes only its expressly named scope."
+    },
+    {
+      "id": "DEV-DEC-signed_store_backend",
+      "title": "Узкий signed-store capability по admitted backend",
+      "observed_standing": "Filesystem typed capability implemented; other backends/deployment support not established",
+      "question": "Какие ID forms/result semantics и exact manifest/signature custody действительно поддерживает backend?",
+      "recommendation_not_adopted": "Продолжить separate optional SignatureVerifyingArtifactStore/canonical adapter, оставляя generic ArtifactStore backend-neutral. Cloud signing capability добавлять только под named consumer и real configured owner policy.",
+      "options": [
+        "Concrete admitted filesystem capability: small proven scope",
+        "Backend-neutral exact-byte evidence contract: reuse where genuine S3/GCS signed consumer exists, more IAM/custody tests",
+        "Typed unsupported signed use while unsigned candidate data remains available"
+      ],
+      "scope": "Promotion signed source and exact selected manifest, not all storage methods",
+      "owner_or_missing_allocation": "Core store/signing; PromotionSafety owner; cloud adapters allocated only if required",
+      "reversible_discriminator": "Canonical valid/malformed/mutated-ID tests through actual guarded composition; selected sidecar for wrong view rejected",
+      "defer_commitment": "All-backend signing guarantee; infer method-callability as verifier contract; permanent cloud trust by fake-client tests",
+      "external_or_decision_wait": "Backend set and deployment witness needed; FS repair not new development work",
+      "remaining_scope": [
+        "R10 newer addendum supersedes raw-string dynamic N9 call; other caller/backend claims remain",
+        "Guarded local cache tenant test later passed, but no served HTTP or cloud IAM/signature proof"
+      ],
+      "analytical_homes": [
+        "DEV-H",
+        "DEV-O",
+        "DEV-C"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:449–466,906–931"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-r13_world_growth",
+      "title": "Один canonical growth path, evidence реально меняет N5",
+      "observed_standing": "R13 demo-boundary principal proposal pending; canonical projection partly built; no complete WDI N5 positive",
+      "question": "Как source admitted row становится scientific model input в том же case, не вторым world writer?",
+      "recommendation_not_adopted": "Сохранять one DataForge overlay/passport/epoch path, но первым выбрать genuinely compatible observation/slot/time/model question. Не насильно завершать named WDI example, где percent_gdp попадает в USD stock. Controlled state experiment полезен отдельно от real-growth claim.",
+      "options": [
+        "Native active-row→DataSnapshot.data_ref→Foundry state→WMR/context→N5: coherent useful growth",
+        "Admission+receipt only with typed selected_observation_unbound: честный interim",
+        "Route-shaped local FileTabular rebuild or copied snapshot IDs: не growth, keep explicit demonstration scope"
+      ],
+      "scope": "B12/R13 canonical growth; B09 dependent calculation distinct; LA046 compiler profile distinct",
+      "owner_or_missing_allocation": "DataForge overlay/materialization + DataState/S1 + WMR/context + AcquisitionWorldGrowthBridge/N5",
+      "reversible_discriminator": "Hold admission/epoch markers fixed, remove only actual data_ref state handoff; same candidate grammar unchanged must alter supported numerical input/output",
+      "defer_commitment": "New WDI-specific store/WMR writer; source-to-slot conversion without semantic owner; source-job scope borrowed after completion",
+      "external_or_decision_wait": "Source contract may dominate even with baseline wiring complete; choose alternative compatible case before universal mapping",
+      "remaining_scope": [
+        "Observation not causal structure; SKG prior derivation/admissible baseline needs decision",
+        "2024 percent_gdp vs USD stock and through2023-07 profile unresolved",
+        "Controlled14/14 N5 state tests not served WDI, exact run tree and actual handoff removal UNRUN"
+      ],
+      "analytical_homes": [
+        "DEV-E1",
+        "DEV-E2",
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-P2",
+        "DEV-P3",
+        "DEV-M2"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:155–214,535–540,739–757,861–886,1025–1037",
+        "DECISION_RECORDS:3248–3929"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-r13_graph_plan",
+      "title": "World graph, policy graph и ExecPlan",
+      "observed_standing": "Owner appointment/selector draft pending; typed v2 limitations now exist",
+      "question": "Кто выбирает world-model graph и exact execution order for WMR, и как сохранить information/time semantics?",
+      "recommendation_not_adopted": "Сначала confirm existing world-model producer; если его нет в exact scoped census, allocate missing native function. Native graph+plan selection must persist model phase, registry, order and job scope. WMR extension против owner envelope выбрать по complete reuse/change scenarios.",
+      "options": [
+        "Versioned WMR with typed plan: coherent if all WMR consumers need that identity, broad migration",
+        "Owner-issued plan selection envelope bound to WMR: narrower, extra lifecycle",
+        "Controlled direct ProgramGraph candidate characterization: keeps option value; not served authority",
+        "Use policy CompileResult because types match: reject"
+      ],
+      "scope": "R13 state→N5 handoff; not every simulation engine must use ProgramGraph",
+      "owner_or_missing_allocation": "World-model/WMR + Foundry + runtime selection; organizational appointment unknown",
+      "reversible_discriminator": "Same graph different order, policy-phase graph with same ref kinds, changed state and plan-binding removal",
+      "defer_commitment": "Global execution-plan schema and enforced horizon translation before method-specific meaning is decided",
+      "external_or_decision_wait": "Scientific/execution interpretation must precede stable schema; simple controlled characterization can proceed",
+      "remaining_scope": [
+        "N5 now persists state_consumption.exec_plan_provenance/horizon_time_alignment; absence wording superseded only as carrier",
+        "Report present != quality/mapping checks run; warning disposition and graph-internal lineage separate"
+      ],
+      "analytical_homes": [
+        "DEV-P1",
+        "DEV-P2",
+        "DEV-P3",
+        "DEV-N",
+        "DEV-R",
+        "DEV-M1",
+        "DEV-H"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:861–886,1025–1030",
+        "DECISION_RECORDS:4586–4659"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-source_semantic_identifiers",
+      "title": "Source vocabulary: country, variable, vintage",
+      "observed_standing": "General shared contracts not established; bounded exact WDI route engineerable",
+      "question": "Какие source-declared code systems/variable identities/update-time facts можно переносить между owners?",
+      "recommendation_not_adopted": "Bound exact known route first, preserving raw values and source binding. Shared CanonicalVariableRef only after live producer/consumer grammar census; no alias registry from matching tokens. Temporal source facts remain publisher-owned.",
+      "options": [
+        "WDI-specific ISO3 proven mapping + exact canonical outcome: narrow useful contract",
+        "Cross-owner typed reference/code-system contract: later reuse when two sources need same meaning",
+        "Generic slug/ISO token inference: high false equivalence risk"
+      ],
+      "scope": "Country code, canonical variable and publisher vintage are three predicates, not one mapping",
+      "owner_or_missing_allocation": "DataForge catalog/alignment/overlay; IR slot grammar; DesignProblem version; N8 source selector",
+      "reversible_discriminator": "Non-WDI ISO-like collision, dotted variable without source binding, changed outcome before hash vs after; preserve same WDI route control",
+      "defer_commitment": "Globally loosen exported DTO regex; conflate display ID with semantic identity; future currentness from retrieval digest",
+      "external_or_decision_wait": "Narrow owner design short; publisher evidence and universal grammar agreement unbounded",
+      "remaining_scope": [
+        "Country UA/UKR mapping not source-time or slot USD/%GDP conversion",
+        "Historic DesignProblemv1/v2 grammar and hashes must remain frozen"
+      ],
+      "analytical_homes": [
+        "DEV-E1",
+        "DEV-E2",
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-C"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:561–590",
+        "DECISION_RECORDS:4487–4507"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-public_uncertainty",
+      "title": "Три разные uncertainty owner decisions",
+      "observed_standing": "B31/B201/B202 held; public schema drafts unadopted",
+      "question": "Как сохранить identification set, statistical interval, point functional и ordered joint draws без взаимной подмены?",
+      "recommendation_not_adopted": "Additive native versioned representation: keep identification bounds separate; preserve asymmetric original interval and declared meaning; point functional independently tagged; reuse PosteriorSamplesCarrier and content-bound persisted draw ref. Не требовать mean inside equal-tail interval.",
+      "options": [
+        "Add separate interval/point/joint channels: highest semantic fidelity, coordinated persistence/readers",
+        "Median-tag compatibility projection: only for consumer explicitly requiring enclosed point; mean separate",
+        "Producer-local candidate limitation until semantics agreed: honest interim",
+        "Symmetric proxy width or CI as identification lower/upper: reject"
+      ],
+      "scope": "B31 ValueOuterSet; B201 IR point/interval; B202 law/carrier. One shared schema direction does not appoint one owner",
+      "owner_or_missing_allocation": "Existing ValueOuterSet/public IR owner(s), Foundry producer and concrete consumer; served path missing in inspected helper",
+      "reversible_discriminator": "Point-identified[point,point] plus CI[1,10];100× unit transformation; skewed posterior mean outside equal-tail interval; two paired-draw joint laws with same marginals",
+      "defer_commitment": "Stable public schema and historical serializer migration; implied coverage/sampler validity from two floats",
+      "external_or_decision_wait": "Semantic owner decision before code; scientific calibration and consumer delivery separate",
+      "remaining_scope": [
+        "B201/B202→DS16 exact edges explicitly removed; contextual program use is not new row mapping",
+        "B31 test-first RED is not regression; no production helper consumer or receipt constructor proved",
+        "Calibration validity/mixing/effective sample size and actual source law still separate"
+      ],
+      "analytical_homes": [
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-N",
+        "DEV-R",
+        "DEV-P2",
+        "DEV-P3"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:1001–1008",
+        "DECISION_RECORDS:4092–4170,4721–4735"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-public_abi",
+      "title": "Поддержанный API и внутренние owner seams",
+      "observed_standing": "Core/IR/DFK owner dispositions pending; provisional code != ABI approval",
+      "question": "Какой smallest stable API нужен реальному consumer и какие старые addresses действительно поддержаны?",
+      "recommendation_not_adopted": "Internal ownership where sufficient; prefer narrow existing-root export or injection over whole-facade promotion when a public consumer genuinely needs it. Retain one registry owner; require supported-client evidence only when owner asserts support, not infinitely for every internal shim.",
+      "options": [
+        "Internal facade: low commitment but reconcile conflicting docs/contract",
+        "Inject existing ArtifactStore/accessor: explicit custody, caller census needed",
+        "Two exact root exports: bounded stable compatibility promise",
+        "Whole core.artifacts / ir.kernel facade admission: broad __all__ promise, only explicit benefit",
+        "Retire placeholder/internal module: after owner decision and package/canonical positive/removal proof"
+      ],
+      "scope": "Core factory facade; IR slot grammar; LA005/026/027 distinct schema support questions",
+      "owner_or_missing_allocation": "Core/public-surface architecture; IR owner; Foundry/DataForge schema + plan + packaging owners",
+      "reversible_discriminator": "Built wheel/sdist outside checkout, actual import canonical object identity, remove export/restore retired placeholder; no live user migration performed",
+      "defer_commitment": "Whole-facade ABI/deprecation obligations, new codegen engine from name alone, duplicate schema registry",
+      "external_or_decision_wait": "Owner disposition short if no real support claim; external installed consumers/payload inventory can dominate",
+      "remaining_scope": [
+        "LA005 absence in allowlist vs docstring conflict; retirement conditional on owner",
+        "LA026 empty descriptor not request for new generator",
+        "LA027 kernel/schemas actual owner vs pipeline/schemas alias/plan; plan amendment not made",
+        "Exact guardrail red attribution not necessarily internal facade fault"
+      ],
+      "analytical_homes": [
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-C",
+        "DEV-N",
+        "DEV-R"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:343–351,419–448,796–810",
+        "DECISION_RECORDS:4171–4240,4413–4462"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-governed_reissue",
+      "title": "Новый epoch и незаменимая история",
+      "observed_standing": "R3 choice and owner transitions pending; merged-base principle already ruled",
+      "question": "Нужен current epoch transition или доказанный live dual-epoch consumer?",
+      "recommendation_not_adopted": "Новый current consumer нужен → smallest authorized owner transition with exact old/new bytes/readback; dual-epoch only for named live necessity. History unreadable? Recover actual owner-bound snapshot, not first Git commit heuristic.",
+      "options": [
+        "Single current transition: smaller future logic, one-way admission requires authorization",
+        "Dual epoch: greater compatibility cost; actual consumer must justify",
+        "Typed historical/current limitation: avoids false restamp, candidate work continues"
+      ],
+      "scope": "N9 comparison epoch; generated profiles/trust posture; W5 historical refs versus WS2D current refs separately",
+      "owner_or_missing_allocation": "Registered artifact owners/principal/security as applicable; architect records official rows",
+      "reversible_discriminator": "Freeze old bytes; mock fresh owner transition in research fixture; current/old mixed-epoch negatives; historical source-tree sidecar exact verified membership",
+      "defer_commitment": "Restamp original manifest, rebuild history by current Pydantic model, unknown live population migration",
+      "external_or_decision_wait": "Owner approval/data recovery can dominate; no generic “green generator” deadline",
+      "remaining_scope": [
+        "OpenAPI10leaf drift repeatable, environmental cause not established",
+        "N8 dependency companion later PASS only companion, six governing issues remain",
+        "Host darwin marker target not cross-platform identity; owner portability scope distinct"
+      ],
+      "analytical_homes": [
+        "DEV-C",
+        "DEV-H",
+        "DEV-O"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:294–332,758–784",
+        "DECISION_RECORDS:1681–1703,1395–1507,3931–4076",
+        "REGISTER_PROPOSALS:261–270"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-tenant_control_rows",
+      "title": "Control row visibility и историческая принадлежность",
+      "observed_standing": "New TCS01 row proposal only; three later policy premises distinct",
+      "question": "Кто видит job после tenant/cell schema migration и registry reassignment?",
+      "recommendation_not_adopted": "New rows immutable verified tenant/cell binding; unknown historic owner hidden. Исторический rehome только independently sourced transition. Existing action permission and object ownership both required, but row isolation does not wait for optional vocabulary decision.",
+      "options": [
+        "Exact tenant/cell current routing: safest baseline, old-cell continuity unavailable",
+        "Authorized historical rehome/lookup: broader product continuity, provenance/audit cost",
+        "Infer owner from caller/payload/run ID: reject",
+        "Dedicated status permission versus runs.view: owner chooses actual role meaning"
+      ],
+      "scope": "TCS01 served job/Lex readers, not all internal completed-job readers or workers/outbox audience",
+      "owner_or_missing_allocation": "ControlPlaneStore/Service; registry reassignment owner; permission/policy owner",
+      "reversible_discriminator": "Same-admin foreign row vs missing row parity; reassign cell; unknown legacy row; role denial under same ownership",
+      "defer_commitment": "Retroactive tenant claiming, global worker/outbox audience policy, broad serialization of request privileges",
+      "external_or_decision_wait": "Historical row inventory and assignment decision may wait; safe new writes/reads independently proceed",
+      "remaining_scope": [
+        "Original proposal tenant-only superseded by later exacttenant/cell task; preserve that chronology",
+        "Task lease/source path correction implementation management, not new product authority"
+      ],
+      "analytical_homes": [
+        "DEV-H",
+        "DEV-O",
+        "DEV-C",
+        "DEV-E1",
+        "DEV-E2"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:593–614",
+        "REGISTER_PROPOSALS:5–13"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-finite_window",
+      "title": "Частичное положительное evidence без ложной полноты",
+      "observed_standing": "FWC01 proposed task, latest semantics reviewed; no principal decision needed for narrow candidate grade",
+      "question": "Как различать exact admitted movement от complete scan/absence/uniqueness?",
+      "recommendation_not_adopted": "Owner pagination/high-water completeness плюс two dimensions: evidence of this row and scan completeness. CycleBoard can show admitted positive with partial limitation; RouteLoop closure uniqueness must await complete query. Это локальный shared reader contract, не новый event platform.",
+      "options": [
+        "Complete bounded paging: clearer absence/uniqueness, resource cost",
+        "Budget-limited partial scan: useful positive retained, no whole-set claims",
+        "Raise500/1000 caps: hides same boundary, not solution"
+      ],
+      "scope": "ControlPlaneStore/RuntimeDiagnosticEventLog→RouteLoop/MovementService; no N6 whole-production enumeration inferred",
+      "owner_or_missing_allocation": "Existing event owner + exact consumers",
+      "reversible_discriminator": "501st terminal and1001stmovement, later duplicate matching terminal, interrupted paging; remove page advancement but retain markers",
+      "defer_commitment": "Claim complete world/cycle population from finite window or one positive row",
+      "external_or_decision_wait": "Owner vocabulary/pagination choice before code; protected incomplete-set use would need separate principal decision",
+      "remaining_scope": [
+        "Full CycleBoard run enumeration GY-GAP5 separate",
+        "Older withdrawn Board “silent loss” allegation does not invalidate later precise completeness proposal"
+      ],
+      "analytical_homes": [
+        "DEV-C",
+        "DEV-E1",
+        "DEV-E2",
+        "DEV-H",
+        "DEV-O"
+      ],
+      "source_locators": [
+        "REGISTER_PROPOSALS:191–227",
+        "OPEN_PREMISES:961–969"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-execution_envelopes",
+      "title": "Локальные invariants и operated runtime promises",
+      "observed_standing": "Typed external/appointment residuals; local mechanism work not globally blocked",
+      "question": "Какие concurrency/durability/transport claims реально нужны supported deployment?",
+      "recommendation_not_adopted": "Начинать с explicit local envelope and actual owner consumer; покупать/строить distributed guarantee только при named use. Common environment reuse saves setup but does not transfer proof between algorithms.",
+      "options": [
+        "Local deterministic/checkpoint tests: cheaper bounded capability",
+        "Operated Ray/Temporal/PG/cloud proof: necessary for exact deployment promise, operations cost",
+        "Generic exactly-once claim from retry/dedup/local lock: reject"
+      ],
+      "scope": "B38/63/70/71/72/73/78/81/82/85/87/89/90 and federation B138/140/141/145 distinct",
+      "owner_or_missing_allocation": "Runtime state/lease/checkpoint, Fabric ingestion/federation, transport pool; external operators not appointed in records",
+      "reversible_discriminator": "Lost ack after actual effect, width-one skip/width-two peer resume, first durable tier crash, max_size1 teardown race, late contributor invalidation",
+      "defer_commitment": "Multi-host exactly-once, unbounded retention/rewind or general fed-protocol compatibility before explicit supported set",
+      "external_or_decision_wait": "External runtime access/operator and evidence-window calendar separate from coding",
+      "remaining_scope": [
+        "Local CAS checkpoint B73 not closed by Temporal history B72",
+        "Fallback after ambiguous effect must reconcile/unknown not repeat effect",
+        "DataComposer per-cell provenance/null/cardinality/collision semantics remain separate proofs"
+      ],
+      "analytical_homes": [
+        "DEV-N",
+        "DEV-R",
+        "DEV-C",
+        "DEV-E1",
+        "DEV-E2"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:369–403,720–737",
+        "OPEN_PREMISES:1095–1104",
+        "REGISTER_PROPOSALS:267,296",
+        "RESIDUAL_LEDGER:226",
+        "residual_ledger.json:4661–4663,4697–4704"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    },
+    {
+      "id": "DEV-DEC-source_lineage_reuse",
+      "title": "Полный consumed-input basis для reuse",
+      "observed_standing": "Reported local source readback 2026-10-01: Prepared source-read подключён к workflow consumers до cache lookup, с matching-path проверкой и сохранением borrowed-query lifecycle. Финальный ledger явно supersedes прежний v2 stale-ref blocker bounded V11 evidence. Held остаток — owner-issued SKG provenance/read handle и K_ref custody; техническая интеграция не назначает authority.",
+      "question": "Какие bytes/presence реально влияют на output и resume eligibility?",
+      "recommendation_not_adopted": "Reuse integrated prepared source-read consumers; preserve issuer/K_ref authority, exact consumed source/view and claim-relative currentness. Do not rebuild the same B61 bridge or infer whole D3/LA031/LA032 readiness.",
+      "options": [
+        "Actual input snapshot owner: correct invalidation, extra hashing/metadata",
+        "Required_sources-only manifest or mtime/size skip: cheap but same-size/optional-source escape",
+        "Full rebuild baseline: safe alternative when inventory cost outweighs reuse"
+      ],
+      "scope": "D3 optional inputs; LA032 shared demographic inputs; LA041 checkpoint byte/generation distinct; B61 actual consumed SKG bytes across three existing-ref fast paths",
+      "owner_or_missing_allocation": "DataForge stage config/normalized-source/manifest/public read API",
+      "reversible_discriminator": "Same declared5inputs but employment changes3/10 outputs; macro sibling mutation; resume actualbytes removal; historicalv1 replay",
+      "defer_commitment": "Blind full-corpus pipeline rewrite or mandatory optional-source completeness stopping all candidate work",
+      "external_or_decision_wait": "Output-affecting census/verification effort; source-time validity separate wait",
+      "remaining_scope": [
+        "LA031 actual-stage parity data record separate from import split",
+        "Macro/land/logistics and actual readAPI remain open; employment probe not all-source completeness"
+      ],
+      "analytical_homes": [
+        "DEV-C",
+        "DEV-E1",
+        "DEV-E2",
+        "DEV-N",
+        "DEV-R"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:820–830",
+        "REGISTER_PROPOSALS:241–246,272–283",
+        "OPEN_PREMISES:1105–1112",
+        "REGISTER_PROPOSALS:297",
+        "RESIDUAL_LEDGER:249,525",
+        "residual_ledger.json:6370–6372",
+        "OPEN_PREMISES:1129–1136",
+        "REGISTER_PROPOSALS:300",
+        "RESIDUAL_LEDGER:444,528",
+        "residual_ledger.json:20032–20034",
+        "REGISTER_PROPOSALS:301",
+        "RESIDUAL_LEDGER:445,529",
+        "residual_ledger.json:20168–20170"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes",
+      "historical_evidence": {
+        "observed_standing": "D3 optional-input divergence and LA032 mixed-layout counterexample recorded; LA031 D3 parity bounded; B61 prepared-read v2 NO-GO; broader census/served lineage open",
+        "recommendation_not_adopted": "Один run-scoped resolved source snapshot shared by builder/resume, rehash actual consumed bytes, version BuildRunManifest; optional absent remains typed candidate limitation. Общий LA032 inventory использовать у всех named readers без второго subsystem.",
+        "source_locators": [
+          "OPEN_PREMISES:820–830",
+          "REGISTER_PROPOSALS:241–246,272–283",
+          "OPEN_PREMISES:1105–1112",
+          "REGISTER_PROPOSALS:297",
+          "RESIDUAL_LEDGER:249,525",
+          "residual_ledger.json:6370–6372",
+          "OPEN_PREMISES:1129–1136",
+          "REGISTER_PROPOSALS:300",
+          "RESIDUAL_LEDGER:444,528",
+          "residual_ledger.json:20032–20034",
+          "REGISTER_PROPOSALS:301",
+          "RESIDUAL_LEDGER:445,529",
+          "residual_ledger.json:20168–20170"
+        ],
+        "materialized_E02_cut": "2026-09-30T17:57:48Z",
+        "materialized_decision_file_cut": "2026-09-30T17:31:36Z"
+      },
+      "current_reported_readback": [
+        {
+          "id": "MORNING-B61",
+          "subject": "B61",
+          "official_status": "held",
+          "standing": "prepared_read_consumers_integrated_authority_held",
+          "current_summary": "Prepared source-read подключён к workflow consumers до cache lookup, с matching-path проверкой и сохранением borrowed-query lifecycle. Финальный ledger явно supersedes прежний v2 stale-ref blocker bounded V11 evidence.",
+          "remaining": "Held остаток — owner-issued SKG provenance/read handle и K_ref custody; техническая интеграция не назначает authority.",
+          "historical_claim_superseded_only_in_scope": "Более широкий prepared-read маршрут описывался только как неинтегрированный v2 candidate/NO-GO.",
+          "source_keys": [
+            "TRANSPORT",
+            "B61_RECEIPT",
+            "LEDGER_MD_FINAL",
+            "LEDGER_JSON_FINAL"
+          ],
+          "receipt": {
+            "reported_document_name": "B61_PREPARED_READ_V11_INTEGRATION_RECEIPT.md",
+            "reported_lines": [
+              [
+                3,
+                29
+              ],
+              [
+                39,
+                46
+              ]
+            ],
+            "canonical_path": "docs/plans/active/agent-packages/PolicyOS_E02R2/B61_PREPARED_READ_V11_INTEGRATION_RECEIPT.md",
+            "sha256": "f2dc99d219790756a46c8eebcde625fb3be152befe2606dc71937c6c3482bdc4",
+            "reported_result": "121/121 across13 whole files",
+            "rerun_in_morning_inspection": false,
+            "hash_verification": "reported_local_not_rehashed_here"
+          },
+          "programme_effect": "Reuse prepared-read implementation. New E1/C work concerns the selected meaning, authority and useful source/currentness question, not the same cache bridge.",
+          "ledger_reported_evidence": {
+            "source_key": "LEDGER_MD_FINAL",
+            "selectors": [
+              "L249",
+              "L525"
+            ],
+            "present_whole_file_PASS_cells": 49,
+            "reported_outcomes": 393,
+            "historical_Git_absent_UNRUN": 3,
+            "earlier_receipt_count_additive": false,
+            "rerun_here": false,
+            "limit": "Current ledger records this bounded evidence scope; unchanged V11 receipt previously reported121/121 across13 whole files. These are not disjoint results to add, a new run here, or authority closure."
+          }
+        }
+      ],
+      "current_remaining_scope_delta_non_exhaustive": [
+        "Held остаток — owner-issued SKG provenance/read handle и K_ref custody; техническая интеграция не назначает authority."
+      ],
+      "unaddressed_scope_rule": "This is a non-exhaustive morning delta. Unaddressed historical scientific, data, issuer/root-completeness, authority and other scope limits remain unresolved unless this readback expressly supersedes them; in particular B194 is not discharged by B197 progress.",
+      "other_fields_basis": "Historical analytical options and source limits, not a new current-code audit. Current reported readback supersedes only its expressly named scope."
+    },
+    {
+      "id": "DEV-DEC-calibration_producers",
+      "title": "Нужный producer перед общим uncertainty transport",
+      "observed_standing": "Reported local source readback 2026-10-01: Внутренняя Calibrator → persisted report v2 → welfare Delta/MC цепочка интегрирована. Tied/singular Normal dependence сохраняется без jitter; mixed non-Normal covariance withholding сохраняет candidate point и отдельный robust outer bound. Frozen census at28ea3bb found no configured production construction Calibrator/CalibratorInputs or executable put_calibration_report caller; it is not a full current8b40f8f5 runtime census. Reachable internal typed intake seam remains: same INPUT_CALIBRATION_REPORT_REF is consumed as a distinct Funnel report schema.",
+      "question": "Как source/deployment-bound draw support и tie-group mapping доходят до actual authority consumer?",
+      "recommendation_not_adopted": "Reuse integrated internal Calibrator→persisted report v2→welfare Delta/MC. Keep B197 held; qualify configured production provenance and discriminate CalibrationReport@2.0 from FunnelCalibrationReport@1.0 at the shared input key. B194 failed-draw and public uncertainty decisions retain their separate scope.",
+      "options": [
+        "Bounded real producer and existing consumer: meaningful capability",
+        "Carrier-only DTO repair: mechanism but no supported estimate",
+        "Generic new calibration platform: duplicates existing owners and misses production bridge"
+      ],
+      "scope": "B194 draw support; B197 tie groups/covariance projection; B201/202 contract distinct",
+      "owner_or_missing_allocation": "Calibrator/persisted report, uncertainty adapter, served evaluator and shared intake",
+      "reversible_discriminator": "Grouped/untied fields differ as expected; same marginals different joint draws; remove source/deployment binding under markers",
+      "defer_commitment": "Claim covariance/calibration correctness from schema presence or marginal summary",
+      "external_or_decision_wait": "Producer/data validity and actual scope owner may dominate engineering",
+      "remaining_scope": [
+        "Public schema choice does not create sampler/served evaluator",
+        "Baseline E02 repair implementation not same as future scientific calibration content"
+      ],
+      "analytical_homes": [
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H",
+        "DEV-N",
+        "DEV-R",
+        "DEV-P2",
+        "DEV-P3"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:385–389,550–558",
+        "REGISTER_PROPOSALS:237–246",
+        "OPEN_PREMISES:1113–1120",
+        "REGISTER_PROPOSALS:299",
+        "RESIDUAL_LEDGER:385,527",
+        "residual_ledger.json:15949–15951",
+        "OPEN_PREMISES:1121–1128",
+        "REGISTER_PROPOSALS:298",
+        "RESIDUAL_LEDGER:382,526",
+        "residual_ledger.json:15654–15656"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes",
+      "historical_evidence": {
+        "observed_standing": "B194/B197 held; B197 design GO but persisted vertical not passing; B194 mixed failed-draw question untested; served producer/authority routes unestablished",
+        "recommendation_not_adopted": "Разделить producer scientific validity и generic carrier. B197 actual welfare consumer already exists; select one persisted calibrator→tie map→welfare path. B194 affine node не pretend full simulation evaluator; new served evaluator only if needed.",
+        "source_locators": [
+          "OPEN_PREMISES:385–389,550–558",
+          "REGISTER_PROPOSALS:237–246",
+          "OPEN_PREMISES:1113–1120",
+          "REGISTER_PROPOSALS:299",
+          "RESIDUAL_LEDGER:385,527",
+          "residual_ledger.json:15949–15951",
+          "OPEN_PREMISES:1121–1128",
+          "REGISTER_PROPOSALS:298",
+          "RESIDUAL_LEDGER:382,526",
+          "residual_ledger.json:15654–15656"
+        ],
+        "materialized_E02_cut": "2026-09-30T17:57:48Z",
+        "materialized_decision_file_cut": "2026-09-30T17:31:36Z"
+      },
+      "current_reported_readback": [
+        {
+          "id": "MORNING-B197",
+          "subject": "B197",
+          "official_status": "held",
+          "standing": "internal_vertical_integrated_production_intake_not_established",
+          "current_summary": "Внутренняя Calibrator → persisted report v2 → welfare Delta/MC цепочка интегрирована. Tied/singular Normal dependence сохраняется без jitter; mixed non-Normal covariance withholding сохраняет candidate point и отдельный robust outer bound.",
+          "remaining": "Frozen census at28ea3bb found no configured production construction Calibrator/CalibratorInputs or executable put_calibration_report caller; it is not a full current8b40f8f5 runtime census. Reachable internal typed intake seam remains: same INPUT_CALIBRATION_REPORT_REF is consumed as a distinct Funnel report schema.",
+          "historical_claim_superseded_only_in_scope": "Внутренняя persisted/numerical vertical ещё не passing или не реализована. Исторические неудачные receipts сохраняются как история.",
+          "source_keys": [
+            "OP",
+            "CALIBRATOR",
+            "UNCERTAINTY_ADAPTER",
+            "COVARIANCE",
+            "WELFARE",
+            "LEDGER_JSON",
+            "B197_RECEIPT",
+            "BLUEPRINT_CALLER",
+            "FUNNEL_PARSER"
+          ],
+          "receipt": {
+            "reported_document_name": "B197_COVARIANCE_RECEIPT.md",
+            "reported_lines": [
+              [
+                3,
+                24
+              ]
+            ],
+            "canonical_path": "docs/plans/active/agent-packages/PolicyOS_E02R2/B197_COVARIANCE_RECEIPT.md",
+            "sha256": "9019cb605e10d07149e7a5415e104ed42394d059e7ab4f9b76c3184c6dc28c89",
+            "reported_result": "58/58 canonical witness",
+            "rerun_in_morning_inspection": false,
+            "hash_verification": "reported_local_not_rehashed_here",
+            "underlying_witness_independently_rechecked": false
+          },
+          "programme_effect": "Reuse internal covariance/projection/welfare chain. Do not fund it again as new M1/N build; qualify only the actual configured producer, report intake and new scientific question.",
+          "frozen_producer_census": {
+            "head": "28ea3bb56bc4e751bf1303615d79219b56d7a24c",
+            "tracked_source_paths": 2906,
+            "production_python_AST": 2696,
+            "deployment_config_paths": 272,
+            "found_production_construction_Calibrator_or_CalibratorInputs": false,
+            "found_executable_put_calibration_report_caller": false,
+            "current_252f6b_complete_census_claimed": false,
+            "tests_or_live_runtime_executed": false,
+            "independently_rechecked_58_witness": false,
+            "current_8b40f8f5_complete_census_claimed": false
+          },
+          "typed_intake_seam": {
+            "shared_key": "INPUT_CALIBRATION_REPORT_REF",
+            "shared_key_value": "inputs.calibration_report_ref",
+            "B197_report": {
+              "type": "CalibrationReport",
+              "kind": "foundry.calibration_report",
+              "schema": "polisyos.foundry.CalibrationReport@2.0"
+            },
+            "Funnel_report": {
+              "type": "FunnelCalibrationReport",
+              "kind": "scientist.search.calibration_report",
+              "schema": "polisyos.scientist.search.FunnelCalibrationReport@1.0"
+            },
+            "caller_source_key": "BLUEPRINT_CALLER",
+            "parser_source_key": "FUNNEL_PARSER",
+            "reachable_internal_seam_reported": true,
+            "served_report_production_or_authority_emission_proved": false
+          },
+          "final_readback": "B197 full ledger row and named internal source/receipt hashes reported unchanged versus03:48."
+        }
+      ],
+      "current_remaining_scope_delta_non_exhaustive": [
+        "Frozen census at28ea3bb found no configured production construction Calibrator/CalibratorInputs or executable put_calibration_report caller; it is not a full current8b40f8f5 runtime census. Reachable internal typed intake seam remains: same INPUT_CALIBRATION_REPORT_REF is consumed as a distinct Funnel report schema."
+      ],
+      "unaddressed_scope_rule": "This is a non-exhaustive morning delta. Unaddressed historical scientific, data, issuer/root-completeness, authority and other scope limits remain unresolved unless this readback expressly supersedes them; in particular B194 is not discharged by B197 progress.",
+      "other_fields_basis": "Historical analytical options and source limits, not a new current-code audit. Current reported readback supersedes only its expressly named scope."
+    },
+    {
+      "id": "DEV-DEC-measured_scaling",
+      "title": "Измеренный bottleneck до общей performance architecture",
+      "observed_standing": "CG5 cold child exact path; base-only resource stop measured; child cost not measured",
+      "question": "Достаточен cold path или нужен owner-supported exact reuse/incremental index?",
+      "recommendation_not_adopted": "Сначала exact cold child within approved resources unchanged budget; same-reference cache отдельно. Рассматривать exact child update лишь если cold fails realbudget и можно prove equivalent ordered retrieval/certificates. Storage SQLite similarly only after N/2N measured need.",
+      "options": [
+        "Cold exact rebuild: simplest correct baseline",
+        "Request-scoped immutable same-reference reuse: useful bounded saving",
+        "Exact child incremental algorithm: potentially valuable, high reference-equivalence burden",
+        "Base index reused after changed corpus or timeout increased: does not preserve problem"
+      ],
+      "scope": "CG5 relation engine reference/BM25 orderedtop80→CG1/2/3; selected-overlay memory; owner-index scaling",
+      "owner_or_missing_allocation": "Existing GroundingRelationEngine/relation-state owner, DataForge overlay verifier, Core ownership index",
+      "reversible_discriminator": "One-edge replace/insert vs cold rebuild ordered scores/atoms/certificatebytes; independent base+child wall/RSS/swap pins; selected200k/500k rows",
+      "defer_commitment": "New generic retrieval engine or workload-wide performance claim from mismatched spans",
+      "external_or_decision_wait": "Resource environment and baseline measurements first; no guaranteed speedup",
+      "remaining_scope": [
+        "27.201s innerbasebuild not comparable to81s prewarm/121.728s selector; dirty attempt pins missing",
+        "DuckDB1.4FTS rebuild semantics documented; child update not supported by existing wrapper",
+        "These E02-local repairs/measures not counted twice as post-E02 growth"
+      ],
+      "analytical_homes": [
+        "DEV-N",
+        "DEV-R",
+        "DEV-E1",
+        "DEV-E2",
+        "DEV-M1",
+        "DEV-P1",
+        "DEV-H"
+      ],
+      "source_locators": [
+        "OPEN_PREMISES:516–523,933–950",
+        "DECISION_RECORDS:4337–4389"
+      ],
+      "source_locators_basis": "historical_materialized_versions_only_not_current_reported_hashes"
+    }
+  ],
+  "P118_cards": [
+    {
+      "id": "b122",
+      "title": "Metric-owned direction and tolerance",
+      "source_range": [
+        13,
+        43
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Which metric-owned tolerance and non-finite policy determines a meaningful plateau near zero?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Metric-owned signed tolerance.** Normalize objective direction, compute signed gain, then apply configured absolute tolerance near zero and relative tolerance away from zero. A non-finite/unknown score is not scientific convergence; the separate resource ceiling may still stop execution. **Cost:** Medium: metric profiles and serialized rule versions must carry direction and tolerances; avoids scale confusion.\n\n2. **Single optimizer-wide absolute threshold.** Keep one configured absolute threshold for all objectives and treat non-finite values under a common explicit stop/unknown rule. **Cost:** Low initial migration; high semantic risk and repeated tuning because income, rates, and normalized losses have different scales.",
+        "Premises": "The controller uses minimization. A zero historical minimum followed by a positive recent value is regression, while a negative value can be genuine improvement; one global machine epsilon cannot define semantic improvement across differently scaled objectives.",
+        "Remainder": "Neither option normalizes every maximize/minimize objective or establishes that a resource stop is scientific convergence; the selected policy must state both separately.",
+        "Falsifier / revisit trigger": "Reopen if a unit conversion or sign reversal for the same objective changes plateau disposition without changing the underlying improvement, or if a non-finite run is recorded as scientific convergence.",
+        "Where it binds": "ImprovementPlateau.check plus the objective/metric contract and its persisted rule version.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Decide the accepted near-zero-scale and non-finite policy, with options, costs, a falsifier and where the rule binds.” This is aligned with the cited card’s near-zero and non-finite plateau question. The options remain proposals; neither choice has been made or validated.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L179`."
+      },
+      "analyst_recommendation_not_adopted": "Предпочесть versioned metric-owned absolute-near-zero/relative-away tolerance и explicit nonfinite unknown. Resource ceiling отдельно от scientific convergence.",
+      "cheap_experiment": "Unit/sign-preserving transform and nearzero/nonfinite controls",
+      "broader_residual_preserved": "Normalize all objective directions and distinguish stop reasons; no universal epsilon",
+      "program_relevance_analytical_not_source_crosswalk": "research_economics",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "b116",
+      "title": "Immutable comparison cohorts",
+      "source_range": [
+        44,
+        74
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "How should a champion remain comparable when suite, split, loop, or data basis changes?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Re-evaluate the current champion on each new basis.** Reject mismatched candidate/evaluation bindings. When suite, split, metric method, or data basis changes, evaluate the current champion on the new basis before comparing candidates. **Cost:** High compute and latency for expensive benchmarks; preserves one continuously comparable champion.\n\n2. **Maintain a champion per immutable comparison cohort.** Key champion records by suite/version, split, metric method, and data basis; never compare or promote across cohorts without a new bridge evaluation. **Cost:** Medium storage and API complexity; avoids mandatory reruns but fragments the notion of one global champion.",
+        "Premises": "Candidate and evaluation must bind to each other and to an applicable benchmark basis; equal metric names/numbers do not establish comparable evidence.",
+        "Remainder": "This establishes technical comparability only; it does not prove evaluator quality or grant any institutional promotion authority.",
+        "Falsifier / revisit trigger": "Reopen if a candidate from another candidate_ref/loop/split or an incompatible suite can alter the pointer, or if an admitted conversion between two suites is shown equivalent but cannot be represented.",
+        "Where it binds": "ChampionRegistry.consider_promotion, BenchmarkEvaluation binding, SearchLoopRunner caller, and the persisted comparison-cohort identity.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Choose the supported legacy suite-binding, protocol and pointer compatibility boundary and its removal cost; record falsifier and revisit trigger.” The card and this draft address comparability of candidate/evaluation evidence across changing suite, split, loop and data basis. The triage step also names protocol/pointer compatibility and removal cost; those are not fully decided by the card question. Do not treat this decision as a general legacy-protocol sunset.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L173`."
+      },
+      "analyst_recommendation_not_adopted": "Хранить champion per immutable cohort и переоценивать только при реально нужном cross-basis comparison. Не заставлять все исследования rerun ради единственного глобального winner.",
+      "cheap_experiment": "Change suite/split/data basis under same metric name; bridge evaluation required",
+      "broader_residual_preserved": "Legacy suite/protocol/pointer retirement wider than card",
+      "program_relevance_analytical_not_source_crosswalk": "research_economics",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "b117",
+      "title": "Owned conditional publication",
+      "source_range": [
+        75,
+        107
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Which concurrency envelope must the champion read–compare–publish operation support?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Conditional publish through the store owner.** Use the actual store owner's conditional-write primitive only if a complete caller census and source-backed trace prove that owner covers every publisher. Then publish only if the predecessor version/digest still matches, re-read and re-compare on conflict, and keep expensive evaluation outside the transaction. **Cost:** Medium to high: requires the conditional-write primitive and explicit conflict handling; if no owner covers every publisher, the separate appointment/capability prerequisite applies.\n\n2. **One serialized publication owner.** Route all compare-and-publish operations through one writer/lock owner only if a complete caller census proves that owner covers every publisher. Otherwise this option requires a separately authorized owner appointment or the smallest missing capability; this draft does not presume or make that appointment. Reject or queue bypassing publishers. **Cost:** Medium if an existing owner covers all callers; higher if an appointment/capability must be established, plus throughput and availability limits.",
+        "Premises": "Atomic replacement of one pointer does not serialize the predecessor comparison. A stale writer can overwrite a stronger result; the repository card does not establish production multi-process demand.",
+        "Scope note": "Neither option presumes that one current publication owner covers every publisher. Require a complete caller census and source-backed proof. If no current owner covers all paths, an explicit owner appointment or the smallest missing owner capability is a separate prerequisite; choosing an option here does not make that appointment.",
+        "Remainder": "Crash durability and multi-host behavior remain unclaimed unless the selected store primitive and deployment mode establish them.",
+        "Falsifier / revisit trigger": "Reopen if a controlled B(score 2)/C(score 3) schedule leaves score 2 current, or if a second process can bypass the chosen serialization owner.",
+        "Where it binds": "ChampionRegistry predecessor read, comparison, and pointer publication as one owned conditional transition, conditioned on proven publisher coverage by the actual store or a separately authorized serialization owner.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Choose the supported legacy suite-binding, protocol and pointer compatibility boundary and its removal cost; record falsifier and revisit trigger.” The shared triage step is broader legacy suite/protocol/pointer compatibility, while B117’s card concerns stale compare-and-publish under concurrent writers. This draft decides only the concurrency envelope at the publication seam; suite compatibility and legacy pointer/protocol retirement remain separate.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L174`."
+      },
+      "analyst_recommendation_not_adopted": "Conditional publish предпочтителен при существующем store primitive и complete publisher coverage; иначе one serialized existing owner в explicit local envelope.",
+      "cheap_experiment": "Controlled stale B2/C3 schedule and bypass writer; costly evaluation outside transaction",
+      "broader_residual_preserved": "Crash durability/multihost/pointer compatibility not settled by lock",
+      "program_relevance_analytical_not_source_crosswalk": "living_research",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "b133",
+      "title": "Immutable run truth; aliases separate",
+      "source_range": [
+        108,
+        140
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Does run_id name an immutable completed run or a mutable alias to the latest versioned artifact?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Immutable run identity.** Treat a completed run_id as immutable and reject a conflicting re-registration; address the cached history by its immutable ArtifactRef/digest. **Cost:** Low to medium: simple replay semantics, but callers must allocate a new run id for revised history and retain old records.\n\n2. **Versioned mutable alias.** Allow a run_id alias to move only by publishing a new versioned ArtifactRef; key cache entries by the referenced digest/version and keep old refs replayable. **Cost:** Medium: supports updates but needs alias history, cache invalidation, and version-aware readers.",
+        "Premises": "Warm and cold managers must replay the same referenced history. The current cache is keyed only by run_id, while registration can replace the history under that id.",
+        "Scope note": "The source card B133 concerns mutable run_id/cache identity. The Appendix C TRN-02 residual also groups live metadata and distributed atomicity; those are separate residuals, not this decision.",
+        "Remainder": "Memory eviction policy and the separate TRN-02 live-metadata/distributed-atomicity residuals are not decided here.",
+        "Falsifier / revisit trigger": "Reopen if a warm reader sees stale/new bytes differently from a cold reader for the same immutable ref, or if a legitimate caller must repoint run_id without a versioned ref.",
+        "Where it binds": "register_run, _eval_cache keying, history loader, and the immutable artifact reference persisted with each run.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Choose the required distributed atomicity and compatibility guarantee, including bounded alternatives and cost; issue a falsifier for the chosen guarantee.” The card and draft address mutable `run_id`, cache identity and replay. The triage step and TRN-02 residual additionally name distributed atomicity/compatibility. Those broader guarantees are not decided here; preserve them as separate residuals.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L190`."
+      },
+      "analyst_recommendation_not_adopted": "Completed run identity immutable; mutable alias только отдельным versioned ref/history для доказанного caller.",
+      "cheap_experiment": "Warm/cold readers same immutable ref after alias movement",
+      "broader_residual_preserved": "TRN02 distributed atomicity/live metadata/compatibility separate",
+      "program_relevance_analytical_not_source_crosswalk": "living_research",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "b169",
+      "title": "Typed temporal profile",
+      "source_range": [
+        141,
+        171
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "May an aggregate scalar/single interval be projected across a time horizon, and under what producer declaration?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Require horizon-aligned values by default.** Require each time point to bind estimand, units, baseline, origin/cutoff, temporal coordinate, and interval semantics. Permit repetition only from a producer explicitly declaring a stationary constant forecast. **Cost:** Medium: richer producer DTOs and some existing scalar outputs become limited/refused until their meaning is supplied.\n\n2. **Retain scalar as an explicitly aggregate profile.** Allow scalar output only as a typed horizon aggregate or explicitly constant profile; prevent it from being scored as an unqualified temporal trajectory. **Cost:** Medium: preserves simple producers but adds profile/consumer branches and limits cross-profile comparisons.",
+        "Premises": "The adapter currently repeats scalar metrics and one interval across the horizon, but the measurement could be a mean effect, period aggregate, constant forecast, or diagnostic. Those meanings are not interchangeable.",
+        "Remainder": "Production metric and uncertainty-envelope semantics remain unestablished; draws or time-varying variance must not be invented.",
+        "Falsifier / revisit trigger": "Reopen if an admitted production producer declares a scalar as a horizon aggregate yet the chosen profile either rejects it or scores it as pointwise forecasts, or if one-point intervals are treated as predictive intervals without matching outcomes.",
+        "Where it binds": "Forecast input DTO and the Scientist adapter in HistoricalValidationPlan/_predict_with_scientist, before scoring or publication.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Choose whether BKT-01 promises only the bounded local profile or generic historical-input binding; cost the scope and state an executable falsifier.” The card and draft address when scalar or one-interval output may represent a horizon trajectory. The triage step asks whether BKT-01 is bounded to a local profile or promises generic historical-input binding. This finding-level question does not settle that broader profile boundary.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L226`."
+      },
+      "analyst_recommendation_not_adopted": "Horizon-aligned values и scalar aggregate/explicit constant как разные tagged profiles. Не делать artificial trajectory из scalar.",
+      "cheap_experiment": "Aggregate scalar and actual constant positive controls; asymmetric interval preserved",
+      "broader_residual_preserved": "BKT01 bounded vs generic historical-input binding remains broader decision",
+      "program_relevance_analytical_not_source_crosswalk": "answer_contract",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "b170",
+      "title": "Requested work means actual work",
+      "source_range": [
+        172,
+        202
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Does n_simulation_runs mean independent executions, internal draws, bootstrap replicas, or something else?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Implement independent outer executions.** Define n as independently seeded runs, pass an explicit seed plan to the existing execution owner, and persist requested/started/completed/failed counts plus sufficient distribution statistics. **Cost:** High and roughly proportional to n in compute, storage, and failure handling; honest support for repeated validation.\n\n2. **Support n=1 until the owner implements repetitions.** Accept one run; return typed unsupported/limited for n>1 rather than silently dispatching once. Preserve an explicit PROVIDED-replicates path only when real completed replicates are supplied. **Cost:** Low initial compute/implementation; users lose multi-run support until the owner path exists.",
+        "Premises": "The plan validates the count, but the current scenario dispatch makes one Scientist call for n=1 and n=7 alike. A cache hit is not an independent replica.",
+        "Remainder": "The existing workflow’s internal Monte Carlo draws are not established, and the selected policy does not claim them.",
+        "Falsifier / revisit trigger": "Reopen if plans with different n still produce indistinguishable execution manifests, or if a purported replica is only a cache hit or repeated scalar.",
+        "Where it binds": "HistoricalValidationPlan validation, _run_single_scenario/_predict_with_scientist dispatch, seed ownership, and pre-execution budget admission.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Choose whether BKT-01 promises only the bounded local profile or generic historical-input binding; cost the scope and state an executable falsifier.” The card and draft address the meaning and execution of `n_simulation_runs`. The triage step asks whether BKT-01 promises a bounded local profile or generic historical-input binding. A repetition/seed decision alone does not establish generic history binding or broader BKT-01 closure.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L227`."
+      },
+      "analyst_recommendation_not_adopted": "n=1 honest baseline; implement outer repetitions only for chosen method/use. PROVIDED replicas separate; internal MC is different denominator.",
+      "cheap_experiment": "n1/n7 execution manifests; distinct seeds where independence needed; cache hit not replica",
+      "broader_residual_preserved": "Generic historical-input binding and internal draw semantics not settled",
+      "program_relevance_analytical_not_source_crosswalk": "research_economics",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "b171",
+      "title": "Micro/macro with explicit target",
+      "source_range": [
+        203,
+        233
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Should overall error weight every observation equally or every named scenario equally?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Publish micro and macro as distinct metrics.** Make pooled sufficient-statistic micro error the default overall metric; retain equal-scenario macro under an explicit name and stable scenario identity. **Cost:** Medium: schema, serialization, and consumers must carry counts/weighted sums and both metric names.\n\n2. **Keep equal-scenario macro as the only overall metric.** Require stable substantive scenario IDs and explicitly name the result macro error; do not call it partition-invariant overall error. **Cost:** Low numerical implementation cost, but requires scenario identity discipline and leaves observation-weighted performance unavailable.",
+        "Premises": "A technical repartition of the same residuals changes equal-scenario macro RMSE/MAE and can reverse candidate order; micro-RMSE can be reconstructed from pooled sufficient statistics.",
+        "Remainder": "Comparability of units and weights across different metrics or jurisdictions remains a separate contract.",
+        "Falsifier / revisit trigger": "Reopen if merely sharding one named scenario changes the published micro result, or if a supposedly equal-scenario aggregate changes after technical split/merge without a declared scenario change.",
+        "Where it binds": "Scenario aggregator _aggregate, serialized summary sufficient statistics, and the metric name/weighting contract.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Decide the accepted BKT-02 profile boundary and compatibility cost; state what observed case would reopen it.” This draft follows the finding-level BKT-02 weighting/profile question. The decision remains limited to the stated aggregate metric and does not imply closure of other bounded BKT-02 findings.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L228`."
+      },
+      "analyst_recommendation_not_adopted": "Публиковать distinct micro и macro где нужны оба; primary выбирается target population/weighting, не абстрактным “overall”.",
+      "cheap_experiment": "Technical partition leaves micro unchanged; substantive scenario reweight deliberately differs",
+      "broader_residual_preserved": "Cross-unit/jurisdiction comparability remains independent",
+      "program_relevance_analytical_not_source_crosswalk": "answer_contract",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "la-004",
+      "title": "Proven common kernel only",
+      "source_range": [
+        234,
+        264
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Should the overlapping plugin and base economics implementations share algorithms or remain distinct versioned profiles?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Share only the proven common kernel.** Extract common mechanics only where contract tables match; keep non-equivalent tax/state/time/RNG/budget behavior under distinct versioned model profiles. **Cost:** Medium: mapping/contracts and profile selection are required; reduces duplicate code only at verified overlap.\n\n2. **Keep implementations separate with explicit identities.** Preserve separate owners and identifiers; prohibit implicit cross-profile comparison until a compatibility mapping exists. **Cost:** Medium continuing maintenance and duplicate fixes; lower risk of silently changing model semantics.",
+        "Premises": "The source card confirms overlap but code disproves equivalence across state, units, timestep, tax base, RNG, and budget accounting.",
+        "Remainder": "No evidence establishes either implementation as universally calibrated or suitable for every base ABI; full caller migration remains open.",
+        "Falsifier / revisit trigger": "Reopen consolidation if real paired regimes with equal declared inputs produce different outputs solely because of implementation duplication, or if a profile mapping fails to preserve accounting/RNG behavior.",
+        "Where it binds": "Economic model/profile identity, state/config schema, and the scenario caller selecting the implementation.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier.” The card and draft address whether overlapping plugin/base economics implementations share only proven common algorithms or remain distinct profiles. The triage step also names optimizer/caller retirement scope; no complete caller census or retirement choice is supplied by this finding-level question.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L286`."
+      },
+      "analyst_recommendation_not_adopted": "Начать с distinct versioned economics profiles; извлечь только проверенный common accounting kernel если две meaningful callers действительно его делят.",
+      "cheap_experiment": "Matched tax/state/time/RNG/budget regime comparison",
+      "broader_residual_preserved": "Caller migration/optimizer retirement not settled",
+      "program_relevance_analytical_not_source_crosswalk": "executable_program",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "la-035",
+      "title": "Named baseline objective",
+      "source_range": [
+        265,
+        295
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Should the existing normalized policy_loss_fn remain a named baseline, or should a distinct revenue-maximizing objective be added?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Retain as an explicitly named baseline objective.** Preserve the numerical rule under a profile name that states its balance/constraint semantics; do not advertise it as a generic income-maximizing objective. **Cost:** Low behavior/revalidation cost; requires API/FQN/config cleanup and retains limitations of the baseline.\n\n2. **Add a separate versioned income objective.** Implement a distinct calibrated objective for users whose declared target is income maximization; keep the current baseline available for existing profiles. **Cost:** High: calibration, migration, optimizer validation, and revalidation for each caller; avoids silent ranking change.",
+        "Premises": "The source verifies a normalization that can flatten or alter positive-income ranking, but does not establish a production optimizer using it or a universal user intent to maximize raw income.",
+        "Remainder": "Native optimizer callers, JIT/gradient behavior, and realized policy outcomes are not established; do not remove or retune the baseline on fixture evidence alone.",
+        "Falsifier / revisit trigger": "Reopen if an appointed production optimizer claims income maximization and two positive-income policies are ranked contrary to that declared objective by the baseline.",
+        "Where it binds": "Objective FQN/version and config chosen by the optimizer caller, with native loss/guardrail evaluation.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Choose separate fiscal/labor profile compatibility and optimizer/caller retirement scope; cost both options and write a falsifier.” The card and draft address the identity and naming of the normalized `policy_loss_fn` baseline versus a distinct income objective. The shared triage step also names fiscal/labor profile compatibility and optimizer/caller retirement; those are separate from objective identity and remain unresolved.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L317`."
+      },
+      "analyst_recommendation_not_adopted": "Сохранить current normalized baseline под честным именем; add distinct income objective только для actual declared usertarget и optimizer.",
+      "cheap_experiment": "Positive income ranking and real optimizer/gradient caller",
+      "broader_residual_preserved": "Fiscal/labor profile compatibility and native caller retirement separate",
+      "program_relevance_analytical_not_source_crosswalk": "executable_program",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "la-023",
+      "title": "Rollout first; actual learning separately",
+      "source_range": [
+        296,
+        328
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Should the current rollout loop be named/evaluated as rollout analysis, or connected to a real trainer for a bounded domain?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Relabel current behavior as rollout evaluation.** Return a typed evaluation result and make no learning claim until parameters change; retain rollout/reward collection as a useful capability. **Cost:** Low implementation cost; CLI and callers lose the current train-shaped success surface and still need a trainer for learning.\n\n2. **Integrate the existing trainer for one compatible domain.** Only after a separate explicit appointment and contract establish the training owner's scope for that domain, route through that owner, persist the learned-state artifact, and prove nonzero-gradient parameter/action change with train/eval, RNG, reset, and continuation semantics. This technical option does not make the appointment or confer training authority. **Cost:** High implementation and compute cost, plus owner appointment/scope agreement; requires a compatible state contract and artifact lifecycle.",
+        "Premises": "The inspected train body collects rollout rewards but leaves actor parameters unchanged and makes zero trainer calls; a separate training owner exists.",
+        "Scope note": "The separate training owner's existence does not establish its appointment, scope, or authority for PolisySimulator or any domain. Trainer integration is conditional on a separate explicit appointment and contract for the chosen domain; selecting this option does not make that appointment or grant training authority.",
+        "Remainder": "Until the separate appointment/contract and compatible state contract exist, trainer integration remains unavailable. A local fixture trainer or nonzero gradient is not proof of full domain training quality; keep unsupported domains typed and limited.",
+        "Falsifier / revisit trigger": "Reopen the evaluation-only choice if a caller requires learned state and a compatible trainer can demonstrate parameter and subsequent-action change; reopen trainer integration if it only collects rewards.",
+        "Where it binds": "PolisySimulator.train contract, domain-scoped owner appointment/contract, trainer orchestration, and persisted learned-state artifact.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Decide cross-domain scope, RNG/continuation compatibility and retirement boundary with costs and a falsifier.” This draft follows the card and triage step at the bounded cross-domain training/rollout decision. Any trainer integration remains conditional on explicit domain owner appointment and contract; no such appointment or learning claim is made.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L305`."
+      },
+      "analyst_recommendation_not_adopted": "Текущее truthful rollout evaluation полезно. Trainer integration — отдельная capability under domain owner contract и repeatable task, не rename method.",
+      "cheap_experiment": "Nonzero parameter AND subsequent action change; train/eval RNG/reset/continuation separation",
+      "broader_residual_preserved": "Crossdomain quality, owner appointment, compatibility retirement unresolved",
+      "program_relevance_analytical_not_source_crosswalk": "diagnosis_learning",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "b210",
+      "title": "Honest RDD profile before correction expansion",
+      "source_range": [
+        329,
+        359
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Should the product remain limited to an explicitly uncorrected RDD estimate until a real correction is computed, or fund the corrected estimator path now?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Publish only the uncorrected limited result.** Remove/withhold the corrected claim and expose the conventional estimate with its typed limitation until a valid correction artifact exists. **Cost:** Low to medium: narrower output and possible refusal of a corrected claim; avoids unsupported inferential authority.\n\n2. **Implement the declared bias-corrected estimator.** Add the appropriate local-polynomial correction and compatible variance/inference path, bound to design and bandwidth inputs, before setting corrected status. **Cost:** High statistical implementation, data, and validation cost; requires specialist owner and broader distinguishing cases.",
+        "Premises": "The source card reports bias correction as included without computing it; a result label must not imply an estimator step absent from the producer.",
+        "Remainder": "Bias-correction method, variance behavior, and RDD scope across real designs remain unestablished until a producer and data-backed validation exist.",
+        "Falsifier / revisit trigger": "Reopen if any served RDD record says corrected while the producer does not execute/persist the correction, or if a supported design has a validated correction that the bounded profile cannot represent.",
+        "Where it binds": "RDD estimator producer, result DTO correction-status field, inference consumer, and any promotion/publication gate.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Decide the RDD assumption/scope boundary and its costs; name a falsifying case before claiming broader closure.” This draft follows the card’s correction-status and RDD scope question. Neither option establishes broader RDD validity without its named estimator/data evidence.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L267`."
+      },
+      "analyst_recommendation_not_adopted": "Uncorrected limited estimate как baseline; bias-corrected method only if supported RDD question needs it, then matched variance/inference and bandwidth data.",
+      "cheap_experiment": "Curved response differs; linear preserving case; persisted correction actually executed",
+      "broader_residual_preserved": "RDD assumption/scope broader than label or correction step",
+      "program_relevance_analytical_not_source_crosswalk": "answer_contract",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "b106",
+      "title": "Completeness of declared set, separate sampled claim",
+      "source_range": [
+        360,
+        390
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "May robustness be claimed over the full declared scenario set, or only over a named sampled/early-stopped subset?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Require complete declared-set accounting.** Stream occurrence, tested-scenario, missing/non-numeric, and completeness counts before display cap; mark early-stopped or incomplete runs unknown/limited. **Cost:** Medium compute and schema work; may delay a result until the declared set finishes.\n\n2. **Allow a named sampled estimate.** Keep bounded/adaptive execution but report the sampling design, inspected denominator, uncertainty, and sampled-score label; never call it full-population robustness. **Cost:** Lower compute and faster feedback; weaker claim and added sampling/uncertainty reporting.",
+        "Premises": "Presentation dedupe/top-k truncation must not alter counts of tested scenarios, observed violations, or non-results; adaptive stopping does not automatically estimate the entire space.",
+        "Remainder": "The explored population is not automatically exhaustive; unique issue examples and presentation cap remain separate from occurrence counts.",
+        "Falsifier / revisit trigger": "Reopen if changing collect_top_k changes robustness score for the same completed scenario set, or if an early-stopped sample is presented as complete population coverage.",
+        "Where it binds": "Robustness aggregator before dedupe/cap, run completeness record, and the surfaced metric name.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Decide the empirical completeness profile, cost and limits; require a falsifier for any claimed complete population.” This draft follows the card’s completeness-denominator question. It does not claim a complete empirical population absent the selected accounting or sampling contract.",
+        "Plan/register relation": "The complete scoped crosswalk admits no direct GY, Atlas, or live-register relation for this finding (`not_established`; not proof of no dependency). See `docs/plans/active/agent-packages/PolicyOS_E02R2/CROSSWALK.md@sha256:05529c78012ab7ec3e265feec50a926b1ba93d7352cb08eb653641fe8f27dc05#L163`."
+      },
+      "analyst_recommendation_not_adopted": "Exact declared-set denominator before presentation cap; sampled/adaptive subset distinct with sampling/uncertainty meaning. Полнота собственного set не полнота мира.",
+      "cheap_experiment": "Change topk leaves counts unchanged; early-stop cannot say full",
+      "broader_residual_preserved": "External scenario population and selection process remain separate",
+      "program_relevance_analytical_not_source_crosswalk": "research_economics",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    },
+    {
+      "id": "la-055",
+      "title": "Veto meaning and live applicability separately",
+      "source_range": [
+        391,
+        419
+      ],
+      "standing": "awaiting_principal_draft_only",
+      "source_fields": {
+        "Question": "Is an explicit stored deny a veto, or is promotion_allowed only an advisory baseline overridden by the final evaluator?",
+        "Owner/status": "Principal (Denis); `awaiting_principal`. No ruling is recorded.",
+        "Options and costs": "1. **Treat explicit restriction as a veto.** Preserve false/restriction as a binding veto; permit only a separately typed, authorized override with reason and scope. **Cost:** Medium: new override evidence/schema and caller migration; conservative when an explicit restriction was intended to bind.\n\n2. **Make the event flag an advisory baseline.** Rename it as a baseline/readiness hint and let one evaluator compute final permission; carry any institutional restriction in a separate typed veto field. **Cost:** Medium to high: schema and all readers must migrate; avoids treating an advisory flag as final authority but risks old consumers assuming the old meaning.",
+        "Premises": "A constrained R4 event can persist promotion_allowed=False while the evaluator later returns True from state-only interpretation; ordinary mapper-produced R4 usually emits True. The counterexample does not establish an external release action.",
+        "Remainder": "Deployment/live-feed applicability in DDM-02 remains unclaimed; this decision resolves field meaning/precedence only, not feed authority or release service behavior.",
+        "Falsifier / revisit trigger": "Reopen if a mapper-produced explicit false is consumed as a veto by a supported caller but the chosen evaluator allows it, or if every supported caller proves the field is advisory and the veto option blocks an authorized path.",
+        "Where it binds": "ReadinessStateEvent/ModelRegistryReadinessRecord schema, readiness mapper, registry builder/evaluator, and final action consumer.",
+        "Triage next step and card reconciliation": "The recorded triage step is: “Decide whether deployment/live-feed applicability is an in-scope promise and cost the evidence and maintenance obligation.” The card-derived decision below is about the semantics and precedence of `promotion_allowed` (baseline, veto, final gate). The triage next step separately asks whether deployment/live-feed applicability is in scope. A companion scope draft follows and is independent: choosing field semantics does not establish feed evidence, consumer identity, maintenance, or release authority."
+      },
+      "analyst_recommendation_not_adopted": "Binding explicit restriction сохранять veto unless owner establishes advisory meaning and migrates all readers to clearly renamed field. Это recommendation, не adoption.",
+      "cheap_experiment": "Explicit false through real mapper/evaluator with same state; authorized override separate",
+      "broader_residual_preserved": "Deployment/live-feed scope and LA054 validity-owner capability remain independent",
+      "program_relevance_analytical_not_source_crosswalk": "reviewable_use",
+      "exact_relation_warning": "Source crosswalk admitted no direct GY/Atlas/live-register relation for these card rows; analytical program relevance is not a new exact owner edge."
+    }
+  ],
+  "LA055_scope_companion": {
+    "source_range": [
+      420,
+      441
+    ],
+    "standing": "awaiting_principal_separate_from_card_field_precedence",
+    "question": "Include deployment/live-feed applicability now or bound DDM02 to evidenced gate semantics?",
+    "recommendation_not_adopted": "Bound present claim; include live profile only for a named useful consumer with admitted feed/time/currentness/failure evidence and maintenance owner. This can be a tranche of observation program, never implicit release action.",
+    "alternatives": [
+      "Conditional inclusion: high producing/consuming owner and live window upkeep cost",
+      "Outside current claim: lower immediate cost, no readiness assurance for live consumers"
+    ],
+    "broader_remaining": [
+      "LA054 checker-bound validity capability",
+      "Source/feed owner record",
+      "Deployment consumer/retention and failure handling",
+      "Release authority never supplied by field precedence"
+    ],
+    "falsifier": "A supported consumer advertises live coverage without admitted fresh feed, or a useful named profile proves worth scope extension."
+  },
+  "universal_risk_caution": "P6.09 nested/rectangular — scope одной proposed time-consistent dynamic-risk extension. Persistent/nonrectangular/root-commitment методы не обязаны rectangularize.",
+  "source_key_paths_scope": "These aliases and existing line selectors refer to the materialized historical versions; current reported locators are separate in sources.json/reported_current_sources.",
+  "authority_limit": "Ни одна analyst link не назначает owner и не меняет официальный task status; reported local inspection не является новым behavior run или скопированным fresh ledger."
+}

@@ -1,0 +1,782 @@
+{
+  "schema": "policyos.development_programs.bundle_validation.v1",
+  "checked_at_utc": "2026-10-01T05:10:12.038254+00:00",
+  "scope": "Authored bundle structure, preserved source statuses, exported byte identities, local links and stipulated arithmetic only.",
+  "product_tests_or_imports_executed": false,
+  "runtime_or_scientific_acceptance_claimed": false,
+  "repository_transfer_verified": false,
+  "repository_transfer_field_scope": "Pre-transfer artifact validation only; substantive research is complete at its stated cutoff. Repository placement is verified separately against these exact bytes in a distinct receipt, without mutating this reviewed bundle.",
+  "morning_freshness_verified": true,
+  "morning_reported_local_readback_ingested": true,
+  "current_repository_source_bytes_verified_here": false,
+  "final_brief_freshness_verified": true,
+  "freshness_scope": {
+    "verification_mode": "reported_read_only_local_inspection",
+    "started_at": "2026-10-01T05:01:10Z",
+    "finished_at": "2026-10-01T05:01:44Z",
+    "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+    "full_repository_source_audit": false,
+    "fresh_source_bytes_rehashed_here": false
+  },
+  "source_verification_populations": {
+    "materialized_representations_checked": 514,
+    "materialized_representations_hash_matched": 514,
+    "reported_current_records": 22,
+    "reported_current_hashes": 19,
+    "reported_current_source_bytes_rehashed_here": 0
+  },
+  "status": "passed",
+  "checks": [
+    {
+      "check": "seven_current_core_trajectories_not_fixed_quota",
+      "passed": true
+    },
+    {
+      "check": "analytical_namespace",
+      "passed": true
+    },
+    {
+      "check": "gv_denominator",
+      "passed": true
+    },
+    {
+      "check": "gv_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "gy_denominator",
+      "passed": true
+    },
+    {
+      "check": "gy_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "atlas_denominator",
+      "passed": true
+    },
+    {
+      "check": "atlas_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "debt_denominator",
+      "passed": true
+    },
+    {
+      "check": "debt_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "required_data_denominator",
+      "passed": true
+    },
+    {
+      "check": "required_data_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "planning_files_denominator",
+      "passed": true
+    },
+    {
+      "check": "planning_files_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "prior_requirement_rows_denominator",
+      "passed": true
+    },
+    {
+      "check": "prior_requirement_rows_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "foundry_research_problems_denominator",
+      "passed": true
+    },
+    {
+      "check": "foundry_research_problems_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "foundry_phase_pointers_denominator",
+      "passed": true
+    },
+    {
+      "check": "foundry_phase_pointers_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "foundry_aliases_denominator",
+      "passed": true
+    },
+    {
+      "check": "foundry_aliases_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "causal_stages_denominator",
+      "passed": true
+    },
+    {
+      "check": "causal_stages_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "e02_findings_denominator",
+      "passed": true
+    },
+    {
+      "check": "e02_findings_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "all54_gv_exact_ids",
+      "passed": true
+    },
+    {
+      "check": "gv_primary_homes_exist",
+      "passed": true
+    },
+    {
+      "check": "gv_secondary_homes_exist",
+      "passed": true
+    },
+    {
+      "check": "gy_statuses_preserved",
+      "passed": true
+    },
+    {
+      "check": "debt_statuses_and_row_hashes_preserved",
+      "passed": true
+    },
+    {
+      "check": "e02_status_counts_preserved",
+      "passed": true
+    },
+    {
+      "check": "e02_per_id_statuses_and_bundle_scope_preserved",
+      "passed": true
+    },
+    {
+      "check": "e02_conditional_outputs_never_implicitly_resolve_premises",
+      "passed": true
+    },
+    {
+      "check": "principal_and_owner_decisions_remain_explicit_and_referenced",
+      "passed": true
+    },
+    {
+      "check": "B122_LA055_exact_decision_drafts_retained",
+      "passed": true
+    },
+    {
+      "check": "B31_separate_unadopted_semantic_decision_retained",
+      "passed": true
+    },
+    {
+      "check": "S10_substantive_scope_routing",
+      "passed": true
+    },
+    {
+      "check": "S11_substantive_scope_routing",
+      "passed": true
+    },
+    {
+      "check": "S12_substantive_scope_routing",
+      "passed": true
+    },
+    {
+      "check": "S13_substantive_scope_routing",
+      "passed": true
+    },
+    {
+      "check": "DS21_not_started_surface_and_O1_O3_gate",
+      "passed": true
+    },
+    {
+      "check": "partial_Atlas_surfaces_have_exact_residual_dispositions",
+      "passed": true
+    },
+    {
+      "check": "T28_macro_forecast_model_route_retained",
+      "passed": true
+    },
+    {
+      "check": "G2_bounded_reading_extension_exact_union_not_full_file",
+      "passed": true
+    },
+    {
+      "check": "G3_bounded_reading_extension_exact_union_not_full_file",
+      "passed": true
+    },
+    {
+      "check": "G6_bounded_reading_extension_exact_union_not_full_file",
+      "passed": true
+    },
+    {
+      "check": "G7_bounded_reading_extension_exact_union_not_full_file",
+      "passed": true
+    },
+    {
+      "check": "S10_bounded_reading_extension_exact_union_not_full_file",
+      "passed": true
+    },
+    {
+      "check": "S11_bounded_reading_extension_exact_union_not_full_file",
+      "passed": true
+    },
+    {
+      "check": "S12_bounded_reading_extension_exact_union_not_full_file",
+      "passed": true
+    },
+    {
+      "check": "S13_bounded_reading_extension_exact_union_not_full_file",
+      "passed": true
+    },
+    {
+      "check": "coverage_extension_3727_lines_zero_new_full_reads",
+      "passed": true
+    },
+    {
+      "check": "full_plan_read_count_remains86",
+      "passed": true
+    },
+    {
+      "check": "G2_substantive_scope_routing",
+      "passed": true
+    },
+    {
+      "check": "G3_substantive_scope_routing",
+      "passed": true
+    },
+    {
+      "check": "G6_substantive_scope_routing",
+      "passed": true
+    },
+    {
+      "check": "G7_substantive_scope_routing",
+      "passed": true
+    },
+    {
+      "check": "causal_declarations_preserved_not_scientific_proof",
+      "passed": true
+    },
+    {
+      "check": "research_moves_denominator",
+      "passed": true
+    },
+    {
+      "check": "research_moves_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "research_distilled_report_pairs_denominator",
+      "passed": true
+    },
+    {
+      "check": "research_distilled_report_pairs_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "research_operations_original_ids_denominator",
+      "passed": true
+    },
+    {
+      "check": "research_operations_original_ids_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "research_operations_deferred_triggers_denominator",
+      "passed": true
+    },
+    {
+      "check": "research_operations_deferred_triggers_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "research_historical_import_statements_denominator",
+      "passed": true
+    },
+    {
+      "check": "research_historical_import_statements_qualified_id_unique",
+      "passed": true
+    },
+    {
+      "check": "decision_family_count",
+      "passed": true
+    },
+    {
+      "check": "P118_count_separate_LA055_scope",
+      "passed": true
+    },
+    {
+      "check": "graph_node_ids_unique",
+      "passed": true
+    },
+    {
+      "check": "graph_endpoints_exist",
+      "passed": true
+    },
+    {
+      "check": "graph_types_valid",
+      "passed": true
+    },
+    {
+      "check": "graph_conditional_scope_complete",
+      "passed": true
+    },
+    {
+      "check": "required_edge_types_present",
+      "passed": true
+    },
+    {
+      "check": "DEV-I01_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          7,
+          15
+        ],
+        "sum": [
+          7,
+          15
+        ]
+      }
+    },
+    {
+      "check": "DEV-I02_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          4,
+          13
+        ],
+        "sum": [
+          4,
+          13
+        ]
+      }
+    },
+    {
+      "check": "DEV-I03_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          15,
+          30
+        ],
+        "sum": [
+          15,
+          30
+        ]
+      }
+    },
+    {
+      "check": "DEV-I04_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          10,
+          25
+        ],
+        "sum": [
+          10,
+          25
+        ]
+      }
+    },
+    {
+      "check": "DEV-I05_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          10,
+          20
+        ],
+        "sum": [
+          10,
+          20
+        ]
+      }
+    },
+    {
+      "check": "DEV-I06_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          10,
+          25
+        ],
+        "sum": [
+          10,
+          25
+        ]
+      }
+    },
+    {
+      "check": "DEV-I07_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          10,
+          30
+        ],
+        "sum": [
+          10,
+          30
+        ]
+      }
+    },
+    {
+      "check": "adaptive_quote_suspended",
+      "passed": true
+    },
+    {
+      "check": "DEV-I09_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          20,
+          40
+        ],
+        "sum": [
+          20,
+          40
+        ]
+      }
+    },
+    {
+      "check": "DEV-I10_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          5,
+          15
+        ],
+        "sum": [
+          5,
+          15
+        ]
+      }
+    },
+    {
+      "check": "DEV-I11_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          10,
+          25
+        ],
+        "sum": [
+          10,
+          25
+        ]
+      }
+    },
+    {
+      "check": "DEV-I12_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          20,
+          40
+        ],
+        "sum": [
+          20,
+          40
+        ]
+      }
+    },
+    {
+      "check": "DEV-I13_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          25,
+          50
+        ],
+        "sum": [
+          25,
+          50
+        ]
+      }
+    },
+    {
+      "check": "FA1_decision_only_no_total",
+      "passed": true
+    },
+    {
+      "check": "DEV-I15_component_sum",
+      "passed": true,
+      "detail": {
+        "total": [
+          20,
+          40
+        ],
+        "sum": [
+          20,
+          40
+        ]
+      }
+    },
+    {
+      "check": "no_additive_portfolio_total",
+      "passed": true
+    },
+    {
+      "check": "all_relative_markdown_links_resolve",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "no_private_or_cloud_only_paths_in_delivery",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "reading_limits_distinguish_inventory_from_prior_reconciliation",
+      "passed": true
+    },
+    {
+      "check": "fully_reconciled_root_plans_have_no_stale_initial_disposition",
+      "passed": true
+    },
+    {
+      "check": "DEV_S_has_reader_facing_destination",
+      "passed": true
+    },
+    {
+      "check": "milestone_labels_do_not_collide_with_DEV_M1_DEV_M2",
+      "passed": true
+    },
+    {
+      "check": "registered_source_bytes_resolve_to_matching_export",
+      "passed": true,
+      "detail": {
+        "matched": 514,
+        "unresolved": []
+      }
+    },
+    {
+      "check": "514_materialized_versions_and22_reported_records_are_separate_populations",
+      "passed": true
+    },
+    {
+      "check": "reported_current_sources_never_claim_local_source_byte_verification",
+      "passed": true
+    },
+    {
+      "check": "reported_hashes_transcribed_from_local_reports_and_unknown_hashes_explicit",
+      "passed": true
+    },
+    {
+      "check": "reported_records_do_not_inflate_materialized_hash_denominator",
+      "passed": true
+    },
+    {
+      "check": "local_readback_report_hashes_verify_reports_only_not_repository_sources",
+      "passed": true
+    },
+    {
+      "check": "morning_ledger_is_explicit_reported_overlay_not_fabricated_full_ledger",
+      "passed": true
+    },
+    {
+      "check": "B197_reported_changed_selectors_not_new_literal_JSON_values",
+      "passed": true
+    },
+    {
+      "check": "historical_rows_kept_and_five_current_annotations_linked",
+      "passed": true
+    },
+    {
+      "check": "B197_frozen_census_not_relabelled_as_full_current_head_census",
+      "passed": true
+    },
+    {
+      "check": "B197_exact_report_type_seam_preserved_without_served_production_claim",
+      "passed": true
+    },
+    {
+      "check": "R1_V3_draft_scope_and_four_IDs_exact",
+      "passed": true
+    },
+    {
+      "check": "R14_nine_setup_blocked_cases_not_executed_property_proof",
+      "passed": true
+    },
+    {
+      "check": "R9_historical_execution_cohorts_remain_separate_and_frozen_candidate_standing_preserved",
+      "passed": true
+    },
+    {
+      "check": "final_R9_integration_does_not_upgrade_frozen_report_or_HTTP_to_closure",
+      "passed": true
+    },
+    {
+      "check": "B61_ledger_and_receipt_scopes_preserved_without_adding_denominators",
+      "passed": true
+    },
+    {
+      "check": "final_owner_refinement_not_appointments_or_all_confirmations_consumer",
+      "passed": true
+    },
+    {
+      "check": "18_prior_reported_source_IDs_heads_observations_preserved",
+      "passed": true
+    },
+    {
+      "check": "final13_named_rechecks_do_not_redate_earlier47_file_comparison",
+      "passed": true
+    },
+    {
+      "check": "final_freshness_is_exact_bounded_reported_cut_and_transfer_stays_unverified",
+      "passed": true
+    },
+    {
+      "check": "superseded_B197_B61_standing_kept_historical_not_primary_current",
+      "passed": true
+    },
+    {
+      "check": "historical_decision_line_selectors_never_rebound_to_new_hashes",
+      "passed": true
+    },
+    {
+      "check": "source_aliases_resolve_to_exact_registered_version",
+      "passed": true
+    },
+    {
+      "check": "archive_aliases_preserve_OP_version_and_DR_meaning",
+      "passed": true
+    },
+    {
+      "check": "all_archive_range_sources_resolve",
+      "passed": true
+    },
+    {
+      "check": "all_data_crosschecks_are_version_bound_original_sources",
+      "passed": true
+    },
+    {
+      "check": "mathematical_scope_check_source_aliases_resolve",
+      "passed": true
+    },
+    {
+      "check": "all_nine_spending_source_representations_registered",
+      "passed": true
+    },
+    {
+      "check": "retained_manifest_hashes_are_full_file_hashes",
+      "passed": true
+    },
+    {
+      "check": "excerpt_footer_hashes_not_misrepresented_as_full_source_hashes",
+      "passed": true
+    },
+    {
+      "check": "blueprint_release_exact_excerpt_range",
+      "passed": true
+    },
+    {
+      "check": "extended_reading_does_not_advance_source_observation",
+      "passed": true
+    },
+    {
+      "check": "analytical_D1_cap5_finite_oracle",
+      "passed": true
+    },
+    {
+      "check": "analytical_D1_cap4_finite_oracle",
+      "passed": true
+    },
+    {
+      "check": "analytical_D1_value_threshold",
+      "passed": true
+    },
+    {
+      "check": "analytical_adaptive_example_reference_only",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "file_manifest": [
+    {
+      "name": "README.md",
+      "bytes": 24290,
+      "sha256": "4a98715af5c3d27f6917ddf49524e2fd4fb8eacc81fe5efdb8e657a05b216c9f"
+    },
+    {
+      "name": "branches.md",
+      "bytes": 46780,
+      "sha256": "1108162b564775710813e302338907c9ae6c0335161bd8ea86f00c909ba95893"
+    },
+    {
+      "name": "catalogue.json",
+      "bytes": 118785,
+      "sha256": "12e2534cb07a82c0cc1e0df5ba1e26865189c3c965b120536295766d13016161"
+    },
+    {
+      "name": "decisions.json",
+      "bytes": 188697,
+      "sha256": "952f2555f06032358f42e43da1aad5878a4fc26645ead47390dd6551933db185"
+    },
+    {
+      "name": "decisions.md",
+      "bytes": 30973,
+      "sha256": "4392e72be659a20a88cfe834627b669d9581b96a638bbfde1f2f8988f9d2491e"
+    },
+    {
+      "name": "dependencies.json",
+      "bytes": 25361,
+      "sha256": "bc0dd4365e4d23e16305ca6950c58a839658820ff9f8a4bbd90a719ad93e5a24"
+    },
+    {
+      "name": "dependencies.md",
+      "bytes": 16524,
+      "sha256": "7fd9bf2db0228fc7c4f75c2cf1d0889ea384865c24460d41ef4f54ca6ef070b8"
+    },
+    {
+      "name": "effort.json",
+      "bytes": 42068,
+      "sha256": "cb30608d1d11a5c14937cfa219637dba62461caa212ae0033c0b3e97e4a59a14"
+    },
+    {
+      "name": "first_portfolio.md",
+      "bytes": 28116,
+      "sha256": "98d180120b05de8cea4bc23bd624e6a33786d5a6dca895c62958f1f512d4e493"
+    },
+    {
+      "name": "maintenance.md",
+      "bytes": 11849,
+      "sha256": "20ec78a4cebec9602ffe3eabe37c5d652bcde107777871c41eb8acf10d979598"
+    },
+    {
+      "name": "programs.md",
+      "bytes": 74819,
+      "sha256": "6fa5710be930289816a8e12d8c12496ea9735a213be8e05d757c3a33dc73df80"
+    },
+    {
+      "name": "roadmap.md",
+      "bytes": 24869,
+      "sha256": "caf35e902a85b1356a44c88e9217b1b6669c9366a501d20b8290783afc1fbb5e"
+    },
+    {
+      "name": "source_disposition.json",
+      "bytes": 3288529,
+      "sha256": "4eebb19545e3508bc89fe3403cfee7f9b122d8ea9feec69ea62c9607e3806f1d"
+    },
+    {
+      "name": "sources.json",
+      "bytes": 412141,
+      "sha256": "3dc30b760af58fbba7a2eb7f78398ceb819e9bc543f4c2707020fa0e285dc76b"
+    },
+    {
+      "name": "sources.md",
+      "bytes": 24561,
+      "sha256": "430dad699907849ab39622f7170e053067fb10bfb60375a93692377c42d3a7f9"
+    }
+  ]
+}

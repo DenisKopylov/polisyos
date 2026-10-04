@@ -1,0 +1,1035 @@
+{
+  "schema": "policyos.development_programs.effort.v1",
+  "language": "ru",
+  "units": "hypothetical_normalized_engineering_days_not_coding_agent_elapsed_time",
+  "portfolio_total": null,
+  "reason_no_total": "Overlapping alternative scopes; unique funded nodes, new integration and external waits not yet established.",
+  "packages": [
+    {
+      "id": "DEV-I01",
+      "title": "Довести поддержанный conditional contrast до употребления",
+      "program_homes": [
+        "DEV-M1",
+        "DEV-H"
+      ],
+      "exact_scope": "Один scalar welfare/benefit contrast двух заданных политик, уже корректно рассчитанный existing method: только exact packet→existing consumer→reload; без нового intervention/model semantics.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          1,
+          2
+        ],
+        "architecture_decisions": [
+          1,
+          2
+        ],
+        "build": [
+          2,
+          4
+        ],
+        "integration": [
+          1,
+          3
+        ],
+        "independent_verification": [
+          2,
+          4
+        ]
+      },
+      "first_increment_total_days": [
+        7,
+        15
+      ],
+      "marginal_second_case_same_contract_days": [
+        2,
+        5
+      ],
+      "marginal_second_case_new_family_days": [
+        5,
+        12
+      ],
+      "external_waits": [
+        "Готовность exact source/model inputs; для новой эмпирической силы нужны отдельные основания"
+      ],
+      "recurring_burden": [
+        "Совместимость packet/API/client",
+        "Регрессионный набор и поддержка semantics при новых targets"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Новый estimator",
+        "CG2 calibration labels",
+        "Исследование human comprehension",
+        "Production promotion"
+      ],
+      "strong_comparator": [
+        "Нынешний packet + краткий ручной/точный расчёт при тех же inputs, target и uncertainty"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "morning_substrate_update": "Reported local Oct1 inspection: internal B197 covariance/report/welfare and B61 prepared-read consumers are integrated. Reuse them; configured producer, typed report intake, authority and selected-view residuals stay separate. Existing E02 repair costs were already excluded, so do not mechanically subtract a second time or infer a new numeric estimate.",
+      "short_label": "I01"
+    },
+    {
+      "id": "DEV-I02",
+      "title": "Создать question-bound evidence map",
+      "program_homes": [
+        "DEV-E1"
+      ],
+      "exact_scope": "Один ограниченный documentary question, одна доступная source family, фиксированный bounded корпус и один candidate evidence-map consumer; без bulk campaign или calibrated confidence.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          1,
+          2
+        ],
+        "architecture_decisions": [
+          1,
+          2
+        ],
+        "build": [
+          1,
+          3
+        ],
+        "integration": [
+          0,
+          2
+        ],
+        "independent_verification": [
+          1,
+          4
+        ]
+      },
+      "first_increment_total_days": [
+        4,
+        13
+      ],
+      "marginal_second_case_same_contract_days": [
+        1,
+        4
+      ],
+      "marginal_second_case_new_family_days": [
+        4,
+        10
+      ],
+      "external_waits": [
+        "Доступ к текстам и право на использование",
+        "Независимая review трудоёмкость зависит от числа claim families"
+      ],
+      "recurring_burden": [
+        "Изменения source formats и доступа",
+        "Проверка применимости/новых противоречий остаётся не нулевой"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Полный corpus pass",
+        "Признание calibrated grounding",
+        "Положительный legal/causal claim"
+      ],
+      "strong_comparator": [
+        "Хорошая ручная source-cited таблица",
+        "Фиксированный native extractor/детерминированный parser на том же frame"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "short_label": "I02"
+    },
+    {
+      "id": "DEV-I03",
+      "title": "Превратить один semantic profile в независимо калиброванный",
+      "program_homes": [
+        "DEV-E1"
+      ],
+      "exact_scope": "Один relation type в одном predeclared semantic stratum/profile при уже доступных независимых labels; exact qualification→same consumer; без новой causal-identification процедуры.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          2,
+          4
+        ],
+        "architecture_decisions": [
+          3,
+          5
+        ],
+        "build": [
+          4,
+          8
+        ],
+        "integration": [
+          2,
+          5
+        ],
+        "independent_verification": [
+          4,
+          8
+        ]
+      },
+      "first_increment_total_days": [
+        15,
+        30
+      ],
+      "marginal_second_case_same_contract_days": [
+        4,
+        8
+      ],
+      "marginal_second_case_new_family_days": [
+        10,
+        25
+      ],
+      "external_waits": [
+        "Создание независимых labels и спорных случаев",
+        "Квалификация exact purpose/stratum",
+        "Решение компетентного владельца, если его требует заявленный band"
+      ],
+      "recurring_burden": [
+        "Refresh/expiry/recalibration",
+        "Проверка drift и новых source families",
+        "Продолжающийся независимый adjudication труд"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Label generation/adjudication labor and waiting",
+        "Causal identification beyond semantic support",
+        "Institutional adoption"
+      ],
+      "strong_comparator": [
+        "EC02B плюс качественная независимая ручная проверка",
+        "Тот же native conditional method без нового confidence claim"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "short_label": "I03"
+    },
+    {
+      "id": "DEV-I04",
+      "title": "Получить минимальное различающее основание",
+      "program_homes": [
+        "DEV-E2"
+      ],
+      "exact_scope": "Один data-shaped gap и один готовый допустимый quantitative source route; уже repaired native acquisition→admission→same-case answer. Новый field experiment/общий VOI planner не входят.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          1,
+          3
+        ],
+        "architecture_decisions": [
+          2,
+          4
+        ],
+        "build": [
+          3,
+          6
+        ],
+        "integration": [
+          2,
+          5
+        ],
+        "independent_verification": [
+          2,
+          7
+        ]
+      },
+      "first_increment_total_days": [
+        10,
+        25
+      ],
+      "marginal_second_case_same_contract_days": [
+        3,
+        7
+      ],
+      "marginal_second_case_new_family_days": [
+        8,
+        20
+      ],
+      "external_waits": [
+        "Source access/rights/rate limits",
+        "Observation horizon when new measurement is needed",
+        "Назначенный substantive reviewer только для соответствующего claim"
+      ],
+      "recurring_burden": [
+        "Provider profile/quotas/schema drift",
+        "Rights expiry",
+        "Приёмка каждого нового наблюдения и re-entry audit"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Fieldwork/paid providers",
+        "Общий мировой data catalogue",
+        "Общий оптимальный VOI allocator"
+      ],
+      "strong_comparator": [
+        "Ручное получение одного источника",
+        "Прямое дешёвое измерение",
+        "Простое owner-defined правило выбора"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "short_label": "I04"
+    },
+    {
+      "id": "DEV-I05",
+      "title": "Поддерживать вывод при изменении источника",
+      "program_homes": [
+        "DEV-C"
+      ],
+      "exact_scope": "Один известный source family, один revision/retraction/late-event path, один supported answer consumer и его historical replay; не глобальная dependency-completeness система.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          1,
+          2
+        ],
+        "architecture_decisions": [
+          2,
+          4
+        ],
+        "build": [
+          3,
+          5
+        ],
+        "integration": [
+          2,
+          4
+        ],
+        "independent_verification": [
+          2,
+          5
+        ]
+      },
+      "first_increment_total_days": [
+        10,
+        20
+      ],
+      "marginal_second_case_same_contract_days": [
+        2,
+        5
+      ],
+      "marginal_second_case_new_family_days": [
+        5,
+        15
+      ],
+      "external_waits": [
+        "Достоверная история версий/valid-time/publication-time",
+        "Известный dependency denominator"
+      ],
+      "recurring_burden": [
+        "Event/schema evolution",
+        "Expiry и purge/retention различены",
+        "Полный контрольный пересчёт и пропущенные dependencies"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Глобальный event engine",
+        "Полное публичное historical disclosure",
+        "Внешнее institutional case management"
+      ],
+      "strong_comparator": [
+        "Полный пересчёт того же case",
+        "Ручной source-version review"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "morning_substrate_update": "Reported local Oct1 inspection: internal B197 covariance/report/welfare and B61 prepared-read consumers are integrated. Reuse them; configured producer, typed report intake, authority and selected-view residuals stay separate. Existing E02 repair costs were already excluded, so do not mechanically subtract a second time or infer a new numeric estimate.",
+      "short_label": "I05"
+    },
+    {
+      "id": "DEV-I06",
+      "title": "Сохранить ровно нужный probabilistic functional",
+      "program_homes": [
+        "DEV-M1",
+        "DEV-N"
+      ],
+      "exact_scope": "Один scalar pairwise contrast из существующих пригодных joint draws/target law с exact finite reference и одним downstream decision consumer. Иные SAE/tail/survival targets — separate scoped variants, не обещание всего списка.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          1,
+          2
+        ],
+        "architecture_decisions": [
+          2,
+          4
+        ],
+        "build": [
+          2,
+          6
+        ],
+        "integration": [
+          2,
+          5
+        ],
+        "independent_verification": [
+          3,
+          8
+        ]
+      },
+      "first_increment_total_days": [
+        10,
+        25
+      ],
+      "marginal_second_case_same_contract_days": [
+        3,
+        7
+      ],
+      "marginal_second_case_new_family_days": [
+        8,
+        20
+      ],
+      "external_waits": [
+        "Grounded target, joint relation и sampling/measurement law when empirical",
+        "Independent exact/heldout reference where feasible"
+      ],
+      "recurring_burden": [
+        "Statistical semantics regression",
+        "Replicate/release/source identity",
+        "Поддержание reference cases при изменении методов"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Общий joint-world engine",
+        "Новая identification theorem",
+        "Улучшение физической модели без данных"
+      ],
+      "strong_comparator": [
+        "Прямой exact small calculation",
+        "Current strong native method/full-pool/direct estimator при том же target"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "morning_substrate_update": "Reported local Oct1 inspection: internal B197 covariance/report/welfare and B61 prepared-read consumers are integrated. Reuse them; configured producer, typed report intake, authority and selected-view residuals stay separate. Existing E02 repair costs were already excluded, so do not mechanically subtract a second time or infer a new numeric estimate.",
+      "short_label": "I06"
+    },
+    {
+      "id": "DEV-I07",
+      "title": "Сохранить исполнимый набор альтернатив",
+      "program_homes": [
+        "DEV-P1"
+      ],
+      "exact_scope": "Одна небольшая finite budget-selection family (до 10 action items, 2–3 objectives), заданные допустимые coefficients, полный enumeration reference, сохранённый x и один stable preference/constraint consumer; не универсальный policy synthesizer.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          1,
+          3
+        ],
+        "architecture_decisions": [
+          2,
+          4
+        ],
+        "build": [
+          3,
+          8
+        ],
+        "integration": [
+          2,
+          5
+        ],
+        "independent_verification": [
+          2,
+          10
+        ]
+      },
+      "first_increment_total_days": [
+        10,
+        30
+      ],
+      "marginal_second_case_same_contract_days": [
+        3,
+        8
+      ],
+      "marginal_second_case_new_family_days": [
+        10,
+        25
+      ],
+      "external_waits": [
+        "Grounded action coefficients/constraints",
+        "Normative trade-off choice for genuine recommendation"
+      ],
+      "recurring_burden": [
+        "Versioned preference profiles",
+        "Feasibility and action linkage",
+        "Новые source/model uncertainty не покрываются старым menu"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Универсальная grammar всех политик",
+        "Stable societal utility by assumption",
+        "Обученный solver для любого семейства"
+      ],
+      "strong_comparator": [
+        "Полный перебор на small finite case",
+        "Объявленная fixed scalarization",
+        "ε-constraint/существующий MCDA с полным action linkage"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "reuse_first": "Если repaired native menu уже полностью пригодно, new build funding = not needed; диапазон не применяется.",
+      "short_label": "I07"
+    },
+    {
+      "id": "DEV-I08",
+      "title": "M1a: оценить одну finite whole-rule family",
+      "program_homes": [
+        "DEV-P2"
+      ],
+      "exact_scope": "M1a: одна finite двухстадийная whole-rule evaluation family, 2–3 явно stipulated persistent models, фиксированные transition/signal/history и малое action space; полный enumeration reference и continuation check через него, один saved-rule/reload consumer на existing carriers.",
+      "status": "suspended_not_usable_as_portfolio_baseline",
+      "marginal_second_case_same_contract_days": null,
+      "marginal_second_case_new_family_days": null,
+      "external_waits": [
+        "Empirical transition/signal/delay support for non-stipulated claim",
+        "Normative risk/goal/deadline basis"
+      ],
+      "recurring_burden": [
+        "Рост state/history space",
+        "Policy evaluation after profile changes",
+        "Model/filtration review and out-of-support behavior"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Всеобъемлющий adaptive policy engine",
+        "Эмпирическая валидность finite model",
+        "Institutional execution",
+        "M1b: новый reusable retained-controller/history/filtration engine",
+        "New generalized nonrectangular solver",
+        "Abstraction→concrete continuation certificate",
+        "Эта оценка отменяется, если existing saved-rule carrier/consumer недостаточен"
+      ],
+      "strong_comparator": [
+        "Сильная fixed program",
+        "Nominal finite DP/two-stage",
+        "Exact enumeration на том же information set и модели"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "historical_conditional_quote": {
+        "normalized_effort_days": {
+          "discovery": [
+            2,
+            5
+          ],
+          "architecture_decisions": [
+            5,
+            10
+          ],
+          "build": [
+            5,
+            10
+          ],
+          "integration": [
+            3,
+            5
+          ],
+          "independent_verification": [
+            5,
+            10
+          ]
+        },
+        "total_days": [
+          20,
+          40
+        ],
+        "scope": "M1a: одна finite двухстадийная whole-rule evaluation family, 2–3 явно stipulated persistent models, фиксированные transition/signal/history и малое action space; полный enumeration reference и continuation check через него, один saved-rule/reload consumer на existing carriers."
+      },
+      "first_increment_total_days": null,
+      "normalized_effort_days": null,
+      "reason": "Named DP path computes but does not export full rule; actual sufficient carrier/reload consumer not established. Reestimate precise finite extension, not automatic general controller.",
+      "short_label": "I08"
+    },
+    {
+      "id": "DEV-I09",
+      "title": "Различать причины predicted/observed расхождения",
+      "program_homes": [
+        "DEV-M2"
+      ],
+      "exact_scope": "Один retrospective/deployment-like mature predicted/observed case на заранее заданном cause frame (model/delivery/measurement/behavior/compound/unresolved), с доступным independent holdout и existing reviewer readback; не общая диагностика всех политик и не O3.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          2,
+          4
+        ],
+        "architecture_decisions": [
+          3,
+          6
+        ],
+        "build": [
+          5,
+          10
+        ],
+        "integration": [
+          4,
+          8
+        ],
+        "independent_verification": [
+          6,
+          12
+        ]
+      },
+      "first_increment_total_days": [
+        20,
+        40
+      ],
+      "marginal_second_case_same_contract_days": [
+        5,
+        12
+      ],
+      "marginal_second_case_new_family_days": [
+        12,
+        30
+      ],
+      "external_waits": [
+        "Mature outcome horizon",
+        "Implementation/exposure/measurement evidence",
+        "Independent adjudication"
+      ],
+      "recurring_burden": [
+        "Outcome maturity/data linkage",
+        "Diagnostic thresholds and drift",
+        "Independent labels/adjudication, review queue"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "O2 autonomous hypothesis loop",
+        "O3 posterior mutation",
+        "Protected learning claim",
+        "Field outcome collection"
+      ],
+      "strong_comparator": [
+        "Preregistered monitoring report",
+        "Cause table/simple rules с честным unresolved"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "short_label": "I09"
+    },
+    {
+      "id": "DEV-I10",
+      "title": "Проверять human interpretation в настоящем workflow",
+      "program_homes": [
+        "DEV-H"
+      ],
+      "exact_scope": "Одна operator role, task и modality: CB2 caller→persisted trial→exact reload; instrument engineering only. Behavioral recruitment/study/adjudication отдельно.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          1,
+          2
+        ],
+        "architecture_decisions": [
+          1,
+          2
+        ],
+        "build": [
+          1,
+          4
+        ],
+        "integration": [
+          1,
+          3
+        ],
+        "independent_verification": [
+          1,
+          4
+        ]
+      },
+      "first_increment_total_days": [
+        5,
+        15
+      ],
+      "marginal_second_case_same_contract_days": [
+        2,
+        5
+      ],
+      "marginal_second_case_new_family_days": [
+        5,
+        15
+      ],
+      "external_waits": [
+        "Participants и consent для behavioral claim",
+        "Stable task/scoring basis and sealed cases"
+      ],
+      "recurring_burden": [
+        "Новые роли/languages/tasks требуют новых studies",
+        "Сохранение privacy/consent и drift task semantics"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Recruitment/study/adjudication labor",
+        "ML2 legal-equivalence scope",
+        "Public comprehension claim"
+      ],
+      "strong_comparator": [
+        "Простой текстовый отчёт",
+        "Human-only, AI-only, combined при одной задаче и полной цене"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "short_label": "I10"
+    },
+    {
+      "id": "DEV-I11",
+      "title": "Сделать один scientific workload существенно дешевле",
+      "program_homes": [
+        "DEV-N"
+      ],
+      "exact_scope": "Один измеренный local native numerical bottleneck и один target-preserving приём (например fixed-plan QMC или exact contraction/reuse) с full-cost comparator; новый elastic backend и scheduler в диапазон не входят.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          1,
+          3
+        ],
+        "architecture_decisions": [
+          2,
+          4
+        ],
+        "build": [
+          3,
+          6
+        ],
+        "integration": [
+          2,
+          4
+        ],
+        "independent_verification": [
+          2,
+          8
+        ]
+      },
+      "first_increment_total_days": [
+        10,
+        25
+      ],
+      "marginal_second_case_same_contract_days": [
+        2,
+        6
+      ],
+      "marginal_second_case_new_family_days": [
+        7,
+        18
+      ],
+      "external_waits": [
+        "Matched measured workload",
+        "Resource access and explicit spend permission for external backend"
+      ],
+      "recurring_burden": [
+        "Backend/version drift and runtime regression",
+        "Memory/storage/refresh/cancellation costs",
+        "Performance holdout battery"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Общий cluster scheduler",
+        "Научная смена target ради скорости",
+        "Новая learned strategy",
+        "Новый elastic backend: отдельная integration смета после source/ops boundary selection"
+      ],
+      "strong_comparator": [
+        "Strong local native implementation",
+        "Exact/direct formula or lower-dimensional sufficient computation",
+        "Larger single machine when appropriate"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "morning_substrate_update": "Reported local Oct1 inspection: internal B197 covariance/report/welfare and B61 prepared-read consumers are integrated. Reuse them; configured producer, typed report intake, authority and selected-view residuals stay separate. Existing E02 repair costs were already excluded, so do not mechanically subtract a second time or infer a new numeric estimate.",
+      "short_label": "I11"
+    },
+    {
+      "id": "DEV-I12",
+      "title": "Научиться повторяемой исследовательской операции",
+      "program_homes": [
+        "DEV-R"
+      ],
+      "exact_scope": "Одна повторяемая extraction/research operation с уже доступными selection-aware traces: bounded rule/cascade/lightweight routing against fixed native and single-strong-agent baselines; не общий research learner или foundation-model training.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          3,
+          6
+        ],
+        "architecture_decisions": [
+          3,
+          6
+        ],
+        "build": [
+          5,
+          10
+        ],
+        "integration": [
+          3,
+          6
+        ],
+        "independent_verification": [
+          6,
+          12
+        ]
+      },
+      "first_increment_total_days": [
+        20,
+        40
+      ],
+      "marginal_second_case_same_contract_days": [
+        4,
+        10
+      ],
+      "marginal_second_case_new_family_days": [
+        12,
+        30
+      ],
+      "external_waits": [
+        "Достаточное разнообразие независимых workflows",
+        "Feedback delay/labels",
+        "Допустимый heldout split по family/time/structure"
+      ],
+      "recurring_burden": [
+        "Data/feedback/training lifecycle",
+        "Drift monitoring, rollback/fallback",
+        "Exploration/support and evaluator independence"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "General autonomous research learner",
+        "Универсальная reward функция",
+        "Offline training as proof of product value"
+      ],
+      "strong_comparator": [
+        "Fixed native policy",
+        "Cheap deterministic heuristic/template/cache",
+        "Same-budget single strong agent"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "short_label": "I12"
+    },
+    {
+      "id": "DEV-I13",
+      "title": "Получать полезный измерительный ответ у владельца",
+      "program_homes": [
+        "DEV-A"
+      ],
+      "exact_scope": "Один допускаемый aggregate/count/contrast и один заранее определённый exact или noisy release mechanism в существующем holder-side execution environment; declared unit/contribution model и один consumer. Без new federation, enclave или remote execution platform.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          3,
+          6
+        ],
+        "architecture_decisions": [
+          5,
+          10
+        ],
+        "build": [
+          5,
+          10
+        ],
+        "integration": [
+          5,
+          12
+        ],
+        "independent_verification": [
+          7,
+          12
+        ]
+      },
+      "first_increment_total_days": [
+        25,
+        50
+      ],
+      "marginal_second_case_same_contract_days": [
+        5,
+        12
+      ],
+      "marginal_second_case_new_family_days": [
+        15,
+        35
+      ],
+      "external_waits": [
+        "Holder approval and supported execution path",
+        "Privacy unit/contribution bound/source rights",
+        "Source-specific permitted audience and output"
+      ],
+      "recurring_burden": [
+        "Privacy/composition ledger and release identity",
+        "Holder environment/API/version drift",
+        "Правила аудиторий и recurring approval/review"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Federation across all holders",
+        "Contracts/legal review labor",
+        "Production credentials/security changes",
+        "Universal privacy of arbitrary text"
+      ],
+      "strong_comparator": [
+        "Уже доступный public aggregate",
+        "Допустимый точный более грубый ответ",
+        "Один проверенный remote query вместо платформы federation"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "short_label": "I13"
+    },
+    {
+      "id": "DEV-I14",
+      "title": "Выбрать независимую runtime authority boundary",
+      "program_homes": [
+        "DEV-O"
+      ],
+      "exact_scope": "8–15 нормированных дней только на выбор одного independent deployment/trust boundary для named consumer и coverage четырёх FA1 capabilities; implementation total unknown.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          3,
+          5
+        ],
+        "architecture_decisions": [
+          5,
+          10
+        ],
+        "build": null,
+        "integration": null,
+        "independent_verification": null
+      },
+      "first_increment_total_days": null,
+      "marginal_second_case_same_contract_days": null,
+      "marginal_second_case_new_family_days": null,
+      "external_waits": [
+        "Independent infrastructure/control owner",
+        "Deployment/toolchain/data-trust policy decisions",
+        "Corresponding appointments if claim needs them"
+      ],
+      "recurring_burden": [
+        "Independent deployment/toolchain policy",
+        "Key/issuer/holder lifecycle",
+        "Coverage recensus after runtime changes"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Нет достоверной реализации total estimate до boundary choice",
+        "Первые 8–15 дней — только подготовка решения, не delivered authority"
+      ],
+      "strong_comparator": [
+        "Candidate/no-authority observation sufficient for many uses",
+        "Существующий refusal owner с truthful lower-band result"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "decision_only_total_days": [
+        8,
+        15
+      ],
+      "implementation_total_days": null,
+      "short_label": "I14"
+    },
+    {
+      "id": "DEV-I15",
+      "title": "Различать исполнение, измерение и системный отклик",
+      "program_homes": [
+        "DEV-P3"
+      ],
+      "exact_scope": "Один read-only event-log family с уже доступными lifecycle/object definitions, один малый QueueDES/предметный conditional process profile и один heldout period; без general process-mining/digital-twin platform.",
+      "status": "conditional_low_confidence_unmeasured_hypothesis",
+      "normalized_effort_days": {
+        "discovery": [
+          2,
+          4
+        ],
+        "architecture_decisions": [
+          3,
+          6
+        ],
+        "build": [
+          5,
+          10
+        ],
+        "integration": [
+          3,
+          5
+        ],
+        "independent_verification": [
+          7,
+          15
+        ]
+      },
+      "first_increment_total_days": [
+        20,
+        40
+      ],
+      "marginal_second_case_same_contract_days": [
+        5,
+        12
+      ],
+      "marginal_second_case_new_family_days": [
+        15,
+        30
+      ],
+      "external_waits": [
+        "Lifecycle meaning/object links",
+        "Heldout period/mature outcomes",
+        "Competent interpretation of logging changes"
+      ],
+      "recurring_burden": [
+        "Lifecycle/schema/change-log maintenance",
+        "Censoring and incomplete cases",
+        "Review of changing institution/behavior"
+      ],
+      "recurring_cost_measured": false,
+      "excluded": [
+        "Система управления учреждением",
+        "Causal effect from a convenient event log",
+        "Полный digital twin"
+      ],
+      "strong_comparator": [
+        "Простые counts/durations",
+        "Ручная process map",
+        "Существующий предметно обоснованный QueueDES profile"
+      ],
+      "interpretation": "Нормированный труд; не прогноз времени coding agents, не confidence interval и не календарное обещание.",
+      "past_discovery_rule": "Уже выполненную source/owner сверку не добавлять повторно; только remaining exact route delta.",
+      "verification_rule": "Обычные oracle/controls уже включены; не добавлять blanket V/P10 budget.",
+      "scope_reconciliation": "20–40 only ready lifecycle/object/process profile. Broad 45–120 minimum withdrawn; new empirical observation model and reusable regimes are unestimated M1b.",
+      "short_label": "I15"
+    }
+  ],
+  "reconciliations": [
+    {
+      "topic": "adaptive",
+      "decision": "Старая широкая оценка не minimum; малая 20–40 приостановлена, не усреднять."
+    },
+    {
+      "topic": "CB2",
+      "decision": "15–55 withdrawn; 5–15 условный technical slice; behavioral study отдельно и не объясняет старое расхождение."
+    },
+    {
+      "topic": "process",
+      "decision": "20–40 ready-profile M1a; 45–120 broad minimum withdrawn; empirical M1b separately unestimated."
+    },
+    {
+      "topic": "evaluation",
+      "decision": "Task-native V включено в выбранные пакеты; отдельный methodological research только при новой полезной capability."
+    },
+    {
+      "topic": "O1",
+      "decision": "15–30 narrow prepared case и 20–40 temporal/compound — разные scopes; для I09 выбран последний, не сумма."
+    }
+  ],
+  "shared_setup": "Один output и реальные consumers; никакого arbitrary synergy percentage.",
+  "current_baseline_update": "Morning reported integration reduces a possible native delta but does not change the hypothetical ranges automatically. Repair work already excluded is never credited twice.",
+  "calendar": "Определяется dependency graph и external evidence/authority/review waits; не делить нормированные дни на agents."
+}

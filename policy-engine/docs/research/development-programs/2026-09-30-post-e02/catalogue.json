@@ -1,0 +1,1145 @@
+{
+  "schema": "policyos.development_programs.authored.v1",
+  "language": "ru",
+  "status": "draft_for_review_not_ratified_not_execution_authorization",
+  "date": "2026-10-01",
+  "hierarchy_is_runtime_call_graph": false,
+  "fixed_program_count": false,
+  "reported_current_readback": {
+    "observation_started_at": "2026-10-01T05:01:10Z",
+    "observation_finished_at": "2026-10-01T05:01:44Z",
+    "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+    "reported_branch": "codex/e02-r2",
+    "working_tree_clean_reported": true,
+    "source_observation_is_atomic": false,
+    "verification_mode": "reported_read_only_local_source_inspection_no_materialized_fresh_source_export",
+    "source_bytes_rehashed_here": false,
+    "initial_observation": {
+      "observation_started_at": "2026-10-01T03:46:49Z",
+      "observation_finished_at": "2026-10-01T03:48:10Z",
+      "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2",
+      "reported_branch": "codex/e02-r2",
+      "working_tree_clean_on_both_reads_reported": true,
+      "report_sha256": "4390062c6c635d4e44af202f0f1abb76dbb6589e0a37369e2f53c9e3a3bf8a38",
+      "report_hash_scope": "local_readback_report_bytes_only_not_underlying_repository_source",
+      "reported_change_summary": {
+        "compared_with_head": "a7f589c4aa98d2c763a217b9b3c944ef69609703",
+        "changed_files": 131,
+        "added_lines": 16401,
+        "removed_lines": 1846,
+        "use_limit": "Not coding-effort or scientific-benefit measurements."
+      },
+      "ledger_overlay": {
+        "all282_ids_preserved_reported": true,
+        "per_id_status_changes_reported": 0,
+        "status_counts": {
+          "closed": 8,
+          "partial": 261,
+          "held": 12,
+          "open": 1
+        },
+        "changed_row_content_ids_reported": [
+          "B197"
+        ],
+        "full_current_ledger_materialized": false,
+        "baseline_is_historical": true,
+        "current_hash_source_key": "LEDGER_JSON",
+        "B197_changed_selector_paths_reported": [
+          "/appendix_c_comparison/detail",
+          "/residual",
+          "/residual_owner/name",
+          "/residual_owner/appointment_status",
+          "/h13_remaining_audit_20260927/scope",
+          "/h13_remaining_audit_20260927/typed_blocker/owner",
+          "/h13_remaining_audit_20260927/typed_blocker/source_audit_blocker",
+          "/h_current_add75_audit_20260927/disposition",
+          "/evidence_refs/blocker_path_at_sha",
+          "/evidence_refs/blocker_path_scope",
+          "/evidence_refs/canonical_bounded_internal_persistence_v2",
+          "/evidence_refs/current_frontier_recheck/scope",
+          "/evidence_refs/current_hn_review/identity",
+          "/evidence_refs/current_hn_review/scope",
+          "/evidence_refs/finding_test_or_probe/identity",
+          "/evidence_refs/finding_test_or_probe/scope",
+          "/evidence_refs/h14_source_review/identity",
+          "/evidence_refs/h14_source_review/scope",
+          "/evidence_refs/h_n_review_disposition",
+          "/evidence_refs/held_audit_receipt_status",
+          "/evidence_refs/held_current_head_recheck_20260928/identity",
+          "/evidence_refs/held_current_head_recheck_20260928/named_blocker",
+          "/evidence_refs/held_current_head_recheck_20260928/owner_refinement",
+          "/evidence_refs/held_current_head_recheck_20260928/residual_refinement",
+          "/evidence_refs/held_review/identity",
+          "/evidence_refs/held_review/scope",
+          "/evidence_refs/independent_card_audit/scope",
+          "/evidence_refs/independent_design_source/scope",
+          "/evidence_refs/latest_h14_source_review/identity",
+          "/evidence_refs/latest_h14_source_review/scope",
+          "/evidence_refs/served_producer_census_20261001"
+        ],
+        "B197_new_literal_values_materialized": false
+      }
+    },
+    "clarification_observation": {
+      "started_at": "2026-10-01T03:51:48Z",
+      "finished_at": "2026-10-01T03:52:18Z",
+      "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2",
+      "report_sha256": "7a5e237c7b862240cf5b2af9b91e2fd2bc623496f2fbd536663647f813377fe9",
+      "hash_scope": "local_clarification_report_bytes_only_not_underlying_repository_source",
+      "fresh_full_source_export": false,
+      "working_tree_clean_recheck_reported": false
+    },
+    "final_observation": {
+      "started_at": "2026-10-01T05:01:10Z",
+      "finished_at": "2026-10-01T05:01:44Z",
+      "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+      "reported_branch": "codex/e02-r2",
+      "working_tree_clean_reported": true,
+      "dirty_state_checked_separately_from_head": true,
+      "report_sha256": "b3a730a4a7e5c2e02aa948065207bb7c1c735dbbb389aadd3345b3e4eacb9424",
+      "hash_scope": "local_final_readback_report_bytes_only_not_underlying_repository_source",
+      "source_bytes_materialized_here": false,
+      "source_bytes_rehashed_here": false,
+      "bounded_freshness_check_complete": true,
+      "repository_destination": "docs/research/development-programs/2026-09-30-post-e02/",
+      "repository_destination_absent_reported": true,
+      "repository_transfer_verified": false,
+      "limit": "Bounded reported local observation at the exact stated cut; no complete current repository source audit or product execution."
+    },
+    "ledger_overlay": {
+      "all282_ids_preserved_reported": true,
+      "per_id_status_changes_reported": 0,
+      "status_counts": {
+        "closed": 8,
+        "partial": 261,
+        "held": 12,
+        "open": 1
+      },
+      "changed_row_content_ids_reported": [
+        "B197",
+        "B61",
+        "B152",
+        "B154",
+        "B155"
+      ],
+      "full_current_ledger_materialized": false,
+      "baseline_is_historical": true,
+      "current_hash_source_key": "LEDGER_JSON_FINAL",
+      "B197_changed_selector_paths_reported": [
+        "/appendix_c_comparison/detail",
+        "/residual",
+        "/residual_owner/name",
+        "/residual_owner/appointment_status",
+        "/h13_remaining_audit_20260927/scope",
+        "/h13_remaining_audit_20260927/typed_blocker/owner",
+        "/h13_remaining_audit_20260927/typed_blocker/source_audit_blocker",
+        "/h_current_add75_audit_20260927/disposition",
+        "/evidence_refs/blocker_path_at_sha",
+        "/evidence_refs/blocker_path_scope",
+        "/evidence_refs/canonical_bounded_internal_persistence_v2",
+        "/evidence_refs/current_frontier_recheck/scope",
+        "/evidence_refs/current_hn_review/identity",
+        "/evidence_refs/current_hn_review/scope",
+        "/evidence_refs/finding_test_or_probe/identity",
+        "/evidence_refs/finding_test_or_probe/scope",
+        "/evidence_refs/h14_source_review/identity",
+        "/evidence_refs/h14_source_review/scope",
+        "/evidence_refs/h_n_review_disposition",
+        "/evidence_refs/held_audit_receipt_status",
+        "/evidence_refs/held_current_head_recheck_20260928/identity",
+        "/evidence_refs/held_current_head_recheck_20260928/named_blocker",
+        "/evidence_refs/held_current_head_recheck_20260928/owner_refinement",
+        "/evidence_refs/held_current_head_recheck_20260928/residual_refinement",
+        "/evidence_refs/held_review/identity",
+        "/evidence_refs/held_review/scope",
+        "/evidence_refs/independent_card_audit/scope",
+        "/evidence_refs/independent_design_source/scope",
+        "/evidence_refs/latest_h14_source_review/identity",
+        "/evidence_refs/latest_h14_source_review/scope",
+        "/evidence_refs/served_producer_census_20261001"
+      ],
+      "B197_new_literal_values_materialized": false,
+      "changed_row_content_basis": "Union of reported changed rows since materialized September30 baseline across the two morning comparisons; not new literal rows.",
+      "final_delta_changed_row_content_ids_reported": [
+        "B61",
+        "B152",
+        "B154",
+        "B155"
+      ],
+      "final_delta_compared_with_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2",
+      "B197_unchanged_in_final_comparison_reported": true,
+      "final_changed_row_new_literal_values_materialized": false
+    },
+    "reported_unchanged_comparisons": [
+      {
+        "baseline_snapshot_id": "code_1749",
+        "source_count": 47,
+        "reported_unchanged_count": 47,
+        "comparison_kind": "reported_hash_comparison_not_fresh_source_copy",
+        "observation_window": "2026-10-01T03:46:49Z/2026-10-01T03:48:10Z",
+        "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2"
+      },
+      {
+        "baseline_snapshot_id": "causal_1757",
+        "subjects": [
+          "causal frontier.py",
+          "causal validator"
+        ],
+        "reported_unchanged": true,
+        "comparison_kind": "reported_hash_comparison_not_fresh_source_copy",
+        "observation_window": "2026-10-01T03:46:49Z/2026-10-01T03:48:10Z",
+        "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2"
+      },
+      {
+        "baseline_snapshot_id": "data_1809",
+        "source_count": 52,
+        "changed_source_keys": [
+          "CALIBRATOR",
+          "TRANSPORT"
+        ],
+        "comparison_kind": "reported_hash_comparison_not_fresh_source_copy",
+        "observation_window": "2026-10-01T03:46:49Z/2026-10-01T03:48:10Z",
+        "reported_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2"
+      }
+    ],
+    "final_unchanged_comparison": {
+      "compared_with_head": "252f6b8e222eba2378a1f5aab46d29f70d4f85b2",
+      "observed_at": "2026-10-01T05:01:10Z/2026-10-01T05:01:44Z",
+      "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+      "source_keys": [
+        "OP",
+        "DR",
+        "P_DRAFTS",
+        "RP",
+        "FINAL",
+        "B197_RECEIPT",
+        "B61_RECEIPT",
+        "R14_RECEIPT",
+        "CALIBRATOR",
+        "TRANSPORT",
+        "UNCERTAINTY_ADAPTER",
+        "COVARIANCE",
+        "WELFARE"
+      ],
+      "comparison_kind": "reported_hash_comparison_not_fresh_source_copy",
+      "earlier_source_record_observations_preserved": true,
+      "scope": "Five named E02 documents, three named receipts and five named code owners; no fresh comparison of all historical514 representations."
+    },
+    "updates": [
+      {
+        "id": "MORNING-B197",
+        "subject": "B197",
+        "official_status": "held",
+        "standing": "internal_vertical_integrated_production_intake_not_established",
+        "current_summary": "Внутренняя Calibrator → persisted report v2 → welfare Delta/MC цепочка интегрирована. Tied/singular Normal dependence сохраняется без jitter; mixed non-Normal covariance withholding сохраняет candidate point и отдельный robust outer bound.",
+        "remaining": "Frozen census at28ea3bb found no configured production construction Calibrator/CalibratorInputs or executable put_calibration_report caller; it is not a full current8b40f8f5 runtime census. Reachable internal typed intake seam remains: same INPUT_CALIBRATION_REPORT_REF is consumed as a distinct Funnel report schema.",
+        "historical_claim_superseded_only_in_scope": "Внутренняя persisted/numerical vertical ещё не passing или не реализована. Исторические неудачные receipts сохраняются как история.",
+        "source_keys": [
+          "OP",
+          "CALIBRATOR",
+          "UNCERTAINTY_ADAPTER",
+          "COVARIANCE",
+          "WELFARE",
+          "LEDGER_JSON",
+          "B197_RECEIPT",
+          "BLUEPRINT_CALLER",
+          "FUNNEL_PARSER"
+        ],
+        "receipt": {
+          "reported_document_name": "B197_COVARIANCE_RECEIPT.md",
+          "reported_lines": [
+            [
+              3,
+              24
+            ]
+          ],
+          "canonical_path": "docs/plans/active/agent-packages/PolicyOS_E02R2/B197_COVARIANCE_RECEIPT.md",
+          "sha256": "9019cb605e10d07149e7a5415e104ed42394d059e7ab4f9b76c3184c6dc28c89",
+          "reported_result": "58/58 canonical witness",
+          "rerun_in_morning_inspection": false,
+          "hash_verification": "reported_local_not_rehashed_here",
+          "underlying_witness_independently_rechecked": false
+        },
+        "programme_effect": "Reuse internal covariance/projection/welfare chain. Do not fund it again as new M1/N build; qualify only the actual configured producer, report intake and new scientific question.",
+        "frozen_producer_census": {
+          "head": "28ea3bb56bc4e751bf1303615d79219b56d7a24c",
+          "tracked_source_paths": 2906,
+          "production_python_AST": 2696,
+          "deployment_config_paths": 272,
+          "found_production_construction_Calibrator_or_CalibratorInputs": false,
+          "found_executable_put_calibration_report_caller": false,
+          "current_252f6b_complete_census_claimed": false,
+          "tests_or_live_runtime_executed": false,
+          "independently_rechecked_58_witness": false,
+          "current_8b40f8f5_complete_census_claimed": false
+        },
+        "typed_intake_seam": {
+          "shared_key": "INPUT_CALIBRATION_REPORT_REF",
+          "shared_key_value": "inputs.calibration_report_ref",
+          "B197_report": {
+            "type": "CalibrationReport",
+            "kind": "foundry.calibration_report",
+            "schema": "polisyos.foundry.CalibrationReport@2.0"
+          },
+          "Funnel_report": {
+            "type": "FunnelCalibrationReport",
+            "kind": "scientist.search.calibration_report",
+            "schema": "polisyos.scientist.search.FunnelCalibrationReport@1.0"
+          },
+          "caller_source_key": "BLUEPRINT_CALLER",
+          "parser_source_key": "FUNNEL_PARSER",
+          "reachable_internal_seam_reported": true,
+          "served_report_production_or_authority_emission_proved": false
+        },
+        "final_readback": "B197 full ledger row and named internal source/receipt hashes reported unchanged versus03:48."
+      },
+      {
+        "id": "MORNING-B61",
+        "subject": "B61",
+        "official_status": "held",
+        "standing": "prepared_read_consumers_integrated_authority_held",
+        "current_summary": "Prepared source-read подключён к workflow consumers до cache lookup, с matching-path проверкой и сохранением borrowed-query lifecycle. Финальный ledger явно supersedes прежний v2 stale-ref blocker bounded V11 evidence.",
+        "remaining": "Held остаток — owner-issued SKG provenance/read handle и K_ref custody; техническая интеграция не назначает authority.",
+        "historical_claim_superseded_only_in_scope": "Более широкий prepared-read маршрут описывался только как неинтегрированный v2 candidate/NO-GO.",
+        "source_keys": [
+          "TRANSPORT",
+          "B61_RECEIPT",
+          "LEDGER_MD_FINAL",
+          "LEDGER_JSON_FINAL"
+        ],
+        "receipt": {
+          "reported_document_name": "B61_PREPARED_READ_V11_INTEGRATION_RECEIPT.md",
+          "reported_lines": [
+            [
+              3,
+              29
+            ],
+            [
+              39,
+              46
+            ]
+          ],
+          "canonical_path": "docs/plans/active/agent-packages/PolicyOS_E02R2/B61_PREPARED_READ_V11_INTEGRATION_RECEIPT.md",
+          "sha256": "f2dc99d219790756a46c8eebcde625fb3be152befe2606dc71937c6c3482bdc4",
+          "reported_result": "121/121 across13 whole files",
+          "rerun_in_morning_inspection": false,
+          "hash_verification": "reported_local_not_rehashed_here"
+        },
+        "programme_effect": "Reuse prepared-read implementation. New E1/C work concerns the selected meaning, authority and useful source/currentness question, not the same cache bridge.",
+        "ledger_reported_evidence": {
+          "source_key": "LEDGER_MD_FINAL",
+          "selectors": [
+            "L249",
+            "L525"
+          ],
+          "present_whole_file_PASS_cells": 49,
+          "reported_outcomes": 393,
+          "historical_Git_absent_UNRUN": 3,
+          "earlier_receipt_count_additive": false,
+          "rerun_here": false,
+          "limit": "Current ledger records this bounded evidence scope; unchanged V11 receipt previously reported121/121 across13 whole files. These are not disjoint results to add, a new run here, or authority closure."
+        }
+      },
+      {
+        "id": "MORNING-R14",
+        "subject": "R14",
+        "standing": "actor_lease_attempt_custody_and_completion_reconciliation_integrated",
+        "current_summary": "Durable actor/lease/attempt custody и completion reconciliation интегрированы.",
+        "remaining": "Nine producer-fixture setup errors occurred before N4 and did not execute their intended properties. SearchExit→closeout/promotion is separately bridge_missing at receiptL12,L105; purpose-aware projection and WorkspaceSearchExitContract producer do not establish orchestration/admission. Underlying seam census was not independently repeated in the clarification.",
+        "historical_claim_superseded_only_in_scope": "53-pass/one-setup-error frozen v3 остаётся ранним историческим срезом, не текущим итогом интеграции.",
+        "source_keys": [
+          "R14_RECEIPT"
+        ],
+        "receipt": {
+          "reported_document_name": "R14_WORKER_CUSTODY_RECEIPT.md",
+          "reported_lines": [
+            [
+              3,
+              20
+            ]
+          ],
+          "canonical_path": "docs/plans/active/agent-packages/PolicyOS_E02R2/R14_WORKER_CUSTODY_RECEIPT.md",
+          "sha256": "1e0ff40270e383cf3d0eadcebb3734e856196f7b1efdf761b8134bcbdc9c6229",
+          "reported_result": "158 passes and9 producer-fixture setup errors",
+          "rerun_in_morning_inspection": false,
+          "hash_verification": "reported_local_not_rehashed_here"
+        },
+        "programme_effect": "Reuse integrated worker custody. Preserve the unexecuted property coverage and exact promotion handoff; do not infer public authority.",
+        "unexecuted_property_groups": [
+          {
+            "property": "existing producer read-before-candidate-absence",
+            "cases": 1
+          },
+          {
+            "property": "source-content binding with retained semantic markers",
+            "cases": 1
+          },
+          {
+            "property": "foreign candidate bytes refused despite matching label",
+            "cases": 1
+          },
+          {
+            "property": "exact compiled-source custody",
+            "fields": [
+              "artifact ID",
+              "integrity",
+              "byte size",
+              "media type",
+              "artifact schema"
+            ],
+            "cases": 5
+          },
+          {
+            "property": "real negative N9 source to offer CAS to authoritative classifier",
+            "cases": 1
+          }
+        ],
+        "unexecuted_case_count_reported": 9
+      },
+      {
+        "id": "MORNING-R1-V3",
+        "subject": "R1 V3",
+        "standing": "bounded_engineering_draft_not_served_readiness",
+        "current_summary": "Engineering draft предлагает static profile selection, исключающую только tenant_id, cell_id, job_id и run_id из nl_provenance.source_context selector basis, при сохранении полной execution identity/custody.",
+        "remaining": "Engineering decision draft with bounded reviewer design GO inside already chosen Option A; no separate owner acceptance, new principal permission, integration or B01–B03 change is established. Truthful configured served/compiler/source-time/grounding/LEX/S8/N9/promotion/publication and four-base evidence remain unestablished. Last served attempt was resource-guard UNRUN.",
+        "source_keys": [
+          "DR",
+          "FINAL"
+        ],
+        "programme_effect": "No new selector platform or assumed premise resolution; use only the separately admitted bounded profile and current source/view identity.",
+        "selector_exclusions": {
+          "field": "nl_provenance.source_context",
+          "server_injected_ids": [
+            "tenant_id",
+            "cell_id",
+            "job_id",
+            "run_id"
+          ],
+          "complete_execution_identity_and_custody_retained": true
+        },
+        "additional_bounded_GO_scope": "Removal of nonempty profile-ID prerequisite in existing scope issuer while preserving simulate-only admission, actor, lease and attempt checks; design GO is not a behavior receipt."
+      },
+      {
+        "id": "MORNING-R9",
+        "subject": "R9",
+        "standing": "canonical_ID_patch_integrated_V2_authority_boundary_and_failures_remain",
+        "current_summary": "Canonical-ID patch интегрирован в HEAD8b40f8f5: store deduplicates typed IDs by .hex while preserving typed return values. Eager full input materialization remains. Refusal сохраняет точный scope V2 production-approval issuance/currentness.",
+        "remaining": "New receipt records four CAS-03 failures. Corrected fixture reaches HTTP issuance201 and verification200, but report_authentication=invalid; this is recorded evidence, not closure. Unchanged FINAL_REPORT still calls the earlier candidate unintegrated at its own frozen cut; that statement is historical after the current integration.",
+        "source_keys": [
+          "DR",
+          "FINAL",
+          "R9_CANONICAL_RECEIPT",
+          "ARTIFACT_STORE_FINAL"
+        ],
+        "programme_effect": "Reuse integrated canonical-ID repair within existing R9 owner. Keep remaining CAS, report authentication, production all-confirmations and scoped issuance/currentness boundaries; no new custody platform or automatic closure.",
+        "cohorts": [
+          {
+            "id": "pre_repair",
+            "head": "d0e65aa",
+            "source_key": "FINAL",
+            "selector": "L7",
+            "reported_pass_to_fail": 9,
+            "breakdown": {
+              "hashability_inventory": 8,
+              "manifest_read_count": 1
+            },
+            "scope": "E02 to d0 bounded protocol/CAS-03 comparison, not whole-product regression."
+          },
+          {
+            "id": "canonical_ID_candidate",
+            "candidate": "codex/e02-r2-r9-publication@336d0ab",
+            "source_key": "FINAL",
+            "selector": "L8–9",
+            "integrated_at_report_cut": false,
+            "static_design_GO": true,
+            "protocol_reported_outcome": "9/1",
+            "CAS03_reported_outcome": "5/4",
+            "public_export_outcomes_blocked_before_HTTP_assertions": 8,
+            "scope": "Separate later candidate attempt; do not sum with pre-repair or earlier replay cohorts."
+          },
+          {
+            "id": "earlier_public_export_design_axes",
+            "source_key": "FINAL",
+            "selector": "L11",
+            "scope": "Separate earlier replay; no denominator or new run inferred here."
+          }
+        ],
+        "historical_claim_superseded_only_in_scope": "The canonical-ID patch being unintegrated is superseded as a current-HEAD claim; frozen FINAL_REPORT and earlier cohort outcomes remain historical evidence.",
+        "current_integration": {
+          "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+          "patch_integrated": true,
+          "source_key": "ARTIFACT_STORE_FINAL",
+          "receipt_source_key": "R9_CANONICAL_RECEIPT",
+          "receipt_selector": "L5–26",
+          "CAS03_failures_reported": 4,
+          "corrected_fixture_HTTP_issuance": 201,
+          "corrected_fixture_HTTP_verification": 200,
+          "report_authentication": "invalid",
+          "closure_established": false,
+          "new_product_run_here": false,
+          "frozen_FINAL_REPORT_updated": false,
+          "earlier_cohorts_additive": false,
+          "eager_full_input_materialization_remains": true
+        }
+      },
+      {
+        "id": "MORNING-N6",
+        "subject": "N6 selected source-view reuse",
+        "standing": "exact_manifest_view_custody_required_existing_boundary",
+        "current_summary": "Bare artifact ID недостаточен для повторного открытия exact selected manifest view.",
+        "remaining": "Proposed engineering repair preserves typed ArtifactRef plus exact manifest-profile selector through versioned run/preservation source-ref projection and existing readers. GenerationSourceRepository.persist609–640 currently receives typed store ref but returns str(ref.artifact_id); historical v1–v4 bytes must remain intact. Closure is not reported.",
+        "source_keys": [
+          "OP",
+          "GENERATION_SOURCE"
+        ],
+        "programme_effect": "Carry exact native view identity through the selected consumer; no new general custody programme or fabricated historical view."
+      },
+      {
+        "id": "MORNING-B152",
+        "subject": "B152",
+        "official_status": "partial",
+        "standing": "owner_scope_refined_individual_appointment_not_established",
+        "current_summary": "Ledger owner scope уточнён как R9 CAS runtime + finding-level verification.",
+        "remaining": "Индивидуальные appointments не установлены.",
+        "source_keys": [
+          "LEDGER_MD_FINAL",
+          "LEDGER_JSON_FINAL"
+        ],
+        "selectors": [
+          "L340"
+        ],
+        "programme_effect": "Use the existing finding-level repair boundary; owner wording is not an appointment, integrated consumer or closure.",
+        "new_literal_values_materialized": false
+      },
+      {
+        "id": "MORNING-B154",
+        "subject": "B154",
+        "official_status": "partial",
+        "standing": "owner_scope_refined_individual_appointment_not_established",
+        "current_summary": "Ledger owner scope уточнён как R9 CAS runtime + finding-level verification.",
+        "remaining": "Индивидуальные appointments не установлены. Отдельно consumer_missing для production all-confirmations.",
+        "source_keys": [
+          "LEDGER_MD_FINAL",
+          "LEDGER_JSON_FINAL"
+        ],
+        "selectors": [
+          "L342"
+        ],
+        "programme_effect": "Use the existing finding-level repair boundary; owner wording is not an appointment, integrated consumer or closure.",
+        "new_literal_values_materialized": false
+      },
+      {
+        "id": "MORNING-B155",
+        "subject": "B155",
+        "official_status": "partial",
+        "standing": "owner_scope_refined_individual_appointment_not_established",
+        "current_summary": "Ledger owner scope уточнён как R9 CAS runtime + finding-level verification.",
+        "remaining": "Индивидуальные appointments не установлены.",
+        "source_keys": [
+          "LEDGER_MD_FINAL",
+          "LEDGER_JSON_FINAL"
+        ],
+        "selectors": [
+          "L343"
+        ],
+        "programme_effect": "Use the existing finding-level repair boundary; owner wording is not an appointment, integrated consumer or closure.",
+        "new_literal_values_materialized": false
+      }
+    ],
+    "limits": [
+      "No product tests, providers or pipelines ran during this inspection.",
+      "Receipt test counts are locally read historical records, not reruns by this synthesis.",
+      "No full new ledger, complete131-file audit, independent mathematical revalidation or repository transfer is claimed.",
+      "Final bounded freshness is complete only for05:01:10–05:01:44UTC at8b40f8f5; repository transfer and any later product state are not verified."
+    ],
+    "final_refresh_pending": false,
+    "final_brief_freshness_verified": true,
+    "repository_transfer_verified": false
+  },
+  "recommendation": "Три предметных семейства и семь основных траекторий; финансировать малые законченные приращения. Условные ветви и общие условия не суммировать как программы или бюджеты.",
+  "families": [
+    {
+      "id": "DEV-FAM-E",
+      "title": "Пригодное основание",
+      "programs": [
+        "DEV-E1",
+        "DEV-E2"
+      ],
+      "short_label": "E"
+    },
+    {
+      "id": "DEV-FAM-M",
+      "title": "Модель и новое знание о мире",
+      "programs": [
+        "DEV-M1",
+        "DEV-M2"
+      ],
+      "short_label": "M"
+    },
+    {
+      "id": "DEV-FAM-P",
+      "title": "Исполнимая политика и выбор",
+      "programs": [
+        "DEV-P1",
+        "DEV-P2",
+        "DEV-P3"
+      ],
+      "short_label": "P"
+    }
+  ],
+  "programs": [
+    {
+      "id": "DEV-E1",
+      "title": "Измерение и смысл источника",
+      "type": "multi_increment_capability_trajectory",
+      "family": "DEV-FAM-E",
+      "standing": "analytical_proposal_not_authorization",
+      "document": "programs.md",
+      "primary_gv": [
+        "GV-09",
+        "GV-14",
+        "GV-20",
+        "GV-27",
+        "GV-35",
+        "GV-38",
+        "GV-54"
+      ],
+      "sections": [
+        {
+          "heading": "Полезная способность",
+          "text": "Система превращает источники в пригодные для конкретного вопроса наблюдения и отношения. Она отвечает не только «есть ли поле», но и «что оно измеряет, для какой популяции, в какой момент, при каком отборе и с какой неопределённостью». Полезный итог может быть описательным показателем, проверяемой картой свидетельств, оценкой распределения или явно ограниченным измерительным входом модели.\n\nЗдесь соединяются смысловое извлечение, единицы и временные координаты, идентичность субъектов, рамка наблюдения, ошибка измерения, пропуски, цензурирование и совместная структура популяции. Они объединены общим изменяемым объектом: отношением между наблюдавшимся материалом и величиной вопроса. Это не основание строить одну универсальную онтологию.\n\nПримеры новых вопросов: является ли сумма договорной или фактически оплаченной; означает ли регистрация безработицы отсутствие занятости; можно ли объединить две записи одной организации после реорганизации; что можно сказать об уровне риска к горизонту, если имеются только цензурированные исходы; какие распределительные последствия одинаково совместимы с опубликованными маргинальными таблицами?"
+        },
+        {
+          "heading": "Существующая опора и точная добавка",
+          "text": "Data Forge уже имеет `kernel/domains/read_api`, нормализаторы, снимки и схемы. Fabric хранит происхождение, временные ветви и сведения о качестве. `ObservationRecord` несёт единицу, период, охват, источник, режим, цензурирование и объявленный режим идентификации. Foundry действительно материализует PER_CELL и household cells и использует measurement-aware adapter при наличии соответствующего bundle.\n\nЭти механизмы сокращают объём нового кода. Они не устанавливают, что `coverage_estimate` измерен, коэффициент доверия калиброван, выбранная рамка представляет нужную популяцию или качество можно превратить в стандартную ошибку. Текущий default adapter перемножает скидки качества; это объявленное правило взвешивания, а не общий способ исправить MNAR, цензурирование или ошибку измерения.\n\nВ научных текстах существуют source/snippet carriers и реальные лексические связи Scholar. Для смыслового соответствия нужны независимые основания, сохраняющие отрицание, исключение, субъект, сравнение и контекст. Лексический `supported` не повышается до доказанного entailment. У академического корпуса имеются проверка подписанного adjudication и исключение отозванных работ в отдельных вычислениях; пригодность научного суждения и полнота последующего отзыва остаются самостоятельными свойствами."
+        },
+        {
+          "heading": "Приращения",
+          "text": "- **Первое приращение.** Один вопрос и один заранее фиксированный источник либо небольшая группа независимых источников. Исходное значение, определение, идентификаторы, единицы, период, доступность и преобразование сохраняются до действительного читателя. Для документной задачи допустима карта «поддерживает, возражает, не установлено» без вероятностного значка. Для численного источника достаточно верного описательного результата, если причинный вывод не заявлен\n- **Проверка переноса.** Меняется не только ID: другая source family, определение показателя, режим цензурирования, реорганизация субъекта или временная ревизия. Корректный вывод может измениться, а безвредное изменение оформления не должно приводить к отказу\n- **Зрелая цель.** Ограниченные измерительные профили с независимой оценкой ложных слияний, пропусков и смысловых ошибок; новые случаи преимущественно добавляются через профиль и данные, с известной предельной стоимостью проверки\n- **Условное расширение.** Совместная синтетическая популяция, small-area estimation, несколько измерительных каналов, competing risks и мультимодальные данные. Каждый вариант получает собственный вопрос, модель наблюдения и эталон; совпадение маргинальных таблиц не принимается за наблюдавшееся домохозяйство\n\nДля C7 полезный малый научный шаг — абсолютная вероятность определённого события к горизонту при обоснованных endpoint, risk set и censoring assumptions. Нынешний partial hazard уже полезен в своей области, но его переименование не создаёт вероятность. Для украинского D2 следует различать исходную observation panel и отдельные синтетические method contracts: наличие выбранного workflow ещё не доказывает, что он использует наблюдавшиеся outcome и treatment."
+        },
+        {
+          "heading": "Архитектурное решение и труд",
+          "text": "Предпочтителен узкий профиль существующего владельца: сначала определение величины и независимый ручной эталон, затем минимальные native поля и читатель. Полная переработка корпуса, новый общий compiler или глобальный alias registry оправданы только повторяемым спросом и доказанной общей семантикой.\n\nДля источниковой карты при готовых producers и consumer условное первое приращение составляет 4–13 нормированных дней. Калиброванный semantic profile при уже доступных независимых labels — иной полный пакет, 15–30 дней; эти числа не складываются. Новый эмпирический измерительный профиль, абсолютный риск, качественная совместная популяция и новые labels отдельно не оценены. Основной риск часто лежит в определениях и независимой проверке, а не в длине адаптера.\n\n**Ожидаемые E02-выходы:** исправленные source/byte/time bindings, уже интегрированные B61 prepared-read consumers при отдельно held issuer/K_ref authority, выбранный D3 optional-input inventory, LA-032 только для затронутых readers, необходимые B31/B201/B202 uncertainty contracts. Их ремонт не входит в эту программу. Выбор publisher vintage, population frame и смысла ошибки остаётся содержательной работой."
+        },
+        {
+          "heading": "Проверка и граница остановки",
+          "text": "Сильный comparator — ручная таблица источников, прямой подсчёт или existing native method с теми же сведениями. Положительный пример должен изменить полезный downstream ответ. Существенные negatives: тот же текст с иным отрицанием; одинаковое имя при другой единице; два источника одной study family, выданные за независимые; договорная сумма, выданная за платёж; скрытая группа наблюдений. Безвредные controls: эквивалентная верстка, допустимая смена порядка, тот же смысл из другого совместимого представления.\n\nИзмеряются полезное покрытие заявленной совокупности вопросов, ложная поддержка и ложный отказ, ошибки по значимым strata и полная цена проверки. Если новый путь не лучше хорошего ручного результата либо второй профиль требует центрального fork без новой способности, расширение останавливается. При отсутствии идентификации сохраняется поддержанный описательный результат.\n\n**Связи:** E2 получает пригодные ограничения и понимает, чего не хватает; M1 получает корректный observation model; M2 различает сдвиг мира и сдвиг регистрации; P3 получает событийную рамку. Ошибка общей идентичности или единицы, напротив, распространяется во все четыре направления. Повторное использование bytes не делает общими их научные критерии.\n\n**Основные источники:** `docs/adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md`, L58–78; `docs/reference/data-capability-requirements.md`, восемь отдельных требований; `src/polisyos/ir/observation/contracts.py`, L131–208; `src/polisyos/foundry/calibration/measurement.py`, L570–705; `src/polisyos/data_forge/domains/ukraine/builders/sources.py`, L1458–1620; Fabric Wave R1/R2/R5/R7/R8; GV-09/14/20/27/35/38/54."
+        }
+      ],
+      "funding_unit": "Выбранное bounded increment; программа не равна команде, методу или отдельному бюджету.",
+      "short_label": "E1"
+    },
+    {
+      "id": "DEV-E2",
+      "title": "Идентификация, синтез и приобретение основания",
+      "type": "multi_increment_capability_trajectory",
+      "family": "DEV-FAM-E",
+      "standing": "analytical_proposal_not_authorization",
+      "document": "programs.md",
+      "primary_gv": [
+        "GV-02",
+        "GV-23",
+        "GV-24",
+        "GV-25",
+        "GV-30",
+        "GV-36",
+        "GV-39",
+        "GV-41"
+      ],
+      "sections": [
+        {
+          "heading": "Полезная способность",
+          "text": "Система устанавливает, какой именно причинный или переносимый вывод поддержан имеющимися сведениями, какие допущения его ограничивают и какое доступное действие действительно способно изменить ответ. Она умеет сохранить несколько несовместимых оснований и полезные границы, вместо обязательного выбора одной точки или одного графа.\n\nПрограмма объединяет identification, evidence synthesis, transport и acquisition, потому что они замыкают один цикл вопроса: «что известно → чего не хватает → что принесёт различающее основание → что изменилось в том же ответе». При большом самостоятельном потоке systematic reviews или независимых задачах experimental design эти ветви могут выделиться; одно дополнительное имя метода этого не требует."
+        },
+        {
+          "heading": "Существующая опора",
+          "text": "Используются действующие causal/IR методы, Scholar и академические owners, CG1/CG2, `RequiredDataSpec`, N7/N13a/N13b, passport/overlay, AQ1 и VC1. Исторические причинные планы содержат принятые ограниченные результаты; старый список «нужна новая теорема» не доказывает отсутствия метода. Нужный estimator, его допустимость и actual consumer проверяются отдельно.\n\nУ Scientist уже есть predictive VOI scheduler, его состояние, отчёт и потребление в decision packet. В SBI `expected_information_gain` поступает как вход; это не подтверждённый nested EVSI estimator. Не нужно строить новый scheduler, чтобы сравнить существующее простое правило выбора источника с более содержательным. Отдельный S12 `ValueOfInformationEstimate` описан как qualitative site/budget skeleton без численной величины VOI: координация пяти бюджетов не является оценкой EVSI и не подменяет существующий predictive VOI path."
+        },
+        {
+          "heading": "Приращения",
+          "text": "- **Первое приращение.** Один точно сформулированный contrast или функционал и небольшое множество допустимых предпосылок. Показать поддержанный ответ либо его границы. Затем, если имеется реально исполнимый различающий маршрут, получить нужный объект через существующего владельца и изменить ответ того же case\n- **Проверка переноса.** Внешне похожий пробел требует иного основания: не ещё rows, а assignment rule, измерительная связь, joint observation, transport covariate или компетентный акт. Система должна выбрать иной маршрут либо обоснованно сохранить ограничение\n- **Зрелая цель.** Каталог применимых causal/synthesis/acquisition профилей с явными условиями, полными расходами, независимыми контрольными задачами и измеренной ценой нового source family\n- **Условное расширение.** Network interference, proxy/negative-control identification, publication selection, network meta-analysis, экспериментальный дизайн и nested VOI. Их финансируют по новому вопросу и сравнению с сильным простым методом\n\nПолная восстанавливаемость распределения не обязательна, если непосредственно восстанавливается нужный функционал. Аналогично численное доказательство оптимума границы условно на своём допустимом множестве: оно не допускает сами научные предпосылки. Нельзя выбирать предпосылку только потому, что она дала самый узкий интервал, или механически пересекать интервалы несовместимых моделей."
+        },
+        {
+          "heading": "Условный профиль поиска метода и пригодного доказательства",
+          "text": "Если реальный ответ ограничен нахождением уже существующего метода или certificate, полезен небольшой E2/M1-профиль: запрос требований → поиск native method/IR catalog → выбранные и отклонённые кандидаты → проверка предпосылок → разрешение ссылки на существующий payload → фактическое downstream употребление. Сильный comparator — ручной выбор из известного каталога и прямой запуск подходящего native метода. Проверяются известный пригодный кандидат, похожий непригодный, stale index, no-hit и добавленный корректный элемент каталога, который находится без нового case-specific кода. Recall имеет только объявленный конечный denominator; запись «не найдено» не доказывает, что основания нигде нет.\n\nИсторические G2 и G3 имеют разные условия завершения. G2 допускает честный causal/forecast domain ceiling после здорового поиска, сохранённых traces, проверки метода и freshness. У G3 такой исход допустим для отдельного запроса, но его заявленная slice closure требует хотя бы одной успешно разрешённой ссылки на реальный typed certificate/proof payload и полной downstream consumer chain. Нельзя считать всеобщий отказ положительным результатом этого профиля. Эти требования сохраняют полезный класс вопросов; они не дают бюджет новому универсальному proof engine и не утверждают свежий положительный запуск.\n\nОбычные traces и контрольные задачи входят в выбранный пакет. Отдельная R-ветвь появляется лишь после измеренного ограничения простого выбора методов; V-исследование — при действительно новом критерии проверки. Самостоятельная цена этого условного профиля пока не задана: найденная готовая цепочка может означать reuse, а недостающее научное основание требует иной работы."
+        },
+        {
+          "heading": "Решения до кода",
+          "text": "Сначала выбрать target, набор разрешённых предпосылок и доступные wrong-making observations. Предпочтителен известный ограниченный метод и native result. Общее probabilistic VOI оправдано только при обоснованных вероятностях исходов приобретения, функции потерь, цене и горизонте; до этого полезнее сравнение нескольких сценариев, dominance или прямое измерение.\n\nData gap, measurement gap, identification gap, semantic correspondence и отсутствие права требуют разных действий. Объект данных не назначает полномочие. При этом смысловое соответствие может быть содержательно исследуемым вопросом, а не обязательно внешним непроверяемым постулатом.\n\n**Ожидаемые E02-выходы:** точный B09/R13 admission→overlay→WMR→повторное потребление; актуальные context/basis и job scope; B61 для source reuse; numeric materializer при численном вмешательстве. Источник 2024 `percent_gdp` нельзя записать в USD stock профиля до 2023-07 по совпадению имени. Успешный carrier не разрешает этот смысловой конфликт."
+        },
+        {
+          "heading": "Труд и приёмка",
+          "text": "Узкий data-shaped route при готовой допустимости и repaired chain условно занимает 10–25 нормированных дней: discovery 1–3, решение 2–4, код 3–6, интеграция 2–5, проверка 2–7. Это не цена полевого эксперимента, общего VOI или новой теоремы. Приготовление нового causal-suitability решения может потребовать исследования без гарантированного положительного результата; отсутствие нового кода не означает отсутствия работы.\n\nЭталон — получить один известный источник вручную, прямо измерить нужное, применить существующий exact/native method или оставить полезный частичный ответ. Проверяются отдельно fetched, admitted, consumed и действительно improved answers. Повтор источника не считается новым знанием; wrong country/unit/vintage не проходит; удаление реального consumer уничтожает прежний положительный результат. Новая строка без изменения допустимого ответа не доказывает acquisition payoff.\n\n**Остановка:** новый planner не выбирает лучше простого правила; предполагаемый общий nuisance не подтверждён; поиск не различает нужное неизвестное; цена анализа следующего действия превышает само действие. Сохранить небольшой работающий каталог маршрутов. Не превращать остановку в выдуманный вывод «данных нигде нет».\n\n**Связи:** E1 предоставляет смысл источника; E2 открывает новые M1/P1/P2 вопросы; M2 возвращает конкурирующие объяснения для следующего исследования. Отбор источников меняет calibration population, поэтому прежние labels не переносятся автоматически. Несколько измерительных каналов могут быть полезны только совместно: такой пакет сравнивается целиком, без предположения универсальной greedy-очерёдности.\n\n**Основные источники:** Layer3 `G2-causal-forecast-search-engine.md`, L242–260/L1233–1385; `G3-analytics-search-engine.md`, L272–291; Layer2 `S12-cold-start-resource-economics.md`, L307–332; GY N7/N13a/N13b/AQ1/VC1; `docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md`, R1–R4; причинный research/result lineage; GV-02/23/24/25/30/36/39/41; E02 OP-R13 и OP-R1-SYMBOLIC-MATERIALIZATION."
+        }
+      ],
+      "funding_unit": "Выбранное bounded increment; программа не равна команде, методу или отдельному бюджету.",
+      "short_label": "E2"
+    },
+    {
+      "id": "DEV-M1",
+      "title": "Совместная модель состояние и прогноз",
+      "type": "multi_increment_capability_trajectory",
+      "family": "DEV-FAM-M",
+      "standing": "analytical_proposal_not_authorization",
+      "document": "programs.md",
+      "primary_gv": [
+        "GV-10",
+        "GV-28",
+        "GV-44",
+        "GV-48"
+      ],
+      "sections": [
+        {
+          "heading": "Полезная способность",
+          "text": "Система отвечает на вопросы о совместных результатах, состоянии и будущем, сохраняя то, что существенно для конкретного функционала: зависимость, информационный срез, наблюдение, структуру модели и альтернативные режимы. Среднее каждой величины отдельно может быть недостаточно для риска разности, совместного ограничения, хвоста или выбора политики.\n\nВнутри программы различаются четыре предмета: оценка параметров, оценимость нужной величины, состояние при фиксированной модели и прогноз. Хороший fit не устанавливает causal identification; узкая численная ошибка не означает узкую неопределённость модели; smoothing с будущими данными не является прогнозом, доступным в исторический момент."
+        },
+        {
+          "heading": "Опора и приращения",
+          "text": "Используются Foundry calibration/uncertainty, существующие state и model owners, IR/ValueOuterSet, WMR, native forecasting/backtesting и current packet. Развитие состоит в пригодном совместном объекте, научной проверке и сохранении его до конкретного потребителя, а не в новом общем world store.\n\nУтренний reported-local срез 1 октября уточняет B197: внутренняя Calibrator → persisted CalibrationReport v2 → welfare Delta/MC цепочка уже интегрирована. Report-owned scalar-group→field projection и общий covariance owner сохраняют tied/singular Normal dependence без jitter. При mixed non-Normal withholding остаются candidate point и отдельный robust outer bound. Receipt сообщает 58/58; underlying witness независимо не перепроверялся и в этом исследовании не запускался. Этот внутренний механизм не заказывается повторно.\n\nНеподтверждённый production ввод имеет точную границу. Frozen census на `28ea3bb` не нашёл production construction Calibrator/CalibratorInputs или executable put_calibration_report caller; это не полный текущий census на `8b40f8f5`. Кроме того, общий `inputs.calibration_report_ref` достигает Blueprint caller, ожидающего FunnelCalibrationReport@1.0, тогда как B197 сохраняет Foundry CalibrationReport@2.0. Это reachable internal typed-intake seam, без доказанного served B197 production или authority emission. Нужна квалификация конкретного producer и schema/kind dispatch существующего consumer, а не новый covariance engine. Источники по локальному чтению: `B197_COVARIANCE_RECEIPT.md`, L3–24; `OPEN_PREMISES.md`, L1158–1168; `run_policy_blueprint_runtime.py`, L502/L577/L1075–1079; точные пути и reported hashes — в sources.json.\n\n- **Первое приращение.** Один нужный функционал из уже пригодной joint law или ограниченного модельного семейства: например разность последствий двух мер с общей неопределённостью. Независимый конечный расчёт отличает две joint laws с одинаковыми marginals\n- **Проверка переноса.** Иной observation regime, поздняя ревизия, новый horizon или target, для которого прежней covariance недостаточно. Проверяется, какая часть повторного использования действительно сохраняет смысл\n- **Зрелая цель.** Поддержанные модели и прогнозные профили с диагностикой глобальных альтернатив, multimodality, prior sensitivity, regime support, calibrated predictive error и явной передачей состояния между модулями\n- **Условное расширение.** Hierarchical forecast reconciliation, nowcasting, mixed frequency, model averaging, SBI, динамическая микросимуляция и joint tails. Сначала применимость и сильный direct/structural baseline, затем более сложный estimator\n\nПрогноз выделяется в самостоятельную программу, когда есть повторяющийся потребитель с собственными горизонтами, vintages, распределительными прогнозами и rolling out-of-time оценкой. Одна новая модель в общем каталоге остаётся ветвью M1. Отдельная программа в этом случае разделяет подготовку данных и custody, но получает самостоятельную оценку прогнозной пользы и эксплуатационный цикл."
+        },
+        {
+          "heading": "Архитектурные альтернативы",
+          "text": "Предпочтительны native modules с точным target и сохраняемыми связями. Полный joint model и cut model отвечают на разные inferential вопросы: запрет обратной связи между модулями меняет распределение, а не только вычислительный план. Выбор делается по задаче и риску misspecification, с отдельной проверкой.\n\nРепрезентация выбирается по функционалу. Для некоторых вопросов достаточно совместных моментов; для нелинейного хвоста или event probability могут требоваться ordered joint draws либо другой native объект. Не нужно заранее заставлять все методы выдавать одинаковый набор samples. Сжатие допустимо после доказательства, что нужный вопрос сохраняется.\n\n**Условно потребляемые E02-выходы:** после отдельно принятого решения semantic owner по B31/B201/B202 — различённые point/interval/joint channels; B197 уже интегрированный internal covariance/report/welfare path, отдельно configured producer и typed intake в нужном scope; B194 draw provenance и допустимое обращение с failures; B169–B171 временной профиль, повторения и веса метрики; exact graph/ExecPlan/horizon по выбранному N5 пути. Исправление каждого из них не считается новым научным результатом M1."
+        },
+        {
+          "heading": "Труд проверка и остановка",
+          "text": "Для одного нового pairwise функционала при уже пригодных joint draws условный пакет составляет 10–25 нормированных дней. Он не покрывает новую empirical joint law, все survival/tail/SAE варианты или научную валидность переходов. Существенная доля решения лежит в target, dependence и независимом эталоне, даже если формула коротка.\n\nСравниваются exact/direct native calculation, прозрачная малая модель и существующий forecaster на одинаковом information set. Проверки: одинаковые marginals при иной зависимости; смена единиц; mean вне equal-tail interval; отсутствие доступности позднего наблюдения в раннем forecast origin; actual requested/started/completed replicates. Нельзя объявлять convergence по ширине распределения исхода или по неотвержению нулевого улучшения.\n\nОстановка оправдана, если новый функционал не меняет полезный ответ, более сложная модель не переносится на holdout regime, или полученная точность целиком создана неподдержанным prior/measurement weight. Тогда сохраняется bounded model-conditional ответ либо множество альтернатив.\n\n**Связи:** P1 получает корректную совместную оценку; P2 — переходы и доступные сигналы; M2 — заранее определённый прогноз и диагностируемый residual. Общий model input может сильно ускорить несколько consumers, но ошибочная joint law заражает одновременно их решение и последующее «подтверждение».\n\n**Основные источники:** GV-10/28/44/45/48; Foundry Methods T1/T3/T18/T19/T20/T28; `docs/plans/active/layer2-slices/S10-outcome-prediction-welfare-comparison.md`; E02 B31/B169–B171/B194/B197/B201/B202 и OP-R13-N5."
+        }
+      ],
+      "funding_unit": "Выбранное bounded increment; программа не равна команде, методу или отдельному бюджету.",
+      "short_label": "M1"
+    },
+    {
+      "id": "DEV-M2",
+      "title": "Диагноз и обучение о мире",
+      "type": "multi_increment_capability_trajectory",
+      "family": "DEV-FAM-M",
+      "standing": "analytical_proposal_not_authorization",
+      "document": "programs.md",
+      "primary_gv": [
+        "GV-45"
+      ],
+      "sections": [
+        {
+          "heading": "Полезная способность",
+          "text": "Система различает, какие объяснения расхождения между прогнозом и наблюдением поддержаны: delivery, измерение, модель, поведение, контекст или их сочетание. Она выбирает полезную следующую проверку. После отдельно принятого правила обновления новое допустимое знание может изменить версию мира и реально повлиять на следующий исследовательский цикл.\n\nЭто отдельная программа: хороший выбор исследовательского инструмента не меняет знание об эффекте политики. Сохранённая запись обновления тоже не доказывает правильность причинного диагноза."
+        },
+        {
+          "heading": "Три явных результата",
+          "text": "- **O1 Диагноз.** Заранее определённый прогноз, версия реально доставленного вмешательства и зрелое наблюдение сравниваются с учётом exposure, assignment, пропусков, цензурирования и процесса регистрации. Итогом может быть compound или unresolved с различающим следующим действием\n- **O2 Гипотеза.** Обнаруженный сдвиг формирует `candidate_unverified` и вопрос для подтверждающего исследования. Statistical detection и FDR не устанавливают причинную связь\n- **O3 Допущенное изменение мира.** После live producer, нужной scientific evidence и принятого update policy новый coupling/mechanism/required-data объект проходит существующий passport/overlay и создаёт ветвь, которую потребляет следующий цикл\n\nO2 необязателен для O1/O3. DS21 требует **O1 AND O3**. Ранний O1 использует существующий reviewer diagnostic artifact, не ждёт нового dashboard или PR1 promotion. WP01/WP02 по-прежнему ограничивают posterior mutation и routine assimilation; готовность кода не является их принятием."
+        },
+        {
+          "heading": "Опора и приращения",
+          "text": "Повторно используются O0, S13, Observation/VC1, DDM там, где он применим, CalibrationReport, CAS, N12/N13b, ClaimLedger, continuous-governance и partial reissue. Механизмы событий и исторических переходов уже существуют; новая работа — content-bound comparison/diagnosis и допустимое научное основание обновления.\n\n**Первое приращение** начинается с одного зрелого retrospective case: корректно отличить хотя бы одну существенную альтернативу от model error и изменить следующую проверку. Сильный baseline — краткий monitoring report и explicit cause table. Если реального зрелого наблюдения нет, можно закончить механизм на явно модельных примерах; это не эмпирическое обучение.\n\n**Проверка переноса** даёт тот же по величине residual, но другую доказанную причину: policy-induced reporting change, задержку результата, иной состав наблюдаемых субъектов или delivery failure. Для O3 отдельный второй случай — correction/retraction с адресным отзывом нынешнего использования и сохранением истории.\n\n**Зрелая цель** — известная область диагностируемых сравнений, полезная неопределённость за её пределами и подтверждённое расширение класса последующих вопросов. Новые версии мира и число alerts сами по себе не являются эффектом программы.\n\nСохраняется accountability-ветвь S13: наблюдаемый следующий шаг и его закрытие, реакция на неэффективный review, адресное expand/shrink/hold/split допустимой области и время реакции на опровержение. Используются существующие lifecycle/revision owners. Обновление процедурной памяти, публичной записи и знания об эффекте маршрутизируется отдельно; наблюдение follow-through не создаёт автоматическое разрешение O3 или право выполнить действие учреждения. Источник: `docs/plans/active/layer2-slices/S13-post-deploy-accountability-learning.md`, L302–434/L626–660/L1168–1183."
+        },
+        {
+          "heading": "Решения труд и проверка",
+          "text": "Предпочтителен прозрачный evidence/cause table, затем set-valued contributor model, если он действительно помогает выбрать опыт. Общий learned cause classifier отложен до независимого корпуса: одинаковые residual могут иметь разные причины, а вынужденная единственная метка создаёт ложную атрибуцию.\n\nДля узкого подготовленного O1 встречаются оценки 15–30 и 20–40 нормированных дней с разной глубиной temporal/compound scope. В выбранном портфеле сохраняется один явно описанный пакет; числа не усредняются. O2 и O3 — отдельные приращения, а не неявные добавки к O1. Реальное ожидание исходов, доступа, adjudication и update-policy решения не оценено инженерными днями.\n\n**Ожидаемые E02-выходы:** version-bound source/context, корректные comparisons/replicates/uncertainty по выбранному path, exact diagnostics B26, lineage и currentness. O1 не получает право на update через repair receipt. LA-055 precedence, live-feed applicability и LA-054 validity capability сохраняют отдельные scopes.\n\nПроверка требует heldout prediction и refuting evidence, доступа проверяющего к альтернативным причинам, контролей measurement-versus-delivery и полезного следующего действия. Для O3 обязательны действительное потребление следующей ветви и независимые отрицательные mutations, включая self-confirmation quarantine. Полный повтор обработки не делает policy-induced observations независимым подтверждением.\n\n**Остановка:** диагноз не меняет следующую проверку; accuracy достигается исчезновением трудных случаев; labels не различают причин; update-policy отсутствует. Сохранить comparison/limitation service и не заявлять автоматическое исправление модели.\n\n**Связи:** E1/P3 дают наблюдательную и исполнительную семантику; E2 получает новые различающие запросы; P2 получает будущую возможность реагировать на сигнал. Опасная обратная связь возникает, когда одна модель производит прогноз, объясняет свой промах и сама подтверждает обновление.\n\n**Основные источники:** GY O1/O2/O3/AS2/AS3/VC1; GY §8.5 и L5394–5497/L5731–5743; `docs/system-design-decisions/withheld-propositions-register.md`, WP01/WP02/WP09/WP10; Atlas DS21; Scientist BIC 2.6/R8; GV-06/22/44/45."
+        }
+      ],
+      "funding_unit": "Выбранное bounded increment; программа не равна команде, методу или отдельному бюджету.",
+      "short_label": "M2"
+    },
+    {
+      "id": "DEV-P1",
+      "title": "Совместный дизайн и осмысленный выбор",
+      "type": "multi_increment_capability_trajectory",
+      "family": "DEV-FAM-P",
+      "standing": "analytical_proposal_not_authorization",
+      "document": "programs.md",
+      "primary_gv": [
+        "GV-17",
+        "GV-19",
+        "GV-33",
+        "GV-34",
+        "GV-37"
+      ],
+      "sections": [
+        {
+          "heading": "Полезная способность",
+          "text": "Система превращает запрос в правильно составленные obligations, порождает исполнимые альтернативы и сравнивает их целиком. Она сохраняет, какое именно действие оценено, как общие ресурсы и взаимодействия ограничивают набор и почему несколько альтернатив могут оставаться несравнимыми.\n\nСюда входят intent/facet/obligation synthesis, разделение candidate/bundle/blocking frontier, композиция мер, недоминируемый набор и явно выбранные ценности. Это сохраняет амбицию универсального policy design, но не делает обязательным большой новый synthesizer до первого полезного случая.\n\nG6 сохраняет ещё одну предметную способность: правильно разложить запрос и употребить существующий bounded tool loop, объясняя выбор источников и инструментов, отвергнутые ветви и неполноту. Произвольный текст не означает произвольную область: действие ограничено принятым G5 envelope. Готовность оркестрации, grounded result, обоснованный grounded abstention и прежний unchanged_blocker различаются. Работающий chat/SSE ещё не подтверждает потребление сохранённых решений оркестрации и потерь компрессии. При реальном ограничении здесь финансируется конкретный request/consumer профиль, а не новый chat или универсальный orchestrator. Источник: `docs/plans/active/layer3-slices/G6-bounded-agent-arbitrary-request-grounded-result-or-abstention.md`, L191–288/L710–987/L1198–1535/L2486–2543."
+        },
+        {
+          "heading": "Существующая опора",
+          "text": "Используются текущий WorkspaceLoop, N1–N6, S2/S5, CouplingGraph/CompositionReceipt, native policy search, `PolicyEvaluationVector`, Scientist ParetoRegistry, S8/PA1 и CanonicalDesignRecord. Registry уже хранит candidate hash/ref, оценку и seed payload; controller обновляет и читает его. Нельзя объявлять весь frontier отсутствующим по более узкому output Foundry NSGA2.\n\nВажный remaining scope — actual default/served consumer и нужные objective, eligibility и source-population основания. B109/B110/B111 сохраняют собственные E02 scopes. Поведение отдельного NSGA2 при пустом feasible set и статусе OPTIMAL пока требует owner reconciliation; оно не превращается автоматически в финансируемую научную программу."
+        },
+        {
+          "heading": "Приращения",
+          "text": "- **Первое приращение.** Небольшое конечное семейство мер с полным exact enumeration. Сохранить допустимые действия и векторы результатов, повторно выбрать по объявленному constraint/value profile и воспроизвести результат из сохранённых объектов\n- **Проверка переноса.** Другая структура взаимодействия: shared resource, зависимость компонента от другого или конфликт нормативных расписаний. Простая сумма отдельно допустимых действий перестаёт быть достаточным решением\n- **Зрелая цель.** Поддержанное композиционное пространство политик, где новый вопрос выражается через существующие правила и профили, хорошие альтернативы не исчезают из-за screening, а цена второго случая измеренно меньше bespoke разработки\n- **Условное расширение.** Mechanism design, matching, auctions, multi-level optimization и richer robust choice, только если реальный вопрос требует именно их акторов, сообщений, стимулов и ограничений\n\nНеопределённость научной оценки, неполнота поиска и несогласие ценностей сохраняются отдельно. Frontier эвристического поиска не называется полным optimum. Смена меню не должна тайно менять шкалу полезности. Совпадение objective vectors не стирает разные действия и условия их исполнения."
+        },
+        {
+          "heading": "Participation и ценности",
+          "text": "Участие — источник определённого вида основания, а не просто хороший UX. Для survey, testimony, deliberation и complaint нужны population, sampling, consent, sponsor, dissent и разрешённое claim use. Консультация может подтвердить существование возражения, не оценив его распространённость. Оценённые из поведения предпочтения не назначают общественные веса. S7 decision workflow не создаёт S8 value authority.\n\nВ модельной демонстрации можно честно исследовать несколько заданных расписаний ценностей без назначения института. Для действительной рекомендации основания выбора и компетентный акт остаются отдельными входами. Система должна сохранять альтернативы и несогласие до этого выбора."
+        },
+        {
+          "heading": "Архитектура труд и проверка",
+          "text": "Предпочтение: имеющийся native frontier и evaluator, маленькая конечная модель, затем ровно недостающее сохранение/чтение/представление. Мост Foundry→Scientist строится только при названной потребности; второй registry не нужен. Critic diversity проверяется по дополнительным обнаруженным ошибкам и полной цене против правил и одного сильного baseline, а не по числу персон.\n\nУсловное узкое первое приращение оценивается в 10–30 нормированных дней при заданных допустимых coefficients и существующих carriers. Новый grammar, empirical coupling, participation campaign и защищённая нормативная рекомендация не входят. Если native путь уже полностью решает выбранную задачу, capability delta может свестись к демонстрации употребления либо оказаться нулевой.\n\n**Ожидаемые E02-выходы:** B109 строгий dominance и нужный run/tenant/cell frontier consumer; B110 basis metric/split/unit/direction; B111 независимая наблюдаемость source eligibility и all-invalid disposition; N2/N5/N8 repairs только если выбранная модель использует соответствующий маршрут. Численный legal do и grounded world graph не предполагаются от готовности registry.\n\nКонтрольная батарея: pairwise-pass/global-fail; удаление actual action при сохранении score; неподдержанная альтернатива с привлекательным objective; добавление extreme невыбранного варианта; эквивалентная перегруппировка компонентов; перестановка labels без изменения модели. Эталон использует те же inputs и допустимые claims.\n\n**Остановка:** 2–3 хорошие ручные альтернативы дают тот же результат дешевле; выигрыш создан скрытыми новыми weights; критики не находят дополнительных существенных ошибок; joint support отсутствует. В последнем случае полезна условная модельная оценка, но не утверждение эффекта системы.\n\n**Связи:** E1/E2/M1 поставляют основание; P2 наследует идентичность действия; P3 проверяет реальную совместимость. Число альтернатив может повышать нагрузку на человека, а общая scalarization способна скрыть редкий вред. Эти издержки входят в оценку пользы.\n\n**Основные источники:** PDC C18/C19/C34 и W6; Layer2 S2/S5/S7/S8/S9; GV-17/19/33/34/37; `src/polisyos/scientist/methods/search/pareto_registry.py`, L60–79/L242–306; controller L1100–1130; E02 OPT-01 B109–B111."
+        }
+      ],
+      "funding_unit": "Выбранное bounded increment; программа не равна команде, методу или отдельному бюджету.",
+      "short_label": "P1"
+    },
+    {
+      "id": "DEV-P2",
+      "title": "Адаптивные правила с сохранённым продолжением",
+      "type": "multi_increment_capability_trajectory",
+      "family": "DEV-FAM-P",
+      "standing": "analytical_proposal_not_authorization",
+      "document": "programs.md",
+      "primary_gv": [
+        "GV-18",
+        "GV-52",
+        "GV-53"
+      ],
+      "sections": [
+        {
+          "heading": "Полезная способность",
+          "text": "Система отвечает: что наблюдать, как выбрать действие после сигнала и какое допустимое продолжение остаётся к сроку? Выходом является правило для доступных будущих историй, а не одна удачная траектория.\n\nЭто отдельная траектория, поскольку новая информация меняет класс допустимых политик и математическую задачу. Persistent unknown mechanism, stagewise switching и rectangular ambiguity не являются взаимозаменяемыми настройками одного backend. Ресурсная допустимость, достижимость конечной цели и безопасность продолжения также не следуют из хорошего среднего reward."
+        },
+        {
+          "heading": "Опора и точный текущий предел",
+          "text": "Foundry содержит nominal DP и двухстадийный stochastic programming. Прочитанный DP вычисляет stage×state policy, но возвращает value function и действия/состояния одной sampled trajectory. Двухстадийный метод сохраняет первый `x` и scalar expected recourse cost, а не полную таблицу продолжений. Наличие generic metadata означает возможность небольшого расширения, но не установленный rule contract, reload и реального consumer.\n\nP6.09 из `docs/research/deep-research-value-distillation.md` предлагает одну static AVaR/spectral family и её nested/rectangular time-consistent extension. Эти условия не являются законом для всех адаптивных политик: exact finite-history/root-commitment оценка может сохранять persistent/nonrectangular механизм. Rectangularization ради удобства solver меняет вопрос.\n\nСуществующие temporal/DTR/strategic owners и S5 используются прежде нового planner. Отдельный Ukraine selected-input маршрут не возникает от присутствия соответствующего DTO в другом C7 или DTR consumer."
+        },
+        {
+          "heading": "Приращения и границы цены",
+          "text": "**Первое приращение — конечное полное правило.** Две стадии, малое action space, 2–3 явно заданных persistent models, фиксированные signal/transition/history definitions. Полный независимый перебор оценивает правила и конечное продолжение. Один native consumer сохраняет, повторно загружает и применяет то же правило на разных допустимых историях. Эмпирические коэффициенты не выдумываются.\n\n**Расширение — переиспользуемый класс правил.** Если реальный второй consumer требует нового history/filtration/controller carrier, его проектируют отдельно. General nonrectangular solver, abstraction-to-concrete continuation certificate и произвольные horizons не входят в узкое первое приращение.\n\n**Проверка переноса** меняет information pattern: задержка сигнала, частичная наблюдаемость или persistent-model ambiguity. Новый seed той же модели не является вторым существенным случаем. **Зрелая цель** — поддержанные классы адаптивных правил с проверяемой допустимостью продолжения и известными границами роста пространства состояний.\n\nРанние 20–40 нормированных дней для узкого первого приращения зависели от достаточного готового carrier/consumer. Свежий code trace эту предпосылку не установил, поэтому диапазон **приостановлен как бюджет выбранного портфеля**. Он не усредняется с прежней широкой оценкой и не превращается автоматически в стоимость расширенного варианта. Следующая оценка начинается с конкретного rule-retention и consumer delta. Это короткое проверяемое проектное решение, а не повод неопределённо долго строить общий framework."
+        },
+        {
+          "heading": "Архитектура и проверка",
+          "text": "Предпочтителен finite native extension с versioned information set и exact enumerator. Сохранённое правило должно содержать доступные наблюдения, timing, model family, действия, ограничения и out-of-support поведение. Общий носитель выделяется лишь при двух реальных consumers одинакового смысла.\n\n**Ожидаемые E02-выходы:** исправленные action identity, temporal/horizon, source/context, numerical result и selected-input boundaries на выбранном пути. E02 не выбирает persistent-versus-rectangular семантику, не доказывает transition law и не создаёт полномочие исполнять действия во внешнем учреждении.\n\nСильные comparators — лучшая фиксированная программа, nominal finite DP/two-stage и полный перебор при том же information set. Нужен положительный вопрос, который фиксированное правило действительно не решает. Negatives: clairvoyance, благоприятная смена persistent model на каждом шаге, утерянный ресурс будущего, изменение действия после оценки. Harmless history recoding должно сохранять действие и допустимость.\n\n**Остановка:** преимущество возникает только от недоступной будущей информации, нового скрытого допущения или мнимой эмпирической точности; fixed policy достаточна; цена state-space growth не оправдывается полезным вопросом. Тогда сохраняется конечный ограниченный результат.\n\n**Связи:** P1 даёт action identity, M1 — переходы и сигналы, P3 — capacity/timing, M2 — будущую diagnosis. Слишком ранняя унификация истории и модели может одновременно нарушить evaluation independence и сделать все статические задачи дороже.\n\n**Основные источники:** GV-18/52/53 и уточнения persistent-model/viability; `src/polisyos/foundry/methods/catalog/optimization/sequential.py`, L294–362/L371–486; S5; E02 OP-R13-N5 и LA-023 для отдельного различения rollout и обучения параметров."
+        }
+      ],
+      "funding_unit": "Выбранное bounded increment; программа не равна команде, методу или отдельному бюджету.",
+      "short_label": "P2"
+    },
+    {
+      "id": "DEV-P3",
+      "title": "Исполнение масштаб и реакция участников",
+      "type": "multi_increment_capability_trajectory",
+      "family": "DEV-FAM-P",
+      "standing": "analytical_proposal_not_authorization",
+      "document": "programs.md",
+      "primary_gv": [
+        "GV-06",
+        "GV-21",
+        "GV-22",
+        "GV-32"
+      ],
+      "sections": [
+        {
+          "heading": "Полезная способность",
+          "text": "Система оценивает программу с учётом того, как она будет доставлена: очередей, staffing, общих ресурсов, календарей, недоведённых случаев и наблюдаемости результата. Далее она различает, как изменение охвата, сети и поведения участников меняет эффект. Ни формальная исполнимость, ни graph adjacency, ни качество fit журнала сами по себе этого не устанавливают.\n\nПримеры: уменьшается ли очередь или исчезают необслуженные люди; соответствует ли timestamp началу услуги либо регистрации; сохраняется ли результат при другом охвате, если неучастники также затронуты; улучшается ли независимый outcome или только отчётный KPI; какой ресурс делает две отдельно возможные меры несовместимыми?"
+        },
+        {
+          "heading": "Существующая опора",
+          "text": "Используются QueueDES, ABM/coupling, существующие interference/strategic методы, event/object observations, calibration, S5/S11/S13 и policy evaluator. Нового общего workflow executor для внешнего учреждения не требуется. S11 исторически допускает predictive upgrades для четырёх осей, но исключает mandate legitimacy: легитимность нельзя получить дополнительным предиктором.\n\nЗрелая P3 шире очереди: по конкретному вопросу учитываются administrative/fiscal/enforcement/delivery/coordination capacity и политическая осуществимость, а также compliance, gaming, capture, adaptation и изменение измерителя вследствие политики. Эти измерения не входят автоматически в узкий 20–40-дневный ready-profile пакет; для каждого нужны свои inputs и проверка. S11 L350–408/L602–643/L741–780 задаёт эту амбицию без predictive mandate authority.\n\nDES работает в физическом времени, тогда как прочитанный joint caller задаёт число шагов по числу интервалов запрошенной сетки. Исправление этой временной связи относится к SIM-02/B22 и OP-R13. После него отдельным научным приростом может стать refinement при фиксированном физическом горизонте и контроль ошибки нужного функционала. Event cash transfer не надо умножать на dt только потому, что поле называется income."
+        },
+        {
+          "heading": "Приращения и согласование оценок",
+          "text": "**Первое приращение — узкий существующий процесс.** Один read-only event-log family с уже установленными lifecycle/object definitions, небольшой QueueDES или предметный conditional profile, один heldout period и реальный comparison consumer. Правильно различаются waiting/service/registration, shared events и unfinished cases.\n\nЭтот scope условно оценивается в **20–40 нормированных дней**: discovery 2–4, решение 3–6, код 5–10, интеграция 3–5, независимая проверка 7–15. Он предполагает готовое смысловое основание журнала и существующий profile.\n\n**Расширение — новый эмпирический наблюдательный профиль.** Требуются genuine event/object/lifecycle data, отдельная observation model, независимый outcome channel, новое shared-resource или censoring meaning и переносимый профиль. Ранняя широкая оценка 45–120 дней включала подобную более широкую работу и не является минимумом узкого варианта. Она снимается как базовая смета; расширенный вариант отдельно не оценён до выбора данных и consumer. Нельзя объяснять расхождение одним лишь «более сложным solver».\n\n**Проверка переноса** меняет режим нагрузки, правило регистрации, общую услугу или exposure network. Holdout должен проверять полезный predicted change, а не только тот же in-sample trace. **Зрелая цель** — повторно используемые capacity/scale/strategic модули с собственной областью эмпирической пригодности и targeted diagnosis.\n\n**Условные расширения:** network scale, equilibrium multiplicity, dynamic games, механизм стимулов к отчётности. Strategic market/mechanism design выделяется в самостоятельную программу лишь при повторяемых задачах с определёнными actors/messages/private information и собственными deviation/equilibrium witnesses. Требовать IC/IR у каждой descriptive или nonmechanism policy неверно."
+        },
+        {
+          "heading": "Архитектура и проверка",
+          "text": "Начать с простого предметного process model и source adapter. Подключать только материально взаимодействующий блок. Общая национальная ABM, полный digital twin и универсальный process-mining layer преждевременны, пока простой queue/count/duration baseline не проиграл на полезном вопросе.\n\n**Ожидаемые E02-выходы:** B18 missing-versus-zero, B19 comparator в той же модели/горизонте, B21 actual replication/error, B22 физический horizon/step, B26 persisted diagnostics, нужный source/optional-input inventory. Эти repairs потребляются без повторного бюджета. Они не создают exposure support, корректный event meaning или эмпирическое знание о поведении.\n\nПоложительный результат меняет выбор допустимой программы или локализует конкретный решающий недостаток. Проверки: shared payment не умножается на число объектов; completion-only timestamps не объявляются service duration; rejected/unfinished cases остаются в знаменателе; новая регистрация не превращается в эффект реформы; recipient-only data не подтверждают отсутствие spillover harm. Сильные comparators — ручная карта процесса, counts/durations, simple queue и transparent saturation/exposure model.\n\n**Остановка:** улучшился лишь fit того же журнала; отношения объектов приходится выдумывать; богатая ABM не меняет выбор; реакция неидентифицируема. Сохраняется descriptive/conditional model либо граница возможных ответов, не причинный прогноз по удобному журналу.\n\n**Связи:** P2 получает действительные ограничения времени и ресурсов; M2 — альтернативы model-versus-delivery attribution; E1 — необходимый denominator; E2 — missing exposure/assignment evidence. Негативная связь принципиальна: сама политика меняет производство наблюдений, поэтому старый calibration и holdout могут перестать применяться.\n\n**Основные источники:** GV-06/21/22/32; Layer2 S5/S6/S11/S13; `src/polisyos/foundry/coupling/executor.py`, L70–165; `des_kernel.py`, L143–150/L296–319; `coupler.py`, L129–162; `joint_simulation_horizon.py`, L1670–1722; E02 SIM-02 и OP-R13."
+        }
+      ],
+      "funding_unit": "Выбранное bounded increment; программа не равна команде, методу или отдельному бюджету.",
+      "short_label": "P3"
+    }
+  ],
+  "other_nodes": [
+    {
+      "id": "DEV-N",
+      "type": "conditional_scientific_branch",
+      "title": "Численный эксперимент и вычисление нужной величины",
+      "document": "branches.md",
+      "primary_gv": [
+        "GV-08",
+        "GV-12",
+        "GV-16",
+        "GV-40",
+        "GV-42",
+        "GV-46",
+        "GV-47",
+        "GV-50",
+        "GV-51"
+      ],
+      "standalone_trigger": "Один target-preserving numerical scope имеет два реальных потребителя либо открывает самостоятельный новый вопрос.",
+      "already_included_when": "Обычный numerical oracle и adapter включены в V/B соответствующего приращения.",
+      "short_label": "N"
+    },
+    {
+      "id": "DEV-R",
+      "type": "conditional_scientific_branch",
+      "title": "Улучшение исследовательской процедуры",
+      "document": "branches.md",
+      "primary_gv": [
+        "GV-03",
+        "GV-13",
+        "GV-26",
+        "GV-31",
+        "GV-43"
+      ],
+      "standalone_trigger": "Повторяемая операция, selection-aware traces и измеренное ограничение сильных простых правил.",
+      "already_included_when": "Обычный выбор метода и запись ошибок входят в предметную программу.",
+      "short_label": "R"
+    },
+    {
+      "id": "DEV-H",
+      "type": "conditional_behavioral_branch",
+      "title": "Человеческое употребление и обучение",
+      "document": "branches.md",
+      "primary_gv": [
+        "GV-05"
+      ],
+      "standalone_trigger": "Заявляется task/population-bound behavioral improvement, требующий собственного исследования.",
+      "already_included_when": "Faithful projection и CB2 technical caller входят в поставку actual consumer.",
+      "short_label": "H"
+    },
+    {
+      "id": "DEV-A",
+      "type": "conditional_access_branch",
+      "title": "Ограниченный ответ у владельца данных",
+      "document": "branches.md",
+      "primary_gv": [
+        "GV-15",
+        "GV-49"
+      ],
+      "standalone_trigger": "Существенный input доступен только у реального holder через разрешённый полезный release.",
+      "already_included_when": "Открытый источник или уже доступный aggregate входит в E1/E2.",
+      "short_label": "A"
+    },
+    {
+      "id": "DEV-C",
+      "type": "shared_condition",
+      "title": "Происхождение актуальность и историческое воспроизведение",
+      "document": "branches.md",
+      "primary_gv": [
+        "GV-11",
+        "GV-29"
+      ],
+      "short_label": "C"
+    },
+    {
+      "id": "DEV-V",
+      "type": "shared_condition_with_conditional_research",
+      "title": "Независимая проверка",
+      "document": "branches.md",
+      "primary_gv": [
+        "GV-04"
+      ],
+      "short_label": "V"
+    },
+    {
+      "id": "DEV-O",
+      "type": "shared_operational_condition",
+      "title": "Эксплуатация и независимая runtime authority",
+      "document": "branches.md",
+      "primary_gv": [],
+      "short_label": "O"
+    },
+    {
+      "id": "DEV-S",
+      "type": "shared_semantic_condition",
+      "title": "Идентичность вопроса и сохранение смысла",
+      "document": "branches.md",
+      "primary_gv": [
+        "GV-01"
+      ],
+      "short_label": "S"
+    },
+    {
+      "id": "DEV-L",
+      "type": "application_branch",
+      "title": "Правовая применимость и содержательная детализация",
+      "document": "branches.md",
+      "primary_gv": [],
+      "short_label": "L"
+    },
+    {
+      "id": "DEV-F",
+      "type": "application_branch",
+      "title": "Украинская информация о путях финансирования",
+      "document": "branches.md",
+      "primary_gv": [],
+      "short_label": "F"
+    },
+    {
+      "id": "DEV-B",
+      "type": "application_branch",
+      "title": "Знания компании для бизнес агентов",
+      "document": "branches.md",
+      "primary_gv": [],
+      "short_label": "B"
+    },
+    {
+      "id": "DEV-PORTFOLIO",
+      "type": "analytical_investment_lens",
+      "title": "Выбор и развитие портфеля способностей",
+      "document": "roadmap.md",
+      "primary_gv": [
+        "GV-07"
+      ],
+      "short_label": "PORTFOLIO"
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "mission_verticals",
+      "benefit": "Быстрый end-to-end outcome при готовом реальном case.",
+      "cost": "Повторная scientific qualification, domain forks и конкуренция shared owners.",
+      "prefer_when": "Данные, потребитель и ближайшее применение определяют основное ограничение."
+    },
+    {
+      "id": "autonomous_science",
+      "benefit": "Глубокое развитие identification, forecasting или dynamic design с ясным научным критерием.",
+      "cost": "Методы могут остаться без actual consumer и повторить setup нескольких батарей.",
+      "prefer_when": "Решающий предел действительно методологический, есть компетентная независимая проверка."
+    },
+    {
+      "id": "claim_lifecycle",
+      "benefit": "Единая ответственность за конкретный public claim и его history/currentness.",
+      "cost": "Научная сложность может исчезнуть за gates и центральным meta-owner.",
+      "prefer_when": "Определённый institutional/public use и custody risk доминируют."
+    },
+    {
+      "id": "module_layers",
+      "benefit": "Ясная техническая специализация.",
+      "cost": "Локальные успехи не дают полезный ответ; поздняя дорогая интеграция.",
+      "prefer_when": "Как implementation ownership projection, не основной портфель."
+    },
+    {
+      "id": "chosen_hybrid",
+      "benefit": "Устойчивые предметные траектории и небольшие реальные consumer increments без новой платформы.",
+      "cost": "Нужен explicit shared-cost ledger и end-to-end owner выбранной поставки.",
+      "prefer_when": "Текущая неопределённость sources/consumers; сохранить scientific options и проверить reuse."
+    }
+  ],
+  "initial_portfolio": {
+    "active_candidate": "DEV-DEMO-D1",
+    "prepared_conditional_profile": "DEV-DEMO-D2",
+    "d1_is_automatically_new_growth": false,
+    "d2_empirical_positive_established": false,
+    "document": "first_portfolio.md",
+    "rule": "Если repaired native D1 уже решён, reuse без нового build budget; далее первый действительно недостающий вопрос."
+  },
+  "demonstration_profiles": [
+    {
+      "id": "DEV-DEMO-D1",
+      "short_label": "D1",
+      "type": "native_reuse_check_before_new_growth",
+      "claim": "Модельно-условный конечный policy choice; не эмпирический эффект.",
+      "inputs": {
+        "actions": [
+          "A",
+          "B",
+          "C"
+        ],
+        "cost": [
+          4,
+          5,
+          6
+        ],
+        "resource": [
+          2,
+          4,
+          3
+        ],
+        "Q": [
+          8,
+          9,
+          10
+        ],
+        "E": [
+          2,
+          9,
+          4
+        ],
+        "budget": 10,
+        "resource_cap": 5
+      },
+      "analytical_reference": {
+        "all_sets": 8,
+        "feasible_sets": 5,
+        "frontier": [
+          "B",
+          "A+C"
+        ],
+        "alpha_switch": 0.25,
+        "resource_cap4_frontier": [
+          "B",
+          "C"
+        ]
+      },
+      "producer_artifact_consumer": "Existing Scientist finite candidate/evaluation → ParetoRegistry candidate/ref/vector → controller and selected final readback.",
+      "missing_premise": "Exact selected reader and E02-output compatibility; do not infer absence of already working capability.",
+      "funding_rule": "If fully supported, classify reuse/demonstration, no new build; fund only first useful missing function.",
+      "document": "first_portfolio.md"
+    },
+    {
+      "id": "DEV-DEMO-D2",
+      "short_label": "D2",
+      "type": "prepared_metadata_source_semantics_profile",
+      "claim": "Что подтверждает bounded contract source; не payment/execution/funding guarantee.",
+      "inputs_required": [
+        "Frozen permitted raw source documents",
+        "Document identity",
+        "Currency/date definitions",
+        "Counterparty visibility",
+        "Actual compatible reader"
+      ],
+      "observed_limit": "Metadata/footer only; no table rows or fresh consumer run; failed D0 later than completed D5 is not a coherent successful release.",
+      "strong_comparator": "Manual source table by raw document IDs with currency/time/multiplicity limitations.",
+      "next_increment": "One authenticated lifecycle relation or alternative exact labor observation profile if its inputs arrive first.",
+      "empirical_positive_established": false,
+      "document": "first_portfolio.md"
+    }
+  ],
+  "governance": {
+    "o1_o2_o3_distinct": true,
+    "ds21_gate": "GY-O1 AND GY-O3; O2 optional",
+    "world_update_policy": "WP01/WP02 остаются отдельными условиями; procedural learning не O3.",
+    "e02_baseline": "Ожидаемое закрытие relevant repairs — сценарий; observed standing сохранён отдельно."
+  },
+  "documents": [
+    "README.md",
+    "programs.md",
+    "branches.md",
+    "first_portfolio.md",
+    "decisions.md",
+    "dependencies.md",
+    "roadmap.md",
+    "sources.md",
+    "maintenance.md"
+  ],
+  "machine_files": [
+    "catalogue.json",
+    "decisions.json",
+    "dependencies.json",
+    "effort.json",
+    "source_disposition.json",
+    "sources.json",
+    "validation.json"
+  ],
+  "completed_bounded_freshness": {
+    "started_at": "2026-10-01T05:01:10Z",
+    "finished_at": "2026-10-01T05:01:44Z",
+    "reported_head": "8b40f8f5a8d838235a22b92e6f9adc84f006e551",
+    "reported_branch": "codex/e02-r2",
+    "working_tree_clean_reported": true,
+    "dirty_state_checked_separately_from_head": true,
+    "report_sha256": "b3a730a4a7e5c2e02aa948065207bb7c1c735dbbb389aadd3345b3e4eacb9424",
+    "hash_scope": "local_final_readback_report_bytes_only_not_underlying_repository_source",
+    "source_bytes_materialized_here": false,
+    "source_bytes_rehashed_here": false,
+    "bounded_freshness_check_complete": true,
+    "repository_destination": "docs/research/development-programs/2026-09-30-post-e02/",
+    "repository_destination_absent_reported": true,
+    "repository_transfer_verified": false,
+    "limit": "Bounded reported local observation at the exact stated cut; no complete current repository source audit or product execution."
+  },
+  "pending_refresh": [
+    "Проверка безопасного repository destination и bytes/ссылок после изолированной передачи"
+  ],
+  "identifier_namespace": "DEV-* are analytical navigation IDs only, not official tasks, rulings or execution authority; short labels remain in prose."
+}

@@ -36,17 +36,35 @@ def compiled_payload(tmp_path_factory):
 
 
 def test_compiled_payload_is_controlled_profile_candidate_n5(compiled_payload):
-    """The normative owner fixture must come from the admitted N4→N5 station."""
+    """The owner fixture retains N4 source custody and typed N5 pending semantics."""
     compiled = bridge.CompiledRecursiveGenerationCycleRun.model_validate(compiled_payload)
 
     assert compiled.cycle_substrate_context_ref is not None
     assert compiled.recursive_run.leaf_nodes
     for leaf in compiled.recursive_run.leaf_nodes:
-        assert leaf.cycle_run is not None
-        assert leaf.cycle_run.cycles
-        assert leaf.cycle_run.cycles[-1].simulation.status == "joint_simulated"
-        assert leaf.cycle_run.promotion_port.status == "not_promoted"
-        assert leaf.cycle_run.promotion_port.certified_candidate_ids == ()
+        run = leaf.cycle_run
+        assert run is not None
+        assert run.cycles
+        simulation = run.cycles[-1].simulation
+        assert simulation.status == "simulation_pending_n5"
+        assert "joint_simulation_request_missing" in simulation.authority_blockers
+        assert simulation.diagnostics["port"] == "N5"
+        assert simulation.diagnostics["reason"] == "joint_simulation_request_missing"
+
+        # The typed pending result belongs to the same run that preserves the
+        # source-bound N4 handoffs; it is not an unbound pending placeholder.
+        assert run.source_handoff_refs
+        source_receipt = run.source_preservation_receipt
+        assert source_receipt is not None
+        assert source_receipt.run_id == run.run_id
+        assert source_receipt.source_refs == run.source_handoff_refs
+        assert source_receipt.status == "strangled"
+        assert source_receipt.expected_identity_count > 0
+        assert source_receipt.expected_identity_count == source_receipt.retained_identity_count
+        assert source_receipt.expected_identity_digest == source_receipt.retained_identity_digest
+
+        assert run.promotion_port.status == "not_promoted"
+        assert run.promotion_port.certified_candidate_ids == ()
 
 
 @pytest.fixture

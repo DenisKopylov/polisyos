@@ -1725,18 +1725,18 @@ async def _run_controlled_simulate_only_job_fixture(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
 ) -> SimpleNamespace:
-    """Run a synthetic owner-bound N4 candidate through a served N5 request.
+    """Run served N4 under a controlled candidate-only owner context.
 
-    The witness binds each observed N5 candidate to its same-run persisted N4
-    source and actual joint-engine request. It does not establish N5 source
-    resolution, real-data grounding, production profile admission, N9, S8, or
+    The witness binds each candidate observed at the N5 port boundary to its
+    same-run persisted N4 source. N5 remains pending because generated N4
+    value expressions have no runtime materializer for the synthetic NCM. This
+    does not establish simulation, production profile admission, N9, S8, or
     publication authority.
     """
     from polisyos.core.security import (
         get_current_access_scope_or_none,
         tenant_scope,
     )
-    from polisyos.ir.analytics.ncm import persist_ncm_spec
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContext,
         CycleSubstrateContextArtifactOwner,
@@ -1764,11 +1764,9 @@ async def _run_controlled_simulate_only_job_fixture(
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
         _CurrentValidGrounding,
+        _build_boundary_world_model_record,
         _cyc01_owner_bound_n5_case,
-        _record_with_selected_ncm_ref,
-    )
-    from tests.unit.runtime.quality.test_joint_simulation_horizon import (
-        _ncm_with_cross_term,
+        _lane0_registry,
     )
     from tools.quality.validation import (
         check_layer3_gy_design_generation_contract as n4_contract,
@@ -1810,11 +1808,7 @@ async def _run_controlled_simulate_only_job_fixture(
             cycle_substrate_context_admission_owner=source_owner,
         )
         try:
-            ncm_ref = persist_ncm_spec(
-                service._artifact_store,
-                _ncm_with_cross_term(),
-            )
-            base_problem, base_context, _ = _cyc01_owner_bound_n5_case()
+            base_problem, _, _ = _cyc01_owner_bound_n5_case()
             recording_id = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
             recording_matches = tuple(
                 item
@@ -1824,35 +1818,58 @@ async def _run_controlled_simulate_only_job_fixture(
             assert len(recording_matches) == 1
             recording = recording_matches[0]
             recorded_problem = n4_contract._design_problem(recording)
+            runtime_hints = {
+                **recorded_problem.runtime_hints,
+                **{
+                    key: value
+                    for key, value in base_problem.runtime_hints.items()
+                    if not key.startswith("joint_simulation_")
+                },
+            }
             problem = recorded_problem.model_copy(
-                update={
-                    "runtime_hints": {
-                        **recorded_problem.runtime_hints,
-                        **base_problem.runtime_hints,
-                        "joint_simulation_baseline_state": {"firm_survival": 0.0},
-                    },
-                }
+                update={"runtime_hints": runtime_hints}
             )
             problem_ref = generation_cycle_service.gy_content_hash(
                 problem.model_dump(mode="json")
             )
-            world_record = _record_with_selected_ncm_ref(
-                base_context.world_model_record,
-                str(ncm_ref.artifact_id),
+            registry = _lane0_registry(
+                domain=problem.domain,
+                source_id="l2_cyc:served_n4_candidate_boundary.synthetic",
+            )
+            selected_hash = registry.entries[0].entry_content_hash
+            problem_slots = tuple(
+                lever.target_slot
+                for lever in problem.candidate_lever_space.candidate_levers
+            )
+            # These are the two typed atom slots in the committed replay result
+            # for this recording. They use the runtime's dotted slot identity.
+            recorded_atom_slots = ("global.tax_rate", "cells.distress_score")
+            outcome_slot = problem.outcome_of_interest.target_variable
+            world_record = _build_boundary_world_model_record(
+                repo_root=REPO_ROOT,
+                problem=problem,
+                outcome=outcome_slot,
+                policy_slot_ids=tuple(
+                    dict.fromkeys((*problem_slots, *recorded_atom_slots, outcome_slot))
+                ),
+                substrate_registry=registry,
+                selected_registry_entry_hashes=(selected_hash,),
             )
             context = build_cycle_substrate_context(
                 design_problem_ref=problem_ref,
                 domain=problem.domain,
-                substrate_registry=base_context.substrate_registry,
-                selected_registry_entry_hashes=(
-                    base_context.selected_registry_entry_hashes
-                ),
+                substrate_registry=registry,
+                selected_registry_entry_hashes=(selected_hash,),
                 world_model_record=world_record,
-                intervention_substrate=base_context.intervention_substrate,
-                candidate_levers=base_context.candidate_levers,
-                transport_context=base_context.transport_context,
-                source_pack_content_hash=base_context.source_pack_content_hash,
-                substrate_input_content_hash=base_context.substrate_input_content_hash,
+                intervention_substrate=None,
+                candidate_levers=(),
+                transport_context=None,
+                source_pack_content_hash=generation_cycle_service.gy_content_hash(
+                    "served-n4-candidate-boundary"
+                ),
+                substrate_input_content_hash=generation_cycle_service.gy_content_hash(
+                    {"domain": problem.domain, "registry": registry.content_hash}
+                ),
             )
             source_owner.context = context
         except Exception:
@@ -2101,6 +2118,11 @@ async def _run_controlled_simulate_only_job_fixture(
         assert organ.result.status == "generated"
         assert organ.result.candidates
         assert all(isinstance(item, ShadowGeneratedCandidate) for item in organ.result.candidates)
+        assert {
+            slot
+            for item in organ.result.candidates
+            for slot in item.atom.target_world_slots
+        } == {"global.tax_rate", "cells.distress_score"}
         assert organ.result.design_problem_ref == problem_ref
         for (
             n5_candidate,
@@ -2113,15 +2135,16 @@ async def _run_controlled_simulate_only_job_fixture(
             assert n5_observation.candidate_id == n5_candidate.candidate_id
             assert n5_problem == problem
             assert n5_context.content_hash == context_artifact.context.content_hash
-            assert n5_observation.status == "joint_simulated"
+            assert n5_observation.status == "simulation_pending_n5"
+            assert "joint_simulation_request_missing" in n5_observation.authority_blockers
             if n5_observation.world_model_record is not None:
                 assert n5_observation.world_model_record.content_hash == (
                     context_artifact.context.world_model_record.content_hash
                 )
-        for request in n5_engine_requests:
-            assert request.world_model_record.content_hash == (
-                context_artifact.context.world_model_record.content_hash
-            )
+        # This candidate-only witness stops at the N5 request boundary. The
+        # generated atom has value_expr with no registered runtime materializer,
+        # so no NCM engine request is represented as simulated evidence here.
+        assert n5_engine_requests == []
         assert len(compiled_runs) == 1
         recursive_run = compiled_runs[0]
         assert len(recursive_run.leaf_nodes) == 1
@@ -2237,20 +2260,6 @@ async def _run_controlled_simulate_only_job_fixture(
                 resolution.context["world_model_record"].content_hash
                 == context_artifact.context.world_model_record.content_hash
             )
-            matching_requests = tuple(
-                request
-                for request in n5_engine_requests
-                if any(
-                    atom.content_hash == n5_candidate.atom.content_hash
-                    for atom in request.intervention_atoms
-                )
-            )
-            assert matching_requests
-            assert all(
-                request.world_model_record.content_hash
-                == context_artifact.context.world_model_record.content_hash
-                for request in matching_requests
-            )
             matching_cycles = tuple(
                 cycle
                 for cycle in leaf_run.cycles
@@ -2261,7 +2270,7 @@ async def _run_controlled_simulate_only_job_fixture(
             )
             assert matching_cycles
             assert all(
-                cycle.simulation.status == "joint_simulated"
+                cycle.simulation.status == "simulation_pending_n5"
                 and cycle.simulation.candidate_id == n5_candidate.candidate_id
                 for cycle in matching_cycles
             )
@@ -2354,14 +2363,14 @@ async def _run_controlled_simulate_only_job_fixture(
 
 
 @pytest.mark.asyncio
-async def test_served_simulate_only_replays_source_bound_n4_candidate_into_joint_n5(
+async def test_served_simulate_only_replays_source_bound_n4_candidate_at_n5_boundary(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
 ) -> None:
-    """A source-bound N4 candidate reaches a joint N5 request under a synthetic profile.
+    """A served source-bound N4 candidate reaches N5's pending boundary.
 
-    The persisted source resolves to the candidate N5 actually simulated; the
-    fixture does not establish production profile, S8, N9, or publication authority.
+    The fixture proves persisted source identity at the N5 port boundary. It
+    does not claim joint simulation, production profile, S8, N9, or publication.
     """
     fixture = await _run_controlled_simulate_only_job_fixture(monkeypatch, tmp_path)
     fixture.service.close()

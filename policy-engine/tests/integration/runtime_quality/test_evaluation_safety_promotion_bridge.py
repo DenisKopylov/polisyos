@@ -1060,7 +1060,9 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
             )
         )
     )
-    assert persisted_decision == persisted_attempt.decision
+    assert persisted_decision.model_dump(mode="json") == (
+        persisted_attempt.decision.model_dump(mode="json")
+    )
 
     assert persisted_attempt.promotion_source_resolution_ref == (
         terminal.progress["eval_safety_promotion_source_resolution_ref"]
@@ -1074,7 +1076,9 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
             )
         )
     )
-    assert persisted_resolution == resolution
+    assert persisted_resolution.model_dump(mode="json") == (
+        resolution.model_dump(mode="json")
+    )
     assert persisted_resolution.classification == "not_established"
     assert persisted_resolution.selected_compiled_ref is None
 

@@ -537,8 +537,11 @@ def test_non_development_runtime_revalidates_same_object_authority_before_reques
     )
 
     with TestClient(app, raise_server_exceptions=False) as client:
-        healthy = client.get("/api/v1/health")
-        assert healthy.status_code == 200, healthy.text
+        public_health = client.get("/health")
+        assert public_health.status_code == 200, public_health.text
+        protected_health = client.get("/api/v1/health")
+        assert protected_health.status_code == 401, protected_health.text
+        assert protected_health.json()["code"] == "missing_access_scope"
 
         if mutation == "identity_method":
             object.__setattr__(

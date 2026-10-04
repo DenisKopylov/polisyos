@@ -15,19 +15,19 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping, Sequence  # noqa: TC003
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
+from typing import TYPE_CHECKING, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
+from polisyos.core.contracts import EpochPerturbationClass  # noqa: TC001
 from polisyos.core.contracts.c4_persisted_profiles import (
     c4_framed_semantic_projection_digest,
 )
-from polisyos.core.contracts import EpochPerturbationClass  # noqa: TC001
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import CandidateSummary  # noqa: TC001
@@ -115,7 +115,7 @@ def _promotion_owner_query_context_projection(
     }
 
 
-def _promotion_owner_query_v2_pre_001b_raw_value(value: Any) -> Any:
+def _promotion_owner_query_v2_pre_001b_raw_value(value: object) -> object:
     """Recreate the v2 walk from before ArtifactRef could select manifest views."""
 
     if isinstance(value, artifacts.ArtifactID):
@@ -149,7 +149,7 @@ def _promotion_owner_query_v2_pre_001b_raw_value(value: Any) -> Any:
     return value
 
 
-def _framed_owner_query_digest_from_raw(prefix: bytes, raw_value: Any) -> Digest:
+def _framed_owner_query_digest_from_raw(prefix: bytes, raw_value: object) -> Digest:
     canonical = core_contracts.chronology._canonical_raw_bytes(raw_value)
     if len(canonical) >= 1 << 64:
         raise ValueError("promotion_owner_query_frame_exceeds_uint64")

@@ -1,0 +1,3110 @@
+{
+  "schema": "E02_current_cut_research_allocation_v1",
+  "status": "candidate_plan_unrun",
+  "purpose": "first factual research input for local E02 coding; not historical matrix or finding closure",
+  "cut": {
+    "key": "research_main",
+    "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651"
+  },
+  "source_roster": {
+    "artifact": "jobs.json",
+    "sha256": "f52aaea776d36141a33a7cf46bf6863c1b0f6531d86fa37b6328003c6de9b6dc",
+    "subset": "all runnable integration_head paths; actual research_main blobs independently verified; docs inputs use research_main"
+  },
+  "recommended_parallel_vm_count": 10,
+  "initial_pilot_vm_count": 4,
+  "pilot_job_ids": [
+    "Q01",
+    "Q14",
+    "Q15",
+    "Q02"
+  ],
+  "initial_dispatch_order": [
+    "Q01",
+    "Q14",
+    "Q15",
+    "Q02",
+    "Q03",
+    "Q04",
+    "Q05",
+    "Q06",
+    "Q07",
+    "Q08",
+    "Q09",
+    "Q10",
+    "Q11",
+    "Q12",
+    "Q13",
+    "Q16",
+    "Q17",
+    "Q18",
+    "Q19",
+    "Q20"
+  ],
+  "estimate_method": "LPT whole files; current-cut heuristic with one explicitly annotated Mac path-only long-tail hint; cloud time unmeasured",
+  "jobs": [
+    {
+      "id": "Q01",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "test_blob_oid": "5fb9c75d734a2398fd6639d983adafb8054d40da",
+          "estimated_seconds": 407.899,
+          "estimate_grade": "Mac_other_commit_path_only_tail_hint"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py",
+          "test_blob_oid": "0922937870da384a786879530f3ebe8ed1703d17",
+          "estimated_seconds": 74.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_trust_posture_measurement.py",
+          "test_blob_oid": "d48bc3d7b764c08f1f143c9d00d9653f6d624ae1",
+          "estimated_seconds": 70.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+          "test_blob_oid": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+          "estimated_seconds": 66.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_6_release_topology.py",
+          "test_blob_oid": "2df079787e96799408b48865507697f61172d55d",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification.py",
+          "test_blob_oid": "a98514c23d7fb8d592cc51d7689c0276bde667e2",
+          "estimated_seconds": 62.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/backends/test_config.py",
+          "test_blob_oid": "d28890cff78ad62a0f94627b38a5fc576403d2f8",
+          "estimated_seconds": 59.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_bkt_02.py",
+          "test_blob_oid": "941dcb4a1ab222abb5532875b191747d27136661",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_schema_snapshot_workflow.py",
+          "test_blob_oid": "7ac61c67255625e291ba955ff48ad035d8471577",
+          "estimated_seconds": 57.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+          "test_blob_oid": "1c80a94668b1b0817ca9849cc8d8f2924b4aa081",
+          "estimated_seconds": 53.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+          "test_blob_oid": "ca0cd2a1d3dd245669e8bdf98d12c6484bcb95de",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_global_case_index.py",
+          "test_blob_oid": "f6c0983b1101c30dd599a9853a39a7cacddcd7b0",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_architecture_boundaries.py",
+          "test_blob_oid": "6fa7ecb213372844ff33412d7e71589035e1d545",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+          "test_blob_oid": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cyc_04.py",
+          "test_blob_oid": "d4aa9bc73613b0351d49a3c82237e7e835bf5bc0",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_monitors.py",
+          "test_blob_oid": "59a1e10bff508a19ce4e688f9bbaad95b161d9cf",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+          "test_blob_oid": "4a7ef948a768332732a55b36f1d864af9d9269f0",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_res_03.py",
+          "test_blob_oid": "9efa44360eeace88d68a87103f287458eae25fef",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+          "test_blob_oid": "7eec3d41f63e9a1f2be1d5e9a04760c83b3b9818",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_r13_ingestion_sidecars.py",
+          "test_blob_oid": "0a2cd0dffa24b6e032daf665f7ae97b4ba672340",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_worker_custody.py",
+          "test_blob_oid": "452ad48589bc8617c7741209d7d447e956d5a8f3",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1456.899,
+      "runnable_cell_count": 21,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q02",
+      "files": [
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_debt_ledger_checker.py",
+          "test_blob_oid": "b95409638a4babe6864b7e5fab4e5cc3f3ecc5e9",
+          "estimated_seconds": 223.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_docs_lifecycle.py",
+          "test_blob_oid": "568c1504d2c94815bd991735fa0de60aff09fa82",
+          "estimated_seconds": 95.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+          "test_blob_oid": "2050db27cb9152e1492756f833d8abc356054550",
+          "estimated_seconds": 83.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+          "test_blob_oid": "4602e7b708dfe7c4cb44d573f8adfcbc059e179b",
+          "estimated_seconds": 74.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_instrument_input_scope.py",
+          "test_blob_oid": "e422923900cc7bfe5c875310ef44e764aeebec30",
+          "estimated_seconds": 70.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_world_model_record.py",
+          "test_blob_oid": "4856e771309cee0a9c098d41a524441e44eebd82",
+          "estimated_seconds": 66.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+          "test_blob_oid": "bd196bb54d390b2483608113d471e2d3afb25270",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+          "test_blob_oid": "4246ce1ae7a4f4af50a23d3d7f26a785412f64a6",
+          "estimated_seconds": 62.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_foundry_domain_coverage.py",
+          "test_blob_oid": "e7492992cf1eaaf5c7bbc8b960e9a8b2a4e8d8e1",
+          "estimated_seconds": 59.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+          "test_blob_oid": "15793d49bacc02677e93a2ea73d47c0e02a92f2d",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_grounding_contract_verdicts.py",
+          "test_blob_oid": "997f6d238c2ec2ccc221acf1c066fad716687107",
+          "estimated_seconds": 57.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+          "test_blob_oid": "8443498d0da2fd3860b049a58e2ce7e12e1384d0",
+          "estimated_seconds": 53.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_doe_03.py",
+          "test_blob_oid": "069b6316471a1101c6c95cc881941db9c2dbd892",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_chronology_custody.py",
+          "test_blob_oid": "4786cd91ef595e6d67ca27caffded6da03fae941",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_uqs_01.py",
+          "test_blob_oid": "a8332205e105b759d6e04ac6eefb25270f0dd050",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_res_02.py",
+          "test_blob_oid": "3ebec124bf38ea64bf20465cff44501795281fe2",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_chronology_qualification.py",
+          "test_blob_oid": "4a2ec57b05a11b54b2d15c4b91e1a4ed901b43e7",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+          "test_blob_oid": "aea3f6e30b35ae401d8a6f8bdbd57ea070fd8367",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cal_06.py",
+          "test_blob_oid": "e0b87cb27fbd551761a7f4fad843f7dbf7fb7d47",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_governed_public_record_population.py",
+          "test_blob_oid": "ea3a194432f1f0933862fc9b6c777720a394f207",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py",
+          "test_blob_oid": "d8e3b681a32685904330e17169092a4be1862423",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_epoch_issuance_composition.py",
+          "test_blob_oid": "6bdc31c03e0f346c062683b7f83eb3d149592c72",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_uqp_03.py",
+          "test_blob_oid": "65ec0a2ae53ea5e7d1868c596b67a103c972a3b9",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+          "test_blob_oid": "26e7724d2c4ed719a00e421346b570cc98bee1bb",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1492.1,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q03",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/test_dependency_profile.py",
+          "test_blob_oid": "7093f897039aa1a1ecc31be712a8e8fa560ef0a4",
+          "estimated_seconds": 217.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_agent_action_authority.py",
+          "test_blob_oid": "314dedf6fdc465f70b70657df093b1d9356ef98c",
+          "estimated_seconds": 96.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py",
+          "test_blob_oid": "7af77efd2008de2787d9880137ac71820abb9460",
+          "estimated_seconds": 83.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/data_plane/test_bindings_multiscale.py",
+          "test_blob_oid": "3e9cbb66993cd845f4acd87e98c9404f8bdf97b5",
+          "estimated_seconds": 74.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_gy_acquisition_assurance.py",
+          "test_blob_oid": "4a39662be3a7be1e22e98a23d38ef58da4c63580",
+          "estimated_seconds": 70.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+          "test_blob_oid": "7806d5346225dc3cf1f4bef357100d8889002766",
+          "estimated_seconds": 66.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_public_api_facades.py",
+          "test_blob_oid": "3bf86084e35d5911b86e62b207e11ab803059471",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cyc_05.py",
+          "test_blob_oid": "dc9ddee020342d2cace0c36bc4e6ab44c0bb8b21",
+          "estimated_seconds": 62.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_fabric_exception_baseline.py",
+          "test_blob_oid": "ab8ae681460e4665f0ba7155ca085bcbdcf181e9",
+          "estimated_seconds": 59.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/test_public_surface.py",
+          "test_blob_oid": "1f1e422a7b82e607fa054e1f3b79a08c3428d660",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_file_read_measurement.py",
+          "test_blob_oid": "44892548073431f7965d4eed029fd10745d988e5",
+          "estimated_seconds": 57.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/compile/test_program_graph_ops.py",
+          "test_blob_oid": "d3620ca1ecb045461e30f0d7875609dedc81a785",
+          "estimated_seconds": 53.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cal_04.py",
+          "test_blob_oid": "2076614e303574c4282947d5ee67850d4078726a",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_udf_05.py",
+          "test_blob_oid": "e7d2a6ee74913664d363242d53ea1d0c387c5a2e",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_scl_03.py",
+          "test_blob_oid": "3266e253461e61c56c4af6f886db2e894cdaa3d6",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_plg_01.py",
+          "test_blob_oid": "99c6bf64b0445e67be6648ade115e0209fc049f8",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_source_replay.py",
+          "test_blob_oid": "467430166015d3598e8f9cb7215ead11421e8084",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_obs_02.py",
+          "test_blob_oid": "4838f92b00c799c7591d1254ee6f21c44f8b4b57",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_bkt_03.py",
+          "test_blob_oid": "e6ec0fa7e4737710e69be2c04a98d2220724a075",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/evidence/claims/test_audit.py",
+          "test_blob_oid": "0719d63b139c4dc13c16e8f5e609531b32bea658",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_non_data_acquisition_projection.py",
+          "test_blob_oid": "a47455977c3bb3114ab19302461d6cc9c63764e8",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_import_boundary.py",
+          "test_blob_oid": "8c742886a2fa6a00eb43c7a77f974305a7b047b3",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_uqp_01.py",
+          "test_blob_oid": "ce6997d04b3cbe3a49326a70a26ed74b1dcaaf06",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_human_decision_guarded_custody.py",
+          "test_blob_oid": "c43f2ab86a777eecd2ae97674793c30c5e6fc4ea",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1486.9,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q04",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+          "test_blob_oid": "67050cd644e26b576c3d3b250f5de443e1ab6689",
+          "estimated_seconds": 200.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_repository_last_mile_inventory.py",
+          "test_blob_oid": "ccb7130ac87e8ce1aef7083266da4d3b1d1c77f9",
+          "estimated_seconds": 97.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_tools_hardening.py",
+          "test_blob_oid": "85276504cc599fd5fb059c311075fcbb27bb075d",
+          "estimated_seconds": 84.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+          "test_blob_oid": "c40a4e5418f6b2002bfe06fcc664a49db64857cc",
+          "estimated_seconds": 75.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+          "test_blob_oid": "714eb91c2a371060e96ce2cd67a8f5cc0a113df5",
+          "estimated_seconds": 71.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+          "test_blob_oid": "e853b6ecd7dae25148f9a526b3029aa0aeb705cd",
+          "estimated_seconds": 67.9,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_package_import_measurement.py",
+          "test_blob_oid": "ce1f39676db34338f709caf325e31f1f58704ced",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+          "test_blob_oid": "9b9898162c7f32190af9b17be8a4706b57c5782f",
+          "estimated_seconds": 62.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_ds9_approval_semantic_strangle.py",
+          "test_blob_oid": "4dc99a7589686d796db4cb7d2dee7d05c2fd6ec1",
+          "estimated_seconds": 59.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_world_store.py",
+          "test_blob_oid": "16eb47752e24ab24585e04b2846e425470780ec4",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase4_3_god_module_budgets.py",
+          "test_blob_oid": "76683c307e4e6393fc4ea4c1328c3ced1bb78c3c",
+          "estimated_seconds": 57.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+          "test_blob_oid": "ef960e48314869f2d8bae544c89bade317d8f7f7",
+          "estimated_seconds": 54.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cal_03.py",
+          "test_blob_oid": "0731a730dffdd1c11fe34eeb7d9e5f3bac07cf13",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_obs_01.py",
+          "test_blob_oid": "ac9b392b2bbd6ed7c51fd6ceb7b204b0ff444f01",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_res_01.py",
+          "test_blob_oid": "404037812556ef50e28d7ef8ca2e6b05c7c348d5",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_mig_02.py",
+          "test_blob_oid": "ed0cead28092be3be250bd1c9bdc6b310fa00456",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_resilience_guards.py",
+          "test_blob_oid": "6bb41a01147b17a40d98f79e077f123506be26ad",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_fry_03.py",
+          "test_blob_oid": "13b7cd9f4fbf6843063d1f24475a29b39229ca86",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/pdc/test_world_model_record_contract.py",
+          "test_blob_oid": "cb53e95b91f0f6adbb8025908b4d2cb2a1869dd6",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+          "test_blob_oid": "33ef35d79dd72863233a17d3bcae940f0f636a3c",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_historical_availability.py",
+          "test_blob_oid": "31281411880477223c89ab2720e361f09e92a998",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py",
+          "test_blob_oid": "4f41c2eb42403affbfca637a0eaf9c534c61d6ff",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_plg_02.py",
+          "test_blob_oid": "9158fc0d8d1d95e6d651cb21d4916fec0d2084f3",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_movement.py",
+          "test_blob_oid": "ee162cd599417bf9b93b330dd4366bfcab0940fb",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1476.1,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q05",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+          "test_blob_oid": "8804f4287bfafc827bcdf0cb90f91fcb43666afd",
+          "estimated_seconds": 160.3,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_p41_baseline_harness_process_cleanup.py",
+          "test_blob_oid": "0fa82c6db8fad2693d644a90a9dc0eb961ed5549",
+          "estimated_seconds": 97.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py",
+          "test_blob_oid": "bb0a902b302a237a169077d0e946b565b0596a52",
+          "estimated_seconds": 84.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/connectors/sources/test_http_connector_base.py",
+          "test_blob_oid": "61d5f3485a76ebaeb7d60cc5f36993f033f0b85c",
+          "estimated_seconds": 75.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+          "test_blob_oid": "ea6d52fbc4287b2467a4fc148807bbc56b4aee97",
+          "estimated_seconds": 74.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_governed_public_record.py",
+          "test_blob_oid": "879999d09369f51283993470ab7e4142348fe32b",
+          "estimated_seconds": 68.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+          "test_blob_oid": "bbdcedfb8a0f0341d463e4d953f2665f7cdeee49",
+          "estimated_seconds": 65.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_multilingual_locale_census.py",
+          "test_blob_oid": "a024f9ee50ebbde8cd19931912e38953fed13441",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+          "test_blob_oid": "4ecc5a86d476e311258e0cbb79c049351703b48b",
+          "estimated_seconds": 61.6,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+          "test_blob_oid": "71987b5a1f52c7ca8ddb4033b306d2d6fc0a6492",
+          "estimated_seconds": 58.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_owner_residual_exceptions.py",
+          "test_blob_oid": "aee5b46a7355598a8cca21637201778a2bccbb67",
+          "estimated_seconds": 57.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+          "test_blob_oid": "5df5fe7bc93359f3bef59604e5d2a79045126c92",
+          "estimated_seconds": 56.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py",
+          "test_blob_oid": "4f16e39eed76311fe50f7ce40a6a445cf4f87c00",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+          "test_blob_oid": "6a8158b17f2e7599190370ca0f9cd76c90da069a",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_root_facade.py",
+          "test_blob_oid": "e33d9f7d7b747f414e94bf985693bdce1a7a3212",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_obligation_coverage.py",
+          "test_blob_oid": "659841af7448cde58388ce7edcd536de4e5f5ffd",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_plg_03.py",
+          "test_blob_oid": "ddf828efc840c40a7fdd6393fcf2af45d0dc0a2a",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/test_confidence_pass.py",
+          "test_blob_oid": "082e58b94b75c2bb6e5ede3f6f6b6fc7dcdcf47a",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_signed_evidence.py",
+          "test_blob_oid": "c72691a8abb71cdb98aab15bd184c3d8ed5319e3",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+          "test_blob_oid": "dc67765fe998e51f1b838ad28cba8222712e4cfc",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+          "test_blob_oid": "66a8499796ff4c2db70289938610b08e0b2d9a24",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py",
+          "test_blob_oid": "26131df77b176852ccc82381d8515924eccd9b42",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_verification.py",
+          "test_blob_oid": "832272fd2b64fa97b8327d6f45352acb13787ef1",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_multi_tenant_shared_cas.py",
+          "test_blob_oid": "849aedd538ea560837d97361b443f5a4c2016d1e",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1457.4,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q06",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/fabric/connectors/test_schema_system.py",
+          "test_blob_oid": "8d94dd649b5bd7f1d5fb0f64eab4eb8dd8f4cb19",
+          "estimated_seconds": 155.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+          "test_blob_oid": "3f917fbbfa78da13daba5e94a5597780357c6a05",
+          "estimated_seconds": 105.7,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_docs_gate.py",
+          "test_blob_oid": "ec2dbcdede7ef1e23c743e25101338df8dd9ffd3",
+          "estimated_seconds": 84.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_last_mile_cross_cutting_concerns.py",
+          "test_blob_oid": "7b95e2761e7da12ae07790bfd38615ddd9c95d66",
+          "estimated_seconds": 75.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_validity_cascade.py",
+          "test_blob_oid": "5a4ae67b9e316e5d5eb44d8ab541a8ee3c344851",
+          "estimated_seconds": 71.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+          "test_blob_oid": "cb3c775ed58a836adf4048d20c24176267b29795",
+          "estimated_seconds": 70.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+          "test_blob_oid": "4a30ac27edae073c413061ac93dd74792364216f",
+          "estimated_seconds": 65.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_mig_05.py",
+          "test_blob_oid": "d4e3ac24db26485a682135aa446f0b5556a0d87e",
+          "estimated_seconds": 63.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_grounding_relation.py",
+          "test_blob_oid": "81b62f954f38f11c12da1f5bfd8a384e43049bef",
+          "estimated_seconds": 60.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+          "test_blob_oid": "e0a8f6e9341abaf6f50f99ee373780c179cfa716",
+          "estimated_seconds": 59.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+          "test_blob_oid": "4a8e95fa735cc0c8329478f1b3aaa752844c0890",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_temporal_routes.py",
+          "test_blob_oid": "1db5308de0c0652175e808c385bcf901b1e6889c",
+          "estimated_seconds": 54.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_doe_02.py",
+          "test_blob_oid": "8037dbaa0244f3d628d57a3698a551065599f73d",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+          "test_blob_oid": "1b3377c7c654829458f1bda777277c68f93095e2",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_rep_01.py",
+          "test_blob_oid": "a96845d09b00a93bcba66ce663fb7f85d50750a5",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/lex/test_knowledge_store_filters.py",
+          "test_blob_oid": "d821c96b6bfbd3a067785b82e48a09d85e1aaa46",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runtime_service_container.py",
+          "test_blob_oid": "062420bec64c292563be9ca4cf21de5e3fe9fc6e",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+          "test_blob_oid": "4f074ca831a13686135926c8fa35bf81656712e4",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_verification_properties.py",
+          "test_blob_oid": "d0316c1a11d251295eb63a5f9a28c829ef90d670",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_srv_03.py",
+          "test_blob_oid": "9234781f3126684b63ddbc5703d847c8c57a17a7",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cau_05.py",
+          "test_blob_oid": "5c6fab088e5295aff52880aa8f8658d2bb667448",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+          "test_blob_oid": "5dd6e5b66ca2c5c95752e524d4f43185e17bade7",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_frontier.py",
+          "test_blob_oid": "2e016bb42e107d71ba6116bc04c84b37d93f0ff4",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/analytics/test_ncm.py",
+          "test_blob_oid": "8864e9219c42e03e662f0c81d75fcfef2b8f3c5a",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/test_normative_arbitration_pass.py",
+          "test_blob_oid": "bc940e429e3672a017c3423894e3172a512f1031",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1492.7,
+      "runnable_cell_count": 25,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q07",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py",
+          "test_blob_oid": "4d996595ff254005a0f67b0e3be8c7900a3a174c",
+          "estimated_seconds": 155.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+          "test_blob_oid": "d7913c3de3ba60d96f5ad7f66e70311641e95633",
+          "estimated_seconds": 104.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+          "test_blob_oid": "54080abb75280762c6def538eb0a8b70c5dee211",
+          "estimated_seconds": 84.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_design_axes_outcome_prediction.py",
+          "test_blob_oid": "542e090b1c6203a5e0e8636c1ffd954c122043b6",
+          "estimated_seconds": 75.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+          "test_blob_oid": "404f80fb7c7f1829bf167fce41e03f12585d284e",
+          "estimated_seconds": 71.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+          "test_blob_oid": "117740bb5f5a0a031d5507d79e87211650416b2d",
+          "estimated_seconds": 70.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+          "test_blob_oid": "0adde186e16225cf91103a98e5dda56b796eda40",
+          "estimated_seconds": 65.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_runtime_contract_measurement.py",
+          "test_blob_oid": "995ac8c5bbd80f1d812d0e9b1770e308b65f6ef8",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/runtime_frontend/test_ds15_acquisition_route_contract_bridge.py",
+          "test_blob_oid": "3eb6c8831c8cad644454f0e9f7f55c2c57fac97b",
+          "estimated_seconds": 60.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_config_security_startup_bridge.py",
+          "test_blob_oid": "71430a9900eab1b2ef8b1c5caab9552f5267546e",
+          "estimated_seconds": 58.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_non_data_acquisition.py",
+          "test_blob_oid": "f9a1dd77d5acf5b542bcc95a93f05e37097b9d27",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_non_data_acquisition.py",
+          "test_blob_oid": "9b98f43482d831b1dc129ac11eb0cca189af4ab6",
+          "estimated_seconds": 56.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+          "test_blob_oid": "3c05cf6adaae5b9495f84ca15d046757972927fd",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+          "test_blob_oid": "14d0a6bf93c00376483dc0d887a625b27e87167e",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/common/test_async_tools.py",
+          "test_blob_oid": "d7ce440ead4ba262c8be349820c3f10492df7894",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py",
+          "test_blob_oid": "ad843625970cdc6f8bd81337688970d18c925e6a",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+          "test_blob_oid": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_published_signature_custody.py",
+          "test_blob_oid": "b93f79c54ea16845fd7f98dce3185f770ff27bf0",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/common/test_config_bootstrap.py",
+          "test_blob_oid": "76e07e20bb418d5793048c3257ee9e898b8cc53f",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+          "test_blob_oid": "bc3e477a0bbd0c07c247c60c450325b06c369bf5",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_reissue.py",
+          "test_blob_oid": "6e2b5f8b8f65580fe56b1c46ade388ba969a66f8",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py",
+          "test_blob_oid": "c686b8cba418079f9c8deeee145a078faba8e53d",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_agent_action_authority_replay.py",
+          "test_blob_oid": "504bcc22e838c6f22ad3ddc7de36fa8c1e38c8dd",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_activation_readback.py",
+          "test_blob_oid": "858dd61a2f584ac1e291c05dac4fe3d6da95c623",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1457.3,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q08",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_design_generation.py",
+          "test_blob_oid": "4c2d5360df7f9ae06a8d163ddbe0e8901a0381c4",
+          "estimated_seconds": 155.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+          "test_blob_oid": "b774dfb5e0c75d4cd356e117524cf106998b0654",
+          "estimated_seconds": 104.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_intervention_substrate.py",
+          "test_blob_oid": "85eeadb8f262acc9524a9757fc203f4fc090609c",
+          "estimated_seconds": 84.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+          "test_blob_oid": "4907e921e867a383243c6380b5ca682c435fedc6",
+          "estimated_seconds": 75.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_schema_station_independence.py",
+          "test_blob_oid": "11e626d97169ddcfc66aa2b3a602aa90330c731c",
+          "estimated_seconds": 72.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_executor.py",
+          "test_blob_oid": "dbfbd15e7479c1083202e1624e7a225fdf92ff65",
+          "estimated_seconds": 68.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_vocabulary_source_census.py",
+          "test_blob_oid": "8c51af90f927e19b9268ffb8b17a22199a0f1c69",
+          "estimated_seconds": 66.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py",
+          "test_blob_oid": "be76814ab18d69544a58edc402ea6d810f0ef02a",
+          "estimated_seconds": 63.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_wiring.py",
+          "test_blob_oid": "8866b13568db4e9c2407e930e60b8390e74925b3",
+          "estimated_seconds": 61.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+          "test_blob_oid": "9b97bf857a45cd1a18f7e6a380087d1bf130d03e",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py",
+          "test_blob_oid": "9483998d874993edd7654e13d602ca74e9be6dc0",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py",
+          "test_blob_oid": "65bcf52762ad90f5506b48838ff738e23b4ebfef",
+          "estimated_seconds": 56.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+          "test_blob_oid": "0294ddd7be481f21b68e59631f1944def3010446",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+          "test_blob_oid": "1e8263b473c448fc39a85e6169d305079b51050c",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/orchestrator/test_decision_grade_compiler.py",
+          "test_blob_oid": "341ad64f41b35adc45f448c6d34267b7142699b1",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_exe_02.py",
+          "test_blob_oid": "06770a8df67aeb9d4e0b35d6bc0bbb91503c9898",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py",
+          "test_blob_oid": "fb2a59308b7183ab123fad477242668678ccfc9b",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_s8_blocked_generation_owner.py",
+          "test_blob_oid": "68eb482ba78f54d8c9244b5bdb1c51c571e1c8b7",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+          "test_blob_oid": "604ac837cd4eecf3c51296bc4fb24533db732535",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger_packaged.py",
+          "test_blob_oid": "faab04b70bfe165c20e8ed1dcb161fb8044b86c4",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_udf_01.py",
+          "test_blob_oid": "66603ba212398d6c04a59f5ea6ce4349e05830c4",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+          "test_blob_oid": "ca41deb3ed0d2e7d94bac3daf3afe6ffc5a7d3ab",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_route_basis.py",
+          "test_blob_oid": "a48f2c4f42bb2ee4f523fe3d170ff78d870d2a04",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_human_decision_mutation_binding.py",
+          "test_blob_oid": "b6966a1f3fff86b0ebfc99c13fbf52290397e535",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1457.0,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q09",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+          "test_blob_oid": "05e2cf7673f19854199a5815a93088ec9960b3f9",
+          "estimated_seconds": 155.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+          "test_blob_oid": "a6c17a16bb2cdb70e0de14bb07eefcc7553504a6",
+          "estimated_seconds": 101.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+          "test_blob_oid": "a1f862ba34ed9dbb4c2e9509ef2e07b86b8189a0",
+          "estimated_seconds": 84.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_generation_cycle_contract.py",
+          "test_blob_oid": "22dc07af3ad343e438343e3c3c58198333ed3fa4",
+          "estimated_seconds": 77.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+          "test_blob_oid": "449d4f7d6614621ef371ddc5ada6a6a2e426c1a5",
+          "estimated_seconds": 74.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+          "test_blob_oid": "6b40cf6f293cc10edfb75cc04eb6e8a71d50365f",
+          "estimated_seconds": 68.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+          "test_blob_oid": "13c7f5994bf0aee0210b1349fe51568c2686d81b",
+          "estimated_seconds": 65.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_locale_census_independent.py",
+          "test_blob_oid": "b394505dcf5ae493a40b74361179707365b98b02",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py",
+          "test_blob_oid": "ed02d8620fa70df3bf5db4746d3f1db13499dea8",
+          "estimated_seconds": 61.6,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/runtime_frontend/test_capability_discovery_free_growth.py",
+          "test_blob_oid": "4bbb9d2e8dfddc1803e0f01a565fd29656e5be97",
+          "estimated_seconds": 58.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+          "test_blob_oid": "f708d6965312562b26c4d3aa607b958005ecf719",
+          "estimated_seconds": 57.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_mig_04.py",
+          "test_blob_oid": "ca2d914beea751f7c92f1e1469a167dc08a63b6d",
+          "estimated_seconds": 54.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+          "test_blob_oid": "53da99b487c468bbf8e26ca5eeae40545d90f300",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_constrained_response.py",
+          "test_blob_oid": "3e7cf357b50dd31c2725c3ca467ac741720c957c",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+          "test_blob_oid": "868e41d61a656e29ecfbb9b0dd738cb6ae448f45",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_acquisition_assurance.py",
+          "test_blob_oid": "9f2cd8667c7c5ec275e100d3ab6f8148624bef74",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+          "test_blob_oid": "5d6621a7a4ef47b2d7451ef268e5a12f9d961421",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_report_canonical_persistence.py",
+          "test_blob_oid": "9ec36438eca217d8ce74533ac6071163bc76651c",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_ingestion_sidecar_scope.py",
+          "test_blob_oid": "1e7b3ca4050833a8d5434e4b38c62033560eef29",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+          "test_blob_oid": "ee0fefdc86d1179b900e074f8b8960391d4d713f",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+          "test_blob_oid": "553da1582f3c2f6d6e88e839871a4b5aec3dea20",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_production_grounding_calibration.py",
+          "test_blob_oid": "959f4a926744e5b9c2c162298bfa6a582b80416e",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/evidence/claims/test_posture_markdown.py",
+          "test_blob_oid": "71ce544a11a7205de7b7fcd1ff359cf07b174935",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/common/test_markdown.py",
+          "test_blob_oid": "6f08eb15a5f734a749a09aedc3780117e33a2afe",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification_schema.py",
+          "test_blob_oid": "eb75421b24b2922d1ac833938cea27c945ce4c59",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1492.7,
+      "runnable_cell_count": 25,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q10",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+          "test_blob_oid": "532430be773699852d43d671755f479a229986cd",
+          "estimated_seconds": 155.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+          "test_blob_oid": "1a2de990d566a0cca37f539fe32d2ad192ed6f87",
+          "estimated_seconds": 99.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+          "test_blob_oid": "02894c6370a3533ab97043fc6eba8cb4bce697b0",
+          "estimated_seconds": 86.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+          "test_blob_oid": "eaaad47e7feba3cea07589e7f618b6970e6aa53a",
+          "estimated_seconds": 78.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_structure_station_inputs.py",
+          "test_blob_oid": "389e47926026f5e6f6005c6f60e72f79c49cb484",
+          "estimated_seconds": 72.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_mutation.py",
+          "test_blob_oid": "2624ca1a677e98e3051d9279edc5442d2b43a80f",
+          "estimated_seconds": 68.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+          "test_blob_oid": "1b084107520daaf9ad0c687e9af45682c19a2346",
+          "estimated_seconds": 65.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_cursor_store.py",
+          "test_blob_oid": "035ccd38c5e6448f5bb9db14c507fc12c96c5b30",
+          "estimated_seconds": 63.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/security/test_chronology_anchor.py",
+          "test_blob_oid": "1ad01791d859f5a0bd60a094e97bf3dc0004c1ed",
+          "estimated_seconds": 60.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/phase0/test_store_signing.py",
+          "test_blob_oid": "2b49dbe9b27796a4aacce3369be5c2f4c5bbb288",
+          "estimated_seconds": 59.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/facade/test_api.py",
+          "test_blob_oid": "3095b0424aeb20ce012af432de5ac006b59e7aeb",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_grounding_risk.py",
+          "test_blob_oid": "de1fb29580bc46dd3e975294e5e5244b85f2eb2c",
+          "estimated_seconds": 56.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+          "test_blob_oid": "5fbd693e74b17a161c7d8f4de616c2faa63c0a5f",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_scenarios_api.py",
+          "test_blob_oid": "1de52fe8a92694119658bb5c3f8f4ebef726dfd8",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_can_01.py",
+          "test_blob_oid": "d4cb77099597b0888b4a68c065ff2ca74dc9a222",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+          "test_blob_oid": "e1191be4f258f170c59328626be638d8d3a81399",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_udf_04.py",
+          "test_blob_oid": "946926cf1fa4c891ecbda49af7a8e66781091cd1",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+          "test_blob_oid": "35db1f959697efed037e0a1be30bab50572e7e5a",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py",
+          "test_blob_oid": "3c5b3111c6e4ee7446899871d1875b8aa6761ab5",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_fed_02.py",
+          "test_blob_oid": "eea50470fb55d3c1bcfc30c524f15b828ec5ba91",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py",
+          "test_blob_oid": "5577b9fa37db78580918bfa1c420b670cb3ac466",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py",
+          "test_blob_oid": "b0162afbf70fa28d494d98721ba6240e2e7c7e1e",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_promotion_epoch_deployment.py",
+          "test_blob_oid": "270187cb4598dd61d54bc6d7b9a2ec2d6143d008",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+          "test_blob_oid": "bf6251bafc974d197c1c741a12ebf0a18826b149",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1457.6,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q11",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+          "test_blob_oid": "493824803dc6dc869c1c5dd6511c72dee59d080f",
+          "estimated_seconds": 146.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py",
+          "test_blob_oid": "7c4b73fb339f36b21bcc430c1260f35d76a745d6",
+          "estimated_seconds": 106.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py",
+          "test_blob_oid": "c1161a31a9c0027234e58471b986079a0ce6fdb6",
+          "estimated_seconds": 87.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/contracts/test_chronology.py",
+          "test_blob_oid": "270204c52d6c53f95438f0aab2de9d0a62e6d948",
+          "estimated_seconds": 80.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+          "test_blob_oid": "cecafa6ff98f70269385ebe496a4668181a7d44c",
+          "estimated_seconds": 71.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+          "test_blob_oid": "9b90b569167fb5a2630128257563e7f6d1a148fb",
+          "estimated_seconds": 70.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+          "test_blob_oid": "98ad8dc8f080079c3cd1c5ab44dbdf926c5ba654",
+          "estimated_seconds": 65.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "test_blob_oid": "7d4280aa5214ea1d295a82f7f5453998ee1d5881",
+          "estimated_seconds": 62.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/workflows/test_builder_pinning.py",
+          "test_blob_oid": "6bd7401e08ae1fa7c1e57ddd07d647c79d661ebd",
+          "estimated_seconds": 62.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+          "test_blob_oid": "04510b4ded6be26d50bc1b80858dc33ed6b09328",
+          "estimated_seconds": 58.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_operator_comprehension.py",
+          "test_blob_oid": "3dcec796d4aaaee9440babfb85cefcb0f49fa21f",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+          "test_blob_oid": "9481279809ac319bb9008fc8ce2d34fe837058ed",
+          "estimated_seconds": 56.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+          "test_blob_oid": "cbd077fd37ddb1a2bf83b28b2d684614687187e0",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_api_maturity.py",
+          "test_blob_oid": "518e23e8a5accdfbd152b7fea27f617feda577ce",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cal_01.py",
+          "test_blob_oid": "7d62342d0e12a716d5903f9faeb1be4f5386a789",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+          "test_blob_oid": "61baa91ec2d9fb6b0425665471d194cfc8570d46",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_udf_02.py",
+          "test_blob_oid": "27c4c09d13063138f4e8f18bb6593a0ca898413b",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/test_equity_pass.py",
+          "test_blob_oid": "b3a9fc6b4a05b235b2a676dd11353b2519ea37fc",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/security/test_tenant_context.py",
+          "test_blob_oid": "3ecbf159d708b08ade9610c1cc272325493392c3",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+          "test_blob_oid": "83c37356e6d694fc0960e272332660431712ec6a",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+          "test_blob_oid": "afeb2fb34cd73ee5cc98bd963fff2f7dcc51bd52",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/ingestion/test_raw_result_sink.py",
+          "test_blob_oid": "c9c0b2802de0eb24f663fa99e5a314fd915c0481",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_evaluation_safety.py",
+          "test_blob_oid": "a5b8b3645aeffaec4378dd6caa6f912c7279e667",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+          "test_blob_oid": "742e9161564488b12b060477fe3ecc84a1feca09",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1457.4,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q12",
+      "files": [
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+          "test_blob_oid": "b6b4d92f4c32f07a0ac5d067e0578d629fc80775",
+          "estimated_seconds": 144.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+          "test_blob_oid": "8603eb2d0691496d7f468c32524705fdf5aec43b",
+          "estimated_seconds": 108.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_acquisition_route_execution_binding.py",
+          "test_blob_oid": "00c24f2f7260e0e3726b7d421e6c7a208c186f0b",
+          "estimated_seconds": 87.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/validation/test_legal_correspondence.py",
+          "test_blob_oid": "1bc93a6035fbbfddd1e091adba6e3fa94deb5a45",
+          "estimated_seconds": 78.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_canonical_vocabulary_crosswalk.py",
+          "test_blob_oid": "71975f3bfec462ce64dd73f397ef6af88de2a88d",
+          "estimated_seconds": 72.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_scientist_phase1_gate.py",
+          "test_blob_oid": "6232067b25d0008faf66e453a2d211a837c9b0fe",
+          "estimated_seconds": 68.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/runtime_quality/test_evaluation_safety_admission.py",
+          "test_blob_oid": "93df35557a71414295fe9896e764c2d34d90ec9f",
+          "estimated_seconds": 65.6,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+          "test_blob_oid": "ae762a91201fd82ab969f3e516bc3c44323588b0",
+          "estimated_seconds": 63.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_provider.py",
+          "test_blob_oid": "8bf04e1e1e33747ab7b0eee6ac8acff9f7c01cb5",
+          "estimated_seconds": 60.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "test_blob_oid": "89004b621244fe76b0d389b50c01a89195bc9018",
+          "estimated_seconds": 59.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py",
+          "test_blob_oid": "38435f71c82e091b7be01a1146367d6cd380327b",
+          "estimated_seconds": 57.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+          "test_blob_oid": "43d8f9bedab837c2f4a7b2d8a9d3bd26bbff2f7f",
+          "estimated_seconds": 54.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/phase0/test_worktree_admission.py",
+          "test_blob_oid": "754c5bcde98638fbbf9b059403b911c6406eece3",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py",
+          "test_blob_oid": "3bfc4e8a6850a146ee30a613401c879944afcd15",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+          "test_blob_oid": "1e694d6eb36ce7b895c1e403689ca91c092beb70",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_ceiling_relations.py",
+          "test_blob_oid": "c7bc6fd55eff40cf18110954fc6057eb9822aa4c",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_scm_03.py",
+          "test_blob_oid": "1544420d83c3e1c51ce864c2210b97050db70bbb",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+          "test_blob_oid": "9a5c6eb372cf9d55674ec86e0e48c5d95e4f71e9",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/lex/knowledge/test_locale_census.py",
+          "test_blob_oid": "dca80594a6089b262460a8fe2f299334ac37f97e",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_sim_01.py",
+          "test_blob_oid": "d56dc738a38e2322c7fd943fa9f8a2f5f81f09b6",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/ddm/test_facade.py",
+          "test_blob_oid": "037ec5ee19b1bb44f2c85b5597c2d5bd676a3f1c",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_promotion_scope_guards.py",
+          "test_blob_oid": "653cb2a3eae540241145dbc4f1ff421afeeb8f33",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_incident.py",
+          "test_blob_oid": "6042298d5340b7ce9886249ff629169c53c2d892",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+          "test_blob_oid": "678583397bb5375579dae6581d6ac381898d2965",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_route_loop.py",
+          "test_blob_oid": "986d5949034d6417110de782c3bc548457224d6a",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1492.7,
+      "runnable_cell_count": 25,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q13",
+      "files": [
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py",
+          "test_blob_oid": "256e837e4390d4cefa861fbfeb575b3fcb3d4ffd",
+          "estimated_seconds": 135.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+          "test_blob_oid": "48d9d218a77e22328acd487a9116a826d03145b2",
+          "estimated_seconds": 108.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+          "test_blob_oid": "7dfae87a190770daba4f829c5a35ec85b8b90949",
+          "estimated_seconds": 95.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+          "test_blob_oid": "3257286249673d01620b9c92ab8ffcfdeef0e0c0",
+          "estimated_seconds": 80.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+          "test_blob_oid": "a9864465d949c7aaf6ab8b96f9c04d7a7aeed449",
+          "estimated_seconds": 71.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+          "test_blob_oid": "257bf3503976b9584a684854dcb82d468105220e",
+          "estimated_seconds": 70.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_grounding_bind.py",
+          "test_blob_oid": "8d0e1b45855f67f5aebb3666b3e149f7769810df",
+          "estimated_seconds": 65.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+          "test_blob_oid": "88cf8a89e9b27fd5f34bc48ba3d069abcd1f7fc7",
+          "estimated_seconds": 63.7,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_acquisition_production_boundary.py",
+          "test_blob_oid": "131e596cffe2e00cafeb29c3fa9a64c27bbc1cd5",
+          "estimated_seconds": 60.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
+          "test_blob_oid": "1b5974646d157c201d7764df9e6e115c63f7f7af",
+          "estimated_seconds": 58.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_deployment.py",
+          "test_blob_oid": "570555fcbea2e15a156e211e9d97e27c4cddd049",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+          "test_blob_oid": "cbb2ca67709d4f3bcbb695945795cf6acabbe103",
+          "estimated_seconds": 56.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+          "test_blob_oid": "781cecfd639eefa540bbdae00c540d5e42e6feb4",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_emb_02.py",
+          "test_blob_oid": "3cd73c7dc452192e08af74f4bc9342701f7e8d17",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py",
+          "test_blob_oid": "2e3b7c4244d377a40bd69db006fc9c44f4c1d6e7",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+          "test_blob_oid": "9b1793144e765179a38a8883a1916d567409c2c0",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+          "test_blob_oid": "00c39db282626e7247f881a1f92070514f57db1b",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+          "test_blob_oid": "7adc2c49cbcf405d797199d088d08b45060d0341",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+          "test_blob_oid": "ba1de05727f270203f12f593f74651020735e88f",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_custody_audit.py",
+          "test_blob_oid": "3288a1ab830b5c15ed33931710d7ce4d945b360f",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_b88_served_replay.py",
+          "test_blob_oid": "c5f8ea5baacb18bda96ea41925c69b554c3b890d",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/phase0/test_registry_bundle.py",
+          "test_blob_oid": "0e0b6855493a4cdeb76ed1e10fcd71eeb8d911ea",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_world_growth.py",
+          "test_blob_oid": "e6e670601ba69925189f247c8d95e4f34352d17c",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py",
+          "test_blob_oid": "4940e76c2966374eca2a4a57ebea3e02a58cfc6d",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1457.2,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q14",
+      "files": [
+        {
+          "path": "policy-engine/tests/integration/runtime_quality/test_chronology_protocol_conformance.py",
+          "test_blob_oid": "a2b697bbc1fc05c7942b1b64a88c964a4e74f669",
+          "estimated_seconds": 135.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py",
+          "test_blob_oid": "613816507a7ad3468373ac98c02122176e191c48",
+          "estimated_seconds": 109.9,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+          "test_blob_oid": "72714f78c14adcff1f5ec83f570eb188cccfd1bf",
+          "estimated_seconds": 93.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/forecasting/test_uncertainty_bundle.py",
+          "test_blob_oid": "eab91ae25685ec75877a5569d0bd80aeb0a83a2c",
+          "estimated_seconds": 80.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+          "test_blob_oid": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+          "estimated_seconds": 72.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_repo_hooks.py",
+          "test_blob_oid": "bbced5486369866800b5c726812061370155c460",
+          "estimated_seconds": 68.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+          "test_blob_oid": "061f5f53d74f0f904a9b6bdafeec3d8432ec8d7d",
+          "estimated_seconds": 65.6,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+          "test_blob_oid": "346a4fcec779f5d5f292bc0c02ee235916683110",
+          "estimated_seconds": 63.7,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cau_01.py",
+          "test_blob_oid": "e68114e182fcf39b6d72d6b866ad3da30aa55872",
+          "estimated_seconds": 60.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+          "test_blob_oid": "4f1fdae4972937f37d28aac5d4aae79b5e94dd68",
+          "estimated_seconds": 59.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+          "test_blob_oid": "35f93db4a8527ad184a93d81a936398158de24df",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cyc_02.py",
+          "test_blob_oid": "894d6ce0b4f1a797c76dab91576d0682af4c0011",
+          "estimated_seconds": 54.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+          "test_blob_oid": "acc98b33d6e5c8a5426615f273b8108c8257f9ea",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_adaptation_transition.py",
+          "test_blob_oid": "c34c53ac046cc3b674d469fc46b04d396e97f621",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+          "test_blob_oid": "a93473fc9d61a5f89e29aa8fe5abd1d52fcfea9b",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+          "test_blob_oid": "740dd72594f91ba7e8d54b13a0600e470fbf9762",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py",
+          "test_blob_oid": "8e327f8ce992704b352f7becf6dcca2346ac7567",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_temporal_runner.py",
+          "test_blob_oid": "1edda61d4ff26939563d559265553e323b48fccc",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/ddm/test_stationary_replay.py",
+          "test_blob_oid": "1522e14d9af642445072185d2605bbc0db51d33f",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_fit_01.py",
+          "test_blob_oid": "3a48521c70060e73547a83dd88793b92b9f33634",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/phase0/test_artifact_graph.py",
+          "test_blob_oid": "8c52bac732da9cbec4b1783fdc72ada19b86d7bf",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_owner_store_requirement.py",
+          "test_blob_oid": "60fb9704cb27ddba43abc95b3881057df1a8f774",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/agent/test_feasibility_probe.py",
+          "test_blob_oid": "17577d3c0318c9a7bb6bcfdf399595a694bbe9d6",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/evidence/claims/test_ledger.py",
+          "test_blob_oid": "75799d33c1d637565a634e3105688ba03fa13cbe",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1457.6,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q15",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_human_decision_service.py",
+          "test_blob_oid": "514ede32729c89c8612d9c73aee58c1a52e6087e",
+          "estimated_seconds": 134.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_interference.py",
+          "test_blob_oid": "7aac91c11d341290a9c54ba2891972767cae805c",
+          "estimated_seconds": 114.1,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_derived_observations.py",
+          "test_blob_oid": "7d4b4f8f6f164179e41402b94244685bc5aa5622",
+          "estimated_seconds": 87.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_public_export.py",
+          "test_blob_oid": "c0c412b44a754dbd2ec0689b40e6752da613c5ed",
+          "estimated_seconds": 83.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py",
+          "test_blob_oid": "1bf67db680234abfbd45a5459db5be588b67f569",
+          "estimated_seconds": 72.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py",
+          "test_blob_oid": "5c8a7cc2b5fcb096e86754a079cf64a79124143d",
+          "estimated_seconds": 68.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
+          "test_blob_oid": "3e642a294e952a5af5cc775b276985ea775ccba0",
+          "estimated_seconds": 66.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_orchestrator.py",
+          "test_blob_oid": "dafe1d5d9ca0491991d21c1abf90a38e276f1545",
+          "estimated_seconds": 63.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/connectors/reference/test_rest_json.py",
+          "test_blob_oid": "ef51fb8efcea18734735b0e0ae695fc287ce9678",
+          "estimated_seconds": 60.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_world_time_travel.py",
+          "test_blob_oid": "cacb40d18531b4b9ce34295ed2a4aa5afe137726",
+          "estimated_seconds": 59.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
+          "test_blob_oid": "438aca56882de7d4d0f5155bfaf9684f9ad9e658",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_generated_client_station.py",
+          "test_blob_oid": "e6d972250f9ef5b8143b0bd13ee32c9e00b1dea8",
+          "estimated_seconds": 54.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_design_axes_substrate_acquisition.py",
+          "test_blob_oid": "8db46cf49f0fc371420b6856b2df89aa89606166",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_benchmark.py",
+          "test_blob_oid": "8bce44e67de9f23c62a671da8d0a670c8bbdf0ee",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+          "test_blob_oid": "c1671e0ee1b0c5b597f1c1724f23c1f804afa761",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+          "test_blob_oid": "068de90a8210a766980418685ea8bf6a8fa44fa5",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+          "test_blob_oid": "180e4cd1d503cfe4f6465d8f1ec5ad6ee245f623",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+          "test_blob_oid": "76a129359a6411a929b739e7bffb89b4312de081",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_invalidation.py",
+          "test_blob_oid": "d9380a85163014aec91140250f9be543f7a293f5",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_service.py",
+          "test_blob_oid": "ccb0e57593ae9f7922d4c41a73c40395f6c71256",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+          "test_blob_oid": "20a9e5bf39233121ec85969702e7b7c37eb2e84c",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_random_grid.py",
+          "test_blob_oid": "484b9113b9e92c3805afdfc7142dfc2f66a19aeb",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+          "test_blob_oid": "2f503e99b15b4351bc9d932c1ded5ca841ac321e",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_acquisition_human_source.py",
+          "test_blob_oid": "98ffd14e00088110fbf31d8937059b8a29e6536d",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1456.4,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q16",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
+          "test_blob_oid": "436d29bfe29548179cd4be95f3c58164196e5da7",
+          "estimated_seconds": 134.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/evidence/claims/test_head_index.py",
+          "test_blob_oid": "191a458e06ea769ddfbe1e85d9208794fa01c22d",
+          "estimated_seconds": 113.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+          "test_blob_oid": "9941ce2d12db1b9329f515b7e7d867c4e0a3394d",
+          "estimated_seconds": 93.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_chronology_proof.py",
+          "test_blob_oid": "83640077ad0a533468c94e29f07247c116ddcbbf",
+          "estimated_seconds": 80.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+          "test_blob_oid": "8f0d6f22a08e008c011176d9771d77495200a71a",
+          "estimated_seconds": 71.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+          "test_blob_oid": "1a750bdf9c493940c1476ff3522a706f55e40920",
+          "estimated_seconds": 70.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_atlas_measurement.py",
+          "test_blob_oid": "ed572e588e87e83e4e3b13317f43c92c7ca37c37",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_core_runtime_closeout.py",
+          "test_blob_oid": "73b53d4b63b248b62dc6f5c87f3b2a1337ca1cdc",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+          "test_blob_oid": "c3d138db61287bd491923b68bee515234acfc0e4",
+          "estimated_seconds": 61.6,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/foundry_scientist/test_method_node_bridge.py",
+          "test_blob_oid": "1b797bcbafa993ac936c7458780c2717612eb32f",
+          "estimated_seconds": 58.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+          "test_blob_oid": "69cb0a6db63a4598a646259269d5c13512c7f58f",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+          "test_blob_oid": "6175718985a89d0f33405a8a05a0dfc5701a1f59",
+          "estimated_seconds": 55.3,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py",
+          "test_blob_oid": "a1e28e173a58d6a4793c69275bc5345438beee54",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+          "test_blob_oid": "e61580cd72b37ab1e430f335174e694eba58c4ad",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+          "test_blob_oid": "e4e74ac63b164225b0656dbe78e609bba9455cce",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+          "test_blob_oid": "0267e54b7143b862b703a3b99aa24e383ea490a2",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+          "test_blob_oid": "f3428c76b83ca10147b286013be4357cc85000c1",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_doe_01.py",
+          "test_blob_oid": "fee1a2dd6ea5d1ee2338c3a8a712eef646ed82be",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_owner_event_producer.py",
+          "test_blob_oid": "222054eb7461b4b32110fb611a83e36fcd653f3c",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py",
+          "test_blob_oid": "646f142c56ea0ecd67f914e7b0b1b302cbbe9b4a",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+          "test_blob_oid": "b806c76f9c9e7f392cf94e1537fe8e07dd07be2a",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+          "test_blob_oid": "31341a2c44d8a05f6013cb31a9d5bb0b8698b78f",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_movement_positive.py",
+          "test_blob_oid": "7033145e09b1ead593b1a8c36b30d65caf7e7108",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+          "test_blob_oid": "96f79bcf53b58ba2023d4997975a4e9c74788420",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1456.9,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q17",
+      "files": [
+        {
+          "path": "policy-engine/tests/performance/test_runtime_hot_paths.py",
+          "test_blob_oid": "02f4ba3bbc5690cf79f730243af7c843433c50a4",
+          "estimated_seconds": 133.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py",
+          "test_blob_oid": "79e20735ccda3549363c73b4c33b2b7b3b39f48b",
+          "estimated_seconds": 114.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py",
+          "test_blob_oid": "8e0decca87bd62095f49382fb6b7db0ef5f24b02",
+          "estimated_seconds": 88.9,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "test_blob_oid": "479e8471e20a213600e41aa76441109858123674",
+          "estimated_seconds": 81.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "test_blob_oid": "9504676c5501e8a8e8909fac04c5b567c918b5ba",
+          "estimated_seconds": 74.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_authority.py",
+          "test_blob_oid": "f339c8bf4749f850dc0194330204657c4cca8bb4",
+          "estimated_seconds": 68.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_ownership_history.py",
+          "test_blob_oid": "74f4462e9ed344d1e36736986f3d5589749d5f31",
+          "estimated_seconds": 65.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py",
+          "test_blob_oid": "45816a271031b26bca1fe7ba2c943f2dc4f17ec7",
+          "estimated_seconds": 63.8,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+          "test_blob_oid": "f840b4acc0fca359e49368c81183a1a60bdce40f",
+          "estimated_seconds": 61.6,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+          "test_blob_oid": "4119bbb9662435fc97a5d8975af62767ed2dfbba",
+          "estimated_seconds": 58.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+          "test_blob_oid": "fb02a58fb52eeb51e22f1904ea02db7905113368",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_public_export.py",
+          "test_blob_oid": "a86ee5eab4df2a67889815b7c8502dd0ab8cc454",
+          "estimated_seconds": 54.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cau_03.py",
+          "test_blob_oid": "c0730bc4d52160da5039d02bd99549a50774f4d2",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/test_validation_pipeline.py",
+          "test_blob_oid": "a5c7b5d9b2bbf67c85373f418e624e38d0336b81",
+          "estimated_seconds": 51.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_mig_01.py",
+          "test_blob_oid": "48bb51735c406de067ade8a3c0d8cdc95dfb0dff",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/lex/knowledge/test_multilingual_assurance.py",
+          "test_blob_oid": "0ee51a8e057243761895823a939998d1af8f289e",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+          "test_blob_oid": "927f280bb2dab78bec9acae7701416a103be616c",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/common/test_llm_json.py",
+          "test_blob_oid": "b013321c6ead9f1bdb1c61c4a3d5c9c01039880d",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+          "test_blob_oid": "7f4bbd99750be121a71db3c2ab400dd79398e79c",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_sim_02.py",
+          "test_blob_oid": "31f830bd35eb5211771f712144a48a0af7d3ee47",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/ddm/test_readiness_mapping.py",
+          "test_blob_oid": "9f4e7cc5a66c0abcd9c015bf87abc04e58158d4b",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/test_pii_check_pass.py",
+          "test_blob_oid": "5f6e668e40b620422a785b9815f28a371f0674cb",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/continuous/test_reports.py",
+          "test_blob_oid": "011fbf474b1b0221de545d3811579c61914bd6e9",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+          "test_blob_oid": "58a730654c652e68815752b9f776b9066681e3a6",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle_outer_artifact_replay.py",
+          "test_blob_oid": "a1abbbf66601de27e3ba767416336e26e3b24b5e",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1492.7,
+      "runnable_cell_count": 25,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q18",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+          "test_blob_oid": "221d2d3f842b96829d04e2967dc0c24c2b0ed9b2",
+          "estimated_seconds": 132.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/connectors/test_protocol_compliance.py",
+          "test_blob_oid": "798b4ae70466cdc45174a00f17117ccb97dbfe51",
+          "estimated_seconds": 114.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+          "test_blob_oid": "89c1ab1f643eeb93e80ae3d3bb8015597dd7331b",
+          "estimated_seconds": 89.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "test_blob_oid": "89dde1da1d91b41c18e85fec0bd4ea6102f6f588",
+          "estimated_seconds": 83.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+          "test_blob_oid": "fd8f898025c3e77cc0f8a1d36a1babfdd5f4f453",
+          "estimated_seconds": 72.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract_verdict.py",
+          "test_blob_oid": "78b29d194eaf1a05a744415e5a5af5062e41565e",
+          "estimated_seconds": 68.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_acquisition_oracle_isolation.py",
+          "test_blob_oid": "053f64c632ce2978b94f19b000a6a69599cbd52f",
+          "estimated_seconds": 66.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
+          "test_blob_oid": "da76e2ff02eeb6a1176270f686efcf7d5f515d74",
+          "estimated_seconds": 63.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+          "test_blob_oid": "aec6d2e5760a32db932caff6e92f5574bb6fa018",
+          "estimated_seconds": 60.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py",
+          "test_blob_oid": "009dde587c2249653afe2b15e1212ab7533682f6",
+          "estimated_seconds": 59.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/validation/test_epoch_certificate_issuance.py",
+          "test_blob_oid": "25c515e05d933a74d96432484162cac2fddcad9f",
+          "estimated_seconds": 57.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_promotion_safety.py",
+          "test_blob_oid": "1aa2e334c90325850bc4277f89a56b558539d70e",
+          "estimated_seconds": 54.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+          "test_blob_oid": "f513cb6a5c40921af317c943990bc2a287be4661",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+          "test_blob_oid": "86d292e2c3ea2d506bfddd6ee311fcd1d37a934a",
+          "estimated_seconds": 51.1,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_evidence_journal.py",
+          "test_blob_oid": "78aab2c383217af45f85e5dc6349d3d26f2bfd0a",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_overlay_visibility.py",
+          "test_blob_oid": "ee3a60b1e7764d6dd539160e2474fd89cb035593",
+          "estimated_seconds": 48.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_fun_02.py",
+          "test_blob_oid": "ca482e98bc99b78b515902de05ee16b05b2c071a",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+          "test_blob_oid": "c205c441a7626554b004c911c878a98da6e5768a",
+          "estimated_seconds": 45.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py",
+          "test_blob_oid": "997c8d612bb546d4463df839e4c984734de371c8",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfi_02.py",
+          "test_blob_oid": "0fe89b79dc6b03eb084e1ac7dadaaaa1e371a078",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py",
+          "test_blob_oid": "9058a9ea4bcab1975c424441766966c06dbe806e",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_validators.py",
+          "test_blob_oid": "82afdc8ccd936ed4a15a3a4e1df50ac03135280c",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_chronology_projection_custody.py",
+          "test_blob_oid": "04508976d7388e630498a14479ebf129330be533",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_movement.py",
+          "test_blob_oid": "d1b0f014d2d61930e71e176f3e2d56999eb7f6fb",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1457.3,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q19",
+      "files": [
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+          "test_blob_oid": "ac166d9ec217775bdd29c67df415a7746ac61feb",
+          "estimated_seconds": 131.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py",
+          "test_blob_oid": "8cacedf9cd305c288b88f6bef1fd02e175356476",
+          "estimated_seconds": 116.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+          "test_blob_oid": "60d3096535c0812b66acee373c34eec1a6a83401",
+          "estimated_seconds": 89.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py",
+          "test_blob_oid": "bf0a6c2fb1abfeb02f76ce99d6c19090f0322a3d",
+          "estimated_seconds": 81.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+          "test_blob_oid": "780061edcaf6ec7b2e0cedabc3f81ac08b621789",
+          "estimated_seconds": 74.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+          "test_blob_oid": "180e6c9530ed500ee17fbf8aaff12698db9d0429",
+          "estimated_seconds": 68.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_p41_baseline_harness_checkout_lease.py",
+          "test_blob_oid": "f48e59d6c1331863d0b66d9440a5368b5406f6bd",
+          "estimated_seconds": 66.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_production_invocation.py",
+          "test_blob_oid": "3bbc1ec436c865a3f7f5e1de11a3da8d4f0c6025",
+          "estimated_seconds": 63.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_cost_stopping.py",
+          "test_blob_oid": "3b0759728d9cdeeb87ce715a6ea0c5b87d3397c5",
+          "estimated_seconds": 60.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_design_problem.py",
+          "test_blob_oid": "fa3b415aa871c414623ebb256186dda36954644e",
+          "estimated_seconds": 59.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/coupling/test_estimation.py",
+          "test_blob_oid": "b3240e5acba979af571ac5e8c31998b9b671ec43",
+          "estimated_seconds": 57.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+          "test_blob_oid": "4d752c653fbd43fd30c3120ead94e0ff643ac7ec",
+          "estimated_seconds": 54.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+          "test_blob_oid": "64e9fbd79c30485d0edd07990dfd2476f62f66a4",
+          "estimated_seconds": 53.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py",
+          "test_blob_oid": "11d711cedab881523a0922087d2514e2c18fdef0",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+          "test_blob_oid": "872d6fed7361b08cc6cbca41f99442edb59e53ca",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+          "test_blob_oid": "9925c77b59c7057577431885886253e161f8ead6",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+          "test_blob_oid": "4b1496d2ceede09dc5fcb181e9080e769b69ced1",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cal_02.py",
+          "test_blob_oid": "44cef10420cf99fc962c9cd0e169db57e9710458",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scholar/search/test_providers.py",
+          "test_blob_oid": "f7a5f24025e8938dd6f6c32daf087f8c776f25d5",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+          "test_blob_oid": "d08e7c60b532c1b73a89ad494d35069e03f316ee",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_frc_02.py",
+          "test_blob_oid": "c676b4f55b009a88d1d6693d0cfdb8aa1769c70d",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_adapter.py",
+          "test_blob_oid": "01f309e3242a156c9b65df3fbb4efe29c026cf6c",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+          "test_blob_oid": "0a205f7419810a766ff886e62f5d46bc373f4136",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_acquisition_authority_deployment.py",
+          "test_blob_oid": "4759b59c01e7a7f0bbb0e377a838a2092d11fe9a",
+          "estimated_seconds": 38.0,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1456.3,
+      "runnable_cell_count": 24,
+      "processes_per_vm": 1
+    },
+    {
+      "id": "Q20",
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/scientist/validation/test_decision_validity_service.py",
+          "test_blob_oid": "e527112eea139870887334b79961148cb0115446",
+          "estimated_seconds": 122.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+          "test_blob_oid": "8684faf80bb3ff389a6496c3e5b4783c57848a60",
+          "estimated_seconds": 120.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_unified_cli.py",
+          "test_blob_oid": "a9e1c3e393264f72bcab877d78accc58fa9b76f5",
+          "estimated_seconds": 95.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+          "test_blob_oid": "08d35ba1eb3705bc4677b247307ca533c3294b3d",
+          "estimated_seconds": 81.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "test_blob_oid": "f6d83d1131b5456ed8f7f0f201b05053c813b9cb",
+          "estimated_seconds": 72.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+          "test_blob_oid": "099e425235d7bf5d6b2ab978c6126d4f156b1785",
+          "estimated_seconds": 68.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_phase2_hygiene.py",
+          "test_blob_oid": "7420ef22c6c682e7dfca5ef53cff45bde7e6adcb",
+          "estimated_seconds": 66.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_acquisition_tenant_custody.py",
+          "test_blob_oid": "b9aa98955f984f459cfedc0cd7e31bc41d9c3998",
+          "estimated_seconds": 63.2,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_custody_markdown.py",
+          "test_blob_oid": "8bbbc3b6c5b68bf89fc74d429a155886336168f5",
+          "estimated_seconds": 61.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/integration/runtime_quality/test_published_signature_custody.py",
+          "test_blob_oid": "e77b791e37a4fea1064cde9d798698f03e61430f",
+          "estimated_seconds": 58.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py",
+          "test_blob_oid": "aa9131d7c2e769b5d980342fc220825bee21a622",
+          "estimated_seconds": 57.4,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+          "test_blob_oid": "484ac6a31d6c7634f7b69dcb47e06b0eb989aa7a",
+          "estimated_seconds": 54.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_decision_validity_api.py",
+          "test_blob_oid": "995d08e304f5b9d7649a367bdffb1676686ad140",
+          "estimated_seconds": 53.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+          "test_blob_oid": "526e6b07f3cdb250e5933b0bf3ee8bdcc921aa49",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/evidence/claims/test_posture.py",
+          "test_blob_oid": "84c55b74ffe693ff001767e25b43dd16df53edaf",
+          "estimated_seconds": 50.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+          "test_blob_oid": "115e9f7065bbc2239f13e2a7f98e307bc9c2d2d5",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_response_corpus_evaluator.py",
+          "test_blob_oid": "c3f71045360607ef73bab504c91e213ae190429d",
+          "estimated_seconds": 47.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_r13_ingestion_store_custody.py",
+          "test_blob_oid": "daf3262ecafd224c6608e12c56f7e830e5ee5dd7",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_vocabulary_crosswalk.py",
+          "test_blob_oid": "60d5effae54d88cf5250b94e8ab9598ccf5b9d8f",
+          "estimated_seconds": 44.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+          "test_blob_oid": "ffdc9b1aec75a3cea858a965b09473ba898b4956",
+          "estimated_seconds": 42.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+          "test_blob_oid": "3333ec1f3d826b1c37120bc9ee72540f15666cc8",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py",
+          "test_blob_oid": "807b2bab53ea90d1d6a4a93da08629490f7fa6e0",
+          "estimated_seconds": 41.0,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_sentinels.py",
+          "test_blob_oid": "ade4d40342a9dbf3f912f8e877e4637044490661",
+          "estimated_seconds": 39.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_job_core_attempts.py",
+          "test_blob_oid": "769eb109f143686969a5f4020a6a2aab9de3b2f1",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+          "test_blob_oid": "584b49fad1eff7c6b1de535df8277c608b06ca72",
+          "estimated_seconds": 36.5,
+          "estimate_grade": "unmeasured_heuristic"
+        }
+      ],
+      "estimated_serial_seconds": 1492.7,
+      "runnable_cell_count": 25,
+      "processes_per_vm": 1
+    }
+  ],
+  "safety_unrun": [
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_data_state_substrate.py",
+      "state": "UNRUN/safety",
+      "cut": "research_main",
+      "reason": "original owner declared safety exclusion; do not copy production_data or fixtures"
+    }
+  ],
+  "history_reuse": "No automatic result reuse to 021310 or other historical cuts. Require complete-input reconciliation for a specific cell; otherwise replay separately.",
+  "runtime_jobs_started": 0
+}

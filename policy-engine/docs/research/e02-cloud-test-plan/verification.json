@@ -1,0 +1,356 @@
+{
+  "schema": "E02_cloud_plan_verification_v1",
+  "date": "2026-10-04",
+  "executing_party": "root",
+  "predicate_provenance": "recomputed",
+  "scope": "allocation, source identity, source ledger reproduction, full report assignment, path presence; no product behavior/closure/cost acceptance",
+  "research_head": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+  "artifact_status": "candidate_plan_unrun",
+  "finding_source_count": 282,
+  "finding_counts": {
+    "B": 225,
+    "LA": 57
+  },
+  "ledger_status_counts": {
+    "partial": 260,
+    "open": 1,
+    "closed": 9,
+    "held": 12
+  },
+  "triage": {
+    "present": 117,
+    "null": 165
+  },
+  "bundle_count": 127,
+  "bundle_memberships": 291,
+  "declared_test_paths": {
+    "denominator": 127,
+    "existing": 85,
+    "absent": 42,
+    "file_type": "all declared regression path entries in bundle_manifest, including .mjs"
+  },
+  "matrix": {
+    "path": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_FINAL_FREEZE_READBACK_V1_20261004/bind-v7-tree-0213101b6d124e6f855b1aff7c442bb0912a61c2/FINAL_MATRIX_BOUND_UNRUN.json",
+    "sha256": "1aa7b6998ca0a4e0704e739ea26abd9722af1450c41bd219d6d8cf287398423b",
+    "paths": 483,
+    "slots": 1932,
+    "presence_counts": {
+      "MISSING": 414,
+      "PRESENT": 1518
+    },
+    "safety_UNRUN": 4,
+    "scheduled_native_cells": 1514,
+    "Git_object_mismatches": 0,
+    "native_runs_for_this_plan": 0
+  },
+  "source_cut_diff": {
+    "left": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+    "right": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "complete_changed_paths": 20,
+    "all_docs": true,
+    "output": "raw/source-cut-diff.stdout",
+    "sha256": "ab0e9af5ad0e43206043df43347c62f08f6791f01d97097f36414a179cd26bb0"
+  },
+  "sources": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "130ba865f6df9b1e7cd3bec5ce868df85e9b918c",
+      "sha256": "5abd40cc31570b26747c36ca2f782503e066c5df0195574452535943626b2b87"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/card_index.json",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "0ac4409220bda5fec20d981b72b12da52db56895",
+      "sha256": "8cebecae54136d8a7c95767b1735214352ac2469207abc23cb71e9070faaaa69"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/legacy_card_index.json",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "6e3d8bbe6c1abae67d40187767acc71d055e8ba2",
+      "sha256": "7e5ef30c20db3bc184b84a75074f412cd9f29b208bc53dd2cf5c7994642542c0"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/SHA256SUMS",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "f4f440aa9b2d92ad130c029c87a574614c3de33d",
+      "sha256": "0aa37849cc27d47ec70b3d8bccb94453d8937699ef7540e1cf9292dc7cfa9031"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/EXECUTION_GUIDE.md",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "271e5d4f5b35a86770071a94d999feab830b15ee",
+      "sha256": "4b4a6689e9b4b662058de6b47ba56f507031443618699de2d92fbf2b27c04d0f"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+      "sha256": "610255c2c8718b997b114357c93df7fd6001e83de209f079a481d16768b357f1"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "9889db58256eba0a159f642d3db3f33c85fd22b4",
+      "sha256": "48409164441f37209cc8b3c05a90a100b9e54fa6dfc60aa320034f6cddb00540"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/HANDOFF_EVIDENCE.json",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "a6ec15b5005e871b349a3bcd5e668a8099d6c2fa",
+      "sha256": "bd899edf80bbb5df215ef5564318d97a347308a0be7d83409aae1d96dee076b4"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "7f4cc9ab9541a44c26e4648a2c08326e53743492",
+      "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "85f1fb2150a4da454fee02108565381d44f56730",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    {
+      "path": "policy-engine/package.json",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "05c08c9dad38ef14ff9c32b28f555a7647b6cb85",
+      "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "blob_oid": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+      "sha256": "5930d2decb1f8f952237aa02d542f0e7a162bfc053c139a835248d0f3cbe23dc"
+    }
+  ],
+  "research_reports": [
+    {
+      "leaf": "e02_01",
+      "path": "raw/agent-01.json",
+      "sha256": "db8366a00f4a17341c34436161344a69275cb4322442303401e7462429f9915e",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_02",
+      "path": "raw/agent-02.json",
+      "sha256": "7101d62d0bda1e808fd9452aafb9077d98489003fb6425d79e962e7e843aaaf4",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_03",
+      "path": "raw/agent-03.json",
+      "sha256": "a25c8b72c9bb485e7db8d9246b855e2816818baaad42d90f1acc48cede3fecda",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_04",
+      "path": "raw/agent-04.json",
+      "sha256": "baafb9afae3b40be5c0a870fbc6150da0bd1bbca0e4a4021e155454e477dde61",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_05",
+      "path": "raw/agent-05.json",
+      "sha256": "ec3cbfc8f4bd9f8e138c5f2c7ae2c132558790c5af341e4816ee49ff7dec2de5",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_06",
+      "path": "raw/agent-06.json",
+      "sha256": "55266f8b569163a0660c0cbc5a521bc49c28ac1340d0a7fbca4a78aa8b8d8ea0",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_07",
+      "path": "raw/agent-07.json",
+      "sha256": "1d4915ec045612d29a2803808028c880751fda9308d39a2fd2000457d75af5e3",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_08",
+      "path": "raw/agent-08.json",
+      "sha256": "a96654a6d3e6faef925d5510a083e0eaa4fb68a11a4db17e9f3c61ad92aa3002",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_09",
+      "path": "raw/agent-09.json",
+      "sha256": "b71172186ef59dca3c2562ece2f4f4559ddcb949ddb15b48474abee4ee463c25",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_10",
+      "path": "raw/agent-10.json",
+      "sha256": "d45327c515c047fe7d506dec0f63ed57186a867296ea09a9e1c7ea6dba85753e",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_11",
+      "path": "raw/agent-11.json",
+      "sha256": "b69311d716d4a7b4beea070a512f0f768edea57667cbdabe761516424288c885",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_12",
+      "path": "raw/agent-12.json",
+      "sha256": "d9e58f895b988e6bdee2772742e0bac4836f1ed4cd2ef8c9b7095a5a92de7c5d",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_13",
+      "path": "raw/agent-13.json",
+      "sha256": "75fd3800b7af80b1b79e105a3b2e57209626fb5784ab707c7824dd104e5d7592",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_14",
+      "path": "raw/agent-14.json",
+      "sha256": "7ad425b07907db43881e455387c20faacfce1d478c15d5a8424418a7bd3daf18",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_15",
+      "path": "raw/agent-15.json",
+      "sha256": "780bbc44083dfbd56fe79f87fcef30a533065058e90e62f20fc7890a1b3b1890",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_16",
+      "path": "raw/agent-16.json",
+      "sha256": "e7c1ff1f8242524459162d4b881a43ab6b3303f524876b6fcd39ba9bd70d8662",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_17",
+      "path": "raw/agent-17.json",
+      "sha256": "26a763ede29270e91f2a771cbda95c56de4ceadba133db2045ec5c11478d95c9",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_18",
+      "path": "raw/agent-18.json",
+      "sha256": "975c9f937c1caebc952431a3fd546e79c4925a7591b827001899e3adc2909cf9",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_19",
+      "path": "raw/agent-19.json",
+      "sha256": "d3c1b8b75a2030cf2d8dc7789a345219e694b9463a7e73ff3bc6f90e532b8de3",
+      "grade": "candidate research"
+    },
+    {
+      "leaf": "e02_20",
+      "path": "raw/agent-20.json",
+      "sha256": "55a0df6eafc855f36f7a7c523696b1173ef124ef2b4b91e980c6cee8f5f1c70e",
+      "grade": "candidate research"
+    }
+  ],
+  "timing_prior_summary": {
+    "hash_checked_receipts": 85,
+    "unique_completed_unfiltered_P41_observations": 862,
+    "distinct_paths_in_those_observations": 165,
+    "planned_cells_with_exact_commit_blob_Mac_prior": 328,
+    "path_only_tail_hints": 1,
+    "cell_estimate_basis_counts": {
+      "unmeasured_heuristic": 1185,
+      "Mac_exact_commit_test_blob_timing_prior": 328,
+      "Mac_other_commit_path_only_tail_hint": 1
+    },
+    "cloud_runtime_runs": 0
+  },
+  "timing_prior_details": {
+    "path": "raw/timing-prior-receipt.json",
+    "sha256": "18fe71c347a8535e759a3be090a33eee5f1d0c44ad019f9c03c195fbbac3e1a8"
+  },
+  "allocation": {
+    "jobs": 20,
+    "files": 482,
+    "cells": 1514,
+    "min_estimated_minutes": 88.33666666666666,
+    "max_estimated_minutes": 88.95524999999999,
+    "Linux_wall_time": "not_established"
+  },
+  "recommended_current_allocation": {
+    "cut": {
+      "key": "research_main",
+      "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651"
+    },
+    "jobs": 20,
+    "files_and_cells": 482,
+    "min_model_minutes": 24.271666666666665,
+    "max_model_minutes": 24.878333333333334,
+    "actual_Git_blob_mismatches": 0,
+    "actual_Git_stdout": "raw/current-cut-git-blobs.stdout",
+    "stdout_sha256": "fa5d9e0afd06490309594aca4cd73a2174ef03a3a8e3ee7ca043a7163ea30399",
+    "Linux_wall_time": "not_established"
+  },
+  "document_artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "ac082acdd2a013b680758e1702b37da7f1861c745c7a2922dd28bb695c6c0ce1"
+    },
+    {
+      "path": "bundle-catalog.md",
+      "sha256": "d63c6183839d00d026a6376ddf2133059cf762b1f023c3f415e58ac9182ad6a1"
+    },
+    {
+      "path": "coverage.csv",
+      "sha256": "5f212101f4f9fbd65437b790df1c24308eb601c153631203dfe5a316b46deaf5"
+    },
+    {
+      "path": "jobs-current.json",
+      "sha256": "611ab94c53ca0e7ad3d6c5d5148957bb337d8157cfa4345481d2cd9a7865ffff"
+    },
+    {
+      "path": "jobs.json",
+      "sha256": "f52aaea776d36141a33a7cf46bf6863c1b0f6531d86fa37b6328003c6de9b6dc"
+    }
+  ],
+  "not_established": [
+    "cloud/Linux VM performance",
+    "model quota consumption",
+    "complete 282 finding-to-executed-node adequacy",
+    "cloud executor/module-origin/transfer bridge",
+    "product runtime or finding closure"
+  ],
+  "independent_review": {
+    "leaf": "e02_20",
+    "initial_verdict": "GO with bounded traceability limitation",
+    "final_delta_finding": {
+      "class": "new dispatch-mode/roster mismatch",
+      "resolution": "README command section selects jobs-current.json for Q and jobs.json/run_refs for C; output key binds mode/job/full SHA/full path hash/attempt; closing source note names both rosters"
+    },
+    "residual": "candidate route is not finding-to-executed-node semantic adequacy"
+  },
+  "checksum_drift": {
+    "owner": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/SHA256SUMS#EXECUTION_GUIDE.md",
+    "expected": "fd934552467365579863a112754a187ab2e0dd9ca38c7999fdc6635de249fb87",
+    "actual": "4b4a6689e9b4b662058de6b47ba56f507031443618699de2d92fbf2b27c04d0f"
+  },
+  "raw_outputs_gitignored": true,
+  "deciding_validation": {
+    "command": "python3 policy-engine/_build/e02-cloud-research/verify_plan.py",
+    "checker_sha256": "9aa3c41ebb54a4b3a5b71fd9418c90c33bb82037cd3fbad6b93bda904672cbf2",
+    "exit": 0,
+    "stdout": "raw/plan-verification.stdout",
+    "stdout_sha256": "bb45b0657c949849f4615b5b28ed924599fd7f008df6d6cf90177af7e599878e",
+    "stderr": "raw/plan-verification.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "negative_controls_rejected": 11
+  }
+}

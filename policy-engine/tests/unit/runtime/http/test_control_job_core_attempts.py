@@ -375,4 +375,3 @@ def test_retry_selects_only_winning_attempt_core_trace_and_manifest(tmp_path) ->
         executor.shutdown(wait=True)
         service.close()
         guarded_store.close()
-        artifact_store.close()

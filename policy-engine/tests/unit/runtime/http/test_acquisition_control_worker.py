@@ -26,7 +26,10 @@ from polisyos.runtime.http.services.control_plane_store import (
 )
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
-from tests._helpers.acquisition_production import persist_wdi_route
+from tests._helpers.acquisition_production import (
+    install_fixture_wdi_cost_basis,
+    persist_wdi_route,
+)
 from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.runtime.http.test_control_service_di import _build_control_service
 
@@ -184,9 +187,15 @@ class _Provider:
         raise AssertionError("worker cannot recreate HTTP authority")
 
 
-async def _worker_harness(tmp_path: Path, *, decision_missing: bool):
+async def _worker_harness(
+    tmp_path: Path,
+    *,
+    decision_missing: bool,
+    monkeypatch: pytest.MonkeyPatch,
+):
     artifact_store = FileSystemCAS(tmp_path / ".polisyos").with_ambient_ownership_enforcement()
     control = _build_control_service(tmp_path, artifact_store=artifact_store)
+    install_fixture_wdi_cost_basis(monkeypatch)
     fixture_closure, _source_request = await persist_wdi_route(
         control,
         tenant_id="tenant-a",
@@ -302,10 +311,13 @@ async def _worker_harness(tmp_path: Path, *, decision_missing: bool):
 
 
 @pytest.mark.asyncio
-async def test_worker_missing_durable_decision_fails_before_owner_effect(tmp_path: Path) -> None:
-    control, _service, calls, requested, artifact_store = await _worker_harness(
+async def test_worker_missing_durable_decision_fails_before_owner_effect(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    control, _service, calls, requested, _artifact_store = await _worker_harness(
         tmp_path,
         decision_missing=True,
+        monkeypatch=monkeypatch,
     )
     try:
         job = control._control_store.get_job("job-acquisition")
@@ -326,16 +338,16 @@ async def test_worker_missing_durable_decision_fails_before_owner_effect(tmp_pat
         assert head.receipt_phase == "executing"
     finally:
         control.close()
-        artifact_store.close()
 
 
 @pytest.mark.asyncio
 async def test_worker_loads_durable_decision_before_sealed_effect_and_terminal(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    control, _service, calls, requested, artifact_store = await _worker_harness(
+    control, _service, calls, requested, _artifact_store = await _worker_harness(
         tmp_path,
         decision_missing=False,
+        monkeypatch=monkeypatch,
     )
     try:
         job = control._control_store.get_job("job-acquisition")
@@ -363,7 +375,6 @@ async def test_worker_loads_durable_decision_before_sealed_effect_and_terminal(
         assert head.recovery_state == "complete"
     finally:
         control.close()
-        artifact_store.close()
 
 def _new_lease_fence_job(store, *, job_id: str = "job-lease-fence"):
     store.create_job(
@@ -523,9 +534,10 @@ async def test_stale_guarded_worker_terminal_evidence_does_not_advance_head_afte
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A visible stale terminal artifact/event is not current in the acquisition head."""
-    control, service, calls, requested, artifact_store = await _worker_harness(
+    control, service, calls, requested, _artifact_store = await _worker_harness(
         tmp_path,
         decision_missing=False,
+        monkeypatch=monkeypatch,
     )
     service._execution_port.disposition = "world_committed"
     service._execution_port.admitted_observation_delta = 1
@@ -640,4 +652,3 @@ async def test_stale_guarded_worker_terminal_evidence_does_not_advance_head_afte
         resume.set()
         thread.join(timeout=10)
         control.close()
-        artifact_store.close()

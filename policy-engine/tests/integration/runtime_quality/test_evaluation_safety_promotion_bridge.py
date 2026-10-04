@@ -313,7 +313,7 @@ def test_existing_generation_producer_is_read_before_candidate_absence_is_report
     assert f"cas_bytes:{_artifact_id(compiled_ref)}" in result["inputs_read"]
     assert f"cas_manifest:{source_job.progress['manifest_ref']}" in result["inputs_read"]
     assert any(value.startswith("terminal_trace:") for value in result["inputs_read"])
-    assert core_source.manifest.outputs == (compiled_ref,)
+    assert tuple(core_source.manifest.outputs) == (compiled_ref,)
     assert source_job.progress["candidate_computation_status"] == "completed"
     assert source_job.progress["normative_disposition_status"] == "not_run"
     assert source_job.progress["s8_status"] == "not_run"
@@ -588,7 +588,7 @@ def test_authoritative_classifier_rejects_foreign_mode_with_identical_candidate_
     assert calls == ["foreign_mode_refused"]
 
 
-def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
+def _run_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     produced_station, monkeypatch,
 ):
     """Exercise negative N9-to-EvalSafety wiring with explicit test-owner limits.
@@ -978,6 +978,19 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     assert "outside_deployment_selected_source_runs" in outside["unresolved_by_construction"]
     assert outside["classification"] == "not_established"
     assert outside_terminal.progress["eval_safety_counters"]["near_miss_count"] == 0
+
+
+def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
+    produced_station, monkeypatch,
+):
+    """Run the whole negative witness under its real tenant and cell owner."""
+    owner = produced_station["principal"]
+    return _within_owner(
+        owner,
+        _run_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier,
+        produced_station,
+        monkeypatch,
+    )
 
 
 def test_n9_repository_signature_capability_preserves_guarded_tenant_cell_custody(

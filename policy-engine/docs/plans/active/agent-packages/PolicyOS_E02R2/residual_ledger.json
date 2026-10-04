@@ -569,6 +569,52 @@
           "baseline_selected_narrative_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@git-blob:5d7661b50e4328bd301f6127a50db7fae36648b8#L237",
           "baseline_full_file_p41_row_path_at_sha": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINES.md@git-blob:5d7661b50e4328bd301f6127a50db7fae36648b8#L955",
           "disposition": "Treat the selected pass/fail as an observation with unresolved ownership. The full-file matrix cell remains UNRUN. The bounded later repair does not prove E02 introduced the failure."
+        },
+        "eb822_served_acquired_row_n5_2026_10_04": {
+          "identity": "eb822 served acquired-row to candidate N5 exact-CAS witness plus finalizer recovery on the same prepared/admitted basis",
+          "kind": "bounded_served_positive_exact_cas_and_typed_refusal_recovery",
+          "code_head": "eb822628fe26d47a7d2665fadb82085981e95053",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "target_case": "tests.integration.core_runtime.test_acquisition_authority_served::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",
+          "target_scope": "The target test/JUnit case is one pass; the enclosing 15-file run remains FAIL (9 files pass, 6 fail; 191 cases: 146 pass, 31 fail, 14 errors). Do not represent the whole focus wave as green.",
+          "measured": [
+            "Exact CAS recomputation connects the selected acquired value -17.1 to the persisted float32 StateSnapshot -17.100000381469727 and that selected baseline to the served N5 input/result.",
+            "For the selected target, recomputed 0 + 0.001 * (2 - (-17.100000381469727)) = 0.019100000381469726; persisted trajectory is 0.01910000038146973 (floating-point residual 3.469446951953614e-18).",
+            "The first production finalization receipt is not_established with typed failure code policy_admission_missing. The controlled test fixture then appoints its temporary owner against the same prepared ref, admitted evidence ref, query context ref, and six owner denominator refs; the second receipt is appended."
+          ],
+          "typed_transition": {
+            "before": "not_established; failure_codes=[policy_admission_missing]; epoch_ref=null",
+            "controlled_fixture_action": "temporary test-fixture owner appointment for the same basis; not an actual external institutional appointment",
+            "after": "appended with a semantic epoch ref; same prepared/admitted/context refs and six owner denominator refs",
+            "interpretation": "bounded refusal-to-controlled-fixture recovery, not S8/N9 authority or source-preservation proof"
+          },
+          "row_application": "Served candidate computation now has one positive acquired-row N5 witness on this fixture: the selected acquired observation is carried into the typed state and exact N5 baseline; this does not establish production tenant-bound profile admission or protected authority.",
+          "limits": [
+            "The WMR remains limited; profile admission is not established and S8 is blocked.",
+            "Source time, source-to-target measurement equivalence, and causal coupling/calibration are not established.",
+            "Only the normal positive test route ran for this witness; removal/restored are not run. This is not a current triad or four-base P41 proof.",
+            "This evidence does not promote or close any ledger finding."
+          ],
+          "refs": {
+            "focus_result": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/RESULT.json@sha256:1977aa34e8a6b6f872fbd75994a8440d3db12aa6102f3a92edc9eb37ff368f30",
+            "root_focus_readback": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_EB822_FOCUS_READBACK_20261004/ROOT_READBACK.json@sha256:e4642696d3a7bbba5f9ce4229a5fe8edb8ca16eaefa16de574fea0648efab7f5",
+            "target_junit": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/cells/integration_head/test_acquisition_authority_served-d51ac4d2a58c.junit.xml@sha256:0b0fda1aa2232d83a5aec204351141c6647b9d05fbed772918cd14643eebd552",
+            "cas_recomputation_note": "/Users/deniskopylov/.codex/scratch/E02R2_EB822_CURRENT_FOCUS_CAS_READBACK_20261004/INDEPENDENT_READBACK.md@sha256:667075fa49849b158300dd47745d968075d29b8057a176e4365609c3e6999ff0",
+            "cas_recomputed_values": "/Users/deniskopylov/.codex/scratch/E02R2_EB822_CURRENT_FOCUS_CAS_READBACK_20261004/readback.json@sha256:6f40ca2dfeb95da356e09b8572e23fb88be185becf361a0d6bd37b69c40b6677",
+            "finalizer_interpretation": "/Users/deniskopylov/.codex/scratch/E02R2_FINALIZER_OBSERVER_6B_20261004/ACTUAL_FOCUS_INTERPRETATION_eb822_v2.md@sha256:1004fd71ba13f0ea9e252265dffa97610520282b134957eaf4eb8493ef629af6"
+          }
+        },
+        "eb822_normative_intake_setup_nonmeasurement_2026_10_04": {
+          "identity": "eb822 normative-intake 14-case setup failure classification",
+          "kind": "fixture_setup_nonmeasurement",
+          "behavioral_verdict": "NONMEASUREMENT",
+          "refs": {
+            "RCA": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_NORMATIVE_INTAKE_FIXTURE_RCA_20261004.md@sha256:e51c6d2f4f919ba26715ff667f7998403fc9f6a57fcda2449cf8177dc18d8948",
+            "JUnit": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/cells/integration_head/test_normative_evidence_intake-4d86810bd76c.junit.xml@sha256:4b40e5230a96d99ef2957f66b9663a49b0e3d500d37be238857ebf4afbb104cd",
+            "runner_row": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/ROW_4d86810bd76c.json@sha256:df6633baf4d27dcd89a094229d86a2618dc416850943db2d1298a6c37a978ce0"
+          },
+          "measured_boundary": "14 setup errors share KeyError compiled_recursive_generation_cycle_ref in a candidate-only fixture. No intake request/assertion ran. This is a producer/consumer fixture mismatch, not evidence of a CAS artifact being lost and not a P20/currentness measurement.",
+          "row_application": "Adjacent N6/source-custody limitation only; does not negate the bounded positive N5 witness or establish normative source admission."
         }
       }
     },
@@ -712,7 +758,53 @@
               "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/context-conflict.junit.xml@sha256:67175c8407d7d424b927ce6acde926aa36adbe706ed17596662c9822a62bac00",
               "/Users/deniskopylov/.codex/scratch/e02-r1-post-structural-20260928/epoch-context.junit.xml@sha256:9f95fc444264dfab5b11713fa00b7ee1ad04b48d689ebe2474be86d9ca4548cd"
             ]
+          },
+        "eb822_served_acquired_row_n5_2026_10_04": {
+          "identity": "eb822 served acquired-row to candidate N5 exact-CAS witness plus finalizer recovery on the same prepared/admitted basis",
+          "kind": "bounded_served_positive_exact_cas_and_typed_refusal_recovery",
+          "code_head": "eb822628fe26d47a7d2665fadb82085981e95053",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "target_case": "tests.integration.core_runtime.test_acquisition_authority_served::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",
+          "target_scope": "The target test/JUnit case is one pass; the enclosing 15-file run remains FAIL (9 files pass, 6 fail; 191 cases: 146 pass, 31 fail, 14 errors). Do not represent the whole focus wave as green.",
+          "measured": [
+            "Exact CAS recomputation connects the selected acquired value -17.1 to the persisted float32 StateSnapshot -17.100000381469727 and that selected baseline to the served N5 input/result.",
+            "For the selected target, recomputed 0 + 0.001 * (2 - (-17.100000381469727)) = 0.019100000381469726; persisted trajectory is 0.01910000038146973 (floating-point residual 3.469446951953614e-18).",
+            "The first production finalization receipt is not_established with typed failure code policy_admission_missing. The controlled test fixture then appoints its temporary owner against the same prepared ref, admitted evidence ref, query context ref, and six owner denominator refs; the second receipt is appended."
+          ],
+          "typed_transition": {
+            "before": "not_established; failure_codes=[policy_admission_missing]; epoch_ref=null",
+            "controlled_fixture_action": "temporary test-fixture owner appointment for the same basis; not an actual external institutional appointment",
+            "after": "appended with a semantic epoch ref; same prepared/admitted/context refs and six owner denominator refs",
+            "interpretation": "bounded refusal-to-controlled-fixture recovery, not S8/N9 authority or source-preservation proof"
+          },
+          "row_application": "Exact CAS readback connects the acquired DataSnapshot identity to its typed StateSnapshot and the selected N5 context/input snapshot. This is one served path, not proof of continuity through all recursion/N6 consumers or a real-source time contract.",
+          "limits": [
+            "The WMR remains limited; profile admission is not established and S8 is blocked.",
+            "Source time, source-to-target measurement equivalence, and causal coupling/calibration are not established.",
+            "Only the normal positive test route ran for this witness; removal/restored are not run. This is not a current triad or four-base P41 proof.",
+            "This evidence does not promote or close any ledger finding."
+          ],
+          "refs": {
+            "focus_result": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/RESULT.json@sha256:1977aa34e8a6b6f872fbd75994a8440d3db12aa6102f3a92edc9eb37ff368f30",
+            "root_focus_readback": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_EB822_FOCUS_READBACK_20261004/ROOT_READBACK.json@sha256:e4642696d3a7bbba5f9ce4229a5fe8edb8ca16eaefa16de574fea0648efab7f5",
+            "target_junit": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/cells/integration_head/test_acquisition_authority_served-d51ac4d2a58c.junit.xml@sha256:0b0fda1aa2232d83a5aec204351141c6647b9d05fbed772918cd14643eebd552",
+            "cas_recomputation_note": "/Users/deniskopylov/.codex/scratch/E02R2_EB822_CURRENT_FOCUS_CAS_READBACK_20261004/INDEPENDENT_READBACK.md@sha256:667075fa49849b158300dd47745d968075d29b8057a176e4365609c3e6999ff0",
+            "cas_recomputed_values": "/Users/deniskopylov/.codex/scratch/E02R2_EB822_CURRENT_FOCUS_CAS_READBACK_20261004/readback.json@sha256:6f40ca2dfeb95da356e09b8572e23fb88be185becf361a0d6bd37b69c40b6677",
+            "finalizer_interpretation": "/Users/deniskopylov/.codex/scratch/E02R2_FINALIZER_OBSERVER_6B_20261004/ACTUAL_FOCUS_INTERPRETATION_eb822_v2.md@sha256:1004fd71ba13f0ea9e252265dffa97610520282b134957eaf4eb8493ef629af6"
           }
+        },
+        "eb822_normative_intake_setup_nonmeasurement_2026_10_04": {
+          "identity": "eb822 normative-intake 14-case setup failure classification",
+          "kind": "fixture_setup_nonmeasurement",
+          "behavioral_verdict": "NONMEASUREMENT",
+          "refs": {
+            "RCA": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_NORMATIVE_INTAKE_FIXTURE_RCA_20261004.md@sha256:e51c6d2f4f919ba26715ff667f7998403fc9f6a57fcda2449cf8177dc18d8948",
+            "JUnit": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/cells/integration_head/test_normative_evidence_intake-4d86810bd76c.junit.xml@sha256:4b40e5230a96d99ef2957f66b9663a49b0e3d500d37be238857ebf4afbb104cd",
+            "runner_row": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/ROW_4d86810bd76c.json@sha256:df6633baf4d27dcd89a094229d86a2618dc416850943db2d1298a6c37a978ce0"
+          },
+          "measured_boundary": "14 setup errors share KeyError compiled_recursive_generation_cycle_ref in a candidate-only fixture. No intake request/assertion ran. This is a producer/consumer fixture mismatch, not evidence of a CAS artifact being lost and not a P20/currentness measurement.",
+          "row_application": "Adjacent N6/source-custody limitation only; does not negate the bounded positive N5 witness or establish normative source admission."
+        }
       }
     },
     {
@@ -872,6 +964,52 @@
           "failed_identity": "tests.integration.runtime_quality.test_configured_candidate_simulation_served::test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift",
           "boundary": "The configured-profile positive expects candidate_scenario_n5_only but receives candidate_simulation_n5_outcome_baseline_missing. The later zero-budget and foreign-context assertions are not reached. No positive numerical N5 outcome/readback or four-base finding replay is established.",
           "scope": "Reviewed three-path candidate commit 79ba7659, not the integration head. Whole-file FAIL does not establish pass-to-fail ownership or finding closure; RCA and four-base P41 remain open. No status change."
+        },
+        "eb822_served_acquired_row_n5_2026_10_04": {
+          "identity": "eb822 served acquired-row to candidate N5 exact-CAS witness plus finalizer recovery on the same prepared/admitted basis",
+          "kind": "bounded_served_positive_exact_cas_and_typed_refusal_recovery",
+          "code_head": "eb822628fe26d47a7d2665fadb82085981e95053",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "target_case": "tests.integration.core_runtime.test_acquisition_authority_served::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",
+          "target_scope": "The target test/JUnit case is one pass; the enclosing 15-file run remains FAIL (9 files pass, 6 fail; 191 cases: 146 pass, 31 fail, 14 errors). Do not represent the whole focus wave as green.",
+          "measured": [
+            "Exact CAS recomputation connects the selected acquired value -17.1 to the persisted float32 StateSnapshot -17.100000381469727 and that selected baseline to the served N5 input/result.",
+            "For the selected target, recomputed 0 + 0.001 * (2 - (-17.100000381469727)) = 0.019100000381469726; persisted trajectory is 0.01910000038146973 (floating-point residual 3.469446951953614e-18).",
+            "The first production finalization receipt is not_established with typed failure code policy_admission_missing. The controlled test fixture then appoints its temporary owner against the same prepared ref, admitted evidence ref, query context ref, and six owner denominator refs; the second receipt is appended."
+          ],
+          "typed_transition": {
+            "before": "not_established; failure_codes=[policy_admission_missing]; epoch_ref=null",
+            "controlled_fixture_action": "temporary test-fixture owner appointment for the same basis; not an actual external institutional appointment",
+            "after": "appended with a semantic epoch ref; same prepared/admitted/context refs and six owner denominator refs",
+            "interpretation": "bounded refusal-to-controlled-fixture recovery, not S8/N9 authority or source-preservation proof"
+          },
+          "row_application": "One served request reaches N5; the CAS readback recomputes the bound target baseline and persisted numeric trajectory. This narrows the prior no-numeric-N5-witness gap; generic request-builder coverage, removal/restoration, and finding-level four-base ownership remain unestablished.",
+          "limits": [
+            "The WMR remains limited; profile admission is not established and S8 is blocked.",
+            "Source time, source-to-target measurement equivalence, and causal coupling/calibration are not established.",
+            "Only the normal positive test route ran for this witness; removal/restored are not run. This is not a current triad or four-base P41 proof.",
+            "This evidence does not promote or close any ledger finding."
+          ],
+          "refs": {
+            "focus_result": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/RESULT.json@sha256:1977aa34e8a6b6f872fbd75994a8440d3db12aa6102f3a92edc9eb37ff368f30",
+            "root_focus_readback": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_EB822_FOCUS_READBACK_20261004/ROOT_READBACK.json@sha256:e4642696d3a7bbba5f9ce4229a5fe8edb8ca16eaefa16de574fea0648efab7f5",
+            "target_junit": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/cells/integration_head/test_acquisition_authority_served-d51ac4d2a58c.junit.xml@sha256:0b0fda1aa2232d83a5aec204351141c6647b9d05fbed772918cd14643eebd552",
+            "cas_recomputation_note": "/Users/deniskopylov/.codex/scratch/E02R2_EB822_CURRENT_FOCUS_CAS_READBACK_20261004/INDEPENDENT_READBACK.md@sha256:667075fa49849b158300dd47745d968075d29b8057a176e4365609c3e6999ff0",
+            "cas_recomputed_values": "/Users/deniskopylov/.codex/scratch/E02R2_EB822_CURRENT_FOCUS_CAS_READBACK_20261004/readback.json@sha256:6f40ca2dfeb95da356e09b8572e23fb88be185becf361a0d6bd37b69c40b6677",
+            "finalizer_interpretation": "/Users/deniskopylov/.codex/scratch/E02R2_FINALIZER_OBSERVER_6B_20261004/ACTUAL_FOCUS_INTERPRETATION_eb822_v2.md@sha256:1004fd71ba13f0ea9e252265dffa97610520282b134957eaf4eb8493ef629af6"
+          }
+        },
+        "eb822_normative_intake_setup_nonmeasurement_2026_10_04": {
+          "identity": "eb822 normative-intake 14-case setup failure classification",
+          "kind": "fixture_setup_nonmeasurement",
+          "behavioral_verdict": "NONMEASUREMENT",
+          "refs": {
+            "RCA": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_NORMATIVE_INTAKE_FIXTURE_RCA_20261004.md@sha256:e51c6d2f4f919ba26715ff667f7998403fc9f6a57fcda2449cf8177dc18d8948",
+            "JUnit": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/cells/integration_head/test_normative_evidence_intake-4d86810bd76c.junit.xml@sha256:4b40e5230a96d99ef2957f66b9663a49b0e3d500d37be238857ebf4afbb104cd",
+            "runner_row": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/ROW_4d86810bd76c.json@sha256:df6633baf4d27dcd89a094229d86a2618dc416850943db2d1298a6c37a978ce0"
+          },
+          "measured_boundary": "14 setup errors share KeyError compiled_recursive_generation_cycle_ref in a candidate-only fixture. No intake request/assertion ran. This is a producer/consumer fixture mismatch, not evidence of a CAS artifact being lost and not a P20/currentness measurement.",
+          "row_application": "Adjacent N6/source-custody limitation only; does not negate the bounded positive N5 witness or establish normative source admission."
         }
       }
     },
@@ -1670,7 +1808,42 @@
           "scope": "R13 bounded served custody overlap only: this proves tenant-store dispatch/readback for fixture-issued identity, not the B12 source-card discriminator that an admitted world-growth delta changes the dependent same-case calculation; retain partial and four-base UNRUN.",
           "related_wdi_identity": "tests.unit.runtime.quality.test_live_acquisition_executor::test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport",
           "related_wdi_junit_path_at_sha": "/Users/deniskopylov/.codex/scratch/e02-r13-v5-canonical-20260928/live-wdi-uuid-fixed.junit.xml@sha256:d607ba249afe2f9f187eab553c99d638755025eb5fd523e311ff7aa9fae897ea"
-        }},
+        },
+        "eb822_served_acquired_row_n5_2026_10_04": {
+          "identity": "eb822 served acquired-row to candidate N5 exact-CAS witness plus finalizer recovery on the same prepared/admitted basis",
+          "kind": "bounded_served_positive_exact_cas_and_typed_refusal_recovery",
+          "code_head": "eb822628fe26d47a7d2665fadb82085981e95053",
+          "behavioral_verdict": "PASS_BOUNDED",
+          "target_case": "tests.integration.core_runtime.test_acquisition_authority_served::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",
+          "target_scope": "The target test/JUnit case is one pass; the enclosing 15-file run remains FAIL (9 files pass, 6 fail; 191 cases: 146 pass, 31 fail, 14 errors). Do not represent the whole focus wave as green.",
+          "measured": [
+            "Exact CAS recomputation connects the selected acquired value -17.1 to the persisted float32 StateSnapshot -17.100000381469727 and that selected baseline to the served N5 input/result.",
+            "For the selected target, recomputed 0 + 0.001 * (2 - (-17.100000381469727)) = 0.019100000381469726; persisted trajectory is 0.01910000038146973 (floating-point residual 3.469446951953614e-18).",
+            "The first production finalization receipt is not_established with typed failure code policy_admission_missing. The controlled test fixture then appoints its temporary owner against the same prepared ref, admitted evidence ref, query context ref, and six owner denominator refs; the second receipt is appended."
+          ],
+          "typed_transition": {
+            "before": "not_established; failure_codes=[policy_admission_missing]; epoch_ref=null",
+            "controlled_fixture_action": "temporary test-fixture owner appointment for the same basis; not an actual external institutional appointment",
+            "after": "appended with a semantic epoch ref; same prepared/admitted/context refs and six owner denominator refs",
+            "interpretation": "bounded refusal-to-controlled-fixture recovery, not S8/N9 authority or source-preservation proof"
+          },
+          "row_application": "One acquired observation is used as the candidate N5 target baseline in the controlled served fixture. This does not prove the ACQ-01 production producer/journal handshake, an actual source-time contract, or a changed admitted WDI value changing a dependent same-case calculation.",
+          "limits": [
+            "The WMR remains limited; profile admission is not established and S8 is blocked.",
+            "Source time, source-to-target measurement equivalence, and causal coupling/calibration are not established.",
+            "Only the normal positive test route ran for this witness; removal/restored are not run. This is not a current triad or four-base P41 proof.",
+            "This evidence does not promote or close any ledger finding."
+          ],
+          "refs": {
+            "focus_result": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/RESULT.json@sha256:1977aa34e8a6b6f872fbd75994a8440d3db12aa6102f3a92edc9eb37ff368f30",
+            "root_focus_readback": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_EB822_FOCUS_READBACK_20261004/ROOT_READBACK.json@sha256:e4642696d3a7bbba5f9ce4229a5fe8edb8ca16eaefa16de574fea0648efab7f5",
+            "target_junit": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_R13_FOCUS_RUNNER_20261004_V2/cells/integration_head/test_acquisition_authority_served-d51ac4d2a58c.junit.xml@sha256:0b0fda1aa2232d83a5aec204351141c6647b9d05fbed772918cd14643eebd552",
+            "cas_recomputation_note": "/Users/deniskopylov/.codex/scratch/E02R2_EB822_CURRENT_FOCUS_CAS_READBACK_20261004/INDEPENDENT_READBACK.md@sha256:667075fa49849b158300dd47745d968075d29b8057a176e4365609c3e6999ff0",
+            "cas_recomputed_values": "/Users/deniskopylov/.codex/scratch/E02R2_EB822_CURRENT_FOCUS_CAS_READBACK_20261004/readback.json@sha256:6f40ca2dfeb95da356e09b8572e23fb88be185becf361a0d6bd37b69c40b6677",
+            "finalizer_interpretation": "/Users/deniskopylov/.codex/scratch/E02R2_FINALIZER_OBSERVER_6B_20261004/ACTUAL_FOCUS_INTERPRETATION_eb822_v2.md@sha256:1004fd71ba13f0ea9e252265dffa97610520282b134957eaf4eb8493ef629af6"
+          }
+        }
+      },
       "post_a514_r13_integration_20260927": {
         "identity": "R13 helper-entry fence and current served WDI boundary",
         "head": "84ac676fda21cc13b21cb6c0e265d020647a02c1",
@@ -22310,7 +22483,17 @@
         "property_preserving_control": "Explicit construct frontier and named pilot scope/time continue to produce their declared requirement/query; a genuine resolver and a real N7 request with valid typed specs still reach the normal downstream path.",
         "package_record": "e02_package_projection",
         "reported_test_catalog": null,
-        "finding_test_status": "UNRUN"
+        "finding_test_status": "UNRUN",
+        "eb822_scope_nonmeasurement_2026_10_04": {
+          "identity": "eb822 fixture scope boundary for LA-046",
+          "kind": "nonmeasurement_scope_review",
+          "behavioral_verdict": "NOT_APPLICABLE_TO_FINDING_PROPERTY",
+          "refs": {
+            "focus_interpretation": "/Users/deniskopylov/.codex/scratch/E02R2_FINALIZER_OBSERVER_6B_20261004/ACTUAL_FOCUS_INTERPRETATION_eb822_v2.md@sha256:1004fd71ba13f0ea9e252265dffa97610520282b134957eaf4eb8493ef629af6",
+            "intake_fixture_RCA": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R1_NORMATIVE_INTAKE_FIXTURE_RCA_20261004.md@sha256:e51c6d2f4f919ba26715ff667f7998403fc9f6a57fcda2449cf8177dc18d8948"
+          },
+          "scope": "These receipts concern served acquisition finalization and candidate N5, plus a separate normative-intake setup mismatch. They do not execute DataRequirementCompiler construct inference, explicit profile semantics, or the actual N7 resolver/handoff property in LA-046. No LA-046 behavioral result or status inference is made."
+        }
       },
       "source_line_spans": [
         "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@git-blob:4bdf76e99f0c26e40bc2a71e76d4940c23712260#L3034-L3068",

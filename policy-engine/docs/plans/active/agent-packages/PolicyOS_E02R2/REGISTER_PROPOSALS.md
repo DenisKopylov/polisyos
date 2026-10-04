@@ -360,3 +360,10 @@ This proposal supplements the existing R9/P07 selected-view work with the persis
 **B153 — propose finding-level bounded closure; no live register-row closure.** Closure signal: the same full file exercises `test_lock_registry_is_bounded_without_evicting_active_waiters` across 3,000 deterministic IDs and same-ID exclusion; collision separation and exception-release scoped-view progress pass. Removing the fixed pool while retaining markers makes the actual lock-table acquisition assertion red (0 versus 3,000). This closes only the source-card's single-instance process-local property. A representative production benchmark is needed only before making quantified production-savings claims.
 
 The full owner-scope scan admits no direct live register/GY/Atlas edge for either finding. Therefore this proposes no new register row, append, or `DEBT-REGISTER.md` / `LEDGER.md` closure. The architect may land the finding-level ledger changes. Appendix C remains a historical count, with B153's discrepancy explicit. Neither closure closes R9 or four-base P41. Independent review: /Users/deniskopylov/.codex/scratch/E02R2_LEDGER_INDEPENDENT_REVIEW_20261002.md@sha256:34ac4864328be028f9b786ef62a39243def9afed2f959a74eaa1e6230019f5f8
+
+
+# Draft REGISTER_PROPOSALS note: generic tenant string vs UUID CAS key
+
+Proposal state: defer adoption pending owner response to the separate OPEN_PREMISES question. Do not add a global rule or new finding from this one evidence cut.
+
+If the owner confirms this is a reusable boundary class, propose a narrowly scoped diagnostic: can a tenant-scoped artifact cross the caller-to-CAS bridge with a generic string that is not proven to denote the storage UUID? Closure signal: typed/versioned mapping, full-reference round-trip, explicit mismatch refusal, and same-store cross-tenant negative semantic test. Until then the contract premise is not_established; this is not evidence of CAS data loss and does not change B01/B02/B03/B12/LA-046 statuses.

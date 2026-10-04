@@ -41,6 +41,9 @@ from tests._helpers.acquisition_production import (
 from tests.unit.runtime.http.test_control_service_di import _build_control_service
 from tests.unit.runtime.quality import test_generation_cycle as cycle_fixtures
 
+# The served ingestion sidecar contract requires UUID-form tenant identities.
+_SERVED_WDI_FIXTURE_TENANT_ID = "7cf3b2a8-0d6b-4d25-a01c-f248e933e1f0"
+
 
 def _closure_with_synthetic_revised_basis(closure):
     """Give the real binding seam a typed S/B divergence without forging route closure."""
@@ -463,7 +466,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     request,
     *,
     guarded_cas: bool,
-    tenant_id: str = "tenant-a",
+    tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
     cell_id: str = "cell-a",
 ):
     # This is a downstream owner-chain witness: persist_wdi_route seeds its
@@ -577,7 +580,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
     request,
     *,
     guarded_cas: bool,
-    tenant_id: str = "tenant-a",
+    tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
     cell_id: str = "cell-a",
 ):
     if not guarded_cas:

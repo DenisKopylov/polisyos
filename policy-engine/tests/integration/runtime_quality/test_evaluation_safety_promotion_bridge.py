@@ -293,7 +293,7 @@ def _attempt_from_produced_source(produced_station, *, candidate_hash=None, worl
     return service, source_job, compiled_ref, launch
 
 
-def test_existing_generation_producer_is_read_before_candidate_absence_is_reported(
+def test_existing_blocked_generation_producer_is_read_before_n9_refusal(
     produced_station,
 ):
     owner = produced_station["principal"]
@@ -318,9 +318,42 @@ def test_existing_generation_producer_is_read_before_candidate_absence_is_report
     assert source_job.progress["normative_disposition_status"] == "not_run"
     assert source_job.progress["s8_status"] == "not_run"
     assert source_job.progress["publication_status"] == "not_run"
-    assert "promotion_source_candidate_receipt_not_unique" in result["refusal_reasons"]
-    assert result["classification"] == "not_established"
+    compiled_bytes = _within_owner(
+        owner, service._artifact_store.get_bytes, compiled_ref
+    )
+    compiled = canon.from_canonical_bytes(compiled_bytes)
+    leaf = next(
+        row for row in compiled["recursive_run"]["nodes"]
+        if row["cycle_run"] is not None
+    )
+    assert leaf["cycle_run"]["terminal_status"] == "blocked"
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.runtime.http.services.control.evaluation_safety import (
+        EvaluationSafetyPromotionSourceResolution,
+    )
+
+    persisted_compiled_ref = ArtifactRef.model_validate(
+        source_job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+    )
+    assert persisted_compiled_ref == compiled_ref
+    resolution = EvaluationSafetyPromotionSourceResolution.model_validate(result)
+    assert resolution.requested_source_run_ids == (str(source_job.run_id),)
+    assert resolution.selected_compiled_ref is None
+    assert f"cas_manifest:{_artifact_id(compiled_ref)}" in resolution.inputs_read
+    assert f"cas_bytes:{_artifact_id(compiled_ref)}" in resolution.inputs_read
+    assert resolution.refusal_reasons == (
+        f"promotion_source_unresolved:{source_job.run_id}:ValueError",
+        "promotion_source_blocked_generation_cycle_cannot_supply_n9_receipt",
+    )
+    assert resolution.classification == "not_established"
+    assert terminal.state == "failed"
+    assert terminal.error_message == "evaluation_safety_attempt_blocked"
+    assert terminal.progress["authority_result"] == "blocked"
     assert terminal.progress["eval_safety_counters"]["near_miss_count"] == 0
+    assert terminal.progress["eval_safety_counters"]["near_miss_classification_status"] == (
+        "not_established"
+    )
+    assert "classification_offer" not in terminal.progress["artifacts_index"]
 
 
 def test_controlled_profile_candidate_preserves_simulation_without_n9_authority(
@@ -588,10 +621,10 @@ def test_authoritative_classifier_rejects_foreign_mode_with_identical_candidate_
     assert calls == ["foreign_mode_refused"]
 
 
-def _run_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
+def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
     produced_station, monkeypatch,
 ):
-    """Exercise negative N9-to-EvalSafety wiring with explicit test-owner limits.
+    """Prove blocked source custody cannot reach EvalSafety classification.
 
     The N4/N5 candidate and simulation-only profile context come from the
     controlled served fixture. The epoch appointment, value receipt, and
@@ -931,29 +964,95 @@ def _run_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     process_job_with_worker(launch.job_id)
     terminal = _within_owner(owner, service._control_store.get_job, launch.job_id)
     assert terminal is not None
-    resolution = _resolution(service, terminal, owner=owner)
-    assert calls, "real canonical classifier was never reached from persisted source"
-    result = outcomes[0]
-    assert result.classification_offer_ref is not None
-    offer_bytes = _within_owner(
+    assert terminal.state == "failed"
+    assert terminal.error_message == "evaluation_safety_attempt_blocked"
+    assert terminal.progress["authority_path"] == "evaluation_safety"
+    assert terminal.progress["authority_result"] == "blocked"
+    assert terminal.progress["eval_safety_disposition"] == "blocked"
+    counters = terminal.progress["eval_safety_counters"]
+    assert counters["near_miss_classification_status"] == "not_established"
+    assert counters["near_miss_count"] == 0
+
+    # Read the persisted selected source again through the actual Core and CAS owners.
+    source_job = _within_owner(
+        owner, service._control_store.get_job, selected["job_id"]
+    )
+    assert source_job is not None
+    assert source_job.state == "completed"
+    source_core = _completed_core_source(produced_station, source_job)
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.runtime.http.services.control.evaluation_safety import (
+        EvaluationSafetyPromotionSourceResolution,
+    )
+
+    persisted_compiled_ref = ArtifactRef.model_validate(
+        source_job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+    )
+    assert persisted_compiled_ref == compiled_ref
+    assert source_core.manifest.outputs == (compiled_ref,)
+    assert source_job.progress["compiled_recursive_generation_cycle_ref"] == (
+        _artifact_id(compiled_ref)
+    )
+    assert source_job.progress["candidate_computation_status"] == "completed"
+    assert source_job.progress["normative_disposition_status"] == "not_run"
+    assert source_job.progress["s8_status"] == "not_run"
+    assert source_job.progress["publication_status"] == "not_run"
+
+    compiled_bytes = _within_owner(
+        owner, service._artifact_store.get_bytes, compiled_ref
+    )
+    persisted_compiled = generation.CompiledRecursiveGenerationCycleRun.model_validate(
+        canon.from_canonical_bytes(compiled_bytes)
+    )
+    source_leaves = [
+        node.cycle_run
+        for node in persisted_compiled.recursive_run.leaf_nodes
+        if node.cycle_run is not None
+        and any(
+            item.candidate_id == summary.candidate_id
+            for item in node.cycle_run.candidate_summaries
+        )
+    ]
+    assert len(source_leaves) == 1
+    persisted_cycle = source_leaves[0]
+    assert persisted_cycle.terminal_status == "blocked"
+    assert persisted_cycle.promotion_port.status == "not_promoted"
+    assert persisted_cycle.promotion_port.certified_candidate_ids == ()
+
+    resolution = EvaluationSafetyPromotionSourceResolution.model_validate(
+        _resolution(service, terminal, owner=owner)
+    )
+    assert resolution.requested_source_run_ids == (str(source_job.run_id),)
+    assert resolution.inputs_read_scope == "source_selection_only"
+    assert resolution.selected_compiled_ref is None
+    compiled_id = _artifact_id(compiled_ref)
+    assert f"cas_manifest:{compiled_id}" in resolution.inputs_read
+    assert f"cas_bytes:{compiled_id}" in resolution.inputs_read
+    assert f"cas_manifest:{source_job.progress['manifest_ref']}" in resolution.inputs_read
+    assert f"cas_bytes:{source_job.progress['manifest_ref']}" in resolution.inputs_read
+    assert f"terminal_trace:{source_core.trace_path}" in resolution.inputs_read
+    assert resolution.refusal_reasons == (
+        f"promotion_source_unresolved:{source_job.run_id}:ValueError",
+        "promotion_source_blocked_generation_cycle_cannot_supply_n9_receipt",
+    )
+    assert resolution.classification == "not_established"
+
+    # A real persisted blocked source is terminal for N9: no classifier, no offer,
+    # no near-miss, and no signature replay that could imply downstream authority.
+    assert calls == []
+    assert outcomes == []
+    assert signature_calls == []
+    assert "classification_offer" not in terminal.progress["artifacts_index"]
+    failed_manifest_bytes = _within_owner(
         owner,
         service._artifact_store.get_bytes,
-        result.classification_offer_ref.artifact_id,
+        terminal.progress["manifest_ref"],
     )
-    offer = es.EvalSafetyNearMissClassificationOffer.model_validate_json(offer_bytes)
-    assert offer.safety_semantic_hash == result.decision.safety.safety_semantic_hash
-    assert resolution["selected_compiled_ref"] == _artifact_id(compiled_ref)
-    if calls[0] is None:
-        assert resolution["classification"] == "not_established"
-        assert "canonical_promotion_replay_not_established" in resolution["refusal_reasons"]
-    else:
-        assert calls[0].promotion_safe_facet is False
-        assert resolution["classification"] == "verified"
-    assert result.decision.near_miss is False
-    assert result.decision.safety.status == "blocked"
-    assert terminal.progress["eval_safety_counters"]["near_miss_count"] == 0
-    assert signature_calls, "ControlWorker did not re-enter canonical N9 source verification"
-    assert all(type(artifact_id) is artifacts.ArtifactID for artifact_id in signature_calls)
+    failed_manifest = canon.from_canonical_bytes(failed_manifest_bytes)
+    offer_kind = es.EVALUATION_SAFETY_ARTIFACT_IDENTITIES[
+        "classification_offer"
+    ].kind
+    assert all(output["kind"] != offer_kind for output in failed_manifest["outputs"])
 
     # The genuine prior source still exists, but is outside this deployment's selector.
     assert _within_owner(owner, service._artifact_store.get_bytes, compiled_ref)
@@ -980,14 +1079,14 @@ def _run_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     assert outside_terminal.progress["eval_safety_counters"]["near_miss_count"] == 0
 
 
-def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
+def test_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
     produced_station, monkeypatch,
 ):
-    """Run the whole negative witness under its real tenant and cell owner."""
+    """Run the blocked-source refusal witness under its real tenant and cell owner."""
     owner = produced_station["principal"]
     return _within_owner(
         owner,
-        _run_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier,
+        _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier,
         produced_station,
         monkeypatch,
     )

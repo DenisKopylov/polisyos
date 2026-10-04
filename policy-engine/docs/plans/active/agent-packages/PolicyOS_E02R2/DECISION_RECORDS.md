@@ -4904,3 +4904,16 @@ This records implementation of Denis's existing controlled owner-bound bridge di
 **Revisit falsifier.** Once the existing owner resolves the exact selected V3/candidate and an appointed issuer emits replayable currentness, rerun the original P20 tests. Removing source bytes or substituting the candidate occurrence with markers retained must invalidate preservation; otherwise this draft’s proposed bridge is insufficient.
 
 **Binding.** Controlled-profile V3→N5 and its N6 preservation/currentness interpretation at 6bfb only; no universal S8 permission, owner appointment, source-time contract, N9 scope transition or four-base attribution. Full evidence/identity census: `/Users/deniskopylov/.codex/scratch/E02R2_R1_CONTROLLED_N6_PRESERVATION_RCA_20261004.md@sha256:410597f85ba7ea106f1d426d7135b9db9d92fd44b0f225d30e6cf8610d7e84d3`.
+
+
+## R11 selected rule applied to persisted EvalSafety source oracles — 2026-10-04
+
+**Options and costs.** The existing principal ruling in the R11 universal-v3 addendum selects exclusion of every blocked run from N9, including an otherwise usable candidate in a blocked enclosing run. Cause-scoped admission and independent N9 judgment were rejected there. This test-only correction applies that ruling; it makes no new principal choice.
+
+**Premises.** The actual 5e9b singleton completes Core and reads a producer-owned persisted blocked leaf, then persists `promotion_source_blocked_generation_cycle_cannot_supply_n9_receipt` before classifier entry. Its old `assert calls` fails. In the concurrent four-file run, a separate 20-second Event.wait timeout also occurs; its cause remains not established. No status, compiled source, signature, receipt or epoch is fabricated or reissued.
+
+**Identity mapping for four-base comparison.** `test_existing_generation_producer_is_read_before_candidate_absence_is_reported` becomes `test_existing_blocked_generation_producer_is_read_before_n9_refusal`; `test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier` becomes `test_blocked_generation_source_refuses_before_eval_safety_n9_classifier`, in the same integration file. These are declared changed decision oracles, not two new base-passing identities. The complete file must replay at all four bases; missing/renamed identities do not count as restored passes.
+
+**Remainder.** The controlled source's real N4/N5/Core/CAS custody and blocked refusal can be tested now. A genuine eligible nonblocked producer-to-N9-to-EvalSafety classifier witness is not established by this correction and remains a bounded capability gap; the independent signature-custody and candidate N5-without-N9 controls remain. Exact postimage native verification is UNRUN at application.
+
+**Revisit falsifier and binding.** Reopen if the actual blocked leaf reaches classifier, offer, near-miss increment or downstream signature replay while its terminal markers remain; ordinary controlled candidate N5 must still run. This binds the existing EvalSafety source-reader test expectations for current blocked v3 sources only. It does not reinterpret v1/v2 history or supply S8/currentness/owner appointment.

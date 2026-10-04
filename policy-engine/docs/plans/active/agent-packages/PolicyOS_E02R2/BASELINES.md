@@ -1,3 +1,32 @@
+# Final stop boundary — 2026-10-04
+
+Denis requested stop and summary. This entry records measurements at source/test cut `0213101b6d124e6f855b1aff7c442bb0912a61c2`, tree `5e890bcb23dfa20db77be486e7296e36f3382576`; final documentation is a later, separate commit. The original completion criteria are not met. All deciding receipt paths/hashes are in [HANDOFF_EVIDENCE.json](HANDOFF_EVIDENCE.json); historical sections below keep their own cuts.
+
+## Final recorded outcomes
+
+| Measurement | Complete denominator / result | Boundary |
+| --- | --- | --- |
+| Ledger census | 282 unique rows: 225 B + 57 LA; 9 closed / 260 partial / 12 held / 1 open | Complete finding census, no status upgrade; H/N/P continuation deferred. |
+| TSC | 5/5 workspaces, seven project operands; native exit 0 for each | Fresh at the pinned cut; 4,026 tracked plus 16 foreign pins checked. |
+| R2 triad | 33P / 32P+1 target F / 33P | Historical-read target P/F/P; 6,737-path freeze and caches unchanged. |
+| R7 triad | 49P / 48P+1 target F / restored UNRUN | Restored did start (23 stdout dots), then disk-floor termination; return -15, empty JUnit/no origin; no final target/full-file verdict. |
+| R8 triad | 7P / 5F+2P / 7P | Target P/F/P; four sibling reds from the same removed propagation class. Formal removal adapter remains UNRUN because its non-target-invariance rule failed. |
+| CG1 | UNRUN, exit 2 | Confidence-forwardability inspection stopped before substantive relation verdict. |
+| CG2 | UNRUN, exit 2 | Subsequent diagnostic names one missing CAS manifest; kind/producer/cause unestablished. |
+| GY-N6 | UNRUN, exit 2 | Historical replay distinct from current v3 issuer/reissue/source-census authority; no crash. |
+| Architecture | UNRUN, exit 2 | 151 emitted deep-import rows and one baseline diff triaged; P41 ownership unestablished; four offline-cache-blocked checks and separate Atlas gate incomplete. |
+| Earlier f229 smoke | 12 slots: seven PRESENT, five MISSING, zero UNRUN; 139/139 executed cases pass | Whole OWR/EvalSafety where present plus one current promotion selector, not whole promotion acceptance. |
+| Prepared final broad matrix | 483 files × four refs = 1,932 slots: 414 MISSING, four safety-UNRUN, 1,514 pending native jobs | Metadata ready only; wave never launched. No outcomes reused as broad acceptance. |
+| Remaining final triads | 13 logical states have no valid final outcome | R7 restored replacement plus three states each for R1, R6, R9 exact witness type and R9 requested hash. |
+
+The architecture command ran alone and its own exit was retained. No baseline sync, generated-family exemption, epoch restamp or authorized-reissue substitute was made. Each completed native group was reaped; the broad wave and remaining states are intentionally unrun at stop. Principal decisions justify specific semantic changes, not a blanket waiver of pass→fail comparisons.
+
+## R1/R13 measured boundary
+
+The independent admissibility receipt identifies the first refusal as `policy_admission_missing` before reconciliation, not an unexplained finalizer crash. A controlled local appointment/signing profile permits a separate retry with the same admitted inputs. Acquired raw -17.1 resolves through its exact CAS snapshot into the persisted N5 input/result; numeric float32 representation and recomputation are explicitly recorded. This establishes controlled candidate-N5 consumption only. Production appointment, source time, measurement/coupling/calibration/profile admission, S8 and N6 preservation remain unestablished. The actual CAS witness outputs are retained and were not retired.
+
+---
+
 # Four-base P41 test baselines
 
 ## Evidence checkpoint at source cut `c3730424df8dde4dbe2daf8dde238052f464f812` — discrepancies first (2026-10-03)

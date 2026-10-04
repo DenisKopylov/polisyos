@@ -1,0 +1,136 @@
+{
+  "schema": "e02r2.stop-handoff-evidence.v1",
+  "date": "2026-10-04",
+  "disposition": "stopped_at_principal_request; assignment_definition_of_done_not_met",
+  "source_head": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+  "source_tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+  "branch": "codex/e02-r2",
+  "ledger": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+    "sha256": "610255c2c8718b997b114357c93df7fd6001e83de209f079a481d16768b357f1",
+    "rows": 282,
+    "unique_ids": 282,
+    "B": 225,
+    "LA": 57,
+    "status_counts": {
+      "partial": 260,
+      "open": 1,
+      "closed": 9,
+      "held": 12
+    }
+  },
+  "evidence": {
+    "committed_source_readback": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_FINAL_FREEZE_READBACK_V1_20261004/readback-0213101b6d124e6f855b1aff7c442bb0912a61c2/COMMITTED_BRANCH_READBACK.json",
+      "sha256": "963e78dba3b56bcd307771bfb468370747b3b95e5a61da7f2c0718a55e9362ff"
+    },
+    "tsc_final_result": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_TSC_FINAL_0213101_20261004T094533Z/NATIVE_TSC_EXECUTION_RESULT.json",
+      "sha256": "921627fa3a62a321e3423e6bf11b217854d79ef904b9bb102ab458f2fa44c124"
+    },
+    "tsc_hash_manifest": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_TSC_FINAL_0213101_20261004T094533Z/FINAL_SHA256SUMS.json",
+      "sha256": "c78d3874294551d7e6ed77f928428586c03abea46f4539278f46c4298bcf2398"
+    },
+    "four_gate_classification": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_FINAL_DOCS_OWNER_GATES_0213101_20261004/FINAL_GATE_CLASSIFICATION.md",
+      "sha256": "2f8bf92aa8d25e4542672a5d9ec9c0104ee291f4acb9dc7fbf4b0dc04c443c09"
+    },
+    "architecture_finding_triage": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_FINAL_DOCS_OWNER_GATES_0213101_20261004/ARCH_FINDING_CLASSIFICATION.md",
+      "sha256": "54d224f0431f1f87252c83c617ef864b0082816c0c8d9853ca9418af79cc2566"
+    },
+    "cg2_operand_diagnostic": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_CG2_OPENPATH_DIAG_0213101_20261004/DECISION.md",
+      "sha256": "4f21e9f9520c515a51123ee75e065b93cd27298fbf0d86eb7a1d7ac27efae424"
+    },
+    "r1_r13_admissibility": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R1_R13_ADMISSIBILITY_RECHECK_20261004/ADMISSIBILITY.md",
+      "sha256": "f9b7ccdd4f4b2cdf5be557e61aee616a52fc8f8209c9ebfcc2f4d4b1adc5a304"
+    },
+    "r2_root_triad_readback": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R2_FINAL_TRIAD_READBACK_20261004/READBACK.json",
+      "sha256": "aa71bc267fb4a9c8fb641e307a2f947298d0e52fe5cc4543d5bd8490fb09603c"
+    },
+    "r2_r7_independent_readback": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_P41_PARTIAL_TRIAD_READBACK_20261004/R2_R7_READBACK.md",
+      "sha256": "2cc4e1863583e5502c4b9b467ec3b33d96715e4118d8ee432c513b623503a3dd"
+    },
+    "r8_independent_readback": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R8_FINAL_TRIAD_INDEPENDENT_20261004/R8_TRIAD_READBACK.md",
+      "sha256": "c294e2cc91567ea1c6fd93024e9c5ea35e1cbd1a14dada3c37b63888b50a937b"
+    },
+    "triad_erratum": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_FINAL_HANDOFF_MATRIX_021310_20261004/TRIAD_DELTA_R2_R7_R8_ERRATUM_V3.md",
+      "sha256": "d5444ecb78d403b7a2cc1eb542f2c944ecf4f699eb53ec3c132acc4f2d5dc81d"
+    },
+    "bound_broad_matrix_unrun": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_FINAL_FREEZE_READBACK_V1_20261004/bind-v7-tree-0213101b6d124e6f855b1aff7c442bb0912a61c2/FINAL_BINDING_READY_UNRUN.json",
+      "sha256": "dd56f17c9562cf8f06eba34c2cb033a931753b03fc3210d2045690f1591b8834"
+    },
+    "f229_smoke_result": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R9_R11_FOURBASE_F229_SMOKE_20261004/RESULT.json",
+      "sha256": "d10491d021e8e4a060df082ea7493ada99df25b0cf6af4ef324b81a231aec9f6"
+    },
+    "f229_smoke_readback": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_R9_R11_FOURBASE_F229_READBACK_20261004_V3/ROOT_READBACK.json",
+      "sha256": "966db952b73db700bf004052a437dca5acb66d5d8c3d05e830ae815ef802a433"
+    },
+    "inactive_worktree_snapshots": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_ROOT_WORKTREE_PRESERVE_20261004/snapshots-20261004T112245Z/SNAPSHOT_RECEIPT.json",
+      "sha256": "1293fc2672a6cc30f09d8bd10d43a5d29edc1e33cf2a0dbfaac3e97524b361c9"
+    },
+    "canonical_path_erratum": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_CANONICAL_PATH_CORRECTION_20261004/ERRATUM.json",
+      "sha256": "6b4682a64ed607c6202345f97f86241f4511bf76a6a88431384da3767f0ff3f6"
+    },
+    "safe_temp_move": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_TEMP_ADMISSION_20261004/MOVE_RECEIPT-20261004T112450Z.json",
+      "sha256": "18b37217ffbbb8bcf29511984ecc055321ff66c48e443474c90c79bcbc42d1d6"
+    },
+    "r2_normal": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_REMOVAL_ADMISSION_V2_20261004/runs/e02r2-p41-single-file-0213101-r9-v3-20261004T1028119059Z/result.json",
+      "sha256": "f7302706b5c39f1de85af1206d24780b9be475345b238f2fd58aad7854a5ccec"
+    },
+    "r2_remove": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_REMOVAL_ADMISSION_V2_20261004/runs/e02r2-p41-single-file-0213101-r9-v3-20261004T1030076312Z/result.json",
+      "sha256": "2272c9ff550c3588ab802dbf5dad17215fc1e458b1e3718bab96b96700d1aeb2"
+    },
+    "r2_restored": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_REMOVAL_ADMISSION_V2_20261004/runs/e02r2-p41-single-file-0213101-r9-v3-20261004T1031220706Z/result.json",
+      "sha256": "b15a2f90d2495d7b9462e65cd1f24a8ec90102d7fad1f7951cdc92f61c718bf0"
+    },
+    "r7_normal": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_REMOVAL_ADMISSION_V2_20261004/runs/e02r2-p41-single-file-0213101-r9-v3-20261004T1032539692Z/result.json",
+      "sha256": "67677b998694d16e1c9b725ea50a5104c801c024a73323863208c7211a24bbf2"
+    },
+    "r7_remove": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_REMOVAL_ADMISSION_V2_20261004/runs/e02r2-p41-single-file-0213101-r9-v3-20261004T1033807697Z/result.json",
+      "sha256": "cd4210c812cd81f044115672920d286b199460bada261c9d120d90ac3c1e99ff"
+    },
+    "r7_restored_interrupted": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_REMOVAL_ADMISSION_V2_20261004/runs/e02r2-p41-single-file-0213101-r9-v3-20261004T1034024763Z/result.json",
+      "sha256": "ae1c208e0bf97e2a11a4723b252153f55ff700d44d4e23a98bc84ac51df279be"
+    },
+    "r8_normal": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_REMOVAL_ADMISSION_V2_20261004/runs/e02r2-p41-single-file-0213101-r9-v3-20261004T1055612670Z/result.json",
+      "sha256": "7b62433d40e52e8c6abd30821c50c380e6ac28cf356cebbef7bb52c0550443b1"
+    },
+    "r8_remove": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_REMOVAL_ADMISSION_V2_20261004/runs/e02r2-p41-single-file-0213101-r9-v3-20261004T1056187046Z/result.json",
+      "sha256": "1e5c50390b43a873aa8ff6359bd23fb502a74f8b2657c7c9c8d5e66a9b5ef6da"
+    },
+    "r8_restored": {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_V3_REMOVAL_ADMISSION_V2_20261004/runs/e02r2-p41-single-file-0213101-r9-v3-20261004T1059392871Z/result.json",
+      "sha256": "d25670742b8cbb4e296f941208f58f978a087b21e4ee5fece82470ab4f35033e"
+    }
+  },
+  "limits": [
+    "no fresh complete four-base replay at source_head",
+    "remaining 13 logical triad states have no valid final outcome",
+    "R8 target witness is distinct from removal whole-file FAIL and formal adapter UNRUN",
+    "historical receipts retain their original source cuts",
+    "source-time, profile admission, S8 and production issuer/currentness remain bounded",
+    "scratch evidence must be retained; no raw outputs are embedded"
+  ]
+}

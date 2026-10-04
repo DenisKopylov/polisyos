@@ -24,6 +24,7 @@ from tests.integration.runtime_quality.test_evaluation_safety_admission import (
     _launch_fixture_workflow,
     _run_blocked_attempt,
 )
+from tests.unit.runtime.http import test_control_service_di
 from tests.unit.runtime.http.control_service_test_support import (
     bound_nl_authorization_proof,
 )
@@ -175,8 +176,46 @@ def test_unreadable_selected_run_is_ambiguous_and_cannot_change_safety(tmp_path,
 @pytest.fixture(scope="module")
 def produced_station(tmp_path_factory):
     """Retain the controlled producer and its actual DI fixture principal."""
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+    )
+
     principal = RuntimePrincipal.from_user_claims(_fixture_claims())
+    context_refs = []
+    original_context_persist = (
+        CycleSubstrateContextArtifactOwner.persist_for_current_job
+    )
+
+    def capture_context_ref(
+        context_owner, context, *, problem, verified_nl_job_scope=None
+    ):
+        ref = original_context_persist(
+            context_owner,
+            context,
+            problem=problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
+        context_refs.append(ref)
+        return ref
+
+    base_cas_type = test_control_service_di.FileSystemCAS
+
+    def runtime_composed_cas(*args, **kwargs):
+        base_store = base_cas_type(*args, **kwargs)
+        return base_store.with_ambient_ownership_enforcement()
+
     with pytest.MonkeyPatch.context() as patches:
+        # Runtime composition uses this owner-aware view of the original CAS.
+        # The DI helper's plain FileSystemCAS leaves default writes ownerless,
+        # then its fixture tenant claim makes the later registry replay fail.
+        patches.setattr(
+            test_control_service_di, "FileSystemCAS", runtime_composed_cas
+        )
+        patches.setattr(
+            CycleSubstrateContextArtifactOwner,
+            "persist_for_current_job",
+            capture_context_ref,
+        )
         fixture = _within_owner(
             principal,
             asyncio.run,
@@ -185,12 +224,18 @@ def produced_station(tmp_path_factory):
                 tmp_path_factory.mktemp("controlled-profile-source"),
             ),
         )
+    assert len(context_refs) == 1
+    context_ref = context_refs[0]
+    assert str(context_ref.artifact_id) == (
+        fixture.job.progress["cycle_substrate_context_job_ref"]
+    )
     try:
         yield {
             "service": fixture.service,
             "source_run_id": fixture.job.run_id,
             "job_id": fixture.job.job_id,
             "principal": principal,
+            "cycle_substrate_context_ref": context_ref,
         }
     finally:
         _within_owner(principal, fixture.service.close)
@@ -780,8 +825,32 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
         finally:
             if job.job_id == expected_job_id:
                 finished.set()
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+    )
+
+    context_owner = CycleSubstrateContextArtifactOwner(
+        store=service._artifact_store
+    )
+    context_artifact = _within_owner(
+        owner,
+        context_owner.resolve_historical_job_artifact,
+        produced_station["cycle_substrate_context_ref"],
+        problem=compiled.design_problem,
+        expected_job_id=prior_job.job_id,
+        expected_run_id=str(prior_job.run_id),
+        expected_tenant_id=owner.tenant_id,
+        expected_cell_id=owner.cell_id,
+    )
+    context_world = context_artifact.context.world_model_record
     source_simulation = leaf.cycle_run.cycles[-1].simulation
-    assert source_simulation.world_model_record is not None
+    assert source_simulation.status == "joint_simulated"
+    assert source_simulation.k_world_ref_before == context_world.content_hash
+    assert source_simulation.k_world_ref_after == context_world.content_hash
+    if source_simulation.world_model_record is not None:
+        assert source_simulation.world_model_record.content_hash == (
+            context_world.content_hash
+        )
     simulate_only_attempt = _valid_intake_for_mode("simulate_only").model_dump(
         mode="json"
     )
@@ -789,10 +858,10 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
     simulate_only_attempt["candidate_ref"]["artifact_id"] = summary.candidate_id
     simulate_only_attempt["candidate_ref"]["content_hash"] = summary.content_hash
     simulate_only_attempt["world_model_record_ref"]["artifact_id"] = (
-        source_simulation.world_model_record.world_model_record_id
+        context_world.world_model_record_id
     )
     simulate_only_attempt["world_model_record_ref"]["content_hash"] = (
-        source_simulation.world_model_record.content_hash
+        context_world.content_hash
     )
     request = NaturalLanguageRunRequest(
         request=compiled.design_problem.nl_provenance.raw_request,

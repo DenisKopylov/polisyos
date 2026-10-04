@@ -17,6 +17,7 @@ from polisyos.runtime.http.container import RuntimeContainerOverrides
 from polisyos.runtime.http.dependencies import build_runtime_api_context
 from polisyos.runtime.http.services.control import generation_cycle as bridge
 from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+from tests.unit.runtime.http import test_control_service_di
 from tests.unit.runtime.http.test_control_service_di import (
     _fixture_claims,
     _signed_generation_evidence,
@@ -26,9 +27,11 @@ from tests.unit.runtime.http.test_control_service_di import (
 )
 from tests.unit.runtime.http.test_runtime_api_authz import _CaptureOPA, _IdentityProvider
 
+controlled_recursive_result = test_control_service_di.controlled_recursive_result
+
 
 @pytest.fixture(scope="module")
-def completed_worker(tmp_path_factory):
+def completed_worker(tmp_path_factory, controlled_recursive_result):
     """Execute the actual default worker before any normative signature is available."""
     tmp_path = tmp_path_factory.mktemp("pa1-temporal-worker")
     captured = {}
@@ -42,7 +45,9 @@ def completed_worker(tmp_path_factory):
     with pytest.MonkeyPatch.context() as patches:
         patches.setattr(ControlPlaneService, "_process_control_job", capture)
         patches.setattr(ControlPlaneService, "close", lambda self: None)
-        asyncio.run(_worker_example(patches, tmp_path, "missing"))
+        asyncio.run(
+            _worker_example(patches, tmp_path, "missing", controlled_recursive_result)
+        )
     service = captured["service"]
     record = service.get_job_status(captured["job_id"])
     compiled = bridge.CompiledRecursiveGenerationCycleRun.model_validate(

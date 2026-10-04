@@ -1037,10 +1037,63 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
     )
     assert resolution.classification == "not_established"
 
-    # A real persisted blocked source is terminal for N9: no classifier, no offer,
-    # no near-miss, and no signature replay that could imply downstream authority.
+    # The blocked source is terminal for N9, while EvalSafety still persists its
+    # typed refusal so the authority band has an auditable reason for blocking.
     assert calls == []
-    assert outcomes == []
+    assert len(outcomes) == 1
+    persisted_attempt = outcomes[0]
+    assert persisted_attempt.decision.safety.status == "blocked"
+    assert persisted_attempt.classification_offer_ref is None
+    assert persisted_attempt.certificate_ref is None
+    assert persisted_attempt.owner_evidence.classification is None
+    assert persisted_attempt.decision.classification_offer_ref is None
+    assert persisted_attempt.decision.promotion_validation_basis_ref is None
+    assert persisted_attempt.decision.promotion_safe_facet is None
+    assert persisted_attempt.decision.near_miss is False
+
+    persisted_decision = es.EvaluationSafetyDecisionEvent.model_validate(
+        canon.from_canonical_bytes(
+            _within_owner(
+                owner,
+                service._artifact_store.get_bytes,
+                persisted_attempt.decision_ref.artifact_id,
+            )
+        )
+    )
+    assert persisted_decision == persisted_attempt.decision
+
+    assert persisted_attempt.promotion_source_resolution_ref == (
+        terminal.progress["eval_safety_promotion_source_resolution_ref"]
+    )
+    persisted_resolution = EvaluationSafetyPromotionSourceResolution.model_validate(
+        canon.from_canonical_bytes(
+            _within_owner(
+                owner,
+                service._artifact_store.get_bytes,
+                persisted_attempt.promotion_source_resolution_ref,
+            )
+        )
+    )
+    assert persisted_resolution == resolution
+    assert persisted_resolution.classification == "not_established"
+    assert persisted_resolution.selected_compiled_ref is None
+
+    persisted_projection = es.EvalSafetyMetricsProjection.model_validate(
+        canon.from_canonical_bytes(
+            _within_owner(
+                owner,
+                service._artifact_store.get_bytes,
+                terminal.progress["eval_safety_projection_ref"],
+            )
+        )
+    )
+    assert persisted_attempt.decision_ref in persisted_projection.selected_decision_artifact_refs
+    assert persisted_attempt.decision.decision_id in (
+        persisted_projection.unclassified_blocked_decision_ids
+    )
+    assert persisted_projection.near_miss_count == 0
+    assert persisted_projection.near_miss_classification_status == "not_established"
+
     assert signature_calls == []
     assert "classification_offer" not in terminal.progress["artifacts_index"]
     failed_manifest_bytes = _within_owner(

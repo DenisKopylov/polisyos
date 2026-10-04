@@ -989,7 +989,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
         source_job.progress["compiled_recursive_generation_cycle_artifact_ref"]
     )
     assert persisted_compiled_ref == compiled_ref
-    assert source_core.manifest.outputs == (compiled_ref,)
+    assert tuple(source_core.manifest.outputs) == (compiled_ref,)
     assert source_job.progress["compiled_recursive_generation_cycle_ref"] == (
         _artifact_id(compiled_ref)
     )

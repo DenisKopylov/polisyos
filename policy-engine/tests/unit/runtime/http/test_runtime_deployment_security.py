@@ -387,6 +387,7 @@ def test_runtime_deployment_security_cannot_mix_collaborators_across_documents(
             principal_grants=runtime_a.principal_grants,
             human_decision_custody=runtime_a.human_decision_custody,
             epoch_deployment=runtime_a.epoch_deployment,
+            acquisition_authority=runtime_a.acquisition_authority,
         )
 
     runtime_b = security.build_deployment_security(config_b)
@@ -535,74 +536,79 @@ def test_non_development_runtime_revalidates_same_object_authority_before_reques
         deployment_security=runtime,
     )
 
-    if mutation == "identity_method":
-        object.__setattr__(
-            runtime.identity_provider,
-            "extract_user_claims",
-            lambda _token, **_kwargs: SimpleNamespace(sub="forged-admin"),
-        )
-    elif mutation == "principal_grants":
-        grant = runtime.config.service_principals[0]
-        object.__setattr__(
-            runtime.principal_grants,
-            "_permissions_by_identity",
-            MappingProxyType(
-                {
-                    grant.identity_key: frozenset(
-                        {
-                            *grant.permissions,
-                            RuntimePermission.EVIDENCE_ACQUIRE,
-                        }
-                    )
-                }
-            ),
-        )
-    elif mutation == "opa_method":
-        object.__setattr__(runtime.opa_client, "check", lambda _input: True)
-    elif mutation == "cell_method":
-        object.__setattr__(
-            runtime.cell_registry,
-            "resolve",
-            lambda _tenant_id: SimpleNamespace(cell_id="attacker-cell"),
-        )
-    elif mutation == "step_up_method":
-        object.__setattr__(
-            runtime.step_up_verifier,
-            "verify",
-            lambda _token, _context: SimpleNamespace(assertion_id="forged-step-up"),
-        )
-    elif mutation == "identity_jwks_cache":
-        runtime.identity_provider._jwks_cache["client"] = SimpleNamespace(
-            get_signing_key_from_jwt=lambda _token: SimpleNamespace(key="forged")
-        )
-    elif mutation == "step_up_jwks_client":
-        object.__setattr__(
-            runtime.step_up_verifier,
-            "_jwks_client",
-            SimpleNamespace(get_signing_key_from_jwt=lambda _token: SimpleNamespace(key="forged")),
-        )
-    elif mutation == "opa_decision_cache":
-        object.__setattr__(
-            runtime.opa_client,
-            "_cache",
-            SimpleNamespace(get=lambda _key: SimpleNamespace(is_allowed=True)),
-        )
-    else:
-        object.__setattr__(
-            runtime.opa_client,
-            "_session",
-            SimpleNamespace(post=lambda *_args, **_kwargs: SimpleNamespace()),
-        )
-
-    with pytest.raises(TypeError, match=r"factory|attest|bundle"):
-        security.verify_exact_deployment_principal_token(
-            runtime,
-            "synthetic-probe-token",
-            required_permissions=frozenset(
-                {RuntimePermission.RUNS_LAUNCH, RuntimePermission.RUNS_VIEW}
-            ),
-        )
     with TestClient(app, raise_server_exceptions=False) as client:
+        healthy = client.get("/api/v1/health")
+        assert healthy.status_code == 200, healthy.text
+
+        if mutation == "identity_method":
+            object.__setattr__(
+                runtime.identity_provider,
+                "extract_user_claims",
+                lambda _token, **_kwargs: SimpleNamespace(sub="forged-admin"),
+            )
+        elif mutation == "principal_grants":
+            grant = runtime.config.service_principals[0]
+            object.__setattr__(
+                runtime.principal_grants,
+                "_permissions_by_identity",
+                MappingProxyType(
+                    {
+                        grant.identity_key: frozenset(
+                            {
+                                *grant.permissions,
+                                RuntimePermission.EVIDENCE_ACQUIRE,
+                            }
+                        )
+                    }
+                ),
+            )
+        elif mutation == "opa_method":
+            object.__setattr__(runtime.opa_client, "check", lambda _input: True)
+        elif mutation == "cell_method":
+            object.__setattr__(
+                runtime.cell_registry,
+                "resolve",
+                lambda _tenant_id: SimpleNamespace(cell_id="attacker-cell"),
+            )
+        elif mutation == "step_up_method":
+            object.__setattr__(
+                runtime.step_up_verifier,
+                "verify",
+                lambda _token, _context: SimpleNamespace(assertion_id="forged-step-up"),
+            )
+        elif mutation == "identity_jwks_cache":
+            runtime.identity_provider._jwks_cache["client"] = SimpleNamespace(
+                get_signing_key_from_jwt=lambda _token: SimpleNamespace(key="forged")
+            )
+        elif mutation == "step_up_jwks_client":
+            object.__setattr__(
+                runtime.step_up_verifier,
+                "_jwks_client",
+                SimpleNamespace(
+                    get_signing_key_from_jwt=lambda _token: SimpleNamespace(key="forged")
+                ),
+            )
+        elif mutation == "opa_decision_cache":
+            object.__setattr__(
+                runtime.opa_client,
+                "_cache",
+                SimpleNamespace(get=lambda _key: SimpleNamespace(is_allowed=True)),
+            )
+        else:
+            object.__setattr__(
+                runtime.opa_client,
+                "_session",
+                SimpleNamespace(post=lambda *_args, **_kwargs: SimpleNamespace()),
+            )
+
+        with pytest.raises(TypeError, match=r"factory|attest|bundle"):
+            security.verify_exact_deployment_principal_token(
+                runtime,
+                "synthetic-probe-token",
+                required_permissions=frozenset(
+                    {RuntimePermission.RUNS_LAUNCH, RuntimePermission.RUNS_VIEW}
+                ),
+            )
         response = client.get("/api/v1/health")
 
     assert response.status_code == 503, response.text

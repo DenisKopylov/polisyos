@@ -4877,3 +4877,18 @@ Revisit after an appointed production-root producer is wired through the existin
 ## Where this binds
 
 If adopted, this proposed rule binds only production GPR issuance, anonymous verification including retained history, and the specified private reconciliation path. It does not broaden Denis’s accepted HumanDecisionService V2 rule, refuse unrelated artifact families, or block ordinary candidate computation. No option is selected here.
+
+
+## R1/R13 attempt-owned source implementation boundary — 2026-10-04
+
+This records implementation of Denis's existing controlled owner-bound bridge direction; it appoints no production data, time or S8/N9 authority owner.
+
+**Options and costs:** (1) select one lease-attempt Core trace through the existing owner and retain full store-selected ArtifactRefs (implemented candidate): adds one shared intake and fenced attempt pointer; consumers pay strict terminal/CAS readback. (2) retain a stable trace or reconstruct typed views from bare IDs: lower local code cost, but cannot distinguish retry ownership or exact manifest views, so it does not meet custody.
+
+**Premises:** controlled owner-context replay and current lease are recomputed before the Core interval; selected completed-job/attempt/full manifests and tenant/cell are independently reconciled at intake. Source persistence may be absent and remains typed-limited. Import-only review and two runtime delta reviews are recorded in WRITE_LEASES. Native served and retry witnesses are pending at application.
+
+**Remainder:** the interval excludes earlier NL/DesignProblem work; successful computation does not grant S8/N9/publication authority. Real source-time contracts, coupling, authorized epochs and partial-finalization owner recovery remain unresolved, each recorded in OPEN_PREMISES.
+
+**Revisit trigger / falsifier:** revise this mechanism if a stale guarded worker can publish/finalize after takeover, if a completed job can select another attempt or manifest view, or if an error/no-output terminal can supply N5/N9/S8. Run the actual served positive, source-persistence negative, retained-marker terminal-removal and guarded lease-takeover tests.
+
+**Where it binds:** completed NL-job Core source intake and the enumerated acquisition/normative/EvalSafety consumers. Ordinary candidate work with declared unknown context continues; authority actions require their separate owner predicates.

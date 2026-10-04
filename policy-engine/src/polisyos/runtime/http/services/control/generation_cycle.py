@@ -6,9 +6,10 @@ from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import ControlJobResponse  # noqa: TC001 - Pydantic DTO
 from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.http.services.control.nl_pipeline import (
@@ -302,6 +303,12 @@ class NormativeRunDisposition(BaseModel):
     ranked_recommendations: tuple[str, ...]
     strangle_receipt: NormativeRunStrangleReceipt
     disposition_ref: str | None = Field(default=None, exclude=True)
+    _persisted_artifact_ref: ArtifactRef | None = PrivateAttr(default=None)
+
+    @property
+    def persisted_artifact_ref(self) -> ArtifactRef | None:
+        """Return the exact store-selected manifest view for this produced artifact."""
+        return self._persisted_artifact_ref
 
 
 @dataclass(frozen=True, slots=True)
@@ -385,19 +392,26 @@ def _assert_normative_run_disposition_v1_shape(
 
 
 def _read_normative_run_disposition_v1(
-    store: artifacts.ArtifactStore, ref: str
+    store: artifacts.ArtifactStore, ref: str | ArtifactRef
 ) -> NormativeRunDisposition:
     """Resolve the exact historical outer-v1 bytes and manifest profile."""
 
     try:
-        artifact_id = artifacts.ArtifactID.model_validate(ref)
-        raw = store.get_bytes(artifact_id)
-        manifest = store.get_manifest(artifact_id)
+        selected_ref = (
+            ref if isinstance(ref, ArtifactRef) else artifacts.ArtifactID.model_validate(ref)
+        )
+        artifact_id = (
+            selected_ref.artifact_id
+            if isinstance(selected_ref, ArtifactRef)
+            else selected_ref
+        )
+        raw = store.get_bytes(selected_ref)
+        manifest = store.get_manifest(selected_ref)
     except (TypeError, ValueError, KeyError, OSError) as exc:
         raise P20NormativeChoiceError("p20_normative_outer_v1_unavailable") from exc
     if (
-        str(artifact_id) != ref
-        or ref != f"sha256:{canon.content_hash(raw)}"
+        (isinstance(ref, str) and str(artifact_id) != ref)
+        or str(artifact_id) != f"sha256:{canon.content_hash(raw)}"
         or manifest.artifact_id != artifact_id
     ):
         raise P20NormativeChoiceError("p20_normative_outer_v1_content_mismatch")
@@ -422,6 +436,9 @@ def _read_normative_run_disposition_v1(
         _normative_run_disposition_v1_payload(recorded), _NORMATIVE_OUTER_V1_CANON
     ):
         raise P20NormativeChoiceError("p20_normative_outer_v1_bytes_mismatch")
+    recorded._persisted_artifact_ref = (
+        selected_ref if isinstance(selected_ref, ArtifactRef) else None
+    )
     return recorded
 
 
@@ -465,12 +482,19 @@ def normative_owner_for_runtime_store(
 
 
 def _read_normative_source(
-    store: artifacts.ArtifactStore, ref: str, *, kind: str
+    store: artifacts.ArtifactStore, ref: str | ArtifactRef, *, kind: str
 ) -> dict[str, object]:
-    artifact_id = artifacts.ArtifactID.model_validate(ref)
-    raw = store.get_bytes(artifact_id)
-    manifest = store.get_manifest(artifact_id)
-    if ref != f"sha256:{canon.content_hash(raw)}" or manifest.kind != kind:
+    selected_ref = (
+        ref if isinstance(ref, ArtifactRef) else artifacts.ArtifactID.model_validate(ref)
+    )
+    artifact_id = (
+        selected_ref.artifact_id
+        if isinstance(selected_ref, ArtifactRef)
+        else selected_ref
+    )
+    raw = store.get_bytes(selected_ref)
+    manifest = store.get_manifest(selected_ref)
+    if str(artifact_id) != f"sha256:{canon.content_hash(raw)}" or manifest.kind != kind:
         raise P20NormativeChoiceError("p20_normative_compiled_source_mismatch")
     payload = canon.from_canonical_bytes(raw)
     if not isinstance(payload, dict):
@@ -479,13 +503,19 @@ def _read_normative_source(
 
 
 def _normative_generation_sources(
-    store: artifacts.ArtifactStore, compiled_run_ref: str, *, persist: bool
+    store: artifacts.ArtifactStore,
+    compiled_run_ref: str,
+    *,
+    persist: bool,
+    compiled_artifact_ref: ArtifactRef | None = None,
 ) -> dict[str, NormativeGenerationBinding]:
     from polisyos.runtime.quality.generation_cycle import GENERATION_CYCLE_SCHEMA_VERSION
 
     compiled = CompiledRecursiveGenerationCycleRun.model_validate(
         _read_normative_source(
-            store, compiled_run_ref, kind="runtime.compiled_recursive_generation_cycle"
+            store,
+            compiled_artifact_ref or compiled_run_ref,
+            kind="runtime.compiled_recursive_generation_cycle",
         )
     )
     sources = {}
@@ -532,8 +562,14 @@ def _project_normative_composition(
     leaf_refs: dict[str, str],
     evaluated_at: datetime,
     historical: bool = False,
+    compiled_artifact_ref: ArtifactRef | None = None,
 ) -> NormativeRunDisposition:
-    sources = _normative_generation_sources(store, compiled_run_ref, persist=False)
+    sources = _normative_generation_sources(
+        store,
+        compiled_run_ref,
+        persist=False,
+        compiled_artifact_ref=compiled_artifact_ref,
+    )
     if set(sources) != set(leaf_refs):
         raise P20NormativeChoiceError("p20_normative_compiled_leaf_population_mismatch")
     leaves = {}
@@ -575,9 +611,15 @@ def produce_normative_run_disposition(
     compiled_run_ref: str,
     evidence: NormativeRunEvidenceRefs | None,
     evaluated_at: datetime,
+    compiled_artifact_ref: ArtifactRef | None = None,
 ) -> NormativeRunDisposition:
     """Default production bridge from current compiled CAS bytes to every S8 leaf."""
-    sources = _normative_generation_sources(store, compiled_run_ref, persist=True)
+    sources = _normative_generation_sources(
+        store,
+        compiled_run_ref,
+        persist=True,
+        compiled_artifact_ref=compiled_artifact_ref,
+    )
     by_node = evidence.by_node if evidence else {}
     limitation = evidence.input_limitation if evidence else None
     if not set(by_node).issubset(sources):
@@ -597,6 +639,7 @@ def produce_normative_run_disposition(
         compiled_run_ref=compiled_run_ref,
         leaf_refs=leaf_refs,
         evaluated_at=evaluated_at,
+        compiled_artifact_ref=compiled_artifact_ref,
     )
     _assert_normative_run_disposition_v1_shape(
         projection.model_dump(mode="json"), producer=True
@@ -613,29 +656,35 @@ def produce_normative_run_disposition(
         ),
         canon_spec=_NORMATIVE_OUTER_V1_CANON,
     )
-    return project_normative_run_disposition(
+    disposition = project_normative_run_disposition(
         store=store,
         owner=owner,
-        disposition_ref=str(ref.artifact_id),
+        disposition_ref=ref,
         compiled_run_ref=compiled_run_ref,
         evaluated_at=evaluated_at,
+        compiled_artifact_ref=compiled_artifact_ref,
     )
+    disposition._persisted_artifact_ref = ref
+    return disposition
 
 
 def project_normative_run_disposition(
     *,
     store: artifacts.ArtifactStore,
     owner: NormativeValueScheduleOwner,
-    disposition_ref: str,
+    disposition_ref: str | ArtifactRef,
     compiled_run_ref: str,
     evaluated_at: datetime,
+    disposition_artifact_ref: ArtifactRef | None = None,
+    compiled_artifact_ref: ArtifactRef | None = None,
 ) -> NormativeRunDisposition:
     """Recompute complete compiled membership and current S8 authority at every egress."""
     replay = replay_normative_run_disposition(
         store=store,
         owner=owner,
-        disposition_ref=disposition_ref,
+        disposition_ref=disposition_artifact_ref or disposition_ref,
         compiled_run_ref=compiled_run_ref,
+        compiled_artifact_ref=compiled_artifact_ref,
     )
     current = _project_normative_composition(
         store=store,
@@ -643,16 +692,26 @@ def project_normative_run_disposition(
         compiled_run_ref=compiled_run_ref,
         leaf_refs=replay.disposition.leaf_disposition_refs,
         evaluated_at=evaluated_at,
+        compiled_artifact_ref=compiled_artifact_ref,
     )
-    return current.model_copy(update={"disposition_ref": disposition_ref})
+    return current.model_copy(
+        update={
+            "disposition_ref": str(
+                disposition_ref.artifact_id
+                if isinstance(disposition_ref, ArtifactRef)
+                else disposition_ref
+            )
+        }
+    )
 
 
 def replay_normative_run_disposition(
     *,
     store: artifacts.ArtifactStore,
     owner: NormativeValueScheduleOwner,
-    disposition_ref: str,
+    disposition_ref: str | ArtifactRef,
     compiled_run_ref: str,
+    compiled_artifact_ref: ArtifactRef | None = None,
 ) -> NormativeRunDispositionHistory:
     """Replay stored S8 history without sampling the live Confidence Ledger."""
     recorded = _read_normative_run_disposition_v1(store, disposition_ref)
@@ -668,15 +727,33 @@ def replay_normative_run_disposition(
         leaf_refs=recorded.leaf_disposition_refs,
         evaluated_at=next(iter(historical_times)),
         historical=True,
+        compiled_artifact_ref=compiled_artifact_ref,
     )
-    if historical != recorded:
+    # Persisted v1 equality is the contract here. Runtime-only ownership data
+    # such as ``_persisted_artifact_ref`` is deliberately excluded from the
+    # wire projection, so comparing the Pydantic models would reject a valid
+    # replay whenever the selected manifest view is present on ``recorded``.
+    if canon.to_canonical_bytes(
+        _normative_run_disposition_v1_payload(historical), _NORMATIVE_OUTER_V1_CANON
+    ) != canon.to_canonical_bytes(
+        _normative_run_disposition_v1_payload(recorded), _NORMATIVE_OUTER_V1_CANON
+    ):
         raise P20NormativeChoiceError("p20_normative_composition_content_mismatch")
+    historical._persisted_artifact_ref = recorded._persisted_artifact_ref
     currentness = {
         node_ref: owner.generation_disposition_admission_currentness(leaf_ref)
         for node_ref, leaf_ref in recorded.leaf_disposition_refs.items()
     }
     return NormativeRunDispositionHistory(
-        disposition=historical.model_copy(update={"disposition_ref": disposition_ref}),
+        disposition=historical.model_copy(
+            update={
+                "disposition_ref": str(
+                    disposition_ref.artifact_id
+                    if isinstance(disposition_ref, ArtifactRef)
+                    else disposition_ref
+                )
+            }
+        ),
         admission_currentness_by_node=currentness,
     )
 

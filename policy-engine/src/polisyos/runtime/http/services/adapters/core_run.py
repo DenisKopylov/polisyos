@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 import stat
 from dataclasses import dataclass
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
 
 logger = get_logger(__name__)
 
@@ -80,6 +82,105 @@ def derive_core_run_dir(core_runs_root: Path, run_id: str) -> Path:
     return candidate
 
 
+def derive_control_job_core_run_id(
+    *, job_id: str, control_run_id: str, attempt: int
+) -> str:
+    """Derive one collision-resistant Core identity for a leased control-job attempt.
+
+    The control-plane run ID remains stable across retries. Core traces are
+    append-only, so each lease attempt receives a distinct child identity and
+    is selected only by that attempt's fenced completed-job progress.
+    """
+    if (
+        not isinstance(job_id, str)
+        or not job_id.strip()
+        or not isinstance(control_run_id, str)
+        or not control_run_id.strip()
+        or isinstance(attempt, bool)
+        or not isinstance(attempt, int)
+        or attempt < 1
+    ):
+        raise ValueError("control_job_core_run_identity_invalid")
+    identity = "\0".join((job_id, control_run_id, str(attempt))).encode("utf-8")
+    return "control-" + hashlib.sha256(identity).hexdigest()
+
+
+def load_completed_control_job_core_run_source(
+    *,
+    store: ArtifactStore,
+    core_runs_root: Path,
+    job: ControlJobRecord,
+    expected_control_run_id: str,
+    tenant_id: str,
+    cell_id: str,
+    read_attempts: list[str] | None = None,
+) -> TerminalCoreRunSource:
+    """Join one completed stable control run to its exact lease-attempt Core trace.
+
+    The completed control row owns the attempt pointer. The Core manifest must
+    independently bind back to that job and match the full persisted artifact
+    reference, tenant, and cell before a consumer reads any Core output.
+    """
+    from collections.abc import Mapping
+
+    from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+
+    run_id = getattr(job, "run_id", None)
+    job_id = getattr(job, "job_id", None)
+    attempt = getattr(job, "attempt", None)
+    progress = getattr(job, "progress", None)
+    if (
+        getattr(job, "state", None) != "completed"
+        or getattr(job, "kind", None) != "natural_language_run"
+        or not isinstance(job_id, str)
+        or not isinstance(run_id, str)
+        or run_id != expected_control_run_id
+        or isinstance(attempt, bool)
+        or not isinstance(attempt, int)
+        or not isinstance(progress, Mapping)
+        or progress.get("state") != "completed"
+        or progress.get("phase") != "natural_language_run"
+        or progress.get("run_id") != run_id
+        or type(progress.get("core_run_attempt")) is not int
+        or progress.get("core_run_attempt") != attempt
+    ):
+        raise ValueError("control_job_core_run_source_not_completed")
+    core_run_id = derive_control_job_core_run_id(
+        job_id=job_id,
+        control_run_id=run_id,
+        attempt=attempt,
+    )
+    if progress.get("core_run_id") != core_run_id:
+        raise ValueError("control_job_core_run_attempt_pointer_mismatch")
+    raw_manifest_ref = progress.get("core_manifest_artifact_ref")
+    try:
+        selected_manifest_ref = ArtifactRef.model_validate(raw_manifest_ref)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("control_job_core_run_manifest_ref_not_established") from exc
+    if progress.get("manifest_ref") != str(selected_manifest_ref.artifact_id):
+        raise ValueError("control_job_core_run_manifest_pointer_mismatch")
+    terminal = load_terminal_core_run_source(
+        store=store,
+        core_runs_root=core_runs_root,
+        run_id=core_run_id,
+        read_attempts=read_attempts,
+    )
+    if (
+        terminal.run_id != core_run_id
+        or terminal.manifest.run_id != core_run_id
+        or terminal.manifest.status != "ok"
+        or terminal.manifest.control_job_id != job_id
+        or terminal.tenant_id != tenant_id
+        or terminal.cell_id != cell_id
+        or terminal.manifest.tenant_id != tenant_id
+        or terminal.manifest.cell_id != cell_id
+        or artifact_ref_identity_key(terminal.manifest_ref)
+        != artifact_ref_identity_key(selected_manifest_ref)
+    ):
+        raise ValueError("control_job_core_run_terminal_binding_mismatch")
+    return terminal
+
+
 def _validate_direct_child_run_id(run_id: str) -> None:
     """Reject any run identifier that cannot be one descriptor-relative child."""
 
@@ -97,6 +198,7 @@ def load_terminal_core_run_source(
     store: ArtifactStore,
     core_runs_root: Path,
     run_id: str,
+    read_attempts: list[str] | None = None,
 ) -> TerminalCoreRunSource:
     """Resolve one terminal Core source without recovery, scanning, or index facts."""
 
@@ -105,7 +207,11 @@ def load_terminal_core_run_source(
     run_dir = trusted_root / run_id
     trace_path = run_dir / "trace.jsonl"
     try:
-        strict_lines = list(_iter_strict_terminal_trace_lines(trusted_root, run_id))
+        strict_lines = list(
+            _iter_strict_terminal_trace_lines(
+                trusted_root, run_id, read_attempts=read_attempts
+            )
+        )
     except (OSError, UnicodeError, ValueError) as exc:
         raise ValueError("terminal Core run trace intake is invalid") from exc
     try:
@@ -318,7 +424,7 @@ def load_core_run(
                 cell_id=trace_cell_id,
             )
         else:
-            payload = from_canonical_bytes(store.get_bytes(manifest_ref.artifact_id))
+            payload = from_canonical_bytes(store.get_bytes(manifest_ref))
             manifest = CoreRunManifest.model_validate(payload)
     except Exception as exc:  # terminal authority fails closed on any store/validation failure
         logger.debug("Failed to load core run manifest %s: %s", manifest_ref, exc)
@@ -426,10 +532,10 @@ def load_bound_terminal_manifest(
         or manifest_ref.media_type != _RUN_MANIFEST_MEDIA_TYPE
     ):
         raise ValueError("terminal run manifest ref metadata mismatch")
-    verification = store.verify(manifest_ref.artifact_id)
+    verification = store.verify(manifest_ref)
     if not verification.ok:
         raise ValueError("terminal run manifest failed CAS verification")
-    artifact_manifest = store.get_manifest(manifest_ref.artifact_id)
+    artifact_manifest = store.get_manifest(manifest_ref)
     if (
         artifact_manifest.kind != manifest_ref.kind
         or artifact_manifest.media_type != manifest_ref.media_type
@@ -443,7 +549,7 @@ def load_bound_terminal_manifest(
     ):
         raise ValueError("terminal run manifest schema provenance mismatch")
 
-    manifest_bytes = store.get_bytes(manifest_ref.artifact_id)
+    manifest_bytes = store.get_bytes(manifest_ref)
     if content_hash(manifest_bytes, prefix=True) != str(manifest_ref.artifact_id):
         raise ValueError("terminal run manifest bytes do not match the bound artifact id")
     payload = from_canonical_bytes(manifest_bytes)
@@ -532,6 +638,8 @@ def _iter_trace_lines(path: Path) -> Iterator[str]:
 def _iter_strict_terminal_trace_lines(
     core_runs_root: Path,
     run_id: str,
+    *,
+    read_attempts: list[str] | None = None,
 ) -> Iterator[str]:
     """Open the exact run child and trace leaf relative to trusted descriptors."""
 
@@ -561,6 +669,10 @@ def _iter_strict_terminal_trace_lines(
             raise ValueError("terminal Core run trace leaf is not a regular file")
         with os.fdopen(trace_fd, "r", encoding="utf-8") as handle:
             trace_fd = None
+            if read_attempts is not None:
+                read_attempts.append(
+                    f"terminal_trace:{core_runs_root / run_id / 'trace.jsonl'}"
+                )
             for line in handle:
                 stripped = line.strip()
                 if stripped:

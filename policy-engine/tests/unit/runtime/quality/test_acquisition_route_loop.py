@@ -10,12 +10,21 @@ from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.run.context import RunContext
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.http.services.adapters.core_run import (
+    TerminalCoreRunSource,
+    derive_control_job_core_run_id,
+    load_completed_control_job_core_run_source,
+)
 from polisyos.runtime.http.services.control.generation_cycle import (
     COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
     CompiledRecursiveGenerationCycleRun,
 )
-from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.http.services.control_plane_store import (
+    ControlJobRecord,
+    ControlPlaneStore,
+)
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteClosureError,
     AcquisitionRouteLoop,
@@ -144,16 +153,15 @@ async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer
     cas = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
     event_log = RuntimeDiagnosticEventLog(store=store, artifact_store=cas)
     compiled = await _compiled()
-    compiled_ref = str(
-        cas.put_json(
-            compiled.model_dump(mode="json"),
-            _options(
-                kind="runtime.compiled_recursive_generation_cycle",
-                schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
-        ).artifact_id
+    compiled_artifact_ref = cas.put_json(
+        compiled.model_dump(mode="json"),
+        _options(
+            kind="runtime.compiled_recursive_generation_cycle",
+            schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
+    compiled_ref = str(compiled_artifact_ref.artifact_id)
     manifest_ref = str(
         cas.put_json(
             {"capability": "ds15"},
@@ -180,6 +188,29 @@ async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer
         "submitted_by": "tester",
     }
     store.create_job(job_id="job-nl", kind="natural_language_run", **common)
+    leased = store.lease_next_job(worker_id="route-fixture-worker")
+    assert leased is not None and leased.job_id == "job-nl"
+    core_runs_root = tmp_path / "core-runs"
+    core_run_id = derive_control_job_core_run_id(
+        job_id=leased.job_id,
+        control_run_id="run-ds15",
+        attempt=leased.attempt,
+    )
+    registry_ref = cas.put_json(
+        {"registry": {}},
+        ArtifactWriteOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    core_context = RunContext.start(
+        store=cas,
+        registry_bundle=registry_ref,
+        run_id=core_run_id,
+        run_dir=core_runs_root / core_run_id,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    core_context.run_manifest.control_job_id = leased.job_id
+    core_context.add_output(compiled_artifact_ref)
+    core_manifest_ref = core_context.finalize(status="ok")
     store.complete_job(
         job_id="job-nl",
         run_id="run-ds15",
@@ -189,12 +220,39 @@ async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer
             "phase": "natural_language_run",
             "run_id": "run-ds15",
             "compiled_recursive_generation_cycle_ref": compiled_ref,
+            "compiled_recursive_generation_cycle_artifact_ref": (
+                compiled_artifact_ref.model_dump(mode="json")
+            ),
+            "core_run_id": core_run_id,
+            "core_run_attempt": leased.attempt,
+            "core_manifest_artifact_ref": core_manifest_ref.model_dump(mode="json"),
+            "manifest_ref": str(core_manifest_ref.artifact_id),
         },
+        expected_lease_owner=leased.lease_owner,
+        expected_attempt=leased.attempt,
     )
+
+    def resolve_core_source(
+        job: ControlJobRecord,
+        *,
+        expected_control_run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> TerminalCoreRunSource:
+        return load_completed_control_job_core_run_source(
+            store=cas,
+            core_runs_root=core_runs_root,
+            job=job,
+            expected_control_run_id=expected_control_run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+
     loop = AcquisitionRouteLoop(
         control_store=store,
         artifact_store=cas,
         event_log=event_log,
+        core_source_resolver=resolve_core_source,
         tenant_id="tenant-a",
         cell_id="cell-a",
     )

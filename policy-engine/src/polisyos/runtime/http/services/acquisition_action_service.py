@@ -292,6 +292,10 @@ class AcquisitionActionService:
         self._authority_provider = authority_provider
         self._execution_port = execution_port
         self._production_execution_port = production_execution_port
+        if movement_service is not None:
+            movement_service.bind_completed_control_job_core_source_resolver(
+                control_service.resolve_completed_control_job_core_run_source
+            )
         control_service.bind_acquisition_job_handler(self.handle_job)
 
     def list_routes(
@@ -639,6 +643,9 @@ class AcquisitionActionService:
             control_store=self.control_service._control_store,
             artifact_store=self.control_service._artifact_store,
             event_log=self.control_service._diagnostic_event_log,
+            core_source_resolver=(
+                self.control_service.resolve_completed_control_job_core_run_source
+            ),
             tenant_id=tenant_id,
             cell_id=cell_id,
         )

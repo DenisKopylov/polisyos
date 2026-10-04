@@ -370,20 +370,18 @@ def test_current_head_survives_shared_progress_copy_and_refuses_owned_source_reb
 def test_terminal_candidate_publication_reuses_owned_source_and_refuses_replacement(completed_worker):
     service, before, _ = completed_worker
     job = service._control_store.get_job(before.job_id)
-    payload = service._load_payload_ref(job.payload_ref)
-    compiled_ref = before.progress["compiled_recursive_generation_cycle_ref"]
-    normative_ref = before.progress["normative_disposition_ref"]
-    source = service._publish_generation_run(
-        job=job, payload=payload, compiled_run_ref=compiled_ref,
-        normative_disposition_ref=normative_ref,
-    )
-    assert source == before.progress["manifest_ref"]
-    with pytest.raises(ValueError, match="normative_generation_terminal_source_mismatch"):
-        service._publish_generation_run(
-            job=job, payload=payload, compiled_run_ref=compiled_ref,
-            normative_disposition_ref="sha256:" + "f" * 64,
+    compiled_ref, normative_ref = service._normative_owned_job_source(job)
+    assert str(compiled_ref.artifact_id) == before.progress[
+        "compiled_recursive_generation_cycle_ref"
+    ]
+    assert str(normative_ref.artifact_id) == before.progress["normative_disposition_ref"]
+    with pytest.raises(ValueError, match="normative_evidence_owned_output_selection_mismatch"):
+        service._normative_owned_job_source(
+            replace(
+                job,
+                progress={
+                    **job.progress,
+                    "normative_disposition_ref": "sha256:" + "f" * 64,
+                },
+            )
         )
-    assert service._publish_generation_run(
-        job=job, payload=payload, compiled_run_ref=compiled_ref,
-        normative_disposition_ref=normative_ref,
-    ) == source

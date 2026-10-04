@@ -446,15 +446,35 @@ def test_outer_v1_replay_rejects_noncanonical_bytes_and_manifest_schema(station,
     )
     assert emitted.disposition_ref is not None
     outer_ref = emitted.disposition_ref
+    outer_full_ref = emitted.persisted_artifact_ref
+    assert isinstance(outer_full_ref, artifacts.ArtifactRef)
     store = service._artifact_store
     raw = store.get_bytes(artifacts.ArtifactID.model_validate(outer_ref))
     canonical = bridge.replay_normative_run_disposition(
         store=store,
         owner=owner,
-        disposition_ref=outer_ref,
+        disposition_ref=outer_full_ref,
         compiled_run_ref=source_ref,
     )
     assert canonical.disposition.disposition_ref == outer_ref
+    assert canonical.disposition.persisted_artifact_ref is not None
+    assert artifacts.artifact_ref_identity_key(
+        canonical.disposition.persisted_artifact_ref
+    ) == artifacts.artifact_ref_identity_key(outer_full_ref)
+
+    wrong_profile_ref = outer_full_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    with pytest.raises(
+        bridge.P20NormativeChoiceError,
+        match="outer_v1_unavailable",
+    ):
+        bridge.replay_normative_run_disposition(
+            store=store,
+            owner=owner,
+            disposition_ref=wrong_profile_ref,
+            compiled_run_ref=source_ref,
+        )
 
     options = artifacts.PutOptions(
         kind=bridge.NORMATIVE_RUN_DISPOSITION_KIND,
@@ -529,6 +549,7 @@ def test_missing_or_unresolved_sidecar_preserves_current_source_fronts(station, 
 
 @pytest.mark.parametrize("reader", ["get_job_status", "get_latest_job_for_run"])
 def test_every_current_job_reader_replays_persisted_authority(station, monkeypatch, reader):
+    from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
     from polisyos.runtime.http.services.control import run_lifecycle
     from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
 
@@ -540,6 +561,13 @@ def test_every_current_job_reader_replays_persisted_authority(station, monkeypat
     result = service.resolve_generation_value_choices(
         compiled_run_ref=source_ref, evidence=evidence, evaluated_at=now
     )
+    compiled_manifest = service._artifact_store.get_manifest(source_ref)
+    compiled_artifact_ref = ArtifactRef(
+        artifact_id=ArtifactID.model_validate(source_ref),
+        kind=compiled_manifest.kind,
+        media_type=compiled_manifest.media_type,
+    )
+    assert result.persisted_artifact_ref is not None
     assert result.authorization_status == "authorized"
     record = ControlJobRecord(
         job_id="fixture:current-job",
@@ -564,13 +592,18 @@ def test_every_current_job_reader_replays_persisted_authority(station, monkeypat
             "normative_disposition_ref": result.disposition_ref,
             "compiled_recursive_generation_cycle_ref": source_ref,
             "normative_disposition": result.model_dump(mode="json"),
+            "compiled_recursive_generation_cycle_artifact_ref": (
+                compiled_artifact_ref.model_dump(mode="json")
+            ),
+            "normative_disposition_artifact_ref": (
+                result.persisted_artifact_ref.model_dump(mode="json")
+            ),
         },
     )
-    service._publish_generation_run(
-        job=record,
-        payload={"run_id": record.run_id, "tenant_id": "tenant-fixture", "cell_id": "cell-fixture"},
-        compiled_run_ref=source_ref,
-        normative_disposition_ref=result.disposition_ref,
+    monkeypatch.setattr(
+        service,
+        "_normative_owned_job_source",
+        lambda _: (compiled_artifact_ref, result.persisted_artifact_ref),
     )
     monkeypatch.setattr(service._control_store, "get_job", lambda _: record)
     monkeypatch.setattr(service._control_store, "get_latest_job_by_run", lambda _: record)

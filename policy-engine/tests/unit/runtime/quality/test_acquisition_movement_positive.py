@@ -48,11 +48,28 @@ def _supplier(tmp_path, monkeypatch, *, revised_source: bool = False):
 
 
 def _movement_service(supplier):
-    return AcquisitionMovementService(
+    service = AcquisitionMovementService(
         control_store=supplier.control._control_store,
         artifact_store=supplier.control._artifact_store,
         event_log=supplier.control._diagnostic_event_log,
     )
+    service.bind_completed_control_job_core_source_resolver(
+        supplier.control.resolve_completed_control_job_core_run_source
+    )
+    return service
+
+
+def _configured_movement_service(supplier, service, movement, tmp_path, **kwargs):
+    configured = configured_movement_service(
+        service,
+        movement,
+        tmp_path,
+        **kwargs,
+    )
+    configured.bind_completed_control_job_core_source_resolver(
+        supplier.control.resolve_completed_control_job_core_run_source
+    )
+    return configured
 
 
 def test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board(
@@ -73,7 +90,8 @@ def test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board(
     assert refused.movement_record is None
     assert store.get_bytes(supplier.supplier_receipt_ref) == supplier_bytes
 
-    missing_verification = configured_movement_service(
+    missing_verification = _configured_movement_service(
+        supplier,
         unallocated,
         movement,
         tmp_path / "missing-verification",
@@ -85,7 +103,9 @@ def test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board(
     assert partial.status == "refused"
     assert partial.movement_record is None
 
-    selected = configured_movement_service(unallocated, movement, tmp_path / "gy-owner")
+    selected = _configured_movement_service(
+        supplier, unallocated, movement, tmp_path / "gy-owner"
+    )
     admitted = selected.consume_terminal(supplier_receipt_ref=supplier.supplier_receipt_ref)
     assert admitted.status == "admitted", admitted.reason
     assert admitted.movement_record is not None
@@ -138,7 +158,9 @@ def test_revised_source_basis_survives_served_admission_reentry_and_movement(
     assert movement.source_cycle_index == 1
     assert movement.new_cycle_index == 2
 
-    selected = configured_movement_service(unallocated, movement, tmp_path / "gy-owner")
+    selected = _configured_movement_service(
+        supplier, unallocated, movement, tmp_path / "gy-owner"
+    )
     admitted = selected.consume_terminal(supplier_receipt_ref=supplier.supplier_receipt_ref)
     assert admitted.status == "admitted", admitted.reason
     assert admitted.movement_record is not None
@@ -192,7 +214,9 @@ def test_remove_decisive_native_bytes_keeps_receipt_markers_but_retracts_board_m
     supplier = _supplier(tmp_path / "supplier", monkeypatch)
     unallocated = _movement_service(supplier)
     movement = unallocated._derive_movement(supplier.supplier_receipt_ref)
-    selected = configured_movement_service(unallocated, movement, tmp_path / "gy-owner")
+    selected = _configured_movement_service(
+        supplier, unallocated, movement, tmp_path / "gy-owner"
+    )
     admitted = selected.consume_terminal(supplier_receipt_ref=supplier.supplier_receipt_ref)
     assert admitted.status == "admitted", admitted.reason
     assert admitted.movement_record is not None

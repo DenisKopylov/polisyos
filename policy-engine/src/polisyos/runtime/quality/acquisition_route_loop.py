@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Literal, Protocol
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import canon
+from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionActionRecord,
     AcquisitionCostBasisRecord,
@@ -27,7 +28,11 @@ from polisyos.runtime.quality.generation_cycle import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.http.services.adapters.core_run import TerminalCoreRunSource
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobRecord,
+        ControlPlaneStore,
+    )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
 
@@ -42,11 +47,11 @@ class _ArtifactManifest(Protocol):
 
 
 class _ArtifactStore(Protocol):
-    def has(self, artifact_id: str) -> bool: ...
+    def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool: ...
 
-    def get_bytes(self, artifact_id: str) -> bytes: ...
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes: ...
 
-    def get_manifest(self, artifact_id: str) -> _ArtifactManifest: ...
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> _ArtifactManifest: ...
 
 
 class AcquisitionRouteClosureError(ValueError):
@@ -232,6 +237,19 @@ class AcquisitionRoutePhaseSink(Protocol):
     ) -> AcquisitionRoutePhaseHead | None: ...
 
 
+class CompletedControlJobCoreSourceResolver(Protocol):
+    """HTTP-composed port for exact completed-job to Core-attempt source intake."""
+
+    def __call__(
+        self,
+        job: ControlJobRecord,
+        *,
+        expected_control_run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> TerminalCoreRunSource: ...
+
+
 class VerifiedAcquisitionRouteClosure(BaseModel):
     """Content-bound source job, problem, planner, and cost closure."""
 
@@ -283,6 +301,7 @@ class AcquisitionRouteLoop:
         control_store: ControlPlaneStore,
         artifact_store: _ArtifactStore,
         event_log: RuntimeDiagnosticEventLog,
+        core_source_resolver: CompletedControlJobCoreSourceResolver,
         tenant_id: str,
         cell_id: str,
     ) -> None:
@@ -294,6 +313,7 @@ class AcquisitionRouteLoop:
         self._control_store = control_store
         self._artifact_store = artifact_store
         self._event_log = event_log
+        self._core_source_resolver = core_source_resolver
         self._tenant_id = tenant_id
         self._cell_id = cell_id
 
@@ -337,6 +357,36 @@ class AcquisitionRouteLoop:
             or not isinstance(compiled_ref, str)
         ):
             raise AcquisitionRouteClosureError("source_progress_incomplete")
+        try:
+            selected_compiled_ref = ArtifactRef.model_validate(
+                progress.get("compiled_recursive_generation_cycle_artifact_ref")
+            )
+            terminal = self._core_source_resolver(
+                job,
+                expected_control_run_id=run_id,
+                tenant_id=self._tenant_id,
+                cell_id=self._cell_id,
+            )
+        except (TypeError, ValueError, OSError) as exc:
+            raise AcquisitionRouteClosureError("source_core_attempt_not_established") from exc
+        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+
+        compiled_outputs = tuple(
+            ref
+            for ref in terminal.manifest.outputs
+            if ref.kind == "runtime.compiled_recursive_generation_cycle"
+        )
+        if (
+            terminal.manifest.status != "ok"
+            or terminal.tenant_id != self._tenant_id
+            or terminal.cell_id != self._cell_id
+            or str(terminal.manifest_ref.artifact_id) != progress.get("manifest_ref")
+            or len(compiled_outputs) != 1
+            or str(compiled_outputs[0].artifact_id) != compiled_ref
+            or artifact_ref_identity_key(compiled_outputs[0])
+            != artifact_ref_identity_key(selected_compiled_ref)
+        ):
+            raise AcquisitionRouteClosureError("source_core_output_binding_mismatch")
         terminal_event_id = self._resolve_terminal_event(
             run_id=run_id,
             job_id=job.job_id,
@@ -344,7 +394,7 @@ class AcquisitionRouteLoop:
             manifest_ref=manifest_ref,
         )
         compiled_payload = self._read_json_artifact(
-            compiled_ref,
+            selected_compiled_ref,
             expected_kind="runtime.compiled_recursive_generation_cycle",
             expected_schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
         )
@@ -456,18 +506,27 @@ class AcquisitionRouteLoop:
 
     def _read_json_artifact(
         self,
-        ref: str,
+        ref: str | ArtifactRef,
         *,
         expected_kind: str,
         expected_schema_name: str,
     ) -> object:
         try:
-            if not self._artifact_store.has(ref):
+            selected_ref = (
+                ref if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
+            )
+            artifact_id = (
+                selected_ref.artifact_id
+                if isinstance(selected_ref, ArtifactRef)
+                else selected_ref
+            )
+            selected_id = str(artifact_id)
+            if not self._artifact_store.has(selected_ref):
                 raise ValueError("artifact missing")
-            blob = self._artifact_store.get_bytes(ref)
-            if ref != f"sha256:{hashlib.sha256(blob).hexdigest()}":
+            blob = self._artifact_store.get_bytes(selected_ref)
+            if selected_id != f"sha256:{hashlib.sha256(blob).hexdigest()}":
                 raise ValueError("artifact content mismatch")
-            manifest = self._artifact_store.get_manifest(ref)
+            manifest = self._artifact_store.get_manifest(selected_ref)
             schema = manifest.artifact_schema
             if (
                 manifest.kind != expected_kind

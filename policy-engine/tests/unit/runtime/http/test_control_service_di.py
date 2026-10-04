@@ -974,6 +974,8 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
         assert "compiled_recursive_generation_cycle_ref" not in progress
         assert "normative_disposition_ref" not in progress
         assert "manifest_ref" not in progress
+        assert "core_run_id" not in progress
+        assert "core_manifest_artifact_ref" not in progress
     finally:
         service.close()
 
@@ -1787,6 +1789,8 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
 async def _run_controlled_simulate_only_job_fixture(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
+    *,
+    proposal_source_persistence_failure: bool = False,
 ) -> SimpleNamespace:
     """Run a synthetic owner-bound N4 candidate through a served N5 request.
 
@@ -1902,10 +1906,36 @@ async def _run_controlled_simulate_only_job_fixture(
     compiled_runs = []
     n4_organ_runs = []
     n4_port_attempts = []
+    execution_order: list[tuple[str, str]] = []
+    started_core_contexts = []
+
+    from polisyos.core.run.context import RunContext
+    from polisyos.core.trace import TraceRecord
+
+    original_core_start = RunContext.start
+
+    def record_core_start(cls, *args, **kwargs):
+        context = original_core_start(*args, **kwargs)
+        trace_path = context.trace_path
+        assert trace_path is not None
+        records = [
+            TraceRecord.model_validate_json(line)
+            for line in trace_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        assert len(records) == 1
+        assert records[0].event == "RUN_STARTED"
+        assert records[0].run_id == context.run_manifest.run_id
+        execution_order.append(("RUN_STARTED", records[0].run_id))
+        started_core_contexts.append(context)
+        return context
+
+    monkeypatch.setattr(RunContext, "start", classmethod(record_core_start))
 
     original_n4_port = N4GenerationPort.__call__
 
     async def record_n4_port(port, problem_for_cycle, *, cycle_index):
+        execution_order.append(("N4_ENTER", ""))
         n4_port_attempts.append((problem_for_cycle, cycle_index))
         return await original_n4_port(
             port,
@@ -1919,6 +1949,7 @@ async def _run_controlled_simulate_only_job_fixture(
     original_n5_engine = JointSimulationHorizonController.run
 
     def record_n5_port(port, *, candidate, problem, cycle_index, **kwargs):
+        execution_order.append(("N5_ENTER", ""))
         observation = original_n5_port(
             port,
             candidate=candidate,
@@ -2040,6 +2071,17 @@ async def _run_controlled_simulate_only_job_fixture(
     assert compiler_calls == compiled_runs == n4_organ_runs == []
 
     recorded_n4_client = n4_contract.RecordedGenerationReplayClient(controlled_recording)
+    source_persistence_failures: list[str] = []
+    if proposal_source_persistence_failure:
+        def refuse_n4_source_persist(repository, *, source_record):
+            source_persistence_failures.append(type(source_record).__name__)
+            raise OSError("controlled_fixture_source_persistence_failure")
+
+        monkeypatch.setattr(
+            GenerationSourceRepository,
+            "persist_candidate_scenario_source_v2",
+            refuse_n4_source_persist,
+        )
 
     original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
     original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
@@ -2183,6 +2225,7 @@ async def _run_controlled_simulate_only_job_fixture(
             lease_seconds=60,
         )
         assert leased is not None and leased.job_id == launch.job_id
+        assert leased.attempt == 1
         with (
             n4_contract._recorded_runtime_environment(recording),
             service._control_store.job_execution_fence(
@@ -2196,10 +2239,132 @@ async def _run_controlled_simulate_only_job_fixture(
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None and completed.state == "completed"
         progress = completed.progress
+        if proposal_source_persistence_failure:
+            assert source_persistence_failures
+            assert progress["execution_band"] == "candidate"
+            assert progress["status"] == "not_established"
+            assert progress["candidate_computation_status"] == "not_established"
+            assert progress["limitation_code"] == (
+                "candidate_scenario_source_persistence_not_established"
+            )
+            assert progress["proposal_persistence_status"] == "not_established"
+            assert progress["candidate_proposal_ref"] is None
+            assert progress["n5_status"] == "not_run"
+            assert progress["n8_status"] == "not_run"
+            assert progress["n9_status"] == "not_admitted"
+            assert progress["s8_status"] == "blocked"
+            assert "n9_receipt_ref" not in progress
+            assert "compiled_recursive_generation_cycle_artifact_ref" not in progress
+            assert "normative_disposition_ref" not in progress
+            assert progress["core_terminal_status"] == "error"
+            assert len(started_core_contexts) == 1
+            labels = [label for label, _ in execution_order]
+            assert labels.index("RUN_STARTED") < labels.index("N4_ENTER")
+            assert "N5_ENTER" not in labels
+            assert n5_port_observations == n5_engine_requests == []
+            assert len(n4_port_attempts) == 1
+
+            from polisyos.runtime.http.services.adapters.core_run import (
+                derive_control_job_core_run_id,
+                load_completed_control_job_core_run_source,
+                load_terminal_core_run_source,
+            )
+
+            expected_core_id = derive_control_job_core_run_id(
+                job_id=completed.job_id,
+                control_run_id=str(completed.run_id),
+                attempt=completed.attempt,
+            )
+            terminal = load_terminal_core_run_source(
+                store=service._artifact_store,
+                core_runs_root=service._core_runs_root,
+                run_id=expected_core_id,
+            )
+            assert terminal.manifest.status == "error"
+            assert terminal.manifest.outputs == []
+            assert terminal.manifest.control_job_id == completed.job_id
+            with pytest.raises(
+                ValueError, match="control_job_core_run_terminal_binding_mismatch"
+            ):
+                load_completed_control_job_core_run_source(
+                    store=service._artifact_store,
+                    core_runs_root=service._core_runs_root,
+                    job=completed,
+                    expected_control_run_id=str(completed.run_id),
+                    tenant_id="tenant-fixture",
+                    cell_id="cell-fixture",
+                )
+            service_transferred = True
+            return SimpleNamespace(service=service, job=completed, terminal=terminal)
+
         assert progress["status"] == "simulation_only"
         assert progress["execution_intent_band"] == "simulate_only_attempt"
         assert progress["s8_status"] == "not_run"
         assert progress["publication_status"] == "not_run"
+        from polisyos.runtime.http.services.adapters.core_run import (
+            derive_control_job_core_run_id,
+        )
+
+        assert len(started_core_contexts) == 1
+        started_context = started_core_contexts[0]
+        assert started_context.run_manifest.control_job_id == launch.job_id
+        assert started_context.run_manifest.run_id == derive_control_job_core_run_id(
+            job_id=launch.job_id,
+            control_run_id=str(completed.run_id),
+            attempt=leased.attempt,
+        )
+        ordered_labels = [label for label, _ in execution_order]
+        assert ordered_labels.index("RUN_STARTED") < ordered_labels.index("N4_ENTER")
+        assert ordered_labels.index("N4_ENTER") < ordered_labels.index("N5_ENTER")
+        assert progress["core_run_id"] == started_context.run_manifest.run_id
+        assert progress["core_run_attempt"] == leased.attempt
+        assert progress["core_manifest_artifact_ref"]["artifact_id"] == progress["manifest_ref"]
+        assert progress["compiled_recursive_generation_cycle_artifact_ref"]["artifact_id"] == (
+            progress["compiled_recursive_generation_cycle_ref"]
+        )
+        from dataclasses import replace
+
+        from polisyos.runtime.http.services.adapters.core_run import (
+            load_completed_control_job_core_run_source,
+        )
+
+        selected_core = load_completed_control_job_core_run_source(
+            store=service._artifact_store,
+            core_runs_root=service._core_runs_root,
+            job=completed,
+            expected_control_run_id=str(completed.run_id),
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+        )
+        assert selected_core.run_id == started_context.run_manifest.run_id
+        assert selected_core.manifest.control_job_id == completed.job_id
+        with pytest.raises(ValueError, match="control_job_core_run_attempt_pointer_mismatch"):
+            load_completed_control_job_core_run_source(
+                store=service._artifact_store,
+                core_runs_root=service._core_runs_root,
+                job=replace(
+                    completed,
+                    progress={
+                        **progress,
+                        "core_run_id": "control-" + "0" * 64,
+                    },
+                ),
+                expected_control_run_id=str(completed.run_id),
+                tenant_id="tenant-fixture",
+                cell_id="cell-fixture",
+            )
+        with pytest.raises(ValueError, match="control_job_core_run_source_not_completed"):
+            load_completed_control_job_core_run_source(
+                store=service._artifact_store,
+                core_runs_root=service._core_runs_root,
+                job=replace(
+                    completed,
+                    progress={**progress, "core_run_attempt": True},
+                ),
+                expected_control_run_id=str(completed.run_id),
+                tenant_id="tenant-fixture",
+                cell_id="cell-fixture",
+            )
         assert progress["cycle_substrate_context_job_ref"]
         assert len(compiler_calls) == 1
         assert compiler_calls[0]["nl_request"] == problem.nl_provenance.raw_request
@@ -2496,10 +2661,13 @@ async def _run_controlled_simulate_only_job_fixture(
         compiled_ref = ArtifactID.model_validate(
             progress["compiled_recursive_generation_cycle_ref"]
         )
+        compiled_artifact_ref = ArtifactRef.model_validate(
+            progress["compiled_recursive_generation_cycle_artifact_ref"]
+        )
         fixture = SimpleNamespace(
             service=service,
             job=completed,
-            compiled_payload=service._artifact_store.get_bytes(compiled_ref),
+            compiled_payload=service._artifact_store.get_bytes(compiled_artifact_ref),
             compiled_ref=str(compiled_ref),
             cycle_substrate_context_job_ref=progress["cycle_substrate_context_job_ref"],
         )
@@ -2509,6 +2677,21 @@ async def _run_controlled_simulate_only_job_fixture(
     finally:
         if not service_transferred:
             service.close()
+
+
+def test_control_job_core_identity_is_unique_per_lease_attempt() -> None:
+    from polisyos.runtime.http.services.adapters.core_run import (
+        derive_control_job_core_run_id,
+    )
+
+    common = {"job_id": "job-safe", "control_run_id": "run-safe"}
+    first = derive_control_job_core_run_id(**common, attempt=1)
+    retry = derive_control_job_core_run_id(**common, attempt=2)
+    assert first != retry
+    assert first.startswith("control-") and retry.startswith("control-")
+    assert "/" not in first and "\\" not in first
+    with pytest.raises(ValueError, match="control_job_core_run_identity_invalid"):
+        derive_control_job_core_run_id(**common, attempt=0)
 
 
 @pytest.mark.asyncio
@@ -2522,6 +2705,20 @@ async def test_served_simulate_only_replays_source_bound_n4_candidate_into_joint
     fixture does not establish production profile, S8, N9, or publication authority.
     """
     fixture = await _run_controlled_simulate_only_job_fixture(monkeypatch, tmp_path)
+    fixture.service.close()
+
+
+@pytest.mark.asyncio
+async def test_served_owner_context_keeps_missing_n4_source_candidate_limited(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """A started N4 attempt with no persisted source stays a limited candidate."""
+    fixture = await _run_controlled_simulate_only_job_fixture(
+        monkeypatch,
+        tmp_path,
+        proposal_source_persistence_failure=True,
+    )
     fixture.service.close()
 
 

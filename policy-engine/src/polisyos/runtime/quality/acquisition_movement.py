@@ -28,6 +28,9 @@ from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryR
 
 if TYPE_CHECKING:
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        CompletedControlJobCoreSourceResolver,
+    )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
 contract = contracts.chronology
@@ -185,12 +188,25 @@ class AcquisitionMovementService:
         self._control_store = control_store
         self._store = artifact_store
         self._events = event_log
+        self._core_source_resolver: CompletedControlJobCoreSourceResolver | None = None
         self._evidence_owner = epoch_deployment or build_epoch_deployment(None)
         self._deployment = build_epoch_deployment(
             self._evidence_owner._state().config,
             native_policy_verifier=_MovementNativePolicyVerifier(self),
             _runtime_store_affiliates=(self._evidence_owner,),
         )
+
+    def bind_completed_control_job_core_source_resolver(
+        self,
+        resolver: CompletedControlJobCoreSourceResolver,
+    ) -> None:
+        """Bind the HTTP composition's strict stable-job to Core-attempt intake."""
+        if not callable(resolver):
+            raise TypeError("acquisition_core_source_resolver_invalid")
+        existing = self._core_source_resolver
+        if existing is not None and existing != resolver:
+            raise ValueError("acquisition_core_source_resolver_already_bound")
+        self._core_source_resolver = resolver
 
     def _put(
         self, value: BaseModel | dict[str, object], kind: str, *, owner_input: bool = False
@@ -300,10 +316,14 @@ class AcquisitionMovementService:
             previous_time = phase.generated_at
         if predecessor is not None:
             raise ValueError("supplier_phase_chain_incomplete")
+        core_source_resolver = self._core_source_resolver
+        if core_source_resolver is None:
+            raise ValueError("acquisition_core_source_resolver_not_composed")
         closure = AcquisitionRouteLoop(
             control_store=self._control_store,
             artifact_store=self._store,
             event_log=self._events,
+            core_source_resolver=core_source_resolver,
             tenant_id=supplier.tenant_id,
             cell_id=supplier.cell_id,
         ).resolve_current_route(run_id=supplier.run_id)

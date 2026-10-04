@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
+from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
 from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.control.artifacts import (
@@ -558,15 +559,26 @@ class EvaluationSafetyPersistenceService:
         )
 
     def _read_promotion_source_json(
-        self, artifact_ref: str, *, kind: str, schema_name: str,
+        self, artifact_ref: str | ArtifactRef, *, kind: str, schema_name: str,
         inputs_read: list[str], read_attempts: list[str]
     ) -> object:
-        read_attempts.append(f"cas_manifest:{artifact_ref}")
-        manifest = self._artifact_store.get_manifest(artifact_ref)
-        inputs_read.append(f"cas_manifest:{artifact_ref}")
-        read_attempts.append(f"cas_bytes:{artifact_ref}")
-        raw = self._artifact_store.get_bytes(artifact_ref)
-        inputs_read.append(f"cas_bytes:{artifact_ref}")
+        selected_ref = (
+            artifact_ref
+            if isinstance(artifact_ref, ArtifactRef)
+            else ArtifactID.model_validate(artifact_ref)
+        )
+        artifact_id = (
+            selected_ref.artifact_id
+            if isinstance(selected_ref, ArtifactRef)
+            else selected_ref
+        )
+        selected_id = str(artifact_id)
+        read_attempts.append(f"cas_manifest:{selected_id}")
+        manifest = self._artifact_store.get_manifest(selected_ref)
+        inputs_read.append(f"cas_manifest:{selected_id}")
+        read_attempts.append(f"cas_bytes:{selected_id}")
+        raw = self._artifact_store.get_bytes(selected_ref)
+        inputs_read.append(f"cas_bytes:{selected_id}")
         artifact_schema = getattr(manifest, "artifact_schema", None)
         schema_version = getattr(artifact_schema, "version", None)
         allowed_schema_versions = {"1.0"}
@@ -574,9 +586,9 @@ class EvaluationSafetyPersistenceService:
             allowed_schema_versions.add("1.1")
         if (
             manifest.kind != kind
-            or artifact_ref != f"sha256:{canon.content_hash(raw)}"
-            or str(manifest.artifact_id) != artifact_ref
-            or manifest.integrity.sha256 != artifact_ref.removeprefix("sha256:")
+            or selected_id != f"sha256:{canon.content_hash(raw)}"
+            or str(manifest.artifact_id) != selected_id
+            or manifest.integrity.sha256 != selected_id.removeprefix("sha256:")
             or manifest.byte_size != len(raw)
             or manifest.media_type != "application/json"
             or artifact_schema is None
@@ -620,7 +632,10 @@ class EvaluationSafetyPersistenceService:
         intake: EvaluationAttemptIntake,
         context: EvaluationSafetyPersistenceContext,
     ) -> tuple[_PromotionReplaySource | None, list[str], list[str], list[str]]:
-        from polisyos.runtime.http.services.adapters.core_run import load_terminal_core_run_source
+        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+        from polisyos.runtime.http.services.adapters.core_run import (
+            load_completed_control_job_core_run_source,
+        )
         from polisyos.runtime.http.services.control.generation_cycle import (
             CompiledRecursiveGenerationCycleRun,
         )
@@ -655,12 +670,14 @@ class EvaluationSafetyPersistenceService:
                     or payload.get("run_id") != source_run_id
                 ):
                     raise ValueError("promotion_source_actor_scope_mismatch")
-                read_attempts.append(
-                    f"terminal_trace:{sources.core_runs_root}/{source_run_id}/trace.jsonl"
-                )
-                terminal = load_terminal_core_run_source(
-                    store=self._artifact_store, core_runs_root=sources.core_runs_root,
-                    run_id=source_run_id,
+                terminal = load_completed_control_job_core_run_source(
+                    store=self._artifact_store,
+                    core_runs_root=sources.core_runs_root,
+                    job=job,
+                    expected_control_run_id=source_run_id,
+                    tenant_id=context.tenant_id,
+                    cell_id=context.cell_id,
+                    read_attempts=read_attempts,
                 )
                 inputs_read.extend((
                     f"terminal_trace:{terminal.trace_path}",
@@ -671,21 +688,38 @@ class EvaluationSafetyPersistenceService:
                     terminal.manifest.status != "ok"
                     or terminal.tenant_id != context.tenant_id
                     or terminal.cell_id != context.cell_id
-                    or str(terminal.manifest_ref.artifact_id) != job.progress.get("manifest_ref")
+                    or str(terminal.manifest_ref.artifact_id)
+                    != job.progress.get("manifest_ref")
                 ):
                     raise ValueError("promotion_source_terminal_scope_mismatch")
                 compiled_refs = tuple(
-                    str(ref.artifact_id) for ref in terminal.manifest.outputs
+                    ref for ref in terminal.manifest.outputs
                     if ref.kind == "runtime.compiled_recursive_generation_cycle"
                 )
-                if len(compiled_refs) != 1 or compiled_refs[0] != job.progress.get(
-                    "compiled_recursive_generation_cycle_ref"
+                try:
+                    selected_compiled_ref = ArtifactRef.model_validate(
+                        job.progress.get(
+                            "compiled_recursive_generation_cycle_artifact_ref"
+                        )
+                    )
+                except (TypeError, ValueError) as exc:
+                    raise ValueError(
+                        "promotion_source_compiled_selection_not_established"
+                    ) from exc
+                if (
+                    len(compiled_refs) != 1
+                    or artifact_ref_identity_key(compiled_refs[0])
+                    != artifact_ref_identity_key(selected_compiled_ref)
+                    or str(compiled_refs[0].artifact_id)
+                    != job.progress.get("compiled_recursive_generation_cycle_ref")
                 ):
                     raise ValueError("promotion_source_compiled_selection_mismatch")
-                compiled_ref = compiled_refs[0]
+                compiled_artifact_ref = selected_compiled_ref
+                compiled_ref = str(compiled_artifact_ref.artifact_id)
                 compiled = CompiledRecursiveGenerationCycleRun.model_validate(
                     self._read_promotion_source_json(
-                        compiled_ref, kind="runtime.compiled_recursive_generation_cycle",
+                        compiled_artifact_ref,
+                        kind="runtime.compiled_recursive_generation_cycle",
                         schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
                         inputs_read=inputs_read, read_attempts=read_attempts,
                     )

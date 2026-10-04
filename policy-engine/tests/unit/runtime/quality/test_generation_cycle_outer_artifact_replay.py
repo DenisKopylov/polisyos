@@ -66,6 +66,9 @@ async def test_source_limited_n6_v4_replays_through_guarded_compiled_artifact_ow
         control_store=service._control_store,
         artifact_store=tenant_store,
         event_log=service._diagnostic_event_log,
+        core_source_resolver=(
+            service.resolve_completed_control_job_core_run_source
+        ),
         tenant_id="tenant-a",
         cell_id="cell-a",
     )
@@ -115,6 +118,9 @@ async def test_source_limited_n6_v4_replays_through_guarded_compiled_artifact_ow
             control_store=service._control_store,
             artifact_store=tenant_store,
             event_log=service._diagnostic_event_log,
+            core_source_resolver=(
+                service.resolve_completed_control_job_core_run_source
+            ),
             tenant_id="tenant-b",
             cell_id="cell-b",
         )

@@ -624,6 +624,9 @@ async def test_stale_guarded_worker_terminal_evidence_does_not_advance_head_afte
             artifact_store=control._artifact_store,
             event_log=control._diagnostic_event_log,
         )
+        movement.bind_completed_control_job_core_source_resolver(
+            control.resolve_completed_control_job_core_run_source
+        )
         projection = movement.consume_terminal(supplier_receipt_ref=orphan_ref)
         assert projection.status == "refused"
         assert projection.reason == "supplier_terminal_head_not_current"

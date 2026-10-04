@@ -105,7 +105,9 @@ from polisyos.runtime.http.resilience import (
     run_guarded_dependency_operation,
 )
 from polisyos.runtime.http.services.adapters.core_run import (
+    derive_control_job_core_run_id,
     derive_core_run_dir,
+    load_completed_control_job_core_run_source,
     load_terminal_core_run_source,
 )
 from polisyos.runtime.http.services.control.admission import (
@@ -1029,6 +1031,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
     from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
+    from polisyos.runtime.http.services.adapters.core_run import TerminalCoreRunSource
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
         N4CandidateProposalExecution,
@@ -2353,6 +2356,7 @@ class ControlPlaneService(
         compiled_run_ref: str,
         evidence: NormativeRunEvidenceRefs | None = None,
         evaluated_at: datetime,
+        compiled_artifact_ref: ArtifactRef | None = None,
     ) -> NormativeRunDisposition:
         """Persist and replay current source-bound S8 choices through the deployment owner."""
         from polisyos.runtime.http.services.control.generation_cycle import (
@@ -2372,25 +2376,44 @@ class ControlPlaneService(
             compiled_run_ref=compiled_run_ref,
             evidence=evidence,
             evaluated_at=evaluated_at,
+            compiled_artifact_ref=compiled_artifact_ref,
         )
 
-    def _normative_owned_job_source(self, record: ControlJobRecord) -> tuple[str, str]:
-        """Bind the job source to the immutable outputs of its canonical owned run."""
-        if record.run_id is None:
+    def _normative_owned_job_source(
+        self, record: ControlJobRecord
+    ) -> tuple[ArtifactRef, ArtifactRef]:
+        """Bind outputs to the completed job's exact lease-attempt Core trace."""
+        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+
+        if record.run_id is None or record.payload_ref is None:
             raise ValueError("normative_evidence_job_run_missing")
-        terminal = load_terminal_core_run_source(
+        payload = self._load_payload_ref(record.payload_ref)
+        tenant_id = payload.get("tenant_id") if isinstance(payload, Mapping) else None
+        cell_id = payload.get("cell_id") if isinstance(payload, Mapping) else None
+        if (
+            not isinstance(tenant_id, str)
+            or not tenant_id.strip()
+            or not isinstance(cell_id, str)
+            or not cell_id.strip()
+            or payload.get("run_id") != record.run_id
+        ):
+            raise ValueError("normative_evidence_job_scope_not_established")
+        terminal = load_completed_control_job_core_run_source(
             store=self._artifact_store,
             core_runs_root=self._core_runs_root,
-            run_id=record.run_id,
+            job=record,
+            expected_control_run_id=record.run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
         )
         outputs = terminal.manifest.outputs
         compiled = [
-            str(ref.artifact_id)
+            ref
             for ref in outputs
             if ref.kind == "runtime.compiled_recursive_generation_cycle"
         ]
         normative = [
-            str(ref.artifact_id)
+            ref
             for ref in outputs
             if ref.kind == "runtime.normative_generation_composition"
         ]
@@ -2401,7 +2424,46 @@ class ControlPlaneService(
             or len(normative) != 1
         ):
             raise ValueError("normative_evidence_owned_run_source_mismatch")
-        return compiled[0], normative[0]
+        progress = record.progress
+        try:
+            selected_compiled = ArtifactRef.model_validate(
+                progress.get("compiled_recursive_generation_cycle_artifact_ref")
+            )
+            selected_normative = ArtifactRef.model_validate(
+                progress.get("normative_disposition_artifact_ref")
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("normative_evidence_owned_output_ref_not_established") from exc
+        if (
+            artifact_ref_identity_key(selected_compiled)
+            != artifact_ref_identity_key(compiled[0])
+            or artifact_ref_identity_key(selected_normative)
+            != artifact_ref_identity_key(normative[0])
+            or progress.get("compiled_recursive_generation_cycle_ref")
+            != str(compiled[0].artifact_id)
+            or progress.get("normative_disposition_ref")
+            != str(normative[0].artifact_id)
+        ):
+            raise ValueError("normative_evidence_owned_output_selection_mismatch")
+        return selected_compiled, selected_normative
+
+    def resolve_completed_control_job_core_run_source(
+        self,
+        job: ControlJobRecord,
+        *,
+        expected_control_run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> TerminalCoreRunSource:
+        """Resolve a completed job through its exact lease-attempt Core owner."""
+        return load_completed_control_job_core_run_source(
+            store=self._artifact_store,
+            core_runs_root=self._core_runs_root,
+            job=job,
+            expected_control_run_id=expected_control_run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
 
     def submit_normative_evidence(
         self,
@@ -2425,7 +2487,9 @@ class ControlPlaneService(
             raise ValueError("normative_evidence_job_run_mismatch")
         if record.kind != "natural_language_run" or record.state != "completed":
             raise ValueError("normative_evidence_job_not_completed")
-        compiled_ref, original_ref = self._normative_owned_job_source(record)
+        compiled_artifact_ref, original_artifact_ref = self._normative_owned_job_source(record)
+        compiled_ref = str(compiled_artifact_ref.artifact_id)
+        original_ref = str(original_artifact_ref.artifact_id)
         now = datetime.now(UTC)
         evidence = submission.evidence
         if compiled_ref != record.progress.get("compiled_recursive_generation_cycle_ref"):
@@ -2433,7 +2497,10 @@ class ControlPlaneService(
                 input_limitation="p20_normative_sidecar_replay_failed"
             )
         disposition = self.resolve_generation_value_choices(
-            compiled_run_ref=compiled_ref, evidence=evidence, evaluated_at=now
+            compiled_run_ref=compiled_ref,
+            evidence=evidence,
+            evaluated_at=now,
+            compiled_artifact_ref=compiled_artifact_ref,
         )
         if disposition.disposition_ref is None:
             raise RuntimeError("normative_evidence_disposition_not_persisted")
@@ -2502,6 +2569,8 @@ class ControlPlaneService(
         *,
         disposition_ref: str | None,
         compiled_run_ref: str | None,
+        disposition_artifact_ref: ArtifactRef | None = None,
+        compiled_artifact_ref: ArtifactRef | None = None,
         evaluated_at: datetime,
         refusal_reason: str | None = None,
     ) -> dict[str, object]:
@@ -2528,6 +2597,8 @@ class ControlPlaneService(
                 disposition_ref=disposition_ref,
                 compiled_run_ref=compiled_run_ref,
                 evaluated_at=evaluated_at,
+                disposition_artifact_ref=disposition_artifact_ref,
+                compiled_artifact_ref=compiled_artifact_ref,
             ).model_dump(mode="json")
         except (ValueError, TypeError, OSError, KeyError) as exc:
             reason = (
@@ -2547,6 +2618,7 @@ class ControlPlaneService(
                             )
                         ),
                         evaluated_at=evaluated_at,
+                        compiled_artifact_ref=compiled_artifact_ref,
                     )
                     return {
                         **refusal.model_dump(mode="json"),
@@ -2729,7 +2801,25 @@ class ControlPlaneService(
         schema_name: str,
         schema_version: str = "1.0",
     ) -> str:
-        ref = self._artifact_store.put_json(
+        return str(
+            self._put_json_artifact_ref(
+                payload,
+                kind=kind,
+                schema_name=schema_name,
+                schema_version=schema_version,
+            ).artifact_id
+        )
+
+    def _put_json_artifact_ref(
+        self,
+        payload: object,
+        *,
+        kind: str,
+        schema_name: str,
+        schema_version: str = "1.0",
+    ) -> ArtifactRef:
+        """Persist JSON and retain the exact store-selected manifest view."""
+        return self._artifact_store.put_json(
             payload,
             ArtifactWriteOptions(
                 kind=kind,
@@ -2738,7 +2828,6 @@ class ControlPlaneService(
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
-        return str(ref.artifact_id)
 
     def _persist_job_payload(
         self,
@@ -3451,6 +3540,8 @@ class ControlPlaneService(
             progress.pop("normative_head_limitation", None)
             disposition_ref: str | None = None
             compiled_ref: str | None = None
+            disposition_artifact_ref: ArtifactRef | None = None
+            compiled_artifact_ref: ArtifactRef | None = None
             refusal_reason: str | None = None
             from polisyos.runtime.http.services.control.generation_cycle import (
                 NormativeEvidenceHeadStrangleReceipt,
@@ -3460,7 +3551,13 @@ class ControlPlaneService(
             )
 
             try:
-                compiled_ref, original_disposition_ref = self._normative_owned_job_source(record)
+                compiled_artifact_ref, original_disposition_artifact_ref = (
+                    self._normative_owned_job_source(record)
+                )
+                compiled_ref = str(compiled_artifact_ref.artifact_id)
+                original_disposition_ref = str(
+                    original_disposition_artifact_ref.artifact_id
+                )
                 progress["compiled_recursive_generation_cycle_ref"] = compiled_ref
                 if stored_compiled_ref != compiled_ref:
                     raise ValueError("normative_head_owned_source_mismatch")
@@ -3472,6 +3569,7 @@ class ControlPlaneService(
                     ):
                         raise ValueError("normative_admitted_head_missing")
                     disposition_ref = original_disposition_ref
+                    disposition_artifact_ref = original_disposition_artifact_ref
                 else:
                     head = load_normative_generation_head(self._artifact_store, event["head_ref"])
                     expected = {
@@ -3498,6 +3596,7 @@ class ControlPlaneService(
                         owner=owner,
                         disposition_ref=head.disposition_ref,
                         compiled_run_ref=head.compiled_run_ref,
+                        compiled_artifact_ref=compiled_artifact_ref,
                     )
                     historical = historical_replay.disposition
                     actual_evidence = {
@@ -3535,6 +3634,8 @@ class ControlPlaneService(
             projection = self._current_normative_generation_projection(
                 disposition_ref=disposition_ref,
                 compiled_run_ref=compiled_ref,
+                disposition_artifact_ref=disposition_artifact_ref,
+                compiled_artifact_ref=compiled_artifact_ref,
                 evaluated_at=datetime.now(UTC),
                 refusal_reason=refusal_reason,
             )
@@ -4291,6 +4392,8 @@ class ControlPlaneService(
         job: ControlJobRecord,
         payload: Mapping[str, Any],
         execution_scope: ControlJobExecutionScope,
+        core_run_id: str | None = None,
+        core_run_context: run.RunContext | None = None,
     ) -> dict[str, Any]:
         run_id = str(job.run_id or "run-unknown")
         run_dir = derive_core_run_dir(self._core_runs_root, run_id)
@@ -4302,7 +4405,31 @@ class ControlPlaneService(
             media_type="application/json",
         )
         blocker_codes = list(result.persisted.decision.safety.blocker_codes)
-        if run_dir.exists():
+        core_progress: dict[str, object] = {}
+        if core_run_context is not None:
+            if core_run_id is None:
+                raise ValueError("evaluation_safety_core_attempt_identity_missing")
+            manifest_artifact_ref = self._finish_generation_run_context(
+                job=job,
+                execution_scope=execution_scope,
+                core_run_id=core_run_id,
+                context=core_run_context,
+                outputs=[projection_ref],
+                status="error",
+                errors=[
+                    {
+                        "code": "evaluation_safety_attempt_blocked",
+                        "blocker_codes": blocker_codes,
+                    }
+                ],
+            )
+            manifest_ref = manifest_artifact_ref
+            core_progress = self._core_run_progress_fields(
+                job=job,
+                core_run_id=core_run_id,
+                manifest_ref=manifest_artifact_ref,
+            )
+        elif run_dir.exists():
             terminal_source = load_terminal_core_run_source(
                 store=self._artifact_store,
                 core_runs_root=self._core_runs_root,
@@ -4374,6 +4501,7 @@ class ControlPlaneService(
                     "reconciliation_status": projection.reconciliation_status,
                 },
                 "manifest_ref": str(manifest_ref.artifact_id),
+                **core_progress,
                 "artifacts_index": artifacts_index,
             }
         )
@@ -4387,12 +4515,16 @@ class ControlPlaneService(
         payload: Mapping[str, Any],
         execution_scope: ControlJobExecutionScope,
         capability_manifest_ref: str,
+        core_run_id: str | None = None,
+        core_run_context: run.RunContext | None = None,
     ) -> None:
         progress = self._blocked_evaluation_safety_progress(
             result=result,
             job=job,
             payload=payload,
             execution_scope=execution_scope,
+            core_run_id=core_run_id,
+            core_run_context=core_run_context,
         )
         self._control_store.fail_job(
             job_id=job.job_id,
@@ -4422,52 +4554,47 @@ class ControlPlaneService(
             blocking_status="blocking",
         )
 
-    def _publish_generation_run(
+    def _require_current_generation_job_attempt(self, job: ControlJobRecord) -> None:
+        """Require the same live control-job lease immediately before Core writes."""
+        current = self._control_store.current_execution_job_record()
+        if (
+            current.job_id != job.job_id
+            or current.run_id != job.run_id
+            or current.state != "running"
+            or current.attempt != job.attempt
+            or current.lease_owner != job.lease_owner
+            or not isinstance(current.lease_owner, str)
+            or not current.lease_owner.strip()
+        ):
+            raise ControlJobLeaseLostError("control_job_core_run_attempt_lease_lost")
+
+    def _start_generation_run_context(
         self,
         *,
         job: ControlJobRecord,
-        payload: Mapping[str, Any],
-        compiled_run_ref: str,
-        normative_disposition_ref: str,
         execution_scope: ControlJobExecutionScope,
-    ) -> str:
-        """Publish through the existing owner using only admitted job scope."""
-        run_id = str(job.run_id or "")
+    ) -> tuple[str, run.RunContext]:
+        """Start one Core trace for this admitted live lease before compute begins."""
+        control_run_id = str(job.run_id or "")
         tenant_id = execution_scope.tenant_id
         cell_id = execution_scope.cell_id
         if (
             execution_scope.status != "established"
-            or not run_id
+            or not control_run_id
             or not tenant_id
             or not cell_id
         ):
-            raise ValueError("normative_generation_run_identity_unbound")
-        outputs = [
-            ArtifactRef(
-                artifact_id=artifacts.ArtifactID.model_validate(ref),
-                kind=kind,
-                media_type="application/json",
-            )
-            for ref, kind in (
-                (compiled_run_ref, "runtime.compiled_recursive_generation_cycle"),
-                (normative_disposition_ref, "runtime.normative_generation_composition"),
-            )
-        ]
-        run_dir = derive_core_run_dir(self._core_runs_root, run_id)
+            raise ValueError("control_job_core_run_identity_unbound")
+        self._require_current_generation_job_attempt(job)
+        core_run_id = derive_control_job_core_run_id(
+            job_id=job.job_id,
+            control_run_id=control_run_id,
+            attempt=job.attempt,
+        )
+        run_dir = derive_core_run_dir(self._core_runs_root, core_run_id)
         if run_dir.exists():
-            terminal = load_terminal_core_run_source(
-                store=self._artifact_store,
-                core_runs_root=self._core_runs_root,
-                run_id=run_id,
-            )
-            if (
-                terminal.manifest.status != "ok"
-                or terminal.manifest.outputs != outputs
-                or terminal.manifest.tenant_id != tenant_id
-                or terminal.manifest.cell_id != cell_id
-            ):
-                raise ValueError("normative_generation_terminal_source_mismatch")
-            return str(terminal.manifest_ref.artifact_id)
+            # Never append another RUN_STARTED to a previous attempt's trace.
+            raise ValueError("control_job_core_run_attempt_already_exists")
         registry_bundle = registry.build_default_registry_bundle(self._artifact_store).bundle_ref
         context = run.RunContext.start(
             self._artifact_store,
@@ -4477,22 +4604,128 @@ class ControlPlaneService(
                 version="1.0.0",
             ),
             run_dir=run_dir,
-            run_id=run_id,
+            run_id=core_run_id,
             tenant_id=tenant_id,
             cell_id=cell_id,
             access_scope=None,
         )
-        for output in outputs:
+        # This is the explicit stable-control-job -> attempt-Core join. Do not
+        # encode the stable run as parent_run_id: it is not a Core parent run.
+        context.run_manifest.control_job_id = job.job_id
+        return core_run_id, context
+
+    def _finish_generation_run_context(
+        self,
+        *,
+        job: ControlJobRecord,
+        execution_scope: ControlJobExecutionScope,
+        core_run_id: str,
+        context: run.RunContext,
+        outputs: list[ArtifactRef],
+        status: str,
+        errors: list[dict[str, object]] | None = None,
+    ) -> ArtifactRef:
+        """Finalize and strictly read back a supplied, pre-started attempt context."""
+        control_run_id = str(job.run_id or "")
+        if (
+            core_run_id
+            != derive_control_job_core_run_id(
+                job_id=job.job_id,
+                control_run_id=control_run_id,
+                attempt=job.attempt,
+            )
+            or context.run_manifest.run_id != core_run_id
+            or context.run_manifest.control_job_id != job.job_id
+            or context.tenant_id != execution_scope.tenant_id
+            or context.cell_id != execution_scope.cell_id
+            or context.run_manifest.finished_at is not None
+        ):
+            raise ValueError("control_job_core_run_context_binding_mismatch")
+        self._require_current_generation_job_attempt(job)
+        existing_outputs = list(context.run_manifest.outputs)
+        if existing_outputs != outputs[: len(existing_outputs)]:
+            raise ValueError("control_job_core_run_output_prefix_mismatch")
+        for output in outputs[len(existing_outputs) :]:
             context.add_output(output)
-        # Core `ok` records completed computation only. The two outputs retain
-        # candidate-only generation and independently replayed normative authority.
-        manifest = context.finalize(status="ok")
+        manifest_ref = context.finalize(status=status, errors=errors)
         terminal = load_terminal_core_run_source(
-            store=self._artifact_store, core_runs_root=self._core_runs_root, run_id=run_id
+            store=self._artifact_store,
+            core_runs_root=self._core_runs_root,
+            run_id=core_run_id,
         )
-        if terminal.manifest_ref != manifest or terminal.manifest.outputs != outputs:
-            raise ValueError("normative_generation_terminal_readback_failed")
-        return str(manifest.artifact_id)
+        if (
+            terminal.manifest_ref != manifest_ref
+            or terminal.manifest.status != status
+            or terminal.manifest.control_job_id != job.job_id
+            or terminal.manifest.outputs != outputs
+            or terminal.manifest.tenant_id != execution_scope.tenant_id
+            or terminal.manifest.cell_id != execution_scope.cell_id
+        ):
+            raise ValueError("control_job_core_run_terminal_readback_failed")
+        return terminal.manifest_ref
+
+    @staticmethod
+    def _core_run_progress_fields(
+        *, job: ControlJobRecord, core_run_id: str, manifest_ref: ArtifactRef
+    ) -> dict[str, object]:
+        """Return the attempt pointer that the same lease-fenced job write owns."""
+        return {
+            "core_run_id": core_run_id,
+            "core_run_attempt": job.attempt,
+            "core_manifest_artifact_ref": manifest_ref.model_dump(mode="json"),
+            "manifest_ref": str(manifest_ref.artifact_id),
+        }
+
+    def _publish_generation_run(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+        execution_scope: ControlJobExecutionScope,
+        core_run_id: str,
+        run_context: run.RunContext | None,
+        compiled_run_ref: ArtifactRef | None = None,
+        normative_disposition_ref: ArtifactRef | None = None,
+        proposal_ref: ArtifactRef | None = None,
+    ) -> ArtifactRef:
+        """Finalize a pre-started Core attempt or read back its owned terminal."""
+        del payload  # Identity and ownership come from the admitted job record.
+        if compiled_run_ref is not None and proposal_ref is not None:
+            raise ValueError("control_job_core_run_output_shape_invalid")
+        if normative_disposition_ref is not None and compiled_run_ref is None:
+            raise ValueError("control_job_core_run_output_shape_invalid")
+        outputs = (
+            [compiled_run_ref, normative_disposition_ref]
+            if compiled_run_ref is not None and normative_disposition_ref is not None
+            else [compiled_run_ref]
+            if compiled_run_ref is not None
+            else [proposal_ref]
+            if proposal_ref is not None
+            else []
+        )
+        if not outputs or any(not isinstance(ref, ArtifactRef) for ref in outputs):
+            raise ValueError("control_job_core_run_exact_outputs_not_established")
+        exact_outputs = cast("list[ArtifactRef]", outputs)
+        if run_context is not None:
+            return self._finish_generation_run_context(
+                job=job,
+                execution_scope=execution_scope,
+                core_run_id=core_run_id,
+                context=run_context,
+                outputs=exact_outputs,
+                status="ok",
+            )
+        terminal = load_completed_control_job_core_run_source(
+            store=self._artifact_store,
+            core_runs_root=self._core_runs_root,
+            job=job,
+            expected_control_run_id=str(job.run_id or ""),
+            tenant_id=str(execution_scope.tenant_id or ""),
+            cell_id=str(execution_scope.cell_id or ""),
+        )
+        if terminal.run_id != core_run_id or terminal.manifest.outputs != exact_outputs:
+            raise ValueError("normative_generation_terminal_source_mismatch")
+        return terminal.manifest_ref
 
     def _require_nl_job_execution_intent_binding(
         self,
@@ -4715,6 +4948,22 @@ class ControlPlaneService(
         execution_intent_binding: dict[str, Any] | None = None
         cycle_substrate_context_job_ref: str | None = None
         cycle_substrate_context_job_selected_ref: ArtifactRef | None = None
+        core_run_id: str | None = None
+        core_run_context: run.RunContext | None = None
+
+        def start_core_attempt() -> tuple[str, run.RunContext]:
+            """Start the admitted attempt once, before its protected computation."""
+            nonlocal core_run_id, core_run_context
+            if core_run_id is not None and core_run_context is not None:
+                return core_run_id, core_run_context
+            if core_run_id is not None or core_run_context is not None:
+                raise RuntimeError("control_job_core_run_attempt_identity_incomplete")
+            core_run_id, core_run_context = self._start_generation_run_context(
+                job=job,
+                execution_scope=execution_scope,
+            )
+            return core_run_id, core_run_context
+
         try:
             if not job.payload_ref:
                 raise RuntimeError("control job payload ref is missing")
@@ -4867,6 +5116,7 @@ class ControlPlaneService(
                     )
                     evaluation_safety = None
                     if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED:
+                        start_core_attempt()
                         evaluation_safety = self._admit_evaluation_safety_attempt(
                             extension_payload=cast(
                                 "Mapping[str, Any]", payload.get("context") or {}
@@ -4882,6 +5132,8 @@ class ControlPlaneService(
                                 payload=payload,
                                 execution_scope=execution_scope,
                                 capability_manifest_ref=capability_manifest_ref,
+                                core_run_id=core_run_id,
+                                core_run_context=core_run_context,
                             )
                             return
                     if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED:
@@ -5192,7 +5444,12 @@ class ControlPlaneService(
                                         "offer": offer,
                                     }
                                 )
+                                # The executable Core interval begins once the
+                                # configured context has passed store replay and
+                                # current-job owner admission, before recursive N4/N5.
+                                start_core_attempt()
                                 return handoff
+                            start_core_attempt()
                             return replayed.context
 
                         cycle_substrate_context_resolver = resolve_cycle_substrate_context
@@ -5207,6 +5464,10 @@ class ControlPlaneService(
                     budget_usd = Decimal(
                         "5" if raw_budget_usd is None else str(raw_budget_usd)
                     )
+                    if intent_band is ExecutionIntentBand.EVAL_SAFETY_REQUIRED:
+                        # Core's leading RUN_STARTED precedes its protected
+                        # Evaluation Safety computation.
+                        start_core_attempt()
                     compiled = async_tools.run_coro_sync(
                         self.compile_and_run_recursive_generation_cycle(
                             raw_request=str(payload.get("request") or ""),
@@ -5332,6 +5593,50 @@ class ControlPlaneService(
                             if source is not None
                             else compiled.limitation_code
                         )
+                        core_progress: dict[str, object] = {}
+                        if core_run_context is not None:
+                            if core_run_id is None:
+                                raise RuntimeError(
+                                    "n4_candidate_scenario_core_identity_not_established"
+                                )
+                            if source_ref is None:
+                                core_manifest_ref = self._finish_generation_run_context(
+                                    job=job,
+                                    execution_scope=execution_scope,
+                                    core_run_id=core_run_id,
+                                    context=core_run_context,
+                                    outputs=[],
+                                    status="error",
+                                    errors=[
+                                        {
+                                            "code": (
+                                                "candidate_scenario_source_persistence_not_established"
+                                            )
+                                        }
+                                    ],
+                                )
+                                core_progress = {
+                                    "core_terminal_status": "error",
+                                    **self._core_run_progress_fields(
+                                        job=job,
+                                        core_run_id=core_run_id,
+                                        manifest_ref=core_manifest_ref,
+                                    ),
+                                }
+                            else:
+                                core_manifest_ref = self._publish_generation_run(
+                                    job=job,
+                                    payload=payload,
+                                    execution_scope=execution_scope,
+                                    core_run_id=core_run_id,
+                                    run_context=core_run_context,
+                                    proposal_ref=source_ref,
+                                )
+                                core_progress = self._core_run_progress_fields(
+                                    job=job,
+                                    core_run_id=core_run_id,
+                                    manifest_ref=core_manifest_ref,
+                                )
                         progress = {
                             "state": "completed",
                             "phase": "natural_language_run",
@@ -5374,10 +5679,14 @@ class ControlPlaneService(
                             "n8_status": "not_run",
                             "n9_status": "not_admitted",
                             "s8_status": "blocked",
+                            **core_progress,
                         }
                         artifact_refs = [str(capability_manifest_ref)]
                         if source_ref is not None:
                             artifact_refs.append(str(source_ref.artifact_id))
+                        core_manifest_ref_id = core_progress.get("manifest_ref")
+                        if isinstance(core_manifest_ref_id, str):
+                            artifact_refs.append(core_manifest_ref_id)
                         diagnostic_emission = self._emit_runtime_diagnostic_event(
                             execution_scope=execution_scope,
                             job_id=job.job_id,
@@ -5809,7 +6118,7 @@ class ControlPlaneService(
                         )
                         return
                     if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT:
-                        compiled_ref = self._put_json_artifact(
+                        compiled_artifact_ref = self._put_json_artifact_ref(
                             compiled.model_dump(mode="json"),
                             kind="runtime.compiled_recursive_generation_cycle",
                             schema_name=(
@@ -5817,6 +6126,22 @@ class ControlPlaneService(
                             ),
                         )
                         run_id = str(job.run_id or "")
+                        core_progress: dict[str, object] = {}
+                        if core_run_context is not None and core_run_id is not None:
+                            core_manifest_ref = self._publish_generation_run(
+                                job=job,
+                                payload=payload,
+                                execution_scope=execution_scope,
+                                core_run_id=core_run_id,
+                                run_context=core_run_context,
+                                compiled_run_ref=compiled_artifact_ref,
+                            )
+                            core_progress = self._core_run_progress_fields(
+                                job=job,
+                                core_run_id=core_run_id,
+                                manifest_ref=core_manifest_ref,
+                            )
+                        compiled_ref = str(compiled_artifact_ref.artifact_id)
                         progress = {
                             "state": "completed",
                             "phase": "natural_language_run",
@@ -5830,6 +6155,10 @@ class ControlPlaneService(
                             "s8_status": "not_run",
                             "publication_status": "not_run",
                             "run_id": run_id,
+                            **core_progress,
+                            "compiled_recursive_generation_cycle_artifact_ref": (
+                                compiled_artifact_ref.model_dump(mode="json")
+                            ),
                             **(
                                 {
                                     "cycle_substrate_context_job_ref": (
@@ -5878,6 +6207,11 @@ class ControlPlaneService(
                             },
                             artifact_refs=[
                                 str(capability_manifest_ref),
+                                *(
+                                    [str(core_progress["manifest_ref"])]
+                                    if core_progress
+                                    else []
+                                ),
                                 compiled_ref,
                                 *(
                                     [cycle_substrate_context_job_ref]
@@ -5887,11 +6221,12 @@ class ControlPlaneService(
                             ],
                         )
                         return
-                    compiled_ref = self._put_json_artifact(
+                    compiled_artifact_ref = self._put_json_artifact_ref(
                         compiled.model_dump(mode="json"),
                         kind="runtime.compiled_recursive_generation_cycle",
                         schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
                     )
+                    compiled_ref = str(compiled_artifact_ref.artifact_id)
                     from polisyos.runtime.http.services.control.generation_cycle import (
                         parse_normative_run_evidence,
                     )
@@ -5901,6 +6236,7 @@ class ControlPlaneService(
                         compiled_run_ref=compiled_ref,
                         evidence=parse_normative_run_evidence(normative_raw),
                         evaluated_at=datetime.now(UTC),
+                        compiled_artifact_ref=compiled_artifact_ref,
                     )
                     refusal_reasons = tuple(
                         receipt.reason
@@ -5909,23 +6245,42 @@ class ControlPlaneService(
                         for receipt in (leaf.cycle_run.promotion_port,)
                         if receipt.reason is not None
                     )
-                    manifest_ref = self._publish_generation_run(
+                    normative_artifact_ref = normative.persisted_artifact_ref
+                    if normative_artifact_ref is None:
+                        raise RuntimeError("normative_disposition_full_artifact_ref_missing")
+                    if core_run_context is None or core_run_id is None:
+                        raise RuntimeError("control_job_core_run_not_started_before_compute")
+                    core_manifest_ref = self._publish_generation_run(
                         job=job,
                         payload=payload,
-                        compiled_run_ref=compiled_ref,
-                        normative_disposition_ref=str(normative.disposition_ref),
                         execution_scope=execution_scope,
+                        core_run_id=core_run_id,
+                        run_context=core_run_context,
+                        compiled_run_ref=compiled_artifact_ref,
+                        normative_disposition_ref=normative_artifact_ref,
+                    )
+                    core_progress = self._core_run_progress_fields(
+                        job=job,
+                        core_run_id=core_run_id,
+                        manifest_ref=core_manifest_ref,
                     )
                     progress = {
                         "state": "completed",
                         "phase": "natural_language_run",
-                        "manifest_ref": manifest_ref,
+                        **core_progress,
+                        "manifest_ref": str(core_manifest_ref.artifact_id),
                         "run_id": str(job.run_id or ""),
                         "compiled_recursive_generation_cycle_ref": compiled_ref,
+                        "compiled_recursive_generation_cycle_artifact_ref": (
+                            compiled_artifact_ref.model_dump(mode="json")
+                        ),
                         "recursive_budget_resolution": recursive_budget_resolution.model_dump(
                             mode="json"
                         ),
                         "normative_disposition_ref": normative.disposition_ref,
+                        "normative_disposition_artifact_ref": (
+                            normative_artifact_ref.model_dump(mode="json")
+                        ),
                         "normative_disposition": normative.model_dump(mode="json"),
                         "promotion_refusal_reasons": list(refusal_reasons),
                     }
@@ -5961,6 +6316,7 @@ class ControlPlaneService(
                         },
                         artifact_refs=[
                             str(capability_manifest_ref),
+                            str(core_manifest_ref.artifact_id),
                             compiled_ref,
                             str(normative.disposition_ref),
                         ],
@@ -6009,9 +6365,44 @@ class ControlPlaneService(
                 raise RuntimeError(f"Unsupported control job kind: {job.kind}")
         except Exception as exc:
             logger.exception("Control job %s failed: %s", job.job_id, exc)
+            failure_core_progress: dict[str, object] = {}
+            if (
+                core_run_context is not None
+                and core_run_id is not None
+                and core_run_context.run_manifest.finished_at is None
+            ):
+                try:
+                    failure_manifest_ref = self._finish_generation_run_context(
+                        job=job,
+                        execution_scope=execution_scope,
+                        core_run_id=core_run_id,
+                        context=core_run_context,
+                        outputs=list(core_run_context.run_manifest.outputs),
+                        status="error",
+                        errors=[{"code": "control_job_generation_attempt_failed"}],
+                    )
+                    failure_core_progress = self._core_run_progress_fields(
+                        job=job,
+                        core_run_id=core_run_id,
+                        manifest_ref=failure_manifest_ref,
+                    )
+                except Exception as finalize_exc:
+                    logger.debug(
+                        "Could not finalize failed Core attempt %s: %s",
+                        core_run_id,
+                        finalize_exc,
+                    )
             progress = (
                 dict(exc.progress) if isinstance(exc, _WorkflowExecutionNonAuthorityError) else None
             )
+            if failure_core_progress:
+                progress = dict(progress or {})
+                progress.update(
+                    {
+                        "core_terminal_status": "error",
+                        **failure_core_progress,
+                    }
+                )
             self._emit_runtime_diagnostic_event(
                 execution_scope=execution_scope,
                 job_id=job.job_id,

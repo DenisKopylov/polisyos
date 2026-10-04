@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from decimal import Decimal
+from types import SimpleNamespace
 from typing import Literal
 
 import pytest
@@ -1949,3 +1950,327 @@ def test_owner_context_cannot_relabel_native_n9_evidence_under_another_purpose(
             authority_purpose="public_export",  # type: ignore[call-arg]
         )
     assert statement.authority_purpose == "n9_promotion"
+
+
+class _InventoryControlledStore:
+    """Delegate the ArtifactStore surface while controlling optional inventory."""
+
+    def __init__(self, inner, *, inventory_mode="pass", after_second_scan=None) -> None:
+        self.inner = inner
+        self.inventory_mode = inventory_mode
+        self.after_second_scan = after_second_scan
+        self.inventory_calls = 0
+        self.iter_calls = 0
+        self.snapshots = []
+
+    def __getattr__(self, name: str):
+        if name == "inventory_snapshot":
+            if self.inventory_mode == "missing":
+                raise AttributeError(name)
+            return self._inventory_snapshot
+        if name == "iter_artifact_ids":
+            return self._iter_artifact_ids
+        return getattr(self.inner, name)
+
+    def _iter_artifact_ids(self):
+        self.iter_calls += 1
+        return self.inner.iter_artifact_ids()
+
+    def _inventory_snapshot(self):
+        self.inventory_calls += 1
+        if self.inventory_mode == "unrun":
+            return SimpleNamespace(verdict="UNRUN", entries=())
+        if self.inventory_mode == "fail":
+            return SimpleNamespace(verdict="fail", entries=())
+        if self.inventory_mode == "malformed":
+            return SimpleNamespace(verdict="pass", entries=(object(),))
+        if self.inventory_calls == 2 and self.after_second_scan is not None:
+            self.after_second_scan()
+        snapshot = self.inner.inventory_snapshot()
+        self.snapshots.append(snapshot)
+        return snapshot
+
+
+def _assert_passed_owner_inventory_scans(controlled, *, expected_calls: int) -> None:
+    assert controlled.inventory_calls == expected_calls
+    assert len(controlled.snapshots) == expected_calls
+    assert all(snapshot.verdict == "pass" for snapshot in controlled.snapshots)
+    assert all(isinstance(snapshot.entries, tuple) for snapshot in controlled.snapshots)
+
+
+def _c4_write_options(profile_record: str) -> artifacts.ArtifactWriteOptions:
+    profile = c4_profile(profile_record)
+    return artifacts.ArtifactWriteOptions(
+        kind=profile.kind,
+        media_type=profile.media_type,
+        schema=artifacts.SchemaInfo(
+            name=profile.schema_name,
+            version=profile.schema_version,
+        ),
+        canon=artifacts.CanonInfo.from_spec(profile.canon_spec),
+    )
+
+
+def _copy_exact_artifact_view(source, target, ref):
+    manifest = source.get_manifest(ref)
+    options = artifacts.ArtifactWriteOptions(
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        schema=manifest.artifact_schema,
+        producer=manifest.producer,
+        env=manifest.env,
+        inputs=manifest.inputs,
+        canon=manifest.canon,
+        governance=manifest.governance,
+        tenant_context=manifest.tenant_context,
+        same_input_closure=manifest.same_input_closure,
+        authority=manifest.authority,
+        warnings=manifest.warnings,
+    )
+    return target.put_bytes(source.get_bytes(ref.artifact_id), options)
+
+
+def _new_owner_batch(store, *, summary: CandidateSummary):
+    problem_ref, problem_hash = open_world_module.persist_and_verify_design_problem_snapshot(
+        store=store, problem=_problem()
+    )
+    return _seal_completed_generation_candidate_batch(
+        artifacts=store,
+        design_problem_ref=problem_ref,
+        design_problem_content_hash=problem_hash,
+        summaries=(summary,),
+    )
+
+
+def test_owner_conflict_scan_finds_typed_denominator_sibling_view(tmp_path) -> None:
+    source_runtime, original = _prepared(tmp_path / "source")
+    denominator_ref = original.candidate_denominator.denominator_ref
+    denominator = original.candidate_denominator.statement
+    target = FileSystemCAS(tmp_path / "typed-sibling-cas")
+    _copy_exact_artifact_view(source_runtime.store, target, denominator.owner_snapshot_ref)
+    for occurrence_ref in denominator.ordered_occurrence_refs:
+        _copy_exact_artifact_view(source_runtime.store, target, occurrence_ref)
+
+    denominator_bytes = source_runtime.store.get_bytes(denominator_ref.artifact_id)
+    target.put_bytes(
+        denominator_bytes,
+        artifacts.ArtifactWriteOptions(
+            kind="test.default_view_for_denominator_blob",
+            media_type="application/octet-stream",
+        ),
+    )
+    typed_ref = target.put_bytes(
+        denominator_bytes, _c4_write_options("candidate_denominator")
+    )
+    assert typed_ref.artifact_id == denominator_ref.artifact_id
+    assert typed_ref.manifest_profile_sha256 is not None
+    assert target.verify(typed_ref).ok
+    target_inventory = target.inventory_snapshot()
+    assert target_inventory.verdict == "pass"
+    assert any(entry.artifact_ref == typed_ref for entry in target_inventory.entries)
+
+    changed = _summary().model_copy(update={"content_hash": _digest("typed-sibling-conflict")})
+    # Read the binding hash from the exact persisted source snapshot.
+    source_snapshot = epoch_cascade_module._read_model(
+        store=source_runtime.store,
+        ref=denominator.owner_snapshot_ref,
+        model=epoch_cascade_module.GenerationOwnerSnapshotStatement,
+        profile_record="generation_owner_snapshot",
+    )
+    ordinary_denominator, ordinary_snapshot = (
+        epoch_cascade_module._load_verified_candidate_denominator(
+            artifacts=source_runtime.store,
+            denominator_ref=denominator_ref,
+        )
+    )
+    typed_denominator, typed_snapshot = (
+        epoch_cascade_module._load_verified_candidate_denominator(
+            artifacts=target,
+            denominator_ref=typed_ref,
+        )
+    )
+    assert ordinary_denominator == denominator
+    assert ordinary_snapshot == source_snapshot
+    assert typed_denominator == ordinary_denominator
+    assert typed_snapshot == ordinary_snapshot
+    batch = _seal_completed_generation_candidate_batch(
+        artifacts=target,
+        design_problem_ref=denominator.design_problem_binding_ref,
+        design_problem_content_hash=source_snapshot.design_problem_binding_content_hash,
+        summaries=(changed,),
+    )
+    controlled = _InventoryControlledStore(target)
+    owner = epoch_cascade_module.ArtifactPromotionCandidateDenominatorOwner(
+        artifacts=controlled
+    )
+    result = owner.freeze_completed_generation(completed_batch=batch)
+
+    assert isinstance(result, PromotionOwnerQueryContextNonReceipt)
+    assert result.status == "rejected"
+    assert result.code == "promotion_candidate_denominator_mismatch"
+    _assert_passed_owner_inventory_scans(controlled, expected_calls=1)
+    assert any(
+        entry.artifact_ref == typed_ref
+        for entry in controlled.snapshots[0].entries
+    )
+
+
+@pytest.mark.parametrize(
+    ("inventory_mode", "expected_status"),
+    [
+        ("missing", "not_established"),
+        ("unrun", "not_established"),
+        ("malformed", "not_established"),
+        ("fail", "rejected"),
+    ],
+)
+def test_owner_requires_complete_inventory_without_id_fallback(
+    tmp_path, inventory_mode: str, expected_status: str
+) -> None:
+    store = FileSystemCAS(tmp_path / inventory_mode)
+    batch = _new_owner_batch(store, summary=_summary())
+    controlled = _InventoryControlledStore(store, inventory_mode=inventory_mode)
+    owner = epoch_cascade_module.ArtifactPromotionCandidateDenominatorOwner(
+        artifacts=controlled
+    )
+
+    result = owner.freeze_completed_generation(completed_batch=batch)
+
+    assert isinstance(result, PromotionOwnerQueryContextNonReceipt)
+    assert result.status == expected_status
+    assert result.code == (
+        "promotion_candidate_inventory_unavailable"
+        if expected_status == "not_established"
+        else "promotion_candidate_denominator_mismatch"
+    )
+    assert controlled.iter_calls == 0
+
+
+def test_owner_admission_distinguishes_real_manifest_profile_sibling(tmp_path) -> None:
+    runtime, batch = _prepared(tmp_path)
+    issued_ref = batch.candidate_denominator.denominator_ref
+    profile = c4_profile("candidate_denominator")
+    sibling_ref = runtime.store.put_bytes(
+        runtime.store.get_bytes(issued_ref.artifact_id),
+        artifacts.ArtifactWriteOptions(
+            kind=profile.kind,
+            media_type=profile.media_type,
+            schema=artifacts.SchemaInfo(
+                name=profile.schema_name,
+                version=f"{profile.schema_version}-sibling",
+            ),
+            canon=artifacts.CanonInfo.from_spec(profile.canon_spec),
+        ),
+    )
+
+    assert sibling_ref.artifact_id == issued_ref.artifact_id
+    assert sibling_ref.kind == issued_ref.kind
+    assert sibling_ref.media_type == issued_ref.media_type
+    assert sibling_ref.manifest_profile_sha256 is not None
+    assert sibling_ref.manifest_profile_sha256 != issued_ref.manifest_profile_sha256
+    issued_manifest = runtime.store.get_manifest(issued_ref)
+    sibling_manifest = runtime.store.get_manifest(sibling_ref)
+    assert issued_manifest.artifact_schema == artifacts.SchemaInfo(
+        name=profile.schema_name, version=profile.schema_version
+    )
+    assert sibling_manifest.artifact_schema == artifacts.SchemaInfo(
+        name=profile.schema_name, version=f"{profile.schema_version}-sibling"
+    )
+    assert runtime.store.get_bytes(issued_ref) == runtime.store.get_bytes(sibling_ref)
+    assert runtime.store.verify(issued_ref).ok
+    assert runtime.store.verify(sibling_ref).ok
+    assert runtime.candidates.admits_denominator(denominator_ref=issued_ref)
+    assert not runtime.candidates.admits_denominator(denominator_ref=sibling_ref)
+
+
+def test_owner_rechecks_exact_inventory_after_write_for_competing_view(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "post-write-race")
+    primary = _new_owner_batch(store, summary=_summary())
+    competing = _seal_completed_generation_candidate_batch(
+        artifacts=store,
+        design_problem_ref=primary.design_problem_ref,
+        design_problem_content_hash=primary.design_problem_content_hash,
+        summaries=(
+            _summary().model_copy(
+                update={"content_hash": _digest("post-write-competing-generation")}
+            ),
+        ),
+    )
+
+    race_evidence = {}
+
+    def persist_competing_denominator() -> None:
+        occurrences: list[tuple[artifacts.ArtifactRef, str]] = []
+        for ordinal, summary in enumerate(competing.summaries):
+            occurrence = PromotionCandidateOccurrenceStatement(
+                ordinal=ordinal,
+                design_problem_binding_ref=competing.design_problem_ref,
+                design_problem_binding_content_hash=competing.design_problem_content_hash,
+                candidate_id=summary.candidate_id,
+                candidate_content_hash=summary.content_hash,
+                candidate_summary=summary,
+                candidate_summary_content_hash=promotion_candidate_summary_content_hash(
+                    summary
+                ),
+                cycle_index=summary.cycle_index,
+            )
+            ref, semantic, _ = _persist_model(
+                store=store, value=occurrence, profile_record="candidate_occurrence"
+            )
+            occurrences.append((ref, semantic))
+        statement = PromotionCandidateDenominatorStatement(
+            owner_snapshot_ref=competing.owner_snapshot_ref,
+            owner_snapshot_content_hash=competing.owner_snapshot_content_hash,
+            design_problem_binding_ref=competing.design_problem_ref,
+            declared_candidate_count=len(occurrences),
+            ordered_occurrence_refs=tuple(ref for ref, _ in occurrences),
+            ordered_occurrence_content_hashes=tuple(value for _, value in occurrences),
+            predicate_class="recomputed",
+        )
+        denominator_ref, _, _ = _persist_model(
+            store=store, value=statement, profile_record="candidate_denominator"
+        )
+        race_evidence["denominator_ref"] = denominator_ref
+        race_evidence["statement"] = statement
+
+    controlled = _InventoryControlledStore(
+        store, after_second_scan=persist_competing_denominator
+    )
+    owner = epoch_cascade_module.ArtifactPromotionCandidateDenominatorOwner(
+        artifacts=controlled
+    )
+
+    result = owner.freeze_completed_generation(completed_batch=primary)
+
+    assert isinstance(result, PromotionOwnerQueryContextNonReceipt)
+    assert result.status == "rejected"
+    assert result.code == "promotion_candidate_denominator_mismatch"
+    _assert_passed_owner_inventory_scans(controlled, expected_calls=2)
+    competing_ref = race_evidence["denominator_ref"]
+    competing_statement = race_evidence["statement"]
+    assert isinstance(competing_ref, artifacts.ArtifactRef)
+    assert isinstance(competing_statement, PromotionCandidateDenominatorStatement)
+    assert not any(
+        entry.artifact_ref == competing_ref
+        for entry in controlled.snapshots[0].entries
+    )
+    assert any(
+        entry.artifact_ref == competing_ref
+        for entry in controlled.snapshots[1].entries
+    )
+    loaded_competing_denominator, loaded_competing_snapshot = (
+        epoch_cascade_module._load_verified_candidate_denominator(
+            artifacts=store,
+            denominator_ref=competing_ref,
+        )
+    )
+    assert loaded_competing_denominator == competing_statement
+    assert (
+        loaded_competing_snapshot.design_problem_binding_ref
+        == competing.design_problem_ref
+    )
+    assert (
+        loaded_competing_snapshot.design_problem_binding_content_hash
+        == competing.design_problem_content_hash
+    )
+    assert owner._admitted_denominator_refs == set()

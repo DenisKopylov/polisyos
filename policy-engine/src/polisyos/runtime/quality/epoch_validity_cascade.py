@@ -1473,6 +1473,7 @@ class PromotionOwnerQueryContextNonReceipt(_StrictModel):
         "deployment_query_unresolved",
         "promotion_query_context_binding_mismatch",
         "promotion_candidate_denominator_mismatch",
+        "promotion_candidate_inventory_unavailable",
         "promotion_query_family_substitution",
     ]
 
@@ -1644,12 +1645,15 @@ class ArtifactPromotionCandidateDenominatorOwner:
 
     def __init__(self, *, artifacts: ArtifactStore) -> None:
         self._artifacts = artifacts
-        self._admitted_denominator_refs: set[tuple[str, str, str]] = set()
+        self._admitted_denominator_refs: set[tuple[str, str, str, str | None]] = set()
 
     def admits_denominator(self, *, denominator_ref: ArtifactRef) -> bool:
         """Return whether this owner instance issued the exact sealed ref."""
 
-        return _artifact_ref_identity(denominator_ref) in self._admitted_denominator_refs
+        return (
+            artifacts.artifact_ref_identity_key(denominator_ref)
+            in self._admitted_denominator_refs
+        )
 
     def _load_snapshot(self, ref: ArtifactRef) -> GenerationOwnerSnapshotStatement:
         value = _read_model(
@@ -1677,32 +1681,115 @@ class ArtifactPromotionCandidateDenominatorOwner:
         self,
         *,
         snapshot: GenerationOwnerSnapshotStatement,
-    ) -> bool:
-        """Consult only complete denominator artifacts, never orphan candidates."""
+    ) -> bool | PromotionOwnerQueryContextNonReceipt:
+        """Scan every verified exact view in the store-visible CAS inventory."""
+
+        try:
+            inventory_snapshot = getattr(self._artifacts, "inventory_snapshot", None)
+        except Exception:
+            inventory_snapshot = None
+        if not callable(inventory_snapshot):
+            return PromotionOwnerQueryContextNonReceipt(
+                status="not_established",
+                code="promotion_candidate_inventory_unavailable",
+            )
+        try:
+            inventory = inventory_snapshot()
+            verdict = inventory.verdict
+        except Exception:
+            return PromotionOwnerQueryContextNonReceipt(
+                status="not_established",
+                code="promotion_candidate_inventory_unavailable",
+            )
+        if verdict == "fail":
+            return PromotionOwnerQueryContextNonReceipt(
+                status="rejected", code="promotion_candidate_denominator_mismatch"
+            )
+        if verdict != "pass":
+            return PromotionOwnerQueryContextNonReceipt(
+                status="not_established",
+                code="promotion_candidate_inventory_unavailable",
+            )
+        try:
+            entries = inventory.entries
+        except Exception:
+            return PromotionOwnerQueryContextNonReceipt(
+                status="not_established",
+                code="promotion_candidate_inventory_unavailable",
+            )
+        if not isinstance(entries, tuple):
+            return PromotionOwnerQueryContextNonReceipt(
+                status="not_established",
+                code="promotion_candidate_inventory_unavailable",
+            )
 
         denominator_profile = c4_profile("candidate_denominator")
-        for artifact_id in self._artifacts.iter_artifact_ids():
-            manifest = self._artifacts.get_manifest(artifact_id)
+        for entry in entries:
+            try:
+                entry_ref = entry.artifact_ref
+                manifest = entry.manifest
+            except Exception:
+                return PromotionOwnerQueryContextNonReceipt(
+                    status="not_established",
+                    code="promotion_candidate_inventory_unavailable",
+                )
+            if (
+                not isinstance(manifest, artifacts.ArtifactManifest)
+                or not isinstance(entry_ref, (ArtifactID, ArtifactRef))
+            ):
+                return PromotionOwnerQueryContextNonReceipt(
+                    status="not_established",
+                    code="promotion_candidate_inventory_unavailable",
+                )
+            entry_artifact_id = (
+                entry_ref.artifact_id
+                if isinstance(entry_ref, ArtifactRef)
+                else entry_ref
+            )
+            if manifest.artifact_id != entry_artifact_id:
+                return PromotionOwnerQueryContextNonReceipt(
+                    status="not_established",
+                    code="promotion_candidate_inventory_unavailable",
+                )
+            if isinstance(entry_ref, ArtifactRef):
+                if (
+                    entry_ref.kind != manifest.kind
+                    or entry_ref.media_type != manifest.media_type
+                ):
+                    return PromotionOwnerQueryContextNonReceipt(
+                        status="not_established",
+                        code="promotion_candidate_inventory_unavailable",
+                    )
+                denominator_ref = entry_ref
+            else:
+                denominator_ref = ArtifactRef(
+                    artifact_id=entry_ref,
+                    kind=manifest.kind,
+                    media_type=manifest.media_type,
+                )
             if (
                 manifest.kind != denominator_profile.kind
                 or manifest.media_type != denominator_profile.media_type
             ):
                 continue
-            denominator_ref = ArtifactRef(
-                artifact_id=artifact_id,
-                kind=denominator_profile.kind,
-                media_type=denominator_profile.media_type,
-            )
             try:
                 _, admitted_snapshot = _load_verified_candidate_denominator(
                     artifacts=self._artifacts,
                     denominator_ref=denominator_ref,
                 )
-            except (KeyError, OSError, TypeError, ValueError):
-                # Malformed bytes cannot enter the conflict scan. A coherent
-                # denominator still forces a fail-closed conflict because this
-                # store has no persistent generation-owner admission carrier;
-                # it is never promoted to positive provenance here.
+            except artifacts.ArtifactIntegrityError:
+                return PromotionOwnerQueryContextNonReceipt(
+                    status="rejected", code="promotion_candidate_denominator_mismatch"
+                )
+            except (OSError, RuntimeError):
+                return PromotionOwnerQueryContextNonReceipt(
+                    status="not_established",
+                    code="promotion_candidate_inventory_unavailable",
+                )
+            except (KeyError, TypeError, ValueError):
+                # A malformed or orphan denominator is not an admitted conflict
+                # participant. Exact content and all occurrence bindings are
+                # recomputed by the loader before a view can enter this set.
                 continue
             if (
                 admitted_snapshot.design_problem_binding_ref == snapshot.design_problem_binding_ref
@@ -1738,8 +1825,14 @@ class ArtifactPromotionCandidateDenominatorOwner:
             or snapshot.ordered_candidate_summary_content_hashes
             != tuple(promotion_candidate_summary_content_hash(row) for row in summaries)
             or snapshot.ordered_cycle_indices != tuple(row.cycle_index for row in summaries)
-            or self._has_conflicting_admitted_snapshot(snapshot=snapshot)
         ):
+            return PromotionOwnerQueryContextNonReceipt(
+                status="rejected", code="promotion_candidate_denominator_mismatch"
+            )
+        prior_scan = self._has_conflicting_admitted_snapshot(snapshot=snapshot)
+        if isinstance(prior_scan, PromotionOwnerQueryContextNonReceipt):
+            return prior_scan
+        if prior_scan:
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_candidate_denominator_mismatch"
             )
@@ -1780,11 +1873,14 @@ class ArtifactPromotionCandidateDenominatorOwner:
             denominator_content_hash=semantic,
             statement=statement,
         )
-        if self._has_conflicting_admitted_snapshot(snapshot=snapshot):
+        post_write_scan = self._has_conflicting_admitted_snapshot(snapshot=snapshot)
+        if isinstance(post_write_scan, PromotionOwnerQueryContextNonReceipt):
+            return post_write_scan
+        if post_write_scan:
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_candidate_denominator_mismatch"
             )
-        self._admitted_denominator_refs.add(_artifact_ref_identity(ref))
+        self._admitted_denominator_refs.add(artifacts.artifact_ref_identity_key(ref))
         return result
 
 

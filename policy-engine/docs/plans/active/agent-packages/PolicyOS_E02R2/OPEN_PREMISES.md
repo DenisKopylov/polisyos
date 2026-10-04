@@ -1,4 +1,20 @@
 # E02-R2 open premises queue
+
+## Current measured boundary and R9 application — 2026-10-04
+
+This front supersedes the older current-boundary wording below. Exact source cuts and receipts are in the latest BASELINES entries; the controlled served acquired-CAS/N5 readback remains bound to eb822, not the later fixture cuts.
+
+- **Finding status:** 282 unique rows, 9 closed / 260 partial / 12 held / 1 open (B09); B150 remains bounded-closed. No status change follows from owner repair. B09 still needs the owner-supported selected-observation → refreshed WMR/context → same-candidate changed-basis numerical N5 rule, with unchanged-overlay and UUID/time-only controls. Source-time, measurement mapping and causal coupling cannot be supplied by retrieval time or marker equality.
+- **R1/R13 measured mechanics:** actual acquired selected CAS bytes enter numerical candidate N5. The same six-denominator basis fails epoch finalization for missing native policy admission, then finalizes under an explicitly controlled fixture appointment. This is candidate/test qualification evidence, not institutional authority, source-time admission or S8. The N6 source-preservation/currentness handoff and real source-time/measurement contracts remain separate missing premises; their limitations do not refuse ordinary candidate work.
+- **R11 remaining failure:** whole-file 76ad result is 15 PASS / 1 FAIL across 16 cases. The fixture's 20-second Event wait expired before completion was signaled; worker liveness at that exact instant is not established by the JUnit receipt. This is not an observed completed refusal or proof of deadlock/hardware overload. The other changed oracle passes. Root readback and aggregate pins are in BASELINES; diagnosis is ongoing.
+- **R9 local mechanism:** reviewed exact-view inventory and issued-ref membership changes are applied; static canonical Ruff/AST pass, fresh native and removal controls remain UNRUN at this boundary. The broader v1 epoch concern is source-level: full 2,697-file product-Python census found no concrete admitted execution-closure producer (`producer_missing`); actual issuance overlap is `not_established`. The rejected falsifier forges A→B after readback and is already refused by the default reader. All 12 inspected refs are identical default-profile mirrors. The principal's narrow V2 approval refusal is unchanged; no broader A/B version/guard option is selected. See the corrected decision draft, not the superseded probe claim.
+- **Gates:** five TypeScript workspaces passed at 5e9b, not this later source cut. CG1/CG2/GY-N6 and architecture remain typed UNRUN at their pinned checks. Complete architecture triage covers 150/150 edges in 26 classes; two reference-source lines are corrected through their owner renderer, with no baseline sync. A successful renderer is not a successful architecture gate.
+- **Next evidence:** owning R9 whole-file and removal/control outcomes, remaining worker-stage diagnosis, final whole-file four-base matrix, R2/R7/R8 triads and sole-command gates. H/N/P engineering outside this selected slice stays deferred; no register row is landed by this lane.
+
+The exact current residual ledger SHA is `610255c2c8718b997b114357c93df7fd6001e83de209f079a481d16768b357f1`. The current R9 decision options, premises, binding and genuine revisit falsifier are in DECISION_RECORDS; proposed owner/register next steps are in REGISTER_PROPOSALS. Historical checkpoints below retain their original source/evidence boundaries.
+
+---
+
 ## Evidence boundary at source cut `c3730424df8dde4dbe2daf8dde238052f464f812` (2026-10-03)
 
 This queue pins branch `codex/e02-r2` at c373 (tree `da0189f21550f4a193375183ead4eb5e4d9adfeb`). Four direct owner checks ran at this cut: WMR PASS/exit 0; CG1, CG2, and N6 typed UNRUN/exit 2. Current whole-file WMR/N5, served acquired-CAS→N5, and current four-base behavior remain UNRUN. Dated measurements below remain bound to their own commits and test blobs; this front supersedes older current-boundary wording where it conflicts.

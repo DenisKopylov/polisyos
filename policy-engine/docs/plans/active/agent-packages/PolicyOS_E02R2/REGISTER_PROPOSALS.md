@@ -367,3 +367,28 @@ The full owner-scope scan admits no direct live register/GY/Atlas edge for eithe
 Proposal state: defer adoption pending owner response to the separate OPEN_PREMISES question. Do not add a global rule or new finding from this one evidence cut.
 
 If the owner confirms this is a reusable boundary class, propose a narrowly scoped diagnostic: can a tenant-scoped artifact cross the caller-to-CAS bridge with a generic string that is not proven to denote the storage UUID? Closure signal: typed/versioned mapping, full-reference round-trip, explicit mismatch refusal, and same-store cross-tenant negative semantic test. Until then the contract premise is not_established; this is not evidence of CAS data loss and does not change B01/B02/B03/B12/LA-046 statuses.
+
+
+## R9/P07 evidence correction and owner-local repair — 2026-10-04
+
+## Owner-local inventory candidate
+
+The independent V2 review is **GO to integrate** a narrowly scoped R9 owner change. It corrects the test witness to require actual passing inventory snapshots: one for the typed-profile conflict and two for the post-write race, with the competing denominator absent before and present after. The candidate production file is unchanged from V1; V2 widens the test proof, not global issuance semantics. At review the candidate was unapplied. Root now applies the exact reviewed source/test postimages, with AST/canonical Ruff PASS and application pins in BASELINES; native behavior remains UNRUN. Committed delivery requires the subsequent branch readback, and bounded closure still requires whole-file/removal/four-base receipts.
+
+Required bounded closeout: read back the integrated commit; run the complete owning test file and current served/consumer path; retain conflict, race, coherent positive, selector/removal and preserving-control outcomes. A green owner-local test does not by itself establish a full current four-base replay or close cross-consumer selected-view identity.
+
+V2 review: `/Users/deniskopylov/.codex/scratch/E02R2_R9_OWNER_VIEW_IMPLEMENTATION_REVIEW_20261004_V2/REVIEW.md` @ `58627015674e19996653aba5e6344d807d747568757f4c045505f721fdf23702`. Candidate postimages: production `epoch_validity_cascade.py` @ `7c0919b2f8ff88a9bd9496fe67b4c909d948998e014e51d330be927d10d2e40e`; test `test_open_world_risk.py` @ `80755a6ed1575749884e3ff9b58efc557d88e50306e67f4ed5d3afbfccd0a084`.
+
+## Broader selected-view / epoch identity residual
+
+Keep this in the already-declared R9/P07 class. The corrected v1 falsifier is **NO-GO**: its fixture changes a resolver result after admission, and the default reader refuses selected view B before the intended comparator, so the prior expected-exception test could pass on existing refusal. A complete source census (2,697 tracked and filesystem Python files under `policy-engine/src/**/*.py`) found no concrete production producer for `AdmittedDecisionPacketExecutionClosure` (`producer_missing`); production issuance overlap is `not_established`. The separate 12-ref comparison found default-view byte-identical mirrors only. Neither result demonstrates a production authority escape or a distinct selected profile in an issued closure.
+
+Preserve selector-free v1 historical replay. Do not reissue/restamp, select a global A/B principal option, or add an authority guard without a real producer/caller. If that producer appears, require actual independently resolved/content-bound selected-view evidence, a nondefault A/B consumer discriminator, marker-retaining removal, and historical replay. Keep current nonreceipt/refusal typed; it is not proof every persisted reader is complete.
+
+Correction: `/Users/deniskopylov/.codex/scratch/E02R2_R9_EPOCH_SELECTED_VIEW_DECISION_FALSIFIER_20261004/CORRECTION_ADDENDUM_20261004.md` @ `b3bde67b70a6db1e7aeffb3f15e4dd70d3ad53e27ca3729f64a3b20f35e53ed7`. Source review: same directory `INDEPENDENT_SOURCE_REVIEW_20261004.md` @ `f06f1af0bdc0f26f757a60ba307c3a0fc6e58aa70f03ade795bf64598d848cdb`. Twelve-ref delta: `/Users/deniskopylov/.codex/scratch/E02R2_R9_EB822_DENOM_ISSUANCE_OVERLAP_20261004/PROFILE_EQUIVALENCE_DELTA.md` @ `16f23a77423c6461fb6ff70bf8bcf7bdbdb49a4d0fb1390b53fac9f9c61d88af`.
+
+## Unchanged boundaries
+
+- B150 remains closed only for its bounded direct FileSystemCAS source-card property; this does not close R9 selected-view custody.
+- The earlier eb822 acquired-CAS→numerical-N5 witness is candidate-only. Source time, measurement equivalence, causal coupling/calibration, institutional authority, S8 and current N6 preservation/currentness remain unestablished or blocked as separately recorded in the proposed OPEN_PREMISES front.
+- No ledger, debt-register, plan, or principal-decision change follows from this proposal delta.

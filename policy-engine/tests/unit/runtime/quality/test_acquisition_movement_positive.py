@@ -90,22 +90,34 @@ def test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board(
     assert refused.movement_record is None
     assert store.get_bytes(supplier.supplier_receipt_ref) == supplier_bytes
 
-    missing_verification = _configured_movement_service(
-        supplier,
-        unallocated,
-        movement,
-        tmp_path / "missing-verification",
-        include_independent_verification=False,
+    from polisyos.runtime.quality.epoch_deployment import build_epoch_deployment
+
+    selected = _configured_movement_service(
+        supplier, unallocated, movement, tmp_path / "gy-owner"
+    )
+    selected_config = selected._evidence_owner._state().config
+    missing_verification_config = selected_config.model_copy(
+        update={"predicate_owner_verification_refs": ()}
+    )
+    assert selected_config.predicate_owner_verification_refs
+    assert missing_verification_config.predicate_owner_verification_refs == ()
+    assert missing_verification_config.model_dump(
+        exclude={"predicate_owner_verification_refs"}
+    ) == selected_config.model_dump(exclude={"predicate_owner_verification_refs"})
+    missing_verification = AcquisitionMovementService(
+        control_store=supplier.control._control_store,
+        artifact_store=store,
+        event_log=supplier.control._diagnostic_event_log,
+        epoch_deployment=build_epoch_deployment(missing_verification_config),
+    )
+    missing_verification.bind_completed_control_job_core_source_resolver(
+        supplier.control.resolve_completed_control_job_core_run_source
     )
     partial = missing_verification.consume_terminal(
         supplier_receipt_ref=supplier.supplier_receipt_ref
     )
     assert partial.status == "refused"
     assert partial.movement_record is None
-
-    selected = _configured_movement_service(
-        supplier, unallocated, movement, tmp_path / "gy-owner"
-    )
     admitted = selected.consume_terminal(supplier_receipt_ref=supplier.supplier_receipt_ref)
     assert admitted.status == "admitted", admitted.reason
     assert admitted.movement_record is not None

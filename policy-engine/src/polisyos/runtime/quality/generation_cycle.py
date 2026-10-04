@@ -130,10 +130,16 @@ from polisyos.runtime.quality.evaluation_safety import (
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+    JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
+    WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS,
+    EnginePlan,
     JointSimulationHorizonController,
     JointSimulationRequest,
     JointSimulationResult,
     ProofReceiptError,
+    WorldStateConsumptionRecord,
+    bind_world_state_consumption,
     verify_simulation_receipt,
 )
 from polisyos.runtime.quality.substrate_registry import (
@@ -188,6 +194,13 @@ GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
 JOINT_SIMULATION_RESULT_ARTIFACT_KIND = "polisyos.runtime.joint_simulation_result"
 JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA = "policyos.runtime.n5.joint_simulation_result"
 JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION = "1.0.0"
+_JOINT_SIMULATION_RESULT_STATE_CONSUMPTION_ARTIFACT_SCHEMA_VERSION = "2.0.0"
+_JOINT_SIMULATION_RESULT_VERSIONS = {
+    JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION: JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+    _JOINT_SIMULATION_RESULT_STATE_CONSUMPTION_ARTIFACT_SCHEMA_VERSION: (
+        JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION
+    ),
+}
 GENERATION_CYCLE_RULE_VERSION = "policyos.layer3.gy.n6.generation_cycle.v1"
 GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
@@ -207,7 +220,10 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
     }
 )
 _SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
-    {"simulation_only_k_sim_not_world_evidence"}
+    {
+        "simulation_only_k_sim_not_world_evidence",
+        *WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS,
+    }
 )
 _N6_STOP_TERMINAL_KINDS = frozenset(
     {
@@ -783,14 +799,30 @@ def persist_joint_simulation_result(
         )
     try:
         verify_simulation_receipt(result.receipt, result.content_bound_payload())
+        artifact_schema_version = next(
+            (
+                artifact_version
+                for artifact_version, payload_version in _JOINT_SIMULATION_RESULT_VERSIONS.items()
+                if payload_version == result.schema_version
+            ),
+            None,
+        )
+        if artifact_schema_version is None:
+            raise GenerationCycleError("joint_simulation_result_schema_unsupported")
+        # The receipt signs the original payload projection. Rebuilding an old
+        # model would add fields that did not exist when its bytes were signed.
+        payload = {
+            **result.content_bound_payload(),
+            "receipt": result.receipt.model_dump(mode="json"),
+        }
         return store.put_json(
-            result.model_dump(mode="json"),
+            payload,
             PutOptions(
                 kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
                 media_type="application/json",
                 schema=SchemaInfo(
                     name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
-                    version=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION,
+                    version=artifact_schema_version,
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
@@ -822,6 +854,17 @@ def _validate_loaded_joint_simulation_result(
 
     if result.uncertainty_kind != "K_sim":
         _joint_simulation_result_integrity_error("uncertainty_kind_not_k_sim")
+    if result.state_consumption is not None:
+        consumption = result.state_consumption
+        if (
+            consumption.world_model_record_content_hash
+            != result.world_model_record_content_hash
+            or result.receipt.engine_kind != "program_graph"
+            or not set(consumption.authority_limitations).issubset(
+                result.promotion_ready_value_packet.get("authority_blockers", ())
+            )
+        ):
+            _joint_simulation_result_integrity_error("state_consumption_binding_mismatch")
     if (
         expected_world_model_record_content_hash is not None
         and result.world_model_record_content_hash != expected_world_model_record_content_hash
@@ -927,7 +970,7 @@ def load_joint_simulation_result(
         or manifest.media_type != "application/json"
         or manifest.artifact_schema is None
         or manifest.artifact_schema.name != JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA
-        or manifest.artifact_schema.version != JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION
+        or manifest.artifact_schema.version not in _JOINT_SIMULATION_RESULT_VERSIONS
     ):
         _joint_simulation_result_integrity_error("artifact_manifest_contract_mismatch")
 
@@ -959,6 +1002,10 @@ def load_joint_simulation_result(
         _joint_simulation_result_integrity_error("artifact_payload_not_canonical", exc)
     if not isinstance(payload, Mapping):
         _joint_simulation_result_integrity_error("artifact_payload_not_mapping")
+    if payload.get("schema_version") != _JOINT_SIMULATION_RESULT_VERSIONS[
+        manifest.artifact_schema.version
+    ]:
+        _joint_simulation_result_integrity_error("artifact_payload_schema_mismatch")
     payload_without_receipt = dict(payload)
     payload_without_receipt.pop("receipt", None)
     try:
@@ -2681,9 +2728,67 @@ class JointSimulationPort:
                 k_world_ref_after=request.world_model_record.content_hash,
                 world_model_record=request.world_model_record,
             )
+        try:
+            request, state_consumptions, program_binding_failures = (
+                self._request_with_bound_program_state(request)
+            )
+        except (
+            ArtifactIntegrityError,
+            ArtifactOwnershipError,
+            FileNotFoundError,
+            RuntimeDependencyError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            code = str(getattr(exc, "code", None) or "n5_program_state_unavailable")
+            return SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=(code,),
+                diagnostics={"port": "N5", "reason": code, "state_error": str(exc)},
+                k_world_ref_before=request.world_model_record.content_hash,
+                k_world_ref_after=request.world_model_record.content_hash,
+                world_model_record=request.world_model_record,
+            )
         result = self._controller.run(request)
+        selected_program_index = next(
+            (
+                index
+                for index, item in enumerate(result.engine_decisions)
+                if item.engine_kind == "program_graph" and item.decision == "selected"
+            ),
+            None,
+        )
+        if selected_program_index is not None and result.trajectories:
+            state_consumption = state_consumptions.get(selected_program_index)
+            if state_consumption is None:
+                return SimulationPortObservation(
+                    candidate_id=candidate_id,
+                    status="simulation_blocked",
+                    authority_blockers=("n5_selected_program_state_not_bound",),
+                    diagnostics={"port": "N5", "reason": "n5_selected_program_state_not_bound"},
+                    k_world_ref_before=request.world_model_record.content_hash,
+                    k_world_ref_after=request.world_model_record.content_hash,
+                    world_model_record=request.world_model_record,
+                )
+            try:
+                result = bind_world_state_consumption(result, state_consumption)
+            except ProofReceiptError as exc:
+                return SimulationPortObservation(
+                    candidate_id=candidate_id,
+                    status="simulation_blocked",
+                    authority_blockers=("n5_state_consumption_receipt_invalid",),
+                    diagnostics={"port": "N5", "reason": str(exc)},
+                    k_world_ref_before=request.world_model_record.content_hash,
+                    k_world_ref_after=request.world_model_record.content_hash,
+                    world_model_record=request.world_model_record,
+                )
         k_world_ref = request.world_model_record.content_hash
         status, authority_blockers = _joint_simulation_port_outcome(result)
+        if status == "simulation_blocked" and program_binding_failures:
+            authority_blockers = tuple(
+                dict.fromkeys((*authority_blockers, *program_binding_failures.values()))
+            )
         try:
             simulation_result_ref = persist_joint_simulation_result(
                 result,
@@ -2726,11 +2831,271 @@ class JointSimulationPort:
                 "simulation_result_ref": str(simulation_result_ref.artifact_id),
                 "world_model_record_id": request.world_model_record.world_model_record_id,
                 "world_model_record_content_hash": request.world_model_record.content_hash,
+                "program_binding_failures": program_binding_failures,
             },
             k_world_ref_before=k_world_ref,
             k_world_ref_after=k_world_ref,
             world_model_record=request.world_model_record,
         )
+
+    def _request_with_bound_program_state(
+        self,
+        request: JointSimulationRequest,
+    ) -> tuple[
+        JointSimulationRequest,
+        dict[int, WorldStateConsumptionRecord],
+        dict[int, str],
+    ]:
+        """Resolve each ProgramGraph plan without suppressing a later valid engine."""
+
+        plans = list(request.engine_plan)
+        consumptions: dict[int, WorldStateConsumptionRecord] = {}
+        failures: dict[int, str] = {}
+        for index, plan in enumerate(plans):
+            if plan.engine_kind != "program_graph":
+                continue
+            # A plan the controller already rejects does not need state I/O.
+            if not plan.program_graph_acyclic or "cyclic" in {
+                item.strip().casefold() for item in plan.eligibility_conditions
+            }:
+                continue
+            try:
+                plans[index], consumptions[index] = self._bound_program_plan(request, plan)
+            except (
+                ArtifactIntegrityError,
+                ArtifactOwnershipError,
+                FileNotFoundError,
+                RuntimeDependencyError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                failures[index] = str(
+                    getattr(exc, "code", None) or "n5_program_state_unavailable"
+                )
+                # Ignore every caller-supplied runtime binding on a rejected
+                # plan; the controller may then select a later valid engine.
+                plans[index] = plan.model_copy(
+                    update={
+                        "program_store": None,
+                        "program_base_state": None,
+                        "program_base_ref": None,
+                        "mechanism_registry": None,
+                        "slot_registry": None,
+                        "merge_registry": None,
+                    }
+                )
+        return request.model_copy(update={"engine_plan": tuple(plans)}), consumptions, failures
+
+    def _bound_program_plan(
+        self,
+        request: JointSimulationRequest,
+        plan: EnginePlan,
+    ) -> tuple[EnginePlan, WorldStateConsumptionRecord]:
+        """Bind one selectable graph plan to the WMR through the tenant store."""
+
+        if self._artifact_store is None:
+            raise WorldModelRecordError("n5_runtime_store_not_established")
+
+        from polisyos.core.contracts.foundry import (
+            ExecPlan,
+            ExecPlanRef,
+            FoundryInputBindingsRef,
+            ProgramGraph,
+            ProgramGraphRef,
+            StateSnapshot,
+            StateSnapshotRef,
+        )
+        from polisyos.core.registry import load_registry_bundle_content
+        from polisyos.foundry.data_plane import load_input_bindings
+        from polisyos.foundry.execute.executor import load_state_snapshot
+        from polisyos.runtime.quality.world_model_record import (
+            consume_world_model_record_for_simulation,
+            resolve_intervention_atom_world_binding,
+        )
+
+        if plan.program_graph_ref is None or plan.exec_plan_ref is None:
+            raise WorldModelRecordError("n5_program_graph_or_plan_ref_missing")
+        graph_ref = ProgramGraphRef.model_validate(
+            plan.program_graph_ref.model_dump(mode="python")
+            if isinstance(plan.program_graph_ref, BaseModel)
+            else plan.program_graph_ref
+        )
+        exec_plan_ref = ExecPlanRef.model_validate(
+            plan.exec_plan_ref.model_dump(mode="python")
+            if isinstance(plan.exec_plan_ref, BaseModel)
+            else plan.exec_plan_ref
+        )
+        # WMR v1 lists bare graph IDs. A selected non-default graph view cannot
+        # be inferred from that ID and is therefore not a controlled selection.
+        if (
+            graph_ref.kind != "foundry.program_graph"
+            or graph_ref.media_type != "application/json"
+            or exec_plan_ref.kind != "foundry.exec_plan"
+            or exec_plan_ref.media_type != "application/json"
+        ):
+            raise WorldModelRecordError("n5_program_artifact_ref_profile_invalid")
+        if graph_ref.manifest_profile_sha256 is not None:
+            raise WorldModelRecordError("n5_program_graph_view_not_wmr_bound")
+        if (
+            str(graph_ref.artifact_id)
+            not in request.world_model_record.simulation_model_ref.program_graph_refs
+        ):
+            raise WorldModelRecordError("n5_program_graph_not_wmr_listed")
+        graph_manifest = self._artifact_store.get_manifest(graph_ref)
+        plan_manifest = self._artifact_store.get_manifest(exec_plan_ref)
+        if (
+            graph_manifest.kind != "foundry.program_graph"
+            or graph_manifest.media_type != "application/json"
+            or graph_manifest.artifact_schema is None
+            or graph_manifest.artifact_schema.name != "polisyos.core.ProgramGraph"
+            or graph_manifest.artifact_schema.version != "0.2.0"
+            or plan_manifest.kind != "foundry.exec_plan"
+            or plan_manifest.media_type != "application/json"
+            or plan_manifest.artifact_schema is None
+            or plan_manifest.artifact_schema.name != "polisyos.core.ExecPlan"
+            or plan_manifest.artifact_schema.version != "0.2.0"
+        ):
+            raise WorldModelRecordError("n5_program_artifact_profile_invalid")
+        loaded_graph = ProgramGraph.model_validate(
+            from_canonical_bytes(self._artifact_store.get_bytes(graph_ref))
+        )
+        if loaded_graph.schema_version != "0.2":
+            raise WorldModelRecordError("n5_program_graph_payload_version_invalid")
+        loaded_plan = ExecPlan.model_validate(
+            from_canonical_bytes(self._artifact_store.get_bytes(exec_plan_ref))
+        )
+        if loaded_plan.program_ref != graph_ref:
+            raise WorldModelRecordError("n5_exec_plan_program_graph_mismatch")
+
+        world_input = consume_world_model_record_for_simulation(request.world_model_record)
+        bindings_ref = FoundryInputBindingsRef(
+            artifact_id=world_input.input_bindings_ref
+        )
+        bindings_manifest = self._artifact_store.get_manifest(bindings_ref)
+        if (
+            bindings_manifest.kind != "foundry.input_bindings"
+            or bindings_manifest.media_type != "application/json"
+            or bindings_manifest.artifact_schema is None
+            or bindings_manifest.artifact_schema.name
+            != "polisyos.core.FoundryInputBindings"
+            or bindings_manifest.artifact_schema.version != "1.0"
+        ):
+            raise WorldModelRecordError("n5_input_bindings_artifact_profile_invalid")
+        persisted_bindings = load_input_bindings(self._artifact_store, bindings_ref)
+        if persisted_bindings.schema_version != "1.0":
+            raise WorldModelRecordError("n5_input_bindings_payload_version_invalid")
+        # WMR v1 persists bare IDs, so only default typed views can cross its
+        # boundary. Reconcile all three nested refs before opening any state.
+        declared_views = (
+            (
+                persisted_bindings.bound_state_snapshot_ref,
+                world_input.bound_state_snapshot_ref,
+                "foundry.state_snapshot",
+            ),
+            (
+                persisted_bindings.registry_bundle_ref,
+                world_input.registry_bundle_ref,
+                "core.registry_bundle",
+            ),
+            (
+                persisted_bindings.data_snapshot_ref,
+                request.world_model_record.simulation_model_ref.data_snapshot_ref,
+                "fabric.data_snapshot",
+            ),
+        )
+        for declared_ref, expected_id, expected_kind in declared_views:
+            if declared_ref.manifest_profile_sha256 is not None:
+                raise WorldModelRecordError("n5_wmr_selected_view_not_expressible")
+            if (
+                str(declared_ref.artifact_id) != expected_id
+                or declared_ref.kind != expected_kind
+                or declared_ref.media_type != "application/json"
+            ):
+                raise WorldModelRecordError("n5_wmr_input_bindings_mismatch")
+            manifest = self._artifact_store.get_manifest(declared_ref)
+            if manifest.kind != expected_kind or manifest.media_type != "application/json":
+                raise WorldModelRecordError("n5_wmr_default_view_profile_invalid")
+        snapshot_ref = StateSnapshotRef(artifact_id=world_input.bound_state_snapshot_ref)
+        expected_slot_digest = gy_content_hash(
+            {
+                "bound_state_snapshot_ref": str(snapshot_ref.artifact_id),
+                "policy_slot_map": [
+                    item.model_dump(mode="json")
+                    for item in request.world_model_record.policy_slot_map
+                ],
+            }
+        )
+        if request.world_model_record.foundry_binding_ref.state_slot_digest != expected_slot_digest:
+            raise WorldModelRecordError("n5_wmr_state_slot_digest_mismatch")
+        snapshot_manifest = self._artifact_store.get_manifest(snapshot_ref)
+        snapshot = StateSnapshot.model_validate(
+            from_canonical_bytes(self._artifact_store.get_bytes(snapshot_ref))
+        )
+        if (
+            snapshot_manifest.kind != "foundry.state_snapshot"
+            or snapshot_manifest.media_type != "application/json"
+            or snapshot_manifest.artifact_schema
+            != SchemaInfo(name="polisyos.core.StateSnapshot", version="2.1.0")
+            or snapshot.schema_version != "2.1"
+            or snapshot.state_ref.manifest_profile_sha256 is not None
+            or snapshot.state_ref.kind != "foundry.state_blob"
+            or snapshot.state_ref.media_type != "application/x-npz"
+        ):
+            raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
+        expected_lineage = (
+            (request.world_model_record.simulation_model_ref.data_snapshot_ref,
+             "input.data_snapshot_ref"),
+            (world_input.registry_bundle_ref, "input.registry_bundle_ref"),
+            (str(snapshot.state_ref.artifact_id), "state_blob"),
+        )
+        actual_lineage = tuple(
+            (str(item.artifact_id), item.role)
+            for item in (snapshot.lineage_inputs or ())
+        )
+        if actual_lineage != expected_lineage:
+            raise WorldModelRecordError("n5_bound_state_lineage_mismatch")
+        bound_state = load_state_snapshot(self._artifact_store, snapshot_ref=snapshot_ref)
+        registry_ref = CASArtifactRef(
+            artifact_id=world_input.registry_bundle_ref,
+            kind="core.registry_bundle",
+            media_type="application/json",
+        )
+        registries = load_registry_bundle_content(self._artifact_store, registry_ref)
+        slot_paths = tuple(
+            dict.fromkeys(
+                binding.state_path
+                for atom in request.intervention_atoms
+                for binding in resolve_intervention_atom_world_binding(
+                    atom, request.world_model_record
+                ).target_slot_bindings
+            )
+        )
+        consumption = WorldStateConsumptionRecord(
+            world_model_record_content_hash=request.world_model_record.content_hash,
+            input_bindings_ref=world_input.input_bindings_ref,
+            bound_state_snapshot_ref=str(snapshot_ref.artifact_id),
+            state_blob_content_hash=str(snapshot.state_ref.artifact_id),
+            state_slot_digest=request.world_model_record.foundry_binding_ref.state_slot_digest,
+            selected_slot_paths=slot_paths,
+            program_graph_ref=str(graph_ref.artifact_id),
+            exec_plan_ref=str(exec_plan_ref.artifact_id),
+            exec_plan_manifest_profile_sha256=exec_plan_ref.manifest_profile_sha256,
+        )
+        owner_plan = plan.model_copy(
+            update={
+                "program_store": self._artifact_store,
+                "program_graph_ref": graph_ref,
+                "exec_plan_ref": exec_plan_ref,
+                "program_base_state": bound_state,
+                "program_base_ref": snapshot_ref,
+                "mechanism_registry": registries.mechanism_registry,
+                "slot_registry": registries.slot_registry,
+                "merge_registry": registries.merge_registry,
+                "selector_field_registry": registries.selector_field_registry,
+                "constraint_registry": registries.constraint_registry,
+            }
+        )
+        return owner_plan, consumption
 
     @staticmethod
     def _request_builder_is_requested(problem: DesignProblem) -> bool:
@@ -2828,6 +3193,12 @@ class JointSimulationPort:
             plan_values: dict[str, Any] = {}
         elif isinstance(raw_plan, EnginePlan):
             plan_values = raw_plan.model_dump(mode="python")
+            if resource == "program_graph":
+                # EnginePlan runtime refs are deliberately excluded from
+                # serialization; keep the two selected candidate artifact
+                # refs for the shared WMR-bound resolver below.
+                plan_values["program_graph_ref"] = raw_plan.program_graph_ref
+                plan_values["exec_plan_ref"] = raw_plan.exec_plan_ref
         elif isinstance(raw_plan, Mapping):
             plan_values = dict(raw_plan)
         else:
@@ -3439,8 +3810,10 @@ FOUNDRY_VALUE_PORT_EVALUATOR_ID = core_components.ComponentId(
 
 def simulation_evaluation_input_ref(
     simulation: SimulationPortObservation,
+    *,
+    artifact_store: ArtifactStore | None = None,
 ) -> ArtifactRef | None:
-    """Return the canonical reference for the actual N5 observation."""
+    """Return a v1 EvalSafety input only after verifying persisted N5 bytes."""
 
     if simulation.status != "joint_simulated":
         return None
@@ -3452,6 +3825,26 @@ def simulation_evaluation_input_ref(
     if simulation.authority_blockers and simulation.simulation_result_ref is None:
         return None
     result_ref = simulation.simulation_result_ref
+    if result_ref is not None:
+        if artifact_store is None or simulation.world_model_record is None:
+            return None
+        try:
+            result = load_joint_simulation_result(
+                result_ref,
+                store=artifact_store,
+                expected_world_model_record_content_hash=(
+                    simulation.world_model_record.content_hash
+                ),
+            )
+        except GenerationCycleError:
+            return None
+        if (
+            result.schema_version != JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
+            or result.receipt.payload_hash != simulation.simulation_ref
+            or not set(result.promotion_ready_value_packet.get("authority_blockers", ()))
+            .issubset(blockers)
+        ):
+            return None
     content_hash = (
         str(result_ref.artifact_id)
         if result_ref is not None
@@ -3480,10 +3873,11 @@ def simulation_value_execution_context(
     candidate: object,
     simulation: SimulationPortObservation,
     problem: DesignProblem,
+    artifact_store: ArtifactStore | None = None,
 ) -> EvaluationExecutionContext:
     """Build an explicit certificate-free context from the actual N5 output."""
 
-    input_ref = simulation_evaluation_input_ref(simulation)
+    input_ref = simulation_evaluation_input_ref(simulation, artifact_store=artifact_store)
     world = simulation.world_model_record
     if input_ref is None or world is None:
         raise ValueError("eval_safety_simulation_input_unresolved")
@@ -3609,6 +4003,7 @@ class FoundryValuePort:
         runtime_budget_ms: float | None = None,
         repo_root: Path | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
+        artifact_store: ArtifactStore | None = None,
     ) -> None:
         self._owner_gateway = owner_gateway or RealValueOwnerGateway(
             repo_root=repo_root,
@@ -3622,6 +4017,7 @@ class FoundryValuePort:
         self._observation_family = observation_family
         self._runtime_budget_ms = runtime_budget_ms
         self._cycle_substrate_context = cycle_substrate_context
+        self._artifact_store = artifact_store
         self._world_cache: dict[str, object] = {}
 
     def __call__(
@@ -3655,7 +4051,9 @@ class FoundryValuePort:
                 started=started,
                 candidate_id=candidate_id,
             )
-        actual_input_ref = simulation_evaluation_input_ref(simulation)
+        actual_input_ref = simulation_evaluation_input_ref(
+            simulation, artifact_store=self._artifact_store
+        )
         actual_input_provenance = next(
             (
                 row
@@ -4030,7 +4428,6 @@ def _conditional_simulation_value_observation(
     blockers = set(simulation.authority_blockers)
     if (
         simulation.status != "joint_simulated"
-        or not blockers
         or not blockers.issubset(_SIMULATION_AUTHORITY_LIMITATIONS)
         or simulation.simulation_result_ref is None
     ):
@@ -4087,6 +4484,24 @@ def _conditional_simulation_value_observation(
             candidate_id=candidate_id,
             world_model_record_content_hash=world_hash,
         )
+    if not blockers and result.state_consumption is None:
+        # A verified historical v1 input can continue to EvalSafety. A v2
+        # result must carry its persisted limitations through this path.
+        return None
+    if result.state_consumption is not None:
+        persisted_limitations = set(result.state_consumption.authority_limitations)
+        if not persisted_limitations.issubset(blockers) or not persisted_limitations.issubset(
+            result.promotion_ready_value_packet.get("authority_blockers", ())
+        ):
+            return _blocked_value_observation(
+                code="n8_state_consumption_limitation_mismatch",
+                reason="N8 cannot reconcile the N5 limitations with the persisted state record.",
+                mode="simulate_only",
+                started=started,
+                candidate_id=candidate_id,
+                world_model_record_content_hash=world_hash,
+            )
+        blockers.update(persisted_limitations)
     return ValuePortObservation(
         status="value_conditional",
         candidate_id=candidate_id,
@@ -4149,6 +4564,7 @@ class _DefaultSimulationBoundFoundryValuePort:
                 candidate=candidate,
                 simulation=simulation,
                 problem=problem,
+                artifact_store=self.artifact_store,
             )
         except ValueError:
             return _blocked_value_observation(
@@ -4164,6 +4580,7 @@ class _DefaultSimulationBoundFoundryValuePort:
             owner_gateway=self.owner_gateway,
             data_trust=self.data_trust,
             repo_root=self.repo_root,
+            artifact_store=self.artifact_store,
             **self._selection_configuration(),
         )(
             candidate=candidate,

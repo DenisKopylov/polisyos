@@ -716,6 +716,66 @@ class _AcquisitionGrounding:
         )
 
 
+class _N7ReentrySimulationPort:
+    """Record candidate-band N5 re-entry without manufacturing simulation evidence."""
+
+    def __init__(self) -> None:
+        self.calls: list[dict[str, Any]] = []
+
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> SimulationPortObservation:
+        del problem
+        atom = candidate.atom
+        call = {
+            "candidate_id": str(candidate.candidate_id),
+            "candidate_content_hash": str(atom.content_hash),
+            "target_world_slots": tuple(atom.target_world_slots),
+            "world_model_record_ref": str(atom.world_model_record_ref),
+            "cycle_index": cycle_index,
+        }
+        self.calls.append(call)
+        return SimulationPortObservation(
+            candidate_id=call["candidate_id"],
+            status="simulation_pending_n5",
+            authority_blockers=("n5_owner_wmr_unavailable",),
+            diagnostics={"candidate_reentry_probe": call},
+        )
+
+
+class _N7ReentryPendingValuePort(PendingN8ValuePort):
+    """Record N8 invocation while retaining its explicit pending outcome."""
+
+    def __init__(self) -> None:
+        self.calls: list[dict[str, Any]] = []
+
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> ValuePortObservation:
+        del problem
+        call = {
+            "candidate_id": str(candidate.candidate_id),
+            "simulation_status": simulation.status,
+            "cycle_index": cycle_index,
+        }
+        self.calls.append(call)
+        return ValuePortObservation(
+            status="value_pending_n8",
+            candidate_id=call["candidate_id"],
+            authority_blockers=("value_gate_pending_n8",),
+            reason="N8 owner is not established in the N7 candidate-band re-entry fixture.",
+        )
+
+
 class _EmptyGenerationPort:
     async def __call__(
         self,
@@ -5022,6 +5082,82 @@ async def test_production_candidate_without_n7_receipt_is_not_refused() -> None:
     assert refused.value.code == "generation_cycle_run_invalid_before_n9"
 
 
+def _assert_n7_reentered_in_candidate_band(
+    *,
+    run: GenerationCycleRun,
+    original_atom: InterventionAtomBinding,
+    simulation_port: _N7ReentrySimulationPort,
+    value_port: _N7ReentryPendingValuePort,
+    require_disjoint_source_and_target: bool = False,
+) -> None:
+    """Prove same-cycle dependent work runs while N7 supplies no CGF authority."""
+
+    assert len(run.cycles) == 1
+    cycle = run.cycles[0]
+    assert cycle.acquisition_receipt is not None
+    receipt = cycle.acquisition_receipt
+    assert receipt["source_cycle_index"] == cycle.cycle_index
+    assert receipt["reentry_cycle_index"] == cycle.cycle_index
+    assert receipt["status"] == "completed_no_results"
+    assert receipt["real_grounding_result_count"] == 0
+    assert receipt["no_result_costed_gap"] is True
+    assert receipt["useful_design_rate_after"] == receipt["useful_design_rate_before"]
+    write_outcomes = receipt["world_write_outcomes"]
+    assert len(write_outcomes) == 1
+    assert write_outcomes[0]["status"] == "written"
+    assert write_outcomes[0]["world_ref_after"] == receipt["grown_world_after_ref"]
+
+    # These behavioral signals must turn red if code keeps the receipt's
+    # same-cycle re-entry markers but skips the dependent N5 callback.
+    assert len(simulation_port.calls) == 2
+    initial, reentered = simulation_port.calls
+    assert initial["candidate_id"] == reentered["candidate_id"] == cycle.selected_candidate_ref
+    assert initial["cycle_index"] == reentered["cycle_index"] == cycle.cycle_index
+    assert initial["candidate_content_hash"] == original_atom.content_hash
+    assert initial["world_model_record_ref"] == original_atom.world_model_record_ref
+    assert reentered["target_world_slots"] == tuple(original_atom.target_world_slots)
+    assert reentered["world_model_record_ref"] == receipt["grown_world_after_ref"]
+    assert reentered["candidate_content_hash"] != initial["candidate_content_hash"]
+    assert cycle.selected_candidate_content_hash == reentered["candidate_content_hash"]
+    assert cycle.simulation.status == "simulation_pending_n5"
+
+    rows = [
+        row
+        for row in receipt["grounding_rederivations"]
+        if row["design_id"] == cycle.selected_candidate_ref
+    ]
+    assert len(rows) == 1
+    assert rows[0]["status"] == "grounding_unavailable"
+    assert rows[0]["issue_codes"] == ["generation_result_problem_scope_unestablished"]
+    assert cycle.grounding.status == "grounding_unavailable"
+    assert cycle.grounding.grounding_source == "grounding_unavailable"
+    assert cycle.grounding.grounding_disposition is None
+    assert cycle.grounding.cgf_certificate_refs == ()
+    assert cycle.grounding.evidence_refs == ()
+    assert cycle.terminal_kind == "a_spec_gap"
+    assert run.terminal_status == "completed"
+    assert run.blocked_reason is None
+
+    if require_disjoint_source_and_target:
+        source_slots = set(receipt["affected_region"]["source_slots"])
+        target_slots = set(reentered["target_world_slots"])
+        assert source_slots
+        assert target_slots
+        assert source_slots.isdisjoint(target_slots)
+
+    # N8 was called for the same same-cycle re-entry and kept pending. Neither
+    # pending result is an N5 simulation or N8 value authority receipt.
+    assert len(value_port.calls) == 2
+    assert value_port.calls[-1] == {
+        "candidate_id": cycle.selected_candidate_ref,
+        "simulation_status": "simulation_pending_n5",
+        "cycle_index": cycle.cycle_index,
+    }
+    assert cycle.value_port.status == "value_pending_n8"
+    assert run.promotion_port.status != "certified_current_valid"
+    assert run.promotion_port.receipts == ()
+
+
 @pytest.mark.asyncio
 async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() -> None:
     data_spec = _n7_data_requirement_spec()
@@ -5050,7 +5186,7 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
     atom = _canonical_n7_test_atom(
         problem,
         candidate_id="candidate_cycle_1",
-        target_world_slot="owner_panel_missing",
+        target_world_slot="policy_outcome_slot",
     )
     payload = _n7_owner_payload(
         acquired_family="owner_panel_missing",
@@ -5078,10 +5214,13 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
             capture_mode="local_substrate_owner",
         ),
     )
+    simulation_probe = _N7ReentrySimulationPort()
+    value_probe = _N7ReentryPendingValuePort()
     controller = GenerationCycleController(
         generation_port=_CounterexampleAwareGenerator(first_atom=atom),
         grounding_port=_AcquisitionGrounding(),
-        value_port=PendingN8ValuePort(),
+        simulation_port=simulation_probe,
+        value_port=value_probe,
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
@@ -5094,11 +5233,13 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
     receipt = run.cycles[0].acquisition_receipt
     assert receipt["source_cycle_index"] == 0
     assert receipt["reentry_cycle_index"] == 0
-    assert receipt["real_grounding_result_count"] == 1
-    assert receipt["useful_design_rate_after"] > 0.0
-    assert run.cycles[0].terminal_kind == "grounded_abstention"
-    assert run.cycles[0].grounding.status == "grounded_shadow"
-    assert run.candidate_summaries[0].grounding_status == "grounded_shadow"
+    _assert_n7_reentered_in_candidate_band(
+        run=run,
+        original_atom=atom,
+        simulation_port=simulation_probe,
+        value_port=value_probe,
+        require_disjoint_source_and_target=True,
+    )
     assert run.acquisition_receipts == (receipt,)
 
 
@@ -5149,10 +5290,13 @@ async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_ree
         ),
     )
     assert not any(key.startswith("n7_") for key in problem.runtime_hints)
+    simulation_probe = _N7ReentrySimulationPort()
+    value_probe = _N7ReentryPendingValuePort()
     controller = GenerationCycleController(
         generation_port=_CounterexampleAwareGenerator(first_atom=atom),
         grounding_port=_AcquisitionGrounding(),
-        value_port=PendingN8ValuePort(),
+        simulation_port=simulation_probe,
+        value_port=value_probe,
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
@@ -5161,15 +5305,13 @@ async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_ree
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
 
-    cycle = run.cycles[0]
-    assert cycle.acquisition_receipt is not None
-    assert cycle.acquisition_receipt["real_grounding_result_count"] == 1
-    assert cycle.terminal_kind != "acquisition_required"
-    assert cycle.terminal_kind == "grounded_abstention"
-    assert cycle.grounding.status == "grounded_shadow"
-    assert cycle.grounding.report_ref
-    assert run.candidate_summaries[0].grounding_status == "grounded_shadow"
-    assert run.candidate_summaries[0].front == "research"
+    _assert_n7_reentered_in_candidate_band(
+        run=run,
+        original_atom=atom,
+        simulation_port=simulation_probe,
+        value_port=value_probe,
+    )
+    assert run.candidate_summaries[0].front == "quarantine"
 
 
 @pytest.mark.asyncio

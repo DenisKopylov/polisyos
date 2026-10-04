@@ -6370,12 +6370,14 @@ class GenerationCycleController:
             candidate_id=cycle.selected_candidate_ref,
             candidate_content_hash=cycle.selected_candidate_content_hash,
             prior_candidate=prior_candidate,
+            allow_grounding_unavailable=True,
         )
         if rederived is None:
             return (
                 cycle.model_copy(update={"acquisition_receipt": receipt_payload}),
                 cycle_summaries,
             )
+        grounding_unavailable = rederived.status == "grounding_unavailable"
         grounding = CandidateGroundingObservation(
             candidate_id=cycle.selected_candidate_ref,
             status=rederived.status,
@@ -6384,9 +6386,11 @@ class GenerationCycleController:
             evidence_refs=rederived.evidence_refs,
             current_valid=rederived.status == "current_valid",
             report_ref=rederived.report_ref,
-            grounding_source="cgf_firewall",
-            grounding_disposition="shadow_bound",
-            cgf_certificate_refs=rederived.evidence_refs,
+            grounding_source=(
+                "grounding_unavailable" if grounding_unavailable else "cgf_firewall"
+            ),
+            grounding_disposition=None if grounding_unavailable else "shadow_bound",
+            cgf_certificate_refs=() if grounding_unavailable else rederived.evidence_refs,
         )
         prior_summary = next(
             (
@@ -7612,14 +7616,18 @@ def _n7_rederived_grounding_for_candidate(
     candidate_id: str,
     candidate_content_hash: str | None = None,
     prior_candidate: object | None = None,
+    allow_grounding_unavailable: bool = False,
 ) -> object | None:
     if not acquisition_receipt_has_verified_emission(receipt):
         return None
+    accepted_statuses = {"current_valid", "grounded_shadow"}
+    if allow_grounding_unavailable:
+        accepted_statuses.add("grounding_unavailable")
     row = next(
         (
             row
             for row in receipt.grounding_rederivations
-            if row.design_id == candidate_id and row.status in {"current_valid", "grounded_shadow"}
+            if row.design_id == candidate_id and row.status in accepted_statuses
         ),
         None,
     )
@@ -7632,9 +7640,13 @@ def _n7_rederived_grounding_for_candidate(
         return row
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 
+    if _candidate_id(prior_candidate) != candidate_id:
+        raise GenerationCycleError("n7_reentry_candidate_binding_mismatch")
     prior_atom = _object_get(prior_candidate, "atom")
     if not isinstance(prior_atom, InterventionAtomBinding):
         raise GenerationCycleError("n7_reentry_candidate_atom_not_canonical")
+    if prior_atom.content_hash != candidate_content_hash:
+        raise GenerationCycleError("n7_reentry_candidate_binding_mismatch")
     prior_target_world_slots = tuple(
         str(item)
         for item in _sequence(_object_get(prior_atom, "target_world_slots", ()))

@@ -353,10 +353,14 @@ async def test_revised_basis_scope_refuses_before_egress_and_selector_removal_is
     assert case.transport_calls == []  # the injected boundary records but never sends requests
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("guarded_cas", [False, True])
-async def test_actual_wdi_admits_delta_and_reenters_same_case(
-    tmp_path, monkeypatch, request, guarded_cas
+async def _run_actual_wdi_admits_delta_and_reenters_same_case(
+    tmp_path,
+    monkeypatch,
+    request,
+    *,
+    guarded_cas: bool,
+    tenant_id: str = "tenant-a",
+    cell_id: str = "cell-a",
 ):
     # This is a downstream owner-chain witness: persist_wdi_route seeds its
     # run through for_contract_testing. The protected-intent production
@@ -373,7 +377,12 @@ async def test_actual_wdi_admits_delta_and_reenters_same_case(
         monkeypatch.setattr(control_fixture, "FileSystemCAS", build_guarded_store)
     install_fixture_wdi_cost_basis(monkeypatch)
     control = _build_control_service(tmp_path / "control")
-    closure, _ = await persist_wdi_route(control)
+    closure, _ = await persist_wdi_route(
+        control,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    assert (closure.tenant_id, closure.cell_id) == (tenant_id, cell_id)
     run = closure.generation_run
     currentness = currentness_for_generation_cycle_run(run)
     assert currentness.status == "not_established"
@@ -444,6 +453,19 @@ async def test_actual_wdi_admits_delta_and_reenters_same_case(
             service._projection(closure)
     finally:
         blob.write_bytes(native)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("guarded_cas", [False, True])
+async def test_actual_wdi_admits_delta_and_reenters_same_case(
+    tmp_path, monkeypatch, request, guarded_cas
+):
+    await _run_actual_wdi_admits_delta_and_reenters_same_case(
+        tmp_path,
+        monkeypatch,
+        request,
+        guarded_cas=guarded_cas,
+    )
 
 
 @pytest.mark.asyncio

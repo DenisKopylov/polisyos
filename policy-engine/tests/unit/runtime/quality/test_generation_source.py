@@ -946,6 +946,8 @@ async def test_default_controller_custody_and_missing_protected_admission(
     from pathlib import Path
 
     from polisyos.core import artifacts
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.resilience import guard_runtime_cas
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleController,
         PendingN8ValuePort,
@@ -968,47 +970,183 @@ async def test_default_controller_custody_and_missing_protected_admission(
         return emitted
 
     monkeypatch.setattr(n4, "generate_design_candidate_bundle_under_a", produce)
-    runtime = PromotionRuntime(store=artifacts.FileSystemCAS(tmp_path / "runtime"))
-    controller = GenerationCycleController(
+    owner_store = artifacts.FileSystemCAS(
+        tmp_path / "runtime"
+    ).with_ambient_ownership_enforcement()
+    store = guard_runtime_cas(owner_store)
+    try:
+        with tenant_scope(None, tenant_id="tenant-source-a", cell_id="cell-source-a"):
+            runtime = PromotionRuntime(store=store)
+            controller = GenerationCycleController(
+                model_id="synthetic-c2",
+                repo_root=Path(__file__).resolve().parents[4],
+                cycle_substrate_context=organ.cycle_substrate_context,
+                promotion_runtime=runtime,
+                value_port=PendingN8ValuePort(),
+                authority_scope="contract_testing",
+            )
+            run = await controller.run(
+                problem, budget_state=_budget(), min_cycles=1, max_cycles=1
+            )
+            assert run.synthetic is True
+            assert run.source_preservation_receipt.synthetic is True
+            assert run.source_preservation_receipt.status == "strangled", (
+                run.source_preservation_receipt.issues
+            )
+            assert run.source_handoff_refs
+            assert not run.promotion_port.certified_candidate_ids
+            assert controller._promotion_port(admitted_batch=None, problem=problem).reason == (
+                "epoch_validity_refused:pre_n9_admitted_batch_missing"
+            )
+            assert supplied_budgets and supplied_budgets[0] is controller._grounding_run_budget
+            for source in actual_emissions[0].candidate_sources:
+                admission = source.grounding_decision_certificate.run_admission
+                assert admission.run_id == run.run_id
+                assert admission.charged_this_attempt == 0
+            repository = controller._source_repository
+            assert repository is not None
+            assert repository.store is store
+            summary = next(
+                row
+                for row in run.candidate_summaries
+                if row.candidate_id == organ.result.candidates[0].candidate_id
+            )
+            resolved = repository.resolve(
+                refs=run.source_handoff_refs,
+                run_id=run.run_id,
+                summary=summary,
+                problem=problem,
+            )
+            assert resolved.status == "resolved", resolved.code
+            assert resolved.source_ref in run.source_handoff_refs
+            before = controller._grounding_run_budget
+            controller._restore_source_run(run)
+            assert controller._grounding_run_budget is before
+            assert tuple(controller._source_handoff_refs) == run.source_handoff_refs
+            # Repeating the actual default N4 handoff is permitted without changing the problem.
+            await controller._generate_node({"problem": problem, "cycle_index": 1})
+            assert supplied_budgets[-1] is before
+            receipt = controller._source_preservation_receipt()
+            assert receipt.status == "strangled", receipt.issues
+            retained_organ = actual_emissions[0]
+            actual_context = controller._promotion_source_context(
+                _source_summary(retained_organ), problem
+            )
+            assert (
+                actual_context["world_model_record"]
+                == organ.cycle_substrate_context.world_model_record
+            )
+            assert (
+                actual_context["effect_obligation_writer_input"].intervention_atom
+                == retained_organ.result.candidates[0].atom
+            )
+
+        with tenant_scope(None, tenant_id="tenant-source-b", cell_id="cell-source-b"):
+            refused = repository.resolve(
+                refs=run.source_handoff_refs,
+                run_id=run.run_id,
+                summary=summary,
+                problem=problem,
+            )
+            assert refused.status == "not_established"
+            assert refused.code == "source_replay_failed"
+    finally:
+        owner_store.close()
+
+
+@pytest.mark.asyncio
+async def test_failed_source_handoff_cannot_supply_authority(
+    tmp_path, monkeypatch
+):
+    """A candidate survives a CAS write failure, while strict N6 and N9 refuse it."""
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        GenerationCycleError,
+        GenerationSourcePreservationReceipt,
+        PendingN8ValuePort,
+        eligible_n9_source_for_run,
+        validate_generation_cycle_run,
+    )
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _budget,
+        _StableShadowGrounding,
+    )
+
+    problem = _test_design_problem()
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=n4.gy_content_hash(problem.model_dump(mode="json")),
         model_id="synthetic-c2",
-        repo_root=Path(__file__).resolve().parents[4],
-        cycle_substrate_context=organ.cycle_substrate_context,
-        promotion_runtime=runtime,
+        preflight=n4.ModelProfilePreflight(
+            status="gateway_unavailable", model_id="synthetic-c2"
+        ),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1, candidate_count=0, unique_diversity_key_count=0
+        ),
+    )
+    organ = result.as_organ_run(trinity_bundle=_bundle([_intervention("custody_failure")]))
+
+    async def produce(_problem, *, cycle_index):
+        assert _problem == problem and cycle_index == 0
+        return organ
+
+    def fail_persist(self, **_kwargs):
+        raise OSError("injected source-store write failure")
+
+    class _StopAfterCandidate(GenerationCycleController):
+        def decide_next_action(self, **kwargs):
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "stop", "reason": "source_failure_candidate_control"}
+            )
+
+    monkeypatch.setattr(GenerationSourceRepository, "persist", fail_persist)
+    store = artifacts.FileSystemCAS(tmp_path / "runtime")
+    controller = _StopAfterCandidate(
+        generation_port=produce,
+        grounding_port=_StableShadowGrounding(),
+        promotion_runtime=PromotionRuntime(store=store),
         value_port=PendingN8ValuePort(),
         authority_scope="contract_testing",
     )
     run = await controller.run(problem, budget_state=_budget(), min_cycles=1, max_cycles=1)
-    assert run.synthetic is True
-    assert run.source_preservation_receipt.synthetic is True
-    assert run.source_preservation_receipt.status == "strangled", (
-        run.source_preservation_receipt.issues
+    assert run.cycles and run.candidate_summaries
+    assert run.terminal_status == "completed"
+    assert run.source_preservation_receipt is not None
+    assert run.source_preservation_receipt.status == "drift"
+    assert "source_persistence_refused:OSError" in run.source_preservation_receipt.issues
+    assert run.promotion_port.reason == (
+        "generation_cycle_source_preservation_not_established:drift"
     )
-    assert run.source_handoff_refs
-    assert not run.promotion_port.certified_candidate_ids
-    assert controller._promotion_port(admitted_batch=None, problem=problem).reason == (
-        "epoch_validity_refused:pre_n9_admitted_batch_missing"
+    assert "generation_cycle_source_preservation_not_established" in {
+        issue["code"] for issue in validate_generation_cycle_run(run)
+    }
+    with pytest.raises(
+        GenerationCycleError, match="generation_cycle_source_preservation_not_established"
+    ):
+        eligible_n9_source_for_run(run)
+
+    # A self-hashed receipt with its positive status marker restored still
+    # fails if the producer's recorded replay issue remains.
+    receipt_payload = run.source_preservation_receipt.model_dump(mode="json")
+    receipt_payload["status"] = "strangled"
+    receipt_payload["content_hash"] = n4.gy_content_hash(
+        {key: value for key, value in receipt_payload.items() if key != "content_hash"}
     )
-    assert supplied_budgets and supplied_budgets[0] is controller._grounding_run_budget
-    for source in actual_emissions[0].candidate_sources:
-        admission = source.grounding_decision_certificate.run_admission
-        assert admission.run_id == run.run_id
-        assert admission.charged_this_attempt == 0
-    before = controller._grounding_run_budget
-    controller._restore_source_run(run)
-    assert controller._grounding_run_budget is before
-    assert tuple(controller._source_handoff_refs) == run.source_handoff_refs
-    # Repeating the actual default N4 handoff is permitted without changing the problem.
-    await controller._generate_node({"problem": problem, "cycle_index": 1})
-    assert supplied_budgets[-1] is before
-    receipt = controller._source_preservation_receipt()
-    assert receipt.status == "strangled", receipt.issues
-    retained_organ = actual_emissions[0]
-    actual_context = controller._promotion_source_context(_source_summary(retained_organ), problem)
-    assert actual_context["world_model_record"] == organ.cycle_substrate_context.world_model_record
-    assert (
-        actual_context["effect_obligation_writer_input"].intervention_atom
-        == retained_organ.result.candidates[0].atom
-    )
+    inconsistent = GenerationSourcePreservationReceipt.model_validate(receipt_payload)
+    marked_run = run.model_copy(update={"source_preservation_receipt": inconsistent})
+    assert {issue["reason"] for issue in validate_generation_cycle_run(marked_run)
+            if issue["code"] == "generation_cycle_source_preservation_not_established"} == {
+        "receipt_incoherent"
+    }
+    with pytest.raises(GenerationCycleError, match="receipt_incoherent"):
+        eligible_n9_source_for_run(marked_run)
+
+    missing_receipt_run = run.model_copy(update={"source_preservation_receipt": None})
+    with pytest.raises(GenerationCycleError, match="receipt_missing"):
+        eligible_n9_source_for_run(missing_receipt_run)
 
 
 def test_data_only_new_candidate_preserves_complete_source_identity(actual_n4_source, tmp_path):

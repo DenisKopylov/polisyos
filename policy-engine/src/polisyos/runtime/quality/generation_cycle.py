@@ -169,6 +169,12 @@ if TYPE_CHECKING:
     )
 
 GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
+_GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION = (
+    "policyos.runtime.generation_cycle_controller.v4"
+)
+_GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS = frozenset(
+    {GENERATION_CYCLE_SCHEMA_VERSION, _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION}
+)
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v2"
 )
@@ -1551,6 +1557,27 @@ class GenerationSourcePreservationReceipt(_StrictModel):
         return self
 
 
+class GenerationSourceCustodyLimitation(_StrictModel):
+    """Typed candidate limitation when the runtime source store is unavailable."""
+
+    schema_version: Literal[
+        "policyos.runtime.generation_source_custody_limitation.v1"
+    ] = "policyos.runtime.generation_source_custody_limitation.v1"
+    status: Literal["not_established"] = "not_established"
+    reason_code: Literal["source_store_unavailable"] = "source_store_unavailable"
+
+    @model_serializer(mode="wrap")
+    def _serialize_own_epoch(
+        self, handler: SerializerFunctionWrapHandler
+    ) -> dict[str, Any]:
+        payload = handler(self)
+        return {
+            "schema_version": payload["schema_version"],
+            "status": payload["status"],
+            "reason_code": payload["reason_code"],
+        }
+
+
 class AcquisitionOverlayReentryReceipt(_StrictModel):
     """Immutable proof of direct N6 re-entry over one active owner overlay."""
 
@@ -1812,6 +1839,7 @@ class GenerationCycleRun(_StrictModel):
         "policyos.runtime.generation_cycle_controller.v1",
         "policyos.runtime.generation_cycle_controller.v2",
         "policyos.runtime.generation_cycle_controller.v3",
+        "policyos.runtime.generation_cycle_controller.v4",
     ] = GENERATION_CYCLE_SCHEMA_VERSION
     run_id: str = Field(..., min_length=1)
     design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -1830,6 +1858,7 @@ class GenerationCycleRun(_StrictModel):
     synthetic: bool | None = None
     source_handoff_refs: tuple[str, ...] = ()
     source_preservation_receipt: GenerationSourcePreservationReceipt | None = None
+    source_custody_limitation: GenerationSourceCustodyLimitation | None = None
     deployment_identity_status: Literal["established", "not_established"] = "not_established"
     deployment_identity: str | None = Field(
         default=None,
@@ -1845,7 +1874,7 @@ class GenerationCycleRun(_StrictModel):
         schema_version = value.get("schema_version", GENERATION_CYCLE_SCHEMA_VERSION)
         identity_status = value.get("deployment_identity_status", "not_established")
         if (
-            schema_version == GENERATION_CYCLE_SCHEMA_VERSION
+            schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS
             and identity_status == "not_established"
             and "deployment_identity_reason" not in value
         ):
@@ -1868,12 +1897,20 @@ class GenerationCycleRun(_StrictModel):
             or self.deployment_identity_reason is not None
         ):
             raise ValueError("historical_generation_cannot_acquire_deployment_identity")
-        if self.schema_version.endswith(".v3"):
+        if self.schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS:
             if self.deployment_identity_status == "established":
                 if self.deployment_identity is None or self.deployment_identity_reason is not None:
                     raise ValueError("generation_cycle_deployment_identity_binding_mismatch")
             elif self.deployment_identity is not None or self.deployment_identity_reason is None:
                 raise ValueError("generation_cycle_deployment_identity_binding_mismatch")
+        limitation = self.source_custody_limitation
+        if self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION:
+            if limitation is None:
+                raise ValueError("generation_cycle_limited_v4_requires_source_limitation")
+            if self.source_preservation_receipt is not None:
+                raise ValueError("generation_cycle_source_limitation_has_preservation_receipt")
+        elif limitation is not None:
+            raise ValueError("generation_cycle_source_limitation_requires_v4")
         receipt = self.source_preservation_receipt
         if receipt is not None and (
             receipt.run_id != self.run_id
@@ -1884,10 +1921,13 @@ class GenerationCycleRun(_StrictModel):
         return self
 
     def verify_strangle_receipt(self, repo_root: Path | None = None) -> None:
-        """Require the owner-issued currentness observation at its consumer.
+        """Require the owner-issued deployment-currentness observation.
 
         ``repo_root`` is retained for call compatibility; persisted consumers do
-        not reopen or rescan a source checkout.
+        not reopen or rescan a source checkout. This check answers only the
+        loaded-code identity question. It does not establish source-store
+        custody; authority consumers must also use the full run validator or the
+        N9 source owner.
         """
 
         del repo_root
@@ -1905,6 +1945,16 @@ class GenerationCycleRun(_StrictModel):
 
     @model_serializer(mode="wrap")
     def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        if (
+            self.source_custody_limitation is not None
+            and self.schema_version != _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+        ):
+            raise ValueError("generation_cycle_source_limitation_requires_v4")
+        if (
+            self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+            and self.source_custody_limitation is None
+        ):
+            raise ValueError("generation_cycle_limited_v4_requires_source_limitation")
         payload = handler(self)
         if self.schema_version.endswith((".v1", ".v2")):
             version = self.schema_version.rsplit(".", 1)[-1]
@@ -1914,10 +1964,59 @@ class GenerationCycleRun(_StrictModel):
             if not isinstance(supplied, dict):
                 raise TypeError("historical_generation_payload_invalid")
             payload = supplied
+        elif self.schema_version == GENERATION_CYCLE_SCHEMA_VERSION:
+            # Keep every pre-existing v3 field/value while excluding the v4-only field.
+            payload.pop("source_custody_limitation", None)
+        elif self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION:
+            limitation = payload.pop("source_custody_limitation", None)
+            if not isinstance(limitation, dict):
+                raise TypeError("generation_cycle_limited_v4_projection_invalid")
+            v3_payload = dict(payload)
+            v3_payload["schema_version"] = GENERATION_CYCLE_SCHEMA_VERSION
+            v3_run = GenerationCycleRun.model_validate(v3_payload)
+            supplied = _historical_generation_cycle_field_tree(
+                v3_run, v3_payload, version="v3"
+            )
+            if not isinstance(supplied, dict):
+                raise TypeError("historical_generation_payload_invalid")
+            supplied["schema_version"] = self.schema_version
+            supplied["source_custody_limitation"] = limitation
+            payload = supplied
         if self.schema_version.endswith(".v1"):
             for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
                 payload.pop(key, None)
         return payload
+
+
+def _source_custody_authority_refusal(
+    limitation: GenerationSourceCustodyLimitation | None,
+    receipt: GenerationSourcePreservationReceipt | None,
+    *,
+    require_established: bool = True,
+) -> tuple[str, str] | None:
+    """Refuse known custody drift; require positive replay at authority gates."""
+
+    if limitation is not None:
+        if not require_established:
+            # The v4 limitation is explicit candidate evidence. N9 may consider
+            # the candidate, but strict consumers still require owner replay.
+            return None
+        return "generation_cycle_source_custody_not_established", limitation.reason_code
+    if receipt is None:
+        return "generation_cycle_source_preservation_not_established", "receipt_missing"
+    if receipt.status == "strangled" and (
+        receipt.issues
+        or not receipt.source_refs
+        or receipt.expected_identity_count <= 0
+        or receipt.expected_identity_count != receipt.retained_identity_count
+        or receipt.expected_identity_digest != receipt.retained_identity_digest
+    ):
+        return "generation_cycle_source_preservation_not_established", "receipt_incoherent"
+    if receipt.status == "drift" or (
+        require_established and receipt.status != "strangled"
+    ):
+        return "generation_cycle_source_preservation_not_established", receipt.status
+    return None
 
 
 class N9TerminalDisposition(str, Enum):
@@ -1957,6 +2056,13 @@ class N9EligibleRunSource:
             N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
         ):
             raise ValueError("generation_cycle_terminal_blocked_before_n9")
+        source_refusal = _source_custody_authority_refusal(
+            run.source_custody_limitation,
+            run.source_preservation_receipt,
+            require_established=False,
+        )
+        if source_refusal is not None:
+            raise GenerationCycleError(*source_refusal)
         if "terminal_status" not in run.model_fields_set:
             raise GenerationCycleError("generation_cycle_terminal_status_not_supplied")
         issues = validate_generation_cycle_candidate_run(run)
@@ -1983,12 +2089,14 @@ def eligible_n9_source_for_run(run: GenerationCycleRun) -> N9EligibleRunSource |
     through the history owner but cannot supply current N9 evidence. Candidate-
     band currentness may remain unknown because this validator does not require
     deployment authority; N9's own authority gates still decide whether any
-    candidate can be promoted.
+    candidate can be promoted. Current-schema blocked runs have no N9 source.
+    A nonblocked v4 limitation can supply candidate evidence only: it must carry
+    no N9 receipt or certification, and strict authority replay still refuses it.
     """
 
     if type(run) is not GenerationCycleRun:
         raise TypeError("n9_source_requires_typed_generation_cycle_run")
-    if run.schema_version != GENERATION_CYCLE_SCHEMA_VERSION:
+    if run.schema_version not in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS:
         raise GenerationCycleError(
             "generation_cycle_historical_run_not_current_n9_source",
             run.schema_version,
@@ -1997,16 +2105,24 @@ def eligible_n9_source_for_run(run: GenerationCycleRun) -> N9EligibleRunSource |
         N9TerminalDisposition.TERMINAL_BLOCKED
     ):
         return None
+    source_refusal = _source_custody_authority_refusal(
+        run.source_custody_limitation,
+        run.source_preservation_receipt,
+        require_established=False,
+    )
+    if source_refusal is not None:
+        raise GenerationCycleError(*source_refusal)
     return N9EligibleRunSource(run, _token=_N9_ELIGIBLE_SOURCE_TOKEN)
 
 
 def _historical_generation_cycle_run_projection(
     run: GenerationCycleRun,
 ) -> dict[str, Any]:
-    """Return the persisted projection for history replay without changing live v3 output."""
+    """Return the schema-owned persisted projection for historical N6 replay."""
 
     payload = run.model_dump(mode="json")
     if not run.schema_version.endswith(".v3"):
+        # The run model serializer already freezes v4 as its v3 core plus limitation.
         return payload
     projection = _historical_generation_cycle_field_tree(
         run, payload, version="v3"
@@ -4226,6 +4342,7 @@ class GenerationCycleController:
         self._low_grounding_threshold = low_grounding_threshold
         self._source_run_id: str | None = None
         self._source_repository: GenerationSourceRepository | None = None
+        self._source_custody_limitation: GenerationSourceCustodyLimitation | None = None
         self._source_handoff_refs: list[str] = []
         self._source_expected_identities: list[tuple[str, str, str]] = []
         self._source_issues: list[str] = []
@@ -4250,24 +4367,30 @@ class GenerationCycleController:
         root = (self._repo_root or Path.cwd()).resolve()
         self._source_run_id = run_id
         self._source_handoff_refs = []
+        self._source_custody_limitation = None
         self._source_expected_identities = []
         self._source_issues = []
         self._source_organs = []
         self._source_synthetic = True if self._authority_scope == "contract_testing" else None
         self._n7_candidate_bindings = {}
         try:
-            store = (
-                self._promotion_runtime.store if self._promotion_runtime is not None
-                else build_artifact_store(
+            store = self._artifact_store
+            if store is None and self._authority_scope == "contract_testing":
+                store = build_artifact_store(
                     ArtifactStoreConfig(
                         backend="filesystem",
-                        root=str(root / ".polisyos/runtime/generation_source"),
+                        root=str(root / ".tmp/n6-generation-source-cas"),
                     ),
                 )
-            )
-            self._source_repository = GenerationSourceRepository(store)
+            if store is None:
+                self._source_repository = None
+                self._source_custody_limitation = GenerationSourceCustodyLimitation()
+                self._source_issues.append("source_store_unavailable")
+            else:
+                self._source_repository = GenerationSourceRepository(store)
         except (OSError, ValueError):
             self._source_repository = None
+            self._source_custody_limitation = GenerationSourceCustodyLimitation()
             self._source_issues.append("source_store_unavailable")
         if self._grounding_run_budget is not None and self._grounding_run_budget.run_id == run_id:
             budget = self._grounding_run_budget
@@ -4311,6 +4434,9 @@ class GenerationCycleController:
             self._source_issues.extend(receipt.issues)
 
     def _source_preservation_receipt(self) -> GenerationSourcePreservationReceipt | None:
+        # Do not issue the v1 recomputation receipt when there is no owner store.
+        # A persisted reason needs a separately versioned run field; `None` is
+        # the current typed absence and must not imply that source bytes replayed.
         if self._source_repository is None or self._source_run_id is None:
             return None
         return self._source_repository.preservation_receipt(
@@ -4488,6 +4614,10 @@ class GenerationCycleController:
             current_problem = cycle.revision_request.revised_problem
             cycle_index += 1
 
+        source_receipt = self._source_preservation_receipt()
+        source_refusal = _source_custody_authority_refusal(
+            self._source_custody_limitation, source_receipt
+        )
         promotion_summaries = _current_candidate_summaries(tuple(summaries))
         promotion_basis_ref = _cycle_basis_ref(cycles[-1]) if cycles else None
         if n9_terminal_disposition(terminal_status) is (
@@ -4508,7 +4638,15 @@ class GenerationCycleController:
                 )
             except Exception:
                 pre_n9_currentness = None
-            if pre_n9_currentness is None:
+            if source_refusal is not None and source_refusal[1] in {
+                "drift",
+                "receipt_incoherent",
+            }:
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"{source_refusal[0]}:{source_refusal[1]}",
+                )
+            elif pre_n9_currentness is None:
                 promotion = PromotionPortObservation(
                     status="not_promoted",
                     reason=(
@@ -4537,6 +4675,11 @@ class GenerationCycleController:
                     status="not_promoted",
                     reason=f"generation_cycle_n6_census_not_established:{reason}",
                 )
+            elif source_refusal is not None:
+                promotion = PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"{source_refusal[0]}:{source_refusal[1]}",
+                )
             else:
                 promotion = self._promote_completed_generation(
                     summaries=promotion_summaries,
@@ -4553,8 +4696,12 @@ class GenerationCycleController:
             promotion_evidence_resolver=self._promotion_evidence_resolver,
         )
         fronts = _derive_fronts(tuple(summaries))
-        source_receipt = self._source_preservation_receipt()
         run = GenerationCycleRun(
+            schema_version=(
+                _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+                if self._source_custody_limitation is not None
+                else GENERATION_CYCLE_SCHEMA_VERSION
+            ),
             run_id=run_id,
             design_problem_ref=design_problem_ref,
             terminal_denominator=_terminal_denominator(),
@@ -4578,6 +4725,7 @@ class GenerationCycleController:
             ),
             source_handoff_refs=tuple(self._source_handoff_refs),
             source_preservation_receipt=source_receipt,
+            source_custody_limitation=self._source_custody_limitation,
             deployment_identity_status=identity_status,
             deployment_identity=deployment_identity,
             deployment_identity_reason=identity_reason,
@@ -6401,6 +6549,7 @@ class GenerationCycleController:
                 except (OSError, ValueError, TypeError) as exc:
                     self._source_issues.append(f"source_persistence_refused:{type(exc).__name__}")
             else:
+                self._source_custody_limitation = GenerationSourceCustodyLimitation()
                 self._source_issues.append("source_store_unavailable")
         disposition_candidates = _disposition_candidates(
             result,
@@ -6754,10 +6903,13 @@ def validate_generation_cycle_candidate_run(
 def currentness_for_generation_cycle_run(
     run: GenerationCycleRun | Mapping[str, Any],
 ) -> N6DeploymentCurrentnessObservation:
-    """Ask the confidence-ledger owner whether this run is current.
+    """Ask the confidence-ledger owner whether this run's code identity is current.
 
     This lookup compares identity only. It never reads a repository checkout or
-    replays a persisted source-byte denominator.
+    replays a persisted source-byte denominator, and it does not establish
+    source-store custody. Authority consumers must compose the typed custody
+    limitation through ``validate_generation_cycle_run``; the N9 source carrier
+    admits explicitly limited candidates without certifying them.
     """
 
     try:
@@ -6842,6 +6994,19 @@ def _validate_generation_cycle_run(
             return ({"code": "generation_cycle_run_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []
     if require_currentness:
+        if run.schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS:
+            source_refusal = _source_custody_authority_refusal(
+                run.source_custody_limitation, run.source_preservation_receipt
+            )
+        else:
+            source_refusal = None
+        if source_refusal is not None:
+            issues.append(
+                {
+                    "code": source_refusal[0],
+                    "reason": source_refusal[1],
+                }
+            )
         if current_strangle_receipt is not None:
             try:
                 run.strangle_receipt._verify_against_current_receipt(
@@ -6889,7 +7054,17 @@ def _validate_generation_cycle_run(
         issues.append({"code": "terminal_denominator_not_derived"})
     if not run.cycles:
         issues.append({"code": "cycle_denominator_empty"})
-    if run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION:
+    if run.schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS:
+        if run.source_custody_limitation is not None and (
+            run.promotion_port.status != "not_promoted"
+            or run.promotion_port.certified_candidate_ids
+            or run.promotion_port.receipts
+            or run.promotion_port.strangle_receipt is not None
+            or run.promotion_port.pre_n9_open_world_gates
+            or run.fronts.decision.candidate_ids
+            or any(summary.certified_by_n9 for summary in run.candidate_summaries)
+        ):
+            issues.append({"code": "source_limited_generation_cycle_claims_n9_authority"})
         blocked_action_indexes = tuple(
             index
             for index, cycle in enumerate(run.cycles)
@@ -7134,7 +7309,7 @@ def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalSt
             blocking_obligations=["cycle_denominator_empty"],
         )
     if (
-        run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION
+        run.schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS
         and n9_terminal_disposition(run.terminal_status)
         is N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
         and any(cycle.voi_decision.next_action == "blocked" for cycle in run.cycles)

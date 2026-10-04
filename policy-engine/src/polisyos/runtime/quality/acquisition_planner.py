@@ -25,7 +25,6 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
@@ -1318,16 +1317,11 @@ class RealAcquisitionOwnerGateway:
         dataset_catalog_factory: Callable[[Path, Path], object] | None = None,
         retrieval_service_factory: Callable[[Path, ArtifactStore | None, object], object]
         | None = None,
-        artifact_store_config: ArtifactStoreConfig | None = None,
         captured_at: datetime | None = None,
         skg_source_snapshot: academic.SourceSnapshot | None = None,
     ) -> None:
-        if artifact_store is not None and artifact_store_config is not None:
-            raise ValueError("acquisition_owner_store_configuration_conflict")
         self._repo_root = Path(repo_root)
         self._artifact_store = artifact_store
-        if artifact_store_config is not None:
-            self._artifact_store = build_artifact_store(artifact_store_config)
         self._network_counter = network_counter or AcquisitionNetworkCallCounter()
         self._allow_openalex_network = bool(allow_openalex_network)
         self._dataset_catalog_factory = dataset_catalog_factory

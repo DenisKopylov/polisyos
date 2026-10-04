@@ -11,6 +11,7 @@ import pytest
 from polisyos.core import artifacts, canon
 from polisyos.runtime.quality import generation_cycle as n6
 from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from tests.unit.runtime.quality.test_design_axes_value_choice_provenance import (
     NOW,
     RULE_VERSION_REF,
@@ -78,26 +79,102 @@ def _put_signed(
     return str(ref.artifact_id)
 
 
-async def _owner_source_harness(tmp_path: Path, *, disposition: str) -> dict[str, Any]:
+def _identity_current_test_run(
+    run: n6.GenerationCycleRun,
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> n6.GenerationCycleRun:
+    """Inject a typed currentness observation to isolate consumer behavior."""
+
+    source_root = tmp_path / "passing-source-census"
+    source = source_root / "src/polisyos/minimal.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("def candidate_source():\n    return None\n", encoding="utf-8")
+    receipt = n6.StrangleReceipt.recompute(source_root)
+    assert receipt.status == "strangled"
+    identity = "policy-engine-deployment:sha256:" + "a" * 64
+    currentness = n6.N6DeploymentCurrentnessObservation(
+        status="current",
+        census_verdict="PASS",
+        recorded_identity_status="established",
+        recorded_deployment_identity=identity,
+        loaded_identity_status="established",
+        loaded_deployment_identity=identity,
+        reason_code="n6_currentness_established",
+        unresolved_by_construction=(),
+    )
+    monkeypatch.setattr(
+        n6, "observe_n6_deployment_currentness", lambda **_kwargs: currentness
+    )
+    return run.model_copy(
+        update={
+            "strangle_receipt": receipt,
+            "deployment_identity_status": "established",
+            "deployment_identity": identity,
+            "deployment_identity_reason": None,
+        }
+    )
+
+
+def _track_currentness_observations(
+    monkeypatch: pytest.MonkeyPatch,
+) -> list[dict[str, object]]:
+    """Record the ledger observations made by each consumer's strict validator."""
+
+    original = n6.observe_n6_deployment_currentness
+    observed: list[dict[str, object]] = []
+
+    def record(**kwargs: Any) -> n6.N6DeploymentCurrentnessObservation:
+        observed.append(dict(kwargs))
+        return original(**kwargs)
+
+    monkeypatch.setattr(n6, "observe_n6_deployment_currentness", record)
+    return observed
+
+
+async def _owner_source_harness(
+    tmp_path: Path,
+    *,
+    disposition: str,
+    runtime_source_store: bool = False,
+    identity_current: bool = False,
+    monkeypatch: pytest.MonkeyPatch | None = None,
+) -> dict[str, Any]:
     """Produce one current N6 run and bind real signed S8 evidence to its persisted ref."""
     source_root = await _source_root(tmp_path)
     store = artifacts.FileSystemCAS(tmp_path / "cas")
     grounding = _AlwaysLowGrounding() if disposition == "blocked" else _CurrentValidGrounding()
+    promotion_runtime = PromotionRuntime(store=store) if runtime_source_store else None
     controller = _N6DispositionController(
         disposition=disposition,
         generation_port=_CounterexampleAwareGenerator(),
         grounding_port=grounding,
         value_port=n6.PendingN8ValuePort(),
         repo_root=source_root,
+        promotion_runtime=promotion_runtime,
     )
+    problem = _problem(f"r11_direct_s8_{disposition}")
     run = await controller.run(
-        _problem(f"r11_direct_s8_{disposition}"),
+        problem,
         budget_state=_budget(),
         min_cycles=2,
         max_cycles=3,
     )
     assert run.terminal_status == ("blocked" if disposition == "blocked" else "completed")
-    assert n6.validate_generation_cycle_run(run, repo_root=source_root) == ()
+    if identity_current:
+        if monkeypatch is None:
+            raise AssertionError(
+                "identity-current fixture requires the currentness test seam"
+            )
+        run = _identity_current_test_run(
+            run, tmp_path=tmp_path, monkeypatch=monkeypatch
+        )
+    if runtime_source_store:
+        assert n6.validate_generation_cycle_run(run, repo_root=source_root) == ()
+    else:
+        assert run.source_custody_limitation is not None
+        assert run.source_custody_limitation.reason_code == "source_store_unavailable"
 
     source_ref = str(
         store.put_json(
@@ -107,7 +184,7 @@ async def _owner_source_harness(tmp_path: Path, *, disposition: str) -> dict[str
                 media_type="application/json",
                 schema=artifacts.SchemaInfo(
                     name=s8.NORMATIVE_GENERATION_SOURCE_KIND,
-                    version=n6.GENERATION_CYCLE_SCHEMA_VERSION,
+                    version=run.schema_version,
                 ),
             ),
             canon_spec=canon.CanonSpec(forbid_floats=False),
@@ -226,6 +303,7 @@ async def _owner_source_harness(tmp_path: Path, *, disposition: str) -> dict[str
         "candidate_fronts": run.fronts.candidate_ids_by_front(),
         "evidence": evidence,
         "owner": owner,
+        "problem": problem,
         "run": run,
         "source_root": source_root,
         "source_ref": source_ref,
@@ -235,9 +313,15 @@ async def _owner_source_harness(tmp_path: Path, *, disposition: str) -> dict[str
 
 @pytest.mark.asyncio
 async def test_actual_blocked_n6_source_is_persisted_as_blocked_s8_disposition(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    harness = await _owner_source_harness(tmp_path, disposition="blocked")
+    harness = await _owner_source_harness(
+        tmp_path,
+        disposition="blocked",
+        runtime_source_store=True,
+        identity_current=True,
+        monkeypatch=monkeypatch,
+    )
     run = harness["run"]
     assert run.synthetic is None  # R1 provenance remains unestablished in this fixture.
     disposition_ref = harness["owner"].produce_generation_disposition(
@@ -266,10 +350,19 @@ async def test_actual_blocked_n6_source_is_persisted_as_blocked_s8_disposition(
 
 
 @pytest.mark.asyncio
-async def test_actual_nonblocked_n6_stop_preserves_signed_s8_control(tmp_path: Path) -> None:
-    harness = await _owner_source_harness(tmp_path, disposition="stop")
+async def test_actual_nonblocked_n6_stop_preserves_signed_s8_control(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    harness = await _owner_source_harness(
+        tmp_path,
+        disposition="stop",
+        runtime_source_store=True,
+        identity_current=True,
+        monkeypatch=monkeypatch,
+    )
     run = harness["run"]
     assert run.terminal_status == "completed"
+    assert run.source_custody_limitation is None
     assert run.synthetic is None  # R1 provenance remains unestablished in this fixture.
     disposition_ref = harness["owner"].produce_generation_disposition(
         binding=harness["binding"],
@@ -285,3 +378,44 @@ async def test_actual_nonblocked_n6_stop_preserves_signed_s8_control(tmp_path: P
     assert disposition.ranked_recommendations
     assert disposition.compiled_membership_status == "not_established"
     assert disposition.generation_binding.source_run_ref == harness["source_ref"]
+
+
+@pytest.mark.asyncio
+async def test_identity_current_v4_source_limited_run_is_refused_by_direct_s8_owner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    harness = await _owner_source_harness(
+        tmp_path,
+        disposition="stop",
+        runtime_source_store=False,
+        identity_current=True,
+        monkeypatch=monkeypatch,
+    )
+    run = harness["run"]
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert run.source_custody_limitation is not None
+    assert run.source_custody_limitation.reason_code == "source_store_unavailable"
+    observations = _track_currentness_observations(monkeypatch)
+    assert n6.currentness_for_generation_cycle_run(run).status == "current"
+    observations.clear()
+
+    # Removal probe: deleting the strict custody issue while retaining the v4
+    # limitation marker would let this otherwise admissible signed S8 bundle
+    # through.  The consumer must therefore reject on the source-custody issue.
+    with pytest.raises(
+        s8.P20NormativeChoiceError, match="p20_normative_generation_source_invalid"
+    ):
+        harness["owner"].produce_generation_disposition(
+            binding=harness["binding"],
+            evidence=harness["evidence"],
+            evaluated_at=NOW,
+        )
+    assert observations
+    assert all(
+        item
+        == {
+            "recorded_identity_status": "established",
+            "recorded_deployment_identity": run.deployment_identity,
+        }
+        for item in observations
+    )

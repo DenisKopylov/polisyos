@@ -95,6 +95,7 @@ from polisyos.runtime.quality.generation_cycle import (
     generation_cycle_terminal_state,
     validate_generation_cycle_candidate_run,
     validate_generation_cycle_run,
+    validate_generation_cycle_run_history,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import (
     GroundingDispositionKind,
@@ -916,6 +917,36 @@ def test_production_n9_port_is_canonical_and_contract_fake_remains_available() -
     )
     assert allowed.reason == "contract_fake_called"
     assert fake.call_count == 1
+
+
+def test_contract_testing_source_uses_explicit_local_store_control(tmp_path: Path) -> None:
+    """The custody rule keeps explicit local contract testing demonstrable."""
+    store = FileSystemCAS(tmp_path / "contract-source-cas")
+    controller = GenerationCycleController(
+        repo_root=tmp_path,
+        artifact_store=store,
+        authority_scope="contract_testing",
+    )
+
+    controller._begin_source_run("generation_cycle_contract_store_control")
+
+    assert controller._source_repository is not None
+    assert controller._source_repository.store is store
+
+
+def test_production_source_without_runtime_store_issues_no_recomputed_receipt(
+    tmp_path: Path,
+) -> None:
+    """Missing source custody never emits a receipt that claims replay took place."""
+    controller = GenerationCycleController(repo_root=tmp_path)
+
+    controller._begin_source_run("generation_cycle_missing_store_control")
+    receipt = controller._source_preservation_receipt()
+
+    assert controller._source_repository is None
+    assert receipt is None
+    assert controller._source_issues == ["source_store_unavailable"]
+    assert not (tmp_path / ".polisyos" / "runtime" / "generation_source").exists()
 
 
 class _MixedBindingAndDispositionPort:
@@ -4031,7 +4062,9 @@ async def test_blocked_n6_preempts_deployment_identity_mismatch_and_keeps_candid
 
 
 @pytest.mark.asyncio
-async def test_nonblocked_candidate_source_preserves_canonical_identity_gate() -> None:
+async def test_nonblocked_candidate_source_preserves_canonical_identity_gate(
+    tmp_path: Path,
+) -> None:
     class _SchedulerStopController(GenerationCycleController):
         def decide_next_action(self, **kwargs: Any) -> Any:
             decision = super().decide_next_action(**kwargs)
@@ -4040,18 +4073,26 @@ async def test_nonblocked_candidate_source_preserves_canonical_identity_gate() -
             )
 
     problem = _problem("nonblocked_identity_gate_control")
-    run = await _SchedulerStopController(
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "runtime-store"))
+    controller = _SchedulerStopController(
         generation_port=_CounterexampleAwareGenerator(),
         grounding_port=_CurrentValidGrounding(),
         value_port=PendingN8ValuePort(),
         repo_root=REPO_ROOT,
-    ).run(
+        promotion_runtime=runtime,
+    )
+    run = await controller.run(
         problem,
         budget_state=_budget(),
         min_cycles=2,
         max_cycles=3,
     )
     assert run.terminal_status == "completed"
+    assert run.schema_version == generation_cycle_module.GENERATION_CYCLE_SCHEMA_VERSION
+    assert run.source_custody_limitation is None
+    assert "source_custody_limitation" not in run.model_dump(mode="json")
+    assert controller._source_repository is not None
+    assert controller._source_repository.store is runtime.store
     n9_source = generation_cycle_module.eligible_n9_source_for_run(run)
     assert n9_source is not None
     assert n9_source.run is run
@@ -4854,7 +4895,87 @@ async def test_default_production_n7_without_runtime_store_keeps_typed_limit(
     assert cycle.counterexample.diagnostic.code == (
         "n6.acquisition.n7_runtime_store_not_supplied"
     )
+    assert run.candidate_summaries
+    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v4"
+    assert run.source_custody_limitation is not None
+    assert run.source_custody_limitation.status == "not_established"
+    assert run.source_custody_limitation.reason_code == "source_store_unavailable"
+    assert run.source_handoff_refs == ()
+    assert run.source_preservation_receipt is None
+    serialized = run.model_dump(mode="json")
+    assert serialized["schema_version"] == run.schema_version
+    assert serialized["source_custody_limitation"] == {
+        "schema_version": "policyos.runtime.generation_source_custody_limitation.v1",
+        "status": "not_established",
+        "reason_code": "source_store_unavailable",
+    }
+    replayed = GenerationCycleRun.model_validate(serialized)
+    assert replayed.model_dump(mode="json") == serialized
+    assert validate_generation_cycle_run_history(serialized) == ()
+    passing_source_root = tmp_path / "passing-source-census"
+    passing_source = passing_source_root / "src/polisyos/minimal.py"
+    passing_source.parent.mkdir(parents=True)
+    passing_source.write_text("def candidate_source():\n    return None\n", encoding="utf-8")
+    passing_strangle = StrangleReceipt.recompute(passing_source_root)
+    assert passing_strangle.status == "strangled"
+    matching_identity = "policy-engine-deployment:sha256:" + "a" * 64
+    current_observation = generation_cycle_module.N6DeploymentCurrentnessObservation(
+        status="current",
+        census_verdict="PASS",
+        recorded_identity_status="established",
+        recorded_deployment_identity=matching_identity,
+        loaded_identity_status="established",
+        loaded_deployment_identity=matching_identity,
+        reason_code="n6_currentness_established",
+        unresolved_by_construction=(),
+    )
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "observe_n6_deployment_currentness",
+        lambda **_kwargs: current_observation,
+    )
+    identity_current_limited = run.model_copy(
+        update={
+            "strangle_receipt": passing_strangle,
+            "deployment_identity_status": "established",
+            "deployment_identity": matching_identity,
+            "deployment_identity_reason": None,
+        }
+    )
+    assert generation_cycle_module.currentness_for_generation_cycle_run(
+        identity_current_limited
+    ).status == "current"
+    strict_issue_codes = {
+        issue["code"]
+        for issue in generation_cycle_module.validate_generation_cycle_run(
+            identity_current_limited
+        )
+    }
+    assert "generation_cycle_source_custody_not_established" in strict_issue_codes
+    if run.terminal_status == "blocked":
+        assert generation_cycle_module.eligible_n9_source_for_run(
+            identity_current_limited
+        ) is None
+    else:
+        candidate_source = generation_cycle_module.eligible_n9_source_for_run(
+            identity_current_limited
+        )
+        assert candidate_source is not None
+        assert candidate_source.run is identity_current_limited
+        assert candidate_source.promotion_port.receipts == ()
+    blocked_limited = identity_current_limited.model_copy(
+        update={"terminal_status": "blocked"}
+    )
+    assert generation_cycle_module.eligible_n9_source_for_run(blocked_limited) is None
+    assert controller._source_repository is None
+    assert controller._source_issues == ["source_store_unavailable"]
+    assert run.strangle_receipt.status == "not_established"
+    assert run.promotion_port.status == "not_promoted"
+    assert run.promotion_port.reason == (
+        "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+    )
     assert not (tmp_path / ".n7-live-cas").exists()
+    assert not (tmp_path / ".polisyos" / "runtime" / "generation_source").exists()
 
 
 @pytest.mark.asyncio
@@ -4881,6 +5002,24 @@ async def test_production_candidate_without_n7_receipt_is_not_refused() -> None:
     assert run.cycles[0].counterexample.diagnostic.code != (
         "n6.acquisition.n7_native_admission_not_established"
     )
+    assert run.source_custody_limitation is not None
+    assert run.source_custody_limitation.reason_code == "source_store_unavailable"
+    assert "generation_cycle_source_custody_not_established" in {
+        issue["code"] for issue in validate_generation_cycle_run(run)
+    }
+    candidate_source = generation_cycle_module.eligible_n9_source_for_run(run)
+    assert candidate_source is not None
+    assert candidate_source.run is run
+    assert candidate_source.promotion_port.status == "not_promoted"
+    assert candidate_source.promotion_port.receipts == ()
+
+    forged_port = run.promotion_port.model_copy(
+        update={"receipts": ({"candidate_id": "forged_n9"},)}
+    )
+    forged_run = run.model_copy(update={"promotion_port": forged_port})
+    with pytest.raises(GenerationCycleError) as refused:
+        generation_cycle_module.eligible_n9_source_for_run(forged_run)
+    assert refused.value.code == "generation_cycle_run_invalid_before_n9"
 
 
 @pytest.mark.asyncio

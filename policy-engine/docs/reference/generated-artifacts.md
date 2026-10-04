@@ -2395,7 +2395,7 @@ Canonical regeneration commands:
 
 - Family id: `policy-design-case-layer3-gy-world-model-record-contract`
 - Lifecycle: `generated_committed`
-- Source of truth: tools/quality/validation/check_layer3_gy_world_model_record_contract.py
+- Source of truth: src/polisyos/pdc/_impl/world_model_record.py, src/polisyos/runtime/quality/world_model_record.py, and tools/quality/validation/check_layer3_gy_world_model_record_contract.py
 - Generator: Existing canonical producer tools.quality.validation.check_layer3_gy_world_model_record_contract
 - Verifier: Existing semantic owner and generated artifact lifecycle accounting
 - Promotion target: Custody and audit projection only; registration grants no task completion or evidence authority
@@ -3341,7 +3341,7 @@ uv run python -m tools.quality.validation.check_grounding_admission_contract --r
 
 - Family id: `policy-design-case-n6-source-preservation`
 - Lifecycle: `generated_committed`
-- Source of truth: src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/generation_source.py, src/polisyos/runtime/quality/design_generation.py, src/polisyos/runtime/quality/grounding_risk.py, src/polisyos/runtime/quality/confidence_ledger.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/scientist/orchestration/workflows/engine_simple.py, src/polisyos/runtime/quality/joint_simulation_horizon.py, src/polisyos/scientist/methods/search/voi_scheduler.py, src/polisyos/pdc/_impl/layer2_design_search.py, and tools/quality/validation/check_layer3_gy_generation_cycle_contract.py
+- Source of truth: src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/generation_source.py, src/polisyos/runtime/quality/cycle_substrate.py, src/polisyos/runtime/quality/design_generation.py, src/polisyos/runtime/quality/grounding_risk.py, src/polisyos/runtime/quality/confidence_ledger.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/scientist/orchestration/workflows/engine_simple.py, src/polisyos/runtime/quality/joint_simulation_horizon.py, src/polisyos/scientist/methods/search/voi_scheduler.py, src/polisyos/pdc/_impl/layer2_design_search.py, and tools/quality/validation/check_layer3_gy_generation_cycle_contract.py
 - Generator: Existing N6 generation-cycle contract owner with source custody and reentry controls
 - Verifier: Recomputed generation-cycle receipts, comparison admission, explicit source-custody limitations, and corrupt-field drift; actual N4 source-preservation witnesses are separate bridge tests
 - Promotion target: source custody and controller verification; an unavailable source does not become a writer input

@@ -43,6 +43,15 @@ result queue while the worker sends it, so a result larger than the pipe buffer
 does not wait for a join that depends on delivery. Startup, serialization and
 supervisor cleanup failures cannot publish a successful outcome.
 
+Worker errors carry their original retry category and explicit error code
+alongside the diagnostic message. The parent uses those fields rather than
+interpreting message text or reconstructing arbitrary exception classes.
+Permanent and validation failures therefore retain their retry count across
+the fork boundary, and custom codes still obey `retry_on`. A provider's own
+`TimeoutError` is a transient node error; expiration of the wrapper's wait
+raises `NodeTimeoutError`. Thread and async wrappers decide completion before
+reading the result so these two cases remain distinct.
+
 This contract is process ownership rather than a sandbox for hostile node
 code. It does not undo completed filesystem or remote effects. Linux requires
 `prctl`, fork and readable `/proc` process metadata. Other fork platforms retain

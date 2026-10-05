@@ -24,7 +24,7 @@ import signal
 import sys
 import threading
 import time
-from concurrent.futures import TimeoutError as FuturesTimeoutError
+from concurrent.futures import wait
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Literal
@@ -491,14 +491,8 @@ def _typed_error_category(exc: BaseException) -> str | None:
     return normalized if normalized in {"transient", "fatal", "validation"} else None
 
 
-def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
-    """Apply the same retry policy to raised and returned node errors.
-
-    Explicit PolicyOS categories take precedence over the coarse shared
-    classifier.  Built-in contract failures are also terminal; transient and
-    unknown runtime failures retain the established ``node.exception`` retry
-    route and its policy ceiling.
-    """
+def _exception_retry_category(exc: BaseException) -> str:
+    """Classify the original exception before any process transport."""
     # Import lazily because ``runner.protocol`` imports ``RetryPolicy``.  A
     # module-level import would make the direct ``engine.retry`` import enter
     # ``runner.__init__`` while ``RetryPolicy`` is still being defined.
@@ -509,19 +503,72 @@ def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
 
     typed_category = _typed_error_category(exc)
     if typed_category in {"fatal", "validation"}:
-        return False
+        return typed_category
     if typed_category == "transient":
         category = RemoteErrorCategory.TRANSIENT
     else:
         category = classify_remote_error(exc)
     if category is RemoteErrorCategory.FATAL:
-        return False
+        return category.value
     if isinstance(exc, (AssertionError, AttributeError, LookupError)):
-        return False
+        return "fatal"
+    return category.value
+
+
+def _exception_retry_code(exc: BaseException) -> str:
+    """Preserve explicit codes while retaining the established fallback."""
     error_code = getattr(exc, "code", None)
     if not isinstance(error_code, str) or not error_code:
         error_code = "node.exception"
-    return error_code in policy.retry_on
+    return error_code
+
+
+def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
+    """Apply original category and code semantics to direct or transported errors."""
+    return (
+        _exception_retry_category(exc)
+        not in {
+            "fatal",
+            "validation",
+        }
+        and _exception_retry_code(exc) in policy.retry_on
+    )
+
+
+class _WorkerNodeError(RuntimeError):
+    """Carry worker retry identity without reconstructing arbitrary exceptions."""
+
+    def __init__(self, message: str, *, category: str, code: str) -> None:
+        super().__init__(message)
+        self.category = category
+        self.code = code
+
+
+def _worker_error_payload(exc: BaseException) -> dict[str, str]:
+    """Send bounded retry identity alongside the existing diagnostic message."""
+    return {
+        "message": f"{type(exc).__name__}: {exc}",
+        "category": _exception_retry_category(exc),
+        "code": _exception_retry_code(exc),
+    }
+
+
+def _worker_error_from_payload(payload: Any) -> RuntimeError:
+    """Restore semantic fields; legacy transport diagnostics remain opaque."""
+    if isinstance(payload, dict):
+        message, category, code = (payload.get(key) for key in ("message", "category", "code"))
+        if (
+            isinstance(message, str)
+            and isinstance(category, str)
+            and category in {"transient", "fatal", "validation", "unknown"}
+            and isinstance(code, str)
+            and code
+        ):
+            return _WorkerNodeError(message, category=category, code=code)
+        return _WorkerNodeError(
+            "invalid node error payload", category="fatal", code="node.invalid_error"
+        )
+    return RuntimeError(str(payload))
 
 
 def _spend_snapshot(state: ExperimentState) -> dict[str, Decimal]:
@@ -909,14 +956,16 @@ def _execute_with_timeout_sync(
         worker_ctx,
         worker_state,
     )
-    try:
-        return future.result(timeout=timeout_s)
-    except FuturesTimeoutError:
+    done, _pending = wait({future}, timeout=timeout_s)
+    if future not in done:
         future.cancel()
         authority.revoke()
         raise NodeTimeoutError(
             f"Node exceeded timeout of {timeout_s}s",
         ) from None
+    # Read the result after the completion decision. A node's own TimeoutError
+    # is a transient provider failure, not evidence that this wait expired.
+    return future.result()
 
 
 def _can_use_forked_timeout_worker() -> bool:
@@ -1323,7 +1372,7 @@ def _execute_with_timeout_process(
             return deserialize_outcome(payload)
         return decode_node_outcome(payload)
     if status == "error":
-        raise RuntimeError(str(payload))
+        raise _worker_error_from_payload(payload)
     raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")
 
 
@@ -1404,11 +1453,11 @@ async def _execute_with_timeout_process_async(
             return deserialize_outcome(payload)
         return decode_node_outcome(payload)
     if status == "error":
-        raise RuntimeError(str(payload))
+        raise _worker_error_from_payload(payload)
     raise RuntimeError(f"Node timeout worker returned invalid status: {status!r}")
 
 
-def _consume_finished_task(task: asyncio.Task[Any]) -> None:
+def _consume_finished_task(task: asyncio.Future[Any]) -> None:
     """Consume a detached attempt result so timeout cleanup is observable only once."""
     try:
         task.exception()
@@ -1428,14 +1477,40 @@ async def _execute_with_timeout_async(
     worker_ctx = _build_attempt_context(ctx, authority)
     worker_state = state.model_copy(deep=True)
     task = asyncio.create_task(node.execute_async(worker_ctx, worker_state))
+    return await _await_timed_attempt(task, authority, timeout_s=timeout_s)
+
+
+async def _execute_with_timeout_thread_async(
+    node: Any,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    timeout_s: float,
+) -> NodeOutcome:
+    """Own one executor future, including queue time, without a nested timeout."""
+    authority = _AttemptAuthority()
+    worker_ctx = _build_attempt_context(ctx, authority)
+    worker_state = state.model_copy(deep=True)
+    context = contextvars.copy_context()
+    task = asyncio.get_running_loop().run_in_executor(
+        get_shared_executor(), context.run, node.execute, worker_ctx, worker_state
+    )
+    return await _await_timed_attempt(task, authority, timeout_s=timeout_s)
+
+
+async def _await_timed_attempt(
+    task: asyncio.Future[NodeOutcome], authority: _AttemptAuthority, *, timeout_s: float
+) -> NodeOutcome:
+    """Separate wrapper expiration from an exception in a completed attempt."""
     try:
-        return await asyncio.wait_for(asyncio.shield(task), timeout=timeout_s)
-    except TimeoutError:
-        authority.revoke()
-        task.add_done_callback(_consume_finished_task)
-        raise NodeTimeoutError(
-            f"Node exceeded timeout of {timeout_s}s",
-        ) from None
+        done, _pending = await asyncio.wait({task}, timeout=timeout_s)
+        if task not in done:
+            authority.revoke()
+            task.add_done_callback(_consume_finished_task)
+            raise NodeTimeoutError(
+                f"Node exceeded timeout of {timeout_s}s",
+            ) from None
+        return task.result()
     except asyncio.CancelledError:
         authority.revoke()
         task.add_done_callback(_consume_finished_task)
@@ -1496,7 +1571,7 @@ def _node_execute_worker(
             _send("error", f"invalid node outcome: {type(outcome).__name__}")
     except _RETRY_RUNTIME_ERRORS as exc:
         _mark_completion()
-        _send("error", f"{type(exc).__name__}: {exc}")
+        _send("error", _worker_error_payload(exc))
 
 
 async def execute_with_retry_async(
@@ -1546,13 +1621,11 @@ async def execute_with_retry_async(
                     attempt_state,
                     timeout_s=timeout_s,
                 )
-            return await run_blocking_async(
-                _execute_with_timeout_sync,
+            return await _execute_with_timeout_thread_async(
                 node,
                 ctx,
                 attempt_state,
                 timeout_s=timeout_s,
-                timeout_seconds=timeout_s,
             )
         return await run_blocking_async(node.execute, ctx, attempt_state)
 

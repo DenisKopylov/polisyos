@@ -98,6 +98,86 @@ class _ErrorTransportNode:
         return _ok_outcome(state)
 
 
+class _AsyncErrorTransportNode(_ErrorTransportNode):
+    async def execute_async(self, ctx, state):
+        await asyncio.sleep(0)
+        return self.execute(ctx, state)
+
+
+@pytest.mark.parametrize("route", ["direct", "thread", "async-thread", "fork", "async"])
+def test_provider_timeout_error_is_retryable_across_execution_routes(
+    tmp_path, ctx, state, route, monkeypatch
+):
+    if route == "fork" and "fork" not in mp.get_all_start_methods():
+        pytest.skip("fork unavailable")
+    if route in {"thread", "async-thread"}:
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    attempts_path = tmp_path / "attempts"
+    node_type = _AsyncErrorTransportNode if route == "async" else _ErrorTransportNode
+    node = node_type(attempts_path, TimeoutError("provider request exceeded its own deadline"))
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": None if route == "direct" else 2.0,
+        "alias": "provider-timeout",
+    }
+    outcome = _execute_retry_mode(
+        "async" if route in {"async", "async-thread"} else "sync", node, ctx, state, **kwargs
+    )
+    assert outcome.status == "ok"
+    assert attempts_path.read_text().splitlines() == ["attempt", "attempt"]
+
+
+@pytest.mark.parametrize("route", ["thread", "async-thread", "async"])
+def test_wrapper_expiration_is_terminal_without_another_attempt(
+    tmp_path, ctx, state, route, monkeypatch
+):
+    if route in {"thread", "async-thread"}:
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    attempts_path = tmp_path / "attempts"
+    started = threading.Event()
+    release = threading.Event()
+    finished = threading.Event()
+
+    class _SlowThreadNode:
+        def execute(self, _ctx, passed_state):
+            with attempts_path.open("a") as attempts:
+                attempts.write("attempt\n")
+            started.set()
+            try:
+                assert release.wait(timeout=2.0)
+                return _ok_outcome(passed_state)
+            finally:
+                finished.set()
+
+    class _SlowAsyncNode:
+        async def execute_async(self, _ctx, passed_state):
+            with attempts_path.open("a") as attempts:
+                attempts.write("attempt\n")
+            try:
+                await asyncio.sleep(2.0)
+                return _ok_outcome(passed_state)
+            finally:
+                finished.set()
+
+    node = _SlowAsyncNode() if route == "async" else _SlowThreadNode()
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": 0.05,
+        "alias": "wrapper-expiry",
+    }
+    try:
+        with pytest.raises(NodeTimeoutError):
+            _execute_retry_mode(
+                "sync" if route == "thread" else "async", node, ctx, state, **kwargs
+            )
+    finally:
+        release.set()
+        assert finished.wait(timeout=2.0)
+    if route != "async":
+        assert started.is_set()
+    assert attempts_path.read_text().splitlines() == ["attempt"]
+
+
 @pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork unavailable")
 @pytest.mark.parametrize("mode", ["sync", "async"])
 @pytest.mark.parametrize("shape", ["return", "raise"])
@@ -855,25 +935,15 @@ class TestExecuteWithRetrySync:
         assert recording_claim_owner.persist_calls == []
 
     def test_timeout_path_uses_shared_executor(self, ctx, state, monkeypatch):
-        class _FakeFuture:
-            def __init__(self, outcome):
-                self._outcome = outcome
-                self.cancelled = False
-
-            def result(self, timeout=None):
-                _ = timeout
-                return self._outcome
-
-            def cancel(self) -> None:
-                self.cancelled = True
-
         class _FakeExecutor:
             def __init__(self) -> None:
                 self.submissions: list[tuple[object, tuple[object, ...]]] = []
 
             def submit(self, fn, *args):
                 self.submissions.append((fn, args))
-                return _FakeFuture(fn(*args))
+                future = concurrent.futures.Future()
+                future.set_result(fn(*args))
+                return future
 
         node = MagicMock()
         node.execute.return_value = _ok_outcome(state)

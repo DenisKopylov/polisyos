@@ -1,6 +1,6 @@
 # R1 ArtifactID removal oracle
 
-Verification-only receipt; complete deciding logs are tracked in `verification-baseline-logs/`. No product source or test files were changed.
+Verification-only receipt; complete deciding outputs are tracked as `.txt` in `verification-baseline-logs/` (their bytes match the raw `.log` hashes below). No product source or test files were changed.
 
 Base: `c40d4acae1ce58b597267255026d9356565828fd`, branch `codex/e02-A-custody`. The F03 receipt is pinned to source `69780761ae091d8fcc6ab8778c7f5f7227eeef0b`; Git blobs for `cycle_substrate.py`, `test_cycle_substrate.py`, and `run_lifecycle.py` match exactly between that source and this base.
 
@@ -37,11 +37,11 @@ Raw output identities:
 
 ## Transport and acceptance
 
-The normal/restored R1 outputs are byte-identical; both refer to tracked `verification-baseline-logs/r1-normal.log`. Removal, old-helper control and source identity are retained separately. Child exit codes for the grouped modes are not established; stdout identifies the expected failure. Do not upgrade this to an exit-status receipt. Independent review by `environment_setup` accepted only the synthetic V3 owner/CAS property.
+The normal/restored R1 outputs are byte-identical; both refer to tracked `verification-baseline-logs/r1-normal.txt`. Removal, old-helper control and source identity are retained separately. Child exit codes for the grouped modes are not established; stdout identifies the expected failure. Do not upgrade this to an exit-status receipt. Independent review by `environment_setup` accepted only the synthetic V3 owner/CAS property.
 
 ## SIM-01 current-base replay
 
-At the same c40d base, Python 3.14.3, pytest 9.0.2, one numeric thread and no production data: `tests/unit/remediation/test_sim_01.py` ran five tests, all PASS. Full output: `verification-baseline-logs/sim-01.log`. Wall time 26.57s; pytest 22.49s; peak RSS 948142080 bytes. The existing cache_dir warning is retained.
+At the same c40d base, Python 3.14.3, pytest 9.0.2, one numeric thread and no production data: `tests/unit/remediation/test_sim_01.py` ran five tests, all PASS. Full output: `verification-baseline-logs/sim-01.txt`. Wall time 26.57s; pytest 22.49s; peak RSS 948142080 bytes. The existing cache_dir warning is retained.
 
 The live controller tries a supported coupled DES/ABM plan after an unsupported NCM candidate, preserves rejected history, rejects all-incompatible candidates, and rejects a foreign/missing selected trajectory. This receipt establishes the direct-controller fixture behavior only. It does not establish the served N5 multi-plan producer, persisted N8 selection equivalence, or production grounding. B06/B07 remain partial pending the bundle criterion and G acceptance.
 

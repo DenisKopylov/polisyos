@@ -1,0 +1,28 @@
+..                                                                       [100%]
+=============================== warnings summary ===============================
+tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views
+  /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `FabricWorldRef` - serialized value may not be as expected [field_name='fabric_world_ref', input_value={'snapshot_root': '/lane0...ent_query_row_count': 4}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DataForgeBindingRef` - serialized value may not be as expected [field_name='data_forge_binding_ref', input_value={'snapshot_id': 'educatio...', 'binding_path': None}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `SimulationModelRef` - serialized value may not be as expected [field_name='simulation_model_ref', input_value={'model_spec_ref': 'sha25...ne, 'calibrated': False}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `FoundryBindingRef` - serialized value may not be as expected [field_name='foundry_binding_ref', input_value={'input_bindings_ref': 's...007f6fe93308fe1df325bf'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `SkgCausalPriorRef` - serialized value may not be as expected [field_name='skg_causal_prior_ref', input_value={'skg_snapshot_ref': 'lan... 'query_trace_refs': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `PolicySlotBinding` - serialized value may not be as expected [field_name='policy_slot_map', input_value={'slot_id': 'education.te...al_granularity': 'year'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `PolicySlotBinding` - serialized value may not be as expected [field_name='policy_slot_map', input_value={'slot_id': 'education.le...al_granularity': 'year'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `WorldModelLimitations` - serialized value may not be as expected [field_name='limitations', input_value={'unavailable_data': (), ...ssibility_blockers': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DeploymentUpdateRefs` - serialized value may not be as expected [field_name='deployment_update_refs', input_value={'phase': 'phase_6_forwar...terior_update_refs': ()}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views
+  /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `FabricWorldRef` - serialized value may not be as expected [field_name='fabric_world_ref', input_value={'snapshot_root': '/lane0...ent_query_row_count': 4}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DataForgeBindingRef` - serialized value may not be as expected [field_name='data_forge_binding_ref', input_value={'snapshot_id': 'educatio...', 'binding_path': None}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `FoundryBindingRef` - serialized value may not be as expected [field_name='foundry_binding_ref', input_value={'input_bindings_ref': 's...007f6fe93308fe1df325bf'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `SkgCausalPriorRef` - serialized value may not be as expected [field_name='skg_causal_prior_ref', input_value={'skg_snapshot_ref': 'lan... 'query_trace_refs': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `PolicySlotBinding` - serialized value may not be as expected [field_name='policy_slot_map', input_value={'slot_id': 'education.te...al_granularity': 'year'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `PolicySlotBinding` - serialized value may not be as expected [field_name='policy_slot_map', input_value={'slot_id': 'education.le...al_granularity': 'year'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `WorldModelLimitations` - serialized value may not be as expected [field_name='limitations', input_value={'unavailable_data': (), ...ssibility_blockers': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DeploymentUpdateRefs` - serialized value may not be as expected [field_name='deployment_update_refs', input_value={'phase': 'phase_6_forwar...terior_update_refs': ()}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

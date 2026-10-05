@@ -1,0 +1,177 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_______ test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views ________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-14/test_cycle_substrate_context_j0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x12d5109d0>
+
+    def test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views(
+        tmp_path: Any,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """WMRv2 selectors survive the job owner without changing V1/V2 maps."""
+    
+        import os
+    
+        from polisyos.runtime.quality.cycle_substrate import (
+            CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA,
+            _serialize_context_job_v2_value,
+            cycle_job_design_problem_ref,
+            cycle_substrate_context_job_content_hash,
+            is_supported_cycle_substrate_context_job_artifact,
+        )
+    
+        problem = _qualified_v3_design_problem()
+        problem_ref = cycle_job_design_problem_ref(problem)
+        registry = _registry("education")
+        tenant_id = "tenant-context-v3-owner"
+        cell_id = "cell-context-v3-owner"
+        store = FileSystemCAS(
+            tmp_path / "cycle-context-v3-cas",
+            ownership_enforced=True,
+            ownership_requires_scope=True,
+        )
+        declared_world = _world_record(
+            "education",
+            registry,
+            region_or_jurisdiction=problem.jurisdiction_time.region,
+            policy_slot_ids=("education.teaching_method", "education.learning_outcomes"),
+        )
+        with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+            substrate_registry_artifact_ref, declared_world = (
+                _fixture_world_with_persisted_substrate_registry(
+                    store,
+                    registry,
+                    declared_world,
+                )
+            )
+        world = _world_record_with_selected_views(
+            declared_world,
+            substrate_registry_artifact_ref=substrate_registry_artifact_ref,
+            selected_profile=_hash("selected-view"),
+        )
+        assert world.policy_domain == problem.domain == "education"
+        assert world.region_or_jurisdiction == problem.jurisdiction_time.region
+        assert {
+            "education.teaching_method",
+            "education.learning_outcomes",
+        }.issubset({slot.slot_id for slot in world.policy_slot_map})
+        assert world.authority_status == "limited"
+        context = _cycle_context(
+            design_problem_ref=problem_ref,
+            registry=registry,
+            world_model_record=world,
+        )
+        owner = CycleSubstrateContextArtifactOwner(
+            store=store,
+            control_store=_TestCurrentJobExecutionOwner(
+                "job-context-v3-owner", "run-context-v3-owner"
+            ),
+        )
+    
+        with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+            removal = os.environ.get("POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR")
+            if removal is not None and removal != "1":
+                pytest.fail(
+                    "R1 V3 ArtifactID-scalar removal flag must be exactly '1'",
+                    pytrace=False,
+                )
+            if removal == "1":
+                with monkeypatch.context() as removal_probe:
+                    removal_probe.setattr(
+                        cycle_substrate_owner,
+                        "_CONTEXT_JOB_V3_ROOT_SCALAR_TYPES",
+                        frozenset(),
+                    )
+>                   ref = owner.persist_for_current_job(context, problem=problem)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/runtime/quality/test_cycle_substrate.py:2161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/cycle_substrate.py:1934: in persist_for_current_job
+    artifact = _build_cycle_substrate_context_job_artifact(
+src/polisyos/runtime/quality/cycle_substrate.py:1821: in _build_cycle_substrate_context_job_artifact
+    payload["content_hash"] = cycle_substrate_context_job_content_hash(payload)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/cycle_substrate.py:1747: in cycle_substrate_context_job_content_hash
+    payload = _serialize_cycle_substrate_context_job_artifact(artifact)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/cycle_substrate.py:1600: in _serialize_cycle_substrate_context_job_artifact
+    return cast("dict[str, Any]", _serialize_context_job_v3_value(values))
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/cycle_substrate.py:1561: in _serialize_context_job_v3_value
+    str(key): _serialize_context_job_v3_value(item)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/cycle_substrate.py:1556: in _serialize_context_job_v3_value
+    field_name: _serialize_context_job_v3_value(getattr(value, field_name))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/cycle_substrate.py:1556: in _serialize_context_job_v3_value
+    field_name: _serialize_context_job_v3_value(getattr(value, field_name))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/cycle_substrate.py:1556: in _serialize_context_job_v3_value
+    field_name: _serialize_context_job_v3_value(getattr(value, field_name))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/cycle_substrate.py:1556: in _serialize_context_job_v3_value
+    field_name: _serialize_context_job_v3_value(getattr(value, field_name))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ArtifactID(root='sha256:8011f4345a31247a67847210414401601066047e5ad64907fe55a7d853030a38')
+
+    def _serialize_context_job_v3_value(value: object) -> object:
+        """Serialize V3's frozen WMRv2 tree with typed CAS view selectors."""
+    
+        if type(value) in _CONTEXT_JOB_V3_ROOT_SCALAR_TYPES:
+            # ArtifactID's canonical wire form is its normalized string, not a
+            # model object with a synthetic ``root`` field.
+            try:
+                artifact_id = artifacts.ArtifactID.model_validate(
+                    cast("artifacts.ArtifactID", value).root
+                )
+            except (TypeError, ValueError) as exc:
+                raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_job_v3_artifact_id_invalid", str(exc)
+                ) from exc
+            return str(artifact_id)
+        if isinstance(value, BaseModel):
+            model_name = f"{type(value).__module__}.{type(value).__qualname__}"
+            fields = _CONTEXT_JOB_V3_EXACT_MODEL_FIELDS.get(type(value))
+            if fields is None:
+                fields = _CONTEXT_JOB_V3_MODEL_FIELDS.get(model_name)
+            if fields is None:
+>               raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_job_v3_serializer_model_unregistered",
+                    model_name,
+                )
+E               polisyos.runtime.quality.cycle_substrate.CycleSubstrateContextOwnerError: cycle_substrate_context_job_v3_serializer_model_unregistered: polisyos.core.artifacts.ids.ArtifactID
+
+src/polisyos/runtime/quality/cycle_substrate.py:1542: CycleSubstrateContextOwnerError
+=============================== warnings summary ===============================
+tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views
+  /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `FabricWorldRef` - serialized value may not be as expected [field_name='fabric_world_ref', input_value={'snapshot_root': '/lane0...ent_query_row_count': 4}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DataForgeBindingRef` - serialized value may not be as expected [field_name='data_forge_binding_ref', input_value={'snapshot_id': 'educatio...', 'binding_path': None}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `SimulationModelRef` - serialized value may not be as expected [field_name='simulation_model_ref', input_value={'model_spec_ref': 'sha25...ne, 'calibrated': False}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `FoundryBindingRef` - serialized value may not be as expected [field_name='foundry_binding_ref', input_value={'input_bindings_ref': 's...007f6fe93308fe1df325bf'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `SkgCausalPriorRef` - serialized value may not be as expected [field_name='skg_causal_prior_ref', input_value={'skg_snapshot_ref': 'lan... 'query_trace_refs': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `PolicySlotBinding` - serialized value may not be as expected [field_name='policy_slot_map', input_value={'slot_id': 'education.te...al_granularity': 'year'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `PolicySlotBinding` - serialized value may not be as expected [field_name='policy_slot_map', input_value={'slot_id': 'education.le...al_granularity': 'year'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `WorldModelLimitations` - serialized value may not be as expected [field_name='limitations', input_value={'unavailable_data': (), ...ssibility_blockers': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DeploymentUpdateRefs` - serialized value may not be as expected [field_name='deployment_update_refs', input_value={'phase': 'phase_6_forwar...terior_update_refs': ()}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views
+  /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `FabricWorldRef` - serialized value may not be as expected [field_name='fabric_world_ref', input_value={'snapshot_root': '/lane0...ent_query_row_count': 4}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DataForgeBindingRef` - serialized value may not be as expected [field_name='data_forge_binding_ref', input_value={'snapshot_id': 'educatio...', 'binding_path': None}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `FoundryBindingRef` - serialized value may not be as expected [field_name='foundry_binding_ref', input_value={'input_bindings_ref': 's...007f6fe93308fe1df325bf'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `SkgCausalPriorRef` - serialized value may not be as expected [field_name='skg_causal_prior_ref', input_value={'skg_snapshot_ref': 'lan... 'query_trace_refs': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `PolicySlotBinding` - serialized value may not be as expected [field_name='policy_slot_map', input_value={'slot_id': 'education.te...al_granularity': 'year'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `PolicySlotBinding` - serialized value may not be as expected [field_name='policy_slot_map', input_value={'slot_id': 'education.le...al_granularity': 'year'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `WorldModelLimitations` - serialized value may not be as expected [field_name='limitations', input_value={'unavailable_data': (), ...ssibility_blockers': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DeploymentUpdateRefs` - serialized value may not be as expected [field_name='deployment_update_refs', input_value={'phase': 'phase_6_forwar...terior_update_refs': ()}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views

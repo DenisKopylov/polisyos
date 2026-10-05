@@ -128,7 +128,7 @@ async def test_cold_seed_yields_and_never_admits_late_worker(
         ctx,
         registry,
         checkpoint_cache_seed_refs=refs if mode == "checkpoint" else [],
-        workflow_timeout_s=0.04 if kind == "deadline" else None,
+        workflow_timeout_s=0.5 if kind == "deadline" else None,
     )
     entered, released = threading.Event(), threading.Event()
     loop_thread = threading.get_ident()
@@ -181,7 +181,9 @@ async def test_cold_seed_yields_and_never_admits_late_worker(
         assert entered.wait(3), "native cache recovery read not reached"
         if kind == "cancel":
             loop.call_soon_threadsafe(task.cancel)
-        time.sleep(0.12)
+        # Leave enough startup margin when this file follows the native suite.
+        # The physical read still outlives the same absolute workflow deadline.
+        time.sleep(0.7 if kind == "deadline" else 0.12)
         released.set()
 
     watcher = threading.Thread(target=watchdog)

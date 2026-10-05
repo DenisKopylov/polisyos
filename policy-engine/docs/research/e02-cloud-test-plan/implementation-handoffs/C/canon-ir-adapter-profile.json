@@ -1,0 +1,77 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "canon-ir-adapter-profile",
+  "closure_ids": [],
+  "bundle_ids": ["CAN-01"],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": ["21cb78f85d8e556776baadaa48fe90940dcf2cce"],
+  "candidate_tree_sha": "0e9f42a84d8ede6dfc687017d2366cb331644000",
+  "branch": "codex/e02-C-canon",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/core/artifacts/test_ir_adapter.py policy-engine/tests/unit/ir/test_canon_hardening.py policy-engine/tests/unit/ir/test_canon_hash_parity.py policy-engine/tests/unit/remediation/test_can_01.py -q",
+      "target_sha": "21cb78f85d8e556776baadaa48fe90940dcf2cce",
+      "environment": "macOS; original policy-engine .venv Python 3.14; worktree source via PYTHONPATH",
+      "input_closure": "Bounded pytest fixtures only: real temporary FileSystemCAS; Decimal(12.30) positive payload; core-only, synonym, malformed, and nested tag negatives; no production inputs.",
+      "outcome": "PASS",
+      "output": "[100%]; all selected adapter, IR canon, and CAN-01 tests passed. Pytest emitted an existing unknown cache_dir config warning."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/core/artifacts/ir_adapter.py policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "target_sha": "21cb78f85d8e556776baadaa48fe90940dcf2cce",
+      "environment": "macOS; original policy-engine .venv Python 3.14",
+      "input_closure": "The two changed Python paths.",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/core/artifacts/ir_adapter.py policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "target_sha": "21cb78f85d8e556776baadaa48fe90940dcf2cce",
+      "environment": "macOS; original policy-engine .venv Python 3.14",
+      "input_closure": "The two changed Python paths.",
+      "outcome": "PASS",
+      "output": "2 files already formatted."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py::test_registry_bundle_build_and_load_work_with_protocol_store -q",
+      "target_sha": "21cb78f85d8e556776baadaa48fe90940dcf2cce",
+      "environment": "macOS; original policy-engine .venv Python 3.14; worktree source via PYTHONPATH",
+      "input_closure": "One existing registry-bundle protocol test using RecordingArtifactStore; no production inputs. Exact slice-base replay was not run.",
+      "outcome": "FAIL",
+      "output": "load_registry_bundle -> RecordingArtifactStore.get_bytes raised KeyError because the lookup key was the repr of an ArtifactRef rather than its artifact ID. This is outside the adapter property; ownership remains not_established under P41 without exact-base replay and a zero-intersection proof."
+    }
+  ],
+  "property": {
+    "statement": "JSON writes routed through the Core-to-IR adapter use the IR canonical tag profile before persistence; the resulting FileSystemCAS artifact is readable by the paired IR reader, while IR-incompatible tags fail before persistence.",
+    "runtime_path": [
+      "polisyos.ir.artifacts.io.put_json_artifact",
+      "polisyos.core.artifacts.ir_adapter.CoreToIRArtifactStoreAdapter.put_json",
+      "polisyos.core.artifacts.store.FileSystemCAS.put_bytes (CAS blob and manifest)",
+      "polisyos.ir.artifacts.io.get_json_artifact / polisyos.ir.model_layer.canon.from_canonical_bytes"
+    ],
+    "proxy_divergence": "A successful Core-profile CAS write or returned artifact ID is insufficient: a Core-only _type=float_hex payload is persisted by that profile but rejected by the IR consumer. The test instead reads the exact CAS bytes, performs paired IR consumer readback, and confirms rejected inputs leave the CAS empty.",
+    "negative_controls": [
+      "Core-only float_hex tag",
+      "Core-only bytes_hex tag",
+      "Core-only array_digest-shaped payload",
+      "unknown float-hex synonym",
+      "malformed non-string _type",
+      "nested Core-only float_hex tag"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Bounded repair and end-to-end witness for the existing Core-to-IR artifact adapter. This makes no new capability claim and closes no finding ID. CAN-01 LA-021 remains closed only within its previously recorded bounded corpus scope.",
+  "limitations_and_next_owner": [
+    "P40 classification: same Core/IR canonical-profile split class one level deeper at the shared adapter write seam; the correction uses that single adapter chokepoint, does not patch individual producers, and does not widen the IR decoder.",
+    "LA-021 status and ledger were not changed. Its earlier bounded codec-corpus closure does not assert this adapter integration property.",
+    "The candidate also reproduces one registry protocol test failure; exact slice-base replay and complete zero-intersection proof were not performed, so P41 ownership is not_established. Keep it separate from this adapter result until the registry owner or slice integrator resolves provenance.",
+    "Test artifact metadata uses kind test.ir-canon-profile, schema test.ir-canon-profile@1.0, and the existing IR canonical profile 0.2.0. No authority or time-role semantics or external surface are changed; external surface is out_of_scope for this storage-profile correction."
+  ]
+}

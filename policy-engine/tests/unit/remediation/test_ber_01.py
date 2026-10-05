@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -15,12 +16,17 @@ from pydantic import ValidationError as PydanticValidationError
 
 from polisyos.berl.adapters.protocol import (
     ExplanationContext,
+    RawExplanation,
+    ScalarModel,
     UnavailableAdapter,
 )
 from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
 from polisyos.berl.adapters.shap_tree import TreeSHAPAdapter
 from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
-from polisyos.berl.contracts.schema import generated_explanation_bundle_schema
+from polisyos.berl.contracts.schema import (
+    generated_explanation_bundle_schema,
+    write_explanation_bundle_schema,
+)
 from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
@@ -209,6 +215,7 @@ def _linear_model(*, x1_weight: float = 2.0, x2_weight: float = 3.0):
 def _request(
     *,
     methods: tuple[str, ...],
+    feature_dependence_policy: str = "conditional_observational",
     background_rows: tuple[dict[str, float], ...] = (
         {"x1": 0.0, "x2": 0.0},
         {"x1": 1.0, "x2": 1.0},
@@ -219,6 +226,7 @@ def _request(
         x={"x1": 1.0, "x2": 2.0},
         feature_names=("x1", "x2"),
         methods=methods,
+        feature_dependence_policy=feature_dependence_policy,
         model_id="fake-model",
         model_hash="sha256:fake-model",
         model_class="in-memory-two-feature",
@@ -246,11 +254,52 @@ class _CountingModel:
         return self.x1_weight * row["x1"] + self.x2_weight * row["x2"]
 
 
+@dataclass(frozen=True, slots=True)
+class _IdentityMismatchAdapter(KernelSHAPAdapter):
+    """Run the real kernel while returning a forged execution identity."""
+
+    report_identity_in_params: bool = False
+
+    def explain(
+        self,
+        model: ScalarModel,
+        x: Mapping[str, float],
+        context: ExplanationContext,
+    ) -> RawExplanation:
+        raw = super().explain(model, x, context)
+        params = dict(raw.params)
+        params["effective_method_id"] = (
+            "kernel_shap" if self.report_identity_in_params else "tree_shap"
+        )
+        return replace(
+            raw,
+            effective_method_id=("tree_shap" if self.report_identity_in_params else "kernel_shap"),
+            params=params,
+        )
+
+
 def test_full_bundle_is_accepted_by_both_input_and_persisted_profiles() -> None:
     payload = _full_payload()
 
     bundle = ExplanationBundle.model_validate(payload)
     _persisted_validator().validate(bundle.model_dump(mode="json"))
+
+
+def test_orchestrator_bundle_round_trips_as_persisted_artifact(tmp_path: Path) -> None:
+    bundle = ExplanationOrchestrator().explain(
+        _CountingModel(),
+        _request(methods=("kernel_shap",)),
+    )
+    artifact_path = tmp_path / "explanation-bundle.json"
+    artifact_path.write_text(bundle.model_dump_json() + "\n", encoding="utf-8")
+    serialized = artifact_path.read_text(encoding="utf-8")
+
+    _persisted_validator().validate(json.loads(serialized))
+    loaded = ExplanationBundle.model_validate_json(serialized)
+
+    assert loaded == bundle
+    assert loaded.methods[0].requested_method_id == "kernel_shap"
+    assert loaded.methods[0].effective_method_id == "kernel_shap"
 
 
 def test_construction_input_profile_keeps_supported_defaults_explicitly_distinct() -> None:
@@ -268,6 +317,14 @@ def test_generated_schema_matches_persisted_schema_content() -> None:
     persisted = json.loads(PERSISTED_SCHEMA_PATH.read_text(encoding="utf-8"))
 
     assert generated_explanation_bundle_schema() == persisted
+
+
+def test_schema_writer_reproduces_persisted_schema_bytes(tmp_path: Path) -> None:
+    generated_path = tmp_path / "explanation_bundle.schema.json"
+
+    write_explanation_bundle_schema(generated_path)
+
+    assert generated_path.read_bytes() == PERSISTED_SCHEMA_PATH.read_bytes()
 
 
 def test_nested_empty_objects_are_rejected_by_both_profiles() -> None:
@@ -413,35 +470,33 @@ def test_kernel_shap_does_not_mutate_input_or_persisted_background_rows() -> Non
 def test_aliases_preserve_requested_ids_and_share_effective_identity() -> None:
     model = _CountingModel()
     request = _request(
-        methods=("kernel_shap", "kernel_shap_conditional"),
+        methods=("kernel_shap", "kernel_shap_marginal"),
+        feature_dependence_policy="marginal",
     )
 
     bundle = ExplanationOrchestrator().explain(model, request)
     by_requested_id = {method.method_id: method.model_dump() for method in bundle.methods}
 
     assert by_requested_id["kernel_shap"]["requested_method_id"] == "kernel_shap"
-    assert (
-        by_requested_id["kernel_shap_conditional"]["requested_method_id"]
-        == "kernel_shap_conditional"
-    )
+    assert by_requested_id["kernel_shap_marginal"]["requested_method_id"] == "kernel_shap_marginal"
     assert by_requested_id["kernel_shap"]["effective_method_id"] == "kernel_shap"
-    assert (
-        by_requested_id["kernel_shap_conditional"]["effective_method_id"]
-        == "kernel_shap"
-    )
+    assert by_requested_id["kernel_shap_marginal"]["effective_method_id"] == "kernel_shap"
 
 
 def test_aliases_share_one_raw_calculation_and_are_not_disagreement_methods() -> None:
     one_alias_model = _CountingModel()
     one_alias_bundle = ExplanationOrchestrator().explain(
         one_alias_model,
-        _request(methods=("kernel_shap",)),
+        _request(methods=("kernel_shap",), feature_dependence_policy="marginal"),
     )
 
     two_alias_model = _CountingModel()
     two_alias_bundle = ExplanationOrchestrator().explain(
         two_alias_model,
-        _request(methods=("kernel_shap", "kernel_shap_conditional")),
+        _request(
+            methods=("kernel_shap", "kernel_shap_marginal"),
+            feature_dependence_policy="marginal",
+        ),
     )
 
     assert len(two_alias_model.calls) == len(one_alias_model.calls)
@@ -451,12 +506,15 @@ def test_aliases_share_one_raw_calculation_and_are_not_disagreement_methods() ->
 
 def test_alias_dedup_preserves_requested_claim_confidence_and_validation_posture() -> None:
     one_claim_request = replace(
-        _request(methods=("kernel_shap",)),
+        _request(methods=("kernel_shap",), feature_dependence_policy="marginal"),
         n_eval_perturbations=5,
         residual_cap=0.019,
     )
     two_claim_request = replace(
-        _request(methods=("kernel_shap", "kernel_shap_conditional")),
+        _request(
+            methods=("kernel_shap", "kernel_shap_marginal"),
+            feature_dependence_policy="marginal",
+        ),
         n_eval_perturbations=5,
         residual_cap=0.019,
     )
@@ -497,9 +555,7 @@ def test_unsupported_backend_keeps_requested_id_and_existing_diagnostic() -> Non
         diagnostic="conditional backend unavailable",
     )
 
-    bundle = ExplanationOrchestrator(
-        adapters={"kernel_shap_conditional": unavailable}
-    ).explain(
+    bundle = ExplanationOrchestrator(adapters={"kernel_shap_conditional": unavailable}).explain(
         _CountingModel(),
         _request(methods=("kernel_shap_conditional",)),
     )
@@ -508,6 +564,45 @@ def test_unsupported_backend_keeps_requested_id_and_existing_diagnostic() -> Non
     assert method.method_id == "kernel_shap_conditional"
     assert method.scope == "diagnostic"
     assert method.params["diagnostic"] == "conditional backend unavailable"
+
+
+def test_conditional_kernel_request_is_not_registered_as_marginal_kernel() -> None:
+    bundle = ExplanationOrchestrator().explain(
+        _CountingModel(),
+        _request(methods=("kernel_shap_conditional",)),
+    )
+
+    method = bundle.methods[0]
+
+    assert method.method_id == "kernel_shap_conditional"
+    assert method.requested_method_id == "kernel_shap_conditional"
+    assert method.scope == "diagnostic"
+    assert method.effective_method_id == "kernel_shap_conditional"
+    assert method.attributions == []
+    assert "conditional" in str(method.params["diagnostic"]).lower()
+
+
+@pytest.mark.parametrize("report_identity_in_params", [False, True])
+def test_orchestrator_rejects_adapter_reported_identity_not_bound_to_registry(
+    report_identity_in_params: bool,
+) -> None:
+    adapter = _IdentityMismatchAdapter(
+        method_id="forged_method",
+        report_identity_in_params=report_identity_in_params,
+    )
+    bundle = ExplanationOrchestrator(adapters={"forged_method": adapter}).explain(
+        _CountingModel(),
+        _request(methods=("forged_method",)),
+    )
+
+    method = bundle.methods[0]
+
+    assert method.method_id == "forged_method"
+    assert method.requested_method_id == "forged_method"
+    assert method.scope == "diagnostic"
+    assert method.effective_method_id == "kernel_shap"
+    assert method.attributions == []
+    assert "identity" in str(method.params["diagnostic"]).lower()
 
 
 def test_tree_shap_fallback_is_explicit_and_does_not_claim_tree_exactness() -> None:

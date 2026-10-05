@@ -23,6 +23,7 @@ from polisyos.berl.adapters.protocol import (
     ExplanationContext,
     RawExplanation,
     ScalarModel,
+    UnavailableAdapter,
 )
 from polisyos.berl.contracts.explanation_bundle import (
     AuditReport,
@@ -284,6 +285,22 @@ class ExplanationOrchestrator:
     ) -> tuple[MethodExplanation, AttributionVector | None]:
         try:
             raw = adapter.explain(model, request.x, context)
+            for source, reported_id in (
+                ("field", raw.effective_method_id),
+                ("params", raw.params.get("effective_method_id")),
+            ):
+                if reported_id is None:
+                    continue
+                if not isinstance(reported_id, str) or not reported_id.strip():
+                    raise ValueError(
+                        f"adapter reported an invalid effective method identity in {source}"
+                    )
+                if reported_id != effective_method_id:
+                    raise ValueError(
+                        "adapter effective method identity mismatch: "
+                        f"registry declares {effective_method_id!r}, "
+                        f"adapter reported {reported_id!r} in {source}"
+                    )
             records = build_heldout_records(
                 model=model,
                 x=request.x,
@@ -307,11 +324,7 @@ class ExplanationOrchestrator:
             )
 
         uncertainty = adapter.estimator_uncertainty(raw)
-        raw_effective_method_id = (
-            raw.effective_method_id
-            or _string_param(raw.params, "effective_method_id")
-            or effective_method_id
-        )
+        raw_effective_method_id = effective_method_id
         raw_fallback = raw.fallback or raw.params.get("fallback") is True
         raw_fallback_reason = raw.fallback_reason or _string_param(
             raw.params,
@@ -430,7 +443,13 @@ def default_adapters() -> dict[str, ExplanationAdapter]:
         "kernel_shap": cast("ExplanationAdapter", KernelSHAPAdapter()),
         "kernel_shap_conditional": cast(
             "ExplanationAdapter",
-            KernelSHAPAdapter(method_id="kernel_shap_conditional"),
+            UnavailableAdapter(
+                method_id="kernel_shap_conditional",
+                diagnostic=(
+                    "conditional KernelSHAP backend unavailable; "
+                    "the registered empirical kernel does not implement conditional SHAP"
+                ),
+            ),
         ),
         "kernel_shap_marginal": cast(
             "ExplanationAdapter",

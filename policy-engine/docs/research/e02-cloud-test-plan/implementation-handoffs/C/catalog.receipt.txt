@@ -1,20 +1,23 @@
 E02 C / DFK-02 catalog implementation receipt
 ================================================
 
+Slice base:            c40d4acae1ce58b597267255026d9356565828fd
+Slice base tree:       897662caf73bd4487f798d66938b74d7abfe753e
 Implementation commits:
+  401fe6864c00b70417c3d63bee96a292718dead7
   cf3068de71d7f3cd65aad433ce9ffcca6db9568a
   c863664274c7cf08fe3340c21e3130dc3904b5ae
 Final candidate tree:  41b339f027ae7e84d0ad6ea77118ef887006ecb5
-Slice base:            401fe6864c00b70417c3d63bee96a292718dead7
 Branch:                codex/e02-C-catalog
 Worktree:              /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos
 Python:                /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python (Python 3.14)
 Source path:           /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src
 
 This receipt pins actual command outputs and the import-operation instrumentation for the
-implementation commits above. Production inputs were not read. The local unit suite uses temp
-fixtures and the checked-in static registry. No source was changed after the final implementation
-commit.
+implementation commits above. The first implementation at 401fe686 establishes the canonical
+35-source projection and FakeExecutor fix; it is part of the c40d4aca-based slice, not its base.
+Production inputs were not read. The local unit suite uses temp fixtures and the checked-in static
+registry. No source was changed after the final implementation commit.
 
 
 1. Prior affected package + consumer test stdout at cf3068

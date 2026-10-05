@@ -6,9 +6,9 @@
   "bundle_ids": ["DFK-02"],
   "created_at_utc": "2026-10-05T15:28:47Z",
   "status": "implemented_partial_bounded_installed_probe_passed",
-  "slice_base_sha": "401fe6864c00b70417c3d63bee96a292718dead7",
-  "slice_base_tree_sha": "70aab21f6a9977c0795343c1e45d4833d42da268",
-  "implementation_commits": ["cf3068de71d7f3cd65aad433ce9ffcca6db9568a", "c863664274c7cf08fe3340c21e3130dc3904b5ae"],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "slice_base_tree_sha": "897662caf73bd4487f798d66938b74d7abfe753e",
+  "implementation_commits": ["401fe6864c00b70417c3d63bee96a292718dead7", "cf3068de71d7f3cd65aad433ce9ffcca6db9568a", "c863664274c7cf08fe3340c21e3130dc3904b5ae"],
   "candidate_tree_sha": "41b339f027ae7e84d0ad6ea77118ef887006ecb5",
   "branch": "codex/e02-C-catalog",
   "pull_request": null,
@@ -20,6 +20,11 @@
     "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
     "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
     "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/__init__.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/core.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/open_data.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/sdmx.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/sources/specialized.py",
     "policy-engine/src/polisyos/fabric/retrieval/service.py",
     "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py",
     "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_source_registry.py",
@@ -269,7 +274,7 @@
     "fail_closed_conditions": ["unsupported run profile", "missing required seed", "disabled required seed", "cyclic seed", "known disabled retrieval source", "explicit unregistered retrieval source ID"]
   },
   "provenance": {
-    "implementation": "Commits cf3068de71d7f3cd65aad433ce9ffcca6db9568a and c863664274c7cf08fe3340c21e3130dc3904b5ae; final candidate tree 41b339f027ae7e84d0ad6ea77118ef887006ecb5",
+    "implementation": "Commits 401fe6864c00b70417c3d63bee96a292718dead7, cf3068de71d7f3cd65aad433ce9ffcca6db9568a, and c863664274c7cf08fe3340c21e3130dc3904b5ae; final candidate tree 41b339f027ae7e84d0ad6ea77118ef887006ecb5. The first implementation establishes the canonical 35-source projection and FakeExecutor fix.",
     "registry_input": "source_registry.yaml at Git blob 0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
     "tests": "Candidate runtime, pytest temporary fixtures, read-only checked-in YAML; final stdout is adjacent",
     "historical_candidate": {

@@ -465,7 +465,9 @@ class TransferLearningManager:
                 kind="search.candidate",
                 media_type="application/json",
             )
-            self._store.get_bytes(candidate_ref.artifact_id)
+            candidate_payload = from_canonical_bytes(
+                self._store.get_bytes(candidate_ref.artifact_id)
+            )
             ref = ArtifactRef(
                 artifact_id=evaluation.provenance_ref,
                 kind="search.evaluation",
@@ -474,6 +476,12 @@ class TransferLearningManager:
             payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
         except (TypeError, ValueError, OSError, KeyError) as exc:
             return f"original evaluation unavailable or corrupt: {exc}"
+        rejection = self._candidate_parameter_rejection(candidate_payload, evaluation.params)
+        if rejection is not None:
+            return rejection
+        rejection = self._source_coordinate_rejection(evaluation, source)
+        if rejection is not None:
+            return rejection
         expected = self._serialize_evaluation(evaluation)
         fields = (
             "candidate_id",
@@ -531,6 +539,74 @@ class TransferLearningManager:
             ):
                 return None
         return "original evaluation content does not match the transferred observation"
+
+    @staticmethod
+    def _candidate_parameter_rejection(payload: Any, params: dict[str, Any]) -> str | None:
+        """Bind supported nested strategy or flat mutation inputs to physical params."""
+        if not isinstance(payload, dict) or not params:
+            return "unsupported actual candidate parameter basis"
+        if "params" in payload:
+            actual = payload["params"]
+            if not isinstance(actual, dict):
+                return "unsupported actual candidate parameter basis"
+        elif all(name in payload for name in params):
+            actual = {name: payload[name] for name in params}
+        else:
+            return "unsupported actual candidate parameter basis"
+        if actual != params:
+            return "actual candidate parameters differ from the transferred observation"
+        return None
+
+    @staticmethod
+    def _source_coordinate_rejection(evaluation: Evaluation, source: RunFingerprint) -> str | None:
+        """Reconstruct only explicit native bounds whose space identity reconciles."""
+        from polisyos.scientist.methods.search.strategies.space import SearchSpace
+        from polisyos.scientist.methods.search.strategies.types import (
+            ParameterBounds,
+            ParameterType,
+        )
+
+        try:
+            bounds = []
+            for name, specification in source.bounds.items():
+                if isinstance(specification, (list, tuple)) and len(specification) == 2:
+                    lower, upper = specification
+                    options = {}
+                elif isinstance(specification, dict) and set(specification) <= {
+                    "lower", "upper", "dtype", "log_scale", "categories"
+                }:
+                    options = dict(specification)
+                    lower, upper = options.pop("lower"), options.pop("upper")
+                    options["dtype"] = ParameterType(options.get("dtype", "continuous"))
+                    if options.get("categories") is not None:
+                        options["categories"] = tuple(options["categories"])
+                else:
+                    return "unsupported source parameter basis"
+                bound = ParameterBounds.explicit(name=name, lower=lower, upper=upper, **options)
+                bounds.append(bound)
+            space = SearchSpace(bounds)
+            if space.sobol_space_fingerprint() != source.space_hash:
+                return "unsupported source parameter basis: space identity differs"
+            if set(evaluation.params) != set(source.bounds):
+                return "physical parameters differ from the persisted source basis"
+            for bound in bounds:
+                raw = evaluation.params[bound.name]
+                if bound.dtype != ParameterType.CATEGORICAL and (
+                    isinstance(raw, bool)
+                    or not math.isfinite(float(raw))
+                    or not bound.lower <= float(raw) <= bound.upper
+                ):
+                    return "physical parameters differ from the persisted source basis"
+            expected = space.normalize(evaluation.params)
+            if len(expected) != len(evaluation.params_normalized) or any(
+                not math.isfinite(float(actual))
+                or not math.isclose(float(actual), wanted, rel_tol=0.0, abs_tol=1e-12)
+                for actual, wanted in zip(evaluation.params_normalized, expected, strict=True)
+            ):
+                return "normalized parameters differ from the persisted source basis"
+        except (KeyError, TypeError, ValueError, OverflowError):
+            return "unsupported source parameter basis"
+        return None
 
     @staticmethod
     def _history_ref_from_metadata(meta: dict[str, Any]) -> ArtifactRef | None:

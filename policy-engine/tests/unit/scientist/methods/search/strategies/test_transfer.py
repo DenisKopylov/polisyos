@@ -237,6 +237,63 @@ def test_original_measurement_tampering_is_a_visible_rejection(tmp_path):
     assert reader.last_restore_report.rejected_rows == 1
 
 
+@pytest.mark.parametrize("candidate_payload", [{"params": {"x": 0.95}}, {"x": 0.95}])
+def test_actual_candidate_input_must_match_both_original_and_history(tmp_path, candidate_payload):
+    store, index, _, source, evaluations, originals = _measured_history(tmp_path)
+    candidate_ref = store.put_json(
+        candidate_payload,
+        PutOptions(kind="search.candidate", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    original = originals[0].model_copy(update={"candidate_ref": candidate_ref})
+    evaluation = evaluations[0]
+    evaluation.candidate_id = str(candidate_ref.artifact_id)
+    evaluation.provenance_ref = str(persist_benchmark_evaluation(store, original).artifact_id)
+    source.history_ref = TransferLearningManager(store, index).register_run(source, evaluations)
+    reader = TransferLearningManager(store, index)
+    restored = reader.get_warm_start_evaluations(
+        [source], target_fingerprint=source.model_copy(update={"run_id": "target"})
+    )
+    (rejected,) = [row for row in restored if not row.is_valid]
+    assert rejected.candidate_id == str(candidate_ref.artifact_id)
+    assert "actual candidate parameters differ" in rejected.metadata["transfer_error"]
+    assert reader.last_restore_report.accepted_rows == 3
+    with pytest.raises(TransferHistoryError, match="actual candidate parameters differ"):
+        WarmStartBridge.evaluations_to_benchmarks([evaluation], loop_id="target", store=store)
+
+
+def test_original_and_history_cannot_share_a_false_normalized_coordinate(tmp_path):
+    store, index, _, source, evaluations, originals = _measured_history(tmp_path)
+    evaluations[0].params_normalized = (0.95,)
+    source.history_ref = TransferLearningManager(store, index).register_run(source, evaluations)
+    reader = TransferLearningManager(store, index)
+    restored = reader.get_warm_start_evaluations(
+        [source], target_fingerprint=source.model_copy(update={"run_id": "target"})
+    )
+    (rejected,) = [row for row in restored if not row.is_valid]
+    assert "normalized parameters differ from the persisted source basis" in (
+        rejected.metadata["transfer_error"]
+    )
+    assert originals[0].metadata["params"] == rejected.params == {"x": 0.1}
+
+
+def test_unsupported_candidate_input_basis_is_a_visible_refusal(tmp_path):
+    store, index, _, source, evaluations, _ = _measured_history(tmp_path)
+    source.bounds = {"x": {"lower": 0.0, "upper": 1.0, "undocumented_encoding": "foreign"}}
+    # Candidate verification runs before original model/context reconciliation.
+    for evaluation in evaluations:
+        evaluation.metadata["warm_start_compatibility"]["context_fingerprint"] = (
+            source.numeric_context_fingerprint()
+        )
+    source.history_ref = TransferLearningManager(store, index).register_run(source, evaluations)
+    reader = TransferLearningManager(store, index)
+    restored = reader.get_warm_start_evaluations(
+        [source], target_fingerprint=source.model_copy(update={"run_id": "target"})
+    )
+    assert all(not row.is_valid for row in restored)
+    assert all("unsupported source parameter basis" in row.metadata["transfer_error"] for row in restored)
+
+
 def test_changed_scalar_cannot_relabel_an_unchanged_benchmark(tmp_path):
     store, index, _, source, evaluations, _ = _measured_history(tmp_path)
     evaluations[0].scalar_score = -999.0

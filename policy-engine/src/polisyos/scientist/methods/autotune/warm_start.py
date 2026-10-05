@@ -74,7 +74,10 @@ class WarmStartBridge:
         new benchmark. An absent source lineage is an explicit refusal.
         """
         from polisyos.core.canon import from_canonical_bytes
-        from polisyos.scientist.methods.search.strategies.transfer import TransferHistoryError
+        from polisyos.scientist.methods.search.strategies.transfer import (
+            TransferHistoryError,
+            TransferLearningManager,
+        )
 
         results: list[BenchmarkEvaluation] = []
         for ev in evaluations:
@@ -84,12 +87,19 @@ class WarmStartBridge:
                 original = BenchmarkEvaluation.model_validate(
                     from_canonical_bytes(store.get_bytes(ev.provenance_ref))
                 )
-                store.get_bytes(original.candidate_ref.artifact_id)
+                candidate_payload = from_canonical_bytes(
+                    store.get_bytes(original.candidate_ref.artifact_id)
+                )
             except (TypeError, ValueError, OSError, KeyError) as exc:
                 raise TransferHistoryError(
                     "Original benchmark/candidate unavailable or schema-incompatible",
                     ev.provenance_ref,
                 ) from exc
+            rejection = TransferLearningManager._candidate_parameter_rejection(
+                candidate_payload, ev.params
+            )
+            if rejection is not None:
+                raise TransferHistoryError(rejection, str(original.candidate_ref.artifact_id))
             if (
                 not ev.is_valid
                 or original.metadata.get("warm_start")

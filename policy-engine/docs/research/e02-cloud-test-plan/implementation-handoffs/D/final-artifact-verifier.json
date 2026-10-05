@@ -1,0 +1,309 @@
+{
+  "schema": "e02-independent-artifact-handoff/v1",
+  "unit": "D",
+  "slice": "final aggregate artifact verification",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CTL-01",
+    "CTL-02",
+    "CTL-03",
+    "FUN-01",
+    "FUN-02",
+    "FUN-03",
+    "OPT-01",
+    "OPT-02",
+    "OPT-03",
+    "OPT-04",
+    "SRV-01",
+    "SRV-03",
+    "STP-01",
+    "STR-01",
+    "TRN-01",
+    "TRN-02",
+    "TRN-03"
+  ],
+  "finding_ids": [
+    "B106",
+    "B107",
+    "B108",
+    "B109",
+    "B110",
+    "B111",
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B116",
+    "B117",
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B122",
+    "B123",
+    "B124",
+    "B125",
+    "B126",
+    "B127",
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136",
+    "B137",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165",
+    "B41",
+    "LA-014",
+    "LA-015"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "dc23a996704e6c251ab1c9b7ad24b19479168f6c"
+  ],
+  "candidate_sha": "dc23a996704e6c251ab1c9b7ad24b19479168f6c",
+  "candidate_tree_sha": "bfd8c49d9849019522b90706044f8dde5a151217",
+  "branch": "codex/e02-D-ci-triage",
+  "pull_request": "not_established",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/actual-byte-control.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/architecture-classification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/controls.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/deciding.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py",
+    "policy-engine/tests/repo_quality/tools/test_e02_final_artifacts.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier.json"
+  ],
+  "baseline_cells": {
+    "reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json@dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+    "complete_census": {
+      "finding_owner_rows": 45,
+      "bundle_owners": 17,
+      "route_rows": 456,
+      "distinct_primary_cells": 115,
+      "states": {
+        "PASS": 112,
+        "FAILED": 3
+      }
+    }
+  },
+  "dependency_checkpoint": {
+    "root_candidate_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+    "root_candidate_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+    "root_mutations": "none; immutable Git object reads only"
+  },
+  "checks": [
+    {
+      "command": [
+        "python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py",
+        "--repo",
+        ".",
+        "--target",
+        "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+        "--base",
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "--output",
+        "/tmp/e02-final-artifacts.json"
+      ],
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "verifier_source_sha": "dc23a996704e6c251ab1c9b7ad24b19479168f6c",
+      "environment": {
+        "python": "3.12.14",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "backend": "standard library plus read-only Git; no application backend exercised"
+      },
+      "input_closure": "All tracked D JSON receipts, every AM JSON in base-to-target diff, all changed release fragments, canonical finding-owner/bundle-owner/routes/cells TSVs, declared historical Git sources and source byte/line locators. Full tracked target tree, not a working-tree read.",
+      "outcome": "PASS",
+      "counts": {
+        "json_files_parsed": 36,
+        "git_object_claims_checked": 78,
+        "unique_reference_claims": 585,
+        "available_reference_claims": 563,
+        "sha256_claims_checked": 178,
+        "size_claims_checked": 94,
+        "git_blob_claims_checked": 11,
+        "inline_utf8_sha256_claims_checked": 2,
+        "release_fragments_parsed": 12,
+        "byte_line_locators_checked": 185
+      },
+      "syntax_denominator": {
+        "tracked_D_json_files": 35,
+        "changed_json_files": 35,
+        "changed_release_fragments": 12
+      },
+      "sha256_declarations": 362,
+      "sha256_declarations_with_byte_locator": 279,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/deciding.txt",
+        "sha256": "6c4f6225ab07e7d8ca0d35b6750b4af53b287b0ab722e3052f365ecb3cbb63b0",
+        "bytes": 1785
+      }
+    },
+    {
+      "command": [
+        "python",
+        "policy-engine/tests/repo_quality/tools/test_e02_final_artifacts.py"
+      ],
+      "target_sha": "dc23a996704e6c251ab1c9b7ad24b19479168f6c",
+      "outcome": "PASS",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "input_closure": "Bounded synthetic arbitrary-ID census and receipt fixtures; corrupt payload with unchanged markers/digest; old source/test bindings; missing raw vs missing local; omitted routed cell; shifted locator; invalid JSON/TOML. Tests use no application imports.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/controls.txt",
+        "sha256": "60bfd255b69a44a0fc4a9030514b1e3f9c263117012de3f2f874cab36b485d0f",
+        "bytes": 1384
+      }
+    },
+    {
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "verifier_source_sha": "dc23a996704e6c251ab1c9b7ad24b19479168f6c",
+      "outcome": "FAIL_AS_REQUIRED",
+      "input_closure": "Actual discovered available digest-bound candidate text ref; append bytes in memory retaining all original labels/receipt fields/Git objects. Unmodified aggregate PASS; corrupted available bytes rejected by SHA256 and size. No filesystem mutation.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/actual-byte-control.txt",
+        "sha256": "2dbd5a7c54031981ce99d7faace73739e8e8fee689321266af9fb815cba54626",
+        "bytes": 1945
+      }
+    },
+    {
+      "command": "ruff check +ruff format --check on the unique verifier and companion test; git diff --check",
+      "target_sha": "dc23a996704e6c251ab1c9b7ad24b19479168f6c",
+      "outcome": "PASS",
+      "scope": "Only authored source and tests; ordinary canonical precommit hooks passed."
+    },
+    {
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "outcome": "DIAGNOSED_FAIL",
+      "property": "Complete architecture log157deep-import edges; AST comparison every edge at base and target. Six added edges;151same statements;8changed-path intersections. Other3 top-level errors retained. No full base gate replay and no inherited-red exclusion.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/architecture-classification.json",
+        "sha256": "13ed81b0bda06b763e2c4e683887d40701bae368a90e94733adf71332ce2a2fd",
+        "bytes": 7331
+      }
+    }
+  ],
+  "property": "Available Git artifact byte identity, syntax and full D census reconciliation. This does not establish runtime behavior, production input adequacy, authority admission or finding closure.",
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Artifact reconciliation PASS within available byte/input denominator; unavailable evidence retained as limitations. Architecture gate remains FAIL at frozen target.",
+  "authority_purpose": "Read-only independent campaign evidence check; no closure adjudication or production authority.",
+  "provenance": {
+    "artifacts": {
+      "README.md": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/README.md",
+        "sha256": "b722da5b770ea9981be41c77c0d034796aaa57a462e588041f36efd88e16c36d",
+        "bytes": 1688
+      },
+      "actual-byte-control.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/actual-byte-control.txt",
+        "sha256": "2dbd5a7c54031981ce99d7faace73739e8e8fee689321266af9fb815cba54626",
+        "bytes": 1945
+      },
+      "architecture-classification.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/architecture-classification.json",
+        "sha256": "13ed81b0bda06b763e2c4e683887d40701bae368a90e94733adf71332ce2a2fd",
+        "bytes": 7331
+      },
+      "controls.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/controls.txt",
+        "sha256": "60bfd255b69a44a0fc4a9030514b1e3f9c263117012de3f2f874cab36b485d0f",
+        "bytes": 1384
+      },
+      "deciding.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/deciding.txt",
+        "sha256": "6c4f6225ab07e7d8ca0d35b6750b4af53b287b0ab722e3052f365ecb3cbb63b0",
+        "bytes": 1785
+      },
+      "verify.py": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py",
+        "sha256": "6e7ee883a0d9687d5feeab3de73cdfecebfd646aad05af5b6d30f2746e1ef246",
+        "bytes": 22951
+      },
+      "test_e02_final_artifacts.py": {
+        "path": "policy-engine/tests/repo_quality/tools/test_e02_final_artifacts.py",
+        "commit": "dc23a996704e6c251ab1c9b7ad24b19479168f6c",
+        "sha256": "68264546107cff69309c2c0ae929327eeea6626c141727be1ba34a5a68b2e8ef",
+        "bytes": 6956
+      }
+    },
+    "full_derived_report": {
+      "path": "/tmp/e02-final-artifacts.json",
+      "sha256": "1a082aa64d50227e8b45277ece5a0b5277b19a511df07a71cbbd3bd3729b6efe",
+      "bytes": 34180,
+      "commit_policy": "Derivable detail stays outside Git; moderate deciding summary retained."
+    }
+  },
+  "limitations_and_next_owner": {
+    "counts": {
+      "hash_without_byte_locator": 83,
+      "unavailable_raw_or_external": 17
+    },
+    "unavailable_reference_claims": 22,
+    "examples": [
+      {
+        "kind": "hash_without_byte_locator",
+        "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "locator": "$.jobs.F01.manifest_sha256",
+        "detail": "a6ad0dad1bbad671dbf5a9efb3892d4a55c5445573e0060c0eac27c85f097527"
+      },
+      {
+        "kind": "hash_without_byte_locator",
+        "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "locator": "$.jobs.F01.environment.reference.reported_sha256",
+        "detail": "6d36c3fa9d216b5e6258b2c9a4098d5e1f4c407df2791fb89a0295fca93bdb60"
+      },
+      {
+        "kind": "hash_without_byte_locator",
+        "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "locator": "$.jobs.F01.inputs.reference.reported_sha256",
+        "detail": "6e199f860301becf6665cad568ca5966820dbb6b656fee9d10d4624ba1cd504d"
+      },
+      {
+        "kind": "hash_without_byte_locator",
+        "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "locator": "$.jobs.F02.manifest_sha256",
+        "detail": "1487b06837c99c3f00b02acb38ddf301917ee5f2d34aa32c05e80529860ef52b"
+      }
+    ],
+    "unbound_hash_field_counts": {
+      "manifest_sha256": 15,
+      "reported_sha256": 6,
+      "source_log_utf8_sha256": 12,
+      "source_utf8_sha256": 4,
+      "pathset_sha256": 3,
+      "published_pathset_sha256": 1,
+      "mutated_module_sha256": 26,
+      "current_sha256": 4,
+      "base_sha256": 4,
+      "checkpoint_sha256": 2,
+      "sha256": 1,
+      "log_sha256": 2,
+      "sorted_name_version_sha256": 1,
+      "uv_lock_sha256": 1,
+      "lock_sha256": 1
+    },
+    "policy": "Unreceived raw/external files and hashes without byte locators are limitations, not verified bytes or failed program evidence. Historical pins remain bound to their own source commits. No closure-marker policy enforced.",
+    "next_owner": "G final aggregate owner for subsequent docs/source delta and fresh required CI; source owners for architecture import repairs; source custodians for missing raw byte artifacts."
+  },
+  "discarded_harness_attempts": [
+    {
+      "outcome": "ERROR_NON_DECIDING",
+      "detail": "First portable-measure invocation incorrectly used flags although wrapper expects positional log+argv; FileNotFoundError occurred before verifier child executed. Correct positional invocation produced deciding.txt. No verifier outcome inferred from setup error."
+    }
+  ]
+}

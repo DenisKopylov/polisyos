@@ -823,7 +823,7 @@
         "API-01"
       ],
       "native_validation": "Native26PASS; independentreviewGO; UtilityJudge broader red retained unexcluded",
-      "acceptance": "G checkpoint03 accepts earlier baad/0c709 bounded ABI runtime; appended4b8 doc/current6eb receipt pending_G; no LA-020 closure",
+      "acceptance": "G checkpoint03 accepts earlier baad/0c709 bounded ABI runtime; appended4b8 doc and current receipt pending_G; no LA-020 closure",
       "documentation_validation": "Substantive canonical companion independentlyGO at last doc implementation; own foundry_docs failure removed; actual full DocsGate FAIL expired freshness10, strict docs build UNRUN. Earlier native checks retain their runtime implementation SHA; new published head CI pending."
     },
     {

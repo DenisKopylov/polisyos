@@ -45,7 +45,11 @@
         "encoding": "JSON-escaped complete console output; decode complete_console_output to recover all original bytes, including pytest trailing spaces",
         "raw_output_sha256": "3aa69377ad43d3bcd27eec198eb00ec70a950b6c246d5f663065a7aac571a3c5"
       },
-      "observed": "10 actual semantic failures: common declared ports2, authority override4, native RDD/DiD2, native kernel1, fallback negative1."
+      "observed": "10 actual pytest failures: 9 behavioral ABI/authority failures (common declared ports: 2; authority override: 4; native RDD/DiD: 2; native kernel: 1) and 1 fallback-probe precondition KeyError. The fallback probe stops at output.pop(\"causal_effect_report\") before dematerialize or its consumer assertion; its intended proxy discriminator was not measured on the base.",
+      "failed": 10,
+      "behavioral_abi_authority_failures": 9,
+      "negative_probe_precondition_nonmeasurements": 1,
+      "measurement_classification": "The precondition failure is not PASS, not a separately established runtime fallback witness, and not a new product defect. Full raw 10 FAILED output remains unchanged. The frozen positive oracle and independent native deletion controls establish their separately bounded properties."
     },
     {
       "command": [
@@ -175,7 +179,10 @@
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-probe.txt",
         "sha256": "9f4d243d9e6bcdc0dfd6c4265c2313451ad698a2eab2c893630ee48bd44921a3",
         "bytes": 1927
-      }
+      },
+      "behavioral_abi_failures": 7,
+      "negative_probe_precondition_nonmeasurements": 1,
+      "measurement_classification": "Observed aggregate 8 FAIL / 4 PASS is unchanged. Seven failures reject actual missing common ABI fields; one fallback probe raises KeyError at output.pop(\"causal_effect_report\") before its consumer discriminator, so that failure is excluded from the deciding behavioral count. Independent native RDD/DiD alias-removal 2 FAIL remains separate clean evidence."
     },
     {
       "command": [
@@ -337,10 +344,10 @@
     "surface": "Existing Python method output bindings; compatibility fragment records addedaliases and reservedextras ValueError. No new IR/schema/serialized report format.",
     "proxy_divergence": "Deleting actual causal_effect_report while retaining historical report lets dematerialize aliasfallback succeed; directraw declared ABI assertion fails. Dispatcher SUCCESS/legacyfallback/source keywords alone do not establish ABI.",
     "negative_controls": [
-      "Known inputinvalidreport plus successful-looking reservedextras4variants mustraise",
-      "Delete runtime3 aliases but retain keywords/oldkeys/guard:8FAIL4controlsPASS",
-      "Disableauthorityguard but retainkeywords/message:4FAIL8controlsPASS",
-      "Independent native RDD/DiD aliasdeletion:2 genuineconsumer failures whiledispatchreportsSUCCESS"
+      "Known INPUT_INVALID report plus successful-looking reserved extras: 4 variants must raise.",
+      "Delete runtime 3 aliases while retaining keywords/old keys/guard: aggregate 8 FAIL / 4 controls PASS, comprising 7 behavioral ABI rejections and 1 fallback-probe precondition nonmeasurement.",
+      "Disable authority guard while retaining keywords/message: 4 behavioral failures and 8 controls PASS.",
+      "Independent native RDD/DiD alias deletion: 2 genuine consumer failures while dispatcher reports SUCCESS."
     ],
     "rule_schema": "Existing live MethodSignature output_slots, existing CausalEffectReport and persist/load schema; no newmethodological rule."
   },
@@ -482,5 +489,9 @@
     "Causal-analysisdataowner/G: production input files remain locally read-only. Syntheticjump/ATT3 and aliasidentity do not prove admittedreal data parallel trends/estimand validity/null coverage/RBC/cohort scope.",
     "Method owners: specialized dtr_result/hte_result/kernel/operator/space-time results remain explicitproduceroutputs; common wrapper doesnot fabricate or scientificallyvalidate them.",
     "Existing raw compatibility extras/empty warnings generatewarnings; no warningcleanliness/complete57signature ABI claim. Existing protected scientific/statusrefusal remainsunchanged."
-  ]
+  ],
+  "measurement_notes": {
+    "fallback_probe": "Baseline aggregate 10 FAIL and alias-removal aggregate 8 FAIL / 4 PASS each include one setup KeyError before the fallback consumer oracle. Those failures are not counted as behavioral runtime fallback measurements. Frozen candidate 12 PASS executes the actual fallback discriminator; independent native alias-removal 2 FAIL and reserved authority 4 FAIL remain unaffected.",
+    "change_scope": "Append-only receipt classification correction; no source/test changes, no raw output changes, no retest or scientific closure."
+  }
 }

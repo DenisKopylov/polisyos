@@ -1,0 +1,4 @@
+{"source_sha": "d7c9122a60330ce30cee7720c90caf4d8fb07ade", "tree": "410f904cc0fa5e83e072a74e9823fd35b880a50d", "cwd": "/workspace/e02-B-cmp-res/policy-engine", "command": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "-o", "addopts=", "-q", "tests/unit/foundry/methods/backends/test_checkpointing_execution.py", "tests/unit/foundry/methods/backends/test_checkpointing.py", "tests/unit/remediation/test_res_04.py", "--junitxml=/workspace/e02-B-coordination/.polisyos/e02-B/raw/cmp-review.xml"], "PYTHONPATH": "src:."}
+............................                                             [100%]
+28 passed in 2.31s
+{"exit_code": 0, "wall_seconds": 4.4995286690000285}

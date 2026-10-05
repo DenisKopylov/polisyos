@@ -467,7 +467,7 @@ def _cohort_time_cells(
     missing_baseline_groups: list[int] = []
 
     for group_start in valid_groups:
-        if group_start <= 0 or group_start >= data.n_periods:
+        if group_start >= data.n_periods:
             continue
         group_mask = timing == group_start
         if not group_mask.any():
@@ -555,7 +555,17 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
             f"unsupported control_group: {raw_control_group}",
         )
     control_group = raw_control_group
-    anticipation = int(params.get("anticipation", 0))
+    raw_anticipation = params.get("anticipation", 0)
+    if (
+        isinstance(raw_anticipation, (bool, np.bool_))
+        or not isinstance(raw_anticipation, (int, np.integer))
+        or raw_anticipation < 0
+    ):
+        return _invalid_did_request_output(
+            data,
+            "anticipation must be a nonnegative integer",
+        )
+    anticipation = int(raw_anticipation)
     cells, no_control_cells, missing_baseline_groups = _cohort_time_cells(
         data,
         control_group=control_group,

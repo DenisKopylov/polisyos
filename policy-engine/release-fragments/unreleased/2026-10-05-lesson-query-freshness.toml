@@ -1,0 +1,11 @@
+id = "2026-10-05-lesson-query-freshness"
+type = "fixed"
+summary = "Transferred lesson queries preserve confidence and trust filters, and ordinary reads retain evidence age without publishing full CAS snapshots."
+component = "scientist-search"
+owner = "team-policyos-scientist"
+change_class = "persisted-artifact-format"
+surface_classification = "internal: scientist.methods.search.lessons"
+compatibility = "Existing lesson cards and index snapshots keep schema 1.0. Access timestamps are retention hints stored separately from immutable evidence; an old transferred lesson can no longer satisfy a fresh-confidence filter through its original card value."
+migration = "No snapshot rewrite is required. Existing last_accessed_at values remain retention hints; new reads persist a small per-lesson access timestamp and throttle sequential updates to once per day."
+limitations = "The age rule bounds internal lesson confidence; it does not establish scientific validation authority. Concurrent processes may race on best-effort retention hints, which never change evidence freshness."
+evidence = ["tests/unit/scientist/methods/search/test_lesson_query_persistence.py", "tests/unit/scientist/search/test_lessons.py", "tests/unit/scientist/search/test_lesson_transfer.py"]

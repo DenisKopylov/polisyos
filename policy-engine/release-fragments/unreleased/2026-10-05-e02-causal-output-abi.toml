@@ -1,0 +1,30 @@
+id = "2026-10-05-e02-causal-output-abi"
+title = "Declared common causal output bindings"
+type = "fixed"
+component = "foundry-causal-methods"
+owner = "team-causal"
+summary = "Causal methods using the common wrapper expose their declared report and uncertainty ports while retaining method-specific result payloads."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_output_contract.py"]
+compatibility = "Historical report and envelope keys remain available. Explicit specialized result payloads remain unchanged. Extra payloads may no longer replace report, causal_effect_report, envelope, or uncertainty_envelope; attempts raise ValueError."
+change_class = "python-public-api"
+surface_classification = "public_stable: Common causal method output bindings"
+migration = "Pass the causal report as the wrapper's report argument. Keep method-specific results in extras.result and avoid reserved report or envelope keys in extras."
+api = "causal_effect_report aliases report; uncertainty_envelope aliases envelope; result defaults to report unless the method explicitly supplies a specialized result."
+limitations = "The binding check covers 44 local method signatures with direct calls to the common wrapper. It does not establish method-specific scientific validity, native optional backend availability, or outputs of other producers."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "causal-common-declared-output-bindings"
+change_class = "python-public-api"
+impact = "consumer_output_extension"
+surface = "public_stable: Common causal method output bindings"
+owner = "team-causal"
+version_owner = "team-causal"
+deprecation_window = "not_applicable"
+release_note = "The common causal wrapper now exposes declared report and uncertainty aliases and refuses extras that replace those authority fields."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

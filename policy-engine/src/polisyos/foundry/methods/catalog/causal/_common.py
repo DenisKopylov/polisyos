@@ -139,10 +139,17 @@ def wrap_causal_output(
     warnings: list[str] | None = None,
     extras: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Wrap causal output helper."""
+    """Bind common declared ports without replacing method-specific results."""
+    reserved = {"report", "causal_effect_report", "envelope", "uncertainty_envelope"}
+    if extras and (overrides := reserved.intersection(extras)):
+        raise ValueError(f"reserved causal output fields cannot be replaced: {sorted(overrides)}")
+    envelope = report.to_uncertainty_envelope()
     output: dict[str, Any] = {
         "report": report,
-        "envelope": report.to_uncertainty_envelope(),
+        "causal_effect_report": report,
+        "result": report,
+        "envelope": envelope,
+        "uncertainty_envelope": envelope,
         "warnings": list(warnings or []),
         "__determinism_tier__": DeterminismTier.STATISTICAL,
     }

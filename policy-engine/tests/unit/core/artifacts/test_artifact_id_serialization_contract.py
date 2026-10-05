@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import threading
 import warnings
 from collections import Counter
@@ -77,8 +78,404 @@ def test_tenant_scoped_cas_keeps_canonical_content_hashes_without_cross_tenant_r
     ref_b = store_b.put_json({"same": "payload"}, opts)
 
     assert ref_b.artifact_id == ref_a.artifact_id
-    assert store_b.has(ref_a.artifact_id) is True
-    assert store_b.get_bytes(ref_a.artifact_id) == store_a.get_bytes(ref_a.artifact_id)
+    assert store_b.has(ref_b) is True
+    assert store_b.has(ref_a.artifact_id) is False
+    assert store_b.get_bytes(ref_b) == store_a.get_bytes(ref_a.artifact_id)
+
+
+def test_view_only_tenant_never_reads_foreign_default_manifest(tmp_path, monkeypatch) -> None:
+    shared_root = tmp_path / "cas"
+    store_a = FileSystemCAS(shared_root).for_tenant("tenant-a")
+    store_b = FileSystemCAS(shared_root).for_tenant("tenant-b")
+    payload = b"shared bytes with independently owned typed manifests"
+    owner_opts = PutOptions(kind="test.tenant_a_default", media_type="text/plain")
+    view_opts = PutOptions(kind="test.tenant_b_view", media_type="text/plain")
+
+    ref_a = store_a.put_bytes(payload, owner_opts)
+    default_path = store_b._manifest_path_for_ref(ref_a.artifact_id, None)
+    default_bytes_before = default_path.read_bytes()
+
+    original_read = store_b._manifests.read
+    default_reads = []
+    selected_reads = []
+    selected_paths = []
+
+    def spy_read(path):
+        resolved_path = Path(path)
+        if resolved_path == default_path:
+            default_reads.append(resolved_path)
+        if selected_paths and resolved_path == selected_paths[0]:
+            selected_reads.append(resolved_path)
+        return original_read(path)
+
+    monkeypatch.setattr(store_b._manifests, "read", spy_read)
+
+    ref_b = store_b.put_bytes(payload, view_opts)
+    assert ref_b.manifest_profile_sha256 is not None
+    selected_path = store_b._manifest_path_for_ref(
+        ref_b.artifact_id,
+        ref_b.manifest_profile_sha256,
+    )
+    selected_paths.append(selected_path)
+    assert selected_path != default_path
+    default_reads_after_put = tuple(default_reads)
+    assert default_path.read_bytes() == default_bytes_before
+    default_reads.clear()
+
+    has_default = store_b.has(ref_a.artifact_id)
+    default_reads_after_has = tuple(default_reads)
+
+    direct_read_refused = False
+    try:
+        store_b.get_manifest(ref_a.artifact_id)
+    except ArtifactOwnershipError:
+        direct_read_refused = True
+    default_reads_after_get_manifest = tuple(default_reads)
+
+    paths_read_refused = False
+    try:
+        store_b.get_paths(ref_a.artifact_id)
+    except ArtifactOwnershipError:
+        paths_read_refused = True
+    default_reads_after_get_paths = tuple(default_reads)
+
+    exact_view_available = store_b.has(ref_b)
+    exact_view_paths = store_b.get_paths(ref_b)
+
+    owner_reads = []
+    original_owner_read = store_a._manifests.read
+
+    def owner_read_spy(path):
+        resolved_path = Path(path)
+        if resolved_path == default_path:
+            owner_reads.append(resolved_path)
+        return original_owner_read(path)
+
+    monkeypatch.setattr(store_a._manifests, "read", owner_read_spy)
+    repeated_default_ref = store_a.put_bytes(payload, owner_opts)
+
+    assert has_default is False
+    assert default_reads_after_put == ()
+    assert default_reads_after_has == ()
+    assert direct_read_refused is True
+    assert default_reads_after_get_manifest == ()
+    assert paths_read_refused is True
+    assert default_reads_after_get_paths == ()
+    assert exact_view_available is True
+    assert selected_reads
+    assert exact_view_paths[1] == selected_path
+    assert repeated_default_ref.manifest_profile_sha256 is None
+    assert owner_reads
+    assert default_path.read_bytes() == default_bytes_before
+
+    tampered_manifest = store_a.get_manifest(ref_a).model_copy(
+        update={
+            "artifact_id": CoreArtifactID.model_validate(
+                "sha256:" + "0" * 64,
+            )
+        }
+    )
+    default_path.write_bytes(store_a._manifests.to_bytes(tampered_manifest))
+    with pytest.raises(ValueError, match="Manifest artifact_id mismatch"):
+        store_a.put_bytes(payload, owner_opts)
+
+
+def test_unscoped_cas_loser_refuses_default_claimed_during_write(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    shared_root = tmp_path / "shared"
+    ambient = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
+    tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+    payload = b"ambient write loses default-view ownership race"
+    ambient_opts = PutOptions(kind="test.ambient_candidate", media_type="text/plain")
+    owner_opts = PutOptions(kind="test.tenant_a_default", media_type="text/plain")
+    artifact_id = CoreArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    default_path = ambient._manifest_path_for_ref(artifact_id, None)
+
+    manifest_write_entered = threading.Event()
+    allow_manifest_write = threading.Event()
+    foreign_default_reads: list[Path] = []
+    original_write_once = ambient._files.write_once
+    original_read = ambient._manifests.read
+
+    def pause_before_default_write(path: Path, data: bytes) -> bool:
+        if path == default_path:
+            manifest_write_entered.set()
+            if not allow_manifest_write.wait(timeout=5):
+                raise AssertionError("tenant writer did not complete the default claim")
+        return original_write_once(path, data)
+
+    def spy_manifest_read(path: Path):
+        if path == default_path:
+            foreign_default_reads.append(path)
+        return original_read(path)
+
+    monkeypatch.setattr(ambient._files, "write_once", pause_before_default_write)
+    monkeypatch.setattr(ambient._manifests, "read", spy_manifest_read)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        ambient_write = executor.submit(ambient.put_bytes, payload, ambient_opts)
+        try:
+            assert manifest_write_entered.wait(timeout=5)
+            owner_ref = tenant_a.put_bytes(payload, owner_opts)
+            assert owner_ref.manifest_profile_sha256 is None
+            assert tenant_a._ownership_index.is_owned_by(
+                artifact_id,
+                tenant_id="tenant-a",
+                cell_id=None,
+            )
+        finally:
+            allow_manifest_write.set()
+
+        try:
+            ambient_write.result(timeout=5)
+        except ArtifactOwnershipError:
+            pass
+        else:
+            assert foreign_default_reads == []
+            pytest.fail("unscoped writer returned a ref after losing the default claim")
+
+    assert foreign_default_reads == []
+    assert tenant_a.put_bytes(payload, owner_opts).manifest_profile_sha256 is None
+
+    unclaimed_ref = ambient.put_bytes(
+        b"separate anonymous candidate remains available",
+        ambient_opts,
+    )
+    assert ambient.has(unclaimed_ref.artifact_id)
+    assert ambient.get_bytes(unclaimed_ref.artifact_id) == (
+        b"separate anonymous candidate remains available"
+    )
+
+
+def test_ambient_reads_wait_for_default_owner_admission(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    shared_root = tmp_path / "shared-cas"
+    tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+    ambient_b = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
+    payload = b"tenant-a default manifest and bytes during claim publication"
+    opts = PutOptions(kind="test.tenant_a_default", media_type="text/plain")
+    artifact_id = CoreArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    blob_path, default_path = tenant_a._paths(artifact_id)
+
+    default_sidecar_written = threading.Event()
+    allow_owner_claim = threading.Event()
+    original_write_once = tenant_a._files.write_once
+
+    def pause_after_default_manifest_write(path: Path, data: bytes) -> bool:
+        created = original_write_once(path, data)
+        if path == default_path:
+            assert created, "expected tenant A to publish the default manifest"
+            assert path.is_file(), "the barrier must follow sidecar publication"
+            default_sidecar_written.set()
+            if not allow_owner_claim.wait(timeout=10):
+                raise AssertionError("ambient read probe did not release tenant A")
+        return created
+
+    monkeypatch.setattr(tenant_a._files, "write_once", pause_after_default_manifest_write)
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        writer = executor.submit(tenant_a.put_bytes, payload, opts)
+        try:
+            assert default_sidecar_written.wait(timeout=5), (
+                "tenant A did not reach the publication-before-claim seam"
+            )
+            assert not ambient_b._ownership_index.has_any_tenant_claim(artifact_id)
+
+            reader_started = {
+                "get_manifest": threading.Event(),
+                "has": threading.Event(),
+                "get_bytes": threading.Event(),
+            }
+            operations = {
+                "get_manifest": lambda: ambient_b.get_manifest(artifact_id),
+                "has": lambda: ambient_b.has(artifact_id),
+                "get_bytes": lambda: ambient_b.get_bytes(artifact_id),
+            }
+
+            def run_reader(name: str, operation):
+                reader_started[name].set()
+                return operation()
+
+            manifest_reads: list[Path] = []
+            blob_reads: list[Path] = []
+            original_manifest_read = ambient_b._manifests.read
+            original_path_read_bytes = Path.read_bytes
+
+            def spy_manifest_read(path: Path):
+                if path == default_path:
+                    manifest_reads.append(path)
+                return original_manifest_read(path)
+
+            def spy_path_read_bytes(path: Path) -> bytes:
+                if path == blob_path:
+                    blob_reads.append(path)
+                return original_path_read_bytes(path)
+
+            monkeypatch.setattr(ambient_b._manifests, "read", spy_manifest_read)
+            monkeypatch.setattr(Path, "read_bytes", spy_path_read_bytes)
+            readers = {
+                name: executor.submit(run_reader, name, operation)
+                for name, operation in operations.items()
+            }
+            for started in reader_started.values():
+                assert started.wait(timeout=5), "ambient reader did not start"
+
+            early_successes: list[str] = []
+            for name, reader in readers.items():
+                try:
+                    result = reader.result(timeout=0.1)
+                except TimeoutError:
+                    continue
+                except ArtifactOwnershipError:
+                    continue
+                if name == "has" and result is False:
+                    continue
+                early_successes.append(name)
+
+            assert not early_successes and not manifest_reads and not blob_reads, (
+                "ambient reads crossed the unpublished owner-admission boundary: "
+                f"returned={early_successes}, manifest_reads={len(manifest_reads)}, "
+                f"blob_reads={len(blob_reads)}"
+            )
+        finally:
+            allow_owner_claim.set()
+
+        writer_ref = writer.result(timeout=10)
+        assert writer_ref.artifact_id == artifact_id
+        assert tenant_a._ownership_index.is_owned_by(
+            artifact_id,
+            tenant_id="tenant-a",
+            cell_id=None,
+        )
+
+        for name, reader in readers.items():
+            if name == "has":
+                assert reader.result(timeout=5) is False
+            else:
+                with pytest.raises(ArtifactOwnershipError):
+                    reader.result(timeout=5)
+
+    candidate_payload = b"unclaimed ambient candidate remains usable"
+    candidate_ref = ambient_b.put_bytes(
+        candidate_payload,
+        PutOptions(kind="test.ambient_candidate", media_type="text/plain"),
+    )
+    assert ambient_b.has(candidate_ref.artifact_id) is True
+    assert ambient_b.get_bytes(candidate_ref.artifact_id) == candidate_payload
+
+
+def test_ambient_get_paths_returns_a_raw_capability_surviving_a_later_claim(
+    tmp_path,
+) -> None:
+    shared_root = tmp_path / "shared-cas"
+    raw_store = FileSystemCAS(shared_root)
+    ambient_b = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
+    tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+    payload = b"published as an unclaimed candidate before tenant admission"
+    ref = raw_store.put_bytes(
+        payload,
+        PutOptions(kind="test.unclaimed_candidate", media_type="text/plain"),
+    )
+
+    blob_path, manifest_path = ambient_b.get_paths(ref.artifact_id)
+    tenant_a.record_artifact_owner(ref.artifact_id)
+
+    with pytest.raises(ArtifactOwnershipError):
+        ambient_b.get_paths(ref.artifact_id)
+    assert ambient_b.has(ref.artifact_id) is False
+    with pytest.raises(ArtifactOwnershipError):
+        ambient_b.get_bytes(ref.artifact_id)
+
+    # get_paths returned ordinary local paths, so a later ownership claim cannot
+    # revoke the capability already handed to its caller.
+    assert blob_path.read_bytes() == payload
+    assert manifest_path.read_bytes()
+
+
+def test_ambient_manifest_read_cannot_use_a_stale_unclaimed_check(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    shared_root = tmp_path / "shared-cas"
+    raw_store = FileSystemCAS(shared_root)
+    ambient_b = FileSystemCAS(shared_root).with_ambient_ownership_enforcement()
+    tenant_a = FileSystemCAS(shared_root, tenant_id="tenant-a")
+    payload = b"ambient reader pauses after checking an unclaimed candidate"
+    ref = raw_store.put_bytes(
+        payload,
+        PutOptions(kind="test.unclaimed_candidate", media_type="text/plain"),
+    )
+    default_path = ambient_b._manifest_path_for_ref(ref.artifact_id, None)
+
+    unclaimed_check_complete = threading.Event()
+    allow_reader = threading.Event()
+    claim_started = threading.Event()
+    claim_committed = threading.Event()
+    manifest_reads_after_claim: list[Path] = []
+    original_has_any_claim = ambient_b._ownership_index.has_any_tenant_claim
+    original_manifest_read = ambient_b._manifests.read
+    original_record_owner = tenant_a.record_artifact_owner
+
+    def pause_after_unclaimed_check(artifact_id) -> bool:
+        unclaimed = original_has_any_claim(artifact_id)
+        if artifact_id == ref.artifact_id and not unclaimed:
+            unclaimed_check_complete.set()
+            if not allow_reader.wait(timeout=10):
+                raise AssertionError("reader race probe did not release ambient B")
+        return unclaimed
+
+    def record_owner(*args, **kwargs) -> None:
+        claim_started.set()
+        original_record_owner(*args, **kwargs)
+        claim_committed.set()
+
+    def spy_manifest_read(path: Path):
+        if path == default_path and claim_committed.is_set():
+            manifest_reads_after_claim.append(path)
+        return original_manifest_read(path)
+
+    monkeypatch.setattr(
+        ambient_b._ownership_index,
+        "has_any_tenant_claim",
+        pause_after_unclaimed_check,
+    )
+    monkeypatch.setattr(tenant_a, "record_artifact_owner", record_owner)
+    monkeypatch.setattr(ambient_b._manifests, "read", spy_manifest_read)
+
+    def read_manifest():
+        try:
+            manifest = ambient_b.get_manifest(ref.artifact_id)
+        except ArtifactOwnershipError:
+            return "refused", None, claim_committed.is_set()
+        return "returned", manifest.kind, claim_committed.is_set()
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        reader = executor.submit(read_manifest)
+        try:
+            assert unclaimed_check_complete.wait(timeout=5), (
+                "ambient reader did not pause after its unclaimed-index check"
+            )
+            owner_claim = executor.submit(tenant_a.record_artifact_owner, ref.artifact_id)
+            assert claim_started.wait(timeout=5), "tenant A did not attempt claim admission"
+            claim_committed_before_reader = claim_committed.wait(timeout=0.1)
+        finally:
+            allow_reader.set()
+
+        result = reader.result(timeout=5)
+        owner_claim.result(timeout=5)
+
+    assert claim_committed.is_set()
+    if claim_committed_before_reader:
+        assert result[0] == "refused", (
+            "ambient B used its stale unclaimed check after tenant A committed its claim"
+        )
+    elif result[0] == "returned":
+        assert result[2] is False, "the candidate read must linearize before tenant A's claim"
+    assert manifest_reads_after_claim == []
 
 
 def test_ambient_cas_rejects_foreign_tenant_and_cell_claims(tmp_path) -> None:

@@ -61,7 +61,9 @@ def test_shared_cas_blocks_cross_tenant_runtime_lineage_scorecard_approval_and_e
     tenant_b_identical_ref = tenant_b.put_json(identical_payload, runtime_opts)
 
     assert tenant_b_identical_ref.artifact_id == tenant_a_identical_ref.artifact_id
-    assert tenant_b.get_bytes(tenant_b_identical_ref.artifact_id) == tenant_a.get_bytes(
+    assert tenant_b.has(tenant_b_identical_ref) is True
+    assert tenant_b.has(tenant_b_identical_ref.artifact_id) is False
+    assert tenant_b.get_bytes(tenant_b_identical_ref) == tenant_a.get_bytes(
         tenant_a_identical_ref.artifact_id
     )
 

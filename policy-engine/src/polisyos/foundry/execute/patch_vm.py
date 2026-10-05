@@ -14,10 +14,6 @@ from polisyos.foundry.methods.components.merge_engine import MergeEngine, MergeR
 from polisyos.ir.kernel import MergeRuleKind, MergeRuleRegistry, SlotRegistry
 
 
-def _artifact_id(value: ArtifactRef | str) -> str:
-    return value.artifact_id if isinstance(value, ArtifactRef) else str(value)
-
-
 def _put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
     array = np.asarray(value)
     buf = BytesIO()
@@ -30,7 +26,7 @@ def _put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
 
 
 def _load_tensor(store: FileSystemCAS, ref: ArtifactRef | str) -> np.ndarray:
-    data = store.get_bytes(_artifact_id(ref))
+    data = store.get_bytes(ref)
     return np.load(BytesIO(data), allow_pickle=False)
 
 

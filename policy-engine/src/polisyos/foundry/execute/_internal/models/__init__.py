@@ -12,7 +12,11 @@ from pydantic import BaseModel, Field
 
 from polisyos.core.artifacts.environment import EnvironmentManifestRef
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ConstraintReportRef
@@ -26,6 +30,7 @@ __all__ = [
     "FailureKind",
     "FailureSeverity",
     "artifact_id",
+    "artifact_input_ref",
     "get_state_path",
     "load_model",
     "load_payload",
@@ -123,16 +128,27 @@ def artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
     return ArtifactID.model_validate(value)
 
 
+def artifact_input_ref(
+    value: ArtifactRef | ArtifactID | str,
+    *,
+    role: str,
+) -> InputRef:
+    """Build a lineage edge without discarding a selected artifact view."""
+    if isinstance(value, ArtifactRef):
+        return input_ref_from_artifact_ref(value, role=role)
+    return InputRef(artifact_id=artifact_id(value), role=role)
+
+
 def load_model(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model_cls):
     """Load model."""
-    data = store.get_bytes(artifact_id(ref))
+    data = store.get_bytes(ref)
     payload = from_canonical_bytes(data)
     return model_cls.model_validate(payload)
 
 
 def load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> dict[str, Any]:
     """Load payload."""
-    data = store.get_bytes(artifact_id(ref))
+    data = store.get_bytes(ref)
     payload = from_canonical_bytes(data)
     if isinstance(payload, BaseModel):
         return payload.model_dump()
@@ -155,7 +171,7 @@ def put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
 
 def load_tensor(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> np.ndarray:
     """Load tensor."""
-    data = store.get_bytes(artifact_id(ref))
+    data = store.get_bytes(ref)
     return np.load(BytesIO(data), allow_pickle=False)
 
 

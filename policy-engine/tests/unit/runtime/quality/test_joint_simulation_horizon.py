@@ -8,7 +8,8 @@ from typing import Any, ClassVar
 import jax.numpy as jnp
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     ExecPlan,
@@ -500,8 +501,10 @@ def _request(
     )
 
 
-def _program_graph_plan(tmp_path: Path) -> EnginePlan:
-    store = FileSystemCAS(tmp_path / "cas")
+def _program_graph_plan(
+    tmp_path: Path, *, store: FileSystemCAS | None = None
+) -> EnginePlan:
+    store = store or FileSystemCAS(tmp_path / "cas")
     ir_ref = store.put_json(
         {"fixture": "joint_simulation_program_graph"},
         PutOptions(
@@ -787,6 +790,122 @@ def test_program_graph_plan_loops_real_shared_state_executor(tmp_path: Path) -> 
     assert abs(result.interaction_terms[0].by_step[3]) > 1.0
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
 
+
+
+def _alternate_manifest_profile(
+    store: FileSystemCAS,
+    ref: ArtifactRef,
+    *,
+    version: str,
+    source_store: FileSystemCAS | None = None,
+) -> ArtifactRef:
+    source_store = source_store or store
+    manifest = source_store.get_manifest(ref)
+    return store.put_bytes(
+        source_store.get_bytes(ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=ProducerInfo(component="test.foundry.program_graph", version=version),
+            env=manifest.env,
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=manifest.warnings,
+        ),
+    )
+
+
+def test_served_program_graph_refuses_foreign_selected_manifest_profile(tmp_path: Path) -> None:
+    root = tmp_path / "cas"
+    owner_store = FileSystemCAS(root).for_tenant("tenant-owner")
+    foreign_store = FileSystemCAS(root).for_tenant("tenant-foreign")
+    plan = _program_graph_plan(tmp_path, store=owner_store)
+
+    foreign_program_ref = _alternate_manifest_profile(
+        foreign_store,
+        plan.program_graph_ref,
+        version="2.0.0",
+        source_store=owner_store,
+    )
+    foreign_exec_plan_ref = _alternate_manifest_profile(
+        foreign_store,
+        plan.exec_plan_ref,
+        version="2.0.0",
+        source_store=owner_store,
+    )
+    assert foreign_program_ref.artifact_id == plan.program_graph_ref.artifact_id
+    assert foreign_exec_plan_ref.artifact_id == plan.exec_plan_ref.artifact_id
+    assert foreign_program_ref.manifest_profile_sha256 is not None
+    assert foreign_exec_plan_ref.manifest_profile_sha256 is not None
+    assert owner_store.get_bytes(plan.program_graph_ref) == foreign_store.get_bytes(
+        foreign_program_ref
+    )
+    assert owner_store.get_bytes(plan.exec_plan_ref) == foreign_store.get_bytes(
+        foreign_exec_plan_ref
+    )
+    assert owner_store.get_manifest(plan.program_graph_ref).producer != foreign_store.get_manifest(
+        foreign_program_ref
+    ).producer
+
+    foreign_plan = plan.model_copy(
+        update={
+            "program_graph_ref": foreign_program_ref,
+            "exec_plan_ref": foreign_exec_plan_ref,
+        }
+    )
+    request = _request().model_copy(
+        update={
+            "engine_plan": (foreign_plan,),
+            "selected_outcomes": ("mean_income",),
+            "baseline_state": {"mean_income": 0.0},
+        }
+    )
+
+    with pytest.raises(ArtifactOwnershipError):
+        JointSimulationHorizonController().run(request)
+
+
+def test_served_program_graph_output_lineage_keeps_selected_manifest_profiles(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-owner")
+    plan = _program_graph_plan(tmp_path, store=store)
+    selected_program_ref = _alternate_manifest_profile(
+        store, plan.program_graph_ref, version="2.0.0"
+    )
+    selected_exec_plan_ref = _alternate_manifest_profile(
+        store, plan.exec_plan_ref, version="2.0.0"
+    )
+    selected_plan = plan.model_copy(
+        update={
+            "program_graph_ref": selected_program_ref,
+            "exec_plan_ref": selected_exec_plan_ref,
+        }
+    )
+    request = _request().model_copy(
+        update={
+            "engine_plan": (selected_plan,),
+            "selected_outcomes": ("mean_income",),
+            "baseline_state": {"mean_income": 0.0},
+        }
+    )
+
+    result = JointSimulationHorizonController().run(request)
+
+    trajectory = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
+    state_delta_id = trajectory.points[0].engine_state["state_delta_ref"]
+    state_delta_manifest = store.get_manifest(state_delta_id)
+    selected_inputs = {
+        item.role: item.manifest_profile_sha256
+        for item in state_delta_manifest.inputs
+    }
+    assert selected_inputs["program_graph"] == selected_program_ref.manifest_profile_sha256
+    assert selected_inputs["exec_plan"] == selected_exec_plan_ref.manifest_profile_sha256
 
 def test_system_dynamics_plan_runs_registered_stock_flow_engine() -> None:
     world_record = _world_record()

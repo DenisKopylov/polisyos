@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.ir.kernel import (
@@ -182,25 +187,27 @@ def build_registry_bundle(
     )
 
     inputs = [
-        InputRef(artifact_id=slot_ref.artifact_id, role="slot_registry"),
-        InputRef(artifact_id=merge_ref.artifact_id, role="merge_registry"),
-        InputRef(artifact_id=constraint_ref.artifact_id, role="constraint_registry"),
-        InputRef(artifact_id=mech_ref.artifact_id, role="mechanism_registry"),
+        input_ref_from_artifact_ref(slot_ref, role="slot_registry"),
+        input_ref_from_artifact_ref(merge_ref, role="merge_registry"),
+        input_ref_from_artifact_ref(constraint_ref, role="constraint_registry"),
+        input_ref_from_artifact_ref(mech_ref, role="mechanism_registry"),
     ]
     if selector_field_ref is not None:
         inputs.append(
-            InputRef(artifact_id=selector_field_ref.artifact_id, role="selector_field_registry")
+            input_ref_from_artifact_ref(
+                selector_field_ref, role="selector_field_registry"
+            )
         )
     if metric_ref is not None:
-        inputs.append(InputRef(artifact_id=metric_ref.artifact_id, role="metric_registry"))
+        inputs.append(input_ref_from_artifact_ref(metric_ref, role="metric_registry"))
     if units_ref is not None:
-        inputs.append(InputRef(artifact_id=units_ref.artifact_id, role="units_registry"))
+        inputs.append(input_ref_from_artifact_ref(units_ref, role="units_registry"))
     if trust_ref is not None:
-        inputs.append(InputRef(artifact_id=trust_ref.artifact_id, role="trust_registry"))
+        inputs.append(input_ref_from_artifact_ref(trust_ref, role="trust_registry"))
     if predicate_ref is not None:
-        inputs.append(InputRef(artifact_id=predicate_ref.artifact_id, role="predicate_registry"))
+        inputs.append(input_ref_from_artifact_ref(predicate_ref, role="predicate_registry"))
     if privacy_ref is not None:
-        inputs.append(InputRef(artifact_id=privacy_ref.artifact_id, role="privacy_registry"))
+        inputs.append(input_ref_from_artifact_ref(privacy_ref, role="privacy_registry"))
 
     bundle_ref = _put_registry(
         store,

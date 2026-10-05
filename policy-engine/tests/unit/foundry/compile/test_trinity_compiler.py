@@ -1,11 +1,25 @@
 from __future__ import annotations
 
 import importlib
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+from polisyos.core.artifacts.registry import RegistryBundlePayload
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.registry.builder import build_registry_bundle
+from polisyos.core.registry.loader import load_registry_bundle_content
 from polisyos.foundry.compile.trinity_compiler import _merge_notes
+from polisyos.ir.kernel import (
+    ConstraintRegistry,
+    MechanismTypeRegistry,
+    MergeRuleRegistry,
+    SlotRegistry,
+)
 
 
 def _artifact_ref(kind: str = "test") -> ArtifactRef:
@@ -14,6 +28,92 @@ def _artifact_ref(kind: str = "test") -> ArtifactRef:
         kind=kind,
         media_type="application/json",
     )
+
+
+def _alternate_manifest_profile(
+    store: FileSystemCAS,
+    ref: ArtifactRef,
+    *,
+    version: str,
+    source_store: FileSystemCAS | None = None,
+) -> ArtifactRef:
+    source_store = source_store or store
+    manifest = source_store.get_manifest(ref)
+    return store.put_bytes(
+        source_store.get_bytes(ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=ProducerInfo(component="test.foundry.compiler", version=version),
+            env=manifest.env,
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=manifest.warnings,
+        ),
+    )
+
+
+def test_registry_loader_refuses_foreign_selected_member_profile(tmp_path: Path) -> None:
+    root = tmp_path / "registry-cas"
+    owner_store = FileSystemCAS(root).for_tenant("tenant-owner")
+    foreign_store = FileSystemCAS(root).for_tenant("tenant-foreign")
+    bundle = build_registry_bundle(
+        owner_store,
+        slot_registry=SlotRegistry(),
+        merge_registry=MergeRuleRegistry(),
+        mechanism_registry=MechanismTypeRegistry(),
+        constraint_registry=ConstraintRegistry(),
+    )
+
+    foreign_slot_ref = _alternate_manifest_profile(
+        foreign_store,
+        bundle.slot_registry,
+        version="2.0.0",
+        source_store=owner_store,
+    )
+    assert foreign_slot_ref.artifact_id == bundle.slot_registry.artifact_id
+    assert foreign_slot_ref.manifest_profile_sha256 is not None
+    assert owner_store.get_bytes(bundle.slot_registry) == foreign_store.get_bytes(foreign_slot_ref)
+
+    selected_payload = RegistryBundlePayload(
+        slot_registry=foreign_slot_ref,
+        merge_registry=bundle.merge_registry,
+        constraint_registry=bundle.constraint_registry,
+        mechanism_registry=bundle.mechanism_registry,
+    )
+    selected_bundle_ref = owner_store.put_json(
+        selected_payload,
+        PutOptions(
+            kind="core.registry_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.RegistryBundlePayload", version="1"),
+        ),
+    )
+
+    owner_payload = RegistryBundlePayload(
+        slot_registry=bundle.slot_registry,
+        merge_registry=bundle.merge_registry,
+        constraint_registry=bundle.constraint_registry,
+        mechanism_registry=bundle.mechanism_registry,
+    )
+    owner_bundle_ref = owner_store.put_json(
+        owner_payload,
+        PutOptions(
+            kind="core.registry_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.RegistryBundlePayload", version="1"),
+        ),
+    )
+    owner_content = load_registry_bundle_content(owner_store, owner_bundle_ref)
+    assert isinstance(owner_content.slot_registry, SlotRegistry)
+
+    with pytest.raises(ArtifactOwnershipError):
+        load_registry_bundle_content(owner_store, selected_bundle_ref)
 
 
 def _make_compile_request(
@@ -175,33 +275,34 @@ class TestCompileTrinityLowering:
 
 
 class TestCompileTrinitySuccess:
-    @patch("polisyos.foundry.compile.trinity_compiler.RegistryBundle")
-    @patch("polisyos.foundry.compile.trinity_compiler.from_canonical_bytes")
-    @patch("polisyos.foundry.compile.trinity_compiler.TrinityBundle.model_validate")
-    @patch("polisyos.foundry.compile.trinity_compiler.load_registry_bundle_content")
-    @patch("polisyos.foundry.compile.trinity_compiler.link_trinity")
-    @patch("polisyos.foundry.compile.trinity_compiler.put_link_report")
-    @patch("polisyos.foundry.compile.trinity_compiler.lower_trinity")
-    @patch("polisyos.foundry.compile.trinity_compiler.build_program_graph")
-    @patch("polisyos.foundry.compile.trinity_compiler.CompileTimeConflictChecker")
-    @patch("polisyos.foundry.compile.trinity_compiler.build_slot_layout")
-    @patch("polisyos.foundry.compile.trinity_compiler.build_treasury_plan")
-    @patch("polisyos.foundry.compile.trinity_compiler.put_compile_report")
     def test_compile_trinity_success_all_derived_refs(
-        self,
-        mock_put_report,
-        mock_treasury,
-        mock_slot_layout,
-        mock_conflict_checker,
-        mock_build_graph,
-        mock_lower,
-        mock_put_link,
-        mock_link,
-        mock_load_registry,
-        mock_validate,
-        mock_canon,
-        mock_reg_bundle,
+        self, tmp_path: Path, monkeypatch
     ) -> None:
+        compiler = importlib.import_module("polisyos.foundry.compile.trinity_compiler")
+        mock_reg_bundle = MagicMock()
+        mock_canon = MagicMock(return_value={})
+        mock_validate = MagicMock()
+        mock_load_registry = MagicMock(return_value=MagicMock())
+        mock_link = MagicMock()
+        mock_put_link = MagicMock(return_value=_artifact_ref("link_report"))
+        mock_lower = MagicMock()
+        mock_build_graph = MagicMock()
+        mock_conflict_checker = MagicMock()
+        mock_slot_layout = MagicMock()
+        mock_treasury = MagicMock()
+        mock_put_report = MagicMock(return_value=_artifact_ref("report"))
+        monkeypatch.setattr(compiler, "RegistryBundle", mock_reg_bundle)
+        monkeypatch.setattr(compiler, "from_canonical_bytes", mock_canon)
+        monkeypatch.setattr(compiler.TrinityBundle, "model_validate", mock_validate)
+        monkeypatch.setattr(compiler, "load_registry_bundle_content", mock_load_registry)
+        monkeypatch.setattr(compiler, "link_trinity", mock_link)
+        monkeypatch.setattr(compiler, "put_link_report", mock_put_link)
+        monkeypatch.setattr(compiler, "lower_trinity", mock_lower)
+        monkeypatch.setattr(compiler, "build_program_graph", mock_build_graph)
+        monkeypatch.setattr(compiler, "CompileTimeConflictChecker", mock_conflict_checker)
+        monkeypatch.setattr(compiler, "build_slot_layout", mock_slot_layout)
+        monkeypatch.setattr(compiler, "build_treasury_plan", mock_treasury)
+        monkeypatch.setattr(compiler, "put_compile_report", mock_put_report)
         from polisyos.core.contracts.foundry import LoweredIR, LoweredIRRef, ProgramGraph
         from polisyos.foundry.compile.trinity_compiler import compile_trinity
 
@@ -240,16 +341,54 @@ class TestCompileTrinitySuccess:
         mock_slot_layout.return_value = MagicMock(schema_version="0.1")
         mock_treasury.return_value = MagicMock(schema_version="0.1")
 
-        store = MagicMock()
-        store.get_bytes.return_value = b"{}"
+        artifact_store = FileSystemCAS(tmp_path / "cas")
+        policy_ref = artifact_store.put_bytes(
+            b"policy",
+            PutOptions(
+                kind="ir",
+                media_type="application/json",
+                schema=SchemaInfo(name="test.Trinity", version="1"),
+            ),
+        )
+        registry_ref = artifact_store.put_bytes(
+            b"registry",
+            PutOptions(
+                kind="registry_bundle",
+                media_type="application/json",
+                schema=SchemaInfo(name="test.RegistryBundle", version="1"),
+            ),
+        )
+        request = _make_compile_request(registry_bundle_ref=registry_ref)
+        request.policy_ref = _alternate_manifest_profile(
+            artifact_store, policy_ref, version="2.0.0"
+        )
+        request.registry_bundle_ref = _alternate_manifest_profile(
+            artifact_store, registry_ref, version="2.0.0"
+        )
+        store = MagicMock(wraps=artifact_store)
         store.put_json.return_value = _artifact_ref("stored")
         mock_put_report.return_value = _artifact_ref("report")
-
-        request = _make_compile_request(registry_bundle_ref=_artifact_ref("registry"))
 
         result = compile_trinity(store, request)
 
         assert result.ok is True
+        store.get_bytes.assert_called_once_with(request.policy_ref)
+        link_inputs = mock_put_link.call_args.kwargs["inputs"]
+        assert [item.manifest_profile_sha256 for item in link_inputs] == [
+            request.policy_ref.manifest_profile_sha256,
+            request.registry_bundle_ref.manifest_profile_sha256,
+        ]
+        program_graph_options = next(
+            options
+            for call in store.put_json.call_args_list
+            for options in call.args
+            if isinstance(options, PutOptions) and options.kind == "foundry.program_graph"
+        )
+        assert any(
+            item.role == "ir"
+            and item.manifest_profile_sha256 == request.policy_ref.manifest_profile_sha256
+            for item in program_graph_options.inputs
+        )
         assert len(result.derived_refs) == 6
         roles = {d.role for d in result.derived_refs}
         assert roles == {

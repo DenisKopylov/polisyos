@@ -1,0 +1,68 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "plugin-discovery",
+  "closure_ids": ["LA-022"],
+  "bundle_ids": ["PLG-01"],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": ["9e5686bdcafe17c8c94f3b7a6fee3af6bd69f96f"],
+  "candidate_tree_sha": "5819df98f8bd87581a73a0d36172303b017362bd",
+  "branch": "codex/e02-C-plugin-discovery",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/plugins/core.py",
+    "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+    "policy-engine/tests/unit/foundry/plugins/test_discovery.py"
+  ],
+  "baseline_cells": ["F01-P017", "F02-P092", "F08-P093", "F15-P106"],
+  "checks": [
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-plugin-discovery/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-plugin-discovery/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -q -p no:cacheprovider --basetemp=/Users/deniskopylov/.codex/scratch/e02-c-plugin-discovery-la022-20261005/pytest-receipt tests/unit/foundry/plugins/test_discovery.py tests/unit/foundry/plugins/test_plugin_system.py tests/unit/remediation/test_plg_01.py",
+      "target_sha": "9e5686bdcafe17c8c94f3b7a6fee3af6bd69f96f",
+      "environment": "Local macOS; Python 3.14 from read-only coordinator policy-engine/.venv; candidate worktree src and policy-engine on PYTHONPATH; pytest cache disabled.",
+      "input_closure": "New registration/discovery/PolisySimulator behavioral tests plus existing plugin-system and PLG-01 tests (27 tests total); new filesystem cases use tmp_path and monkeypatch installed entry points/distributions to empty; scratch is under /Users/deniskopylov/.codex/scratch/e02-c-plugin-discovery-la022-20261005/.",
+      "outcome": "PASS",
+      "output": "........................... [100%]\nWarnings: unknown pytest config option cache_dir; SHA-1 content-hashing deprecation (3 discovery, 11 PLG-01 test warnings).\nEXIT_CODE=0"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/plugins/core.py src/polisyos/foundry/plugins/discovery.py tests/unit/foundry/plugins/test_discovery.py && /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/foundry/plugins/core.py src/polisyos/foundry/plugins/discovery.py tests/unit/foundry/plugins/test_discovery.py",
+      "target_sha": "9e5686bdcafe17c8c94f3b7a6fee3af6bd69f96f",
+      "environment": "Local macOS; read-only coordinator policy-engine/.venv; task worktree policy-engine as cwd.",
+      "input_closure": "Three changed Python paths only.",
+      "outcome": "PASS",
+      "output": "All checks passed!\n3 files already formatted\nEXIT_CODE=0"
+    },
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-plugin-discovery/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-plugin-discovery/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -q -p no:cacheprovider --basetemp=/Users/deniskopylov/.codex/scratch/e02-c-plugin-discovery-la022-20261005/pytest-red tests/unit/foundry/plugins/test_discovery.py::test_malformed_plugin_is_rejected_before_simulator_consumption",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd (production source); candidate test file was present, production paths unchanged",
+      "environment": "Local macOS; read-only coordinator policy-engine/.venv; candidate worktree source and tests; isolated scratch.",
+      "input_closure": "One malformed-plugin end-to-end test; plugin is discovered from a declared temporary development root, then registration and simulator consumption are checked.",
+      "outcome": "FAIL",
+      "output": "Expected red: malformed Plugin.metadata RuntimeError escaped PluginRegistry.register through auto_register_plugins, so no registration RuntimeWarning was produced and the test failed (1 failed, EXIT_CODE=1). This is the distinguishing baseline behavior; it is not a candidate failure."
+    }
+  ],
+  "property": {
+    "statement": "Legacy DomainPlugin discovery uses the shared Core collection and file-loading primitives while preserving the polisyos.plugins group, builtin and declared development sources, PluginRegistry registration semantics, and PolisySimulator consumption. Malformed metadata is rejected before registration, missing declarations remain unavailable to the simulator, and duplicate identities resolve to a stable source independent of filesystem iteration order.",
+    "runtime_path": [
+      "builtin, installed-entry-point, and declared development-source loaders",
+      "DomainPlugin instance with PluginMetadata under the existing DomainPlugin ABI",
+      "Core BaseDiscovery source batches -> auto_register_plugins -> PluginRegistry.register",
+      "PolisySimulator.add_domain().initialize() -> get_state().get_domain()"
+    ],
+    "proxy_divergence": "A metadata-shape or constructor-only check misses a valid DomainPlugin subclass whose metadata property raises during registration. Against c40 the new consumer test observed the RuntimeError escaping without a warning; the candidate now rejects it during discovery and the simulator refuses the absent domain. The duplicate test also reverses Path.iterdir while asserting the actual simulator state selects alpha-source.",
+    "negative_controls": [
+      "A declared temporary plugin whose metadata property raises RuntimeError is warned and never enters the registry; PolisySimulator.add_domain rejects it as unknown.",
+      "An absent declared development root yields no plugin; PolisySimulator.add_domain rejects the requested unknown domain.",
+      "Two temporary plugins with the same identity are presented under reversed filesystem iteration; deterministic sorting registers one, warns for the duplicate, and the simulator observes alpha-source state.",
+      "PluginRegistry.register(object()) raises TypeError and leaves the registry empty."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Discovery/registration/consumer behavior is implemented and exercised on fixtures; LA-022 remains partial and verification_missing.",
+  "limitations_and_next_owner": [
+    "The residual ledger at policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-022 requires a real plugin-verification flow whose consumer refuses verification_missing instead of treating install or metadata as a pass. This slice does not implement or claim that producer, typed verification record, admission bridge/consumer, or semantic verification witness.",
+    "Verification remains with the named Plugin verification owner; individual appointment is not established. PLG-01 discovery ownership is separate. Next step: obtain an owner-issued valid-plugin verification signal, persist and bind its artifact/provenance, and prove the admission consumer accepts the real signal while refusing absent and present-but-forged signals. Keep LA-022 partial until that finding-level witness and required replay are accepted.",
+    "The baseline query lists F01-P017, F02-P092, F08-P093, and F15-P106 as PASS, but all four routes are candidate_unverified with semantic_adequacy not_established; no raw archives were received. These historical rows are not closure evidence.",
+    "This is a fixture-backed discovery slice. Installed production distributions, full environment coverage, production data, full backend verification, and four-base P41 replay were not run; no authority or verification claim is made."
+  ]
+}

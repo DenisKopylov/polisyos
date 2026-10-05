@@ -916,6 +916,21 @@ def _validate_loaded_joint_simulation_result(
         )
     if result.receipt.trajectory_count != len(result.trajectories):
         _joint_simulation_result_integrity_error("trajectory_count_mismatch")
+    selected_decisions = tuple(
+        decision for decision in result.engine_decisions if decision.decision == "selected"
+    )
+    if len(selected_decisions) != 1:
+        _joint_simulation_result_integrity_error("selected_engine_decision_not_unique")
+    selected = selected_decisions[0]
+    selected_identity = (selected.engine_kind, selected.method_fqn, selected.objective_ref)
+    if result.receipt.engine_kind != selected.engine_kind:
+        _joint_simulation_result_integrity_error("receipt_engine_selection_mismatch")
+    if any(
+        (trajectory.engine_kind, trajectory.method_fqn, trajectory.objective_ref)
+        != selected_identity
+        for trajectory in result.trajectories
+    ):
+        _joint_simulation_result_integrity_error("trajectory_engine_selection_mismatch")
     atom_ids = set(result.atom_ids)
     selected_outcomes = set(result.selected_outcomes)
     for trajectory in result.trajectories:
@@ -941,6 +956,7 @@ def load_joint_simulation_result(
     expected_world_model_record_content_hash: str | None = None,
     expected_atom_ids: Sequence[str] | None = None,
     expected_selected_outcomes: Sequence[str] | None = None,
+    expected_receipt_payload_hash: str | None = None,
 ) -> JointSimulationResult:
     """Resolve, verify, and semantically bind one persisted N5 result."""
 
@@ -1039,6 +1055,11 @@ def load_joint_simulation_result(
         verify_simulation_receipt(result.receipt, result.content_bound_payload())
     except (ProofReceiptError, TypeError, ValueError) as exc:
         _joint_simulation_result_integrity_error("receipt_or_payload_invalid", exc)
+    if (
+        expected_receipt_payload_hash is not None
+        and result.receipt.payload_hash != expected_receipt_payload_hash
+    ):
+        _joint_simulation_result_integrity_error("receipt_payload_hash_binding_mismatch")
     _validate_loaded_joint_simulation_result(
         result,
         expected_world_model_record_content_hash=expected_world_model_record_content_hash,
@@ -4404,12 +4425,12 @@ def simulation_evaluation_input_ref(
                 expected_world_model_record_content_hash=(
                     simulation.world_model_record.content_hash
                 ),
+                expected_receipt_payload_hash=simulation.simulation_ref or "",
             )
         except GenerationCycleError:
             return None
         if (
             result.schema_version != JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
-            or result.receipt.payload_hash != simulation.simulation_ref
             or not set(result.promotion_ready_value_packet.get("authority_blockers", ()))
             .issubset(blockers)
         ):
@@ -5066,6 +5087,7 @@ def _conditional_simulation_value_observation(
             expected_world_model_record_content_hash=world_hash,
             expected_atom_ids=atom_ids or None,
             expected_selected_outcomes=(outcome,) if outcome else None,
+            expected_receipt_payload_hash=simulation.simulation_ref or "",
         )
     except GenerationCycleError as exc:
         return _blocked_value_observation(

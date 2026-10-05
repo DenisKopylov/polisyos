@@ -1,0 +1,241 @@
+{
+  "schema": "policyos.e02.g-code-admission.v1",
+  "unit": "E",
+  "slice": "bias-statistical-support",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "candidate_sha": "a4781aef87e9b3c8c44eedb51fc88119567afc59",
+  "candidate_tree": "13a4c7ec6c9ae5be23fdf4942e6faeb80e3e0aab",
+  "topic_head": "797dd66076aaec1f40f0c87efaf8e3d475a96d77",
+  "topic_tree": "86f2b3ec3895c772ff5aae0dec62e30a56d7292b",
+  "original_history": "append-only non-ff merge; source/test equal at candidate and topic",
+  "code_decision": "GO_bounded_producer_property",
+  "finding_closure": [],
+  "handoff": {
+    "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77",
+    "sha256": "fed61ee0b71c16c3ed919c0effc14d7a0c15009be5e70259e10594ae0db89f91",
+    "bytes": 26815
+  },
+  "canonical_writer": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py@a4781aef87e9b3c8c44eedb51fc88119567afc59",
+  "full_topic_footprint": [
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.json",
+    "A\tpolicy-engine/release-fragments/unreleased/2026-10-05-e02-bkt03-statistical-support.toml",
+    "M\tpolicy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "M\tpolicy-engine/tests/unit/remediation/test_bkt_03.py"
+  ],
+  "root_review": "Committed primary handoff, source/test diff, decisive outputs and independent review read; full footprint and exact Git identity recomputed. Reviewers are distinct from canonical author.",
+  "property": {
+    "statement": "When the defined bias test has p_value=None and any per-observation residual is nonzero, preserve the precise unavailable/not_computable reason, set report.degraded, and withhold trust eligibility/score/grade, including exactly balanced and tiny nonzero errors. Exact all-zero errors remain a separate observed mathematical identity; no significance or backend availability is manufactured.",
+    "runtime_path": [
+      "PROVIDED HistoricalValidationPlan",
+      "PredictionEvaluator real outcome comparisons",
+      "BacktestOrchestrator._detect_systematic_biases and genuine scipy.stats.ttest_1samp or controlled importer denial",
+      "BacktestOrchestrator._aggregate degraded/trust admission",
+      "persist_backtest_report filesystem CAS",
+      "public get_json_artifact readback into BacktestReport",
+      "consumed trust_eligible/trust_score/trust_grade and exact degraded reason"
+    ],
+    "proxy_divergence": "Zero mean is compatible with nonzero errors and an unavailable test: [0.99,1,1.01]-[1,1,1] has mean0 and MAE0.006666666666666672. Baseline accepted GradeA; candidate importer denial persists unavailable with no grade. Real SciPy returns p1 and GradeA on the same observations.",
+    "negative_controls": [
+      "Candidate six adversarial fixtures on exact slice-base owner: six expected FAIL, eight PASS",
+      "Runtime removal of degraded reasons while keeping numerical metrics and p=None: six expected FAIL",
+      "Insufficient n2 balanced errors, unavailable real importer n3, nearzero mean, tiny constant/balanced/single errors",
+      "Exact allzero errors at n1/n3 retain no-bias control without claiming computable p or available backend",
+      "Real scipy.stats.ttest_1samp p1 on balanced errors and p0.121690 on small-n unequal errors",
+      "CAS serialization and consumer readback retain correct metrics, precise limitation and denied GradeA"
+    ]
+  },
+  "limitations": [
+    "Extended native suite150 tests has4 composition_bridge failures. Exact failures/command/output retained; inheritance/causality not_established under P41. Root/G assign that distinct owner, no composition changes in this slice.",
+    "No source-reported PASS is candidate proof. Raw baseline archives and source-inputs.json/environment.json were not transferred; exact historical loaded backend bytes not_established.",
+    "Residual independence, effective sample size, multiple comparisons and domain meaning of optimistic/pessimistic require scientific owner input; this producer fix establishes none.",
+    "Full production history/source law were not requested or uploaded. The generic per-error/test/trust invariant uses sufficient bounded fixtures; any history-specific claim remains not_established until G/local production owner reruns actual governed plans at the implementation SHA.",
+    "Descriptive NEUTRAL alone is not statistical neutrality; downstream consumers must read degraded/trust fields. This change does not introduce a new IR UNKNOWN semantic or a different trust profile.",
+    "No shared generation_cycle, served bridge, PCL/calibrator, bootstrap or forecast_owner edit. A retains shared generation-cycle writer authority.",
+    "G must fetch exact remote head, review receipt and apply append-only integration; default branch and main merge untouched.",
+    "Full platform verify/CI and local data-dependent checks remain G/CI admission work; author scoped tests and root independent consumer checks are bounded evidence."
+  ],
+  "affected_checks": "Queued one combined affected-consumer replay after all backtest/PCL/FRC/CoreIR suppliers settle; full suite deferred until freeze.",
+  "complete_check_receipt": {
+    "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77",
+    "sha256": "e7c9234e748f99f810858d0c0e5d751960eaedb0d2fc332baba4e0b9ccb17f6d",
+    "bytes": 50867
+  },
+  "deciding_checks": [
+    {
+      "name": "frozen_candidate_tests_on_unmodified_slice_base_owner",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/remediation/test_bkt_03.py"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 16.527471076999973,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/frozen_candidate_tests_on_unmodified_slice_base_owner",
+      "stdout_sha256": "661590b9360fb39d752502d1f07bd608c1483fa24fd1ca61f07361f6e380354e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": null
+    },
+    {
+      "name": "candidate_bkt03_defining_property",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/remediation/test_bkt_03.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 11.536778184000013,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/candidate_bkt03_defining_property",
+      "stdout_sha256": "fe9dca0451129aaabdd76ea13e310b61a52091a146a1f9fe5b72b851eb33547f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": null
+    },
+    {
+      "name": "frozen_candidate_native_backtesting_consumers",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "-o",
+        "cache_dir=/tmp/e02-E-bkt03-native-isolated-cache",
+        "--junitxml=/tmp/e02-E-bkt03-native-isolated.xml",
+        "tests/unit/scientist/methods/backtesting",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/ir/mirror_contracts/test_backtest.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 15.073215641999923,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/frozen_candidate_native_backtesting_consumers",
+      "stdout_sha256": "7b124575dcb73c07fd2f9aa68612d8a5190193ea68ade078d40560276f293d2d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": {
+        "tests": 150,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "negative_removal_of_degraded_reason_keeps_metrics_and_p_none",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "import pytest\nfrom polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator\noriginal=BacktestOrchestrator._detect_systematic_biases\ndef remove_unsupported_test_limitation(self, scenarios):\n    biases, reasons=original(self, scenarios)\n    return biases, []\nBacktestOrchestrator._detect_systematic_biases=remove_unsupported_test_limitation\nraise SystemExit(pytest.main(['-q','--tb=short','-o','cache_dir=/tmp/e02-E-bkt03-removal-isolated-cache','--junitxml=/tmp/e02-E-bkt03-removal-isolated.xml','tests/unit/remediation/test_bkt_03.py','-k','untestable_nonzero']))\n"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 11.642726332000166,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/negative_removal_of_degraded_reason_keeps_metrics_and_p_none",
+      "stdout_sha256": "90bbea362c6fbe71fdcdd70bf9ff7339cdcb92d81ea4cd414f5e49535a667833",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": {
+        "tests": 6,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "ruff_check",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.054655768999964494,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/ruff_check",
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": null
+    },
+    {
+      "name": "ruff_format_check",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.04975206899962359,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/ruff_format_check",
+      "stdout_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": null
+    },
+    {
+      "name": "git_diff_check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.0152161480000359,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/git_diff_check",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": null
+    },
+    {
+      "name": "independent_root_defining_and_native_consumer",
+      "argv": "PYTHONPATH=/workspace/e02-E-backtest-bias/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_bkt_03.py tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "exit_code": 0,
+      "wall_seconds": null,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/independent_root_defining_and_native_consumer",
+      "stdout_sha256": "07c2eef926162e0090994bc913805aa08a8b2cbb5b21d2c933b937a10300713f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": {
+        "passed": 39
+      }
+    },
+    {
+      "name": "release_fragment_policy_parse_and_evidence",
+      "argv": "python3: tomllib.loads(new fragment), compare required_fields/allowed_types/generated_client_compatibility_values from ops/release/release-fragment-policy.toml; pathlib existence for each evidence path",
+      "exit_code": 0,
+      "wall_seconds": null,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/release_fragment_policy_parse_and_evidence",
+      "stdout_sha256": "5fd44d06dfd6adca097842b4ec0bf84251062b6644efe0d059101454dd88fc27",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": null
+    },
+    {
+      "name": "independent_PCL_backend_CAS_and_student_t_controls",
+      "argv": "PYTHONPATH=/workspace/e02-E-backtest-bias/policy-engine/src .venv/bin/python /workspace/e02-runtime/bkt03-independent/oracle.py > /workspace/e02-runtime/bkt03-independent/stdout.txt 2>&1",
+      "exit_code": 0,
+      "wall_seconds": 0.45966181899984804,
+      "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json@797dd66076aaec1f40f0c87efaf8e3d475a96d77#checks/independent_PCL_backend_CAS_and_student_t_controls",
+      "stdout_sha256": "a99612c8d8ba105d7e590a6d7c1c394105b6b5c2edc768e971961dc7c33b11eb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observed_counts": {
+        "native_provided_report_CAS_cases": 13,
+        "independent_Student_t_oracle": 1
+      }
+    }
+  ],
+  "finding_states": {
+    "B172": "partial",
+    "B173": "partial"
+  },
+  "p41": "146PASS/4composition FAIL at candidate, not inherited/disjoint; exact combined replay pending. Base6FAIL and removal6FAIL discriminate the defining property.",
+  "independent_reviews": [
+    "owner_delta",
+    "sources_f10_f12"
+  ]
+}

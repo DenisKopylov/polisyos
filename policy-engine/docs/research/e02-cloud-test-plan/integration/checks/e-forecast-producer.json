@@ -1,0 +1,121 @@
+{
+  "schema": "policyos.e02.g-code-admission.v1",
+  "unit": "E",
+  "slice": "frc",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "candidate_sha": "45a7b1be8951cad62e45b4c560bad88a1a8c0c53",
+  "candidate_tree": "2c84e5f2d1051344d0f4ecdc18fd5317a9d4e1ed",
+  "topic_head": "f2a827da30c3f64e776c5e79d1db75132ad423fc",
+  "topic_tree": "5c66a67d6d9bffa2263fe9fa88ac74ef0ffad39c",
+  "original_history": "append-only non-ff merge; source/test equal at candidate and topic",
+  "code_decision": "GO_bounded_producer_property",
+  "finding_closure": [],
+  "handoff": {
+    "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc.json@f2a827da30c3f64e776c5e79d1db75132ad423fc",
+    "sha256": "96b4b5a394e1fe9b8b3ef35d13ccba5206dee03b70e14ae7a2be34db10739441",
+    "bytes": 20961
+  },
+  "canonical_writer": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py@45a7b1be8951cad62e45b4c560bad88a1a8c0c53",
+  "full_topic_footprint": [
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/.gitignore",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/bridge.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/bridge.log",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/frc01.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/frc01.log",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/numerical-witness.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/numerical_witness.py",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/producer.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/producer.log",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/production-invocation-summary.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc.json",
+    "A\tpolicy-engine/release-fragments/unreleased/2026-10-05-forecast-method-rule-binding.toml",
+    "M\tpolicy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "M\tpolicy-engine/tests/unit/remediation/test_frc_02_owner.py"
+  ],
+  "root_review": "Committed primary handoff, source/test diff, decisive outputs and independent review read; full footprint and exact Git identity recomputed. Reviewers are distinct from canonical author.",
+  "property": {
+    "statement": "Real ETS backtest reports retain resolved method/admitted rule bindings. Canonical CAS readback recomputes observation-side interval counts and refuses calibration evidence persistence without explicit context.",
+    "runtime_path": [
+      "ForecastOwner.run -> MethodDispatcher/ETS ComputeBackend.NUMPY -> evaluate_continuous",
+      "Persist training/method/uncertainty/calibration/ir.backtest_report CAS artifacts",
+      "load_backtest_report -> produce_empirical_calibration_evidence",
+      "persist_empirical_calibration_evidence refuses missing context with no additional CAS writes; served S10 pending"
+    ],
+    "proxy_divergence": "Same forecasts[20,21,22] and intervals under fixed nominal confidence produce3/3=1.0 supported versus0/3=0.0 limited for different holdouts. Both remain unusable for calibration authority without context.",
+    "negative_controls": [
+      "New real-owner witness: missing context is blocked and persistence raises before any additional CAS writes.",
+      "Existing owner shape control: same forecast/intervals with distant holdout changes observed coverage/suitability.",
+      "Existing missing/wrong-kind model refs and unadmitted rules are refused.",
+      "Existing bridge/S10 controls reject forged bounds/projections/refs, method/rule mismatch and temporal mismatch."
+    ],
+    "test_first_red": {
+      "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "command": "PYTHONPATH=/workspace/e02-E-frc/policy-engine/src .venv/bin/python -m pytest tests/unit/remediation/test_frc_02_owner.py::test_real_ets_report_carries_method_rule_binding_without_inventing_bridge_evidence -q",
+      "outcome": "FAIL",
+      "output": "Before source edit, new uncommitted witness: KeyError:'method_ref' on persisted report metadata. Real dispatcher logged backend=numpy and successful execution. Green counterpart is pinned implementation producer log; pre-change test bytes were not separately committed."
+    }
+  },
+  "limitations": [
+    "A owns generation_cycle.py. On implementation SHA run test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked. It fails because _s10_limitation_refs sees evidence without calibration_status although the builder argument is limit. Preserve explicit blocked/insufficient-history reason; do not weaken admission.",
+    "A/verification owner: test_frc_01.py::test_calibration_time_roles_are_preserved_from_bound_evidence requests a record from a naked unverified mapping, omits prediction/threshold refs and violates current temporal ordering. Reconcile the stale positive witness to resolved producer evidence; do not add fake evidence acceptance.",
+    "Forecast/evaluation owner must appoint report-bound scope_binding, threshold, observed_outcome, prediction, evaluation_design, credible_evaluation, source_lineage and method_lineage evidence. No credible-evaluation authority is minted by this producer slice.",
+    "After G accepts this producer checkpoint, A alone applies the result/typed-evidence-to-S10 served bridge and verifies current persisted consumer readback. Existing S10 tests use handcrafted persisted reports/context and do not demonstrate ForecastOwner served invocation.",
+    "G local reproduce: fetch exact implementation SHA; run22 producer/backtest and24 bridge/S10 selectors from checks. For production-dependent closure instantiate ForecastOwnerRequest with admitted read-only local CAS DataSnapshot, model/policy pair, existing versioned rule, authorized train/holdout split,target metric and six meaningful source times. Preserve source/ref hashes and observed counts. Missing evaluation context or served path remains not_established/bridge_pending. Full production history/source law stays local.",
+    "FRC01 errors are recorded, not excluded as inherited red: no P41 zero-input-intersection claim. Full static invocation raw remains ignored/untransferred; rerun its exact command if needed, never infer production absence from its incomplete graph."
+  ],
+  "affected_checks": "Queued one combined affected-consumer replay after all backtest/PCL/FRC/CoreIR suppliers settle; full suite deferred until freeze.",
+  "deciding_outputs": [
+    {
+      "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/producer.log@f2a827da30c3f64e776c5e79d1db75132ad423fc",
+      "sha256": "dad33d9cd4371d2b9242137ba7db055c9181b9ded80bcd85a5de91cb57408907",
+      "bytes": 100
+    },
+    {
+      "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/bridge.log@f2a827da30c3f64e776c5e79d1db75132ad423fc",
+      "sha256": "3af3bc516c92341f354688d0d3da18f81d21965ed7d1246769c6e133c5bd94f2",
+      "bytes": 100
+    },
+    {
+      "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/frc01.log@f2a827da30c3f64e776c5e79d1db75132ad423fc",
+      "sha256": "6d4250e145f7e46a204e528c9d256da2cc7b21ca3f692e9737f9edf74166bf9a",
+      "bytes": 6391
+    },
+    {
+      "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/numerical-witness.json@f2a827da30c3f64e776c5e79d1db75132ad423fc",
+      "sha256": "c296edebefb2585bed8d87ece826f23c10ec65e28a26a9526ca79003eb17854c",
+      "bytes": 2909
+    },
+    {
+      "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/producer.json@f2a827da30c3f64e776c5e79d1db75132ad423fc",
+      "sha256": "9fbf0bd9f12f11900e5bd8720ae5a2d36604f8b11dc5e002e4ca24f1b7d5aa50",
+      "bytes": 1161
+    },
+    {
+      "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/bridge.json@f2a827da30c3f64e776c5e79d1db75132ad423fc",
+      "sha256": "c9c0d94605f916630fdf619e6ca300fa95cc5c0872c1b3f3bde06b8d8fc31a1a",
+      "bytes": 1162
+    },
+    {
+      "path_at_sha": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/frc01.json@f2a827da30c3f64e776c5e79d1db75132ad423fc",
+      "sha256": "1c20902ed05c123e39ec8995212a823c5712338a2b5f23108a9fe5a596cec7d5",
+      "bytes": 1103
+    }
+  ],
+  "finding_states": {
+    "B32": "partial",
+    "LA-051": "partial/held_authority"
+  },
+  "authority_escape": "Same P32/P37 class deeper: role/report/identity-shaped credible_eval CAS content can be semantically empty while handcrafted context reaches S10. Verifier provenance, evaluation adequacy, served bridge remain not_established; no S10 authority admitted.",
+  "p41": "FRC01 5PASS2FAIL retained, no inherited/disjoint proof; A owns source-evidence bridge but attribution of red remains not_established.",
+  "independent_reviews": [
+    "sources_f01_f03",
+    "sources_f10_f12"
+  ],
+  "predicate_limits": {
+    "method_rule": "recomputed from resolved method signature and CAS rule",
+    "observed_counts": "recomputed from persisted outcomes/bounds",
+    "request_time_semantics": "consumer_asserted; preserved explicit roles are not production-source meaning",
+    "credible_evaluation": "not_established",
+    "served_invocation": "not_established"
+  }
+}

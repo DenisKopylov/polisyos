@@ -84,7 +84,10 @@ def _raw(value: Any) -> Any:
 def canonical_epoch_bytes(value: BaseModel | dict[str, Any]) -> bytes:
     """Return canonical JSON bytes for an explicitly typed epoch value."""
 
-    mapping = _raw(value)
+    if isinstance(value, ScopedSchemaRegimeProjection):
+        mapping = _scoped_schema_regime_projection_payload(value, include_hash=True)
+    else:
+        mapping = _raw(value)
     if not isinstance(mapping, dict):
         raise TypeError("epoch canonicalization requires a mapping")
     return to_canonical_bytes(mapping, _CANON)
@@ -365,10 +368,39 @@ class ScopedSchemaRegimeProjection(_EpochModel):
             for name in self.__class__.model_fields
             if name != "projection_content_hash"
         }
-        expected = _sha256(canonical_epoch_bytes(mapping))
+        expected = scoped_schema_regime_projection_content_hash(mapping)
         if self.projection_content_hash != expected:
             raise ValueError("scoped regime projection hash differs from its content")
         return self
+
+
+def _scoped_schema_regime_projection_payload(
+    value: ScopedSchemaRegimeProjection | dict[str, Any], *, include_hash: bool
+) -> dict[str, Any]:
+    """Normalize the two artifact refs with the projection's frozen v1 serializer."""
+
+    if isinstance(value, ScopedSchemaRegimeProjection):
+        payload = {
+            name: getattr(value, name)
+            for name in value.__class__.model_fields
+        }
+    else:
+        payload = dict(value)
+    if not include_hash:
+        payload.pop("projection_content_hash", None)
+    for name in ("owner_source_snapshot_ref", "denominator_receipt_ref"):
+        ref = ArtifactRef.model_validate(payload[name])
+        payload[name] = ref.model_dump(mode="json")
+    return payload
+
+
+def scoped_schema_regime_projection_content_hash(
+    value: ScopedSchemaRegimeProjection | dict[str, Any],
+) -> Digest:
+    """Hash a typed scoped projection using its byte-stable artifact-ref payload."""
+
+    payload = _scoped_schema_regime_projection_payload(value, include_hash=False)
+    return _sha256(canonical_epoch_bytes(payload))
 
 
 class LegalAmendmentWindowResolutionQuery(_EpochModel):
@@ -964,4 +996,5 @@ __all__ = [
     "epoch_semantic_content_hash",
     "load_verified_epoch_statement",
     "native_coordinate_ref",
+    "scoped_schema_regime_projection_content_hash",
 ]

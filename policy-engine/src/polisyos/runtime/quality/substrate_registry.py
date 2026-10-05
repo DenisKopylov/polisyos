@@ -483,31 +483,39 @@ class L5CatalogAuthority:
             status = "contested"
         else:
             status = "resolved"
-        mapping = {
-            "scope_identity_ref": receipt.query.scope_identity_ref,
-            "valid_effect_coordinate_ref": receipt.query.valid_effect_coordinate_ref,
-            "requested_query_context_ref": receipt.query.requested_query_context_ref,
-            "owner_source_snapshot_ref": receipt.owner_source_snapshot_ref.model_dump(mode="json"),
-            "denominator_receipt_ref": {
+        owner_source_snapshot_ref = ArtifactRef.model_validate(
+            receipt.owner_source_snapshot_ref.model_dump(mode="python")
+        )
+        receipt_bytes = epoch_contract.canonical_epoch_bytes(receipt)
+        denominator_receipt_ref = ArtifactRef.model_validate(
+            {
                 "artifact_id": (
                     "sha256:"
                     + hashlib.sha256(
-                        len(epoch_contract.canonical_epoch_bytes(receipt)).to_bytes(8, "big")
-                        + epoch_contract.canonical_epoch_bytes(receipt)
+                        len(receipt_bytes).to_bytes(8, "big") + receipt_bytes
                     ).hexdigest()
                 ),
                 "kind": "l5.schema_regime_denominator_receipt",
                 "media_type": "application/vnd.polisyos.epoch+json",
-            },
+            }
+        )
+        mapping = {
+            "scope_identity_ref": receipt.query.scope_identity_ref,
+            "valid_effect_coordinate_ref": receipt.query.valid_effect_coordinate_ref,
+            "requested_query_context_ref": receipt.query.requested_query_context_ref,
+            "owner_source_snapshot_ref": owner_source_snapshot_ref,
+            "denominator_receipt_ref": denominator_receipt_ref,
             "applicable_regime_ids": [row.schema_regime_id for row in applicable],
             "applicable_regime_content_hashes": [row.regime_content_hash for row in applicable],
             "changepoint_refs": list(changepoint_refs),
             "status": status,
         }
-        raw = epoch_contract.canonical_epoch_bytes(mapping)
+        projection_content_hash = (
+            epoch_contract.scoped_schema_regime_projection_content_hash(mapping)
+        )
         return epoch_contract.ScopedSchemaRegimeProjection(
             **mapping,
-            projection_content_hash=f"sha256:{hashlib.sha256(raw).hexdigest()}",
+            projection_content_hash=projection_content_hash,
         )
 
     def latest_schema_regime(self) -> SubstrateSchemaRegime:

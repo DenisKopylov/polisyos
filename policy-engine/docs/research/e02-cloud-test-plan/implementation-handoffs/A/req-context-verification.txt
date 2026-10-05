@@ -1,0 +1,74 @@
+REQ-01 public-context verification
+Candidate source commit: 5c63beafacb204d94b8e9ba29914d3828cb257a7
+Candidate source tree: 5dac4980894554cdaf30712bc5c12d9c98c4a1ff
+Checkout: /Users/deniskopylov/.codex/worktrees/e02-a-requirement-context/polisyos
+Runtime imports resolve to this checkout's policy-engine/src and policy-engine.
+Python: 3.14.3 from /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python
+Resource environment: OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+
+Import-path confirmation command:
+PYTHONPATH="$PWD/policy-engine/src:$PWD/policy-engine" /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -c 'import polisyos.data_requirement.compiler as module; print(module.__file__)'
+Output:
+/Users/deniskopylov/.codex/worktrees/e02-a-requirement-context/polisyos/policy-engine/src/polisyos/data_requirement/compiler.py
+
+Command (cwd=policy-engine):
+PYTHONPATH="$PWD/src:$PWD" OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -vv -c pytest.ini tests/unit/data_requirement/test_compiler_public_context.py
+
+Output:
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-requirement-context/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-requirement-context/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 2 items
+
+tests/unit/data_requirement/test_compiler_public_context.py::test_public_compiler_keeps_negative_text_and_opaque_ids_out_of_requirement_authority PASSED [ 50%]
+tests/unit/data_requirement/test_compiler_public_context.py::test_public_scenario_adapter_uses_only_named_pilot_scope PASSED [100%]
+
+============================== 2 passed in 4.16s ===============================
+
+Command (cwd=policy-engine):
+PYTHONPATH="$PWD/src:$PWD" OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -vv -c pytest.ini tests/unit/data_requirement/test_compiler.py -k 'explicit_constructs or semantic_topic_proposal or scenario_adapter or generic_scope or missing_resolver or require_capability'
+
+Output:
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-requirement-context/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-requirement-context/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 15 items / 10 deselected / 5 selected
+
+tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled PASSED [ 20%]
+tests/unit/data_requirement/test_compiler.py::test_generic_scope_does_not_infer_pilot_jurisdiction_or_start PASSED [ 40%]
+tests/unit/data_requirement/test_compiler.py::test_explicit_constructs_are_not_replaced_by_semantic_proposals PASSED [ 60%]
+tests/unit/data_requirement/test_compiler.py::test_semantic_topic_proposal_does_not_cross_capability_authority_boundary PASSED [ 80%]
+tests/unit/data_requirement/test_compiler.py::test_scenario_adapter_accepts_text_request_and_domain_context PASSED [100%]
+
+======================= 5 passed, 10 deselected in 3.68s =======================
+
+Command (cwd=policy-engine):
+/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/data_requirement/test_compiler_public_context.py
+
+Output:
+All checks passed!
+
+Tracked caller census command (cwd=repository root; stdout saved as the adjacent complete JSON result):
+python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-context-census.py > policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-context-census.json
+Environment: Python 3.14.0; base pinned inside the script to c40d4acae1ce58b597267255026d9356565828fd.
+Result: 13,542 tracked paths; all 6,431 tracked Python files (6,426 .py + 5 .pyi) AST-parsed; no parse errors or static direct/star/reflection caller hits. Exact Python token totals are _nested: 13 files/132 occurrences, _digest: 55 files/568 occurrences, and zero for the other six symbols. Full counts, source pins, and path-level intersections are in req-context-census.json.
+
+Command (cwd=policy-engine):
+/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m ruff check docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-context-census.py
+
+Output:
+All checks passed!

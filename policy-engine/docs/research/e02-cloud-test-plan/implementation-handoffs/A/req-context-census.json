@@ -1,0 +1,151 @@
+{
+  "ast_caller_hits": [],
+  "ast_files_scanned": 6431,
+  "ast_parse_errors": [],
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "compiler_source": {
+    "blob_sha": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+    "historical_names_defined": [],
+    "historical_names_exported": [],
+    "path": "policy-engine/src/polisyos/data_requirement/compiler.py"
+  },
+  "exact_symbol_candidate_python_files": 68,
+  "module_string_and_symbol_same_file": {
+    "_DATA_FAMILY_ORDER": [],
+    "_data_families_from_obligation_graph": [],
+    "_data_family_token_from_frontier_item": [],
+    "_digest": [],
+    "_nested": [
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_source_contract_admissibility_audit.py"
+    ],
+    "_normalised_family": [],
+    "_ordered_data_families": [],
+    "_slug_family": []
+  },
+  "module_string_files": 19,
+  "package_facade": {
+    "blob_sha": "b2d7b1ec8e58a7c5f24cacc2d405d81d70be0c47",
+    "historical_names_exported": [],
+    "path": "policy-engine/src/polisyos/data_requirement/__init__.py"
+  },
+  "scope_limit": "All tracked .py/.pyi exact symbol tokens and AST imports, plus literal compiler module strings across tracked paths. Nonliteral/dynamically constructed loader paths and consumers outside this repository are unresolved by construction.",
+  "symbol_python_exact_hits": {
+    "_DATA_FAMILY_ORDER": {
+      "paths": [],
+      "python_files": 0,
+      "python_occurrences": 0
+    },
+    "_data_families_from_obligation_graph": {
+      "paths": [],
+      "python_files": 0,
+      "python_occurrences": 0
+    },
+    "_data_family_token_from_frontier_item": {
+      "paths": [],
+      "python_files": 0,
+      "python_occurrences": 0
+    },
+    "_digest": {
+      "paths": [
+        "policy-engine/benchmarks/honest_comparison/fairness_audit.py",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/verify_plan.py",
+        "policy-engine/docs/superpowers/journals/corr-evidence/c/declare_cost_target.py",
+        "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/campaign_history_probe.py",
+        "policy-engine/docs/superpowers/journals/corr-evidence/c1-capacity/graph_finalizer_profile.py",
+        "policy-engine/docs/superpowers/journals/correspondence/runner.py",
+        "policy-engine/docs/superpowers/journals/promotion-conjunction/trust_source_drift_probe.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py",
+        "policy-engine/src/polisyos/data_forge/domains/academic/batch/abstract_reextraction.py",
+        "policy-engine/src/polisyos/data_forge/domains/academic/batch/pipeline.py",
+        "policy-engine/src/polisyos/data_forge/domains/academic/batch/reextraction_campaign.py",
+        "policy-engine/src/polisyos/data_forge/domains/academic/batch/reextraction_cli.py",
+        "policy-engine/src/polisyos/ir/linker/_trinity_linker.py",
+        "policy-engine/src/polisyos/lex/knowledge/multilingual_assurance.py",
+        "policy-engine/src/polisyos/participation_requirement/__init__.py",
+        "policy-engine/src/polisyos/runtime/http/services/public_decision_verification.py",
+        "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+        "policy-engine/src/polisyos/runtime/quality/approval.py",
+        "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+        "policy-engine/src/polisyos/runtime/quality/chronology_custody.py",
+        "policy-engine/src/polisyos/runtime/quality/institutional_provenance.py",
+        "policy-engine/src/polisyos/runtime/quality/legacy_payload_migration_audit.py",
+        "policy-engine/src/polisyos/runtime/quality/operator_comprehension.py",
+        "policy-engine/src/polisyos/scientist/governance/continuous/governed_public_record.py",
+        "policy-engine/src/polisyos/scientist/policy_design/baseline_compiler.py",
+        "policy-engine/src/polisyos/scientist/policy_design/claim_decomposition.py",
+        "policy-engine/tests/_helpers/chronology_qualification.py",
+        "policy-engine/tests/unit/core/contracts/test_chronology.py",
+        "policy-engine/tests/unit/core/security/test_anchor_lineage.py",
+        "policy-engine/tests/unit/core/security/test_chronology_anchor.py",
+        "policy-engine/tests/unit/core/security/test_full_prefix.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/batch/test_abstract_reextraction.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/batch/test_reextraction_campaign_recovery.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/batch/test_reextraction_cli.py",
+        "policy-engine/tests/unit/runtime/http/test_authority_values.py",
+        "policy-engine/tests/unit/runtime/http/test_cycle_board_projection_service.py",
+        "policy-engine/tests/unit/runtime/http/test_temporal_routes.py",
+        "policy-engine/tests/unit/runtime/quality/test_chronology_custody.py",
+        "policy-engine/tests/unit/runtime/quality/test_chronology_proof.py",
+        "policy-engine/tests/unit/runtime/quality/test_chronology_qualification.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_custody_audit.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_staleness_projection.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_validity_cascade.py",
+        "policy-engine/tests/unit/runtime/quality/test_evaluation_safety.py",
+        "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_store.py",
+        "policy-engine/tests/unit/scientist/governance/continuous/test_governed_public_record.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py",
+        "policy-engine/tests/unit/scientist/validation/test_epoch_certificate_issuance.py",
+        "policy-engine/tests/unit/tools/ops_runners/cloud/test_merge_shards.py",
+        "policy-engine/tools/quality/validation/build_policy_design_case_wave35h_provenance.py",
+        "policy-engine/tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py"
+      ],
+      "python_files": 55,
+      "python_occurrences": 568
+    },
+    "_nested": {
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/formal_invariants.py",
+        "policy-engine/src/polisyos/runtime/quality/producer_pipeline.py",
+        "policy-engine/tools/quality/validation/check_compilation_truthfulness.py",
+        "policy-engine/tools/quality/validation/check_critic_ensemble_diversity.py",
+        "policy-engine/tools/quality/validation/check_domain_coverage_breadth.py",
+        "policy-engine/tools/quality/validation/check_layer3_gy_agent_workflow_event_backing_audit.py",
+        "policy-engine/tools/quality/validation/check_layer3_gy_catalog_fetch_audit.py",
+        "policy-engine/tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py",
+        "policy-engine/tools/quality/validation/check_layer3_gy_foundry_breadth_audit.py",
+        "policy-engine/tools/quality/validation/check_layer3_gy_lex_frontier_root_cause_audit.py",
+        "policy-engine/tools/quality/validation/check_layer3_gy_source_contract_admissibility_audit.py",
+        "policy-engine/tools/quality/validation/check_policy_design_case_layer2_s1_graded_outcomes.py",
+        "policy-engine/tools/quality/validation/run_universal_outcome_corpus.py"
+      ],
+      "python_files": 13,
+      "python_occurrences": 132
+    },
+    "_normalised_family": {
+      "paths": [],
+      "python_files": 0,
+      "python_occurrences": 0
+    },
+    "_ordered_data_families": {
+      "paths": [],
+      "python_files": 0,
+      "python_occurrences": 0
+    },
+    "_slug_family": {
+      "paths": [],
+      "python_files": 0,
+      "python_occurrences": 0
+    }
+  },
+  "tracked_denominator": {
+    "tracked_paths": 13542,
+    "tracked_py": 6426,
+    "tracked_pyi": 5,
+    "tracked_python_files": 6431
+  }
+}

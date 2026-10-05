@@ -1,0 +1,136 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "req-context",
+  "closure_ids": ["LA-045", "LA-046"],
+  "bundle_ids": ["REQ-01"],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "da01f425be01b9ef5deab52f46f74e851ed73dda",
+    "5c63beafacb204d94b8e9ba29914d3828cb257a7"
+  ],
+  "candidate_tree_sha": "5dac4980894554cdaf30712bc5c12d9c98c4a1ff",
+  "branch": "codex/e02-A-requirement-context",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/data_requirement/test_compiler_public_context.py"
+  ],
+  "receipt_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-context-census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-context-census.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-context-verification.txt"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "PYTHONPATH=\"$PWD/src:$PWD\" OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -vv -c pytest.ini tests/unit/data_requirement/test_compiler_public_context.py",
+      "target_sha": "5c63beafacb204d94b8e9ba29914d3828cb257a7",
+      "environment": "macOS; Python 3.14.3; pytest 9.0.2; policy-engine cwd; PYTHONPATH points to this worktree's src and package; OMP/OPENBLAS/MKL thread counts 1",
+      "input_closure": "The two new public DataRequirementCompiler tests in the candidate tree; compiler source __file__ resolved under this worktree",
+      "outcome": "PASS",
+      "output": "req-context-verification.txt; 2 passed in 4.16s"
+    },
+    {
+      "command": "PYTHONPATH=\"$PWD/src:$PWD\" OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -vv -c pytest.ini tests/unit/data_requirement/test_compiler.py -k 'explicit_constructs or semantic_topic_proposal or scenario_adapter or generic_scope or missing_resolver or require_capability'",
+      "target_sha": "5c63beafacb204d94b8e9ba29914d3828cb257a7",
+      "environment": "macOS; Python 3.14.3; pytest 9.0.2; policy-engine cwd; PYTHONPATH points to this worktree's src and package; OMP/OPENBLAS/MKL thread counts 1",
+      "input_closure": "Existing focused compiler tests covering generic scope, explicit constructs, semantic proposals, adapter context, missing resolver, and required capability",
+      "outcome": "PASS",
+      "output": "req-context-verification.txt; 5 passed, 10 deselected in 3.68s"
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/data_requirement/test_compiler_public_context.py",
+      "target_sha": "5c63beafacb204d94b8e9ba29914d3828cb257a7",
+      "environment": "macOS; repository policy-engine Ruff module in isolated venv",
+      "input_closure": "Changed test path only",
+      "outcome": "PASS",
+      "output": "req-context-verification.txt; All checks passed!"
+    },
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-context-census.py",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "macOS; Python 3.14.0; git exact-token scan and AST parse of base-pinned tracked source, executed by this REQ-01 writer",
+      "input_closure": "All 13,542 tracked base paths; exact eight-symbol token scan and AST parse of every tracked .py/.pyi blob (6,426 .py + 5 .pyi); literal compiler-package/module strings across the tracked repository",
+      "outcome": "PASS",
+      "output": "req-context-census.json; all 6,431 tracked Python files AST-parsed, zero parse errors, zero static caller hits. Exact counts: _nested 13 files/132 tokens; _digest 55 files/568 tokens; remaining six names zero Python hits."
+    },
+    {
+      "command": "Independent review of immutable candidate",
+      "target_sha": "5c63beafacb204d94b8e9ba29914d3828cb257a7",
+      "environment": "Independent reviewer B31",
+      "input_closure": "REQ-01 public-context test candidate, exact SHA above",
+      "outcome": "PASS",
+      "output": "Bounded GO; no new finding class. Real resolver/index admission and N7 composition remain outside this slice."
+    }
+  ],
+  "property": {
+    "statement": "At the public DataRequirementCompiler entrypoints, negative housing/rent text, an unadmitted candidate proposal, and an opaque scenario_id do not create capability queries or DataRequirementSpecs. A graph-admitted explicit required construct does create the corresponding resolver query and spec. A generic national request leaves geography and time unpinned, while an explicitly named pilot profile supplies UA and its declared time window.",
+    "runtime_path": [
+      "PolicyGrammarCompiler.compile and facet_snapshots_for_obligation_graph produce real grammar facets for the claim-ledger fixture",
+      "DataRequirementCompiler.compile_for_claim_ledger consumes claim, facet, graph, and candidate-profile inputs",
+      "DataRequirementCompiler.compile_for_scenario consumes public text/request and domain/domain_hint adapters",
+      "RequirementToCapabilityQuery records constructs and resolved scope passed to the resolver",
+      "DataRequirementReport.metadata and specs expose candidate proposals and emitted requirements"
+    ],
+    "proxy_divergence": "The presence of housing_rent_burden in candidate_construct_proposals, or a plausible opaque scenario_id, is only metadata and would be a false proxy for required authority: the negative case retains that proposal while the public compiler emits no resolver query and no spec. The explicit graph control crosses the actual query/spec path.",
+    "negative_controls": [
+      "Real grammar input includes 'No housing or rent intervention is requested.' while the candidate profile proposes housing_rent_burden; both parent-support and case-alpha scenario IDs yield zero resolver queries and zero specs.",
+      "A blocking-frontier graph explicitly admitting credit_program_enrollment produces that resolver query and a credit_program_registry family; the housing proposal remains candidate metadata.",
+      "The paired generic national request has no jurisdiction or time-window bounds; the named profile returns UA and 2022-02-01 through 2022-12-31.",
+      "Existing focused compiler controls for generic scope, explicit constructs, proposal authority, adapter acceptance, and missing resolver also pass."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_detail": {
+    "public_compiler_semantics": "recomputed by running the public entrypoint tests on the immutable candidate",
+    "tracked_static_caller_census": "recomputed from the complete base git tree with the committed script and JSON result",
+    "stale_finding_binding_inventory": "independently reconciled against exact source selectors and tracked dependent references at the pinned base"
+  },
+  "capability_state_or_finding_state": "LA-045: the earlier dead-private-helper removal is already an ancestor of the slice base; bounded tracked static caller census finds no remaining statically resolvable Python caller for the historical symbols. Dynamic name construction and external consumers remain unresolved by construction, so this is not a universal absence claim. LA-046: this slice adds public-compiler verification only; real resolver/index admission and the N7 acquisition/consumer bridge remain verification_missing and bridge_missing (owned by ACQ-01/root W01).",
+  "historical_symbol_census": {
+    "symbols": [
+      "_data_families_from_obligation_graph",
+      "_data_family_token_from_frontier_item",
+      "_nested",
+      "_normalised_family",
+      "_slug_family",
+      "_ordered_data_families",
+      "_DATA_FAMILY_ORDER",
+      "_digest"
+    ],
+    "base_python_denominator": "6,431 tracked .py/.pyi files (6,426 .py and 5 .pyi) out of 13,542 tracked paths",
+    "static_result": "All 6,431 tracked Python files (6,426 .py and 5 .pyi) were AST parsed without errors. The exact-token census found _nested in 13 files/132 tokens and _digest in 55 files/568 tokens; the remaining six historical names had zero Python hits. No direct imports, star imports, compiler-module attribute references, literal getattr, or literal importlib/__import__ callers were found. The base compiler blob defines/exports none of the eight names; the package facade exports none.",
+    "module_string_intersections": "19 tracked files contain compiler package/module strings. Only _nested intersects a private symbol in two local quality-checker scripts; inspection shows their own local helper definitions, not compiler imports/calls. No module-path intersection for the other seven names.",
+    "source_pins": [
+      "Base c40d4acae1ce58b597267255026d9356565828fd: policy-engine/src/polisyos/data_requirement/compiler.py@d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+      "Base c40d4acae1ce58b597267255026d9356565828fd: policy-engine/src/polisyos/data_requirement/__init__.py@b2d7b1ec8e58a7c5f24cacc2d405d81d70be0c47",
+      "Base c40d4acae1ce58b597267255026d9356565828fd: canonical source policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "Base c40d4acae1ce58b597267255026d9356565828fd: canonical bundle policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/REQ-01.md@599a3971321d977bad20c695aa7f5157e455020c",
+      "Prior cleanup commit fce9957e07987525a3d0a62150b6de2f8edce1de is an ancestor of base c40d4acae1ce58b597267255026d9356565828fd (git merge-base --is-ancestor exit 0)."
+    ],
+    "scope_limit": "Every tracked .py/.pyi file was parsed for static imports/aliases and exact historical-symbol references; literal compiler module strings were searched across tracked paths. Nonliteral or dynamically constructed loader paths, runtime discovery not represented in source, and consumers outside this repository remain unresolved by construction.",
+    "reproduction": "Run req-context-census.py from the repository root; complete result is req-context-census.json."
+  },
+  "stale_finding_binding_inventory": [
+    {
+      "path_at_base": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@81c1d47963d41d1cd356a3755cf6bdb4dde403fd#rows/LA-045",
+      "location": "line 22388; source_line 2999",
+      "stale_claim": "The live compiler retains seven helpers and _DATA_FAMILY_ORDER, with no removal before a full caller census.",
+      "dependent_references": [
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/RESIDUAL_LEDGER.md@016e311d1a22f8b02a07d182ca067d9a1eb5ff61:490",
+        "policy-engine/docs/research/development-programs/2026-09-30-post-e02/source_disposition.json@8e449669e3ea57f6afe5493e778694c27f2b4576:46448 (/rows[id=LA-045])",
+        "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md@ccaf817d9f6ebacd65930fee4e187bc5a6fc60d:2702 (source-wide scan marked pending)"
+      ],
+      "owner_action": "Report evidence for G to reconcile the binding and every dependent reference; this slice does not edit the shared ledger, source disposition, or catalog."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "The recording resolver proves public compiler query arguments and emitted specs, not actual index resolution, admission authority, persistence/readback, or downstream consumption.",
+    "The claim-ledger case normalizes its candidate profile through the existing private _scenario_scope_profile helper, then exercises the public compile_for_claim_ledger entrypoint; the named/generic mapping case exercises the public compile_for_scenario entrypoint.",
+    "N7 composition and acquisition closure remain ACQ-01/root W01 work; no claim is made from compile-only tests.",
+    "The fiscal domain/domain_hint and text/request aliases appear in paired scenarios, but are not isolated independent discriminators; no full adapter-equivalence claim is made.",
+    "Dynamic reflection/name construction and external consumers are unresolved by the tracked static census.",
+    "G owns correction of the stale LA-045 source row and all listed dependent bindings. Prior cleanup commit fce9957e07987525a3d0a62150b6de2f8edce1de is already an ancestor of the slice base; no cleanup or shared-ledger change is repeated here."
+  ]
+}

@@ -1,0 +1,11 @@
+F..                                                                      [100%]
+=================================== FAILURES ===================================
+_________ test_shared_executor_submit_and_shutdown_do_not_invert_locks _________
+tests/unit/common/test_async_tools.py:142: in test_shared_executor_submit_and_shutdown_do_not_invert_locks
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+E   AssertionError: {"admission": {"owner": "submitter", "waiting": ["shutdown"]}, "shutdown": {"owner": "shutdown", "waiting": ["submitter"]}}
+E     
+E   assert 73 == 0
+E    +  where 73 = CompletedProcess(args=['/workspace/polisyos/policy-engine/.venv/bin/python', '-c', "import runpy,sys; runpy.run_path(s...er": "submitter", "waiting": ["shutdown"]}, "shutdown": {"owner": "shutdown", "waiting": ["submitter"]}}\n', stderr='').returncode
+=========================== short test summary info ============================
+FAILED tests/unit/common/test_async_tools.py::test_shared_executor_submit_and_shutdown_do_not_invert_locks

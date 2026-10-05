@@ -207,7 +207,10 @@ def test_batch_config_holds_unknown_run_profile_before_loading_inputs(tmp_path) 
     assert caught.value.code == "unsupported_run_profile"
 
 
-@pytest.mark.parametrize("source_field", ["endpoint: 42", "format_denylist: PDF"])
+@pytest.mark.parametrize(
+    "source_field",
+    ["endpoint: 42", "format_denylist: PDF", "format_allowlist: [7]"],
+)
 def test_batch_registry_rejects_coerced_source_values(
     tmp_path: Path,
     source_field: str,

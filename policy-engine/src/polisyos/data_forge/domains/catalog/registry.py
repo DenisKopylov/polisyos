@@ -6,7 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Self
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from polisyos.data_forge.kernel._base import DataForgeModel
 
@@ -51,6 +51,12 @@ class CatalogSourceRegistryEntry(DataForgeModel):
     format_denylist: tuple[str, ...] = Field(default_factory=tuple)
     keyword_allowlist: tuple[str, ...] = Field(default_factory=tuple)
     keyword_denylist: tuple[str, ...] = Field(default_factory=tuple)
+
+    @field_validator("format_allowlist", "format_denylist")
+    @classmethod
+    def _normalize_format_codes(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        """Normalize validated format codes for case-insensitive consumers."""
+        return tuple(normalized for value in values if (normalized := value.strip().upper()))
 
     @model_validator(mode="before")
     @classmethod

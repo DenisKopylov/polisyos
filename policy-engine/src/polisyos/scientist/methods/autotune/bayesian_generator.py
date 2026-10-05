@@ -119,9 +119,7 @@ class SearchSpace(NativeSearchSpace):
     """Autotune adapter backed by the canonical strategy ``SearchSpace``."""
 
     def __init__(self, bounds: list[dict[str, Any] | ParameterBounds]) -> None:
-        super().__init__(
-            bounds=[self._to_parameter_bound(bound) for bound in bounds]
-        )
+        super().__init__(bounds=[self._to_parameter_bound(bound) for bound in bounds])
 
     @staticmethod
     def _to_parameter_bound(bound: dict[str, Any] | ParameterBounds) -> ParameterBounds:
@@ -245,7 +243,9 @@ class BayesianCandidateGenerator:
         return dict(context) if context else {}
 
     @staticmethod
-    def _history_parts(entry: Any) -> tuple[
+    def _history_parts(
+        entry: Any,
+    ) -> tuple[
         dict[str, Any],
         dict[str, Any],
         dict[str, Any],
@@ -383,7 +383,9 @@ class BayesianCandidateGenerator:
             try:
                 normalized = tuple(self._search_space.normalize(params))
             except (TypeError, ValueError):
-                logger.warning("Skipping history entry %s: candidate params cannot be normalized", idx)
+                logger.warning(
+                    "Skipping history entry %s: candidate params cannot be normalized", idx
+                )
                 continue
 
             identity = self._history_identity(
@@ -450,7 +452,9 @@ class BayesianCandidateGenerator:
             timestamp = getattr(entry, "timestamp", None)
             if not isinstance(timestamp, datetime):
                 timestamp = datetime.now(UTC)
-            duration = getattr(entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0))
+            duration = getattr(
+                entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0)
+            )
             try:
                 duration_seconds = float(duration)
             except (TypeError, ValueError):
@@ -539,11 +543,7 @@ def benchmark_to_evaluation(
     if dim and len(params_normalized) != dim:
         return None
 
-    scalar = (
-        -float(finite_value)
-        if direction == MetricDirection.MAXIMIZE
-        else float(finite_value)
-    )
+    scalar = -float(finite_value) if direction == MetricDirection.MAXIMIZE else float(finite_value)
     split_value = split.value
     metadata = {
         **benchmark_metadata,

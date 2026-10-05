@@ -1,0 +1,443 @@
+{
+  "schema": "policyos.e02.independent_protocol_review.v1",
+  "reviewer": "F/economics",
+  "role": "independent read-only closeout builder/protocol reviewer; no child agents/source/worktree edits",
+  "verdict": "GO_BOUNDED_PROTOCOL_AFTER_OUTPUT_BINDING_CORRECTION",
+  "predicate_basis": "recomputed",
+  "source_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+  "source_tree_sha": "d286a2fb4e7cb0dcfdc8585f660bea5457e450b2",
+  "build_script": {
+    "path": "/workspace/e02-F-receipts/build-delivery-closeout.py",
+    "bytes": 10497,
+    "sha256": "8a59ae8a3132eae1ec6bcb83b91ae335286c4f4c405943a46d5fcac764a0910b"
+  },
+  "index_identity": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json",
+    "bytes": 178419,
+    "sha256": "7690b2ca2d547dda419a21b94ea1fcabf8e66f83c363a4a47240ef1b72334acd"
+  },
+  "scope": "HANDOFF schema/minimum fields and output enums, five immutable delivery implementation ancestry/tree/path/source identities, earlier G institutionally supplied acceptance versus current pending, retained method/native/CI and real-data/authority limitations. 213 CI deciding byte bodies are delegated to independent graph recovery reviewer and were not duplicated here. Final receipt has not been built; no remote publication or full F integration acceptance is reviewed.",
+  "mandatory_fields": {
+    "required": [
+      "baseline_cells",
+      "branch",
+      "bundle_ids",
+      "candidate_tree_sha",
+      "capability_state_or_finding_state",
+      "changed_paths",
+      "checks",
+      "closure_ids",
+      "implementation_commits",
+      "limitations_and_next_owner",
+      "predicate_basis",
+      "property",
+      "pull_request",
+      "schema",
+      "slice",
+      "slice_base_sha",
+      "unit"
+    ],
+    "missing_after_builder_correction": [],
+    "checks_required": [
+      "command",
+      "target_sha",
+      "environment",
+      "input_closure",
+      "outcome",
+      "output"
+    ],
+    "all7_output_bindings_verified": true,
+    "predicate_basis": "recomputed",
+    "schema": "policyos.e02.implementation_handoff.v1",
+    "closure_ids": [],
+    "candidate_tree_points_to_frozen_implementation": true,
+    "future_receipt_commit_self_reference": false
+  },
+  "resolved_blocker": {
+    "original": "All seven actual measured checks supplied stdout/stderr but lacked mandatory checks[].output when builder copied them directly.",
+    "correction": "External builder preserves each measured object byte-value fields and adds output plus output_ref binding complete delivery-index.checks.json bytes/SHA and exact /checks/n pointer. No source or measurement changes/rerun.",
+    "verification": "Compiled and executed only corrected output-binding AST loop with existing complete checks bytes and in-memory companion identity; root transfer/write operations never executed."
+  },
+  "checks_source": {
+    "path": "/workspace/e02-F-receipts/index-final386-frozen-checks.json",
+    "bytes": 18165,
+    "sha256": "734a80922a28fd299e91575f484aea875c1c4373257501247d3a42502454300b"
+  },
+  "checks": [
+    {
+      "check_index": 0,
+      "name": "delivery_normal",
+      "outcome": "PASS",
+      "target_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json#/checks/0",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json",
+        "bytes": 18165,
+        "sha256": "734a80922a28fd299e91575f484aea875c1c4373257501247d3a42502454300b",
+        "json_pointer": "/checks/0"
+      },
+      "recorded_measurement_unchanged": true
+    },
+    {
+      "check_index": 1,
+      "name": "delivery_optimized",
+      "outcome": "PASS",
+      "target_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json#/checks/1",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json",
+        "bytes": 18165,
+        "sha256": "734a80922a28fd299e91575f484aea875c1c4373257501247d3a42502454300b",
+        "json_pointer": "/checks/1"
+      },
+      "recorded_measurement_unchanged": true
+    },
+    {
+      "check_index": 2,
+      "name": "results_indices",
+      "outcome": "PASS",
+      "target_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json#/checks/2",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json",
+        "bytes": 18165,
+        "sha256": "734a80922a28fd299e91575f484aea875c1c4373257501247d3a42502454300b",
+        "json_pointer": "/checks/2"
+      },
+      "recorded_measurement_unchanged": true
+    },
+    {
+      "check_index": 3,
+      "name": "ruff_check",
+      "outcome": "PASS",
+      "target_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json#/checks/3",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json",
+        "bytes": 18165,
+        "sha256": "734a80922a28fd299e91575f484aea875c1c4373257501247d3a42502454300b",
+        "json_pointer": "/checks/3"
+      },
+      "recorded_measurement_unchanged": true
+    },
+    {
+      "check_index": 4,
+      "name": "ruff_format",
+      "outcome": "PASS",
+      "target_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json#/checks/4",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json",
+        "bytes": 18165,
+        "sha256": "734a80922a28fd299e91575f484aea875c1c4373257501247d3a42502454300b",
+        "json_pointer": "/checks/4"
+      },
+      "recorded_measurement_unchanged": true
+    },
+    {
+      "check_index": 5,
+      "name": "diff_check",
+      "outcome": "PASS",
+      "target_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json#/checks/5",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json",
+        "bytes": 18165,
+        "sha256": "734a80922a28fd299e91575f484aea875c1c4373257501247d3a42502454300b",
+        "json_pointer": "/checks/5"
+      },
+      "recorded_measurement_unchanged": true
+    },
+    {
+      "check_index": 6,
+      "name": "full_docs_gate",
+      "outcome": "FAIL",
+      "target_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json#/checks/6",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.checks.json",
+        "bytes": 18165,
+        "sha256": "734a80922a28fd299e91575f484aea875c1c4373257501247d3a42502454300b",
+        "json_pointer": "/checks/6"
+      },
+      "recorded_measurement_unchanged": true
+    }
+  ],
+  "outcome_counts": {
+    "PASS": 6,
+    "FAIL": 1
+  },
+  "implementation_commits": [
+    {
+      "sha": "3d440cfac134728d31ffb49ac70911576cec4e2f",
+      "tree_sha": "b98d58cd0780c41548cd5371b7bb40bdb58506af",
+      "parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd"
+      ],
+      "changed_path_count": 9,
+      "sorted_newline_path_sha256": "24144fe32216677466c4f2a9fe15d11abc555db3370dc854f6969093d5fa5685",
+      "delta_path_command": [
+        "git",
+        "diff-tree",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "3d440cfac134728d31ffb49ac70911576cec4e2f"
+      ]
+    },
+    {
+      "sha": "eeecc3342e6c3ad6a167ce7ea9ce846796917541",
+      "tree_sha": "8b864d0b95d37167f5097172a31ca7f5b1b0e98a",
+      "parents": [
+        "3d440cfac134728d31ffb49ac70911576cec4e2f"
+      ],
+      "changed_path_count": 1,
+      "sorted_newline_path_sha256": "03274d50dec193bd29f3e606ffe2f85bea34a6b21bd89b9acd6afe47adea07fc",
+      "delta_path_command": [
+        "git",
+        "diff-tree",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "eeecc3342e6c3ad6a167ce7ea9ce846796917541"
+      ]
+    },
+    {
+      "sha": "65a215b9c8e78f0b12f3da9995d6c8181e93dbc2",
+      "tree_sha": "eda2633b4f65a5cba92cb5cc98cefb3a5db3f27c",
+      "parents": [
+        "eeecc3342e6c3ad6a167ce7ea9ce846796917541"
+      ],
+      "changed_path_count": 224,
+      "sorted_newline_path_sha256": "4d5324868b236a94eb41201e326bd3b6267c62bdf06a0a9307dd01a10c7787ac",
+      "delta_path_command": [
+        "git",
+        "diff-tree",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "65a215b9c8e78f0b12f3da9995d6c8181e93dbc2"
+      ]
+    },
+    {
+      "sha": "191dc1da8ef64e6219afaff9c87e92d3a52028cd",
+      "tree_sha": "a73e65b8da52d12518309362f7cdafcae510d4b6",
+      "parents": [
+        "65a215b9c8e78f0b12f3da9995d6c8181e93dbc2"
+      ],
+      "changed_path_count": 1,
+      "sorted_newline_path_sha256": "042af3605706b9643373613928eb3c8185c9219149b17f4240760f6e4d2ef91a",
+      "delta_path_command": [
+        "git",
+        "diff-tree",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "191dc1da8ef64e6219afaff9c87e92d3a52028cd"
+      ]
+    },
+    {
+      "sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+      "tree_sha": "d286a2fb4e7cb0dcfdc8585f660bea5457e450b2",
+      "parents": [
+        "191dc1da8ef64e6219afaff9c87e92d3a52028cd"
+      ],
+      "changed_path_count": 1,
+      "sorted_newline_path_sha256": "042af3605706b9643373613928eb3c8185c9219149b17f4240760f6e4d2ef91a",
+      "delta_path_command": [
+        "git",
+        "diff-tree",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "386f18e3354bd482bd012434de6ac96df3218b28"
+      ]
+    }
+  ],
+  "path_verdict": "All231unique base-to-frozen paths confined to F implementation-handoffs; union of five commit deltas exactly equals c40→386 diff. Companion output files will follow in separate handoff commit.",
+  "source_files_sha256": {
+    "AGENTS.md": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+    "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+  },
+  "finding_scope": {
+    "bundles": 17,
+    "findings": 35,
+    "candidate_state_counts": {
+      "limited_no_ledger_closure": 31,
+      "limited_principal_decision_pending": 3,
+      "held": 1
+    },
+    "principal_pending": [
+      "B210",
+      "LA-004",
+      "LA-035"
+    ],
+    "held_B219_preserved": true,
+    "accepted_finding_closures": [],
+    "no_semantic_promotion": true
+  },
+  "G_observation": {
+    "checkpoint_source_sha": "15d50bac59d06a3fb010327abf8e0c90f9ccbed0",
+    "checkpoint_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-03.json",
+    "checkpoint_sha256": "f47ebbc9e8326b0d492b6dfb09310490eb19d81750a4e44a2466bd805e1ec49c",
+    "full_actual_checkpoint_verified": true,
+    "earlier_F_entries_match_actual_checkpoint": true,
+    "accepted_earlier_api_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+    "current_api_head": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69",
+    "current_api_doc_receipt_acceptance": "pending_G/not_established",
+    "full_F_delivery_acceptance": "pending_G",
+    "finding_closure": false,
+    "basis": "institutionally_supplied actual G Git checkpoint; distinct from this recomputed protocol review"
+  },
+  "peer_immutable_receipt_tree_bindings": [
+    {
+      "slice": "cau-cohort-admission",
+      "published_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+      "implementation_commits": [
+        "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+        "d27227d03a7c78b90c442e6f258c45987104f8a1"
+      ],
+      "candidate_tree_sha": "f8f48556b06648b51364389595d17470fd94beb2",
+      "receipt_sha256": "561a89549fe513551a793b3cc07587c2d652d51cb170c0b619b4dd39e39a6e0c",
+      "receipt_bytes": 35918,
+      "byte_and_tree_binding_verified": true,
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "graph-scm",
+      "published_head_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "implementation_commits": [
+        "672f541313c550e96544728ed397daf330c04442"
+      ],
+      "candidate_tree_sha": "f6bf9b9467d56e86408693982c8f68ea381b1e4c",
+      "receipt_sha256": "4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050",
+      "receipt_bytes": 29623,
+      "byte_and_tree_binding_verified": true,
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "economic-profile-consumers",
+      "published_head_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "implementation_commits": [
+        "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6"
+      ],
+      "candidate_tree_sha": "7b7822e23901d9574b53ed97d410a1392763c484",
+      "receipt_sha256": "adc53d604a8c5faae4942c4c24ab83fd1c59e41403a661aefdb044985e828841",
+      "receipt_bytes": 13917,
+      "byte_and_tree_binding_verified": true,
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "fit-tmle",
+      "published_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "implementation_commits": [
+        "b57708fcc95a778d7ff88c4001e4ac8ca74b7889"
+      ],
+      "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+      "receipt_sha256": "2e6e0c9997dc8f9ee80c3cc273ea84572b78189c3dfcf17c88a9d1db1aee9fc3",
+      "receipt_bytes": 31684,
+      "byte_and_tree_binding_verified": true,
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "fry-compile-contracts",
+      "published_head_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "implementation_commits": [
+        "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2"
+      ],
+      "candidate_tree_sha": "465c255a4022c2506fb21d41c0bc0fc10ed774b6",
+      "receipt_sha256": "34c41ca91eab404b3fbdfdba376108f1205ed47010d1e540b7f7b6f960f3e3ca",
+      "receipt_bytes": 20571,
+      "byte_and_tree_binding_verified": true,
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "api-consumer-abi",
+      "published_head_sha": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69",
+      "implementation_commits": [
+        "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+        "4b8cdf8ab88006c572c2b2d0039053d5a0138f14"
+      ],
+      "candidate_tree_sha": "81d0eace9b45d1a920e30a5564244c85bfc00ea8",
+      "receipt_sha256": "f07ae3db66b8dd4ea34359e059bc5d1bd120b7080188f5b34e978c900de6e388",
+      "receipt_bytes": 17360,
+      "byte_and_tree_binding_verified": true,
+      "acceptance": "G checkpoint03 accepts earlier baad/0c709 bounded ABI runtime; appended4b8 doc and current receipt pending_G; no LA-020 closure"
+    },
+    {
+      "slice": "lex-input-binding",
+      "published_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "implementation_commits": [
+        "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+        "56aa7d47876b29956676ef8dc9f04b64c865948f"
+      ],
+      "candidate_tree_sha": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+      "receipt_sha256": "4f0623168329cfc5c4006c5beb79dc205704beb1dc8b537e47b5d2c09e519c20",
+      "receipt_bytes": 29849,
+      "byte_and_tree_binding_verified": true,
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "economic-dtype",
+      "published_head_sha": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "implementation_commits": [
+        "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0"
+      ],
+      "candidate_tree_sha": "9dcc163a864635004408ddd449bab105762e1726",
+      "receipt_sha256": "c7c0f21acfb3537c9c0a53ef39a36a762193a4b0bb3d0da07bd5c0653f173979",
+      "receipt_bytes": 26885,
+      "byte_and_tree_binding_verified": true,
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "causal-output",
+      "published_head_sha": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+      "implementation_commits": [
+        "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415"
+      ],
+      "candidate_tree_sha": "e577d7403d00db9ea4d8bc8a28ad5b6b46a84d66",
+      "receipt_sha256": "16cb806f594c45b31de3337a7fdf82954a633fe12d53359422da2a4800467115",
+      "receipt_bytes": 32048,
+      "byte_and_tree_binding_verified": true,
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    }
+  ],
+  "native_CI_realdata_boundaries": {
+    "historical_native_checks": "INDEX nine-slice native_validation retains exact implementation scopes; no earlier native outcome becomes new doc-head or integrated PASS. Own economics32PASS remains separate mixed55PASS4FAIL; dtype60/independent76 is separately frozen; FIT63/independent33 bounded.",
+    "baseline": "3historical failed cells and6cellswithskips retained with their distinct historic test source SHAs; c40 is delivery owner/census base, not a reassignment of old outcomes. Raw source archives0/not_established.",
+    "current_full_docs_gate": "Actual6PASS1FAIL checks preserved. FAILfullDocsGate freshness10/hash459cc/expired baseline complete stdout remains bound; downstream strictdocsbuildUNRUN.",
+    "other_broad": "ArchitectureUNRUNexit2, scanner commonUNRESOLVED3/FITERROR137, historicalCIclusterFAIL/pending all remain explicit; no blanket inheritedP41 or backend absence witness.",
+    "production": "Full productiondata local/read-only; actual estimand/input/backend/caller/authority, external/plugin ABI, economic preferences and real-data assumptions stay limited/held until owners/G admit exact candidate and inputs."
+  },
+  "remaining_readiness_conditions": [
+    "New independent final213CIbyte review/result+fullmoderatelog is still pending from graph recovery; builder expected final review companion file is currently absent, so neither this GO nor earlier review permits building with stale reviewer source.",
+    "After final review arrives, root builds receipt and all7complete companions in separate append-only commit, verifies exact receipt/companion/output bytes, performs normal topic push+remote readback and creates/attaches draft PR.",
+    "G independently fetches/accepts code and finding decisions separately; no main/merge/force/rewrite authorization."
+  ],
+  "source_before_after": {
+    "frozen_head": "386f18e3354bd482bd012434de6ac96df3218b28",
+    "readback_head": "386f18e3354bd482bd012434de6ac96df3218b28",
+    "branch": "codex/e02-F-handoff-index",
+    "git_status_porcelain": ""
+  },
+  "no_source_or_worktree_edits": true,
+  "changed_path_denominator": {
+    "complete_count": 231,
+    "canonical_git_command": [
+      "git",
+      "diff",
+      "--name-only",
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "386f18e3354bd482bd012434de6ac96df3218b28"
+    ],
+    "sorted_newline_path_sha256": "a9a4b3c65c5ab42a60dd6e56f005cb2157b13c6ca212d4d3a2c175cfe034fb0d",
+    "entire_delta_confined_to": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/",
+    "five_commit_delta_union_equals_base_to_frozen": true,
+    "paths_not_embedded": "Exact full names are recomputable from pinned Git objects, not repeated beside actual source/evidence."
+  }
+}

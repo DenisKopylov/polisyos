@@ -1,0 +1,625 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F/foundry",
+  "role": "independent read-only delivery-index reviewer; no child agents/source edits",
+  "verdict": "GO",
+  "source_sha": "eeecc3342e6c3ad6a167ce7ea9ce846796917541",
+  "source_tree": "8b864d0b95d37167f5097172a31ca7f5b1b0e98a",
+  "implementation_commits": [
+    "3d440cfac134728d31ffb49ac70911576cec4e2f",
+    "eeecc3342e6c3ad6a167ce7ea9ce846796917541"
+  ],
+  "predicate_basis": "recomputed",
+  "scope": "Delivery documentation/verifier, owner/cell/Git/output/remote/PR bookkeeping only. This review does not accept nine product slices, G integration, scientific/real-data/authority conclusions or any finding closure.",
+  "source_review": {
+    "full_files": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/verify_delivery.py"
+    ],
+    "delta": "Full3d source review plus full3d→eeecc verifier diff; INDEX and other eight tracked files unchanged; source hashes frozen before/after both replays.",
+    "structured_companions": "All six declared companion bytes/hashes independently checked; source owner/residual/cell union and immutable receipt/remote/PR records independently recomputed. Seven-receipt snapshots explicitly historical; current nine-head INDEX supersedes their bindings."
+  },
+  "historical_discriminator": {
+    "schema": "policyos.e02.independent_negative_control.v1",
+    "reviewer": "F/foundry",
+    "source_sha": "3d440cfac134728d31ffb49ac70911576cec4e2f",
+    "source_tree": "b98d58cd0780c41548cd5371b7bb40bdb58506af",
+    "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/verify_delivery.py",
+    "source_sha256": "ba9c9c628cc5fd8029065a5d5bbedd385a396747ed1c778d82f56005efbc482e",
+    "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json",
+    "index_sha256": "01927fd2a219fa8c001e8ad17140b23267fde1d3ca68bede314f437db770805b",
+    "runtime": "Python3.14.2; Git source loaded read-only with original __file__ root; no product/source mutations",
+    "mutation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-baseline-census.json",
+      "declared_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "actual_sha256": "f9c404ed76950e612cebb04b90c0cb17b1e7221bae68bbf1dafe98df4b88f46e",
+      "preserved": "all9 slice hashes/heads and17/35 owner declarations, empty closure list, pending_G"
+    },
+    "expected": "reject unbound INDEX companion",
+    "observed_return": {
+      "outcome": "PASS",
+      "scope": "Git/source/owner bookkeeping only; product acceptance not established",
+      "F_bundles": 17,
+      "F_findings": 35,
+      "slices": [
+        {
+          "branch": "codex/e02-F-cau",
+          "head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "implementation_paths": 2,
+          "bound_output_refs": 0,
+          "unadmitted_relative_raw_refs": []
+        },
+        {
+          "branch": "codex/e02-F-graph-scm",
+          "head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+          "implementation_paths": 3,
+          "bound_output_refs": 0,
+          "unadmitted_relative_raw_refs": []
+        },
+        {
+          "branch": "codex/e02-F-economics",
+          "head": "e642bb9025a67739c201393acca5712603cb064d",
+          "implementation_paths": 3,
+          "bound_output_refs": 2,
+          "unadmitted_relative_raw_refs": [
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economics-candidate.log",
+              "sha256": "f907806e2415ab4e9ebf799b3b1796a11d9bb434c046179d573e6055abff9a12",
+              "basis": "not_established; local declaration only"
+            }
+          ]
+        },
+        {
+          "branch": "codex/e02-F-fit-tmle",
+          "head": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+          "implementation_paths": 3,
+          "bound_output_refs": 1,
+          "unadmitted_relative_raw_refs": []
+        },
+        {
+          "branch": "codex/e02-F-foundry",
+          "head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+          "implementation_paths": 4,
+          "bound_output_refs": 0,
+          "unadmitted_relative_raw_refs": []
+        },
+        {
+          "branch": "codex/e02-F-causal-api",
+          "head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+          "implementation_paths": 2,
+          "bound_output_refs": 0,
+          "unadmitted_relative_raw_refs": []
+        },
+        {
+          "branch": "codex/e02-F-lex",
+          "head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+          "implementation_paths": 4,
+          "bound_output_refs": 15,
+          "unadmitted_relative_raw_refs": []
+        },
+        {
+          "branch": "codex/e02-F-economic-dtype",
+          "head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+          "implementation_paths": 3,
+          "bound_output_refs": 12,
+          "unadmitted_relative_raw_refs": [
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economic-dtype-architecture.log",
+              "sha256": "5d3160f3a0a69ace31bfc628e54e7050c77ea3b870ceda11ab5899b387ebb240",
+              "basis": "not_established; local declaration only"
+            }
+          ]
+        },
+        {
+          "branch": "codex/e02-F-causal-output",
+          "head": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+          "implementation_paths": 3,
+          "bound_output_refs": 30,
+          "unadmitted_relative_raw_refs": []
+        }
+      ],
+      "accepted_finding_closures": []
+    },
+    "classification": "KNOWN_GAP: original verifier falsely accepts wrong index companion; this is not full-custody PASS",
+    "remediation_target": "eeecc3342e6c3ad6a167ce7ea9ce846796917541"
+  },
+  "final_replays": [
+    {
+      "schema": "policyos.e02.independent_review.v1",
+      "reviewer": "F/foundry",
+      "source_sha": "eeecc3342e6c3ad6a167ce7ea9ce846796917541",
+      "source_tree": "8b864d0b95d37167f5097172a31ca7f5b1b0e98a",
+      "mode": "native",
+      "cwd": "/workspace/e02-F-handoff-index",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/verify_delivery.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json",
+        "--negative-controls"
+      ],
+      "exit_code": 0,
+      "wall_s": 0.6406212880001476,
+      "source_files_sha256": {
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-baseline-census.json": "f9c404ed76950e612cebb04b90c0cb17b1e7221bae68bbf1dafe98df4b88f46e",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-residual-authority-map.json": "121ca71fbefea997ea1d7f28a0055bd2c5242dd812ff6b1e518a4c7df9395fd4",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json": "01927fd2a219fa8c001e8ad17140b23267fde1d3ca68bede314f437db770805b",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/README.md": "51d6ac99dddbb54204c8438fa742edbd27917ced77e8e1643deb22097c30597e",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-index-published-snapshot.json": "4768bdf3738e44ea4ed003acea837bbee793ea3c46ff7b4740dd0ed387481526",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit-delta-approved.json": "ad97e4a9231a23784d9dd979c8c9703f7e4b58f42eebb0e904ac867557cf0330",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit-delta-stage1.json": "e1f37bd7bbcfd195e8d15c7f4fa9c7a88d58d5be25a7471b4ba42249901c7b5d",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit.json": "e12587bb65fda2f576f4cbd8a2796fcce6a56755cf2bd03c43f013ffa7b8d08a",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/verify_delivery.py": "17796ae4418c3f053cdbf1539d98d01cfafff9c43d95a466986af76f10103e14"
+      },
+      "source_bytes_stable": true,
+      "counts": {
+        "slices": 9,
+        "bundles": 17,
+        "findings": 35,
+        "index_companions": 6,
+        "negative_controls_rejected": 8
+      },
+      "full_output": {
+        "outcome": "PASS",
+        "scope": "Git/source/owner bookkeeping only; product acceptance not established",
+        "F_bundles": 17,
+        "F_findings": 35,
+        "slices": [
+          {
+            "branch": "codex/e02-F-cau",
+            "head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+            "implementation_paths": 2,
+            "bound_output_refs": 0,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-graph-scm",
+            "head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+            "implementation_paths": 3,
+            "bound_output_refs": 0,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-economics",
+            "head": "e642bb9025a67739c201393acca5712603cb064d",
+            "implementation_paths": 3,
+            "bound_output_refs": 2,
+            "unadmitted_relative_raw_refs": [
+              {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economics-candidate.log",
+                "sha256": "f907806e2415ab4e9ebf799b3b1796a11d9bb434c046179d573e6055abff9a12",
+                "basis": "not_established; local declaration only"
+              }
+            ]
+          },
+          {
+            "branch": "codex/e02-F-fit-tmle",
+            "head": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+            "implementation_paths": 3,
+            "bound_output_refs": 1,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-foundry",
+            "head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+            "implementation_paths": 4,
+            "bound_output_refs": 0,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-causal-api",
+            "head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+            "implementation_paths": 2,
+            "bound_output_refs": 0,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-lex",
+            "head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+            "implementation_paths": 4,
+            "bound_output_refs": 15,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-economic-dtype",
+            "head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+            "implementation_paths": 3,
+            "bound_output_refs": 12,
+            "unadmitted_relative_raw_refs": [
+              {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economic-dtype-architecture.log",
+                "sha256": "5d3160f3a0a69ace31bfc628e54e7050c77ea3b870ceda11ab5899b387ebb240",
+                "basis": "not_established; local declaration only"
+              }
+            ]
+          },
+          {
+            "branch": "codex/e02-F-causal-output",
+            "head": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+            "implementation_paths": 3,
+            "bound_output_refs": 30,
+            "unadmitted_relative_raw_refs": []
+          }
+        ],
+        "accepted_finding_closures": [],
+        "bound_index_companion_refs": 6,
+        "unadmitted_index_raw_refs": [],
+        "negative_controls_rejected": [
+          {
+            "control": "35 rows with one missing finding and a duplicate",
+            "reason": "finding uniqueness"
+          },
+          {
+            "control": "right branch and head with an unbound receipt",
+            "reason": "receipt hash"
+          },
+          {
+            "control": "held finding promoted by declaration",
+            "reason": "finding closure not authorized"
+          },
+          {
+            "control": "right bundle union with a duplicate row",
+            "reason": "bundle uniqueness"
+          },
+          {
+            "control": "35 IDs with a false owner",
+            "reason": "finding owner"
+          },
+          {
+            "control": "empty closure list hiding a closed finding row",
+            "reason": "candidate finding promoted by declaration"
+          },
+          {
+            "control": "right slices with an unbound index companion",
+            "reason": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-baseline-census.json hash"
+          },
+          {
+            "control": "real source changed after a still-valid old receipt",
+            "reason": "codex/e02-F-lex source changed after frozen implementation"
+          }
+        ]
+      }
+    },
+    {
+      "schema": "policyos.e02.independent_review.v1",
+      "reviewer": "F/foundry",
+      "source_sha": "eeecc3342e6c3ad6a167ce7ea9ce846796917541",
+      "source_tree": "8b864d0b95d37167f5097172a31ca7f5b1b0e98a",
+      "mode": "optimized",
+      "cwd": "/workspace/e02-F-handoff-index",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-O",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/verify_delivery.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json",
+        "--negative-controls"
+      ],
+      "exit_code": 0,
+      "wall_s": 0.8736288730005981,
+      "source_files_sha256": {
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-baseline-census.json": "f9c404ed76950e612cebb04b90c0cb17b1e7221bae68bbf1dafe98df4b88f46e",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-residual-authority-map.json": "121ca71fbefea997ea1d7f28a0055bd2c5242dd812ff6b1e518a4c7df9395fd4",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json": "01927fd2a219fa8c001e8ad17140b23267fde1d3ca68bede314f437db770805b",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/README.md": "51d6ac99dddbb54204c8438fa742edbd27917ced77e8e1643deb22097c30597e",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-index-published-snapshot.json": "4768bdf3738e44ea4ed003acea837bbee793ea3c46ff7b4740dd0ed387481526",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit-delta-approved.json": "ad97e4a9231a23784d9dd979c8c9703f7e4b58f42eebb0e904ac867557cf0330",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit-delta-stage1.json": "e1f37bd7bbcfd195e8d15c7f4fa9c7a88d58d5be25a7471b4ba42249901c7b5d",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit.json": "e12587bb65fda2f576f4cbd8a2796fcce6a56755cf2bd03c43f013ffa7b8d08a",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/verify_delivery.py": "17796ae4418c3f053cdbf1539d98d01cfafff9c43d95a466986af76f10103e14"
+      },
+      "source_bytes_stable": true,
+      "counts": {
+        "slices": 9,
+        "bundles": 17,
+        "findings": 35,
+        "index_companions": 6,
+        "negative_controls_rejected": 8
+      },
+      "full_output": {
+        "outcome": "PASS",
+        "scope": "Git/source/owner bookkeeping only; product acceptance not established",
+        "F_bundles": 17,
+        "F_findings": 35,
+        "slices": [
+          {
+            "branch": "codex/e02-F-cau",
+            "head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+            "implementation_paths": 2,
+            "bound_output_refs": 0,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-graph-scm",
+            "head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+            "implementation_paths": 3,
+            "bound_output_refs": 0,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-economics",
+            "head": "e642bb9025a67739c201393acca5712603cb064d",
+            "implementation_paths": 3,
+            "bound_output_refs": 2,
+            "unadmitted_relative_raw_refs": [
+              {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economics-candidate.log",
+                "sha256": "f907806e2415ab4e9ebf799b3b1796a11d9bb434c046179d573e6055abff9a12",
+                "basis": "not_established; local declaration only"
+              }
+            ]
+          },
+          {
+            "branch": "codex/e02-F-fit-tmle",
+            "head": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+            "implementation_paths": 3,
+            "bound_output_refs": 1,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-foundry",
+            "head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+            "implementation_paths": 4,
+            "bound_output_refs": 0,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-causal-api",
+            "head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+            "implementation_paths": 2,
+            "bound_output_refs": 0,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-lex",
+            "head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+            "implementation_paths": 4,
+            "bound_output_refs": 15,
+            "unadmitted_relative_raw_refs": []
+          },
+          {
+            "branch": "codex/e02-F-economic-dtype",
+            "head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+            "implementation_paths": 3,
+            "bound_output_refs": 12,
+            "unadmitted_relative_raw_refs": [
+              {
+                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economic-dtype-architecture.log",
+                "sha256": "5d3160f3a0a69ace31bfc628e54e7050c77ea3b870ceda11ab5899b387ebb240",
+                "basis": "not_established; local declaration only"
+              }
+            ]
+          },
+          {
+            "branch": "codex/e02-F-causal-output",
+            "head": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+            "implementation_paths": 3,
+            "bound_output_refs": 30,
+            "unadmitted_relative_raw_refs": []
+          }
+        ],
+        "accepted_finding_closures": [],
+        "bound_index_companion_refs": 6,
+        "unadmitted_index_raw_refs": [],
+        "negative_controls_rejected": [
+          {
+            "control": "35 rows with one missing finding and a duplicate",
+            "reason": "finding uniqueness"
+          },
+          {
+            "control": "right branch and head with an unbound receipt",
+            "reason": "receipt hash"
+          },
+          {
+            "control": "held finding promoted by declaration",
+            "reason": "finding closure not authorized"
+          },
+          {
+            "control": "right bundle union with a duplicate row",
+            "reason": "bundle uniqueness"
+          },
+          {
+            "control": "35 IDs with a false owner",
+            "reason": "finding owner"
+          },
+          {
+            "control": "empty closure list hiding a closed finding row",
+            "reason": "candidate finding promoted by declaration"
+          },
+          {
+            "control": "right slices with an unbound index companion",
+            "reason": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-baseline-census.json hash"
+          },
+          {
+            "control": "real source changed after a still-valid old receipt",
+            "reason": "codex/e02-F-lex source changed after frozen implementation"
+          }
+        ]
+      }
+    }
+  ],
+  "independent_audit": {
+    "schema": "policyos.e02.independent_review.v1",
+    "reviewer": "F/foundry",
+    "source_sha": "eeecc3342e6c3ad6a167ce7ea9ce846796917541",
+    "source_tree": "8b864d0b95d37167f5097172a31ca7f5b1b0e98a",
+    "outcome": "PASS",
+    "scope": "Independently recomputed immutable TSV/cell/Git/remote/PR custody only; no integrated/product/real-data/finding acceptance",
+    "bundles": 17,
+    "findings": 35,
+    "source_status_counts": {
+      "partial": 34,
+      "held": 1
+    },
+    "candidate_state_counts": {
+      "limited_no_ledger_closure": 31,
+      "limited_principal_decision_pending": 3,
+      "held": 1
+    },
+    "baseline": {
+      "route_rows": 307,
+      "cells": 118,
+      "state_counts": {
+        "PASS": 115,
+        "FAILED": 3
+      },
+      "skip_cells": 6,
+      "raw_archives_admitted": 0
+    },
+    "slices": [
+      {
+        "slice": "cau-cohort-admission",
+        "branch": "codex/e02-F-cau",
+        "remote_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/18",
+        "isDraft": true,
+        "state": "OPEN",
+        "receipt_sha256": "6b920930afda41a260c0c4a106279bbd1e6d054225c137af13a3531a96ba8b30",
+        "implementation_commits": [
+          "c8e16d0abb7d10605475862ede8c6f327ff7cce9"
+        ],
+        "candidate_tree_sha": "a7b2625d8dc41f7ae364a5d98ebf6f3c4f60a2cf",
+        "source_after_freeze": "unchanged"
+      },
+      {
+        "slice": "graph-scm",
+        "branch": "codex/e02-F-graph-scm",
+        "remote_head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/23",
+        "isDraft": true,
+        "state": "OPEN",
+        "receipt_sha256": "4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050",
+        "implementation_commits": [
+          "672f541313c550e96544728ed397daf330c04442"
+        ],
+        "candidate_tree_sha": "f6bf9b9467d56e86408693982c8f68ea381b1e4c",
+        "source_after_freeze": "unchanged"
+      },
+      {
+        "slice": "economic-profile-consumers",
+        "branch": "codex/e02-F-economics",
+        "remote_head": "e642bb9025a67739c201393acca5712603cb064d",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/15",
+        "isDraft": true,
+        "state": "OPEN",
+        "receipt_sha256": "adc53d604a8c5faae4942c4c24ab83fd1c59e41403a661aefdb044985e828841",
+        "implementation_commits": [
+          "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6"
+        ],
+        "candidate_tree_sha": "7b7822e23901d9574b53ed97d410a1392763c484",
+        "source_after_freeze": "unchanged"
+      },
+      {
+        "slice": "fit-tmle",
+        "branch": "codex/e02-F-fit-tmle",
+        "remote_head": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/26",
+        "isDraft": true,
+        "state": "OPEN",
+        "receipt_sha256": "2e6e0c9997dc8f9ee80c3cc273ea84572b78189c3dfcf17c88a9d1db1aee9fc3",
+        "implementation_commits": [
+          "b57708fcc95a778d7ff88c4001e4ac8ca74b7889"
+        ],
+        "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+        "source_after_freeze": "unchanged"
+      },
+      {
+        "slice": "fry-compile-contracts",
+        "branch": "codex/e02-F-foundry",
+        "remote_head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/20",
+        "isDraft": true,
+        "state": "OPEN",
+        "receipt_sha256": "34c41ca91eab404b3fbdfdba376108f1205ed47010d1e540b7f7b6f960f3e3ca",
+        "implementation_commits": [
+          "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2"
+        ],
+        "candidate_tree_sha": "465c255a4022c2506fb21d41c0bc0fc10ed774b6",
+        "source_after_freeze": "unchanged"
+      },
+      {
+        "slice": "api-consumer-abi",
+        "branch": "codex/e02-F-causal-api",
+        "remote_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/19",
+        "isDraft": true,
+        "state": "OPEN",
+        "receipt_sha256": "6b1d887fe80163ddc0f5c0d23c9ee8925def223501eaf85797211944be6f85ff",
+        "implementation_commits": [
+          "0c709ea924d2b868eacf1016f5c70ff749e287a8"
+        ],
+        "candidate_tree_sha": "42c3b569fdff79a03148ecb6a150904ac69019df",
+        "source_after_freeze": "unchanged"
+      },
+      {
+        "slice": "lex-input-binding",
+        "branch": "codex/e02-F-lex",
+        "remote_head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/21",
+        "isDraft": true,
+        "state": "OPEN",
+        "receipt_sha256": "4f0623168329cfc5c4006c5beb79dc205704beb1dc8b537e47b5d2c09e519c20",
+        "implementation_commits": [
+          "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+          "56aa7d47876b29956676ef8dc9f04b64c865948f"
+        ],
+        "candidate_tree_sha": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+        "source_after_freeze": "unchanged"
+      },
+      {
+        "slice": "economic-dtype",
+        "branch": "codex/e02-F-economic-dtype",
+        "remote_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/29",
+        "isDraft": true,
+        "state": "OPEN",
+        "receipt_sha256": "c7c0f21acfb3537c9c0a53ef39a36a762193a4b0bb3d0da07bd5c0653f173979",
+        "implementation_commits": [
+          "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0"
+        ],
+        "candidate_tree_sha": "9dcc163a864635004408ddd449bab105762e1726",
+        "source_after_freeze": "unchanged"
+      },
+      {
+        "slice": "causal-output",
+        "branch": "codex/e02-F-causal-output",
+        "remote_head": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+        "pull_request": "https://github.com/DenisKopylov/polisyos/pull/31",
+        "isDraft": true,
+        "state": "OPEN",
+        "receipt_sha256": "16cb806f594c45b31de3337a7fdf82954a633fe12d53359422da2a4800467115",
+        "implementation_commits": [
+          "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415"
+        ],
+        "candidate_tree_sha": "e577d7403d00db9ea4d8bc8a28ad5b6b46a84d66",
+        "source_after_freeze": "unchanged"
+      }
+    ],
+    "full_final_path_sets_pairwise_disjoint": true,
+    "original_checkout": {
+      "head": "0a4b9cd48068454bb8ce95b5ae69bf5c323ee924",
+      "branch": "work",
+      "status": "clean"
+    },
+    "remote_main": "c40d4acae1ce58b597267255026d9356565828fd",
+    "integration_observed_in_index": "3178752cc2ce065a0758efecf1d967201c0815e5",
+    "integration_remote_at_review": "d5ced7616041d0fc3c802c1394a1d28c4839d5b4",
+    "integration_acceptance": "pending_G",
+    "accepted_finding_closures": []
+  },
+  "static_checks": {
+    "ruff_check": "PASS: All checks passed!",
+    "ruff_format_check": "PASS: 1 file already formatted",
+    "git_diff_check": "PASS: empty output for basec40→eeecc"
+  },
+  "review_blockers": [],
+  "finding_closures_accepted": [],
+  "limitations": [
+    "DoWhy/EconML baseline markers are excluded underPython3.14; skip/error/unknownbackend is not PASS or native witness. Actual statsmodels/NetworkX/JAX scope remains per separately supplied receipts.",
+    "Overlapping native test counts and adversarial expected failures cannot be summed into a unique all-green denominator. Original economics59-case55PASS4FAIL remains its historical checkpoint; dtype repair does not establish a combined integrated PASS.",
+    "Architecture UNRUN/exit2 partial drifts, common invocation UNRESOLVED/exit3, FIT scannerERROR137 and other partial static diagnostics stay nonacceptance; no P41 exemption inferred.",
+    "Source ledger34partial/B219held and candidate31limited+3principal_pending+1held stay open. Synthetic properties do not admit full local production inputs, corpus, estimand, objective/profile authority or installed external/plugin ABI.",
+    "INDEX integration_observed3178752 is historical. Remote integration advanced tod5ced761 at review; its presence does not establish F integration or acceptance.",
+    "Huge absolute/relative local ignored raw declarations remain unadmitted; only committed Git content declared and measured by receipts/verifier is recomputed.",
+    "Git/source path disjointness and exact frozen source preservation support reviewable composition, while G must run affected consumers/backends/oracles after composing accepted code, then broad checks at one integratedSHA."
+  ]
+}

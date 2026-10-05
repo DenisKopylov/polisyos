@@ -79,11 +79,15 @@ def _cmd_lex_impact(args: Any) -> int:
         print(f"ERROR: failed to load NormPack(s): {exc}", file=sys.stderr)
         return 1
 
-    analyzer = lex_sim.NormImpactAnalyzer(
-        cas=cas,
-        profile=profile,
-        passes=pass_ids,
-    )
+    try:
+        analyzer = lex_sim.NormImpactAnalyzer(
+            cas=cas,
+            profile=profile,
+            passes=pass_ids,
+        )
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
     report = analyzer.analyze(old_pack, new_pack)
 
     rendered: str

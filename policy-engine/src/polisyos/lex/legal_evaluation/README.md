@@ -17,6 +17,14 @@
 - **Rule observations** — `context_builder.py` резолвит observed values из metrics и policy parameters с явными `quality_issues`.
 - **Change proposals** — `propose_changes_impl()` генерирует `policy_patch` или `add_metric` actions для actionable failures.
 - **Transport constraints** — `LegalConstraintBridge` и `is_transport_blocked()` связывают legal limits с causal graph/transportability checks.
+- **Norm comparison** — `impact_diff.NormImpactAnalyzer` сравнивает два `NormPack`,
+  запускает выбранные built-in `legal`/`safety` passes и сохраняет diff/report в CAS.
+  Нормы для каждого запуска берутся из сравниваемого pack; одноимённый ключ в
+  дополнительном context их не подменяет. `passes=None` выбирает оба pass,
+  `passes=()` оставляет только norm diff; неизвестные pass IDs отклоняются.
+  Историческое поле `affected_kpis` схемы `1.0` содержит candidate impact topics,
+  без измеренной величины или установленного направления эффекта. Старые
+  `polisyos.lex.simulator` импорты и CLI используют этот же canonical owner.
 
 ## Public API
 

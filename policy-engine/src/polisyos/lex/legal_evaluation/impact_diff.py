@@ -105,7 +105,10 @@ class NormImpactAnalyzer:
     ) -> None:
         self._cas = cas
         self._profile = profile or ValidationProfile.strict()
-        self._pass_ids = passes or self.DEFAULT_PASSES
+        self._pass_ids = self.DEFAULT_PASSES if passes is None else passes
+        for pass_id in self._pass_ids:
+            if pass_id not in self.DEFAULT_PASSES:
+                raise ValueError(f"Unsupported impact pass: {pass_id!r}")
         self._legal_backend = legal_backend
 
     def analyze(
@@ -187,7 +190,7 @@ class NormImpactAnalyzer:
         issues: list[ComplianceIssue] = []
         pass_context = PassContext(
             ir=context.get("ir"),
-            state={"norm_pack": norm_pack, **context},
+            state={**context, "norm_pack": norm_pack},
             registry_bundle=context.get("registry_bundle"),
             profile=self._profile,
             run_id=f"impact-{norm_pack.pack_id[:20]}",

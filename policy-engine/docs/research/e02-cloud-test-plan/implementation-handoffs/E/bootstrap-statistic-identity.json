@@ -1,0 +1,487 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "bootstrap-statistic-identity",
+  "closure_ids": [
+    "B175"
+  ],
+  "bundle_ids": [
+    "BKT-04"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "dafe95e15cff5992b5b9133a35e1e1297de03e87"
+  ],
+  "candidate_tree_sha": "bc5294207fc8e9d87a1ed54eb6d88de9d7e9770d",
+  "branch": "codex/e02-E-backtest",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/12",
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F03-P088",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt:218",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt:6-128",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "cell_id": "F04-P072",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt:282",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt:4-78",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "cell_id": "F05-P109",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": null,
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt:519",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt:None-None",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py@78187878ee188ff6d27442ba1498bd094da9785b; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "cell_id": "F06-P093",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt:277",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt:3-126",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py@78187878ee188ff6d27442ba1498bd094da9785b; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "cell_id": "F07-P064",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": null,
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt:70",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt:None-None",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py@00d946c2b7d052522be092f9c70eb9902f6521c2; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "cell_id": "F08-P090",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": null,
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt:213",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt:5-121",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py@00d946c2b7d052522be092f9c70eb9902f6521c2; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "cell_id": "F10-P083",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": null,
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt:203",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt:None-None",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py@5fd3ebcc15637e98bbd4938de5d62ee5004504a8; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "cell_id": "F11-P075",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": null,
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt:204",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt:None-None",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py@5fd3ebcc15637e98bbd4938de5d62ee5004504a8; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "cell_id": "F13-P101",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt:228",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt:5-125",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py@0213101b6d124e6f855b1aff7c442bb0912a61c2; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "cell_id": "F14-P084",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+      "source_reported_state": "PASS",
+      "source_receipt_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt:434",
+      "environment_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt:4-113",
+      "input_identity": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py@0213101b6d124e6f855b1aff7c442bb0912a61c2; native fixture definitions, exact source-inputs.json/raw custody not transferred",
+      "backend": "NumPy percentile/bootstrap for test_bootstrap; native fold/evaluator for test_cv; effective source distribution origin/version not independently established",
+      "route_adequacy": "candidate_unverified; cv cells are collateral BKT-04 routes, not bootstrap identity evidence",
+      "raw_archive_transfer": "missing"
+    }
+  ],
+  "checks": [
+    {
+      "command_argv_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.checks.json#candidate-relevant-tests/argv",
+      "target_sha": "dafe95e15cff5992b5b9133a35e1e1297de03e87",
+      "environment": "shared read-only .venv, PYTHONPATH worktree src; details in environment",
+      "input_closure": "candidate bootstrap.py + mirrored tests; independent scratch per subprocess",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 11.587693,
+      "rss_kib": 529076,
+      "rss_boundary": "resource.RUSAGE_CHILDREN high watermark; accumulated across prior subprocesses in the 3-check runner, separately measured for frozen implementation run",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.checks.json#candidate-relevant-tests/output"
+    },
+    {
+      "command_argv_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.checks.json#base-source-new-regressions/argv",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "shared read-only .venv, PYTHONPATH worktree src; details in environment",
+      "input_closure": "exact slice-base bootstrap module executed with candidate regression tests",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 1.731386,
+      "rss_kib": 529076,
+      "rss_boundary": "resource.RUSAGE_CHILDREN high watermark; accumulated across prior subprocesses in the 3-check runner, separately measured for frozen implementation run",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.checks.json#base-source-new-regressions/output"
+    },
+    {
+      "command_argv_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.checks.json#remove-output-identity-keep-markers/argv",
+      "target_sha": "dafe95e15cff5992b5b9133a35e1e1297de03e87",
+      "environment": "shared read-only .venv, PYTHONPATH worktree src; details in environment",
+      "input_closure": "candidate bootstrap.py + mirrored tests; independent scratch per subprocess",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 9.345403,
+      "rss_kib": 529076,
+      "rss_boundary": "resource.RUSAGE_CHILDREN high watermark; accumulated across prior subprocesses in the 3-check runner, separately measured for frozen implementation run",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.checks.json#remove-output-identity-keep-markers/output"
+    },
+    {
+      "command_argv_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.checks.json#frozen-implementation-bkt-pcl/argv",
+      "target_sha": "dafe95e15cff5992b5b9133a35e1e1297de03e87",
+      "environment": "shared read-only .venv, PYTHONPATH worktree src; details in environment",
+      "input_closure": "candidate bootstrap.py + mirrored tests; independent scratch per subprocess",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 12.050028,
+      "rss_kib": 536304,
+      "rss_boundary": "resource.RUSAGE_CHILDREN high watermark; accumulated across prior subprocesses in the 3-check runner, separately measured for frozen implementation run",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.checks.json#frozen-implementation-bkt-pcl/output"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check <bootstrap.py> <test_bootstrap.py>; ruff format --check <same two files>; git diff --check",
+      "target_sha": "dafe95e15cff5992b5b9133a35e1e1297de03e87",
+      "environment": "shared read-only venv",
+      "input_closure": "two changed Python files",
+      "outcome": "PASS",
+      "output": "All checks passed!\n2 files already formatted\ngit diff --check exit 0"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m mypy --follow-imports=skip src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "target_sha": "dafe95e15cff5992b5b9133a35e1e1297de03e87",
+      "environment": "shared read-only venv; skipped dependency type analysis",
+      "input_closure": "bootstrap.py, imported dependency types skipped",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "output": "bootstrap.py:14: error: Class cannot subclass \"PolicyOSError\" (has type \"Any\") [misc]\nbootstrap.py:184: error: Incompatible return value type (got \"function\", expected \"Callable[[ndarray[Any, dtype[Any]]], float]\") [return-value]\nFound 2 errors in 1 file (checked 1 source file)",
+      "limitation": "Diagnostic check incomplete due skipped dependency analysis; no typecheck PASS and no inherited-red attribution claimed."
+    }
+  ],
+  "environment": {
+    "python": "3.14.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "venv": "/workspace/polisyos/policy-engine/.venv shared read-only",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "PYTHONPATH": "/workspace/e02-E-backtest/policy-engine/src",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "JAX_PLATFORMS": null,
+    "cpu_max": "400000 100000",
+    "cpuset_effective": "0-4",
+    "memory_max_bytes": 17179869184,
+    "num_backend": "real NumPy CPU bootstrap draws/percentile; real SciPy t-test in unchanged BKT03 reference test",
+    "dependency_mutations": "none"
+  },
+  "input_identity": {
+    "fixture": "tracked test_bootstrap.py@dafe95e15cff5992b5b9133a35e1e1297de03e87; finite independent synthetic [0,0,9], fixed seed42, n_bootstrap20 for new consumer readbacks",
+    "production_data": "not used; no production evidence claimed",
+    "checks_log_sha256": "59bb6d594b49b3d3d791a33ef79f79cc338871f692044576635da578641835da"
+  },
+  "property": {
+    "statement": "BootstrapCI retains the executed builtin statistic selector, or an explicitly caller-declared callable identity with its non-authoritative basis, independently of the display metric; anonymous callable identity stays not_established. Statistical values and seeded draws retain prior behavior.",
+    "runtime_path": [
+      "producer: bootstrap_metric/_resolve_statistic/_evaluate_statistic real NumPy draws",
+      "artifact: immutable BootstrapCI dataclass",
+      "bridge: dataclasses.asdict → JSON file in isolated scratch",
+      "consumer: JSON reopen → BootstrapCI reconstruction and numeric/statistic assertions",
+      "surface: standalone backtesting helper result; no served deployment consumer claimed"
+    ],
+    "proxy_divergence": "Same metric label yields point3 for mean and point0 for median on [0,0,9]; same-qualname closures yield quantile0.5=0 versus quantile1=9. Display metric or __qualname__ cannot identify the quantity.",
+    "negative_controls": [
+      "unknown selector medain and nonfinite observation/result rejection retain native controls",
+      "builtin cannot be relabelled by custom statistic_id",
+      "blank/non-string custom ID rejected before invoking callable",
+      "same declared ID for semantically distinct arbitrary closures remains consumer_asserted, not recomputed",
+      "removing output identity while retaining dataclass field names, API and numeric outputs produces 3 failed consumer tests"
+    ],
+    "rule_schema_version": "BootstrapCI additive dataclass fields with not_established defaults for historical/manual construction; no deployed persistence schema or authority tier changed",
+    "authority_purpose": "diagnostic bootstrap identity only; no inferential independence, function custody or production calibration authority",
+    "time_roles": "fixed RNG seed test replay; no production origin/cutoff assertion"
+  },
+  "predicate_basis": "recomputed",
+  "predicate_annotations": {
+    "builtin_selector": "recomputed from selector resolution that executed the statistic",
+    "custom_callable_identity": "consumer_asserted if explicitly supplied, otherwise not_established; no positive authority admission on either",
+    "consumer_roundtrip": "recomputed from real written/reopened JSON and numeric readback"
+  },
+  "capability_state_or_finding_state": "partial; bounded helper output identity repaired and tested, no global B175 closure/production chain claim",
+  "limitations_and_next_owner": [
+    "Arbitrary callable semantics/closure/external state cannot be established from identifier or qualname; caller declaration remains non-authoritative. Closing functional custody would require a separate admitted scientific definition/execution binding, absent here.",
+    "No non-test caller of standalone bootstrap helpers established by tracked source census; served/deployment use remains outside this bounded slice.",
+    "G independently fetches exact remote head and decides slice acceptance/finding closure; required broad checks and hosted CI were not run by this leaf.",
+    "BKT03 mean-zero mixed nonzero residual unavailable backend omission reproduced; root authorized separate next slice.",
+    "PCL partially skipped-set curve boolean and numeric test placement are PCL-owner findings; this branch does not change PCL.",
+    "mypy skip-import diagnostic error is not a PASS or attributable inherited red."
+  ],
+  "read_only_family_classification": [
+    {
+      "finding_id": "B166",
+      "baseline_cells": [
+        "F02-P037",
+        "F04-P113",
+        "F05-P058",
+        "F06-P127",
+        "F09-P044",
+        "F09-P114",
+        "F11-P044",
+        "F11-P103",
+        "F14-P045",
+        "F15-P134"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Masked snapshot persisted and dispatched; full backend historical refs/derived-feature exclusion not established by mock Scientist tests."
+    },
+    {
+      "finding_id": "B167",
+      "baseline_cells": [
+        "F04-P056",
+        "F08-P060",
+        "F15-P067"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Requested/missing/invalid completeness and no empty grade behavior exercised by native BKT02 fixtures."
+    },
+    {
+      "finding_id": "B168",
+      "baseline_cells": [
+        "F04-P056",
+        "F08-P060",
+        "F15-P067"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Availability/conditional coverage and nominal metadata exercised by native BKT02 fixtures; no production interval source law asserted."
+    },
+    {
+      "finding_id": "B169",
+      "baseline_cells": [
+        "F02-P037",
+        "F04-P113",
+        "F05-P058",
+        "F06-P127",
+        "F09-P044",
+        "F09-P114",
+        "F11-P044",
+        "F11-P103",
+        "F14-P045",
+        "F15-P134"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Typed producer-bound constant profile and length validation exist; principal accepted bounded/generic historical-input profile decision remains pending."
+    },
+    {
+      "finding_id": "B170",
+      "baseline_cells": [
+        "F02-P037",
+        "F04-P113",
+        "F05-P058",
+        "F06-P127",
+        "F09-P044",
+        "F09-P114",
+        "F11-P044",
+        "F11-P103",
+        "F14-P045",
+        "F15-P134"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "n_simulation_runs reaches params; actual real Scientist completed/failed replicas and random stream plan not established, principal scope decision pending."
+    },
+    {
+      "finding_id": "B171",
+      "baseline_cells": [
+        "F04-P056",
+        "F08-P060",
+        "F15-P067"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Micro sufficient-statistic sharding behavior exercised; principal accepted profile and compatibility decision remains separate."
+    },
+    {
+      "finding_id": "B172",
+      "baseline_cells": [
+        "F02-P108",
+        "F09-P109",
+        "F13-P125"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Constant nonzero residual descriptive bias preserved; no population/causal independence claim."
+    },
+    {
+      "finding_id": "B173",
+      "baseline_cells": [
+        "F02-P108",
+        "F09-P109",
+        "F13-P125"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Real SciPy small-n reference and unavailable nonzero-mean negative pass; mean-zero mixed nonzero residual unavailable backend still receives Grade A, separate BKT03 repair required."
+    },
+    {
+      "finding_id": "B174",
+      "baseline_cells": [
+        "F03-P088",
+        "F04-P072",
+        "F05-P109",
+        "F06-P093",
+        "F07-P064",
+        "F08-P090",
+        "F10-P083",
+        "F11-P075",
+        "F13-P101",
+        "F14-P084"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Pre-selected CV materialization and invalid progress rejection native tests pass; no full historical leakage claim."
+    },
+    {
+      "finding_id": "B175",
+      "baseline_cells": [
+        "F03-P088",
+        "F04-P072",
+        "F05-P109",
+        "F06-P093",
+        "F07-P064",
+        "F08-P090",
+        "F10-P083",
+        "F11-P075",
+        "F13-P101",
+        "F14-P084"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "This slice retains performed statistic selection/declared identity after readback; arbitrary callable semantics remain consumer_asserted or not_established."
+    },
+    {
+      "finding_id": "LA-052",
+      "baseline_cells": [
+        "F01-P087",
+        "F03-P040",
+        "F04-P123",
+        "F05-P060",
+        "F06-P108",
+        "F07-P037",
+        "F09-P090",
+        "F12-P048",
+        "F12-P086",
+        "F13-P048",
+        "F15-P102"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Empty/partial continuous report→receipt stays unverified; curve partial skipped-set boolean can still be true (adjacent PCL owner)."
+    },
+    {
+      "finding_id": "LA-053",
+      "baseline_cells": [
+        "F01-P087",
+        "F03-P040",
+        "F04-P123",
+        "F05-P060",
+        "F06-P108",
+        "F07-P037",
+        "F09-P090",
+        "F12-P048",
+        "F12-P086",
+        "F13-P048",
+        "F15-P102"
+      ],
+      "baseline_source_grade": "source_reported_compact_text_only; candidate_routes",
+      "recorded_state": "partial; unchanged",
+      "classification": "Ordinary numeric tests already import canonical polisyos.calibration; numeric bodies remain Scientist test path and alias identity test retained. Lifecycle retirement not established."
+    }
+  ],
+  "pattern_pass": [
+    "P27 existing bootstrap owner reused",
+    "P29/P38 remove-property-keep-markers causes real readback failure",
+    "P35 full candidate routes queried per each 12 findings; routes never promoted to closure",
+    "P37 explicit builtin/callable identity basis",
+    "P40 arbitrary callable semantics declared bounded residual with same-ID falsifier",
+    "P41 no inherited-red assertion"
+  ],
+  "recorded_at_utc": "2026-10-05T13:53:56.567976+00:00",
+  "publication": {
+    "remote_branch": "refs/heads/codex/e02-E-backtest",
+    "verified_head_before_pr_receipt": "49c5429f9ab0cd09bd9737475db86404e537d377",
+    "method": "ordinary git push; git ls-remote readback matched",
+    "pr_state": "draft",
+    "chat_attachment": "mandatory attach_artifact invoked; no response after >60 seconds, orchestration wait terminated; attachment success not_established"
+  }
+}

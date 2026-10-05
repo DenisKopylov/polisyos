@@ -1,0 +1,155 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "D",
+  "review_author": "funnel_owner",
+  "finding_ids": ["B115"],
+  "closure_ids": [],
+  "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+  "target_tree_sha": "e8538e10a7ac13030966721f463a395757f3b301",
+  "target_state": "intermediate known-negative for produced counter admission only; no claim against unrelated bounded numerical PASS",
+  "source_mode": "read-only immutable git archive; source and GP mocks never modified",
+  "funnel_implementation_unchanged_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+  "property": "A checkpoint emitted after a legitimate resource fallback must restore with a scheduled due refit; a counter from the future remains invalid.",
+  "source_locator": {
+    "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "git_blob": "31b87aa492bafe04d300eb445f03521288843b18",
+    "sha256": "1c33d1235c8aa09ac6f251c06fa989f49cb6af9781df8b82fb13e8208351d118",
+    "lines": {
+      "iteration_advances_before_fallback": 171,
+      "real_arbiter_hard_fallback": 192,
+      "producer_get_state": 301,
+      "due_refit_restore_rejection": 426,
+      "producer_scheduled_refit": 663
+    }
+  },
+  "input_closure": {
+    "archive_command": "git archive 4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a policy-engine/src policy-engine/architecture policy-engine/pyproject.toml policy-engine/pytest.ini | tar -x -C /tmp/e02-D-gp-403-replay",
+    "archive_exclusions": [
+      "tests unused: independent script imports no test helper",
+      "production data/history and authority/registry services unselected"
+    ],
+    "source_import_origin": "/tmp/e02-D-gp-403-replay/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "history": "Three actual Evaluation fixtures x=0,.5,1 with scalar_score=(x-.4)^2; append x=.2 as fourth record. All stage_a_passed and statusSUCCESS.",
+    "numerical_backend": {
+      "botorch": "0.18.1",
+      "gpytorch": "1.15.2",
+      "torch": "2.14.1"
+    },
+    "config": {
+      "acquisition": "expected_improvement",
+      "adaptive_acquisition": false,
+      "exploration_switch_threshold": 0.3,
+      "fallback_on_failure": true,
+      "invalid_penalty": 10.0,
+      "max_train_size": 512,
+      "n_initial": 3,
+      "num_restarts": 1,
+      "raw_samples": 8,
+      "refit_interval": 1,
+      "seed": 17,
+      "ucb_beta": 2.0,
+      "warm_start_noise_factor": 0.1
+    },
+    "arbiter_fixture": "Production ResourceArbiter/ResourcePolicy, cleanupFalse; initial soft10000MB/hard12000MB, then soft0/hard0 to exercise hard-limit path using measuredRSS; lift to original thresholds for due real refit. These diagnostic thresholds are intentional fixture inputs, not orchestration process/thread quotas.",
+    "unresolved_by_construction": [
+      "No checkpoint authenticity or external authority claim; artifact records are internally produced fixture evidence.",
+      "No complete imported-library read census; backend version identity and exact source artifact are bound.",
+      "Production overload incidence/frequency is not measured."
+    ]
+  },
+  "command": "Extract reproduction_script.source to gp-403-fallback-probe.py; PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/e02-D-gp-403-replay/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python gp-403-fallback-probe.py",
+  "environment": {
+    "python": "3.14.2",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "environment_writes": "none; shared .venv read-only",
+    "compute_admission": "ordinary ready diagnostic executed without orchestration quota; real initial SingleTaskGP and actual suggest/refit/acquisition"
+  },
+  "outcome": "FAIL",
+  "exit_code": 1,
+  "failure_class": "legitimate_produced_checkpoint_refused",
+  "deciding_phases": [
+    {
+      "phase": "initial_real_fit",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "module_path": "/tmp/e02-D-gp-403-replay/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "module_sha256": "1c33d1235c8aa09ac6f251c06fa989f49cb6af9781df8b82fb13e8208351d118",
+      "python": "3.14.2",
+      "initial_candidate_source": "bayesian_acquisition",
+      "model_type": "botorch.models.gp_regression.SingleTaskGP",
+      "iteration": 3,
+      "last_refit_iteration": 3,
+      "fitted_rows": 3,
+      "checkpoint_sha256": "860fb1947a81c34d9683cd988239934fab3ea002e3e62b1600590e75acb4a9e8",
+      "JSON_roundtrip_restore": "PASS",
+      "arbiter_memory": {
+        "rss_mb": 973.16015625,
+        "soft_rss_mb": 10000,
+        "hard_rss_mb": 12000
+      },
+      "limits": "No orchestration quota or GP/arbiter mock. RSS thresholds are fixture inputs to the real production arbiter."
+    },
+    {
+      "phase": "legitimate_hard_limit_produced_checkpoint",
+      "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "candidate_source": "random_hard_limit",
+      "arbiter_class": "polisyos.scientist.methods.search.strategies.resource_arbiter.ResourceArbiter",
+      "arbiter_memory": {
+        "rss_mb": 973.28515625,
+        "soft_rss_mb": 0,
+        "hard_rss_mb": 0
+      },
+      "retained_same_actual_model": true,
+      "iteration": 4,
+      "last_refit_iteration": 3,
+      "refit_interval": 1,
+      "fitted_rows": 3,
+      "refit_rows": 3,
+      "JSON_checkpoint_path": "/tmp/e02-D-gp-403-replay/produced-checkpoint.json",
+      "checkpoint_sha256": "f473e9480d710e9d63fb2ad6b729e4b2dd566c7ad2923f5eb1c0ce5bf577fec4",
+      "JSON_roundtrip_set_state": "FAIL",
+      "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"
+    },
+    {
+      "phase": "future_counter_negative_control",
+      "iteration": 4,
+      "last_refit_iteration": 5,
+      "result": "REJECTED",
+      "error": "GP checkpoint is incompatible: refit counters are invalid"
+    },
+    {
+      "phase": "scheduled_refit_after_hard_limit_lifted",
+      "candidate_source": "bayesian_acquisition",
+      "iteration": 4,
+      "last_refit_iteration": 4,
+      "fitted_rows": 4,
+      "JSON_roundtrip_set_state": "PASS",
+      "wall_seconds": 0.418
+    }
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-403-fallback-deciding.log",
+      "sha256": "786e56111ef8a86cfa5723c207ff738beb69bbd7998e6dc74af096e2552cc069"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-403-fallback-produced-checkpoint.json",
+      "sha256": "f473e9480d710e9d63fb2ad6b729e4b2dd566c7ad2923f5eb1c0ce5bf577fec4"
+    }
+  ],
+  "negative_and_positive_controls": [
+    "initial real fit JSON restore PASS",
+    "hard fallback retains exact actual model and emits due-refit checkpoint; JSON restore FAIL",
+    "future last_refit5 > iteration4 rejected",
+    "lifted hard threshold performs actual four-row refit and JSON restore PASS"
+  ],
+  "predicate_basis": "recomputed from actual producer and consumer over fixture inputs",
+  "smallest_canonical_change_request": "Canonical GP owner must distinguish an overdue scheduled refit from an impossible future counter. Retain future/shape/config/backend checks and allow the due refit policy to act after restore; do not assign checkpoint authenticity from counters.",
+  "next_owner": "root routed the canonical search owner; this review author edits evidence only",
+  "transport": "Git companion on codex/e02-D-funnel after FUN source freeze; no /tmp dependency for deciding code/log/checkpoint bytes",
+  "reproduction_script": {
+    "language": "python",
+    "sha256": "63ab47162e561427f598b44086760dd98bb901bc9429854823bf669a9b4f4f5d",
+    "source": "\"\"\"Read-only exact403 producer-state discriminator; no GP/arbiter mocks.\"\"\"\nimport hashlib\nimport json\nimport platform\nimport time\nfrom pathlib import Path\nfrom polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection\nfrom polisyos.scientist.methods.search.strategies import bayesian\nfrom polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer\nfrom polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter, ResourcePolicy\nfrom polisyos.scientist.methods.search.strategies.space import SearchSpace\nfrom polisyos.scientist.methods.search.strategies.types import Evaluation, ParameterBounds, StrategyState\n\nTARGET='4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a'\nsource=Path(bayesian.__file__)\nassert str(source).startswith('/tmp/e02-D-gp-403-replay/policy-engine/src/')\nconfig=BayesianConfig(seed=17,n_initial=3,refit_interval=1,num_restarts=1,raw_samples=8)\nspace=SearchSpace([ParameterBounds('x',0.0,1.0)])\npolicy=ResourcePolicy(soft_rss_mb=10000,hard_rss_mb=12000,enable_cleanup=False)\narbiter=ResourceArbiter(policy)\noptimizer=BayesianOptimizer(space,config=config,resource_arbiter=arbiter)\ndef record(index,x):\n    score=(x-.4)**2\n    return Evaluation(candidate_id=f'e{index}',params={'x':x},params_normalized=(x,),objectives=[ObjectiveValue(name='score',raw_value=score,direction=OptimizationDirection.MINIMIZE)],scalar_score=score,stage_a_passed=True)\ndef roundtrip(state):\n    artifact=state.to_artifact()\n    loaded=json.loads(artifact)\n    assert loaded['iteration']==state.iteration\n    decoded=StrategyState.from_artifact(json.dumps(loaded,sort_keys=True).encode())\n    return artifact,decoded\nstart=time.monotonic()\nhistory=[record(i,x) for i,x in enumerate((0.0,.5,1.0))]\ninitial=optimizer.suggest(history)\nassert type(optimizer._model).__name__=='SingleTaskGP',type(optimizer._model)\ninitial_model=optimizer._model\ninitial_bytes,initial_state=roundtrip(optimizer.get_state())\nrestored=BayesianOptimizer(space,config=BayesianConfig(seed=17,n_initial=3,refit_interval=1,num_restarts=1,raw_samples=8),resource_arbiter=ResourceArbiter(ResourcePolicy(soft_rss_mb=10000,hard_rss_mb=12000,enable_cleanup=False)))\nrestored.set_state(initial_state)\nassert type(restored._model).__name__=='SingleTaskGP'\nprint(json.dumps({'phase':'initial_real_fit','target_sha':TARGET,'module_path':str(source),'module_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'python':platform.python_version(),'initial_candidate_source':initial.source_strategy,'model_type':type(optimizer._model).__module__+'.'+type(optimizer._model).__name__,'iteration':initial_state.iteration,'last_refit_iteration':initial_state.metadata['last_refit_iteration'],'fitted_rows':len(initial_state.metadata['train_X']),'checkpoint_sha256':hashlib.sha256(initial_bytes).hexdigest(),'JSON_roundtrip_restore':'PASS','arbiter_memory':arbiter.memory_status(),'limits':'No orchestration quota or GP/arbiter mock. RSS thresholds are fixture inputs to the real production arbiter.'}),flush=True)\n# Fixture policy forces the actual arbiter's hard-limit branch; no function substitution.\npolicy.soft_rss_mb=0;policy.hard_rss_mb=0\nhistory=history+[record(3,.2)]\nhard_candidate=optimizer.suggest(history)\nassert hard_candidate.source_strategy=='random_hard_limit',hard_candidate.source_strategy\nassert optimizer._model is initial_model\ncheckpoint,produced_state=roundtrip(optimizer.get_state())\nassert produced_state.iteration-produced_state.metadata['last_refit_iteration']==config.refit_interval\npath=Path('/tmp/e02-D-gp-403-replay/produced-checkpoint.json');path.write_bytes(checkpoint)\ntry:\n    restored.set_state(produced_state)\n    restore_result='PASS'\nexcept ValueError as error:\n    restore_result='FAIL';restore_error=str(error)\nelse:\n    restore_error=None\nprint(json.dumps({'phase':'legitimate_hard_limit_produced_checkpoint','target_sha':TARGET,'candidate_source':hard_candidate.source_strategy,'arbiter_class':type(arbiter).__module__+'.'+type(arbiter).__name__,'arbiter_memory':arbiter.memory_status(),'retained_same_actual_model':optimizer._model is initial_model,'iteration':produced_state.iteration,'last_refit_iteration':produced_state.metadata['last_refit_iteration'],'refit_interval':config.refit_interval,'fitted_rows':len(produced_state.metadata['train_X']),'refit_rows':len(produced_state.metadata['refit_train_X']),'JSON_checkpoint_path':str(path),'checkpoint_sha256':hashlib.sha256(checkpoint).hexdigest(),'JSON_roundtrip_set_state':restore_result,'error':restore_error}),flush=True)\n# The future counter remains a distinct invalid control, not a legitimate scheduled refit.\nfuture=StrategyState.from_artifact(checkpoint)\nfuture.metadata['last_refit_iteration']=future.iteration+1\ntry:\n    restored.set_state(future)\n    future_result='ACCEPTED'\nexcept ValueError as error:\n    future_result='REJECTED';future_error=str(error)\nprint(json.dumps({'phase':'future_counter_negative_control','iteration':future.iteration,'last_refit_iteration':future.metadata['last_refit_iteration'],'result':future_result,'error':future_error}),flush=True)\n# Lifting the same arbiter policy makes the original producer execute the due real refit.\npolicy.soft_rss_mb=10000;policy.hard_rss_mb=12000\nnext_candidate=optimizer.suggest(history)\nrefitted_bytes,refitted_state=roundtrip(optimizer.get_state())\nassert optimizer._model is not initial_model\nassert refitted_state.metadata['last_refit_iteration']==len(history)\nrestored.set_state(refitted_state)\nprint(json.dumps({'phase':'scheduled_refit_after_hard_limit_lifted','candidate_source':next_candidate.source_strategy,'iteration':refitted_state.iteration,'last_refit_iteration':refitted_state.metadata['last_refit_iteration'],'fitted_rows':len(refitted_state.metadata['train_X']),'JSON_roundtrip_set_state':'PASS','wall_seconds':round(time.monotonic()-start,3)}),flush=True)\nassert future_result=='REJECTED'\nassert restore_result=='PASS',f'Produced checkpoint refused despite legitimate hard fallback: {restore_error}'\n",
+    "role": "Exact raw diagnostic fixture code, embedded as evidence data rather than installed production tooling; replay after extracting this string to a local script."
+  }
+}

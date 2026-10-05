@@ -1,0 +1,29 @@
+{
+  "target_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
+  "command": [
+    "uv",
+    "run",
+    "polisyos-tools",
+    "validation",
+    "check-docs-gate",
+    "--repo-root",
+    ".",
+    "--base-ref",
+    "c40d4acae1ce58b597267255026d9356565828fd"
+  ],
+  "cwd": "/workspace/e02-F-causal-api/policy-engine",
+  "env": {
+    "PYTHONPATH": "src:.",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/polisyos/policy-engine/.venv",
+    "UV_NO_SYNC": "1"
+  },
+  "exit_code": 1,
+  "wall_s": 4.181429704000038,
+  "output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.txt",
+    "bytes": 990,
+    "sha256": "f011710e49f63d54cf5becafa997ee796606c6ca11e871541aeebdf07013f20f"
+  },
+  "stdout_complete": "Docs freshness baseline FAILED:\n- docs freshness exception baseline expired\n- docs freshness violation count changed: expected 0, observed 10\n- docs freshness baseline hash changed: expected a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2, observed 459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be\nDocs drift gate\n- changed files: 6\n- change window: `docs/reference/foundry/causal-engine-architecture.md`, `docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json`, `docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt`, `docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt`, and 2 more\n[docs-gate] verify docs freshness baseline\n[docs-gate] $ uv run polisyos-tools validation check-docs-freshness-baseline\nDocs drift gate FAILED:\n- [command_failure] verify docs freshness baseline failed with exit code 1: uv run polisyos-tools validation check-docs-freshness-baseline\n",
+  "source_binding": "Canonical full-gate invocation at frozen implementation4b8cdf, complete output preserved; original ABI tests remain bound to0c709 because runtime/tests bytes unchanged."
+}

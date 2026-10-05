@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 import types
@@ -678,6 +679,36 @@ def test_catalog_copy_failure_keeps_one_readable_generation_and_recovers(
     finally:
         old_store.close()
 
+    build_graph(
+        records=iter(
+            [
+                DatasetRecord(
+                    id="ds-2",
+                    title="New",
+                    description="XYZ",
+                    source="worldbank",
+                    dataset_id="ds-2",
+                    source_dataset_id="ds-2",
+                    execution_tier="transport_ready",
+                    distributions=[
+                        DistributionRecord(
+                            id="dist-2",
+                            connector_type="worldbank.wdi",
+                            source_locator="ds-2",
+                            parser_supported=True,
+                            machine_readable=True,
+                        )
+                    ],
+                )
+            ]
+        ),
+        db_path=db_path,
+    )
+    generation_root = index_dir / kernel_embeddings.GENERATION_ROOT_DIRNAME
+    previous_generation_ids = {
+        path.name for path in generation_root.iterdir() if path.is_dir()
+    }
+
     real_atomic_copy_file = kernel_embeddings._atomic_copy_file
 
     def fail_legacy_index_copy(source: Path, target: Path) -> None:
@@ -702,21 +733,62 @@ def test_catalog_copy_failure_keeps_one_readable_generation_and_recovers(
     assert selected is not None
     assert selected.selected is True
     assert selected.status == "complete"
-    assert selected.ids == ("ds-1",)
+    new_generation_dirs = [
+        path
+        for path in generation_root.iterdir()
+        if path.is_dir() and path.name not in previous_generation_ids
+    ]
+    assert len(new_generation_dirs) == 1
+    published_generation_dir = new_generation_dirs[0]
+    published_inventory_bytes = (published_generation_dir / "inventory.json").read_bytes()
+    published_inventory = json.loads(published_inventory_bytes)
+    assert published_inventory["generation_id"] == published_generation_dir.name
+    assert published_inventory["status"] == "complete"
+    assert published_inventory["embedding_model"] == "fake-model@v2"
+    assert published_inventory["embedding_device"] == "cpu"
+    assert published_inventory["ids"] == ["ds-2"]
+    assert published_inventory["basis"]["members"] == [
+        {
+            "identifier": "ds-2",
+            "content_identity": "sha256:" + hashlib.sha256(b"New XYZ").hexdigest(),
+        }
+    ]
+    with np.load(selected_previous.embeddings_path, allow_pickle=True) as old_payload:
+        old_ids = old_payload["ids"].tolist()
+        old_vectors = np.asarray(old_payload["vectors"], dtype=np.float32)
+    published_embeddings_path = published_generation_dir / "embeddings.npz"
+    with np.load(published_embeddings_path, allow_pickle=True) as payload:
+        new_ids = payload["ids"].tolist()
+        query_vector = np.asarray(payload["vectors"][0], dtype=np.float32)
+    assert old_ids == ["ds-1"]
+    assert new_ids == ["ds-2"]
+    assert published_embeddings_path.read_bytes() != selected_previous.embeddings_path.read_bytes()
+    assert not np.array_equal(old_vectors[0], query_vector)
+    assert float(np.dot(old_vectors[0], query_vector)) < 0.99
     with np.load(legacy_embeddings, allow_pickle=True) as payload:
-        assert payload["ids"].tolist() == ["ds-1"]
+        assert payload["ids"].tolist() == ["ds-2"]
     assert legacy_index.read_bytes() == previous_index_bytes
 
     store = DatasetCatalogStore(db_path, index_dir)
     try:
         assert store.has_vector_index() is True
-        with np.load(selected.embeddings_path, allow_pickle=True) as payload:
-            query_vector = np.asarray(payload["vectors"][0], dtype=np.float32)
-        results = store.search_by_vector(query_vector, top_k=1, min_similarity=0.0)
-        assert [result.id for result in results] == ["ds-1"]
-        assert results[0].similarity == pytest.approx(1.0, abs=1e-5)
+        results = store.search_by_vector(query_vector, top_k=1, min_similarity=0.99)
+        assert [result.id for result in results] == ["ds-2"]
+        assert results[0].similarity >= 0.99
     finally:
         store.close()
+
+    assert selected.generation_id != selected_previous.generation_id
+    assert selected.generation_id == published_generation_dir.name
+    assert selected.ids == ("ds-2",)
+    selector_payload = json.loads(
+        (index_dir / kernel_embeddings.GENERATION_SELECTOR_FILENAME).read_bytes()
+    )
+    assert selector_payload["generation_id"] == selected.generation_id
+    inventory_bytes = (index_dir / str(selector_payload["inventory"])).read_bytes()
+    assert inventory_bytes == published_inventory_bytes
+    assert hashlib.sha256(inventory_bytes).hexdigest() == selector_payload["inventory_sha256"]
+    assert published_inventory == selected.inventory
 
     monkeypatch.setattr(kernel_embeddings, "_atomic_copy_file", real_atomic_copy_file)
     assert (

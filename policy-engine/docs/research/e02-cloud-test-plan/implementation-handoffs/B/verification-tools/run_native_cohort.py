@@ -36,7 +36,9 @@ def main():
         raise SystemExit("Use a fresh output directory")
     args.output.mkdir(parents=True)
     args.output = args.output.resolve()
-    argv = [str(args.python.resolve()), "-m", "pytest", "-o", "addopts=", "-q",
+    # Resolving a venv executable symlink bypasses its pyvenv.cfg and packages.
+    python_executable = str(args.python.absolute())
+    argv = [python_executable, "-m", "pytest", "-o", "addopts=", "-q",
             "--tb=short", "-ra", "--basetemp", str(args.output / "tmp"), "-o",
             "cache_dir=" + str(args.output / "pytest-cache"), "--junitxml",
             str(args.output / "cohort.xml"), *cohort["test_paths"]]
@@ -56,7 +58,7 @@ for name,expected in json.loads(sys.argv[1]).items():
 print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'sys_path':sys.path,
 'versions':{n:m.version(n) for n in ['pytest','numpy','orjson','pydantic','jax','duckdb']},
 'module_origins':{n:u.find_spec(n).origin for n in ['polisyos','pytest','numpy','orjson','pydantic','jax','duckdb']},'changed_source_origins':origins}))"""
-    identity = json.loads(subprocess.check_output([str(args.python), "-c", identity_script,
+    identity = json.loads(subprocess.check_output([python_executable, "-c", identity_script,
                          json.dumps(changed_modules)],
                          cwd=repo / "policy-engine", env=env, text=True))
     if not all(row["matches_expected"] for row in identity["changed_source_origins"].values()):

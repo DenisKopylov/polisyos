@@ -147,6 +147,35 @@ def test_design_problem_spans_owner_surfaces_and_projects_shared_fields() -> Non
     assert problem.model_spec_ref == _sha("2")
 
 
+def test_design_problem_accepts_canonical_qualified_world_slots() -> None:
+    """The N4 contract uses the same path-like slot IDs as the IR slot owner."""
+
+    problem = _design_problem(
+        outcome_of_interest={
+            "target_variable": "agents.is_employed",
+            "metric_id": "employment_rate",
+            "estimand": "population employment rate",
+            "direction": "maximize",
+        },
+        candidate_lever_space={
+            "allowed_operator_kinds": ["tax_rate"],
+            "candidate_levers": [
+                {
+                    "lever_id": "tax_rate",
+                    "operator_kind": "tax_rate",
+                    "instrument": "general tax rate",
+                    "target_slot": "global.tax_rate",
+                }
+            ],
+        },
+    )
+
+    assert problem.outcome_of_interest.target_variable == "agents.is_employed"
+    assert problem.candidate_lever_space.candidate_levers[0].target_slot == (
+        "global.tax_rate"
+    )
+
+
 def test_design_problem_round_trips_policy_intent_shared_fields() -> None:
     intent = build_policy_intent_envelope(
         intent_id="intent-run-1",

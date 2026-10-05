@@ -5,7 +5,10 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
 from polisyos.pdc import gy_content_hash
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.quality import cycle_substrate as cycle_substrate_owner
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
@@ -32,6 +35,7 @@ from polisyos.runtime.quality.substrate_registry import (
     SubstrateTrustTier,
     build_substrate_registry,
     build_substrate_registry_entry,
+    persist_substrate_registry,
 )
 from polisyos.runtime.quality.world_model_record import (
     BranchMode,
@@ -46,6 +50,7 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecord,
     WorldModelRecordError,
     world_model_record_content_hash,
+    persist_world_model_record,
 )
 
 
@@ -207,6 +212,29 @@ def _world_record(
         content_hash=content_hash,
         **fields,
     )
+
+
+def _world_record_bound_to_registry_artifact(
+    registry: SubstrateRegistry,
+    registry_artifact_ref: str,
+) -> WorldModelRecord:
+    """Bind the test world record to one actually persisted registry artifact."""
+
+    payload = _world_record("education", registry, region_or_jurisdiction="UA").model_dump(
+        mode="json"
+    )
+    registry_ref = dict(payload["substrate_registry_ref"])
+    registry_ref["registry_artifact_ref"] = registry_artifact_ref
+    payload["substrate_registry_ref"] = registry_ref
+    payload["world_model_record_id"] = "world_model_record_0000000000000000"
+    payload["content_hash"] = _hash("placeholder")
+    draft = WorldModelRecord.model_construct(**payload)
+    content_hash = world_model_record_content_hash(draft)
+    payload["content_hash"] = content_hash
+    payload["world_model_record_id"] = (
+        "world_model_record_" + content_hash.removeprefix("sha256:")[:16]
+    )
+    return WorldModelRecord.model_validate(payload)
 
 
 def _cycle_context(
@@ -681,3 +709,90 @@ def test_cycle_substrate_context_rejects_content_hash_tamper() -> None:
 
     with pytest.raises(ValueError, match="cycle_substrate_content_hash_mismatch"):
         CycleSubstrateContext.model_validate(payload)
+
+
+def test_tenant_store_cycle_context_owner_round_trip_and_negative_controls(
+    tmp_path,
+) -> None:
+    """Resolve only tenant-owned, byte-valid context bound to this problem/world."""
+
+    registry = _registry("education")
+    tenant_id = "tenant-cycle-context"
+    cell_id = "cell-cycle-context"
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=True).for_tenant(
+        tenant_id, cell_id
+    )
+    context_ref = None
+    design_problem_ref = _hash("served-design-problem")
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        registry_ref = persist_substrate_registry(store, registry)
+        world = _world_record_bound_to_registry_artifact(
+            registry,
+            str(registry_ref.artifact_id),
+        )
+        world_ref = persist_world_model_record(store, world)
+        context = _cycle_context(
+            domain="education",
+            registry=registry,
+            world_model_record=world,
+            design_problem_ref=design_problem_ref,
+        )
+        context_ref = cycle_substrate_owner.persist_cycle_substrate_context(
+            store,
+            context=context,
+            world_model_record_ref=world_ref,
+            substrate_registry_artifact_ref=registry_ref,
+            tenant_context=ArtifactTenantContextInfo(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            ),
+        )
+        resolved = cycle_substrate_owner.resolve_cycle_substrate_context_artifact(
+            store,
+            context_ref=context_ref,
+            design_problem_ref=design_problem_ref,
+            target_region="UA",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        assert resolved.status == "resolved_candidate_context"
+        assert resolved.context == context
+        assert resolved.authority_eligible is False
+        assert "candidate_only" in resolved.limitation
+
+        wrong_problem = cycle_substrate_owner.resolve_cycle_substrate_context_artifact(
+            store,
+            context_ref=context_ref,
+            design_problem_ref=_hash("another-problem"),
+            target_region="UA",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        assert wrong_problem.status == "unavailable"
+        assert wrong_problem.context is None
+
+        wrong_region = cycle_substrate_owner.resolve_cycle_substrate_context_artifact(
+            store,
+            context_ref=context_ref,
+            design_problem_ref=design_problem_ref,
+            target_region="PL",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        assert wrong_region.status == "unavailable"
+        assert wrong_region.context is None
+
+    foreign_store = FileSystemCAS(tmp_path / "cas", ownership_enforced=True).for_tenant(
+        "tenant-foreign", "cell-foreign"
+    )
+    with tenant_scope(None, tenant_id="tenant-foreign", cell_id="cell-foreign"):
+        foreign = cycle_substrate_owner.resolve_cycle_substrate_context_artifact(
+            foreign_store,
+            context_ref=context_ref,
+            design_problem_ref=design_problem_ref,
+            target_region="UA",
+            tenant_id="tenant-foreign",
+            cell_id="cell-foreign",
+        )
+    assert foreign.status == "unavailable"
+    assert foreign.context is None

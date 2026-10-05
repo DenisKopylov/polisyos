@@ -8,6 +8,7 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.ir.kernel.base import SLOT_ID_PATTERN
 from polisyos.ir.kernel.time_semantics import TimeSemantics
 
 DESIGN_PROBLEM_SCHEMA_VERSION = "policyos.runtime.design_problem.v1"
@@ -111,7 +112,7 @@ class DesignStakeholder(_StrictModel):
 class OutcomeOfInterest(_StrictModel):
     """Represent the target variable the value gate will estimate."""
 
-    target_variable: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
+    target_variable: str = Field(..., pattern=SLOT_ID_PATTERN)
     metric_id: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
     estimand: str = Field(..., min_length=1)
     direction: Literal["maximize", "minimize", "maintain_range"] = "maximize"
@@ -123,7 +124,7 @@ class CandidateLever(_StrictModel):
     lever_id: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
     operator_kind: str = Field(..., min_length=1)
     instrument: str = Field(..., min_length=1)
-    target_slot: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
+    target_slot: str = Field(..., pattern=SLOT_ID_PATTERN)
 
 
 class CandidateLeverSpace(_StrictModel):

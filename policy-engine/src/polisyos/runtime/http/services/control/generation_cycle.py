@@ -504,6 +504,29 @@ class N4CandidateProposalExecution:
         "profile_admission_missing",
     ] = "profile_not_requested"
     target_world_model_record_ref: str | None = None
+    target_world_scope_limitation: str | None = None
+
+
+def _build_cycle_substrate_context_from_owner(
+    *,
+    store: object,
+    design_problem: DesignProblem,
+    tenant_id: str,
+    cell_id: str | None,
+) -> object:
+    """Resolve a previously persisted tenant-owned candidate context."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        resolve_cycle_substrate_context_from_store,
+    )
+
+    return resolve_cycle_substrate_context_from_store(
+        store,
+        design_problem_ref=gy_content_hash(design_problem.model_dump(mode="json")),
+        target_region=design_problem.jurisdiction_time.region,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
 
 
 async def compile_and_run_recursive_generation_cycle(
@@ -523,6 +546,9 @@ async def compile_and_run_recursive_generation_cycle(
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     span_support_client: _SpanSupportVerifierClient | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    cycle_substrate_context_store: object | None = None,
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
     root_n4_generation_port: N4GenerationPort | None = None,
     target_world_scope_profile_id: str | None = None,
     promotion_runtime: PromotionRuntime | None = None,
@@ -638,6 +664,20 @@ async def compile_and_run_recursive_generation_cycle(
             "compiled DesignProblem does not preserve the caller's raw request",
         )
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    context_resolution = None
+    if cycle_substrate_context is None and cycle_substrate_context_store is not None:
+        if tenant_id is not None:
+            context_resolution = _build_cycle_substrate_context_from_owner(
+                store=cycle_substrate_context_store,
+                design_problem=problem,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            if (
+                getattr(context_resolution, "status", None)
+                == "resolved_candidate_context"
+            ):
+                cycle_substrate_context = getattr(context_resolution, "context", None)
     if cycle_substrate_context is None:
         scope_selection = _classify_target_world_scope_profile(
             target_world_scope_profile_id
@@ -669,6 +709,10 @@ async def compile_and_run_recursive_generation_cycle(
                 else "profile_not_requested"
             ),
             target_world_model_record_ref=None,
+            target_world_scope_limitation=(
+                str(getattr(context_resolution, "limitation", ""))
+                or "cycle_substrate_context_owner_not_configured"
+            ),
         )
     # A candidate-only ordinary request with unknown scope returned its typed
     # N4 proposal above. Other invocations never infer missing owner context;

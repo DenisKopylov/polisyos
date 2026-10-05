@@ -38,6 +38,8 @@ from polisyos.runtime.quality.world_model_record import (
 )
 
 CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION = "policyos.runtime.cycle_substrate_context.v1"
+CYCLE_SUBSTRATE_CONTEXT_ARTIFACT_KIND = "runtime.quality.cycle_substrate_context"
+CYCLE_SUBSTRATE_CONTEXT_ARTIFACT_SCHEMA = "polisyos.runtime.CycleSubstrateContext"
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _REQUIRED_AUTHORITY_DENIALS = frozenset(
     {
@@ -251,6 +253,21 @@ class CycleSubstrateContext(_StrictModel):
         return self
 
 
+class CycleSubstrateContextResolution(_StrictModel):
+    """Typed candidate-context lookup; this owner never grants authority."""
+
+    status: Literal["resolved_candidate_context", "unavailable", "unrun"]
+    context: CycleSubstrateContext | None = None
+    limitation: str = Field(..., min_length=1)
+    authority_eligible: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _status_matches_context(self) -> CycleSubstrateContextResolution:
+        if (self.status == "resolved_candidate_context") != (self.context is not None):
+            raise ValueError("cycle_substrate_context_resolution_status_mismatch")
+        return self
+
+
 def cycle_substrate_context_binding_hash(
     *,
     design_problem_ref: str,
@@ -423,6 +440,307 @@ def revalidate_cycle_substrate_context(
                 "cycle_substrate_intervention_bundle_hash_mismatch"
             ) from exc
     return CycleSubstrateContext.model_validate(context.model_dump(mode="python"))
+
+
+def persist_cycle_substrate_context(
+    store: Any,
+    *,
+    context: CycleSubstrateContext,
+    world_model_record_ref: Any,
+    substrate_registry_artifact_ref: Any,
+    tenant_context: Any,
+) -> Any:
+    """Persist a candidate context with exact owner-issued WMR/registry lineage.
+
+    The context is only an N4/N5 input envelope. Persisting it does not change
+    its candidate-only authority purpose or admit any WMR for promotion.
+    """
+
+    from polisyos.core.artifacts import ArtifactRef, InputRef, PutOptions, SchemaInfo
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.security.tenant_context import (
+        get_current_cell_id,
+        get_current_tenant_id_or_none,
+    )
+    from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+    from polisyos.runtime.quality.world_model_record import (
+        WORLD_MODEL_RECORD_ARTIFACT_KIND,
+        load_world_model_record,
+    )
+
+    if not isinstance(world_model_record_ref, ArtifactRef):
+        raise TypeError("cycle_substrate_wmr_ref_must_be_owner_artifact_ref")
+    if not isinstance(substrate_registry_artifact_ref, ArtifactRef):
+        raise TypeError("cycle_substrate_registry_ref_must_be_owner_artifact_ref")
+    if not isinstance(tenant_context, ArtifactTenantContextInfo):
+        raise TypeError("cycle_substrate_tenant_context_must_be_typed")
+    active_tenant = get_current_tenant_id_or_none()
+    active_cell = get_current_cell_id()
+    if (
+        active_tenant != tenant_context.tenant_id
+        or (active_cell or None) != (tenant_context.cell_id or None)
+    ):
+        raise ValueError("cycle_substrate_context_tenant_scope_mismatch")
+
+    verified = revalidate_cycle_substrate_context(context)
+    wmr_manifest = store.get_manifest(world_model_record_ref)
+    registry_manifest = store.get_manifest(substrate_registry_artifact_ref)
+    if (
+        wmr_manifest.kind != WORLD_MODEL_RECORD_ARTIFACT_KIND
+        or wmr_manifest.artifact_schema is None
+        or wmr_manifest.artifact_schema.name
+        != "polisyos.runtime.quality.WorldModelRecord"
+        or registry_manifest.kind != "runtime.quality.production_data_substrate_registry"
+        or registry_manifest.artifact_schema is None
+        or registry_manifest.artifact_schema.name
+        != "polisyos.runtime.quality.SubstrateRegistry"
+    ):
+        raise ValueError("cycle_substrate_owner_input_manifest_invalid")
+    wmr = load_world_model_record(store, world_model_record_ref)
+    registry = load_substrate_registry(store, substrate_registry_artifact_ref)
+    if wmr.model_dump(mode="json") != verified.world_model_record.model_dump(mode="json"):
+        raise ValueError("cycle_substrate_wmr_owner_ref_content_mismatch")
+    if registry.model_dump(mode="json") != verified.substrate_registry.model_dump(mode="json"):
+        raise ValueError("cycle_substrate_registry_owner_ref_content_mismatch")
+    if (
+        wmr.substrate_registry_ref.registry_artifact_ref
+        != str(substrate_registry_artifact_ref.artifact_id)
+    ):
+        raise ValueError("cycle_substrate_wmr_registry_ref_mismatch")
+
+    return store.put_json(
+        verified,
+        PutOptions(
+            kind=CYCLE_SUBSTRATE_CONTEXT_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=CYCLE_SUBSTRATE_CONTEXT_ARTIFACT_SCHEMA,
+                version=CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION,
+            ),
+            inputs=[
+                InputRef(
+                    artifact_id=world_model_record_ref.artifact_id,
+                    role="world_model_record",
+                ),
+                InputRef(
+                    artifact_id=substrate_registry_artifact_ref.artifact_id,
+                    role="substrate_registry",
+                ),
+            ],
+            tenant_context=tenant_context,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
+def resolve_cycle_substrate_context_artifact(
+    store: Any,
+    *,
+    context_ref: Any,
+    design_problem_ref: str,
+    target_region: str,
+    tenant_id: str,
+    cell_id: str | None,
+) -> CycleSubstrateContextResolution:
+    """Read one tenant-owned persisted candidate context through its owners.
+
+    Exact problem and jurisdiction bindings are checked here. Population,
+    outcome, time, intervention semantics, and promotion authority remain
+    separate predicates; the returned context always declares that limitation.
+    """
+
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.security.tenant_context import (
+        get_current_cell_id,
+        get_current_tenant_id_or_none,
+    )
+    from polisyos.runtime.quality.substrate_registry import load_substrate_registry
+    from polisyos.runtime.quality.world_model_record import (
+        WORLD_MODEL_RECORD_ARTIFACT_KIND,
+        load_world_model_record,
+    )
+
+    if not isinstance(context_ref, ArtifactRef):
+        return CycleSubstrateContextResolution(
+            status="unavailable",
+            limitation="cycle_substrate_context_ref_not_owner_artifact_ref",
+        )
+    active_tenant = get_current_tenant_id_or_none()
+    active_cell = get_current_cell_id()
+    if (
+        active_tenant != tenant_id
+        or (active_cell or None) != (cell_id or None)
+    ):
+        return CycleSubstrateContextResolution(
+            status="unavailable",
+            limitation="cycle_substrate_context_tenant_scope_not_established",
+        )
+    try:
+        manifest = store.get_manifest(context_ref)
+        if (
+            manifest.kind != CYCLE_SUBSTRATE_CONTEXT_ARTIFACT_KIND
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != CYCLE_SUBSTRATE_CONTEXT_ARTIFACT_SCHEMA
+            or manifest.artifact_schema.version != CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION
+        ):
+            return CycleSubstrateContextResolution(
+                status="unavailable",
+                limitation="cycle_substrate_context_manifest_not_owner_profile",
+            )
+        if manifest.tenant_context is None or (
+            manifest.tenant_context.tenant_id != tenant_id
+            or (manifest.tenant_context.cell_id or None) != (cell_id or None)
+        ):
+            return CycleSubstrateContextResolution(
+                status="unavailable",
+                limitation="cycle_substrate_context_foreign_tenant_binding",
+            )
+        input_refs = {item.role: item for item in manifest.inputs}
+        if set(input_refs) != {"world_model_record", "substrate_registry"}:
+            return CycleSubstrateContextResolution(
+                status="unavailable",
+                limitation="cycle_substrate_context_owner_lineage_incomplete",
+            )
+        context = CycleSubstrateContext.model_validate(
+            from_canonical_bytes(store.get_bytes(context_ref))
+        )
+        verified = revalidate_cycle_substrate_context(context)
+        wmr_ref = ArtifactRef(
+            artifact_id=input_refs["world_model_record"].artifact_id,
+            kind=WORLD_MODEL_RECORD_ARTIFACT_KIND,
+            media_type="application/json",
+        )
+        registry_ref = ArtifactRef(
+            artifact_id=input_refs["substrate_registry"].artifact_id,
+            kind="runtime.quality.production_data_substrate_registry",
+            media_type="application/json",
+        )
+        wmr = load_world_model_record(store, wmr_ref)
+        registry = load_substrate_registry(store, registry_ref)
+        if (
+            wmr.model_dump(mode="json")
+            != verified.world_model_record.model_dump(mode="json")
+            or registry.model_dump(mode="json")
+            != verified.substrate_registry.model_dump(mode="json")
+            or wmr.substrate_registry_ref.registry_artifact_ref
+            != str(registry_ref.artifact_id)
+        ):
+            return CycleSubstrateContextResolution(
+                status="unavailable",
+                limitation="cycle_substrate_context_owner_lineage_content_mismatch",
+            )
+        if verified.design_problem_ref != design_problem_ref:
+            return CycleSubstrateContextResolution(
+                status="unavailable",
+                limitation="cycle_substrate_context_design_problem_mismatch",
+            )
+        if (
+            not target_region.strip()
+            or verified.world_model_record.region_or_jurisdiction
+            != target_region.strip()
+        ):
+            return CycleSubstrateContextResolution(
+                status="unavailable",
+                limitation="cycle_substrate_context_jurisdiction_mismatch",
+            )
+        return CycleSubstrateContextResolution(
+            status="resolved_candidate_context",
+            context=verified,
+            limitation=(
+                "cycle_substrate_context_candidate_only; population, outcome, time, "
+                "intervention semantics, and authority are not established by this owner"
+            ),
+        )
+    except Exception as exc:
+        return CycleSubstrateContextResolution(
+            status="unavailable",
+            limitation=(
+                "cycle_substrate_context_store_inspection_failed:"
+                + str(getattr(exc, "code", type(exc).__name__))
+            ),
+        )
+
+
+def resolve_cycle_substrate_context_from_store(
+    store: Any,
+    *,
+    design_problem_ref: str,
+    target_region: str,
+    tenant_id: str,
+    cell_id: str | None,
+) -> CycleSubstrateContextResolution:
+    """Resolve a unique exact-problem context from the active tenant's CAS.
+
+    The artifact store protocol exposes enumeration but no kind index. This
+    owner therefore declares a full tenant-store scan as its current cost;
+    an unavailable or failed inventory never becomes a successful lookup.
+    """
+
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.security.tenant_context import (
+        get_current_cell_id,
+        get_current_tenant_id_or_none,
+    )
+
+    if (
+        get_current_tenant_id_or_none() != tenant_id
+        or (get_current_cell_id() or None) != (cell_id or None)
+    ):
+        return CycleSubstrateContextResolution(
+            status="unavailable",
+            limitation="cycle_substrate_context_tenant_scope_not_established",
+        )
+    try:
+        artifact_ids = store.iter_artifact_ids()
+        matches: dict[str, CycleSubstrateContext] = {}
+        for artifact_id in artifact_ids:
+            manifest = store.get_manifest(artifact_id)
+            if manifest.kind != CYCLE_SUBSTRATE_CONTEXT_ARTIFACT_KIND:
+                continue
+            context_ref = ArtifactRef(
+                artifact_id=artifact_id,
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+            )
+            result = resolve_cycle_substrate_context_artifact(
+                store,
+                context_ref=context_ref,
+                design_problem_ref=design_problem_ref,
+                target_region=target_region,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            if result.status == "resolved_candidate_context" and result.context is not None:
+                matches[result.context.content_hash] = result.context
+        if not matches:
+            return CycleSubstrateContextResolution(
+                status="unavailable",
+                limitation="cycle_substrate_context_owner_match_not_found",
+            )
+        if len(matches) != 1:
+            return CycleSubstrateContextResolution(
+                status="unavailable",
+                limitation="cycle_substrate_context_owner_match_ambiguous",
+            )
+        return CycleSubstrateContextResolution(
+            status="resolved_candidate_context",
+            context=next(iter(matches.values())),
+            limitation=(
+                "cycle_substrate_context_candidate_only; population, outcome, time, "
+                "intervention semantics, and authority are not established by this owner"
+            ),
+        )
+    except Exception as exc:
+        return CycleSubstrateContextResolution(
+            status="unrun",
+            limitation=(
+                "cycle_substrate_context_store_census_failed:"
+                + str(getattr(exc, "code", type(exc).__name__))
+            ),
+        )
 
 
 def resolve_cycle_substrate_context_for_world(
@@ -631,14 +949,20 @@ def resolve_world_model_atom_identity(
 
 __all__ = [
     "CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION",
+    "CYCLE_SUBSTRATE_CONTEXT_ARTIFACT_KIND",
+    "CYCLE_SUBSTRATE_CONTEXT_ARTIFACT_SCHEMA",
     "CandidateLeverEvidence",
     "CycleSubstrateContext",
+    "CycleSubstrateContextResolution",
     "TransportContextEvidence",
     "TransportCovariateObservation",
     "build_cycle_substrate_context",
     "cycle_substrate_context_binding_hash",
     "cycle_substrate_context_content_hash",
+    "persist_cycle_substrate_context",
     "resolve_candidate_lever_world_identity",
+    "resolve_cycle_substrate_context_artifact",
+    "resolve_cycle_substrate_context_from_store",
     "resolve_cycle_substrate_context_for_world",
     "resolve_cycle_substrate_world_identity",
     "resolve_world_model_atom_identity",

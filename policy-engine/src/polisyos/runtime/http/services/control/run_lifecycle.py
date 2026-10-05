@@ -1639,6 +1639,10 @@ class ControlPlaneService(
         from polisyos.runtime.http.services.control.generation_cycle import (
             compile_and_run_recursive_generation_cycle,
         )
+        from polisyos.core.security.tenant_context import (
+            get_current_cell_id,
+            get_current_tenant_id_or_none,
+        )
 
         return await compile_and_run_recursive_generation_cycle(
             raw_request=raw_request,
@@ -1651,6 +1655,9 @@ class ControlPlaneService(
             recursive_budget_resolution=recursive_budget_resolution,
             target_world_scope_profile_id=target_world_scope_profile_id,
             root_evaluation_context=root_evaluation_context,
+            cycle_substrate_context_store=self._artifact_store,
+            tenant_id=get_current_tenant_id_or_none(),
+            cell_id=get_current_cell_id(),
             eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,
             repo_root=self._repo_root,

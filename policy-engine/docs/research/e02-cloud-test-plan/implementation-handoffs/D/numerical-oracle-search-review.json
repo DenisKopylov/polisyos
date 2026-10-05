@@ -1,0 +1,158 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "numerical-oracle-search-final-review",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "dfbac0e2e9cdd5f156b5cce4028494d824060496"
+  ],
+  "candidate_tree_sha": "d20ddd7591811423e6c493d8dc1cb88238e3000f",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "closure_ids": [],
+  "observed_ids": [
+    "B108",
+    "B109",
+    "B110",
+    "B111",
+    "B112",
+    "B113",
+    "B127",
+    "B41",
+    "B122",
+    "B125",
+    "B126"
+  ],
+  "bundle_ids": [
+    "OPT-01",
+    "OPT-02",
+    "STP-01",
+    "CTL-02"
+  ],
+  "verdict": "PASS_BOUNDED_CODE_REVIEW",
+  "review_target_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+  "review_target_tree_sha": "8baa795f1e191b4bf9c6d6c5dc283bd32bab440f",
+  "production_files_written": [],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-search-candidate.txt"
+  ],
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pytest": "9.0.2",
+    "source_mode": "git archive exact SHA source/tests/architecture/pytest.ini/pyproject.toml into separate temporary directory; exact owned oracle files copied; PYTHONPATH=<archive>/policy-engine/src"
+  },
+  "log_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-search-candidate.txt@dfbac0e2e9cdd5f156b5cce4028494d824060496",
+  "log_sha256": "0f315a197caf59e51c5214ca4ba136ad9b4869dd14ff3fe172e0d9801b1f0241",
+  "source_basis": {
+    "initial_full_bundle_baseline_coverage_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle.json@b95c6de30c42980af18c475e548133579e7986c2",
+    "oracle_test_sha256": {
+      "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py": "bb3a58c5e2aa1ed1adfd7056ba245a45f5d4a1fc438b99a6a4298c57feff691e",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py": "dd86abbae30fda1125094c5b6412dd45a2ffb5666d0bb7ceaef148ae31c6edd1",
+      "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py": "25cd649c77280e7023ddc8eec87bdec666a863298dfd2bc53d1ec94a7f646c44",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py": "8e44385cab57e85aced43732da4b2d461b132725a319960625da644db615735e",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py": "cbb67e9878204cb8ca713734c9546827f1ce8d07162ddd89c8a602a336166a04"
+    },
+    "oracle_delta_commits": [
+      "a401c0bb814d018a73f875379b328caec383782c",
+      "0796759a32248d9f4b65c536ffd25952c0d226af",
+      "7c1923a6f4c2fc2c07116aa869e3da7c32e7b08f"
+    ],
+    "source_files": [
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/{bayesian,space,types,base,rl_wrapper}.py@e789e9523725fa081de5cdc69da5938489315b4a",
+      "policy-engine/src/polisyos/scientist/methods/autotune/{bayesian_generator,pareto,registry}.py@e789e9523725fa081de5cdc69da5938489315b4a",
+      "policy-engine/src/polisyos/scientist/methods/search/stopping.py@e789e9523725fa081de5cdc69da5938489315b4a"
+    ]
+  },
+  "baseline_cells": [
+    {
+      "id": "SEARCH-5d-independent",
+      "source_sha": "5d8aaaa13ad04fe89b762ff5a772a956beddbf44",
+      "command": "Immutable archive; locked python -m pytest all five owned oracle files at that review time --tb=short -ra",
+      "input_closure": "Original 67 oracle cases, installed actual runtime; analytic bounded data only.",
+      "status": "FAIL",
+      "output": "5 failed,62 passed in10.18s; finite extreme hypervolume overflow1 and silent nonfinite stopping4. Native affected owner/sibling94PASS separately."
+    },
+    {
+      "id": "SEARCH-df-stopping-diagnostic",
+      "source_sha": "df249c2cd966094b346036fcf5c09d9ba7b52e3d",
+      "command": "All five owned oracles plus four native nonfinite stopping lifecycle cases, exact immutable archive.",
+      "input_closure": "Actual OR/AND composition, native service, RunState and SearchResult telemetry; no chosen new threshold/scale.",
+      "status": "FAIL",
+      "output": "1failed,70passed in11.75s; stopping diagnostic controls nowPASS, original extreme hypervolume crash remainsFAIL."
+    },
+    {
+      "id": "B111-typed-unavailable-pending",
+      "source_sha": "df249c2cd966094b346036fcf5c09d9ba7b52e3d",
+      "command": "Owned extreme oracle after explicit parent authorization to accept finite nonzero derived quantity OR genuine typed unavailable while preserving true complete front.",
+      "status": "FAIL",
+      "output": "Still raises Pydantic nonfinite derived hypervolume; fresh failing log numerical-oracle-hypervolume-pending.txt@0796759a32248d9f4b65c536ffd25952c0d226af."
+    },
+    {
+      "id": "B127-physical-integer-bounds-pending",
+      "source_sha": "df249c2cd966094b346036fcf5c09d9ba7b52e3d",
+      "command": "Three independently enumerated feasible integer sets for [.2,1.8],[-1.8,-.2],[.2,.8]; actual suggestion must be in ceil(lower)..floor(upper), or controlled constructor refusal when empty.",
+      "status": "FAIL",
+      "output": "Three failing cases retained in numerical-oracle-integer-bounds-pending.txt@7c1923a6f4c2fc2c07116aa869e3da7c32e7b08f. Production rounding had returned outside/empty attainable domain."
+    }
+  ],
+  "verification": [
+    {
+      "id": "SEARCH403-all-independent",
+      "source_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "command": "PYTHONPATH=<exact archive>/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py --tb=short -ra",
+      "input_closure": "All 70 independent cases, including strict Pareto 7380-pair lattice, complete coordinate artifact, actual mixed-domain suggestions/training tensors/pending actions, finite/nonfinite stopping, fresh embeddings, nested checkpoint refusal/replay.",
+      "status": "PASS",
+      "output": "70 passed,2warnings in14.95s; exit0"
+    },
+    {
+      "id": "SEARCH403-affected-native",
+      "source_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "command": "Locked python -m pytest tests/unit/scientist/methods/search/strategies tests/unit/scientist/search/strategies tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/search/test_pareto_transfer.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py tests/unit/scientist/methods/search/test_stopping_limitations.py --tb=short -ra",
+      "input_closure": "Actual native/sibling strategies, GP fit/resume/checkpoint replay, adapters, complete-front registry snapshot and stopping composition.",
+      "status": "PASS",
+      "output": "162 passed,15warnings in42.90s; exit0"
+    },
+    {
+      "id": "SEARCH403-derived-quantity-falsifiers",
+      "source_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+      "command": "Run exact extreme property; wrap actual ParetoPromoter.compute_front with model_copy hypervolume=0.0 or Inf, retaining true complete membership/finite coordinates/unavailable assessment markers. Each corrupted return must fail independent property.",
+      "input_closure": "Finite +/-1e308 declared scores, truefront preserved; in-memory test-only falsifier no production edits.",
+      "status": "PASS",
+      "output": "Positive propertyPASS; fake0.0 FAIL_AS_REQUIRED; nonnullInf FAIL_AS_REQUIRED; exit0"
+    },
+    {
+      "id": "SEARCHe789-oracle-CAS-clock-replay",
+      "source_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+      "command": "Same five owned oracles plus tests/unit/scientist/methods/search/test_hypervolume_limitations.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --tb=short -ra",
+      "input_closure": "Exact final source. Actual champion registry update/filesystem reopen -> PolicyFrontierReport persist to FileSystemCAS -> fresh CAS load preserves true best/front/null/nested typed assessment. Genuine ResourceArbiter hardlimit pauses scheduled fit at history4/model3; JSON checkpoint restores and actual fit advances4 when limit lifted. Future refit counter rejected without mutation. Intrinsic replay ignores external torch draws.",
+      "status": "PASS",
+      "output": "86 passed,4warnings in35.65s; exit0"
+    },
+    {
+      "id": "SEARCHe789-native-caller-retained-readers",
+      "source_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+      "command": "Locked python -m pytest tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py --tb=short -ra",
+      "input_closure": "Real SearchLoopRunner/PydanticMutationCodec/sequence generator/evaluator/CAS registry. Legacy SearchController.run patched to fail if called. Original candidates2/7, subsequent9; fresh current reader9, retainedoriginal7; every historical measurement and original candidate actualCAS readback after reopen.",
+      "status": "PASS",
+      "output": "1passed,2warnings in9.27s; exit0"
+    }
+  ],
+  "review_notes": [
+    "Full production diff reviewed from admitted base, then exact403->e789 delta. Canonical effective-action factory normalizes executed physical parameters and retains relaxed proposal only as metadata. Native sibling strategies and receiver validate attained domain; INTEGER ceil/floor clamp and empty-domain refusal bind fingerprint attainable_projection.v1.",
+    "GP checkpoint basis binds backend/config/fitted corpus/refit prefix/counters. Intrinsic local acquisition RNG/ranked Sobol starts and fixed local Monte Carlo sampler support tested replay. BoTorch outcome-transform reconstruction preserves actual posterior basis.",
+    "Final bayesian.set_state delta removes elapsed refit-interval rejection only: actual hardlimit legitimately advances iteration without fitting. Future counters, train/refit dimensions/prefix/content/basis guards remain and runtime no-mutation controls pass.",
+    "Only explicitly authorized extreme-HV acceptance widened: nullable hypervolume requires exact unavailable/not_established/non_finite_derived_hypervolume, true input count/full membership and artifact roundtrip. Ordinary finite cases still require exact finite values. No fake0 or nonnullInf passes.",
+    "No xfail/skip or semantic scale-law relaxation. Prior failures remain explicit historic source cells; passing corrected source is separately identified. One wrong untracked test_pareto_registry.py selector exited4 before corrected native162PASS; retained harness ERROR does not represent production failure."
+  ],
+  "limitations_and_next_owner": [
+    "B122 accepted near-zero scale and stopping policy remain principal-held. Only explicit unavailable/not_established diagnostic propagation is accepted; no new scale or decision law chosen.",
+    "B108 typed-unit served caller and B125/B126 actual production RL caller remain unestablished; bounded direct paths are not complete capability closure.",
+    "No production historical observations, statistical search acceleration, global runtime provider frontier, or policy recommendation measured. Analytic lattices and declared synthetic fixtures only.",
+    "Finding closure is not claimed; all closure_ids remain empty. Integrated final-root regression is a separate parent run, not relabeled as this leaf execution.",
+    "Torch Python3.14 JIT deprecation and BoTorch legacy EI/qEI numerical warnings are retained; successful bounded tests do not resolve acquisition statistical quality."
+  ]
+}

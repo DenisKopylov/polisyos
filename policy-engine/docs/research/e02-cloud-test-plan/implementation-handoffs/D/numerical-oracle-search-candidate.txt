@@ -1,0 +1,249 @@
+target_sha=5d8aaaa13ad04fe89b762ff5a772a956beddbf44
+python=/workspace/e02-D-locked-env/bin/python
+..........................F...................FFFF.................      [100%]
+=================================== FAILURES ===================================
+___ test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows ___
+tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py:167: in test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows
+    front = promoter.compute_front([worst, best])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/pareto.py:377: in compute_front
+    return ParetoFront(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for ParetoFront
+E     Value error, complete coordinate artifact has a non-finite hypervolume [type=value_error, input_value={'members': [ParetoMember...ssessed_evaluations=())}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values0] _
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:95: in test_undefined_plateau_comparison_is_rejected_or_explicitly_limited
+    assert result.reason or result.details, (
+E   AssertionError: non-finite history silently entered numerical comparison
+E   assert (None or {})
+E    +  where None = StoppingCondition(should_stop=False, reason=None, details={}).reason
+E    +  and   {} = StoppingCondition(should_stop=False, reason=None, details={}).details
+_ test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values1] _
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:95: in test_undefined_plateau_comparison_is_rejected_or_explicitly_limited
+    assert result.reason or result.details, (
+E   AssertionError: non-finite history silently entered numerical comparison
+E   assert (None or {})
+E    +  where None = StoppingCondition(should_stop=False, reason=None, details={}).reason
+E    +  and   {} = StoppingCondition(should_stop=False, reason=None, details={}).details
+_ test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values2] _
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:95: in test_undefined_plateau_comparison_is_rejected_or_explicitly_limited
+    assert result.reason or result.details, (
+E   AssertionError: non-finite history silently entered numerical comparison
+E   assert (None or {})
+E    +  where None = StoppingCondition(should_stop=False, reason=None, details={}).reason
+E    +  and   {} = StoppingCondition(should_stop=False, reason=None, details={}).details
+_ test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values3] _
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:95: in test_undefined_plateau_comparison_is_rejected_or_explicitly_limited
+    assert result.reason or result.details, (
+E   AssertionError: non-finite history silently entered numerical comparison
+E   assert (None or {})
+E    +  where None = StoppingCondition(should_stop=False, reason=None, details={}).reason
+E    +  and   {} = StoppingCondition(should_stop=False, reason=None, details={}).details
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values0]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values1]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values2]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values3]
+5 failed, 62 passed, 2 warnings in 10.18s
+candidate_test_exit=1
+changed_owner_and_sibling_suite_target_sha=5d8aaaa13ad04fe89b762ff5a772a956beddbf44
+........................................................................ [ 76%]
+......................                                                   [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_syncs_history_and_status
+  /tmp/e02-search-owner-immutable-r_7mw0bd/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:40: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_syncs_history_and_status
+  /tmp/e02-search-owner-immutable-r_7mw0bd/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:51: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_exposes_raw_directional_score_not_negated_search_score
+  /tmp/e02-search-owner-immutable-r_7mw0bd/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:96: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_dependency_fallback
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_neural.py::TestGPBasedSuggest::test_suggest_after_initial_phase
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_batch_shape_when_deps_available
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/monte_carlo.py:400: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/strategies/test_multi_objective.py::test_mo_batch_shape_when_deps_available
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/multi_objective/monte_carlo.py:110: NumericsWarning: qExpectedHypervolumeImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedHypervolumeImprovement 	 --> 	 qLogExpectedHypervolumeImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+94 passed, 13 warnings in 19.90s
+changed_owner_and_sibling_suite_exit=0
+stopping_limitation_target_sha=df249c2cd966094b346036fcf5c09d9ba7b52e3d
+.................F.....................................................  [100%]
+=================================== FAILURES ===================================
+___ test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows ___
+tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py:167: in test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows
+    front = promoter.compute_front([worst, best])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/pareto.py:377: in compute_front
+    return ParetoFront(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for ParetoFront
+E     Value error, complete coordinate artifact has a non-finite hypervolume [type=value_error, input_value={'members': [ParetoMember...ssessed_evaluations=())}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows
+1 failed, 70 passed, 2 warnings in 11.75s
+stopping_limitation_full_oracle_exit=1
+final_search_target_sha=4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a
+......................................................................   [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+70 passed, 2 warnings in 14.95s
+final_full_oracle_exit=0
+ERROR: file or directory not found: tests/unit/scientist/methods/search/test_pareto_registry.py
+
+
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 warnings in 0.00s
+final_owner_native_suite_exit=4
+final_native_rerun=correct tracked registry selector test_pareto_transfer.py and new test_hypervolume_limitations.py
+........................................................................ [ 44%]
+........................................................................ [ 88%]
+..................                                                       [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_batch_shape_when_deps_available
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/monte_carlo.py:400: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_syncs_history_and_status
+  /tmp/e02-search-native-immutable-2zjqxrht/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:40: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_syncs_history_and_status
+  /tmp/e02-search-native-immutable-2zjqxrht/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:51: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_exposes_raw_directional_score_not_negated_search_score
+  /tmp/e02-search-native-immutable-2zjqxrht/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:96: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_dependency_fallback
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_neural.py::TestGPBasedSuggest::test_suggest_after_initial_phase
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/strategies/test_multi_objective.py::test_mo_batch_shape_when_deps_available
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/multi_objective/monte_carlo.py:110: NumericsWarning: qExpectedHypervolumeImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedHypervolumeImprovement 	 --> 	 qLogExpectedHypervolumeImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+162 passed, 15 warnings in 42.90s
+final_owner_native_corrected_exit=0
+hypervolume_negative_control_target_sha=4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a
+extreme_front_property=PASS
+derived_quantity_corrupted_keep_true_front_and_unavailable_markers 0.0 FAIL_AS_REQUIRED
+derived_quantity_corrupted_keep_true_front_and_unavailable_markers inf FAIL_AS_REQUIRED
+hypervolume_negative_control_exit=0
+final_search_cas_and_clock_target_sha=e789e9523725fa081de5cdc69da5938489315b4a
+........................................................................ [ 83%]
+..............                                                           [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/monte_carlo.py:400: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+86 passed, 4 warnings in 35.65s
+final_search_cas_and_clock_exit=0
+
+native_caller_target_sha=e789e9523725fa081de5cdc69da5938489315b4a
+.                                                                        [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 2 warnings in 9.27s
+native_caller_exit=0

@@ -1,0 +1,61 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "6aec5346c6e16f123e93cc354df9f942e96b3b55"
+  ],
+  "candidate_tree_sha": "20b8d0ee096005724f7ad50e88c2a54b1abdadcc",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "closure_ids": [],
+  "review_target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "review_target_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+  "production_files_written": [],
+  "slice": "numerical-oracle-transfer-workflow-source-review",
+  "bundle_ids": [
+    "TRN-01",
+    "OPT-02"
+  ],
+  "observed_ids": [
+    "B128",
+    "B130",
+    "B131",
+    "B132",
+    "B112",
+    "B113"
+  ],
+  "verdict": "PASS_BOUNDED_SOURCE_REVIEW",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-transfer-workflow-source-review.txt"
+  ],
+  "log_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-transfer-workflow-source-review.txt@6aec5346c6e16f123e93cc354df9f942e96b3b55",
+  "log_sha256": "dbe40844553177619e03696774539c32ba9197d3489835330b9a5256dc9dbe47",
+  "source_basis": [
+    "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py@dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py@efe999fb143e05b501368d46d3109714e23760f8"
+  ],
+  "prior_transfer_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-transfer-review.json@a5a8503b5b0a27b45af50f54bd86e30f5fadcc4d",
+  "verification": [
+    {
+      "id": "TRN-configured-real-GP-source-review",
+      "source_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "command": "git show exact target:path; compare literal source with efe999 test-only commit; inspect real configured routes, primitive corpus assertions and adversarial controls",
+      "input_closure": "Eight original actual CAS candidate/evaluation observations on declared analytic100*x*x; real native index, manager, configured bridge, live SearchLoopRunner and SingleTaskGP. Negative changed origin and malformed outcome.",
+      "status": "PASS_SOURCE_REVIEW",
+      "output": "Real full input corpus checked; actual train_targets inverse-unstandardized and compared to negative minimize raw scores; actual receiving CAS candidate measured; source bytes retained. Changed origin no GP and Sobol; false string outcome exact7 rows, visible one rejection. No additional blocker."
+    }
+  ],
+  "runtime_provenance": {
+    "independent_leaf_execution": "UNRUN; parent explicitly requested avoiding duplicate exact3 replay once root stable whole-file regression included it. Prior leaf standalone transfer native70 and actualCAS adversarial matrix remain separately bound.",
+    "owner_report": "3PASS on4097a0174164564d5feb1f93c11fa137468a6d77, not relabeled as final leaf execution.",
+    "parent_stable_source_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+    "parent_stable_log": "/workspace/e02-D-receipts/final-regression.log",
+    "parent_stable_overall_status": "FAIL; six different selectors recorded, independently replayed in numerical-oracle-final-regression-triage.json. Parent owns stable test count reconciliation."
+  },
+  "scope": [
+    "Accepts inspected actual consumer numerical plumbing. No statistical acceleration, production historical benchmark equivalence, global tenant authority, or finding closure claim.",
+    "Prior receipt standalone integration UNRUN is refined by this real configured fixture source review and explicitly external parent runtime evidence; it is not rewritten as independent execution.",
+    "Final production830 transfer unchanged; integrated final includes final search source."
+  ]
+}

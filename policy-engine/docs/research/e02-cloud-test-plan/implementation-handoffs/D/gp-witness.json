@@ -21,7 +21,10 @@
   "changed_paths": [
     "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-baseline.txt",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-candidate-latest.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-candidate-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-admission-review.txt"
   ],
   "baseline_cells": [
     "F02-P095",
@@ -75,6 +78,58 @@
       "outcome": "PASS",
       "exit_code": 0,
       "output": "All checks passed!\n1 file already formatted"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -vv --tb=short --log-cli-level=WARNING --durations=10",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4b01ba7342915cad1cb251d5bb7e6963b0285f2d",
+      "test_sha": "052e763253580519d5913a92ad5ccc9a1989e7e3",
+      "environment": {
+        "python": "3.14.2",
+        "torch": "2.14.1+cu130",
+        "botorch": "0.18.1",
+        "gpytorch": "1.15.2"
+      },
+      "input_closure": "unchanged witness on git archive exact candidate policy-engine/src; --confcutdir prevents baseline conftest inserting wrong source; actual owner path in numerical log",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 32.72,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-candidate-latest.txt",
+      "output_sha256": "f4ea5bbbfdae40e3790fde756baa91f9b9a0fdbae87d40cc569135bf4bb57964"
+    },
+    {
+      "command": "/workspace/e02-D-locked-env/bin/python -m pytest /workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py --confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies -vv --tb=short --log-cli-level=WARNING --durations=10",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "4b01ba7342915cad1cb251d5bb7e6963b0285f2d",
+      "test_sha": "052e763253580519d5913a92ad5ccc9a1989e7e3",
+      "environment": {
+        "python": "3.14.7",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "input_closure": "unchanged witness on git archive exact candidate policy-engine/src; --confcutdir prevents baseline conftest inserting wrong source; actual owner path in numerical log",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 29.25,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-candidate-locked.txt",
+      "output_sha256": "7d61ef29bb2c27c66b2ca565165fb54572603bea72292619506cf449c2faddc3"
+    },
+    {
+      "command": "PYTHONPATH=<archived4b01src> /workspace/e02-D-locked-env/bin/python; load real fitted fixture and mutate each saved-state field before set_state; assert live model/pythonRNG/torchRNG/iteration unchanged on refusal",
+      "target_sha": "4b01ba7342915cad1cb251d5bb7e6963b0285f2d",
+      "environment": "locked Python3.14.7 torch2.10.0/botorch0.16.1/gpytorch1.15.1 CPU",
+      "input_closure": "8 enumerated mutations in committed output; source-derived state admission plus real8-point fitted model",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-admission-review.txt",
+      "output_sha256": "511b6cadd05dfece8829c99c61402fe97ad70c0053b39cfe7cdfb71f828ea873",
+      "result": "7 rejected without partial mutation; future last_refit_iteration999999 accepted for saved iteration8"
     }
   ],
   "property": {
@@ -94,7 +149,7 @@
     "property_preserving_control": "9-row warm+current+independent-replica corpus gives identical actual GP parameters/transforms/posterior and ask to the same unsplit observations."
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "FAIL: actual baseline resume loses warm corpus and invokes prohibited full refit; independent witness implemented, no finding closure",
+  "capability_state_or_finding_state": "PARTIAL: numerical B114/B115 continuation PASS on immutable4b01 in both real backends; future-refit-clock validation finding open; intrinsic optimizer RNG replay unverified; no closure",
   "findings": [
     {
       "ids": [
@@ -111,14 +166,24 @@
       ],
       "actual": "Post-conditioning9 checkpoint shifted target0.7 restores numerical corpus/parameters/transforms/posterior on botorch0.18.1; continued ask still hits forbidden refit. Suspected target transform mismatch not reproduced here.",
       "next_owner": "search_owner"
+    },
+    {
+      "ids": [
+        "B115"
+      ],
+      "bucket": "same GP state-completeness class P40",
+      "actual": "last_refit_iteration999999 in checkpointiteration8 admitted; schedule can suppress refit until that future count",
+      "next_owner": "search_owner; reject counters beyond recorded iteration atomically"
     }
   ],
-  "reviewer": "gp_witness independent test author; candidate GP delta independent review pending",
+  "reviewer": "gp_witness independent real-backend and state-admission reviewer",
   "limitations_and_next_owner": [
-    "Candidate mechanism source has not yet been supplied; rerun unchanged witness on exact search_owner candidate SHA, then independently review GP state config/corpus/version/corruption.",
+    "Rerun future-clock admission and unchanged numerical witnesses on search_owner correction SHA; intrinsic RNG replay needs direct next-ask sequence without external reseeding.",
     "Bounded CPU 1D 8-9-point numerical witness only. Production history source admission/context semantics and transfer bridge not established here; transfer_owner owns bridge workflow witness.",
     "GPU execution and other backend versions unrun; optional backend absence is never PASS.",
     "Four-base source-card replay remains UNRUN, historical package PASS does not close B114/B115.",
-    "Direct strategy consumer witness; API/dashboard/long-running search workflow surfaces out of this test scope."
-  ]
+    "Direct strategy consumer witness; API/dashboard/long-running search workflow surfaces out of this test scope.",
+    "Ask equivalence in this numerical witness deliberately controls caller torch RNG; it does not establish intrinsic optimizer RNG replay. Default BoTorch initializer uses global random draws beyond its options.seed Sobol raw-pool seed."
+  ],
+  "verified_candidate_sha": "4b01ba7342915cad1cb251d5bb7e6963b0285f2d"
 }

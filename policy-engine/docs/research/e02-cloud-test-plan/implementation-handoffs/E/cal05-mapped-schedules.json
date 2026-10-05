@@ -228,7 +228,7 @@
       "environment": "environment (candidate CPU runtime profile in this receipt)",
       "input_closure": "Base runtime plus new regression tests later committed at 714f69153d4736f3f8478936611e68eccb29f2d5",
       "outcome": "FAIL",
-      "output": "Four expected failures: DID NOT RAISE ValueError for eager/JIT/grad/Hessian. Full deciding output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.log"
+      "output": "Four expected failures: DID NOT RAISE ValueError for eager/JIT/grad/Hessian. Full deciding output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt"
     },
     {
       "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/foundry/calibration/test_pure_executor_semantics.py tests/unit/foundry/calibration/test_pure_executor.py tests/unit/foundry/analysis/test_merge_engine_regressions.py tests/unit/foundry/analysis/test_merge_determinism.py",
@@ -236,7 +236,7 @@
       "environment": "environment (candidate CPU runtime profile in this receipt)",
       "input_closure": "Complete four named test files; real pure-executor and merge runtime. No skipped test/backend substitutions. Source/test bytes frozen before this run and unchanged in companion commit 983e06616e805ccd35931df1acb39fb0d7201f97",
       "outcome": "PASS",
-      "output": "58 passed in 32.88s; supervisor wall 40.691360773s, peak child RSS 930556 KiB. Complete deciding output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.log",
+      "output": "58 passed in 32.88s; supervisor wall 40.691360773s, peak child RSS 930556 KiB. Complete deciding output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt",
       "resource_measurement": {
         "wall_s": 40.69136077300004,
         "peak_child_rss_kib": 930556,
@@ -273,7 +273,7 @@
       "environment": "environment",
       "input_closure": "Complete final native semantics file, including vmap(jit(scalar_run)) refusal/no numerical callback. Only source comments, release wording, and this regression differ from previous numerical kernel.",
       "outcome": "PASS",
-      "output": "33 passed in14.57s; complete output in cal05-mapped-schedules.log. Ruff check and format also PASS."
+      "output": "33 passed in14.57s; complete output in cal05-mapped-schedules-output.txt. Ruff check and format also PASS."
     },
     {
       "command_argv": [
@@ -290,7 +290,7 @@
       "environment": "environment",
       "input_closure": "Independent reviewer verified source/test/importer bytes identical before/after and match714f691; workspacehead983e066 changes release fragment only.",
       "outcome": "PASS",
-      "output": "32 semantics cases; exit0, wall 20.8770464170002s. Complete output in cal05-mapped-schedules.log."
+      "output": "32 semantics cases; exit0, wall 20.8770464170002s. Complete output in cal05-mapped-schedules-output.txt."
     },
     {
       "command_argv": [
@@ -310,7 +310,7 @@
       "environment": "environment",
       "input_closure": "Independent reviewer verified source/test/importer bytes identical before/after and match714f691; workspacehead983e066 changes release fragment only.",
       "outcome": "PASS",
-      "output": "4 actual Calibrator cases (rate recovery, slot metric, GradNorm, Hessian); exit0, wall 19.86642403499991s. Complete output in cal05-mapped-schedules.log."
+      "output": "4 actual Calibrator cases (rate recovery, slot metric, GradNorm, Hessian); exit0, wall 19.86642403499991s. Complete output in cal05-mapped-schedules-output.txt."
     },
     {
       "command": "PYTHONPATH=src python docs/research/e02-cloud-test-plan/implementation-handoffs/E/schedule_execution_controls.py.txt",
@@ -318,7 +318,7 @@
       "environment": "environment",
       "input_closure": "Independent JAXCPU11 controls: vmap(jit), vmap(grad), vmap(Hessian), nestedvmap, scalar dynamicJIT/statevmap, guard-removal negative. Original script committed beside receipt.",
       "outcome": "PASS",
-      "output": "11 controls asserted. Mapped schedule orders refuse with zero numerical callbacks; vmap(jit) has one Python tracing call. Shared scalar active/inactive results and derivatives match analytic oracles. Complete deciding JSON in cal05-mapped-schedules.log."
+      "output": "11 controls asserted. Mapped schedule orders refuse with zero numerical callbacks; vmap(jit) has one Python tracing call. Shared scalar active/inactive results and derivatives match analytic oracles. Complete deciding JSON in cal05-mapped-schedules-output.txt."
     },
     {
       "command": "PYTHONPATH=src python docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration_schedule_readback.py.txt",
@@ -326,7 +326,7 @@
       "environment": "environment",
       "input_closure": "Independent actual Calibrator delayed-income-tax fixture:5 agents100 income, targetbalance[0,50], schedule[1,1], initialrate0.3, seed0, Hessianenabled; report DTO and replay from calibrated params. Not production dataset.",
       "outcome": "PASS",
-      "output": "rate0.0991758182644844; total_loss0.00013585726264864206; covariance[[0.0024999999441206455]]; std0.05000000074505806; replay balance[0.0,49.58790588378906] matches [0,500*rate]. Complete deciding output in cal05-mapped-schedules.log."
+      "output": "rate0.0991758182644844; total_loss0.00013585726264864206; covariance[[0.0024999999441206455]]; std0.05000000074505806; replay balance[0.0,49.58790588378906] matches [0,500*rate]. Complete deciding output in cal05-mapped-schedules-output.txt."
     },
     {
       "command_argv": [
@@ -343,7 +343,7 @@
       "environment": "environment",
       "input_closure": "Independent complete final semantics file; source/test before/after blobs equal pinnedbbc4058, executable executor AST equal714f691.",
       "outcome": "PASS",
-      "output": "33 native semantics cases; exit0, wall20.527699130999736s. Complete output in cal05-mapped-schedules.log."
+      "output": "33 native semantics cases; exit0, wall20.527699130999736s. Complete output in cal05-mapped-schedules-output.txt."
     }
   ],
   "property": {
@@ -430,7 +430,7 @@
   ],
   "receipt_companions": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/schedule_execution_controls.py.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration_schedule_readback.py.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-independent-review.json"
@@ -448,7 +448,7 @@
   },
   "evidence_input_lint_scope": "Original recorded probe sources are immutable evidence inputs, not shipped Python modules. An initial lint invocation on temporary .py copies reported assert/print/type/loopstyle findings; those copies were reclassified and saved as .py.txt without modifying bytes. Production source/native test Ruff check and formatting PASS; no repository lint rule disabled.",
   "evidence_locator_map": {
-    "independent original logs and JSON": "cal05-mapped-schedules.log contains complete deciding stdout/controls; cal05-independent-review.json retains original paths/hashes as immutable provenance.",
+    "independent original logs and JSON": "cal05-mapped-schedules-output.txt contains complete deciding stdout/controls; cal05-independent-review.json retains original paths/hashes as immutable provenance.",
     "independent numerical_controls.py": "schedule_execution_controls.py.txt (identical bytes/hash)",
     "independent calibrator_readback.py": "calibration_schedule_readback.py.txt (identical bytes/hash)",
     "review artifact indexes not copied separately": "Local harness scripts and duplicate metadata/derived views are not additional deciding evidence; exact argv/blobs remain in immutable review and original standalone oracle inputs."

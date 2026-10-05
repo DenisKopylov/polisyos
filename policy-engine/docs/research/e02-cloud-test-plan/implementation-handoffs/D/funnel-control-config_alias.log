@@ -1,0 +1,49 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/config_alias/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_real_bootstrap_l3_then_l4_matches_direct_full_config_and_audit_readback _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-87/test_real_bootstrap_l3_then_l40')
+
+    def test_real_bootstrap_l3_then_l4_matches_direct_full_config_and_audit_readback(tmp_path):
+        from copy import deepcopy
+    
+        from polisyos.scientist.methods.search.actionable_side_information import (
+            load_actionable_side_information,
+        )
+        from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+        from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+    
+        context = _bootstrap_context()
+        original = deepcopy(context)
+        store = FileSystemCAS(tmp_path / "audit")
+        candidate = {"candidate_id": "full-config"}
+        direct_observations, chained_observations = [], []
+        direct = Level4FullFidelity(_bootstrap_workflow(direct_observations)).evaluate(
+            candidate, context
+        )
+        orch = FunnelOrchestrator(
+            [
+                Level3MediumFidelity(_bootstrap_workflow(chained_observations)),
+                Level4FullFidelity(_bootstrap_workflow(chained_observations)),
+            ]
+        )
+        output = orch.as_stage_b_callable()(candidate, {**context, "store": store})
+        full = output["_funnel_outcome"].stage_results[4]
+        medium = output["_funnel_outcome"].stage_results[3]
+>       assert context == original
+E       AssertionError: assert {'data': [1, ...ap': 50}, ...} == {'data': [1, ...p': 120}, ...}
+E         
+E         Omitting 4 identical items, use -vv to show
+E         Differing items:
+E         {'model_config': {'scm_complexity': 'reduced'}} != {'model_config': {'scm_complexity': 'full'}}
+E         {'estimation_config': {'estimator': 'linear', 'n_bootstrap': 50}} != {'estimation_config': {'n_bootstrap': 120}}
+E         {'data_config': {'stratified': True, 'subsample_fraction': 0.2}} != {'data_config': {'subsample_fraction': 1.0}}
+E         Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_orchestrator.py:880: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_bootstrap_l3_then_l4_matches_direct_full_config_and_audit_readback
+1 failed in 0.51s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

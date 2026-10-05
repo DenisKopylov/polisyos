@@ -1,0 +1,54 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/candidate_binding/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_actual_policy_node_rechecks_missing_wrong_and_malformed_candidate_binding _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-88/test_actual_policy_node_rechec0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb0d0268d60>
+
+    def test_actual_policy_node_rechecks_missing_wrong_and_malformed_candidate_binding(
+        tmp_path, monkeypatch
+    ):
+        from polisyos.core.artifacts.manifest import ArtifactRef
+    
+        for mutation in ("missing", "wrong", "malformed"):
+            with monkeypatch.context() as scoped_patch:
+                harness = _install_actual_runtime_node_dependencies(
+                    scoped_patch, tmp_path / mutation, mode="normal"
+                )
+                original_extract = runtime._extract_level4_policy_evaluation
+    
+                def change_binding(
+                    ctx, *, candidate_ref, context, mutation=mutation, original_extract=original_extract
+                ):
+                    result = original_extract(ctx, candidate_ref=candidate_ref, context=context)
+                    if mutation == "missing":
+                        context.pop("policy_candidate_ref", None)
+                    elif mutation == "wrong":
+                        context["policy_candidate_ref"] = ArtifactRef(
+                            artifact_id="sha256:" + "c" * 64,
+                            kind="test",
+                            media_type="application/json",
+                        )
+                    else:
+                        context["policy_candidate_ref"] = "malformed-ref"
+                    return result
+    
+                scoped_patch.setattr(runtime, "_extract_level4_policy_evaluation", change_binding)
+                outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(
+                    harness["ctx"], harness["state"]
+                )
+                assert harness["runner_calls"] == ["runner"]
+>               assert harness["promotion_writes"] == [], mutation
+E               AssertionError: missing
+E               assert [{'candidate'...], ...}, ...}] == []
+E                 
+E                 Left contains one more item: {'candidate': PolicyCandidateSchema(schema_version='1.0', candidate_id='candidate_fun_03', rollout_plan=[], parameter_... {'backend_kind': 'controlled_test_backend', 'degradation_mode': None, 'fidelity_mode': 'full', 'notes': [], ...}, ...}
+E                 Use -v to get more diff
+
+tests/unit/scientist/search/funnel/test_level6_promotion.py:106: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_level6_promotion.py::test_actual_policy_node_rechecks_missing_wrong_and_malformed_candidate_binding
+1 failed in 12.37s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

@@ -1,0 +1,28 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/empty_approval/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_real_workflow_zero_empty_and_capped_aggregate_projection _________
+
+    def test_real_workflow_zero_empty_and_capped_aggregate_projection():
+        from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+    
+        observations = []
+        stage = Level4FullFidelity(_bootstrap_workflow(observations))
+        context = {**_bootstrap_context(), "data": [0.0] * 120}
+        candidate = {"candidate_id": "true-zero"}
+        evaluated = FunnelOrchestrator([stage]).as_stage_b_callable()(candidate, context)
+        assert evaluated["objective_value"] == 0.0
+        assert evaluated["feedback"]["verdict"] == "APPROVE"
+        for orch in (FunnelOrchestrator([]), FunnelOrchestrator([stage], max_level=2)):
+            output = orch.as_stage_b_callable()(candidate, context)
+            assert output["feedback"]["verdict"] == "NOT_EVALUATED"
+            assert not output["is_promising"]
+>           assert output["objective_value"] != 0.0
+E           assert 0.0 != 0.0
+
+tests/unit/scientist/search/funnel/test_orchestrator.py:907: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_workflow_zero_empty_and_capped_aggregate_projection
+1 failed in 0.61s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

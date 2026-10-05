@@ -1,0 +1,43 @@
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+{
+  "workflow": "SimpleLoopEngine estimate reads data_config and estimation_config -> Foundry bootstrap_mean_interval seed17",
+  "synthetic_input": "integers1..120; full fraction1; full n_bootstrap120",
+  "direct_observations": [
+    [
+      120,
+      120,
+      55.46217946582554,
+      65.6001316801553
+    ]
+  ],
+  "chained_observations": [
+    [
+      24,
+      50,
+      9.701748263717198,
+      15.051575173335113
+    ],
+    [
+      120,
+      120,
+      55.46217946582554,
+      65.6001316801553
+    ]
+  ],
+  "full_output_equal": true,
+  "caller_context_unchanged": true,
+  "direct_output": {
+    "ate": 60.5,
+    "gdp_change": 60.5,
+    "gov_balance": 0.0,
+    "bootstrap": {
+      "ci_width": 10.137952214329758
+    }
+  },
+  "final_action": "complete",
+  "reported_total_cost_usd": 1.000001273,
+  "routing_budget_remaining_run": "5",
+  "routing_budget_spent": {},
+  "native_adapter_limitation": "_PolicyRuntimeWorkflowEngine pins medium/full fidelity and does not consume this generic workflow data/bootstrap configuration"
+}

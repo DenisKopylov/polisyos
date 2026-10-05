@@ -68,6 +68,7 @@ from polisyos.runtime.quality.attestation import (
     serialize_attestation_record,
 )
 from polisyos.runtime.quality.design_problem import (
+    DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
     DesignProblem,
     DesignProblemAuthorityError,
 )
@@ -502,6 +503,18 @@ def design_problem_provider_constraint_schema() -> dict[str, Any]:
     """
 
     schema = _inline_json_schema_refs(DesignProblem.model_json_schema())
+    schema_properties = schema.get("properties")
+    if not isinstance(schema_properties, dict):
+        raise ValueError("design_problem_provider_schema_version_missing")
+    schema_properties["schema_version"] = {
+        "const": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
+        "type": "string",
+    }
+    required_fields = schema.get("required")
+    if not isinstance(required_fields, list):
+        raise ValueError("design_problem_provider_required_fields_invalid")
+    if "schema_version" not in required_fields:
+        required_fields.append("schema_version")
     try:
         time_union = schema["properties"]["jurisdiction_time"]["properties"]["time_semantics"]
         branches = time_union["anyOf"]
@@ -624,6 +637,16 @@ def _merge_design_problem_runtime_context(
     context: Mapping[str, Any],
 ) -> dict[str, Any]:
     merged = dict(payload)
+    supplied_schema_version = merged.get("schema_version")
+    if (
+        supplied_schema_version is not None
+        and supplied_schema_version != DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION
+    ):
+        raise DesignProblemAuthorityError(
+            "design_problem_compiler_schema_version_mismatch",
+            "New NL compiler outputs must use the current DesignProblem schema.",
+        )
+    merged["schema_version"] = DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION
     provenance = dict(merged.get("nl_provenance") or {})
     provenance["raw_request"] = nl_request
     provenance.setdefault("source_surface", "runtime.control.nl_request")

@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import UTC, datetime
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.ir.kernel.base import SLOT_ID_PATTERN
 from polisyos.ir.kernel.time_semantics import TimeSemantics
 
 DESIGN_PROBLEM_SCHEMA_VERSION = "policyos.runtime.design_problem.v1"
+DESIGN_PROBLEM_V1_SCHEMA_VERSION = DESIGN_PROBLEM_SCHEMA_VERSION
+DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION = "policyos.runtime.design_problem.v2"
 DESIGN_PROBLEM_PROJECTION_SCHEMA_VERSION = "policyos.runtime.design_problem.projection.v1"
 _DESIGN_PROBLEM_PROJECTION_KEY = "design_problem_projection"
 _DESIGN_PROBLEM_PROJECTION_NOTE_PREFIX = "design_problem_projection:"
@@ -21,6 +25,48 @@ _PROJECTION_LOSSY_FIELDS: dict[str, tuple[str, ...]] = {
     "model_spec": (),
     "policy_request_frame": (),
 }
+_LEGACY_TARGET_SLOT_PATTERN = r"^[a-z][a-z0-9_]*$"
+
+
+def _add_versioned_target_slot_json_schema(schema: dict[str, Any]) -> None:
+    """Keep the exported schema aligned with the versioned runtime slot rule.
+
+    The generic model retains its historical v1 default. Only explicit v2
+    payloads accept qualified slots; every other string version keeps the
+    historical unqualified slot vocabulary.
+    """
+
+    schema.setdefault("allOf", []).append(
+        {
+            "if": {
+                "not": {
+                    "required": ["schema_version"],
+                    "properties": {
+                        "schema_version": {
+                            "const": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION
+                        }
+                    },
+                },
+            },
+            "then": {
+                "properties": {
+                    "candidate_lever_space": {
+                        "properties": {
+                            "candidate_levers": {
+                                "items": {
+                                    "properties": {
+                                        "target_slot": {
+                                            "pattern": _LEGACY_TARGET_SLOT_PATTERN
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+        }
+    )
 
 
 class DesignProblemAuthorityError(ValueError):
@@ -123,7 +169,7 @@ class CandidateLever(_StrictModel):
     lever_id: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
     operator_kind: str = Field(..., min_length=1)
     instrument: str = Field(..., min_length=1)
-    target_slot: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
+    target_slot: str = Field(..., pattern=SLOT_ID_PATTERN)
 
 
 class CandidateLeverSpace(_StrictModel):
@@ -215,6 +261,12 @@ class DesignProblem(_StrictModel):
     runtime_hints: dict[str, Any] = Field(default_factory=dict)
     _projection_lossy_fields: ClassVar[dict[str, tuple[str, ...]]] = _PROJECTION_LOSSY_FIELDS
 
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        json_schema_extra=_add_versioned_target_slot_json_schema,
+    )
+
     @field_validator("objectives")
     @classmethod
     def _objectives_required(cls, value: list[DesignObjective]) -> list[DesignObjective]:
@@ -256,6 +308,12 @@ class DesignProblem(_StrictModel):
                 raise ValueError(
                     f"invented_admissibility:{constraint.constraint_id}:missing_source_text"
                 )
+        if self.schema_version != DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION:
+            for lever in self.candidate_lever_space.candidate_levers:
+                if re.fullmatch(_LEGACY_TARGET_SLOT_PATTERN, lever.target_slot) is None:
+                    if self.schema_version == DESIGN_PROBLEM_V1_SCHEMA_VERSION:
+                        raise ValueError("design_problem_v1_target_slot_invalid")
+                    raise ValueError("design_problem_legacy_target_slot_invalid")
         return self
 
     @classmethod
@@ -283,7 +341,10 @@ class DesignProblem(_StrictModel):
             if isinstance(design_problem, dict):
                 return cls.model_validate(design_problem)
             return None
-        if payload.get("schema_version") == DESIGN_PROBLEM_SCHEMA_VERSION:
+        if payload.get("schema_version") in {
+            DESIGN_PROBLEM_V1_SCHEMA_VERSION,
+            DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
+        }:
             return cls.model_validate(payload)
         return None
 
@@ -822,6 +883,7 @@ def _enum_value(enum_type: object, value: str, *, default: object) -> object:
 
 
 __all__ = [
+    "DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION",
     "DESIGN_PROBLEM_PROJECTION_SCHEMA_VERSION",
     "DESIGN_PROBLEM_SCHEMA_VERSION",
     "AuthorityProfile",

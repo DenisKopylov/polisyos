@@ -7,8 +7,9 @@ or transport profiles.
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Mapping, Sequence
-from typing import Any, Literal
+from typing import Any, Literal, Protocol, cast
 
 from pydantic import (
     BaseModel,
@@ -18,8 +19,20 @@ from pydantic import (
     field_validator,
     model_validator,
 )
+from pydantic_core import to_jsonable_python
 
+from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.manifest import (
+    ArtifactSameInputClosureInfo,
+    ArtifactTenantContextInfo,
+)
+from polisyos.core.security import (
+    get_current_access_scope_or_none,
+    get_current_cell_id,
+    get_current_tenant_id_or_none,
+)
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
 from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
 )
@@ -38,7 +51,13 @@ from polisyos.runtime.quality.world_model_record import (
 )
 
 CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION = "policyos.runtime.cycle_substrate_context.v1"
+CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA = (
+    "policyos.runtime.cycle_substrate_context_job_artifact.v1"
+)
+CYCLE_SUBSTRATE_CONTEXT_JOB_KIND = "runtime.quality.cycle_substrate_context_job"
+CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION = "1.0"
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
+_CONTEXT_JOB_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _REQUIRED_AUTHORITY_DENIALS = frozenset(
     {
         "grounding_authority",
@@ -46,6 +65,335 @@ _REQUIRED_AUTHORITY_DENIALS = frozenset(
         "promotion_authority",
     }
 )
+_REQUIRED_CONTEXT_JOB_LIMITATIONS = frozenset(
+    {
+        "design_problem_population_identity_missing",
+        "design_problem_time_roles_not_reconciled",
+        "owner_profile_admission_missing",
+        "s8_current_value_authority_missing",
+    }
+)
+# This v1 artifact embeds only model versions whose field trees are frozen
+# below. The L6 owner explicitly supports both its v1 and v2 bundle formats.
+_CONTEXT_JOB_V1_SUPPORTED_MODEL_VERSIONS: dict[str, frozenset[str]] = {
+    "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContext": frozenset(
+        {CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION}
+    ),
+    "polisyos.runtime.quality.substrate_registry.SubstrateRegistry": frozenset(
+        {"policyos.runtime.substrate_registry.v1"}
+    ),
+    "polisyos.pdc._impl.world_model_record.WorldModelRecord": frozenset(
+        {"policyos.runtime.world_model_record.v1"}
+    ),
+    "polisyos.runtime.quality.intervention_substrate.InterventionSubstrateBundle": frozenset(
+        {
+            "policyos.runtime.intervention_substrate_lift.v1",
+            "policyos.runtime.intervention_substrate_lift.v2",
+        }
+    ),
+}
+_CONTEXT_JOB_V1_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
+    "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContextJobArtifact": (
+        "schema_version",
+        "authority_purpose",
+        "status",
+        "profile_admission_status",
+        "s8_status",
+        "run_id",
+        "job_id",
+        "tenant_id",
+        "cell_id",
+        "design_problem_ref",
+        "problem",
+        "context",
+        "limitation_codes",
+        "content_hash",
+    ),
+    "polisyos.runtime.quality.design_problem.DesignProblem": (
+        "schema_version",
+        "design_problem_id",
+        "problem_statement",
+        "domain",
+        "nl_provenance",
+        "authority_profile",
+        "jurisdiction_time",
+        "objectives",
+        "constraints",
+        "stakeholders",
+        "outcome_of_interest",
+        "candidate_lever_space",
+        "evidence_acquisition_needs",
+        "model_spec_ref",
+        "ir_problem_frame_ref",
+        "policy_request_frame_ref",
+        "runtime_hints",
+    ),
+    "polisyos.runtime.quality.design_problem.NLProvenance": (
+        "raw_request", "source_surface", "source_context"
+    ),
+    "polisyos.runtime.quality.design_problem.AuthorityProfile": (
+        "requester_authority",
+        "requested_authority_level",
+        "mandate",
+        "authority_refs",
+    ),
+    "polisyos.runtime.quality.design_problem.JurisdictionTimeSemantics": (
+        "region", "valid_time", "as_of", "policy_time", "data_time", "time_semantics"
+    ),
+    "polisyos.ir.kernel.time_semantics.TimeSemantics": (
+        "frequency", "start_date", "step_count", "end_date", "notes"
+    ),
+    "polisyos.runtime.quality.design_problem.DesignObjective": (
+        "objective_id", "description", "metric_id", "direction"
+    ),
+    "polisyos.runtime.quality.design_problem.DesignConstraint": (
+        "constraint_id",
+        "description",
+        "hard",
+        "admissibility_basis",
+        "source_text",
+        "evidence_ref",
+    ),
+    "polisyos.runtime.quality.design_problem.DesignStakeholder": (
+        "stakeholder_id", "name", "role"
+    ),
+    "polisyos.runtime.quality.design_problem.OutcomeOfInterest": (
+        "target_variable", "metric_id", "estimand", "direction"
+    ),
+    "polisyos.runtime.quality.design_problem.CandidateLeverSpace": (
+        "allowed_operator_kinds", "candidate_levers"
+    ),
+    "polisyos.runtime.quality.design_problem.CandidateLever": (
+        "lever_id", "operator_kind", "instrument", "target_slot"
+    ),
+    "polisyos.runtime.quality.design_problem.EvidenceAcquisitionNeeds": ("needs",),
+    "polisyos.runtime.quality.design_problem.EvidenceNeed": (
+        "need_id", "question", "required_for", "status", "source_hint", "artifact_ref"
+    ),
+    "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContext": (
+        "schema_version",
+        "design_problem_ref",
+        "domain",
+        "source_pack_content_hash",
+        "substrate_input_content_hash",
+        "substrate_registry",
+        "substrate_registry_content_hash",
+        "selected_registry_entry_hashes",
+        "world_model_record",
+        "world_model_record_content_hash",
+        "intervention_substrate",
+        "candidate_levers",
+        "transport_context",
+        "authority_purpose",
+        "may_not_use_for",
+        "context_binding_hash",
+        "content_hash",
+    ),
+    "polisyos.runtime.quality.cycle_substrate.CandidateLeverEvidence": (
+        "lever_id",
+        "instrument",
+        "target_concept",
+        "status",
+        "entry_content_hash",
+        "substrate_input_content_hash",
+        "selected_registry_entry_hash",
+        "context_binding_hash",
+        "source_refs",
+    ),
+    "polisyos.runtime.quality.cycle_substrate.TransportContextEvidence": (
+        "status",
+        "source_context_id",
+        "target_context_id",
+        "source_profile_content_hash",
+        "target_profile_content_hash",
+        "substrate_input_content_hash",
+        "context_binding_hash",
+        "covariates",
+    ),
+    "polisyos.runtime.quality.cycle_substrate.TransportCovariateObservation": (
+        "canonical_var",
+        "source_value",
+        "target_value",
+        "source_row_content_hash",
+        "target_row_content_hash",
+    ),
+    "polisyos.runtime.quality.substrate_registry.SubstrateRegistry": (
+        "substrate_version_id",
+        "schema_version",
+        "producer_ref",
+        "content_hash",
+        "source_catalog_refs",
+        "entries",
+    ),
+    "polisyos.runtime.quality.substrate_registry.SubstrateRegistryEntry": (
+        "source_id",
+        "family_id",
+        "layer",
+        "coverage",
+        "trust_tier",
+        "identification_mode",
+        "schema_regime",
+        "data_version",
+        "snapshot_id",
+        "source_snapshot_id",
+        "provenance_refs",
+        "authority_refs",
+        "entry_content_hash",
+    ),
+    "polisyos.runtime.quality.substrate_registry.SubstrateCoverage": (
+        "coverage_score",
+        "coverage_kind",
+        "coverage_rule_ref",
+        "dataset_count",
+        "metric_binding_count",
+        "observation_count",
+        "quality_scores",
+        "coverage_dimensions",
+    ),
+    "polisyos.runtime.quality.substrate_registry.SubstrateTrustTier": (
+        "tier",
+        "trust_cap",
+        "trust_multiplier",
+        "min_coverage",
+        "max_coverage",
+        "authority_ref",
+    ),
+    "polisyos.runtime.quality.substrate_registry.SubstrateSchemaRegime": (
+        "schema_regime_id",
+        "authority_ref",
+        "effective_start",
+        "effective_end",
+        "boundary_buffer_periods",
+        "source_version",
+    ),
+    "polisyos.pdc._impl.world_model_record.WorldModelRecord": (
+        "world_model_record_id",
+        "schema_version",
+        "authority_status",
+        "created_at",
+        "producer_ref",
+        "content_hash",
+        "region_or_jurisdiction",
+        "population_scope",
+        "policy_domain",
+        "valid_time_scope",
+        "tx_time_scope",
+        "resolution",
+        "branch_mode",
+        "fabric_world_ref",
+        "data_forge_binding_ref",
+        "simulation_model_ref",
+        "foundry_binding_ref",
+        "skg_causal_prior_ref",
+        "substrate_registry_ref",
+        "policy_slot_map",
+        "limitations",
+        "deployment_update_refs",
+    ),
+    "polisyos.pdc._impl.world_model_record.FabricWorldRef": (
+        "snapshot_root",
+        "snapshot_id",
+        "branch",
+        "as_of_valid_time",
+        "as_of_tx_time",
+        "world_query_policy",
+        "provenance_manifest_ref",
+        "content_query_digest",
+        "content_query_row_count",
+    ),
+    "polisyos.pdc._impl.world_model_record.DataForgeBindingRef": (
+        "snapshot_id",
+        "release_id",
+        "role",
+        "read_api_identity",
+        "snapshot_ref",
+        "merkle_root",
+        "data_hash",
+        "claim_requirement_bindings",
+        "quality_gate_refs",
+        "lineage_refs",
+        "provenance_manifest_ref",
+        "binding_path",
+    ),
+    "polisyos.pdc._impl.world_model_record.SimulationModelRef": (
+        "model_spec_ref",
+        "model_spec_hash",
+        "model_id",
+        "data_snapshot_ref",
+        "registry_bundle_ref",
+        "mechanism_refs",
+        "gcm_refs",
+        "ncm_refs",
+        "program_graph_refs",
+        "assumptions",
+        "fidelity_level",
+        "calibration_ref",
+        "calibrated",
+    ),
+    "polisyos.pdc._impl.world_model_record.FoundryBindingRef": (
+        "input_bindings_ref",
+        "bound_state_snapshot_ref",
+        "mapping_rules_ref",
+        "state_slot_digest",
+    ),
+    "polisyos.pdc._impl.world_model_record.SkgCausalPriorRef": (
+        "skg_snapshot_ref",
+        "skg_version_id",
+        "source_data_snapshot_id",
+        "edge_prior_refs",
+        "transport_score_refs",
+        "query_trace_refs",
+    ),
+    "polisyos.pdc._impl.world_model_record.SubstrateRegistryRef": (
+        "substrate_version_id", "content_hash", "registry_artifact_ref", "resolved_entries"
+    ),
+    "polisyos.pdc._impl.world_model_record.ResolvedSubstrateEntryRef": (
+        "source_id",
+        "family_id",
+        "layer",
+        "coverage_score",
+        "trust_tier",
+        "trust_cap",
+        "identification_mode",
+        "schema_regime_id",
+        "data_version",
+        "snapshot_id",
+        "source_snapshot_id",
+        "entry_content_hash",
+    ),
+    "polisyos.pdc._impl.world_model_record.PolicySlotBinding": (
+        "slot_id", "state_path", "unit", "entity_scope", "temporal_granularity"
+    ),
+    "polisyos.pdc._impl.world_model_record.WorldModelLimitations": (
+        "unavailable_data",
+        "transport_limits",
+        "calibration_envelope_status",
+        "unresolved_conflicts",
+        "admissibility_blockers",
+    ),
+    "polisyos.pdc._impl.world_model_record.DeploymentUpdateRefs": (
+        "phase",
+        "feedback_refs",
+        "reissue_refs",
+        "refute_refs",
+        "incident_refs",
+        "posterior_update_refs",
+    ),
+    "polisyos.runtime.quality.intervention_substrate.InterventionSubstrateBundle": (
+        "schema_version",
+        "knob_dictionary",
+        "lex_intervention_map",
+        "observation_manifest",
+        "policy_scenario_templates",
+        "slot_family_manifest",
+        "world_mechanism_manifest",
+        "lex_authority_manifest",
+        "owner_authority_manifest",
+        "source_refs",
+        "source_content_hashes",
+        "content_hash",
+    ),
+}
 
 
 class _StrictModel(BaseModel):
@@ -249,6 +597,393 @@ class CycleSubstrateContext(_StrictModel):
         if self.content_hash != expected_content_hash:
             raise ValueError("cycle_substrate_content_hash_mismatch")
         return self
+
+
+class CycleSubstrateContextOwnerError(ValueError):
+    """Typed failure from job-scoped candidate-context intake and replay."""
+
+    def __init__(self, code: str, message: str | None = None) -> None:
+        self.code = code
+        super().__init__(f"{code}: {message or code}")
+
+
+class _CurrentControlJobRecord(Protocol):
+    """Minimal persisted job identity exposed by the control-store owner."""
+
+    job_id: str
+    run_id: str | None
+
+
+class _CurrentControlJobExecutionOwner(Protocol):
+    """Resolve the authenticated worker's persisted job through its lease fence."""
+
+    def current_execution_job_record(self) -> _CurrentControlJobRecord: ...
+
+
+class CycleSubstrateContextJobArtifact(_StrictModel):
+    """Bind one candidate-only context to the compiled problem and served job.
+
+    The record carries explicit unresolved profile and value-authority limits.
+    It is a candidate input handoff, never a DataState profile admission or S8
+    authority receipt.
+    """
+
+    schema_version: Literal[
+        "policyos.runtime.cycle_substrate_context_job_artifact.v1"
+    ] = CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA
+    authority_purpose: Literal["cycle_input_candidate_only"] = (
+        "cycle_input_candidate_only"
+    )
+    status: Literal["candidate_limited"] = "candidate_limited"
+    profile_admission_status: Literal["not_established"] = "not_established"
+    s8_status: Literal["blocked"] = "blocked"
+    run_id: str = Field(..., min_length=1)
+    job_id: str = Field(..., min_length=1)
+    tenant_id: str = Field(..., min_length=1)
+    cell_id: str = Field(..., min_length=1)
+    design_problem_ref: str = Field(..., pattern=_HASH_PATTERN)
+    problem: DesignProblem
+    context: CycleSubstrateContext
+    limitation_codes: tuple[str, ...]
+    content_hash: str = Field(..., pattern=_HASH_PATTERN)
+
+    @field_validator("limitation_codes")
+    @classmethod
+    def _required_profile_limits(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("cycle_substrate_context_job_limitation_duplicate")
+        missing = _REQUIRED_CONTEXT_JOB_LIMITATIONS.difference(value)
+        if missing:
+            raise ValueError(
+                "cycle_substrate_context_job_limitation_missing:"
+                + ",".join(sorted(missing))
+            )
+        return value
+
+    @model_validator(mode="after")
+    def _validate_job_artifact(self) -> CycleSubstrateContextJobArtifact:
+        problem_ref = _cycle_job_v1_design_problem_ref(self.problem)
+        if self.design_problem_ref != problem_ref:
+            raise ValueError("cycle_substrate_context_job_problem_hash_mismatch")
+        context = revalidate_cycle_substrate_context(self.context)
+        if context.design_problem_ref != problem_ref:
+            raise ValueError("cycle_substrate_context_job_context_problem_mismatch")
+        _validate_problem_world_match(self.problem, context)
+        expected_hash = cycle_substrate_context_job_content_hash(self)
+        if self.content_hash != expected_hash:
+            raise ValueError("cycle_substrate_context_job_content_hash_mismatch")
+        if context.authority_purpose != "cycle_input_candidate_only":
+            raise ValueError("cycle_substrate_context_job_authority_purpose_invalid")
+        if self.profile_admission_status != "not_established" or self.s8_status != "blocked":
+            raise ValueError("cycle_substrate_context_job_authority_limit_removed")
+        return self
+
+
+def _validate_problem_world_match(
+    problem: DesignProblem,
+    context: CycleSubstrateContext,
+) -> None:
+    """Require exact domain, jurisdiction, and qualified lever-slot identity."""
+
+    world = context.world_model_record
+    if context.domain != problem.domain or world.policy_domain != problem.domain:
+        raise CycleSubstrateContextOwnerError(
+            "cycle_substrate_context_job_domain_mismatch"
+        )
+    if world.region_or_jurisdiction != problem.jurisdiction_time.region:
+        raise CycleSubstrateContextOwnerError(
+            "cycle_substrate_context_job_jurisdiction_mismatch"
+        )
+    world_slots = {binding.slot_id for binding in world.policy_slot_map}
+    problem_slots = {
+        lever.target_slot for lever in problem.candidate_lever_space.candidate_levers
+    }
+    missing_slots = sorted(problem_slots.difference(world_slots))
+    if missing_slots:
+        raise CycleSubstrateContextOwnerError(
+            "cycle_substrate_context_job_policy_slot_unresolved",
+            ",".join(missing_slots),
+        )
+
+
+def _current_job_scope() -> tuple[str, str]:
+    """Resolve tenant and cell only from the authenticated request context."""
+
+    scope = get_current_access_scope_or_none()
+    tenant_id = get_current_tenant_id_or_none()
+    cell_id = get_current_cell_id()
+    if scope is None or not tenant_id or not cell_id:
+        raise CycleSubstrateContextOwnerError(
+            "cycle_substrate_context_job_authenticated_scope_not_established"
+        )
+    if scope.tenant_id != tenant_id or scope.cell_id != cell_id:
+        raise CycleSubstrateContextOwnerError(
+            "cycle_substrate_context_job_authenticated_scope_mismatch"
+        )
+    return tenant_id, cell_id
+
+
+def _serialize_context_job_v1_value(value: object) -> object:
+    """Serialize known v1 model fields without consulting live model shape.
+
+    A newly added nested model or an unsupported nested schema version fails
+    closed. Extending this field tree requires a new outer context-job schema.
+    """
+
+    if isinstance(value, BaseModel):
+        model_name = f"{type(value).__module__}.{type(value).__qualname__}"
+        fields = _CONTEXT_JOB_V1_MODEL_FIELDS.get(model_name)
+        if fields is None:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v1_serializer_model_unregistered",
+                model_name,
+            )
+        supported_versions = _CONTEXT_JOB_V1_SUPPORTED_MODEL_VERSIONS.get(model_name)
+        nested_version = getattr(value, "schema_version", None)
+        if (
+            supported_versions is not None
+            and nested_version not in supported_versions
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v1_nested_schema_unsupported",
+                f"{model_name}: {nested_version}",
+            )
+        return {
+            field_name: _serialize_context_job_v1_value(getattr(value, field_name))
+            for field_name in fields
+        }
+    if isinstance(value, Mapping):
+        return {
+            str(key): _serialize_context_job_v1_value(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, (tuple, list)):
+        return [_serialize_context_job_v1_value(item) for item in value]
+    if isinstance(value, (set, frozenset)):
+        serialized = [_serialize_context_job_v1_value(item) for item in value]
+        return sorted(serialized, key=repr)
+    return to_jsonable_python(value, by_alias=False)
+
+
+def _serialize_cycle_substrate_context_job_artifact(
+    artifact: CycleSubstrateContextJobArtifact | Mapping[str, Any],
+) -> dict[str, Any]:
+    """Dispatch to the frozen byte serializer for the artifact's schema version."""
+
+    schema_version = (
+        artifact.schema_version
+        if isinstance(artifact, CycleSubstrateContextJobArtifact)
+        else artifact.get("schema_version")
+    )
+    if schema_version != CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA:
+        raise CycleSubstrateContextOwnerError(
+            "cycle_substrate_context_job_schema_version_unsupported",
+            str(schema_version),
+        )
+    fields = _CONTEXT_JOB_V1_MODEL_FIELDS[
+        "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContextJobArtifact"
+    ]
+    if isinstance(artifact, BaseModel):
+        values = {name: getattr(artifact, name) for name in fields}
+    else:
+        values = {name: artifact[name] for name in fields if name in artifact}
+    return cast("dict[str, Any]", _serialize_context_job_v1_value(values))
+
+
+def _cycle_job_v1_design_problem_ref(problem: DesignProblem) -> str:
+    """Hash DesignProblem through the frozen v1 context-artifact projection."""
+
+    return gy_content_hash(_serialize_context_job_v1_value(problem))
+
+
+def cycle_substrate_context_job_content_hash(
+    artifact: CycleSubstrateContextJobArtifact | Mapping[str, Any],
+) -> str:
+    """Hash the frozen, schema-dispatched job-context payload without its hash."""
+
+    payload = _serialize_cycle_substrate_context_job_artifact(artifact)
+    payload.pop("content_hash", None)
+    return gy_content_hash(payload)
+
+
+def _build_cycle_substrate_context_job_artifact(
+    context: CycleSubstrateContext,
+    *,
+    problem: DesignProblem,
+    current_job: _CurrentControlJobRecord,
+) -> CycleSubstrateContextJobArtifact:
+    """Build candidate handoff from the current persisted control-job record.
+
+    The context must already exist as an owner-built typed object. This intake
+    binds it to the job resolved by the control-store execution fence but does
+    not mint a WMR, profile admission, population identity, or S8 value authority.
+    """
+
+    if not current_job.job_id.strip() or not current_job.run_id:
+        raise CycleSubstrateContextOwnerError(
+            "cycle_substrate_context_job_persisted_identity_missing"
+        )
+    tenant_id, cell_id = _current_job_scope()
+    verified_context = revalidate_cycle_substrate_context(context)
+    problem_ref = _cycle_job_v1_design_problem_ref(problem)
+    if verified_context.design_problem_ref != problem_ref:
+        raise CycleSubstrateContextOwnerError(
+            "cycle_substrate_context_job_context_problem_mismatch"
+        )
+    _validate_problem_world_match(problem, verified_context)
+    payload: dict[str, Any] = {
+        "schema_version": CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA,
+        "authority_purpose": "cycle_input_candidate_only",
+        "status": "candidate_limited",
+        "profile_admission_status": "not_established",
+        "s8_status": "blocked",
+        "run_id": current_job.run_id,
+        "job_id": current_job.job_id,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "design_problem_ref": problem_ref,
+        "problem": problem,
+        "context": verified_context,
+        "limitation_codes": tuple(sorted(_REQUIRED_CONTEXT_JOB_LIMITATIONS)),
+    }
+    payload["content_hash"] = cycle_substrate_context_job_content_hash(payload)
+    return CycleSubstrateContextJobArtifact.model_validate(payload)
+
+
+def _context_job_write_options(
+    artifact: CycleSubstrateContextJobArtifact,
+) -> artifacts.ArtifactWriteOptions:
+    """Build the exact tenant and job manifest profile for this artifact."""
+
+    return artifacts.ArtifactWriteOptions(
+        kind=CYCLE_SUBSTRATE_CONTEXT_JOB_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(
+            name=CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA,
+            version=CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION,
+        ),
+        producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_CONTEXT_JOB_CANON),
+        tenant_context=ArtifactTenantContextInfo(
+            tenant_id=artifact.tenant_id,
+            cell_id=artifact.cell_id,
+        ),
+        same_input_closure=ArtifactSameInputClosureInfo(
+            closure_id=f"cycle-substrate-context:{artifact.run_id}:{artifact.job_id}",
+            status="candidate_only",
+            run_id=artifact.run_id,
+            job_id=artifact.job_id,
+            tenant_id=artifact.tenant_id,
+            cell_id=artifact.cell_id,
+        ),
+    )
+
+
+class CycleSubstrateContextArtifactOwner:
+    """Persist and directly resolve one tenant/job-bound candidate context."""
+
+    def __init__(
+        self,
+        *,
+        store: artifacts.ArtifactStore,
+        control_store: _CurrentControlJobExecutionOwner,
+    ) -> None:
+        self._store = store
+        self._control_store = control_store
+
+    def persist_for_current_job(
+        self,
+        context: CycleSubstrateContext,
+        *,
+        problem: DesignProblem,
+    ) -> artifacts.ArtifactRef:
+        """Persist through the runtime store under the current persisted job lease."""
+
+        current_job = self._control_store.current_execution_job_record()
+        artifact = _build_cycle_substrate_context_job_artifact(
+            context,
+            problem=problem,
+            current_job=current_job,
+        )
+        return self._store.put_json(
+            _serialize_cycle_substrate_context_job_artifact(artifact),
+            _context_job_write_options(artifact),
+            canon_spec=_CONTEXT_JOB_CANON,
+        )
+
+    def resolve_for_current_job(
+        self,
+        ref: artifacts.ArtifactRef,
+        *,
+        problem: DesignProblem,
+    ) -> CycleSubstrateContextJobArtifact:
+        """Verify a ref against the persisted job authorized by the active lease."""
+
+        current_job = self._control_store.current_execution_job_record()
+        if not current_job.job_id.strip() or not current_job.run_id:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_persisted_identity_missing"
+            )
+        tenant_id, cell_id = _current_job_scope()
+        expected_problem_ref = _cycle_job_v1_design_problem_ref(problem)
+        if not self._store.verify(ref).ok:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_cas_integrity_failed"
+            )
+        manifest = self._store.get_manifest(ref)
+        body = self._store.get_bytes(ref)
+        if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_cas_content_mismatch"
+            )
+        try:
+            artifact = CycleSubstrateContextJobArtifact.model_validate(
+                canon.from_canonical_bytes(body)
+            )
+        except (TypeError, ValueError) as exc:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_record_invalid", str(exc)
+            ) from exc
+        if (
+            artifact.run_id != current_job.run_id
+            or artifact.job_id != current_job.job_id
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_binding_mismatch"
+            )
+        if (
+            artifact.tenant_id != tenant_id
+            or artifact.cell_id != cell_id
+            or artifact.design_problem_ref != expected_problem_ref
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_binding_mismatch"
+            )
+        if not _has_context_job_owner_profile(manifest, artifact):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_owner_profile_mismatch"
+            )
+        return artifact
+
+
+def _has_context_job_owner_profile(
+    manifest: artifacts.ArtifactManifest,
+    artifact: CycleSubstrateContextJobArtifact,
+) -> bool:
+    """Require the full declared owner profile on the selected artifact view."""
+
+    options = _context_job_write_options(artifact)
+    actual = {
+        field.alias or name: getattr(manifest, name)
+        for name, field in type(manifest).model_fields.items()
+    }
+    for name, field in type(options).__dataclass_fields__.items():
+        expected = getattr(options, name)
+        if name in {"inputs", "warnings"}:
+            expected = list(expected or [])
+        if field is None or name not in actual or actual[name] != expected:
+            return False
+    return True
 
 
 def cycle_substrate_context_binding_hash(
@@ -630,14 +1365,21 @@ def resolve_world_model_atom_identity(
 
 
 __all__ = [
+    "CYCLE_SUBSTRATE_CONTEXT_JOB_KIND",
+    "CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA",
+    "CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION",
     "CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION",
     "CandidateLeverEvidence",
     "CycleSubstrateContext",
+    "CycleSubstrateContextArtifactOwner",
+    "CycleSubstrateContextJobArtifact",
+    "CycleSubstrateContextOwnerError",
     "TransportContextEvidence",
     "TransportCovariateObservation",
     "build_cycle_substrate_context",
     "cycle_substrate_context_binding_hash",
     "cycle_substrate_context_content_hash",
+    "cycle_substrate_context_job_content_hash",
     "resolve_candidate_lever_world_identity",
     "resolve_cycle_substrate_context_for_world",
     "resolve_cycle_substrate_world_identity",

@@ -63,7 +63,7 @@
             "type": "string"
           },
           "target_slot": {
-            "pattern": "^[a-z][a-z0-9_]*$",
+            "pattern": "^[a-z][a-z0-9_.]*$",
             "title": "Target Slot",
             "type": "string"
           }
@@ -484,6 +484,39 @@
       }
     },
     "additionalProperties": false,
+    "allOf": [
+      {
+        "if": {
+          "not": {
+            "properties": {
+              "schema_version": {
+                "const": "policyos.runtime.design_problem.v2"
+              }
+            },
+            "required": [
+              "schema_version"
+            ]
+          }
+        },
+        "then": {
+          "properties": {
+            "candidate_lever_space": {
+              "properties": {
+                "candidate_levers": {
+                  "items": {
+                    "properties": {
+                      "target_slot": {
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ],
     "description": "Bridge one policy-design problem across existing PolicyOS owners.\n\n``DesignProblem`` is the canonical request/problem bridge for the generation\ncycle. It reuses ``PolicyIntentEnvelope`` request semantics, projects to the\nScientist agent ``ProblemFrame``, projects to IR governance ``ProblemFrame``,\nkeeps the verified ``PolicyRequestFrame`` as a legal sub-projection, and\ncarries ``ModelSpec`` time semantics by reference instead of creating a\nparallel ontology.\n\nAttributes:\n    design_problem_id: Stable problem id used by projections.\n    nl_provenance: Raw NL request and capture context.\n    authority_profile: Requester authority and mandate boundaries.\n    jurisdiction_time: Jurisdiction and valid/as-of/policy/data time roles.\n    objectives: Formal objective candidates for generator and IR projection.\n    constraints: Constraints admitted only with request, authority, or\n        producer-evidence support.\n    stakeholders: Affected actor set.\n    outcome_of_interest: Target variable and estimand for value gating.\n    candidate_lever_space: Operator/instrument space for atom binding.\n    evidence_acquisition_needs: Grounding and acquisition demands.\n    model_spec_ref: Optional persisted ModelSpec reference.\n    ir_problem_frame_ref: Optional persisted IR ProblemFrame reference.\n    policy_request_frame_ref: Optional verified-policy sub-projection ref.\n    runtime_hints: Runtime-only projection hints for current cycle adapters.",
     "properties": {
       "authority_profile": {

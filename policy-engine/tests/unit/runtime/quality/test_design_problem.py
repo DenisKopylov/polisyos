@@ -147,6 +147,137 @@ def test_design_problem_spans_owner_surfaces_and_projects_shared_fields() -> Non
     assert problem.model_spec_ref == _sha("2")
 
 
+def test_design_problem_v1_keeps_its_historical_unqualified_slot_grammar() -> None:
+    """A current parser must not widen the vocabulary of saved v1 problems."""
+
+    payload = _design_problem().model_dump(mode="json")
+    payload["schema_version"] = "policyos.runtime.design_problem.v1"
+    payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
+        "government.balance"
+    )
+
+    with pytest.raises(ValueError, match="design_problem_v1_target_slot_invalid"):
+        DesignProblem.model_validate(payload)
+
+
+def test_design_problem_default_remains_v1_for_historical_hash_compatibility() -> None:
+    """Newly constructed generic models retain the prior source-hash default."""
+
+    assert _design_problem().schema_version == "policyos.runtime.design_problem.v1"
+
+
+def test_design_problem_v2_accepts_canonical_qualified_slot_and_v1_control() -> None:
+    """The current schema admits canonical dotted slots while v1 stays readable."""
+
+    payload = _design_problem().model_dump(mode="json")
+    payload["schema_version"] = "policyos.runtime.design_problem.v2"
+    payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
+        "government.balance"
+    )
+    current = DesignProblem.model_validate(payload)
+    assert current.candidate_lever_space.candidate_levers[0].target_slot == (
+        "government.balance"
+    )
+
+    legacy_payload = _design_problem().model_dump(mode="json")
+    legacy_payload["schema_version"] = "policyos.runtime.design_problem.v1"
+    legacy = DesignProblem.model_validate(legacy_payload)
+    assert legacy.candidate_lever_space.candidate_levers[0].target_slot == (
+        "credit_access"
+    )
+
+
+def test_design_problem_unknown_historical_schema_keeps_legacy_slot_grammar() -> None:
+    """Unknown historical schema strings remain readable without widening slots."""
+
+    payload = _design_problem().model_dump(mode="json")
+    payload["schema_version"] = "policyos.runtime.design_problem.legacy-import"
+    assert DesignProblem.model_validate(payload).schema_version == payload["schema_version"]
+
+    payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
+        "government.balance"
+    )
+    with pytest.raises(ValueError, match="design_problem_legacy_target_slot_invalid"):
+        DesignProblem.model_validate(payload)
+
+
+def test_design_problem_json_schema_matches_versioned_slot_grammar() -> None:
+    """The exported schema and runtime parser agree for legacy and current slots."""
+
+    from jsonschema import Draft202012Validator
+
+    schema = DesignProblem.model_json_schema()
+    validator = Draft202012Validator(schema)
+    cases = (
+        (None, "government.balance", False),
+        ("policyos.runtime.design_problem.v1", "government.balance", False),
+        ("policyos.runtime.design_problem.v1", "credit_access", True),
+        ("policyos.runtime.design_problem.v2", "government.balance", True),
+        ("policyos.runtime.design_problem.legacy-import", "credit_access", True),
+        ("policyos.runtime.design_problem.legacy-import", "government.balance", False),
+    )
+    for schema_version, target_slot, expected in cases:
+        payload = _design_problem().model_dump(mode="json")
+        if schema_version is None:
+            payload.pop("schema_version", None)
+        else:
+            payload["schema_version"] = schema_version
+        payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
+            target_slot
+        )
+        assert validator.is_valid(payload) is expected, (
+            schema_version,
+            target_slot,
+        )
+
+
+def test_candidate_lever_accepts_canonical_qualified_ir_slot() -> None:
+    problem = _design_problem(
+        schema_version="policyos.runtime.design_problem.v2",
+        candidate_lever_space={
+            "allowed_operator_kinds": ["credit_guarantee"],
+            "candidate_levers": [
+                {
+                    "lever_id": "credit_access_guarantee",
+                    "operator_kind": "credit_guarantee",
+                    "instrument": "state-backed credit guarantee",
+                    "target_slot": "credit_access",
+                },
+                {
+                    "lever_id": "government_balance_guarantee",
+                    "operator_kind": "credit_guarantee",
+                    "instrument": "state-backed credit guarantee",
+                    "target_slot": "government.balance",
+                }
+            ],
+        }
+    )
+
+    assert tuple(
+        lever.target_slot for lever in problem.candidate_lever_space.candidate_levers
+    ) == (
+        "credit_access",
+        "government.balance",
+    )
+
+
+def test_candidate_lever_rejects_noncanonical_hyphenated_slot() -> None:
+    with pytest.raises(ValueError, match="target_slot"):
+        _design_problem(
+            candidate_lever_space={
+                "allowed_operator_kinds": ["credit_guarantee"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "credit_access_guarantee",
+                        "operator_kind": "credit_guarantee",
+                        "instrument": "state-backed credit guarantee",
+                        "target_slot": "government.balance-sheet",
+                    }
+                ],
+            }
+        )
+
+
 def test_design_problem_round_trips_policy_intent_shared_fields() -> None:
     intent = build_policy_intent_envelope(
         intent_id="intent-run-1",

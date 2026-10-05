@@ -1,21 +1,36 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass
 from typing import Any
 
 import pytest
 
+from polisyos.core import canon
+from polisyos.core.artifacts import ArtifactOwnershipError, FileSystemCAS
+from polisyos.core.security import (
+    AccessScope,
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
+)
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import cycle_substrate as cycle_substrate_owner
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
     CycleSubstrateContext,
+    CycleSubstrateContextArtifactOwner,
+    CycleSubstrateContextJobArtifact,
+    CycleSubstrateContextOwnerError,
     TransportContextEvidence,
     TransportCovariateObservation,
     build_cycle_substrate_context,
     cycle_substrate_context_binding_hash,
     cycle_substrate_context_content_hash,
 )
+from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateBundle,
     InterventionSubstrateError,
@@ -51,6 +66,309 @@ from polisyos.runtime.quality.world_model_record import (
 
 def _hash(value: str) -> str:
     return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+@contextmanager
+def _authenticated_tenant_scope(
+    *, tenant_id: str, cell_id: str
+) -> Iterator[None]:
+    scope = AccessScope.for_service(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        spiffe_id="spiffe://tests/policyos/cycle-substrate-owner",
+    )
+    token = set_current_access_scope(scope)
+    try:
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            yield
+    finally:
+        reset_current_access_scope(token)
+
+
+def _design_problem() -> DesignProblem:
+    return DesignProblem.model_validate(
+        {
+            "schema_version": "policyos.runtime.design_problem.v2",
+            "design_problem_id": "education_budget_design",
+            "problem_statement": "Improve public school learning outcomes.",
+            "domain": "education",
+            "nl_provenance": {
+                "raw_request": "Improve public school learning outcomes.",
+                "source_surface": "runtime.control.nl_request",
+            },
+            "authority_profile": {
+                "requester_authority": "research",
+                "requested_authority_level": "research",
+                "mandate": "Research-only candidate generation.",
+            },
+            "jurisdiction_time": {
+                "region": "UA",
+                "valid_time": "2025",
+                "as_of": "2025-12-31",
+                "policy_time": "2025",
+                "data_time": "2024/2025",
+            },
+            "objectives": [
+                {
+                    "objective_id": "improve_learning",
+                    "description": "Improve learning outcomes.",
+                    "metric_id": "learning_outcomes",
+                }
+            ],
+            "stakeholders": [
+                {"stakeholder_id": "students", "name": "Students"}
+            ],
+            "outcome_of_interest": {
+                "target_variable": "learning_outcomes",
+                "metric_id": "learning_outcomes",
+                "estimand": "P(learning_outcomes | do(teaching_method))",
+            },
+            "candidate_lever_space": {
+                "allowed_operator_kinds": ["teaching_method"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "teaching_method",
+                        "operator_kind": "teaching_method",
+                        "instrument": "teaching method",
+                        "target_slot": "education.teaching_method",
+                    }
+                ],
+            },
+            "evidence_acquisition_needs": {"needs": []},
+        }
+    )
+
+
+@dataclass
+class _TestControlJobRecord:
+    job_id: str
+    run_id: str | None
+
+
+class _TestCurrentJobExecutionOwner:
+    """Narrow fixture for artifact-profile tests; HTTP tests cover real lease ownership."""
+
+    def __init__(self, job_id: str, run_id: str) -> None:
+        self.record = _TestControlJobRecord(job_id=job_id, run_id=run_id)
+
+    def current_execution_job_record(self) -> _TestControlJobRecord:
+        return self.record
+
+
+def test_cycle_substrate_context_owner_persists_exact_job_scope_and_reads_direct_ref(
+    tmp_path: Any,
+) -> None:
+    """The runtime store pins one candidate context to the compiled job identity."""
+
+    problem = _design_problem()
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method",),
+    )
+    context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+    )
+    store = FileSystemCAS(
+        tmp_path / "cycle-context-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    owner = CycleSubstrateContextArtifactOwner(
+        store=store,
+        control_store=_TestCurrentJobExecutionOwner(
+            "job-context-owner", "run-context-owner"
+        ),
+    )
+
+    with _authenticated_tenant_scope(
+        tenant_id="tenant-context-owner", cell_id="cell-context-owner"
+    ):
+        ref = owner.persist_for_current_job(context, problem=problem)
+        resolved = owner.resolve_for_current_job(ref, problem=problem)
+        manifest = store.get_manifest(ref)
+        serialized_v1 = cycle_substrate_owner._serialize_cycle_substrate_context_job_artifact(
+            resolved
+        )
+        serialized_bytes = canon.to_canonical_bytes(
+            serialized_v1,
+            cycle_substrate_owner._CONTEXT_JOB_CANON,
+        )
+        assert serialized_v1 == resolved.model_dump(mode="json")
+        assert store.get_bytes(ref) == serialized_bytes
+        assert len(serialized_bytes) == 10_310
+        assert hashlib.sha256(serialized_bytes).hexdigest() == (
+            "8f410b96785a011c347c3f291c651b58e7d41eccd8ea3775aeecd4c257c1f6bb"
+        )
+        assert resolved.content_hash == (
+            "sha256:e93b6eb4245991820146b9a7233d4639d6675cab2fcfdf54ac9000c9066960b2"
+        )
+
+    assert resolved.design_problem_ref == problem_ref
+    assert resolved.problem == problem
+    assert resolved.context.content_hash == context.content_hash
+    assert resolved.context.authority_purpose == "cycle_input_candidate_only"
+    assert resolved.profile_admission_status == "not_established"
+    assert resolved.s8_status == "blocked"
+    assert {
+        "design_problem_population_identity_missing",
+        "design_problem_time_roles_not_reconciled",
+        "owner_profile_admission_missing",
+        "s8_current_value_authority_missing",
+    }.issubset(resolved.limitation_codes)
+    assert {
+        "grounding_authority",
+        "transport_authority",
+        "promotion_authority",
+    }.issubset(resolved.context.may_not_use_for)
+    assert manifest.tenant_context is not None
+    assert manifest.tenant_context.tenant_id == "tenant-context-owner"
+    assert manifest.tenant_context.cell_id == "cell-context-owner"
+    assert manifest.same_input_closure is not None
+    assert manifest.same_input_closure.run_id == "run-context-owner"
+    assert manifest.same_input_closure.job_id == "job-context-owner"
+    assert manifest.same_input_closure.tenant_id == "tenant-context-owner"
+    assert manifest.same_input_closure.cell_id == "cell-context-owner"
+
+
+def test_cycle_substrate_context_owner_refuses_wrong_problem_or_job(tmp_path: Any) -> None:
+    """A content ref cannot be replayed for another compiled problem or job."""
+
+    problem = _design_problem()
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method",),
+    )
+    context = _cycle_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        registry=registry,
+        world_model_record=world,
+    )
+    store = FileSystemCAS(
+        tmp_path / "cycle-context-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    current_job = _TestCurrentJobExecutionOwner(
+        "job-context-owner", "run-context-owner"
+    )
+    owner = CycleSubstrateContextArtifactOwner(
+        store=store,
+        control_store=current_job,
+    )
+
+    with _authenticated_tenant_scope(
+        tenant_id="tenant-context-owner", cell_id="cell-context-owner"
+    ):
+        ref = owner.persist_for_current_job(context, problem=problem)
+        with pytest.raises(
+            CycleSubstrateContextOwnerError,
+            match="cycle_substrate_context_job_binding_mismatch",
+        ):
+            owner.resolve_for_current_job(
+                ref,
+                problem=problem.model_copy(
+                    update={"problem_statement": "A different compiled problem."}
+                ),
+            )
+        current_job.record.job_id = "foreign-job"
+        with pytest.raises(
+            CycleSubstrateContextOwnerError,
+            match="cycle_substrate_context_job_binding_mismatch",
+        ):
+            owner.resolve_for_current_job(ref, problem=problem)
+
+
+def test_cycle_substrate_context_owner_refuses_foreign_tenant_and_cell(
+    tmp_path: Any,
+) -> None:
+    """CAS tenant custody and active job scope both constrain direct resolution."""
+
+    problem = _design_problem()
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method",),
+    )
+    context = _cycle_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        registry=registry,
+        world_model_record=world,
+    )
+    store = FileSystemCAS(
+        tmp_path / "cycle-context-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    owner = CycleSubstrateContextArtifactOwner(
+        store=store,
+        control_store=_TestCurrentJobExecutionOwner(
+            "job-context-owner", "run-context-owner"
+        ),
+    )
+
+    with _authenticated_tenant_scope(
+        tenant_id="tenant-context-owner", cell_id="cell-context-owner"
+    ):
+        ref = owner.persist_for_current_job(context, problem=problem)
+
+    with _authenticated_tenant_scope(
+        tenant_id="tenant-foreign", cell_id="cell-foreign"
+    ), pytest.raises(ArtifactOwnershipError):
+        owner.resolve_for_current_job(ref, problem=problem)
+
+
+def test_cycle_substrate_context_job_artifact_detects_removed_job_binding(
+    tmp_path: Any,
+) -> None:
+    """Removing the job binding while retaining its markers fails content replay."""
+
+    problem = _design_problem()
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
+        policy_slot_ids=("education.teaching_method",),
+    )
+    context = _cycle_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        registry=registry,
+        world_model_record=world,
+    )
+    store = FileSystemCAS(
+        tmp_path / "cycle-context-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    owner = CycleSubstrateContextArtifactOwner(
+        store=store,
+        control_store=_TestCurrentJobExecutionOwner(
+            "job-context-owner", "run-context-owner"
+        ),
+    )
+    with _authenticated_tenant_scope(
+        tenant_id="tenant-context-owner", cell_id="cell-context-owner"
+    ):
+        ref = owner.persist_for_current_job(context, problem=problem)
+        record = CycleSubstrateContextJobArtifact.model_validate(
+            canon.from_canonical_bytes(store.get_bytes(ref))
+        )
+    payload = record.model_dump(mode="python")
+    payload["job_id"] = "foreign-job"
+
+    with pytest.raises(ValueError, match="cycle_substrate_context_job_content_hash_mismatch"):
+        CycleSubstrateContextJobArtifact.model_validate(payload)
 
 
 def _registry(domain: str) -> SubstrateRegistry:
@@ -102,6 +420,7 @@ def _world_record(
     duplicate_resolved_family_id: str | None = None,
     world_model_record_id: str | None = None,
     region_or_jurisdiction: str | None = None,
+    policy_slot_ids: tuple[str, ...] | None = None,
 ) -> WorldModelRecord:
     entry = registry.entries[0]
     resolved_entry = ResolvedSubstrateEntryRef(
@@ -187,12 +506,24 @@ def _world_record(
         ),
         "substrate_registry_ref": registry_ref,
         "policy_slot_map": (
-            PolicySlotBinding(
-                slot_id=f"{domain}_outcome",
-                state_path=f"substrate.{domain}.outcome",
-                entity_scope="population",
-                temporal_granularity="year",
-            ),
+            tuple(
+                PolicySlotBinding(
+                    slot_id=slot_id,
+                    state_path=f"substrate.{slot_id}",
+                    entity_scope="population",
+                    temporal_granularity="year",
+                )
+                for slot_id in policy_slot_ids
+            )
+            if policy_slot_ids is not None
+            else (
+                PolicySlotBinding(
+                    slot_id=f"{domain}_outcome",
+                    state_path=f"substrate.{domain}.outcome",
+                    entity_scope="population",
+                    temporal_granularity="year",
+                ),
+            )
         ),
     }
     draft = WorldModelRecord.model_construct(

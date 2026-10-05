@@ -16,7 +16,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Literal, cast, get_args
+from typing import Any, ContextManager, Literal, cast, get_args
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -1302,26 +1302,71 @@ class ControlPlaneStore:
         else:
             raise RuntimeError(f"Unsupported control-plane store backend: {backend!r}")
 
-    @contextmanager
     def job_execution_fence(
         self,
         *,
         job_id: str,
         worker_id: str,
         attempt: int,
-    ) -> Iterator[None]:
+    ) -> ContextManager[None]:
         """Bind one handler context to a live ``(job, owner, attempt)`` lease.
 
         Lifecycle writes made by the bound handler inherit this fence. The
-        lease is checked before entering the handler and again by each fenced
-        SQL mutation, so a takeover cannot be overwritten by an old worker.
-        Context variables carry the identity across the guarded-store executor
-        handoff; persisted job state, not this carrier, authorizes each write.
+        persisted lease check happens while this method is invoked. When the
+        caller uses ``GuardedDependencyProxy``, that lookup therefore runs
+        inside the dependency guard. Entering the returned context manager
+        only binds the already-checked identity to this handler context; each
+        fenced SQL mutation still rechecks the persisted lease.
         """
         if not job_id.strip() or not worker_id.strip() or type(attempt) is not int:
             raise ValueError("control job execution fence identity is invalid")
         if self._job_execution_fence.get() is not None:
             raise RuntimeError("nested control job execution fences are forbidden")
+        self._require_current_job_execution_record(
+            job_id=job_id,
+            worker_id=worker_id,
+            attempt=attempt,
+        )
+
+        @contextmanager
+        def _bind_execution_identity() -> Iterator[None]:
+            token = self._job_execution_fence.set((job_id, worker_id, attempt))
+            try:
+                yield
+            finally:
+                self._job_execution_fence.reset(token)
+
+        return _bind_execution_identity()
+
+    def current_execution_job_record(self) -> ControlJobRecord:
+        """Resolve the persisted job authorized by this handler's active lease.
+
+        Callers cannot choose an arbitrary job ID and ask for a matching record:
+        the job, worker, and attempt come from the active execution fence, then
+        the persisted row is re-read and its live lease is checked.
+        """
+
+        bound = self._job_execution_fence.get()
+        if bound is None:
+            raise ControlJobLeaseLostError(
+                "control job execution identity is not bound to this handler"
+            )
+        job_id, worker_id, attempt = bound
+        return self._require_current_job_execution_record(
+            job_id=job_id,
+            worker_id=worker_id,
+            attempt=attempt,
+        )
+
+    def _require_current_job_execution_record(
+        self,
+        *,
+        job_id: str,
+        worker_id: str,
+        attempt: int,
+    ) -> ControlJobRecord:
+        """Re-read and validate one exact persisted running lease."""
+
         record = self.get_job(job_id)
         now = _utc_now()
         if (
@@ -1335,11 +1380,7 @@ class ControlPlaneStore:
             raise ControlJobLeaseLostError(
                 f"control job lease is not current for {job_id}"
             )
-        token = self._job_execution_fence.set((job_id, worker_id, attempt))
-        try:
-            yield
-        finally:
-            self._job_execution_fence.reset(token)
+        return record
 
     def _resolve_job_execution_fence(
         self,

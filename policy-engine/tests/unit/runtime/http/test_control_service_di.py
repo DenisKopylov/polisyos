@@ -481,11 +481,6 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
         compile_problem,
     )
     monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
-    )
-    monkeypatch.setattr(
         llm_factory,
         "create_traced_gateway_client",
         lambda **_kwargs: None,
@@ -1454,11 +1449,6 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
 
     monkeypatch.setattr(generation_cycle_service, "build_design_problem_from_nl_request", run_real_compiler)
     monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
-    )
-    monkeypatch.setattr(
         llm_factory,
         "create_traced_gateway_client",
         lambda **_kwargs: generation_gateway,
@@ -1610,11 +1600,6 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
         generation_cycle_service,
         "build_design_problem_from_nl_request",
         run_real_compiler,
-    )
-    monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
     )
     monkeypatch.setattr(
         llm_factory,

@@ -1,0 +1,991 @@
+=== economic-dtype-base: complete deciding stdout ===
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economic-dtype/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economic-dtype/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 60 items
+
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float32-default] PASSED [  1%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float32-x64] PASSED [  3%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float64-x64] FAILED [  5%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-integer-default] PASSED [  6%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-integer-x64] FAILED [  8%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float16-x64] PASSED [ 10%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-bfloat16-x64] PASSED [ 11%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float32-default] PASSED [ 13%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float32-x64] PASSED [ 15%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float64-x64] FAILED [ 16%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-integer-default] PASSED [ 18%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-integer-x64] FAILED [ 20%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float16-x64] PASSED [ 21%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-bfloat16-x64] PASSED [ 23%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float32-default] PASSED [ 25%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float32-x64] PASSED [ 26%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float64-x64] FAILED [ 28%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-integer-default] PASSED [ 30%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-integer-x64] FAILED [ 31%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float16-x64] PASSED [ 33%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-bfloat16-x64] PASSED [ 35%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float32-default] PASSED [ 36%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float32-x64] PASSED [ 38%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float64-x64] FAILED [ 40%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-integer-default] PASSED [ 41%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-integer-x64] FAILED [ 43%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float16-x64] PASSED [ 45%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-bfloat16-x64] PASSED [ 46%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float32-default] PASSED [ 48%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float32-x64] PASSED [ 50%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float64-x64] FAILED [ 51%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-integer-default] PASSED [ 53%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-integer-x64] FAILED [ 55%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float16-x64] FAILED [ 56%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-bfloat16-x64] FAILED [ 58%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float32-default] PASSED [ 60%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float32-x64] PASSED [ 61%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float64-x64] FAILED [ 63%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-integer-default] PASSED [ 65%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-integer-x64] FAILED [ 66%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float16-x64] FAILED [ 68%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-bfloat16-x64] FAILED [ 70%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float32-default] PASSED [ 71%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float32-x64] PASSED [ 73%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float64-x64] FAILED [ 75%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-integer-default] PASSED [ 76%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-integer-x64] FAILED [ 78%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float16-x64] FAILED [ 80%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-bfloat16-x64] FAILED [ 81%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float32-default] PASSED [ 83%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float32-x64] PASSED [ 85%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float64-x64] FAILED [ 86%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-integer-default] PASSED [ 88%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-integer-x64] FAILED [ 90%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float16-x64] FAILED [ 91%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-bfloat16-x64] FAILED [ 93%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[eager] FAILED [ 95%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[jit] FAILED [ 96%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_native_plugin_factory_statistics_reach_objective_and_observation_consumers[default] PASSED [ 98%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_native_plugin_factory_statistics_reach_objective_and_observation_consumers[x64] FAILED [100%]
+
+=================================== FAILURES ===================================
+_ test_masked_statistics_preserve_computation_dtype[gini-active-eager-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-active-eager-integer-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-active-jit-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-active-jit-integer-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-integer-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-integer-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-active-eager-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-active-eager-integer-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-active-eager-float16-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float16[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-active-eager-bfloat16-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type bfloat16[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-active-jit-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-active-jit-integer-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-active-jit-float16-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float16[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-active-jit-bfloat16-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type bfloat16[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-eager-integer-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float16-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float16[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-eager-bfloat16-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type bfloat16[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-jit-integer-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float16-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float16[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-jit-bfloat16-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:55: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type bfloat16[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+____ test_float64_lower_median_keeps_values_beyond_float32_precision[eager] ____
+tests/unit/foundry/plugins/test_economics_dtype.py:74: in test_float64_lower_median_keeps_values_beyond_float32_precision
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_____ test_float64_lower_median_keeps_values_beyond_float32_precision[jit] _____
+tests/unit/foundry/plugins/test_economics_dtype.py:74: in test_float64_lower_median_keeps_values_beyond_float32_precision
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:173: in _median_active
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:165
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/plugins/economics/state.py:162
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_native_plugin_factory_statistics_reach_objective_and_observation_consumers[x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:83: in test_native_plugin_factory_statistics_reach_objective_and_observation_consumers
+    state = plugin.create_initial_state(
+src/polisyos/foundry/plugins/economics/plugin.py:72: in create_initial_state
+    state = EconomicState.empty(
+src/polisyos/foundry/plugins/economics/state.py:144: in empty
+    distributions = cls._compute_distributions(agents)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:178: in _compute_distributions
+    gini_wealth = compute_gini_hard(agents.wealth, active)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economic-dtype/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-integer-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-integer-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-integer-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-integer-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-integer-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float16-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-bfloat16-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-integer-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float16-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-bfloat16-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-integer-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float16-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-bfloat16-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-integer-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float16-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-bfloat16-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[eager]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[jit]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_native_plugin_factory_statistics_reach_objective_and_observation_consumers[x64]
+======================== 27 failed, 33 passed in 13.84s ========================
+
+=== economic-dtype-targeted: complete deciding stdout ===
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economic-dtype/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economic-dtype/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 60 items
+
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float32-default] PASSED [  1%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float32-x64] PASSED [  3%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float64-x64] PASSED [  5%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-integer-default] PASSED [  6%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-integer-x64] PASSED [  8%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float16-x64] PASSED [ 10%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-bfloat16-x64] PASSED [ 11%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float32-default] PASSED [ 13%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float32-x64] PASSED [ 15%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float64-x64] PASSED [ 16%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-integer-default] PASSED [ 18%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-integer-x64] PASSED [ 20%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float16-x64] PASSED [ 21%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-bfloat16-x64] PASSED [ 23%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float32-default] PASSED [ 25%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float32-x64] PASSED [ 26%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float64-x64] PASSED [ 28%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-integer-default] PASSED [ 30%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-integer-x64] PASSED [ 31%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float16-x64] PASSED [ 33%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-bfloat16-x64] PASSED [ 35%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float32-default] PASSED [ 36%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float32-x64] PASSED [ 38%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float64-x64] PASSED [ 40%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-integer-default] PASSED [ 41%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-integer-x64] PASSED [ 43%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float16-x64] PASSED [ 45%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-bfloat16-x64] PASSED [ 46%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float32-default] PASSED [ 48%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float32-x64] PASSED [ 50%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float64-x64] PASSED [ 51%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-integer-default] PASSED [ 53%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-integer-x64] PASSED [ 55%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float16-x64] PASSED [ 56%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-bfloat16-x64] PASSED [ 58%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float32-default] PASSED [ 60%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float32-x64] PASSED [ 61%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float64-x64] PASSED [ 63%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-integer-default] PASSED [ 65%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-integer-x64] PASSED [ 66%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float16-x64] PASSED [ 68%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-bfloat16-x64] PASSED [ 70%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float32-default] PASSED [ 71%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float32-x64] PASSED [ 73%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float64-x64] PASSED [ 75%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-integer-default] PASSED [ 76%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-integer-x64] PASSED [ 78%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float16-x64] PASSED [ 80%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-bfloat16-x64] PASSED [ 81%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float32-default] PASSED [ 83%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float32-x64] PASSED [ 85%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float64-x64] PASSED [ 86%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-integer-default] PASSED [ 88%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-integer-x64] PASSED [ 90%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float16-x64] PASSED [ 91%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-bfloat16-x64] PASSED [ 93%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[eager] PASSED [ 95%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[jit] PASSED [ 96%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_native_plugin_factory_statistics_reach_objective_and_observation_consumers[default] PASSED [ 98%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_native_plugin_factory_statistics_reach_objective_and_observation_consumers[x64] PASSED [100%]
+
+============================= 60 passed in 16.55s ==============================
+
+=== economic-dtype-importers-default: complete deciding stdout ===
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economic-dtype/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economic-dtype/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 37 items
+
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_register_plugin PASSED [  2%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_get_plugin PASSED [  5%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_duplicate_registration_fails PASSED [  8%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_with_capability PASSED [ 10%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestEconomicsPlugin::test_create_state PASSED [ 13%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestEconomicsPlugin::test_get_mechanisms PASSED [ 16%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestEconomicsPlugin::test_get_objectives PASSED [ 18%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeState::test_create_composite PASSED [ 21%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeState::test_update_domain PASSED [ 24%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeExecutor::test_step PASSED [ 27%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeExecutor::test_run PASSED [ 29%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPolisySimulator::test_simple_simulation PASSED [ 32%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPolisySimulator::test_with_objective PASSED [ 35%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPolisySimulator::test_set_policy PASSED [ 37%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginDiscovery::test_auto_register PASSED [ 40%]
+tests/unit/foundry/plugins/test_economics_social_weights.py::test_social_welfare_objective_applies_registered_social_weight_ref PASSED [ 43%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_default_values PASSED [ 45%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_custom_values PASSED [ 48%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_hard_quantiles_do_not_use_approximate_sampling PASSED [ 51%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_soft_quantiles_ignore_inactive_extreme_values PASSED [ 54%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionConfig::test_soft_quantiles_are_jittable PASSED [ 56%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionState::test_empty_creation PASSED [ 59%]
+tests/unit/foundry/agent_sim/test_distributions.py::TestDistributionState::test_empty_gini_zero PASSED [ 62%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income0-0.0--1000.0--1.0] PASSED [ 64%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income1-0.0--1000.0--1.0] PASSED [ 67%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income2-0.0--1000.0-0.0] PASSED [ 70%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income3-0.0--1000.0-1.0] PASSED [ 72%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income4-0.0--1000.0-0.0] PASSED [ 75%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income5--2000.0--1000.0-9.0] PASSED [ 78%]
+tests/unit/remediation/test_eco_01.py::test_legacy_public_and_internal_facades_preserve_identity PASSED [ 81%]
+tests/unit/remediation/test_eco_01.py::test_named_economic_baseline_owns_the_legacy_facades PASSED [ 83%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_is_jittable_and_differentiable PASSED [ 86%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state0] PASSED [ 89%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state1] PASSED [ 91%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state2] PASSED [ 94%]
+tests/unit/remediation/test_eco_01.py::test_income_tax_and_economic_tax_keep_distinct_tax_bases PASSED [ 97%]
+tests/unit/remediation/test_eco_01.py::test_threshold_and_transition_labor_profiles_remain_distinct PASSED [100%]
+
+============================= 37 passed in 43.29s ==============================
+
+=== economic-dtype-importers-x64: complete deciding stdout ===
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economic-dtype/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economic-dtype/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 30 items
+
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_register_plugin PASSED [  3%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_get_plugin PASSED [  6%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_duplicate_registration_fails PASSED [ 10%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginRegistry::test_with_capability PASSED [ 13%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestEconomicsPlugin::test_create_state PASSED [ 16%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestEconomicsPlugin::test_get_mechanisms PASSED [ 20%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestEconomicsPlugin::test_get_objectives PASSED [ 23%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeState::test_create_composite PASSED [ 26%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeState::test_update_domain PASSED [ 30%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeExecutor::test_step PASSED [ 33%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestCompositeExecutor::test_run PASSED [ 36%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPolisySimulator::test_simple_simulation PASSED [ 40%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPolisySimulator::test_with_objective PASSED [ 43%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPolisySimulator::test_set_policy PASSED [ 46%]
+tests/unit/foundry/plugins/test_plugin_system.py::TestPluginDiscovery::test_auto_register PASSED [ 50%]
+tests/unit/foundry/plugins/test_economics_social_weights.py::test_social_welfare_objective_applies_registered_social_weight_ref PASSED [ 53%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income0-0.0--1000.0--1.0] PASSED [ 56%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income1-0.0--1000.0--1.0] PASSED [ 60%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income2-0.0--1000.0-0.0] PASSED [ 63%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income3-0.0--1000.0-1.0] PASSED [ 66%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income4-0.0--1000.0-0.0] PASSED [ 70%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income5--2000.0--1000.0-9.0] PASSED [ 73%]
+tests/unit/remediation/test_eco_01.py::test_legacy_public_and_internal_facades_preserve_identity PASSED [ 76%]
+tests/unit/remediation/test_eco_01.py::test_named_economic_baseline_owns_the_legacy_facades PASSED [ 80%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_is_jittable_and_differentiable PASSED [ 83%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state0] PASSED [ 86%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state1] PASSED [ 90%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state2] PASSED [ 93%]
+tests/unit/remediation/test_eco_01.py::test_income_tax_and_economic_tax_keep_distinct_tax_bases PASSED [ 96%]
+tests/unit/remediation/test_eco_01.py::test_threshold_and_transition_labor_profiles_remain_distinct PASSED [100%]
+
+============================= 30 passed in 49.08s ==============================
+
+=== foundry-economic-review: complete deciding stdout ===
+........................................................................ [ 94%]
+....                                                                     [100%]
+76 passed in 17.21s
+
+=== economic-dtype-gini-zero-dtype: complete deciding stdout ===
+Probe=gini-zero-dtype; unchanged module/class/export names; real native JAX branches.
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economic-dtype/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economic-dtype/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 60 items / 52 deselected / 8 selected
+
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float32-default] PASSED [ 12%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float64-x64] FAILED [ 25%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float32-default] PASSED [ 37%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float64-x64] FAILED [ 50%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float32-default] PASSED [ 62%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float64-x64] FAILED [ 75%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float32-default] PASSED [ 87%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float64-x64] FAILED [100%]
+
+=================================== FAILURES ===================================
+_ test_masked_statistics_preserve_computation_dtype[gini-active-eager-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:54: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+<gini-zero-dtype-removal>:23: in compute_gini_hard
+    ???
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at <gini-zero-dtype-removal>:11
+E   false_fun is _no_active at <gini-zero-dtype-removal>:8
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-active-jit-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:54: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+<gini-zero-dtype-removal>:23: in compute_gini_hard
+    ???
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at <gini-zero-dtype-removal>:11
+E   false_fun is _no_active at <gini-zero-dtype-removal>:8
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:54: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+<gini-zero-dtype-removal>:23: in compute_gini_hard
+    ???
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at <gini-zero-dtype-removal>:11
+E   false_fun is _no_active at <gini-zero-dtype-removal>:8
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:54: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+<gini-zero-dtype-removal>:23: in compute_gini_hard
+    ???
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at <gini-zero-dtype-removal>:11
+E   false_fun is _no_active at <gini-zero-dtype-removal>:8
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-eager-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-active-jit-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-eager-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[gini-inactive-jit-float64-x64]
+============ 4 failed, 4 passed, 52 deselected, 1 warning in 1.51s =============
+
+=== economic-dtype-median-zero-dtype: complete deciding stdout ===
+Probe=median-zero-dtype; unchanged module/class/export names; real native JAX branches.
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economic-dtype/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economic-dtype/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 60 items / 52 deselected / 8 selected
+
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float32-default] PASSED [ 12%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float64-x64] FAILED [ 25%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float32-default] PASSED [ 37%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float64-x64] FAILED [ 50%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float32-default] PASSED [ 62%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float64-x64] FAILED [ 75%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float32-default] PASSED [ 87%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float64-x64] FAILED [100%]
+
+=================================== FAILURES ===================================
+_ test_masked_statistics_preserve_computation_dtype[median-active-eager-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:54: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+<median-zero-dtype-removal>:18: in _median_active
+    ???
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at <median-zero-dtype-removal>:10
+E   false_fun is _no_active at <median-zero-dtype-removal>:7
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-active-jit-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:54: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+<median-zero-dtype-removal>:18: in _median_active
+    ???
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at <median-zero-dtype-removal>:10
+E   false_fun is _no_active at <median-zero-dtype-removal>:7
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:54: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+<median-zero-dtype-removal>:18: in _median_active
+    ???
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at <median-zero-dtype-removal>:10
+E   false_fun is _no_active at <median-zero-dtype-removal>:7
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float64-x64] _
+tests/unit/foundry/plugins/test_economics_dtype.py:54: in test_masked_statistics_preserve_computation_dtype
+    actual = function(values, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+<median-zero-dtype-removal>:18: in _median_active
+    ???
+E   TypeError: cond branches must have equal output types but they differ.
+E
+E   true_fun is _with_active at <median-zero-dtype-removal>:10
+E   false_fun is _no_active at <median-zero-dtype-removal>:7
+E
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-eager-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-active-jit-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-eager-float64-x64]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_masked_statistics_preserve_computation_dtype[median-inactive-jit-float64-x64]
+============ 4 failed, 4 passed, 52 deselected, 1 warning in 1.36s =============
+
+=== economic-dtype-median-downcast: complete deciding stdout ===
+Probe=median-downcast; unchanged module/class/export names; real native JAX branches.
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economic-dtype/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economic-dtype/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 60 items / 58 deselected / 2 selected
+
+tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[eager] FAILED [ 50%]
+tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[jit] FAILED [100%]
+
+=================================== FAILURES ===================================
+____ test_float64_lower_median_keeps_values_beyond_float32_precision[eager] ____
+tests/unit/foundry/plugins/test_economics_dtype.py:77: in test_float64_lower_median_keeps_values_beyond_float32_precision
+    assert float(actual) == 2**24 + 1
+E   assert 16777216.0 == ((2 ** 24) + 1)
+E    +  where 16777216.0 = float(Array(16777216., dtype=float64))
+_____ test_float64_lower_median_keeps_values_beyond_float32_precision[jit] _____
+tests/unit/foundry/plugins/test_economics_dtype.py:77: in test_float64_lower_median_keeps_values_beyond_float32_precision
+    assert float(actual) == 2**24 + 1
+E   assert 16777216.0 == ((2 ** 24) + 1)
+E    +  where 16777216.0 = float(Array(16777216., dtype=float64))
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[eager]
+FAILED tests/unit/foundry/plugins/test_economics_dtype.py::test_float64_lower_median_keeps_values_beyond_float32_precision[jit]
+================= 2 failed, 58 deselected, 1 warning in 0.58s ==================

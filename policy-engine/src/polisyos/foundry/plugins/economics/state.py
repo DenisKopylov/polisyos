@@ -158,9 +158,11 @@ class EconomicState:
     def _median_active(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
         n_agents = values.shape[0]
         n_active = jnp.sum(active).astype(jnp.int32)
+        # Match the promotion used by the active branch's infinity masking.
+        output_dtype = jnp.result_type(values, jnp.inf)
 
         def _no_active():
-            return jnp.array(0.0, dtype=jnp.float32)
+            return jnp.array(0.0, dtype=output_dtype)
 
         def _with_active():
             masked = jnp.where(active, values, jnp.inf)

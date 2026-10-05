@@ -395,7 +395,11 @@ class LessonRegistry:
                 )
             )
         else:
-            existing.artifact_ref = card_ref
+            # Arrival order cannot select an older producer version while
+            # retaining the newer version's evidence clock in the index.
+            if now >= existing.last_seen:
+                existing.artifact_ref = card_ref
+                existing.candidate_hash = normalized_card.candidate_hash or existing.candidate_hash
             existing.occurrence_count += 1
             existing.last_seen = max(existing.last_seen, now)
             existing.last_accessed_at = max(
@@ -408,7 +412,6 @@ class LessonRegistry:
             )
             existing.tags = sorted(set(existing.tags) | set(normalized_card.tags))
             existing.summary = normalized_card.summary or existing.summary
-            existing.candidate_hash = normalized_card.candidate_hash or existing.candidate_hash
             existing.confidence = max(existing.confidence, normalized_card.confidence)
             existing.provenance_weight = max(
                 existing.provenance_weight,
@@ -462,10 +465,10 @@ class LessonRegistry:
             run_id=context.source_run_id or "unknown",
         )
         if self._should_use_aggregated_local_transfer_lookup(context, active_target):
-            results = self._query_local_aggregated(context)
+            results = self._query_local_aggregated(context, policy=policy)
             return results[: context.limit]
 
-        results = self._query_local(context, target_context=active_target)
+        results = self._query_local(context, target_context=active_target, policy=policy)
         if len(results) >= context.limit:
             return results[: context.limit]
 
@@ -512,7 +515,9 @@ class LessonRegistry:
                     run_id=entry.origin_run_id or entry.lesson_id,
                     tenant_hash=namespace_context.tenant_hash,
                 )
-                card = self._materialize_query_card(entry, now=target_context.timestamp)
+                card = self._materialize_query_card(
+                    entry, now=target_context.timestamp, policy=active_policy
+                )
                 weight = compute_provenance_weight(
                     source_context,
                     target_context,
@@ -551,7 +556,10 @@ class LessonRegistry:
     ) -> LessonCard | None:
         active_policy = policy or self._transfer_policy
         card = self._apply_evidence_age(
-            card, evidence_anchor=card.created_at, now=target_context.timestamp
+            card,
+            evidence_anchor=card.created_at,
+            now=target_context.timestamp,
+            policy=active_policy,
         )
         source_context = TransferContext(
             task_family=card.task_family,
@@ -696,6 +704,7 @@ class LessonRegistry:
         query: LessonQuery,
         *,
         target_context: TransferContext,
+        policy: TransferPolicy | None = None,
     ) -> list[LessonCard]:
         snapshot = self.index_snapshot(context=target_context)
         results: list[LessonCard] = []
@@ -705,7 +714,7 @@ class LessonRegistry:
                 continue
             if not self._entry_matches(entry, query):
                 continue
-            card = self._materialize_query_card(entry, now=now)
+            card = self._materialize_query_card(entry, now=now, policy=policy)
             if not self._matches_query(card, query):
                 continue
             results.append(card)
@@ -716,7 +725,9 @@ class LessonRegistry:
                 break
         return results
 
-    def _query_local_aggregated(self, query: LessonQuery) -> list[LessonCard]:
+    def _query_local_aggregated(
+        self, query: LessonQuery, *, policy: TransferPolicy | None = None
+    ) -> list[LessonCard]:
         now = datetime.now(UTC)
         candidates: list[
             tuple[
@@ -749,7 +760,7 @@ class LessonRegistry:
 
         results: list[LessonCard] = []
         for _, entry, snapshot, namespace_context in sorted(candidates, key=lambda item: item[0]):
-            card = self._materialize_query_card(entry, now=now)
+            card = self._materialize_query_card(entry, now=now, policy=policy)
             if not self._matches_query(card, query):
                 continue
             results.append(card)
@@ -855,22 +866,29 @@ class LessonRegistry:
         entry: LessonIndexEntry,
         *,
         now: datetime,
+        policy: TransferPolicy | None = None,
     ) -> LessonCard:
         card = load_lesson_card(self._store, entry.artifact_ref)
         normalized = self._normalize_card(card)
         evidence_anchor = self._evidence_anchor(entry, normalized)
         return self._apply_evidence_age(
-            normalized, evidence_anchor=evidence_anchor, now=now
+            normalized, evidence_anchor=evidence_anchor, now=now, policy=policy
         ).model_copy(update={"last_accessed_at": now, "provenance_weight": entry.provenance_weight})
 
     def _apply_evidence_age(
-        self, card: LessonCard, *, evidence_anchor: datetime, now: datetime
+        self,
+        card: LessonCard,
+        *,
+        evidence_anchor: datetime,
+        now: datetime,
+        policy: TransferPolicy | None = None,
     ) -> LessonCard:
         """Apply the same evidence freshness policy to every retrieval route."""
         age = max(timedelta(), now - evidence_anchor)
         trust_level = card.trust_level
         confidence = card.confidence
-        if age > timedelta(days=self._transfer_policy.ttl_days):
+        active_policy = policy or self._transfer_policy
+        if age > timedelta(days=active_policy.ttl_days):
             trust_level = LessonTrustLevel.LOW_CONFIDENCE
             confidence = min(confidence, 0.5)
         return card.model_copy(update={"trust_level": trust_level, "confidence": confidence})
@@ -888,7 +906,7 @@ class LessonRegistry:
 
     @classmethod
     def _record_access(cls, entry: LessonIndexEntry, *, index_path: Path, now: datetime) -> None:
-        """Persist a retention hint at most daily without publishing an evidence snapshot."""
+        """Throttle sequential retention writes without publishing an evidence snapshot."""
         if entry.last_accessed_at is None or now - entry.last_accessed_at >= timedelta(days=1):
             cls._write_bytes(
                 now.isoformat().encode("utf-8"), path=cls._access_path(index_path, entry.lesson_id)

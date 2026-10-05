@@ -22,6 +22,7 @@ from polisyos.scientist.methods.search.objective import CompositeObjective
 from polisyos.scientist.methods.search.stopping import MaxIterations
 from polisyos.scientist.methods.search.transfer_context import (
     TransferContext,
+    TransferPolicy,
     resolve_transfer_context,
 )
 
@@ -214,6 +215,7 @@ def test_new_producer_evidence_version_has_its_own_refs_and_clock(tmp_path: Path
             "lesson_id": "evidence-v2",
             "created_at": datetime.now(UTC),
             "trace_refs": ["fixture/source/evidence-v2"],
+            "candidate_hash": "candidate-v2",
         }
     )
     new_ref = registry.record_local(new, context=context)
@@ -225,6 +227,80 @@ def test_new_producer_evidence_version_has_its_own_refs_and_clock(tmp_path: Path
         LessonQuery(domain="source", min_confidence=0.8, trust_levels=[LessonTrustLevel.LOCAL])
     )
     assert len(cards) == 1 and cards[0].created_at == new.created_at
+
+
+def test_out_of_order_old_producer_replay_preserves_newest_evidence_across_transfer(
+    tmp_path: Path,
+) -> None:
+    store, registry = _registry(tmp_path)
+    source = TransferContext(
+        task_family="policy", domain="source", run_id="run-source", tenant_hash="fixture-tenant"
+    )
+    target = TransferContext(
+        task_family="policy", domain="target", run_id="run-target", tenant_hash="fixture-tenant"
+    )
+    old = _card(source, age_days=100)
+    old_ref = registry.record_local(old, context=source)
+    new = old.model_copy(
+        update={
+            "lesson_id": "evidence-v2",
+            "created_at": datetime.now(UTC),
+            "trace_refs": ["fixture/source/evidence-v2"],
+            "candidate_hash": "candidate-v2",
+        }
+    )
+    new_ref = registry.record_local(new, context=source)
+    registry.record_local(old, context=source)
+    for _ in range(2):
+        _, registry = _registry(tmp_path)
+        entry = registry.index_snapshot(context=source).entries[0]
+        assert entry.artifact_ref == new_ref
+        assert old_ref in entry.card_refs and new_ref in entry.card_refs
+        assert entry.occurrence_count == 3 and entry.last_seen == new.created_at
+        local = registry.query(
+            LessonQuery(
+                domain="source",
+                tenant_hash="fixture-tenant",
+                min_confidence=0.8,
+                candidate_hash=new.candidate_hash,
+            )
+        )
+        assert len(local) == 1 and local[0].trace_refs == new.trace_refs
+        result = registry.query_with_transfer(
+            LessonQuery(source_run_id="run-source", min_confidence=0.8, limit=1),
+            target_context=target,
+        )
+        assert len(result) == 1
+        assert result[0].created_at == new.created_at and result[0].trace_refs == new.trace_refs
+        assert result[0].trust_level is LessonTrustLevel.TRANSFERRED
+    assert load_lesson_card(store, old_ref).created_at == old.created_at
+
+
+@pytest.mark.parametrize("ttl_days,age_days,confidence", [(5, 10, 0.5), (180, 100, 0.9)])
+def test_explicit_active_policy_applies_to_local_and_transferred_evidence(
+    tmp_path: Path, ttl_days: int, age_days: int, confidence: float
+) -> None:
+    _, registry = _registry(tmp_path)
+    source = TransferContext(
+        task_family="policy", domain="source", run_id="run-source", tenant_hash="fixture-tenant"
+    )
+    target = TransferContext(
+        task_family="policy", domain="target", run_id="run-target", tenant_hash="fixture-tenant"
+    )
+    registry.record_local(_card(source, age_days=age_days), context=source)
+    policy = TransferPolicy(ttl_days=ttl_days)
+    query = LessonQuery(source_run_id="run-source", limit=1)
+    local = registry.query_with_transfer(query, target_context=source, policy=policy)
+    assert len(local) == 1 and local[0].confidence == confidence
+    transferred = registry.query_with_transfer(query, target_context=target, policy=policy)
+    # Past twice the explicit TTL the transfer policy rejects the source entirely.
+    if age_days > ttl_days * 2:
+        assert transferred == []
+        return
+    assert len(transferred) == 1 and transferred[0].confidence == confidence
+    _, reopened = _registry(tmp_path)
+    restored = reopened.query_with_transfer(query, target_context=target, policy=policy)
+    assert len(restored) == 1 and restored[0].confidence == confidence
 
 
 def test_access_writes_are_throttled_and_corrupt_retention_hint_cannot_change_evidence(

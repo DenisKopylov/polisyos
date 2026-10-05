@@ -808,17 +808,17 @@
     {
       "slice": "api-consumer-abi",
       "branch": "codex/e02-F-causal-api",
-      "published_head_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+      "published_head_sha": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69",
       "implementation_commits": [
         "0c709ea924d2b868eacf1016f5c70ff749e287a8",
         "4b8cdf8ab88006c572c2b2d0039053d5a0138f14"
       ],
       "candidate_tree_sha": "81d0eace9b45d1a920e30a5564244c85bfc00ea8",
       "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
-      "receipt_sha256": "8c53362ed404df13afeb0deeb3021eee149e3bb9106d8cf1139d58d1b924a58b",
-      "receipt_bytes": 17269,
+      "receipt_sha256": "f07ae3db66b8dd4ea34359e059bc5d1bd120b7080188f5b34e978c900de6e388",
+      "receipt_bytes": 17360,
       "pull_request": "https://github.com/DenisKopylov/polisyos/pull/19",
-      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/6ebc4bf62c04d1f5f068bcef736099f0280ea3c0/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/0b6d872d8a681b1725abb5e2e3f57f9668e31c69/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
       "bundle_ids": [
         "API-01"
       ],
@@ -1008,7 +1008,7 @@
         "finding_closure": false
       }
     ],
-    "current_API_doc_head_acceptance": "not_established; accepted_head is baad, current published head6eb is append-only substantive docs plus receipt",
+    "current_API_doc_head_acceptance": "not_established; accepted_head is baad; current published0b6 has later doc implementation and corrected receipt only",
     "finding_closures": [],
     "full_F_delivery_acceptance": "pending_G",
     "provenance": "institutionally_supplied actual Git checkpoint; no inferred whole-current-head acceptance"
@@ -2945,5 +2945,11 @@
     "schema": "actual c40/PR15 paired snapshotFAIL; API comparisonSKIP; PR18/19payloadnot_established; native9sameFAIL lacks blanketdisjointness",
     "economics_frontend": "13deciding jobsFAIL: missingcatalogfixture, existingOpenAPIdependencyreceipt drift, locale/CASassertions, missingJUnit/directoryhealth; no Fregression exclusion",
     "new_doc_and_delivery_heads": "CIpending/not_established at frozen snapshot"
+  },
+  "receipt_metadata_correction": {
+    "branch": "codex/e02-F-causal-api",
+    "previous_head": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+    "current_head": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69",
+    "scope": "Single receipt outcome normalization to canonical PASS with separate bounded predicate scope; actual fullDocsGate FAIL preserved, implementation/source/evidence hashes unchanged; earlier independent6eb audit retained at its actual SHA."
   }
 }

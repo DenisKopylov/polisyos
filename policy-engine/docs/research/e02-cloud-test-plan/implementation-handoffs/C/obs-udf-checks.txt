@@ -257,3 +257,232 @@ command: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff che
 All checks passed!
 ignored raw output: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-full-post-review-final.log
 SHA-256: 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18
+
+=== Diff-check-and-precommit ===
+target: implementation commits 973fd3a5b3d8cfdd8ecaa04116b41d5e571d625c and ff77dec638da9e15d409154043d7ac84cbeb9236
+command: git diff --check; repository pre-commit Lefthook
+outcome: PASS; diff check reported no whitespace errors and both implementation commits passed the repository pre-commit hook.
+
+=== Source-input-byte-limit-and-exact-rerun ===
+Actual source/archive input bytes (the source-side G evidence): not_established. The source archive count is 0 for B146, B147, LA-030, and LA-031; all exercised inputs were synthetic test fixtures. The candidate tests do not establish production/archive bytes.
+Exact candidate-suite rerun from cwd /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine:
+env PYTHONPATH='/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine' /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider tests/unit/remediation/test_obs_01.py tests/unit/remediation/test_obs_02.py tests/unit/remediation/test_udf_01.py tests/unit/remediation/test_udf_02.py tests/unit/data_forge/domains/ukraine/test_builders.py
+This rerun reproduces the focused synthetic verification only; it does not establish the unavailable source/archive input bytes.
+Exact pinned-base synthetic gap reproduction from cwd /Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos:
+env PYTHONPATH='/Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos/policy-engine' /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/test_successful_stream_mutation.py
+This uses the ignored local synthetic reproducer named by Check 3. It cannot supply or establish the production/source archive bytes (G); those remain not_established.
+
+=== Exact raw stdout copies ===
+
+=== Check 1 / corrective focused slice at ff77 ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/focused-pytest-final-corrective.log
+Exact decoded stdout SHA-256: b5b8147b42d8d2f80f71e674b1017004bb0d8dc4213af70b6938cdcf56b637fe
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
+Li4uLi4uLi4uLi4uLi4uIFsxMDAlXQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09IHdh
+cm5pbmdzIHN1bW1hcnkgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQouLi8uLi8uLi8u
+Li8uLi9wb2xpc3lvcy9wb2xpY3ktZW5naW5lLy52ZW52L2xpYi9weXRob24zLjE0L3NpdGUtcGFj
+a2FnZXMvX3B5dGVzdC9jb25maWcvX19pbml0X18ucHk6MTQyOAogIC9Vc2Vycy9kZW5pc2tvcHls
+b3YvcG9saXN5b3MvcG9saWN5LWVuZ2luZS8udmVudi9saWIvcHl0aG9uMy4xNC9zaXRlLXBhY2th
+Z2VzL19weXRlc3QvY29uZmlnL19faW5pdF9fLnB5OjE0Mjg6IFB5dGVzdENvbmZpZ1dhcm5pbmc6
+IFVua25vd24gY29uZmlnIG9wdGlvbjogY2FjaGVfZGlyCiAgCiAgICBzZWxmLl93YXJuX29yX2Zh
+aWxfaWZfc3RyaWN0KGYiVW5rbm93biBjb25maWcgb3B0aW9uOiB7a2V5fVxuIikKCi0tIERvY3M6
+IGh0dHBzOi8vZG9jcy5weXRlc3Qub3JnL2VuL3N0YWJsZS9ob3ctdG8vY2FwdHVyZS13YXJuaW5n
+cy5odG1sCjcyIHBhc3NlZCwgMSB3YXJuaW5nIGluIDQxLjMxcwo=
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 2 / real-reader ABA, content identity, and D2 negative at ff77 ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/snapshot-aba-d2-negative-final.log
+Exact decoded stdout SHA-256: b23273581fb49100d447167f2778ca2b4ea501021b901a9193b0ace6fa90a4df
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+Li4uICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIFsxMDAlXQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09IHdh
+cm5pbmdzIHN1bW1hcnkgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQouLi8uLi8uLi8u
+Li8uLi9wb2xpc3lvcy9wb2xpY3ktZW5naW5lLy52ZW52L2xpYi9weXRob24zLjE0L3NpdGUtcGFj
+a2FnZXMvX3B5dGVzdC9jb25maWcvX19pbml0X18ucHk6MTQyOAogIC9Vc2Vycy9kZW5pc2tvcHls
+b3YvcG9saXN5b3MvcG9saWN5LWVuZ2luZS8udmVudi9saWIvcHl0aG9uMy4xNC9zaXRlLXBhY2th
+Z2VzL19weXRlc3QvY29uZmlnL19faW5pdF9fLnB5OjE0Mjg6IFB5dGVzdENvbmZpZ1dhcm5pbmc6
+IFVua25vd24gY29uZmlnIG9wdGlvbjogY2FjaGVfZGlyCiAgCiAgICBzZWxmLl93YXJuX29yX2Zh
+aWxfaWZfc3RyaWN0KGYiVW5rbm93biBjb25maWcgb3B0aW9uOiB7a2V5fVxuIikKCi0tIERvY3M6
+IGh0dHBzOi8vZG9jcy5weXRlc3Qub3JnL2VuL3N0YWJsZS9ob3ctdG8vY2FwdHVyZS13YXJuaW5n
+cy5odG1sCjMgcGFzc2VkLCAxIHdhcm5pbmcgaW4gMS40M3MK
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 4 / intermediate endpoint-hash ABA witness ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/transient-restore-probe.log
+Exact decoded stdout SHA-256: c30c68e5ec636bf6d706699a69717d0f73910ae7c3a02a2954c5f25037cce55f
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+dHJhbnNpZW50IG1peGVkIGNvbnRlbnQgYWNjZXB0ZWQ7IHNoYTI1Nj0wZWM5NTQzZjY5ODdhZmM1
+YTIzMGMxYmE5NWFhMTgyZmNlYzYyYzk1YzAzYmU1N2NiYjZkM2IwYjE0YzJhZjIyLT4wZWM5NTQz
+ZjY5ODdhZmM1YTIzMGMxYmE5NWFhMTgyZmNlYzYyYzk1YzAzYmU1N2NiYjZkM2IwYjE0YzJhZjIy
+OyBvYnNlcnZlZF9tZXRyaWNfYT1bMTAuMCwgMjAuMCwgMTAzMC4wLCAxMDQwLjBdCi4KPT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PSB3YXJuaW5ncyBzdW1tYXJ5ID09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT0KLi4vLi4vLi4vLi4vLi4vcG9saXN5b3MvcG9saWN5LWVuZ2luZS8u
+dmVudi9saWIvcHl0aG9uMy4xNC9zaXRlLXBhY2thZ2VzL19weXRlc3QvY29uZmlnL19faW5pdF9f
+LnB5OjE0MjgKICAvVXNlcnMvZGVuaXNrb3B5bG92L3BvbGlzeW9zL3BvbGljeS1lbmdpbmUvLnZl
+bnYvbGliL3B5dGhvbjMuMTQvc2l0ZS1wYWNrYWdlcy9fcHl0ZXN0L2NvbmZpZy9fX2luaXRfXy5w
+eToxNDI4OiBQeXRlc3RDb25maWdXYXJuaW5nOiBVbmtub3duIGNvbmZpZyBvcHRpb246IGNhY2hl
+X2RpcgogIAogICAgc2VsZi5fd2Fybl9vcl9mYWlsX2lmX3N0cmljdChmIlVua25vd24gY29uZmln
+IG9wdGlvbjoge2tleX1cbiIpCgotLSBEb2NzOiBodHRwczovL2RvY3MucHl0ZXN0Lm9yZy9lbi9z
+dGFibGUvaG93LXRvL2NhcHR1cmUtd2FybmluZ3MuaHRtbAoxIHBhc3NlZCwgMSB3YXJuaW5nIGlu
+IDEuODhzCg==
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 5 / Ruff on pinned base ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-c40-baseline.log
+Exact decoded stdout SHA-256: 62ad24b8066a75c63a6660ac11c814be6de68726e1bbe7d1f0f6336630896548
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+QjkwNCBXaXRoaW4gYW4gYGV4Y2VwdGAgY2xhdXNlLCByYWlzZSBleGNlcHRpb25zIHdpdGggYHJh
+aXNlIC4uLiBmcm9tIGVycmAgb3IgYHJhaXNlIC4uLiBmcm9tIE5vbmVgIHRvIGRpc3Rpbmd1aXNo
+IHRoZW0gZnJvbSBlcnJvcnMgaW4gZXhjZXB0aW9uIGhhbmRsaW5nCiAgICAtLT4gc3JjL3BvbGlz
+eW9zL2RhdGFfZm9yZ2UvZG9tYWlucy91a3JhaW5lL2J1aWxkZXJzL3NvdXJjZXMucHk6MTM5MTox
+NwogICAgIHwKMTM4OSB8ICAgICAgICAgICBleGNlcHQgKEltcG9ydEVycm9yLCBPU0Vycm9yKToK
+MTM5MCB8ICAgICAgICAgICAgICAgaWYgc2hhMjU2X2ZpbGUoYXJ0aWZhY3RfcGF0aCkgIT0gc25h
+cHNob3Rfc2hhMjU2OgoxMzkxIHwgLyAgICAgICAgICAgICAgICAgcmFpc2UgUnVudGltZUVycm9y
+KAoxMzkyIHwgfCAgICAgICAgICAgICAgICAgICAgICJub3JtYWxpemVkIG9ic2VydmF0aW9uIGFy
+dGlmYWN0IGNoYW5nZWQgZHVyaW5nIHN0cmVhbWluZzsgIgoxMzkzIHwgfCAgICAgICAgICAgICAg
+ICAgICAgICJjYW5ub3QgcmVzdW1lIGZyb20gYW4gdW5jb25maXJtZWQgc25hcHNob3QiCjEzOTQg
+fCB8ICAgICAgICAgICAgICAgICApCiAgICAgfCB8X19fX19fX19fX19fX19fX19eCjEzOTUgfAox
+Mzk2IHwgICAgICAgICAgICAgICBpZiByb3dfb2Zmc2V0ID09IDAgYW5kIG5vdCBlbWl0dGVkX21l
+dHJpY19pZHM6CiAgICAgfAoKQjkwNCBXaXRoaW4gYW4gYGV4Y2VwdGAgY2xhdXNlLCByYWlzZSBl
+eGNlcHRpb25zIHdpdGggYHJhaXNlIC4uLiBmcm9tIGVycmAgb3IgYHJhaXNlIC4uLiBmcm9tIE5v
+bmVgIHRvIGRpc3Rpbmd1aXNoIHRoZW0gZnJvbSBlcnJvcnMgaW4gZXhjZXB0aW9uIGhhbmRsaW5n
+CiAgICAtLT4gc3JjL3BvbGlzeW9zL2RhdGFfZm9yZ2UvZG9tYWlucy91a3JhaW5lL2J1aWxkZXJz
+L3NvdXJjZXMucHk6MTQ0MjoxNwogICAgIHwKMTQ0MCB8ICAgICAgICAgICAgICAgICAgIGRlbCBm
+cmFtZQoxNDQxIHwgICAgICAgICAgICAgICBpZiBwZW5kaW5nX21ldHJpY19pZHM6CjE0NDIgfCAv
+ICAgICAgICAgICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoCjE0NDMgfCB8ICAgICAgICAgICAg
+ICAgICAgICAgInN0cmVhbSByZXN0YXJ0IGVuZGVkIGJlZm9yZSB0aGUgcGVuZGluZyBvYnNlcnZh
+dGlvbiBtZXRyaWMgY3Vyc29yIgoxNDQ0IHwgfCAgICAgICAgICAgICAgICAgKQogICAgIHwgfF9f
+X19fX19fX19fX19fX19fXgoxNDQ1IHwgICAgICAgICAgICAgICBpZiByZXN1bWVkX3Jvd19vZmZz
+ZXQgPCByb3dfb2Zmc2V0OgoxNDQ2IHwgICAgICAgICAgICAgICAgICAgcmFpc2UgUnVudGltZUVy
+cm9yKAogICAgIHwKCkI5MDQgV2l0aGluIGFuIGBleGNlcHRgIGNsYXVzZSwgcmFpc2UgZXhjZXB0
+aW9ucyB3aXRoIGByYWlzZSAuLi4gZnJvbSBlcnJgIG9yIGByYWlzZSAuLi4gZnJvbSBOb25lYCB0
+byBkaXN0aW5ndWlzaCB0aGVtIGZyb20gZXJyb3JzIGluIGV4Y2VwdGlvbiBoYW5kbGluZwogICAg
+LS0+IHNyYy9wb2xpc3lvcy9kYXRhX2ZvcmdlL2RvbWFpbnMvdWtyYWluZS9idWlsZGVycy9zb3Vy
+Y2VzLnB5OjE0NDY6MTcKICAgICB8CjE0NDQgfCAgICAgICAgICAgICAgICAgICApCjE0NDUgfCAg
+ICAgICAgICAgICAgIGlmIHJlc3VtZWRfcm93X29mZnNldCA8IHJvd19vZmZzZXQ6CjE0NDYgfCAv
+ICAgICAgICAgICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoCjE0NDcgfCB8ICAgICAgICAgICAg
+ICAgICAgICAgInN0cmVhbSByZXN0YXJ0IGVuZGVkIGJlZm9yZSB0aGUgY29uZmlybWVkIG9ic2Vy
+dmF0aW9uIGN1cnNvciIKMTQ0OCB8IHwgICAgICAgICAgICAgICAgICkKICAgICB8IHxfX19fX19f
+X19fX19fX19fX14KICAgICB8CgpGb3VuZCAzIGVycm9ycy4K
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 5 / Ruff on corrective candidate ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-final-full.log
+Exact decoded stdout SHA-256: a6e8a50cdf20e0a069b4a7a416208e8b558893c88f3742b33e9ffe583436bdad
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+QjkwNCBXaXRoaW4gYW4gYGV4Y2VwdGAgY2xhdXNlLCByYWlzZSBleGNlcHRpb25zIHdpdGggYHJh
+aXNlIC4uLiBmcm9tIGVycmAgb3IgYHJhaXNlIC4uLiBmcm9tIE5vbmVgIHRvIGRpc3Rpbmd1aXNo
+IHRoZW0gZnJvbSBlcnJvcnMgaW4gZXhjZXB0aW9uIGhhbmRsaW5nCiAgICAtLT4gc3JjL3BvbGlz
+eW9zL2RhdGFfZm9yZ2UvZG9tYWlucy91a3JhaW5lL2J1aWxkZXJzL3NvdXJjZXMucHk6MTQ4NTox
+MwogICAgIHwKMTQ4MyB8ICAgICAgICAgICAgICAgZGVsIGZyYW1lCjE0ODQgfCAgICAgICAgICAg
+aWYgcGVuZGluZ19tZXRyaWNfaWRzOgoxNDg1IHwgLyAgICAgICAgICAgICByYWlzZSBSdW50aW1l
+RXJyb3IoCjE0ODYgfCB8ICAgICAgICAgICAgICAgICAic3RyZWFtIHJlc3RhcnQgZW5kZWQgYmVm
+b3JlIHRoZSBwZW5kaW5nIG9ic2VydmF0aW9uIG1ldHJpYyBjdXJzb3IiCjE0ODcgfCB8ICAgICAg
+ICAgICAgICkKICAgICB8IHxfX19fX19fX19fX19fXgoxNDg4IHwgICAgICAgICAgIGlmIHJlc3Vt
+ZWRfcm93X29mZnNldCA8IHJvd19vZmZzZXQ6CjE0ODkgfCAgICAgICAgICAgICAgIHJhaXNlIFJ1
+bnRpbWVFcnJvcigKICAgICB8CgpCOTA0IFdpdGhpbiBhbiBgZXhjZXB0YCBjbGF1c2UsIHJhaXNl
+IGV4Y2VwdGlvbnMgd2l0aCBgcmFpc2UgLi4uIGZyb20gZXJyYCBvciBgcmFpc2UgLi4uIGZyb20g
+Tm9uZWAgdG8gZGlzdGluZ3Vpc2ggdGhlbSBmcm9tIGVycm9ycyBpbiBleGNlcHRpb24gaGFuZGxp
+bmcKICAgIC0tPiBzcmMvcG9saXN5b3MvZGF0YV9mb3JnZS9kb21haW5zL3VrcmFpbmUvYnVpbGRl
+cnMvc291cmNlcy5weToxNDg5OjEzCiAgICAgfAoxNDg3IHwgICAgICAgICAgICAgICApCjE0ODgg
+fCAgICAgICAgICAgaWYgcmVzdW1lZF9yb3dfb2Zmc2V0IDwgcm93X29mZnNldDoKMTQ4OSB8IC8g
+ICAgICAgICAgICAgcmFpc2UgUnVudGltZUVycm9yKAoxNDkwIHwgfCAgICAgICAgICAgICAgICAg
+InN0cmVhbSByZXN0YXJ0IGVuZGVkIGJlZm9yZSB0aGUgY29uZmlybWVkIG9ic2VydmF0aW9uIGN1
+cnNvciIKMTQ5MSB8IHwgICAgICAgICAgICAgKQogICAgIHwgfF9fX19fX19fX19fX19eCjE0OTIg
+fCAgICAgICAgICAgX2Fzc2VydF9zb3VyY2VfdW5jaGFuZ2VkKCkKICAgICB8CgpGb3VuZCAyIGVy
+cm9ycy4K
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 6 / Ruff excluding baseline B904 at ff77 ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-final-corrective.log
+Exact decoded stdout SHA-256: 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+QWxsIGNoZWNrcyBwYXNzZWQhCg==
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 8 / frozen-head focused suite at 00ba ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/focused-pytest-final-head.log
+Exact decoded stdout SHA-256: ceebaa41c2412ac5f5e4e11fac301e2d83108bb0d6b76f0ec1fd431255bb8810
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
+Li4uLi4uLi4uLi4uLi4uIFsxMDAlXQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09IHdh
+cm5pbmdzIHN1bW1hcnkgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQouLi8uLi8uLi8u
+Li8uLi9wb2xpc3lvcy9wb2xpY3ktZW5naW5lLy52ZW52L2xpYi9weXRob24zLjE0L3NpdGUtcGFj
+a2FnZXMvX3B5dGVzdC9jb25maWcvX19pbml0X18ucHk6MTQyOAogIC9Vc2Vycy9kZW5pc2tvcHls
+b3YvcG9saXN5b3MvcG9saWN5LWVuZ2luZS8udmVudi9saWIvcHl0aG9uMy4xNC9zaXRlLXBhY2th
+Z2VzL19weXRlc3QvY29uZmlnL19faW5pdF9fLnB5OjE0Mjg6IFB5dGVzdENvbmZpZ1dhcm5pbmc6
+IFVua25vd24gY29uZmlnIG9wdGlvbjogY2FjaGVfZGlyCiAgCiAgICBzZWxmLl93YXJuX29yX2Zh
+aWxfaWZfc3RyaWN0KGYiVW5rbm93biBjb25maWcgb3B0aW9uOiB7a2V5fVxuIikKCi0tIERvY3M6
+IGh0dHBzOi8vZG9jcy5weXRlc3Qub3JnL2VuL3N0YWJsZS9ob3ctdG8vY2FwdHVyZS13YXJuaW5n
+cy5odG1sCjcyIHBhc3NlZCwgMSB3YXJuaW5nIGluIDEzLjA2cwo=
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 9 / full Ruff at 00ba ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-full-frozen-head.log
+Exact decoded stdout SHA-256: a6e8a50cdf20e0a069b4a7a416208e8b558893c88f3742b33e9ffe583436bdad
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+QjkwNCBXaXRoaW4gYW4gYGV4Y2VwdGAgY2xhdXNlLCByYWlzZSBleGNlcHRpb25zIHdpdGggYHJh
+aXNlIC4uLiBmcm9tIGVycmAgb3IgYHJhaXNlIC4uLiBmcm9tIE5vbmVgIHRvIGRpc3Rpbmd1aXNo
+IHRoZW0gZnJvbSBlcnJvcnMgaW4gZXhjZXB0aW9uIGhhbmRsaW5nCiAgICAtLT4gc3JjL3BvbGlz
+eW9zL2RhdGFfZm9yZ2UvZG9tYWlucy91a3JhaW5lL2J1aWxkZXJzL3NvdXJjZXMucHk6MTQ4NTox
+MwogICAgIHwKMTQ4MyB8ICAgICAgICAgICAgICAgZGVsIGZyYW1lCjE0ODQgfCAgICAgICAgICAg
+aWYgcGVuZGluZ19tZXRyaWNfaWRzOgoxNDg1IHwgLyAgICAgICAgICAgICByYWlzZSBSdW50aW1l
+RXJyb3IoCjE0ODYgfCB8ICAgICAgICAgICAgICAgICAic3RyZWFtIHJlc3RhcnQgZW5kZWQgYmVm
+b3JlIHRoZSBwZW5kaW5nIG9ic2VydmF0aW9uIG1ldHJpYyBjdXJzb3IiCjE0ODcgfCB8ICAgICAg
+ICAgICAgICkKICAgICB8IHxfX19fX19fX19fX19fXgoxNDg4IHwgICAgICAgICAgIGlmIHJlc3Vt
+ZWRfcm93X29mZnNldCA8IHJvd19vZmZzZXQ6CjE0ODkgfCAgICAgICAgICAgICAgIHJhaXNlIFJ1
+bnRpbWVFcnJvcigKICAgICB8CgpCOTA0IFdpdGhpbiBhbiBgZXhjZXB0YCBjbGF1c2UsIHJhaXNl
+IGV4Y2VwdGlvbnMgd2l0aCBgcmFpc2UgLi4uIGZyb20gZXJyYCBvciBgcmFpc2UgLi4uIGZyb20g
+Tm9uZWAgdG8gZGlzdGluZ3Vpc2ggdGhlbSBmcm9tIGVycm9ycyBpbiBleGNlcHRpb24gaGFuZGxp
+bmcKICAgIC0tPiBzcmMvcG9saXN5b3MvZGF0YV9mb3JnZS9kb21haW5zL3VrcmFpbmUvYnVpbGRl
+cnMvc291cmNlcy5weToxNDg5OjEzCiAgICAgfAoxNDg3IHwgICAgICAgICAgICAgICApCjE0ODgg
+fCAgICAgICAgICAgaWYgcmVzdW1lZF9yb3dfb2Zmc2V0IDwgcm93X29mZnNldDoKMTQ4OSB8IC8g
+ICAgICAgICAgICAgcmFpc2UgUnVudGltZUVycm9yKAoxNDkwIHwgfCAgICAgICAgICAgICAgICAg
+InN0cmVhbSByZXN0YXJ0IGVuZGVkIGJlZm9yZSB0aGUgY29uZmlybWVkIG9ic2VydmF0aW9uIGN1
+cnNvciIKMTQ5MSB8IHwgICAgICAgICAgICAgKQogICAgIHwgfF9fX19fX19fX19fX19eCjE0OTIg
+fCAgICAgICAgICAgX2Fzc2VydF9zb3VyY2VfdW5jaGFuZ2VkKCkKICAgICB8CgpGb3VuZCAyIGVy
+cm9ycy4K
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 10 / Ruff excluding B904 at 00ba ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-ignored-frozen-head.log
+Exact decoded stdout SHA-256: 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+QWxsIGNoZWNrcyBwYXNzZWQhCg==
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 11 / final focused suite at 997 ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/focused-post-review-final.log
+Exact decoded stdout SHA-256: d288d34db31e984f972098dd64b9fc8da4b11fe24eb197254ab207e08dfb04a5
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
+Li4uLi4uLi4uLi4uLi4uIFsxMDAlXQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09IHdh
+cm5pbmdzIHN1bW1hcnkgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQouLi8uLi8uLi8u
+Li8uLi9wb2xpc3lvcy9wb2xpY3ktZW5naW5lLy52ZW52L2xpYi9weXRob24zLjE0L3NpdGUtcGFj
+a2FnZXMvX3B5dGVzdC9jb25maWcvX19pbml0X18ucHk6MTQyOAogIC9Vc2Vycy9kZW5pc2tvcHls
+b3YvcG9saXN5b3MvcG9saWN5LWVuZ2luZS8udmVudi9saWIvcHl0aG9uMy4xNC9zaXRlLXBhY2th
+Z2VzL19weXRlc3QvY29uZmlnL19faW5pdF9fLnB5OjE0Mjg6IFB5dGVzdENvbmZpZ1dhcm5pbmc6
+IFVua25vd24gY29uZmlnIG9wdGlvbjogY2FjaGVfZGlyCiAgCiAgICBzZWxmLl93YXJuX29yX2Zh
+aWxfaWZfc3RyaWN0KGYiVW5rbm93biBjb25maWcgb3B0aW9uOiB7a2V5fVxuIikKCi0tIERvY3M6
+IGh0dHBzOi8vZG9jcy5weXRlc3Qub3JnL2VuL3N0YWJsZS9ob3ctdG8vY2FwdHVyZS13YXJuaW5n
+cy5odG1sCjcyIHBhc3NlZCwgMSB3YXJuaW5nIGluIDE0LjA3cwo=
+----- END EXACT STDOUT BASE64 -----
+
+=== Check 12 / final full Ruff at 997 ===
+Ignored local stdout source: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-full-post-review-final.log
+Exact decoded stdout SHA-256: 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18
+Encoding: base64; decode the payload to recover the exact stdout bytes.
+----- BEGIN EXACT STDOUT BASE64 -----
+QWxsIGNoZWNrcyBwYXNzZWQhCg==
+----- END EXACT STDOUT BASE64 -----

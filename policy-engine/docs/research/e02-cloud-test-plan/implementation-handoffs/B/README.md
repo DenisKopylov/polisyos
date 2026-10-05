@@ -14,6 +14,8 @@ The independent review checkpoint contains these exact executions:
 | Checkpoint execution and locked publication/rollback | `d7c9122a60330ce30cee7720c90caf4d8fb07ade` | 28 PASS |
 | Async cache publication and fresh consumer replay | `a33898206b4b7421fa06f3444d8d53fb5e1bd174` | 9 PASS |
 | Complete connector acquisition deadline and cleanup ownership | `58b04116e25344835f482ef79c16ce87f2d0b771` | 9 PASS |
+| Linux process supervisor, descendant reaping and bridge consumers | `ba79d141a3937541b3164db255ceda89883575ec` | 85 PASS, 22 fork warnings |
+| Bound scoped CAS admission and exact cache consumers | `34b6c191cc617d89475bdb73c3b50bc0340e4b09` | 67 PASS |
 
 Commands, complete stdout and JUnit outputs are retained in
 [coordination-evidence](coordination-evidence/), with hashes in

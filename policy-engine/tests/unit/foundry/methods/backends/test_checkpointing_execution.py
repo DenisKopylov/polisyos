@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import fcntl
 import multiprocessing
 import os
 import stat
+import threading
 import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from typing import Any, ClassVar
+from uuid import uuid4
 
 import numpy as np
 import pytest
@@ -19,7 +23,9 @@ from polisyos.foundry.methods.backends.checkpointing import (
     CheckpointDigestMismatchError,
     CheckpointingChainExecutor,
     CheckpointSaveError,
+    _snapshot_node_result,
 )
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -287,3 +293,97 @@ def test_process_writers_and_concurrent_reader_observe_one_complete_generation(t
                 writer.terminate()
             if writer.pid is not None:
                 writer.join(timeout=5.0)
+
+
+def test_failed_history_only_save_cannot_delete_a_peer_published_sidecar(
+    tmp_path, monkeypatch, registry
+) -> None:
+    """Rollback retains the writer lock until its sidecars are cleaned up."""
+    import polisyos.foundry.methods.backends.checkpointing as checkpointing
+
+    method = _method(
+        "array_output",
+        lambda state, _params: np.array([float(state["value"])]),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    name="output",
+                    slot_type=SlotType.VECTOR,
+                    unit=Unit(dimension="dimensionless", symbol="1"),
+                    shape=(1,),
+                )
+            }
+        ),
+    )
+    registry.register(method, override=True)
+    dispatcher = MethodDispatcher.get_instance()
+    node_id = uuid4()
+    snapshots = []
+    for value in (1.0, 2.0):
+        result = dispatcher.dispatch(
+            method_class=method,
+            signature=method.signature,
+            state={"value": value},
+            params={},
+            seed=7,
+        )
+        snapshots.append(_snapshot_node_result(node_id, method.signature.fqn, result))
+
+    path = tmp_path / "checkpoint_history_race.json"
+    local = threading.local()
+    cleanup_paused = threading.Event()
+    release_cleanup = threading.Event()
+    atomic_write = checkpointing._atomic_write_bytes
+    cleanup = checkpointing._cleanup_paths
+
+    def fail_first_manifest(*args, **kwargs):
+        if getattr(local, "failing_writer", False):
+            raise OSError("injected failure before first manifest publication")
+        return atomic_write(*args, **kwargs)
+
+    def pause_failed_rollback(paths):
+        if getattr(local, "failing_writer", False) and any(p.suffix == ".npy" for p in paths):
+            cleanup_paused.set()
+            assert release_cleanup.wait(timeout=10.0), "rollback release was not received"
+        cleanup(paths)
+
+    monkeypatch.setattr(checkpointing, "_atomic_write_bytes", fail_first_manifest)
+    monkeypatch.setattr(checkpointing, "_cleanup_paths", pause_failed_rollback)
+
+    def save_snapshot(index: int) -> None:
+        local.failing_writer = index == 0
+        ChainCheckpoint(
+            chain_digest="history_race",
+            completed_fqns=[method.signature.fqn],
+            completed_node_ids=[str(node_id)],
+            intermediate_state={"scalar": index + 1},
+            node_results=[snapshots[index]],
+            history_complete=True,
+        ).save(path)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(save_snapshot, 0)
+        try:
+            assert cleanup_paused.wait(timeout=10.0), "failed writer never reached rollback"
+            # Query the operating system's actual lock to choose a deterministic
+            # schedule for both implementations, without inspecting code markers.
+            with path.with_name(f".{path.name}.lock").open("a+b") as lock_file:
+                try:
+                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BlockingIOError:
+                    rollback_holds_lock = True
+                else:
+                    rollback_holds_lock = False
+                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            second = pool.submit(save_snapshot, 1)
+            if not rollback_holds_lock:
+                second.result(timeout=10.0)
+            release_cleanup.set()
+            with pytest.raises(CheckpointSaveError, match="first manifest publication"):
+                first.result(timeout=10.0)
+            second.result(timeout=10.0)
+        finally:
+            release_cleanup.set()
+
+    loaded = ChainCheckpoint.load(path)
+    np.testing.assert_array_equal(loaded.node_results[0]["output"], np.array([2.0]))

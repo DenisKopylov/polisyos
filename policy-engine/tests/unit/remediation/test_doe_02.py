@@ -259,7 +259,7 @@ def test_sampling_forwards_seed_without_resetting_external_numpy_state(
     def fake_sample(
         problem: dict[str, object],
         *,
-        N: int,
+        N: int,  # noqa: N803 - SALib's public sampler keyword.
         num_levels: int,
         seed: object = None,
     ) -> np.ndarray:
@@ -305,7 +305,7 @@ def test_analysis_forwards_seed_to_backend_without_global_rng_side_effect(
         n_trajectories=1,
         seed=29,
     )
-    samples = np.zeros((2, 1), dtype=float)
+    samples = np.array([[0.0], [2.0 / 3.0]], dtype=float)
     outputs = np.array([0.0, 1.0], dtype=float)
     np.random.seed(7341)
     before = np.random.get_state()

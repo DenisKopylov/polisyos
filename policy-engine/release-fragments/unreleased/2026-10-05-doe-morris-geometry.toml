@@ -1,0 +1,11 @@
+id = "2026-10-05-doe-morris-geometry"
+title = "Validate complete Morris trajectories before sensitivity analysis"
+type = "fixed"
+component = "scientist-doe"
+owner = "team-polisyos"
+summary = "Point, PCA, and elementary-effect analysis reject invalid Morris geometry. Ranking stability validates the original design and resamples whole trajectories."
+evidence = ["tests/unit/scientist/methods/doe/test_morris_geometry.py"]
+compatibility = "Valid native Morris designs preserve normalized effect units. Internal elementary-effect helper callers must supply the originating num_levels; invalid trajectories and failed original runs in ranking stability raise ValueError."
+surface_classification = "internal: polisyos.scientist.methods.doe; supported Scientist entrypoints unchanged"
+migration = "Pass explicit num_levels with physical parameter bounds to morris_elementary_effects_from_samples. Supply complete successful Morris trajectories to RankingStabilityChecker."
+limitations = "No authenticated design provenance, failure-selection correction, nonuniform uncertainty, coverage claim, or Sobol/FAST stability resampling change."

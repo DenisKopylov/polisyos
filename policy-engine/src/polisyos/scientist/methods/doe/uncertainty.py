@@ -452,6 +452,7 @@ def morris_elementary_effects_from_samples(
     parameter_names: Sequence[str],
     *,
     parameter_bounds: Mapping[str, tuple[float, float]] | None = None,
+    num_levels: int | None = None,
 ) -> np.ndarray:
     """Infer Morris effects in the plan's normalized coordinate system.
 
@@ -459,6 +460,7 @@ def morris_elementary_effects_from_samples(
     normalized design grid, while samples may be expressed in physical units.
     ``parameter_bounds`` binds that conversion to the originating uniform plan;
     without it the coordinate convention is unknown and the helper fails closed.
+    ``num_levels`` binds the trajectory geometry to the originating grid.
     Transformed distributions and scaled/grouped Morris designs must use a
     producer-specific adapter instead of this uniform conversion.
     """
@@ -478,7 +480,10 @@ def morris_elementary_effects_from_samples(
             "Morris elementary-effect coordinate convention is unknown; "
             "explicit parameter bounds are required"
         )
+    from .morris_geometry import _validate_morris_trajectories
+
     spans = np.empty(d, dtype=float)
+    lower_bounds = np.empty(d, dtype=float)
     for idx, name in enumerate(names):
         bounds = parameter_bounds.get(name)
         if bounds is None or len(bounds) != 2:
@@ -487,6 +492,15 @@ def morris_elementary_effects_from_samples(
         if not np.isfinite(lower) or not np.isfinite(upper) or lower >= upper:
             raise ValueError(f"invalid Morris coordinate bounds for parameter '{name}'")
         spans[idx] = upper - lower
+        lower_bounds[idx] = lower
+    if num_levels is None:
+        raise ValueError("Morris elementary effects require explicit num_levels")
+    _validate_morris_trajectories(
+        x,
+        num_parameters=d,
+        num_levels=num_levels,
+        unit_samples=(x - lower_bounds) / spans,
+    )
     trajectory_size = d + 1
     if y.size % trajectory_size != 0:
         raise ValueError(
@@ -501,10 +515,8 @@ def morris_elementary_effects_from_samples(
     for t in range(r):
         for step in range(d):
             delta_x = x_traj[t, step + 1] - x_traj[t, step]
-            changed = np.flatnonzero(np.abs(delta_x) > _EPS)
-            if changed.size == 0:
-                continue
-            factor_idx = int(changed[np.argmax(np.abs(delta_x[changed]))])
+            changed = np.flatnonzero(delta_x != 0.0)
+            factor_idx = int(changed[0])
             normalized_delta = delta_x[factor_idx] / spans[factor_idx]
             if abs(normalized_delta) <= _EPS:
                 continue

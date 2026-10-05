@@ -40,6 +40,26 @@ the plan seed remains a separate request input.  Seeded Morris/Sobol streams
 are isolated; seeded FAST remains `compatibility_pending` because SALib 1.5.2
 mutates process-global NumPy state.
 
+## Morris trajectory admission
+
+Point analysis, PCA component analysis, and elementary-effect uncertainty admit
+only complete ungrouped trajectories: every step changes one parameter, every
+parameter changes once, and the step and coordinates match the declared grid.
+The check uses unit coordinates from the admitted uniform, truncated-normal,
+or triangular sampling law. Finite values and divisible row counts alone are
+insufficient. Whole valid blocks may be reordered or bootstrapped; individual
+row resampling cannot preserve this design. `RankingStabilityChecker` therefore
+resamples whole Morris trajectories. Its Sobol/FAST resampling is outside this
+bounded repair. It validates the original Morris design before resampling and
+refuses failed original runs; ranking stability under dropped or imputed runs
+has no admitted selection or recovery contract.
+
+The uniform elementary-effect helper requires explicit physical bounds and
+`num_levels`; point and uncertainty effects share normalized units. Nonuniform
+uncertainty remains unavailable until its coordinate contract is admitted.
+Geometry does not authenticate original trajectory provenance or establish
+statistical sufficiency or absence of failure-selection bias.
+
 ## Public API
 
 - `SensitivityPlan`, `ScenarioSweep`, `AblationPlan`
@@ -62,7 +82,7 @@ mutates process-global NumPy state.
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-04-03
-- Python modules: 10
+- Последнее обновление: 2026-10-05
+- Python modules: 11
 - Exports: 82
 - README синхронизирован с тем, что `doe` остается upstream для search/stress flows

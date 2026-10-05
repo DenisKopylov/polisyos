@@ -437,9 +437,11 @@ def compute_gini_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
     """Compute the exact Gini coefficient over active agents."""
     n_agents = values.shape[0]
     n_active = jnp.sum(active).astype(jnp.int32)
+    # Match infinity masking followed by multiplication with float32 ranks.
+    output_dtype = jnp.result_type(jnp.result_type(values, jnp.inf), jnp.float32)
 
     def _no_active():
-        return jnp.array(0.0, dtype=jnp.float32)
+        return jnp.array(0.0, dtype=output_dtype)
 
     def _with_active():
         masked = jnp.where(active, values, jnp.inf)

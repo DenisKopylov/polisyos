@@ -1,0 +1,164 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "api-consumer-abi",
+  "closure_ids": [
+    "LA-020"
+  ],
+  "bundle_ids": [
+    "API-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "0c709ea924d2b868eacf1016f5c70ff749e287a8"
+  ],
+  "candidate_tree_sha": "42c3b569fdff79a03148ecb6a150904ac69019df",
+  "branch": "codex/e02-F-causal-api",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+  ],
+  "mandatory_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P076",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "PASS"
+    },
+    {
+      "id": "F01-P089",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "PASS"
+    },
+    {
+      "id": "F02-P068",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "PASS"
+    },
+    {
+      "id": "F09-P091",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "state": "PASS"
+    },
+    {
+      "id": "F14-P104",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "state": "PASS"
+    }
+  ],
+  "baseline_grade": "source-reported compact messages only; no raw archives; not a candidate witness",
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_api_01.py tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py -v -s",
+      "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+      "environment": "Linux cloud; CPython3.14.2; pytest9.0.2; PYTHONPATH src:. selects isolated candidate source",
+      "input_closure": "Native API-01 and contract tests plus new bounded consumer tests; synthetic DAG/bow/cross-unit graphs, no production inputs or numeric-estimation registry",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+      "collected": 26,
+      "passed": 26,
+      "skipped": 0,
+      "errors": 0,
+      "wall_s": 40.94916774400008,
+      "max_rss_kib": 516056
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py && /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+      "environment": "same CPython3.14.2 shared tool environment, candidate cwd repository root",
+      "input_closure": "new test file",
+      "outcome": "PASS",
+      "output": "All checks passed!\n1 file already formatted\n"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-F-receipts/api-input-audit:src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_causal_engine_g.py tests/unit/foundry/methods/catalog/causal/test_interference_identification.py tests/unit/scientist/discovery/test_stability.py tests/unit/scientist/discovery/test_utility_judge.py -q",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "same interpreter/dependencies, clean attached /workspace/e02-F-base-control; read-only open-path audit",
+      "input_closure": "same four existing test files and runtime import dependencies; no production input",
+      "outcome": "FAIL",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-F-receipts/api-input-audit:src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_causal_engine_g.py tests/unit/foundry/methods/catalog/causal/test_interference_identification.py tests/unit/scientist/discovery/test_stability.py tests/unit/scientist/discovery/test_utility_judge.py -q",
+      "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+      "environment": "same interpreter/dependencies, clean attached candidate; read-only open-path audit",
+      "input_closure": "same four existing test files and runtime import dependencies; no production input",
+      "outcome": "FAIL",
+      "exit": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt"
+    }
+  ],
+  "property": {
+    "statement": "Existing causal_engine/interference supported facades retain actual imports, leaf object/FQN identity, monkeypatch runtime behavior, JSON result consumption and runtime documentation rendering; explicit public exports do not silently grow from leaf imports. This is a bounded ABI witness, not whole finding closure.",
+    "runtime_path": [
+      "producer: CausalEngine.identify/run and interference.identify_interference_effect",
+      "artifact: real IdentificationResult/NegativeCertificate/EvidenceBundle/InterferenceIdentificationResult",
+      "bridge: explicit package imports and _sync_public_algorithm_overrides",
+      "consumer: Scientist discovery.stability._evaluate_identifiability and typed JSON model readers",
+      "surface: supported direct/star imports, serialized leaf object FQNs, native pydoc rendering"
+    ],
+    "proxy_divergence": "Disabling _sync_public_algorithm_overrides leaves CausalEngine identity and __all__ unchanged and identification still succeeds, but the supported facade patch never reaches the actual algorithm. The behavioral witness distinguishes it.",
+    "negative_controls": [
+      "bow graph produces hedge_found/NegativeCertificate and real Scientist consumer returns false",
+      "runtime bridge deleted with class/export markers retained: supported patch ignored",
+      "native API-01 unknown name/incidental leaf import/stale reload controls"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "consumer_census": {
+    "instrument": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py@0c709ea924d2b868eacf1016f5c70ff749e287a8::test_repository_literal_facade_imports_resolve",
+    "executing_party": "F/causal_api",
+    "source_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+    "tracked_python_denominator": 6427,
+    "literal_import_occurrences": 60,
+    "literal_import_files": 39,
+    "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+    "boundary": "Full tracked .py denominator for literal AST imports, including relative imports; every observed import executes. Computed import addresses and external callers not established."
+  },
+  "independent_review": {
+    "reviewer": "F/fit_tmle",
+    "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+    "verdict": "GO for bounded slice; no new blocking P40 class; preserve utility_judge red and external/backend limitations"
+  },
+  "capability_state_or_finding_state": "limited: bounded supported-facade ABI witness and canonical documentation migration complete; LA-020 blanket closure not claimed",
+  "red_attribution": {
+    "state": "not_established for full P41 attribution; no exclusion or inherited-green claim",
+    "observed": "same utility_judge identified-versus-ambiguous ranking failure on exact slice-base and candidate; stdout bytes identical",
+    "failure_owner": "Scientist discovery utility_judge/causal graph semantic owner, with G integration triage",
+    "open_path_audit": {
+      "instrument_source_sha256": "db96b2ffba8898876e79fd4398f68ed7cf2f846630b2fb3565cee4b0719c136f",
+      "base_repository_open_paths": 2720,
+      "candidate_repository_open_paths": 912,
+      "union_repository_open_paths": 2720,
+      "union_tracked_paths": 908,
+      "changed_path_intersection": [],
+      "boundary": "Python open-event audit only; native I/O and file-metadata inputs not measured. Audit raw path lists remain cloud scratch; not upgraded to complete-gate proof."
+    }
+  },
+  "authority_purpose": "verification of retained software ABI and bounded symbolic graph property; not an admitted policy-effect estimate",
+  "provenance": "Fresh candidate execution plus exact-base replay; baseline messages remain orientation only",
+  "rule_schema_version": "Existing runtime contracts unchanged; handoff v1",
+  "time_roles": "Test execution observed2026-10-05; no production effective/publication epochs or claimed legal authority",
+  "pattern_pass": [
+    "P06/P27: canonical facades/leaf identities retained, no shim or owner duplication",
+    "P29/P32/P33/P38: actual method path and removal control beyond names/reflection",
+    "P35/P37: complete literal-caller denominator recomputed with explicit computed/external boundary",
+    "P40: shared registered output-slot ABI mismatch is a separate canonical-owner slice; no local ladder repair",
+    "P41: base reproduction and observed disjointness reported without full-input attribution"
+  ],
+  "limitations_and_next_owner": [
+    "G fetches exact topic head and receipt and reruns these checks after integration; commit acceptance is separate from finding closure.",
+    "LA-020 remains limited pending API-owner external/computed caller migration and compatibility retirement decision. Supported historical private aliases are retained.",
+    "UtilityJudge real-identification ranking remains FAIL on exact base/candidate; G and the graph/Scientist semantic owner must resolve it. Full P41 attribution not established.",
+    "Method-signature/native-output ABI mismatch (independently observed RDD signature causal_effect_report versus report/envelope) is handed to CAU canonical _common/dispatcher owner; this slice does not claim its closure.",
+    "Native pydoc rendering verified; MkDocs site generation, optional DoWhy/EconML backends and real admitted-data inference are UNRUN/outside this witness. Python3.14 markers exclude those optional backends, not a positive backend witness.",
+    "Class/function global FQNs pickle roundtrip verified. Result DTOs use the supported JSON reader; default pickling of immutable graph instances is not claimed.",
+    "Plugin registration/discovery belongs to C. Existing parent causal facade and _registry_boot consume the retained class identities; no plugin discovery or entrypoint mutation is made."
+  ]
+}

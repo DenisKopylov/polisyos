@@ -1,0 +1,93 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-exe-state/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-exe-state/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items
+
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[responsive-trace] FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[responsive-checkpoint] FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[deadline-trace] FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[deadline-checkpoint] FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[cancel-trace] FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[cancel-checkpoint] FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_preserves_real_read_and_custody_checks[scope] FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_preserves_real_read_and_custody_checks[permission] FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_preserves_real_read_and_custody_checks[tamper] FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_respects_read_budget_before_recovery_io FAILED
+tests/integration/scientist/test_async_cache_recovery.py::test_workflow_body_receives_only_deadline_remaining_after_startup FAILED
+
+=================================== FAILURES ===================================
+_____ test_cold_seed_yields_and_never_admits_late_worker[responsive-trace] _____
+tests/integration/scientist/test_async_cache_recovery.py:161: in test_cold_seed_yields_and_never_admits_late_worker
+    task = asyncio.create_task(executor.execute(workflow, _state(ctx.run.run_id)))
+                                                                 ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+__ test_cold_seed_yields_and_never_admits_late_worker[responsive-checkpoint] ___
+tests/integration/scientist/test_async_cache_recovery.py:161: in test_cold_seed_yields_and_never_admits_late_worker
+    task = asyncio.create_task(executor.execute(workflow, _state(ctx.run.run_id)))
+                                                                 ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+______ test_cold_seed_yields_and_never_admits_late_worker[deadline-trace] ______
+tests/integration/scientist/test_async_cache_recovery.py:161: in test_cold_seed_yields_and_never_admits_late_worker
+    task = asyncio.create_task(executor.execute(workflow, _state(ctx.run.run_id)))
+                                                                 ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+___ test_cold_seed_yields_and_never_admits_late_worker[deadline-checkpoint] ____
+tests/integration/scientist/test_async_cache_recovery.py:161: in test_cold_seed_yields_and_never_admits_late_worker
+    task = asyncio.create_task(executor.execute(workflow, _state(ctx.run.run_id)))
+                                                                 ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+_______ test_cold_seed_yields_and_never_admits_late_worker[cancel-trace] _______
+tests/integration/scientist/test_async_cache_recovery.py:161: in test_cold_seed_yields_and_never_admits_late_worker
+    task = asyncio.create_task(executor.execute(workflow, _state(ctx.run.run_id)))
+                                                                 ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+____ test_cold_seed_yields_and_never_admits_late_worker[cancel-checkpoint] _____
+tests/integration/scientist/test_async_cache_recovery.py:161: in test_cold_seed_yields_and_never_admits_late_worker
+    task = asyncio.create_task(executor.execute(workflow, _state(ctx.run.run_id)))
+                                                                 ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+_________ test_cold_seed_preserves_real_read_and_custody_checks[scope] _________
+tests/integration/scientist/test_async_cache_recovery.py:214: in test_cold_seed_preserves_real_read_and_custody_checks
+    positive = NodeResultCache(ctx.store, run_id=ctx.run.run_id)
+                                                 ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+______ test_cold_seed_preserves_real_read_and_custody_checks[permission] _______
+tests/integration/scientist/test_async_cache_recovery.py:214: in test_cold_seed_preserves_real_read_and_custody_checks
+    positive = NodeResultCache(ctx.store, run_id=ctx.run.run_id)
+                                                 ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+________ test_cold_seed_preserves_real_read_and_custody_checks[tamper] _________
+tests/integration/scientist/test_async_cache_recovery.py:214: in test_cold_seed_preserves_real_read_and_custody_checks
+    positive = NodeResultCache(ctx.store, run_id=ctx.run.run_id)
+                                                 ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+____________ test_cold_seed_respects_read_budget_before_recovery_io ____________
+tests/integration/scientist/test_async_cache_recovery.py:251: in test_cold_seed_respects_read_budget_before_recovery_io
+    workflow, _state(ctx.run.run_id)
+                     ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+______ test_workflow_body_receives_only_deadline_remaining_after_startup _______
+tests/integration/scientist/test_async_cache_recovery.py:286: in test_workflow_body_receives_only_deadline_remaining_after_startup
+    await executor.execute(workflow, _state(ctx.run.run_id))
+                                            ^^^^^^^^^^^^^^
+E   AttributeError: 'RunContext' object has no attribute 'run_id'
+=========================== short test summary info ============================
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[responsive-trace]
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[responsive-checkpoint]
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[deadline-trace]
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[deadline-checkpoint]
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[cancel-trace]
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_yields_and_never_admits_late_worker[cancel-checkpoint]
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_preserves_real_read_and_custody_checks[scope]
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_preserves_real_read_and_custody_checks[permission]
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_preserves_real_read_and_custody_checks[tamper]
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_cold_seed_respects_read_budget_before_recovery_io
+FAILED tests/integration/scientist/test_async_cache_recovery.py::test_workflow_body_receives_only_deadline_remaining_after_startup
+============================= 11 failed in 11.24s ==============================

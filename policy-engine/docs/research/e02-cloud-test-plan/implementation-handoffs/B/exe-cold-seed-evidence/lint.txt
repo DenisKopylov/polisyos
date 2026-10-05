@@ -1,0 +1,15 @@
+ARGV ['/workspace/polisyos/policy-engine/.venv/bin/python', '-m', 'ruff', 'check', 'src/polisyos/scientist/orchestration/engine/async_executor.py', 'src/polisyos/scientist/orchestration/engine/idempotency.py', 'tests/integration/scientist/test_async_cache_recovery.py']
+All checks passed!
+EXIT 0
+ARGV ['/workspace/polisyos/policy-engine/.venv/bin/python', '-m', 'ruff', 'format', '--check', 'src/polisyos/scientist/orchestration/engine/idempotency.py', 'tests/integration/scientist/test_async_cache_recovery.py']
+2 files already formatted
+EXIT 0
+ARGV ['/workspace/polisyos/policy-engine/.venv/bin/python', '-m', 'ruff', 'format', '--check', '--range', '1439-1487', 'src/polisyos/scientist/orchestration/engine/async_executor.py']
+1 file already formatted
+EXIT 0
+SOURCE94f378200d8684d61737f0561eccafea6eaa843f ARGV ['/workspace/polisyos/policy-engine/.venv/bin/python', '-m', 'ruff', 'check', 'tests/unit/scientist/methods/causal/test_resolve_parameters_node.py']
+All checks passed!
+EXIT 0
+SOURCE94f378200d8684d61737f0561eccafea6eaa843f ARGV ['/workspace/polisyos/policy-engine/.venv/bin/python', '-m', 'ruff', 'format', '--check', 'tests/unit/scientist/methods/causal/test_resolve_parameters_node.py']
+1 file already formatted
+EXIT 0

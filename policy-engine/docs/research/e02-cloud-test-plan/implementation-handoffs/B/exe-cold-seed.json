@@ -1,0 +1,165 @@
+{
+  "schema": "policyos.e02.B.implementation_handoff.v1",
+  "slice": "exe-cold-seed",
+  "unit": "B",
+  "author_family": "B-W07",
+  "finding_ids": [
+    "B52"
+  ],
+  "companion_test_finding_ids": [
+    "B60"
+  ],
+  "closure_ids": [],
+  "branch": "codex/e02-B-exe-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/27",
+  "slice_base": "0f24d18d988f579db20a84c734a587abe6cabe20",
+  "source_sha": "94f378200d8684d61737f0561eccafea6eaa843f",
+  "source_tree": "97ce175cf2b05527da710ffa3c2fdeb991dce86b",
+  "production_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+  "production_tree": "bad622f8ba09cad03e4b7899c07982380efcfa81",
+  "production_equivalence": "git diff 515054e7427467bf6e72fcfa22cc809c7cfe2c19..94f378200d8684d61737f0561eccafea6eaa843f changes only two test files; no production delta.",
+  "prior_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@0f24d18d988f579db20a84c734a587abe6cabe20",
+  "supersedes": "Only the prior B52 synchronous cold recovery residual. All fifteen prior dispositions and limitations remain scoped to their pinned source; B59 narrow closure and B61 held rule remain unchanged.",
+  "source_criterion": {
+    "finding": "B52",
+    "bundle": "EXE-01",
+    "owner": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EXE-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "source": "B_r19 lines1347-1362: real cache I/O permits ready tasks; effective deadlines; cancelled underlying write is not successful admission; recovery preserves custody and applicability.",
+    "residual": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B52",
+    "recorded_status_retained": "partial"
+  },
+  "baseline_resolution": {
+    "query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding B52 --details --job-context --block-limit 200",
+    "complete_cells": 10,
+    "complete_source_jobs": 8,
+    "immutable_navigation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/baseline-navigation.json@b7c089f4e2a26ff3d3030f4e68abbf79a0c5676f",
+    "exact_cells_source_SHA_ref_environment_input_closure": "Same commit b52-oracle/receipt.json baseline_navigation.source_identities/canonical_finding_basis/source_contexts resolves all10 cells and complete opening metadata for all8 received jobs. These source-reported package PASS cells are navigation only; raw historical archives were not transferred and do not prove this patch."
+  },
+  "leases": {
+    "production": [
+      "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+    ],
+    "companions": [
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "policy-engine/CHANGELOG.md",
+      "policy-engine/tests/integration/scientist/test_async_cache_recovery.py",
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py"
+    ],
+    "coordination": "Root confirmed exclusive async executor ownership, then optional seed/load deadline extension lease; no A generation_cycle.py/run_lifecycle.py or C streaming.py edits."
+  },
+  "mechanism_delta": "Cold trace and checkpoint refs use one existing bounded run_blocking_async worker with copied caller context and a private cache. Initial read budget is checked before recovery. Captured ref copies/run/store/tenant/deadline remain local to that worker. Optional absolute deadline propagates through both seed iterators, load_entry, existing _read_entry custody checks and pre-index admission; TimeoutError cannot be swallowed as OSError. Only uncancelled, unexpired current-owner await publishes self._cache and recovered counts. Late cancelled/timed worker cannot mutate a replacement cache. Workflow body uses the time remaining after startup rather than a fresh full timeout.",
+  "runtime_chain": "Native pure node assigns/deletes state -> actual verified CAS entry/journal -> RunContext NODE_CACHE_STORE and real CASCheckpointHook metadata cache refs -> fresh same-run filesystem store -> worker-private cold seed -> actual cache get/current-state operations merge -> report/state/checkpoint assertions; independent oracle reads and applies actual late entries in naive control but does not claim the cancelled workflow resumed.",
+  "predicate_basis": {
+    "responsiveness_deadline_cancellation": "recomputed from actual gated CAS operation, ready coroutine, worker identity and durable state consumer",
+    "scope_integrity": "recomputed native CAS digest/manifest/run/tenant and real filesystem chmod denial; current institutional authorizer is not established",
+    "source_history": "source_reported navigation, not newly measured admission"
+  },
+  "disposition": {
+    "B52": "mechanism_fixed_bounded; cold recovery discriminator established on synthetic real filesystem inputs; full finding closure not established",
+    "B60_companion": "Prior own CAS identity assertion repaired. Complete observed payloads differed only in producer selection_timestamp. Full DTO semantics excluding only that separately validated timestamp, both CAS integrity, actual graph inputs, state params, exact selector1, and valid old ref with physically missing current DB are checked. No production B60/B61 behavior was relaxed."
+  },
+  "independent_evidence": [
+    {
+      "commit": "b7c089f4e2a26ff3d3030f4e68abbf79a0c5676f",
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle",
+      "scope": "Exact0f24 native trace and real checkpoint cold seed red; naive two-call off-loop control retains actual late cache outcome/native state replay after cancellation/deadline; real chmod/digest/scope negatives; full executable probe, output and receipt."
+    },
+    {
+      "commit": "fbc826c5efc7e57c6086fbb7c85fd14a016b1608",
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review",
+      "scope": "Independent exact515 source review,14 native PASS12.50s and6 actual trace/checkpoint CAS controls+scope/chmod/tamper. Ready ticks108-110, deadline40.56-41.01ms and cancel7.36-7.73ms return before physical read release; exposed cache remains None after worker finish. No blockers. Later test-only timing and semantic-artifact delta reviewed by root and DUR; these independent run results are not relabeled as fresh94f results."
+    }
+  ],
+  "checks": [
+    {
+      "status": "EXPECTED_NEGATIVE",
+      "source": "0f24d18d988f579db20a84c734a587abe6cabe20",
+      "output": "final-base.txt",
+      "wrapper": "final-base-wrapper.json",
+      "result": "Final515 test bytecopy against complete exact0f24 production/dependencies:9 FAIL3 PASS2 new-private-helper cases deselected; wall17.47s RSS586412KiB. Real blocking/deadline/cancel/read budget/startup/body failures, not constructor errors."
+    },
+    {
+      "status": "FAIL_OWN_TEST_INPUT",
+      "source": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "output": "wave.txt",
+      "wrapper": "wave-wrapper.json",
+      "result": "20 whole files:270 PASS1 FAIL;146.03s pytest /152.47s wall RSS948840KiB. Cold deadline40ms expired during actual startup before the test reached its held read; executor correctly refused recovery. Fixed only fixture window to500ms/700ms read delay; other assertions remain."
+    },
+    {
+      "status": "FAIL_PRIOR_OWN_ORACLE",
+      "source": "b75ea829d4b76285a399d75249117764211447b0",
+      "output": "final-wave.txt",
+      "wrapper": "final-wave-wrapper.json",
+      "xml": "final-wave.xml",
+      "result": "20 whole files:270 PASS1 FAIL3 warnings;144.69s pytest /151.05s wall RSS951088KiB. All14 B52 tests PASS; prior own matching-source test incorrectly required immutable CAS identity across fresh selection timestamps. Never classified inherited or full20 PASS."
+    },
+    {
+      "status": "PASS_AFFECTED_FILE",
+      "source": "94f378200d8684d61737f0561eccafea6eaa843f",
+      "output": "selection-positive.txt",
+      "wrapper": "selection-positive-wrapper.json",
+      "xml": "selection-positive.xml",
+      "result": "All5 native affected B60 tests PASS9.37s pytest /12.997s wall RSS587148KiB. Actual>1s timestamp separation/full DTO/verified CAS/typed graph lineage/state/selector1 and real current DB disappearance control."
+    },
+    {
+      "status": "EXPECTED_PRIOR_OWN_ORACLE_FAILURE",
+      "source": "0f24d18d988f579db20a84c734a587abe6cabe20",
+      "script": "selection-timestamp-negative.py",
+      "output": "selection-timestamp-negative.json",
+      "stderr": "selection-timestamp-negative.stderr.txt",
+      "wrapper": "selection-timestamp-negative-wrapper.json",
+      "result": "Exact0f24 original test and native producer/selector with1.01s pause before second call: prior equality fails; two real CAS payloads differ only selection_timestamp. Expected witness exits0, not product PASS; elapsed/RSS not measured."
+    },
+    {
+      "status": "UNRESOLVED_STATIC_PARTIAL",
+      "source": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "output": "production-invocation.txt",
+      "wrapper": "production-invocation-wrapper.json",
+      "summary": "production-invocation-summary.json",
+      "result": "Exact515 static instrument exit3,218.65s RSS8346516KiB, regressions[], five new unresolved-by-construction methods (recover/execute/load_entry/both seed APIs),9192 construction and139729 receiver unresolved. Runtime invocation not established. Full170902920-byte raw remains ignored/untransferred; SHA89cb731900490dd8d142cefaff41ef0647ffea4b91e7ba98958299f490805cd1."
+    },
+    {
+      "status": "PASS_SCOPED_LINT",
+      "output": "lint.txt",
+      "result": "Changed source/test Ruff checks; idempotency and new integration full format; async helper changed-range format. Prior whole async file formatting drift retained; final B60 test Ruff/format also passed."
+    }
+  ],
+  "excluded_own_harness_attempts": [
+    "baseline-harness-error*.txt: first two attempts used nonexistent RunContext run_id/manifest attribute. Excluded; final base run uses actual run_manifest.run_id.",
+    "candidate-initial.txt: two deadline assertions conflated nested get_manifest inside already-entered backend get_bytes with a subsequent cache boundary call; body fixture startup margin too small. Corrected boundary discrimination without dropping underlying-read residual; no source workaround.",
+    "selection-positive-initial.txt: c52 test compared typed ArtifactID to serialized str, producing1 FAIL4 PASS. Corrected str(actual artifact ID), retaining full typed actual lineage verification; final94f whole affected file5 PASS."
+  ],
+  "environment_and_isolation": {
+    "python": "Python3.14.2",
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "profile": "preprovisioned shared test/native profile, not mutated; installed versions/header in complete outputs",
+    "dataset": "No production dataset needed for this generic cache boundary; real temporary CAS/DuckDB/synthetic node inputs used. No served/full-production acceptance claim.",
+    "fixture_isolation": "Unique tmp CAS/DB paths and actual spawn wire path. Existing optional metrics bootstrap attempted default port and degraded on Address98; no task-owned server port fixture or metrics surface proof.",
+    "resource": "One measured high-RSS static process coordinated with RUN. First wave overlapped it and exposed test margin issue; second numerical wave had no high-RSS overlap. No artificial process or numerical thread quota."
+  },
+  "residuals": [
+    "An already-entered synchronous backend operation, including its nested internal reads, may finish after deadline/cancel; no worker termination or full workflow wall cap claim. Future seed boundary reads/index admission stop at the absolute deadline.",
+    "Initial workflow/state persistence still uses its existing async-store wait. Configured workflow expiry is observed before seed/admission and body receives only residual time; early persistence itself is not interrupted at that workflow deadline.",
+    "Without configured workflow deadline, existing helper default30s is a bounded cache-read wait/bypass limit. The private timed-out cache is quarantined, not admitted later.",
+    "Thread-affine or unsupported arbitrary stores need their own connection ownership boundary; existing shared worker/FileSystemCAS path is the measured supported path.",
+    "Current institutional permission authority, large CPU serialization and latency p95/p99/full served dataset behavior remain unmeasured; no cache speedup/RSS improvement or full finding closure claim.",
+    "The cache recovery owner fence does not establish full concurrent reentrant execute support; executor-wide state/deadline fields remain mutable.",
+    "Static invocation has five new unresolved deferred/construction paths. Native real path witnesses establish this bounded mechanism, not repository-wide runtime invocation/admission.",
+    "Leaf has no fresh green20-file result after the test-only semantic correction. Root plans final combined cohort at its exact frozen joint checkpoint; do not replace the two leaf failures by that future result.",
+    "B61 consumed-source immutable snapshot/version custody remains held; selection timestamp validation is an oracle correction, not a source identity contract."
+  ],
+  "local_G_candidate": {
+    "branch": "codex/e02-B-exe-state",
+    "candidate": "94f378200d8684d61737f0561eccafea6eaa843f",
+    "command_reference": "final-wave-wrapper.json contains the exact20-file command/input environment; selection-positive-wrapper.json contains the affected final file run. Root final joint cohort is a separate pinned result when published.",
+    "cloud_limit": "No production-data input is required for the established generic cold cache property. Broader served/production latency or thread-affine store claims require their own actual local input and consumer witness."
+  },
+  "pattern_pass": [
+    "P31/P40: same blocking cache-I/O class includes both recovery inlets; remaining entered-backend/persistence boundary declared rather than per-site patches.",
+    "P29/P32/P37/P38: actual disk bytes/custody/journal/state consumer and naive late-worker falsifier; a cache marker or immutable ref presence is not the oracle. Prior selection CAS identity was a proxy for fresh semantic selection; corrected full DTO and independent time/custody checks.",
+    "P41: both whole-wave failures and new typed-test mismatch are own; exact slice base negative and original-source timestamp falsifier retained.",
+    "P14: baseline package PASS, static partial instrument and independent fixture witnesses are not full production admission."
+  ],
+  "publication": "Topic branch/PR27 only; append-only implementation commits followed by separate receipt commit; no main push/history rewrite. Readback and final handoff commit are reported after publication, not invented here."
+}

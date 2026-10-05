@@ -1,0 +1,21 @@
+{
+  "source_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+  "source_tree": "bad622f8ba09cad03e4b7899c07982380efcfa81",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "0f24d18d988f579db20a84c734a587abe6cabe20",
+    "--receipt",
+    "/workspace/polisyos/.polisyos/e02-B-cold-seed/production-invocation.json"
+  ],
+  "cwd": "/workspace/e02-B-exe-state/policy-engine",
+  "PYTHONPATH": "/workspace/e02-B-exe-state/policy-engine/src:/workspace/e02-B-exe-state/policy-engine",
+  "exit_code": 3,
+  "wall_s": 218.65470497200022,
+  "rss_kib": 8346516,
+  "stdout_sha256": "caf797471c7b2d27101d36b7e69bced5674f6ef73ea5552c472df791ac0948c4",
+  "artifact_sha256": "89cb731900490dd8d142cefaff41ef0647ffea4b91e7ba98958299f490805cd1",
+  "named_resource": "single high-memory production_invocation static process, RUN slot release confirmed; no general process quotas; sourcefrozen"
+}

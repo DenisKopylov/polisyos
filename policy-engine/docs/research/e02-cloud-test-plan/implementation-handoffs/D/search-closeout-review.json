@@ -1,0 +1,364 @@
+{
+  "schema": "policyos.e02.independent_closeout_review.v1",
+  "unit": "D",
+  "slice": "search-closeout-review",
+  "reviewer": "search_owner",
+  "mode": "read-only source/evidence/PR review; unique docs-only artifact",
+  "branch": "codex/e02-D-search",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "review_target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "review_target_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+  "closure_ids": [],
+  "verdict": "ACCEPT_BOUNDED_FRAMING_WITH_FAILED_GATES_AND_EXPLICIT_RESIDUALS",
+  "authority_purpose": "G intake navigation and claim review. No finding acceptance, compatibility ruling, promotion authority, production statistical equivalence, or merge readiness is supplied.",
+  "review_independence": "Reviewer authored the search mechanisms and does not replace their independent GP/numerical reviews. This is a separate cross-owner closeout wording/dependency review; production and shared matrix files were not written.",
+  "matrix_review": {
+    "reviewed_index_sha": "a6111740692b010f6ba444e33e2153fc349f8da7",
+    "complete_allocated_D_ids": 45,
+    "exact_ID_set": true,
+    "all45_partial_no_closures": true,
+    "allocated_D_bundles": 17,
+    "exact_bundle_set": true,
+    "owned_field_and_cell_mismatches": [],
+    "B111_independently_reported_extension_keys": [
+      "missing_input",
+      "next_owner"
+    ],
+    "denominator": {
+      "finding_rows": 45,
+      "bundle_owners": 17,
+      "family_finding_rows": {
+        "search": 23,
+        "stress": 2,
+        "transfer": 7,
+        "lessons": 3,
+        "funnel": 10
+      },
+      "transfer_family_total_including_lessons": 10,
+      "baseline_per_finding_route_rows": 456,
+      "baseline_distinct_cells": 115,
+      "baseline_source_reported_states": {
+        "PASS": 112,
+        "FAILED": 3
+      },
+      "baseline_source_jobs": 15,
+      "formal_closures": 0,
+      "principal_held_ids": [
+        "B106",
+        "B116",
+        "B117",
+        "B122",
+        "B133"
+      ],
+      "issuer_data_record_pending_ids": [
+        "B134"
+      ],
+      "caller_migration_appointment_pending_ids": [
+        "LA-014"
+      ]
+    },
+    "aggregate_binding": {
+      "runtime_candidate_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "runtime_candidate_tree": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+      "final_aggregate_acceptance_sha": null,
+      "state": "root_reported_source_freeze; independent_aggregate_reconciliation_pending",
+      "note": "Parent supplied this exact frozen runtime candidate after public canon facade/import corrections. Owner evidence remains bound to its exact behavior/check SHAs; root must attach final aggregate checks, changed-input reconciliation and G acceptance. No future acceptance SHA or broad PASS is claimed here."
+    },
+    "index_sha256": "c63a8eb72f2407e217c06b6abdb7cdd44905750e95e966d46d01d221a2b4525a"
+  },
+  "checks_read": [
+    {
+      "id": "final-regression",
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "target_tree": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-c",
+        "import json,subprocess,sys; paths=json.load(open(\"/workspace/e02-D-receipts/final-regression-inputs.json\")); sys.exit(subprocess.call([sys.executable,\"-m\",\"pytest\",\"-q\",*paths]))"
+      ],
+      "wall_seconds": 145.4736811469993,
+      "peak_rss_kib": 1540032,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-regression.json@369b04ea834c71baeb90cea565c98047839bb493",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-regression.log@369b04ea834c71baeb90cea565c98047839bb493",
+      "log_sha256": "20cda897c60275a103d5096fdeb59083ded2737fed82fbb9b2526c18df3f7080",
+      "deciding_output": "873 passed,6 failed,1 SALib collection skip; same six direct promotion-guard refusals independently replayed at slice base; current gate remains FAIL.",
+      "execution_basis": "parent-executed immutable-source check; reviewer read committed receipt and complete recorded log, not independently re-executed"
+    },
+    {
+      "id": "final-performance",
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "target_tree": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/performance/test_scientist_runtime_paths.py::test_scientist_search_pareto_hot_path",
+        "tests/performance/test_scientist_runtime_paths.py::test_scientist_autotune_pareto_front_hot_path"
+      ],
+      "wall_seconds": 17.396018030999585,
+      "peak_rss_kib": 1265632,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-performance.json@369b04ea834c71baeb90cea565c98047839bb493",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-performance.log@369b04ea834c71baeb90cea565c98047839bb493",
+      "log_sha256": "3540122bf1f5cde373b5344c4e168f5c0db158f511eb413cab198f3814f701c2",
+      "deciding_output": "2 bounded Pareto hot-path benchmarks pass; no historical acceleration or production-quality inference.",
+      "execution_basis": "parent-executed immutable-source check; reviewer read committed receipt and complete recorded log, not independently re-executed"
+    },
+    {
+      "id": "final-transfer-consumers",
+      "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "target_tree": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "-ra"
+      ],
+      "wall_seconds": 16.369717155000217,
+      "peak_rss_kib": 1229400,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-transfer-consumers.json@369b04ea834c71baeb90cea565c98047839bb493",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-transfer-consumers.log@369b04ea834c71baeb90cea565c98047839bb493",
+      "log_sha256": "75074f5deaa6f6b2e578217eed7becb5589681bbd4b2878a17df7b0d68286844",
+      "deciding_output": "73 passed,4 warnings in11.93s across4 affected files; includes3 configured real CAS/HNSW/bridge/native loop/GP cases.",
+      "execution_basis": "parent-executed immutable-source check; reviewer read committed receipt and complete recorded log, not independently re-executed"
+    },
+    {
+      "id": "final-ruff-facade-repair",
+      "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "target_tree": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-c",
+        "import subprocess,sys; files=subprocess.check_output([\"git\",\"diff\",\"--name-only\",\"c40d4acae1ce58b597267255026d9356565828fd\",\"--\",\"*.py\"],text=True).splitlines(); print(\"Complete changed Python input denominator\",len(files),flush=True); r1=subprocess.call([sys.executable,\"-m\",\"ruff\",\"check\",*files]); r2=subprocess.call([sys.executable,\"-m\",\"ruff\",\"format\",\"--check\",*files]);sys.exit(r1 or r2)"
+      ],
+      "wall_seconds": 0.12949961899994378,
+      "peak_rss_kib": 31360,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff-facade-repair.json@369b04ea834c71baeb90cea565c98047839bb493",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff-facade-repair.log@369b04ea834c71baeb90cea565c98047839bb493",
+      "log_sha256": "b9ed4ae9bd23e1c24c7e2b6b4397de048cbecbae08d84a0dcfd966a342709dbc",
+      "deciding_output": "Complete changed Python denominator50; lintPASS and50 already formatted.",
+      "execution_basis": "parent-executed immutable-source check; reviewer read committed receipt and complete recorded log, not independently re-executed"
+    },
+    {
+      "id": "final-architecture-facade-repair",
+      "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "target_tree": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "wall_seconds": 209.26704581899958,
+      "peak_rss_kib": 907568,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-architecture-facade-repair.json@369b04ea834c71baeb90cea565c98047839bb493",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-architecture-facade-repair.log@369b04ea834c71baeb90cea565c98047839bb493",
+      "log_sha256": "92a4aafae69c13cea74e754c8c24f6c5f36f2070bbeb07d5e5ed846f1ee11625",
+      "deciding_output": "Exit1;209.27s; existing Core facade corrections retain full architecture gateFAIL; no inherited-red waiver.",
+      "execution_basis": "parent-executed immutable-source check; reviewer read committed receipt and complete recorded log, not independently re-executed"
+    }
+  ],
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "packages": {
+      "torch": "2.10.0",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "hnswlib": "0.8.0",
+      "pymoo": "0.6.1.6",
+      "pytest": "9.0.2",
+      "pytest-benchmark": "5.2.3",
+      "pytest-xdist": "3.8.0",
+      "hypothesis": "6.151.2",
+      "ruff": "0.14.10",
+      "jax": "0.8.2"
+    },
+    "numerical_environment_overrides": {},
+    "torch_execution": {
+      "cuda_available": false,
+      "cuda_build": "12.8",
+      "native_default_threads_before_product_import": 5
+    }
+  },
+  "pr_review": {
+    "draft_locator": "/workspace/e02-D-receipts/pr-final-draft.md",
+    "sha256": "cba2d520de17bfe7f0226f5a5259aefef95c7554c21335f0fffcf0f6a2a6b9df",
+    "bytes": 4163,
+    "state": "draft text read after parent incorporated material clarity corrections; no stale evolving-RL-only framing accepted",
+    "material_clarity_corrections": [
+      "GP15 dual-backend witness bound to e789; final affected consumer73 tests bound to6ac, not relabeled as a fresh GP15 dual-backend run.",
+      "Change migration ownership explicitly does not appoint the production caller/cutover owner required byLA-014.",
+      "Local production history/evaluator checks distinguished from principal-held rulings, which remain withDenis.",
+      "Final architectureFAIL and broad regressionFAIL remain explicit; no inherited-red waiver or full workspace/CI parity."
+    ],
+    "lead_claim_assessment": "Concrete repaired bounded mechanisms are supported by the individual source/test receipts.45 findings/17 bundles describes coverage, not closure. A provider/champion companion explicitly remains unapplied. Restart policy behavior/version changes and null/unavailable HV compatibility are disclosed."
+  },
+  "G_intake": {
+    "canonical_dependency_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/dependency_graph.json@c40d4acae1ce58b597267255026d9356565828fd",
+    "all_D_implementation_edges": [
+      {
+        "from": "OPT-01",
+        "to": "CTL-01",
+        "kind": "implementation"
+      },
+      {
+        "from": "CTL-01",
+        "to": "CTL-03",
+        "kind": "implementation"
+      },
+      {
+        "from": "CTL-03",
+        "to": "SRV-01",
+        "kind": "implementation"
+      },
+      {
+        "from": "SRV-01",
+        "to": "SRV-03",
+        "kind": "implementation"
+      },
+      {
+        "from": "CTL-02",
+        "to": "SRV-03",
+        "kind": "implementation"
+      },
+      {
+        "from": "STP-01",
+        "to": "SRV-03",
+        "kind": "implementation"
+      },
+      {
+        "from": "OPT-02",
+        "to": "CTL-02",
+        "kind": "implementation"
+      },
+      {
+        "from": "OPT-01",
+        "to": "OPT-02",
+        "kind": "implementation"
+      },
+      {
+        "from": "OPT-02",
+        "to": "OPT-03",
+        "kind": "implementation"
+      },
+      {
+        "from": "OPT-01",
+        "to": "OPT-04",
+        "kind": "implementation"
+      },
+      {
+        "from": "OPT-02",
+        "to": "OPT-04",
+        "kind": "implementation"
+      },
+      {
+        "from": "CTL-03",
+        "to": "FUN-01",
+        "kind": "implementation"
+      },
+      {
+        "from": "FUN-01",
+        "to": "FUN-02",
+        "kind": "implementation"
+      },
+      {
+        "from": "FUN-02",
+        "to": "FUN-03",
+        "kind": "implementation"
+      },
+      {
+        "from": "OPT-02",
+        "to": "TRN-01",
+        "kind": "implementation"
+      }
+    ],
+    "read_contract_rule": "Read-contract impacts require exact-SHA affected consumer reconciliation after integration. They are not extra dispatch/compute barriers. Independent ready verification may run in parallel.",
+    "order": [
+      {
+        "step": 1,
+        "intake": "Fetch the exact published D root and separate owner/reviewer receipts; verify c40 ancestry, canonical owners, changed paths, source/test/check SHAs and full baseline join.",
+        "boundary": "45IDs/17bundles/456routes/115cells are baseline coverage. Source-reported PASS cells are not candidate PASS or closures. Current failed gates remain required review inputs."
+      },
+      {
+        "step": 2,
+        "intake": "Review the coordinated OPT01/OPT02/CTL01/CTL02/CTL03/STP01/SRV01/SRV03 native owner cluster and intentional version/coordinate behavior; OPT03 consumes the actual OPT02 space protocol.",
+        "boundary": "OPT01→OPT02→OPT03; OPT02→CTL02/TRN01; CTL01→CTL03→SRV01→SRV03, with CTL02/STP01→SRV03. Shared-owner family is integrated coherently, not duplicated as legacy algorithms."
+      },
+      {
+        "step": 3,
+        "intake": "Accept OPT03 numerical evidence only with actual SingleTaskGP corpus, learned parameters/transforms/posterior/continued asks, no-refit traps, intrinsic single/batch stream replay and actual deferred-resource-refit producer control.",
+        "evidence": "gp-witness.json@83ecd6ede8fee3d2fa8bd5c6644a93bc076fc720; sourcee789; test38ca365ec73d2684608c389ca9ed549f7200a07f;15PASS in each actual CPU backend",
+        "boundary": "PackagePASS, model state presence or counters alone do not dischargeB114/B115. Numeric/action/source replay excludes newly generated UUID/timestamp byte identity; cross-backend bit identity and scientific optimality remain unclaimed."
+      },
+      {
+        "step": 4,
+        "intake": "Review TRN02 immutable generation/CAS source binding and TRN01 physical/context/origin admission, then the explicitly configured bridge into the native receiving generator/loop/GP.",
+        "evidence": "transfer-workflow-4097.json testefe999fb143e05b501368d46d3109714e23760f8; final6ac affected consumer73PASS includes all3 actual workflow cases; transfer-final-independent-review.json@4da099b5b00926e87b74e1ba86c4252708a30d58",
+        "boundary": "A05 requires compatible origin-bound observations. Constructor repair or ANN discovery cannot establish admission. ActualCAS/HNSW/bridge/live loop/GP tensors prove bounded plumbing; they do not mint benchmark statistics, historical acceleration, institutional authority or source law."
+      },
+      {
+        "step": 5,
+        "intake": "Review CTL03 sole accounting transition before FUN01 continuation, FUN02 config/outcome, and FUN03 calibration/permission consumers; inspect the native RunPolicyBlueprintRuntimeNode inner effect-order witness.",
+        "boundary": "CTL03→FUN01→FUN02→FUN03. Actual native callback uses a test-local external effect recorder: this demonstrates inner permission recheck ordering, not publication authority. B120 retry/cache-ledger source and actual charge bridge remain engineering/oracle dependencies; reported stage cost alone is not measured ledger consumption."
+      },
+      {
+        "step": 6,
+        "intake": "Read the exact partial matrix and residuals, then perform only required source-specific local acceptance and G adjudication. Route proposed foreign patch to A; retain canonical authority/compatibility owners.",
+        "boundary": "B106/B116/B117/B122/B133 principal-held;B134 issuer-data record pending;LA014 appointment pending;LA015 native caller bounded while migration/retirement remains open. No main merge/deployment or finding closure authorized by this review."
+      }
+    ]
+  },
+  "A_dependency_review": {
+    "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-A-owner-dependency.patch@989dd88e48a8d90c55a0f9540d3c3fcc3c8af67c",
+    "sha256": "2e69739655d93019e6ac2fa12edc835c13df5235769925b4b6e8fea28b00f83c",
+    "fresh_final_check": "git apply --check on6ac exit0; no source mutation",
+    "output_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+    "served_node_blob": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+    "blob_compatibility": "Both foreign source blobs exactly match c40/e789/G317/final6ac; independent transfer full-base archive check retained in transfer-final-independent-review.json#A_patch_review@4da099b5b00926e87b74e1ba86c4252708a30d58",
+    "native_recipe_assessment": "The proposed ordinary PolicyArtifactBuilder omitted-before-projection, absent-supplier and served hierarchical champion nonfinite/derived-overflow recipes target existing native consumers. No D foreign-source implementation or runtimePASS is claimed.",
+    "remaining_engineering": "Fields alone are consumer_asserted. A must appoint and content-bind the actual run/tenant/cell source-feasible/unknown supplier from runtime ArtifactStore, wire the workflow builder and persisted served reader, then run native positive/negative/removal controls. The proposed conservative mixed-invalid champion refusal needs canonical A semantics review; G must not adopt it as an arbitrary owner bypass.",
+    "required_D_runtime_dependency": "The proposed output body reads ParetoRegistrySnapshot.hypervolume_assessments_by_view added by accepted D search targete789. Clean textual application to productbasec40/G317 does not establish runtime compatibility there. Integrate the pinned D contracts/snapshot implementation before A native behavior checks; final6ac includes that dependency."
+  },
+  "additional_final_contract_residual": {
+    "finding_id": "B111",
+    "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-contract-review.json@7ced8ed4bcf199007aeaa9fda2279aceb975750d",
+    "json_sha256": "56b3b6df805da4875eeec7d2f878cd808437f51f6f014fee876744d00df68b49",
+    "mechanism": "Actual persisted snapshot reader admits unsupported numeric3.0 with null/unavailable HV because the version gate is pattern-only. Front1/2 and downstream report1/3 Literal gates do not establish snapshot version admission.",
+    "next_owner": "D registry owner/G persisted-profile acceptance",
+    "state": "partial engineering/profile residual; no new closure",
+    "actual_probe_source_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+    "final_source_sha_by_unchanged_owner_bytes": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2"
+  },
+  "no_requirement_or_bucket_shift": [
+    "Compared all23 owned mechanism/oracle/residual strings and baseline-cell sets with the all45 projection:0 mismatches. B111 adds a separately labeled final-profile residual without rewriting the original boundedHV property.",
+    "B112 actual defaultAPI and optional-stack control are the canonical generic discriminator. Scientific live benchmark wording in the owner matrix is a scope limit, not a new prerequisite for that generic interface property.",
+    "B109/B111 supplier/ordinarybuilder/champion gaps and B120 actualspend source remain engineering/oracle obligations, not blanket local-data debt or principal permission.",
+    "LA014 appointment and LA015 actual bounded caller/retirement are distinct; a protocol or new write alone is not lifecycle completion.",
+    "No historical four-base cohort or full transitive gate-input closure is supplied by this review; unchanged direct test/guard bytes do not exempt the current failed whole gate."
+  ],
+  "limitations": [
+    "No new product code, test expectations, root checkout or shared matrix edited.",
+    "Owner execution versus independent source review versus parent runtime checks remain separately attributed.",
+    "The reviewed PR is a draft; exact final remote readback, requiredCI and G acceptance remain root/G responsibilities."
+  ]
+}

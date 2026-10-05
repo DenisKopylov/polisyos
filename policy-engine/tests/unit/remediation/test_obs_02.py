@@ -9,6 +9,7 @@ published prefix.
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -313,6 +314,44 @@ def test_partial_resume_aborts_when_normalized_snapshot_changes(
         list(sources._iter_observation_metric_frames(config))
 
 
+def test_successful_stream_rejects_a_changed_input_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A completed stream cannot publish frames from mixed input generations."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, source, frame = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    initial_digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    changed = frame.copy()
+    changed.loc[:, "metric_a"] += 1000.0
+    changed.loc[:, "metric_b"] += 10000.0
+
+    class MutatingParquetFile:
+        """Change the source after the first yielded batch, without a reader error."""
+
+        def __init__(self, _path: Path) -> None:
+            pass
+
+        def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
+            del batch_size, columns
+            yield _batch(frame.iloc[:2], size=2)
+            changed.to_parquet(artifact, index=False)
+            yield _batch(changed.iloc[2:], size=2)
+
+    import pyarrow.parquet as parquet
+
+    monkeypatch.setattr(parquet, "ParquetFile", MutatingParquetFile)
+
+    with pytest.raises(RuntimeError, match="snapshot"):
+        list(sources._iter_observation_metric_frames(config))
+
+    final_digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    assert final_digest != initial_digest
+
+
 def test_build_d2_materializes_unique_observation_shards_and_counts(
     tmp_path: Path,
 ) -> None:
@@ -367,6 +406,7 @@ def test_build_d2_materializes_unique_observation_shards_and_counts(
     output = result.outputs["observation_panel_monthly.parquet"]
     assert Path(output.path) == panel_path
     assert output.size_bytes == panel_path.stat().st_size
+    assert output.sha256 == hashlib.sha256(panel_path.read_bytes()).hexdigest()
     assert result.metrics["n_monthly_records"] == expected_rows
     assert len(panel) == expected_rows
     assert panel["observation_id"].is_unique

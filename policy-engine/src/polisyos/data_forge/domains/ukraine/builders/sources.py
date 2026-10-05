@@ -1369,6 +1369,18 @@ def _iter_observation_metric_frames(
         row_offset = 0
         emitted_metric_ids: set[str] = set()
         snapshot_sha256 = sha256_file(artifact_path)
+
+        def _assert_snapshot_unchanged(
+            path: Path = artifact_path,
+            expected_sha256: str = snapshot_sha256,
+        ) -> None:
+            """Reject a mixed source generation before the stage can be published."""
+            if sha256_file(path) != expected_sha256:
+                raise RuntimeError(
+                    "normalized observation artifact changed during streaming; "
+                    "cannot publish or resume a mixed snapshot"
+                )
+
         try:
             import pyarrow.parquet as pq
 
@@ -1386,17 +1398,15 @@ def _iter_observation_metric_frames(
                 batch_index += 1
                 emitted_metric_ids.clear()
                 del frame
+            _assert_snapshot_unchanged()
         except (ImportError, OSError):
-            if sha256_file(artifact_path) != snapshot_sha256:
-                raise RuntimeError(
-                    "normalized observation artifact changed during streaming; "
-                    "cannot resume from an unconfirmed snapshot"
-                )
+            _assert_snapshot_unchanged()
 
             if row_offset == 0 and not emitted_metric_ids:
                 # Before publication there is no cursor to preserve, so the
                 # established pandas reader remains an allowed fallback.
                 frame = _read_parquet_frame(artifact_path, columns=requested_columns)
+                _assert_snapshot_unchanged()
                 for metric_id, metric_frame in _observation_metric_frames_from_frame(
                     source, frame, row_offset=0
                 ):
@@ -1446,6 +1456,7 @@ def _iter_observation_metric_frames(
                 raise RuntimeError(
                     "stream restart ended before the confirmed observation cursor"
                 )
+            _assert_snapshot_unchanged()
 
 
 def _build_observation_frame(config: PipelineConfig) -> pd.DataFrame:

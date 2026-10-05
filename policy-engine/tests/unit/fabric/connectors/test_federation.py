@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -271,6 +272,93 @@ def test_join_preserves_cell_lineage_across_three_sources():
     assert row_two[-1].source_b_id == meta_c.connector_id
 
 
+def test_join_lineage_values_survive_duckdb_source_and_result_readback(
+    tmp_path: Path,
+) -> None:
+    """Repeated JOIN keeps chosen cells through a real DuckDB round trip."""
+    duckdb = pytest.importorskip("duckdb")
+    database_path = tmp_path / "cell-lineage.duckdb"
+    connection = duckdb.connect(str(database_path))
+    try:
+        source_frames = {
+            "source_a_frame": pd.DataFrame(
+                {"key": [1, 2], "value": [10.0, None]}
+            ),
+            "source_b_frame": pd.DataFrame(
+                {"key": [1, 2], "value": [None, 20.0]}
+            ),
+            "source_c_frame": pd.DataFrame(
+                {"key": [1, 2], "value": [100.0, 200.0]}
+            ),
+        }
+        frames: dict[str, pd.DataFrame] = {}
+        for source_name, frame in source_frames.items():
+            connection.register(source_name, frame)
+            table_name = source_name.removesuffix("_frame")
+            connection.execute(
+                f"CREATE TABLE {table_name} AS SELECT * FROM {source_name}"
+            )
+            frames[table_name] = connection.execute(
+                f"SELECT * FROM {table_name}"
+            ).df()
+
+        fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+        metadata = {
+            "source_a": _make_source_metadata(
+                "source_a", TrustLevel.HIGH, fetched_at
+            ),
+            "source_b": _make_source_metadata(
+                "source_b", TrustLevel.LOW, fetched_at
+            ),
+            "source_c": _make_source_metadata(
+                "source_c", TrustLevel.MEDIUM, fetched_at
+            ),
+        }
+        request = CompositionRequest(
+            dataset_pattern="test.lineage.duckdb",
+            strategy=CompositionStrategy.JOIN,
+            conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+            join_keys=["key"],
+            audit_level=AuditLevel.FULL,
+        )
+        composer = DataComposer(
+            conflict_resolver=ConflictResolver(
+                policy=ConflictPolicy.TRUST_HIGHEST
+            )
+        )
+        result, merge_log = composer.compose(
+            sources=[
+                (frames[name], metadata[name])
+                for name in ("source_a", "source_b", "source_c")
+            ],
+            strategy=request.strategy,
+            request=request,
+        )
+
+        row_two = [entry for entry in merge_log if entry.row_key == {"key": 2}]
+        assert row_two
+        assert row_two[-1].source_a_id == metadata["source_b"].connector_id
+        assert row_two[-1].source_b_id == metadata["source_c"].connector_id
+        assert result.set_index("key")["value"].to_dict() == {1: 10.0, 2: 200.0}
+
+        connection.register("composed_result", result)
+        connection.execute(
+            "CREATE TABLE joined_result AS SELECT * FROM composed_result"
+        )
+    finally:
+        connection.close()
+
+    readback = duckdb.connect(str(database_path), read_only=True)
+    try:
+        persisted = readback.execute(
+            "SELECT key, value FROM joined_result ORDER BY key"
+        ).fetchall()
+    finally:
+        readback.close()
+
+    assert persisted == [(1, 10.0), (2, 200.0)]
+
+
 def test_join_rejects_undeclared_many_to_many_before_materialization():
     left = pd.DataFrame({"key": [1, 1], "left_value": [10, 20]})
     right = pd.DataFrame({"key": [1, 1], "right_value": [100, 200]})
@@ -296,6 +384,48 @@ def test_join_rejects_undeclared_many_to_many_before_materialization():
             sources=[(left, meta_left), (right, meta_right)],
             strategy=request.strategy,
             request=request,
+        )
+
+
+def test_join_allows_declared_many_to_many_only_within_row_bound():
+    left = pd.DataFrame({"key": [1, 1], "left_value": [10, 20]})
+    right = pd.DataFrame({"key": [1, 1], "right_value": [100, 200]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_left = _make_source_metadata("left", TrustLevel.HIGH, fetched_at)
+    meta_right = _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.cardinality.bound",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        join_validate="many_to_many",
+        join_max_rows=4,
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    result, _ = composer.compose(
+        sources=[(left, meta_left), (right, meta_right)],
+        strategy=request.strategy,
+        request=request,
+    )
+    assert len(result) == 4
+    assert set(zip(result["left_value"], result["right_value"], strict=True)) == {
+        (10, 100),
+        (10, 200),
+        (20, 100),
+        (20, 200),
+    }
+
+    over_limit = replace(request, join_max_rows=3)
+    with pytest.raises(SchemaIncompatibilityError, match="join_max_rows"):
+        composer.compose(
+            sources=[(left, meta_left), (right, meta_right)],
+            strategy=over_limit.strategy,
+            request=over_limit,
         )
 
 
@@ -388,6 +518,63 @@ def test_join_preserves_user_suffix_like_column_names():
     assert result["value_left"].tolist() == [777]
 
 
+def test_join_preserves_user_columns_matching_internal_alias_families():
+    left = pd.DataFrame(
+        {
+            "key": [1],
+            "value": [10],
+            "__policyos_lineage": ["lineage-0"],
+            "__policyos_lineage_1": ["lineage-1"],
+            "__policyos_lineage_2": ["lineage-2"],
+            "__policyos_right_key": ["right-key"],
+            "__policyos_right_column": ["right-column"],
+            "__policyos_right_lineage": ["right-lineage"],
+            "__policyos_join_key": ["join-key"],
+            "value_left": [777],
+        }
+    )
+    right = pd.DataFrame(
+        {
+            "key": [1],
+            "value": [20],
+            "__policyos_lineage_3": ["user-right-lineage"],
+            "right_only": [99],
+        }
+    )
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_left = _make_source_metadata("left", TrustLevel.HIGH, fetched_at)
+    meta_right = _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.internal-alias-families",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    )
+
+    result, _ = composer.compose(
+        sources=[(left, meta_left), (right, meta_right)],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    assert result.loc[0, "value"] == 10
+    assert result.loc[0, "value_left"] == 777
+    assert result.loc[0, "__policyos_lineage"] == "lineage-0"
+    assert result.loc[0, "__policyos_lineage_1"] == "lineage-1"
+    assert result.loc[0, "__policyos_lineage_2"] == "lineage-2"
+    assert result.loc[0, "__policyos_lineage_3"] == "user-right-lineage"
+    assert result.loc[0, "__policyos_right_key"] == "right-key"
+    assert result.loc[0, "__policyos_right_column"] == "right-column"
+    assert result.loc[0, "__policyos_right_lineage"] == "right-lineage"
+    assert result.loc[0, "__policyos_join_key"] == "join-key"
+    assert result.loc[0, "right_only"] == 99
+
+
 def test_consensus_strict_rejects_non_finite_candidates():
     source_a = pd.DataFrame({"key": [1], "value": [10.0]})
     source_b = pd.DataFrame({"key": [1], "value": [float("inf")]})
@@ -438,6 +625,53 @@ def test_consensus_strict_rejects_invalid_numeric_candidates():
             strategy=request.strategy,
             request=request,
         )
+
+
+def test_consensus_non_strict_reports_participants_and_exclusion_reasons():
+    source_a = pd.DataFrame({"key": [1], "value": [10.0]})
+    source_b = pd.DataFrame({"key": [1], "value": ["not-numeric"]})
+    source_c = pd.DataFrame({"key": [1], "value": [float("inf")]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    metadata = [
+        _make_source_metadata("source_a", TrustLevel.HIGH, fetched_at),
+        _make_source_metadata("source_b", TrustLevel.MEDIUM, fetched_at),
+        _make_source_metadata("source_c", TrustLevel.LOW, fetched_at),
+    ]
+    request = CompositionRequest(
+        dataset_pattern="test.consensus-exclusions",
+        strategy=CompositionStrategy.CONSENSUS,
+        conflict_policy=ConflictPolicy.MEDIAN,
+        key_columns=["key"],
+        aggregation_func="mean",
+        strict_conflicts=False,
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.MEDIAN)
+    )
+
+    result, _ = composer.compose(
+        sources=list(zip([source_a, source_b, source_c], metadata, strict=True)),
+        strategy=request.strategy,
+        request=request,
+    )
+
+    summary = composer.get_last_merge_summary()
+    assert summary is not None
+    assert result.loc[0, "value"] == 10.0
+    consensus = summary.extra["consensus"]["value"]
+    assert consensus["participants"] == 1
+    assert consensus["excluded"] == 2
+    assert consensus["excluded_by_reason"] == {"non_numeric": 1, "non_finite": 1}
+    assert consensus["participant_sources"] == {
+        '{"key": 1}': [metadata[0].connector_id]
+    }
+    assert consensus["exclusions"] == {
+        '{"key": 1}': [
+            {"source_id": metadata[1].connector_id, "reason": "non_numeric"},
+            {"source_id": metadata[2].connector_id, "reason": "non_finite"},
+        ]
+    }
 
 
 def test_full_audit_is_truncated_with_summary_metadata():

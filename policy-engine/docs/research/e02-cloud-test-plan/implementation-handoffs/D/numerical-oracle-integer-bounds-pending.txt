@@ -1,0 +1,31 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected[0.2-1.8] _
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:61: in test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected
+    assert type(actual) is int and actual in feasible, (lower, upper, actual, feasible)
+E   AssertionError: (0.2, 1.8, 0, {1})
+E   assert (<class 'int'> is int and 0 in {1})
+E    +  where <class 'int'> = type(0)
+_ test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected[-1.8--0.2] _
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:61: in test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected
+    assert type(actual) is int and actual in feasible, (lower, upper, actual, feasible)
+E   AssertionError: (-1.8, -0.2, -2, {-1})
+E   assert (<class 'int'> is int and -2 in {-1})
+E    +  where <class 'int'> = type(-2)
+_ test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected[0.2-0.8] _
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:61: in test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected
+    assert type(actual) is int and actual in feasible, (lower, upper, actual, feasible)
+E   AssertionError: (0.2, 0.8, 1, set())
+E   assert (<class 'int'> is int and 1 in set())
+E    +  where <class 'int'> = type(1)
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected[0.2-1.8]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected[-1.8--0.2]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_integer_actions_stay_in_declared_physical_interval_or_bounds_are_rejected[0.2-0.8]
+3 failed, 9 deselected, 1 warning in 19.05s

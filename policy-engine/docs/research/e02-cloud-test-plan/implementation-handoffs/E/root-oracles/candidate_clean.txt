@@ -1,0 +1,8 @@
+{"candidate_source": "/workspace/e02-E-assessment/policy-engine", "monte_carlo_module": "/workspace/e02-E-assessment/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py", "jax": "0.8.2", "jax_x64": false, "backend": "cpu"}
+{"oracle": "B181 zero support JAX primal/gradient/Hessian", "value": 0.0, "gradient": [0.0, -0.0, 0.0], "hessian": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], "negative_proxy_value": 0.0, "negative_proxy_gradient_finite": false}
+{"oracle": "CAL true JAX Hessian/covariance", "hessian_max_error": 7.152557373046875e-07, "covariance_max_error": 7.450580596923828e-08, "backend": "cpu"}
+{"oracle": "B187 covariance 3 distinct axes", "computed": [[1.0, 0.20000000298023224, -0.10000000149011612], [0.20000000298023224, 4.0, 0.6000000238418579], [-0.10000000149011612, 0.6000000238418579, 9.0]], "expected": [[1.0, 0.2, -0.1], [0.2, 4.0, 0.6], [-0.1, 0.6, 9.0]], "negative_row_column_permutation": [[9.0, -0.1, 0.6], [-0.1, 1.0, 0.2], [0.6, 0.2, 4.0]]}
+{"oracle": "B188 Gaussian shared difference", "method": "random", "shared_variance": 0.0, "independent_control_variance": 2.1286215432742708, "shared_draws_zero": true, "max_abs_shared": 0.0, "baseline_gap": false}
+{"oracle": "B188 Gaussian shared difference", "method": "sobol", "shared_variance": 0.0, "independent_control_variance": 1.9884809007851765, "shared_draws_zero": true, "max_abs_shared": 0.0, "baseline_gap": false}
+{"oracle": "B188 Gaussian shared difference", "method": "halton", "shared_variance": 0.0, "independent_control_variance": 1.9991211122928272, "shared_draws_zero": true, "max_abs_shared": 0.0, "baseline_gap": false}
+{"oracle_count": 6, "result": "PASS"}

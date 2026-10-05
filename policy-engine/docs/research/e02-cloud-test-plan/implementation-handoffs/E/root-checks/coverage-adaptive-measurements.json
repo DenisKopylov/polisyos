@@ -1,0 +1,685 @@
+{
+  "environment": {
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "jax": "0.8.2",
+    "jax_backend": "cpu",
+    "jax_devices": [
+      "TFRT_CPU_0"
+    ],
+    "jax_x64_at_entry": false,
+    "pythonpath": "/workspace/e02-E-assessment/policy-engine/src",
+    "head_before": "98e332b8e71b00bd7417c85bd75520d82ac04d44",
+    "branch": "refs/heads/codex/e02-E-assessment"
+  },
+  "adaptive": [
+    {
+      "x64": false,
+      "seed": 17,
+      "broad_normal": false,
+      "nominal_count": 1,
+      "observed_draw_count": 60,
+      "sampled_input_dtype": "float32",
+      "sampled_input_type": "jaxlib._jax.ArrayImpl",
+      "stopped_early": true,
+      "requested": 240,
+      "unattempted": 180,
+      "gate_eligible": false,
+      "interval_semantics": "heuristic_range",
+      "widths": [
+        {
+          "draw_count": 60,
+          "distribution_relative_width": 0.0,
+          "mean_standard_error_proxy": 0.0
+        }
+      ]
+    },
+    {
+      "x64": false,
+      "seed": 17,
+      "broad_normal": true,
+      "nominal_count": 1,
+      "observed_draw_count": 240,
+      "sampled_input_dtype": "float32",
+      "sampled_input_type": "jaxlib._jax.ArrayImpl",
+      "stopped_early": false,
+      "requested": 240,
+      "unattempted": 0,
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "widths": [
+        {
+          "draw_count": 60,
+          "distribution_relative_width": 0.06124220478221251,
+          "mean_standard_error_proxy": 0.004899423666602926
+        },
+        {
+          "draw_count": 120,
+          "distribution_relative_width": 0.07874755326894144,
+          "mean_standard_error_proxy": 0.00366698988969955
+        },
+        {
+          "draw_count": 180,
+          "distribution_relative_width": 0.07954012552065098,
+          "mean_standard_error_proxy": 0.0030946968933698994
+        },
+        {
+          "draw_count": 240,
+          "distribution_relative_width": 0.08157545615393749,
+          "mean_standard_error_proxy": 0.0026653321753462873
+        }
+      ]
+    },
+    {
+      "x64": false,
+      "seed": 83,
+      "broad_normal": true,
+      "nominal_count": 1,
+      "observed_draw_count": 240,
+      "sampled_input_dtype": "float32",
+      "sampled_input_type": "jaxlib._jax.ArrayImpl",
+      "stopped_early": false,
+      "requested": 240,
+      "unattempted": 0,
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "widths": [
+        {
+          "draw_count": 60,
+          "distribution_relative_width": 0.07223711693562648,
+          "mean_standard_error_proxy": 0.004852424327027114
+        },
+        {
+          "draw_count": 120,
+          "distribution_relative_width": 0.07748849156914343,
+          "mean_standard_error_proxy": 0.003541976608438651
+        },
+        {
+          "draw_count": 180,
+          "distribution_relative_width": 0.07878591644940562,
+          "mean_standard_error_proxy": 0.002899942662964548
+        },
+        {
+          "draw_count": 240,
+          "distribution_relative_width": 0.07616568276706456,
+          "mean_standard_error_proxy": 0.0024655798842546004
+        }
+      ]
+    },
+    {
+      "x64": false,
+      "seed": 219,
+      "broad_normal": true,
+      "nominal_count": 1,
+      "observed_draw_count": 240,
+      "sampled_input_dtype": "float32",
+      "sampled_input_type": "jaxlib._jax.ArrayImpl",
+      "stopped_early": false,
+      "requested": 240,
+      "unattempted": 0,
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "widths": [
+        {
+          "draw_count": 60,
+          "distribution_relative_width": 0.07881932733123892,
+          "mean_standard_error_proxy": 0.005449950215895108
+        },
+        {
+          "draw_count": 120,
+          "distribution_relative_width": 0.07665202280281376,
+          "mean_standard_error_proxy": 0.0039061994067337547
+        },
+        {
+          "draw_count": 180,
+          "distribution_relative_width": 0.07945401153005754,
+          "mean_standard_error_proxy": 0.0031993998858833163
+        },
+        {
+          "draw_count": 240,
+          "distribution_relative_width": 0.08441637142105804,
+          "mean_standard_error_proxy": 0.0027216752042942584
+        }
+      ]
+    },
+    {
+      "x64": true,
+      "seed": 17,
+      "broad_normal": false,
+      "nominal_count": 1,
+      "observed_draw_count": 60,
+      "sampled_input_dtype": "float64",
+      "sampled_input_type": "jaxlib._jax.ArrayImpl",
+      "stopped_early": true,
+      "requested": 240,
+      "unattempted": 180,
+      "gate_eligible": false,
+      "interval_semantics": "heuristic_range",
+      "widths": [
+        {
+          "draw_count": 60,
+          "distribution_relative_width": 0.0,
+          "mean_standard_error_proxy": 0.0
+        }
+      ]
+    },
+    {
+      "x64": true,
+      "seed": 17,
+      "broad_normal": true,
+      "nominal_count": 1,
+      "observed_draw_count": 240,
+      "sampled_input_dtype": "float64",
+      "sampled_input_type": "jaxlib._jax.ArrayImpl",
+      "stopped_early": false,
+      "requested": 240,
+      "unattempted": 0,
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "widths": [
+        {
+          "draw_count": 60,
+          "distribution_relative_width": 0.0738240753639603,
+          "mean_standard_error_proxy": 0.005140168229594746
+        },
+        {
+          "draw_count": 120,
+          "distribution_relative_width": 0.0812992726565568,
+          "mean_standard_error_proxy": 0.0036473999910466032
+        },
+        {
+          "draw_count": 180,
+          "distribution_relative_width": 0.07800328077050077,
+          "mean_standard_error_proxy": 0.0028823362578050907
+        },
+        {
+          "draw_count": 240,
+          "distribution_relative_width": 0.0820654401494169,
+          "mean_standard_error_proxy": 0.002550374545018812
+        }
+      ]
+    },
+    {
+      "x64": true,
+      "seed": 83,
+      "broad_normal": true,
+      "nominal_count": 1,
+      "observed_draw_count": 240,
+      "sampled_input_dtype": "float64",
+      "sampled_input_type": "jaxlib._jax.ArrayImpl",
+      "stopped_early": false,
+      "requested": 240,
+      "unattempted": 0,
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "widths": [
+        {
+          "draw_count": 60,
+          "distribution_relative_width": 0.060451716105785966,
+          "mean_standard_error_proxy": 0.004659484272413026
+        },
+        {
+          "draw_count": 120,
+          "distribution_relative_width": 0.07242632912138465,
+          "mean_standard_error_proxy": 0.003321752191710431
+        },
+        {
+          "draw_count": 180,
+          "distribution_relative_width": 0.07866659699318868,
+          "mean_standard_error_proxy": 0.0028601800538052675
+        },
+        {
+          "draw_count": 240,
+          "distribution_relative_width": 0.07972586444561772,
+          "mean_standard_error_proxy": 0.0025511484527629457
+        }
+      ]
+    },
+    {
+      "x64": true,
+      "seed": 219,
+      "broad_normal": true,
+      "nominal_count": 1,
+      "observed_draw_count": 240,
+      "sampled_input_dtype": "float64",
+      "sampled_input_type": "jaxlib._jax.ArrayImpl",
+      "stopped_early": false,
+      "requested": 240,
+      "unattempted": 0,
+      "gate_eligible": true,
+      "interval_semantics": "confidence_interval",
+      "widths": [
+        {
+          "draw_count": 60,
+          "distribution_relative_width": 0.07229224085622364,
+          "mean_standard_error_proxy": 0.0046827358479127395
+        },
+        {
+          "draw_count": 120,
+          "distribution_relative_width": 0.07581316699098974,
+          "mean_standard_error_proxy": 0.003545654321498645
+        },
+        {
+          "draw_count": 180,
+          "distribution_relative_width": 0.07536208542643304,
+          "mean_standard_error_proxy": 0.0028314679680187136
+        },
+        {
+          "draw_count": 240,
+          "distribution_relative_width": 0.07450394555913087,
+          "mean_standard_error_proxy": 0.0023896092689762345
+        }
+      ]
+    }
+  ],
+  "support": [
+    {
+      "x64": false,
+      "nominal_count": 1,
+      "draw_count": 1000,
+      "counts": {
+        "exception": 317,
+        "mixed": 198,
+        "success": 485
+      },
+      "digest_matches": 515,
+      "candidate_only": true,
+      "denominator_complete": true
+    },
+    {
+      "x64": true,
+      "nominal_count": 1,
+      "draw_count": 1000,
+      "counts": {
+        "exception": 324,
+        "mixed": 184,
+        "success": 492
+      },
+      "digest_matches": 508,
+      "candidate_only": true,
+      "denominator_complete": true
+    }
+  ],
+  "coverage": {
+    "complete": {
+      "curve": {
+        "points": [
+          {
+            "nominal_level": 0.5,
+            "empirical_coverage": 0.5,
+            "n_observations": 100
+          },
+          {
+            "nominal_level": 0.8,
+            "empirical_coverage": 0.8,
+            "n_observations": 100
+          },
+          {
+            "nominal_level": 0.9,
+            "empirical_coverage": 0.9,
+            "n_observations": 100
+          }
+        ],
+        "ece": 0.0,
+        "max_ce": 0.0,
+        "is_well_calibrated": true,
+        "evaluation_status": "evaluated",
+        "n_comparisons": 3
+      },
+      "n_obs": 100,
+      "bin_denominators": [
+        100,
+        100,
+        100
+      ],
+      "readback_equal": true,
+      "tier": "approximate_calibrated",
+      "degradation_reasons": []
+    },
+    "partial_first": {
+      "curve": {
+        "points": [
+          {
+            "nominal_level": 0.8,
+            "empirical_coverage": 0.8,
+            "n_observations": 100
+          },
+          {
+            "nominal_level": 0.9,
+            "empirical_coverage": 0.9,
+            "n_observations": 100
+          }
+        ],
+        "ece": 0.0,
+        "max_ce": 0.0,
+        "is_well_calibrated": false,
+        "evaluation_status": "incomplete",
+        "n_comparisons": 2
+      },
+      "n_obs": 100,
+      "bin_denominators": [
+        100,
+        100
+      ],
+      "readback_equal": true,
+      "tier": "unverified",
+      "degradation_reasons": [
+        "fatal_calibration_issue",
+        "interval_coverage_incomplete"
+      ]
+    },
+    "partial_last": {
+      "curve": {
+        "points": [
+          {
+            "nominal_level": 0.5,
+            "empirical_coverage": 0.5,
+            "n_observations": 100
+          },
+          {
+            "nominal_level": 0.8,
+            "empirical_coverage": 0.8,
+            "n_observations": 100
+          }
+        ],
+        "ece": 0.0,
+        "max_ce": 0.0,
+        "is_well_calibrated": false,
+        "evaluation_status": "incomplete",
+        "n_comparisons": 2
+      },
+      "n_obs": 100,
+      "bin_denominators": [
+        100,
+        100
+      ],
+      "readback_equal": true,
+      "tier": "unverified",
+      "degradation_reasons": [
+        "fatal_calibration_issue",
+        "interval_coverage_incomplete"
+      ]
+    },
+    "all_skipped": {
+      "curve": {
+        "points": [],
+        "ece": null,
+        "max_ce": null,
+        "is_well_calibrated": false,
+        "evaluation_status": "incomplete",
+        "n_comparisons": 0
+      },
+      "n_obs": 100,
+      "bin_denominators": [],
+      "readback_equal": true,
+      "tier": "unverified",
+      "degradation_reasons": [
+        "fatal_calibration_issue",
+        "interval_coverage_incomplete",
+        "missing_ece_metric"
+      ]
+    },
+    "not_evaluated": {
+      "curve": {
+        "points": [],
+        "ece": null,
+        "max_ce": null,
+        "is_well_calibrated": false,
+        "evaluation_status": "not_evaluated",
+        "n_comparisons": 0
+      },
+      "n_obs": 100,
+      "bin_denominators": [],
+      "readback_equal": true,
+      "tier": "unverified",
+      "degradation_reasons": [
+        "fatal_calibration_issue",
+        "interval_coverage_not_evaluated",
+        "missing_ece_metric"
+      ]
+    },
+    "finite_miscalibrated": {
+      "curve": {
+        "points": [
+          {
+            "nominal_level": 0.9,
+            "empirical_coverage": 0.5,
+            "n_observations": 100
+          }
+        ],
+        "ece": 0.4,
+        "max_ce": 0.4,
+        "is_well_calibrated": false,
+        "evaluation_status": "evaluated",
+        "n_comparisons": 1
+      },
+      "n_obs": 100,
+      "bin_denominators": [
+        100
+      ],
+      "readback_equal": true,
+      "tier": "unverified",
+      "degradation_reasons": [
+        "ece_above_fail_threshold"
+      ]
+    },
+    "rejections": [
+      {
+        "name": "nonfinite_observation",
+        "error": "y_true contains non-finite values"
+      },
+      {
+        "name": "nonfinite_bounds",
+        "error": "interval bounds must be finite"
+      },
+      {
+        "name": "nonfinite_empty_level",
+        "error": "continuous interval levels must be finite and stay inside (0, 1)"
+      },
+      {
+        "name": "nonfinite_predictive",
+        "error": "predictive_samples contains non-finite values"
+      },
+      {
+        "name": "out_of_domain_predictive_level",
+        "error": "continuous interval levels must be finite and stay inside (0, 1)"
+      },
+      {
+        "name": "misaligned_intervals",
+        "error": "each interval set must align with y_true length"
+      }
+    ]
+  },
+  "bootstrap": {
+    "mean": {
+      "serialized": {
+        "metric": "same_display_name",
+        "point_estimate": 25.0,
+        "lower": 17.0,
+        "upper": 32.0,
+        "confidence_level": 0.95,
+        "n_bootstrap": 400,
+        "statistic": "mean",
+        "statistic_identity_basis": "recomputed"
+      },
+      "independent_bounds": [
+        17.0,
+        32.0
+      ],
+      "consumer_readback_equal": true
+    },
+    "median": {
+      "serialized": {
+        "metric": "same_display_name",
+        "point_estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.0,
+        "confidence_level": 0.95,
+        "n_bootstrap": 400,
+        "statistic": "median",
+        "statistic_identity_basis": "recomputed"
+      },
+      "independent_bounds": [
+        0.0,
+        0.0
+      ],
+      "consumer_readback_equal": true
+    },
+    "declared_median_actual_maximum": {
+      "serialized": {
+        "metric": "same_display_name",
+        "point_estimate": 100.0,
+        "lower": 100.0,
+        "upper": 100.0,
+        "confidence_level": 0.95,
+        "n_bootstrap": 400,
+        "statistic": "median",
+        "statistic_identity_basis": "consumer_asserted"
+      },
+      "independent_bounds": [
+        100.0,
+        100.0
+      ],
+      "consumer_readback_equal": true
+    },
+    "anonymous_maximum": {
+      "serialized": {
+        "metric": "same_display_name",
+        "point_estimate": 100.0,
+        "lower": 100.0,
+        "upper": 100.0,
+        "confidence_level": 0.95,
+        "n_bootstrap": 400,
+        "statistic": null,
+        "statistic_identity_basis": "not_established"
+      },
+      "independent_bounds": [
+        100.0,
+        100.0
+      ],
+      "consumer_readback_equal": true
+    },
+    "observer": {
+      "custom_invocations": 802,
+      "independently_matched_input_hashes": 802,
+      "nominal_invocations": 2,
+      "resample_invocations": 800
+    },
+    "declared_identity_negative_control": "Declared median remained consumer_asserted while actual observed point=100; median=0."
+  },
+  "sources_before": {
+    "polisyos.calibration.curve": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/calibration/curve.py",
+      "sha256": "3e4efb2865b8c2d1a7ed9d3263ae57a84560967f14caecb299716a9c462a04ee",
+      "working_git_blob": "601ad6eb67ccbe36d91663dfccd6835515c95e2a",
+      "head_git_blob": "601ad6eb67ccbe36d91663dfccd6835515c95e2a"
+    },
+    "polisyos.calibration.continuous": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/calibration/continuous.py",
+      "sha256": "abde79ab0573b342b76886c81fb827784d257660477faf01e4019ae23a6fc59c",
+      "working_git_blob": "b95d3be94748a3da46b4ea9888fb66fea4cc29de",
+      "head_git_blob": "b95d3be94748a3da46b4ea9888fb66fea4cc29de"
+    },
+    "polisyos.ir.analytics.calibration_diagnostics": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+      "sha256": "88b39525e1f145f8ed6a260264d76a790bf655cfabfc5f237cb40d7b94121a19",
+      "working_git_blob": "9b9d21fa3dc89f00fe809a095b57156c9c46891d",
+      "head_git_blob": "9b9d21fa3dc89f00fe809a095b57156c9c46891d"
+    },
+    "polisyos.scientist.methods.backtesting.bootstrap": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "sha256": "724096d5b7425b5964747f4e07804edc5e7dae96b6a0a7587664b2353c09014c",
+      "working_git_blob": "c73162992c34a715d04871ff960d2f2a69af0404",
+      "head_git_blob": "c73162992c34a715d04871ff960d2f2a69af0404"
+    },
+    "polisyos.foundry.uncertainty.config": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/foundry/uncertainty/config.py",
+      "sha256": "6673edb094513652007a15655697f9c6a7b65a2c6c22854308365acc12ae9e16",
+      "working_git_blob": "112098e1359877691d07a81126e201aacc8bd012",
+      "head_git_blob": "112098e1359877691d07a81126e201aacc8bd012"
+    },
+    "polisyos.foundry.uncertainty.monte_carlo": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "sha256": "281a91838db3798c66fba8b4930244bc7d1ee8da7532dcbfd5bf57b8fa27319b",
+      "working_git_blob": "8e27636e339883b0dce9c8d3757c7a04ab0eca4b",
+      "head_git_blob": "8e27636e339883b0dce9c8d3757c7a04ab0eca4b"
+    },
+    "polisyos.foundry.uncertainty.covariance": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+      "sha256": "a7489031efd3197bea841aac8ea6d0c8d7bd1100f75042a5a7ecc27a1ee6f174",
+      "working_git_blob": "f0100d090a44305f141dbbf3a4204c00a408d143",
+      "head_git_blob": "f0100d090a44305f141dbbf3a4204c00a408d143"
+    },
+    "polisyos.foundry.uncertainty.protocol": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "sha256": "a67f555f3444047ecb7cd5ee054fdf85fe7da47945af81d378d41533dac0ed1d",
+      "working_git_blob": "f988c3862055ba8748978c59f8b4bf27fc21a040",
+      "head_git_blob": "f988c3862055ba8748978c59f8b4bf27fc21a040"
+    },
+    "polisyos.ir.analytics.uncertainty": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+      "working_git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "head_git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7"
+    }
+  },
+  "sources_after": {
+    "polisyos.calibration.curve": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/calibration/curve.py",
+      "sha256": "3e4efb2865b8c2d1a7ed9d3263ae57a84560967f14caecb299716a9c462a04ee",
+      "working_git_blob": "601ad6eb67ccbe36d91663dfccd6835515c95e2a",
+      "head_git_blob": "601ad6eb67ccbe36d91663dfccd6835515c95e2a"
+    },
+    "polisyos.calibration.continuous": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/calibration/continuous.py",
+      "sha256": "abde79ab0573b342b76886c81fb827784d257660477faf01e4019ae23a6fc59c",
+      "working_git_blob": "b95d3be94748a3da46b4ea9888fb66fea4cc29de",
+      "head_git_blob": "b95d3be94748a3da46b4ea9888fb66fea4cc29de"
+    },
+    "polisyos.ir.analytics.calibration_diagnostics": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+      "sha256": "88b39525e1f145f8ed6a260264d76a790bf655cfabfc5f237cb40d7b94121a19",
+      "working_git_blob": "9b9d21fa3dc89f00fe809a095b57156c9c46891d",
+      "head_git_blob": "9b9d21fa3dc89f00fe809a095b57156c9c46891d"
+    },
+    "polisyos.scientist.methods.backtesting.bootstrap": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "sha256": "724096d5b7425b5964747f4e07804edc5e7dae96b6a0a7587664b2353c09014c",
+      "working_git_blob": "c73162992c34a715d04871ff960d2f2a69af0404",
+      "head_git_blob": "c73162992c34a715d04871ff960d2f2a69af0404"
+    },
+    "polisyos.foundry.uncertainty.config": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/foundry/uncertainty/config.py",
+      "sha256": "6673edb094513652007a15655697f9c6a7b65a2c6c22854308365acc12ae9e16",
+      "working_git_blob": "112098e1359877691d07a81126e201aacc8bd012",
+      "head_git_blob": "112098e1359877691d07a81126e201aacc8bd012"
+    },
+    "polisyos.foundry.uncertainty.monte_carlo": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "sha256": "281a91838db3798c66fba8b4930244bc7d1ee8da7532dcbfd5bf57b8fa27319b",
+      "working_git_blob": "8e27636e339883b0dce9c8d3757c7a04ab0eca4b",
+      "head_git_blob": "8e27636e339883b0dce9c8d3757c7a04ab0eca4b"
+    },
+    "polisyos.foundry.uncertainty.covariance": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+      "sha256": "a7489031efd3197bea841aac8ea6d0c8d7bd1100f75042a5a7ecc27a1ee6f174",
+      "working_git_blob": "f0100d090a44305f141dbbf3a4204c00a408d143",
+      "head_git_blob": "f0100d090a44305f141dbbf3a4204c00a408d143"
+    },
+    "polisyos.foundry.uncertainty.protocol": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/foundry/uncertainty/protocol.py",
+      "sha256": "a67f555f3444047ecb7cd5ee054fdf85fe7da47945af81d378d41533dac0ed1d",
+      "working_git_blob": "f988c3862055ba8748978c59f8b4bf27fc21a040",
+      "head_git_blob": "f988c3862055ba8748978c59f8b4bf27fc21a040"
+    },
+    "polisyos.ir.analytics.uncertainty": {
+      "origin": "/workspace/e02-E-assessment/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+      "working_git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "head_git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7"
+    }
+  },
+  "head_after": "98e332b8e71b00bd7417c85bd75520d82ac04d44"
+}

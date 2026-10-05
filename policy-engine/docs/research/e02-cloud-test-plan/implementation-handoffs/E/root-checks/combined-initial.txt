@@ -1,0 +1,85 @@
+........................................................................ [ 11%]
+........................................................................ [ 22%]
+........................................................................ [ 33%]
+........................................................................ [ 44%]
+........................................................................ [ 55%]
+...............................FF....................................... [ 67%]
+........................................................................ [ 78%]
+...............................................FFFF..................... [ 89%]
+....................................................................     [100%]
+=================================== FAILURES ===================================
+________ test_calibration_time_roles_are_preserved_from_bound_evidence _________
+tests/unit/remediation/test_frc_01.py:158: in test_calibration_time_roles_are_preserved_from_bound_evidence
+    assert record.prediction_time == prediction_time
+           ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'NoneType' object has no attribute 'prediction_time'
+__________ test_missing_calibration_evidence_refs_stays_typed_blocked __________
+tests/unit/remediation/test_frc_01.py:224: in test_missing_calibration_evidence_refs_stays_typed_blocked
+    assert "s10://calibration/fail-closed/insufficient-history" in support.s6_limitation_refs
+E   AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []
+E    +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs
+_ test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status _
+tests/unit/scientist/methods/backtesting/test_composition_bridge.py:97: in test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status
+    result = replay_fragment_composition_case(
+src/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case
+    CompositionCertificateRef.model_validate(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef
+E     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E       For further information visit https://errors.pydantic.dev/2.12/v/model_type
+_____ test_replay_fragment_composition_case_surfaces_deferred_proxy_review _____
+tests/unit/scientist/methods/backtesting/test_composition_bridge.py:130: in test_replay_fragment_composition_case_surfaces_deferred_proxy_review
+    result = replay_fragment_composition_case(
+src/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case
+    CompositionCertificateRef.model_validate(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef
+E     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E       For further information visit https://errors.pydantic.dev/2.12/v/model_type
+_____ test_replay_fragment_composition_case_detects_disconnected_topology ______
+tests/unit/scientist/methods/backtesting/test_composition_bridge.py:161: in test_replay_fragment_composition_case_detects_disconnected_topology
+    result = replay_fragment_composition_case(
+src/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case
+    CompositionCertificateRef.model_validate(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef
+E     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E       For further information visit https://errors.pydantic.dev/2.12/v/model_type
+_____ test_replay_fragment_composition_case_accepts_injected_store_factory _____
+tests/unit/scientist/methods/backtesting/test_composition_bridge.py:222: in test_replay_fragment_composition_case_accepts_injected_store_factory
+    result = replay_fragment_composition_case(
+src/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case
+    CompositionCertificateRef.model_validate(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef
+E     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E       For further information visit https://errors.pydantic.dev/2.12/v/model_type
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_linear_fn_exact
+tests/unit/foundry/uncertainty/test_delta.py::TestDeltaMethodPropagator::test_delta_multi_output
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_valid_delta_output_is_not_marked_missing_or_incomplete
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only
+  /workspace/e02-E-assessment/policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:44: DeprecationWarning: jax.experimental.enable_x64 is deprecated in JAX v0.8.0 and will be removed in JAX v0.9.0; use jax.enable_x64(True) instead.
+    with jax.experimental.enable_x64(False):
+
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_stops_before_oversized_follow_up_without_override
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_returns_last_result_when_later_round_fails
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:222: RuntimeWarning: Degrees of freedom <= 0 for slice
+    ret = _var(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_stops_before_oversized_follow_up_without_override
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_returns_last_result_when_later_round_fails
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:211: RuntimeWarning: invalid value encountered in divide
+    ret = um.true_divide(
+
+tests/unit/scientist/methods/doe/test_morris_geometry.py::test_native_morris_blocks_preserve_point_uncertainty_under_units_and_order[3]
+  /workspace/e02-runtime/doe-deps/SALib/sample/morris/morris.py:382: UserWarning: num_levels should be an even number, sample may be biased
+    warnings.warn("num_levels should be an even number, " "sample may be biased")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_frc_01.py::test_calibration_time_roles_are_preserved_from_bound_evidence
+FAILED tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked
+FAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status
+FAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_surfaces_deferred_proxy_review
+FAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_detects_disconnected_topology
+FAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_accepts_injected_store_factory

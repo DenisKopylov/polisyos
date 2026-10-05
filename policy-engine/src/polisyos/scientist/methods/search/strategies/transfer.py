@@ -592,7 +592,7 @@ class TransferLearningManager:
             for bound in bounds:
                 raw = evaluation.params[bound.name]
                 if bound.dtype != ParameterType.CATEGORICAL and (
-                    isinstance(raw, bool)
+                    type(raw) not in (int, float)
                     or not math.isfinite(float(raw))
                     or not bound.lower <= float(raw) <= bound.upper
                     or (bound.dtype == ParameterType.INTEGER and not float(raw).is_integer())

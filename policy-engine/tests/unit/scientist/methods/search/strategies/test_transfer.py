@@ -281,7 +281,16 @@ def test_original_and_history_cannot_share_a_false_normalized_coordinate(tmp_pat
     assert originals[0].metadata["params"] == rejected.params == {"x": 0.1}
 
 
-@pytest.mark.parametrize("dtype,x", [(ParameterType.CONTINUOUS, 1.5), (ParameterType.INTEGER, 0.1)])
+@pytest.mark.parametrize(
+    "dtype,x",
+    [
+        (ParameterType.CONTINUOUS, 1.5),
+        (ParameterType.INTEGER, 0.1),
+        (ParameterType.CONTINUOUS, "0.1"),
+        (ParameterType.CONTINUOUS, True),
+        (ParameterType.INTEGER, "1"),
+    ],
+)
 def test_actual_candidate_must_be_in_the_persisted_attainable_domain(tmp_path, dtype, x):
     store, index, _, source, evaluations, originals = _measured_history(tmp_path)
     space = SearchSpace([ParameterBounds(name="x", lower=0.0, upper=1.0, dtype=dtype)])
@@ -295,7 +304,7 @@ def test_actual_candidate_must_be_in_the_persisted_attainable_domain(tmp_path, d
         PutOptions(kind="search.candidate", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    raw_score = 100.0 * x * x
+    raw_score = 100.0 * float(x) * float(x)
     original = originals[0].model_copy(
         update={
             "candidate_ref": candidate_ref,

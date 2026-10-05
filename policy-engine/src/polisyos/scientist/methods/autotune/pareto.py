@@ -394,7 +394,7 @@ class ParetoPromoter:
             hv_assessment = HypervolumeAssessment(
                 status="unavailable",
                 predicate_basis="not_established",
-                limitation="non_finite_derived_hypervolume",
+                reason="non_finite_derived_hypervolume",
             )
 
         return ParetoFront(

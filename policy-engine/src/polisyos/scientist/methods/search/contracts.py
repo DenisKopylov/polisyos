@@ -84,14 +84,14 @@ class HypervolumeAssessment(BaseModel):
 
     status: Literal["assessed", "unavailable"]
     predicate_basis: Literal["recomputed", "not_established"]
-    limitation: Literal["non_finite_derived_hypervolume"] | None = None
+    reason: Literal["non_finite_derived_hypervolume"] | None = None
 
     @model_validator(mode="after")
     def _validate_basis(self) -> HypervolumeAssessment:
         if self.status == "assessed":
-            if self.predicate_basis != "recomputed" or self.limitation is not None:
+            if self.predicate_basis != "recomputed" or self.reason is not None:
                 raise ValueError("assessed hypervolume requires a recomputed numeric basis")
-        elif self.predicate_basis != "not_established" or self.limitation is None:
+        elif self.predicate_basis != "not_established" or self.reason is None:
             raise ValueError("unavailable hypervolume requires an explicit limitation")
         return self
 

@@ -58,7 +58,7 @@ def test_registry_persists_unavailable_volume_without_losing_frontier(tmp_path) 
     assessment = restored.hypervolume_assessments_by_view["global_feasible"]
     assert assessment.status == "unavailable"
     assert assessment.predicate_basis == "not_established"
-    assert assessment.limitation == "non_finite_derived_hypervolume"
+    assert assessment.reason == "non_finite_derived_hypervolume"
     assert projection.assessment.hypervolume_assessment == assessment
     payload = restored.model_dump(mode="json")
     encoded = json.dumps(payload, allow_nan=False)

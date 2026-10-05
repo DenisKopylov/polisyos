@@ -177,6 +177,76 @@ async def test_successful_acquire_does_not_await_metadata_after_publication() ->
 
 
 @pytest.mark.asyncio
+async def test_expired_handle_cleanup_failure_retains_one_permit_until_retry() -> None:
+    """A late handle never escapes, even when its physical disconnect first fails."""
+    connector = _GatedConnector(gate="connect", suppress_cancellation=True, disconnect_failures=2)
+    pool = _pool(lambda: connector)
+    acquire = asyncio.create_task(pool.acquire())
+    try:
+        await asyncio.wait_for(connector.cancellation_observed.wait(), timeout=0.5)
+        connector.proceed.set()
+        with pytest.raises(PoolExhaustedError):
+            await acquire
+        assert not pool._in_use
+        assert list(pool._pending_cleanup) == connector.created
+        assert pool._active_acquires == 0
+        assert pool._semaphore._value == 0
+        with pytest.raises(RuntimeError, match="cleanup remains pending"):
+            await pool.close_all()
+        assert list(pool._pending_cleanup) == connector.created
+        assert pool._semaphore._value == 0
+    finally:
+        connector.proceed.set()
+        connector.disconnect_failures = 0
+        await asyncio.gather(acquire, return_exceptions=True)
+        await pool.close_all()
+    assert connector.disconnected == connector.created * 3
+    assert pool._semaphore._value == 1
+    assert pool.get_stats().total_closes == 1
+
+
+@pytest.mark.asyncio
+async def test_shorter_connection_timeout_preserves_primary_error() -> None:
+    connector = _GatedConnector(gate="connect")
+    pool = _pool(lambda: connector, acquire_timeout_seconds=0.5, connection_timeout_seconds=0.03)
+    try:
+        with pytest.raises(TimeoutError, match="Connection creation timed out after 0.03s"):
+            await pool.acquire()
+        assert pool._active_acquires == 0
+        assert pool._semaphore._value == 1
+        assert not connector.created
+    finally:
+        await pool.close_all()
+
+
+@pytest.mark.asyncio
+async def test_connector_failure_after_deadline_preserves_primary_error() -> None:
+    primary = ValueError("actual provider failure after suppressed cancellation")
+
+    class FailingConnector(_GatedConnector):
+        async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+            await self._wait("connect")
+            raise primary
+
+    connector = FailingConnector(gate="connect", suppress_cancellation=True)
+    pool = _pool(lambda: connector)
+    acquire = asyncio.create_task(pool.acquire())
+    try:
+        await asyncio.wait_for(connector.cancellation_observed.wait(), timeout=0.5)
+        connector.proceed.set()
+        with pytest.raises(ValueError) as caught:
+            await acquire
+        assert caught.value is primary
+        assert pool._active_acquires == 0
+        assert pool._semaphore._value == 1
+        assert not pool._in_use and not pool._pending_cleanup
+    finally:
+        connector.proceed.set()
+        await asyncio.gather(acquire, return_exceptions=True)
+        await pool.close_all()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("operation", ["connect", "health"])
 async def test_blocked_network_work_allows_independent_release(operation: str) -> None:
     """The actual metadata lock must remain available during connector I/O."""

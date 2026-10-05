@@ -1,0 +1,21 @@
+{
+  "schema": "policyos.e02.B.B52.independent_fixture_delta_review.v1",
+  "base_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+  "target_sha": "b75ea829d4b76285a399d75249117764211447b0",
+  "target_tree": "134a15359cf898877706c7b8361dab1ef05da012",
+  "changed_paths": [
+    "policy-engine/tests/integration/scientist/test_async_cache_recovery.py"
+  ],
+  "diff_sha256": "e00723d5c7536de615047456f7267d32c75dded53bddd25c5487adb75be529f4",
+  "production_source_byte_identical": true,
+  "verdict": "fixture_delta_accepted_no_blocker",
+  "deciding_delta": "Only deadline configured0.04→0.5s and physical watchdog hold0.12→0.7s for deadlinecases;2comments. All original earlyreturn/privatecache/noextraCASread/ContextVar/offloop/readyticks/stateoperations andsupersededowner assertions unchanged. Startupbodyandexpiredstartup fixtures unchanged.",
+  "boundary": "Same absoluteworkflow deadline still strictly inside physicalhold; largerstartupmargin allows intended actualcacheIO discriminator under sharedhostload. It does not grant freshnode/workflow budget.",
+  "checks": "Read-only exact Gitdiff/sourceidentity verification; no newtestexecution.14nativePASS and independent6cases remain exactly515 withtheir original inputs. Root/author will record freshb75 wave separately.",
+  "independent_515_receipt_path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-review515/receipt.json",
+  "independent_515_receipt_sha256": "77745f7b0de9b9a2f53a80561326a42aa4d5bda99ed1f8f01d596a17b9f70611",
+  "limits": [
+    "No fullhistoricalclosure or productiondataset claim; no fullyreentrant executeconcurrency guarantee.",
+    "Already-entered backendnestedIO residual unchanged."
+  ]
+}

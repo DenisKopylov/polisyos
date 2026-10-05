@@ -20,8 +20,14 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/native.txt",
       "sha256": "c6f411f974ca78d971fb9e31c30c3be6a9a1e2c1b39ef5faee6492c762373907",
       "bytes": 3480
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/delta-b75.json",
+      "sha256": "5633134377add75bc587a9aeca1f581f4a5baae37ec9ea673be857838177d318",
+      "bytes": 1687
     }
   ],
   "runtime_verdict": "14 native PASS plus separate real trace/checkpoint6-case oracle PASS; no fullfindingclosure",
-  "replay_boundary": "Driver ROOT pins admitted candidate checkout; change isolation ROOT only for external rerun and bind changed script hash. Interpreter/dependencies unchanged, inputs bounded real CAS/temp FS."
+  "replay_boundary": "Driver ROOT pins admitted candidate checkout; change isolation ROOT only for external rerun and bind changed script hash. Interpreter/dependencies unchanged, inputs bounded real CAS/temp FS.",
+  "test_input_delta": "Independent test-only b75 review accepts input margin .5s deadline/.7s physical hold; all semantic assertions remain. No fresh b75 execution is inferred from515 outputs."
 }

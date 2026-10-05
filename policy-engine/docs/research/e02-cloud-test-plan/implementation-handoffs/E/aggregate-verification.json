@@ -1,0 +1,449 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "aggregate-verification",
+  "closure_ids": [
+    "B32",
+    "B97",
+    "B98",
+    "B99",
+    "B100",
+    "B101",
+    "B102",
+    "B103",
+    "B104",
+    "B105",
+    "B166",
+    "B167",
+    "B168",
+    "B169",
+    "B170",
+    "B171",
+    "B172",
+    "B173",
+    "B174",
+    "B175",
+    "B176",
+    "B177",
+    "B178",
+    "B179",
+    "B180",
+    "B181",
+    "B182",
+    "B183",
+    "B184",
+    "B185",
+    "B186",
+    "B187",
+    "B188",
+    "B189",
+    "B190",
+    "B191",
+    "B192",
+    "B193",
+    "B194",
+    "B195",
+    "B196",
+    "B197",
+    "B198",
+    "B199",
+    "B200",
+    "B201",
+    "B202",
+    "B203",
+    "LA-051",
+    "LA-052",
+    "LA-053",
+    "LA-054",
+    "LA-055",
+    "LA-056"
+  ],
+  "bundle_ids": [
+    "BKT-01",
+    "BKT-02",
+    "BKT-03",
+    "BKT-04",
+    "CAL-01",
+    "CAL-02",
+    "CAL-03",
+    "CAL-04",
+    "CAL-05",
+    "CAL-06",
+    "DDM-01",
+    "DDM-02",
+    "DOE-01",
+    "DOE-02",
+    "DOE-03",
+    "FRC-01",
+    "FRC-02",
+    "PCL-01",
+    "UQP-01",
+    "UQP-02",
+    "UQP-03",
+    "UQS-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "c0f8ab8cdad33a239be542ce23c1648f72707bc5"
+  ],
+  "tested_source_sha": "c0f8ab8cdad33a239be542ce23c1648f72707bc5",
+  "candidate_tree_sha": "fffe19a0f752efdc2caed549fd0219d56ef0d5fc",
+  "branch": "codex/e02-E-assessment",
+  "role": "Verification aggregate. G may apply the original bounded topics or this aggregate once; do not apply duplicate implementations. This is not G’s canonical integration checkpoint and does not claim semantic closure.",
+  "denominator": {
+    "bundles": 22,
+    "findings": 54,
+    "routes": 487,
+    "cells": 175,
+    "source_PASS_cells": 172,
+    "source_FAILED_cells": 3,
+    "baseline_test_paths": 56,
+    "candidate_test_paths": 59,
+    "source_statuses": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    }
+  },
+  "original_source_resolution": {
+    "source_commits": [
+      "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "78187878ee188ff6d27442ba1498bd094da9785b"
+    ],
+    "failed_cells": [
+      "F04-P095",
+      "F08-P097",
+      "F13-P109"
+    ],
+    "binding": "Use canonical results/routes.tsv, cells.tsv, sources.json and events.jsonl, plus query.py --finding ID --details --job-context --limit 200 --block-limit 200. Topic receipts resolve selected cells, refs, source VM environment, backend and native fixture blob. Transferred compact text is institutionally supplied; routes are candidate-only and semantic adequacy is not established. Raw archives are missing.",
+    "report": "assessment.md"
+  },
+  "topics": [
+    {
+      "receipt": "ddm-facade.json",
+      "branch": "codex/e02-E-ddm",
+      "implementation_commits": [
+        "c13b7be010825b46e6282b8035e9ca8ef6c8735f"
+      ],
+      "candidate_tree_sha": "812ef9dba2cea4ee2cdc08c487b1ac31342303ac",
+      "remote_head": "25f92860db509525f8e7d829ff060bed675ae154",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/11",
+      "base": "codex/e02-integration"
+    },
+    {
+      "receipt": "bootstrap-statistic-identity.json",
+      "branch": "codex/e02-E-backtest",
+      "implementation_commits": [
+        "dafe95e15cff5992b5b9133a35e1e1297de03e87"
+      ],
+      "candidate_tree_sha": "bc5294207fc8e9d87a1ed54eb6d88de9d7e9770d",
+      "remote_head": "0af63b563c9dc5d7ceab99bee3f2f94ed58b16aa",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/12",
+      "base": "codex/e02-integration"
+    },
+    {
+      "receipt": "doe-morris-geometry.json",
+      "branch": "codex/e02-E-doe",
+      "implementation_commits": [
+        "e468822ef5eb0096f3a1692da1fdd85843581203"
+      ],
+      "candidate_tree_sha": "d38dad891c8f0edf61689cc5d5f1e75128ae3b13",
+      "remote_head": "40b911e6c086830825dc088df8d64a378589270e",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/17",
+      "base": "codex/e02-integration"
+    },
+    {
+      "receipt": "frc.json",
+      "branch": "codex/e02-E-frc",
+      "implementation_commits": [
+        "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+        "29b93f55ef50b86392fe6b6c4e56c8ed05e82f9c",
+        "45a7b1be8951cad62e45b4c560bad88a1a8c0c53"
+      ],
+      "candidate_tree_sha": "2c84e5f2d1051344d0f4ecdc18fd5317a9d4e1ed",
+      "remote_head": "f2a827da30c3f64e776c5e79d1db75132ad423fc",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/13",
+      "base": "codex/e02-integration"
+    },
+    {
+      "receipt": "gaussian-joint-sampling.json",
+      "branch": "codex/e02-E-cal-uq",
+      "implementation_commits": [
+        "5f9f4ae333cf13d152ae84693b44e73918b01703",
+        "50e8ecf1717efa6b6fe2e42925c7d9042a5db7c2",
+        "f07058a3eb782463eedce65a6d0d54c332a46efe"
+      ],
+      "candidate_tree_sha": "4f63193f8c25cd36a88c5bf14f60ac1f11578f51",
+      "remote_head": "d14bf56f562f2603975c957f869e0906d0e9f121",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/22",
+      "base": "codex/e02-integration"
+    },
+    {
+      "receipt": "pcl.json",
+      "branch": "codex/e02-E-pcl",
+      "implementation_commits": [
+        "23b3e9447494b3404f004286516377c3632ff947",
+        "1b2aa525bdb74b90ca444eb411bf230c13a9b50a"
+      ],
+      "candidate_tree_sha": "22bd30b54b3d4b99f8a2163e9c019d3f04033558",
+      "remote_head": "5e08960ff606cc8c0b1323746c4a2e9f60a73a8b",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/25",
+      "base": "codex/e02-integration"
+    },
+    {
+      "receipt": "cal05-mapped-schedules.json",
+      "branch": "codex/e02-E-cal05",
+      "implementation_commits": [
+        "714f69153d4736f3f8478936611e68eccb29f2d5",
+        "983e06616e805ccd35931df1acb39fb0d7201f97",
+        "bbc40582786b2e9c898aa7dd23b89dbac3062059"
+      ],
+      "candidate_tree_sha": "a4358e381d07812ceaa9a770e2b9991e0a68fd9f",
+      "remote_head": "9847a87192c66fd1dabfad027ed06b633eb97fb4",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/24",
+      "base": "codex/e02-integration"
+    },
+    {
+      "receipt": "bias-statistical-support.json",
+      "branch": "codex/e02-E-backtest-bias",
+      "implementation_commits": [
+        "5d8c9849be66562dba782763e7fc36d399e7daed",
+        "a4781aef87e9b3c8c44eedb51fc88119567afc59"
+      ],
+      "candidate_tree_sha": "13a4c7ec6c9ae5be23fdf4942e6faeb80e3e0aab",
+      "remote_head": "797dd66076aaec1f40f0c87efaf8e3d475a96d77",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/28",
+      "base": "codex/e02-integration"
+    },
+    {
+      "receipt": "composition-readback.json",
+      "branch": "codex/e02-E-composition-readback",
+      "implementation_commits": [
+        "6a7c96535fea02b3108728cf5e27d1955f65f6ea"
+      ],
+      "candidate_tree_sha": "7600249e28d6eb3bd5dbba2afa7677097c914d9d",
+      "remote_head": "991f5f280027dfa8e95b61cfb49bd01234811ca2",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/32",
+      "base": "codex/e02-integration"
+    }
+  ],
+  "checks": [
+    {
+      "name": "combined-E-regression",
+      "outcome": "FAIL",
+      "predicate_class": "recomputed",
+      "passed": 654,
+      "failed": 2,
+      "errors": 0,
+      "skips": 0,
+      "collected": 656,
+      "record": "root-checks/combined-final.json",
+      "output": "root-checks/combined-final.txt",
+      "junit": "root-checks/combined-final.xml",
+      "input_scope": "All 56 baseline existing paths, changed/new native paths, and the composition consumer: 59 unique files. Both red FRC01 cases remain in the command; no exclusions or inherited exemption."
+    },
+    {
+      "name": "architecture-guardrails",
+      "outcome": "FAIL",
+      "predicate_class": "recomputed",
+      "attribution": "not_established",
+      "record": "root-checks/architecture-final.json",
+      "output": "root-checks/architecture-final.txt",
+      "input_scope": "Same frozen aggregate. Deep import creep and runtime OpenAPI/trust posture snapshot drift. No exact base replay and zero input-denominator proof."
+    },
+    {
+      "name": "independent-adaptive-coverage-bootstrap",
+      "outcome": "PASS",
+      "predicate_class": "recomputed",
+      "record": "root-checks/coverage-adaptive-receipt.json",
+      "output": "root-checks/coverage-adaptive-stdout.txt",
+      "review": "root-checks/coverage-adaptive-review.md",
+      "native_passed": 78,
+      "witness_input": "root-checks/coverage-adaptive-witness.py.txt",
+      "input_scope": "Real JAX CPU in float32/64, NumPy and serialized IR. Nine numerical/IR source blobs pinned across c73 and 98; 860 imported source origins checked. Internal local path only, without served authority."
+    },
+    {
+      "name": "independent-composition-producer-consumer-review",
+      "outcome": "PASS",
+      "predicate_class": "recomputed",
+      "review": "root-checks/composition-independent-review.md",
+      "record": "root-checks/composition-independent-review.json",
+      "native_passed": 15,
+      "additional_controls_passed": 12,
+      "deciding_outputs": [
+        "root-checks/composition-independent-native.txt",
+        "root-checks/composition-independent-producer_controls.json",
+        "root-checks/composition-independent-node_residual_control.json"
+      ],
+      "scope": "Exact 6a7c965 source, real producer, six loader calls across five ports, actual CAS reopen/content identity. Ten malformed identity controls and removal control. Shared Scientist intake omission remains a G-owned residual."
+    },
+    {
+      "name": "changed-Python-Ruff",
+      "outcome": "PASS",
+      "source_sha": "deb05b2a6fb1f6c695fff5d767973ecc96e3d856",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/numerical_witness.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-baseline-reproduce.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-removal-probe.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/root-oracles/candidate_gaussian_oracles.py",
+        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/calibration/curve.py",
+        "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+        "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+        "policy-engine/tests/unit/calibration/test_continuous.py",
+        "policy-engine/tests/unit/calibration/test_curve.py",
+        "policy-engine/tests/unit/ddm/test_facade.py",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "policy-engine/tests/unit/remediation/test_bkt_03.py",
+        "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py"
+      ],
+      "path_count": 29,
+      "output": "root-checks/ruff-final.txt"
+    }
+  ],
+  "environment": {
+    "python": "3.14.2",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pandas": "2.3.3",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "optax": "0.2.6",
+      "equinox": "0.13.2",
+      "ruff": "0.14.10"
+    },
+    "JAX": "CPU, default x64=false; calibration conftest enables x64. B194 fixed-count fixtures scope float32, while independent actual failed-support observers check both precisions.",
+    "SALib": "1.5.2 genuine backend in isolated /workspace/e02-runtime/doe-deps overlay.",
+    "node": "22.23.3 official portable build for root gates and hooks.",
+    "pnpm": "10.33.2",
+    "uv": "0.12.19 differs from supported0.9.21",
+    "cpu_max": "400000 100000",
+    "memory_max": "17179869184",
+    "missing_optional_backends": [
+      "torch",
+      "numpyro",
+      "botorch",
+      "dowhy",
+      "econml",
+      "Temporal"
+    ],
+    "numeric_concurrency": "Ready numerical checks ran in parallel without artificial process caps. Final architecture scan ran once alongside final numerics after actual sibling AST resource failures. Wall time and RSS are recorded.",
+    "data": "Committed inline/analytic fixtures and seeded synthetic draws only. Full production history and source law remain local."
+  },
+  "input_closure": {
+    "tested_tree": "fffe19a0f752efdc2caed549fd0219d56ef0d5fc",
+    "paths_unchanged_since_tested_sha": [
+      "policy-engine/src",
+      "policy-engine/tests",
+      "policy-engine/pyproject.toml",
+      "policy-engine/pytest.ini",
+      "policy-engine/uv.lock",
+      "policy-engine/tools",
+      "policy-engine/architecture",
+      "policy-engine/schemas",
+      "policy-engine/release-fragments",
+      "policy-engine/apps"
+    ],
+    "source_test_config_diff_to_current_HEAD": [],
+    "external_inputs": "Versioned backend distributions and genuine SALib overlay. No production input binding.",
+    "predicate_grades": "Numerical properties and CAS readback are recomputed. Transferred text is institutionally_supplied. Custom callable meaning is consumer_asserted. Source-law and served authority remain not_established."
+  },
+  "held": [
+    "B194",
+    "B197",
+    "B201",
+    "B202"
+  ],
+  "remaining": {
+    "FRC01": "Stale positive witness lacks references and valid clock roles; A-owned _s10_limitation_refs ignores the supplied status. Exact A/G recipe is in frc.json. No shared A file was edited.",
+    "Scientist_sibling": "Repeated actual ReconcileCausalGraphNode with persisted core ArtifactRefs fails precomputed-alignment/query-hook intake. Shared Scientist/G owner recipe is in composition-readback.json. B/STA-01 writer is preserved.",
+    "DDM": "LA-054/055 public handoff, deployment, feed and principal inputs are not established; P40 STOP is retained.",
+    "global": "Architecture FAIL. Prior CI canary FAIL could not be attributed because its Azure artifact returned HTTP 403. Latest d14 CI is queued/skipped. Full CI/parity is not green."
+  },
+  "local_G_recipe": {
+    "fetch": "Fetch refs/heads/codex/e02-E-assessment and each original topic explicitly into origin tracking refs; this clone’s fetch refspec includes only main. Recorded implementation SHAs are reachable from published heads.",
+    "selection": "Choose an exact original topic SHA/receipt or tested aggregate c0f8ab8cdad33a239be542ce23c1648f72707bc5. Verify its tree and source blobs; apply each implementation once.",
+    "native_replay": "Load argv/environment from root-checks/combined-final.json. Substitute actual checkout, interpreter, SALib overlay and scratch JUnit paths. Retain all 59 files and both FRC red cases. Match backend versions.",
+    "independent_replay": "The recorded .py.txt is an immutable witness input executable by Python. Generate a runner in ignored scratch with only ROOT=/local/checkout and OUT=/local/scratch literals adapted; record original and derived SHA256. Set PYTHONPATH=checkout/policy-engine/src and JAX_PLATFORMS=cpu. Inputs are 100 finite coverage observations, seeded normal/1000 mixed draws, and 75 zeros plus 25 hundreds. Bounded controls require no private inputs.",
+    "production": "Follow assessment.md and each receipt’s actual producer/CAS readback recipe. Supply a content-bound local manifest for model, source, graph, plan, rule, time roles, axes, weights and ordered joint draw identity. Change the defining input while retaining declaration fields. Keep private bytes local. Missing served selectors or semantic decisions remain held/not_established."
+  },
+  "transport": "Every original implementation was committed before its separate receipt. Remote heads and draft PRs were matched independently. No main push, force push, history rewrite or merge.",
+  "protected_files_unchanged": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/run_lifecycle.py"
+  ],
+  "deciding_output_sha256": {
+    "root-checks/coverage-adaptive-native-stdout.txt": "ac495f87c93297f7a6b6576302f0c026457a444008c68b065caf82d3eed780d0",
+    "root-checks/composition-independent-review.json": "a8e36debd0012586d1a47c1f774833cf03276d9f9c38e2bdb1523074b9cdf72c",
+    "root-checks/composition-independent-native.json": "02bf0f842c3f729151e476c9fb61347b718ce994fbd7ddd7061f9522b9ecfa08",
+    "root-checks/coverage-adaptive-ruff-before.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "root-checks/coverage-adaptive-receipt.json": "0736a936f8e0911f3b9bb9163d05b68b84a3cdf7498d83a3a6cc93f408f3de2a",
+    "root-checks/composition-independent-native.txt": "511fb971caf59261241ec2a3919d9d10c7dcb9ec044ee07d50b2db465184f057",
+    "root-checks/composition-independent-producer-input.py.txt": "32f5cb9bee00985b28c10f4f25c04f7f6284fe5276a8431eb6c8e5d634eef731",
+    "root-checks/combined-final.txt": "bd0b45fc98ce2d36ffc28cf2c88fbfe97822cd7b6d61fad58e5f0b6fd7c1665b",
+    "root-checks/aggregate-ruff.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "root-checks/coverage-adaptive-stdout.txt": "554821341bd4a8cc56f82e8467d97d10bded797147a6a78f21fb677bb4e0f56e",
+    "root-checks/composition-independent-review.md": "a99593d78fc2c1d2b11b9124efbd41fdb46279bb750d5851e4a9a1402ba0c607",
+    "root-checks/architecture-final.txt": "8ae6923be28b23e696f2dea8d1108e3e5be40f301adbef563e6b6bdaa4fe8196",
+    "root-checks/composition-independent-producer_controls.json": "cd7c79116a57938db3b4dfcf16d95e56bcbc481983c15ac6ef4f9ca229324f49",
+    "root-checks/ruff-final.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "root-checks/composition-independent-node-input.py.txt": "a391f4a34cf428622cad2980648bc5987664d74e180196a88644cacd33b06115",
+    "root-checks/architecture-final.json": "04b0b473ebc0094c5326bd2c6ef50061ecd7c9d1e4eead26a5db6a2a522ac567",
+    "root-checks/composition-independent-harness_errors.json": "15809f16ee18a6e83ecf8194ac780be95702ca32b1f1d338e682adf55686d53e",
+    "root-checks/combined-initial.txt": "94eee8d67ef8ec3213a06130a1647eaee226cc58a147d81c56efde6a9e9b0fbe",
+    "root-checks/coverage-adaptive-review.md": "cef32fc72124539964b3a14bf3e9f33af73180171a0233ef9b66a904d31e0607",
+    "root-checks/coverage-adaptive-measurements.json": "5dd84103a28f7eea6ce817e041555081d2d7a5ca6753f405c8d1c94bee1d68d2",
+    "root-checks/cal-uq-current-ci.json": "affd322458318668792e0101e2e71327d16f3a229014a224f836be921f2f2e26",
+    "root-checks/coverage-adaptive-witness.py.txt": "19ba22a1d3e5a24fcb91f3d34bbbc7a0c9655772d27cf62c4b74a8d1a30965a7",
+    "root-checks/combined-final.xml": "416c4285c549adfd6893cecd4b254b9db3d0f5ecca5e4383163e07b4f8f9604d",
+    "root-checks/combined-final.json": "d7d5f3a6187dc3012964e77f5f3b3d625c92ee0f8799632890f64b9c35f05992",
+    "root-checks/composition-independent-node_residual_control.json": "1f014f304ba1c4aef41dd0477af0f2dfe2e8238643b13d938db6f46979ae3533",
+    "root-checks/combined-initial.json": "a58c3e3089a53ae3e56bd7d8aa5a3ee0172a92d273d88c5a2ce6e45fa884ad39"
+  },
+  "original_to_aggregate_implementation_commits": {
+    "c13b7be010825b46e6282b8035e9ca8ef6c8735f": "72bf8dd8297358fc6c6e47bb5143c57297e50ce1",
+    "dafe95e15cff5992b5b9133a35e1e1297de03e87": "775d40c0d4d4bd0ce303241d2c6dcbcdb7da560d",
+    "e468822ef5eb0096f3a1692da1fdd85843581203": "6f768a9bd883744ceacd6df0ad2de50876f5672f",
+    "0d90241ff1d4c8b4ebb2452460c8c2406b41728b": "00c5e8f781119565acda706fb511c178452f2330",
+    "29b93f55ef50b86392fe6b6c4e56c8ed05e82f9c": "f7e8eb8d6635060f9f7cde6f9467d3256dcbc28d",
+    "45a7b1be8951cad62e45b4c560bad88a1a8c0c53": "4feec610452bc103a82a0b0e6c677531f0beaaae",
+    "5f9f4ae333cf13d152ae84693b44e73918b01703": "dccca79f327573f9124245b2514ab24e0d23fd73",
+    "50e8ecf1717efa6b6fe2e42925c7d9042a5db7c2": "da64c013a35818db36580d132863c1b8649b7a47",
+    "f07058a3eb782463eedce65a6d0d54c332a46efe": "91aaee841aa0d4491f120e7eb575568c52c14b26",
+    "23b3e9447494b3404f004286516377c3632ff947": "6a87a8f810906826a70eee04ec1bc9e7186136ef",
+    "1b2aa525bdb74b90ca444eb411bf230c13a9b50a": "07429e998a4c43dd6d300c2f45d6d979917d7319",
+    "714f69153d4736f3f8478936611e68eccb29f2d5": "63ca6d7b67bba7a5414ae583c42ccbae63555cf3",
+    "983e06616e805ccd35931df1acb39fb0d7201f97": "7bb24b6f4f0f3264ac2184de6649391e0a4452a5",
+    "bbc40582786b2e9c898aa7dd23b89dbac3062059": "c73ce2bd287990769c90fad7013c1dadb703aa73",
+    "5d8c9849be66562dba782763e7fc36d399e7daed": "e1fed60c4bbb85044535e0b89f2741b524205546",
+    "a4781aef87e9b3c8c44eedb51fc88119567afc59": "fffba20890d511a6ca25ff4ea5cc7ab064f9e577",
+    "6a7c96535fea02b3108728cf5e27d1955f65f6ea": "86baeda3d73695d386012a67657f749b8f405c33"
+  }
+}

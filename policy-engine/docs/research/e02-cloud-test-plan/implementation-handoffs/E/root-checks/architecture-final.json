@@ -1,0 +1,22 @@
+{
+  "source_sha": "c0f8ab8cdad33a239be542ce23c1648f72707bc5",
+  "source_tree": "fffe19a0f752efdc2caed549fd0219d56ef0d5fc",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "cwd": "/workspace/e02-E-assessment/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": "/workspace/e02-E-assessment/policy-engine/src:/workspace/e02-runtime/doe-deps",
+    "PATH": "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 1,
+  "wall_seconds": 250.55631441800006,
+  "peak_child_rss_kib": 1102448,
+  "attribution": "not_established; no exactslice-base replay/zero denominator proof",
+  "production_evidence": false
+}

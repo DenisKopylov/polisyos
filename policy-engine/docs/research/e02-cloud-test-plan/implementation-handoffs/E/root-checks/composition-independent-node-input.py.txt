@@ -1,0 +1,56 @@
+from __future__ import annotations
+
+import importlib.util
+import json
+from pathlib import Path
+import tempfile
+
+from polisyos.ir.artifacts import normalize_artifact_ref
+from polisyos.ir.registry.refs import AlignmentReportRef, InterfaceMappingRef
+from polisyos.ir.analytics.alignment_certification import load_alignment_report
+from polisyos.ir.analytics.cross_graph import load_interface_mapping
+import polisyos.scientist.methods.backtesting.composition_bridge as bridge
+from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import _load_precomputed_alignment
+
+product = Path('/workspace/e02-E-composition-readback/policy-engine')
+out = Path('/workspace/e02-runtime/composition-independent')
+spec = importlib.util.spec_from_file_location('native_composition_fixture', product / 'tests/unit/scientist/methods/backtesting/test_composition_bridge.py')
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+execute = bridge.ReconcileCausalGraphNode.execute
+captured = []
+
+def capture(self, ctx, state):
+    outcome = execute(self, ctx, state)
+    captured.append((ctx, outcome.state))
+    return outcome
+
+bridge.ReconcileCausalGraphNode.execute = capture
+try:
+    with tempfile.TemporaryDirectory(prefix='node-residual-', dir=out) as scratch:
+        result = bridge.replay_fragment_composition_case(**module._proxy_replay_inputs(), cas_root=scratch)
+        ctx, state = captured[0]
+        report_ref = state.artifacts_index['alignment_report_ref']
+        mapping_ref = state.artifacts_index['interface_mapping_ref']
+        # Existing private node intake does not normalize the core DTO, so it
+        # silently discards otherwise resolvable precomputed artifacts.
+        report, mapping, returned_report_ref, returned_mapping_ref = _load_precomputed_alignment(ctx, state)
+        assert report is None and mapping is None
+        assert returned_report_ref is report_ref and returned_mapping_ref is mapping_ref
+        assert ctx.store.get_bytes(report_ref.artifact_id)
+        assert ctx.store.get_bytes(mapping_ref.artifact_id)
+        normalized_report = load_alignment_report(ctx.store, AlignmentReportRef.model_validate(normalize_artifact_ref(report_ref)))
+        normalized_mapping = load_interface_mapping(ctx.store, InterfaceMappingRef.model_validate(normalize_artifact_ref(mapping_ref)))
+        print(json.dumps({'target_sha':'6a7c96535fea02b3108728cf5e27d1955f65f6ea',
+            'control':'shared_node_precomputed_core_ref_omission',
+            'bucket':'same existing core-to-strict-IR readback class outside leased bridge',
+            'verdict':'bounded_residual_confirmed', 'bridge_result':result.composition_status,
+            'report_ref_type':type(report_ref).__name__, 'mapping_ref_type':type(mapping_ref).__name__,
+            'report_id':str(report_ref.artifact_id),'mapping_id':str(mapping_ref.artifact_id),
+            'private_node_loaded_report':False,'private_node_loaded_mapping':False,
+            'canonical_normalized_report_status':normalized_report.overall_status.value,
+            'canonical_normalized_mapping_entries':len(normalized_mapping.entries),
+            'next_owner':'G coordinates canonical Scientist node owner; no core/IR writer change needed'},indent=2))
+finally:
+    bridge.ReconcileCausalGraphNode.execute = execute

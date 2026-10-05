@@ -1,0 +1,179 @@
+{
+  "schema": "policyos.e02.independent_bounded_review.v1",
+  "reviewer": "E/frc",
+  "slice": "composition-readback",
+  "target_implementation_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+  "target_tree": "7600249e28d6eb3bd5dbba2afa7677097c914d9d",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "specification_verdict": "pass_bounded_bridge_readback",
+  "engineering_verdict": "no_defect_in_leased_reader_conversion",
+  "overall_class_verdict": "partial_shared_node_residual",
+  "predicate_basis": "independently_reconciled",
+  "checks": [
+    {
+      "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "target_tree": "7600249e28d6eb3bd5dbba2afa7677097c914d9d",
+      "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "before_head": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "after_head": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "source_before_blobs": {
+        "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py": "abe86a360396d323b5ecef601a2def2d76cc2e7c",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py": "031d157f8cadbf4e39ed7b469b47bba3b875f346"
+      },
+      "source_after_blobs": {
+        "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py": "abe86a360396d323b5ecef601a2def2d76cc2e7c",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py": "031d157f8cadbf4e39ed7b469b47bba3b875f346"
+      },
+      "source_matches_target": true,
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+        "-q",
+        "--basetemp=/workspace/e02-runtime/composition-independent/native-scratch/tmp",
+        "-o",
+        "cache_dir=/workspace/e02-runtime/composition-independent/native-scratch/cache"
+      ],
+      "cwd": "/workspace/e02-E-composition-readback/policy-engine",
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-composition-readback/policy-engine/src"
+      },
+      "effective_numerical_environment": {},
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+      "versions": {
+        "pytest": "9.0.2",
+        "pydantic": "2.12.5",
+        "numpy": "2.3.5"
+      },
+      "backend": "native ReconcileCausalGraphNode + filesystem core CAS + strict IR loaders",
+      "exit_code": 0,
+      "wall_seconds": 19.755695343999832,
+      "children_max_rss_kib": 584480,
+      "output_path": "/workspace/e02-runtime/composition-independent/native.log",
+      "output_sha256": "511fb971caf59261241ec2a3919d9d10c7dcb9ec044ee07d50b2db465184f057"
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-runtime/composition-independent/producer_controls.py"
+      ],
+      "cwd": "/workspace/e02-E-composition-readback/policy-engine",
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-composition-readback/policy-engine/src"
+      },
+      "exit_code": 0,
+      "wall_seconds": null,
+      "stdout_path": "/workspace/e02-runtime/composition-independent/producer_controls.stdout.log",
+      "stderr_path": "/workspace/e02-runtime/composition-independent/producer_controls.stderr.log",
+      "parsed_result_path": "/workspace/e02-runtime/composition-independent/producer_controls.json",
+      "note": "Full raw output preserved; structured result parsed afterwards; wall time not measured."
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-runtime/composition-independent/node_residual_control.py"
+      ],
+      "cwd": "/workspace/e02-E-composition-readback/policy-engine",
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-composition-readback/policy-engine/src"
+      },
+      "exit_code": 0,
+      "wall_seconds": null,
+      "stdout_path": "/workspace/e02-runtime/composition-independent/node_residual_control.stdout.log",
+      "stderr_path": "/workspace/e02-runtime/composition-independent/node_residual_control.stderr.log",
+      "parsed_result_path": "/workspace/e02-runtime/composition-independent/node_residual_control.json",
+      "note": "Full raw output preserved; structured result parsed afterwards; wall time not measured."
+    }
+  ],
+  "test_counts": {
+    "native_and_new": 15,
+    "independent_positive": 1,
+    "independent_missing_or_null_identity": 10,
+    "independent_removal": 1,
+    "independent_shared_node_residual": 1
+  },
+  "source_final_blobs": {
+    "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py": "abe86a360396d323b5ecef601a2def2d76cc2e7c",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py": "031d157f8cadbf4e39ed7b469b47bba3b875f346"
+  },
+  "source_matches_target": true,
+  "final_head": "991f5f280027dfa8e95b61cfb49bd01234811ca2",
+  "final_status": "",
+  "complete_readback_denominator": [
+    {
+      "typed_ref": "CompositionCertificateRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]",
+      "line": 199
+    },
+    {
+      "typed_ref": "AlignmentReportRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF]",
+      "line": 207
+    },
+    {
+      "typed_ref": "InterfaceMappingRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]",
+      "line": 213
+    },
+    {
+      "typed_ref": "CausalGraphModelRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]",
+      "line": 230
+    },
+    {
+      "typed_ref": "InterfaceMappingRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]",
+      "line": 240
+    },
+    {
+      "typed_ref": "CompositionFailureCardBundleRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF]",
+      "line": 250
+    }
+  ],
+  "residual": {
+    "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+    "control": "shared_node_precomputed_core_ref_omission",
+    "bucket": "same existing core-to-strict-IR readback class outside leased bridge",
+    "verdict": "bounded_residual_confirmed",
+    "bridge_result": "deferred",
+    "report_ref_type": "ArtifactRef",
+    "mapping_ref_type": "ArtifactRef",
+    "report_id": "sha256:f7989308b39ca99692a9a1f7ee574e790aeb788f44a692e3dd3054f4de0e3195",
+    "mapping_id": "sha256:646a0d1fae9be227d0baddbb09117c8559b7518e91ed11acd021231d28a46e0e",
+    "private_node_loaded_report": false,
+    "private_node_loaded_mapping": false,
+    "canonical_normalized_report_status": "partially_aligned",
+    "canonical_normalized_mapping_entries": 1,
+    "next_owner": "G coordinates canonical Scientist node owner; no core/IR writer change needed"
+  },
+  "harness_error_receipt": "/workspace/e02-runtime/composition-independent/harness_errors.json",
+  "base_transcript": {
+    "path": "/workspace/e02-runtime/composition-base-c40.log",
+    "sha256": "ece92e97dbc67574427418be385eeb1a1967af5149bde68544ef876d52645913",
+    "grade": "root_author_execution_independently_read_back_not_reexecuted_by_reviewer"
+  },
+  "artifact_sha256": {
+    "node_residual_control.py": "a391f4a34cf428622cad2980648bc5987664d74e180196a88644cacd33b06115",
+    "producer_controls.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "node_residual_control.stdout.log": "1f014f304ba1c4aef41dd0477af0f2dfe2e8238643b13d938db6f46979ae3533",
+    "node_residual_control.json": "1f014f304ba1c4aef41dd0477af0f2dfe2e8238643b13d938db6f46979ae3533",
+    "native_harness_error.log": "5b6883201249c6daa97d8c5cf2aeec78b73f592d361fb87a0c25fb82b349b8c8",
+    "producer_controls.py": "32f5cb9bee00985b28c10f4f25c04f7f6284fe5276a8431eb6c8e5d634eef731",
+    "node_residual_control.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native_harness_error.json": "186558c2a3e09c23a3580fbc6e0c80f7db967ba18da376ab0217ff4afc9932f0",
+    "node_residual_control_rendering_error.stderr.log": "6c2a18bbe6e05f057ab94302a8fbcb6fbe057098ac00c665904b4ce9560d2742",
+    "producer_controls.stdout.log": "cd7c79116a57938db3b4dfcf16d95e56bcbc481983c15ac6ef4f9ca229324f49",
+    "producer_controls.json": "cd7c79116a57938db3b4dfcf16d95e56bcbc481983c15ac6ef4f9ca229324f49",
+    "review.md": "a99593d78fc2c1d2b11b9124efbd41fdb46279bb750d5851e4a9a1402ba0c607",
+    "producer_controls_fixture_error.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "producer_controls_fixture_error.stderr.log": "5f37ed171113b67b9fc6db6df608459a7febb5e2b46d1bf4d8ac1954a25ebf18",
+    "node_residual_control_rendering_error.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native.json": "02bf0f842c3f729151e476c9fb61347b718ce994fbd7ddd7061f9522b9ecfa08",
+    "run_native.py": "a1c0f7b3ea19fc6cb309460b542fa8b098387b50a2c76c97fdea3b59af1d6298",
+    "native.log": "511fb971caf59261241ec2a3919d9d10c7dcb9ec044ee07d50b2db465184f057",
+    "harness_errors.json": "15809f16ee18a6e83ecf8194ac780be95702ca32b1f1d338e682adf55686d53e"
+  }
+}

@@ -128,3 +128,51 @@ artificially capped; actual wall time, RSS, environment and outputs are retained
 The companion aggregate receipt supplies frozen check SHAs, complete deciding
 outputs, remote branch/PR readbacks, environment differences, integration commit
 mapping and the final numerical/global-gate outcomes.
+
+## Frozen aggregate results and published topics
+
+The tested aggregate is `c0f8ab8cdad33a239be542ce23c1648f72707bc5`, tree
+`fffe19a0f752efdc2caed549fd0219d56ef0d5fc`. Later commits append receipts and
+this report; the product source, tests, configuration, architecture, schemas,
+release fragments and apps are byte-identical to that tested checkpoint.
+
+- Final 59-file regression: **654 PASS, 2 FAIL, 0 errors/skips**, 656 collected.
+  Wall 122.42 s, peak child RSS 2,451,684 KiB. Both FRC01 failures remain in the
+  command. Composition's earlier four failures are repaired.
+- Architecture guardrails: **FAIL**, exit 1, wall 250.56 s, peak child RSS
+  1,102,448 KiB. Full output identifies deep import creep and generated runtime
+  OpenAPI/trust posture drift. Attribution remains `not_established`; no
+  inherited exemption or check weakening was used.
+- Independent adaptive/coverage/bootstrap witness: **PASS**, plus 78 native
+  outcomes. Both precisions stop constant output at 60/240; six broad-normal
+  runs reach 240. Actual distribution widths .06045–.08442 exceed target .01,
+  while the mean-SE proxy .00239–.00545 would incorrectly satisfy it. Every
+  515/508 failed draw identity, input digest and typed outcome reconciles.
+  Complete coverage has 50/80/90 hits out of 100, ECE=0; incomplete comparison
+  stays unverified with ECE=0. Mean bootstrap is 25 with CI [17,32]; median is
+  0 with CI [0,0]. A maximum callable declared as median remains only
+  consumer_asserted.
+- Independent composition review: **15 native PASS + 12 controls PASS**,
+  including genuine producer, all six typed readers and CAS reopen. Shared
+  Scientist intake still drops valid core refs; its falsifier and owner recipe
+  are preserved for G.
+
+| Slice                                    | Draft PR                                               | Implementation checkpoint                  |
+| ---------------------------------------- | ------------------------------------------------------ | ------------------------------------------ |
+| DDM facade verification                  | [11](https://github.com/DenisKopylov/polisyos/pull/11) | `c13b7be010825b46e6282b8035e9ca8ef6c8735f` |
+| Bootstrap statistic identity             | [12](https://github.com/DenisKopylov/polisyos/pull/12) | `dafe95e15cff5992b5b9133a35e1e1297de03e87` |
+| Forecast producer binding                | [13](https://github.com/DenisKopylov/polisyos/pull/13) | `45a7b1be8951cad62e45b4c560bad88a1a8c0c53` |
+| Morris geometry and trajectory bootstrap | [17](https://github.com/DenisKopylov/polisyos/pull/17) | `e468822ef5eb0096f3a1692da1fdd85843581203` |
+| Gaussian covariance and failed support   | [22](https://github.com/DenisKopylov/polisyos/pull/22) | `f07058a3eb782463eedce65a6d0d54c332a46efe` |
+| Mapped schedule refusal                  | [24](https://github.com/DenisKopylov/polisyos/pull/24) | `bbc40582786b2e9c898aa7dd23b89dbac3062059` |
+| Complete finite predictive calibration   | [25](https://github.com/DenisKopylov/polisyos/pull/25) | `1b2aa525bdb74b90ca444eb411bf230c13a9b50a` |
+| Unavailable bias test trust refusal      | [28](https://github.com/DenisKopylov/polisyos/pull/28) | `a4781aef87e9b3c8c44eedb51fc88119567afc59` |
+| Composition ref readback                 | [32](https://github.com/DenisKopylov/polisyos/pull/32) | `6a7c96535fea02b3108728cf5e27d1955f65f6ea` |
+
+All nine PRs are draft and target `codex/e02-integration`. Exact remote heads,
+complete implementation chains and per-slice tree identities are in
+[aggregate-verification.json](aggregate-verification.json). G should apply
+original topics or the aggregate once, without duplicate cherry-picks. Fetch
+these branch refs explicitly: the cloud clone's configured refspec only fetches
+main. Full deciding stdout and portable witness inputs are committed under
+`root-checks/`; their SHA256 values are bound in the aggregate receipt.

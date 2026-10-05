@@ -1,6 +1,12 @@
 from __future__ import annotations
 
+import pytest
+from pydantic import ValidationError
+
 import polisyos.scientist.methods.backtesting.composition_bridge as composition_bridge_module
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir.analytics.alignment_certification import AlignmentVerificationConfig
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -10,7 +16,9 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
-from polisyos.ir.analytics.cross_graph import SCMFragment
+from polisyos.ir.analytics.cross_graph import SCMFragment, load_composition_certificate
+from polisyos.ir.artifacts import normalize_artifact_ref
+from polisyos.ir.registry.refs import CompositionCertificateRef
 from polisyos.scientist.methods.backtesting.composition_bridge import (
     replay_fragment_composition_case,
 )
@@ -115,6 +123,91 @@ def test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_
     assert result.composed_graph_signature is not None
     assert set(result.query_statuses.values()) == {"preserved"}
     assert set(result.query_reasons.values()) == {"evaluated"}
+
+
+def _proxy_replay_inputs():
+    return {
+        "fragments": [
+            _fragment("gov_a", interface_variables=["RL.EST"], outputs=["RL.EST"]),
+            _fragment("gov_b", interface_variables=["GE.EST"], inputs=["GE.EST"]),
+        ],
+        "fragment_graphs": {
+            "gov_a": _graph(["tax", "RL.EST"], [_edge("tax", "RL.EST")]),
+            "gov_b": _graph(["GE.EST", "wages"], [_edge("GE.EST", "wages")]),
+        },
+    }
+
+
+def test_replay_core_refs_read_back_from_reopened_filesystem_store(monkeypatch, tmp_path):
+    observed = []
+    execute = composition_bridge_module.ReconcileCausalGraphNode.execute
+
+    def _capture_native_outcome(self, ctx, state):
+        outcome = execute(self, ctx, state)
+        observed.append(outcome)
+        return outcome
+
+    monkeypatch.setattr(
+        composition_bridge_module.ReconcileCausalGraphNode, "execute", _capture_native_outcome
+    )
+    root = tmp_path / "cas_readback"
+    result = replay_fragment_composition_case(**_proxy_replay_inputs(), cas_root=str(root))
+    outcome = observed[0]
+    assert outcome.status == "ok"
+    assert all(isinstance(ref, ArtifactRef) for ref in outcome.state.artifacts_index.values())
+    assert all(result.persisted_artifacts.values())
+
+    reopened = build_artifact_store(ArtifactStoreConfig(root=str(root)))
+    for ref in outcome.state.artifacts_index.values():
+        manifest = reopened.get_manifest(ref.artifact_id)
+        assert manifest.kind == ref.kind
+        assert manifest.media_type == ref.media_type
+        assert reopened.get_bytes(ref.artifact_id)
+    certificate = load_composition_certificate(
+        ensure_ir_artifact_store(reopened),
+        CompositionCertificateRef.model_validate(
+            normalize_artifact_ref(outcome.state.artifacts_index["composition_certificate_ref"])
+        ),
+    )
+    assert (
+        composition_bridge_module.normalize_composition_certificate(certificate)
+        == result.composition_certificate_signature
+    )
+    assert certificate.status == result.composition_status == "deferred"
+
+
+@pytest.mark.parametrize(
+    "ref_key",
+    [
+        "composition_certificate_ref",
+        "alignment_report_ref",
+        "interface_mapping_ref",
+        "reconciled_causal_graph_ref",
+        "composition_failure_card_bundle_ref",
+    ],
+)
+@pytest.mark.parametrize(
+    "mutation", [{"kind": "ir.wrong_artifact_kind"}, {"media_type": "text/plain"}]
+)
+def test_replay_rejects_mismatched_native_ref_contract(monkeypatch, tmp_path, ref_key, mutation):
+    execute = composition_bridge_module.ReconcileCausalGraphNode.execute
+
+    def _mutate_native_outcome(self, ctx, state):
+        outcome = execute(self, ctx, state)
+        assert outcome.status == "ok"
+        ref = outcome.state.artifacts_index[ref_key]
+        assert isinstance(ref, ArtifactRef)
+        outcome.state.artifacts_index[ref_key] = ref.model_copy(update=mutation)
+        return outcome
+
+    monkeypatch.setattr(
+        composition_bridge_module.ReconcileCausalGraphNode, "execute", _mutate_native_outcome
+    )
+    with pytest.raises(ValidationError) as raised:
+        replay_fragment_composition_case(
+            **_proxy_replay_inputs(), cas_root=str(tmp_path / "cas_mismatched_ref")
+        )
+    assert {error["type"] for error in raised.value.errors()} == {"literal_error"}
 
 
 def test_replay_fragment_composition_case_surfaces_deferred_proxy_review(tmp_path) -> None:

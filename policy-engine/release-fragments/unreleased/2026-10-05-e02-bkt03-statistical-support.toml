@@ -1,0 +1,17 @@
+id = "2026-10-05-e02-bkt03-statistical-support"
+title = "Withhold backtest trust when nonzero errors cannot be tested"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Backtests retain an explicit degraded reason and withhold trust when nonzero residuals have no computable statistical test, including errors whose mean cancels to zero."
+evidence = ["tests/unit/remediation/test_bkt_03.py", "src/polisyos/scientist/methods/backtesting/orchestrator.py"]
+compatibility = "Existing report fields and JSON schemas are unchanged; affected reports now have trust_eligible=false and no trust score or grade."
+change_class = "internal"
+surface_classification = "internal: Scientist backtest statistical-support diagnostics"
+migration = "No data migration is required. Recompute affected backtest reports to obtain the explicit statistical limitation."
+api = "The existing BacktestReport degraded reasons carry unavailable or not-computable test status through CAS persistence."
+limitations = "NEUTRAL describes the observed mean direction only; it does not establish statistical neutrality. Exactly zero per-observation errors remain a separate mathematical identity, without a fabricated p-value or backend availability claim. These tests do not establish residual independence or population-level bias."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

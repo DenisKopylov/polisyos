@@ -23,13 +23,14 @@
     },
     {
       "id": "D-independent-locked-real-cpu",
-      "python": "3.14.2",
+      "python": "3.14.7",
       "executable": "/workspace/e02-D-locked-env/bin/python",
       "torch": "2.10.0+cu128",
       "botorch": "0.16.1",
       "gpytorch": "1.15.1",
       "device": "cpu",
-      "executor": "independent gp_witness/numerical_oracle, archived exact source"
+      "executor": "independent gp_witness/numerical_oracle, archived exact source",
+      "python_version_source": "/workspace/e02-D-locked-env/bin/python --version -> Python3.14.7; root final-environment.json; corrected prior3.14.2 assumption."
     }
   ],
   "authority_purpose": "Bounded engineering verification only. G accepts integration and closure; scientific promotion, default authority, and principal-held compatibility/scale decisions are not supplied by these checks.",
@@ -90,7 +91,7 @@
     {
       "case": "served_champion_nonfinite_or_derived_overflow",
       "path": "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
-      "fixture": "Use actual _iter_candidate_records/candidatefixtures and callserved hierarchical node for finite, NaN,\u00b1Inf policy_value and finite welfare+employment overflow permutations. Proposed guard raises controlled limitation -> NodeOutcome fail before _persist_trinity_bundle. Allfinitecompatiblecontrol unchanged."
+      "fixture": "Use actual _iter_candidate_records/candidatefixtures and callserved hierarchical node for finite, NaN,±Inf policy_value and finite welfare+employment overflow permutations. Proposed guard raises controlled limitation -> NodeOutcome fail before _persist_trinity_bundle. Allfinitecompatiblecontrol unchanged."
     }
   ],
   "limitations_and_next_owner": [

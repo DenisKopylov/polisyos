@@ -6,6 +6,8 @@ import logging
 import math
 from typing import TYPE_CHECKING
 
+from polisyos.core import canon
+
 from .models import BenchmarkEvaluation, BenchmarkSplit
 
 logger = logging.getLogger(__name__)
@@ -73,7 +75,6 @@ class WarmStartBridge:
         measurements remain attached to their source; no copied score creates a
         new benchmark. An absent source lineage is an explicit refusal.
         """
-        from polisyos.core.canon import from_canonical_bytes
         from polisyos.scientist.methods.search.strategies.transfer import (
             TransferHistoryError,
             TransferLearningManager,
@@ -85,9 +86,9 @@ class WarmStartBridge:
                 raise TransferHistoryError("Original benchmark store/reference required")
             try:
                 original = BenchmarkEvaluation.model_validate(
-                    from_canonical_bytes(store.get_bytes(ev.provenance_ref))
+                    canon.from_canonical_bytes(store.get_bytes(ev.provenance_ref))
                 )
-                candidate_payload = from_canonical_bytes(
+                candidate_payload = canon.from_canonical_bytes(
                     store.get_bytes(original.candidate_ref.artifact_id)
                 )
             except (TypeError, ValueError, OSError, KeyError) as exc:

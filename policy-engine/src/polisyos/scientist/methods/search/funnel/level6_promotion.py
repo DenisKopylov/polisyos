@@ -81,7 +81,10 @@ class Level6PromotionStage(FunnelStage):
             and self._promotion_runner is not None
             and not preflight_blocked
         ):
-            if owner_recheck is not None:
+            if owner_recheck is None:
+                terminal_action = "defer_to_human"
+                failure_cards.append(_owner_recheck_failure_card())
+            else:
                 try:
                     owner_allows_write = _owner_recheck_allows_write(
                         owner_recheck(candidate, context)
@@ -302,13 +305,9 @@ def _looks_like_policy_promotion_result(value: Any) -> bool:
 
 
 def _owner_recheck_allows_write(value: Any) -> bool:
-    """Normalize the owner callback without treating a missing result as allow."""
+    """Require the declared owner callback's explicit boolean permission."""
 
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, str):
-        return value.strip().lower() in {"allow", "allowed", "authorized", "ok", "true"}
-    return bool(value)
+    return value is True
 
 
 def _owner_recheck_failure_card() -> TypedFailureCard:

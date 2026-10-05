@@ -1,0 +1,10 @@
+id = "2026-10-05-e02-funnel-explicit-owner-permission"
+title = "Require explicit owner permission before an effectful Level 6 callback"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Level 6 invokes an effectful promotion runner only when a declared owner recheck returns the boolean True. A missing recheck, strings, mappings and other truthy values now defer before invoking the runner."
+compatibility = "Generic callers must supply an owner callback returning an explicit boolean permission. The native policy callback already recomputes its permission and returns bool. Read-only attached promotion results retain their interpretation."
+surface_classification = "internal: scientist multi-fidelity funnel callback boundary"
+limitations = "An explicit True establishes callback ordering, not independently verified owner admission. A content-bound typed owner contract remains required for arbitrary generic promotion callbacks."
+evidence = ["src/polisyos/scientist/methods/search/funnel/level6_promotion.py", "tests/unit/scientist/search/funnel/test_level6_promotion.py"]

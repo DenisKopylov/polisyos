@@ -6,6 +6,7 @@ import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field, replace
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Literal
@@ -13,7 +14,6 @@ from uuid import uuid4
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.methods.search.funnel.types import (
     FunnelEvaluationStatus,
     FunnelStage,
@@ -38,6 +38,7 @@ from polisyos.scientist.methods.search.voi_scheduler import (
     SchedulingDecision,
     SimpleVOIScheduler,
 )
+from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 logger = get_logger(__name__)
 
@@ -132,10 +133,9 @@ def _stable_candidate_hash(candidate: dict[str, Any]) -> str:
 
 
 def _is_volatile_cache_key(key: str) -> bool:
-    normalized = key.casefold()
-    return normalized in _CACHE_VOLATILE_CONTEXT_KEYS or normalized.endswith(
-        ("_at", "_ts", "_timestamp")
-    )
+    # Time-role fields such as valid_at and observation_timestamp are input
+    # identity. Only named orchestration timestamps may be discarded.
+    return key.casefold() in _CACHE_VOLATILE_CONTEXT_KEYS
 
 
 def _cache_identity_value(value: Any) -> Any:
@@ -143,6 +143,8 @@ def _cache_identity_value(value: Any) -> Any:
 
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
+    if isinstance(value, (datetime, date)):
+        return {"type": type(value).__name__, "iso8601": value.isoformat()}
     if isinstance(value, Enum):
         return _cache_identity_value(value.value)
     if isinstance(value, Mapping):
@@ -196,7 +198,7 @@ def _stable_context_identity(context: Mapping[str, Any]) -> dict[str, Any]:
         ) or normalized.endswith(("_ref", "_refs", "_version", "_versions"))
         if not is_identity_key and not isinstance(
             raw_value,
-            (str, int, float, bool, type(None)),
+            (str, int, float, bool, datetime, date, type(None)),
         ):
             continue
         projected = _cache_identity_value(raw_value)
@@ -247,6 +249,8 @@ class FunnelTicket:
     lineage: tuple[str, ...] = ()
     continuation_reason: str | None = None
     terminal_basis: str | None = None
+    terminal_budget_remaining: dict[str, Decimal | None] = field(default_factory=dict)
+    terminal_degradation_mode: DegradationMode | None = None
 
     @property
     def last_result(self) -> FunnelStageResult | None:
@@ -354,6 +358,18 @@ class FunnelOrchestrator:
             return ticket
 
         previous_ticket = self._latest_ticket(candidate_hash, continuation_key=continuation_key)
+        if (
+            previous_ticket is not None
+            and previous_ticket.is_terminal
+            and previous_ticket.final_action in _CONTINUABLE_ACTIONS
+            and self._continuation_context_key(previous_ticket.candidate, previous_ticket.context)
+            == continuation_key
+            and not self._has_new_continuation_basis(previous_ticket, routing_mode=routing_mode)
+        ):
+            # A changed cache/routing marker cannot waive the condition that
+            # stopped this attempt. Keep its result and expenses intact.
+            previous_ticket.submitted_via_cache = True
+            return previous_ticket
         ticket_id = str(uuid4())
         ticket = FunnelTicket(
             ticket_id=ticket_id,
@@ -374,8 +390,7 @@ class FunnelOrchestrator:
             ):
                 self._carry_forward_continuation(previous_ticket, ticket)
             elif (
-                previous_ticket.is_terminal
-                and previous_ticket.final_action in _CONTINUABLE_ACTIONS
+                previous_ticket.is_terminal and previous_ticket.final_action in _CONTINUABLE_ACTIONS
             ):
                 ticket.continuation_reason = "effective_context_changed"
         self._tickets[ticket.ticket_id] = ticket
@@ -412,10 +427,7 @@ class FunnelOrchestrator:
                 resolved_ticket.is_terminal = True
                 break
 
-            if (
-                resolved_ticket.current_level in (2, 3)
-                and resolved_ticket.next_level == next_level
-            ):
+            if resolved_ticket.current_level in (2, 3) and resolved_ticket.next_level == next_level:
                 scheduling_action = self._maybe_schedule_transition(
                     resolved_ticket,
                     execution_target=execution_target,
@@ -554,6 +566,10 @@ class FunnelOrchestrator:
             and resolved_ticket.terminal_basis is None
         ):
             resolved_ticket.terminal_basis = self._continuation_basis(resolved_ticket)
+            resolved_ticket.terminal_budget_remaining = {
+                key: self._budget_state.remaining(key) for key in self._budget_state.limits
+            }
+            resolved_ticket.terminal_degradation_mode = resolved_ticket.degradation_mode
         self._maybe_record_lessons(resolved_ticket)
         return self.get_outcome(resolved_ticket)
 
@@ -669,10 +685,13 @@ class FunnelOrchestrator:
                 sentinel_meta=sentinel_meta,
                 routing_mode=routing_mode,
             )
-            cache_hit = self._cached_ticket_for_key(
-                cache_key,
-                routing_mode=routing_mode,
-            ) is not None
+            cache_hit = (
+                self._cached_ticket_for_key(
+                    cache_key,
+                    routing_mode=routing_mode,
+                )
+                is not None
+            )
             ticket = self.submit(candidate, context)
             outcome = self.advance(ticket, policy="full")
             stage_result = outcome.final_result or self._empty_result(candidate)
@@ -736,9 +755,7 @@ class FunnelOrchestrator:
         if (
             ticket.is_terminal
             and ticket.final_action in _CONTINUABLE_ACTIONS
-            and ticket.terminal_basis is not None
-            and ticket.terminal_basis
-            != self._continuation_basis(ticket, routing_mode=routing_mode)
+            and self._has_new_continuation_basis(ticket, routing_mode=routing_mode)
         ):
             return None
         return ticket
@@ -770,11 +787,44 @@ class FunnelOrchestrator:
         return bool(
             ticket.is_terminal
             and ticket.final_action in _CONTINUABLE_ACTIONS
-            and self._continuation_context_key(ticket.candidate, ticket.context)
-            == continuation_key
-            and ticket.terminal_basis is not None
-            and ticket.terminal_basis
-            != self._continuation_basis(ticket, routing_mode=routing_mode)
+            and self._continuation_context_key(ticket.candidate, ticket.context) == continuation_key
+            and self._has_new_continuation_basis(ticket, routing_mode=routing_mode)
+        )
+
+    def _has_new_continuation_basis(
+        self,
+        ticket: FunnelTicket,
+        *,
+        routing_mode: DegradationMode,
+    ) -> bool:
+        """Recompute whether the condition that paused this attempt improved.
+
+        Budget depletion, an unrelated spend, and a new routing marker are
+        changes in bytes, not permission to skip a stage-owned deferral. Only
+        a lifted frontier freeze or added budget capacity can reopen the
+        corresponding pause; the next transition still runs its scheduler.
+        """
+
+        if ticket.terminal_degradation_mode == "freeze_frontier":
+            return routing_mode != "freeze_frontier"
+        decision = ticket.last_scheduling_decision
+        if (
+            decision is None
+            or decision.recommended_action != "defer"
+            or decision.reason
+            not in {
+                "budget_exhausted_for_next_level",
+                "reserved_calibration_budget",
+            }
+        ):
+            return False
+        return any(
+            previous is not None
+            and (
+                self._budget_state.remaining(key) is None
+                or self._budget_state.remaining(key) > previous
+            )
+            for key, previous in ticket.terminal_budget_remaining.items()
         )
 
     @staticmethod
@@ -799,9 +849,7 @@ class FunnelOrchestrator:
                 }
                 for key, limit in sorted(self._budget_state.limits.items())
             },
-            "spent": {
-                key: str(value) for key, value in sorted(self._budget_state.spent.items())
-            },
+            "spent": {key: str(value) for key, value in sorted(self._budget_state.spent.items())},
             "reserved": {
                 key: str(value) for key, value in sorted(self._budget_state.reserved.items())
             },

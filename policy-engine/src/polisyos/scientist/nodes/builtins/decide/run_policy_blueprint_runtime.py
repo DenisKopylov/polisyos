@@ -1083,9 +1083,7 @@ def _ensure_calibration_report(
     if state_metrics:
         report = report.model_copy(
             update={
-                "current_mode": str(
-                    state_metrics.get("routing_mode", report.current_mode)
-                ),
+                "current_mode": str(state_metrics.get("routing_mode", report.current_mode)),
                 "routing_health": {
                     **report.routing_health,
                     **state_metrics,
@@ -2051,7 +2049,7 @@ def _policy_promotion_owner_recheck(
     if context.get("promotion_write_allowed") is not True:
         return False
     context_candidate_ref = context.get("policy_candidate_ref")
-    if isinstance(context_candidate_ref, ArtifactRef) and context_candidate_ref != candidate_ref:
+    if not isinstance(context_candidate_ref, ArtifactRef) or context_candidate_ref != candidate_ref:
         return False
     evidence_ref = context.get("promotion_evidence_bundle_ref")
     if not isinstance(evidence_ref, ArtifactRef):

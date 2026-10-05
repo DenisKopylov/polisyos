@@ -127,6 +127,7 @@ def statistical_uncertainty_from_ci_width(
         recommended_action=recommended_action,
     )
 
+
 # ---------------------------------------------------------------------------
 # §8.5 — CheapSignalVector
 # ---------------------------------------------------------------------------

@@ -7,26 +7,38 @@ import pytest
 
 temporalio = pytest.importorskip("temporalio")
 
+from temporalio.testing import WorkflowEnvironment
+from temporalio.worker import UnsandboxedWorkflowRunner, Worker
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.scientist.orchestration.engine.checkpoint import CASCheckpointHook, resolve_latest_checkpoint
+from polisyos.scientist.orchestration.engine.checkpoint import (
+    CASCheckpointHook,
+    resolve_latest_checkpoint,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
-from polisyos.scientist.orchestration.engine.runner import _activity_worker as activity_worker_module
+from polisyos.scientist.orchestration.engine.runner import (
+    _activity_worker as activity_worker_module,
+)
 from polisyos.scientist.orchestration.engine.runner import temporal_runner as temporal_runner_module
+from polisyos.scientist.orchestration.engine.runner.serialization import (
+    deserialize_state,
+    serialize_outcome,
+    serialize_state,
+)
 from polisyos.scientist.orchestration.engine.runner.temporal_runner import (
     ScientistWorkflow,
     TemporalWorkflowRunner,
     execute_node_activity,
+    execute_node_outcome_activity,
     merge_checkpoint_tier_activity,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
-from temporalio.testing import WorkflowEnvironment
-from temporalio.worker import UnsandboxedWorkflowRunner, Worker
 
 
 def _meta(raw: str, name: str) -> ComponentMetadata:
@@ -187,7 +199,11 @@ async def test_temporal_runner_executes_remote_checkpoint_merge_activity(
             env.client,
             task_queue=task_queue,
             workflows=[ScientistWorkflow],
-            activities=[execute_node_activity, merge_checkpoint_tier_activity],
+            activities=[
+                execute_node_activity,
+                execute_node_outcome_activity,
+                merge_checkpoint_tier_activity,
+            ],
             workflow_runner=UnsandboxedWorkflowRunner(),
         ):
             result = await runner.execute_workflow(
@@ -201,6 +217,7 @@ async def test_temporal_runner_executes_remote_checkpoint_merge_activity(
         await env.shutdown()
 
     assert result.report.status == "ok"
+    assert [node.status for node in result.report.nodes] == ["ok", "ok", "ok"]
     assert result.state.params["left"] == 1
     assert result.state.params["right"] == 2
     assert result.state.params["final"] == 3
@@ -216,6 +233,168 @@ async def test_temporal_runner_executes_remote_checkpoint_merge_activity(
     assert checkpoint_artifact.state["params"]["left"] == 1
     assert checkpoint_artifact.state["params"]["right"] == 2
     assert checkpoint_artifact.state["params"]["final"] == 3
+
+
+@pytest.mark.asyncio
+async def test_temporal_no_checkpoint_branch_preserves_skip_and_ok_statuses(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workflow_spec = WorkflowSpec(
+        workflow_id="wf_temporal_status_without_checkpoint",
+        required_binds=["run_id"],
+        error_policy="continue",
+        nodes=[
+            NodeInvocation(
+                alias="skipped",
+                node_id=ComponentId.parse("scientist.node_temporal_left@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="accepted",
+                node_id=ComponentId.parse("scientist.node_temporal_right@1.0.0"),
+            ),
+        ],
+    )
+    base_state = ExperimentState(run_id="R_temporal_status_without_checkpoint")
+
+    async def _execute_node(payload: dict[str, object]) -> bytes:
+        state = deserialize_state(payload["state_bytes"])
+        alias = str(payload["alias"])
+        if alias == "skipped":
+            skipped_state = state.model_copy(deep=True)
+            skipped_state.params["discarded"] = True
+            return serialize_outcome(NodeOutcome(status="skip", state=skipped_state))
+        accepted_state = state.model_copy(deep=True)
+        accepted_state.params["accepted"] = True
+        return serialize_outcome(NodeOutcome(status="ok", state=accepted_state))
+
+    async def _execute_activity(activity_fn, payload, **kwargs):
+        del kwargs
+        return await activity_fn(payload)
+
+    monkeypatch.setattr(temporal_runner_module.workflow, "patched", lambda _patch: True)
+    monkeypatch.setattr(
+        temporal_runner_module.workflow,
+        "execute_activity",
+        _execute_activity,
+    )
+    monkeypatch.setattr(
+        temporal_runner_module,
+        "execute_node_outcome_activity",
+        _execute_node,
+    )
+
+    result = await ScientistWorkflow().run(
+        {
+            "workflow_spec_json": workflow_spec.model_dump(mode="json"),
+            "initial_state_bytes": serialize_state(base_state),
+            "context_meta": {},
+            "max_parallelism": 2,
+            "merge_conflict_policy": "error",
+        }
+    )
+
+    assert isinstance(result, dict)
+    assert deserialize_state(result["state_bytes"]).params == {"accepted": True}
+    reports = result["node_reports_by_alias"]
+    assert reports["skipped"]["status"] == "skip"
+    assert reports["accepted"]["status"] == "ok"
+    assert "state" not in reports["skipped"]
+
+
+@pytest.mark.asyncio
+async def test_temporal_pre_patch_history_keeps_state_only_activity_contract(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workflow_spec = WorkflowSpec(
+        workflow_id="wf_temporal_legacy_status_history",
+        required_binds=["run_id"],
+        error_policy="continue",
+        nodes=[
+            NodeInvocation(
+                alias="legacy",
+                node_id=ComponentId.parse("scientist.node_temporal_left@1.0.0"),
+            )
+        ],
+    )
+    base_state = ExperimentState(run_id="R_temporal_legacy_status_history")
+    legacy_merge_payloads: list[dict[str, object]] = []
+
+    async def _legacy_state_activity(payload: dict[str, object]) -> bytes:
+        state = deserialize_state(payload["state_bytes"])
+        state.params["legacy"] = True
+        return serialize_state(state)
+
+    async def _execute_activity(activity_fn, payload, **kwargs):
+        del kwargs
+        if activity_fn is temporal_runner_module.merge_checkpoint_tier_activity:
+            legacy_merge_payloads.append(payload)
+            return {
+                "state_bytes": payload["result_bytes_by_alias"]["legacy"],
+                "completed_nodes": [*payload["completed_nodes"], "legacy"],
+                "checkpoint_hook_meta": payload["checkpoint_hook_meta"],
+            }
+        return await activity_fn(payload)
+
+    monkeypatch.setattr(temporal_runner_module.workflow, "patched", lambda _patch: False)
+    monkeypatch.setattr(
+        temporal_runner_module.workflow,
+        "execute_activity",
+        _execute_activity,
+    )
+    monkeypatch.setattr(
+        temporal_runner_module,
+        "execute_node_activity",
+        _legacy_state_activity,
+    )
+
+    result = await ScientistWorkflow().run(
+        {
+            "workflow_spec_json": workflow_spec.model_dump(mode="json"),
+            "initial_state_bytes": serialize_state(base_state),
+            "context_meta": {},
+            "max_parallelism": 1,
+            "merge_conflict_policy": "error",
+            "checkpoint_hook_meta": {"completed_nodes": []},
+        }
+    )
+
+    assert isinstance(result, bytes)
+    assert deserialize_state(result).params == {"legacy": True}
+    assert len(legacy_merge_payloads) == 1
+    assert "result_format" not in legacy_merge_payloads[0]
+
+
+@pytest.mark.asyncio
+async def test_temporal_pre_patch_history_report_does_not_claim_success(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_temporal_legacy_report_status"
+    workflow = _workflow()
+    ctx, bundle_ref = _context(store, run_id)
+    state = ExperimentState(
+        run_id=run_id,
+        inputs={"registry_bundle_ref": bundle_ref},
+    )
+    replayed_state = state.model_copy(deep=True)
+    replayed_state.params["legacy"] = True
+
+    class LegacyHistoryClient:
+        async def execute_workflow(self, *_args, **_kwargs):
+            return serialize_state(replayed_state)
+
+    runner = TemporalWorkflowRunner(server_url="unused://temporal")
+    monkeypatch.setattr(runner, "_get_client", lambda: _get_client())
+
+    async def _get_client():
+        return LegacyHistoryClient()
+
+    result = await runner.execute_workflow(workflow, state, ctx, _registry())
+
+    assert result.state.params["legacy"] is True
+    assert result.report.status == "not_established"
+    assert result.report.nodes == []
 
 
 def test_temporal_inject_trace_carrier_records_degraded_path_on_runtime_error(

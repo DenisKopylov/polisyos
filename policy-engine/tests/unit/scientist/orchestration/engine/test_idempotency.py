@@ -262,7 +262,7 @@ def test_node_result_cache_reloads_legacy_v1_entry(tmp_path) -> None:
     run_id = "R_legacy_replay"
     key = "q" * 64
     outcome = _outcome(run_id)
-    journal = getattr(outcome.state, "_polisyos_state_mutation_journal")
+    journal = outcome.state._polisyos_state_mutation_journal
     state_mutations = tuple(journal.operations)
     outcome_ref = store.put_json(
         outcome.model_dump(mode="python", by_alias=True, exclude_none=False),
@@ -423,6 +423,48 @@ def test_node_result_cache_rejects_tampered_embedded_outcome(tmp_path) -> None:
     with pytest.raises(ValueError, match="run_identity_mismatch"):
         restored.load_entry(forged_ref)
     assert not restored.has(key)
+
+
+def test_node_result_cache_does_not_replay_status_blind_epoch_two_entries(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_cache_status_epoch"
+    key = "s" * 64
+    current = NodeResultCache(store, run_id=run_id)
+    current_ref = current.put(
+        key,
+        node_id="scientist.node_test@1.0.0",
+        outcome=_outcome(run_id),
+    )
+    current_entry = NodeCacheEntry.model_validate(
+        from_canonical_bytes(store.get_bytes(current_ref.artifact_id))
+    )
+    manifest = store.get_manifest(current_ref.artifact_id)
+    legacy_without_proof = current_entry.model_copy(
+        update={"replay_epoch": "2.0", "journal_proof": None}
+    )
+    legacy_entry = legacy_without_proof.model_copy(
+        update={
+            "journal_proof": _build_journal_proof(
+                legacy_without_proof,
+                manifest_schema=manifest.artifact_schema,
+                manifest_producer=manifest.producer,
+            )
+        }
+    )
+    legacy_ref = store.put_json(
+        legacy_entry.model_dump(mode="python", by_alias=True, exclude_none=False),
+        PutOptions(
+            kind="scientist.node_cache_entry",
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+        ),
+    )
+
+    restored = NodeResultCache(store, run_id=run_id)
+
+    assert restored.load_entry(legacy_ref) is False
+    assert restored.get(key) is None
 
 
 def test_node_result_cache_serializes_concurrent_journals_consistently(tmp_path) -> None:

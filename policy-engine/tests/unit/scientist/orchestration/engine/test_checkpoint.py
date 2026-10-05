@@ -11,6 +11,7 @@ from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.scientist.orchestration.engine.checkpoint import (
+    COMPLETED_NODE_STATUS_CONTRACT,
     CASCheckpointHook,
     CheckpointCorruptedError,
     CheckpointError,
@@ -18,6 +19,7 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     CheckpointHistoryEntry,
     CheckpointMetadataConflictError,
     CheckpointScopeMismatchError,
+    CheckpointStatusNotEstablishedError,
     RunLockError,
     acquire_run_lock,
     compute_workflow_fingerprint,
@@ -798,6 +800,7 @@ def test_resume_allows_valid_state_without_cache_refs(tmp_path: Path) -> None:
         completed_node_alias="start",
         completed_node_id="scientist.node_cached_counter@1.0.0",
         completed_nodes=["start"],
+        completed_node_status_contract=COMPLETED_NODE_STATUS_CONTRACT,
         workflow_id=workflow.workflow_id,
         workflow_fingerprint=compute_workflow_fingerprint(workflow),
         fsm_phase="EXECUTE",
@@ -817,6 +820,41 @@ def test_resume_allows_valid_state_without_cache_refs(tmp_path: Path) -> None:
 
     assert resumed.report.status == "ok"
     assert resumed.report.nodes == []
+
+
+def test_resume_refuses_status_blind_checkpoint_completed_nodes(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_resume_status_not_established"
+    workflow = _workflow("scientist.node_cached_counter@1.0.0")
+    state = ExperimentState(run_id=run_id)
+    created = create_checkpoint(
+        store,
+        run_id=state.run_id,
+        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        sequence_number=0,
+        completed_node_alias="start",
+        completed_node_id="scientist.node_cached_counter@1.0.0",
+        completed_nodes=["start"],
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        fsm_phase="EXECUTE",
+        cache_entry_refs=[],
+    )
+    update_checkpoint_head(
+        tmp_path / "runs" / run_id,
+        run_id=run_id,
+        checkpoint_ref=created.checkpoint_ref,
+        sequence_number=0,
+        node_alias="start",
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+
+    with pytest.raises(
+        CheckpointStatusNotEstablishedError,
+        match="checkpoint_completed_node_status_not_established",
+    ):
+        resume_from_checkpoint(store, run_id, workflow=workflow)
 
 
 def test_incremental_checkpoint_materializes_full_state(tmp_path: Path) -> None:

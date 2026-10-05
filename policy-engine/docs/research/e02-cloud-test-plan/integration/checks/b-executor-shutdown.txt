@@ -1,0 +1,60 @@
+probe_suite=shutdown-submit-lock-order
+driver_command=PYTHONPATH=src:. .venv/bin/python -u _build/e02-g-check/b-shutdown/run_probe.py > _build/e02-g-check/b-shutdown/receipt.log 2>&1
+candidate_commit=3e95056bca6d0c15ab7778573172491628f48596
+candidate_tree=c18cb706428ab16f69179020023311cf9d01f044
+source_blob=34b8823153d1709677093b85542056cdb3e0afbb
+python=3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]
+python_executable=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python
+python_prefix=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv
+platform=macOS-27.0.1-arm64-arm-64bit-Mach-O
+cwd=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine
+environment.PYTHONPATH=src:.
+environment.PYTHONHASHSEED=<unset>
+module_origin=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/src/polisyos/common/async_tools.py
+module_sha256=04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72
+module_and_runtime_validation=PASS
+child.candidate.command=['/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python', '-u', '/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/_build/e02-g-check/b-shutdown/probe.py', 'candidate']
+child.candidate.timeout_seconds=6
+child.candidate.elapsed_seconds=0.059127
+child.candidate.exit=73
+child.candidate.stdout.begin
+mode=candidate
+python=3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]
+executable=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python
+cwd=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine
+module=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/src/polisyos/common/async_tools.py
+module_sha256=04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72
+source_identity_and_candidate_lock_order=verified
+candidate_shutdown_lock_owners=('shutdown',)
+candidate_admission_lock_owners=('submitter',)
+candidate_submitter_waits_for_shutdown_lock=true
+candidate_cancel_callback_waits_for_admission_lock=true
+falsifier=DEADLOCK_LOCK_INVERSION_REPRODUCED
+child.candidate.stdout.end
+child.candidate.stderr.begin
+child.candidate.stderr.end
+child.candidate.expectation=PASS
+child.control.command=['/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python', '-u', '/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/_build/e02-g-check/b-shutdown/probe.py', 'control']
+child.control.timeout_seconds=6
+child.control.elapsed_seconds=0.058720
+child.control.exit=0
+child.control.stdout.begin
+mode=control
+python=3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]
+executable=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python
+cwd=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine
+module=/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/src/polisyos/common/async_tools.py
+module_sha256=04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72
+source_identity_and_candidate_lock_order=verified
+control_submit=reservation_released_before_base_submit
+control_overlap=submitter_waits_shutdown_without_admission
+control_callback_acquired_admission=true
+control_shutdown_completed=true
+control_submit_result=RuntimeError: cannot schedule new futures after shutdown
+control_outstanding_jobs=0
+control=PASS_NO_LOCK_INVERSION
+child.control.stdout.end
+child.control.stderr.begin
+child.control.stderr.end
+child.control.expectation=PASS
+suite_result=PASS

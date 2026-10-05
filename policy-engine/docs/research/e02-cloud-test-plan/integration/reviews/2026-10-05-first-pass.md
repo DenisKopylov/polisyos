@@ -22,7 +22,7 @@ D RL — checkpoint corruption; D transfer — generation reader exclusion;
 DDM — consumer-facing facade coverage. G не пишет исправления в эти owners.
 
 После static review выполнены изолированные runtime probes на прежних exact
-candidates, без изменения mechanism. [B shutdown output](../checks/b-executor-shutdown.log)
+candidates, без изменения mechanism. [B shutdown output](../checks/b-executor-shutdown.txt)
 доказывает конкретный wait cycle и успешный non-inverted probe-only control.
 [B callback receipt](../checks/b-executor-callback.json) фиксирует четыре занятых
 callback workers при counter=0, accepted nested jobs без исполнения; контроль

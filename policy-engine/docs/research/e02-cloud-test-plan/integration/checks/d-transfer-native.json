@@ -1,0 +1,133 @@
+{
+  "candidate_head_expected": "e608502d9f885d87ce580175cc95f8f17689f6e0",
+  "environment": {
+    "module_origins": {
+      "polisyos": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/__init__.py",
+      "polisyos.core.artifacts.store": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/core/artifacts/store.py",
+      "polisyos.scientist.agent.vector_memory": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "polisyos.scientist.methods.autotune.warm_start": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "polisyos.scientist.methods.search.strategies.transfer": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+    },
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "versions": {
+      "hnswlib": "0.8.0",
+      "hnswlib_module": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2"
+    }
+  },
+  "environment_controls": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:."
+  },
+  "environment_controls_mismatch": {},
+  "environment_probe": {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/bin/python",
+      "-c",
+      "<ORIGIN_PROBE>"
+    ],
+    "exit_code": 0,
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_bytes": 1398,
+    "stdout_sha256": "55f5824d36355a47c97bbb49232cfdb6fac5d80f0398153d7bc0087d45ea8aba",
+    "stdout": "{\"module_origins\": {\"polisyos\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/__init__.py\", \"polisyos.core.artifacts.store\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/core/artifacts/store.py\", \"polisyos.scientist.agent.vector_memory\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/scientist/agent/vector_memory.py\", \"polisyos.scientist.methods.autotune.warm_start\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py\", \"polisyos.scientist.methods.search.strategies.transfer\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py\"}, \"platform\": \"macOS-27.0.1-arm64-arm-64bit-Mach-O\", \"python_executable\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/bin/python\", \"python_version\": \"3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]\", \"versions\": {\"hnswlib\": \"0.8.0\", \"hnswlib_module\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so\", \"numpy\": \"2.3.5\", \"pydantic\": \"2.12.5\", \"pytest\": \"9.0.2\"}}\n",
+    "stderr": ""
+  },
+  "finished_unix": 1791211098.680075,
+  "host_platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "native_dim_publication_falsifier": {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/bin/python",
+      "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/_build/e02-g-check/native_dim_publication_falsifier.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine",
+    "exit_code": 1,
+    "status": "product_property_divergence_detected",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_bytes": 976,
+    "stdout_sha256": "e7db5f87e8a8ac95677d14cc4a4a40cf63e8143b81ad35eefd4748bff2770d57",
+    "wall_seconds": 0.422946,
+    "stdout": "{\"dim_after_publication\": 3, \"dim_during_pause\": 3, \"keys_while_paused\": [\"old-generation\"], \"query_acquired_lock_during_pause\": false, \"query_after_publication\": [[\"new-generation\", 0.0, {\"generation\": \"new\"}]], \"query_completed_during_pause\": false, \"runtime\": {\"artifact_store_module\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/core/artifacts/store.py\", \"hnswlib_module\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so\", \"hnswlib_version\": \"unknown\", \"platform\": \"macOS-27.0.1-arm64-arm-64bit-Mach-O\", \"python\": \"3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]\", \"vector_memory_module\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/src/polisyos/scientist/agent/vector_memory.py\"}, \"status\": \"PARTIAL_DIM_PUBLICATION_DETECTED\", \"wall_seconds\": 0.050141}\n",
+    "stderr": ""
+  },
+  "policy_engine_cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine",
+  "python_requested": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/bin/python",
+  "started_unix": 1791211048.6367428,
+  "status": "completed",
+  "suites": {
+    "transfer_three_files": {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine",
+      "environment_probe": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/_build/e02-g-check/receipts/environment.stdout",
+      "exit_code": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 579,
+      "stdout_sha256": "e6e0846a5a3b81448d8b0101bd08b9049de517ef977c31fb9df0d9e6f939decf",
+      "wall_seconds": 8.361752,
+      "stdout": "..............                                                           [100%]\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
+      "stderr": ""
+    },
+    "warm_start_consumer_importer": {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine",
+      "environment_probe": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/_build/e02-g-check/receipts/environment.stdout",
+      "exit_code": 0,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 579,
+      "stdout_sha256": "ad1c089cc1f946795b2f9057382493edfed32e950b0bc8a3de41266bc3c589cf",
+      "wall_seconds": 7.945447,
+      "stdout": "..........                                                               [100%]\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
+      "stderr": ""
+    }
+  },
+  "worktree_root": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos",
+  "original_receipt_sha256": "71578ee7004166c982f579eae6c76b2c01d81934cd9af486efce8e15f5b59de8",
+  "branch_readback": {
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": {
+      "git_blob": "eebc72e94ce6feba388e95896cc753887d4f19e2",
+      "sha256": "831b2af2667337608422d0a9213318bbe2dbfc78d3421269947c89af012ea915"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": {
+      "git_blob": "b3f5a009880fd6b3ca6acfb6ef320d15fcc4b0b3",
+      "sha256": "e4f941b72e617306ce58f47a64872b9ebcf98850d178dfb52b0c11f18f5bf379"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": {
+      "git_blob": "f70289cc3c4f17d23119b6eec9d783d423ffd7d3",
+      "sha256": "32c1627e65bd7e33d6ca996dbcdbd6979e97fc29ad81106d953565a3a415e1b0"
+    }
+  },
+  "candidate_tree": "bead2a6cbe27af34caa8b9e3b4c062a5686fa3d5",
+  "verdict": "HOLD complete public reader-generation claim; ordinary native focused tests pass; dim publication falsifier fails",
+  "basis": "independently_reconciled",
+  "falsifier_source_ref": "/Users/deniskopylov/.codex/worktrees/e02-g-check-d-transfer/polisyos/_build/e02-g-check/native_dim_publication_falsifier.py@sha256:e27fd64f88c44ed09834c807f20e2f00711fa2179ca5b54025bf7083a37937f9"
+}

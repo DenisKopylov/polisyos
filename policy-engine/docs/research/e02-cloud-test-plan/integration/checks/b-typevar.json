@@ -1,0 +1,171 @@
+{
+  "schema": "policyos.e02.independent_check.v1",
+  "unit": "G",
+  "subject": "B run-typevar",
+  "candidate_sha": "418b1f061459e40976d2666b5b62dce21d8c4833",
+  "candidate_tree": "17971a1fa26f988983c671496ae116fdecf065a2",
+  "basis": "independently_reconciled",
+  "environment": {
+    "python": "3.14.0",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10",
+    "provisioning": "measured APFS clone of existing local environment, not a frozen dependency resolution",
+    "editable_metadata_boundary": "cloned policy-engine metadata and _editable_impl_policy_engine.pth refer to source checkout; candidate validation must set PYTHONPATH=src:. and assert imported package origin is candidate source",
+    "source_environment_inventory_ref": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine/_build/e02-g-check/source-env-snapshot.json@sha256:70fd0b560e7ad04e5f28f64a91b230648e68e60d2a58356006679cd7f843c145",
+    "distribution_inventory_count": 258
+  },
+  "checks": [
+    {
+      "candidate_branch": "codex/e02-G-check-b-run",
+      "candidate_head": "418b1f061459e40976d2666b5b62dce21d8c4833",
+      "candidate_tree": "17971a1fa26f988983c671496ae116fdecf065a2",
+      "source_test_path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "source_test_git_blob": "84df8cb8277ed202941fd53c09de5cf052d6a58c",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/common/test_async_tools.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine",
+      "env_added": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 3.46,
+      "stdout_sha256": "463ab729dff946035d45a5caf93b242c8a04f169983b028d6a4cae429efca324",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_receipt_sha256": "57993168f7d4e1cedc1c67813b7cba9bf26a239aae3c4ca8c89655e301f9a8f5",
+      "stdout": "..........                                                               [100%]\n10 passed in 0.20s\n",
+      "stderr": ""
+    },
+    {
+      "candidate_branch": "codex/e02-G-check-b-run",
+      "candidate_head": "418b1f061459e40976d2666b5b62dce21d8c4833",
+      "candidate_tree": "17971a1fa26f988983c671496ae116fdecf065a2",
+      "whole_candidate_changed_paths_from_c40": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/tests/unit/common/test_async_tools.py"
+      ],
+      "checked_paths": [
+        "src/polisyos/common/async_tools.py",
+        "tests/unit/common/test_async_tools.py"
+      ],
+      "source_git_blobs": {
+        "src/polisyos/common/async_tools.py": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+        "tests/unit/common/test_async_tools.py": "84df8cb8277ed202941fd53c09de5cf052d6a58c"
+      },
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/common/async_tools.py",
+        "tests/unit/common/test_async_tools.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine",
+      "env_added": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 0.539,
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_receipt_sha256": "bcb0ef609908e518286a171d549f53bcec98ebfaaf7fa7386cf4698889872e96",
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "candidate_branch": "codex/e02-G-check-b-run",
+      "candidate_head": "418b1f061459e40976d2666b5b62dce21d8c4833",
+      "candidate_tree": "17971a1fa26f988983c671496ae116fdecf065a2",
+      "whole_candidate_changed_paths_from_c40": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/tests/unit/common/test_async_tools.py"
+      ],
+      "checked_paths": [
+        "src/polisyos/common/async_tools.py",
+        "tests/unit/common/test_async_tools.py"
+      ],
+      "source_git_blobs": {
+        "src/polisyos/common/async_tools.py": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+        "tests/unit/common/test_async_tools.py": "84df8cb8277ed202941fd53c09de5cf052d6a58c"
+      },
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/common/async_tools.py",
+        "tests/unit/common/test_async_tools.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine",
+      "env_added": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 0.043,
+      "stdout_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_receipt_sha256": "a09b2ebb971537de1fa55a8cb7407e74b8d274acbdee2da43b0777b139ba770c",
+      "stdout": "2 files already formatted\n",
+      "stderr": ""
+    },
+    {
+      "candidate_branch": "codex/e02-G-check-b-run",
+      "candidate_head": "418b1f061459e40976d2666b5b62dce21d8c4833",
+      "candidate_tree": "17971a1fa26f988983c671496ae116fdecf065a2",
+      "slice_base_commit": "c40d4acae1ce58b597267255026d9356565828fd",
+      "slice_base_module_path": "policy-engine/src/polisyos/common/async_tools.py",
+      "slice_base_module_git_blob": "794bfd9827422a663339df09f060b279d931ffc7",
+      "slice_base_module_sha256": "af511a3d74ecf026781c8754cdfa73d631f949983603edb05462bd2550cf9d37",
+      "slice_base_module_scratch_path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine/_build/e02-g-check/slice-base-async_tools.py",
+      "slice_base_test_path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "candidate_test_git_blob": "84df8cb8277ed202941fd53c09de5cf052d6a58c",
+      "module_extract_argv": [
+        "git",
+        "show",
+        "c40d4acae1ce58b597267255026d9356565828fd:policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "module_extract_exit_code": 0,
+      "module_extract_stderr": "",
+      "probe_argv": [
+        ".venv/bin/python",
+        "-B",
+        "_build/e02-g-check/typevar-removal-probe.py"
+      ],
+      "probe_cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine",
+      "probe_env_added": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "probe_exit_code": 0,
+      "wall_seconds": 0.296,
+      "stdout_sha256": "53eb8458d5e7426342e92d7b7ff7cb5a3c407ec906c107aa66ea500cd7273385",
+      "stderr_sha256": "86ff885aff4674721ba8bfa9e29990e7fe6e78832d198b1a7e1870f1a58d5214",
+      "original_receipt_sha256": "ad7d71bea780ae7fba342bc9f6cfb9e16dc2fbe9157e4137a4c87e06f1ceb494",
+      "stdout": "{\n  \"slice_base_module\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine/_build/e02-g-check/slice-base-async_tools.py\",\n  \"slice_base_module_sha256\": \"af511a3d74ecf026781c8754cdfa73d631f949983603edb05462bd2550cf9d37\",\n  \"old_module_globals\": {\n    \"T_present\": true,\n    \"TypeVar_present\": true,\n    \"T_repr\": \"~T\",\n    \"module_file\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine/_build/e02-g-check/slice-base-async_tools.py\"\n  },\n  \"candidate_test_file\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine/tests/unit/common/test_async_tools.py\",\n  \"candidate_source_file\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine/src/polisyos/__init__.py\",\n  \"property\": \"test_function_type_parameters_resolve_without_module_typevar\",\n  \"expected_failure\": true,\n  \"failure_type\": \"AssertionError\",\n  \"failure_message\": \"\"\n}\n",
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine/_build/e02-g-check/typevar-removal-probe.py\", line 24, in <module>\n    test.test_function_type_parameters_resolve_without_module_typevar()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run/polisyos/policy-engine/tests/unit/common/test_async_tools.py\", line 34, in test_function_type_parameters_resolve_without_module_typevar\n    assert not hasattr(async_tools, \"T\")\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+    }
+  ],
+  "negative_control_interpretation": "Exact slice-base module used by candidate test; traceback fails specifically at absent module-global T assertion, after annotation identities resolved. Harness catches any exception, so actual traceback is required and retained. Exit0 is harness receipt success; tested negative property failed as expected.",
+  "branch_readback_blobs": {
+    "policy-engine/src/polisyos/common/async_tools.py": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+    "policy-engine/tests/unit/common/test_async_tools.py": "84df8cb8277ed202941fd53c09de5cf052d6a58c",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json": "44f923b67e26ccecf7217911699928cbb429af77"
+  },
+  "finding_closure": false,
+  "limitations": [
+    "Packaging/external/dynamic/typecheck broader claims not established.",
+    "No new executor implementation is admitted by this check.",
+    "Environment is measured snapshot; native backend stack not required for this cleanup."
+  ]
+}

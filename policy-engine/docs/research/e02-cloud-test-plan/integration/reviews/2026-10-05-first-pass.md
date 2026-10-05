@@ -21,12 +21,30 @@ B shutdown — новый lock-order class; CAS alias — path identity class;
 D RL — checkpoint corruption; D transfer — generation reader exclusion;
 DDM — consumer-facing facade coverage. G не пишет исправления в эти owners.
 
+После static review выполнены изолированные runtime probes на прежних exact
+candidates, без изменения mechanism. [B shutdown output](../checks/b-executor-shutdown.log)
+доказывает конкретный wait cycle и успешный non-inverted probe-only control.
+[B callback receipt](../checks/b-executor-callback.json) фиксирует четыре занятых
+callback workers при counter=0, accepted nested jobs без исполнения; контроль
+с одним свободным worker и accounting/cancellation controls проходят. Этот
+probe не устанавливает существующего PolicyOS callback consumer.
+[D native receipt](../checks/d-transfer-native.json) содержит реальный hnswlib
+0.8.0: 14 transfer/vector/TRN-02 и 10 warm-start tests проходят, а `dim`
+возвращает новую размерность до публикации keys; query ждёт завершения swap.
+[D RL observations](../checks/d-rl-admission.json) подтверждают приём `True`
+и `1.0`; missing/unsupported version и malformed outer/Python RNG отвергнуты
+без mutation. Отдельный `metadata.wrapped_rng_state` этими probes не проверен.
+Все четыре HOLD сохраняются. Full moderate deciding outputs находятся в Git;
+probe scripts остаются локально ignored и связаны hashes, remote bytes не
+переданы.
+
 ## Bounded code/evidence acceptance candidates
 
 D baseline map принят как navigation/census artifact в checkpoint-01, без
 product closure. B TypeVar cleanup `418b1f0…` рассмотрен отдельно от нового
 executor delta: 10 local tests, Ruff check/format и exact-base negative control
-прошли. Новая LA-057 closure не заявляется; external/dynamic callers и
+прошли. Cleanup принят в checkpoint-02 с [полным receipt](../checks/b-typevar.json).
+Новая LA-057 closure не заявляется; external/dynamic callers и
 packaging/typecheck broader scope остаются ограничениями.
 
 E bootstrap, E FRC, F CAU, F API ABI, F FRY и F Lex имеют положительные

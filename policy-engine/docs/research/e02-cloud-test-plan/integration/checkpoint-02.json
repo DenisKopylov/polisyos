@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-05",
+  "publisher": "G",
+  "integration_sha": "93bffffb52e3dc149efcd838970383bc3fb302fb",
+  "integration_parents": [
+    "39fbd1bd6b366a5bb4988acec5313916e3e15dda",
+    "138b90b47897ecbab2fe495223873dfa532fc475"
+  ],
+  "previous_checkpoint": "checkpoint-01.json",
+  "accepted_slices": [
+    {
+      "unit": "B",
+      "slice": "run-typevar",
+      "accepted_head": "138b90b47897ecbab2fe495223873dfa532fc475",
+      "implementation_commits": [
+        "3ff71ee11ce8ae19ef284adb0ddd0fe2778ba470",
+        "418b1f061459e40976d2666b5b62dce21d8c4833"
+      ],
+      "code_acceptance": "bounded generic annotation cleanup; execution bodies unchanged",
+      "reviewers": [
+        "receipt_protocol",
+        "local_compute_queue",
+        "G"
+      ],
+      "deciding_receipt": "checks/b-typevar.json",
+      "full_diff_paths_from_base": [
+        "policy-engine/src/polisyos/common/async_tools.py",
+        "policy-engine/tests/unit/common/test_async_tools.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json"
+      ],
+      "newer_head_delta": "6e9be8959d7ff26efa9f2b4db81d308a506d04db remains HOLD; reviewed independently",
+      "finding_closure": false
+    }
+  ],
+  "finding_closures": [],
+  "freeze": "not_frozen",
+  "broad_replay": "UNRUN pending freeze",
+  "main_publication": "not_authorized"
+}

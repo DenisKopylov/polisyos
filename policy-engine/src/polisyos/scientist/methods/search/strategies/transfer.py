@@ -56,6 +56,16 @@ class TransferDiscoveryIssue:
     reason: str
 
 
+@dataclass(frozen=True)
+class TransferRecordIssue:
+    """An addressed row rejected independently of the bounded response quota."""
+
+    run_id: str
+    candidate_id: str
+    history_ref: str | None
+    reason: str
+
+
 class RunFingerprint(BaseModel):
     """Identifies a search run for cross-run transfer matching."""
 
@@ -122,6 +132,7 @@ class TransferLearningManager:
         self._history_bindings: dict[str, dict[str, Any]] = {}
         self.last_restore_report = TransferRestoreReport()
         self.last_discovery_issues: tuple[TransferDiscoveryIssue, ...] = ()
+        self.last_restore_rejections: tuple[TransferRecordIssue, ...] = ()
 
     def register_run(
         self,
@@ -281,11 +292,13 @@ class TransferLearningManager:
         ``max_evals`` total.
         """
         self.last_restore_report = TransferRestoreReport()
+        self.last_restore_rejections = ()
         if max_evals <= 0 or not similar_runs:
             return []
 
         prepared: list[list[Evaluation]] = []
         rejected_evaluations: list[Evaluation] = []
+        issues: list[TransferRecordIssue] = []
         loaded_rows = rejected_rows = accepted_rows = 0
         excluded_runs: list[str] = []
         for fp in similar_runs:
@@ -312,6 +325,14 @@ class TransferLearningManager:
                     evaluation.metadata["transfer_status"] = "rejected"
                     evaluation.metadata["transfer_error"] = reason
                     rejected_rows += 1
+                    issues.append(
+                        TransferRecordIssue(
+                            fp.run_id,
+                            evaluation.candidate_id,
+                            str(fp.history_ref.artifact_id) if fp.history_ref is not None else None,
+                            reason,
+                        )
+                    )
                 else:
                     accepted_rows += 1
                     evaluation.metadata["source_history_ref"] = str(fp.history_ref.artifact_id)
@@ -353,6 +374,7 @@ class TransferLearningManager:
         self.last_restore_report = TransferRestoreReport(
             loaded_rows, accepted_rows, rejected_rows, len(all_evals), tuple(excluded_runs)
         )
+        self.last_restore_rejections = tuple(issues)
         return all_evals
 
     @staticmethod

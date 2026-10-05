@@ -204,6 +204,21 @@ def test_rewritten_history_basis_cannot_relabel_the_original_measurement(tmp_pat
     assert reader.last_restore_report.rejected_rows == 4
 
 
+def test_rejection_identity_survives_a_full_valid_response_quota(tmp_path):
+    store, index, _, source, evaluations, _ = _measured_history(tmp_path)
+    candidate_id = evaluations[0].candidate_id
+    evaluations[0].provenance_ref = None
+    source.history_ref = TransferLearningManager(store, index).register_run(source, evaluations)
+    target = source.model_copy(update={"run_id": "target"})
+    reader = TransferLearningManager(store, index)
+    result = reader.get_warm_start_evaluations([source], max_evals=1, target_fingerprint=target)
+    assert len(result) == 1 and result[0].is_valid
+    (issue,) = reader.last_restore_rejections
+    assert issue.candidate_id == candidate_id and issue.run_id == "source"
+    assert issue.history_ref == str(source.history_ref.artifact_id)
+    assert issue.reason == "missing original evaluation reference"
+
+
 def test_original_measurement_tampering_is_a_visible_rejection(tmp_path):
     store, index, _, source, evaluations, _ = _measured_history(tmp_path)
     evaluations[0].objectives = [

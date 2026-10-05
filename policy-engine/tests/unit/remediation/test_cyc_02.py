@@ -465,6 +465,14 @@ def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> N
     assert input_ref is not None
     assert simulation.simulation_result_ref is not None
     assert input_ref.content_hash == str(simulation.simulation_result_ref.artifact_id)
+    for sibling_ref in (None, "sha256:" + "0" * 64):
+        assert (
+            simulation_evaluation_input_ref(
+                simulation.model_copy(update={"simulation_ref": sibling_ref}),
+                artifact_store=store,
+            )
+            is None
+        )
 
 
 def test_n5_transient_store_failure_is_unavailable_not_integrity_invalid(

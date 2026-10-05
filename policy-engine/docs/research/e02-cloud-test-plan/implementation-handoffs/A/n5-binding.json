@@ -1,0 +1,354 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "n5-binding",
+  "closure_ids": [
+    "B04",
+    "B05",
+    "B08",
+    "B01",
+    "B02",
+    "B03",
+    "B06",
+    "B07"
+  ],
+  "bundle_ids": [
+    "CYC-02",
+    "CYC-01",
+    "SIM-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "9867f9d7080b32d5fdb05ad92e7c4f3c7e6b26d3",
+    "e7d034756cb11522c65f602e021fccef5bc6245c",
+    "34a0577f3a12a4c61e9914a005948fbc268900be",
+    "5dc2d1bac1b2993f6eb7bab778ba5896f8afe207",
+    "4779aa1fbaf1564c7901d6b6bb5c1d3a206bb650"
+  ],
+  "candidate_tree_sha": "52138af536dc75ae5efc398b75f4dc23c5448095",
+  "branch": "codex/e02-A-custody",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/assessment.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/baseline-census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/format-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/green-target.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/importer-wave.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/owner-catalog-control.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/red-before-fix.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/served-selectors.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/p41-P41_RECEIPT.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/p41-architecture.meta.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/p41-compare_p41_architecture.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/p41-comparison.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-misbound-helper-removal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-normal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-removal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-source-identity.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/sim-01.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline.md",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/unit/remediation/test_cyc_02.py"
+  ],
+  "baseline_cells": [
+    "F01-P001",
+    "F01-P014",
+    "F01-P064",
+    "F02-P031",
+    "F03-P110",
+    "F04-P023",
+    "F05-P001",
+    "F05-P007",
+    "F05-P041",
+    "F06-P006",
+    "F08-P001",
+    "F08-P002",
+    "F08-P031",
+    "F08-P067",
+    "F08-P112",
+    "F09-P002",
+    "F10-P010",
+    "F12-P001",
+    "F12-P013",
+    "F12-P030",
+    "F13-P001",
+    "F13-P037",
+    "F13-P128",
+    "F14-P017",
+    "F14-P027",
+    "F15-P077"
+  ],
+  "checks": [
+    {
+      "name": "N5 cross-process target",
+      "command": "env PYTHONPATH=$PWD/src:$PWD OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 .venv/bin/python -m pytest -c pytest.ini -vv tests/unit/remediation/test_cyc_02.py::test_n5_result_reopens_and_n8_consumes_it_across_processes",
+      "target_sha": "e7d034756cb11522c65f602e021fccef5bc6245c",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "ruff": "0.14.10",
+        "platform": "macOS arm64",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "lock_source": "c40d4acae1ce58b597267255026d9356565828fd"
+      },
+      "input_closure": "synthetic real N5 v1 writer+exited process+fresh FileSystemCAS reader; all structural negatives; same source/test bytes committed at target SHA",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/green-target.txt"
+    },
+    {
+      "name": "Final importer wave",
+      "command": "env PYTHONPATH=$PWD/src:$PWD OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /usr/bin/time -l .venv/bin/python -m pytest -c pytest.ini -vv tests/unit/remediation/test_cyc_02.py tests/unit/remediation/test_sim_01.py tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_serves_persisted_n5_into_default_n8_value_port tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_blocker_after_lossy_simulation_projection tests/unit/runtime/quality/test_generation_cycle.py::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers tests/unit/runtime/quality/test_generation_cycle.py::test_default_value_port_binds_the_actual_n5_context",
+      "target_sha": "34a0577f3a12a4c61e9914a005948fbc268900be",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "ruff": "0.14.10",
+        "platform": "macOS arm64",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "lock_source": "c40d4acae1ce58b597267255026d9356565828fd"
+      },
+      "input_closure": "32 passed + 1 skipped (owner catalog absent at this stage); 79.43s pytest, 84.16s wall, RSS 1116487680 bytes",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/importer-wave.txt"
+    },
+    {
+      "name": "Read-only owner-catalog control",
+      "command": "env PYTHONPATH=$PWD/src:$PWD OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 /usr/bin/time -l .venv/bin/python -m pytest -c pytest.ini -vv tests/unit/runtime/quality/test_generation_cycle.py::test_default_value_port_binds_the_actual_n5_context",
+      "target_sha": "34a0577f3a12a4c61e9914a005948fbc268900be",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "ruff": "0.14.10",
+        "platform": "macOS arm64",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "lock_source": "c40d4acae1ce58b597267255026d9356565828fd"
+      },
+      "input_closure": "same candidate; local owner production_data directory mounted read-only 0555; skipped control rerun alone: 1 passed, 58.34s pytest, 62.30s wall; legacy observation-only adapter binding with fixture gateway, not production profile authority",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/owner-catalog-control.txt"
+    },
+    {
+      "name": "Configured service N4/N5 controls",
+      "command": "EXACT argv/environment recorded in n5-binding-checks/served-selectors.txt",
+      "target_sha": "34a0577f3a12a4c61e9914a005948fbc268900be",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "ruff": "0.14.10",
+        "platform": "macOS arm64",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "lock_source": "c40d4acae1ce58b597267255026d9356565828fd"
+      },
+      "input_closure": "2 passed; controlled synthetic admitted profile; local L6 owner inputs 0444/read-only; direct service worker, not ASGI POST/GET",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/served-selectors.txt"
+    },
+    {
+      "name": "Ruff",
+      "command": ".venv/bin/python -m ruff check src/polisyos/runtime/quality/generation_cycle.py tests/unit/remediation/test_cyc_02.py",
+      "target_sha": "34a0577f3a12a4c61e9914a005948fbc268900be",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "ruff": "0.14.10",
+        "platform": "macOS arm64",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "lock_source": "c40d4acae1ce58b597267255026d9356565828fd"
+      },
+      "input_closure": "source and final test lint clean; separate baseline-census.py lint+format clean",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/ruff.txt"
+    },
+    {
+      "name": "Whole-module formatter",
+      "command": ".venv/bin/python -m ruff format --check src/polisyos/runtime/quality/generation_cycle.py",
+      "target_sha": "34a0577f3a12a4c61e9914a005948fbc268900be",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "ruff": "0.14.10",
+        "platform": "macOS arm64",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "lock_source": "c40d4acae1ce58b597267255026d9356565828fd"
+      },
+      "input_closure": "existing whole-module formatter drift; full unrelated reformat not applied; baseline stdin check also exits 1, but changed module intersects formatter input so no inherited exclusion",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/format-check.txt"
+    },
+    {
+      "name": "Baseline class witness",
+      "command": "exact failed target invocation and native source identity retained in n5-binding-checks/red-before-fix.txt",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "ruff": "0.14.10",
+        "platform": "macOS arm64",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "lock_source": "c40d4acae1ce58b597267255026d9356565828fd"
+      },
+      "input_closure": "initial test revision before None/0-selected/2-selected controls were appended; original three valid-receipt divergence negatives fail through real N8; the final generic test adds controls and passes with the root fix",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/red-before-fix.txt"
+    },
+    {
+      "name": "Architecture guardrails",
+      "command": ".venv/bin/polisyos-tools architecture guardrails check",
+      "target_sha": "e7d034756cb11522c65f602e021fccef5bc6245c",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "ruff": "0.14.10",
+        "platform": "macOS arm64",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "project_root": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "lock_source": "c40d4acae1ce58b597267255026d9356565828fd"
+      },
+      "input_closure": "whole source/import and generated API/trust surfaces; P41 exact base replay completed, changed source intersects gate denominator; attribution not_established",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/_build/e02-A-custody/n5-binding/raw/architecture-candidate.txt@cf18007dc62717fb7418be445b544ab6c8852450da687ac2890a36e95d216057",
+      "evidence_transport": "raw output local/ignored; G rerun exact command at frozen integration tree; transported deciding raw bytes not_established",
+      "base_replay": {
+        "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+        "exit_code": 1,
+        "wall_seconds": 260.266,
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/p41-P41_RECEIPT.md",
+        "comparison": "exact-root-normalized complete bytes equal; intersection nonzero; inherited exemption blocked"
+      }
+    },
+    {
+      "name": "P41 immutable source comparison",
+      "command": "policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/p41-compare_p41_architecture.py",
+      "target_sha": "4779aa1fbaf1564c7901d6b6bb5c1d3a206bb650",
+      "environment": "Python 3.14.3, Ruff0.14.10; read-only Git c40/e7 blobs and retained base/candidate raw outputs; comparison ran at docs5dc before companion commit with identical script bytes",
+      "input_closure": "complete pinned2697 source Python blobs,2696 deep-import-eligible modules,145 trust candidates; one changed source intersection; full1991-line raw streams; exact-root normalization only",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/p41-comparison.txt",
+      "interpretation": "PASS only exact-output reproduction and denominator census; authority of inherited exclusion remains not_established/BLOCK, architecture remains FAIL"
+    }
+  ],
+  "property": {
+    "statement": "A persisted numerical N5 result survives producer process exit and fresh-process readback through the actual conditional N8 consumer; canonical intake reconciles exactly-one-selected decision, receipt engine, trajectory engine/method/objective and the expected observation receipt hash.",
+    "runtime_path": [
+      "JointSimulationPort -> JointSimulationHorizonController",
+      "persist_joint_simulation_result -> strict schema-versioned CASArtifactRef / SimulationProofReceipt",
+      "new FileSystemCAS + load_joint_simulation_result",
+      "_DefaultSimulationBoundFoundryValuePort / conditional N8; persisted EvalSafety input adapter"
+    ],
+    "proxy_divergence": "Valid CAS and rebuilt content receipt could previously coexist with a foreign trajectory/receipt engine or divergent sibling hash. Byte consistency alone did not establish selection/observation equivalence.",
+    "negative_controls": [
+      "missing/corrupt result and foreign WMR",
+      "wrong or missing observation simulation_ref",
+      "receipt-valid trajectory identity mismatch",
+      "receipt engine mismatch",
+      "zero or two selected decisions",
+      "actual persisted EvalSafety missing/wrong sibling hash",
+      "transient unavailable/timeout distinctions, foreign selected manifest views, malformed/unknown blockers retained by full CYC-02 wave"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_details": {
+    "recomputed": [
+      "CAS/manifest/canonical receipt integrity",
+      "unique selected decision and all trajectory identity tuples",
+      "receipt engine and expected payload hash equality"
+    ],
+    "independently_reconciled": [
+      "persisted WMR/atoms/outcomes vs current typed request input"
+    ],
+    "consumer_asserted": [
+      "outer status and candidate ID carry candidate-grade purpose only"
+    ],
+    "not_established": [
+      "trusted execution authorship",
+      "physical-run digest preimage absent from artifact",
+      "independent causal numerical truth",
+      "concrete horizon time alignment",
+      "N8 standalone numeric/full-manifest-profile projection"
+    ]
+  },
+  "capability_state_or_finding_state": "bounded B04 verification evidence + class-level consumer repair; local reviews GO; G integration acceptance pending; source finding statuses unchanged",
+  "limitations_and_next_owner": [
+    "G reviews exact source/test/receipt and repeats required global architecture/broad gates on frozen integration; current guardrail and formatter checks are FAIL and have no P41 inherited exclusion.",
+    "B04 evidence is real-engine synthetic CAS readback and conditional pointer; no causal truth or signer-provenance authority.",
+    "B05/B08 actual protected promotion/action and broader empirical/comparator controls remain verification_missing.",
+    "B01–B03 configured synthetic worker controls pass; default production profile producer and ASGI POST/GET criterion remain producer_missing/verification_missing.",
+    "A/B/E need owner-supported typed producer contracts for any future physical-run/execution provenance bridge; no new authority rule is created here.",
+    "B09 stays open pending owner-supported changed-basis rule; B31 stays held pending Public-IR semantic-owner ruling."
+  ],
+  "authority_purpose": "candidate K_sim simulation-only conditional analysis; no world update, protected action or publication authority",
+  "artifact_versions": {
+    "manifest": "policyos.runtime.n5.joint_simulation_result 1.0.0/2.0.0",
+    "payload": "policyos.runtime.joint_simulation_horizon.v1/v2",
+    "receipt": "existing content-bound unkeyed SimulationProofReceipt"
+  },
+  "time_roles": "CAS created_at is storage time; horizon steps retain existing semantic/time limitations, not concrete temporal alignment",
+  "source_identities": {
+    "generation_cycle_sha256": "e20b90617563432226a02d24f0b51e8f52dac3116fc6bac0a3a674351c319d7f",
+    "test_cyc_02_sha256": "1341505d801f037fa290142bc2f1e84ea595a296b82af12d648e600f904d2f4f"
+  },
+  "review": {
+    "persisted_readback": "GO exact e7 + cb608/9867; no numerical rerun",
+    "sim_engine_trace": "GO compatibility v1/v2/fallback/multi-atom/legacy no-CAS; requested sibling adapter coverage added and passed final wave",
+    "final_handoff_consistency": "GO: independent persisted_readback review read target-specific source/test identities and all committed deciding logs; minimum HANDOFF fields and limits confirmed. No new runtime rerun."
+  },
+  "code_acceptance": {
+    "local_review": "GO within declared gate scope",
+    "G_integration": "pending",
+    "required_global_gates": "FAIL / attribution not_established"
+  },
+  "finding_closure": {
+    "proposed_global_status_changes": [],
+    "B04": "bounded evidence offered for G criterion reconciliation",
+    "B09": "open",
+    "B31": "held",
+    "baseline_PASS_closes_candidate": false
+  },
+  "G_checkpoint_observed": {
+    "head": "d5ced7616041d0fc3c802c1394a1d28c4839d5b4",
+    "inspected_complete_delta": true,
+    "incorporated": false,
+    "relevance": "No N5 producer contract or B09/B31 owner-supported semantic decision. TypeVar cleanup is accepted by G separately."
+  },
+  "surface": {
+    "conditional_N8": "actual persisted reference/status/blockers consumed after fresh process reopen",
+    "served_HTTP": "configured synthetic direct worker selectors only; ASGI POST/GET and default producer verification_missing",
+    "audit": "committed logs/readback receipt; protected promotion/publication verification_missing"
+  },
+  "baseline_cell_scope": "Complete route join for closure_ids at slice_base_sha; historical file-by-cut cells, no candidate verdict inferred.",
+  "earlier_verification_slice": "The branch also carries the separate verification-baseline slice (eab2a659/9a29e554/11aad731), already published. Complete branch changed_paths includes its required companions; production mechanism remains one module."
+}

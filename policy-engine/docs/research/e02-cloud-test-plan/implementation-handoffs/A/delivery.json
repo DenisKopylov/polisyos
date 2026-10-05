@@ -1,0 +1,135 @@
+{
+  "schema": "policyos.e02.unit_delivery.v1",
+  "unit": "A",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "root": {
+    "branch": "codex/e02-A-custody",
+    "implementation_checkpoint": "4779aa1fbaf1564c7901d6b6bb5c1d3a206bb650",
+    "candidate_tree_sha": "52138af536dc75ae5efc398b75f4dc23c5448095",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding.json",
+    "assessment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/assessment.md",
+    "initial_published_checkpoint": "11aad73137f4ab8d2230524dfaea450d7a3eddf2",
+    "sole_shared_source_publisher": "runtime/quality/generation_cycle.py; HTTP run_lifecycle.py read only",
+    "test_imports": {
+      "cb608bf35a13dd816a8e3cfb4fbb68d044a48f42": "9867f9d7080b32d5fdb05ad92e7c4f3c7e6b26d3",
+      "53f6d51f1db9995ca26c19c1c462a3891622c877": "34a0577f3a12a4c61e9914a005948fbc268900be"
+    }
+  },
+  "leaf_slices": [
+    {
+      "slice": "replay-owner",
+      "branch": "codex/e02-A-replay-owner",
+      "remote_head_verified": "a683059753cbb366574793474fa8ffc17b3ba7a8",
+      "implementation_commits": [
+        "7ca76586d69d2cbbf10272a00e44044982139ee0"
+      ],
+      "candidate_tree_sha": "386951b3825107c581b29cb369b4eeaf3c15449c",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-owner.json",
+      "receipt_sha256": "487aa81b6b093c903221c12a1d29a625d8861080f5e2399d30ba1c676b2922f3",
+      "root_review": "bounded GO; source/test and receipt read from immutable Git objects; declared scope only",
+      "G_integration_acceptance": "pending",
+      "finding_closure": false,
+      "integration_role": "independent test-only slice, separate from root consumer patch"
+    },
+    {
+      "slice": "req-context",
+      "branch": "codex/e02-A-requirement-context",
+      "remote_head_verified": "a0302b7c717fe9eb7652a8e2bbbbea230115aedd",
+      "implementation_commits": [
+        "da01f425be01b9ef5deab52f46f74e851ed73dda",
+        "5c63beafacb204d94b8e9ba29914d3828cb257a7"
+      ],
+      "candidate_tree_sha": "5dac4980894554cdaf30712bc5c12d9c98c4a1ff",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/req-context.json",
+      "receipt_sha256": "afd6a5f769602011540e09a2bb7cf35122fe2ba108a51a9015856293d50764d7",
+      "root_review": "bounded GO; source/test and receipt read from immutable Git objects; declared scope only",
+      "G_integration_acceptance": "pending",
+      "finding_closure": false,
+      "integration_role": "independent test-only slice, separate from root consumer patch"
+    },
+    {
+      "slice": "SEL-01",
+      "branch": "codex/e02-A-selection",
+      "remote_head_verified": "c020fd9629fa36cfdd6f7de12cff8b263f1a42b9",
+      "implementation_commits": [
+        "717e7eda6fe5e71115d2a747b0b1227708c2c375",
+        "0acfb58fc9de28d1af945633ea14c8ebff4b451c"
+      ],
+      "candidate_tree_sha": "4c4da97d70e3a68604f1d6af92b82de59e59369d",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/SEL-01.json",
+      "receipt_sha256": "e2bbeebe37d2041dbf2822b5ee57b967d735d00fa570f3ddca5272d448dc53a6",
+      "root_review": "bounded GO; source/test and receipt read from immutable Git objects; declared scope only",
+      "G_integration_acceptance": "pending",
+      "finding_closure": false,
+      "integration_role": "independent test-only slice, separate from root consumer patch"
+    },
+    {
+      "slice": "empirical-scope",
+      "branch": "codex/e02-A-empirical-scope",
+      "remote_head_verified": "f1f7a1b5a9914d1a040e2fe182e0b1bdf393b43b",
+      "implementation_commits": [
+        "cac06d96191297332ad57e6fa5a564621bba83a8",
+        "36721d8f6c3aa11379d2a049a9aadbaa75bf677c"
+      ],
+      "candidate_tree_sha": "6a4324893e22ed3d7969fc7ddd4a69b1fb573766",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-scope.json",
+      "receipt_sha256": "bf7129c655e8f2f0f504b9eaa15b37fd8b103fd14a98342d778d9f7e7a64e4fa",
+      "root_review": "bounded GO; source/test and receipt read from immutable Git objects; declared scope only",
+      "G_integration_acceptance": "pending",
+      "finding_closure": false,
+      "integration_role": "independent test-only slice, separate from root consumer patch"
+    },
+    {
+      "slice": "n5-readback",
+      "branch": "codex/e02-A-n5-readback",
+      "remote_head_verified": "03ea5babece94bd443022dd54998aab201f058b1",
+      "implementation_commits": [
+        "cb608bf35a13dd816a8e3cfb4fbb68d044a48f42",
+        "53f6d51f1db9995ca26c19c1c462a3891622c877"
+      ],
+      "candidate_tree_sha": "11fa6cc5ea7924138c38337e8cbc2f0f82efccaa",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-readback.json",
+      "receipt_sha256": "ed13ba7419840b720115873f7a158672c5507615bfe2c4ae0b438ac93cfa1662",
+      "root_review": "bounded GO; source/test and receipt read from immutable Git objects; declared scope only",
+      "G_integration_acceptance": "pending",
+      "finding_closure": false,
+      "integration_role": "root already imported both test commits; do not duplicate test-only branch",
+      "receipt_only_correction": "Exact cb608..53f6 source diff:53f6 adds only8 EvalSafety assertions. Earlier uncommitted RED draft differs from cb608/e7 GREEN test; no runtime rerun."
+    }
+  ],
+  "baseline": {
+    "complete_owner_map": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv and finding-owners.tsv@c40d4acae1ce58b597267255026d9356565828fd",
+    "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/*@c40d4acae1ce58b597267255026d9356565828fd",
+    "recompute": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/baseline-census.py --source-ref c40d4acae1ce58b597267255026d9356565828fd",
+    "source_reports": "all 15 received text reports hash verified; raw VM archives absent",
+    "query_coverage": "initial --unit A --failures-only --limit 30; B09/B31 separately; all 71 unique A file-by-cut cells separately; full TSV/JSONL denominator reconciled; exact query/capture runner in local ignored scratch",
+    "findings": 34
+  },
+  "G_dependency": {
+    "initial_base": "c40d4acae1ce58b597267255026d9356565828fd",
+    "latest_remote_head_inspected": "d5ced7616041d0fc3c802c1394a1d28c4839d5b4",
+    "incorporated": false,
+    "reason": "complete c40 delta changes common async TypeVar/tests and B/D/G receipts; no N5 typed producer contract or B09/B31 appointed-owner semantic decision; no dependency justifies changing this bounded source candidate"
+  },
+  "code_acceptance": {
+    "A_local_reviews": "bounded GO; no actual G acceptance asserted",
+    "G": "pending exact source/receipt/ancestry review",
+    "root_global_architecture": "FAIL; exact base replay matched output, nonzero changed-source intersection; inherited exemption blocked, attribution not_established",
+    "root_formatter": "FAIL on whole existing module; no inherited exclusion, unrelated mass reformat not applied",
+    "broad_backend_ci_parity": "UNRUN pending G integration freeze"
+  },
+  "finding_closure": {
+    "global_status_changes": [],
+    "existing_source_states": "31 partial; B09 open; B25 closed within existing required-moment bound; B31 held",
+    "B09_next_owner": "appointed measurement/model owner supplies versioned observation-to-WMR/content equivalence rule and actual admitted basis; then paired same-candidate N5 with substantive and UUID/time-only controls",
+    "B31_next_owner": "appointed Public-IR semantic owner ratifies identification-only bounds separately from statistical/model uncertainty",
+    "baseline_PASS_closes_changed_candidate": false
+  },
+  "evidence_transport": {
+    "deciding_moderate_logs": "committed beside each slice receipt; root N5 binding logs committed",
+    "oversized_raw": "local ignored path@sha in P41 receipt; remote deciding bytes not_established until exact frozen-tree rerun",
+    "production_inputs": "local read-only; not uploaded, used only where actual criterion requires them",
+    "root_transport": "Git topic branch; implementation checkpoint pinned above. Receiver fetches remote receipt head and verifies its ancestry to that checkpoint; this file never self-references its own future receipt commit."
+  },
+  "publication": "topic branches only; no main push, no rewritten history, no PR created"
+}

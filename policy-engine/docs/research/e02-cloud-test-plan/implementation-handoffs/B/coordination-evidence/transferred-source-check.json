@@ -1,0 +1,140 @@
+{
+  "scope": "All15 transferred UTF8 receipts; source context only, no new candidate verdict",
+  "sources": [
+    {
+      "job": "F01",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "actual_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "expected_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "bytes": 71251,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F02",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt",
+      "actual_sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+      "expected_sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447",
+      "bytes": 61014,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F03",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "actual_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "expected_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "bytes": 75761,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F04",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+      "actual_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "expected_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "bytes": 79431,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F05",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+      "actual_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "expected_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "bytes": 97032,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F06",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "actual_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "expected_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "bytes": 99912,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "actual_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "expected_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "bytes": 74977,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+      "actual_sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+      "expected_sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+      "bytes": 95586,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F09",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+      "actual_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "expected_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "bytes": 75983,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F10",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "actual_sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+      "expected_sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+      "bytes": 71852,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F11",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+      "actual_sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+      "expected_sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+      "bytes": 62579,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F12",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt",
+      "actual_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "expected_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "bytes": 110036,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F13",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "actual_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "expected_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "bytes": 87536,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F14",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+      "actual_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "expected_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "bytes": 122592,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    },
+    {
+      "job": "F15",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "actual_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "expected_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "bytes": 85661,
+      "ok": true,
+      "raw_archive_transfer": "missing"
+    }
+  ]
+}

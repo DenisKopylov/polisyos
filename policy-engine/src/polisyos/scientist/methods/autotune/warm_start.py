@@ -13,7 +13,7 @@ from .models import BenchmarkEvaluation, BenchmarkSplit
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core import artifacts
     from polisyos.scientist.methods.search.strategies.transfer import (
         RunFingerprint,
         TransferLearningManager,
@@ -67,7 +67,7 @@ class WarmStartBridge:
         loop_id: str,
         suite_id: str = "warm_start",
         primary_metric: str = "score",
-        store: ArtifactStore | None = None,
+        store: artifacts.ArtifactStore | None = None,
     ) -> list[BenchmarkEvaluation]:
         """Return resolved original selection benchmarks as limited historical views.
 

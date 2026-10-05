@@ -123,6 +123,44 @@ def _fsync_dir(path: Path) -> None:
         os.close(fd)
 
 
+def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
+    """Admit complete persisted accounting rather than constructor defaults.
+
+    Contract/provenance fields retain their existing legacy upgrade defaults.
+    Accounting maps and the original snapshot identity must be supplied on disk;
+    their absence is corruption, even when Pydantic could construct a new ledger.
+    """
+    payload = json.loads(raw)
+    if not isinstance(payload, dict) or any(
+        field not in payload for field in ("schema_version", "revision", "updated_at", "state")
+    ):
+        raise ValueError("existing budget ledger is missing snapshot fields")
+    state_payload = payload["state"]
+    if not isinstance(state_payload, dict) or any(
+        field not in state_payload for field in BudgetState.model_fields
+    ):
+        raise ValueError("existing budget ledger is missing accounting maps")
+    snapshot = BudgetLedgerSnapshot.model_validate_json(raw, strict=True)
+    _validate_accounting_amounts(snapshot)
+    return snapshot
+
+
+def _validate_accounting_amounts(value: object) -> None:
+    """Validate monetary scalars throughout the typed snapshot and its journal."""
+    if isinstance(value, Decimal):
+        if not value.is_finite() or value < 0:
+            raise ValueError("budget ledger amounts must be finite and nonnegative")
+    elif isinstance(value, BaseModel):
+        for field in type(value).model_fields:
+            _validate_accounting_amounts(getattr(value, field))
+    elif isinstance(value, dict):
+        for item in value.values():
+            _validate_accounting_amounts(item)
+    elif isinstance(value, list):
+        for item in value:
+            _validate_accounting_amounts(item)
+
+
 class FileBudgetLedger:
     """Atomic JSON budget ledger shared across threads/processes."""
 
@@ -168,12 +206,12 @@ class FileBudgetLedger:
         with self._thread_lock:
             with self._file_lock(exclusive=True):
                 existed = self._path.exists()
-                fd = os.open(str(self._path), os.O_RDWR | os.O_CREAT, 0o644)
+                fd = os.open(str(self._path), os.O_RDWR) if existed else None
                 try:
-                    snapshot = self._read_snapshot_from_fd(fd) if existed else None
+                    snapshot = self._read_snapshot_from_fd(fd) if fd is not None else None
                     if snapshot is None:
                         snapshot = self._persist_snapshot(
-                            fd,
+                            fd if fd is not None else -1,
                             self._build_snapshot(
                                 state=initial_state,
                                 recent_mutations=(
@@ -188,10 +226,13 @@ class FileBudgetLedger:
                         needs_upgrade = self._needs_contract_upgrade(snapshot)
                         snapshot = self._normalize_snapshot(snapshot)
                         if needs_upgrade:
-                            snapshot = self._persist_snapshot(fd, snapshot)
+                            snapshot = self._persist_snapshot(
+                                fd if fd is not None else -1, snapshot
+                            )
                     return snapshot.state
                 finally:
-                    os.close(fd)
+                    if fd is not None:
+                        os.close(fd)
 
     def record_spend(
         self,
@@ -295,10 +336,12 @@ class FileBudgetLedger:
         with self._thread_lock:
             with self._file_lock(exclusive=True):
                 existed = self._path.exists()
-                fd = os.open(str(self._path), os.O_RDWR | os.O_CREAT, 0o644)
+                fd = os.open(str(self._path), os.O_RDWR) if existed else None
                 try:
                     snapshot = self._normalize_snapshot(
-                        self._read_snapshot_from_fd(fd) if existed else BudgetLedgerSnapshot()
+                        self._read_snapshot_from_fd(fd)
+                        if fd is not None
+                        else BudgetLedgerSnapshot()
                     )
                     state = _branch_budget_state(snapshot.state)
                     result = operation(state)
@@ -316,7 +359,7 @@ class FileBudgetLedger:
                         )
                     )
                     written = self._persist_snapshot(
-                        fd,
+                        fd if fd is not None else -1,
                         self._build_snapshot(
                             revision=revision,
                             state=state,
@@ -330,14 +373,16 @@ class FileBudgetLedger:
                         reserved=result.reserved,
                     )
                 finally:
-                    os.close(fd)
+                    if fd is not None:
+                        os.close(fd)
 
     def _read_snapshot_from_fd(self, fd: int) -> BudgetLedgerSnapshot | None:
         os.lseek(fd, 0, os.SEEK_SET)
-        raw = os.read(fd, 1_000_000).decode("utf-8").strip()
+        with os.fdopen(os.dup(fd), "r", encoding="utf-8") as source:
+            raw = source.read().strip()
         if not raw:
             raise ValueError("existing budget ledger is empty")
-        return BudgetLedgerSnapshot.model_validate(json.loads(raw))
+        return _decode_snapshot(raw)
 
     def _load_snapshot(self) -> BudgetLedgerSnapshot | None:
         if not self._path.exists():
@@ -345,13 +390,14 @@ class FileBudgetLedger:
         raw = self._path.read_text(encoding="utf-8").strip()
         if not raw:
             raise ValueError("existing budget ledger is empty")
-        return BudgetLedgerSnapshot.model_validate(json.loads(raw))
+        return _decode_snapshot(raw)
 
     def _persist_snapshot(self, fd: int, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
         normalized = self._normalize_snapshot(snapshot)
         payload = normalized.model_dump_json(by_alias=True, exclude_none=True, indent=2).encode(
             "utf-8"
         )
+        _decode_snapshot(payload.decode("utf-8"))
         temp_fd, temp_name = tempfile.mkstemp(
             prefix=f".{self._path.name}.tmp-",
             dir=self._path.parent,

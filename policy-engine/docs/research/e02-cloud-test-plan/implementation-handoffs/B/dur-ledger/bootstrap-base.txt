@@ -1,0 +1,7 @@
+{
+  "base": "c40d4acae1ce58b597267255026d9356565828fd",
+  "source_blob": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+  "target_exists_after_first_fsync_fault": true,
+  "target_bytes_after_first_fsync_fault": "",
+  "bootstrap_retry": "ValueError: existing budget ledger is empty"
+}

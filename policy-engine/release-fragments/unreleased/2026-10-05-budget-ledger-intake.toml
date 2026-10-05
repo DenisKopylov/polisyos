@@ -1,0 +1,15 @@
+id = "2026-10-05-budget-ledger-intake"
+title = "Reject incomplete persisted budget accounting"
+type = "fixed"
+component = "scientist-workflow-runtime"
+owner = "team-policyos-runtime"
+summary = "FileBudgetLedger refuses incomplete persisted accounting instead of granting constructor-default unlimited budgets. Interrupted first publication leaves an absent or complete snapshot, so bootstrap can safely retry."
+evidence = [
+  "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+  "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+]
+compatibility = "Complete snapshots retain their serialized schema and legacy contract/provenance upgrade. Supplied snapshots must contain schema_version, revision, updated_at, state and all current accounting maps; malformed identity, negative amounts or missing maps require operator recovery from trustworthy accounting evidence. Explicit complete budgets with empty limits remain supported."
+change_class = "persisted-artifact-validation"
+surface_classification = "public_stable: existing FileBudgetLedger methods; signatures and exports unchanged"
+migration = "Recover incomplete or invalid existing ledgers from a valid snapshot or reconciled spend/limit evidence. Do not delete an existing ledger or replace it with a fresh budget to bypass refusal."
+limitations = "Linux process-interruption tests establish bounded old/new readback, not physical power-loss durability, multi-host filesystem locking, detection of valid but forged accounting, or operation-idempotent spend retries after an ambiguous acknowledgement."

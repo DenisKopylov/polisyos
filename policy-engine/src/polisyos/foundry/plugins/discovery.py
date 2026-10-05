@@ -52,8 +52,8 @@ def discover_plugins(
     sources = [
         _DomainPluginSource("builtin", _discover_builtin_plugins),
         _DomainPluginSource(
-            "installed",
-            lambda: _discover_installed_plugins(package_prefix),
+            "entry_points",
+            _discover_entry_point_plugins,
         ),
     ]
     sources.extend(
@@ -62,6 +62,12 @@ def discover_plugins(
             lambda path=Path(path): _discover_directory_plugins(path),
         )
         for path in search_paths or ()
+    )
+    sources.append(
+        _DomainPluginSource(
+            "distribution_prefix",
+            lambda: _discover_distribution_plugins(package_prefix),
+        )
     )
     collector = core_discovery.BaseDiscovery[DomainPlugin, core_discovery.DiscoveryError](
         sources=sources,
@@ -120,7 +126,8 @@ def _discover_builtin_plugins() -> list[DomainPlugin]:
     return plugins
 
 
-def _discover_installed_plugins(prefix: str) -> list[DomainPlugin]:
+def _discover_entry_point_plugins() -> list[DomainPlugin]:
+    """Load plugins declared through the preserved legacy entry-point group."""
     plugins: list[DomainPlugin] = []
 
     try:
@@ -142,6 +149,12 @@ def _discover_installed_plugins(prefix: str) -> list[DomainPlugin]:
             logger.warning("Failed to load plugin entry point '%s'", ep.name, exc_info=True)
             continue
 
+    return plugins
+
+
+def _discover_distribution_plugins(prefix: str) -> list[DomainPlugin]:
+    """Load plugins discovered by the legacy distribution-name prefix heuristic."""
+    plugins: list[DomainPlugin] = []
     distributions = []
     try:
         distributions = sorted(

@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import io
+import json
 import math
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
+from datetime import datetime
+from importlib.metadata import version
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 
 # Imported lazily through _deps to keep module importable without optional stack.
 from polisyos.scientist.methods.search.strategies._deps import (
@@ -32,6 +36,7 @@ from polisyos.scientist.methods.search.strategies.runtime import apply_torch_run
 from polisyos.scientist.methods.search.strategies.types import (
     AcquisitionType,
     Evaluation,
+    EvaluationStatus,
     PolicyCandidate,
     StrategyState,
 )
@@ -262,18 +267,31 @@ class BayesianOptimizer(BaseSearchStrategy):
                 ]
 
     def get_state(self) -> StrategyState:
+        """Persist the numerical model and the corpus/refit basis of its next ask."""
+        base_state = super().get_state()
         model_state: bytes | None = None
         if self._model is not None and self._botorch_ready:
             buffer = io.BytesIO()
             self._torch.save(self._model.state_dict(), buffer)
             model_state = buffer.getvalue()
 
-        metadata: dict[str, Any] = {"config": asdict(self._config)}
-        if self._train_X is not None and self._train_y_bo is not None:
-            metadata["train_X"] = self._train_X.tolist()
-            metadata["train_y_bo"] = self._train_y_bo.tolist()
+        metadata: dict[str, Any] = {
+            **base_state.metadata,
+            "gp_checkpoint_version": 1,
+            "config": asdict(self._config),
+            "last_refit_iteration": self._last_refit_iteration,
+            "last_train_size": self._last_train_size,
+            "warm_evaluations": [self._warm_checkpoint_record(e) for e in self._warm_evals],
+            "warm_context_fingerprint": self._warm_context_fingerprint,
+        }
+        if model_state is not None:
+            if self._fitted_train_X is None or self._fitted_train_y_bo is None:
+                raise ValueError("GP checkpoint is incompatible: fitted corpus is missing")
+            metadata["train_X"] = self._fitted_train_X.tolist()
+            metadata["train_y_bo"] = self._fitted_train_y_bo.tolist()
+            metadata["backend"] = self._backend_identity()
 
-        rng_state = super().get_state().rng_state
+        rng_state = base_state.rng_state
         if self._torch_rng is not None:
             rng_state = {
                 **rng_state,
@@ -288,34 +306,152 @@ class BayesianOptimizer(BaseSearchStrategy):
         )
 
     def set_state(self, state: StrategyState) -> None:
-        super().set_state(state)
-        if not self._botorch_ready:
-            return
-        torch_rng_state = state.rng_state.get("torch")
-        if self._torch_rng is not None and torch_rng_state is not None:
-            self._torch_rng.set_state(self._torch.tensor(torch_rng_state, dtype=self._torch.uint8))
+        """Restore an admitted continuation without refitting or losing warm data."""
+        metadata = state.metadata
+        if not isinstance(state.rng_state, Mapping):
+            raise ValueError("GP checkpoint RNG state must be an object")
+        if not isinstance(metadata, Mapping) or metadata.get("gp_checkpoint_version") != 1:
+            raise ValueError("GP checkpoint is incompatible: replay basis is missing")
+        config = metadata.get("config")
+        if not isinstance(config, Mapping) or set(config) != set(asdict(self._config)):
+            raise ValueError("GP checkpoint is incompatible: configuration is missing")
+        if any(
+            config[key] != value for key, value in asdict(self._config).items() if key != "seed"
+        ):
+            raise ValueError("GP checkpoint is incompatible: configuration changed")
+        if config.get("seed") != metadata.get("seed"):
+            raise ValueError("GP checkpoint is incompatible: seed basis changed")
+        last_refit = metadata.get("last_refit_iteration")
+        last_size = metadata.get("last_train_size")
+        if (
+            isinstance(last_refit, bool)
+            or not isinstance(last_refit, int)
+            or last_refit < -1
+            or isinstance(last_size, bool)
+            or not isinstance(last_size, int)
+            or last_size < 0
+        ):
+            raise ValueError("GP checkpoint is incompatible: refit counters are invalid")
+        warm_payloads = metadata.get("warm_evaluations")
+        if not isinstance(warm_payloads, list):
+            raise ValueError("GP checkpoint is incompatible: warm corpus is missing")
+        warm_evals = [self._warm_from_checkpoint(payload) for payload in warm_payloads]
+        warm_context = metadata.get("warm_context_fingerprint")
+        if warm_context is not None and (not isinstance(warm_context, str) or not warm_context):
+            raise ValueError("GP checkpoint is incompatible: warm context is invalid")
+        if any(self._warm_compatibility(e)[-1] != warm_context for e in warm_evals):
+            raise ValueError("GP checkpoint is incompatible: warm context changed")
 
-        train_X_list = state.metadata.get("train_X")
-        train_y_list = state.metadata.get("train_y_bo")
-        if train_X_list is None or train_y_list is None:
-            return
-        self._train_X = self._torch.tensor(train_X_list, dtype=self._torch.float64)
-        self._train_y_bo = self._torch.tensor(train_y_list, dtype=self._torch.float64)
-        if self._device != "cpu":
-            self._train_X = self._train_X.to(self._device)
-            self._train_y_bo = self._train_y_bo.to(self._device)
-        self._fitted_train_X = self._train_X.clone()
-        self._fitted_train_y_bo = self._train_y_bo.clone()
-        if state.model_state is None:
-            return
-        self._model = SingleTaskGP(
-            train_X=self._train_X,
-            train_Y=self._train_y_bo,
-            input_transform=Normalize(d=self._train_X.shape[-1]),
-            outcome_transform=Standardize(m=1),
-        )
-        buffer = io.BytesIO(state.model_state)
-        self._model.load_state_dict(self._torch.load(buffer))
+        torch_rng = None
+        torch_rng_state = state.rng_state.get("torch")
+        if self._torch_rng is not None:
+            if not isinstance(torch_rng_state, list) or any(
+                type(value) is not int or not 0 <= value <= 255 for value in torch_rng_state
+            ):
+                raise ValueError("GP checkpoint is incompatible: torch RNG state is invalid")
+            torch_rng = self._torch.Generator()
+            torch_rng.set_state(self._torch.tensor(torch_rng_state, dtype=self._torch.uint8))
+
+        train_X = train_y = model = None
+        if state.model_state is not None:
+            if not self._botorch_ready or metadata.get("backend") != self._backend_identity():
+                raise ValueError("GP checkpoint is incompatible: numerical backend changed")
+            try:
+                train_X = self._torch.tensor(
+                    metadata.get("train_X"), dtype=self._torch.float64, device=self._device
+                )
+                train_y = self._torch.tensor(
+                    metadata.get("train_y_bo"), dtype=self._torch.float64, device=self._device
+                )
+            except (TypeError, ValueError, RuntimeError) as exc:
+                raise ValueError("GP checkpoint is incompatible: fitted corpus is invalid") from exc
+            if (
+                train_X.ndim != 2
+                or train_X.shape[1] != self._space.dim
+                or train_X.shape[0] < 1
+                or train_y.shape != (train_X.shape[0], 1)
+                or not self._torch.isfinite(train_X).all()
+                or not self._torch.isfinite(train_y).all()
+                or not ((train_X >= 0) & (train_X <= 1)).all()
+                or not 0 < last_size <= train_X.shape[0]
+                or last_refit < 0
+            ):
+                raise ValueError("GP checkpoint is incompatible: fitted corpus shape/basis changed")
+            model = SingleTaskGP(
+                train_X=train_X,
+                train_Y=train_y,
+                input_transform=Normalize(d=train_X.shape[-1]),
+                outcome_transform=Standardize(m=1),
+            )
+            buffer = io.BytesIO(state.model_state)
+            model.load_state_dict(
+                self._torch.load(buffer, weights_only=True, map_location=self._device)
+            )
+        elif (
+            last_size != 0 or last_refit != -1 or "train_X" in metadata or "train_y_bo" in metadata
+        ):
+            raise ValueError("GP checkpoint is incompatible: model/corpus mismatch")
+
+        # Validate all numerical/corpus fields before the canonical owner
+        # changes its RNG and Sobol stream. The rebuilt model is still local.
+        super().set_state(state)
+        self._model = model
+        self._train_X, self._train_y_bo = train_X, train_y
+        self._fitted_train_X = train_X.clone() if train_X is not None else None
+        self._fitted_train_y_bo = train_y.clone() if train_y is not None else None
+        self._last_refit_iteration, self._last_train_size = last_refit, last_size
+        self._warm_evals = warm_evals
+        self._warm_evaluation_ids = {id(e) for e in warm_evals}
+        self._warm_context_fingerprint = warm_context
+        self._config.seed = config["seed"]
+        if torch_rng is not None:
+            self._torch_rng = torch_rng
+
+    @staticmethod
+    def _backend_identity() -> dict[str, str]:
+        return {name: version(name) for name in ("torch", "botorch", "gpytorch")}
+
+    @staticmethod
+    def _warm_checkpoint_record(evaluation: Evaluation) -> dict[str, Any]:
+        record = asdict(evaluation)
+        record["timestamp"] = evaluation.timestamp.isoformat()
+        record["status"] = evaluation.status.value
+        for objective in record["objectives"]:
+            objective["direction"] = objective["direction"].value
+        # Refuse lossy coercion of provenance, replica IDs, or scientific data.
+        json.dumps(record, allow_nan=False)
+        return record
+
+    def _warm_from_checkpoint(self, payload: Any) -> Evaluation:
+        try:
+            if not isinstance(payload, Mapping):
+                raise ValueError("warm evaluation must be an object")
+            record = dict(payload)
+            record["timestamp"] = datetime.fromisoformat(record["timestamp"])
+            record["status"] = EvaluationStatus(record["status"])
+            record["params_normalized"] = tuple(record["params_normalized"])
+            record["objectives"] = [
+                ObjectiveValue(
+                    **{**objective, "direction": OptimizationDirection(objective["direction"])}
+                )
+                for objective in record["objectives"]
+            ]
+            evaluation = Evaluation(**record)
+            if (
+                not isinstance(evaluation.candidate_id, str)
+                or not evaluation.candidate_id
+                or not isinstance(evaluation.params, dict)
+                or not isinstance(evaluation.metadata, dict)
+                or not evaluation.is_valid
+                or not math.isfinite(evaluation.scalar_score)
+                or self._origin_ref(evaluation) is None
+                or not self._has_compatible_params(evaluation)
+                or self._warm_compatibility(evaluation) is None
+            ):
+                raise ValueError("warm evaluation binding changed")
+            return evaluation
+        except (KeyError, TypeError, ValueError, OverflowError) as exc:
+            raise ValueError("GP checkpoint is incompatible: warm evaluation is invalid") from exc
 
     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
         filtered = self._effective_training_corpus(evaluations)
@@ -329,9 +465,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         sampled = older[::step][: self._config.max_train_size - recent_n]
         return sampled + recent
 
-    def _effective_training_corpus(
-        self, evaluations: list[Evaluation]
-    ) -> list[Evaluation]:
+    def _effective_training_corpus(self, evaluations: list[Evaluation]) -> list[Evaluation]:
         """Combine compatible warm/current records without double-counting artifacts."""
         corpus: list[Evaluation] = []
         seen: set[tuple[Any, ...]] = set()
@@ -456,9 +590,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             or not self._model_train_x_matches_fitted(previous_X)
             or not self._is_append_update(X, y_bo)
         ):
-            logger.info(
-                "Bayesian GP corpus changed outside append-only update; refitting model"
-            )
+            logger.info("Bayesian GP corpus changed outside append-only update; refitting model")
             self._fit_full_gp(X, y_bo)
             return
 
@@ -482,9 +614,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             self._fitted_train_X = X.detach().clone()
             self._fitted_train_y_bo = y_bo.detach().clone()
         except Exception as exc:
-            logger.warning(
-                "Bayesian GP conditioning unavailable; using bounded refit: {}", exc
-            )
+            logger.warning("Bayesian GP conditioning unavailable; using bounded refit: {}", exc)
             self._fit_full_gp(X, y_bo)
 
     def _fit_full_gp(self, X, y_bo) -> None:

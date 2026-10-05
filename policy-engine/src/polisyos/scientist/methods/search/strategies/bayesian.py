@@ -424,10 +424,6 @@ class BayesianOptimizer(BaseSearchStrategy):
                 or not 0 < last_size <= train_X.shape[0]
                 or train_X.shape[0] > last_size * 1.2
                 or last_refit < 0
-                or (
-                    self._config.refit_interval > 0
-                    and state.iteration - last_refit >= self._config.refit_interval
-                )
                 or refit_X.shape != (last_size, self._space.dim)
                 or refit_y.shape != (last_size, 1)
                 or not self._torch.isfinite(refit_X).all()

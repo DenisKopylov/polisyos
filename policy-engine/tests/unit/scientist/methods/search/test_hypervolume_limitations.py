@@ -7,6 +7,7 @@ import json
 
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.search.contracts import ParetoBasisScope
 from polisyos.scientist.methods.search.pareto_registry import (
     ParetoRegistry,
@@ -18,6 +19,12 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveDirection,
     ObjectiveKind,
     PolicyEvaluationVector,
+)
+from polisyos.scientist.policy_design.output import (
+    PolicyFrontierEntry,
+    PolicyFrontierReport,
+    load_policy_frontier_report,
+    persist_policy_frontier_report,
 )
 
 
@@ -63,6 +70,27 @@ def test_registry_persists_unavailable_volume_without_losing_frontier(tmp_path) 
     payload = restored.model_dump(mode="json")
     encoded = json.dumps(payload, allow_nan=False)
     assert ParetoRegistrySnapshot.model_validate_json(encoded) == restored
+
+    # This exact finite fixture provides the full source denominator. Exercise
+    # the real CAS artifact publisher and retained report reader; this does not
+    # establish a production run/tenant provider for other searches.
+    report = PolicyFrontierReport(
+        loop_id="overflow",
+        source_feasible_candidate_hashes=(worst_hash, best_hash),
+        global_frontier=[PolicyFrontierEntry(candidate_hash=best_hash)],
+        view_membership={"global_feasible": [best_hash]},
+        view_projections={"global_feasible": projection},
+        metadata={"hypervolume_by_view": dict(restored.hypervolume_by_view)},
+    )
+    store_root = tmp_path / "cas"
+    report_ref = persist_policy_frontier_report(FileSystemCAS(store_root), report)
+    retained = load_policy_frontier_report(FileSystemCAS(store_root), report_ref)
+    assert [entry.candidate_hash for entry in retained.global_frontier] == [best_hash]
+    assert retained.metadata["hypervolume_by_view"]["global_feasible"] is None
+    retained_assessment = retained.view_projections[
+        "global_feasible"
+    ].assessment.hypervolume_assessment
+    assert retained_assessment == assessment
 
     # A fake measured zero or loss of the diagnostic cannot admit the same artifact.
     for mutation in ("fake_zero", "missing_diagnostic"):

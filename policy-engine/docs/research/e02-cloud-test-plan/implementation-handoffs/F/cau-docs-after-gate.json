@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "validation",
+    "check-docs-gate",
+    "--repo-root",
+    ".",
+    "--base-ref",
+    "c40d4acae1ce58b597267255026d9356565828fd"
+  ],
+  "cwd": "/workspace/e02-F-cau/policy-engine",
+  "source_sha": "d27227d03a7c78b90c442e6f258c45987104f8a1",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "exit_code": 1,
+  "wall_seconds": 4.184416055679321,
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/polisyos/policy-engine/.venv",
+    "UV_NO_SYNC": "1",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "output": {
+    "path": "/workspace/e02-F-receipts/cau-docs-after-gate.txt",
+    "bytes": 1033,
+    "sha256": "3b486d999d00b9c7c666ed721f0fdcb4cbb0a53c015eaa9454b6e601cdc0237b"
+  }
+}

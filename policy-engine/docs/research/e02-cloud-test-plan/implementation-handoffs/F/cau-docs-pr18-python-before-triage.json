@@ -1,0 +1,219 @@
+{
+  "schema": "policyos.e02.ci_triage.v1",
+  "scope": "Historical actual PR18 Python quality/unit job on6a topic /2a8 merge, before documentation delta; not candidate documentation-head CI",
+  "record": {
+    "pr": 18,
+    "url": "https://github.com/DenisKopylov/polisyos/pull/18",
+    "topic_head_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "current_pr_head_matches_run_topic_head": "true at original read-only triage before doc publication; not a claim about later d272/current remote head",
+    "actual_checkout_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+    "merge_base_sha_from_log": "c40d4acae1ce58b597267255026d9356565828fd",
+    "job_id": 111802572014,
+    "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572014",
+    "run_id": 37321831696,
+    "failing_step": {
+      "number": 4,
+      "name": "Enforce import policy",
+      "command": "uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml",
+      "exit": 1
+    },
+    "unit_step": {
+      "number": 17,
+      "name": "Run fast unit suite",
+      "state": "SKIPPED",
+      "selector": "none executed"
+    },
+    "environment": {
+      "python": "3.14.7",
+      "uv": "0.9.21",
+      "profile": "minimal",
+      "ubuntu": "24.04"
+    },
+    "complete_log": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-full.txt",
+      "bytes": 45822,
+      "sha256": "18c9bb90ad2939ee609081987c67304db0eabaded32f21a1e332dd49ff0cee44",
+      "original_scratch": "/workspace/e02-F-receipts/cau-ci-pr18-python-complete.log",
+      "encoding": "JSON object containing lossless complete_console_output",
+      "raw_stdout_bytes": 44821,
+      "raw_stdout_sha256": "c95f6c1dcb5159326e85b8084faa5e682b76ee82d30eb739ed191d61d2ba0843"
+    },
+    "whole_scan_denominator": {
+      "definition": "ALL source-root recursive *.py excluding __pycache__; no changed-only flag. Plus policy/exceptions/package-boundary/tool config authority inputs; runtime helpers and Python/uv/bootstrap are execution inputs.",
+      "scanned_source_py_count": 2697,
+      "source_path_list_derivation": "git ls-tree -r --name-only 6a6ddfe9542000914bffd6502d72a166c1d33261 policy-engine/src; filter *.py and exclude __pycache__",
+      "authority_controls": [
+        "policy-engine/architecture/imports/policy.toml",
+        "policy-engine/architecture/packages/boundaries.toml",
+        "policy-engine/architecture/imports/exceptions.toml",
+        "policy-engine/tools/quality/lint/lint_imports.py"
+      ],
+      "source_definition_links": [
+        "https://github.com/DenisKopylov/polisyos/blob/6a6ddfe9542000914bffd6502d72a166c1d33261/policy-engine/tools/quality/lint/lint_imports.py#L252",
+        "https://github.com/DenisKopylov/polisyos/blob/6a6ddfe9542000914bffd6502d72a166c1d33261/policy-engine/tools/quality/lint/lint_imports.py#L1280",
+        "https://github.com/DenisKopylov/polisyos/blob/6a6ddfe9542000914bffd6502d72a166c1d33261/.github/workflows/abi.yml#L134"
+      ]
+    },
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "policy-engine/tests/unit/remediation/test_cau_02.py"
+    ],
+    "changed_complete_source_config_denominator_intersection": [
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py"
+    ],
+    "changed_actual_violation_paths_intersection": [],
+    "changed_source_import_AST": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "import_AST_matches_slice_base": true
+      }
+    ],
+    "direct_offending_rows": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/literature_prior.py",
+        "line": 27,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: foundry -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/migrations/base.py",
+        "line": 10,
+        "rule": "ARCH006",
+        "message": "forbidden internal subpackage import: polisyos.ir.migrations.base -> polisyos.common.migrations._engine. Cross-root imports must go through public facades."
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+        "line": 18,
+        "rule": "ARCH006",
+        "message": "forbidden internal subpackage import: polisyos.runtime.quality.chronology_proof -> polisyos.core.artifacts._manifest_lifecycle. Cross-root imports must go through public facades."
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+        "line": 18,
+        "rule": "ARCH006",
+        "message": "forbidden internal subpackage import: polisyos.runtime.quality.generation_source -> polisyos.core.artifacts._manifest_lifecycle. Cross-root imports must go through public facades."
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+        "line": 33,
+        "rule": "ARCH001",
+        "message": "forbidden internal import: runtime -> policy_grammar via polisyos.policy_grammar (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+        "line": 1015,
+        "rule": "ARCH001",
+        "message": "forbidden internal import: runtime -> obligation_graph via polisyos.obligation_graph (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+        "line": 1016,
+        "rule": "ARCH001",
+        "message": "forbidden internal import: runtime -> obligation_rules via polisyos.obligation_rules (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+        "line": 1021,
+        "rule": "ARCH001",
+        "message": "forbidden internal import: runtime -> policy_grammar via polisyos.policy_grammar (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/feasibility.py",
+        "line": 232,
+        "rule": "ARCH006",
+        "message": "forbidden internal subpackage import: polisyos.scientist.agent.feasibility -> polisyos.foundry.execute._internal.snapshots. Cross-root imports must go through public facades."
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+        "line": 86,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/prior_miner.py",
+        "line": 28,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+        "line": 41,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+        "line": 38,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+        "line": 89,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+        "line": 63,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
+        "line": 65,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+        "line": 90,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+        "line": 11,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "line": 92,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "line": 544,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+        "line": 15,
+        "rule": "ARCH007",
+        "message": "forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)"
+      }
+    ],
+    "P41_verdict": "not_established: exact slice-base command replay before changes absent; matching violations and unchanged import AST are narrower evidence, not an inherited whole-gate claim. Nonzero complete denominator intersection additionally prevents disjointness where present.",
+    "current_pr_head_sha_at_original_triage": "6a6ddfe9542000914bffd6502d72a166c1d33261"
+  },
+  "violation_rows_count": 21,
+  "violation_unique_source_paths": 17,
+  "rule_counts": {
+    "ARCH007": 13,
+    "ARCH006": 4,
+    "ARCH001": 4
+  },
+  "classification": "Confirmed import-policy consumer-boundary violations; no estimation/test failure measured. CI FAIL and pytest SKIP retained. Changed causal method imports are unchanged; formal inherited whole-gate status remains not_established.",
+  "remaining": "Actual merge-source tree identity is visible in checkout logs; no exact c40 command replay yet. Full lint tool execution inputs include stdlib, date, imported helper code and bootstrap/deps, so no full execution disjointness claim.",
+  "complete_normalized_violation_sha256": "e308b66edd7ea9e68cbae18d98f7a6666c6560eab0b44a8786cd2af21cb23dd3"
+}

@@ -1,0 +1,31 @@
+{
+  "runtime_identity": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "runtime_target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "documentation_candidate_sha": "d27227d03a7c78b90c442e6f258c45987104f8a1",
+      "byte_identical": true,
+      "bytes": 38213,
+      "sha256": "1f99fbfc5119d3355d4ba705a59212fe6cf05dce75d58d469872ed7365f6ab73"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+      "runtime_target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "documentation_candidate_sha": "d27227d03a7c78b90c442e6f258c45987104f8a1",
+      "byte_identical": true,
+      "bytes": 9937,
+      "sha256": "8caaa8f67aba17787a5d4e815e8ce48c112ab8232bf858c3982a6ace86adb693"
+    }
+  ],
+  "all_changed_paths_between_runtime_and_documentation": [
+    "policy-engine/docs/reference/foundry/causal-statistical-validity.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json"
+  ],
+  "runtime_changed": false
+}

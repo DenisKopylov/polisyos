@@ -1,0 +1,12 @@
+Docs drift gate
+- changed files: 9
+- change window: `docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt`, `docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt`, `docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt`, `docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt`, and 5 more
+[docs-gate] verify docs freshness baseline
+[docs-gate] $ uv run polisyos-tools validation check-docs-freshness-baseline
+Docs freshness baseline FAILED:
+- docs freshness exception baseline expired
+- docs freshness violation count changed: expected 0, observed 10
+- docs freshness baseline hash changed: expected a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2, observed 459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be
+Docs drift gate FAILED:
+- [foundry_docs] Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/catalog/causal/did.py`. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`.
+- [command_failure] verify docs freshness baseline failed with exit code 1: uv run polisyos-tools validation check-docs-freshness-baseline

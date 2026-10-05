@@ -297,6 +297,33 @@ class _InteractionCoverage:
     complete_scopes: frozenset[tuple[str, tuple[str, ...]]]
     issues: tuple[str, ...]
     expected_steps: tuple[int, ...]
+    trajectory_details: tuple[InteractionTrajectoryCoverage, ...]
+
+
+class InteractionTrajectoryCoverage(_StrictModel):
+    """Observed horizon steps for one trajectory in the N5 scope census."""
+
+    run_level: str
+    atom_ids: tuple[str, ...]
+    expected_steps: tuple[int, ...]
+    observed_steps: tuple[int, ...]
+    missing_steps: tuple[int, ...]
+    extra_steps: tuple[int, ...]
+    duplicate_steps: tuple[int, ...]
+    scope_requested: bool
+    selected_outcomes_complete: bool
+
+
+class JointSimulationCoverageProjection(_StrictModel):
+    """Recomputed read projection of receipt-bound N5 interaction coverage."""
+
+    status: Literal["complete", "incomplete", "not_established"]
+    expected_steps: tuple[int, ...]
+    checked_interaction_orders: tuple[int, ...]
+    stored_checked_interaction_orders: tuple[int, ...]
+    issues: tuple[str, ...]
+    reconciliation_issues: tuple[str, ...] = ()
+    trajectories: tuple[InteractionTrajectoryCoverage, ...] = ()
 
 
 def _higher_order_residuals(
@@ -368,24 +395,34 @@ def _checked_interaction_orders(
 ) -> tuple[int, ...]:
     """Return interaction orders fully backed by the executed trajectory set."""
     atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
+    return _checked_interaction_orders_for_atom_ids(atom_ids, coverage)
+
+
+def _checked_interaction_orders_for_atom_ids(
+    atom_ids: Sequence[str],
+    coverage: _InteractionCoverage,
+) -> tuple[int, ...]:
+    """Apply the canonical interaction-order rule to a persisted atom identity set."""
+
+    normalized_atom_ids = tuple(atom_ids)
     complete_scopes = coverage.complete_scopes
     checked: list[int] = []
     complete_individuals = all(
-        ("individual", (atom_id,)) in complete_scopes for atom_id in atom_ids
+        ("individual", (atom_id,)) in complete_scopes for atom_id in normalized_atom_ids
     )
     if complete_individuals:
         checked.append(1)
     complete_pairs = all(
         ("pairwise", tuple(pair)) in complete_scopes
-        for pair in itertools.combinations(atom_ids, 2)
+        for pair in itertools.combinations(normalized_atom_ids, 2)
     )
     if complete_individuals and complete_pairs:
         checked.append(2)
     if (
-        len(atom_ids) == 3
+        len(normalized_atom_ids) == 3
         and complete_individuals
         and complete_pairs
-        and ("joint", atom_ids) in complete_scopes
+        and ("joint", normalized_atom_ids) in complete_scopes
     ):
         checked.append(3)
     return tuple(checked)
@@ -398,21 +435,79 @@ def _interaction_coverage(
     """Index valid requested scopes and report incomplete horizons separately."""
 
     atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
-    expected_steps = request.horizon.steps()
+    return _interaction_coverage_for(
+        atom_ids=atom_ids,
+        expected_steps=request.horizon.steps(),
+        selected_outcomes=request.selected_outcomes,
+        trajectories=trajectories,
+    )
+
+
+def _interaction_coverage_for(
+    *,
+    atom_ids: Sequence[str],
+    expected_steps: Sequence[int],
+    selected_outcomes: Sequence[str],
+    trajectories: Sequence[SimulationTrajectory],
+) -> _InteractionCoverage:
+    """Share live and persisted coverage semantics at the canonical N5 owner."""
+
+    normalized_atom_ids = tuple(atom_ids)
+    normalized_steps = tuple(expected_steps)
     expected = {
-        (level, tuple(atom.intervention_id for atom in subset))
-        for level, subset in _atom_subsets(request.intervention_atoms)
+        ("individual", (atom_id,)) for atom_id in normalized_atom_ids
     }
+    expected.update(
+        ("pairwise", tuple(pair))
+        for pair in itertools.combinations(normalized_atom_ids, 2)
+    )
+    expected.add(("joint", normalized_atom_ids))
     observed: dict[tuple[str, tuple[str, ...]], list[SimulationTrajectory]] = {}
     for trajectory in trajectories:
         key = (trajectory.run_level, tuple(trajectory.atom_ids))
         observed.setdefault(key, []).append(trajectory)
 
     issues: list[str] = []
-    if len(set(atom_ids)) != len(atom_ids):
+    if len(set(normalized_atom_ids)) != len(normalized_atom_ids):
         issues.append("requested_atom_ids_not_unique")
     index: dict[tuple[str, tuple[str, ...]], SimulationTrajectory] = {}
     complete_scopes: set[tuple[str, tuple[str, ...]]] = set()
+    trajectory_details = tuple(
+        InteractionTrajectoryCoverage(
+            run_level=trajectory.run_level,
+            atom_ids=tuple(trajectory.atom_ids),
+            expected_steps=normalized_steps,
+            observed_steps=tuple(point.step for point in trajectory.points),
+            missing_steps=tuple(
+                step
+                for step in normalized_steps
+                if step not in {point.step for point in trajectory.points}
+            ),
+            extra_steps=tuple(
+                sorted(
+                    {point.step for point in trajectory.points}
+                    - set(normalized_steps)
+                )
+            ),
+            duplicate_steps=tuple(
+                sorted(
+                    step
+                    for step in {point.step for point in trajectory.points}
+                    if sum(point.step == step for point in trajectory.points) > 1
+                )
+            ),
+            scope_requested=(trajectory.run_level, tuple(trajectory.atom_ids)) in expected,
+            selected_outcomes_complete=all(
+                outcome in point.outcomes
+                and outcome in point.effect
+                and _finite_number(point.outcomes.get(outcome))
+                and _finite_number(point.effect.get(outcome))
+                for point in trajectory.points
+                for outcome in selected_outcomes
+            ),
+        )
+        for trajectory in trajectories
+    )
     for key in sorted(expected):
         matches = observed.get(key, [])
         if len(matches) != 1:
@@ -427,19 +522,16 @@ def _interaction_coverage(
         if len(point_steps) != len(set(point_steps)):
             issues.append("horizon_incomplete:" + key[0] + ":" + ",".join(key[1]))
             continue
-        horizon_complete = set(point_steps) == set(expected_steps)
+        horizon_complete = set(point_steps) == set(normalized_steps)
         valid_points = True
         for point in trajectory.points:
-            for outcome in request.selected_outcomes:
+            for outcome in selected_outcomes:
                 if outcome not in point.outcomes or outcome not in point.effect:
                     valid_points = False
                     break
-                try:
-                    finite = np.isfinite(float(point.outcomes[outcome])) and np.isfinite(
-                        float(point.effect[outcome])
-                    )
-                except (TypeError, ValueError, OverflowError):
-                    finite = False
+                finite = _finite_number(point.outcomes[outcome]) and _finite_number(
+                    point.effect[outcome]
+                )
                 if not finite:
                     valid_points = False
                     break
@@ -459,8 +551,16 @@ def _interaction_coverage(
         by_scope=index,
         complete_scopes=frozenset(complete_scopes),
         issues=tuple(sorted(issues)),
-        expected_steps=tuple(expected_steps),
+        expected_steps=normalized_steps,
+        trajectory_details=trajectory_details,
     )
+
+
+def _finite_number(value: object) -> bool:
+    try:
+        return bool(np.isfinite(float(value)))
+    except (TypeError, ValueError, OverflowError):
+        return False
 
 
 def _replication_seeds(request: JointSimulationRequest) -> tuple[int, ...]:
@@ -757,6 +857,60 @@ class JointSimulationResult(_StrictModel):
             if trajectory.run_level == run_level and trajectory.atom_ids == normalized:
                 return trajectory
         raise KeyError(f"trajectory_not_found:{run_level}:{','.join(normalized)}")
+
+
+def project_joint_simulation_coverage(
+    result: JointSimulationResult,
+) -> JointSimulationCoverageProjection:
+    """Recompute persisted N5 scope and horizon coverage through its owner."""
+
+    coverage = _interaction_coverage_for(
+        atom_ids=result.atom_ids,
+        expected_steps=result.horizon.steps(),
+        selected_outcomes=result.selected_outcomes,
+        trajectories=result.trajectories,
+    )
+    checked_orders = _checked_interaction_orders_for_atom_ids(result.atom_ids, coverage)
+    reconciliation_issues: list[str] = []
+    stored_orders = tuple(result.feedback_classification.checked_interaction_orders)
+    if stored_orders != checked_orders:
+        reconciliation_issues.append("stored_checked_interaction_orders_mismatch")
+
+    diagnostic_orders = result.diagnostics.get("checked_interaction_orders")
+    if not isinstance(diagnostic_orders, (tuple, list)) or any(
+        not isinstance(order, int) or isinstance(order, bool) for order in diagnostic_orders
+    ):
+        reconciliation_issues.append("diagnostic_checked_interaction_orders_not_established")
+    elif tuple(diagnostic_orders) != checked_orders:
+        reconciliation_issues.append("diagnostic_checked_interaction_orders_mismatch")
+
+    diagnostic_issues = result.diagnostics.get("interaction_evidence_issues")
+    if not isinstance(diagnostic_issues, (tuple, list)) or any(
+        not isinstance(issue, str) for issue in diagnostic_issues
+    ):
+        reconciliation_issues.append("diagnostic_interaction_evidence_issues_not_established")
+    elif tuple(sorted(diagnostic_issues)) != coverage.issues:
+        reconciliation_issues.append("diagnostic_interaction_evidence_issues_mismatch")
+
+    issues = list(coverage.issues)
+    if result.feedback_classification.numeric_interaction == "unsupported":
+        issues.append("numeric_interaction_unsupported")
+    status: Literal["complete", "incomplete", "not_established"]
+    if reconciliation_issues:
+        status = "not_established"
+    elif issues:
+        status = "incomplete"
+    else:
+        status = "complete"
+    return JointSimulationCoverageProjection(
+        status=status,
+        expected_steps=coverage.expected_steps,
+        checked_interaction_orders=checked_orders,
+        stored_checked_interaction_orders=stored_orders,
+        issues=tuple(sorted(set(issues))),
+        reconciliation_issues=tuple(sorted(set(reconciliation_issues))),
+        trajectories=coverage.trajectory_details,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1815,8 +1969,7 @@ class JointSimulationHorizonController:
             raw_trajectory = result.get("trajectory")
             if (
                 raw_trajectory is None
-                or isinstance(raw_trajectory, Mapping)
-                or isinstance(raw_trajectory, str | bytes | bytearray)
+                or isinstance(raw_trajectory, (Mapping, str, bytes, bytearray))
             ):
                 raise JointSimulationControllerError(
                     "method_registry_temporal_output_missing",

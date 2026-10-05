@@ -62,6 +62,9 @@ from polisyos.runtime.http.routes.health import router as health_router
 from polisyos.runtime.http.routes.human_decisions import router as human_decisions_router
 from polisyos.runtime.http.routes.lineage import router as lineage_router
 from polisyos.runtime.http.routes.mobility import router as mobility_router
+from polisyos.runtime.http.routes.n5_interaction_diagnostics import (
+    router as n5_interaction_diagnostics_router,
+)
 from polisyos.runtime.http.routes.public_decisions import router as public_decisions_router
 from polisyos.runtime.http.routes.review import router as review_router
 from polisyos.runtime.http.routes.runs import router as runs_router
@@ -381,6 +384,7 @@ def create_runtime_api_app(
         app.include_router(auth_router)
     if runs_router is not None:
         app.include_router(runs_router)
+        app.include_router(n5_interaction_diagnostics_router)
         app.include_router(public_decisions_router)
         app.include_router(acquisitions_router)
     if human_decisions_router is not None:

@@ -4,12 +4,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003 - Pydantic resolves at runtime
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core.contracts import ControlJobResponse  # noqa: TC001 - Pydantic DTO
+from polisyos.core.contracts.runtime import (
+    N5InteractionDiagnostic,
+    N5InteractionTrajectoryCoverage,
+)
 from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
 from polisyos.runtime.http.resilience import GuardedDependencyProxy
 from polisyos.runtime.http.services.control.nl_pipeline import (
@@ -64,7 +68,10 @@ if TYPE_CHECKING:
         EvalSafetyVerifierPort,
         EvaluationExecutionContext,
     )
-    from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+    from polisyos.runtime.quality.generation_cycle import JointSimulationResult, N4GenerationPort
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationCoverageProjection,
+    )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleBudget,
@@ -693,6 +700,254 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         if self.content_hash != gy_content_hash(payload):
             raise ValueError("compiled_recursive_generation_cycle_hash_mismatch")
         return self
+
+
+class _N5CoverageProjector(Protocol):
+    def __call__(
+        self, result: JointSimulationResult, /
+    ) -> JointSimulationCoverageProjection: ...
+
+
+class _N5ResultLoader(Protocol):
+    def __call__(
+        self,
+        ref: artifacts.ArtifactRef,
+        *,
+        store: artifacts.ArtifactStore,
+        expected_world_model_record_content_hash: str | None = None,
+    ) -> JointSimulationResult: ...
+
+
+def load_compiled_recursive_generation_cycle_run(
+    store: artifacts.ArtifactStore,
+    compiled_ref: artifacts.ArtifactRef,
+    *,
+    tenant_id: str,
+    cell_id: str,
+) -> CompiledRecursiveGenerationCycleRun:
+    """Resolve and validate one tenant/cell-bound compiled generation artifact."""
+
+    ref = artifacts.ArtifactRef.model_validate(compiled_ref)
+    if (
+        ref.kind != "runtime.compiled_recursive_generation_cycle"
+        or ref.media_type != "application/json"
+    ):
+        raise ValueError("compiled_recursive_generation_cycle_ref_contract_mismatch")
+    verification = store.verify(ref)
+    if not verification.ok:
+        raise ValueError("compiled_recursive_generation_cycle_integrity_invalid")
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    owner = manifest.tenant_context
+    if (
+        str(manifest.artifact_id) != str(ref.artifact_id)
+        or manifest.kind != ref.kind
+        or manifest.media_type != ref.media_type
+        or schema is None
+        or schema.name != "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
+        or schema.version != "1.0"
+        or owner is None
+        or owner.tenant_id != tenant_id
+        or owner.cell_id != cell_id
+    ):
+        raise ValueError("compiled_recursive_generation_cycle_manifest_binding_mismatch")
+    payload_bytes = store.get_bytes(ref)
+    if (
+        manifest.integrity.sha256 != ref.artifact_id.hex
+        or manifest.byte_size != len(payload_bytes)
+        or canon.content_hash(payload_bytes) != ref.artifact_id.hex
+    ):
+        raise ValueError("compiled_recursive_generation_cycle_content_binding_mismatch")
+    payload = canon.from_canonical_bytes(payload_bytes)
+    if not isinstance(payload, dict):
+        raise ValueError("compiled_recursive_generation_cycle_payload_invalid")
+    return CompiledRecursiveGenerationCycleRun.model_validate(payload)
+
+
+def project_compiled_n5_interaction_diagnostics(
+    compiled: CompiledRecursiveGenerationCycleRun,
+    *,
+    store: artifacts.ArtifactStore,
+    tenant_id: str,
+    cell_id: str,
+) -> tuple[
+    tuple[N5InteractionDiagnostic, ...],
+    Literal["complete", "incomplete", "not_established"],
+    tuple[str, ...],
+]:
+    """Read every recursive N5 occurrence and project its verified K_sim limits."""
+
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        project_joint_simulation_coverage,
+    )
+
+    diagnostics: list[N5InteractionDiagnostic] = []
+    limitations: list[str] = []
+    for node in compiled.recursive_run.nodes:
+        if node.joint_simulation_ref is not None:
+            diagnostics.append(
+                _project_one_n5_occurrence(
+                    node_ref=node.node_ref,
+                    node_depth=node.depth,
+                    cycle_index=None,
+                    candidate_id=None,
+                    candidate_ref=None,
+                    candidate_hash=None,
+                    n5_ref=node.joint_simulation_ref,
+                    expected_wmr_hash=None,
+                    n8_value_ref=None,
+                    embedded_result=node.joint_simulation,
+                    store=store,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    project_coverage=project_joint_simulation_coverage,
+                    load_result=load_joint_simulation_result,
+                )
+            )
+        if node.cycle_run is None:
+            continue
+        for cycle in node.cycle_run.cycles:
+            n5_ref = cycle.simulation.simulation_result_ref
+            if n5_ref is None:
+                limitations.append(
+                    f"n5_result_ref_missing:node:{node.node_ref}:cycle:{cycle.cycle_index}"
+                )
+                continue
+            diagnostics.append(
+                _project_one_n5_occurrence(
+                    node_ref=node.node_ref,
+                    node_depth=node.depth,
+                    cycle_index=cycle.cycle_index,
+                    candidate_id=cycle.selected_candidate_ref,
+                    candidate_ref=cycle.selected_candidate_ref,
+                    candidate_hash=cycle.selected_candidate_content_hash,
+                    n5_ref=n5_ref,
+                    expected_wmr_hash=cycle.value_port.world_model_record_content_hash,
+                    n8_value_ref=cycle.value_port.value_ref,
+                    embedded_result=None,
+                    store=store,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    project_coverage=project_joint_simulation_coverage,
+                    load_result=load_joint_simulation_result,
+                )
+            )
+    statuses = {row.interaction_evidence_status for row in diagnostics}
+    if not diagnostics:
+        status = "not_established"
+        limitations.append("n5_result_ref_not_established")
+    elif "not_established" in statuses or limitations:
+        status = "not_established"
+    elif "incomplete" in statuses:
+        status = "incomplete"
+    else:
+        status = "complete"
+    return tuple(diagnostics), status, tuple(sorted(set(limitations)))
+
+
+def _project_one_n5_occurrence(
+    *,
+    node_ref: str,
+    node_depth: int,
+    cycle_index: int | None,
+    candidate_id: str | None,
+    candidate_ref: str | None,
+    candidate_hash: str | None,
+    n5_ref: artifacts.ArtifactRef,
+    expected_wmr_hash: str | None,
+    n8_value_ref: str | None,
+    embedded_result: JointSimulationResult | None,
+    store: artifacts.ArtifactStore,
+    tenant_id: str,
+    cell_id: str,
+    project_coverage: _N5CoverageProjector,
+    load_result: _N5ResultLoader,
+) -> N5InteractionDiagnostic:
+    """Resolve one occurrence; never treat a reference alone as evidence."""
+
+    ref_text = str(n5_ref.artifact_id)
+    try:
+        manifest = store.get_manifest(n5_ref)
+        tenant_context = manifest.tenant_context
+        if (
+            tenant_context is None
+            or tenant_context.tenant_id != tenant_id
+            or tenant_context.cell_id != cell_id
+        ):
+            raise ValueError("n5_artifact_owner_scope_not_established")
+        result = load_result(
+            n5_ref,
+            store=store,
+            expected_world_model_record_content_hash=expected_wmr_hash,
+        )
+        coverage = project_coverage(result)
+        reconciliation_issues = list(coverage.reconciliation_issues)
+        if embedded_result is not None:
+            embedded_payload = canon.to_canonical_bytes(
+                embedded_result.model_dump(mode="json", exclude_none=True),
+                canon.CanonSpec(forbid_floats=False),
+            )
+            persisted_payload = store.get_bytes(n5_ref)
+            if embedded_payload != persisted_payload:
+                reconciliation_issues.append("embedded_n5_payload_mismatch")
+        n8_status: Literal[
+            "recorded_match", "mismatch", "not_recorded", "not_applicable"
+        ] = "not_applicable"
+        if cycle_index is not None:
+            n8_status = (
+                "recorded_match"
+                if n8_value_ref == ref_text
+                else "mismatch"
+                if n8_value_ref is not None
+                else "not_recorded"
+            )
+            # N8's same-ref association is a separate owner-recorded fact. Its
+            # absence is disclosed here and must not relabel N5 horizon coverage.
+        status = coverage.status
+        if reconciliation_issues:
+            status = "not_established"
+        return N5InteractionDiagnostic(
+            node_ref=node_ref,
+            node_depth=node_depth,
+            cycle_index=cycle_index,
+            candidate_id=candidate_id,
+            selected_candidate_ref=candidate_ref,
+            candidate_content_hash=candidate_hash,
+            simulation_result_ref=ref_text,
+            payload_hash=ref_text,
+            receipt_payload_hash=result.receipt.payload_hash,
+            numeric_interaction=result.feedback_classification.numeric_interaction,
+            higher_order_residuals=result.higher_order_residuals,
+            expected_steps=coverage.expected_steps,
+            checked_interaction_orders=coverage.checked_interaction_orders,
+            stored_checked_interaction_orders=coverage.stored_checked_interaction_orders,
+            interaction_evidence_status=status,
+            issues=coverage.issues,
+            reconciliation_issues=tuple(sorted(set(reconciliation_issues))),
+            trajectories=tuple(
+                N5InteractionTrajectoryCoverage.model_validate(item.model_dump())
+                for item in coverage.trajectories
+            ),
+            n8_same_ref_association=n8_status,
+        )
+    except Exception:
+        return N5InteractionDiagnostic(
+            node_ref=node_ref,
+            node_depth=node_depth,
+            cycle_index=cycle_index,
+            candidate_id=candidate_id,
+            selected_candidate_ref=candidate_ref,
+            candidate_content_hash=candidate_hash,
+            simulation_result_ref=ref_text,
+            payload_hash=ref_text,
+            interaction_evidence_status="not_established",
+            issues=("n5_result_integrity_or_binding_not_established",),
+            reconciliation_issues=("n5_owner_read_or_validation_failed",),
+            n8_same_ref_association=(
+                "not_recorded" if cycle_index is not None else "not_applicable"
+            ),
+        )
 
 
 @dataclass(frozen=True, slots=True)

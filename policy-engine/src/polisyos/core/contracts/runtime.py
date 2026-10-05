@@ -2633,6 +2633,91 @@ class RunDetailsResponse(BaseModel):
     run: RunDetails
 
 
+class N5InteractionTrajectoryCoverage(BaseModel):
+    """Recomputed observed horizon coverage for one persisted N5 trajectory."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_level: Literal["individual", "pairwise", "joint"]
+    atom_ids: tuple[str, ...]
+    expected_steps: tuple[int, ...]
+    observed_steps: tuple[int, ...]
+    missing_steps: tuple[int, ...]
+    extra_steps: tuple[int, ...]
+    duplicate_steps: tuple[int, ...]
+    scope_requested: bool
+    selected_outcomes_complete: bool
+
+
+class N5InteractionDiagnostic(BaseModel):
+    """Candidate-only disclosure of one owner-bound N5 occurrence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    node_ref: str
+    node_depth: int = Field(ge=0)
+    cycle_index: int | None = Field(default=None, ge=0)
+    candidate_id: str | None = None
+    selected_candidate_ref: str | None = None
+    candidate_content_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    simulation_result_ref: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    payload_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    receipt_payload_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"] | None = (
+        None
+    )
+    higher_order_residuals: dict[str, dict[int, float]] = Field(default_factory=dict)
+    expected_steps: tuple[int, ...] = ()
+    checked_interaction_orders: tuple[int, ...] = ()
+    stored_checked_interaction_orders: tuple[int, ...] = ()
+    interaction_evidence_status: Literal["complete", "incomplete", "not_established"]
+    issues: tuple[str, ...] = ()
+    reconciliation_issues: tuple[str, ...] = ()
+    trajectories: tuple[N5InteractionTrajectoryCoverage, ...] = ()
+    n8_same_ref_association: Literal[
+        "recorded_match", "mismatch", "not_recorded", "not_applicable"
+    ] = "not_applicable"
+
+
+class N5InteractionDiagnosticsResponse(BaseModel):
+    """Run-scoped, read-only disclosure that keeps N5 evidence in candidate scope."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    meta: ApiMeta
+    run_id: str
+    job_id: str
+    compiled_run_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    interaction_evidence_status: Literal["complete", "incomplete", "not_established"]
+    diagnostics: tuple[N5InteractionDiagnostic, ...] = ()
+    limitations: tuple[str, ...] = ()
+    authority_band: Literal["candidate"] = "candidate"
+    projection_authority: Literal["projection_only"] = "projection_only"
+    uncertainty_kind: Literal["K_sim"] = "K_sim"
+    may_not_use_for: tuple[
+        Literal[
+            "grounded_effect_admission",
+            "eval_safety",
+            "world_credal_state_shrinkage",
+            "promotion",
+            "publication",
+        ],
+        ...,
+    ] = (
+        "grounded_effect_admission",
+        "eval_safety",
+        "world_credal_state_shrinkage",
+        "promotion",
+        "publication",
+    )
+
+
 class RunTimelineResponse(BaseModel):
     """Response envelope returned by the run timeline endpoint."""
 

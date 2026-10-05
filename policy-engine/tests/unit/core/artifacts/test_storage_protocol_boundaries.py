@@ -45,14 +45,25 @@ class RecordingArtifactStore:
         self._manifests: dict[str, ArtifactManifest] = {}
         self.write_kinds: list[str] = []
 
-    def has(self, artifact_id: ArtifactID) -> bool:
-        return str(artifact_id) in self._payloads
+    @staticmethod
+    def _artifact_key(artifact_id: ArtifactID | ArtifactRef | str) -> str:
+        if isinstance(artifact_id, ArtifactRef):
+            artifact_id = artifact_id.artifact_id
+        normalized_id = (
+            artifact_id
+            if isinstance(artifact_id, ArtifactID)
+            else ArtifactID.model_validate(artifact_id)
+        )
+        return str(normalized_id)
 
-    def get_bytes(self, artifact_id: ArtifactID) -> bytes:
-        return self._payloads[str(artifact_id)]
+    def has(self, artifact_id: ArtifactID | ArtifactRef | str) -> bool:
+        return self._artifact_key(artifact_id) in self._payloads
 
-    def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
-        return self._manifests[str(artifact_id)]
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+        return self._payloads[self._artifact_key(artifact_id)]
+
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
+        return self._manifests[self._artifact_key(artifact_id)]
 
     def put_bytes(self, data: bytes, opts: ArtifactWriteOptions) -> ArtifactRef:
         artifact_id = ArtifactID.from_sha256_hex(content_hash(data))
@@ -140,7 +151,8 @@ def test_compiler_report_helpers_accept_protocol_store() -> None:
 
 
 def test_registry_bundle_build_and_load_work_with_protocol_store() -> None:
-    store: ArtifactStore = RecordingArtifactStore()
+    recording_store = RecordingArtifactStore()
+    store: ArtifactStore = recording_store
 
     bundle = build_registry_bundle(
         store,
@@ -152,6 +164,16 @@ def test_registry_bundle_build_and_load_work_with_protocol_store() -> None:
         metric_registry=DEFAULT_METRIC_REGISTRY,
         units_registry=DEFAULT_UNITS_REGISTRY,
     )
+
+    bundle_artifact_id = bundle.bundle_ref.artifact_id
+    for artifact_reference in (
+        bundle.bundle_ref,
+        bundle_artifact_id,
+        str(bundle_artifact_id),
+    ):
+        assert recording_store.has(artifact_reference)
+        assert recording_store.get_bytes(artifact_reference)
+        assert recording_store.get_manifest(artifact_reference).artifact_id == bundle_artifact_id
 
     loaded_bundle = load_registry_bundle(store, bundle.bundle_ref)
     loaded_content = load_registry_bundle_content(store, bundle.bundle_ref)

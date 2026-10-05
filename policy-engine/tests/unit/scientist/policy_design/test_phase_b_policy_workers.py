@@ -290,9 +290,7 @@ async def test_scenario_adversary_gateway_parses_think_prefixed_json(
 ) -> None:
     surface = ScenarioAttackSurface(
         candidate_id="candidate_think_prefixed",
-        parameter_specs=[
-            DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0)
-        ],
+        parameter_specs=[DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0)],
     )
     payload = {
         "scenarios": [
@@ -321,6 +319,4 @@ async def test_scenario_adversary_gateway_parses_think_prefixed_json(
     bundle = await ScenarioAdversaryWorker().propose_async(surface)
 
     assert bundle.fallback_used is False
-    assert [scenario.scenario_id for scenario in bundle.scenarios] == [
-        "adv_think_prefixed"
-    ]
+    assert [scenario.scenario_id for scenario in bundle.scenarios] == ["adv_think_prefixed"]

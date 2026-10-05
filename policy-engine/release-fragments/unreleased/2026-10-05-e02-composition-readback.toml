@@ -1,0 +1,11 @@
+id = "2026-10-05-e02-composition-readback"
+title = "Read composition replay artifacts through the canonical IR ref boundary"
+type = "fixed"
+component = "scientist-backtesting"
+owner = "team-polisyos"
+summary = "Composition replay normalizes native core artifact refs before validating each typed IR ref and reading its persisted payload."
+evidence = ["tests/unit/scientist/methods/backtesting/test_composition_bridge.py"]
+compatibility = "Supported replay signatures and artifact schemas are unchanged. Wrong artifact kinds and media types still fail strict typed-ref validation."
+surface_classification = "internal: polisyos.scientist.methods.backtesting.composition_bridge"
+migration = "No caller migration required."
+limitations = "Repeated Scientist-node query readback and precomputed-alignment readers remain a separate shared-owner omission; this repair covers the Backtest replay consumer."

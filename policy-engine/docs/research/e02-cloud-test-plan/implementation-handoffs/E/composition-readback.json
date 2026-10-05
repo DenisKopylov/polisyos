@@ -1,0 +1,275 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "composition-readback",
+  "created_at": "2026-10-05T14:41:24.833487+00:00",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "supporting_bundle_ids": [
+    "BKT-01",
+    "BKT-02",
+    "BKT-03"
+  ],
+  "repair_origin": "supplemental E Backtest consumer repair discovered in root frozen regression; no allocated finding-wide closure",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "6a7c96535fea02b3108728cf5e27d1955f65f6ea"
+  ],
+  "candidate_tree_sha": "7600249e28d6eb3bd5dbba2afa7677097c914d9d",
+  "branch": "codex/e02-E-composition-readback",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/32",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-composition-readback.toml",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py"
+  ],
+  "write_lease": "root explicitly extended E lease only to composition_bridge.py, mirrored test, internal release fragment and receipt; no core/IR/state/reconcile/shared A mutation",
+  "baseline_cells": [],
+  "transferred_results": {
+    "query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --path tests/unit/scientist/methods/backtesting/test_composition_bridge.py --details --limit 30",
+    "matching_cells": 0,
+    "grade": "source_reported_compact_text_only; no transferred exact test cell; independent base replay is deciding evidence"
+  },
+  "exact_base_replay": {
+    "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/unit/scientist/methods/backtesting/test_composition_bridge.py -o addopts='' -q --tb=short",
+    "environment": "same shared Python environment and tracked source/assets extracted with git archive from exact c40; final replay included source, architecture, tracked dataset_catalog seeds, pyproject, pytest.ini, conftests and helper plugins",
+    "outcome": "FAIL",
+    "expected_outcome": "FAIL",
+    "exit_code": 1,
+    "output": "4 failed in 8.05s; all CompositionCertificateRef model_type at bridge line 198",
+    "output_ref": "composition-readback-checks.txt#exact_base_native",
+    "classification": "base-reproduced; inherited attribution not_established: no zero changed-path/input-denominator intersection claim"
+  },
+  "environment": {
+    "python": "3.14.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "ruff": "0.14.10"
+    },
+    "hardware": {
+      "cpu_count": 5,
+      "affinity": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "cpu_max": "400000 100000",
+      "memory_max": "17179869184"
+    },
+    "numeric_limits": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "JAX_NUM_THREADS": null
+    },
+    "python_environment": "shared contributor .venv read-only symlink; source from this isolated checkout",
+    "node": "22.23.3",
+    "pnpm": "10.33.2",
+    "dependency_install": "PATH=/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:$PATH corepack pnpm install --frozen-lockfile; exit 0; cached packages; lockfile unchanged; package-manager ignored optional build scripts retained",
+    "git_hooks": "lefthook 2.1.6 pre-commit and pre-push PASS; matching TypeScript checks skipped because no TS paths changed",
+    "backend": "real ReconcileCausalGraphNode, canonical core filesystem artifact-store factory and IR payload loaders; no numerical backend needed for typed CAS readback"
+  },
+  "inputs": {
+    "kind": "bounded native fixtures, no production history or full dataset",
+    "identity": {
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py": {
+        "c40d4acae1ce58b597267255026d9356565828fd": "741202467fda80a688b0d090c5676c94f80c4ac4",
+        "6a7c96535fea02b3108728cf5e27d1955f65f6ea": "031d157f8cadbf4e39ed7b469b47bba3b875f346"
+      },
+      "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml": {
+        "c40d4acae1ce58b597267255026d9356565828fd": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+        "6a7c96535fea02b3108728cf5e27d1955f65f6ea": "49d63f6e693ab9488fad50b25d75b042f3dff9dd"
+      },
+      "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml": {
+        "c40d4acae1ce58b597267255026d9356565828fd": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f",
+        "6a7c96535fea02b3108728cf5e27d1955f65f6ea": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f"
+      },
+      "policy-engine/pytest.ini": {
+        "c40d4acae1ce58b597267255026d9356565828fd": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+        "6a7c96535fea02b3108728cf5e27d1955f65f6ea": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": {
+        "c40d4acae1ce58b597267255026d9356565828fd": "e278caedbc48cde0306e8edbb054b4731562528e",
+        "6a7c96535fea02b3108728cf5e27d1955f65f6ea": "e278caedbc48cde0306e8edbb054b4731562528e"
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py": {
+        "c40d4acae1ce58b597267255026d9356565828fd": "08760b26aae2a489b54441b20b3a90fcd040888d",
+        "6a7c96535fea02b3108728cf5e27d1955f65f6ea": "08760b26aae2a489b54441b20b3a90fcd040888d"
+      },
+      "policy-engine/src/polisyos/ir/artifacts/contracts.py": {
+        "c40d4acae1ce58b597267255026d9356565828fd": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+        "6a7c96535fea02b3108728cf5e27d1955f65f6ea": "9c7220fc3b1516ae102770078bf16d98f2d9414a"
+      }
+    },
+    "fixture_scope": "original four composition cases exercise preserved query, deferred proxy review/failure-card artifact, broken topology, and actual injected filesystem factory; added reopened-store readback and 5 artifact ports x 2 type mutations",
+    "authority_purpose": "benchmark/replay diagnostics only; no new Calibrator/evaluator authority, source law, served generation-cycle claim or artifact-schema migration"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/unit/scientist/methods/backtesting/test_composition_bridge.py -o addopts='' -q --tb=short",
+      "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "environment": "environment above",
+      "input_closure": "complete current mirrored composition test file: 15 collected cases; real producer and filesystem CAS",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "15 passed in 9.50s",
+      "resources": {
+        "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+        "exit_code": 0,
+        "wall_seconds": 14.461191480000252,
+        "max_rss_kib": 577504,
+        "command": [
+          ".venv/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+          "-o",
+          "addopts=",
+          "-q",
+          "--tb=short"
+        ],
+        "PYTHONPATH": "src"
+      },
+      "output_ref": "composition-readback-checks.txt#pinned_native"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python - ; isolated process stdin Python below",
+      "python": "import pytest\nimport polisyos.scientist.methods.backtesting.composition_bridge as bridge\nbridge.normalize_artifact_ref = lambda ref: ref\nraise SystemExit(pytest.main(['tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_core_refs_read_back_from_reopened_filesystem_store', '-o', 'addopts=', '-q', '--tb=short']))",
+      "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "environment": "same shared environment; normalizer removed only in transient bridge process; real producer/CAS retained",
+      "input_closure": "reopened filesystem readback test with core ArtifactRef values",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "exit_code": 1,
+      "output": "1 failed, 1 warning in 0.42s; CompositionCertificateRef model_type; warning is pytest rewrite after importing backend before pytest",
+      "output_ref": "composition-readback-checks.txt#pinned_removal"
+    },
+    {
+      "command": ".venv/bin/python -m ruff check src/polisyos/scientist/methods/backtesting/composition_bridge.py tests/unit/scientist/methods/backtesting/test_composition_bridge.py; .venv/bin/python -m ruff format --check same paths; git diff --check",
+      "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "environment": "Ruff 0.14.10",
+      "input_closure": "both changed Python files and complete diff",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output_ref": "composition-readback-checks.txt#ruff_and_format"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python - ; isolated process stdin Python below",
+      "python": "import json, runpy, tempfile\nfrom pathlib import Path\nimport polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph as node\noriginal_load = node._load_precomputed_alignment\noriginal_execute = node.ReconcileCausalGraphNode.execute\ndef observe_load(ctx, state):\n    result = original_load(ctx, state)\n    print('PRECOMPUTED_READBACK', json.dumps({'report_ref_present': result[2] is not None, 'mapping_ref_present': result[3] is not None, 'report_loaded': result[0] is not None, 'mapping_loaded': result[1] is not None}), flush=True)\n    return result\ndef observe_execute(self, ctx, state):\n    outcome = original_execute(self, ctx, state)\n    print('NATIVE_PRODUCER', json.dumps({'status': outcome.status, 'ref_types': {key: type(ref).__module__ + '.' + type(ref).__name__ for key, ref in outcome.state.artifacts_index.items()}}), flush=True)\n    replay = original_execute(self, ctx, outcome.state)\n    assert replay.status == 'fail' and replay.error.code == 'node.invalid_state'\n    print('REUSED_STATE_QUERY_READBACK', json.dumps({'status': replay.status, 'error': replay.error.model_dump(mode='json')}), flush=True)\n    return outcome\nnode._load_precomputed_alignment = observe_load\nnode.ReconcileCausalGraphNode.execute = observe_execute\ncase = runpy.run_path('tests/unit/scientist/methods/backtesting/test_composition_bridge.py')['test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status']\nwith tempfile.TemporaryDirectory(prefix='composition-shared-node-') as scratch:\n    case(tmp_path=Path(scratch))\nprint('BACKTEST_BRIDGE_PASS_WITH_SHARED_NODE_OMISSION_PRESENT', flush=True)\n",
+      "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "environment": "same real node/store; only wrappers observe original methods; second node execute is genuine",
+      "input_closure": "original first native fixture on actual produced ExperimentState and same CAS/context",
+      "outcome": "PASS",
+      "expected_property": "shared-node omission remains visible and fails closed; Backtest readback succeeds",
+      "output_ref": "composition-readback-checks.txt#shared_node_residual"
+    },
+    {
+      "command": "root once on final frozen aggregate: architecture guardrails and broad regression",
+      "target_sha": "c0f8ab8cdad33a239be542ce23c1648f72707bc5",
+      "environment": "root orchestration",
+      "input_closure": "final aggregate, outside author bounded check",
+      "outcome": "UNRUN",
+      "output": "root reports final checks running; this receipt makes no aggregate PASS or inherited-red claim"
+    }
+  ],
+  "property": {
+    "statement": "Backtest replay consumes every state-produced artifact through canonical store-ref normalization followed by its strict typed IR kind/media contract and genuine payload loading",
+    "runtime_path": [
+      "ReconcileCausalGraphNode persists typed IR artifacts",
+      "state_branching._normalize_artifacts_index_ref emits core ArtifactRef into ExperimentState",
+      "canonical filesystem CAS",
+      "Backtest composition_bridge normalizes all six typed reads",
+      "strict IR subtype validation",
+      "existing payload loaders and normalized replay signatures"
+    ],
+    "proxy_divergence": "producer status ok and artifact key presence do not establish readable output: exact base emits genuine core ArtifactRef but bridge rejects the foreign Pydantic model before reading bytes",
+    "negative_controls": [
+      "post-real-producer wrong kind at all five unique artifact ports",
+      "post-real-producer wrong media type at all five unique artifact ports",
+      "remove normalizer while retaining typed classes, markers, producer and persisted bytes: genuine readback fails"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded Backtest consumer mechanism verified; no E finding-wide closure; shared Scientist sibling omitted outside lease",
+  "pattern_pass": {
+    "P29": "native producer/CAS, reopened persisted bytes and property-removal failure",
+    "P31": "all six reads in this consumer reuse one canonical IR normalization boundary; no per-port replacement rules",
+    "P40": "shared precomputed-alignment and repeated-node escapes are SAME CLASS one consumer deeper; explicitly excluded from this root lease and reproduced, not claimed as unsupported capability; canonical helper exists so omission requires follow-up",
+    "P41": "exact base reproduced; changed Backtest source/test directly intersect this test denominator, and prior BKT-bias orchestrator was imported eagerly; no inherited-red attribution"
+  },
+  "limitations_and_next_owner": [
+    {
+      "state": "confirmed same-class shared Scientist omission",
+      "owner": "G to assign canonical @scientist-owners consumer writer; state_branching producer belongs to B/STA-01 and its declared normalization is retained",
+      "source_ref": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py@6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "sites": [
+        301,
+        307,
+        429,
+        433,
+        437
+      ],
+      "actual_result": "precomputed refs present but report/mapping unread; reusing genuine produced state returns node.invalid_state at CausalGraphModelRef; bounded Backtest bridge itself now passes",
+      "reproduce": "Run checks[3].python with PYTHONPATH=src in the exact implementation checkout; it invokes the original node twice against actual produced state/CAS.",
+      "smallest_fix": "reuse canonical normalize_artifact_ref at shared node typed reads under its own write lease; no core/IR schema or state-producer weakening"
+    },
+    {
+      "state": "not_established",
+      "owner": "G/local source owners when relevant",
+      "scope": "full production source law, history, served evaluator and general generation cycle; synthetic/native fixture statuses are not production evidence"
+    },
+    {
+      "state": "authority-profile semantics unchanged",
+      "scope": "existing IR normalize_artifact_ref projects artifact_id/kind/media_type; this repair does not invent a manifest-profile carrier or change payload/hash/authority admission"
+    }
+  ],
+  "review": {
+    "root": {
+      "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "verdict": "reported no blocker",
+      "integration_cherry_pick": "86baeda3d73695d386012a67657f749b8f405c33",
+      "aggregate_checkpoint": "c0f8ab8cdad33a239be542ce23c1648f72707bc5"
+    },
+    "independent_frc": {
+      "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "grade": "reported independent verifier; separate deciding output delivered to root",
+      "native_result": "15 PASS; wall 19.756s; max RSS 584480 KiB",
+      "controls": "real producer/CAS factory positive, five ports x missing/None identity negatives and normalization removal PASS",
+      "source_changes": "none",
+      "verdict": "no change requested; final review output pending"
+    }
+  },
+  "transport": {
+    "implementation_remote_head_verified": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+    "draft_pr_readback": true,
+    "base_ref": "codex/e02-integration",
+    "receipt_separate_commit": true,
+    "artifact_attachment": "codex_app attach_artifact called; cell 105 pending, no successful attachment claim"
+  },
+  "admission": {
+    "mode": "resume",
+    "status": "admitted",
+    "requested_branch": "codex/e02-E-composition-readback",
+    "requested_path": "/workspace/e02-E-composition-readback",
+    "snapshot_path": "/workspace/e02-runtime/admission/E-composition-readback-resume.json",
+    "snapshot_sha256": "7bd7a1ab9efde26ffc34d6c966978950e28da436095012ab72763d81d4552bd1",
+    "complete_snapshot": "local scratch; G reruns exact resume against its own worktree, not cloud registry"
+  },
+  "deciding_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/composition-readback-checks.txt",
+    "sha256": "37686bfd45016204b6dc16bf0d51900b348ac49876d3390602d86df971a67a6e"
+  },
+  "local_reproduce": {
+    "candidate_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+    "cwd": "policy-engine",
+    "dependencies": "supported contributor Python 3.14.x test environment, pydantic 2.12.5, pytest 9.0.2; Node 22.23.3 for hooks; no production input required",
+    "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/unit/scientist/methods/backtesting/test_composition_bridge.py -o addopts='' -q --tb=short"
+  }
+}

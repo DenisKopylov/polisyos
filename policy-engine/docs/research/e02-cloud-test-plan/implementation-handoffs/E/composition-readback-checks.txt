@@ -1,0 +1,77 @@
+[exact_base_native]
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status _
+tests/unit/scientist/methods/backtesting/test_composition_bridge.py:97: in test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status
+    result = replay_fragment_composition_case(
+src/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case
+    CompositionCertificateRef.model_validate(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef
+E     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E       For further information visit https://errors.pydantic.dev/2.12/v/model_type
+_____ test_replay_fragment_composition_case_surfaces_deferred_proxy_review _____
+tests/unit/scientist/methods/backtesting/test_composition_bridge.py:130: in test_replay_fragment_composition_case_surfaces_deferred_proxy_review
+    result = replay_fragment_composition_case(
+src/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case
+    CompositionCertificateRef.model_validate(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef
+E     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E       For further information visit https://errors.pydantic.dev/2.12/v/model_type
+_____ test_replay_fragment_composition_case_detects_disconnected_topology ______
+tests/unit/scientist/methods/backtesting/test_composition_bridge.py:161: in test_replay_fragment_composition_case_detects_disconnected_topology
+    result = replay_fragment_composition_case(
+src/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case
+    CompositionCertificateRef.model_validate(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef
+E     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E       For further information visit https://errors.pydantic.dev/2.12/v/model_type
+_____ test_replay_fragment_composition_case_accepts_injected_store_factory _____
+tests/unit/scientist/methods/backtesting/test_composition_bridge.py:222: in test_replay_fragment_composition_case_accepts_injected_store_factory
+    result = replay_fragment_composition_case(
+src/polisyos/scientist/methods/backtesting/composition_bridge.py:198: in replay_fragment_composition_case
+    CompositionCertificateRef.model_validate(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef
+E     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E       For further information visit https://errors.pydantic.dev/2.12/v/model_type
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status
+FAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_surfaces_deferred_proxy_review
+FAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_detects_disconnected_topology
+FAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_fragment_composition_case_accepts_injected_store_factory
+4 failed in 8.05s
+
+[pinned_native]
+...............                                                          [100%]
+15 passed in 9.50s
+
+[pinned_removal]
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_replay_core_refs_read_back_from_reopened_filesystem_store ________
+tests/unit/scientist/methods/backtesting/test_composition_bridge.py:154: in test_replay_core_refs_read_back_from_reopened_filesystem_store
+    result = replay_fragment_composition_case(**_proxy_replay_inputs(), cas_root=str(root))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/backtesting/composition_bridge.py:199: in replay_fragment_composition_case
+    CompositionCertificateRef.model_validate(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for CompositionCertificateRef
+E     Input should be a valid dictionary or instance of CompositionCertificateRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]
+E       For further information visit https://errors.pydantic.dev/2.12/v/model_type
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-E-composition-readback/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_composition_bridge.py::test_replay_core_refs_read_back_from_reopened_filesystem_store
+1 failed, 1 warning in 0.42s
+
+[shared_node_residual]
+PRECOMPUTED_READBACK {"report_ref_present": true, "mapping_ref_present": true, "report_loaded": false, "mapping_loaded": false}
+NATIVE_PRODUCER {"status": "ok", "ref_types": {"alignment_report_ref": "polisyos.core.artifacts.manifest.ArtifactRef", "interface_mapping_ref": "polisyos.core.artifacts.manifest.ArtifactRef", "reconciled_causal_graph_ref": "polisyos.core.artifacts.manifest.ArtifactRef", "composition_certificate_ref": "polisyos.core.artifacts.manifest.ArtifactRef"}}
+REUSED_STATE_QUERY_READBACK {"status": "fail", "error": {"code": "node.invalid_state", "message": "failed to load composition artifacts for query preservation: 1 validation error for CausalGraphModelRef\n  Input should be a valid dictionary or instance of CausalGraphModelRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]\n    For further information visit https://errors.pydantic.dev/2.12/v/model_type", "details": {}}}
+BACKTEST_BRIDGE_PASS_WITH_SHARED_NODE_OMISSION_PRESENT
+
+[ruff_and_format]
+All checks passed!
+2 files already formatted

@@ -1,0 +1,6 @@
+wheel=/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/wheelhouse/policy_engine-0.1.0-py3-none-any.whl
+member_count=3455
+top_level_prefix_counts={'policy_engine-0.1.0.dist-info': 5, 'polisyos': 2909, 'tools': 541}
+required_modules_present=['polisyos/data_forge/domains/ukraine/cli.py', 'polisyos/data_forge/domains/ukraine/orchestrator.py', 'polisyos/data_forge/domains/ukraine/server.py', 'tools/ops_runners/ukraine_data/cli.py', 'tools/ops_runners/ukraine_data/server_bootstrap.py', 'tools/ops_runners/ukraine_data/validate_part_a.py']
+required_modules_missing=[]
+ukraine_data_entrypoint=ukraine-data = tools.ops_runners.ukraine_data.cli:main

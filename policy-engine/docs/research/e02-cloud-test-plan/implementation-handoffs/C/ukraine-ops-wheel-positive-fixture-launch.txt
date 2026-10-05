@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/wheel-venv/bin/ukraine-data",
+    "--config",
+    "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/pipeline-config.json",
+    "--root",
+    "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/outputs-positive",
+    "--workspace-root",
+    "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/positive-fixture",
+    "validate-part-a"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/consumer-cwd",
+  "exit_code": 0,
+  "pythonpath_present": false,
+  "removed_environment": [
+    "PYTHONPATH",
+    "PYTHONHOME",
+    "VIRTUAL_ENV",
+    "UV_PROJECT",
+    "UV_PROJECT_ENVIRONMENT",
+    "UV_WORKING_DIR"
+  ],
+  "scenario": "positive-fixture",
+  "stderr": "",
+  "stdout": "{\n  \"disk_used_gib\": 4.209578037261963e-07,\n  \"elapsed_s\": 0.0,\n  \"errors\": [],\n  \"findings\": [],\n  \"finished_at\": \"2026-10-05T14:36:07.197690+00:00\",\n  \"inputs\": [],\n  \"metrics\": {\n    \"notes\": [\n      \".                                                                        [100%]\\n1 passed in 0.08s\",\n      \"Using CPython 3.14.3\\nCreating virtual environment at: .venv\"\n    ],\n    \"passed\": true,\n    \"skipped\": false\n  },\n  \"outputs\": [\n    {\n      \"artifact_id\": null,\n      \"nnz\": null,\n      \"path\": \"/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/outputs-positive/manifests/part_a_gate_manifest.json\",\n      \"row_count\": null,\n      \"sha256\": \"4bfce0b32f15f352b3fd3128afa10de30027664256517d5b495b710b9ed5e879\",\n      \"size_bytes\": 452\n    }\n  ],\n  \"peak_rss_gib\": 0.1965789794921875,\n  \"resume_from\": null,\n  \"run_id\": \"validate_part_a_1791210967\",\n  \"stage_id\": \"validate_part_a\",\n  \"started_at\": \"2026-10-05T14:36:06.184094+00:00\",\n  \"status\": \"passed\",\n  \"warnings\": []\n}\n"
+}

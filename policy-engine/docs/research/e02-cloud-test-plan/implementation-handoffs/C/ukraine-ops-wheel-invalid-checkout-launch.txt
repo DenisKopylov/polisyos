@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/wheel-venv/bin/ukraine-data",
+    "--config",
+    "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/pipeline-config.json",
+    "--root",
+    "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/outputs-invalid",
+    "--workspace-root",
+    "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/invalid-checkout",
+    "validate-part-a"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/consumer-cwd",
+  "exit_code": 1,
+  "pythonpath_present": false,
+  "removed_environment": [
+    "PYTHONPATH",
+    "PYTHONHOME",
+    "VIRTUAL_ENV",
+    "UV_PROJECT",
+    "UV_PROJECT_ENVIRONMENT",
+    "UV_WORKING_DIR"
+  ],
+  "scenario": "invalid-checkout",
+  "stderr": "",
+  "stdout": "{\n  \"disk_used_gib\": 3.259629011154175e-07,\n  \"elapsed_s\": 0.0,\n  \"errors\": [\n    \"part_a_gate_status=unavailable\"\n  ],\n  \"findings\": [],\n  \"finished_at\": \"2026-10-05T14:35:21.427027+00:00\",\n  \"inputs\": [],\n  \"metrics\": {\n    \"notes\": [\n      \"repository checkout is unavailable at /Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/invalid-checkout\"\n    ],\n    \"passed\": false,\n    \"skipped\": false\n  },\n  \"outputs\": [\n    {\n      \"artifact_id\": null,\n      \"nnz\": null,\n      \"path\": \"/Users/deniskopylov/.codex/scratch/e02-c-ukraine-wheel-probe-20261005/38c833079414a561bad7ec0a2fb9a68fad45b887/outputs-invalid/manifests/part_a_gate_manifest.json\",\n      \"row_count\": null,\n      \"sha256\": \"b08f118097697d9d20d2d3652efd80da64008b9c09f94733e080f606e71b8b71\",\n      \"size_bytes\": 350\n    }\n  ],\n  \"peak_rss_gib\": 0.1962432861328125,\n  \"resume_from\": null,\n  \"run_id\": \"validate_part_a_1791210921\",\n  \"stage_id\": \"validate_part_a\",\n  \"started_at\": \"2026-10-05T14:35:21.426830+00:00\",\n  \"status\": \"unavailable\",\n  \"warnings\": []\n}\n"
+}

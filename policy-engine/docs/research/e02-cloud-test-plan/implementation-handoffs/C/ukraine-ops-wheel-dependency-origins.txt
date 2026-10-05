@@ -1,0 +1,2 @@
+pandas 2.3.3 /opt/homebrew/lib/python3.14/site-packages/pandas/__init__.py
+pydantic 2.12.5 /opt/homebrew/lib/python3.14/site-packages/pydantic/__init__.py

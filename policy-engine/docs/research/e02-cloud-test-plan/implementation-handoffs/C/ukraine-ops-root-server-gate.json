@@ -68,17 +68,17 @@
       "command": "PYTHONPATH=\"$PWD/src:$PWD\" python3 -m pytest -c pytest.ini tests/unit/data_forge/test_phase8_shim_sunset.py::test_phase8_fabric_and_foundry_use_data_forge_read_api_only -q",
       "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
       "environment": "fresh ignored git-archive snapshot of policy-engine at slice base; macOS, Python 3.14",
-      "input_closure": "Complete Fabric and Foundry Python source trees and unchanged architecture test",
+      "input_closure": "The 908 Python source files under src/polisyos/fabric and src/polisyos/foundry, plus tests/unit/data_forge/test_phase8_shim_sunset.py (changed elsewhere in this slice)",
       "outcome": "FAIL",
-      "output": "Reproduced at base: one violation, src/polisyos/foundry/methods/catalog/causal/literature_prior.py imports polisyos.data_forge.domains.academic.knowledge.skg_query. Changed source paths are outside this test's scanned directories."
+      "output": "Reproduced at base: one source-scan violation, src/polisyos/foundry/methods/catalog/causal/literature_prior.py imports polisyos.data_forge.domains.academic.knowledge.skg_query. Source-scan denominator=908; changed source-path intersection=0. The complete pytest input also includes the changed test module, so whole-gate P41 origin is not_established. The selected failing test function is AST-identical at base and candidate; only a separate entrypoint assertion in that module changed."
     },
     {
       "command": "PYTHONPATH=\"$PWD/src:$PWD\" python3 -m pytest -c pytest.ini tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py::test_phase2_runtime_consumers_use_data_forge_read_api_not_internals -q",
       "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
       "environment": "fresh ignored git-archive snapshot of policy-engine at slice base; macOS, Python 3.14",
-      "input_closure": "All src/polisyos Python files except src/polisyos/data_forge/ and unchanged architecture test",
+      "input_closure": "The 2,417 Python source files under src/polisyos except src/polisyos/data_forge/, plus tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py (changed elsewhere in this slice)",
       "outcome": "FAIL",
-      "output": "Reproduced at base: same 25 existing violations (first is literature_prior.py importing polisyos.data_forge.domains.academic.knowledge.skg_query). The changed src files are under the excluded data_forge tree; tools/tests/metadata are outside the scanned source denominator."
+      "output": "Reproduced at base: same 25 source-scan violations (first is literature_prior.py importing polisyos.data_forge.domains.academic.knowledge.skg_query). Source-scan denominator=2,417; changed source-path intersection=0 because changed src files are under the excluded data_forge tree. The complete pytest input also includes the changed test module, so whole-gate P41 origin is not_established. The selected failing test function is AST-identical at base and candidate; only a separate entrypoint assertion in that module changed."
     },
     {
       "command": "Coordinator-reported worktree admission; exact argv unavailable in this leaf context",
@@ -86,15 +86,39 @@
       "environment": "E02 coordinator admission",
       "input_closure": "Managed worktree registration records",
       "outcome": "FAIL",
-      "output": "Exit 2 due to an unrelated stale registration. The coordinator explicitly authorized continuation on this verified branch. Stale registration records were left untouched."
+      "output": "Exit 2 due to an unrelated stale registration. The user explicitly authorized continuation on this verified branch. Stale registration records were left untouched."
     },
     {
-      "command": "Build/install the real wheel and launch its ukraine-data console script with no checkout",
+      "command": "UV_CACHE_DIR=<isolated scratch>/cache uv build --wheel --out-dir <isolated scratch>/wheelhouse; inspect wheel members and entrypoint metadata",
       "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
-      "environment": "not run; current checks execute the packaged module entrypoint from the source checkout",
-      "input_closure": "Installed-wheel package contents and no-checkout unavailable result",
-      "outcome": "UNRUN",
-      "output": "The synthetic site-packages discovery fixture returns no workspace; it does not replace a real wheel launch."
+      "environment": "macOS, CPython 3.14.0, uv 0.10.6; source snapshot archived from the exact implementation commit",
+      "input_closure": "Built policy_engine-0.1.0-py3-none-any.whl and read its complete archive member set plus console-script metadata",
+      "outcome": "PASS",
+      "output": "Wheel SHA-256 cd736c2cb85a5e72290c77ac2f4664394cfaaeca4e9e88f7399d9ac3683f5d04; 3,455 members including 541 tools modules; required Ukraine ops/domain modules are present; ukraine-data maps to tools.ops_runners.ukraine_data.cli:main. Exact build and member readback: implementation-handoffs/C/ukraine-ops-wheel-build.txt and ukraine-ops-wheel-members.txt."
+    },
+    {
+      "command": "<wheel-venv>/bin/ukraine-data --config <scratch>/pipeline-config.json --root <scratch>/outputs-installed-no-workspace validate-part-a",
+      "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
+      "environment": "Actual wheel installed with uv pip --no-deps into a CPython 3.14 venv with system site packages; invoked from a temporary consumer cwd with PYTHONPATH and project/venv override variables removed; config set require_server_for_build=false only to reach the gate branch on macOS",
+      "input_closure": "Installed public console script, no explicit workspace root, installed-package root discovery, and persisted PartAGateManifest",
+      "outcome": "PASS",
+      "output": "Console script exited 1 as expected; persisted status=unavailable, passed=false, skipped=false, command=[], note=repository checkout is unavailable for the installed package. Launch receipt and exact gate-manifest readback: implementation-handoffs/C/ukraine-ops-wheel-no-workspace-launch.txt and ukraine-ops-wheel-no-workspace-gate-manifest.txt."
+    },
+    {
+      "command": "<wheel-venv>/bin/ukraine-data --config <scratch>/pipeline-config.json --root <scratch>/outputs-invalid --workspace-root <scratch>/invalid-checkout validate-part-a",
+      "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
+      "environment": "Actual installed wheel console script from temporary consumer cwd with PYTHONPATH and project/venv override variables removed; fixture config disables only the server-host guard",
+      "input_closure": "Explicit invalid workspace, no subprocess, and persisted unavailable PartAGateManifest",
+      "outcome": "PASS",
+      "output": "Console script exited 1 as expected; persisted status=unavailable and command=[]. Exact launch and manifest readback: implementation-handoffs/C/ukraine-ops-wheel-invalid-checkout-launch.txt and ukraine-ops-wheel-invalid-checkout-gate-manifest.txt."
+    },
+    {
+      "command": "<wheel-venv>/bin/ukraine-data --config <scratch>/pipeline-config.json --root <scratch>/outputs-positive --workspace-root <scratch>/positive-fixture validate-part-a",
+      "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
+      "environment": "Actual installed wheel console script from temporary consumer cwd with PYTHONPATH and project/venv override variables removed; isolated checkout fixture; fixture config disables only the server-host guard",
+      "input_closure": "Installed ops CLI composition, real uv run pytest callback, POLISYOS_RUN_INTEGRATION=1, and persisted PartAGateManifest",
+      "outcome": "PASS",
+      "output": "The installed console script exited 0 after the fixture C7 test passed (1 passed in 0.08s); persisted status=passed, passed=true, skipped=false, with the expected pytest command. Exact launch and manifest readback: implementation-handoffs/C/ukraine-ops-wheel-positive-fixture-launch.txt and ukraine-ops-wheel-positive-fixture-gate-manifest.txt."
     },
     {
       "command": "Run server-only C7 / apt-get / CPX62 deployment and lifecycle checks",
@@ -129,12 +153,13 @@
     ]
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "LA-029 remains partial: the public source-checkout CLI is wired through ops callbacks and the fixture gate/result path is verified; real installed-wheel launch and target-server lifecycle are unverified.",
+  "capability_state_or_finding_state": "LA-029 remains partial: the public source-checkout and actual installed-wheel console routes use the ops callback; no-checkout typed unavailable and an isolated positive fixture gate/readback are verified. Target Linux server lifecycle and production C7 remain unverified.",
   "limitations_and_next_owner": [
     "G/root: independently review commit 38c833079414a561bad7ec0a2fb9a68fad45b887 and integrate only after checking the receipt and exact diff.",
-    "Platform owner: run a real installed-wheel launch without a checkout and verify typed unavailable before subprocess startup.",
+    "The wheel probe used --no-deps with pandas and pydantic resolved from system site packages; it verifies the installed command and callback path, not a hermetic dependency installation.",
     "Linux server owner: verify create/start/stop/restart/concurrent shutdown, resource closure exactly once, and a healthy restart control; do not run those operations on this Mac.",
-    "Admission exception: worktree admission exited 2 for an unrelated stale registration; continuation was explicitly authorized by root and the stale registration was not modified.",
+    "P41: both selected architecture failures reproduce at base, and their selected failing function bodies are unchanged, but the complete pytest input modules changed elsewhere in this slice; whole-gate origin is not_established. The scanned production-source denominators remain disjoint (908 and 2,417 files).",
+    "Admission exception: worktree admission exited 2 for an unrelated stale registration; the user explicitly authorized continuation and the stale registration was not modified.",
     "No push or pull request was created."
   ]
 }

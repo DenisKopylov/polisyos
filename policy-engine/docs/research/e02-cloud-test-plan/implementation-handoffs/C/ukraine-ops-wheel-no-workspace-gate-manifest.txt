@@ -1,0 +1,11 @@
+{
+  "command": [],
+  "created_at": "2026-10-05T14:38:15.816096+00:00",
+  "notes": [
+    "repository checkout is unavailable for the installed package"
+  ],
+  "passed": false,
+  "server_only": true,
+  "skipped": false,
+  "status": "unavailable"
+}

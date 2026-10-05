@@ -63,7 +63,7 @@ PASS removal control: basename-only normalizer kept CLI/DTO/resolver shape but r
 
 Independent review receipts
 Root independent focused-suite rerun at exact implementation SHA 6fa80a12aa764f06d75f55c3a21108dc2483ba85
-Working directory: /Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos/policy-engine
+Working directory: /Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos/policy-engine
 Command:
 PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_mig_01.py tests/unit/remediation/test_mig_02.py tests/unit/remediation/test_mig_04.py tests/unit/remediation/test_mig_05.py tests/unit/runtime/test_runtime_manifest_paths.py
 Exit: 0

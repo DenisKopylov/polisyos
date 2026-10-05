@@ -195,7 +195,7 @@
     {
       "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_mig_01.py tests/unit/remediation/test_mig_02.py tests/unit/remediation/test_mig_04.py tests/unit/remediation/test_mig_05.py tests/unit/runtime/test_runtime_manifest_paths.py",
       "target_sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
-      "environment": "Root coordinator worktree policy-engine; original Python venv; PYTHONPATH=src:.",
+      "environment": "Migration worktree /Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos/policy-engine; original Python venv; PYTHONPATH=src:.",
       "input_closure": "Same five focused migration/runtime test files; independent exact-SHA rerun.",
       "outcome": "PASS",
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt#Root independent focused-suite rerun; 66 passed in 1.00s; stderr empty."
@@ -356,7 +356,7 @@
       },
       "root_independent_rerun": {
         "target_commit": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
-        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos/policy-engine",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos/policy-engine",
         "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_mig_01.py tests/unit/remediation/test_mig_02.py tests/unit/remediation/test_mig_04.py tests/unit/remediation/test_mig_05.py tests/unit/runtime/test_runtime_manifest_paths.py",
         "exit_code": 0,
         "stdout": "..................................................................       [100%]\n66 passed in 1.00s\n",

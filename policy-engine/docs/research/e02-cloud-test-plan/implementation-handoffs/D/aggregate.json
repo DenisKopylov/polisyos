@@ -1,0 +1,621 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "aggregate-search-optimizer-transfer-funnel",
+  "closure_ids": [],
+  "covered_finding_ids": [
+    "B41",
+    "B106",
+    "B107",
+    "B108",
+    "B109",
+    "B110",
+    "B111",
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B116",
+    "B117",
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B122",
+    "B123",
+    "B124",
+    "B125",
+    "B126",
+    "B127",
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136",
+    "B137",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165",
+    "LA-014",
+    "LA-015"
+  ],
+  "bundle_ids": [
+    "CTL-01",
+    "CTL-02",
+    "CTL-03",
+    "FUN-01",
+    "FUN-02",
+    "FUN-03",
+    "OPT-01",
+    "OPT-02",
+    "OPT-03",
+    "OPT-04",
+    "SRV-01",
+    "SRV-03",
+    "STP-01",
+    "STR-01",
+    "TRN-01",
+    "TRN-02",
+    "TRN-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2"
+  ],
+  "candidate_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "candidate_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+  "reviewed_evidence_checkpoint_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+  "reviewed_evidence_tree_sha": "3d4bc98dd5fe6cd4331e0ebbdc74fe7133276960",
+  "branch": "codex/e02-D-orchestration",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/10",
+  "authority_purpose": "Candidate-grade engineering evidence and explicit residuals for G review; no institutional authorization, policy promotion, deployment or finding-closure signature.",
+  "publication": "This separate receipt describes existing commits. Its own future SHA is not a source binding. Remote readback is required after ordinary push.",
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+    "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+  ],
+  "changed_paths_scope": "Complete changed product src paths. Mandatory tests, 13 release fragments and handoff companions are outside this source count and available through the full pinned Git diff.",
+  "full_diff_command": [
+    "git",
+    "diff",
+    "--name-only",
+    "c40d4acae1ce58b597267255026d9356565828fd",
+    "9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+  ],
+  "baseline_cells": {
+    "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+    "commit": "d7705039d1b509fee606d204b60585fcf137dbd8",
+    "json_pointer": "/cells"
+  },
+  "baseline_interpretation": "115 exact source cells, 456 route rows, 45 finding-owner rows, 17 bundle owners and 15 source jobs. Historical112PASS/3FAILED are source-reported observations. Raw historical archives and exercised backend identity remain unavailable; no baseline PASS is closure.",
+  "per_finding_residuals": {
+    "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-residual-map.json",
+    "commit": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+    "sha256": "552c3a9c172d33492319cd78e5fb57def3d8838a595cbecae23fd4f3e01f2253",
+    "json_pointer": "/findings",
+    "interpretation": "Each of45 rows retains its canonical owner/bundles, engineering witness, input/capability boundary, semantic decision and next owner. All finding states remain partial; G adjudicates accepted evidence, principal-held rulings remain with Denis."
+  },
+  "checks": [
+    {
+      "id": "final-regression",
+      "backend_exercised": "CPU actual Torch/BoTorch/GPyTorch and HNSW/CAS",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-c",
+        "import json,subprocess,sys; paths=json.load(open(\"/workspace/e02-D-receipts/final-regression-inputs.json\")); sys.exit(subprocess.call([sys.executable,\"-m\",\"pytest\",\"-q\",*paths]))"
+      ],
+      "input_closure": "95 complete whole-test-file inputs in final-checks/final-regression-inputs.json",
+      "cwd_as_executed": "/workspace/e02-D-orchestration/policy-engine",
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "target_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 145.4736811469993,
+      "peak_rss_kib": 1540032,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-regression.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "20cda897c60275a103d5096fdeb59083ded2737fed82fbb9b2526c18df3f7080",
+        "bytes": 28686
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-regression.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    },
+    {
+      "id": "final-performance",
+      "backend_exercised": "Native Python Pareto benchmark paths; no GP-fit witness",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/performance/test_scientist_runtime_paths.py::test_scientist_search_pareto_hot_path",
+        "tests/performance/test_scientist_runtime_paths.py::test_scientist_autotune_pareto_front_hot_path"
+      ],
+      "input_closure": "Exact listed command selectors/arguments on the clean pinned checkout; required pytest/config/module imports from that tree",
+      "cwd_as_executed": "/workspace/e02-D-orchestration/policy-engine",
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "target_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 17.396018030999585,
+      "peak_rss_kib": 1265632,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-performance.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "3540122bf1f5cde373b5344c4e168f5c0db158f511eb413cab198f3814f701c2",
+        "bytes": 2173
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-performance.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    },
+    {
+      "id": "final-architecture",
+      "backend_exercised": "Python architecture instruments and Node22 scanner/generator paths; no numerical-model witness",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "input_closure": "Exact listed command selectors/arguments on the clean pinned checkout; required pytest/config/module imports from that tree",
+      "cwd_as_executed": "/workspace/e02-D-orchestration/policy-engine",
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "target_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 211.90820193000036,
+      "peak_rss_kib": 909896,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-architecture.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "b0ff5ed43fddd5227d44130cecb44c710f3cd5fa0476602c65e7f14c7a583428",
+        "bytes": 118997
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-architecture.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    },
+    {
+      "id": "final-ruff",
+      "backend_exercised": "Ruff0.14.10 lint/format; numerical backend not exercised",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-c",
+        "import subprocess,sys; files=subprocess.check_output([\"git\",\"diff\",\"--name-only\",\"c40d4acae1ce58b597267255026d9356565828fd\",\"--\",\"*.py\"],text=True).splitlines(); print(\"Complete changed Python input denominator\",len(files),flush=True); r1=subprocess.call([sys.executable,\"-m\",\"ruff\",\"check\",*files]); r2=subprocess.call([sys.executable,\"-m\",\"ruff\",\"format\",\"--check\",*files]);sys.exit(r1 or r2)"
+      ],
+      "input_closure": "Exact listed command selectors/arguments on the clean pinned checkout; required pytest/config/module imports from that tree",
+      "cwd_as_executed": "/workspace/e02-D-orchestration",
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "target_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.28167376199962746,
+      "peak_rss_kib": 41776,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "fce2f33a9fe4354c3ab8c156ca430149e3e20fc1fe93d2ff6d242b6b5a70ab7d",
+        "bytes": 820
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    },
+    {
+      "id": "final-ruff-repaired",
+      "backend_exercised": "Ruff0.14.10 lint/format; numerical backend not exercised",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-c",
+        "import subprocess,sys; files=subprocess.check_output([\"git\",\"diff\",\"--name-only\",\"c40d4acae1ce58b597267255026d9356565828fd\",\"--\",\"*.py\"],text=True).splitlines(); print(\"Complete changed Python input denominator\",len(files),flush=True); r1=subprocess.call([sys.executable,\"-m\",\"ruff\",\"check\",*files]); r2=subprocess.call([sys.executable,\"-m\",\"ruff\",\"format\",\"--check\",*files]);sys.exit(r1 or r2)"
+      ],
+      "input_closure": "Exact listed command selectors/arguments on the clean pinned checkout; required pytest/config/module imports from that tree",
+      "cwd_as_executed": "/workspace/e02-D-orchestration",
+      "target_sha": "6cbba16d1dd9e303744a473064a6b7c59a7283c7",
+      "target_tree_sha": "1862c7af250d940121d481c5133033376e209dcd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.13949405399944226,
+      "peak_rss_kib": 35292,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff-repaired.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "b9ed4ae9bd23e1c24c7e2b6b4397de048cbecbae08d84a0dcfd966a342709dbc",
+        "bytes": 91
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff-repaired.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    },
+    {
+      "id": "final-transfer-consumers",
+      "backend_exercised": "CPU actual Torch/BoTorch/GPyTorch and HNSW/CAS",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "-ra"
+      ],
+      "input_closure": "Exact listed command selectors/arguments on the clean pinned checkout; required pytest/config/module imports from that tree",
+      "cwd_as_executed": "/workspace/e02-D-orchestration/policy-engine",
+      "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "target_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 16.369717155000217,
+      "peak_rss_kib": 1229400,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-transfer-consumers.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "75074f5deaa6f6b2e578217eed7becb5589681bbd4b2878a17df7b0d68286844",
+        "bytes": 1504
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-transfer-consumers.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    },
+    {
+      "id": "final-architecture-facade-repair",
+      "backend_exercised": "Python architecture instruments and Node22 scanner/generator paths; no numerical-model witness",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "input_closure": "Exact listed command selectors/arguments on the clean pinned checkout; required pytest/config/module imports from that tree",
+      "cwd_as_executed": "/workspace/e02-D-orchestration/policy-engine",
+      "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "target_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 209.26704581899958,
+      "peak_rss_kib": 907568,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-architecture-facade-repair.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "92a4aafae69c13cea74e754c8c24f6c5f36f2070bbeb07d5e5ed846f1ee11625",
+        "bytes": 115757
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-architecture-facade-repair.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    },
+    {
+      "id": "final-ruff-facade-repair",
+      "backend_exercised": "Ruff0.14.10 lint/format; numerical backend not exercised",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-c",
+        "import subprocess,sys; files=subprocess.check_output([\"git\",\"diff\",\"--name-only\",\"c40d4acae1ce58b597267255026d9356565828fd\",\"--\",\"*.py\"],text=True).splitlines(); print(\"Complete changed Python input denominator\",len(files),flush=True); r1=subprocess.call([sys.executable,\"-m\",\"ruff\",\"check\",*files]); r2=subprocess.call([sys.executable,\"-m\",\"ruff\",\"format\",\"--check\",*files]);sys.exit(r1 or r2)"
+      ],
+      "input_closure": "Exact listed command selectors/arguments on the clean pinned checkout; required pytest/config/module imports from that tree",
+      "cwd_as_executed": "/workspace/e02-D-orchestration",
+      "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "target_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.12949961899994378,
+      "peak_rss_kib": 31360,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff-facade-repair.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "b9ed4ae9bd23e1c24c7e2b6b4397de048cbecbae08d84a0dcfd966a342709dbc",
+        "bytes": 91
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff-facade-repair.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    },
+    {
+      "id": "final-artifact-controls-typed",
+      "backend_exercised": "Python/Git byte-reference controls; numerical backend not exercised",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "tests/repo_quality/tools/test_e02_final_artifacts.py",
+        "-ra"
+      ],
+      "input_closure": "Exact listed command selectors/arguments on the clean pinned checkout; required pytest/config/module imports from that tree",
+      "cwd_as_executed": "/workspace/e02-D-orchestration/policy-engine",
+      "target_sha": "50cb10df97d39ad0ec7957799e24b4aa67474559",
+      "target_tree_sha": "716c7a0e87d3c7a17046a99644ec06aedf143547",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 1.391985716999443,
+      "peak_rss_kib": 103352,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-artifact-controls-typed.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "e45be053ce2b0b4919c09cf65ab4c43793d6c53be59d06c06af9c1360414e1f6",
+        "bytes": 98
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-artifact-controls-typed.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    },
+    {
+      "id": "final-ruff-typed",
+      "backend_exercised": "Ruff0.14.10 lint/format; numerical backend not exercised",
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-c",
+        "import subprocess,sys; files=subprocess.check_output([\"git\",\"diff\",\"--name-only\",\"c40d4acae1ce58b597267255026d9356565828fd\",\"--\",\"*.py\"],text=True).splitlines(); print(\"Complete changed Python input denominator\",len(files),flush=True); r1=subprocess.call([sys.executable,\"-m\",\"ruff\",\"check\",*files]); r2=subprocess.call([sys.executable,\"-m\",\"ruff\",\"format\",\"--check\",*files]);sys.exit(r1 or r2)"
+      ],
+      "input_closure": "Exact listed command selectors/arguments on the clean pinned checkout; required pytest/config/module imports from that tree",
+      "cwd_as_executed": "/workspace/e02-D-orchestration",
+      "target_sha": "50cb10df97d39ad0ec7957799e24b4aa67474559",
+      "target_tree_sha": "716c7a0e87d3c7a17046a99644ec06aedf143547",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-environment.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.17424248800034547,
+      "peak_rss_kib": 29972,
+      "immutable_commit_unchanged": true,
+      "numerical_environment_overrides": {},
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff-typed.log",
+        "source_sha": "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+        "sha256": "db742d1175cc000848ffdbdefc653bbdb7b434b8e1a9c566a1fca8e160f6b603",
+        "bytes": 91
+      },
+      "measurement_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-ruff-typed.json@9313a5fc5c9b51a3b227d3c564ed876691bf6d34"
+    }
+  ],
+  "broad_verdict": {
+    "outcome": "FAIL",
+    "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+    "selected_whole_test_files": 95,
+    "executed_tests": 879,
+    "passed": 873,
+    "failed": 6,
+    "collection_skipped_modules": 1,
+    "skip_reason": "SALib not installed; no sensitivity-backend PASS",
+    "six_failure_adjudication": "Exact six selectors fail at both slice base c40 and the frozen broad target. Fixtures/direct admission guards are byte-identical. Full transitive denominator/disjointness not established: no inherited waiver and no broad PASS.",
+    "independent_triage_ref": "numerical-oracle-final-regression-triage.json"
+  },
+  "time_roles": {
+    "source_checkpoints": "Immutable commit/tree identity, not a freshness or authority claim.",
+    "wall_and_RSS": "Actual cloud invocation measurements in each check; no orchestration thread/worker/CPU quota.",
+    "semantic_dates": "Actual cache/action date distinctions and lesson TTL policy consumers exercised in owner receipts; execution tracing does not establish institutional time law."
+  },
+  "post_wave_changes": {
+    "source_format": "Eight changed Python files have identical ASTs to the broad target; final-format-equivalence.json binds all bytes.",
+    "source_import_boundary": "Three transfer modules use existing Core canon/artifacts public facades instead of introduced deep imports. Final 73-test consumer replay includes actual HNSW/CAS restore, original benchmark lineage and all 3 configured GP workflows. Function/type object identity and normalized AST invariants in transfer-canon-facade.json.",
+    "artifact_instrument": "Only final receipt verifier/helper and its meaningful byte-reference controls were added/updated after runtime freeze. This is not a second full regression wave.",
+    "source_freeze_command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "9313a5fc5c9b51a3b227d3c564ed876691bf6d34",
+      "--",
+      "policy-engine/src",
+      "policy-engine/tests/unit",
+      "policy-engine/tests/performance"
+    ]
+  },
+  "artifact_reconciliation": {
+    "outcome": "PASS_BOUNDED_AVAILABLE_BYTES",
+    "target_sha": "50cb10df97d39ad0ec7957799e24b4aa67474559",
+    "report_ref": "final-checks/final-artifact-reconciliation-typed.json",
+    "independent_receipt_ref": "final-artifact-verifier-continuation.json",
+    "scope": "Complete70DJSON/70changedJSON/13releasefragments at this checkpoint; actual file/blob, UTF8 and typed-pointer bytes, sizes, Git identities and185source locators. All45/17/456/115 census identities reconcile.",
+    "limits": "157unbound/derived hash declarations and36raw/external availability limits; no backend execution, authority, global absence or closure from this byte check."
+  },
+  "architecture_verdict": {
+    "outcome": "FAIL",
+    "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+    "initial_deep_import_diagnostics": 157,
+    "final_deep_import_diagnostics": 151,
+    "introduced_diagnostics_removed": 6,
+    "new_reported_deep_import_diagnostics": 0,
+    "scope": "Complete emitted deep-import diagnostic sets compared; full logs retain baseline/OpenAPI/trust-posture drift. A reported edge present at base is not inherited-red adjudication. No ratchet synchronization, exception or generated-snapshot rewrite.",
+    "delta_ref": "final-checks/final-architecture-delta.json",
+    "next_owner": "G and canonical architecture/generated-surface owners reconcile existing contracts before any required gate acceptance."
+  },
+  "real_backend_witnesses": {
+    "gp": {
+      "source_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+      "test_commit": "38ca365ec73d2684608c389ca9ed549f7200a07f",
+      "receipt_ref": "gp-witness.json",
+      "actual_profiles": "CPU Torch2.10/BoTorch0.16.1/GPyTorch1.15.1 and CPU Torch2.14.1/BoTorch0.18.1/GPyTorch1.15.2; 15 tests PASS each, no skips; three fitted-corpus X/Y/count corruptions atomically refused each.",
+      "property": "Warm observations in actual training tensors; learned GP/transform/corpus restored; scheduled fit is distinct from forbidden hidden refit; checkpoint-owned RNG survives external draws and single/batch/single continuation."
+    },
+    "transfer": {
+      "source_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "actual_execution_ref": "final-checks/final-transfer-consumers.log",
+      "defining_test_path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "property": "Actual configured CAS original observations -> HNSW discovery -> transfer manager -> warm bridge -> native SearchLoopRunner -> real SingleTaskGP tensors/inverse-standardizedtargets -> live candidate/evaluation CAS. Changed origin admitszero; malformed outcome excludes one.",
+      "removal_control_ref": "transfer-final-independent-review.json",
+      "statistical_scope": "Analytic fixtures establish plumbing; no cheaper statistic is substituted for production history, source-law validation, performance advantage or historical evaluator results."
+    },
+    "funnel": {
+      "source_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "receipt_refs": [
+        "funnel-01-continuation.json",
+        "funnel-02-config-outcomes.json",
+        "funnel-03-calibration-promotion.json",
+        "numerical-oracle-funnel-review.json"
+      ],
+      "property": "Real Foundry/SimpleLoopEngine reduced/full parity and native promotion effect ordering/candidatebinding witnessed. Supplied budget accounting bridge, effective reduced configuration for policy-native backend, calibration authority and arbitrarycallback authorization remain explicit dependencies."
+    }
+  },
+  "property": {
+    "statement": "Bind engineering claims to actual producer/artifact/bridge/consumer executions without turning metadata, package output or caller assertions into closure.",
+    "runtime_path": [
+      "canonical strategies -> state bytes -> admitted receiver -> real model/next ask",
+      "originalCAS evaluation -> indexed history -> configured transfer -> receiving GP -> newCAS measurements",
+      "funnel stage output -> continuation -> actual downstream engine/native promotion effect",
+      "stress stream -> bounded retained examples/exact counters -> strategy/controller -> CAS audit",
+      "lesson evidence -> active query/TTL policy -> CAS reopen -> native hint consumer"
+    ],
+    "proxy_divergence": "A saved model or PASS file existed while warm corpus/counters/RNG were absent. Marker-preserving content-binding removal admitted an extra original-input mismatch into actual GP. Full budget/config/authority declarations can still coexist with an unwired downstream provider.",
+    "negative_controls": [
+      "real warm ingestion/posterior/forbidden-refit comparisons and future/corpus atomic refusals",
+      "marker-preserving HV fake0/Inf, retention/counter/direction and convergence-freshness removals",
+      "real configuredGP content-binding removal with unchanged CAS refs and tensor oracle",
+      "funnel continuation/effect-order/typed-date cache removals",
+      "immutable artifact byte/locator/census corruption and filename/inline discrimination"
+    ]
+  },
+  "predicate_basis": "not_established",
+  "predicate_classifications": {
+    "bounded_runtime_properties": "recomputed and independently_reconciled via committed native/numerical witnesses",
+    "original_source_law_origin_tenant_authorization": "consumer_asserted/not_established; equality/CAS consistency carries candidate grade only",
+    "source_feasible_provider_and_authority": "not_established; fail-closed publication seams proposed for A, actual source provider unallocated",
+    "baseline_backend_execution_and_raw_bytes": "not_established for historical rows; exact rerun locators remain inbaseline-map",
+    "closure_or_principal_semantics": "not_established by D; no finding closure requested from a surrogate statistic"
+  },
+  "capability_state_or_finding_state": "partial, bounded engineering checkpoint; regression and architecture gates FAIL; all 45 finding closures unestablished",
+  "A_dependency": {
+    "patch_ref": "search-A-owner-dependency.patch",
+    "receipt_refs": [
+      "search-A-owner-dependency.json",
+      "transfer-final-independent-review.json",
+      "search-closeout-review.json"
+    ],
+    "state": "proposed/not_applied; provider_missing/bridge_missing",
+    "order": "Accept D snapshot/contract changes first: proposed A body uses new hypervolume_assessments_by_view. Apply-only success on c40 does not prove runtime compatibility. Then A wires actual run/tenant/cell source-record supplier and tests actual builder/node/CAS consumers with omission/nonfinite/removal controls.",
+    "G_foreign_blob_compatibility_checkpoint": "46748d3d0815b48df1e0d5ed39ffcdff4e251435"
+  },
+  "G_dependency_checkpoint": {
+    "fetched_sha": "46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+    "observed_delta": "Latest published G checkpoint also accepts bounded E bootstrap/composition/calibration and F causal facade witnesses. The two A patch destination blobs remain identical to the D candidate. D runtime evidence remains pinned to its independent c40-based source; no combined G runtime or compatibility verdict is implied.",
+    "integration_order": "Serialized source/checkpoint acceptance, actual transfer/funnel consumers, then G-local history/evaluator checks and residual adjudication. Static invocation unresolved entries do not impose artificial cloud compute barriers.",
+    "previous_fetched_sha": "d5ced7616041d0fc3c802c1394a1d28c4839d5b4",
+    "fetched_tree_sha": "8d623767136c809955eb89c9fce30277bea4ac0b",
+    "foreign_patch_destination_blobs": {
+      "policy-engine/src/polisyos/scientist/policy_design/output.py": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "6f48872f02bbd54fd70bb257856a0eeb789f516c"
+    },
+    "product_source_paths_changed_since_previous_fetch": [
+      "policy-engine/src/polisyos/calibration/continuous.py",
+      "policy-engine/src/polisyos/calibration/curve.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py"
+    ],
+    "evidence_command": [
+      "git",
+      "fetch",
+      "origin",
+      "refs/heads/codex/e02-integration"
+    ]
+  },
+  "local_G_protocol": [
+    {
+      "findings": [
+        "B113",
+        "B114",
+        "B115",
+        "B128",
+        "B130",
+        "B131",
+        "B132",
+        "B134"
+      ],
+      "candidate_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "remote_receipts": [
+        "gp-witness.json",
+        "final-checks/final-transfer-consumers.log",
+        "transfer-final-independent-review.json",
+        "final-residual-map.json"
+      ],
+      "required_inputs": "Production original candidate/evaluation CAS/history, source/target bounds/units/objective/directions/split/origin/tenant declarations and actual local evaluator. Keep full data read-only/local.",
+      "decision": "Inspect actual admitted/rejected corpus and numerical continuation using the native configured workflow; compare actual original evaluator measurements and original lineage. Admit no optimization/history-equivalence advantage from these analytic fixtures. No appointed production harness/source authority is invented; G records provider gaps separately."
+    },
+    {
+      "findings": [
+        "B106",
+        "B116",
+        "B117",
+        "B122",
+        "B133"
+      ],
+      "candidate_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "decision": "Principal-held scenario/formula completeness, legacy compatibility/crash-reader window, near-zero scientific stopping policy and distributed guarantees require their exact owner ruling. G integration does not mint it."
+    },
+    {
+      "findings": [
+        "B109",
+        "B111",
+        "B120",
+        "B157",
+        "B158",
+        "B161",
+        "B163",
+        "B164",
+        "LA-014",
+        "LA-015"
+      ],
+      "candidate_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "decision": "Provider/charge/configuration/calibration/admission/migration bridges and unknown registry-profile acceptance remain engineering/semantic-owner dependencies. They are not all production-data limitations; exact next owners and falsifiers are in the45-row index."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "G accepts the exact published branch/head, reviews source and bounded receipts, and makes its own integration/closure decision. Main publication is outside this task.",
+    "Production evaluator/history remains local. No cross-backend bit identity, source authenticity, distributed atomicity, universalANNrecall or scientific restart superiority is established.",
+    "Required static production_invocation instrument remains UNRESOLVED (23 search callables / 3 FUN entries at their pinned sources). Actual bounded runtime witnesses do not prove served HTTP/deployment absence or completeness.",
+    "Final contract review records actual ParetoRegistry disk admission of unsupported schema3.0. B111 remains bounded, next D registry/G schema acceptance.",
+    "Old-head CI reds are exactly attributed to their own checkout/environment in ci-oldhead.json. New PR checks may be pending/failed; no CI bypass or old-head PASS promotion.",
+    "Native deciding logs are kept byte-for-byte, including tool-generated whitespace. Source/test/release whitespace check and full receipt diff check have separate scope; no full whitespace-gate PASS is inferred."
+  ]
+}

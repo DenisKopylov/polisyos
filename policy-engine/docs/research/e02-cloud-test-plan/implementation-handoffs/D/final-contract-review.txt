@@ -1,0 +1,41 @@
+Frozen review source: dabdd83fe235155a91dc6c7b1d85c7cfa5db6346
+Final reconciled source: 6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2
+
+Command:
+PYTHONPATH=src /workspace/e02-D-locked-env/bin/python -m pytest --confcutdir=tests/unit/scientist/methods -q tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_autotune_first_suggestion_uses_real_space_and_checkpoint_protocol tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows tests/unit/scientist/methods/search/test_hypervolume_limitations.py
+CWD:
+/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/final-contract-dabdd83/policy-engine
+Exit code: 0
+Complete deciding stdout:
+...                                                                      [100%]
+=============================== warnings summary ===============================
+../../../../../../../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../../../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+Interpretation: exactly three selected native cases passed, zero skips. Repository pytest quiet settings omit the elapsed/count footer. No whole-file or broad regression claim.
+
+Actual persisted-version probe, complete stdout, exit code 0:
+{"owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/final-contract-dabdd83/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py", "versions": {"botorch": "0.16.1", "gpytorch": "1.15.1", "pydantic": "2.12.5", "torch": "2.10.0+cu128"}}
+{"actual_disk_reader": "ParetoRegistry.get_snapshot", "assessment": {"predicate_basis": "not_established", "reason": "non_finite_derived_hypervolume", "status": "unavailable"}, "hypervolume": null, "schema_version": "3.0", "status": "ADMITTED"}
+{"errors": [{"ctx": {"expected": "'1.0' or '2.0'"}, "input": "3.0", "loc": ["schema_version"], "msg": "Input should be '1.0' or '2.0'", "type": "literal_error"}], "schema_version": "3.0", "status": "REFUSED", "typed_reader": "ParetoFront"}
+{"errors": [{"ctx": {"expected": "'1.0' or '3.0'"}, "input": "2.0", "loc": ["schema_version"], "msg": "Input should be '1.0' or '3.0'", "type": "literal_error"}], "schema_version": "2.0", "status": "REFUSED", "typed_reader": "PolicyFrontierReport"}
+
+The latter two observations are typed-model refusals; the registry admission uses its real temporary filesystem reader. The native overflow test separately exercises a real CAS producer, reopened CAS reader, retained null assessment, and zero/diagnostic-removal controls.
+
+B112 original baseline:
+numerical-oracle-baseline.txt at d61ff66521cf52b95bddc51dc24c9b368b6b5451 reports KeyError('_strategy_metadata') and real facade warning: SearchSpace object has no attribute last_sobol_sampler_identity.
+Baseline versus final normalized AST identity:
+test_autotune_first_suggestion_uses_real_space_and_checkpoint_protocol: 98ad9f11b0e7acd666dd09ddcf4098a4bb5503e2d9eb155890fcd4c5777d9f1e
+_optimizer helper: 6589722e899f0c53ce823811507edd108e91e32630bb22847267e6054422b60e
+Both unchanged. No weakened assertion or stubbed positive backend.
+
+Source reconciliation:
+Bayesian facade dabdd83 -> final6ac formatting changes have identical normalized AST.
+GP production, GP canonical15 witness, search-space fingerprint, base checkpoint gate, HypervolumeAssessment, ParetoFront, ParetoRegistrySnapshot, downstream PolicyFrontierReport and B112 test bytes are identical across those two immutable source commits.
+All 13 changed release fragments at final6ac and the sole changed source README were read in full. Exact identities and complete bounded consumer census are in final-contract-review.json.
+
+Residual B111: the registry snapshot accepts an unsupported numeric version; strict front and CAS report model gates do not prove a registry allowlist. Canonical next owner: D registry / G schema acceptance. No source fix, additional GP mutation ladder, new scientific authority, or finding closure claimed.

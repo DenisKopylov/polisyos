@@ -10,6 +10,7 @@ published prefix.
 from __future__ import annotations
 
 import hashlib
+import os
 from pathlib import Path
 from typing import Any
 
@@ -350,6 +351,138 @@ def test_successful_stream_rejects_a_changed_input_snapshot(
 
     final_digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
     assert final_digest != initial_digest
+
+
+def test_real_parquet_reader_uses_frozen_bytes_during_source_aba(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A rewrite restored before EOF cannot alter rows read from the snapshot."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, source, frame = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    original_bytes = artifact.read_bytes()
+    initial_digest = hashlib.sha256(original_bytes).hexdigest()
+    changed = frame.copy()
+    changed.loc[:, "metric_a"] += 1000.0
+    changed.loc[:, "metric_b"] += 10000.0
+
+    import pyarrow.parquet as parquet
+
+    real_parquet_file = parquet.ParquetFile
+    opened_paths: list[Path] = []
+
+    class AbaParquetFile:
+        """Wrap the real reader while changing and restoring the raw path."""
+
+        def __init__(self, path: Path) -> None:
+            opened_paths.append(Path(path))
+            self._reader = real_parquet_file(path)
+
+        def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
+            del batch_size
+            for batch_index, batch in enumerate(
+                self._reader.iter_batches(batch_size=2, columns=columns)
+            ):
+                yield batch
+                if batch_index == 0:
+                    changed.to_parquet(artifact, index=False)
+                elif batch_index == 1:
+                    artifact.write_bytes(original_bytes)
+
+    monkeypatch.setattr(parquet, "ParquetFile", AbaParquetFile)
+
+    emitted = list(sources._iter_observation_metric_frames(config))
+
+    assert len(opened_paths) == 1
+    assert opened_paths[0] != artifact
+    assert not opened_paths[0].exists()
+    assert hashlib.sha256(artifact.read_bytes()).hexdigest() == initial_digest
+    observed = {"metric_a": [], "metric_b": []}
+    for _, metric_id, _, metric_frame in emitted:
+        observed[metric_id].extend(float(value) for value in metric_frame["observed_value"])
+    assert observed == {
+        "metric_a": [10.0, 20.0, 30.0, 40.0],
+        "metric_b": [100.0, 200.0, 300.0, 400.0],
+    }
+
+
+def test_snapshot_copy_detects_same_size_mtime_content_change(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Snapshot identity uses content hash, not size or timestamp proxies."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, source, _ = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    original_stat = artifact.stat()
+    original_bytes = artifact.read_bytes()
+    initial_digest = hashlib.sha256(original_bytes).hexdigest()
+    changed_bytes = bytearray(original_bytes)
+    changed_bytes[len(changed_bytes) // 2] ^= 1
+    changed_digest = hashlib.sha256(changed_bytes).hexdigest()
+    assert changed_digest != initial_digest
+
+    real_copyfile = sources.shutil.copyfile
+
+    def change_content_before_copy(source_path: Path, destination_path: Path) -> Path:
+        if Path(source_path) == artifact:
+            artifact.write_bytes(changed_bytes)
+            os.utime(
+                artifact,
+                ns=(original_stat.st_atime_ns, original_stat.st_mtime_ns),
+            )
+            changed_stat = artifact.stat()
+            assert changed_stat.st_size == original_stat.st_size
+            assert changed_stat.st_mtime_ns == original_stat.st_mtime_ns
+        return real_copyfile(source_path, destination_path)
+
+    monkeypatch.setattr(sources.shutil, "copyfile", change_content_before_copy)
+
+    with pytest.raises(RuntimeError, match="snapshot"):
+        list(sources._iter_observation_metric_frames(config))
+
+
+def test_d2_does_not_materialize_panels_after_persistent_source_change(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """D2 consumes a failing stream without returning partial panel artifacts."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, source, frame = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    changed = frame.copy()
+    changed.loc[:, "metric_a"] += 1000.0
+    changed.loc[:, "metric_b"] += 10000.0
+
+    class MutatingParquetFile:
+        """Persist a new source generation after D2 writes its first shard."""
+
+        def __init__(self, _path: Path) -> None:
+            pass
+
+        def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
+            del batch_size, columns
+            yield _batch(frame.iloc[:2], size=2)
+            changed.to_parquet(artifact, index=False)
+            yield _batch(changed.iloc[2:], size=2)
+
+    import pyarrow.parquet as parquet
+
+    monkeypatch.setattr(parquet, "ParquetFile", MutatingParquetFile)
+
+    panel_dir = config.build_root.calibration_dir / "d2"
+    with pytest.raises(RuntimeError, match="snapshot"):
+        sources.build_d2_stage(config)
+
+    assert not (panel_dir / "observation_panel_monthly.parquet").exists()
+    assert not (panel_dir / "observation_panel_annual.parquet").exists()
 
 
 def test_build_d2_materializes_unique_observation_shards_and_counts(

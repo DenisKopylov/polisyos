@@ -5,6 +5,7 @@ from __future__ import annotations
 import gc
 import json
 import shutil
+import tempfile
 from datetime import date, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -1365,98 +1366,130 @@ def _iter_observation_metric_frames(
             ]:
                 if column and column not in requested_columns:
                     requested_columns.append(column)
-        batch_index = 0
-        row_offset = 0
-        emitted_metric_ids: set[str] = set()
         snapshot_sha256 = sha256_file(artifact_path)
-
-        def _assert_snapshot_unchanged(
-            path: Path = artifact_path,
-            expected_sha256: str = snapshot_sha256,
-        ) -> None:
-            """Reject a mixed source generation before the stage can be published."""
-            if sha256_file(path) != expected_sha256:
-                raise RuntimeError(
-                    "normalized observation artifact changed during streaming; "
-                    "cannot publish or resume a mixed snapshot"
-                )
-
+        ensure_dirs(config.build_root.tmp_dir)
+        with tempfile.NamedTemporaryFile(
+            prefix="ukraine-observation-snapshot-",
+            suffix=".parquet",
+            dir=config.build_root.tmp_dir,
+            delete=False,
+        ) as snapshot_handle:
+            snapshot_path = Path(snapshot_handle.name)
         try:
-            import pyarrow.parquet as pq
+            shutil.copyfile(artifact_path, snapshot_path)
+            if sha256_file(snapshot_path) != snapshot_sha256:
+                raise RuntimeError(
+                    "normalized observation artifact changed while creating its "
+                    "immutable reader snapshot"
+                )
+            yield from _iter_observation_metric_frames_from_snapshot(
+                source=source,
+                artifact_path=artifact_path,
+                snapshot_path=snapshot_path,
+                requested_columns=requested_columns,
+                expected_sha256=snapshot_sha256,
+            )
+        finally:
+            snapshot_path.unlink(missing_ok=True)
 
-            parquet_file = pq.ParquetFile(artifact_path)
-            for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
-                frame = batch.to_pandas()
-                for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                    source,
-                    frame,
-                    row_offset=row_offset,
-                ):
-                    yield source, metric_id, batch_index, metric_frame
-                    emitted_metric_ids.add(metric_id)
-                row_offset += len(frame)
-                batch_index += 1
-                emitted_metric_ids.clear()
-                del frame
-            _assert_snapshot_unchanged()
-        except (ImportError, OSError):
-            _assert_snapshot_unchanged()
 
-            if row_offset == 0 and not emitted_metric_ids:
-                # Before publication there is no cursor to preserve, so the
-                # established pandas reader remains an allowed fallback.
-                frame = _read_parquet_frame(artifact_path, columns=requested_columns)
-                _assert_snapshot_unchanged()
-                for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                    source, frame, row_offset=0
-                ):
-                    yield source, metric_id, batch_index, metric_frame
+def _iter_observation_metric_frames_from_snapshot(
+    *,
+    source: SourceConfig,
+    artifact_path: Path,
+    snapshot_path: Path,
+    requested_columns: list[str] | None,
+    expected_sha256: str,
+) -> Iterable[tuple[SourceConfig, str, int, pd.DataFrame]]:
+    """Stream one source from verified bytes while checking its source identity."""
+    row_offset = 0
+    batch_index = 0
+    emitted_metric_ids: set[str] = set()
+
+    def _assert_source_unchanged() -> None:
+        """Reject a persistent source change before publishing or resuming."""
+        if sha256_file(artifact_path) != expected_sha256:
+            raise RuntimeError(
+                "normalized observation artifact changed during streaming; "
+                "cannot publish or resume a mixed snapshot"
+            )
+
+    try:
+        import pyarrow.parquet as pq
+
+        parquet_file = pq.ParquetFile(snapshot_path)
+        for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
+            frame = batch.to_pandas()
+            for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                source,
+                frame,
+                row_offset=row_offset,
+            ):
+                yield source, metric_id, batch_index, metric_frame
+                emitted_metric_ids.add(metric_id)
+            row_offset += len(frame)
+            batch_index += 1
+            emitted_metric_ids.clear()
+            del frame
+        _assert_source_unchanged()
+    except (ImportError, OSError):
+        _assert_source_unchanged()
+
+        if row_offset == 0 and not emitted_metric_ids:
+            # Before publication there is no cursor to preserve, so the
+            # established pandas reader remains an allowed fallback. It reads
+            # the same verified bytes as the streaming reader.
+            frame = _read_parquet_frame(snapshot_path, columns=requested_columns)
+            _assert_source_unchanged()
+            for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                source, frame, row_offset=0
+            ):
+                yield source, metric_id, batch_index, metric_frame
+            del frame
+            return
+
+        # A reader failure after publication must resume from the same
+        # verified bytes and discard complete batches already accounted for.
+        # When failure is between metric frames, remove only yielded metric(s);
+        # equal values are never deduped.
+        resumed_row_offset = 0
+        pending_metric_ids = set(emitted_metric_ids)
+        parquet_file = pq.ParquetFile(snapshot_path)
+        for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
+            frame = batch.to_pandas()
+            batch_start = resumed_row_offset
+            batch_end = batch_start + len(frame)
+            if batch_end <= row_offset:
+                resumed_row_offset = batch_end
                 del frame
                 continue
 
-            # A reader failure after publication must resume from the same
-            # immutable snapshot.  Re-open the streaming reader and discard
-            # complete batches already accounted for.  When the failure was
-            # between metric frames, the per-batch metric cursor removes only
-            # the metric(s) already yielded; equal values are never deduped.
-            resumed_row_offset = 0
-            pending_metric_ids = set(emitted_metric_ids)
-            parquet_file = pq.ParquetFile(artifact_path)
-            for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
-                frame = batch.to_pandas()
-                batch_start = resumed_row_offset
-                batch_end = batch_start + len(frame)
-                if batch_end <= row_offset:
-                    resumed_row_offset = batch_end
-                    del frame
+            effective_row_offset = batch_start
+            if batch_start < row_offset:
+                frame = frame.iloc[row_offset - batch_start :].reset_index(drop=True)
+                effective_row_offset = row_offset
+
+            for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                source,
+                frame,
+                row_offset=effective_row_offset,
+            ):
+                if effective_row_offset == row_offset and metric_id in pending_metric_ids:
+                    pending_metric_ids.remove(metric_id)
                     continue
-
-                effective_row_offset = batch_start
-                if batch_start < row_offset:
-                    frame = frame.iloc[row_offset - batch_start :].reset_index(drop=True)
-                    effective_row_offset = row_offset
-
-                for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                    source,
-                    frame,
-                    row_offset=effective_row_offset,
-                ):
-                    if effective_row_offset == row_offset and metric_id in pending_metric_ids:
-                        pending_metric_ids.remove(metric_id)
-                        continue
-                    yield source, metric_id, batch_index, metric_frame
-                batch_index += 1
-                resumed_row_offset = batch_end
-                del frame
-            if pending_metric_ids:
-                raise RuntimeError(
-                    "stream restart ended before the pending observation metric cursor"
-                )
-            if resumed_row_offset < row_offset:
-                raise RuntimeError(
-                    "stream restart ended before the confirmed observation cursor"
-                )
-            _assert_snapshot_unchanged()
+                yield source, metric_id, batch_index, metric_frame
+            batch_index += 1
+            resumed_row_offset = batch_end
+            del frame
+        if pending_metric_ids:
+            raise RuntimeError(
+                "stream restart ended before the pending observation metric cursor"
+            )
+        if resumed_row_offset < row_offset:
+            raise RuntimeError(
+                "stream restart ended before the confirmed observation cursor"
+            )
+        _assert_source_unchanged()
 
 
 def _build_observation_frame(config: PipelineConfig) -> pd.DataFrame:

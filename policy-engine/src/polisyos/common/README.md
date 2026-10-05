@@ -57,6 +57,18 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
   stable public surface without updating the facade and
   [Public Surface](../../../docs/reference/public-surface.md).
 
+## Shared executor bridge
+
+`async_tools` preserves the caller's context variables across its sync/async
+bridges. Nested calls from a shared-executor worker can submit work while the
+executor has capacity. When every worker slot is already reserved, nested
+submission raises `RuntimeError` before enqueueing work that could deadlock.
+Callers composing nested work should prefer the async entrypoints and handle
+this explicit refusal when bridging synchronously.
+
+Cancelling a queued job releases its reservation. A running Python thread
+still needs cooperative cancellation; a timeout does not forcibly stop it.
+
 ## Internal Layout
 
 - `__init__.py` owns the public lazy facade.
@@ -128,4 +140,4 @@ public-surface refresh, and compatibility note.
 - [Core / Common / Runtime Audit Remediation Plan](../../../docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md)
 - [Common migrations](migrations/README.md)
 
-- Last updated: 2026-05-06
+- Last updated: 2026-10-05

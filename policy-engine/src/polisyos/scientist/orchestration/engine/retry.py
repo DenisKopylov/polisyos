@@ -21,6 +21,7 @@ import os
 import queue
 import random
 import signal
+import sys
 import threading
 import time
 from concurrent.futures import TimeoutError as FuturesTimeoutError
@@ -195,10 +196,7 @@ class _AttemptFacade:
             return lambda *args, **kwargs: self._authority.invoke(
                 value,
                 *(_unwrap_manifest_value(arg) for arg in args),
-                **{
-                    key: _unwrap_manifest_value(item)
-                    for key, item in kwargs.items()
-                },
+                **{key: _unwrap_manifest_value(item) for key, item in kwargs.items()},
             )
         return value
 
@@ -233,10 +231,7 @@ class _AttemptCollectionFacade:
                 self._authority.invoke(
                     value,
                     *(_unwrap_manifest_value(arg) for arg in args),
-                    **{
-                        key: _unwrap_manifest_value(item)
-                        for key, item in kwargs.items()
-                    },
+                    **{key: _unwrap_manifest_value(item) for key, item in kwargs.items()},
                 ),
                 self._authority,
             )
@@ -251,8 +246,7 @@ class _AttemptCollectionFacade:
             )
         if callable(value) and name == "values":
             return lambda *args, **kwargs: (
-                _wrap_manifest_value(item, self._authority)
-                for item in value(*args, **kwargs)
+                _wrap_manifest_value(item, self._authority) for item in value(*args, **kwargs)
             )
         if callable(value) and name == "copy":
             return lambda *args, **kwargs: _wrap_manifest_value(
@@ -264,9 +258,7 @@ class _AttemptCollectionFacade:
         return _wrap_manifest_value(self._target[key], self._authority)
 
     def __setitem__(self, key: Any, value: Any) -> None:
-        self._authority.invoke(
-            self._target.__setitem__, key, _unwrap_manifest_value(value)
-        )
+        self._authority.invoke(self._target.__setitem__, key, _unwrap_manifest_value(value))
 
     def __delitem__(self, key: Any) -> None:
         self._authority.invoke(self._target.__delitem__, key)
@@ -298,10 +290,7 @@ class _AttemptModelFacade:
             return lambda *args, **kwargs: _wrap_manifest_value(
                 value(
                     *(_unwrap_manifest_value(arg) for arg in args),
-                    **{
-                        key: _unwrap_manifest_value(item)
-                        for key, item in kwargs.items()
-                    },
+                    **{key: _unwrap_manifest_value(item) for key, item in kwargs.items()},
                 ),
                 self._authority,
             )
@@ -382,9 +371,7 @@ class _AttemptRunFacade(_AttemptFacade):
                     value = None
                 else:
                     write_methods = (
-                        _STORE_WRITE_METHODS
-                        if name == "store"
-                        else _TRACE_WRITE_METHODS
+                        _STORE_WRITE_METHODS if name == "store" else _TRACE_WRITE_METHODS
                     )
                     value = _AttemptFacade(
                         target_value,
@@ -448,9 +435,7 @@ def _build_attempt_context(target: Any, authority: _AttemptAuthority) -> Any:
     try:
         return dataclasses.replace(target, **replacements)
     except (TypeError, ValueError) as exc:
-        raise RuntimeError(
-            "failed to preserve ExecutionContext type for timed attempt"
-        ) from exc
+        raise RuntimeError("failed to preserve ExecutionContext type for timed attempt") from exc
 
 
 class RetryPolicy(BaseModel):
@@ -484,11 +469,7 @@ def _retry_write_paths(node: Any) -> tuple[str, ...]:
     if isinstance(raw_paths, str):
         raw_paths = (raw_paths,)
     try:
-        return tuple(
-            path
-            for path in raw_paths
-            if isinstance(path, str) and path.strip()
-        )
+        return tuple(path for path in raw_paths if isinstance(path, str) and path.strip())
     except TypeError:
         return ()
 
@@ -771,8 +752,8 @@ def execute_with_retry_sync(
 ) -> NodeOutcome:
     """Sync retry wrapper for ``WorkflowExecutor``.
 
-    * Timeout: runs ``node.execute`` in a thread with
-      ``concurrent.futures.Future.result(timeout=...)``.
+    * Timeout: fork worker when available, with an owned Linux supervisor;
+      otherwise a shared thread with revocable attempt authority.
     * Retry: loops up to ``max_retries``, exponential backoff via ``time.sleep()``.
     """
     retry_policy = _apply_bounded_liveness_retry_ceiling(
@@ -795,11 +776,7 @@ def execute_with_retry_sync(
                 f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
             )
 
-        attempt_state = (
-            _fresh_retry_state(state, node)
-            if retry_policy.max_retries > 0
-            else state
-        )
+        attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
         try:
             if timeout_s is not None:
                 outcome = _execute_with_timeout_sync(
@@ -1061,6 +1038,9 @@ def _terminate_owned_process(
 
 def _close_worker_process(process: mp.Process) -> None:
     """Release process resources after the owned process has stopped."""
+    if process.pid is None:
+        process.close()
+        return
     if process.is_alive():
         return
     process.join(timeout=0.0)
@@ -1089,9 +1069,7 @@ def _drain_result_sync(
         if remaining <= 0:
             raise _WorkerComputeTimeout
         try:
-            result = result_queue.get(
-                timeout=min(_PROCESS_RESULT_POLL_S, remaining)
-            )
+            result = result_queue.get(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
         except queue.Empty:
             continue
         if not _completion_before_deadline(completion_time, compute_deadline):
@@ -1105,9 +1083,7 @@ def _drain_result_sync(
     while time.monotonic() < delivery_deadline:
         remaining = delivery_deadline - time.monotonic()
         try:
-            return result_queue.get(
-                timeout=min(_PROCESS_RESULT_POLL_S, remaining)
-            )
+            return result_queue.get(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
         except queue.Empty:
             continue
     raise _WorkerDeliveryTimeout
@@ -1165,9 +1141,7 @@ async def _join_worker_until_async(process: mp.Process, *, deadline: float) -> N
         if deadline - time.monotonic() <= 0:
             raise _WorkerDeliveryTimeout
         process.join(timeout=0.0)
-        await asyncio.sleep(
-            min(_PROCESS_RESULT_POLL_S, max(0.0, deadline - time.monotonic()))
-        )
+        await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, max(0.0, deadline - time.monotonic())))
 
 
 def _worker_timeout_error(
@@ -1177,6 +1151,102 @@ def _worker_timeout_error(
 ) -> NodeTimeoutError:
     suffix = "" if cleanup_complete else "; owned process cleanup incomplete"
     return NodeTimeoutError(f"Node exceeded timeout of {timeout_s}s{suffix}")
+
+
+def _enable_linux_child_subreaper() -> None:
+    """Adopt orphaned descendants only inside the owned supervisor process."""
+    import ctypes
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.prctl(36, 1, 0, 0, 0) != 0:  # Linux PR_SET_CHILD_SUBREAPER
+        error_number = ctypes.get_errno()
+        raise OSError(error_number, os.strerror(error_number))
+
+
+def _node_execute_supervisor(
+    node: Any,
+    ctx: Any,
+    state: ExperimentState,
+    result_queue: mp.Queue[Any],
+    group_ready: Any,
+    completion_time: Any,
+) -> None:
+    """Own computation and reap its process tree before reporting worker exit.
+
+    Linux PID1 may retain orphan zombies indefinitely. An isolated subreaper
+    keeps that reaping obligation here, without changing the caller process.
+    Descendants that leave the process group are adopted when their parent
+    exits and killed through the kernel parent relation. This is ownership
+    and cleanup, not a sandbox against a deliberately escaping node.
+    """
+    stopping = False
+
+    def _request_stop(_signum: int, _frame: Any) -> None:
+        nonlocal stopping
+        stopping = True
+
+    try:
+        _enable_linux_child_subreaper()
+        os.setsid()
+        signal.signal(signal.SIGTERM, _request_stop)
+        group_ready.set()
+        worker_pid = os.fork()
+    except _RETRY_RUNTIME_ERRORS as exc:
+        completion_time.value = time.monotonic()
+        result_queue.put(("error", f"worker supervision failed: {type(exc).__name__}: {exc}"))
+        return
+
+    if worker_pid == 0:
+        signal.signal(signal.SIGTERM, signal.SIG_DFL)
+        if stopping:
+            os._exit(1)
+        exit_code = 0
+        try:
+            _node_execute_worker(node, ctx, state, result_queue, completion_time=completion_time)
+        except BaseException:
+            exit_code = 1
+        finally:
+            # os._exit does not run multiprocessing's Queue finalizers. Flush
+            # while the caller drains; large results must not vanish on exit.
+            _close_result_queue(result_queue)
+        os._exit(exit_code)
+
+    worker_stopped = False
+    cleanup_deadline: float | None = None
+    while True:
+        try:
+            child_pid, _status = os.waitpid(-1, os.WNOHANG)
+        except ChildProcessError:
+            return
+        if child_pid > 0:
+            worker_stopped = worker_stopped or child_pid == worker_pid
+            continue
+        if (stopping or worker_stopped) and cleanup_deadline is None:
+            cleanup_deadline = time.monotonic() + _PROCESS_CLEANUP_GRACE_S / 2
+            # Our handler keeps the supervisor alive to reap every killed child.
+            os.killpg(os.getpgrp(), signal.SIGTERM)
+        if cleanup_deadline is not None and time.monotonic() >= cleanup_deadline:
+            # SIGKILL cannot target our group without killing the reaper itself.
+            # Only the supervisor's current, adopted direct children are ours.
+            # Read the kernel parent relation: task/children is absent on kernels
+            # without CONFIG_CHECKPOINT_RESTORE. Unreaped children cannot have
+            # their PIDs reused between this read and the next waitpid call.
+            from pathlib import Path
+
+            for process_path in Path("/proc").iterdir():
+                if not process_path.name.isdecimal():
+                    continue
+                try:
+                    process_stat = (process_path / "stat").read_text()
+                except (FileNotFoundError, ProcessLookupError):
+                    continue
+                parent_pid = int(process_stat.rsplit(")", 1)[1].split()[1])
+                if parent_pid == os.getpid():
+                    try:
+                        os.kill(int(process_path.name), signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+        time.sleep(_PROCESS_RESULT_POLL_S)
 
 
 def _execute_with_timeout_process(
@@ -1193,7 +1263,7 @@ def _execute_with_timeout_process(
     group_ready = mp_ctx.Event()
     completion_time = mp_ctx.Value("d", 0.0)
     process = mp_ctx.Process(
-        target=_node_execute_worker,
+        target=_node_execute_supervisor if sys.platform == "linux" else _node_execute_worker,
         args=(node, ctx, state, result_queue, group_ready, completion_time),
         daemon=True,
     )
@@ -1215,6 +1285,8 @@ def _execute_with_timeout_process(
             completion_time=lifecycle.completion_time,
         )
         _join_worker_until(process, deadline=_delivery_deadline())
+        if process.exitcode != 0:
+            raise RuntimeError(f"Node timeout worker cleanup failed (exitcode={process.exitcode})")
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
             process,
@@ -1231,15 +1303,13 @@ def _execute_with_timeout_process(
             lifecycle.process_group_id,
         )
         authority.revoke()
-        cleanup_suffix = (
-            "" if cleanup_complete else "; owned process cleanup incomplete"
-        )
+        cleanup_suffix = "" if cleanup_complete else "; owned process cleanup incomplete"
         raise RuntimeError(
             "Node timeout worker result delivery exceeded bounded grace "
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
-        if process.is_alive():
+        if process.is_alive() or _owned_process_group_is_alive(lifecycle.process_group_id):
             _terminate_owned_process(process, lifecycle.process_group_id)
         _close_worker_process(process)
         _close_result_queue(result_queue)
@@ -1274,7 +1344,7 @@ async def _execute_with_timeout_process_async(
     group_ready = mp_ctx.Event()
     completion_time = mp_ctx.Value("d", 0.0)
     process = mp_ctx.Process(
-        target=_node_execute_worker,
+        target=_node_execute_supervisor if sys.platform == "linux" else _node_execute_worker,
         args=(node, ctx, state, result_queue, group_ready, completion_time),
         daemon=True,
     )
@@ -1296,6 +1366,8 @@ async def _execute_with_timeout_process_async(
             completion_time=lifecycle.completion_time,
         )
         await _join_worker_until_async(process, deadline=_delivery_deadline())
+        if process.exitcode != 0:
+            raise RuntimeError(f"Node timeout worker cleanup failed (exitcode={process.exitcode})")
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
             process,
@@ -1312,15 +1384,13 @@ async def _execute_with_timeout_process_async(
             lifecycle.process_group_id,
         )
         authority.revoke()
-        cleanup_suffix = (
-            "" if cleanup_complete else "; owned process cleanup incomplete"
-        )
+        cleanup_suffix = "" if cleanup_complete else "; owned process cleanup incomplete"
         raise RuntimeError(
             "Node timeout worker result delivery exceeded bounded grace "
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
-        if process.is_alive():
+        if process.is_alive() or _owned_process_group_is_alive(lifecycle.process_group_id):
             _terminate_owned_process(process, lifecycle.process_group_id)
         _close_worker_process(process)
         _close_result_queue(result_queue)
@@ -1397,14 +1467,12 @@ def _node_execute_worker(
                 result_queue.put(
                     (
                         "error",
-                        "failed to send result: "
-                        f"{type(send_exc).__name__}: {send_exc}",
+                        f"failed to send result: {type(send_exc).__name__}: {send_exc}",
                     )
                 )
             except _RETRY_RUNTIME_ERRORS as fallback_exc:
                 raise RuntimeError(
-                    "failed to send result: "
-                    f"{type(send_exc).__name__}: {send_exc}"
+                    f"failed to send result: {type(send_exc).__name__}: {send_exc}"
                 ) from fallback_exc
 
     def _mark_completion() -> None:
@@ -1505,11 +1573,7 @@ async def execute_with_retry_async(
                 f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
             )
 
-        attempt_state = (
-            _fresh_retry_state(state, node)
-            if retry_policy.max_retries > 0
-            else state
-        )
+        attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
         try:
             outcome = await _invoke(attempt_state)
 

@@ -181,9 +181,7 @@ class TestExecuteWithRetrySync:
         attempt.claim_ledger_owner.persist_candidate_ledger(ledger="late")
         target.claim_ledger_owner.persist_candidate_ledger.assert_not_called()
 
-    def test_claim_capable_execute_preserves_type_and_manifest_authority(
-        self, state, monkeypatch
-    ):
+    def test_claim_capable_execute_preserves_type_and_manifest_authority(self, state, monkeypatch):
         class _RecordingStore:
             def __init__(self) -> None:
                 self.put_json_calls: list[tuple[object, object]] = []
@@ -329,9 +327,7 @@ class TestExecuteWithRetrySync:
         assert audit.append_calls
         assert claim_owner.persist_calls == [{"ledger": "on_time"}]
 
-    def test_claim_capable_execute_preserves_real_run_sinks_on_time(
-        self, state, monkeypatch
-    ):
+    def test_claim_capable_execute_preserves_real_run_sinks_on_time(self, state, monkeypatch):
         class _RecordingStore:
             def put_json(self, payload: object, options: object) -> object:
                 return object()
@@ -744,6 +740,7 @@ class TestExecuteWithRetrySync:
                 alias="late-async-write",
             )
         )
+
         async def _release_later() -> None:
             await asyncio.sleep(0.05)
             release.set()
@@ -1098,9 +1095,7 @@ class _StoppedProcessHandle:
 
 def test_unknown_process_group_cleanup_is_not_reported_complete() -> None:
     """A stopped worker without a group cannot prove descendants are gone."""
-    assert (
-        retry_module._terminate_owned_process(_StoppedProcessHandle(), None) is False
-    )
+    assert retry_module._terminate_owned_process(_StoppedProcessHandle(), None) is False
 
 
 class _ImmediateResultQueue:
@@ -1119,14 +1114,15 @@ def test_late_worker_completion_is_not_delivery_success(mode) -> None:
     result_queue = _ImmediateResultQueue()
     compute_deadline = _time.monotonic() - 1.0
 
-    with pytest.raises(retry_module._WorkerComputeTimeout):
-        if mode == "sync":
+    if mode == "sync":
+        with pytest.raises(retry_module._WorkerComputeTimeout):
             retry_module._drain_result_sync(
                 process,
                 result_queue,
                 compute_deadline=compute_deadline,
             )
-        else:
+    else:
+        with pytest.raises(retry_module._WorkerComputeTimeout):
             asyncio.run(
                 retry_module._drain_result_async(
                     process,
@@ -1143,12 +1139,16 @@ class _DescendantProcessNode:
         self.pid_path = pid_path
 
     def execute(self, _ctx, _state):
-        child = subprocess.Popen(
-            [sys.executable, "-c", "import time; time.sleep(30)"]
-        )
+        child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
         self.pid_path.write_text(str(child.pid))
         _time.sleep(30)
         raise AssertionError("timeout should terminate the worker first")
+
+
+def _execute_retry_mode(mode, node, ctx, state, **kwargs):
+    if mode == "sync":
+        return execute_with_retry_sync(node, ctx, state, **kwargs)
+    return asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
 
 
 @pytest.mark.skipif(
@@ -1160,18 +1160,15 @@ def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> 
     pid_path = tmp_path / "descendant-pid"
     node = _DescendantProcessNode(pid_path)
     descendant_pid: int | None = None
+    kwargs = {
+        "retry_policy": RetryPolicy(),
+        "timeout_s": 0.5,
+        "alias": "descendant-cleanup",
+    }
 
     try:
         with pytest.raises(NodeTimeoutError):
-            kwargs = {
-                "retry_policy": RetryPolicy(),
-                "timeout_s": 0.5,
-                "alias": "descendant-cleanup",
-            }
-            if mode == "sync":
-                execute_with_retry_sync(node, ctx, state, **kwargs)
-            else:
-                asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+            _execute_retry_mode(mode, node, ctx, state, **kwargs)
         assert pid_path.exists()
         descendant_pid = int(pid_path.read_text())
         with pytest.raises(ProcessLookupError):
@@ -1191,9 +1188,7 @@ class _ExitedWorkerWithDescendantNode:
         self.pid_path = pid_path
 
     def execute(self, _ctx, _state):
-        child = subprocess.Popen(
-            [sys.executable, "-c", "import time; time.sleep(30)"]
-        )
+        child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
         self.pid_path.write_text(str(child.pid))
         os._exit(0)
 
@@ -1231,6 +1226,192 @@ def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> Non
                 os.kill(descendant_pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
+
+
+class _GrandchildProcessNode:
+    """Create two TERM-resistant generations in the owned worker group."""
+
+    def __init__(self, pid_path, late_path, escape_group=False) -> None:
+        self.pid_path = pid_path
+        self.late_path = late_path
+        self.escape_group = escape_group
+
+    def execute(self, _ctx, _state):
+        grandchild_code = (
+            "import pathlib,signal,time; "
+            "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+            "time.sleep(1.5); "
+            f"pathlib.Path({str(self.late_path)!r}).write_text('unauthorized late write'); "
+            "time.sleep(30)"
+        )
+        child_code = (
+            "import os,pathlib,signal,subprocess,sys,time; "
+            "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+            f"child=subprocess.Popen([sys.executable, '-c', {grandchild_code!r}]); "
+            f"pathlib.Path({str(self.pid_path)!r}).write_text(str(os.getpid())+' '+str(child.pid)); "
+            "time.sleep(30)"
+        )
+        subprocess.Popen([sys.executable, "-c", child_code], start_new_session=self.escape_group)
+        _time.sleep(30)
+        raise AssertionError("timeout must terminate the owned computation")
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="process-local Linux subreaper contract")
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("escape_group", [False, True], ids=["owned-group", "new-session"])
+def test_timeout_reaps_term_resistant_grandchildren_before_refusal(
+    tmp_path, ctx, state, mode, escape_group
+):
+    """Both descendant generations are reaped and cannot write after refusal."""
+    pid_path = tmp_path / "grandchild-pids"
+    late_path = tmp_path / "late-write"
+    node = _GrandchildProcessNode(pid_path, late_path, escape_group)
+    kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 0.5, "alias": "grandchild-cleanup"}
+    with pytest.raises(NodeTimeoutError, match=r"^Node exceeded timeout of 0.5s$"):
+        _execute_retry_mode(mode, node, ctx, state, **kwargs)
+    for pid in map(int, pid_path.read_text().split()):
+        with pytest.raises(ProcessLookupError):
+            os.kill(pid, 0)
+    _time.sleep(1.0)
+    assert not late_path.exists()
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(sys.platform != "linux", reason="process-local Linux subreaper contract")
+async def test_cancelled_process_wait_reaps_descendants(tmp_path, ctx, state):
+    """Cancelling the async caller also waits for its owned process cleanup."""
+    pid_path = tmp_path / "cancelled-descendant-pid"
+    task = asyncio.create_task(
+        execute_with_retry_async(
+            _DescendantProcessNode(pid_path),
+            ctx,
+            state,
+            retry_policy=RetryPolicy(),
+            timeout_s=30.0,
+            alias="cancelled-descendant",
+        )
+    )
+    for _ in range(100):
+        if pid_path.exists():
+            break
+        await asyncio.sleep(0.02)
+    assert pid_path.exists()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    with pytest.raises(ProcessLookupError):
+        os.kill(int(pid_path.read_text()), 0)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="process-local Linux subreaper contract")
+def test_supervisor_setup_failure_cannot_publish_success(ctx, state, monkeypatch):
+    """A real supervisor startup fault returns failure rather than a node result."""
+
+    def _fail_setup():
+        raise OSError("subreaper setup failed")
+
+    monkeypatch.setattr(retry_module, "_enable_linux_child_subreaper", _fail_setup)
+    with pytest.raises(
+        RuntimeError, match="worker supervision failed: OSError: subreaper setup failed"
+    ):
+        retry_module._execute_with_timeout_process(
+            _PayloadTransportNode(64), ctx, state, timeout_s=2.0
+        )
+
+
+@pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork worker required")
+def test_process_start_failure_retains_original_exception(ctx, state, monkeypatch):
+    """Closing an unstarted handle must not replace the actual startup fault."""
+
+    def _fail_start(_process):
+        raise OSError("owned process start failed")
+
+    monkeypatch.setattr(mp.get_context("fork").Process, "start", _fail_start)
+    with pytest.raises(OSError, match="owned process start failed"):
+        retry_module._execute_with_timeout_process(
+            _PayloadTransportNode(64), ctx, state, timeout_s=2.0
+        )
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux subreaper status available")
+def test_timeout_supervisor_does_not_change_caller_subreaper_status(ctx, state):
+    """The kernel flag belongs to the disposable supervisor, not this caller."""
+    import ctypes
+
+    def _caller_status() -> int:
+        status = ctypes.c_int()
+        assert ctypes.CDLL(None).prctl(37, ctypes.byref(status), 0, 0, 0) == 0
+        return status.value
+
+    before = _caller_status()
+    result = retry_module._execute_with_timeout_process(
+        _PayloadTransportNode(64), ctx, state, timeout_s=2.0
+    )
+    assert result.status == "ok"
+    assert _caller_status() == before
+
+
+@pytest.mark.parametrize("mode", ["direct", "thread", "fork", "async"])
+def test_concurrent_request_contexts_match_across_retry_routes(ctx, state, mode, monkeypatch):
+    """Two real request contexts keep their own marker in every supported route."""
+    import concurrent.futures
+    import contextvars
+
+    if mode == "fork" and "fork" not in mp.get_all_start_methods():
+        pytest.skip("actual fork worker unavailable")
+    scope = contextvars.ContextVar("request_context", default=None)
+
+    class _ContextNode:
+        def execute(self, _ctx, passed_state):
+            _time.sleep(0.02)
+            result_state = passed_state.model_copy(deep=True)
+            result_state.params["request_context"] = scope.get()
+            return _ok_outcome(result_state)
+
+    class _AsyncContextNode:
+        async def execute_async(self, _ctx, passed_state):
+            await asyncio.sleep(0.02)
+            result_state = passed_state.model_copy(deep=True)
+            result_state.params["request_context"] = scope.get()
+            return _ok_outcome(result_state)
+
+    if mode == "thread":
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+
+    def _request(marker):
+        token = scope.set(marker)
+        try:
+            if mode == "async":
+                result = asyncio.run(
+                    execute_with_retry_async(
+                        _AsyncContextNode(),
+                        ctx,
+                        state,
+                        retry_policy=RetryPolicy(),
+                        timeout_s=2.0,
+                        alias="context-async",
+                    )
+                )
+            else:
+                result = execute_with_retry_sync(
+                    _ContextNode(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(),
+                    timeout_s=None if mode == "direct" else 2.0,
+                    alias="context-sync",
+                )
+            return result.state.params["request_context"]
+        finally:
+            scope.reset(token)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as callers:
+        assert list(callers.map(_request, ["request-A", "request-B"])) == [
+            "request-A",
+            "request-B",
+        ]
+    assert scope.get() is None
+    assert state.params == {}
 
 
 class _OutputAwareTransportNode:

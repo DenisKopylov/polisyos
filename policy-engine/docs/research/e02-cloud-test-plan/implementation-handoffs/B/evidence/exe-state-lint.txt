@@ -1,0 +1,9 @@
+{"command": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "ruff", "check", "src/polisyos/scientist/orchestration/engine/async_executor.py", "tests/integration/scientist/test_execution_state_replay.py", "tests/integration/scientist/test_checkpoint_resume.py", "tests/unit/remediation/test_res_01.py", "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py", "docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-controls.py"], "target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174"}
+All checks passed!
+exit=0
+{"command": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "ruff", "format", "--check", "tests/integration/scientist/test_execution_state_replay.py", "tests/unit/remediation/test_res_01.py", "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py", "docs/research/e02-cloud-test-plan/implementation-handoffs/B/evidence/exe-state-controls.py"], "target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174"}
+4 files already formatted
+exit=0
+{"command": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "ruff", "format", "--check", "--range", "1814-1827", "src/polisyos/scientist/orchestration/engine/async_executor.py"], "target_sha": "a33898206b4b7421fa06f3444d8d53fb5e1bd174"}
+1 file already formatted
+exit=0

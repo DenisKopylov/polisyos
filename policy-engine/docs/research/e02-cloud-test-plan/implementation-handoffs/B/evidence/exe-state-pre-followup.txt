@@ -1,0 +1,587 @@
+{"target_sha": "1d87e30c6859d945dd84310aafeb64905be529ae", "command": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "--override-ini", "addopts=", "-v", "tests/integration/scientist/test_execution_state_replay.py", "tests/unit/remediation/test_res_01.py", "tests/unit/remediation/test_res_02.py", "tests/unit/remediation/test_exe_02.py", "tests/unit/scientist/orchestration/engine/test_async_executor.py", "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py", "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py", "tests/unit/scientist/orchestration/engine/test_idempotency.py", "tests/unit/scientist/orchestration/engine/test_state_branching.py", "tests/unit/scientist/orchestration/engine/test_state_merge.py", "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py", "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py", "tests/unit/scientist/orchestration/engine/runner/test_serialization.py", "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py", "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py", "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py", "tests/integration/scientist/test_checkpoint_resume.py", "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"], "environment": {"python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]", "platform": "Linux-6.18.44-x86_64-with-glibc2.41", "executable": "/workspace/polisyos/policy-engine/.venv/bin/python"}, "input_closure": "18 enumerated test files, tracked source at target SHA, isolated pytest tmp paths, no production dataset or live Temporal/Ray service"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-exe-state/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-exe-state/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 231 items
+
+tests/integration/scientist/test_execution_state_replay.py::test_real_cas_fail_fast_rechecks_queued_work_and_continue_commits_peers[fail_fast] PASSED [  0%]
+tests/integration/scientist/test_execution_state_replay.py::test_real_cas_fail_fast_rechecks_queued_work_and_continue_commits_peers[continue] PASSED [  0%]
+tests/integration/scientist/test_execution_state_replay.py::test_native_skip_has_same_persisted_completion_and_resume_semantics_at_each_width[width_one] PASSED [  1%]
+tests/integration/scientist/test_execution_state_replay.py::test_native_skip_has_same_persisted_completion_and_resume_semantics_at_each_width[width_two] PASSED [  1%]
+tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state[sync] PASSED [  2%]
+tests/integration/scientist/test_execution_state_replay.py::test_reopened_cache_matches_cold_assign_delete_and_unrelated_state[async] PASSED [  2%]
+tests/integration/scientist/test_execution_state_replay.py::test_cancelled_async_cache_write_finishes_without_recovery_admission PASSED [  3%]
+tests/integration/scientist/test_execution_state_replay.py::test_spawned_worker_wire_rebases_operations_and_detects_removed_journal[native] PASSED [  3%]
+tests/integration/scientist/test_execution_state_replay.py::test_spawned_worker_wire_rebases_operations_and_detects_removed_journal[removed-property] PASSED [  3%]
+tests/unit/remediation/test_res_01.py::test_cache_seed_deduplicates_exact_refs_and_does_not_mark_failed_load PASSED [  4%]
+tests/unit/remediation/test_res_01.py::test_cache_seed_does_not_mix_different_content_under_same_key PASSED [  4%]
+tests/unit/remediation/test_res_01.py::test_cache_seed_revalidates_full_ref_identity[kind-scientist.other_cache_entry] PASSED [  5%]
+tests/unit/remediation/test_res_01.py::test_cache_seed_revalidates_full_ref_identity[media_type-text/plain] PASSED [  5%]
+tests/unit/remediation/test_res_01.py::test_resume_preserves_origin_fingerprint_across_two_stops PASSED [  6%]
+tests/unit/remediation/test_res_01.py::test_full_valid_state_resumes_without_unnecessary_cache_seed PASSED [  6%]
+tests/unit/remediation/test_res_01.py::test_resume_rejects_missing_state_written_by_completed_node PASSED [  6%]
+tests/unit/remediation/test_res_01.py::test_allow_replay_rebuilds_completed_nodes_for_missing_state PASSED [  7%]
+tests/unit/remediation/test_res_01.py::test_changed_functional_input_remains_incompatible_with_checkpoint PASSED [  7%]
+tests/unit/remediation/test_res_01.py::test_duplicate_cache_ref_is_not_independent_coverage PASSED [  8%]
+tests/unit/remediation/test_res_02.py::test_single_skip_is_not_added_to_checkpoint_completed_set PASSED [  8%]
+tests/unit/remediation/test_res_02.py::test_independent_neighbor_does_not_promote_parallel_skip_to_completed PASSED [  9%]
+tests/unit/remediation/test_res_02.py::test_parallel_tier_publishes_one_checkpoint_with_full_completed_set_and_cache_refs PASSED [  9%]
+tests/unit/remediation/test_res_02.py::test_fail_fast_discards_parallel_tier_without_checkpoint_but_keeps_output_record PASSED [  9%]
+tests/unit/remediation/test_res_02.py::test_continue_checkpoints_successes_and_preserves_their_outputs PASSED [ 10%]
+tests/unit/remediation/test_res_02.py::test_serial_tier_supports_async_only_node_checkpoint_hook PASSED [ 10%]
+tests/unit/remediation/test_res_02.py::test_parallel_tier_without_checkpoint_hook_still_executes PASSED [ 11%]
+tests/unit/remediation/test_res_02.py::test_multi_node_tier_rejects_node_only_hook_before_node_execution PASSED [ 11%]
+tests/unit/remediation/test_exe_02.py::test_readiness_launch_baseline_is_not_execution_input PASSED [ 12%]
+tests/unit/remediation/test_exe_02.py::test_readiness_launch_pair_isolates_nested_mutable_state PASSED [ 12%]
+tests/unit/remediation/test_exe_02.py::test_readiness_rejects_journal_operation_outside_declared_paths PASSED [ 12%]
+tests/unit/remediation/test_exe_02.py::test_readiness_rebases_stale_returned_snapshot_to_declared_delta PASSED [ 13%]
+tests/unit/remediation/test_exe_02.py::test_readiness_rejects_undeclared_returned_snapshot_write PASSED [ 13%]
+tests/unit/remediation/test_exe_02.py::test_independent_successor_starts_before_slow_sibling PASSED [ 14%]
+tests/unit/remediation/test_exe_02.py::test_unordered_read_write_overlap_keeps_tier_barrier PASSED [ 14%]
+tests/unit/remediation/test_exe_02.py::test_declared_dependency_keeps_successor_after_b_and_overlap PASSED [ 15%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncWorkflowExecutor::test_simple_linear_dag PASSED [ 15%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncWorkflowExecutor::test_parallel_tier PASSED [ 16%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncWorkflowExecutor::test_failed_node_blocks_downstream PASSED [ 16%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncWorkflowExecutor::test_max_parallelism_one_degrades_to_sequential PASSED [ 16%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncWorkflowExecutor::test_metrics_tier_completed_called PASSED [ 17%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncWorkflowExecutor::test_async_executor_persists_via_async_artifact_store_adapter PASSED [ 17%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncWorkflowExecutor::test_no_metrics_no_crash PASSED [ 18%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not PASSED [ 18%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_io_does_not_block_independent_coroutine PASSED [ 19%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_timeout_passes_remaining_deadline_to_producer PASSED [ 19%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_cache_put_does_not_block_and_failed_entry_is_not_published PASSED [ 19%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_failed_cache_entry_does_not_publish_partial_cas_artifacts PASSED [ 20%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncCacheBoundaries::test_incompatible_cached_replay_is_discarded_and_recomputed PASSED [ 20%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_fail_fast_rechecks_cancellation_after_semaphore_acquire PASSED [ 21%]
+tests/unit/scientist/orchestration/engine/test_async_executor.py::TestAsyncFailFastAdmission::test_metric_failure_after_semaphore_acquire_releases_slot PASSED [ 21%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestParallelStateIsolation::test_parallel_nodes_get_independent_copies PASSED [ 22%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestParallelStateIsolation::test_bind_failure_becomes_typed_node_error PASSED [ 22%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestParallelStateIsolation::test_runtime_lookup_failure_becomes_typed_node_error PASSED [ 22%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestTierSavepoints::test_tier_rollback_on_failure PASSED [ 23%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestTierSavepoints::test_rollback_compensation_hook_receives_fail_fast_event PASSED [ 23%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestTierSavepoints::test_failed_single_node_does_not_commit_state_in_continue_mode PASSED [ 24%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestTierSavepoints::test_parallel_merge_conflict_rolls_back_whole_tier PASSED [ 24%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestTierSavepoints::test_parallel_merge_policy_can_resolve_conflict PASSED [ 25%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestWorkflowTimeout::test_workflow_timeout_raises PASSED [ 25%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestWorkflowTimeout::test_no_timeout_by_default PASSED [ 25%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestBudgetIntegration::test_budget_exhausted_fails_node PASSED [ 26%]
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestBackwardCompat::test_new_params_have_defaults PASSED [ 26%]
+tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_executor_cache_hit_after_restart_same_run_id PASSED [ 27%]
+tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_executor_cache_hit_preserves_unrelated_current_state PASSED [ 27%]
+tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_executor_cache_hit_replays_top_level_ref_write PASSED [ 28%]
+tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_executor_reexecutes_when_cached_replay_target_is_incompatible PASSED [ 28%]
+tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_executor_resume_retries_failed_node_and_reuses_cached_ok_node PASSED [ 29%]
+tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_executor_failed_node_state_is_not_committed PASSED [ 29%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_compute_idempotency_key_stable_for_same_inputs PASSED [ 29%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_compute_idempotency_key_changes_on_artifact_change PASSED [ 30%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_preserves_presence_and_nested_missing_semantics PASSED [ 30%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_idempotency_key_applies_only_declared_consumer_default PASSED [ 31%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_compute_idempotency_key_available_for_all_builtin_nodes PASSED [ 31%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_roundtrip PASSED [ 32%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_failed_publication_has_no_index_or_new_cas_ids PASSED [ 32%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_reloads_legacy_v1_entry PASSED [ 32%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_rejects_legacy_and_foreign_scope_for_bound_cache PASSED [ 33%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_rejects_expired_deadline_before_store_io PASSED [ 33%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_rejects_expired_deadline_before_publication PASSED [ 34%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_rejects_tampered_embedded_outcome PASSED [ 34%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_does_not_replay_status_blind_epoch_two_entries PASSED [ 35%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_serializes_concurrent_journals_consistently PASSED [ 35%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_corrupted_entry_is_treated_as_miss PASSED [ 35%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_does_not_reuse_outcome_without_journal PASSED [ 36%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_rejects_unknown_replay_versions[schema_version-9.9] PASSED [ 36%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_rejects_unknown_replay_versions[state_mutations_version-2.0] PASSED [ 37%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_rejects_legacy_empty_unproven_contract PASSED [ 37%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_seed_from_trace PASSED [ 38%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_node_result_cache_seed_ignores_other_runs PASSED [ 38%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_preserves_complete_outcome PASSED [ 38%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_ordinary_cache_embeds_outcome_in_current_entry_epoch PASSED [ 39%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_writes_current_embedded_epoch PASSED [ 39%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_refuses_loading_base_epoch_entry PASSED [ 40%]
+tests/unit/scientist/orchestration/engine/test_idempotency.py::test_output_aware_cache_refuses_old_entry_epoch PASSED [ 40%]
+tests/unit/scientist/orchestration/engine/test_state_branching.py::test_branch_state_isolates_declared_nested_write_path PASSED [ 41%]
+tests/unit/scientist/orchestration/engine/test_state_branching.py::test_branch_state_uses_copy_on_write_overlay_for_nested_pydantic_models PASSED [ 41%]
+tests/unit/scientist/orchestration/engine/test_state_branching.py::test_branch_state_deeply_isolates_nested_elements_of_declared_leaf PASSED [ 41%]
+tests/unit/scientist/orchestration/engine/test_state_branching.py::test_branch_state_records_top_level_scalar_ref_assignment PASSED [ 42%]
+tests/unit/scientist/orchestration/engine/test_state_branching.py::test_snapshot_state_deep_clones_mutable_state_surfaces PASSED [ 42%]
+tests/unit/scientist/orchestration/engine/test_state_branching.py::test_cache_replay_normalizes_specialized_artifact_refs PASSED [ 43%]
+tests/unit/scientist/orchestration/engine/test_state_branching.py::test_artifacts_index_rejects_malformed_specialized_ref_before_journaling PASSED [ 43%]
+tests/unit/scientist/orchestration/engine/test_state_branching.py::test_artifact_shaped_json_remains_json_outside_artifacts_index PASSED [ 44%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_empty_outcomes PASSED [ 44%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_single_outcome_disjoint_dict_write PASSED [ 45%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_two_outcomes_disjoint_writes PASSED [ 45%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_overlapping_dict_keys_conflict PASSED [ 45%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_disjoint_dict_keys_same_field PASSED [ 46%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_base_state_unchanged_on_empty PASSED [ 46%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_scalar_field_write PASSED [ 47%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_preserves_base_keys_on_merge PASSED [ 47%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_dot_path_writes_merge_atomically PASSED [ 48%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_dot_path_conflict_keeps_base_state PASSED [ 48%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_last_write_wins_is_explicit PASSED [ 48%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_nested_overlap_is_reported_as_conflict PASSED [ 49%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_unrelated_changes_and_reapplies_same_value_write PASSED [ 49%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_distinguishes_delete_null_and_no_write PASSED [ 50%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_rejects_deletion_from_protected_index PASSED [ 50%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_replays_top_level_ref_and_same_value_write PASSED [ 51%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_child_set_then_parent_delete_order PASSED [ 51%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_preserves_parent_set_then_child_delete_order PASSED [ 51%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_deduplicates_overlapping_write_specs PASSED [ 52%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_invalid_container_or_index_fails_closed[current_params0] PASSED [ 52%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_invalid_container_or_index_fails_closed[current_params1] PASSED [ 53%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_invalid_container_or_index_fails_closed[current_params2] PASSED [ 53%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_invalid_container_or_index_fails_closed[current_params3] PASSED [ 54%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_replace_requires_current_list_target[current_params0] PASSED [ 54%]
+tests/unit/scientist/orchestration/engine/test_state_merge.py::TestMergeParallelOutcomes::test_replay_replace_requires_current_list_target[current_params1] PASSED [ 54%]
+tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_skip_when_missing_target_context PASSED [ 55%]
+tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_skip_when_target_context_invalid PASSED [ 55%]
+tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_skip_when_missing_required_parameters PASSED [ 56%]
+tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_skip_when_required_parameters_empty_list PASSED [ 56%]
+tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_existing_bundle_requires_valid_cas_artifact PASSED [ 57%]
+tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_target_context_assertion_is_not_swallowed PASSED [ 57%]
+tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_resolve_parameters_uses_branch_state_for_declared_outputs PASSED [ 58%]
+tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py::test_cache_hit_replays_b60_bundle_request_and_graph_binding PASSED [ 58%]
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_resolve_parameters_node_persists_bundle_and_bridge_payload PASSED [ 58%]
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_existing_bundle_is_revalidated_for_changed_request PASSED [ 59%]
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_matching_source_unbound_bundle_reselects_configured_source PASSED [ 59%]
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_changed_domain_invalidates_bundle_and_idempotency_key PASSED [ 60%]
+tests/unit/scientist/methods/causal/test_resolve_parameters_node.py::test_resolve_parameters_node_skips_on_missing_inputs PASSED [ 60%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeState::test_round_trip_preserves_run_id PASSED [ 61%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeState::test_round_trip_preserves_all_defaults PASSED [ 61%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeState::test_round_trip_with_params PASSED [ 61%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeState::test_deserialize_state_accepts_list_encoded_wire_payload PASSED [ 62%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeOutcome::test_round_trip_preserves_status_and_state PASSED [ 62%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeOutcome::test_journaled_outcome_round_trip_preserves_same_value_and_delete_ops PASSED [ 63%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeOutcome::test_journaled_outcome_decoder_rejects_invalid_mutation_fields[extra] PASSED [ 63%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeOutcome::test_journaled_outcome_decoder_rejects_invalid_mutation_fields[foreign_path] PASSED [ 64%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeOutcome::test_round_trip_preserves_empty_collections PASSED [ 64%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeOutcome::test_round_trip_skip_status PASSED [ 64%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeOutcome::test_deserialize_outcome_accepts_list_encoded_wire_payload PASSED [ 65%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeContextMeta::test_extracts_depth PASSED [ 65%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeContextMeta::test_extracts_run_metadata PASSED [ 66%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeContextMeta::test_run_without_tenant_and_cell PASSED [ 66%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeContextMeta::test_extracts_registry_bundle_workflow_and_runner PASSED [ 67%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeContextMeta::test_uses_run_manifest_for_real_run_context PASSED [ 67%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeContextMeta::test_extracts_trace_ids_when_present PASSED [ 67%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSerializeContextMeta::test_current_trace_ids_records_degraded_path_on_runtime_error PASSED [ 68%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSafeSerialisation::test_round_trip_safe PASSED [ 68%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSafeSerialisation::test_version_mismatch_raises PASSED [ 69%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSafeSerialisation::test_integrity_failure_raises PASSED [ 69%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSafeSerialisation::test_truncated_payload_raises PASSED [ 70%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSafeSerialisation::test_deserialize_state_auto_detects_v1 PASSED [ 70%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::TestSafeSerialisation::test_deserialize_state_handles_legacy_v0 PASSED [ 70%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::test_output_aware_public_deserializer_preserves_complete_outcome PASSED [ 71%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::test_output_aware_reader_refuses_incomplete_subtype[outcome_schema_version-absent] PASSED [ 71%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::test_output_aware_reader_refuses_incomplete_subtype[outcome_schema_version-null] PASSED [ 72%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::test_output_aware_reader_refuses_incomplete_subtype[outcome_schema_version-malformed] PASSED [ 72%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::test_output_aware_reader_refuses_incomplete_subtype[supporting_artifacts-absent] PASSED [ 73%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::test_output_aware_reader_refuses_incomplete_subtype[supporting_artifacts-null] PASSED [ 73%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::test_output_aware_reader_refuses_incomplete_subtype[supporting_artifacts-malformed] PASSED [ 74%]
+tests/unit/scientist/orchestration/engine/runner/test_serialization.py::test_output_aware_decoder_preserves_ordinary_wire_and_live_identity PASSED [ 74%]
+tests/unit/scientist/orchestration/engine/runner/test_state_merge.py::TestMergeTierStates::test_empty_results_returns_base PASSED [ 74%]
+tests/unit/scientist/orchestration/engine/runner/test_state_merge.py::TestMergeTierStates::test_single_result_is_identity PASSED [ 75%]
+tests/unit/scientist/orchestration/engine/runner/test_state_merge.py::TestMergeTierStates::test_non_conflicting_merge_params PASSED [ 75%]
+tests/unit/scientist/orchestration/engine/runner/test_state_merge.py::TestMergeTierStates::test_conflict_raises_error PASSED [ 76%]
+tests/unit/scientist/orchestration/engine/runner/test_state_merge.py::TestMergeTierStates::test_artifacts_index_merge PASSED [ 76%]
+tests/unit/scientist/orchestration/engine/runner/test_state_merge.py::TestMergeTierStates::test_same_key_different_results_conflict PASSED [ 77%]
+tests/unit/scientist/orchestration/engine/runner/test_state_merge.py::TestMergeTierStates::test_last_write_wins_policy_is_supported PASSED [ 77%]
+tests/unit/scientist/orchestration/engine/runner/test_state_merge.py::TestMergeTierStates::test_declared_write_specs_can_merge_non_default_fields PASSED [ 77%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_build_worker_context_reconstructs_run_and_registry_bundle PASSED [ 78%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_build_worker_context_bootstraps_registry_bundle_when_missing PASSED [ 78%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_non_simulation_worker_without_eval_safety_port_fails_closed PASSED [ 79%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_node_worker_rejects_transported_scope_before_context_or_execution PASSED [ 79%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_build_worker_context_records_degraded_path_for_invalid_registry_bundle PASSED [ 80%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_build_worker_context_reuses_shared_filesystem_store PASSED [ 80%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_build_worker_context_prefers_store_config PASSED [ 80%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_restore_parent_trace_context_records_degraded_path_on_runtime_error PASSED [ 81%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_remote_worker_timeout_wire_replays_only_declared_branch_operations PASSED [ 81%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_node_worker_transport_preserves_native_non_ok_status[SkippedWorkerNode-scientist.node_worker_skip@1.0.0-skip] PASSED [ 82%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_node_worker_transport_preserves_native_non_ok_status[FailedWorkerNode-scientist.node_worker_fail@1.0.0-fail] PASSED [ 82%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_run_merge_checkpoint_tier_in_worker_restores_checkpoint_contract PASSED [ 83%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_worker_rejects_invalid_or_colluding_scope_before_merge[tenant-b-tenant-b-tenant-b-False] PASSED [ 83%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_worker_rejects_invalid_or_colluding_scope_before_merge[tenant-a-17-tenant-a-False] PASSED [ 83%]
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_worker_rejects_invalid_or_colluding_scope_before_merge[tenant-b-tenant-b-tenant-a-True] PASSED [ 84%]
+tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py::test_merge_and_checkpoint_tier_persists_cache_entry_and_non_default_write PASSED [ 84%]
+tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py::test_distributed_tier_preserves_status_and_publishes_one_successful_frontier PASSED [ 85%]
+tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py::test_distributed_fail_fast_rolls_back_before_checkpoint_or_cache PASSED [ 85%]
+tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py::test_status_blind_state_frontier_keeps_state_but_cannot_publish_cache_or_status PASSED [ 86%]
+tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py::test_empty_status_blind_checkpoint_establishes_contract_after_native_success PASSED [ 86%]
+tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py::test_skip_with_mutation_proof_is_not_admitted_as_successful_cache_or_frontier PASSED [ 87%]
+tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py::test_distributed_report_retains_native_fail_and_success_statuses PASSED [ 87%]
+tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py::test_outcome_for_later_workflow_alias_is_refused_before_merge_or_checkpoint PASSED [ 87%]
+tests/integration/scientist/test_checkpoint_resume.py::test_resume_uses_checkpoint_cache_refs_when_trace_is_truncated PASSED [ 88%]
+tests/integration/scientist/test_checkpoint_resume.py::test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-b-cell-a] PASSED [ 88%]
+tests/integration/scientist/test_checkpoint_resume.py::test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-a-cell-b] PASSED [ 89%]
+tests/integration/scientist/test_checkpoint_resume.py::test_resume_falls_back_to_local_runner_when_distributed_backend_is_configured PASSED [ 89%]
+tests/integration/scientist/test_checkpoint_resume.py::test_resume_uses_configured_distributed_runner_with_pruned_workflow PASSED [ 90%]
+tests/integration/scientist/test_checkpoint_resume.py::test_async_executor_resume_uses_checkpoint_cache_refs_when_trace_is_truncated PASSED [ 90%]
+tests/integration/scientist/test_checkpoint_resume.py::test_parallel_tier_rejects_node_only_hook_before_any_side_effect PASSED [ 90%]
+tests/integration/scientist/test_checkpoint_resume.py::test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer PASSED [ 91%]
+tests/integration/scientist/test_checkpoint_resume.py::test_async_executor_parallel_tier_checkpoints_merged_state_for_resume PASSED [ 91%]
+tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier FAILED [ 92%]
+tests/integration/scientist/test_checkpoint_resume.py::test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer FAILED [ 92%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_each_skg_node_owner_prepares_the_selected_source[BuildLiteraturePriorNode-params0] PASSED [ 93%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_each_skg_node_owner_prepares_the_selected_source[ResolveParametersNode-params1] PASSED [ 93%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_each_skg_node_owner_prepares_the_selected_source[RunTransportabilityNode-params2] PASSED [ 93%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_each_skg_node_owner_prepares_the_selected_source[CompileCrossGraphEvidenceNode-params3] PASSED [ 94%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_each_skg_node_owner_prepares_the_selected_source[RunDiscoveryBlueprintRuntimeNode-params4] PASSED [ 94%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_each_skg_node_owner_prepares_the_selected_source[RunHierarchicalPolicySearchNode-params5] PASSED [ 95%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_hierarchical_candidate_callback_keeps_executor_prepared_read PASSED [ 95%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_workflow_executor_binds_source_transaction_and_emits_hit_receipt PASSED [ 96%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_workflow_executor_scopes_constant_query_as_execution_only PASSED [ 96%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_workflow_executor_closes_prepared_reader_when_duckdb_error_escapes PASSED [ 96%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes PASSED [ 97%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_duckdb_cache_preparation_failure_bypasses_cache_and_runs_node PASSED [ 97%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_workflow_executor_bypasses_cache_if_source_generation_changes_during_miss PASSED [ 98%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_build_literature_prior_recomputes_existing_output_from_changed_prepared_source PASSED [ 98%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_resolve_parameters_recomputes_existing_bundle_from_changed_prepared_source PASSED [ 99%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_cross_graph_recomputes_existing_profile_from_changed_prepared_source PASSED [ 99%]
+tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_removed_cache_key_binding_is_stopped_by_origin_read_set_check PASSED [100%]
+
+=================================== FAILURES ===================================
+___ test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-49/test_seeded_checkpoint_publica0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f6d56477af0>
+
+    def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A fresh reader follows only the atomic head's committed tier frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+        for cut in ("after_artifact_before_head", "after_head_before_history"):
+            store = FileSystemCAS(tmp_path / cut)
+            workflow = _seeded_parallel_workflow()
+            run_id = f"R_b73_seeded_publication_cut_{cut}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            run_dir = Path(store.root) / "runs" / run_id
+            seed_head = load_checkpoint_head(run_dir)
+            assert seed_head is not None
+            seed_checkpoint = load_checkpoint(store, seed_head.checkpoint_ref)
+            seed_completed_nodes = list(seed_checkpoint.metadata.completed_nodes)
+            assert seed_completed_nodes == ["seed"]
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=seed_completed_nodes,
+                )
+            )
+            phase_queue = process_context.Queue()
+            release_event = process_context.Event()
+            writer = process_context.Process(
+                target=_b73_pause_writer_at_owner_phase,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    cut,
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head",
+                    phase_queue,
+                    release_event,
+                ),
+            )
+            try:
+                writer.start()
+                observed = phase_queue.get(timeout=60)
+                assert observed["phase"] == cut
+                remove_left_for_cut = (
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head"
+                )
+                if remove_left_for_cut:
+                    assert observed["mutation_receipt"] == {
+                        "source_sha256": (
+                            "df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"
+                        ),
+                        "method": "AsyncWorkflowExecutor.execute",
+                        "original_expression": "completed_nodes.extend(tier_completed)",
+                        "mutated_expression": (
+                            "completed_nodes.extend(("
+                            "b73_frontier_alias for b73_frontier_alias "
+                            "in tier_completed if b73_frontier_alias != 'left'))"
+                        ),
+                        "mutant_installed": True,
+                    }
+                else:
+                    assert observed["mutation_receipt"] is None
+                assert observed["left_calls"] == 1
+                assert observed["right_calls"] == 1
+                assert observed["final_calls"] == 0
+    
+                observed_ref = ArtifactRef.model_validate(observed["checkpoint_ref"])
+                history = load_checkpoint_history(run_dir)
+                history_refs = (
+                    []
+                    if history is None
+                    else [str(entry.checkpoint_ref.artifact_id) for entry in history.entries]
+                )
+                if cut == "after_artifact_before_head":
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head == seed_head
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    uncommitted = load_checkpoint(store, observed_ref)
+                    uncommitted_state = materialize_checkpoint_state(store, observed_ref)
+                    assert (
+                        uncommitted.metadata.completed_node_status_contract
+                        == "native_node_outcome_v1"
+                    )
+                    assert uncommitted_state["params"] == {
+                        "seed": 29,
+                        "step1": 1,
+                        "left": 1,
+                        "right": 2,
+                    }
+                    _assert_tier_cache_entries_bind_node_identity_and_content(
+                        store,
+                        run_id=run_id,
+                        workflow=workflow,
+                        completed_nodes=["seed", "left", "right"],
+                        checkpoint_state=uncommitted_state,
+                        cache_entry_refs=uncommitted.metadata.cache_entry_refs,
+                    )
+                    assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
+                    expected_before_resume = ["seed"]
+                    expected_peer_calls = [1, 1]
+                else:
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head is not None
+                    assert current_head.checkpoint_ref == observed_ref
+                    assert current_head.sequence_number == observed["sequence_number"]
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    expected_before_resume = ["seed", "left", "right"]
+                    expected_peer_calls = [0, 0]
+    
+                writer.terminate()
+                writer.join(timeout=5)
+                assert not writer.is_alive()
+                assert writer.exitcode != 0
+            finally:
+                if writer.is_alive():
+                    writer.terminate()
+                    writer.join(timeout=5)
+                phase_queue.close()
+    
+            result_queue = process_context.Queue()
+            reader = process_context.Process(
+                target=_b73_fresh_reader_then_resume,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    result_queue,
+                ),
+            )
+            try:
+                reader.start()
+                reader.join(timeout=60)
+                result = result_queue.get(timeout=5)
+                assert reader.exitcode == 0, result
+            finally:
+                if reader.is_alive():
+                    reader.terminate()
+                    reader.join(timeout=5)
+                result_queue.close()
+    
+            assert result["pid"] != os.getpid()
+            assert result["before_resume"]["origin_workflow_fingerprint"] == (
+                expected_origin_fingerprint
+            )
+            expected_current_fingerprint = (
+                expected_origin_fingerprint
+                if cut == "after_artifact_before_head"
+                else expected_residual_fingerprint
+            )
+            assert result["before_resume"]["workflow_fingerprint"] == (
+                expected_current_fingerprint
+            )
+            assert result["before_resume"]["completed_nodes"] == expected_before_resume
+            if cut == "after_head_before_history":
+                assert result["before_resume"]["params"] == {
+                    "seed": 29,
+                    "step1": 1,
+                    "left": 1,
+                    "right": 2,
+                }
+                assert result["before_resume"]["cache_aliases"] == ["left", "right"]
+            else:
+                assert result["before_resume"]["params"] == {"seed": 29, "step1": 1}
+                assert result["before_resume"]["cache_entry_refs"] == []
+                assert result["before_resume"]["cache_aliases"] == []
+            assert result["report_status"] == "ok"
+            assert result["resumed_params"] == {
+                "seed": 29,
+                "step1": 1,
+                "left": 1,
+                "right": 2,
+                "final": True,
+            }
+>           assert result["peer_calls"] == expected_peer_calls
+E           AssertionError: assert [0, 0] == [1, 1]
+E             
+E             At index 0 diff: 0 != 1
+E             
+E             Full diff:
+E               [
+E             -     1,
+E             ?     ^...
+E             
+E             ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/integration/scientist/test_checkpoint_resume.py:1546: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+2026-10-05 14:00:21.228 | INFO     | polisyos.common.logger:_call:120 - Recovered 2 cached node outcomes
+_ test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-49/test_parallel_resume_fail_fast0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f6d54e29d30>
+
+    def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Fresh readers retry only the peers absent from the durable frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+    
+        error_policies: tuple[Literal["fail_fast", "continue"], ...] = ("fail_fast", "continue")
+        for error_policy in error_policies:
+            store = FileSystemCAS(tmp_path / error_policy)
+            workflow = _seeded_parallel_workflow(error_policy=error_policy)
+            run_id = f"R_b73_failure_policy_{error_policy}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            seed = resolve_latest_checkpoint(store, run_id)
+            assert seed is not None
+            _, seed_checkpoint = seed
+            assert seed_checkpoint.state is not None
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=list(seed_checkpoint.metadata.completed_nodes),
+                )
+            )
+            expected_current_fingerprint = (
+                expected_origin_fingerprint
+                if error_policy == "fail_fast"
+                else expected_residual_fingerprint
+            )
+    
+            writer_queue = process_context.Queue()
+            writer = process_context.Process(
+                target=_b73_failure_policy_writer,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    writer_queue,
+                ),
+            )
+            try:
+                writer.start()
+                writer.join(timeout=60)
+                assert writer.exitcode == 0
+                first = writer_queue.get(timeout=5)
+            finally:
+                if writer.is_alive():
+                    writer.terminate()
+                    writer.join(timeout=5)
+                writer_queue.close()
+    
+            assert first["pid"] != os.getpid()
+            assert first["report_status"] == "fail"
+            assert first["peer_calls"] == [1, 1]
+            if error_policy == "fail_fast":
+                assert first["completed_nodes"] == ["seed"]
+                assert first["params"] == {"seed": 29, "step1": 1}
+                assert first["cache_entry_refs"] == []
+            else:
+                assert first["completed_nodes"] == ["seed", "left"]
+                assert first["params"] == {"seed": 29, "step1": 1, "left": 1}
+                assert len(first["cache_entry_refs"]) == 1
+    
+            reader_queue = process_context.Queue()
+            reader = process_context.Process(
+                target=_b73_failure_policy_fresh_reader,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    expected_current_fingerprint,
+                    False,
+                    reader_queue,
+                ),
+            )
+            try:
+                reader.start()
+                reader.join(timeout=60)
+                assert reader.exitcode == 0
+                retried = reader_queue.get(timeout=5)
+            finally:
+                if reader.is_alive():
+                    reader.terminate()
+                    reader.join(timeout=5)
+                reader_queue.close()
+    
+            assert retried["pid"] != first["pid"]
+            before = retried["before_resume"]
+            assert before["origin_workflow_fingerprint"] == expected_origin_fingerprint
+            assert before["workflow_fingerprint"] == expected_current_fingerprint
+            assert retried["report_status"] == "ok"
+            assert retried["resumed_params"] == {
+                "seed": 29,
+                "step1": 1,
+                "left": 1,
+                "right": 2,
+                "final": True,
+            }
+>           assert retried["peer_calls"] == (
+                [1, 1] if error_policy == "fail_fast" else [0, 1]
+            )
+E           AssertionError: assert [0, 1] == [1, 1]
+E             
+E             At index 0 diff: 0 != 1
+E             
+E             Full diff:
+E               [
+E             -     1,
+E             ?     ^...
+E             
+E             ...Full output truncated (4 lines hidden), use '-vv' to show
+
+tests/integration/scientist/test_checkpoint_resume.py:1782: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+2026-10-05 14:00:41.015 | INFO     | polisyos.common.logger:_call:120 - Recovered 1 cached node outcomes
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestWorkflowTimeout::test_workflow_timeout_raises
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_remote_worker_timeout_wire_replays_only_declared_branch_operations
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=9878) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_remote_worker_timeout_wire_replays_only_declared_branch_operations
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier
+FAILED tests/integration/scientist/test_checkpoint_resume.py::test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer
+============= 2 failed, 229 passed, 3 warnings in 84.34s (0:01:24) =============
+
+exit=1 wall_s=90.218 max_rss_kib=950564

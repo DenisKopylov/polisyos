@@ -1,0 +1,335 @@
+E02 C / DFK-02 catalog implementation receipt
+================================================
+
+Implementation commits:
+  cf3068de71d7f3cd65aad433ce9ffcca6db9568a
+  c863664274c7cf08fe3340c21e3130dc3904b5ae
+Final candidate tree:  41b339f027ae7e84d0ad6ea77118ef887006ecb5
+Slice base:            401fe6864c00b70417c3d63bee96a292718dead7
+Branch:                codex/e02-C-catalog
+Worktree:              /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos
+Python:                /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python (Python 3.14)
+Source path:           /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src
+
+This receipt pins actual command outputs and the import-operation instrumentation for the
+implementation commits above. Production inputs were not read. The local unit suite uses temp
+fixtures and the checked-in static registry. No source was changed after the final implementation
+commit.
+
+
+1. Prior affected package + consumer test stdout at cf3068
+---------------------------------------------------------
+
+Command:
+
+env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src \
+  /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest \
+  --override-ini='addopts=' -q \
+  /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/data_forge/domains/catalog/batch \
+  /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py \
+  /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/remediation/test_dfk_02.py
+
+Exit status: 0
+Complete stdout:
+
+........................................................................ [ 37%]
+........................................................................ [ 75%]
+................................................                         [100%]
+192 passed in 42.83s
+
+
+2. Prior source Ruff stdout at cf3068
+------------------------------------
+
+The same nine changed Python files were passed to both commands:
+
+- policy-engine/src/polisyos/data_forge/domains/catalog/registry.py
+- policy-engine/src/polisyos/data_forge/domains/catalog/selection.py
+- policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py
+- policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py
+- policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py
+- policy-engine/src/polisyos/fabric/retrieval/service.py
+- policy-engine/tests/unit/data_forge/domains/catalog/batch/test_source_registry.py
+- policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py
+- policy-engine/tests/unit/remediation/test_dfk_02.py
+
+Command: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check <paths above>
+Exit status: 0
+Complete stdout:
+
+All checks passed!
+
+Command: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check <paths above>
+Exit status: 0
+Complete stdout:
+
+9 files already formatted
+
+
+3. Contract import actual-operation probe at c863664
+----------------------------------------------------
+
+Command:
+
+env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src \
+  /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python - <<'PY'
+import builtins
+import sys
+from pathlib import Path
+
+registry_reads = []
+relevant_open_events = []
+socket_connect_events = []
+duckdb_connect_calls = []
+duckdb_import_callers = []
+wrapped_modules = set()
+original_read_text = Path.read_text
+original_import = builtins.__import__
+
+def tracked_read_text(path, *args, **kwargs):
+    if path.as_posix().endswith('/data_forge/domains/catalog/source_registry.yaml'):
+        registry_reads.append({'path': path.as_posix(), 'bytes': path.stat().st_size})
+    return original_read_text(path, *args, **kwargs)
+
+def audit(event, args):
+    if event == 'open':
+        raw_path = args[0]
+        if isinstance(raw_path, bytes):
+            path = raw_path.decode(errors='replace')
+        elif isinstance(raw_path, str):
+            path = raw_path
+        else:
+            return
+        lowered = path.lower()
+        if any(token in lowered for token in ('.duckdb', 'hnsw', 'model', 'production_data', 'source_registry.yaml')):
+            relevant_open_events.append({'path': path, 'mode': args[1] if len(args) > 1 else None})
+    elif event == 'socket.connect':
+        socket_connect_events.append(str(args))
+
+def tracked_import(name, globals=None, locals=None, fromlist=(), level=0):
+    first_duckdb_import = name == 'duckdb' and 'duckdb' not in sys.modules
+    if first_duckdb_import:
+        frame = sys._getframe(1)
+        while frame is not None:
+            filename = frame.f_code.co_filename
+            if '/site-packages/' not in filename and '<frozen' not in filename and filename != '<stdin>':
+                duckdb_import_callers.append(f'{filename}:{frame.f_lineno} in {frame.f_code.co_name}')
+            frame = frame.f_back
+    module = original_import(name, globals, locals, fromlist, level)
+    if name == 'duckdb' and id(module) not in wrapped_modules:
+        wrapped_modules.add(id(module))
+        connect = module.connect
+        def tracked_connect(*args, **kwargs):
+            duckdb_connect_calls.append({'args': repr(args), 'kwargs': repr(kwargs)})
+            return connect(*args, **kwargs)
+        module.connect = tracked_connect
+    return module
+
+Path.read_text = tracked_read_text
+builtins.__import__ = tracked_import
+sys.addaudithook(audit)
+before = set(sys.modules)
+import polisyos.data_forge.domains.catalog.registry  # noqa: F401
+loaded = set(sys.modules) - before
+heavy_prefixes = ('duckdb', 'hnswlib', 'torch', 'sentence_transformers')
+heavy_loaded = sorted(name for name in loaded if any(name == prefix or name.startswith(prefix + '.') for prefix in heavy_prefixes))
+print(f'canonical_registry_reads={registry_reads!r}')
+print(f'heavy_runtime_modules_loaded={heavy_loaded!r}')
+print(f'duckdb_import_callers={duckdb_import_callers!r}')
+print(f'duckdb_connect_calls={duckdb_connect_calls!r}')
+print(f'socket_connect_events={socket_connect_events!r}')
+print(f'relevant_open_events={relevant_open_events!r}')
+PY
+
+Exit status: 0
+Complete stdout:
+
+canonical_registry_reads=[{'path': '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.yaml', 'bytes': 15427}]
+heavy_runtime_modules_loaded=['duckdb', 'duckdb._dbapi_type_object', 'duckdb._version', 'duckdb.sqltypes', 'duckdb.value', 'duckdb.value.constant']
+duckdb_import_callers=['/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/fabric/io/db.py:9 in <module>', '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/fabric/world/materialize/duckdb.py:18 in <module>', '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/fabric/world/materialize/__init__.py:5 in <module>', '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/fabric/world/__init__.py:55 in <module>', '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/data_forge/kernel/artifacts.py:13 in <module>', '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/data_forge/domains/catalog/assets.py:5 in <module>', '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/data_forge/domains/catalog/__init__.py:5 in <module>']
+duckdb_connect_calls=[]
+socket_connect_events=[]
+relevant_open_events=[{'path': '/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/_internal/__pycache__/_model_construction.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__pycache__/root_model.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib-0.8.0.dist-info/entry_points.txt', 'mode': 'r'}, {'path': '/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib-0.8.0.dist-info/entry_points.txt', 'mode': 'r'}, {'path': '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/ir/model_layer/__pycache__/__init__.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/ir/model_layer/__pycache__/canon.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/ir/model_layer/__pycache__/types.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/core/audit/__pycache__/models.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/fabric/connectors/cache/__pycache__/_store_models.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/fabric/connectors/profiles/__pycache__/models.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/fabric/connectors/__pycache__/_registry_models.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/aiohttp/_websocket/__pycache__/models.cpython-314.pyc', 'mode': 'r'}, {'path': '/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.yaml', 'mode': 'r'}]
+
+
+4. Baseline source-reported decision evidence
+---------------------------------------------
+
+Command: python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding LA-028 --details
+Exit status: 0
+Summary: 14 matching cells; 8 PASS / 6 FAILED; 6 matching source blocks; raw_archives_received=0.
+The query grades this `source_reported_compact_text_only; candidate_routes`; its limitations say
+the locators are structured source blocks rather than a normalized event census, and PASS does not
+establish semantic adequacy or finding closure. Exact cell metadata and source locators are copied
+into adjacent catalog.json; source files remain authoritative for the raw text.
+
+Decisive retrieval locators:
+
+- F02-P065: received/F02.txt:342 reports
+  AttributeError: '_FakeExecutor' object has no attribute 'artifact_store'
+  for test_retrieval_service_discover_uses_injected_executor_explore_and_observability.
+- F15-P076: received/F15.txt:692-693 reports the matching failed node; referenced message M041 at
+  received/F15.txt:359 reports `artifact_store` as the missing input.
+
+Catalog integration locators:
+
+- F04-P053: received/F04.txt:263; baseline integration call PASS.
+- F05-P075: received/F05.txt:485; source block reports `ValueError: catalog_fetch_source_unreadable`.
+- F09-P057: received/F09.txt:457 and message E25 at :345; reports the same error.
+- F10-P055: received/F10.txt:300; reports `builtins.ValueError` / `catalog_fetch_source_unreadable`.
+- F13-P062: received/F13.txt:395; reports the same error in the catalog-to-runtime test.
+
+These are baseline source observations at several different source SHAs. They are not candidate
+results and no inherited-red/P41 conclusion is made without the required slice-base replay and
+zero-intersection proof.
+
+
+5. First strict-parser candidate regression correction
+------------------------------------------------------
+
+The first broad candidate run discovered eight failures in existing batch benchmark/publish
+fixtures because rows omitting connector_id no longer received SourceSpec's established `""`
+default after the canonical strict parser became authoritative. These were candidate-introduced
+regressions, not inherited baseline reds. CatalogSourceRegistryEntry now preserves the omitted
+field default while supplied values still undergo strict type validation. The final full affected
+package command above reran the same 192 tests and passed.
+
+The admitted historical uncommitted registry candidate had diff SHA256
+eb02ff81a92e70e0ddf51313a1813a79e6123874b6e561f82f398ae4428f58d3; its original provenance is
+`not_established`. It was admitted by the coordinator as a candidate and revised by the present
+writer; no authorship is inferred. The revised registry.py diff immediately before implementation
+commit had SHA256 304b6423feee646c5e041266fc1b169470f19a9e7f8ddfbe922837e34c8a3bc9.
+
+The final c863664 correction also reran the affected package and consumer command; the final
+194-test output is recorded in section 6. The first broad eight-failure episode remains classified
+as candidate-introduced and repaired; it is not an inherited baseline red under P41.
+
+
+6. Canonical format-code normalization and consumer regression at c863664
+-------------------------------------------------------------------------
+
+The same parser/consumer class was found one level deeper during review. The strict canonical
+loader accepted lower-case or space-padded string codes, while CKAN resource formats are
+uppercased before allow/deny comparisons. This caused valid allowlisted CSV/JSON resources to be
+dropped and could allow denied PDF/XML resources through. One after-validation normalization at
+CatalogSourceRegistryEntry repairs both format fields before any projection; strict validation
+continues to reject malformed containers and element types.
+
+Red command, against the preceding implementation commit cf3068de71d7f3cd65aad433ce9ffcca6db9568a:
+
+env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src \
+  /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest \
+  --override-ini='addopts=' -q \
+  policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py::test_registry_format_codes_are_normalized_before_ckan_curation
+
+Exit status: 1. Decisive assertion: the loader-to-CKAN path returned an empty resource list where
+`['csv', 'json']` was required. Complete concise output: `1 failed in 0.75s`.
+
+Focused post-fix command at c863664:
+
+env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src \
+  /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest \
+  --override-ini='addopts=' -q \
+  policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py \
+  policy-engine/tests/unit/data_forge/domains/catalog/batch/test_source_registry.py
+
+Exit status: 0. Complete concise output: `26 passed in 6.51s`. The real loader-to-curation
+test permits CSV/JSON under padded lowercase allowlist entries and excludes PDF/XML under padded
+lowercase denylist entries. Existing endpoint integer, scalar denylist and new integer list-member
+controls reject supplied malformed values.
+
+Final affected suite command at c863664:
+
+env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src \
+  /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest \
+  --override-ini='addopts=' -q \
+  policy-engine/tests/unit/data_forge/domains/catalog/batch \
+  policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py \
+  policy-engine/tests/unit/remediation/test_dfk_02.py
+
+Exit status: 0. Complete concise output: `194 passed in 56.27s`.
+This broad run happened before the final blank-line-only import-group formatting adjustment in
+`test_ckan_curation.py`; both affected modules were rerun afterward (26 passed), and the final
+three-path Ruff and format checks passed on the resulting committed state.
+
+Corrective delta lint:
+
+- `/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check` on
+  `registry.py`, `test_ckan_curation.py`, and `test_source_registry.py`: exit 0, `All checks passed!`
+- Same three paths with `ruff format --check`: exit 0, `3 files already formatted`.
+
+Independent schema-consumer delta review for c863664274c7cf08fe3340c21e3130dc3904b5ae at tree
+41b339f027ae7e84d0ad6ea77118ef887006ecb5: ACCEPT. The reviewer exercised four consumer and
+malformed-value cases, observed CSV/JSON admitted and PDF/XML denied, and reported a clean diff.
+
+
+8. Offline installed-package consumer probe at c863664
+------------------------------------------------------
+
+The candidate policy-engine subtree was exported with `git archive` from
+c863664274c7cf08fe3340c21e3130dc3904b5ae, then built offline into a private scratch wheel. A new
+scratch Python 3.14 environment installed that wheel with `--no-deps`. The only dependency path
+was a scratch `.pth` append to the existing repo venv site-packages. The probe ran from `/tmp` with
+`PYTHONPATH` unset and asserted that package imports came from the installed wheel's site-packages,
+with no source/worktree path, editable finder, or editable `.pth` helper present.
+
+The exact tested standalone evidence script is tracked at
+`catalog-installed-consumer-probe.py` (10,889 bytes; SHA-256
+`175c821cf84b12632438e5b46c51434d5d6214c6d4f6ad6a6c6e0b212e7186ec`). It is preserved byte for
+byte from the probe scratch area as receipt code, not production/package source. The Ruff result
+above covers only the three changed source/test Python paths; it does not claim to lint this
+standalone probe script, which has not been reformatted.
+
+The complete modest command outputs are committed beside this receipt:
+
+- Offline wheel build: `catalog-installed-build.log` (194 bytes; SHA-256
+  `812108e7f5175c162495fc2286133b656cf687bf27cd9e5b50cde27537de73ef`). Output: wheel built
+  successfully.
+- `--no-deps` wheel install: `catalog-installed-install.log` (434 bytes; SHA-256
+  `b6d139bb694f81093c6f52ecc0cc95e1816742a5758fdb46408926980795036b`). Output: package installed
+  successfully into the private scratch venv.
+- Installed consumer run: `catalog-installed-consumer.log` (1,839 bytes; SHA-256
+  `f3fb4e2cd71466266456a9a60978d97d9c6497081b27db5c3b1c53e75b307626`). Output confirms:
+  `BYTE_IDENTITY_PASS` for all 55 catalog `.py`/`.yaml`/`.yml` files (1,299,227 bytes; aggregate
+  manifest SHA-256 `4178ea6054305ce5e83c2c4d8c5257e3d0d640809f9a6bfc7c280407768adad3`); installed
+  imports from site-packages only; default canonical and batch loaders preserve 35 ordered entries;
+  the real CKAN seed bridge curates 9 resources to 6 and rejects the off-topic row; padded lowercase
+  allow/deny codes retain CSV/JSON/XLSX and reject PDF/XML (6 resources to 3); all five malformed
+  parser inputs are refused. `INSTALLED_CONSUMER_PROBE_PASS` records cwd `/tmp`, no `PYTHONPATH`,
+  no source rescue, network, or production input.
+- Complete 4,355-byte installed-probe operation receipt:
+  `catalog-installed-probe-receipt.txt`, SHA-256
+  `ff94eb0a01ee05526c1a925b34e8f14aacdf6c27bd4212776aeefd75d33997b0`. It retains the exact build,
+  installation and consumer commands, runtime boundaries, wheel SHA-256
+  `ad0c990fc9abe3b74d6ea4556c807ab7c656c883b2dd0eac126da6ede0fa05f1`, and scratch evidence
+  locators. The wheel binary and derived per-file manifest were not copied into the repository.
+
+This is a bounded installed-package consumer pass, not dependency-resolution, full production,
+HTTP, or full batch/runtime lifecycle evidence. Retrieval profile applicability remains held. The
+installed consumer agent's final receipt is tracked byte-for-byte above; no source was changed.
+
+
+7. Catalog-to-runtime integration setup failure (not a product verdict)
+------------------------------------------------------------------------
+
+Pinned run target: preceding implementation commit cf3068de71d7f3cd65aad433ce9ffcca6db9568a.
+Selected command from policy-engine/:
+
+/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= \
+  -o cache_dir=/tmp/e02-c-catalog-cf3068de-Co11NW/pytest-cache \
+  --basetemp=/tmp/e02-c-catalog-cf3068de-Co11NW/pytest-tmp -vv --tb=long \
+  tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py::\
+test_data_forge_catalog_fixture_source_contract_reaches_runtime_api
+
+Exit status: 1; selected pytest test failed after 19.05s during runtime app setup. Exact error:
+`ValueError: catalog_fetch_source_unreadable`; missing path:
+`policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb`.
+The failure occurred before TestClient creation and before either HTTP request. No production
+data was read and no fixture DB was substituted. The runtime route/consumer property is
+`not_established`; there was no slice-base replay, so this is not called inherited. The root has
+assigned the approved runtime input prerequisite for a later G rerun.
+
+Full deciding pytest output remains byte-for-byte under this worktree's ignored raw directory:
+`.tmp/e02-C-catalog/raw/catalog-runtime-cf3068de/pytest.log` (1,475 lines, 66,765 bytes),
+SHA-256 `ccf5c1551f743f912da23a55e4d6a15edc7253d183f3652bb29a1de2a51259e9`. It is local-only;
+the summary above is not represented as a receipt accessible to an independent consumer.

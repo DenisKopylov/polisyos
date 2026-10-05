@@ -1,0 +1,379 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "catalog",
+  "closure_ids": ["LA-028"],
+  "bundle_ids": ["DFK-02"],
+  "created_at_utc": "2026-10-05T15:28:47Z",
+  "status": "implemented_partial_bounded_installed_probe_passed",
+  "slice_base_sha": "401fe6864c00b70417c3d63bee96a292718dead7",
+  "slice_base_tree_sha": "70aab21f6a9977c0795343c1e45d4833d42da268",
+  "implementation_commits": ["cf3068de71d7f3cd65aad433ce9ffcca6db9568a", "c863664274c7cf08fe3340c21e3130dc3904b5ae"],
+  "candidate_tree_sha": "41b339f027ae7e84d0ad6ea77118ef887006ecb5",
+  "branch": "codex/e02-C-catalog",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/AUTHORING.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+    "policy-engine/src/polisyos/fabric/retrieval/service.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_source_registry.py",
+    "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+    "policy-engine/tests/unit/remediation/test_dfk_02.py"
+  ],
+  "baseline_cells": [
+    {"id": "F02-P065", "job": "F02", "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b", "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py", "state": "FAILED", "collected": 13, "calls": 13, "passed": 12, "failed": 1, "receipt_status": "reconciled", "source_locator": "results/received/F02.txt:193; failure block :342"},
+    {"id": "F02-P079", "job": "F02", "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b", "path": "policy-engine/tests/unit/remediation/test_dfk_02.py", "state": "PASS", "collected": 10, "calls": 10, "passed": 10, "failed": 0, "receipt_status": "reconciled", "source_locator": "results/received/F02.txt:207"},
+    {"id": "F03-P079", "job": "F03", "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b", "path": "policy-engine/tests/unit/data_forge/test_phase3_catalog_completion.py", "state": "PASS", "collected": 10, "calls": 10, "passed": 10, "failed": 0, "receipt_status": "valid_bound", "source_locator": "results/received/F03.txt:209"},
+    {"id": "F04-P053", "job": "F04", "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b", "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py", "state": "PASS", "collected": 1, "calls": 1, "passed": 1, "failed": 0, "receipt_status": "valid_reconciled_parent", "source_locator": "results/received/F04.txt:263"},
+    {"id": "F05-P075", "job": "F05", "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b", "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py", "state": "FAILED", "collected": 1, "calls": 1, "passed": 0, "failed": 1, "receipt_status": "valid_reconciled", "source_locator": "results/received/F05.txt:485"},
+    {"id": "F05-P087", "job": "F05", "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b", "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py", "state": "PASS", "collected": 13, "calls": 13, "passed": 13, "failed": 0, "receipt_status": "valid_reconciled", "source_locator": "results/received/F05.txt:497"},
+    {"id": "F07-P058", "job": "F07", "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2", "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py", "state": "PASS", "collected": 13, "calls": 13, "passed": 13, "failed": 0, "receipt_status": "valid", "source_locator": "results/received/F07.txt:64"},
+    {"id": "F08-P079", "job": "F08", "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2", "path": "policy-engine/tests/unit/remediation/test_dfk_02.py", "state": "PASS", "collected": 10, "calls": 10, "passed": 10, "failed": 0, "receipt_status": "valid_reconciled", "source_locator": "results/received/F08.txt:202"},
+    {"id": "F09-P057", "job": "F09", "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2", "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py", "state": "FAILED", "collected": 1, "calls": 1, "passed": 0, "failed": 1, "receipt_status": "valid_reconciled", "source_locator": "results/received/F09.txt:173"},
+    {"id": "F10-P055", "job": "F10", "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8", "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py", "state": "FAILED", "collected": 1, "calls": 1, "passed": 0, "failed": 1, "receipt_status": "valid_reconciled", "source_locator": "results/received/F10.txt:175"},
+    {"id": "F10-P067", "job": "F10", "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8", "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py", "state": "PASS", "collected": 13, "calls": 13, "passed": 13, "failed": 0, "receipt_status": "valid_reconciled", "source_locator": "results/received/F10.txt:187"},
+    {"id": "F13-P062", "job": "F13", "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2", "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py", "state": "FAILED", "collected": 1, "calls": 1, "passed": 0, "failed": 1, "receipt_status": "valid_reconciled", "source_locator": "results/received/F13.txt:189"},
+    {"id": "F13-P090", "job": "F13", "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2", "path": "policy-engine/tests/unit/remediation/test_dfk_02.py", "state": "PASS", "collected": 10, "calls": 10, "passed": 10, "failed": 0, "receipt_status": "valid_reconciled", "source_locator": "results/received/F13.txt:217"},
+    {"id": "F15-P076", "job": "F15", "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2", "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py", "state": "FAILED", "collected": 13, "calls": 13, "passed": 12, "failed": 1, "receipt_status": "valid", "source_locator": "results/received/F15.txt:231; failure group :692-693; referenced message M041 :359"}
+  ],
+  "checks": [
+    {
+      "command": "env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest --override-ini='addopts=' -q /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/data_forge/domains/catalog/batch /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "target_sha": "cf3068de71d7f3cd65aad433ce9ffcca6db9568a",
+      "environment": "macOS local worktree; Python 3.14 repo venv at /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python; PYTHONPATH is candidate policy-engine/src",
+      "input_closure": "Unit tests in the complete catalog/batch directory plus the named retrieval and DFK-02 suites; temporary fixture paths; checked-in static source registry; no production dataset reads",
+      "outcome": "PASS",
+      "output": "192 passed in 42.83s",
+      "output_ref": "catalog.receipt.txt#pytest-full-suite"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check <the 9 changed Python paths listed in catalog.receipt.txt#ruff>",
+      "target_sha": "cf3068de71d7f3cd65aad433ce9ffcca6db9568a",
+      "environment": "same local Python 3.14 repo venv",
+      "input_closure": "9 changed Python source/test files; exact paths recorded adjacent",
+      "outcome": "PASS",
+      "output": "All checks passed!",
+      "output_ref": "catalog.receipt.txt#ruff-check"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check <the 9 changed Python paths listed in catalog.receipt.txt#ruff>",
+      "target_sha": "cf3068de71d7f3cd65aad433ce9ffcca6db9568a",
+      "environment": "same local Python 3.14 repo venv",
+      "input_closure": "9 changed Python source/test files; exact paths recorded adjacent",
+      "outcome": "PASS",
+      "output": "9 files already formatted",
+      "output_ref": "catalog.receipt.txt#ruff-format"
+    },
+    {
+      "command": "python heredoc probe recorded in catalog.receipt.txt#contract-import-probe-command",
+      "target_sha": "cf3068de71d7f3cd65aad433ce9ffcca6db9568a",
+      "environment": "same local Python 3.14 repo venv; fresh interpreter; instrumented Path.read_text, Python audit open/socket.connect, import and duckdb.connect",
+      "input_closure": "Only import polisyos.data_forge.domains.catalog.registry; no production dataset or database input",
+      "outcome": "PASS",
+      "output": "One 15,427-byte canonical YAML read; DuckDB modules imported transitively; no duckdb.connect or socket.connect call; no .duckdb or production_data path opened. hnswlib dist-info entry_points and model-named .pyc files were opened during package/plugin discovery, but hnswlib/torch/sentence_transformers runtime modules were not loaded.",
+      "semantic_result": "bounded_observation; LA-028 import-contract criterion remains partial",
+      "output_ref": "catalog.receipt.txt#contract-import-probe-output"
+    },
+    {
+      "command": "env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest --override-ini='addopts=' -q /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py::test_registry_format_codes_are_normalized_before_ckan_curation",
+      "target_sha": "cf3068de71d7f3cd65aad433ce9ffcca6db9568a",
+      "environment": "macOS local worktree; Python 3.14 repo venv; candidate source path on PYTHONPATH",
+      "input_closure": "Temporary two-source canonical YAML registry; actual batch loader and CKAN curation function",
+      "outcome": "FAIL",
+      "output": "Expected pre-fix red: valid CSV/JSON allowlisted resources were dropped; assertion observed [] instead of ['csv', 'json']; 1 failed in 0.75s.",
+      "output_ref": "catalog.receipt.txt#format-codes-red"
+    },
+    {
+      "command": "env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest --override-ini='addopts=' -q /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/data_forge/domains/catalog/batch/test_source_registry.py",
+      "target_sha": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+      "environment": "macOS local worktree; Python 3.14 repo venv; candidate source path on PYTHONPATH",
+      "input_closure": "Complete two affected batch test modules; temporary fixture registries; checked-in catalog YAML",
+      "outcome": "PASS",
+      "output": "26 passed in 6.51s",
+      "output_ref": "catalog.receipt.txt#format-codes-focused"
+    },
+    {
+      "command": "env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest --override-ini='addopts=' -q /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/data_forge/domains/catalog/batch /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py /Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/tests/unit/remediation/test_dfk_02.py",
+      "target_sha": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+      "environment": "macOS local worktree; Python 3.14 repo venv at /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python; candidate policy-engine/src on PYTHONPATH",
+      "input_closure": "Complete catalog/batch unit directory plus retrieval catalog and DFK-02 consumer suites; temporary fixtures and checked-in static registry; no production dataset reads",
+      "outcome": "PASS",
+      "output": "194 passed in 56.27s",
+      "output_ref": "catalog.receipt.txt#format-codes-full-suite"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/data_forge/domains/catalog/registry.py policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py policy-engine/tests/unit/data_forge/domains/catalog/batch/test_source_registry.py",
+      "target_sha": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+      "environment": "macOS local worktree; Python 3.14 repo venv; working directory is attached catalog worktree",
+      "input_closure": "Three changed Python paths in the corrective delta",
+      "outcome": "PASS",
+      "output": "All checks passed!",
+      "output_ref": "catalog.receipt.txt#format-codes-ruff"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/data_forge/domains/catalog/registry.py policy-engine/tests/unit/data_forge/domains/catalog/batch/test_ckan_curation.py policy-engine/tests/unit/data_forge/domains/catalog/batch/test_source_registry.py",
+      "target_sha": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+      "environment": "macOS local worktree; Python 3.14 repo venv; working directory is attached catalog worktree",
+      "input_closure": "Three changed Python paths in the corrective delta",
+      "outcome": "PASS",
+      "output": "3 files already formatted",
+      "output_ref": "catalog.receipt.txt#format-codes-format"
+    },
+    {
+      "command": "Fresh-process import polisyos.data_forge.domains.catalog.registry with Path.read_text, audit open/socket.connect, and duckdb.connect instrumentation",
+      "target_sha": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+      "environment": "macOS local worktree; Python 3.14 repo venv; candidate source path on PYTHONPATH",
+      "input_closure": "Single contract import; checked-in canonical YAML only; no production input",
+      "outcome": "PASS",
+      "output": "One 15,427-byte canonical YAML read; DuckDB modules imported transitively; no duckdb.connect or socket.connect; no .duckdb or production_data path opened.",
+      "output_ref": "catalog.receipt.txt#contract-import-probe-output"
+    },
+    {
+      "command": "From policy-engine/: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -o cache_dir=/tmp/e02-c-catalog-cf3068de-Co11NW/pytest-cache --basetemp=/tmp/e02-c-catalog-cf3068de-Co11NW/pytest-tmp -vv --tb=long tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py::test_data_forge_catalog_fixture_source_contract_reaches_runtime_api",
+      "target_sha": "cf3068de71d7f3cd65aad433ce9ffcca6db9568a",
+      "environment": "macOS local worktree; Python 3.14; PYTHONPATH=src:.; POLISYOS_RUN_INTEGRATION=1; one selected integration test",
+      "input_closure": "Selected catalog-to-runtime fixture test and actual runtime app construction; missing worktree production_data catalog prevents setup",
+      "outcome": "FAIL",
+      "failure_stage": "runtime_app_construction_inside_selected_test",
+      "property_outcome": "not_established",
+      "output": "pytest exit 1 after 19.05s: ValueError catalog_fetch_source_unreadable because policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb is absent. Failure occurred before TestClient creation and before either HTTP request; no production data was read. Raw pytest output is local ignored evidence only.",
+      "output_ref": ".tmp/e02-C-catalog/raw/catalog-runtime-cf3068de/pytest.log@sha256:ccf5c1551f743f912da23a55e4d6a15edc7253d183f3652bb29a1de2a51259e9"
+    },
+    {
+      "command": "env PYTHONPATH=\"$SCRATCH_PROBE/build-deps\" UV_CACHE_DIR=\"$SCRATCH_PROBE/uv-cache\" uv build --wheel --offline --no-build-isolation --no-python-downloads --python /opt/homebrew/bin/python3 --out-dir \"$SCRATCH_PROBE/dist\" .",
+      "target_sha": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+      "environment": "Frozen git archive of the pinned policy-engine subtree; CPython 3.14.0, uv 0.10.6, and private copied build backend dependencies in scratch; build was offline",
+      "input_closure": "Source archive from c863664274c7cf08fe3340c21e3130dc3904b5ae; no project dependency resolution",
+      "outcome": "PASS",
+      "output": "Successfully built policy_engine-0.1.0-py3-none-any.whl; 15,011,025 bytes; SHA-256 ad0c990fc9abe3b74d6ea4556c807ab7c656c883b2dd0eac126da6ede0fa05f1.",
+      "output_ref": "catalog-installed-build.log"
+    },
+    {
+      "command": "uv venv --python /opt/homebrew/bin/python3 \"$SCRATCH_PROBE/venv\"; env -u PYTHONPATH UV_CACHE_DIR=\"$SCRATCH_PROBE/uv-cache\" uv pip install --no-deps --python \"$SCRATCH_PROBE/venv/bin/python\" \"$SCRATCH_PROBE/dist/policy_engine-0.1.0-py3-none-any.whl\"",
+      "target_sha": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+      "environment": "New private CPython 3.14 scratch venv; dependency-only .pth points to existing read-only site-packages; no dependency resolution or shared-environment writes",
+      "input_closure": "Pinned wheel built from c863664274c7cf08fe3340c21e3130dc3904b5ae; --no-deps installation",
+      "outcome": "PASS",
+      "output": "Installed policy-engine==0.1.0 from the pinned local wheel with --no-deps.",
+      "output_ref": "catalog-installed-install.log"
+    },
+    {
+      "command": "From /tmp: env -u PYTHONPATH \"$SCRATCH_PROBE/venv/bin/python\" \"$SCRATCH_PROBE/installed_consumer_probe.py\"",
+      "target_sha": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+      "environment": "All imported PolicyOS modules originated from private wheel site-packages; cwd=/tmp; PYTHONPATH unset; no editable finder/helper or checkout/source roots on sys.path",
+      "input_closure": "Complete installed catalog Python/YAML package census (55 files); canonical default registry; scratch-only temp registries, empty metrics map, snapshot path, and synthetic CKAN inputs",
+      "outcome": "PASS",
+      "output": "All 55 catalog .py/.yaml/.yml files matched source archive, wheel and installed bytes (1,299,227 bytes; manifest SHA-256 4178ea6054305ce5e83c2c4d8c5257e3d0d640809f9a6bfc7c280407768adad3). Installed default loader and batch config preserved 35 ordered entries; CKAN seed bridge curated 9 resources to 6, normalized format fixture curated 6 to 3, and all five malformed parser inputs were rejected. No HTTP or production data used.",
+      "output_ref": "catalog-installed-consumer.log"
+    }
+  ],
+  "property": {
+    "statement": "The canonical catalog YAML is parsed once by CatalogSourceRegistrySpec with strict typed validation; validated format allow/deny codes are stripped and uppercased before projection, so CKAN curation compares normalized registry and resource codes. Registry, source-module and actual batch harvest selectors call one wave/profile/enabled-seed policy. RetrievalService public resolve consumes canonical source identity and refuses known-disabled and non-empty unregistered source IDs.",
+    "runtime_path": [
+      "catalog/source_registry.yaml -> load_catalog_source_registry -> CatalogSourceRegistrySpec",
+      "CatalogSourceRegistrySpec.enabled_sources / select_catalog_source_modules / batch.SourceRegistry.enabled_sources -> select_catalog_sources -> resolve_catalog_source_dependencies",
+      "DatasetBatchConfig.default_registry_path -> batch.load_source_registry -> strict CatalogSourceRegistryEntry format-code normalization -> SourceSpec projection -> harvest_sources -> harvest_one_source -> curate_ckan_package only after selection succeeds",
+      "RetrievalService.resolve -> _resolve_via_catalog -> _source_policy reads canonical registry -> disabled guard or CatalogSelectionError for unknown explicit source ID"
+    ],
+    "proxy_divergence": "View equality alone cannot show consumer behavior: lower-case/space-padded format codes can look like valid strings while CKAN curation uppercases resource formats, causing valid CSV/JSON resources to be excluded and forbidden PDF/XML resources to pass. The loader-to-curation regression exercises both actual filters. The baseline public RetrievalService path also had a disabled-source route and F02-P065/F15-P076 report a missing artifact_store in the injected-executor path. Candidate tests exercise public resolve for disabled bindings/fallbacks and unregistered IDs; batch tests prove disabled/missing mandatory seeds fail before harvest_one_source.",
+    "negative_controls": [
+      "None modules selects the default registry; explicit empty tuple remains empty.",
+      "Disabled, missing, and cyclic mandatory seeds raise typed CatalogSelectionError; actual batch harvest is not started for disabled/missing required seed.",
+      "A selected dependent in prod_core_blocking may bring its enabled seed into dependency closure even when that seed is excluded by the root profile; unrelated non-blocking source remains excluded.",
+      "Unknown run profiles are typed-held by registry, module and batch config selectors, including empty selector inputs.",
+      "Supplied endpoint integer 42, scalar format_denylist PDF, and integer format_allowlist member are rejected; alias collision name plus source_id is rejected; omitted connector_id retains the established empty-string default.",
+      "Whitespace-padded lowercase CSV/JSON allowlist accepts actual CSV/JSON resources; whitespace-padded lowercase PDF/XML denylist excludes those resources before CKAN curation output.",
+      "Public RetrievalService.resolve yields no plans for known disabled source bindings/fallbacks and raises typed catalog_source_unregistered for an explicit unknown source ID."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_notes": "Candidate selector and public consumer behavior is asserted by local runtime tests. Transferred E02 baseline route grades remain source-reported/candidate-unverified and do not establish LA-028 closure or inherited-red provenance.",
+  "capability_state_or_finding_state": "partial; LA-028 not closed",
+  "limitations_and_next_owner": [
+    "RetrievalService.resolve has no CatalogRunProfile carrier. Do not assign prod_full or another implied profile. Profile applicability and full seed-selection closure for retrieval remain held/bounded unknown until an actual caller-provided profile context is established or a semantic owner decides the contract.",
+    "The batch-local source_registry.yaml remains physically present and unchanged; it has the same Git blob as the canonical catalog YAML, but remains a duplicate path. Batch defaults now load the canonical catalog path; the legacy path is still accepted as a default alias. No generated YAML was hand-edited and no generator registration was changed.",
+    "Fresh contract import reads the canonical 15,427-byte YAML and transitively imports DuckDB through catalog/__init__.py -> catalog/assets.py -> kernel/artifacts.py -> fabric/world/__init__.py -> fabric/world/materialize/duckdb.py -> fabric/io/db.py. The measured import did not call duckdb.connect or socket.connect; it is not a zero-import/zero-I/O result. Keep the package import boundary as a bounded residual unless a separately authorized owner widens it.",
+    "The E02 query reports 14 matching baseline cells (8 PASS, 6 FAILED), but raw archives_received is 0 and its limitation says locators are structured source blocks, not a normalized event census. No baseline failure is labeled inherited: exact P41 replay plus zero-intersection denominator proof is not established.",
+    "The first broad candidate run produced eight failures when strict parsing replaced the batch loader's omitted connector_id default. Those were candidate-introduced regressions, not inherited baseline reds; the existing SourceSpec default ('') was restored at the canonical entry and the final same broad run passes. Supplied connector values remain strict.",
+    "The bounded installed-wheel probe passed from /tmp with PYTHONPATH unset and source/wheel/installed bytes equal for 55 catalog Python/YAML files; it used --no-deps and synthetic local fixtures. Project dependency resolution, full production/runtime lifecycle, and HTTP transport behavior remain not_established.",
+    "Catalog-to-runtime fixture integration at cf3068 failed during the selected test's runtime-app construction because the worktree lacks production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb; the runtime consumer property is not_established, no HTTP request occurred, and no base replay supports an inherited-red claim. Root is carrying the approved runtime input prerequisite with the A/run_lifecycle owner for a later G rerun."
+  ],
+  "source_identity": {
+    "canonical_owner": "polisyos.data_forge.domains.catalog.registry",
+    "canonical_registry_path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.yaml",
+    "canonical_registry_git_blob_sha": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+    "legacy_batch_registry_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.yaml",
+    "legacy_batch_registry_git_blob_sha": "0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+    "default_batch_registry_path": "default_catalog_source_registry_path()",
+    "identity_mapping": "YAML name is normalized to canonical source_id; duplicate name/source_id alias collision and duplicate source IDs are refused."
+  },
+  "environment": {
+    "host_scope": "local macOS worktree",
+    "branch": "codex/e02-C-catalog",
+    "python": "Python 3.14 from /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "source_import_path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/policy-engine/src",
+    "production_data": "not read; tests use temporary fixtures and the checked-in static YAML"
+  },
+  "input_identity": {
+    "candidate_commit": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+    "candidate_tree": "41b339f027ae7e84d0ad6ea77118ef887006ecb5",
+    "baseline_query_command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding LA-028 --details",
+    "baseline_query_exit": 0,
+    "baseline_result_grade": "source_reported_compact_text_only; candidate_routes",
+    "baseline_query_summary": {"matching_cells": 14, "failed": 6, "passed": 8, "matching_source_blocks": 6, "raw_archives_received": 0},
+    "baseline_cells_path_git_blob_sha": "51c6234d89edf66d0a88025572b24960fce0c22d",
+    "F02_received_path_git_blob_sha": "462aee146a1e8219397001ae8275b66fc24ec04c",
+    "F15_received_path_git_blob_sha": "624de4940a02df0cb578256240d1f00de9129574",
+    "DFK_02_owner_source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "dfk_02_bundle_path_git_blob_sha": "8b517f8472a99c8c0f087ac95bfb62138b7e552a"
+  },
+  "producer": {
+    "path": "catalog.registry.load_catalog_source_registry",
+    "behavior": "Reads the canonical YAML and validates supplied fields through strict Pydantic models; arrays are converted to tuples without scalar coercion; source identity alias collisions and duplicate IDs are refused. Valid format_allowlist/format_denylist entries are stripped and uppercased after strict validation."
+  },
+  "artifact": {
+    "persisted_input": "checked-in source_registry.yaml",
+    "typed_runtime_artifact": "CatalogSourceRegistrySpec containing ordered CatalogSourceRegistryEntry records",
+    "derived_view": "CatalogSourceModuleSpec tuple projected from the canonical entry records",
+    "persistence_note": "Selection result is an in-memory projection; this slice does not add a persisted event or schema."
+  },
+  "bridge": {
+    "batch": "DatasetBatchConfig.default_registry_path -> batch.load_source_registry canonical parser/projection -> SourceRegistry.enabled_sources shared selector -> harvest_sources",
+    "data_forge": "CatalogSourceRegistrySpec.enabled_sources and select_catalog_source_modules call select_catalog_sources",
+    "retrieval": "RetrievalService._source_policy loads canonical registry and public resolve refuses disabled or explicit unregistered identity; retrieval profile selection is not wired because no profile carrier is present."
+  },
+  "consumer": {
+    "verified": [
+      "CatalogSourceRegistrySpec.enabled_sources",
+      "select_catalog_source_modules",
+      "batch.SourceRegistry.enabled_sources",
+      "batch.harvester.harvest_sources before harvest_one_source",
+      "RetrievalService.resolve for known disabled and explicit unregistered identities"
+    ],
+    "bounded": "RetrievalService's run-profile and seed-closure applicability remains unknown/held."
+  },
+  "surface": {
+    "existing_surfaces": ["batch harvest orchestration", "RetrievalService.resolve public result/refusal path"],
+    "new_external_surface": "none",
+    "explicit_out_of_scope": ["UI/dashboard/export", "connector/pool/streaming execution changes", "generated artifact registry", "physical duplicate YAML removal"]
+  },
+  "authority": {
+    "purpose": "Keep catalog source identity, enabled state, execution tier, filters, run profile, and mandatory seed dependency under one typed registry intake and shared batch/Data Forge selector.",
+    "authority_boundary": "The declarative catalog controls selection eligibility only; retrieval does not invent a run profile; source metadata is not connector authority.",
+    "fail_closed_conditions": ["unsupported run profile", "missing required seed", "disabled required seed", "cyclic seed", "known disabled retrieval source", "explicit unregistered retrieval source ID"]
+  },
+  "provenance": {
+    "implementation": "Commits cf3068de71d7f3cd65aad433ce9ffcca6db9568a and c863664274c7cf08fe3340c21e3130dc3904b5ae; final candidate tree 41b339f027ae7e84d0ad6ea77118ef887006ecb5",
+    "registry_input": "source_registry.yaml at Git blob 0cd1ad66cc19ae6d8ea28395c5a258eb165d1e51",
+    "tests": "Candidate runtime, pytest temporary fixtures, read-only checked-in YAML; final stdout is adjacent",
+    "historical_candidate": {
+      "diff_sha256": "eb02ff81a92e70e0ddf51313a1813a79e6123874b6e561f82f398ae4428f58d3",
+      "provenance": "not_established",
+      "handling": "Root admitted this previously preserved uncommitted diff as a candidate; it was then revised as sole writer. No authorship/history is inferred.",
+      "revised_registry_diff_sha256_before_commit": "304b6423feee646c5e041266fc1b169470f19a9e7f8ddfbe922837e34c8a3bc9"
+    }
+  },
+  "rule_schema_version": {
+    "registry_version_default": 1,
+    "tested_existing_compatibility": "positive version 2 remains accepted; no undocumented max/supported-version dispatch rule was introduced",
+    "model": "strict Pydantic input; inherited extra='forbid'; execution-tier-dependent defaults and batch cross-field constraints preserved"
+  },
+  "time_roles": {
+    "registry": "No new temporal validity fields or time authority introduced.",
+    "lookback": "Existing default_lookback_days and rolling_window constraints remain; retrieval's existing date-window behavior is unchanged.",
+    "observation": "The E02 baseline observations are source-run records at their recorded source SHAs; candidate test time is 2026-10-05 and is not substituted for baseline time."
+  },
+  "source_census": {
+    "method": "Runtime load of the complete checked-in canonical source_registry.yaml in tests/unit/remediation/test_dfk_02.py::test_registry_projection_keeps_the_35_entry_order_and_equality_contract",
+    "file_type_denominator": "35 YAML source records in the canonical registry",
+    "recomputed_counts": {"entries": 35, "enabled": 32, "disabled": 3, "seeded": 7},
+    "asserted_identity_order": "All 35 source IDs and their order equal the derived CORE_CATALOG_SOURCE_MODULES; the public sources compatibility projection is also checked."
+  },
+  "candidate_regression_resolution": {
+    "observed": "The first broad strict-parser candidate caused 8 batch package tests to fail because valid existing fixture registry rows omitted connector_id, whose prior SourceSpec default was the empty string.",
+    "resolution": "Canonical CatalogSourceRegistryEntry connector_id now defaults to the existing empty string while strict validation still rejects a supplied value of the wrong type.",
+    "classification": "candidate_introduced_and_repaired; not an inherited baseline red under P41",
+    "final_witness": "After preserving the established connector_id default and adding the format-code correction, the same broad affected package command passes 194 tests at c863664274c7cf08fe3340c21e3130dc3904b5ae."
+  },
+  "format_code_regression_resolution": {
+    "review_bucket": "same parser/consumer class, deeper P40 escape; one canonical normalization fix, no per-consumer ladder",
+    "observed_before_fix": "Strict parsing accepted format_allowlist [' csv ', ' json '] and format_denylist [' pdf ', ' xml '] without normalization. CKAN curation uppercases resource formats, so allowlisted data was dropped and denylisted formats could pass.",
+    "correction": "The canonical registry model strips and uppercases every validated format_allowlist and format_denylist string and drops blank values after Pydantic strict validation; batch and module projections inherit normalized values.",
+    "red_witness": "At cf3068de71d7f3cd65aad433ce9ffcca6db9568a, loader-to-CKAN test observed an empty resource list where CSV and JSON were expected.",
+    "green_witness": "At c863664274c7cf08fe3340c21e3130dc3904b5ae, loader-to-CKAN actual consumer test admits CSV/JSON and excludes PDF/XML; malformed scalar and non-string format values remain rejected.",
+    "classification": "same_parser_consumer_class_widened_once"
+  },
+  "installed_package_probe": {
+    "status": "passed_bounded",
+    "candidate_commit": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+    "candidate_tree": "41b339f027ae7e84d0ad6ea77118ef887006ecb5",
+    "scratch_root": "/Users/deniskopylov/.codex/scratch/e02-c-catalog-installed-probe-20261005-c863664274c7cf08fe3340c21e3130dc3904b5ae",
+    "wheel": {
+      "filename": "policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15011025,
+      "sha256": "ad0c990fc9abe3b74d6ea4556c807ab7c656c883b2dd0eac126da6ede0fa05f1",
+      "build_mode": "offline, private scratch build dependencies, no build isolation"
+    },
+    "package_byte_identity": {
+      "file_type_denominator": "All catalog package .py, .yaml and .yml files",
+      "files": 55,
+      "bytes": 1299227,
+      "source_wheel_install_equal": true,
+      "aggregate_manifest_sha256": "4178ea6054305ce5e83c2c4d8c5257e3d0d640809f9a6bfc7c280407768adad3"
+    },
+    "consumer_results": [
+      "Installed default loader and public source facades preserve all 35 ordered entries.",
+      "Installed DatasetBatchConfig default registry resolves to the installed canonical YAML and projects the same ordered 35 entries.",
+      "Real CKAN seed bridge filters 9 synthetic resources to 6 allowed formats and rejects an off-topic row.",
+      "Whitespace/lowercase format fixture keeps CSV/JSON/XLSX and denies PDF/XML; 6 resources become 3.",
+      "Five malformed top-level, source-list, strict-bool, duplicate-identity, and scalar-list inputs are refused."
+    ],
+    "execution_boundary": "Probe ran from /tmp with PYTHONPATH unset and asserted all imported PolicyOS modules came only from private installed site-packages; no checkout/source rescue, HTTP, production data or full batch lifecycle.",
+    "not_established": ["Project dependency resolution", "Full production/runtime lifecycle", "HTTP transport behavior", "Retrieval run-profile applicability and seed closure"],
+    "tracked_evidence": [
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-installed-consumer-probe.py", "bytes": 10889, "sha256": "175c821cf84b12632438e5b46c51434d5d6214c6d4f6ad6a6c6e0b212e7186ec"},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-installed-build.log", "bytes": 194, "sha256": "812108e7f5175c162495fc2286133b656cf687bf27cd9e5b50cde27537de73ef"},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-installed-install.log", "bytes": 434, "sha256": "b6d139bb694f81093c6f52ecc0cc95e1816742a5758fdb46408926980795036b"},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-installed-consumer.log", "bytes": 1839, "sha256": "f3fb4e2cd71466266456a9a60978d97d9c6497081b27db5c3b1c53e75b307626"},
+      {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-installed-probe-receipt.txt", "bytes": 4355, "sha256": "ff94eb0a01ee05526c1a925b34e8f14aacdf6c27bd4212776aeefd75d33997b0"}
+    ]
+  },
+  "import_contract_probe": {
+    "actual_operation": "Fresh process imports polisyos.data_forge.domains.catalog.registry with Path.read_text, Python audit open/socket.connect, import, and duckdb.connect instrumentation.",
+    "canonical_yaml_reads": [{"path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.yaml", "bytes": 15427, "count": 1}],
+    "transitive_import_chain": [
+      "catalog/__init__.py:5",
+      "catalog/assets.py:5",
+      "data_forge/kernel/artifacts.py:13",
+      "fabric/world/__init__.py:55",
+      "fabric/world/materialize/__init__.py:5",
+      "fabric/world/materialize/duckdb.py:18",
+      "fabric/io/db.py:9: import duckdb"
+    ],
+    "duckdb_connect_calls": 0,
+    "socket_connect_events": 0,
+    "runtime_modules_not_loaded": ["hnswlib", "torch", "sentence_transformers"],
+    "relevant_open_summary": "No .duckdb or production_data paths were opened. hnswlib dist-info entry_points.txt and model-named .pyc files were opened during discovery/import; this receipt does not claim zero filesystem I/O.",
+    "contract_import_result": "partial bounded result; static YAML read and transitive DuckDB module import remain."
+  },
+  "review": {
+    "implementation_commit_pinned": true,
+    "independent_review_status": "accepted",
+    "independent_delta_review": {
+      "commit": "c863664274c7cf08fe3340c21e3130dc3904b5ae",
+      "tree": "41b339f027ae7e84d0ad6ea77118ef887006ecb5",
+      "outcome": "ACCEPT",
+      "summary": "Strict malformed-value cases and the real loader-to-CKAN consumer regression pass; lowercase/whitespace CSV and JSON are allowed, PDF and XML denied; diff is clean."
+    },
+    "installed_client_probe_status": "passed_bounded",
+    "integration_status": "not integrated; no push performed"
+  },
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog.receipt.txt",
+  "handoff_commit": null
+}

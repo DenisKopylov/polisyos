@@ -1,0 +1,34 @@
+Installed catalog consumer receipt
+
+Scratch root: `/Users/deniskopylov/.codex/scratch/e02-c-catalog-installed-probe-20261005-c863664274c7cf08fe3340c21e3130dc3904b5ae`; commands below use `SCRATCH_PROBE` for this path.
+
+Frozen source
+- Commit: c863664274c7cf08fe3340c21e3130dc3904b5ae
+- Full tree: 41b339f027ae7e84d0ad6ea77118ef887006ecb5
+- policy-engine subtree: 98921e1e0523d8b1af305300ebe8d6b1ef2b5db7
+- Candidate branch in e02-c-catalog worktree remained at that commit/tree. Its only status entry is the pre-existing untracked implementation-handoffs/ directory; no tracked files changed during this probe.
+
+Build and install
+- Source was made by `git archive c863664274c7cf08fe3340c21e3130dc3904b5ae policy-engine | tar -x -C "$SCRATCH_PROBE/source"` into this scratch tree.
+- Python: CPython 3.14.0 at /opt/homebrew/bin/python3. uv 0.10.6.
+- Build cwd was `$SCRATCH_PROBE/source/policy-engine`. Offline wheel build used a scratch UV_CACHE_DIR and private copied cached Hatchling 1.32.0 build backend packages (packaging 26.3, pathspec 1.1.1, pluggy 1.6.0, tomlkit 0.15.1, trove_classifiers 2026.6.1.19):
+  `env PYTHONPATH="$SCRATCH_PROBE/build-deps" UV_CACHE_DIR="$SCRATCH_PROBE/uv-cache" uv build --wheel --offline --no-build-isolation --no-python-downloads --python /opt/homebrew/bin/python3 --out-dir "$SCRATCH_PROBE/dist" .`
+- The package wheel was installed into a new scratch venv with `uv venv --python /opt/homebrew/bin/python3 "$SCRATCH_PROBE/venv"` then `env -u PYTHONPATH UV_CACHE_DIR="$SCRATCH_PROBE/uv-cache" uv pip install --no-deps --python "$SCRATCH_PROBE/venv/bin/python" "$SCRATCH_PROBE/dist/policy_engine-0.1.0-py3-none-any.whl"`; no project dependency resolution or shared-environment writes occurred.
+- `readonly-deps.pth` in the private venv contains only `import sys; sys.path.append('/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages')`.
+- Runtime deps were read from the existing `policy-engine/.venv` via a single dependency-only `.pth` append in the scratch venv. `PYTHONPATH` was unset. The probe asserts shared checkout and source roots are absent from sys.path, no editable finder/helper was loaded, and every imported PolicyOS module came from the scratch venv's installed site-packages.
+
+Consumer command and input denominator
+- From `/tmp`: `env -u PYTHONPATH "$SCRATCH_PROBE/venv/bin/python" "$SCRATCH_PROBE/installed_consumer_probe.py"`
+- Compared every catalog package `.py`, `.yaml`, and `.yml` file: 55 files, 1,299,227 bytes, frozen archive == wheel ZIP member == installed file; aggregate manifest SHA-256 4178ea6054305ce5e83c2c4d8c5257e3d0d640809f9a6bfc7c280407768adad3.
+- Installed default loader parsed the canonical installed YAML into 35 typed entries, preserving YAML order in both `CORE_CATALOG_SOURCE_MODULES` facades. `DatasetBatchConfig` with a scratch empty metrics map used that same installed YAML and returned the same 35 ordered batch projections; field-by-field projection matched typed entries.
+- Default `data_gov_ua_exec` CKAN curation received 9 synthetic resources, retained the 6 allowed formats, rejected a separate off-topic/protocol row, and was run through the real harvested-seed bridge. Lower/space input allow/deny formats normalized to CSV/JSON/XLSX and PDF/XML; actual curation retained 3 of 6 resources.
+- Five malformed parser inputs were rejected: top-level list, non-list `sources`, quoted string boolean under strict validation, duplicate `name`/`source_id` identity alias, and scalar instead of sequence for format allowlist.
+- All fixtures and snapshot/config writes were under this scratch directory. No HTTP call, production data, full batch/server lifecycle, model, or numerical workload was used.
+
+Deciding outputs
+- Wheel: policy_engine-0.1.0-py3-none-any.whl; 15,011,025 bytes; SHA-256 ad0c990fc9abe3b74d6ea4556c807ab7c656c883b2dd0eac126da6ede0fa05f1.
+- Probe script SHA-256: 175c821cf84b12632438e5b46c51434d5d6214c6d4f6ad6a6c6e0b212e7186ec.
+- build.log SHA-256: 812108e7f5175c162495fc2286133b656cf687bf27cd9e5b50cde27537de73ef.
+- install.log SHA-256: b6d139bb694f81093c6f52ecc0cc95e1816742a5758fdb46408926980795036b.
+- consumer.log SHA-256: f3fb4e2cd71466266456a9a60978d97d9c6497081b27db5c3b1c53e75b307626.
+- All three command logs and `installed_consumer_probe.py` are retained beside this receipt. Wheel binary stays only in scratch.

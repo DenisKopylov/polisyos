@@ -1,0 +1,14 @@
+BYTE_IDENTITY_PASS files=55 bytes=1299227 manifest_sha256=4178ea6054305ce5e83c2c4d8c5257e3d0d640809f9a6bfc7c280407768adad3
+INSTALLED_IMPORT_ORIGINS_PASS modules=polisyos,polisyos.data_forge.domains.catalog,polisyos.data_forge.domains.catalog.registry,polisyos.data_forge.domains.catalog.selection,polisyos.data_forge.domains.catalog.source_modules,polisyos.data_forge.domains.catalog.batch,polisyos.data_forge.domains.catalog.batch.config,polisyos.data_forge.domains.catalog.batch.source_registry,polisyos.data_forge.domains.catalog.batch.ckan_curation,polisyos.data_forge.domains.catalog.batch.harvester
+EDITABLE_PTH_LEAKAGE_PASS finder=absent helper=absent shared_checkout_paths=absent
+DEFAULT_TYPED_CATALOG_PASS yaml=/Users/deniskopylov/.codex/scratch/e02-c-catalog-installed-probe-20261005-c863664274c7cf08fe3340c21e3130dc3904b5ae/venv/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/source_registry.yaml entries=35 ordered_projection=35
+DEFAULT_BATCH_CONFIG_PASS path=/Users/deniskopylov/.codex/scratch/e02-c-catalog-installed-probe-20261005-c863664274c7cf08fe3340c21e3130dc3904b5ae/venv/lib/python3.14/site-packages/polisyos/data_forge/domains/catalog/source_registry.yaml entries=35 metrics_map=scratch-empty
+DEFAULT_CKAN_CONSUMER_PASS source=data_gov_ua_exec resources_in=9 resources_out=6 blocked_off_topic=1 seed_bridge_rows=1
+LOWER_SPACE_FORMAT_CONSUMER_PASS allowlist=CSV,JSON,XLSX denylist=PDF,XML resources_out=3
+MALFORMED_REFUSED top-level-list=ValueError
+MALFORMED_REFUSED sources-not-list=ValueError
+MALFORMED_REFUSED strict-bool=ValidationError
+MALFORMED_REFUSED duplicate-identity-alias=ValueError
+MALFORMED_REFUSED scalar-format-list=ValidationError
+MALFORMED_INPUT_REFUSAL_PASS cases=5
+INSTALLED_CONSUMER_PROBE_PASS cwd=/tmp PYTHONPATH=unset source_rescue=absent network=unused production_data=unused

@@ -14,7 +14,7 @@
   ],
   "candidate_tree_sha": "bc5294207fc8e9d87a1ed54eb6d88de9d7e9770d",
   "branch": "codex/e02-E-backtest",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/12",
   "changed_paths": [
     "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
     "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py"
@@ -476,5 +476,12 @@
     "P40 arbitrary callable semantics declared bounded residual with same-ID falsifier",
     "P41 no inherited-red assertion"
   ],
-  "recorded_at_utc": "2026-10-05T13:53:56.567976+00:00"
+  "recorded_at_utc": "2026-10-05T13:53:56.567976+00:00",
+  "publication": {
+    "remote_branch": "refs/heads/codex/e02-E-backtest",
+    "verified_head_before_pr_receipt": "49c5429f9ab0cd09bd9737475db86404e537d377",
+    "method": "ordinary git push; git ls-remote readback matched",
+    "pr_state": "draft",
+    "chat_attachment": "mandatory attach_artifact invoked; no response after >60 seconds, orchestration wait terminated; attachment success not_established"
+  }
 }

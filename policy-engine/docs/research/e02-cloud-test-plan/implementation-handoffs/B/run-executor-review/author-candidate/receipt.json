@@ -1,0 +1,62 @@
+{
+  "schema": "policyos.e02.executor_independent_probe.v1",
+  "target_sha": "b439fe982",
+  "identity": {
+    "module": "/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py",
+    "module_sha256": "86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e",
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "pid": 52664
+  },
+  "driver_sha256": "298dd6fe90fcc7aeda5275638427e5ad04a4f0204768b6923e4c2021ee251f39",
+  "cwd": "/workspace/e02-B-run/policy-engine",
+  "PYTHONPATH": "/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine",
+  "cases": [
+    {
+      "case": "shutdown-submit",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "/tmp/e02-executor-review.py",
+        "--child",
+        "shutdown-submit",
+        "--output",
+        "/tmp/e02-executor-author-candidate-evidence/shutdown-submit.inner"
+      ],
+      "exit_code": 0,
+      "wall_s": 0.08962370099925465,
+      "stdout": "{\"case\": \"shutdown-submit\", \"identity\": {\"module\": \"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\", \"module_sha256\": \"86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e\", \"python\": \"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\", \"platform\": \"Linux-6.18.44-x86_64-with-glibc2.41\", \"pid\": 52665}, \"admission_before_cancel\": {\"owner\": null, \"waiting\": [], \"depth\": 0}, \"locks\": {\"admission\": {\"owner\": null, \"waiting\": [], \"depth\": 0}, \"shutdown\": {\"owner\": null, \"waiting\": [], \"depth\": 0}}, \"lock_cycle\": false, \"shutdown_finished\": true, \"submit_finished\": true, \"submit_result\": [\"RuntimeError: cannot schedule new futures after shutdown\"], \"queued_future_cancelled\": true, \"outstanding_before_worker_release\": 1, \"active_result\": \"running\", \"final_outstanding\": 0, \"outcome\": \"PASS_NO_CYCLE\"}\n"
+    },
+    {
+      "case": "callback-saturated",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "/tmp/e02-executor-review.py",
+        "--child",
+        "callback-saturated",
+        "--output",
+        "/tmp/e02-executor-author-candidate-evidence/callback-saturated.inner"
+      ],
+      "exit_code": 0,
+      "wall_s": 0.2544183720001456,
+      "stdout": "{\"case\": \"callback-saturated\", \"identity\": {\"module\": \"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\", \"module_sha256\": \"86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e\", \"python\": \"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\", \"platform\": \"Linux-6.18.44-x86_64-with-glibc2.41\", \"pid\": 52671}, \"physical_callback_workers\": 4, \"executor_workers\": 4, \"outstanding_at_callback_barrier\": 0, \"all_outer_futures_done\": true, \"rows\": [{\"index\": 0, \"worker_identity\": true, \"worker_id\": 139869444929216, \"outer_future_done\": true, \"submit\": \"accepted\", \"wait\": \"timed_out_with_callbacks_held\", \"queued_cancelled\": true}, {\"index\": 1, \"worker_identity\": true, \"worker_id\": 139869436536512, \"outer_future_done\": true, \"submit\": \"accepted\", \"wait\": \"timed_out_with_callbacks_held\", \"queued_cancelled\": true}, {\"index\": 2, \"worker_identity\": true, \"worker_id\": 139869428143808, \"outer_future_done\": true, \"submit\": \"accepted\", \"wait\": \"timed_out_with_callbacks_held\", \"queued_cancelled\": true}, {\"index\": 3, \"worker_identity\": true, \"worker_id\": 139869419751104, \"outer_future_done\": true, \"submit\": \"accepted\", \"wait\": \"timed_out_with_callbacks_held\", \"queued_cancelled\": true}], \"inner_started_while_callbacks_held\": [], \"actual_inner_file\": \"/tmp/e02-executor-author-candidate-evidence/callback-saturated.inner\", \"file_content\": \"\", \"final_outstanding\": 0, \"counterexample\": true, \"outcome\": \"FAIL_CALLBACK_CAPACITY_PROXY\"}\n"
+    },
+    {
+      "case": "callback-spare-worker",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "/tmp/e02-executor-review.py",
+        "--child",
+        "callback-spare-worker",
+        "--output",
+        "/tmp/e02-executor-author-candidate-evidence/callback-spare-worker.inner"
+      ],
+      "exit_code": 0,
+      "wall_s": 0.08298028399985924,
+      "stdout": "{\"case\": \"callback-spare-worker\", \"identity\": {\"module\": \"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\", \"module_sha256\": \"86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e\", \"python\": \"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\", \"platform\": \"Linux-6.18.44-x86_64-with-glibc2.41\", \"pid\": 52685}, \"physical_callback_workers\": 3, \"executor_workers\": 4, \"outstanding_at_callback_barrier\": 0, \"all_outer_futures_done\": true, \"rows\": [{\"index\": 0, \"worker_identity\": true, \"worker_id\": 139986208335552, \"outer_future_done\": true, \"submit\": \"accepted\", \"result\": 42, \"wait\": \"completed\"}, {\"index\": 1, \"worker_identity\": true, \"worker_id\": 139986199942848, \"outer_future_done\": true, \"submit\": \"accepted\", \"result\": 42, \"wait\": \"completed\"}, {\"index\": 2, \"worker_identity\": true, \"worker_id\": 139986191550144, \"outer_future_done\": true, \"submit\": \"accepted\", \"result\": 42, \"wait\": \"completed\"}], \"inner_started_while_callbacks_held\": [2, 0, 1], \"actual_inner_file\": \"/tmp/e02-executor-author-candidate-evidence/callback-spare-worker.inner\", \"file_content\": \"{\\\"inner\\\": 2, \\\"worker\\\": 139986183157440}\\n{\\\"inner\\\": 0, \\\"worker\\\": 139986183157440}\\n{\\\"inner\\\": 1, \\\"worker\\\": 139986183157440}\\n\", \"final_outstanding\": 0, \"positive_control\": true, \"outcome\": \"PASS_SPARE_WORKER\"}\n"
+    }
+  ],
+  "limitations": "Shutdown gate wraps real lock objects without production function replacement; callback guard capability remains bounded when user done callbacks block all workers. Deliberate local fixture saturation is the tested property."
+}

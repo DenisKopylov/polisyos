@@ -1,0 +1,45 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "adapters_probe, independent read-only",
+  "source_binding": {
+    "actual_checkout": "6c2cab488368932479677bc036ffad25657c0367",
+    "shared_source_equivalence": {
+      "3e95056bca6d0c15ab7778573172491628f48596": "34b8823153d1709677093b85542056cdb3e0afbb",
+      "d2dabbc2d": "34b8823153d1709677093b85542056cdb3e0afbb",
+      "6c2cab488368932479677bc036ffad25657c0367": "34b8823153d1709677093b85542056cdb3e0afbb"
+    },
+    "module": "/workspace/e02-B-run-review-candidate/policy-engine/src/polisyos/common/async_tools.py",
+    "module_sha256": "04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72"
+  },
+  "G_source_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/b-executor-shutdown.txt@15d50bac5",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/b-executor-callback.json@15d50bac5"
+  ],
+  "command": "PYTHONPATH=/workspace/e02-B-run-review-candidate/policy-engine/src:/workspace/e02-B-run-review-candidate/policy-engine/product:/workspace/e02-B-run-review-candidate/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-executor-review.py --output /tmp/e02-executor-base-evidence --target 6c2cab488368932479677bc036ffad25657c0367",
+  "input_closure": "fresh output directory, complete unchanged local driver; real repository SharedExecutor, Python3.14.2 real Future/ThreadPoolExecutor; event-gated real lock wrappers without source-function replacement, actual worker callback barriers and filesystem inner execution log; no DB, ports or production data",
+  "output_sha256": {
+    "/tmp/e02-executor-review.py": "298dd6fe90fcc7aeda5275638427e5ad04a4f0204768b6923e4c2021ee251f39",
+    "/tmp/e02-executor-base.log": "6d480a04848cb52b3e281563aa5ae497029a2f73324f64cd7407887a039b582f",
+    "/tmp/e02-executor-base-evidence/receipt.json": "049fca0d7c686dee5176986a2dd3406738c41633ca341ee766c49fd4df1d18e3",
+    "/tmp/e02-executor-base-evidence/callback-spare-worker.inner": "8615fbfd70cc663d5541aa323eb17698573d9692246093bdf67099ce65836bb5"
+  },
+  "verdict": {
+    "shutdown": "FAIL genuine opposite lock ownership deadlock; submitter holds admission and awaits shutdown, shutdown holds its lock and cancelled Future callback awaits admission",
+    "callback_capacity": "HOLD full B69 capacity-proxy claim.4 actual busy user-callback workers,outstanding0; all4 nested submissions accepted but none physically executes while callbacks held. No source redesign requested.",
+    "spare_worker": "PASS3 callback workers leave actual fourth worker; all nested jobs execute and return42."
+  },
+  "consumer_trace": {
+    "command": "rg -n add_done_callback|get_shared_executor policy-engine/src; inspected returned source consumers",
+    "named_paths": [
+      "polisyos/common/async_tools.py",
+      "polisyos/runtime/http/services/task_runner.py",
+      "polisyos/runtime/http/resilience.py",
+      "polisyos/scientist/orchestration/engine/retry.py",
+      "polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+    ],
+    "result": "Named producer trace found shared executor body submissions, standard async wrappers and asyncioFuture result-consumption callbacks. An actual PolicyOS shared-concurrentFuture user callback that blocks on nested submission is not established by this scan. Absence of reflective/third-party consumer is not proved."
+  },
+  "next_owner": "RUN author fix shutdown/admission lock-order cycle; preserve bounded callback residual with explicit capability/consumer limit, do not claim every occupied worker is counted. Replay identical driver on frozen fix. Commit full moderate driver/stdout/receipt for G fetch.",
+  "no_edits": "No source/tests/new checkout; used existing admitted immutable review snapshot. Own adaptersd0eb clean."
+}

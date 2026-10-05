@@ -1,0 +1,147 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "finding": "B69",
+  "reviewer": "adapters_probe independent read-only",
+  "source_binding": {
+    "candidate_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+    "candidate_tree": "0e881900f0526546364fe5336a6dd6d469185320",
+    "slice_base_sha": "d2dabbc2d49a815fd49114dab74554a51732f541",
+    "slice_base_tree": "2e4222552e1a5fc8e3d2ed10803ba4bac29111e5",
+    "actual_checkout": "/workspace/e02-B-run",
+    "module": "/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py",
+    "module_git_blob": "45d2d97eb1c0aadc5a8936b10c089d6a67eb81a0",
+    "module_sha256": "86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e",
+    "postcheck_HEAD": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+    "postcheck_status_porcelain": "",
+    "candidate_paths_from_slice_base": [
+      "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-executor-shutdown.toml",
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/src/polisyos/common/async_tools.py",
+      "policy-engine/tests/unit/common/test_async_tools.py"
+    ],
+    "changed_top_level_definitions": [
+      "_SharedExecutor",
+      "get_shared_executor"
+    ],
+    "unchanged_exact_definition_sha256": {
+      "_get_shared_executor": "9f646691bc8dd61c0330411955371fac057fa0ac5786b6f6649246774bbd8444",
+      "shutdown_run_coro_sync_executor": "5a750ed0c09e70186da83a1be4409e4466c2f8041909740078c8bc5583c52a82",
+      "_normalize_timeout": "2305c95c933bd6efb93aaa2d87d33cbca0060bbe298b810ff866c14d8e686887",
+      "_await_awaitable": "f2a84f56841f6ca351bf44a67d90a0fcf4b08eb62fb871138328d3d5a8a45f46",
+      "_run_coro_in_fresh_loop": "f99ec7a3e7a73d5dc37bcbe379b31387900f9504e1f4e76a7b15f03cf9930029",
+      "run_coro_sync": "169130b80e7c78e2f0314933dc71d7641bec32bc800e494b26f6629ea1d4d2c4",
+      "run_blocking_async": "2b597196d5f4b703520153bbc6ddeab4794a829b4f2afbc8bdf129298c9bdf47"
+    }
+  },
+  "environment": {
+    "cwd": "/workspace/e02-B-run/policy-engine",
+    "PYTHONPATH": "/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine/product:/workspace/e02-B-run/policy-engine",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "commands": [
+    {
+      "id": "same-unchanged-three-case-driver",
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine/product:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-executor-review.py --output /tmp/e02-executor-b439-evidence --target b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "exit_code": 0,
+      "stdout": "/tmp/e02-executor-b439.log"
+    },
+    {
+      "id": "native-common",
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine/product:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/common/test_async_tools.py -q --junitxml=/tmp/e02-executor-b439-evidence/native.xml",
+      "exit_code": 0,
+      "stdout": "/tmp/e02-executor-b439-evidence/native.log",
+      "xml_counts": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "15",
+          "time": "0.459",
+          "timestamp": "2026-10-05T15:35:24.686006+00:00",
+          "hostname": "b878f4efbdfc"
+        }
+      ]
+    },
+    {
+      "id": "independent-accounting-and-bridge-controls",
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine/product:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-executor-accounting-review.py",
+      "exit_code": 0,
+      "stdout": "/tmp/e02-executor-b439-evidence/accounting.log"
+    }
+  ],
+  "input_closure": "Frozen existing RUN tree, complete content-bound unchanged three-case driver and separate accounting driver, real Future/ThreadPoolExecutor and OS threads/filesystem, fresh evidence directory, event-gated real lock wrappers without source-function replacement; native test/config dependencies from frozen tree and shared pre-existing Python venv. No DB/ports/production dataset. PYTHONPATH includes a nonexistent product directory but all identities read back actual candidate module. Imported dependency dataset beyond selected source/tests was not independently exhaustively enumerated.",
+  "source_review": {
+    "lock_order": "Reservation acquisition/increment ends before base submit. Shutdown queued cancel callback may take admission while owning base shutdown; submitter owns no admission while waiting for base lock. Actual old opposite-lock cycle no longer occurs.",
+    "release_once": "Job-local released flag is read/set and reservation decremented under admission lock. Real completion/cancel callback and rejection rollback share closure; callback and rejection cannot double decrement. No sampled counter correction.",
+    "boundaries": "Only _SharedExecutor implementation and get_shared_executor contract docstring changed. Other top-level definitions source byte-identical to declared base, including all async bridges and shutdown provider. No new Future wrapper or authority invented.",
+    "companions": "Owner README and release fragment expressly distinguish unfinished-job reservations from callback worker occupancy and retain unsupported blocking nested waits from user callbacks."
+  },
+  "verdict": {
+    "shutdown": "PASS_NO_CYCLE. Real opposite-lock base test child exit73 versus candidate both shutdown/submit finish exit0; queued Future physically cancelled, rejected submit rolled back, active worker later returns and outstanding1->0.",
+    "accounting": "PASS actual reservations3->2->1->1->0 under repeated queued cancel, shutdown cancellation, rejected submission and completed active job; cancelled/rejected jobs have no physical execution. Direct/running-loop/context and generic helper reflection controls PASS; native15PASS.",
+    "callback_capacity": "HOLD declared bounded B69 residual. Four actual workers occupied by user done callbacks, outstanding0; all4 nested jobs accepted, all4 bounded waits expire, none physically starts while callbacks held. This FAIL counterexample remains, not package closure.",
+    "spare_worker": "PASS positive physical control.3 user callbacks leave fourth worker; all3 accepted nested jobs actually write file and return42.",
+    "blocking_source_findings": "No blocker for narrow shutdown/release-once fix. Full physical worker reentry invariant remains unresolved as explicit bounded residual; formal finding closure belongs G."
+  },
+  "baseline_navigation": {
+    "canonical_finding": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+    "exact_cells": [
+      "F01-P008",
+      "F03-P083",
+      "F05-P104",
+      "F06-P021",
+      "F09-P017",
+      "F09-P084",
+      "F10-P012",
+      "F10-P080",
+      "F15-P012",
+      "F15-P096"
+    ],
+    "query_output": "/tmp/e02-executor-base-evidence/B69-navigation.json",
+    "role": "Navigation only. Baseline source refs, environments and job closures remain in details/job-context output. Raw baseline archives not independently available; no baseline package PASS used as new fix evidence."
+  },
+  "negative_base": {
+    "actual_target": "6c2cab488368932479677bc036ffad25657c0367",
+    "async_tools_blob_equal_at_d2d_and_3e950": "34b8823153d1709677093b85542056cdb3e0afbb",
+    "outcome": "shutdown actual opposite locks child73, callback4 accepted/no starts, spare3 physical42",
+    "historical_custody": "precreation_custody_not_established. These are qualified source-bound execution checks, not retroactive full admission/input closure."
+  },
+  "consumer_trace": {
+    "command": "rg -n add_done_callback|get_shared_executor policy-engine/src; inspected returned source consumers",
+    "named_paths": [
+      "polisyos/common/async_tools.py",
+      "polisyos/runtime/http/services/task_runner.py",
+      "polisyos/runtime/http/resilience.py",
+      "polisyos/scientist/orchestration/engine/retry.py",
+      "polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+    ],
+    "result": "Named producer trace found shared executor body submissions, standard async wrappers and asyncioFuture result-consumption callbacks. An actual PolicyOS shared-concurrentFuture user callback that blocks on nested submission is not established by this scan. Absence of reflective/third-party consumer is not proved."
+  },
+  "G_source_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/b-executor-shutdown.txt@15d50bac5",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/b-executor-callback.json@15d50bac5"
+  ],
+  "worktree_custody_checkpoint": "/tmp/e02-adapters-worktree-custody.json",
+  "evidence_sha256": {
+    "/tmp/e02-executor-review.py": "298dd6fe90fcc7aeda5275638427e5ad04a4f0204768b6923e4c2021ee251f39",
+    "/tmp/e02-executor-accounting-review.py": "51ab2cac558c34750dca492a5f210057ac2b4affa5ef0741e5ddc7b3ab393e5d",
+    "/tmp/e02-executor-base.log": "6d480a04848cb52b3e281563aa5ae497029a2f73324f64cd7407887a039b582f",
+    "/tmp/e02-executor-base-evidence/receipt.json": "049fca0d7c686dee5176986a2dd3406738c41633ca341ee766c49fd4df1d18e3",
+    "/tmp/e02-executor-base-evidence/callback-spare-worker.inner": "8615fbfd70cc663d5541aa323eb17698573d9692246093bdf67099ce65836bb5",
+    "/tmp/e02-executor-base-independent-review.json": "c1dd04e6407c7c7042f0a3bf02d4e5605742a10199827bb43e18f57b26d9738d",
+    "/tmp/e02-executor-b439.log": "4ce873865d019068bb7e94a6e68bf426a546a416d9f836a3ecd0f16f47a90574",
+    "/tmp/e02-executor-b439-evidence/receipt.json": "d97e3017b156552485916f28080d264eead57e79e3533b93d10ebccb7b17fecc",
+    "/tmp/e02-executor-b439-evidence/callback-spare-worker.inner": "c897aeb0fd16eeb6e28d18749c246f26cea8b5acd6a9b1b8c06dfcbd19113862",
+    "/tmp/e02-executor-b439-evidence/accounting.log": "10743c32362eee98480aa46b7fb0679c3e5651f547bb16e114461438a1f12910",
+    "/tmp/e02-executor-b439-evidence/native.log": "511fb971caf59261241ec2a3919d9d10c7dcb9ec044ee07d50b2db465184f057",
+    "/tmp/e02-executor-b439-evidence/native.xml": "98cc170b74412ce3cd2cfba945f01d1d7abfe5cfe6de0c88f78454a76e07f0c3",
+    "/tmp/e02-executor-base-evidence/B69-navigation.json": "4e2aada18406527f92656246a6173eca0bf42178af32d29803f37a14a0d594c7",
+    "/tmp/e02-adapters-worktree-custody.json": "333bf0f0080db8483368d35de8f10463720bcf802ec7ba29b27f35996c719e0d"
+  },
+  "next_owner": "RUN author Git-transfer complete drivers/stdout/receipts/native/accounting/custody checkpoint. G fetch frozen SHA and rerun named callback consumer or remain bounded residual; no speculative worker/Future redesign requested. Root acceptance separately.",
+  "no_edits": "No production/tests edits, no new worktree/reattach. Only /tmp deciding drivers/evidence written; own adaptersd0eb stays clean."
+}

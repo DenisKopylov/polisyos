@@ -1,0 +1,3 @@
+{"argv": ["python3", "/tmp/e02_ci_verify.py", "4a388516351c29e45259fbe8360725f71881974b", "/workspace/e02-D-receipts/pr10-ci-oldhead/raw"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+{"result": "PASS", "candidate_sha": "4a388516351c29e45259fbe8360725f71881974b", "fresh_GitHub_job_sources_reconciled": 4, "source_refs": 22, "actual_unit_step": "skipped", "counterfeit_source_keep_markers": "REJECTED", "inherited_red": "not_established"}
+{"exit_code": 0, "elapsed_s": 1.524, "max_rss_kib": 26240}

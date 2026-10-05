@@ -1,0 +1,148 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "ing-support",
+  "closure_ids": [
+    "B79"
+  ],
+  "bundle_ids": [
+    "ING-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "a29c183becd6d1221d46625c9ea6cad44e9931b0"
+  ],
+  "candidate_tree_sha": "480df93884a8df09c032ab325a73ef0ad6cf6773",
+  "branch": "codex/e02-C-ing-support",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_incremental.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F02-P036",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "PASS",
+      "calls": "25/25",
+      "receipt": "reconciled; received/F02.txt:164"
+    },
+    {
+      "cell_id": "F06-P056",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "state": "PASS",
+      "calls": "5/5",
+      "receipt": "valid; received/F06.txt:240"
+    },
+    {
+      "cell_id": "F07-P034",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "state": "PASS",
+      "calls": "25/25",
+      "receipt": "valid; received/F07.txt:40"
+    },
+    {
+      "cell_id": "F11-P043",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "state": "PASS",
+      "calls": "5/5",
+      "receipt": "valid_reconciled; received/F11.txt:172"
+    },
+    {
+      "cell_id": "F15-P044",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "state": "PASS",
+      "calls": "25/25",
+      "receipt": "valid; received/F15.txt:199"
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/fabric/data_plane/test_incremental.py",
+      "target_sha": "a29c183becd6d1221d46625c9ea6cad44e9931b0",
+      "environment": "Root rerun from /Users/deniskopylov/.codex/worktrees/e02-c-ing-support/polisyos/policy-engine; original Python environment read-only.",
+      "input_closure": "All tests in the changed incremental module; loopback HTTP and per-test CAS fixtures; no production data.",
+      "outcome": "PASS",
+      "output": "..........................                                               [100%]\n26 passed in 4.54s\n"
+    },
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-ing-support/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+      "target_sha": "a29c183becd6d1221d46625c9ea6cad44e9931b0",
+      "environment": "macOS 27.0.1 arm64; Python 3.14.0; pytest 9.0.2; original read-only venv at /Users/deniskopylov/polisyos/policy-engine/.venv; source loaded from the C worktree via explicit PYTHONPATH",
+      "input_closure": "One changed test module; actual built-in rest.json connector; loopback ThreadingHTTPServer; per-test tmp_path FileSystemCAS with one persisted ETag CursorState; response JSON contains one row and ETag \"etag-next\". No production inputs or shared scratch.",
+      "outcome": "PASS",
+      "output": ".......................... [100%]\nexit 0; 26 tests"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+      "target_sha": "a29c183becd6d1221d46625c9ea6cad44e9931b0",
+      "environment": "macOS 27.0.1 arm64; Python 3.14.0; original read-only venv; C worktree",
+      "input_closure": "Changed path only: policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+      "outcome": "PASS",
+      "output": "All checks passed! (exit 0)"
+    },
+    {
+      "command": "git diff HEAD^ HEAD --check",
+      "target_sha": "a29c183becd6d1221d46625c9ea6cad44e9931b0",
+      "environment": "Git in /Users/deniskopylov/.codex/worktrees/e02-c-ing-support/polisyos",
+      "input_closure": "Implementation commit a29c183becd6d1221d46625c9ea6cad44e9931b0",
+      "outcome": "PASS",
+      "output": "No output; exit 0"
+    },
+    {
+      "command": "git commit -m 'test(fabric): cover persisted incremental cursor request'",
+      "target_sha": "a29c183becd6d1221d46625c9ea6cad44e9931b0",
+      "environment": "C worktree; lefthook 2.1.6 installed by corepack pnpm install --frozen-lockfile",
+      "input_closure": "Only the changed test path was staged. Pre-commit completed; contrast, eslint and prettier skipped because their file selectors had no matches.",
+      "outcome": "PASS",
+      "output": "lefthook pre-commit passed; skipped nonmatching contrast/eslint/prettier hooks; summary done in 1.01 seconds; commit a29c183becd6d1221d46625c9ea6cad44e9931b0"
+    },
+    {
+      "command": "Focused pytest after temporarily bypassing _cursor_aware_dependencies in modes.py",
+      "target_sha": "a29c183becd6d1221d46625c9ea6cad44e9931b0",
+      "environment": "macOS 27.0.1 arm64; Python 3.14.0; pytest 9.0.2; same local server and temporary CAS fixture. The temporary source mutation was restored before commit. This authoring probe preceded the final assertion-only change from ordered calls to order-independent exact call matching; its missing-since discriminator is unchanged.",
+      "input_closure": "Mutant replaced effective_dependencies = _cursor_aware_dependencies(effective_input_dependencies, cursor_versions) when cursors exist with effective_dependencies = effective_input_dependencies. The test still ran the actual built-in connector and actual HTTP server.",
+      "outcome": "FAIL",
+      "output": "Expected red: actual data GET query was {'limit': ['100'], 'page': ['1']}; expected exact query also had since=['\"etag-prior\"']. Assertion failed at server_calls; 1 failed, exit 1. Restored modes.py; no mutation is in the candidate commit."
+    }
+  ],
+  "property": {
+    "statement": "For this local batch-incremental path, a persisted ETag cursor for rest.json:dataset is forwarded to the actual connector request and appears exactly as the HTTP since parameter. Persisted response data does not authorize cursor advancement: without a content-bound evidence acknowledgment, cursor_ref stays null and the prior stored cursor remains unchanged.",
+    "runtime_path": [
+      "Producer/input: test persists CursorState(connector_id=rest.json, dataset_id=dataset, watermark_type=ETAG, watermark_value=\"etag-prior\") through CursorStore into a per-test FileSystemCAS.",
+      "Bridge: run_batch_incremental resolves the stored cursor and wraps the real registry connector through _CursorAwareRegistry/_CursorAwareConnector, adding incremental_since to the effective FetchRequest.",
+      "Consumer: the built-in rest.json GenericRESTConnector issues actual loopback HTTP GETs; the data GET carries limit=100, page=1, and since=\"etag-prior\". The local server observes two GETs total: one no-query health request and one exact data request.",
+      "Persisted artifact: normal ingestion writes a connector_cache.payload and fabric.evidence_bundle to the isolated CAS. The test resolves the bundle's source ref, deserializes the stored FetchResult, and reads back the row.",
+      "Promotion boundary: the successful response carries ETag \"etag-next\", but no content-bound evidence verifier/acknowledgment exists; result.cursor_ref is null and CursorStore still returns \"etag-prior\".",
+      "Surface: local data-plane helper and local HTTP consumer only; public POST /data/ingest surface is not exercised."
+    ],
+    "proxy_divergence": "A cursor-found lookup or log is not proof of request handoff. Bypassing the cursor-aware dependency bridge leaves the stored cursor present and ingestion successful, but the actual HTTP data request omits since; the mutation control failed on that real request observation.",
+    "negative_controls": [
+      "Mutation control: temporarily bypassed cursor-aware dependency wrapping; real server observed the data GET without since and the regression failed. The source was restored before a29c.",
+      "No-ack control: the server returns ETag \"etag-next\" and the response rows are persisted, while cursor_ref remains null and the stored cursor remains \"etag-prior\".",
+      "The same full test module retains the unproven legacy TIMESTAMP cursor control (incremental_since is None) and full-only connector control (no cursor hint). These controls do not establish generic legacy migration."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B79 remains partial. This candidate adds a real local REST cursor-to-request witness and persisted output readback; it does not establish the served /data/ingest surface, runtime-supplied tenant-store custody, content-bound evidence verification, consumer acknowledgment, authorized cursor promotion, or finding-level four-base replay.",
+  "limitations_and_next_owner": [
+    "Keep B79 partial: the test verifies a local run_batch_incremental request path only. The source-card/triage criterion also requires served-path behavior and content-bound confirmation before cursor promotion; those remain unestablished. Source reference: policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@git-blob:d800082eebfc12eaf647b0c0257c4f06e135d25a#B79.",
+    "The response ETag \"etag-next\" is returned by the real server. The test reads back persisted rows but does not separately assert the candidate watermark value from the serialized FetchResult; do not infer promotion or source-progress acknowledgment from this receipt.",
+    "This fixture covers WatermarkType.ETAG only. Legacy timestamp cursors continue to fail closed in the existing negative control; general old-cursor migration, provenance admission, and B80 per-source progress/late-event safety are not established here.",
+    "ING-02 and ING-03 findings B81-B86 and B88 are outside this B79-only implementation commit; B84 scratch proposal/oracle is not candidate evidence and establishes no all-memory cap.",
+    "Execution continued under the user's explicit admission exception after the unrelated mandatory admission gate exited 2 for a stale missing-registration record. That stale record was left untouched.",
+    "Next owner: served ingestion/API and evidence-contract owners to exercise the real route with runtime-supplied store custody, bind the persisted source result to the effective request and committed cursor, and authorize promotion only after consumer acknowledgment."
+  ],
+  "execution_context": {
+    "candidate_sources": {
+      "test_path_blob": "d1aef8f199267ce10174dfe545a92a8bfbb5c704",
+      "unchanged_modes_path_blob": "198ca13aac6a3edf29120f530b155cb9139d38da"
+    },
+    "artifact_contracts": {
+      "cursor": "CursorState / WatermarkType.ETAG; stored watermark is an opaque ETag string.",
+      "evidence_bundle": "fabric.evidence_bundle schema version 1.0",
+      "cached_fetch_result": "connector_cache.payload; fabric.connector_cache schema version 1.0"
+    },
+    "authority_and_time_roles": "The stored ETag is used only as an incremental request hint. CursorState.created_at is a UTC fixture timestamp (2026-10-01T00:00:00Z), not a source event-time assertion. The new ETag is a response version token, not a promotion acknowledgment or policy authority.",
+    "admission": "Explicit user exception allowed verified C-worktree continuation; unrelated stale missing-registration record remained untouched."
+  }
+}

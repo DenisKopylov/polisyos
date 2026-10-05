@@ -569,6 +569,8 @@ def test_retrieval_service_discover_uses_injected_executor_explore_and_observabi
             )
 
     class _FakeExecutor:
+        artifact_store = None
+
         def preview(self, plan: FetchPlan, *, allow_fallback: bool = True):
             del plan, allow_fallback
             raise AssertionError("preview should not be called")

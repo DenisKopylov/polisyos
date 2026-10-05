@@ -1,5 +1,23 @@
 {
   "$defs": {
+    "CausalContrastSpec": {
+      "additionalProperties": false,
+      "description": "Typed target/comparator arms for an attribution query.\n\nThe target is deliberately an :class:`InterventionSpec`, making an\ninterventional target impossible to confuse with an observational regime.\nThe comparator remains a tagged regime because observational and explicit\ninterventional baselines have materially different semantics.",
+      "properties": {
+        "comparator": {
+          "$ref": "#/$defs/CausalRegime"
+        },
+        "target": {
+          "$ref": "#/$defs/InterventionSpec"
+        }
+      },
+      "required": [
+        "target",
+        "comparator"
+      ],
+      "title": "CausalContrastSpec",
+      "type": "object"
+    },
     "CausalQuery": {
       "additionalProperties": false,
       "description": "Fully specified causal query contract for execution or persistence.",
@@ -10,6 +28,17 @@
           },
           "title": "Condition",
           "type": "object"
+        },
+        "contrast": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CausalContrastSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "intervention_spec": {
           "anyOf": [
@@ -58,6 +87,36 @@
         "outcome_variable"
       ],
       "title": "CausalQuery",
+      "type": "object"
+    },
+    "CausalRegime": {
+      "additionalProperties": false,
+      "description": "Describe an attribution comparator without conflating observation and intervention.",
+      "properties": {
+        "intervention": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InterventionSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "kind": {
+          "enum": [
+            "observational",
+            "interventional"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "CausalRegime",
       "type": "object"
     },
     "InterventionSpec": {
@@ -221,7 +280,7 @@
       "type": "number"
     },
     "schema_version": {
-      "default": "1.0",
+      "default": "1.1",
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"

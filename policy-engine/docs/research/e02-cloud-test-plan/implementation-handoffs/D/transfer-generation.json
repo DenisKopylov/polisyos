@@ -1,0 +1,126 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-generation",
+  "closure_ids": [
+    "B129",
+    "B133",
+    "B134"
+  ],
+  "bundle_ids": [
+    "TRN-02"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "e608502d9f885d87ce580175cc95f8f17689f6e0"
+  ],
+  "candidate_tree_sha": "bead2a6cbe27af34caa8b9e3b4c062a5686fa3d5",
+  "branch": "codex/e02-D-transfer",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+    "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P111",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "locator": "results/received/F02.txt:239",
+      "reported": "5 PASS"
+    },
+    {
+      "id": "F08-P113",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "locator": "results/received/F08.txt:236",
+      "reported": "5 PASS"
+    },
+    {
+      "id": "F13-P129",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "locator": "results/received/F13.txt:256",
+      "reported": "5 PASS"
+    }
+  ],
+  "environment": {
+    "python": "3.14.2",
+    "python_path": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "platform": "Linux 6.18.44 x86_64 glibc 2.41",
+    "hnswlib": "0.8.0",
+    "production_data": "unavailable; bounded CAS fixtures only"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-transfer/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/agent/test_vector_memory.py tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/remediation/test_trn_02.py -q",
+      "target_sha": "e608502d9f885d87ce580175cc95f8f17689f6e0",
+      "environment": "shared venv; worktree source; real hnswlib",
+      "input_closure": "the three complete named Python test files; isolated tmp_path CAS; no shared fixtures",
+      "outcome": "PASS",
+      "output": "14 passed; Python 3.14 torch.jit deprecation warning only"
+    },
+    {
+      "command": "git archive c40d4acae1ce58b597267255026d9356565828fd policy-engine/src; copy first 8 new probes outside tests/conftest.py; PYTHONPATH=<archive>/policy-engine/src python -m pytest -c <worktree>/pyproject.toml --confcutdir=<archive>/probes <archive>/probes -q",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "same venv/hnswlib; exact Git archived source",
+      "input_closure": "eight unchanged probes; no checkout conftest source injection",
+      "outcome": "FAIL",
+      "output": "7 failed, 1 passed in 5.46s. Cache params changed 0.5->0.9; input metadata changed original->input mutation; valid native bytes with missing label, duplicate key, list metadata published; NaN and infinity admitted. Partial-native-update rollback control passed."
+    },
+    {
+      "command": "python -m ruff check <four changed Python paths>; git diff --check",
+      "target_sha": "e608502d9f885d87ce580175cc95f8f17689f6e0",
+      "environment": "shared venv",
+      "input_closure": "all four changed Python paths",
+      "outcome": "PASS",
+      "output": "All checks passed; diff clean"
+    }
+  ],
+  "property": {
+    "statement": "An exact CAS snapshot cannot be altered by a history consumer; each process-local vector read/save sees native labels and privately owned metadata from one completed generation, and failed native updates/loads preserve the prior usable generation.",
+    "runtime_path": [
+      "TransferLearningManager._read_history -> exact CAS snapshot",
+      "_load_run_evaluations -> detached mutable consumer records",
+      "VectorMemoryStore.add/load -> native HNSW candidate/update",
+      "query/save -> privately copied keys and metadata -> CAS bundle -> reopened native query"
+    ],
+    "proxy_divergence": "Valid HNSW bytes plus equal keys/metadata list lengths do not establish that native labels equal the Python generation. The missing_label negative retains valid bytes and equal list lengths but now refuses publication.",
+    "negative_controls": [
+      "mutate nested input/query metadata and reopen",
+      "mutate cached evaluation params and nested metadata versus cold reader",
+      "valid native bytes with mismatched cardinality/duplicate keys/list metadata",
+      "native update succeeds then raises; restore both vector and metadata",
+      "NaN/infinity refuse before add",
+      "query paused during native mutation must wait for metadata publication"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "generic process-local repair verified; findings remain partial pending distinct held/input obligations",
+  "finding_classification": {
+    "B129": {
+      "mechanism": "existing exact ArtifactRef path retained; native discovery/addressing will receive additional numerical consumer checks in next slice",
+      "oracle": "prior exact-ref tests pass",
+      "input": "no production history needed for exact read property",
+      "owner": "transfer runtime"
+    },
+    "B133": {
+      "mechanism": "immutable snapshot cache identity retained; nested consumer mutation now isolated",
+      "oracle": "warm/cold CAS comparison",
+      "input": "distributed atomicity guarantee remains principal-held",
+      "owner": "Principal (Denis) for distributed guarantee; transfer runtime for local cache"
+    },
+    "B134": {
+      "mechanism": "native label/metadata reconciliation and locked publication",
+      "oracle": "real native roundtrip/partial mutation/concurrent reader/negative metadata",
+      "input": "owner-issued live metadata record unavailable",
+      "owner": "Transfer metadata issuer/data owner for live record"
+    }
+  },
+  "limitations_and_next_owner": [
+    "No distributed CAS/index atomicity guarantee selected; B133 principal decision remains held.",
+    "No real transfer owner-issued live metadata/provenance/freshness record supplied; B134 data_record residual remains.",
+    "Native dimensions are configured from the bundle; hnswlib offers no independently verified native dimension receipt. Arbitrary hostile native binary safety is outside these process-local consistency tests.",
+    "Snapshot rollback retains existing full native snapshot cost on writes; queries do not rebuild indexes.",
+    "G should fetch exact candidate and run local production-bound evidence only where criterion requires it."
+  ]
+}

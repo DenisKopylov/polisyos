@@ -19,7 +19,9 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     repo = args.repo.resolve()
-    cohort = json.loads(args.input.read_text())
+    input_bytes = args.input.read_bytes()
+    input_sha256 = hashlib.sha256(input_bytes).hexdigest()
+    cohort = json.loads(input_bytes)
 
     def git(*argv):
         return subprocess.check_output(["git", "-C", str(repo), *argv], text=True).strip()
@@ -65,8 +67,8 @@ print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':pl
                "interpreter": identity, "source_before": before, "source_after": after,
                "source_unchanged": before == after, "exit_code": run.returncode,
                "whole_file_count": len(cohort["test_paths"]), "outputs": outputs,
-               "input": {"path": str(args.input.resolve()), "sha256":
-                         hashlib.sha256(args.input.read_bytes()).hexdigest()},
+               "input": {"path": str(args.input.resolve()), "sha256": input_sha256,
+                         "bytes": len(input_bytes), "hash_basis": "Initial bytes parsed to construct this argv"},
                "resource_policy": "No imposed process or numerical worker quota; isolated test tmp/cache/metrics port.",
                "outcome": "PASS" if run.returncode == 0 and before == after else "FAIL",
                "scope": "Actual affected native whole-file execution; formal closure, full production and live optional backends not established."}

@@ -154,7 +154,7 @@ def main():
             {"path": "tests/unit/remediation/test_cas_02.py", "node": "test_import_enforces_existing_tenant_ownership",
              "outcome": "Actual held failure in exact source receipt; retain whole file for final replay, never xfail/deselect/normalize",
              "observed_target_sha": cas_target,
-             "existing_log": f"{RECEIPT_ROOT}/cas-tenant-logs/native-bounded295.txt@{heads['cas']}"},
+             "existing_log": f"{RECEIPT_ROOT}/cas-output-logs/native302.txt@{heads['cas']}"},
             {"path": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
              "node": "test_cancelled_initiator_cannot_erase_actual_provider_cost",
              "outcome": "strict XFAIL remains in whole-file native cohort; source --runxfail falsifier actually FAILs",

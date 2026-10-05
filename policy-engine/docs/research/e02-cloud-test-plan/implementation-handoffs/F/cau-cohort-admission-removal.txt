@@ -1,0 +1,145 @@
+In-memory removal only; candidate source bytes unchanged; report/markers retained.
+........FFFFFFFFF...F                                                    [100%]
+=================================== FAILURES ===================================
+_______ test_staggered_zero_start_cohort_is_not_silently_omitted[False] ________
+tests/unit/remediation/test_cau_02.py:237: in test_staggered_zero_start_cohort_is_not_silently_omitted
+    assert report.status_reason == "no valid baseline for one or more staggered cohorts"
+E   AssertionError: assert 'unable to co...TT(g,t) cells' == 'no valid bas...gered cohorts'
+E     
+E     - no valid baseline for one or more staggered cohorts
+E     + unable to construct valid staggered ATT(g,t) cells
+________ test_staggered_zero_start_cohort_is_not_silently_omitted[True] ________
+tests/unit/remediation/test_cau_02.py:236: in test_staggered_zero_start_cohort_is_not_silently_omitted
+    assert report.point_estimate is None
+E   AssertionError: assert 3.0 is None
+E    +  where 3.0 = CausalEffectReport(schema_version='1.0', method=<CausalMethod.DIFFERENCE_IN_DIFFERENCES: 'difference_in_differences'>,...ge and null calibration are not established'}, sample_size=24, n_treated=4, n_control=2, pre_periods=0, post_periods=4).point_estimate
+__ test_staggered_anticipation_requires_declared_nonnegative_period_count[-1] __
+tests/unit/remediation/test_cau_02.py:246: in test_staggered_anticipation_requires_declared_nonnegative_period_count
+    assert report.status is EstimationStatus.INPUT_INVALID
+E   AssertionError: assert <EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'> is <EstimationStatus.INPUT_INVALID: 'input_invalid'>
+E    +  where <EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'> = CausalEffectReport(schema_version='1.0', method=<CausalMethod.DIFFERENCE_IN_DIFFERENCES: 'difference_in_differences'>,...ge and null calibration are not established'}, sample_size=40, n_treated=4, n_control=4, pre_periods=4, post_periods=1).status
+E    +  and   <EstimationStatus.INPUT_INVALID: 'input_invalid'> = EstimationStatus.INPUT_INVALID
+_ test_staggered_anticipation_requires_declared_nonnegative_period_count[0.5] __
+tests/unit/remediation/test_cau_02.py:246: in test_staggered_anticipation_requires_declared_nonnegative_period_count
+    assert report.status is EstimationStatus.INPUT_INVALID
+E   AssertionError: assert <EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'> is <EstimationStatus.INPUT_INVALID: 'input_invalid'>
+E    +  where <EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'> = CausalEffectReport(schema_version='1.0', method=<CausalMethod.DIFFERENCE_IN_DIFFERENCES: 'difference_in_differences'>,...ge and null calibration are not established'}, sample_size=40, n_treated=4, n_control=4, pre_periods=4, post_periods=1).status
+E    +  and   <EstimationStatus.INPUT_INVALID: 'input_invalid'> = EstimationStatus.INPUT_INVALID
+_ test_staggered_anticipation_requires_declared_nonnegative_period_count[True] _
+tests/unit/remediation/test_cau_02.py:246: in test_staggered_anticipation_requires_declared_nonnegative_period_count
+    assert report.status is EstimationStatus.INPUT_INVALID
+E   AssertionError: assert <EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'> is <EstimationStatus.INPUT_INVALID: 'input_invalid'>
+E    +  where <EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'> = CausalEffectReport(schema_version='1.0', method=<CausalMethod.DIFFERENCE_IN_DIFFERENCES: 'difference_in_differences'>,...ge and null calibration are not established'}, sample_size=40, n_treated=4, n_control=4, pre_periods=4, post_periods=1).status
+E    +  and   <EstimationStatus.INPUT_INVALID: 'input_invalid'> = EstimationStatus.INPUT_INVALID
+__ test_staggered_anticipation_requires_declared_nonnegative_period_count[1] ___
+tests/unit/remediation/test_cau_02.py:246: in test_staggered_anticipation_requires_declared_nonnegative_period_count
+    assert report.status is EstimationStatus.INPUT_INVALID
+E   AssertionError: assert <EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'> is <EstimationStatus.INPUT_INVALID: 'input_invalid'>
+E    +  where <EstimationStatus.ASSUMPTION_FAILED: 'assumption_failed'> = CausalEffectReport(schema_version='1.0', method=<CausalMethod.DIFFERENCE_IN_DIFFERENCES: 'difference_in_differences'>,...ge and null calibration are not established'}, sample_size=40, n_treated=4, n_control=4, pre_periods=4, post_periods=1).status
+E    +  and   <EstimationStatus.INPUT_INVALID: 'input_invalid'> = EstimationStatus.INPUT_INVALID
+_ test_staggered_anticipation_requires_declared_nonnegative_period_count[None] _
+tests/unit/remediation/test_cau_02.py:244: in test_staggered_anticipation_requires_declared_nonnegative_period_count
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/remediation/test_cau_02.py:43: in _run_staggered
+    .dispatch(
+src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+src/polisyos/foundry/methods/backends/numpy_runner.py:66: in execute
+    output = method_class.pure_step(state, resolved)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/causal/did.py:970: in pure_step
+    return _run_staggered_did(data, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/causal/did.py:37: in _run_staggered_did
+    "Callaway, B., & Sant'Anna, P. (2021). Difference-in-Differences with Multiple Time Periods.",
+                   ^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+_ test_staggered_anticipation_requires_declared_nonnegative_period_count[nan] __
+tests/unit/remediation/test_cau_02.py:244: in test_staggered_anticipation_requires_declared_nonnegative_period_count
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/remediation/test_cau_02.py:43: in _run_staggered
+    .dispatch(
+src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+src/polisyos/foundry/methods/backends/numpy_runner.py:66: in execute
+    output = method_class.pure_step(state, resolved)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/causal/did.py:970: in pure_step
+    return _run_staggered_did(data, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/causal/did.py:37: in _run_staggered_did
+    "Callaway, B., & Sant'Anna, P. (2021). Difference-in-Differences with Multiple Time Periods.",
+                   ^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: cannot convert float NaN to integer
+_ test_staggered_anticipation_requires_declared_nonnegative_period_count[inf] __
+tests/unit/remediation/test_cau_02.py:244: in test_staggered_anticipation_requires_declared_nonnegative_period_count
+    report = _run_staggered(_single_cell_panel(), anticipation=anticipation, n_bootstrap=10)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/remediation/test_cau_02.py:43: in _run_staggered
+    .dispatch(
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+src/polisyos/foundry/methods/backends/numpy_runner.py:66: in execute
+    output = method_class.pure_step(state, resolved)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/causal/did.py:970: in pure_step
+    return _run_staggered_did(data, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/causal/did.py:37: in _run_staggered_did
+    "Callaway, B., & Sant'Anna, P. (2021). Difference-in-Differences with Multiple Time Periods.",
+                   ^^^^^^^^^^^^^^^^^^^^^
+E   OverflowError: cannot convert float infinity to integer
+_ test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback _
+tests/unit/remediation/test_cau_02.py:283: in test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback
+    assert loaded.point_estimate is None
+E   AssertionError: assert 3.0 is None
+E    +  where 3.0 = CausalEffectReport(schema_version='1.0', method=<CausalMethod.DIFFERENCE_IN_DIFFERENCES: 'difference_in_differences'>,...ge and null calibration are not established'}, sample_size=24, n_treated=4, n_control=2, pre_periods=0, post_periods=4).point_estimate
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[False]
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted[True]
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[-1]
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[0.5]
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[True]
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[1]
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[None]
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[nan]
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count[inf]
+FAILED tests/unit/remediation/test_cau_02.py::test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback
+
+exit_code=1 wall_seconds=25.521 peak_rss_kib=499428

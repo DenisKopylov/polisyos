@@ -1,0 +1,14 @@
+
+==================================== ERRORS ====================================
+____________ ERROR collecting tests/unit/remediation/test_cau_01.py ____________
+ImportError while importing test module '/workspace/e02-F-cau/policy-engine/tests/unit/remediation/test_cau_01.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/remediation/test_cau_01.py:10: in <module>
+    from statsmodels.api import OLS
+E   ModuleNotFoundError: No module named 'statsmodels'
+=========================== short test summary info ============================
+ERROR tests/unit/remediation/test_cau_01.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+
+exit_code=2 wall_seconds=9.231 peak_rss_kib=499068

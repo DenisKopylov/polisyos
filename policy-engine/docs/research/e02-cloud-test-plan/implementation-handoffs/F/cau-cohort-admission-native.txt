@@ -1,0 +1,19 @@
+Python 3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ] prefix /workspace/e02-F-cau-env
+numpy 2.3.5
+scipy 1.16.3
+pydantic 2.12.5
+pytest 9.0.2
+statsmodels 0.14.6
+patsy 1.0.2
+dowhy ABSENT
+econml ABSENT
+COMMAND: /workspace/e02-F-cau-env/bin/python -m pytest -o addopts= --import-mode=importlib --strict-markers tests/unit/remediation/test_cau_01.py tests/unit/remediation/test_cau_02.py tests/unit/remediation/test_cau_03.py tests/unit/remediation/test_cau_04.py tests/unit/remediation/test_cau_05.py tests/unit/foundry/methods/catalog/causal/test_did.py tests/unit/foundry/methods/catalog/causal/test_rdd.py tests/unit/foundry/methods/catalog/causal/test_registration.py tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py -q -ra -p no:cacheprovider --tb=short --show-capture=no --disable-warnings
+........................................................................ [ 85%]
+.....sssss..                                                             [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py:130: could not import 'dowhy': No module named 'dowhy'
+SKIPPED [3] tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py:157: could not import 'dowhy': No module named 'dowhy'
+SKIPPED [1] tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py:169: could not import 'dowhy': No module named 'dowhy'
+79 passed, 5 skipped, 115 warnings in 144.28s (0:02:24)
+
+exit_code=0 wall_seconds=159.745 peak_rss_kib=523164

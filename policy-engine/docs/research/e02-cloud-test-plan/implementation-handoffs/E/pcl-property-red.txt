@@ -1,0 +1,224 @@
+argv=[".venv/bin/python", "-m", "pytest", "tests/unit/calibration/test_curve.py", "tests/unit/calibration/test_continuous.py", "-q"]
+.......FF..FFFFFFFFFFFFF............F....                                [100%]
+=================================== FAILURES ===================================
+____ test_incomplete_curve_cannot_pass_even_with_zero_measured_error[True] _____
+
+empty_first = True
+
+    @pytest.mark.parametrize("empty_first", [True, False])
+    def test_incomplete_curve_cannot_pass_even_with_zero_measured_error(empty_first: bool) -> None:
+        y_true = [float(index) for index in range(100)]
+        valid = [(value - 0.1, value + 0.1) for value in y_true[:95]] + [(-1000.0, -999.0)] * 5
+        intervals = [[], valid] if empty_first else [valid, []]
+        levels = [0.5, 0.95] if empty_first else [0.95, 0.5]
+    
+        result = compute_calibration_curve(y_true, intervals, levels=levels)
+    
+        assert result.evaluation_status == "incomplete"
+        assert result.n_comparisons == 1
+        assert result.points[0].n_observations == 100
+        assert result.points[0].empirical_coverage == pytest.approx(0.95)
+        assert result.ece == pytest.approx(0.0)
+        assert result.max_ce == pytest.approx(0.0)
+>       assert result.is_well_calibrated is False
+E       AssertionError: assert True is False
+E        +  where True = CalibrationResult(points=[CalibrationPoint(nominal_level=0.95, empirical_coverage=0.95, n_observations=100)], ece=0.0, max_ce=0.0, is_well_calibrated=True, evaluation_status='incomplete', n_comparisons=1).is_well_calibrated
+
+tests/unit/calibration/test_curve.py:105: AssertionError
+____ test_incomplete_curve_cannot_pass_even_with_zero_measured_error[False] ____
+
+empty_first = False
+
+    @pytest.mark.parametrize("empty_first", [True, False])
+    def test_incomplete_curve_cannot_pass_even_with_zero_measured_error(empty_first: bool) -> None:
+        y_true = [float(index) for index in range(100)]
+        valid = [(value - 0.1, value + 0.1) for value in y_true[:95]] + [(-1000.0, -999.0)] * 5
+        intervals = [[], valid] if empty_first else [valid, []]
+        levels = [0.5, 0.95] if empty_first else [0.95, 0.5]
+    
+        result = compute_calibration_curve(y_true, intervals, levels=levels)
+    
+        assert result.evaluation_status == "incomplete"
+        assert result.n_comparisons == 1
+        assert result.points[0].n_observations == 100
+        assert result.points[0].empirical_coverage == pytest.approx(0.95)
+        assert result.ece == pytest.approx(0.0)
+        assert result.max_ce == pytest.approx(0.0)
+>       assert result.is_well_calibrated is False
+E       AssertionError: assert True is False
+E        +  where True = CalibrationResult(points=[CalibrationPoint(nominal_level=0.95, empirical_coverage=0.95, n_observations=100)], ece=0.0, max_ce=0.0, is_well_calibrated=True, evaluation_status='incomplete', n_comparisons=1).is_well_calibrated
+
+tests/unit/calibration/test_curve.py:105: AssertionError
+______________ test_curve_rejects_unusable_observations[y_true1] _______________
+
+y_true = [nan]
+
+    @pytest.mark.parametrize("y_true", [[], [float("nan")], [float("inf")], [float("-inf")]])
+    def test_curve_rejects_unusable_observations(y_true: list[float]) -> None:
+>       with pytest.raises(ValueError, match="y_true"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:121: Failed
+______________ test_curve_rejects_unusable_observations[y_true2] _______________
+
+y_true = [inf]
+
+    @pytest.mark.parametrize("y_true", [[], [float("nan")], [float("inf")], [float("-inf")]])
+    def test_curve_rejects_unusable_observations(y_true: list[float]) -> None:
+>       with pytest.raises(ValueError, match="y_true"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:121: Failed
+______________ test_curve_rejects_unusable_observations[y_true3] _______________
+
+y_true = [-inf]
+
+    @pytest.mark.parametrize("y_true", [[], [float("nan")], [float("inf")], [float("-inf")]])
+    def test_curve_rejects_unusable_observations(y_true: list[float]) -> None:
+>       with pytest.raises(ValueError, match="y_true"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:121: Failed
+_________ test_curve_rejects_invalid_levels_even_for_skipped_sets[nan] _________
+
+level = nan
+
+    @pytest.mark.parametrize("level", [float("nan"), float("inf"), -0.1, 1.1])
+    def test_curve_rejects_invalid_levels_even_for_skipped_sets(level: float) -> None:
+>       with pytest.raises(ValueError, match="levels"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:127: Failed
+_________ test_curve_rejects_invalid_levels_even_for_skipped_sets[inf] _________
+
+level = inf
+
+    @pytest.mark.parametrize("level", [float("nan"), float("inf"), -0.1, 1.1])
+    def test_curve_rejects_invalid_levels_even_for_skipped_sets(level: float) -> None:
+>       with pytest.raises(ValueError, match="levels"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:127: Failed
+________ test_curve_rejects_invalid_levels_even_for_skipped_sets[-0.1] _________
+
+level = -0.1
+
+    @pytest.mark.parametrize("level", [float("nan"), float("inf"), -0.1, 1.1])
+    def test_curve_rejects_invalid_levels_even_for_skipped_sets(level: float) -> None:
+>       with pytest.raises(ValueError, match="levels"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:127: Failed
+_________ test_curve_rejects_invalid_levels_even_for_skipped_sets[1.1] _________
+
+level = 1.1
+
+    @pytest.mark.parametrize("level", [float("nan"), float("inf"), -0.1, 1.1])
+    def test_curve_rejects_invalid_levels_even_for_skipped_sets(level: float) -> None:
+>       with pytest.raises(ValueError, match="levels"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:127: Failed
+__________________ test_curve_rejects_unusable_tolerance[nan] __________________
+
+tolerance = nan
+
+    @pytest.mark.parametrize("tolerance", [float("nan"), float("inf"), -0.1])
+    def test_curve_rejects_unusable_tolerance(tolerance: float) -> None:
+>       with pytest.raises(ValueError, match="tolerance"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:133: Failed
+__________________ test_curve_rejects_unusable_tolerance[inf] __________________
+
+tolerance = inf
+
+    @pytest.mark.parametrize("tolerance", [float("nan"), float("inf"), -0.1])
+    def test_curve_rejects_unusable_tolerance(tolerance: float) -> None:
+>       with pytest.raises(ValueError, match="tolerance"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:133: Failed
+_________________ test_curve_rejects_unusable_tolerance[-0.1] __________________
+
+tolerance = -0.1
+
+    @pytest.mark.parametrize("tolerance", [float("nan"), float("inf"), -0.1])
+    def test_curve_rejects_unusable_tolerance(tolerance: float) -> None:
+>       with pytest.raises(ValueError, match="tolerance"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:133: Failed
+_________________ test_curve_rejects_nonfinite_bounds[bounds0] _________________
+
+bounds = (-inf, 2.0)
+
+    @pytest.mark.parametrize("bounds", [(float("-inf"), 2.0), (0.0, float("inf")), (float("nan"), 2.0)])
+    def test_curve_rejects_nonfinite_bounds(bounds: tuple[float, float]) -> None:
+>       with pytest.raises(ValueError, match="bounds"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:139: Failed
+_________________ test_curve_rejects_nonfinite_bounds[bounds1] _________________
+
+bounds = (0.0, inf)
+
+    @pytest.mark.parametrize("bounds", [(float("-inf"), 2.0), (0.0, float("inf")), (float("nan"), 2.0)])
+    def test_curve_rejects_nonfinite_bounds(bounds: tuple[float, float]) -> None:
+>       with pytest.raises(ValueError, match="bounds"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:139: Failed
+_________________ test_curve_rejects_nonfinite_bounds[bounds2] _________________
+
+bounds = (nan, 2.0)
+
+    @pytest.mark.parametrize("bounds", [(float("-inf"), 2.0), (0.0, float("inf")), (float("nan"), 2.0)])
+    def test_curve_rejects_nonfinite_bounds(bounds: tuple[float, float]) -> None:
+>       with pytest.raises(ValueError, match="bounds"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_curve.py:139: Failed
+______ test_continuous_rejects_invalid_levels_even_for_skipped_sets[nan] _______
+
+level = nan
+
+    @pytest.mark.parametrize("level", [float("nan"), float("inf"), -0.1, 1.1])
+    def test_continuous_rejects_invalid_levels_even_for_skipped_sets(level: float) -> None:
+>       with pytest.raises(ValueError, match="levels"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/calibration/test_continuous.py:196: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/calibration/test_curve.py::test_incomplete_curve_cannot_pass_even_with_zero_measured_error[True]
+FAILED tests/unit/calibration/test_curve.py::test_incomplete_curve_cannot_pass_even_with_zero_measured_error[False]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_unusable_observations[y_true1]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_unusable_observations[y_true2]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_unusable_observations[y_true3]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_invalid_levels_even_for_skipped_sets[nan]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_invalid_levels_even_for_skipped_sets[inf]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_invalid_levels_even_for_skipped_sets[-0.1]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_invalid_levels_even_for_skipped_sets[1.1]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_unusable_tolerance[nan]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_unusable_tolerance[inf]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_unusable_tolerance[-0.1]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_nonfinite_bounds[bounds0]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_nonfinite_bounds[bounds1]
+FAILED tests/unit/calibration/test_curve.py::test_curve_rejects_nonfinite_bounds[bounds2]
+FAILED tests/unit/calibration/test_continuous.py::test_continuous_rejects_invalid_levels_even_for_skipped_sets[nan]
+
+wall_s=3.729 max_rss_kib=209564 exit=1

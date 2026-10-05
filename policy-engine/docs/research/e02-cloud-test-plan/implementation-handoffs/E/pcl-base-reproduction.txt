@@ -1,0 +1,22 @@
+argv=[".venv/bin/python", "/workspace/e02-runtime/pcl/base_reproduce.py"]
+{
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "input_identity": "100 analytic observations 0..99; first level skipped; second level .95 covers95 observations",
+  "curve_status": "incomplete",
+  "curve_n_comparisons": 1,
+  "curve_ece": 0.0,
+  "curve_positive": true,
+  "native_report_status": {
+    "status": "incomplete",
+    "n_comparisons": 1
+  },
+  "native_receipt_tier": "unverified",
+  "native_receipt_reasons": [
+    "fatal_calibration_issue",
+    "interval_coverage_incomplete"
+  ]
+}
+{"malformed": "one NaN observation at nominal.99", "curve_ece": 0.0, "curve_positive": true}
+{"source_alternative": "predictive_samples level1 bypasses supplied continuous open(0,1)domain", "native_ece": 0.0, "native_tier": "approximate_calibrated"}
+
+wall_s=1.445 max_rss_kib=159484 exit=0

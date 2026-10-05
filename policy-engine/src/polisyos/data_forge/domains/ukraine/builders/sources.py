@@ -1484,11 +1484,11 @@ def _iter_observation_metric_frames_from_snapshot(
         if pending_metric_ids:
             raise RuntimeError(
                 "stream restart ended before the pending observation metric cursor"
-            )
+            ) from None
         if resumed_row_offset < row_offset:
             raise RuntimeError(
                 "stream restart ended before the confirmed observation cursor"
-            )
+            ) from None
         _assert_source_unchanged()
 
 

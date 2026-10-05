@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.g-independent-local-check.v1",
+  "candidate_commit": "510a6076e91f6c5ea540845d77b8d83d0b4a3cb5",
+  "candidate_tree": "f0331553f28fc39ffbd2d75d41a334a5fe5acc0a",
+  "handoff_commit": "f3b9f054c86218b431ab927b56100164842db64a",
+  "handoff_tree": "3a564f4067677e13dfd2a565a639684de357ed29",
+  "review_scope": "One deterministic real-filesystem cold-mutation falsifier plus configured-bootstrap blocking control; no test suite or production data.",
+  "runtime": {
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-dur/polisyos",
+    "branch": "codex/e02-G-check-b-dur",
+    "python": "3.14.3",
+    "pydantic": "2.12.5",
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-dur/polisyos/policy-engine/.venv/bin/python",
+    "policyos_imports_resolve_from_candidate_checkout": true,
+    "numeric_thread_caps": 1,
+    "jax_platform": "cpu"
+  },
+  "probe_result": {
+    "probe_execution": "PASS_EXPECTED_FALSIFIER",
+    "cold_path": {
+      "path_absent_before_mutation": true,
+      "operation": "FileBudgetLedger.record_spend('run', Decimal('1'))",
+      "file_exists_after": true,
+      "revision": 1,
+      "persisted_limits": {},
+      "persisted_spent": {
+        "run": "1"
+      },
+      "then_constructed_middleware_with_configured_state": {
+        "limit_run_usd": "10",
+        "spent_run_usd": "10"
+      },
+      "middleware_loaded_limits": {},
+      "middleware_loaded_spent": {
+        "run": "1"
+      },
+      "pre_check": "allowed",
+      "expected_falsifier_observation": "allowed"
+    },
+    "fresh_configured_bootstrap_control": {
+      "initial_limit_run_usd": "10",
+      "initial_spent_run_usd": "10",
+      "pre_check": "blocked",
+      "expected_control": "blocked"
+    },
+    "interpretation": "Public mutation on an absent ledger implicitly seeds default unlimited BudgetState; later load_or_bootstrap preserves this valid but unintended no-limit snapshot. The ordinary configured middleware-constructor path blocks when it creates the ledger first."
+  },
+  "source_evidence": {
+    "cold_mutation_default": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py@510a6076e91f6c5ea540845d77b8d83d0b4a3cb5#L338-L367",
+    "bootstrap_preserves_existing": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py@510a6076e91f6c5ea540845d77b8d83d0b4a3cb5#L205-L232",
+    "middleware_bootstrap": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py@510a6076e91f6c5ea540845d77b8d83d0b4a3cb5#L21-L30",
+    "middleware_consumer": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py@510a6076e91f6c5ea540845d77b8d83d0b4a3cb5#L41-L50",
+    "source_census": {
+      "denominator": "all tracked policy-engine/src Python paths at candidate",
+      "count": 2697,
+      "finding": "No in-repo non-test FileBudgetLedger construction or BudgetMiddleware invocation; source hits are export/definition only. This does not erase the public API counterexample or establish an external factory.",
+      "interpretation": "Reviewer executed the stated census; no deployed caller reachability is established by this scoped static observation."
+    }
+  },
+  "decision": {
+    "narrow_claim": "Configured BudgetMiddleware initialization and later pre_check are exercised through the real ledger and filesystem; fresh configured bootstrap control blocks.",
+    "broader_claim": "HOLD / retain B37 partial: cold direct mutation is a concrete public API bypass not covered by existing test/removal controls. Owner must establish the bootstrap precondition or require explicit initialization/fail closed before claiming all absent-ledger paths are safe.",
+    "reachability_limit": "No in-repo production callsite found in the full source census; caller/deployment reachability remains not established.",
+    "other_residuals": "Valid nonnegative forged accounting remains unauthenticated/unreconciled; retry after post-replace directory-fsync failure is not operation-idempotent; power-loss and multi-host filesystem semantics remain unmeasured. Do not infer policy-justification custody or producer authority."
+  },
+  "retained_evidence": {
+    "directory": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-check/b-dur",
+    "probe": {
+      "path": "policy-engine/_build/e02-g-check/b-dur/cold-mutation-probe.py",
+      "sha256": "598c72d5d13775cad5624032d253c7c1d2add7ee6d06279218522e3ae14963c5"
+    },
+    "runner": {
+      "path": "policy-engine/_build/e02-g-check/b-dur/run-cold-mutation-probe.sh",
+      "sha256": "fec7c5c0ddc28c6d32f003472176b057b7c46f891e25e0d8dfb907a15711c6c1"
+    },
+    "stdout": {
+      "path": "policy-engine/_build/e02-g-check/b-dur/cold-mutation-probe.stdout.txt",
+      "bytes": 2128,
+      "sha256": "ce595bd62d2b467d2e98d54c09f0c09ed489b64c5110e646ca2b98b64202fe01"
+    },
+    "stderr": {
+      "path": "policy-engine/_build/e02-g-check/b-dur/cold-mutation-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metadata": {
+      "path": "policy-engine/_build/e02-g-check/b-dur/cold-mutation-probe.metadata.json",
+      "sha256": "337573bf8e6658444e4577d02425f60e6f84c120d7a897fd9d27f438306cb34e"
+    }
+  },
+  "root_raw_hashes_recomputed": true
+}

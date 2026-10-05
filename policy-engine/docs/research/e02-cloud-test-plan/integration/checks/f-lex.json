@@ -1,0 +1,134 @@
+{
+  "schema": "policyos.e02.g-independent-local-check.v1",
+  "unit": "F",
+  "slice": "lex-input-binding-and-plan-freeze",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "candidate": {
+    "branch": "codex/e02-G-check-f-lex",
+    "commit": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+    "tree": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-lex/polisyos",
+    "post_run_readback": "branch attached at exact candidate commit/tree; clean tracked diff"
+  },
+  "topic_head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+  "topic_tree": "860a236668b7194212980271ffafa66677434517",
+  "code_decision": "GO_bounded_native_impact_binding_and_plan_snapshot",
+  "finding_closure": [],
+  "property": {
+    "runtime_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+    "runtime_sha256": "6d0ab011b18da214b74f6420b06e5838bf2a209f4e8ff70d796f6f73875fe42e",
+    "defining_line": 108,
+    "behavior": "self._pass_ids = self.DEFAULT_PASSES if passes is None else tuple(passes); validate the frozen tuple against DEFAULT_PASSES.",
+    "defining_test": "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py:113",
+    "defining_test_sha256": "22ca871c5c0e575478e0b78ebd2125ca8cb7541fb992032adeed66afeca4f982"
+  },
+  "positive": {
+    "exit_code": 0,
+    "checks": 9,
+    "consumer": "native expr_ast legal transition, realLegalPass, CAS report readback, aliases and gate/render; list append/replace/clear/order, explicit empty and generator are stable"
+  },
+  "negative": {
+    "exit_code": 1,
+    "failed": 6,
+    "passed": 3,
+    "actual_failures": [
+      {
+        "name": "admitted-list-append-unknown-cannot-change-dispatch-or-cas-bytes",
+        "exception": "AssertionError",
+        "failure_message": "(['legal', 'legla'], ['legal'])"
+      },
+      {
+        "name": "admitted-list-replacement-cannot-drop-real-legal-transition",
+        "exception": "AssertionError",
+        "failure_message": "(0, 1)"
+      },
+      {
+        "name": "admitted-list-clear-cannot-drop-real-legal-transition",
+        "exception": "AssertionError",
+        "failure_message": "(0, 1)"
+      },
+      {
+        "name": "explicit-empty-list-cannot-acquire-later-legal-pass",
+        "exception": "AssertionError",
+        "failure_message": "(1, 0)"
+      },
+      {
+        "name": "admitted-two-pass-order-native-payload-matches-tuple-control",
+        "exception": "AssertionError",
+        "failure_message": "(['legal', 'safety'], ['safety', 'legal'])"
+      },
+      {
+        "name": "accepted-single-use-iterable-is-not-consumed-by-validation",
+        "exception": "AssertionError",
+        "failure_message": "(0, 1)"
+      }
+    ],
+    "mutation": "The control script compiles a temporary replacement for only NormImpactAnalyzer.__init__, changing exactly one `else tuple(passes)` to `else passes`; source file, markers, and candidate HEAD stay unchanged."
+  },
+  "focused_defining_check": {
+    "exit_code": 0,
+    "passed": 1,
+    "stdout": ".                                                                        [100%]\n",
+    "stderr": ""
+  },
+  "limits": {
+    "LA-017": "partial; acceptance covers synthetic rules and explicit native expr_ast only. Real law corpus, current-law admission, and custody are absent.",
+    "runtime_and_surface": "Default CLI legal backend is StubBackend; CLI pass/schema behavior is transport only. This acceptance does not establish production legal-data or API/audit authority.",
+    "authority_and_identity": "report_id historically omits context/full content; CAS bytes are content-bound. No authority follows from report_id or candidate topics. The impact candidate reports affected KPI direction as unknown and does not establish measured causal effect.",
+    "typed_input": "List/generator cases exercise accepted runtime values; no public typed-signature expansion is claimed.",
+    "positive_equality_limit": "Append/order companion controls compare decoded persisted payload equality after CAS readback, not raw CAS artifact byte strings."
+  },
+  "environment": {
+    "python": "3.14.0",
+    "python_path": "src:.",
+    "pythonhashseed": "unset",
+    "candidate_policy_engine": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-lex/polisyos/policy-engine",
+    "heavy_numeric_runs": false
+  },
+  "raw_outputs_and_controls": [
+    {
+      "path": "policy-engine/_build/e02-g-check/f-lex/lex-independent-fit-controls.py",
+      "bytes": 8287,
+      "sha256": "769e552f19b18d94e0f7953c440c347662cafb1ab9f5c94976ac762fed50e520",
+      "frozen_origin": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.py",
+      "frozen_blob": "db3eafbfd4c4e2c69ad254855ef14c2b9e25a1a5"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-check/f-lex/run-manifest.txt",
+      "bytes": 2573,
+      "sha256": "a8ac60e2372f31e9ba17d9ea3137976c8c436b0c23714a3931d7a7aef39e5c2a"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-check/f-lex/positive2.stdout.json",
+      "bytes": 16692,
+      "sha256": "6f15c4082365f308863782f58c886c882238f2f47a22d5255666ab2b53c43844"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-check/f-lex/positive2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-check/f-lex/negative.stdout.json",
+      "bytes": 15718,
+      "sha256": "b387aa1d82738cbe9b451286a79dc625f61fba5345e00dec1bd60baf77092425"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-check/f-lex/negative.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-check/f-lex/focused-pytest.stdout.txt",
+      "bytes": 80,
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-check/f-lex/focused-pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "root_raw_hashes_recomputed": true,
+  "topic_footprint": "All21 changed paths from git diff base..topic read; full source/test/README/release companions plus16 immutable handoff/evidence paths. Candidate source/test bytes reconcile at topic; all four topic commits checked; original history retained by the subsequent merge."
+}

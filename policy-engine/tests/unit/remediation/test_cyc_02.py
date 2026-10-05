@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import json
+import math
+import os
 import subprocess
+import sys
 import time
 from decimal import Decimal
 from pathlib import Path
@@ -50,6 +53,7 @@ from polisyos.runtime.quality.generation_cycle import (
     SimulationPortObservation,
     _DefaultSimulationBoundFoundryValuePort,
     load_joint_simulation_result,
+    persist_joint_simulation_result,
     simulation_evaluation_input_ref,
 )
 from polisyos.runtime.quality.intervention_atom_binding import (
@@ -57,6 +61,9 @@ from polisyos.runtime.quality.intervention_atom_binding import (
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
+    JointSimulationResult,
+    build_content_bound_simulation_receipt,
+    verify_simulation_receipt,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
     _AUTHENTIC_LEGACY_RECURSIVE_V1_CONTENT_HASHES,
@@ -632,6 +639,518 @@ def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
         and outcome in candidate_trajectory.points[0].effect
     )
     assert effect == produced_trajectory.points[0].effect[outcome]
+
+
+def _n5_readback_witness(result: Any, outcome: str) -> dict[str, Any]:
+    """Return one selected numerical point and the result's carried limits."""
+
+    trajectory = next(
+        trajectory
+        for trajectory in result.trajectories
+        if trajectory.points
+        and any(outcome in point.effect for point in trajectory.points)
+    )
+    point = next(point for point in trajectory.points if outcome in point.effect)
+    value = float(point.effect[outcome])
+    assert math.isfinite(value)
+    state_consumption = result.state_consumption
+    return {
+        "run_level": str(getattr(trajectory.run_level, "value", trajectory.run_level)),
+        "atom_ids": list(trajectory.atom_ids),
+        "trajectory_identity": {
+            "engine_kind": str(
+                getattr(trajectory.engine_kind, "value", trajectory.engine_kind)
+            ),
+            "method_fqn": trajectory.method_fqn,
+            "objective_ref": trajectory.objective_ref,
+        },
+        "point_step": point.step,
+        "outcome": outcome,
+        "effect": value,
+        "result_payload_hash": result.receipt.payload_hash,
+        "world_model_record_content_hash": result.world_model_record_content_hash,
+        "atom_ids_in_result": list(result.atom_ids),
+        "selected_outcomes": list(result.selected_outcomes),
+        "horizon": result.horizon.model_dump(mode="json"),
+        "promotion_blockers": list(
+            result.promotion_ready_value_packet.get("authority_blockers", ())
+        ),
+        "state_consumption_limitations": (
+            list(state_consumption.authority_limitations)
+            if state_consumption is not None
+            else None
+        ),
+    }
+
+
+def _persist_valid_structural_mismatch(
+    result: Any,
+    *,
+    store: Any,
+    mismatch: str,
+) -> dict[str, Any]:
+    """Persist a CAS- and receipt-valid artifact with inconsistent engine identity."""
+
+    payload = json.loads(json.dumps(result.content_bound_payload()))
+    selected = [
+        decision
+        for decision in payload["engine_decisions"]
+        if decision["decision"] == "selected"
+    ]
+    assert len(selected) == 1
+    decision = selected[0]
+    trajectory_identity: dict[str, str] | None = None
+    receipt_engine_kind = str(
+        getattr(result.receipt.engine_kind, "value", result.receipt.engine_kind)
+    )
+    selected_trajectory = next(
+        trajectory
+        for trajectory in payload["trajectories"]
+        if (
+            trajectory["engine_kind"],
+            trajectory["method_fqn"],
+            trajectory["objective_ref"],
+        )
+        == (
+            decision["engine_kind"],
+            decision["method_fqn"],
+            decision["objective_ref"],
+        )
+    )
+    selected_trajectory_identity = {
+        key: selected_trajectory[key]
+        for key in ("engine_kind", "method_fqn", "objective_ref")
+    }
+    if mismatch == "trajectory_selection":
+        trajectory = next(
+            trajectory
+            for trajectory in payload["trajectories"]
+            if (
+                trajectory["engine_kind"],
+                trajectory["method_fqn"],
+                trajectory["objective_ref"],
+            )
+            == (
+                decision["engine_kind"],
+                decision["method_fqn"],
+                decision["objective_ref"],
+            )
+        )
+        trajectory["objective_ref"] = f"{trajectory['objective_ref']}#foreign"
+        trajectory_identity = {
+            key: trajectory[key]
+            for key in ("engine_kind", "method_fqn", "objective_ref")
+        }
+    elif mismatch == "receipt_engine_selection":
+        receipt_engine_kind = next(
+            engine_kind
+            for engine_kind in (
+                "program_graph",
+                "ncm_parallel_worlds",
+                "coupled_des_abm",
+                "system_dynamics",
+                "method_registry_estimator",
+            )
+            if engine_kind != decision["engine_kind"]
+        )
+    elif mismatch == "no_selected_engine_decision":
+        decision["decision"] = "rejected"
+    elif mismatch == "multiple_selected_engine_decisions":
+        payload["engine_decisions"].append(json.loads(json.dumps(decision)))
+    else:
+        raise ValueError(f"unknown_structural_mismatch:{mismatch}")
+    selected_after = [
+        item
+        for item in payload["engine_decisions"]
+        if item["decision"] == "selected"
+    ]
+
+    receipt = build_content_bound_simulation_receipt(
+        engine_kind=receipt_engine_kind,
+        payload=payload,
+        diagnostics=payload["diagnostics"],
+    )
+    mismatched = JointSimulationResult.model_validate(
+        {**payload, "receipt": receipt.model_dump(mode="json")}
+    )
+    mismatched._content_payload = payload
+    verify_simulation_receipt(mismatched.receipt, mismatched.content_bound_payload())
+    ref = persist_joint_simulation_result(mismatched, store=store)
+    return {
+        "simulation_result_ref": ref.model_dump(mode="json"),
+        "simulation_ref": receipt.payload_hash,
+        "selected_decision_count": len(selected_after),
+        "selected_decision": {
+            key: decision[key]
+            for key in ("engine_kind", "method_fqn", "objective_ref")
+        },
+        "selected_trajectory_identity": selected_trajectory_identity,
+        "receipt_engine_kind": receipt.engine_kind,
+        "trajectory_identity": trajectory_identity,
+        "receipt_payload_hash": receipt.payload_hash,
+    }
+
+
+def _n5_readback_producer_child(
+    store_root: Path,
+    *,
+    project_root: Path,
+) -> dict[str, Any]:
+    """Persist one real N5 result and emit only its cross-process handoff."""
+
+    source_path = Path(generation_cycle_module.__file__).resolve()
+    expected_source_path = (
+        project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+    ).resolve()
+    if source_path != expected_source_path:
+        raise AssertionError(f"wrong_runtime_source:{source_path}")
+    problem, context, candidate, simulation, produced, store = _real_n5_observation(
+        store_root.parent,
+        artifact_store=FileSystemCAS(store_root),
+    )
+    assert store is not None
+    result_ref = simulation.simulation_result_ref
+    assert result_ref is not None
+    assert produced is not None
+    structural_variants = {
+        mismatch: _persist_valid_structural_mismatch(
+            produced,
+            store=store,
+            mismatch=mismatch,
+        )
+        for mismatch in (
+            "trajectory_selection",
+            "receipt_engine_selection",
+            "no_selected_engine_decision",
+            "multiple_selected_engine_decisions",
+        )
+    }
+    outcome = problem.outcome_of_interest.target_variable
+    return {
+        "producer_pid": os.getpid(),
+        "python_version": ".".join(str(part) for part in sys.version_info[:3]),
+        "generation_cycle_source": str(source_path),
+        "store_root": str(store_root),
+        "simulation_status": simulation.status,
+        "simulation_ref": simulation.simulation_ref,
+        "simulation_result_ref": result_ref.model_dump(mode="json"),
+        "simulation_authority_blockers": list(simulation.authority_blockers),
+        "candidate_id": candidate.candidate_id,
+        "candidate_atoms": [
+            atom.model_dump(mode="json") for atom in candidate.intervention_atoms
+        ],
+        "problem": problem.model_dump(mode="json"),
+        "cycle_substrate_context": context.model_dump(mode="json"),
+        "world_model_record_content_hash": context.world_model_record.content_hash,
+        "result_fingerprint": gy_content_hash(produced.model_dump(mode="json")),
+        "result_witness": _n5_readback_witness(produced, outcome),
+        "structural_variants": structural_variants,
+    }
+
+
+def _n5_readback_consumer_child(
+    handoff: dict[str, Any],
+    *,
+    project_root: Path,
+) -> dict[str, Any]:
+    """Reopen and consume the writer's exact result in a separate process."""
+
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+    )
+
+    source_path = Path(generation_cycle_module.__file__).resolve()
+    expected_source_path = (
+        project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+    ).resolve()
+    if source_path != expected_source_path:
+        raise AssertionError(f"wrong_runtime_source:{source_path}")
+
+    store = FileSystemCAS(Path(handoff["store_root"]))
+    result_ref = CASArtifactRef.model_validate(handoff["simulation_result_ref"])
+    problem = DesignProblem.model_validate(handoff["problem"])
+    context = CycleSubstrateContext.model_validate(handoff["cycle_substrate_context"])
+    atoms = tuple(
+        InterventionAtomBinding.model_validate(payload)
+        for payload in handoff["candidate_atoms"]
+    )
+    candidate = SimpleNamespace(
+        candidate_id=handoff["candidate_id"],
+        atom=atoms[0],
+        intervention_atoms=atoms,
+    )
+    simulation = SimulationPortObservation(
+        candidate_id=handoff["candidate_id"],
+        status=handoff["simulation_status"],
+        simulation_ref=handoff["simulation_ref"],
+        simulation_result_ref=result_ref,
+        uncertainty_kind="K_sim",
+        authority_blockers=tuple(handoff["simulation_authority_blockers"]),
+        k_world_ref_before=handoff["world_model_record_content_hash"],
+        k_world_ref_after=handoff["world_model_record_content_hash"],
+        world_model_record=context.world_model_record,
+    )
+    outcome = problem.outcome_of_interest.target_variable
+    reopened = load_joint_simulation_result(
+        result_ref,
+        store=store,
+        expected_world_model_record_content_hash=(
+            handoff["world_model_record_content_hash"]
+        ),
+        expected_atom_ids=tuple(atom.intervention_id for atom in atoms),
+        expected_selected_outcomes=(outcome,),
+    )
+    if gy_content_hash(reopened.model_dump(mode="json")) != handoff["result_fingerprint"]:
+        raise AssertionError("cross_process_n5_result_content_changed")
+
+    value_port = _DefaultSimulationBoundFoundryValuePort(
+        repo_root=project_root,
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+
+    def consume(observation: SimulationPortObservation) -> dict[str, Any]:
+        return value_port(
+            candidate=candidate,
+            simulation=observation,
+            problem=problem,
+            cycle_index=0,
+        ).model_dump(mode="json")
+
+    blob_path, _ = store._paths(result_ref.artifact_id)
+    original_blob = blob_path.read_bytes()
+    try:
+        blob_path.write_bytes(original_blob + b"corrupt")
+        corrupt_result = consume(simulation)
+    finally:
+        blob_path.write_bytes(original_blob)
+
+    missing_ref_payload = result_ref.model_dump(mode="json")
+    missing_ref_payload["artifact_id"] = "sha256:" + "f" * 64
+    missing_simulation = simulation.model_copy(
+        update={
+            "simulation_result_ref": CASArtifactRef.model_validate(missing_ref_payload)
+        }
+    )
+    missing_result = consume(missing_simulation)
+
+    foreign_simulation = simulation.model_copy(
+        update={
+            "world_model_record": SimpleNamespace(
+                content_hash="sha256:" + "e" * 64
+            )
+        }
+    )
+    foreign_world = consume(foreign_simulation)
+
+    divergent_sibling_ref = simulation.model_copy(
+        update={"simulation_ref": "sha256:" + "0" * 64}
+    )
+    sibling_ref_mismatch = consume(divergent_sibling_ref)
+    absent_sibling_ref = simulation.model_copy(update={"simulation_ref": None})
+    sibling_ref_missing = consume(absent_sibling_ref)
+
+    structural_consumers: dict[str, dict[str, Any]] = {}
+    for name, variant in handoff["structural_variants"].items():
+        variant_simulation = simulation.model_copy(
+            update={
+                "simulation_ref": variant["simulation_ref"],
+                "simulation_result_ref": CASArtifactRef.model_validate(
+                    variant["simulation_result_ref"]
+                ),
+            }
+        )
+        structural_consumers[name] = consume(variant_simulation)
+
+    return {
+        "consumer_pid": os.getpid(),
+        "python_version": ".".join(str(part) for part in sys.version_info[:3]),
+        "generation_cycle_source": str(source_path),
+        "simulation_result_ref": result_ref.model_dump(mode="json"),
+        "result_fingerprint": gy_content_hash(reopened.model_dump(mode="json")),
+        "result_witness": _n5_readback_witness(reopened, outcome),
+        "simulation_ref_matches_receipt": (
+            reopened.receipt.payload_hash == simulation.simulation_ref
+        ),
+        "value_observation": value_port(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        ).model_dump(mode="json"),
+        "negative_consumers": {
+            "missing_result": missing_result,
+            "foreign_world": foreign_world,
+            "corrupt_result": corrupt_result,
+            "sibling_ref_mismatch": sibling_ref_mismatch,
+            "sibling_ref_missing": sibling_ref_missing,
+            **structural_consumers,
+        },
+    }
+
+
+_N5_READBACK_CHILD_DISPATCH = """
+import json
+import sys
+from pathlib import Path
+from tests.unit.remediation.test_cyc_02 import (
+    _n5_readback_consumer_child,
+    _n5_readback_producer_child,
+)
+
+mode = sys.argv[1]
+project_root = Path(sys.argv[2])
+if mode == "produce":
+    result = _n5_readback_producer_child(Path(sys.argv[3]), project_root=project_root)
+elif mode == "consume":
+    result = _n5_readback_consumer_child(json.load(sys.stdin), project_root=project_root)
+else:
+    raise SystemExit(f"unknown mode: {mode}")
+print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+"""
+
+
+def _run_n5_readback_child(
+    *,
+    mode: str,
+    project_root: Path,
+    store_root: Path,
+    handoff: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Run one isolated writer or reader interpreter with the candidate source."""
+
+    environment = dict(os.environ)
+    environment["PYTHONPATH"] = os.pathsep.join(
+        (str(project_root / "src"), str(project_root))
+    )
+    for name in (
+        "JAX_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "OMP_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "VECLIB_MAXIMUM_THREADS",
+    ):
+        environment[name] = "1"
+    environment["JAX_PLATFORM_NAME"] = "cpu"
+    environment["XLA_FLAGS"] = (
+        "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+    )
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            _N5_READBACK_CHILD_DISPATCH,
+            mode,
+            str(project_root),
+            str(store_root),
+        ],
+        cwd=project_root,
+        env=environment,
+        input=json.dumps(handoff) if handoff is not None else None,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    assert completed.returncode == 0, (
+        f"N5 {mode} child failed ({completed.returncode}):\n"
+        f"stderr tail:\n{completed.stderr[-4000:]}\n"
+        f"stdout tail:\n{completed.stdout[-2000:]}"
+    )
+    output_lines = [line for line in completed.stdout.splitlines() if line.strip()]
+    assert output_lines, f"N5 {mode} child returned no JSON output"
+    return json.loads(output_lines[-1])
+
+
+def test_n5_result_reopens_and_n8_consumes_it_across_processes(
+    tmp_path: Path,
+) -> None:
+    """A new process replays the exact numerical N5 artifact through N8."""
+
+    project_root = Path(__file__).resolve().parents[3]
+    expected_source_path = (
+        project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+    ).resolve()
+    assert Path(generation_cycle_module.__file__).resolve() == expected_source_path
+    store_root = tmp_path / "n5-process-cas"
+    produced = _run_n5_readback_child(
+        mode="produce",
+        project_root=project_root,
+        store_root=store_root,
+    )
+    consumed = _run_n5_readback_child(
+        mode="consume",
+        project_root=project_root,
+        store_root=store_root,
+        handoff=produced,
+    )
+
+    assert produced["producer_pid"] != consumed["consumer_pid"]
+    assert produced["generation_cycle_source"] == str(expected_source_path)
+    assert consumed["generation_cycle_source"] == str(expected_source_path)
+    assert consumed["simulation_result_ref"] == produced["simulation_result_ref"]
+    assert consumed["result_fingerprint"] == produced["result_fingerprint"]
+    assert consumed["result_witness"] == produced["result_witness"]
+    assert consumed["simulation_ref_matches_receipt"]
+    assert "simulation_only_k_sim_not_world_evidence" in produced[
+        "simulation_authority_blockers"
+    ]
+    trajectory_variant = produced["structural_variants"]["trajectory_selection"]
+    assert trajectory_variant["selected_decision_count"] == 1
+    assert trajectory_variant["selected_trajectory_identity"] == (
+        trajectory_variant["selected_decision"]
+    )
+    assert trajectory_variant["trajectory_identity"] != (
+        trajectory_variant["selected_decision"]
+    )
+    assert trajectory_variant["receipt_engine_kind"] == (
+        trajectory_variant["selected_decision"]["engine_kind"]
+    )
+    receipt_variant = produced["structural_variants"]["receipt_engine_selection"]
+    assert receipt_variant["selected_decision_count"] == 1
+    assert receipt_variant["receipt_engine_kind"] != (
+        receipt_variant["selected_decision"]["engine_kind"]
+    )
+    assert produced["structural_variants"]["no_selected_engine_decision"][
+        "selected_decision_count"
+    ] == 0
+    assert produced["structural_variants"]["multiple_selected_engine_decisions"][
+        "selected_decision_count"
+    ] == 2
+
+    value = consumed["value_observation"]
+    assert value["status"] == "value_conditional"
+    assert value["value_ref"] == produced["simulation_result_ref"]["artifact_id"]
+    assert value["evaluation_mode"] == "simulate_only"
+    assert value["decision_grade"] == "low"
+    assert "simulation_only_k_sim_not_world_evidence" in value["authority_blockers"]
+    assert value.get("value_receipt") is None
+    assert value.get("method_selection_receipt") is None
+
+    negatives = consumed["negative_consumers"]
+    assert negatives["missing_result"]["status"] == "value_blocked"
+    assert negatives["missing_result"]["authority_blockers"] == [
+        "joint_simulation_result_unavailable"
+    ]
+    assert negatives["foreign_world"]["status"] == "value_blocked"
+    assert negatives["foreign_world"]["authority_blockers"] == [
+        "joint_simulation_result_wmr_mismatch"
+    ]
+    assert negatives["corrupt_result"]["status"] == "value_blocked"
+    assert negatives["corrupt_result"]["authority_blockers"] == [
+        "joint_simulation_result_integrity_invalid"
+    ]
+    unblocked = {
+        name: observation
+        for name, observation in negatives.items()
+        if observation["status"] != "value_blocked" or observation["value_ref"] is not None
+    }
+    assert not unblocked, (
+        "N8 accepted result inputs that diverge from their typed engine/result identity: "
+        f"{unblocked}"
+    )
 
 
 def test_program_graph_v2_blocker_removal_stays_out_of_eval_safety(

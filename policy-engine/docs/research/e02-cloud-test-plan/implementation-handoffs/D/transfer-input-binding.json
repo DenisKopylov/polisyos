@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "implementation_lane": "D",
+  "bundle_ids": [
+    "TRN-01",
+    "TRN-02"
+  ],
+  "covered_finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "cf5a23f63dd436d8b0a3e12b1a2de74bdc3019ae",
+  "entry_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_sha": "d535ac4698f556b1ba4d96d180190918f4f5a778",
+  "candidate_tree": "4efacc688fa2cba1c3700e488a754fbcabacf371",
+  "supersedes_candidate_validity_claims_in": "transfer-numerical.json",
+  "known_negative_intermediate_sha": "b7730b6323e4b5c13f0fb0816b277bc42c7aeb2f",
+  "source_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+  ],
+  "test_path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.2",
+    "hnswlib": "0.8.0",
+    "node_hook": "22.23.3",
+    "installed_dependencies": "shared read-only; worktree pnpm install with Node22; no hook bypass"
+  },
+  "input": {
+    "kind": "bounded analytic quadratic real FileSystemCAS original benchmarks and native HNSW index",
+    "false_input": "actual nested/flat CAS x=.95; original benchmark metadata and transferred row x=.1; full immutable references and compatibility declarations agree",
+    "false_coordinate": "unchanged actual/original physical x=.1; only history normalized coordinate .95",
+    "unsupported": "unrecognized source-bound encoding is visibly refused",
+    "attainable_domain": "actual candidate, original benchmark, transferred row all agree; raw x1.5 with0..1 bounds, or fractionalx.1 with declared integer0..1, each visibly refused before clipped normalization"
+  },
+  "mechanism": {
+    "candidate_binding": "canonical-decode actual CAS; compare nested params or project explicit flat mutation physical fields exactly",
+    "coordinate_binding": "reconstruct explicit native bounds only if actual native space fingerprint reconciles; normalize actual physical params and compare tuple within encoding absolute tolerance1e-12; independently checks finite actual raw values within explicit interval and integer integrality before any clipping",
+    "reverse_view": "same actual-candidate physical binding before historical BenchmarkEvaluation view"
+  },
+  "checks": [
+    {
+      "target_sha": "d535ac4698f556b1ba4d96d180190918f4f5a778",
+      "result": "PASS",
+      "passed_node_count": 53,
+      "scope": "four focused complete files; real CAS and native HNSW",
+      "log": "transfer-input-binding-checks.txt",
+      "log_sha256": "c63bb95281dec40d1e2d95fb35ee33ae52e8df6ac6824f6b0ea953141b31bb8e"
+    },
+    {
+      "target_sha": "b7730b6323e4b5c13f0fb0816b277bc42c7aeb2f",
+      "result": "FAIL_EXPECTED",
+      "failed_node_count": 4,
+      "method": "git archive immutable source into isolated /tmp, copy current negative probes outside checkout conftest, absolute shared Python, PYTHONPATH archive/src",
+      "log_sha256": "7f6fb6075d0d853971b0138ff33d6d44f45f3de210a1aa3a771b99b2b2d35210",
+      "raw_log": "raw/transfer-input-binding-negative.txt"
+    },
+    {
+      "result": "PASS",
+      "scope": "ruff three changed Python files; git diff --check"
+    }
+  ],
+  "scope_limits": [
+    "Candidate/declaration consistency does not establish truth of institutional source measurements or tenant authorization.",
+    "Only exact reconstructible native input bases are numeric-admissible; unknown encodings refused rather than guessed.",
+    "Configured bridge -> generator -> SearchLoopRunner -> actual receiving GP remains UNRUN pending root combined immutable candidate.",
+    "B133 principal decision and B134 live data_record remain residual; no closure claims.",
+    "No synthetic score is claimed equivalent to real historical benchmark performance or acceleration."
+  ],
+  "next_step": "Root combines lane sources and runs workflow; independent numerical oracle checks exact combined SHA.",
+  "implementation_commits": [
+    "57d0b809a3b28c6780ad91bfb4decf44f454c737",
+    "d535ac4698f556b1ba4d96d180190918f4f5a778"
+  ]
+}

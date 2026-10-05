@@ -7287,6 +7287,98 @@
     "orchestration_repair": "Original reviewer compared the sum of208artifacts+5selection files against manifest committed_evidence_bytes defined by producer as208artifact files only. Recovery verifies208artifact sum,5selection sum and all213sum separately; no source/manifest/hash checks waived. Original reviewer also omitted exactly six producer-written cluster READMEs from CI tracked inventory. Recovery admits only those six exact paths, hashes all eight metadata files including rootREADME/manifest and compares bytes to65; arbitrary extras still fail.",
     "original_native_and_optimized_runs_recovered": true,
     "remaining_custody_checks_reexecuted_read_only": true,
-    "service_failure": "Original foundry reviewer model-at-capacity interrupted orchestration after complete native runs; no completed final review receipt existed."
+    "service_failure": "Original foundry reviewer model-at-capacity interrupted orchestration after complete native runs; no completed final review receipt existed.",
+    "root_final_checks_observed": {
+      "path": "/workspace/e02-F-receipts/index-final386-frozen-checks.json",
+      "bytes": 18165,
+      "sha256": "734a80922a28fd299e91575f484aea875c1c4373257501247d3a42502454300b",
+      "source_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+      "outcomes": [
+        {
+          "name": "delivery_normal",
+          "outcome": "PASS",
+          "exit_code": 0
+        },
+        {
+          "name": "delivery_optimized",
+          "outcome": "PASS",
+          "exit_code": 0
+        },
+        {
+          "name": "results_indices",
+          "outcome": "PASS",
+          "exit_code": 0
+        },
+        {
+          "name": "ruff_check",
+          "outcome": "PASS",
+          "exit_code": 0
+        },
+        {
+          "name": "ruff_format",
+          "outcome": "PASS",
+          "exit_code": 0
+        },
+        {
+          "name": "diff_check",
+          "outcome": "PASS",
+          "exit_code": 0
+        },
+        {
+          "name": "full_docs_gate",
+          "outcome": "FAIL",
+          "exit_code": 1
+        }
+      ],
+      "complete_full_docs_gate": {
+        "name": "full_docs_gate",
+        "command": [
+          "uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-docs-gate",
+          "--repo-root",
+          ".",
+          "--base-ref",
+          "c40d4acae1ce58b597267255026d9356565828fd",
+          "--head-ref",
+          "386f18e3354bd482bd012434de6ac96df3218b28"
+        ],
+        "cwd": "/workspace/e02-F-handoff-index/policy-engine",
+        "target_sha": "386f18e3354bd482bd012434de6ac96df3218b28",
+        "environment": {
+          "observer_python": "3.12.14",
+          "native_python": "3.14.2",
+          "ruff": "0.14.10",
+          "controls": {
+            "PYTHONPATH": "src:.",
+            "UV_PROJECT_ENVIRONMENT": "/workspace/polisyos/policy-engine/.venv",
+            "UV_NO_SYNC": "1"
+          }
+        },
+        "input_closure": "Immutable complete F9 slice and CI-transfer manifest; full17/35ownerTSV and declared Git artifacts; no production data. DocsGate uses full actual base→head paths, no selector/skip/waiver.",
+        "outcome": "FAIL",
+        "exit_code": 1,
+        "wall_s": 4.308681786000307,
+        "stdout": "Docs freshness baseline FAILED:\n- docs freshness exception baseline expired\n- docs freshness violation count changed: expected 0, observed 10\n- docs freshness baseline hash changed: expected a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2, observed 459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be\nDocs drift gate\n- changed files: 231\n- change window: `docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-baseline-census.json`, `docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-residual-authority-map.json`, `docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json`, `docs/research/e02-cloud-test-plan/implementation-handoffs/F/README.md`, and 227 more\n[docs-gate] verify docs freshness baseline\n[docs-gate] $ uv run polisyos-tools validation check-docs-freshness-baseline\nDocs drift gate FAILED:\n- [command_failure] verify docs freshness baseline failed with exit code 1: uv run polisyos-tools validation check-docs-freshness-baseline\n",
+        "stderr": "",
+        "stdout_bytes": 1007,
+        "stdout_sha256": "22e9d96663fb5f1ab0f3c666b172a83330d78f354cec4d0297fd11f82f6a6617",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "strict_docs_build": "UNRUN after first child failure; not PASS",
+      "P41": "NOT CLAIMED"
+    },
+    "previous191_to_final386_delta": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/INDEX.json"
+    ],
+    "new_docs_measured_input_intersections_retained": {
+      "CAU": true,
+      "API": true,
+      "basis": "Complete docs transfer selection and bounded provenance retained unchanged in manifest; original disjointness not extended to current document HEADs."
+    },
+    "scope": "Independent root-index/source/receipt/Git custody review only. Earlier G API baad acceptance preserved; current API0b6, current root delivery and finding closures remain pending_G. No broad/numeric rerun or authority promotion."
   }
 }

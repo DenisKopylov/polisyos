@@ -1,0 +1,7 @@
+{
+  "schema": "policyos.e02.complete_text_log.v1",
+  "original_filename": "foundry-index-final386-graph-recovery-run.txt",
+  "raw_bytes": 623,
+  "raw_sha256": "70efd71072602f3082341dee561cb49297b64ab63d6b965a8fd06c440676b11d",
+  "content": "{\n  \"source_sha\": \"386f18e3354bd482bd012434de6ac96df3218b28\",\n  \"source_tree\": \"d286a2fb4e7cb0dcfdc8585f660bea5457e450b2\",\n  \"outcome\": \"GO\",\n  \"bound_index_refs\": 221,\n  \"CI_total_files\": 213,\n  \"CI_artifact_bytes\": 13433274,\n  \"CI_decoded_original_bytes\": 13223056,\n  \"CI_encodings\": {\n    \"original_JSON\": 127,\n    \"lossless_text_wrapper\": 86\n  },\n  \"source_path_count\": 231,\n  \"native_wall_s\": [\n    2.2869722430004913,\n    2.2216525679996266\n  ],\n  \"negative_controls\": [\n    8,\n    8\n  ],\n  \"slices\": 9,\n  \"bundles\": 17,\n  \"findings\": 35,\n  \"receipt\": \"/workspace/e02-F-receipts/foundry-index-final386-review.json\"\n}\n"
+}

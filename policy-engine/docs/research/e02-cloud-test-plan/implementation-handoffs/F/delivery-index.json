@@ -311,13 +311,13 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.review.json",
-      "bytes": 357207,
-      "sha256": "e694081d9731e3a9dc5932fa21d367e4b64275de2f1b5c465faeef0544ed9cb3"
+      "bytes": 361529,
+      "sha256": "ea7bc73dd12118dc47f561be1d086dfd96e3433225a646e611b7543c1c428dc5"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.review-output.json",
-      "bytes": 44825,
-      "sha256": "00e9630f91c6b251206a8c4cf42c9aa7008d3b45e2040c8683e0342c2b65363f"
+      "bytes": 51486,
+      "sha256": "a7285487646ae5a9ad6a4ee8a731758dceb581921fa7d03794f29d92b24fc1ea"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.earlier-review.json",
@@ -343,6 +343,30 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.protocol-review.json",
       "bytes": 20549,
       "sha256": "dbeaf8dc1d7774c6fb412e8d4f280bcbdfc982e4b627d8d655362e64dda959a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.reviewer-source.json",
+      "sha256": "0405cbcd4fc660e815afe0a296057213ab1335e872e45bb92557bbab6470451a",
+      "bytes": 23539,
+      "encoding": "lossless UTF-8 verification-source/output in JSON content; not production code",
+      "original_sha256": "3b602092f9f687a2d672f945fcf068970dd6a3afc3c6a770cf37289fc388f796",
+      "original_bytes": 23034
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.recovery-source.json",
+      "sha256": "8af07d81e16af58397e8e8a3a977989d84c87629ccb98a843c1fd791e59456e8",
+      "bytes": 26055,
+      "encoding": "lossless UTF-8 verification-source/output in JSON content; not production code",
+      "original_sha256": "e8f5781ac1a6a5d5a1a11ea0e146e258a2bb7ec20879a3775226da83d623606c",
+      "original_bytes": 25521
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/delivery-index.recovery-output.json",
+      "sha256": "bb10367adea21265bf7949a3ae19a3696f219400c9c521f85e7cda65bb93936a",
+      "bytes": 936,
+      "encoding": "lossless UTF-8 verification-source/output in JSON content; not production code",
+      "original_sha256": "70efd71072602f3082341dee561cb49297b64ab63d6b965a8fd06c440676b11d",
+      "original_bytes": 623
     }
   ],
   "baseline_cells": [
@@ -2878,7 +2902,8 @@
   "development_observations": [
     "Earlier3d deliveryverifier missed independentcompanionhash coverage; independentremovalcontrol exposed it. eeecc implementation added fullindexcompanionbinding+eighthnegativecontrol; earlier audit remains immutable.",
     "Final65 bound newCAU/API substantive docs and fullCIpack; later191 changed onlyAPIreceiptidentity after canonicaloutcome normalization. Final386 removes stale prose head only; allpeer source/evidence unchanged.",
-    "Separate handoff commit follows all five frozenimplementationcommits; receipt never names ownfuturecommitSHA."
+    "Separate handoff commit follows all five frozenimplementationcommits; receipt never names ownfuturecommitSHA.",
+    "Final reviewer added complete rootcheck readback and scratch recovery trace after initialGO receipt capture; append-only handoff companions bind final immutable EA7review. Frozenimplementation/tree andcheck outcomes unchanged."
   ],
   "remote_publication_protocol": "Ordinary topicpush and exactremoteSHA/JSONbyte readback; create attached draftPR for G. Original workcheckout and origin/main remain untouched."
 }

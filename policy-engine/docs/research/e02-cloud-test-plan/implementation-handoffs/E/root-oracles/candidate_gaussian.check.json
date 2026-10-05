@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/root-oracles/candidate_gaussian_oracles.py",
+    "/workspace/e02-E-cal-uq/policy-engine"
+  ],
+  "source_sha": "f07058a3eb782463eedce65a6d0d54c332a46efe",
+  "source_tree": "4f63193f8c25cd36a88c5bf14f60ac1f11578f51",
+  "exit_code": 0,
+  "wall_seconds": 18.013996587999827,
+  "peak_child_rss_kib": 742284,
+  "scope": "independent analytic fixture on genuine JAX CPU; not production input/served authority"
+}

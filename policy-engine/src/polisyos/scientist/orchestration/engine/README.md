@@ -35,6 +35,38 @@ is not admitted to the trace as a successful cached attempt.
 - Depends on: core artifacts, observability, tenant/security helpers, and node contracts consumed by workflow execution
 - Depended on by: [`../api.py`](../api.py), [`../workflows/README.md`](../workflows/README.md), [`../nodes/README.md`](../nodes/README.md), and the Scientist engine test surface in [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
+## Retry timeout lifecycle
+
+[`retry.py`](retry.py) runs timed synchronous nodes in a fork worker when that
+launch method is available. On Linux, a disposable supervisor becomes a
+process-local child subreaper, owns the compute child, and kills and reaps its
+descendants before the caller accepts a result or finishes cancellation. The
+caller's subreaper flag is unchanged. Cleanup follows the kernel parent
+relationship, including descendants that started another process group.
+
+Computation and result delivery have separate bounds. The caller drains the
+result queue while the worker sends it, so a result larger than the pipe buffer
+does not wait for a join that depends on delivery. Startup, serialization and
+supervisor cleanup failures cannot publish a successful outcome.
+
+Worker errors carry their original retry category and explicit error code
+alongside the diagnostic message. The parent uses those fields rather than
+interpreting message text or reconstructing arbitrary exception classes.
+Permanent and validation failures therefore retain their retry count across
+the fork boundary, and custom codes still obey `retry_on`. A provider's own
+`TimeoutError` is a transient node error; expiration of the wrapper's wait
+raises `NodeTimeoutError`. Thread and async wrappers decide completion before
+reading the result so these two cases remain distinct.
+
+This contract is process ownership rather than a sandbox for hostile node
+code. It does not undo completed filesystem or remote effects. Linux requires
+`prctl`, fork and readable `/proc` process metadata. Other fork platforms retain
+the existing process-group cleanup path; their descendant reaping needs a
+platform-specific acceptance check. Python warns when fork starts in a
+multithreaded caller. When fork is unavailable, the shared-thread fallback and
+genuine async nodes use revocable attempt authority and cooperative
+cancellation, which cannot forcibly terminate arbitrary external work.
+
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).
@@ -59,4 +91,4 @@ uv run pytest tests/unit/scientist/orchestration/engine/test_condition.py tests/
 
 ## Last Updated
 
-- Last updated: 2026-04-17
+- Last updated: 2026-10-05

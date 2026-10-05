@@ -1,0 +1,631 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "bundle_ids": [
+    "RUN-01",
+    "RUN-02",
+    "RUN-03"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P008",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "reported_state": "FAILED",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt:125",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F01/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F03-P083",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt:213",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F03/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F05-P104",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt:514",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F05/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F06-P021",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt:205",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F06/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F09-P017",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "reported_state": "FAILED",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt:133",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F09/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F09-P084",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt:200",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F09/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F10-P012",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt:132",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F10/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F10-P080",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt:200",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F10/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F15-P012",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "reported_state": "FAILED",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt:167",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F15/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B24",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F15-P096",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt:251",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F15/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B14",
+        "B40",
+        "B69",
+        "B95",
+        "LA-057"
+      ]
+    },
+    {
+      "id": "F03-P092",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt:222",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F03/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B39",
+        "B96"
+      ]
+    },
+    {
+      "id": "F04-P105",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt:315",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F04/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B39",
+        "B96"
+      ]
+    },
+    {
+      "id": "F06-P122",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt:306",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F06/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B39",
+        "B96"
+      ]
+    },
+    {
+      "id": "F07-P098",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt:104",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F07/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B39",
+        "B96"
+      ]
+    },
+    {
+      "id": "F09-P094",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt:210",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F09/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B39",
+        "B96"
+      ]
+    },
+    {
+      "id": "F11-P098",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt:227",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F11/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B39",
+        "B96"
+      ]
+    },
+    {
+      "id": "F14-P107",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt:457",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F14/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B39",
+        "B96"
+      ]
+    },
+    {
+      "id": "F14-P123",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "reported_state": "PASS",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt:473",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F14/cut",
+      "evidence_grade": "source_reported_baseline_only; raw archives not transferred",
+      "finding_ids": [
+        "B39",
+        "B96"
+      ]
+    }
+  ],
+  "finding_dispositions": [
+    {
+      "finding_id": "B14",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "bounded_process_late_write_verified_with_served_worker_residual",
+      "scope_and_limitations": "Linux owned child/grandchild and escaped group are terminated/reaped, actual delayed filesystem write cannot occur; context-owned late-write tests pass. Arbitrary noncooperative thread/coroutine/served worker cancellation and completed external effects remain outside this bounded process contract.",
+      "next_owner": "B runtime worker owner; A served lifecycle consumer",
+      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"late or timeout\"",
+      "replay_target_sha": "ba79d141a3937541b3164db255ceda89883575ec"
+    },
+    {
+      "finding_id": "B24",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "bounded_linux_transport_and_descendant_cleanup_verified",
+      "scope_and_limitations": "Actual small/1MiB sync+async fork transport, compute cutoff, send/serialization/start/setup faults, descendants/grandchildren and cancellation pass. Same original descendant input fails when supervisor ownership is removed. macOS/native non-Linux reaping remains local G; caller multithread-fork warning is explicit.",
+      "next_owner": "G independent Linux acceptance and local macOS exact candidate",
+      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"fork_transport or serialization_failure or descendant or worker_send\"",
+      "replay_target_sha": "ba79d141a3937541b3164db255ceda89883575ec"
+    },
+    {
+      "finding_id": "B39",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "fork_ipc_classification_gap_reproduced_unfixed",
+      "scope_and_limitations": "Untimed return/raise controls pass, but real fork IPC stringifies exceptions and loses fatal/category/code semantics: raised ValueError executes3 actual attempts whereas returned invalid-state executes1 with the same retry policy. Structured semantic IPC followup is required; no closure.",
+      "next_owner": "B RUN canonical retry IPC owner",
+      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "replay_target_sha": "ba79d141a3937541b3164db255ceda89883575ec"
+    },
+    {
+      "finding_id": "B40",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "mechanism_gap_unfixed",
+      "scope_and_limitations": "Untimed synchronous node async delegate still resolves helper default while direct sync has no helper deadline. Total nested queue/init/attempt deadline and arbitrary late writes not closed by pool reservation.",
+      "next_owner": "B deadline owner with A top-level producer/served consumer",
+      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/common/test_async_tools.py",
+      "replay_target_sha": "ba79d141a3937541b3164db255ceda89883575ec"
+    },
+    {
+      "finding_id": "B69",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "bounded_property_verified_pending_independent_admission",
+      "scope_and_limitations": "At actual pool bound4 nested bridge work returns42 or explicit RuntimeError before unsupported submission; all coroutine finally paths complete and later direct work executes. Property removal with same names/types/inputs makes discriminator fail. Capacity-free nested consumers are preserved. Arbitrary user callbacks/noncooperative external work are not a general deadlock-free runtime proof.",
+      "next_owner": "G independent acceptance; C consumer if unsupported nested route needs async continuation",
+      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py::test_nested_shared_executor_work_is_rejected_before_pool_saturation tests/unit/common/test_async_tools.py::test_cooperative_timeout_releases_shared_coroutine_worker tests/unit/fabric/data_plane/test_orchestrator.py",
+      "replay_target_sha": "ba79d141a3937541b3164db255ceda89883575ec"
+    },
+    {
+      "finding_id": "B95",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "bounded_concurrent_context_propagation_verified",
+      "scope_and_limitations": "Two distinct concurrent requests preserve actual ContextVar request-A/request-B through direct sync, forced real thread fallback, Linux fork supervisor and genuine async nodes; outer context restores and original state remains unchanged. This proves propagation, not authorization/tenant authority; non-Linux launch remains local G.",
+      "next_owner": "G independent bounded propagation acceptance; local G non-Linux process",
+      "replay_command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py::test_concurrent_request_contexts_match_across_retry_routes",
+      "replay_target_sha": "ba79d141a3937541b3164db255ceda89883575ec"
+    },
+    {
+      "finding_id": "B96",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "existing_bounded_retry_baseline_verified",
+      "scope_and_limitations": "Existing mutation-to-returned-fail fresh baseline and real trace spend controls pass; raised mutation, cancellation, declared checkpoint continuation and full workflow external effects remain bounded.",
+      "next_owner": "G regression/admission; B continuation-contract owner",
+      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "replay_target_sha": "ba79d141a3937541b3164db255ceda89883575ec"
+    },
+    {
+      "finding_id": "LA-057",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "bounded_cleanup_verified_pending_independent_admission",
+      "scope_and_limitations": "Only stale module T/TypeVar removed. All four local generic identities and real helper bodies preserved; complete tracked Python/config caller census retained in run-typevar receipt. External opaque dynamic callers and packaging not established.",
+      "next_owner": "G typecheck/package scope decision",
+      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py::test_function_type_parameters_resolve_without_module_typevar",
+      "replay_target_sha": "ba79d141a3937541b3164db255ceda89883575ec"
+    }
+  ],
+  "slice": "run-owned-process",
+  "closure_ids": [],
+  "slice_base_sha": "6e9be8959d7ff26efa9f2b4db81d308a506d04db",
+  "implementation_commits": [
+    "ba79d141a3937541b3164db255ceda89883575ec"
+  ],
+  "candidate_tree_sha": "82b341d8545c83fb658d211a7690ae9868b169f2",
+  "branch": "codex/e02-B-run",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-owned-process-cleanup.toml",
+    "policy-engine/src/polisyos/common/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py"
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/remediation/test_run_03.py",
+        "tests/unit/scientist/orchestration/engine/test_retry_integration.py"
+      ],
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "ba79d141a3937541b3164db255ceda89883575ec",
+      "target_tree": "82b341d8545c83fb658d211a7690ae9868b169f2",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "real Linux fork/subprocess descendants and isolated pytest tmp_path files; no ports, DB or external services"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 24.719754526000088,
+      "max_rss_kib": 571876,
+      "output": "........................................................................ [ 78%]\n....................                                                     [100%]\n=============================== warnings summary ===============================\ntests/unit/scientist/orchestration/engine/test_retry.py: 22 warnings\ntests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning\n  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=20324) is multi-threaded, use of fork() may lead to deadlocks in the child.\n    self.pid = os.fork()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n92 passed, 23 warnings in 19.94s\n"
+    },
+    {
+      "name": "bridge",
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -c 'import concurrent.futures, pytest, sys\nfrom polisyos.common import async_tools\nasync_tools._SharedExecutor.submit = concurrent.futures.ThreadPoolExecutor.submit\nsys.exit(pytest.main(['\"'\"'-o'\"'\"', '\"'\"'addopts='\"'\"', '\"'\"'-q'\"'\"', '\"'\"'tests/unit/common/test_async_tools.py::test_nested_shared_executor_work_is_rejected_before_pool_saturation'\"'\"']))\n'",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "import concurrent.futures, pytest, sys\nfrom polisyos.common import async_tools\nasync_tools._SharedExecutor.submit = concurrent.futures.ThreadPoolExecutor.submit\nsys.exit(pytest.main(['-o', 'addopts=', '-q', 'tests/unit/common/test_async_tools.py::test_nested_shared_executor_work_is_rejected_before_pool_saturation']))\n"
+      ],
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "ba79d141a3937541b3164db255ceda89883575ec",
+      "mutation": "async_tools._SharedExecutor.submit = concurrent.futures.ThreadPoolExecutor.submit",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL for property-removal negative control",
+      "exit_code": 1,
+      "wall_s": 1.26711479100004,
+      "max_rss_kib": 86568,
+      "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____ test_nested_shared_executor_work_is_rejected_before_pool_saturation ______\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f013ca6a8b0>\n\n    def test_nested_shared_executor_work_is_rejected_before_pool_saturation(monkeypatch) -> None:\n        \"\"\"A pool worker cannot enqueue work that needs the same occupied pool.\"\"\"\n        from polisyos.common import async_tools\n    \n        monkeypatch.setattr(async_tools, \"_RUN_CORO_SYNC_EXECUTOR\", None)\n        monkeypatch.setattr(async_tools.os, \"cpu_count\", lambda: 4)\n        barrier = threading.Barrier(4)\n        started: list[int] = []\n        finished: list[int] = []\n    \n        async def _inner(index: int) -> int:\n            barrier.wait(timeout=3.0)\n            try:\n                return await run_blocking_async(\n                    lambda: started.append(index) or 42,\n                    timeout_seconds=0.1,\n                )\n            finally:\n                finished.append(index)\n    \n        def _outer(index: int) -> int | Exception:\n            async def _running_loop() -> int:\n                return run_coro_sync(_inner(index), timeout_seconds=0.5)\n    \n            try:\n                return asyncio.run(_running_loop())\n            except Exception as exc:\n                return exc\n    \n        executor = get_shared_executor()\n        try:\n            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as callers:\n                results = list(callers.map(_outer, range(4)))\n>           assert all(\n                result == 42\n                or (\n                    type(result) is RuntimeError\n                    and \"shared executor does not support reentrant submission\" in str(result)\n                )\n                for result in results\n            )\nE           assert False\nE            +  where False = all(<generator object test_nested_shared_executor_work_is_rejected_before_pool_saturation.<locals>.<genexpr> at 0x7f013cb074c0>)\n\ntests/unit/common/test_async_tools.py:170: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/common/test_async_tools.py::test_nested_shared_executor_work_is_rejected_before_pool_saturation\n1 failed in 0.16s\n",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "real Linux fork/subprocess descendants and isolated pytest tmp_path files; no ports, DB or external services"
+      }
+    },
+    {
+      "name": "supervisor",
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -c 'import pytest, sys\nfrom polisyos.scientist.orchestration.engine import retry\nretry._node_execute_supervisor = retry._node_execute_worker\nsys.exit(pytest.main(['\"'\"'-o'\"'\"', '\"'\"'addopts='\"'\"', '\"'\"'-q'\"'\"', '\"'\"'tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant'\"'\"']))\n'",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "import pytest, sys\nfrom polisyos.scientist.orchestration.engine import retry\nretry._node_execute_supervisor = retry._node_execute_worker\nsys.exit(pytest.main(['-o', 'addopts=', '-q', 'tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant']))\n"
+      ],
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "ba79d141a3937541b3164db255ceda89883575ec",
+      "mutation": "retry._node_execute_supervisor = retry._node_execute_worker",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL for property-removal negative control",
+      "exit_code": 1,
+      "wall_s": 11.02680708700018,
+      "max_rss_kib": 113156,
+      "output": "FF                                                                       [100%]\n=================================== FAILURES ===================================\n______________ test_timeout_cleans_owned_process_descendant[sync] ______________\n\ntmp_path = PosixPath('/tmp/pytest-of-agent/pytest-75/test_timeout_cleans_owned_proc0')\nctx = <MagicMock id='140557714557984'>\nstate = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)\nmode = 'sync'\n\n    @pytest.mark.skipif(\n        \"fork\" not in mp.get_all_start_methods(), reason=\"actual fork worker unavailable\"\n    )\n    @pytest.mark.parametrize(\"mode\", [\"sync\", \"async\"])\n    def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:\n        \"\"\"Timeout cleanup owns the worker group and does not leave descendants.\"\"\"\n        pid_path = tmp_path / \"descendant-pid\"\n        node = _DescendantProcessNode(pid_path)\n        descendant_pid: int | None = None\n        kwargs = {\n            \"retry_policy\": RetryPolicy(),\n            \"timeout_s\": 0.5,\n            \"alias\": \"descendant-cleanup\",\n        }\n    \n        try:\n            with pytest.raises(NodeTimeoutError):\n                _execute_retry_mode(mode, node, ctx, state, **kwargs)\n            assert pid_path.exists()\n            descendant_pid = int(pid_path.read_text())\n>           with pytest.raises(ProcessLookupError):\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           Failed: DID NOT RAISE <class 'ProcessLookupError'>\n\ntests/unit/scientist/orchestration/engine/test_retry.py:1174: Failed\n_____________ test_timeout_cleans_owned_process_descendant[async] ______________\n\ntmp_path = PosixPath('/tmp/pytest-of-agent/pytest-75/test_timeout_cleans_owned_proc1')\nctx = <MagicMock id='140557387943616'>\nstate = ExperimentState(schema_version='1.3', run_id='test-run', inputs={}, artifacts_index={}, reports_index={}, params={}, b...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)\nmode = 'async'\n\n    @pytest.mark.skipif(\n        \"fork\" not in mp.get_all_start_methods(), reason=\"actual fork worker unavailable\"\n    )\n    @pytest.mark.parametrize(\"mode\", [\"sync\", \"async\"])\n    def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:\n        \"\"\"Timeout cleanup owns the worker group and does not leave descendants.\"\"\"\n        pid_path = tmp_path / \"descendant-pid\"\n        node = _DescendantProcessNode(pid_path)\n        descendant_pid: int | None = None\n        kwargs = {\n            \"retry_policy\": RetryPolicy(),\n            \"timeout_s\": 0.5,\n            \"alias\": \"descendant-cleanup\",\n        }\n    \n        try:\n            with pytest.raises(NodeTimeoutError):\n                _execute_retry_mode(mode, node, ctx, state, **kwargs)\n            assert pid_path.exists()\n            descendant_pid = int(pid_path.read_text())\n>           with pytest.raises(ProcessLookupError):\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           Failed: DID NOT RAISE <class 'ProcessLookupError'>\n\ntests/unit/scientist/orchestration/engine/test_retry.py:1174: Failed\n=========================== short test summary info ============================\nFAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant[sync]\nFAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant[async]\n2 failed in 9.46s\n",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "real Linux fork/subprocess descendants and isolated pytest tmp_path files; no ports, DB or external services"
+      }
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base 6e9be8959d7ff26efa9f2b4db81d308a506d04db --receipt _build/e02-B-run/process-production-invocation.json",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "ba79d141a3937541b3164db255ceda89883575ec",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required"
+      },
+      "input_closure": "full tracked source at exact implementation SHA; disclosed static receiver/callback/deferred execution boundary",
+      "outcome": "ERROR",
+      "source_status": "UNRESOLVED",
+      "exit_code": 3,
+      "output": "UNRESOLVED coverage partial; regressions []; new unresolved_by_construction polisyos.scientist.orchestration.engine.retry.execute_with_retry_sync; runtime invocation not established by static instrument",
+      "raw_ref": "policy-engine/_build/e02-B-run/process-production-invocation.json@sha256:329f0693b8fe058db17edcbc9ca315a77a19369d989f0221cd7cef23260c61cb",
+      "raw_transfer": "ignored raw only; 170866889 bytes; independent full source scanner rerun required"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/scientist/orchestration/engine/retry.py tests/unit/scientist/orchestration/engine/test_retry.py && /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/scientist/orchestration/engine/retry.py tests/unit/scientist/orchestration/engine/test_retry.py",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "ba79d141a3937541b3164db255ceda89883575ec",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required"
+      },
+      "input_closure": "two changed Python files + pyproject.toml",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "All checks passed!\n2 files already formatted\n"
+    }
+  ],
+  "property": {
+    "statement": "A disposable Linux subreaper owns the actual compute child and reaps all adopted descendants before worker exit; successful delivery cannot bypass failed cleanup. Parent subreaper flags remain unchanged.",
+    "runtime_path": [
+      "canonical sync/async retry wrapper",
+      "actual multiprocessing fork supervisor",
+      "Linux process-local prctl child subreaper",
+      "actual fork compute child and subprocess descendants/grandchild",
+      "result Queue preflight/send/drain and real waitpid reaping",
+      "verified parent outcomes, child PID absence and delayed filesystem write refusal"
+    ],
+    "distinguishing_input": "Original native sync/async descendant input unchanged. It failed on slice-base with PID1-owned zombie descendants; candidate passes. Replacing only supervisor target with existing worker target in isolated Python child makes both identical tests fail again. No process name/PID filter or test-marker changes.",
+    "negative_controls": [
+      "SIGTERM-resistant child plus grandchild, in original or escaped process group, must both be absent by kernel kill(pid,0) and cannot create the actual delayed file.",
+      "Actual async cancellation completes only after owned descendant is absent.",
+      "Injected process.start and supervisor setup faults preserve refusal and cannot publish success.",
+      "Small and1MiB outcomes, output-aware complete outcome, computation cutoff, serialization/send faults and concurrent request context routes remain exercised.",
+      "Caller prctl GET flag unchanged before/after real worker execution."
+    ],
+    "proxy_divergence": "A killed descendant that still has a real zombie PID is not reaped. Candidate checks actual PID absence and a real delayed filesystem write; removing only the supervisor makes unchanged original descendant tests fail. Ordinary process exit or a marker count alone cannot establish owned cleanup."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded Linux owned-process property verified; finding closure remains with G",
+  "pattern_pass": [
+    "P29 unchanged behavioral runtime input plus property removal",
+    "P31 canonical retry owner used, no alternate launcher facade",
+    "P38 killed zombie PID proxy distinguished from actually reaped descendant",
+    "P40 scoped supervisor absence established; owned capability supplied without root-global flags",
+    "P41 no inherited-red masking; original three cleanup failures now pass"
+  ],
+  "limitations_and_next_owner": [
+    "G: independent exact Linux candidate acceptance and macOS process-group/reaping candidate run.",
+    "A: full served worker and default/deadline propagation requires generation_cycle.py/run_lifecycle.py current-write contracts; neither file changed here.",
+    "C: streaming.py remains C-only; async bridge caller adaptation if required.",
+    "Thread and coroutine cancellation is cooperative; completed filesystem/remote effects are not rolled back. Linux requires readable proc/prctl/fork, is process ownership rather than hostile-code confinement, and Python multithread-fork deprecation remains visible.",
+    "B39 fork exception classification gap was reproduced on this process candidate: returned invalid-state1 attempt versus raised ValueError3 actual file-recorded attempts; structured IPC followup is a distinct slice.",
+    "No production dataset required for generic process/context fixtures."
+  ],
+  "release_companions": {
+    "fragment": "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-owned-process-cleanup.toml",
+    "owner_contracts": [
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md"
+    ],
+    "validation": "TOML parse, all curated fields, allowed internal change class and all referenced evidence/doc paths passed"
+  },
+  "formatting_companion": "Ruff normalized preexisting line wraps within retry.py and PT012 multiple statements within the touched native tests; no sibling owner edits.",
+  "independent_review_note": "Root independently ran common+native retry+RUN03 at exact ba79d141a:85 PASS,11.70s,22 visible multithread-fork warnings; root owns stdout/JUnit receipt separately. Writer full92 includes7 retry integration tests and remains a separate check."
+}

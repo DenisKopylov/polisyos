@@ -1,0 +1,171 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "run-typevar",
+  "closure_ids": [],
+  "bundle_ids": [
+    "RUN-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "3ff71ee11ce8ae19ef284adb0ddd0fe2778ba470",
+    "418b1f061459e40976d2666b5b62dce21d8c4833"
+  ],
+  "candidate_tree_sha": "17971a1fa26f988983c671496ae116fdecf065a2",
+  "branch": "codex/e02-B-run",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/common/async_tools.py",
+    "policy-engine/tests/unit/common/test_async_tools.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F03-P083",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "received/F03.txt:213",
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred",
+      "source_ref": "research_main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F03/cut",
+      "raw_receipt_transfer": "missing; source-reported environment/input custody only"
+    },
+    {
+      "id": "F05-P104",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "received/F05.txt:514",
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred",
+      "source_ref": "e02_execution_base",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F05/cut",
+      "raw_receipt_transfer": "missing; source-reported environment/input custody only"
+    },
+    {
+      "id": "F09-P084",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "received/F09.txt:200",
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred",
+      "source_ref": "e02_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F09/cut",
+      "raw_receipt_transfer": "missing; source-reported environment/input custody only"
+    },
+    {
+      "id": "F10-P080",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "received/F10.txt:200",
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred",
+      "source_ref": "main",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F10/cut",
+      "raw_receipt_transfer": "missing; source-reported environment/input custody only"
+    },
+    {
+      "id": "F15-P096",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "reported_state": "PASS",
+      "source_locator": "received/F15.txt:251",
+      "evidence_grade": "source_reported_baseline_only_raw_archives_not_transferred",
+      "source_ref": "integration_head",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt#Metadata/environment",
+      "input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/full-run/allocation.json#jobs/F15/cut",
+      "raw_receipt_transfer": "missing; source-reported environment/input custody only"
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/common/test_async_tools.py",
+      "target_sha": "418b1f061459e40976d2666b5b62dce21d8c4833",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        }
+      },
+      "input_closure": {
+        "source": "tracked module and test at 418b1f061459e40976d2666b5b62dce21d8c4833",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "no DB/ports; no production data; shared venv at recorded interpreter path"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 2.1191012799999953,
+      "max_rss_kib": 86472,
+      "output": "..........                                                               [100%]\n",
+      "cwd": "/workspace/e02-B-run/policy-engine"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/common/async_tools.py tests/unit/common/test_async_tools.py && /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/common/async_tools.py tests/unit/common/test_async_tools.py",
+      "target_sha": "418b1f061459e40976d2666b5b62dce21d8c4833",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required"
+      },
+      "input_closure": "two changed Python files and pyproject.toml at candidate",
+      "outcome": "PASS",
+      "output": "All checks passed!\n2 files already formatted\n",
+      "cwd": "/workspace/e02-B-run/policy-engine"
+    }
+  ],
+  "property": {
+    "statement": "The four generic helpers resolve distinct function-local type parameters; obsolete module TypeVar/T are removed without changing execution bodies.",
+    "runtime_path": [
+      "common.async_tools four generic helpers",
+      "actual direct/inside-running-loop helper calls",
+      "ContextVar and blocking executor consumers"
+    ],
+    "proxy_divergence": "A module T name can exist without participating in any resolved helper annotation; get_type_hints with function __type_params__ establishes the actual type identity.",
+    "negative_controls": [
+      "The new test fails at assert not hasattr(async_tools, T) before deletion while all four resolved annotations already use independent function identities.",
+      "Existing TimeoutError/inner-timeout, running-loop, context, event-loop-responsive and soak controls remain green."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "LA-057 bounded tracked-repository cleanup verified; finding remains partial pending G admission and scope decision",
+  "census": {
+    "party": "B RUN writer",
+    "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "actual_input_operations": "git ls-files then ast.parse every tracked .py; text-read every tracked .toml/.yml/.yaml",
+    "python_files": 6426,
+    "config_files_toml_yml_yaml": 413,
+    "direct_import_sites": 39,
+    "suspects": [],
+    "parse_errors": [],
+    "config_mentions": [
+      ".github/workflows/core-runtime-release-gate.yml",
+      "policy-engine/architecture/packages/layout.toml",
+      "policy-engine/release/core-runtime-closeout.ledger.toml"
+    ],
+    "unresolved_by_construction": [
+      "untracked/external callers",
+      "runtime-built module/attribute strings and opaque dynamic aliases"
+    ]
+  },
+  "limitations_and_next_owner": [
+    "G: reconcile bounded tracked-repository caller census and Python packaging/typecheck before LA-057 closure; opaque external dynamic consumers not established.",
+    "B RUN: B14/B24/B39/B40/B69/B95/B96 receive separate runtime dispositions; this cleanup does not repair their properties."
+  ]
+}

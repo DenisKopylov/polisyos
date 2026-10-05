@@ -1,0 +1,128 @@
+bundle_id	unit	initial_writer_family	title
+ACQ-01	A	A-W01	N7: типизированное требование → acquisition → re-entry
+API-01	F	F-W01	Причинные фасады: explicit surface вместо отражающих globals
+BER-01	C	C-W01	BERL: schema profile и действительная identity объяснителя
+BKT-01	E	E-W01	Фактический historical view, тип прогноза и реплики
+BKT-02	E	E-W01	Полнота сравнения, nominal coverage и micro/macro
+BKT-03	E	E-W01	Описательное смещение и честный статистический backend
+BKT-04	E	E-W02	Только выбранные CV-разбиения и разрешённая bootstrap-статистика
+CAL-01	E	E-W03	Наблюдения, календарная ось и заполнение без фиктивной опоры
+CAL-02	E	E-W03	Один effective loss: оси, два уровня весов и masked scale
+CAL-03	E	E-W03	Несколько стартов: span lifecycle и пригодность выбора
+CAL-04	E	E-W03	Последний итерат, единый финальный forward и Hessian reuse
+CAL-05	E	E-W04	Неактивный механизм не вычисляется как активный
+CAL-06	E	E-W03	Tied-параметры и неизменный масштаб условного закона
+CAN-01	C	C-W02	Strict canon: один primitive, явные Core/IR профили
+CAS-01	B	B-W01	First-writer, честная ref и bounded lock ownership
+CAS-02	B	B-W02	Сначала проверенный transfer, затем публикация inventory
+CAS-03	B	B-W03	Одна проверка bytes и bounded batch verification
+CAU-01	F	F-W02	Standard DiD: допустимый дизайн, covariance и уровни CI
+CAU-02	F	F-W02	Staggered DiD: единицы, H0 и anticipation
+CAU-03	F	F-W02	RDD: честная RBC capability и линейная память WLS
+CAU-04	F	F-W02	DoWhy: реальный estimand и point-only результат
+CAU-05	F	F-W02	DiD: dedicated planning, old-slot replay и retirement umbrella
+CLI-01	C	C-W03	Runtime client: package-owned генерация и снятие raw committed surface
+CMP-01	B	B-W04	Импорт, effective DAG и единый payload исполнителей
+CMP-02	B	B-W04	Однозначные slots и ordering по occurrence
+CMP-03	B	B-W04	Полное и семантически одинаковое ручное/автоматическое связывание
+CTL-01	D	D-W01	Search run-state: исправление fresh/empty и извлечение владельца состояния
+CTL-02	D	D-W01	Содержательные даты и воспроизводимый RNG/checkpoint
+CTL-03	D	D-W01	Search transition: стоимость, счётчики и typed eligibility
+CYC-01	A	A-W01	Штатный вход и связанные контексты N4/N5
+CYC-02	A	A-W01	Читаемый численный результат и положительный условный N8
+CYC-03	A	A-W01	Идентичность содержательной второй итерации
+CYC-04	A	A-W01	Пригодные альтернативы и исследовательский бюджет
+CYC-05	A	A-W01	Правдивые лимиты, завершение и структурная проверка
+DDM-01	E	E-W05	DDM: один event/budget owner и lazy parent facade
+DDM-02	E	E-W05	DDM: актуальное основание и единый gate с R2 override
+DFI-01	C	C-W04	Core sources: самостоятельные writer/validator/loader dependencies
+DFI-02	C	C-W04	Core sources: API cutover без обратной синхронизации globals
+DFI-03	C	C-W04	Batch resume: input basis и обязательный output inventory
+DFK-01	C	C-W05	Точные остатки Foundry/Data Forge schemas без удаления владельцев
+DFK-02	C	C-W06	Source catalog: одно определение и единая seed-selection policy
+DOE-01	E	E-W06	Ограниченная генерация и только объявленные раунды
+DOE-02	E	E-W06	Один дизайн распределений и локальные RNG
+DOE-03	E	E-W06	Целые блоки, failure-policy, PCA и шкала Morris
+DUR-01	B	B-W05	Аварийно-устойчивый бюджетный snapshot
+DUR-02	B	B-W06	Поколение worker и безопасный backend handover
+ECO-01	F	F-W03	Два economic профиля и предметный baseline objective
+EMB-01	C	C-W04	Academic/Catalog: общий encode/index primitive, разные text profiles
+EMB-02	C	C-W04	Индексное поколение: NPZ/HNSW/basis публикуются согласованно
+EMB-03	C	C-W04	Legal embeddings: content-bound incremental и честный старый backend API
+EMP-01	A	A-W01	Область эмпирических данных, ValueOuterSet и selection diagram
+EXE-01	B	B-W07	Допуск cache read, неблокирующий I/O и fail-fast
+EXE-02	B	B-W07	Готовность зависимостей вместо лишнего tier-ожидания
+FED-01	C	C-W07	Grain, cell lineage, внутренние имена и CONSENSUS
+FED-02	C	C-W07	Устойчивый bounded audit, typed-empty и один indexing
+FIT-01	F	F-W04	Nuisance fit-core, актуальная диагностика и ограниченные folds
+FRC-01	E	E-W07	S10: реальные времена и запрет выдуманного calibration pass
+FRC-02	E	E-W07	S10: один действительный calibration producer и связанный forecast
+FRY-01	F	F-W05	Foundry compile/catalog: randomization, families и прямой IR layout
+FRY-03	F	F-W03	Fiscal/labor: эквивалентный перенос живых PatchMap kernels
+FUN-01	D	D-W02	Версионный ticket и одинаковое full/split продолжение
+FUN-02	D	D-W02	Изоляция reduced-config и правдивый результат воронки
+FUN-03	D	D-W02	Текущее знание, calibration routing и pre-commit ограничение
+GRF-01	F	F-W06	Правильные static ADMG m-separation и perfect-do
+GRF-02	F	F-W06	Неизменяемый граф, mixed-edge export и версии кэша
+GRF-03	F	F-W06	Известные направления и явная временная/частичная семантика
+HYG-02	C	C-W08	Evidence/governance/factlog: точные адресные retirement
+HYG-04	C	C-W09	Bootstrap/benchmark wrappers и frontend redirect: конечная миграция
+ING-01	C	C-W10	Инкрементальный запрос, committed cursor и replay
+ING-02	C	C-W10	Непрерывное окно, позиция и полная lineage
+ING-03	C	C-W10	Ограниченный stream-state без смены выборки
+JIT-01	B	B-W08	Правильный warm kernel, single-flight и дешёвая подготовка
+LEX-01	F	F-W07	Lex: norm/compliance comparison отдельно от impact-topic эвристики
+LLM-01	B	B-W09	Корректная обёртка, необязательная телеметрия и цена reuse
+LLM-02	B	B-W09	Разрешённый immutable reuse и single-flight
+MIG-01	C	C-W11	Один migration CLI: делегирование и явная Trinity validation
+MIG-02	C	C-W11	RunManifest: сохраняющее identity преобразование paths
+MIG-04	C	C-W11	DatasetManifest: converter у schema owner, явная registration
+MIG-05	C	C-W12	Common/IR: общая линейная механика, разные migration profiles
+NET-01	B	B-W10	Владение соединением от acquire до cleanup
+NET-02	B	B-W11	Редкий rate, поколения circuit и невыбрасываемая защита
+OBS-01	C	C-W13	Календарные observation helpers: перенос и корректные периоды
+OBS-02	C	C-W13	Observation reader: непрерывность после partial yield
+OPT-01	D	D-W01	Метрика, полная координата и строгий Pareto
+OPT-02	D	D-W01	Настоящий SearchSpace и координаты фактического исполнения
+OPT-03	D	D-W01	Рабочий warm-start и сохранённое GP-состояние
+OPT-04	D	D-W01	Привязанный champion и compare-and-publish
+PCL-01	E	E-W08	Предиктивная калибровка: знаменатель, receipt и canonical tests
+PLG-01	C	C-W14	DomainPlugin: общая discovery-механика без смены ABI
+PLG-02	C	C-W15	PolisySimulator: честный rollout result вместо псевдообучения
+PLG-03	C	C-W15	Один DomainPlugin → существующий trainer: реальный learning bridge
+REP-01	A	A-W02	Runtime replay: прямой Scientist owner без лишнего compatibility hop
+REQ-01	A	A-W03	DataRequirement: явный контекст и ограниченная private-очистка
+RES-01	B	B-W07	Повторный resume, достаточный state и дешёвый индекс
+RES-02	B	B-W07	Единый завершённый frontier и атомарный tier checkpoint
+RES-03	B	B-W04	Сохранение частичного результата через последующий отказ
+RES-04	B	B-W04	Точный Foundry checkpoint и неизменяемые sidecars
+RUN-01	B	B-W12	Deadline, contextvars и безопасные sync/async-мосты
+RUN-02	B	B-W12	Доставка результата через процессную границу
+RUN-03	B	B-W12	Одна retry-политика и чистый baseline каждой попытки
+SCL-01	C	C-W16	Scholar: пустой ответ, общий raw transport и точные причины отказа
+SCL-03	C	C-W17	Search→enrich: точный raw snapshot, не повторный URL-fetch
+SCM-01	F	F-W06	Наблюдаемые корни и выполняемый nonlinear payload
+SCM-02	F	F-W06	Factual abduction и две явные стороны attribution
+SCM-03	F	F-W06	Активный query-plan и сохранённый stochastic law
+SEL-01	A	A-W04	Singleton, eligibility и неизменные требования выбора
+SIM-01	A	A-W01	Полный выбор движка и верная история fallback
+SIM-02	A	A-W01	Выходы, конфликты атомов и покрытие траекторий
+SIM-03	A	A-W01	Контрасты, реплики, SMM и экономия одинаковых расчётов
+SRV-01	D	D-W01	SearchService: чистые contracts и один ask/tell state transition
+SRV-03	D	D-W01	Autotune: native SearchService driver и ограниченный cutover
+STA-01	B	B-W07	Изоляция ветвей и точные эффекты replay
+STA-02	B	B-W07	Точная версия входа и пригодность готового bundle
+STP-01	D	D-W01	Актуальный convergence-сигнал и плато около нуля
+STR-01	D	D-W03	Направление stress-поиска и независимые от top-k счётчики
+TRN-01	D	D-W04	Численный transfer без фиктивного benchmark
+TRN-02	D	D-W04	Точные snapshot-refs и атомарное поколение vector memory
+TRN-03	D	D-W05	Контекст переноса, фильтры lessons и время подтверждения
+UDF-01	C	C-W13	Ukraine builders: D4 handoff и малые явные contracts
+UDF-02	C	C-W13	Ukraine common: доменный I/O, binding diagnostics и явные exports
+UDF-04	C	C-W18	Ukraine ops: явный workspace root и перенос server gate
+UDF-05	C	C-W19	Демография: единый snapshot вместо per-file legacy fallback
+UQP-01	E	E-W03	Настоящая функция отклика и полный effective call
+UQP-02	E	E-W03	Оси covariance, совместный закон и эмпирический carrier
+UQP-03	E	E-W03	Точность функционала, остановка MC и непокрытая область
+UQS-01	E	E-W03	Summary, интервалы и независимые информационные единицы
+WIRE-01	B	B-W13	Версионированный transport допустимых типов state

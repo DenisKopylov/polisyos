@@ -1,0 +1,21 @@
+target_sha=c6bc25386cd745ec07fb7d004e032598a03092dc
+python=/workspace/e02-D-locked-env/bin/python
+ERROR: file or directory not found: tests/unit/scientist/methods/search/test_adversarial_streaming.py
+
+
+no tests ran in 0.00s
+candidate_test_exit=4
+rerun: corrected selector to tracked tests/unit/scientist/search/test_adversarial_streaming.py
+..........................                                               [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+26 passed, 2 warnings in 16.83s
+candidate_test_exit=0
+retained_payload_positive=PASS
+retention_removed_keep_capped_report=FAIL_AS_REQUIRED
+removal_probe_exit=0

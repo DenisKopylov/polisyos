@@ -1,0 +1,24 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F/economics",
+  "source_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+  "cwd": "/workspace/e02-F-fit-tmle/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+    "tests/unit/remediation/test_fit_01.py",
+    "-q",
+    "-ra",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "exit": 0,
+  "wall_s": 10.623835323999856,
+  "max_rss_kib": 494480,
+  "complete_stdout": ".................................                                        [100%]\n=============================== warnings summary ===============================\n../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n33 passed, 1 warning in 6.04s\n"
+}

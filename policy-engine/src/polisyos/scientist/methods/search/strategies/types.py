@@ -166,7 +166,13 @@ class StrategyState:
 
     @classmethod
     def from_artifact(cls, data: bytes) -> StrategyState:
-        payload = json.loads(data.decode("utf-8"))
-        model_state = payload.get("model_state")
-        payload["model_state"] = bytes.fromhex(model_state) if model_state else None
-        return cls(**payload)
+        """Decode an object checkpoint or report a controlled compatibility failure."""
+        try:
+            payload = json.loads(data.decode("utf-8"))
+            if not isinstance(payload, dict):
+                raise ValueError("strategy checkpoint must be a JSON object")
+            model_state = payload.get("model_state")
+            payload["model_state"] = bytes.fromhex(model_state) if model_state else None
+            return cls(**payload)
+        except (AttributeError, TypeError, ValueError, UnicodeError) as exc:
+            raise ValueError("Strategy checkpoint artifact is invalid") from exc

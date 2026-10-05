@@ -1,0 +1,248 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "economic-profile-consumers",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "LA-003",
+    "LA-004",
+    "LA-035"
+  ],
+  "bundle_ids": [
+    "FRY-03",
+    "ECO-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6"
+  ],
+  "candidate_tree_sha": "7b7822e23901d9574b53ed97d410a1392763c484",
+  "branch": "codex/e02-F-economics",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/plugins/README.md",
+    "policy-engine/tests/unit/remediation/test_eco_01.py",
+    "policy-engine/tests/unit/remediation/test_fry_03.py"
+  ],
+  "baseline_cells": [
+    "F01-P101",
+    "F03-P050",
+    "F03-P095",
+    "F04-P040",
+    "F04-P049",
+    "F04-P067",
+    "F08-P104",
+    "F09-P097",
+    "F15-P110",
+    "F15-P119"
+  ],
+  "baseline_receipt_basis": {
+    "grade": "source_reported_compact_text_only",
+    "raw_archives_received": 0,
+    "semantic_adequacy": "not_established",
+    "source_shas": [
+      "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "0213101b6d124e6f855b1aff7c442bb0912a61c2"
+    ],
+    "backend_profile": "Python3.14 baseline; DoWhy/EconML markers excluded. These JAX economic tests do not establish those backends."
+  },
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "packages": {
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "numpy": "2.3.5",
+      "equinox": "0.13.2",
+      "pytest": "9.0.2"
+    },
+    "device": "JAX CPU",
+    "module_inputs": [
+      {
+        "module": "polisyos.foundry.execute.mechanisms.fiscal",
+        "path": "/workspace/e02-F-economics/policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+        "sha256": "bc52074e63f5aa72c977b1fa3b1cdba98683a31294fc8209eaba546b4b190425"
+      },
+      {
+        "module": "polisyos.foundry.execute.mechanisms.labor",
+        "path": "/workspace/e02-F-economics/policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py",
+        "sha256": "c69d8d1e4c672a41f6eef1a4e752c1dd3bf1b9aaf2dfc06183ab1e4208bf1875"
+      },
+      {
+        "module": "polisyos.foundry.plugins.economics.baselines",
+        "path": "/workspace/e02-F-economics/policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+        "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3"
+      },
+      {
+        "module": "polisyos.foundry.methods.catalog.mechanism.runtime",
+        "path": "/workspace/e02-F-economics/policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+        "sha256": "f2c622c699f85375925582d2d66ff683f40d3a925834f4ed523b2203d3ac8a23"
+      }
+    ],
+    "source_selection": "PYTHONPATH=src:. in isolated candidate cwd; external read-only interpreter"
+  },
+  "input_closure": {
+    "kind": "known_synthetic_GlobalState_and_EconomicState",
+    "production_inputs": false,
+    "fixture_policy_data_snapshot": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "authority": "fixture marker only; not admitted data",
+    "welfare_bound_mode": "off; no economic welfare authority claimed",
+    "rules": "runtime mechanism IDs@1.0.0 unchanged; native merge/slot registries and StateSnapshot2.2"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_fry_03.py tests/unit/remediation/test_eco_01.py -v --tb=short",
+      "target_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+      "environment": "default JAX float32 profile; Python3.14.2 CPU",
+      "input_closure": "both modified native remediation files,32 collected calls",
+      "outcome": "PASS",
+      "output": "collected 32 items\n\ntests/unit/remediation/test_fry_03.py .............                      [ 40%]\ntests/unit/remediation/test_eco_01.py ...................                [100%]\n\n============================= 32 passed in 50.50s ==============================\n",
+      "executing_holder": "F/causal_api independent reviewer"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= tests/unit/remediation/test_fry_03.py tests/unit/remediation/test_eco_01.py tests/unit/foundry/mechanisms/test_fiscal.py tests/unit/foundry/mechanisms/test_labor.py tests/unit/foundry/mechanisms/test_gradients.py tests/unit/foundry/analysis/test_loss_numeric.py tests/unit/foundry/methods/catalog/mechanism/test_runtime.py -v -rA --tb=short",
+      "target_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+      "environment": "methods/conftest.py sets JAX_ENABLE_X64=true during mixed collection",
+      "input_closure": "complete7 selected native test files;59 calls",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 212.39854576100015,
+      "rss_kib": 960376,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-candidate-deciding.txt",
+        "sha256": "1d55ff311072cef78e5d88e3cae8701565f6fd9fba6c6fe500bf19b338833509",
+        "kind": "complete59primary_node_outcomes_and_complete4failure_sections;successful_test_captured_registry_repeats_omitted"
+      },
+      "classification": "NOT inherited; command input denominator intersects modified tests.55 passed4 failed.3 EconomicState.empty failures from gini cond float64/float32 mismatch,1 existing fiscal exact equality mismatch. No skips/errors laundered to PASS.",
+      "full_raw_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/raw/economics-candidate.log",
+        "sha256": "f907806e2415ab4e9ebf799b3b1796a11d9bb434c046179d573e6055abff9a12",
+        "bytes": 1189131,
+        "transfer": "local_ignored;committed deciding failurebytes and complete nodecensus sufficient for bounded receipt; exact rerun argv retained"
+      }
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-c",
+        "import jax.numpy as jnp\nimport pytest\nfrom polisyos.foundry.execute.mechanisms.fiscal import IncomeTax\nnative = IncomeTax.emit_patches\ndef unmasked(self, state, key, *, target_mask=None):\n    state = state.replace(agents=state.agents.replace(active=jnp.ones_like(state.agents.active)))\n    return native(self, state, key, target_mask=None)\nIncomeTax.emit_patches = unmasked\nraise SystemExit(pytest.main(['-o','addopts=','tests/unit/remediation/test_fry_03.py','-v','--tb=short','-k','relocated_exports or (compiled_baseline and income_tax)']))\n"
+      ],
+      "target_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+      "environment": "separate subprocess; class markers/identity retained,active/target masks removed at runtime",
+      "input_closure": "export identity proxy and compiled income-tax persisted consumer",
+      "outcome": "PASS",
+      "observed_probe_exit": 1,
+      "expected_probe_exit": 1,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-mask-removal.txt",
+        "sha256": "4e7742300b535b7f667938585b1640d9cb3f44e7d13fd52c378b0398aeea5721",
+        "bytes": 4326
+      },
+      "wall_s": 36.77164224899991,
+      "rss_kib": 582032
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/remediation/test_fry_03.py tests/unit/remediation/test_eco_01.py && /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check tests/unit/remediation/test_fry_03.py tests/unit/remediation/test_eco_01.py",
+      "target_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+      "environment": "Python3.14.2",
+      "input_closure": "both modified tests",
+      "outcome": "PASS",
+      "output": "All checks passed!\n2 files already formatted\n"
+    }
+  ],
+  "property": {
+    "statement": "Retained native economic baseline kernels preserve analytic effects,masks,bookkeeping and fixed-input compiled replay through persisted state; distinct domain-plugin and objective profiles are not silently interchangeable.",
+    "runtime_path": [
+      "fixture TrinityBundle→canonical compile.api.compile",
+      "ProgramGraph→execute.mechanisms fiscal/labor kernels",
+      "native PatchMap→CAS StateDelta",
+      "apply_state_delta_and_snapshot→StateSnapshot2.2",
+      "load_state_snapshot→exact income,balance,employment and labor-count readback"
+    ],
+    "additional_consumers": [
+      "EconomicsPlugin.get_mechanisms taxation.apply",
+      "legacy loss aliases→normalized_income_budget_loss→native JAX jit/grad"
+    ],
+    "proxy_divergence": "Keeping class export identity and registry markers while deleting masks leaves alias proxy PASS but persisted compiled income-tax oracle FAIL: income[2]=20 rather than25. Registered diagnostic result.patches lists also do not imply native consumer compatibility.",
+    "negative_controls": [
+      "runtime mask deletion with unchanged class/export/markers",
+      "diagnostic JSON lists rejected by native PatchMap consumer",
+      "inactive and unselected labor incumbents count differently",
+      "zero employment threshold",
+      "NaN/+Inf/-Inf budget thresholds return infinity under JIT",
+      "analytic normalized-income gradient (-2/9,-1/9),constant positive-regime derivative",
+      "plugin tax changes wealth but not income and has no government-balance ABI"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_default_profile_verification; mixed_profile_FAIL; adapter_native_bridge_missing; LA-004/LA-035 held_semantic_owner; no finding closed",
+  "caller_census": {
+    "source_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+    "executing_holder": "F/economics",
+    "predicate_basis": "recomputed",
+    "denominator": {
+      "tracked_tree_paths_all_file_types": 13542,
+      "selected_source_python_paths": 2697
+    },
+    "actual_inputs": "git ls-tree -r and git show <sha>:<path> for every selected file; literal case-sensitive lexical terms",
+    "selection_boundaries": "policy-engine/src/**/*.py at frozen source; no dynamic callgraph or installed external plugin inventory",
+    "terms": {
+      "policy_loss_fn": {
+        "matching_files": 2,
+        "matching_lines": 3
+      },
+      "normalized_income_budget_loss": {
+        "matching_files": 2,
+        "matching_lines": 4
+      },
+      "IncomeTax": {
+        "matching_files": 7,
+        "matching_lines": 15
+      },
+      "TaxSubsidy": {
+        "matching_files": 7,
+        "matching_lines": 15
+      },
+      "LaborMarketMechanism": {
+        "matching_files": 10,
+        "matching_lines": 21
+      },
+      "create_mechanism_from_spec": {
+        "matching_files": 5,
+        "matching_lines": 9
+      }
+    },
+    "unresolved_by_construction": [
+      "dynamic FQN/config/entry-point consumers",
+      "admitted production optimizer activation",
+      "caller compatibility and retirement semantics"
+    ],
+    "absence_verdict": "Production optimizer use is not established; lexical absence alone is not a production-use absence verdict."
+  },
+  "independent_review": {
+    "reviewer": "F/causal_api",
+    "source_sha": "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6",
+    "verdict": "accept bounded synthetic witness; no finding-level authority upgrade",
+    "p40": "adapter diagnostic JSON/native patch_records mismatch folds into declared bridge_missing; no new blocking class found",
+    "output": "collected 32 items\n\ntests/unit/remediation/test_fry_03.py .............                      [ 40%]\ntests/unit/remediation/test_eco_01.py ...................                [100%]\n\n============================= 32 passed in 50.50s ==============================\n"
+  },
+  "pattern_pass": [
+    "P27 existing canonical owners retained, no parallel shim",
+    "P29/P33 mask-removal falsifier catches property while preserving markers",
+    "P35 full selected Python-source denominator and executing holder recorded",
+    "P37 synthetic predicates recomputed; admitted-production basis not_established",
+    "P38 alias/patch-field presence differs from effect/ABI property",
+    "P40 adapter bridge gap declared, no ladder patches",
+    "P41 mixed FAIL explicitly not attributed inherited"
+  ],
+  "limitations_and_next_owner": [
+    "LA-003 remains limited: known synthetic effects and code ABI witnesses do not establish real-data applicability, calibration or production caller equivalence.",
+    "LA-004 and LA-035: Principal(Denis) profile/objective/caller migration decision pending; preserve both models and formula.",
+    "Registered runtime result.patches JSON has no established native consumption bridge; selected native compiler route is separate. Minimum closing capability is an owner-approved typed materialization/output bridge, not a test conversion.",
+    "Mixed collection enables JAX x64. EconomicState.empty→agent_sim.distributions.compute_gini_hard has float64/float32 cond mismatch; dtype issue and fiscal equality representation are not fixed by this verification slice. Canonical-owner lease to be resolved separately.",
+    "G local run on exact implementation SHA: reproduce selected test command in checks with local Python3.14/JAX CPU and record actual x64 profile. Keep its current FAIL until a separately reviewed backend/producer change.",
+    "C/G must bind actual admitted policy/data-snapshot/state provenance and choose a live scenario using retained mechanism IDs before production applicability can be claimed; those input identities and caller activation are not_established in cloud.",
+    "No DoWhy/EconML or causal-effect/coverage/calibration authority claimed.",
+    "Frozen ArrayImpl.*list exception wording is optional portability debt, not silently repaired after review."
+  ]
+}

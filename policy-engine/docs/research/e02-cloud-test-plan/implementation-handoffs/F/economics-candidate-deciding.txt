@@ -1,0 +1,213 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economics/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economics/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 59 items
+
+tests/unit/remediation/test_fry_03.py::test_relocated_exports_are_the_same_live_fiscal_and_labor_classes PASSED [  1%]
+tests/unit/remediation/test_fry_03.py::test_registry_and_spec_creation_resolve_the_canonical_kernel_owner PASSED [  3%]
+tests/unit/remediation/test_fry_03.py::test_relocated_fiscal_kernels_preserve_patch_maps_and_prng_keys PASSED [  5%]
+tests/unit/remediation/test_fry_03.py::test_relocated_fiscal_kernel_preserves_active_target_masks_and_balance PASSED [  6%]
+tests/unit/remediation/test_fry_03.py::test_relocated_labor_kernel_preserves_employer_and_firm_counts PASSED [  8%]
+tests/unit/remediation/test_fry_03.py::test_canonical_fiscal_kernel_supports_jit_and_gradient PASSED [ 10%]
+tests/unit/remediation/test_fry_03.py::test_registered_adapter_json_patches_require_a_native_consumer_bridge[income_tax-params0-expected_income0-36.0] PASSED [ 11%]
+tests/unit/remediation/test_fry_03.py::test_registered_adapter_json_patches_require_a_native_consumer_bridge[tax_subsidy-params1-expected_income1--18.0] PASSED [ 13%]
+tests/unit/remediation/test_fry_03.py::test_registered_adapter_json_patches_require_a_native_consumer_bridge[labor_market-params2-expected_income2-0.0] PASSED [ 15%]
+tests/unit/remediation/test_fry_03.py::test_labor_masked_counts_and_key_have_independent_oracle PASSED [ 16%]
+tests/unit/remediation/test_fry_03.py::test_compiled_baseline_plan_persists_replayable_effects[income_tax-params0-expected_income0-46.0] PASSED [ 18%]
+tests/unit/remediation/test_fry_03.py::test_compiled_baseline_plan_persists_replayable_effects[tax_subsidy-params1-expected_income1--23.0] PASSED [ 20%]
+tests/unit/remediation/test_fry_03.py::test_compiled_baseline_plan_persists_replayable_effects[labor_market-params2-expected_income2-0.0] PASSED [ 22%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income0-0.0--1000.0--1.0] PASSED [ 23%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income1-0.0--1000.0--1.0] PASSED [ 25%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income2-0.0--1000.0-0.0] PASSED [ 27%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income3-0.0--1000.0-1.0] PASSED [ 28%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income4-0.0--1000.0-0.0] PASSED [ 30%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income5--2000.0--1000.0-9.0] PASSED [ 32%]
+tests/unit/remediation/test_eco_01.py::test_legacy_public_and_internal_facades_preserve_identity PASSED [ 33%]
+tests/unit/remediation/test_eco_01.py::test_named_economic_baseline_owns_the_legacy_facades PASSED [ 35%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_is_jittable_and_differentiable PASSED [ 37%]
+tests/unit/remediation/test_eco_01.py::test_named_baseline_gradient_is_the_normalized_formula_not_income_maximization PASSED [ 38%]
+tests/unit/remediation/test_eco_01.py::test_baseline_rejects_nonfinite_budget_threshold_under_jit[nan] PASSED [ 40%]
+tests/unit/remediation/test_eco_01.py::test_baseline_rejects_nonfinite_budget_threshold_under_jit[inf] PASSED [ 42%]
+tests/unit/remediation/test_eco_01.py::test_baseline_rejects_nonfinite_budget_threshold_under_jit[-inf] PASSED [ 44%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state0] PASSED [ 45%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state1] PASSED [ 47%]
+tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state2] PASSED [ 49%]
+tests/unit/remediation/test_eco_01.py::test_income_tax_and_economic_tax_keep_distinct_tax_bases FAILED [ 50%]
+tests/unit/remediation/test_eco_01.py::test_domain_plugin_fiscal_consumer_does_not_claim_patchmap_budget_equivalence FAILED [ 52%]
+tests/unit/remediation/test_eco_01.py::test_threshold_and_transition_labor_profiles_remain_distinct FAILED [ 54%]
+tests/unit/foundry/mechanisms/test_fiscal.py::test_budget_accounting FAILED [ 55%]
+tests/unit/foundry/mechanisms/test_fiscal.py::test_income_tax_compute_matches_patches PASSED [ 57%]
+tests/unit/foundry/mechanisms/test_fiscal.py::test_income_tax_rejects_out_of_domain_rate[-0.1] PASSED [ 59%]
+tests/unit/foundry/mechanisms/test_fiscal.py::test_income_tax_rejects_out_of_domain_rate[1.1] PASSED [ 61%]
+tests/unit/foundry/mechanisms/test_fiscal.py::test_tax_subsidy_rejects_out_of_domain_rate[-0.1] PASSED [ 62%]
+tests/unit/foundry/mechanisms/test_fiscal.py::test_tax_subsidy_rejects_out_of_domain_rate[1.1] PASSED [ 64%]
+tests/unit/foundry/mechanisms/test_fiscal.py::test_compute_tax_rejects_invalid_rate_input PASSED [ 66%]
+tests/unit/foundry/mechanisms/test_fiscal.py::test_income_tax_respects_target_and_active_masks PASSED [ 67%]
+tests/unit/foundry/mechanisms/test_fiscal.py::test_tax_subsidy_respects_target_and_active_masks PASSED [ 69%]
+tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_assigns_no_jobs_when_threshold_zero PASSED [ 71%]
+tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_target_mask_updates_only_selected_agents PASSED [ 72%]
+tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_rejects_target_mask_shape_mismatch PASSED [ 74%]
+tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_rejects_zero_firms PASSED [ 76%]
+tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_advances_rng_key_after_independent_draws PASSED [ 77%]
+tests/unit/foundry/mechanisms/test_gradients.py::test_tax_subsidy_gradient_value PASSED [ 79%]
+tests/unit/foundry/mechanisms/test_gradients.py::test_tax_subsidy_gradient_sign_and_invariants PASSED [ 81%]
+tests/unit/foundry/analysis/test_loss_numeric.py::test_policy_loss_fn_normalizes_scale_and_remains_finite PASSED [ 83%]
+tests/unit/foundry/analysis/test_loss_numeric.py::test_policy_loss_fn_fails_closed_on_non_finite_inputs PASSED [ 84%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestTaxSubsidyRuntime::test_basic PASSED [ 86%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestTaxSubsidyRuntime::test_output_has_result_key PASSED [ 88%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestTaxSubsidyRuntime::test_result_contains_mechanism_type PASSED [ 89%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.tax_subsidy@1.0.0] PASSED [ 91%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.income_tax@1.0.0] PASSED [ 93%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.labor_market@1.0.0] PASSED [ 94%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.queue@1.0.0] PASSED [ 96%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.adaptive_agent@1.0.0] PASSED [ 98%]
+tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_tax_subsidy_has_signature PASSED [100%]
+
+=================================== FAILURES ===================================
+___________ test_income_tax_and_economic_tax_keep_distinct_tax_bases ___________
+tests/unit/remediation/test_eco_01.py:127: in test_income_tax_and_economic_tax_keep_distinct_tax_bases
+    economic = EconomicState.empty(n_agents=2, seed=0)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:144: in empty
+    distributions = cls._compute_distributions(agents)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:178: in _compute_distributions
+    gini_wealth = compute_gini_hard(agents.wealth, active)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _with_active at /workspace/e02-F-economics/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economics/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E   
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_ test_domain_plugin_fiscal_consumer_does_not_claim_patchmap_budget_equivalence _
+tests/unit/remediation/test_eco_01.py:144: in test_domain_plugin_fiscal_consumer_does_not_claim_patchmap_budget_equivalence
+    economic = EconomicState.empty(n_agents=3, seed=0)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:144: in empty
+    distributions = cls._compute_distributions(agents)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:178: in _compute_distributions
+    gini_wealth = compute_gini_hard(agents.wealth, active)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _with_active at /workspace/e02-F-economics/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economics/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E   
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_________ test_threshold_and_transition_labor_profiles_remain_distinct _________
+tests/unit/remediation/test_eco_01.py:176: in test_threshold_and_transition_labor_profiles_remain_distinct
+    transition_state = EconomicState.empty(n_agents=2, seed=0).replace(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:144: in empty
+    distributions = cls._compute_distributions(agents)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/plugins/economics/state.py:178: in _compute_distributions
+    gini_wealth = compute_gini_hard(agents.wealth, active)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:456: in compute_gini_hard
+    return jax.lax.cond(n_active > 0, _with_active, _no_active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _with_active at /workspace/e02-F-economics/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:444
+E   false_fun is _no_active at /workspace/e02-F-economics/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:441
+E   
+E   The output of true_fun has type float64[] but the corresponding output of false_fun has type float32[], so the dtypes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+____________________________ test_budget_accounting ____________________________
+tests/unit/foundry/mechanisms/test_fiscal.py:32: in test_budget_accounting
+    assert float(state.government_balance) == 1000.0
+E   assert 1000.0000149011612 == 1000.0
+E    +  where 1000.0000149011612 = float(Array(1000.0000149, dtype=float64))
+E    +    where Array(1000.0000149, dtype=float64) = GlobalState(step=Array(0, dtype=int32), agents=AgentState(active=Array([ True,  True,  True,  True,  True,  True,  True,  True,  True,\n        True], dtype=bool), age=Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=int32), skill_level=Array([1., 1., 1., 1., 1., 1., 1., 1., 1., 1.], dtype=float32), income=Array([899.99999851, 899.99999851, 899.99999851, 899.99999851,\n       899.99999851, 899.99999851, 899.99999851, 899.99999851,\n       899.99999851, 899.99999851], dtype=float64), reported_income=Array([1000., 1000., 1000., 1000., 1000., 1000., 1000., 1000., 1000.,\n       1000.], dtype=float64), savings=Array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], dtype=float32), consumption=Array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.], dtype=float32), risk_aversion=Array([0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5], dtype=float32), is_employed=Array([False, False, False, False, False, False, False, False, False,\n       False], dtype=bool), employer_id=Array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1], dtype=int32), household_cell_id=Array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1], dtype=int32)), firms=FirmState(sector_id=Array([0, 0], dtype=int32), productivity=Array([1., 1.], dtype=float32), capital=Array([100., 100.], dtype=float32), labor_count=Array([0., 0.], dtype=float32), cash=Array([10000., 10000.], dtype=float32), inventory=Array([0., 0.], dtype=float32), debt=Array([0., 0.], dtype=float32), wage_offer=Array([10., 10.], dtype=float32), price=Array([1., 1.], dtype=float32), active=Array([ True,  True], dtype=bool), firm_id=Array([0, 1], dtype=int32), cell_id=Array([-1, -1], dtype=int32), firm_type_id=Array([0, 0], dtype=int32)), market=MarketState(avg_price=Array(1., dtype=float32), total_supply=Array(0., dtype=float32), total_demand=Array(0., dtype=float32), avg_wage=Array(10., dtype=float32), unemployment_rate=Array(0., dtype=float32), interest_rate=Array(0.05, dtype=float32)), government_balance=Array(1000.0000149, dtype=float64), tax_rate=Array(0., dtype=float32), gdp=Array(0., dtype=float32), cells=None, household_cells=None, agent_sim_runtime=None, queue_runtime=None, feedback_state=None).government_balance
+
+Successful-test captured registration output omitted from this deciding extract.
+Complete raw stdout is cited by SHA256 in handoff JSON.
+
+=========================== short test summary info ============================
+PASSED tests/unit/remediation/test_fry_03.py::test_relocated_exports_are_the_same_live_fiscal_and_labor_classes
+PASSED tests/unit/remediation/test_fry_03.py::test_registry_and_spec_creation_resolve_the_canonical_kernel_owner
+PASSED tests/unit/remediation/test_fry_03.py::test_relocated_fiscal_kernels_preserve_patch_maps_and_prng_keys
+PASSED tests/unit/remediation/test_fry_03.py::test_relocated_fiscal_kernel_preserves_active_target_masks_and_balance
+PASSED tests/unit/remediation/test_fry_03.py::test_relocated_labor_kernel_preserves_employer_and_firm_counts
+PASSED tests/unit/remediation/test_fry_03.py::test_canonical_fiscal_kernel_supports_jit_and_gradient
+PASSED tests/unit/remediation/test_fry_03.py::test_registered_adapter_json_patches_require_a_native_consumer_bridge[income_tax-params0-expected_income0-36.0]
+PASSED tests/unit/remediation/test_fry_03.py::test_registered_adapter_json_patches_require_a_native_consumer_bridge[tax_subsidy-params1-expected_income1--18.0]
+PASSED tests/unit/remediation/test_fry_03.py::test_registered_adapter_json_patches_require_a_native_consumer_bridge[labor_market-params2-expected_income2-0.0]
+PASSED tests/unit/remediation/test_fry_03.py::test_labor_masked_counts_and_key_have_independent_oracle
+PASSED tests/unit/remediation/test_fry_03.py::test_compiled_baseline_plan_persists_replayable_effects[income_tax-params0-expected_income0-46.0]
+PASSED tests/unit/remediation/test_fry_03.py::test_compiled_baseline_plan_persists_replayable_effects[tax_subsidy-params1-expected_income1--23.0]
+PASSED tests/unit/remediation/test_fry_03.py::test_compiled_baseline_plan_persists_replayable_effects[labor_market-params2-expected_income2-0.0]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income0-0.0--1000.0--1.0]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income1-0.0--1000.0--1.0]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income2-0.0--1000.0-0.0]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income3-0.0--1000.0-1.0]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income4-0.0--1000.0-0.0]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_preserves_normalized_income_budget_formula[income5--2000.0--1000.0-9.0]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_public_and_internal_facades_preserve_identity
+PASSED tests/unit/remediation/test_eco_01.py::test_named_economic_baseline_owns_the_legacy_facades
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_is_jittable_and_differentiable
+PASSED tests/unit/remediation/test_eco_01.py::test_named_baseline_gradient_is_the_normalized_formula_not_income_maximization
+PASSED tests/unit/remediation/test_eco_01.py::test_baseline_rejects_nonfinite_budget_threshold_under_jit[nan]
+PASSED tests/unit/remediation/test_eco_01.py::test_baseline_rejects_nonfinite_budget_threshold_under_jit[inf]
+PASSED tests/unit/remediation/test_eco_01.py::test_baseline_rejects_nonfinite_budget_threshold_under_jit[-inf]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state0]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state1]
+PASSED tests/unit/remediation/test_eco_01.py::test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed[state2]
+PASSED tests/unit/foundry/mechanisms/test_fiscal.py::test_income_tax_compute_matches_patches
+PASSED tests/unit/foundry/mechanisms/test_fiscal.py::test_income_tax_rejects_out_of_domain_rate[-0.1]
+PASSED tests/unit/foundry/mechanisms/test_fiscal.py::test_income_tax_rejects_out_of_domain_rate[1.1]
+PASSED tests/unit/foundry/mechanisms/test_fiscal.py::test_tax_subsidy_rejects_out_of_domain_rate[-0.1]
+PASSED tests/unit/foundry/mechanisms/test_fiscal.py::test_tax_subsidy_rejects_out_of_domain_rate[1.1]
+PASSED tests/unit/foundry/mechanisms/test_fiscal.py::test_compute_tax_rejects_invalid_rate_input
+PASSED tests/unit/foundry/mechanisms/test_fiscal.py::test_income_tax_respects_target_and_active_masks
+PASSED tests/unit/foundry/mechanisms/test_fiscal.py::test_tax_subsidy_respects_target_and_active_masks
+PASSED tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_assigns_no_jobs_when_threshold_zero
+PASSED tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_target_mask_updates_only_selected_agents
+PASSED tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_rejects_target_mask_shape_mismatch
+PASSED tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_rejects_zero_firms
+PASSED tests/unit/foundry/mechanisms/test_labor.py::test_labor_market_advances_rng_key_after_independent_draws
+PASSED tests/unit/foundry/mechanisms/test_gradients.py::test_tax_subsidy_gradient_value
+PASSED tests/unit/foundry/mechanisms/test_gradients.py::test_tax_subsidy_gradient_sign_and_invariants
+PASSED tests/unit/foundry/analysis/test_loss_numeric.py::test_policy_loss_fn_normalizes_scale_and_remains_finite
+PASSED tests/unit/foundry/analysis/test_loss_numeric.py::test_policy_loss_fn_fails_closed_on_non_finite_inputs
+PASSED tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestTaxSubsidyRuntime::test_basic
+PASSED tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestTaxSubsidyRuntime::test_output_has_result_key
+PASSED tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestTaxSubsidyRuntime::test_result_contains_mechanism_type
+PASSED tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.tax_subsidy@1.0.0]
+PASSED tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.income_tax@1.0.0]
+PASSED tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.labor_market@1.0.0]
+PASSED tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.queue@1.0.0]
+PASSED tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_registered[mechanism.runtime.adaptive_agent@1.0.0]
+PASSED tests/unit/foundry/methods/catalog/mechanism/test_runtime.py::TestMechanismRegistration::test_tax_subsidy_has_signature
+FAILED tests/unit/remediation/test_eco_01.py::test_income_tax_and_economic_tax_keep_distinct_tax_bases
+FAILED tests/unit/remediation/test_eco_01.py::test_domain_plugin_fiscal_consumer_does_not_claim_patchmap_budget_equivalence
+FAILED tests/unit/remediation/test_eco_01.py::test_threshold_and_transition_labor_profiles_remain_distinct
+FAILED tests/unit/foundry/mechanisms/test_fiscal.py::test_budget_accounting
+=================== 4 failed, 55 passed in 203.28s (0:03:23) ===================

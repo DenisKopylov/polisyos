@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.canon.canon_json import CanonSpec
 from polisyos.scientist.agent.vector_memory import VectorMemoryStore
 from polisyos.scientist.methods.autotune.models import (
@@ -26,6 +27,40 @@ from polisyos.scientist.methods.search.strategies.transfer import (
     TransferLearningManager,
 )
 from polisyos.scientist.methods.search.strategies.types import Evaluation, ParameterBounds
+
+
+def test_real_cas_history_registration_preserves_finite_numeric_values(tmp_path):
+    store = FileSystemCAS(tmp_path / "cas")
+    source = RunFingerprint(run_id="source", space_hash="space", objective_names=["score"])
+    evaluation = Evaluation(
+        candidate_id="candidate",
+        params={"x": 0.5},
+        params_normalized=(0.5,),
+        objectives=[
+            ObjectiveValue(name="score", raw_value=0.8, direction=OptimizationDirection.MINIMIZE)
+        ],
+        scalar_score=0.8,
+        stage_a_passed=True,
+    )
+    ref = TransferLearningManager(store, None).register_run(source, [evaluation])
+    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    assert payload["evaluations"][0]["params"] == {"x": 0.5}
+    assert payload["evaluations"][0]["scalar_score"] == 0.8
+
+
+def test_reverse_benchmark_view_requires_resolvable_original_lineage():
+    evaluation = Evaluation(
+        candidate_id=f"sha256:{'c' * 64}",
+        params={"x": 0.5},
+        params_normalized=(0.5,),
+        objectives=[
+            ObjectiveValue(name="score", raw_value=0.8, direction=OptimizationDirection.MINIMIZE)
+        ],
+        scalar_score=0.8,
+        stage_a_passed=True,
+    )
+    with pytest.raises(ValueError, match="Original benchmark store/reference"):
+        WarmStartBridge.evaluations_to_benchmarks([evaluation], loop_id="target")
 
 
 def _measured_history(tmp_path, *, direction="minimize", run_id="source"):
@@ -72,6 +107,7 @@ def _measured_history(tmp_path, *, direction="minimize", run_id="source"):
             metadata={
                 "params": {"x": x},
                 "directions": {"score": direction},
+                "warm_start_compatibility": compatibility,
                 "evaluated_at": "2026-10-05T00:00:00+00:00",
             },
         )
@@ -150,6 +186,22 @@ def test_forged_discovery_binding_cannot_override_actual_cas_history(tmp_path):
     manager = TransferLearningManager(store, index)
     with pytest.raises(TransferHistoryError, match="snapshot experiment binding differs"):
         manager.get_warm_start_evaluations([forged], target_fingerprint=target)
+
+
+def test_rewritten_history_basis_cannot_relabel_the_original_measurement(tmp_path):
+    store, index, _, source, evaluations, _ = _measured_history(tmp_path)
+    source.origin = "rewritten-source-declaration"
+    for evaluation in evaluations:
+        evaluation.metadata["warm_start_compatibility"]["context_fingerprint"] = (
+            source.numeric_context_fingerprint()
+        )
+    source.history_ref = TransferLearningManager(store, index).register_run(source, evaluations)
+    target = source.model_copy(update={"run_id": "target"})
+    reader = TransferLearningManager(store, index)
+    restored = reader.get_warm_start_evaluations([source], target_fingerprint=target)
+    assert all(not evaluation.is_valid for evaluation in restored)
+    assert reader.last_restore_report.accepted_rows == 0
+    assert reader.last_restore_report.rejected_rows == 4
 
 
 def test_original_measurement_tampering_is_a_visible_rejection(tmp_path):

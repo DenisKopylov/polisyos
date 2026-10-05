@@ -99,7 +99,7 @@ def _persist_source_benchmark(store, evaluation):
     )
     evaluation.candidate_id = str(candidate_ref.artifact_id)
     original = BenchmarkEvaluation(
-        loop_id="source-loop",
+        loop_id=evaluation.metadata.get("source_run_id", "source-loop"),
         suite_id="source-suite",
         suite_version="2.0",
         candidate_ref=candidate_ref,
@@ -108,6 +108,7 @@ def _persist_source_benchmark(store, evaluation):
         metadata={
             "params": evaluation.params,
             "directions": {obj.name: obj.direction.value for obj in evaluation.objectives},
+            "warm_start_compatibility": evaluation.metadata.get("warm_start_compatibility"),
         },
     )
     ref = store.put_json(
@@ -169,6 +170,7 @@ class TestWarmStartBridge:
     def test_no_similar_runs(self):
         manager = MagicMock()
         manager.find_similar_runs.return_value = []
+        manager.get_warm_start_evaluations.return_value = []
         bridge = WarmStartBridge(manager)
         evals = bridge.load_warm_start(_fingerprint())
         assert evals == []
@@ -214,7 +216,7 @@ class TestWarmStartBridge:
         assert candidate_refs == {candidate_id, second_candidate_id}
         assert all(ref != f"sha256:{'0' * 64}" for ref in candidate_refs)
         benchmark = benchmarks[0]
-        assert benchmark.loop_id == "source-loop"
+        assert benchmark.loop_id == "run1"
         assert benchmark.suite_id == "source-suite"
         assert benchmark.suite_version == "2.0"
         assert benchmark.metadata["target_loop_id"] == "loop1"
@@ -277,12 +279,12 @@ class TestTransferLearningManagerWarmStart:
             embedding=[0.1],
         )
         store = FileSystemCAS(tmp_path / "cas")
-        _persist_source_benchmark(store, evaluation)
-        candidate_id, provenance_ref = evaluation.candidate_id, evaluation.provenance_ref
         evaluation.metadata["warm_start_compatibility"] = {
             "search_space_fingerprint": fingerprint.space_hash,
             "context_fingerprint": fingerprint.numeric_context_fingerprint(),
         }
+        _persist_source_benchmark(store, evaluation)
+        candidate_id, provenance_ref = evaluation.candidate_id, evaluation.provenance_ref
         index = _MemoryVectorIndex()
         writer = TransferLearningManager(store, index)
         ref = writer.register_run(fingerprint, [evaluation])

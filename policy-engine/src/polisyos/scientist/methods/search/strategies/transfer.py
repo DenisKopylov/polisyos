@@ -48,6 +48,14 @@ class TransferRestoreReport:
     excluded_run_ids: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True)
+class TransferDiscoveryIssue:
+    """One discovered record excluded before an exact history read."""
+
+    run_id: str
+    reason: str
+
+
 class RunFingerprint(BaseModel):
     """Identifies a search run for cross-run transfer matching."""
 
@@ -113,6 +121,7 @@ class TransferLearningManager:
         self._eval_cache: dict[str, list[dict[str, Any]]] = {}
         self._history_bindings: dict[str, dict[str, Any]] = {}
         self.last_restore_report = TransferRestoreReport()
+        self.last_discovery_issues: tuple[TransferDiscoveryIssue, ...] = ()
 
     def register_run(
         self,
@@ -189,24 +198,36 @@ class TransferLearningManager:
         Returns up to ``top_k`` fingerprints, sorted by similarity (most
         similar first).  Only returns runs with the same objective names.
         """
+        self.last_discovery_issues = ()
         if not fingerprint.embedding:
             return []
 
         results = self._index.query(fingerprint.embedding, top_k=top_k * 2)
         similar: list[RunFingerprint] = []
+        issues: list[TransferDiscoveryIssue] = []
 
         for key, _, meta in results:
             if key == fingerprint.run_id:
                 continue
             history_ref = self._history_ref_from_metadata(meta)
             if history_ref is None:
+                issues.append(
+                    TransferDiscoveryIssue(
+                        key,
+                        "history_ref_absent"
+                        if meta.get("artifact_id") is None
+                        else "history_ref_invalid",
+                    )
+                )
                 logger.warning("Skipping run %s without a valid history ArtifactRef", key)
                 continue
             # Similarity is discovery only; numeric reuse requires full binding.
             obj_names = meta.get("objective_names", [])
             if set(obj_names) != set(fingerprint.objective_names):
+                issues.append(TransferDiscoveryIssue(key, "objective_binding_mismatch"))
                 continue
             if meta.get("space_hash") != fingerprint.space_hash:
+                issues.append(TransferDiscoveryIssue(key, "space_binding_mismatch"))
                 continue
             if not self._binding_matches(
                 fingerprint,
@@ -224,6 +245,7 @@ class TransferLearningManager:
                     history_ref=history_ref,
                 ),
             ):
+                issues.append(TransferDiscoveryIssue(key, "numeric_binding_mismatch"))
                 continue
             similar.append(
                 RunFingerprint(
@@ -243,6 +265,7 @@ class TransferLearningManager:
             if len(similar) >= top_k:
                 break
 
+        self.last_discovery_issues = tuple(issues)
         return similar
 
     def get_warm_start_evaluations(
@@ -430,7 +453,13 @@ class TransferLearningManager:
             "status",
             "timestamp",
         )
-        if isinstance(payload, dict) and all(payload.get(key) == expected[key] for key in fields):
+        if (
+            isinstance(payload, dict)
+            and all(payload.get(key) == expected[key] for key in fields)
+            and isinstance(payload.get("metadata"), dict)
+            and payload["metadata"].get("warm_start_compatibility") == compatibility
+            and payload["metadata"].get("source_run_id") == source.run_id
+        ):
             return None
         if isinstance(payload, dict) and "candidate_ref" in payload:
             from polisyos.scientist.methods.autotune.models import (
@@ -454,6 +483,8 @@ class TransferLearningManager:
                 return "original benchmark lacks typed objective directions"
             if (
                 str(benchmark.candidate_ref.artifact_id) == evaluation.candidate_id
+                and benchmark.loop_id == source.run_id
+                and benchmark.metadata.get("warm_start_compatibility") == compatibility
                 and benchmark.matches_runtime_split(BenchmarkSplit.SELECTION)
                 and benchmark.metadata.get("params") == evaluation.params
                 and all(

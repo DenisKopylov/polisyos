@@ -2,12 +2,7 @@
   "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "C",
   "slice": "dfi-emb",
-  "closure_ids": [
-    "DFI-02",
-    "DFI-03",
-    "EMB-02",
-    "EMB-03"
-  ],
+  "closure_ids": [],
   "bundle_ids": [
     "DFI-01",
     "DFI-02",

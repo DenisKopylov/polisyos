@@ -1,0 +1,124 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "gp-witness",
+  "closure_ids": [],
+  "finding_ids": [
+    "B114",
+    "B115"
+  ],
+  "bundle_ids": [
+    "OPT-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "c961ba89f127964559ac5c71ab0130243f5cb4bf",
+    "052e763253580519d5913a92ad5ccc9a1989e7e3"
+  ],
+  "candidate_tree_sha": "82c0436281e4e21f46f8112d6b75679792cf7362",
+  "branch": "codex/e02-D-gp-witness",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-baseline.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness.json"
+  ],
+  "baseline_cells": [
+    "F02-P095",
+    "F06-P112",
+    "F08-P096",
+    "F10-P086",
+    "F13-P108"
+  ],
+  "baseline_route_grade": "source_reported_compact_text_only; candidate_unverified; raw archives absent; package PASS is not finding closure",
+  "source_refs": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md@c40d4acae1ce58b597267255026d9356565828fd#B114,B115",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#B114,B115"
+  ],
+  "environment": {
+    "python": "3.14.2",
+    "pytest": "9.0.2",
+    "torch": "2.14.1+cu130",
+    "botorch": "0.18.1",
+    "gpytorch": "1.15.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "device": "cpu",
+    "native_threads": 4,
+    "interop_threads": 1,
+    "runtime_override_environment": {},
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-gp-witness/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py -vv --tb=short --log-cli-level=WARNING --durations=10",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine",
+      "target_sha": "052e763253580519d5913a92ad5ccc9a1989e7e3",
+      "environment": "actual real BoTorch/GPyTorch CPU path; versions above",
+      "input_closure": "1D fixture normalized coordinates 0.1,0.2,0.3,0.4,0.5,0.6,0.75,0.9; objective (x-0.37)^2+0.02*(index%3); warm/current compatible synthetic provenance, duplicate alias and independent replica; appended x0.82 and shift score0.7",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "collected": 7,
+      "passed": 3,
+      "failed": 4,
+      "skipped": 0,
+      "wall_s": 29.048176073000036,
+      "pytest_wall_s": 24.15,
+      "peak_rss_kib": 1234528,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness-baseline.log",
+      "output_sha256": "bc97a385a4c2e12f8645930cc538f6188d547e7f0ae538a74420724d67e61cea"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py; /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "target_sha": "052e763253580519d5913a92ad5ccc9a1989e7e3",
+      "environment": "shared Python3.14.2 venv",
+      "input_closure": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "All checks passed!\n1 file already formatted"
+    }
+  ],
+  "property": {
+    "statement": "Compatible warm observations reach the actual GP corpus; serialized learned GP continues with equivalent posterior and ask without forbidden refitting, including append conditioning and persisted warm history.",
+    "runtime_path": [
+      "Evaluation -> BayesianOptimizer.warm_start/_effective_training_corpus",
+      "suggest -> _prepare_training_data -> SingleTaskGP/fit_gpytorch_mll",
+      "get_state -> StrategyState.to_artifact/from_artifact -> set_state",
+      "restored suggest -> condition_on_observations/real optimize_acqf -> PolicyCandidate"
+    ],
+    "proxy_divergence": "Saved model_state bytes and train_X/train_y markers survive, while omitted weight loading changes real learned parameters/posterior; restored weights also coexist with warm-history loss or forbidden refit.",
+    "negative_controls": [
+      "Accepted _warm_evals and compatibility/provenance markers intact; bypass effective warm ingestion; real-GP corpus oracle rejects.",
+      "Saved model bytes and train rows intact; bypass SingleTaskGP.load_state_dict; real numerical model oracle rejects.",
+      "Loaded real GP/model_state intact; reset _last_train_size; no-refit trap rejects the resulting full-fit call."
+    ],
+    "property_preserving_control": "9-row warm+current+independent-replica corpus gives identical actual GP parameters/transforms/posterior and ask to the same unsplit observations."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "FAIL: actual baseline resume loses warm corpus and invokes prohibited full refit; independent witness implemented, no finding closure",
+  "findings": [
+    {
+      "ids": [
+        "B114",
+        "B115"
+      ],
+      "bucket": "same state-completeness class; widen to model/corpus/refit/RNG/transform basis, P40",
+      "actual": "Warm checkpoint restores weights but resumed single current observation returns sobol_init; full-current same8 and append9 restored asks reach forbidden _fit_full_gp.",
+      "next_owner": "search_owner"
+    },
+    {
+      "ids": [
+        "B115"
+      ],
+      "actual": "Post-conditioning9 checkpoint shifted target0.7 restores numerical corpus/parameters/transforms/posterior on botorch0.18.1; continued ask still hits forbidden refit. Suspected target transform mismatch not reproduced here.",
+      "next_owner": "search_owner"
+    }
+  ],
+  "reviewer": "gp_witness independent test author; candidate GP delta independent review pending",
+  "limitations_and_next_owner": [
+    "Candidate mechanism source has not yet been supplied; rerun unchanged witness on exact search_owner candidate SHA, then independently review GP state config/corpus/version/corruption.",
+    "Bounded CPU 1D 8-9-point numerical witness only. Production history source admission/context semantics and transfer bridge not established here; transfer_owner owns bridge workflow witness.",
+    "GPU execution and other backend versions unrun; optional backend absence is never PASS.",
+    "Four-base source-card replay remains UNRUN, historical package PASS does not close B114/B115.",
+    "Direct strategy consumer witness; API/dashboard/long-running search workflow surfaces out of this test scope."
+  ]
+}

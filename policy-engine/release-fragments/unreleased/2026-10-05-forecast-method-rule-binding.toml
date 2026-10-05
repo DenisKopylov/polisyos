@@ -1,0 +1,10 @@
+id = "2026-10-05-forecast-method-rule-binding"
+title = "Preserve real ETS method and calibration rule bindings"
+type = "fixed"
+component = "scientist-forecasting"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+summary = "Preserve the resolved ETS method version and admitted calibration rule binding in persisted backtest report and scenario metadata."
+evidence = ["tests/unit/remediation/test_frc_02_owner.py"]
+compatibility = "Existing CAS artifacts and public schemas are unchanged; only newly produced internal report metadata gains the bindings."
+limitations = "Canonical interval-observation readback remains predictive-only and refuses calibration evidence persistence without an explicit evaluation context. The served forecast bridge remains pending."

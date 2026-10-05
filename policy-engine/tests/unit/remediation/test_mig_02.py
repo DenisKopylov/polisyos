@@ -14,6 +14,9 @@ from typing import Any
 
 import pytest
 
+import tools.lib.fs as fs
+from polisyos.runtime.api import resolve_artifact_path
+from polisyos.runtime.manifest import RunManifest
 from tools.ops_runners.migrations.migrate import main as canonical_main
 
 pytestmark = pytest.mark.unit
@@ -100,6 +103,68 @@ def test_absolute_path_uses_declared_root_and_preserves_nested_layout(tmp_path: 
     assert reference["path"] == "nested/data.json"
     assert reference["relative_path"] == "nested/data.json"
     assert (run_root / reference["relative_path"]).read_text(encoding="utf-8") == "source-bytes"
+
+
+def test_serialized_migration_loads_through_runtime_consumer(tmp_path: Path) -> None:
+    """The emitted bytes must load and resolve through Runtime's real consumer."""
+    run_root = tmp_path / "run-root"
+    source = run_root / "nested" / "data.json"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b'{"consumer":"runtime"}')
+    payload = _manifest_payload(run_root=run_root, artifacts=[_artifact(str(source))])
+    input_path, output_path = _write_input_and_output(tmp_path, payload)
+
+    assert canonical_main(["run_manifest", str(input_path), str(output_path)]) == 0
+
+    manifest = RunManifest.model_validate_json(output_path.read_text(encoding="utf-8"))
+    resolved = resolve_artifact_path(
+        manifest.artifacts[0],
+        run_root=Path(manifest.run_root),
+    )
+    assert resolved == source.resolve()
+    assert resolved.read_bytes() == b'{"consumer":"runtime"}'
+
+
+def test_publish_fault_preserves_destination_and_retry_is_readable(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A failed atomic publish leaves the old output and permits consumer readback on retry."""
+    run_root = tmp_path / "run-root"
+    source = run_root / "nested" / "data.json"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"stable-source")
+    payload = _manifest_payload(run_root=run_root, artifacts=[_artifact(str(source))])
+    sentinel = "previous-output\n"
+    input_path, output_path = _write_input_and_output(
+        tmp_path,
+        payload,
+        output_sentinel=sentinel,
+    )
+    input_bytes = input_path.read_bytes()
+    original_replace = fs.os.replace
+
+    def fail_replace(*args: object, **kwargs: object) -> None:
+        raise OSError("injected publish fault")
+
+    monkeypatch.setattr(fs.os, "replace", fail_replace)
+    with pytest.raises(OSError, match="injected publish fault"):
+        canonical_main(["run_manifest", str(input_path), str(output_path)])
+
+    assert output_path.read_text(encoding="utf-8") == sentinel
+    assert input_path.read_bytes() == input_bytes
+    assert source.read_bytes() == b"stable-source"
+    assert not list(output_path.parent.glob(f".{output_path.stem}.*.tmp"))
+
+    monkeypatch.setattr(fs.os, "replace", original_replace)
+    assert canonical_main(["run_manifest", str(input_path), str(output_path)]) == 0
+    manifest = RunManifest.model_validate_json(output_path.read_text(encoding="utf-8"))
+    resolved = resolve_artifact_path(
+        manifest.artifacts[0],
+        run_root=Path(manifest.run_root),
+    )
+    assert resolved == source.resolve()
+    assert resolved.read_bytes() == b"stable-source"
 
 
 def test_missing_source_fails_closed_without_basename_substitution(tmp_path: Path) -> None:

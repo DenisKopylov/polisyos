@@ -1,0 +1,205 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "c-w08-w09-hygiene-retirements",
+  "closure_ids": [
+    "LA-008",
+    "LA-009",
+    "LA-011",
+    "LA-012",
+    "LA-013",
+    "LA-018"
+  ],
+  "bundle_ids": [
+    "HYG-02",
+    "HYG-04"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "ea2d2d7d1c60c2747466a7679c72594ef3392f1d",
+    "59b9959c8776e9e80f4769de7bf8504a0ec4d285"
+  ],
+  "candidate_tree_sha": "b1c6f741c368cec06a3cfe6d9a4b4907efed4abe",
+  "branch": "codex/e02-C-hygiene",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/.pre-commit-config.yaml",
+    "policy-engine/architecture/imports/dynamic.toml",
+    "policy-engine/architecture/packages/layout.toml",
+    "policy-engine/architecture/policies/directory_health.toml",
+    "policy-engine/architecture/shims.toml",
+    "policy-engine/architecture/tooling/mypy/generated.ini",
+    "policy-engine/architecture/tooling/mypy/overrides/30-lex-scholar-data-forge-legal.ini",
+    "policy-engine/architecture/tooling/ruff/generated.toml",
+    "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml",
+    "policy-engine/architecture/topology.toml",
+    "policy-engine/docs/explanation/architecture.md",
+    "policy-engine/docs/how-to/run-benchmarks.md",
+    "policy-engine/jax_bootstrap.py",
+    "policy-engine/ops/cloud/gcp/package_repo.sh",
+    "policy-engine/src/polisyos/lex/factlog.py",
+    "policy-engine/src/polisyos/scientist/evidence/_shim.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/__init__.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/base.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/legal_pass.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/safety_pass.py",
+    "policy-engine/tests/repo_quality/test_chronology_terminal_state.py",
+    "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py",
+    "policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py",
+    "policy-engine/tests/unit/remediation/test_hyg_04.py",
+    "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+    "policy-engine/tests/unit/scientist/governance/test_shared_shims.py",
+    "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+    "policy-engine/tools/research/benchmarks/README.md",
+    "policy-engine/tools/research/benchmarks/harness.py",
+    "policy-engine/tools/research/benchmarks/jax/bench_domain.py",
+    "policy-engine/tools/research/benchmarks/jax/bench_simulation.py",
+    "policy-engine/tools/research/benchmarks/metrics.py",
+    "policy-engine/tools/research/benchmarks/suite_registry.py",
+    "policy-engine/tools/research/demos/run_laffer_demo.py"
+  ],
+  "baseline_cells": [
+    {
+      "finding": "F03-P063",
+      "cells": [
+        "test_benchmark_wrapper_caller_census_is_complete_and_bounded",
+        "test_frontend_workspace_build_paths_and_python_package_boundaries",
+        "test_redirect_lifecycle_rejects_an_unqualified_expired_stub"
+      ],
+      "classification": "Three prior cells: historical receipt document treated as live runtime caller (census/scaffold boundary), obsolete [tool.hatch] expectation after native hatch.toml migration (fixture/proxy), and frontend README assumption for a path absent at c40 (stale object). These are not three native runtime defects."
+    },
+    {
+      "finding": "F08-P065",
+      "cells": [
+        "test_redirect_lifecycle_rejects_an_unqualified_expired_stub"
+      ],
+      "classification": "Same stale-object assumption: frontend/README.md absent at slice base; no redirect deletion is claimed."
+    },
+    {
+      "finding": "F14-P075",
+      "cells": [
+        "M050 wrapper caller census",
+        "M051 Hatch/workspace boundary",
+        "M052 expired frontend redirect"
+      ],
+      "classification": "Same three classes as F03-P063; not three independent native defects."
+    }
+  ],
+  "checks": [
+    {
+      "command": "pytest runner targeting tests/repo_quality/tools/test_hatch_packaging.py (exact argv/flags absent from retained stdout log)",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; Python 3.14.0; pytest 9.1.1; Hatchling 1.32.4 available in existing build dependencies; shared .venv read-only; isolated temporary build fixtures.",
+      "input_closure": "Frozen source 59b9959; native hatch.toml sdist selectors, wheel packages and force-include sources; 8,307 context paths; actual wheel/sdist builds and configured mutants.",
+      "outcome": "PASS",
+      "output": "11 passed in 114.56s. Complete output: implementation-handoffs/C/c-w08-w09-hygiene-retirements.evidence.txt, EVIDENCE 1; source log SHA256 9dc1131acf21ebe9939ba64162b4f2edcbd4046d0a4f6976146b5156e3d29ba5."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_hyg_04.py tests/unit/scientist/governance/test_shared_shims.py tests/unit/lex/mirror_contracts/test_factlog.py tests/unit/scientist/evidence/test_phase44_taxonomy.py -q",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; Python 3.14.0; shared .venv read-only.",
+      "input_closure": "Frozen source 59b9959; selected hygiene, Core facade, Lex reader and taxonomy tests.",
+      "outcome": "PASS",
+      "output": "22 passed; four expected deprecation warnings. Complete output in adjacent evidence EVIDENCE 2."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/repo_quality/architecture/test_repository_best_in_class_phase1_5_contracts.py::test_phase1_5_dynamic_import_and_example_contracts_are_declared tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py::test_phase2_active_migration_shims_have_required_metadata tests/repo_quality/architecture/test_public_api_facades.py tests/repo_quality/architecture/test_last_mile_import_map.py::test_phase_0_3_shim_caller_generator_scans_ast_and_dynamic_strings -q",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; Python 3.14.0; shared .venv read-only.",
+      "input_closure": "Frozen source 59b9959; four selected architecture/import-contract test selectors.",
+      "outcome": "PASS",
+      "output": "8 passed. Complete output in adjacent evidence EVIDENCE 2."
+    },
+    {
+      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.devx.workspace.tool_configs --check",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; Python 3.14.0; shared .venv read-only.",
+      "input_closure": "Canonical tool-config generator inputs and generated counterparts at frozen source.",
+      "outcome": "PASS",
+      "output": "Generator check passed. Complete output in adjacent evidence EVIDENCE 2."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/polisyos-tools benchmarks run-all --help",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; installed policy-engine CLI from shared .venv.",
+      "input_closure": "Canonical benchmark CLI help path; no benchmark workload.",
+      "outcome": "PASS",
+      "output": "Command returned usage/help successfully. Complete output in adjacent evidence EVIDENCE 2."
+    },
+    {
+      "command": "uv build --wheel --sdist --out-dir /Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/_build/hygiene-handoff-draft/archives-59b9959c",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; uv; source extracted from git archive of frozen commit; private build dependencies.",
+      "input_closure": "Exact git archive of 59b9959; native wheel + sdist build.",
+      "outcome": "PASS",
+      "output": "One build pair succeeded. Wheel SHA256 15069d48377430f79d9e95879db6b88d1b90cc57c5466677a9c3c37ee7966f66; sdist SHA256 3eaa687e924b7b3fdc737ae0d2646062e6a413874ceb723104e2bc706a0fbcdf. Complete output in adjacent evidence EVIDENCE 3; binaries remain ignored scratch."
+    },
+    {
+      "command": "Archive-inspection script policy-engine/_build/hygiene-handoff-draft/inspect_archives_59b9959c.py (invocation argv not retained)",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; Python 3.14.0; exact frozen-source wheel/sdist from one uv build.",
+      "input_closure": "Complete wheel and sdist members compared with frozen source mapping; exact retired path probes; README/non-README apps/packages membership.",
+      "outcome": "PASS",
+      "output": "Wheel: 3,446 files; sdist: 8,312 files; retired hits [], missing canonical members [], byte-mapping mismatches []; exact retired-path mutant rejected. apps/packages: wheel 0; sdist 24 selected README members, zero non-README payload. Full bounded output in adjacent evidence EVIDENCE 4; inspector SHA256 b47f4ad096268a46c5103964c0848d2104c2a62e69472a8509fa8f0e23ff751f."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check tests/repo_quality/tools/test_hatch_packaging.py",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; ruff module in shared .venv (read-only).",
+      "input_closure": "Changed Hatch packaging test file.",
+      "outcome": "PASS",
+      "output": "1 file already formatted. Complete output in adjacent evidence EVIDENCE 2."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check tests/repo_quality/tools/test_hatch_packaging.py",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; ruff module in shared .venv (read-only).",
+      "input_closure": "Changed Hatch packaging test file.",
+      "outcome": "PASS",
+      "output": "All checks passed. Complete output in adjacent evidence EVIDENCE 2."
+    },
+    {
+      "command": "bash -n ops/cloud/gcp/package_repo.sh",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "darwin; system bash.",
+      "input_closure": "Changed GCP package source-bundle script.",
+      "outcome": "PASS",
+      "output": "Exit 0. Complete output in adjacent evidence EVIDENCE 2."
+    },
+    {
+      "command": "git diff --check",
+      "target_sha": "59b9959c8776e9e80f4769de7bf8504a0ec4d285",
+      "environment": "Git worktree codex/e02-C-hygiene at frozen source.",
+      "input_closure": "Diff c40 base to source commit 59b9959.",
+      "outcome": "PASS",
+      "output": "Exit 0. Complete output in adjacent evidence EVIDENCE 2."
+    }
+  ],
+  "property": {
+    "statement": "For this bounded retirement slice, actual in-tree consumers resolve to the existing canonical owners and the exact retired modules are absent from the built wheel/sdist; packaging archives reflect the actual native Hatch selectors and preserve selected README documentation while rejecting non-README apps/packages payload; GCP bundle construction includes every current configured in-root wheel force-include source or fails before archive creation if it is missing or outside policy-engine.",
+    "runtime_path": [
+      "retired import/call site -> canonical Core/Fabric/common.jax_env/benchmark owner -> selected real import or canonical CLI check -> wheel/sdist artifact membership",
+      "hatch.toml wheel force-include source -> package_repo.sh selector -> source tar member -> native Hatch wheel target bytes",
+      "hatch.toml native sdist selector -> actual built sdist -> selected README documentation and non-README apps/packages payload oracle"
+    ],
+    "proxy_divergence": "A pyproject marker-only oracle stays green if the actual native hatch.toml selector is mutated to include apps and packages; in the negative control this leaked four source sentinels while pyproject remained unchanged. Likewise, a fixed static GCP include list can omit a real hatch.toml wheel force-include input even when the config file itself is present; the configured-added-source control reaches tar and wheel only when the selector derives it from native config.",
+    "negative_controls": [
+      "Mutated actual Hatch sdist include selector by adding apps and packages while leaving pyproject unchanged; four code sentinels leaked and behavioral payload oracle rejected the archive.",
+      "Added an actual configured wheel force-include source; GCP tar contained it and native wheel target bytes matched the expected SHA256.",
+      "Configured force-include source missing from the product root; archive count remained zero and packaging failed before opening tar.",
+      "Configured force-include path escaping product root; archive count remained zero and packaging failed before opening tar.",
+      "Injected exact retired wrapper path into archive-membership fixture; inspector rejected it."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "All six LA closure records remain partial. The exact current package-artifact and configured GCP archive properties are recomputed by native builds and bounded selectors; no broader external-compatibility claim is made.",
+  "limitations_and_next_owner": [
+    "The source-level independent adversarial reviewer accepted exact implementation SHA 59b9959c8776e9e80f4769de7bf8504a0ec4d285/tree b1c6f741c368cec06a3cfe6d9a4b4907efed4abe after scoped review and inspection of complete outputs. The reviewer did not independently rerun Hatch in another environment.",
+    "All six LA statuses remain partial: LA-008 external/dynamic compatibility for retired import locations is unknown; LA-009 complete external Scientist consumer/config census is incomplete; LA-011 real system bootstrap and full CI/notebook/external setup use were not exercised; LA-012 external wrapper imports/full benchmark reproduction are unestablished; LA-013 frontend/README.md was absent at c40 and is not closed here; LA-018 external Lex import compatibility is unknown.",
+    "Packaging scope preserves README files selected by the current native Hatch README selector. The 24 actual sdist apps/packages members are README documentation; all non-README payload members are absent. This is not a zero-pathname claim, does not change the README policy, and does not claim arbitrary symlink/host-filesystem portability or universal atomic publication.",
+    "The GCP check covers the current configured regular-file force-include source set under policy-engine; it validates those configured sources before opening the archive. It does not claim support for arbitrary external paths.",
+    "The scoped run did not run the broad backend/CI suite. The pre-existing README admission exception remains UNRUN as reported.",
+    "Selected gate reds replayed at c40, but the changed chronology/recursive gate modules intersect their complete input denominator, so P41 attribution is not established. The dynamic import gate finding sets match at 210 but its source denominator changes 241/205 to 240/204; this also is not established as inherited/disjoint. Huge replay output stays ignored: policy-engine/_build/hygiene-handoff-draft/raw/slice-base-c40-selected-red-gates-valid.txt@a5e408a28d5bcf99aa6b385975caf9302ac5e2bd2b814789c9619f5fdab678e4; policy-engine/_build/hygiene-handoff-draft/raw/candidate-selected-red-gates.txt@1ddb816362b43ca2b5f36d1afd76b0f18a78e0313d71c6a5d2933f05d2a2c991; policy-engine/_build/hygiene-handoff-draft/raw/slice-base-c40-dynamic-import-gate-valid.txt@8d2d38d9764a7fd281124b507ad0f1ff528edf4c712dc71f07a89ae5dc45162b; policy-engine/_build/hygiene-handoff-draft/raw/candidate-dynamic-import-gate.txt@a7533d0687be8e3b52e699228ca946e023e136abd71b3acfd357be280838dcbb.",
+    "Closure owner/root to decide final LA transitions and broader checkpoint integration; this leaf did not push."
+  ]
+}

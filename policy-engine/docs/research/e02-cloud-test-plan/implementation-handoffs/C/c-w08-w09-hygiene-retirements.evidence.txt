@@ -1,0 +1,182 @@
+HANDOFF EVIDENCE — CW-W08/W09 · HYG-02/HYG-04
+Source commit: 59b9959c8776e9e80f4769de7bf8504a0ec4d285
+Source tree: b1c6f741c368cec06a3cfe6d9a4b4907efed4abe
+Base commit: c40d4acae1ce58b597267255026d9356565828fd
+The source-level adversarial review accepted this exact source commit/tree. The reviewer inspected the retained complete test/build outputs and source delta; the reviewer did not independently rerun Hatch in a separate environment.
+
+CLASSIFICATION / BOUNDS
+F03-P063, F08-P065 and F14-P075 overlap on three old HYG-04 oracles: the caller census treated a historical receipt document as a live runtime caller; the frontend workspace assertion expected obsolete [tool.hatch] pyproject data after native hatch.toml migration; and the redirect lifecycle oracle assumed frontend/README.md existed although it was absent at base c40. These are scaffold/proxy or stale-object assumptions, not evidence of three current native runtime defects. The current Hatch fixture derives its selectors from native configuration and tests artifacts behaviorally. The actual GCP archive omission of configured wheel force-include files was a native defect and is fixed with pre-archive source validation.
+Packaging claim is bounded: the source-built sdist preserves README members selected by the native Hatch README selector while excluding all other apps/packages payload members in the tested configured context. This does not claim zero apps/packages pathnames. Existing docs are preserved. The synthetic mutant that adds apps and packages to the native sdist selector leaves pyproject unchanged, leaks source sentinels, and is rejected by the payload oracle. GCP source selection follows the actual native wheel force-include mapping. The checks cover the configured current regular-file inputs and do not claim arbitrary symlink/host-filesystem portability or universal atomic publication.
+No broad backend or CI suite was run by this scoped change. The pre-existing selected gates replayed against c40 and remained red; because the changed chronology/recursive gate test modules intersect their complete denominator, P41 origin is not established. The dynamic import gate had equal 210 finding sets at base and candidate but its source denominator changed (241/205 to 240/204), so it is also not established as inherited/disjoint. No suite is reported green on this basis.
+LA-013 is partial: frontend/README.md was already absent at base c40, so this patch claims no deletion or lifecycle closure for that object.
+
+EVIDENCE 1 — native Hatch packaging tests at frozen source
+Original ignored scratch log: policy-engine/_build/hygiene-handoff-draft/logs/hatch-module-final.txt
+Original log SHA256: 9dc1131acf21ebe9939ba64162b4f2edcbd4046d0a4f6976146b5156e3d29ba5; bytes: 8284
+
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-9.1.1, pluggy-1.6.0 -- /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items
+
+tests/repo_quality/tools/test_hatch_packaging.py::test_native_backend_preserves_complete_wheel_and_sdist_contract {"apps_packages_readmes": ["apps/README.md", "apps/runtime-dashboard/README.md", "apps/runtime-dashboard/e2e/README.md", "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/README.md", "apps/runtime-dashboard/public/README.md", "apps/runtime-dashboard/public/bureaucracy/README.md", "apps/runtime-dashboard/scripts/README.md", "apps/runtime-dashboard/src/README.md", "apps/runtime-dashboard/src/api/README.md", "apps/runtime-dashboard/src/api/hooks/README.md", "apps/runtime-dashboard/src/app/README.md", "apps/runtime-dashboard/src/features/README.md", "apps/runtime-dashboard/src/shared/README.md", "apps/runtime-dashboard/src/shared/charts/README.md", "apps/runtime-dashboard/src/shared/ui/README.md", "apps/runtime-dashboard/src/test/README.md", "apps/runtime-reference-shell/README.md", "packages/README.md", "packages/atlas-ui/README.md", "packages/atlas-ui/src/README.md", "packages/atlas-ui/src/primitives/README.md", "packages/atlas-ui/tests/README.md", "packages/cli/src/styleguide/README.md", "packages/runtime-api-client/README.md"], "apps_packages_source_sentinels": ["apps/runtime-dashboard/src/hygiene_sdist_sentinel.py", "apps/runtime-dashboard/src/hygiene_sdist_sentinel.ts", "packages/atlas-ui/src/hygiene_sdist_sentinel.js", "packages/atlas-ui/src/hygiene_sdist_sentinel.tsx"], "backend": "1.32.4", "context_paths": 8307, "excluded_basenames": ["debt-register.md", "ledger.md"], "native_sdist_include": ["architecture/production_quality/method_catalog_dependency_digest_domains.toml", "src/polisyos", "benchmarks", "docs", "ops", "schemas", "tools", "CHANGELOG.md", "README.md", "ruff.toml", "mypy.ini", "basedpyright.toml", "pytest.ini", "mutmut.cfg", "pyproject.toml", "hatch.toml"], "native_wheel_force_include_sources": ["architecture/production_quality/method_catalog_dependency_digest_domains.toml"], "native_wheel_packages": ["src/polisyos", "tools"]}
+{"wheel_members_except_record": 3444, "sdist_members": 8308, "sdist_delta": ["architecture/production_quality/method_catalog_dependency_digest_domains.toml", "hatch.toml"]}
+PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_native_sdist_excludes_frontend_sources_and_rejects_scope_leak_mutant {"mutant_payload_members": ["apps/runtime-dashboard/src/hygiene_sdist_sentinel.py", "apps/runtime-dashboard/src/hygiene_sdist_sentinel.ts", "packages/atlas-ui/src/hygiene_sdist_sentinel.js", "packages/atlas-ui/src/hygiene_sdist_sentinel.tsx"], "mutated_hatch_includes": ["apps", "packages"], "mutated_pyproject_unchanged": true, "native_payload_members": [], "native_readme_members": ["apps/README.md", "apps/runtime-dashboard/README.md", "apps/runtime-dashboard/e2e/README.md", "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/README.md", "apps/runtime-dashboard/public/README.md", "apps/runtime-dashboard/public/bureaucracy/README.md", "apps/runtime-dashboard/scripts/README.md", "apps/runtime-dashboard/src/README.md", "apps/runtime-dashboard/src/api/README.md", "apps/runtime-dashboard/src/api/hooks/README.md", "apps/runtime-dashboard/src/app/README.md", "apps/runtime-dashboard/src/features/README.md", "apps/runtime-dashboard/src/shared/README.md", "apps/runtime-dashboard/src/shared/charts/README.md", "apps/runtime-dashboard/src/shared/ui/README.md", "apps/runtime-dashboard/src/test/README.md", "apps/runtime-reference-shell/README.md", "packages/README.md", "packages/atlas-ui/README.md", "packages/atlas-ui/src/README.md", "packages/atlas-ui/src/primitives/README.md", "packages/atlas-ui/tests/README.md", "packages/cli/src/styleguide/README.md", "packages/runtime-api-client/README.md"], "negative_control": "PASS non-README payload oracle rejected mutated native sdist"}
+PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_missing_or_wrong_native_config_is_detected_by_real_build[missing] missing: backend rejected: Unable to determine which files to ship inside the wheel using the following heuristics: https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection
+
+The most likely cause of this is that there is no directory that matches the name of your project (policy_engine).
+
+At least one file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: https://hatch.pypa.io/latest/config/build/
+
+As an example, if you intend to ship a directory named `foo` that resides within a `src` directory located at the root of your project, you can define the following:
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/foo"]
+PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_missing_or_wrong_native_config_is_detected_by_real_build[wrong_prefix] wrong_prefix: backend rejected: Unable to determine which files to ship inside the wheel using the following heuristics: https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection
+
+The most likely cause of this is that there is no directory that matches the name of your project (policy_engine).
+
+At least one file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: https://hatch.pypa.io/latest/config/build/
+
+As an example, if you intend to ship a directory named `foo` that resides within a `src` directory located at the root of your project, you can define the following:
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/foo"]
+PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_missing_or_wrong_native_config_is_detected_by_real_build[packages] packages: backend artifact differs from the legacy contract
+PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_missing_or_wrong_native_config_is_detected_by_real_build[entrypoint] entrypoint: backend artifact differs from the legacy contract
+PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_docker_manifest_copy_keeps_native_build_behavior[0] PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_docker_manifest_copy_keeps_native_build_behavior[1] PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_gcp_archive_carries_buildable_native_config {"escape_source_archive_count": 0, "escape_source_control": "Configured Hatch wheel force-include source escapes policy-engine: ../../hygiene_outside_probe.toml", "missing_source_archive_count": 0, "missing_source_control": "Configured Hatch wheel force-include source is missing: architecture/hygiene_bundle_probe.toml", "mutant_added_force_include_source": "architecture/hygiene_bundle_probe.toml", "mutant_archive_member": "policy-engine/architecture/hygiene_bundle_probe.toml", "mutant_wheel_target": "polisyos/hygiene_bundle_probe.toml", "mutant_wheel_target_sha256": "e9f7b2899c2804ea8a9956f29d2face0af23cad9205105d326080024dc666d64", "native_bundle_archive_count": 1, "native_wheel_member_count": 3444, "negative_control": "PASS missing/out-of-root configured sources rejected pre-archive"}
+PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_context_rejects_nonfile_tracked_input[missing] PASSED
+tests/repo_quality/tools/test_hatch_packaging.py::test_context_rejects_nonfile_tracked_input[directory] PASSED
+
+======================== 11 passed in 114.56s (0:01:54) ========================
+
+EVIDENCE 2 — focused tests, architecture, generator, CLI, lint and syntax checks
+Original ignored scratch log: policy-engine/_build/hygiene-handoff-draft/logs/portable-checks-59b9959c.txt
+Original log SHA256: f6c8a5ac0185614db2bb3b38eab85da7c7a7eae80197422eb37177158643eb37; bytes: 4377
+
+source_commit=59b9959c8776e9e80f4769de7bf8504a0ec4d285
+source_tree=b1c6f741c368cec06a3cfe6d9a4b4907efed4abe
+branch=codex/e02-C-hygiene
+python=/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python
+PYTHONPATH=src:.
+
+[focused-hygiene-tests]
+command=/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_hyg_04.py tests/unit/scientist/governance/test_shared_shims.py tests/unit/lex/mirror_contracts/test_factlog.py tests/unit/scientist/evidence/test_phase44_taxonomy.py -q
+exit_code=0
+......................                                                   [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/governance/test_shared_shims.py::test_profiles_shim_points_to_core
+  /Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/tests/unit/scientist/governance/test_shared_shims.py:13: DeprecationWarning: polisyos.scientist.governance.profiles is deprecated; use polisyos.core.governance.profiles
+    from polisyos.scientist.governance.profiles import ValidationProfile as LegacyValidationProfile
+
+tests/unit/scientist/governance/test_shared_shims.py::test_legal_backend_shims_point_to_core
+  /Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/tests/unit/scientist/governance/test_shared_shims.py:79: DeprecationWarning: polisyos.scientist.governance.legal.ast_policy is deprecated; use polisyos.core.governance.legal.ast_policy
+    from polisyos.scientist.governance.legal.ast_policy import ASTPolicy as LegacyASTPolicy
+
+tests/unit/scientist/governance/test_shared_shims.py::test_legal_backend_shims_point_to_core
+  /Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/tests/unit/scientist/governance/test_shared_shims.py:80: DeprecationWarning: polisyos.scientist.governance.legal.backends.expr_ast is deprecated; use polisyos.core.governance.legal.backends.expr_ast
+    from polisyos.scientist.governance.legal.backends.expr_ast import (
+
+tests/unit/scientist/governance/test_shared_shims.py::test_legal_backend_shims_point_to_core
+  /Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/tests/unit/scientist/governance/test_shared_shims.py:83: DeprecationWarning: polisyos.scientist.governance.legal.backends.stub is deprecated; use polisyos.core.governance.legal.backends.stub
+    from polisyos.scientist.governance.legal.backends.stub import StubBackend as LegacyStubBackend
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+[selected-architecture-tests]
+command=/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/repo_quality/architecture/test_repository_best_in_class_phase1_5_contracts.py::test_phase1_5_dynamic_import_and_example_contracts_are_declared tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py::test_phase2_active_migration_shims_have_required_metadata tests/repo_quality/architecture/test_public_api_facades.py tests/repo_quality/architecture/test_last_mile_import_map.py::test_phase_0_3_shim_caller_generator_scans_ast_and_dynamic_strings -q
+exit_code=0
+........                                                                 [100%]
+
+[canonical-tool-config-generator]
+command=/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.devx.workspace.tool_configs --check
+exit_code=0
+
+[real-benchmark-cli-help]
+command=/Users/deniskopylov/polisyos/policy-engine/.venv/bin/polisyos-tools benchmarks run-all --help
+exit_code=0
+Usage: polisyos-tools benchmarks run-all [--circuit ID] [--mode MODE] [--tier TIER] [--profile PROFILE] [--json-dir PATH]
+Delegates to the canonical tools benchmark runner and writes reports to `tools/research/benchmarks/_reports/` by default.
+
+[ruff-format-check]
+command=/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check tests/repo_quality/tools/test_hatch_packaging.py
+exit_code=0
+1 file already formatted
+
+[ruff-lint]
+command=/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check tests/repo_quality/tools/test_hatch_packaging.py
+exit_code=0
+All checks passed!
+
+[gcp-script-syntax]
+command=bash -n ops/cloud/gcp/package_repo.sh
+exit_code=0
+
+[diff-whitespace]
+command=git diff --check
+exit_code=0
+
+RESULT=PASS all focused, architecture, generator, CLI, Ruff, shell-syntax, and whitespace checks
+
+EVIDENCE 3 — wheel and sdist built from git archive of frozen source
+Original ignored scratch log: policy-engine/_build/hygiene-handoff-draft/logs/uv-build-59b9959c.txt
+Original log SHA256: f3d11a23b0520c809d49591af4426d1de585db7cb01cbf8c92a297cdd9553802; bytes: 815
+
+source_commit=59b9959c8776e9e80f4769de7bf8504a0ec4d285
+source_tree=b1c6f741c368cec06a3cfe6d9a4b4907efed4abe
+cwd=/Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/_build/hygiene-handoff-draft/source-59b9959c/policy-engine
+command=uv build --wheel --sdist --out-dir /Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/_build/hygiene-handoff-draft/archives-59b9959c
+exit_code=0
+Building source distribution...
+Building wheel...
+Successfully built /Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/_build/hygiene-handoff-draft/archives-59b9959c/policy_engine-0.1.0.tar.gz
+Successfully built /Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/_build/hygiene-handoff-draft/archives-59b9959c/policy_engine-0.1.0-py3-none-any.whl
+
+EVIDENCE 4 — complete wheel/sdist inspection and exact-path negative control
+Original ignored scratch log: policy-engine/_build/hygiene-handoff-draft/logs/archive-inspection-59b9959c.txt
+Original log SHA256: 4c6d59e093d60263406837259db9ff61df0eb3d71b266789352a878490defc92; bytes: 4448
+
+archive=/Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/_build/hygiene-handoff-draft/archives-59b9959c/policy_engine-0.1.0-py3-none-any.whl
+sha256=15069d48377430f79d9e95879db6b88d1b90cc57c5466677a9c3c37ee7966f66
+members=3446 files=3446 directories=0
+normalized_files=3446 generated_metadata_files=5 source_byte_matches=3440 generated_owner_byte_matches=1
+retired_exact_path_hits=[]
+missing_canonical_members=[]
+source_mapping_mismatches=[]
+apps_packages_members={'apps': 0, 'packages': 0}
+apps_packages_readme_members=0 non_readme_payload_members=[]
+apps_packages_member_paths=[]
+negative_control=PASS rejected injected exact path=tools/research/benchmarks/harness.py
+canonical_member_sha256={'src/polisyos/common/jax_env.py': 'c47cae7faa16a86b0353ba95149a3a9d3ba1c26f2e0f39bbdae78277d89214e1', 'src/polisyos/core/governance/passes/base.py': 'b4795a2f6d7c331269a3c47af719a8dc4884ad539cc5e18aad340bbc7ef71f1f', 'src/polisyos/core/governance/passes/legal_pass.py': '9f5b1f65b37e608a127ffff7559b311ee4d0fc4707433fd95393d98a9300b3b5', 'src/polisyos/core/governance/passes/safety_pass.py': '18611aa8d50573277188f986f81d590b859f1c7b99889c8696745d6dfb06ad5b', 'src/polisyos/scientist/governance/passes/__init__.py': '6bedc88d937c0d6af266d6b227d84998e48c258da7bdd8bc86ebfdaf10e0c163', 'tools/research/benchmarks/jax/bench_domain.py': 'ddf6a39631ea53c1e3334227ef7a169ac3a016d6fb17b9be0482c382db7a34f2', 'tools/research/benchmarks/jax/bench_simulation.py': 'd86bb20005259b2aa0e618d6b3f1b25f5fd956314462554449e7590e4da622bb', 'tools/research/demos/run_laffer_demo.py': '350ade7f9cde450bc329019c1555f5a889716af86bf72acaa9c47b1e8afd20b1'}
+archive=/Users/deniskopylov/.codex/worktrees/e02-c-hygiene/polisyos/policy-engine/_build/hygiene-handoff-draft/archives-59b9959c/policy_engine-0.1.0.tar.gz
+sha256=3eaa687e924b7b3fdc737ae0d2646062e6a413874ceb723104e2bc706a0fbcdf
+members=8312 files=8312 directories=0
+normalized_files=8312 generated_metadata_files=1 source_byte_matches=8311 generated_owner_byte_matches=0
+retired_exact_path_hits=[]
+missing_canonical_members=[]
+source_mapping_mismatches=[]
+apps_packages_members={'apps': 17, 'packages': 7}
+apps_packages_readme_members=24 non_readme_payload_members=[]
+apps_packages_member_paths=['apps/README.md', 'apps/runtime-dashboard/README.md', 'apps/runtime-dashboard/e2e/README.md', 'apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/README.md', 'apps/runtime-dashboard/public/README.md', 'apps/runtime-dashboard/public/bureaucracy/README.md', 'apps/runtime-dashboard/scripts/README.md', 'apps/runtime-dashboard/src/README.md', 'apps/runtime-dashboard/src/api/README.md', 'apps/runtime-dashboard/src/api/hooks/README.md', 'apps/runtime-dashboard/src/app/README.md', 'apps/runtime-dashboard/src/features/README.md', 'apps/runtime-dashboard/src/shared/README.md', 'apps/runtime-dashboard/src/shared/charts/README.md', 'apps/runtime-dashboard/src/shared/ui/README.md', 'apps/runtime-dashboard/src/test/README.md', 'apps/runtime-reference-shell/README.md', 'packages/README.md', 'packages/atlas-ui/README.md', 'packages/atlas-ui/src/README.md', 'packages/atlas-ui/src/primitives/README.md', 'packages/atlas-ui/tests/README.md', 'packages/cli/src/styleguide/README.md', 'packages/runtime-api-client/README.md']
+negative_control=PASS rejected injected exact path=tools/research/benchmarks/harness.py
+canonical_member_sha256={'src/polisyos/common/jax_env.py': 'c47cae7faa16a86b0353ba95149a3a9d3ba1c26f2e0f39bbdae78277d89214e1', 'src/polisyos/core/governance/passes/base.py': 'b4795a2f6d7c331269a3c47af719a8dc4884ad539cc5e18aad340bbc7ef71f1f', 'src/polisyos/core/governance/passes/legal_pass.py': '9f5b1f65b37e608a127ffff7559b311ee4d0fc4707433fd95393d98a9300b3b5', 'src/polisyos/core/governance/passes/safety_pass.py': '18611aa8d50573277188f986f81d590b859f1c7b99889c8696745d6dfb06ad5b', 'src/polisyos/scientist/governance/passes/__init__.py': '6bedc88d937c0d6af266d6b227d84998e48c258da7bdd8bc86ebfdaf10e0c163', 'tools/research/benchmarks/jax/bench_domain.py': 'ddf6a39631ea53c1e3334227ef7a169ac3a016d6fb17b9be0482c382db7a34f2', 'tools/research/benchmarks/jax/bench_simulation.py': 'd86bb20005259b2aa0e618d6b3f1b25f5fd956314462554449e7590e4da622bb', 'tools/research/demos/run_laffer_demo.py': '350ade7f9cde450bc329019c1555f5a889716af86bf72acaa9c47b1e8afd20b1'}
+RESULT=PASS wheel and sdist exact-retirement/source-mapping checks; synthetic retired-path negative control rejected
+
+UNRUN / NOT CLAIMED
+The pre-existing README admission exception remains UNRUN as reported; this work did not change its status. The broad backend/CI suite was not run in this scoped slice.

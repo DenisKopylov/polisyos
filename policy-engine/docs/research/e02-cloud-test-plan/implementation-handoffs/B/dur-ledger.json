@@ -433,7 +433,7 @@
       "command": "PYTHONPATH=/workspace/e02-B-dur-ledger/policy-engine/src:/workspace/e02-B-dur-ledger/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_dur_02.py tests/unit/runtime/http/test_acquisition_control_worker.py tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py -vv --tb=short -o cache_dir=_build/e02-B-dur-ledger/dur-02-cache",
       "target_sha": "53f57da31b6a15397d5dcd9c03d49dc70b8c6daf",
       "environment": "Linux x86_64, Python 3.14.2, pytest 9.0.2; shared interpreter unchanged",
-      "input_closure": "Bounded temporary JSON files; real FileBudgetLedger and BudgetMiddleware; subprocesses inherit this interpreter and worktree PYTHONPATH; no production data, DB, network service or fixed port. Current source tree 53f57da31b6a15397d5dcd9c03d49dc70b8c6daf.",
+      "input_closure": "Temporary per-test SQLite acquisition/control state and real guarded worker owner/attempt/valid-lease fences; real FallbackWorkflowRunner with bounded effect-log and typed primary-health collaborators. Current source and tests at 53f57da31b6a15397d5dcd9c03d49dc70b8c6daf; shared interpreter and worktree PYTHONPATH as recorded. No external DB/backend, production data, network service or fixed port; test-local SQLite uses isolated temporary files.",
       "outcome": "PASS",
       "exit": 0,
       "wall_s": 30.460724779999964,

@@ -1,0 +1,124 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "scholar",
+  "closure_ids": [
+    "B17",
+    "LA-024",
+    "LA-025"
+  ],
+  "bundle_ids": [
+    "SCL-01",
+    "SCL-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "b9657b90ea3c4b2c62b8e6036acc68e60f861c20",
+    "e6587d8994bb4dce602cf7953045021d43eb8f2d"
+  ],
+  "candidate_tree_sha": "b7fe0961bc9e37710cc55954f59e98c9d7edbbc5",
+  "branch": "codex/e02-C-scholar",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/scholar/api.py",
+    "policy-engine/src/polisyos/scholar/search/__init__.py",
+    "policy-engine/src/polisyos/scholar/search/fetcher.py",
+    "policy-engine/src/polisyos/scholar/search/jobs.py",
+    "policy-engine/src/polisyos/scholar/search/models.py",
+    "policy-engine/src/polisyos/scholar/search/providers.py",
+    "policy-engine/src/polisyos/scholar/search/scoring.py",
+    "policy-engine/src/polisyos/scholar/search/service.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+    "policy-engine/tests/unit/scholar/search/test_providers.py",
+    "policy-engine/tests/unit/scholar/search/test_service_jobs_tools.py",
+    "policy-engine/tests/unit/scholar/test_api_web_bootstrap.py",
+    "policy-engine/tests/unit/scientist/evidence/test_decision_packet_web_evidence.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-scholar/polisyos/policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -q -o addopts= tests/unit/scholar/search/test_providers.py tests/unit/scholar/test_api_web_bootstrap.py tests/unit/scholar/search/test_service_jobs_tools.py tests/unit/scholar/search/test_openalex_provider.py tests/unit/scholar/search/test_fetcher_security_cache.py tests/unit/scholar/mirror_contracts/test_http_fetch.py tests/unit/scientist/evidence/test_decision_packet_web_evidence.py",
+      "target_sha": "e6587d8994bb4dce602cf7953045021d43eb8f2d",
+      "environment": "Darwin; Python 3.14.0 from /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python; PYTHONPATH points to this candidate worktree's policy-engine/src; cwd is the worktree's policy-engine directory.",
+      "input_closure": "The seven pytest files named in argv and their imports at target SHA e6587d8994bb4dce602cf7953045021d43eb8f2d. The snapshot scenario uses an isolated temporary CAS and localhost HTTP fixture; no production data or external provider request.",
+      "outcome": "PASS",
+      "output": "45 passed, 1 warning in 5.97s. The warning is PytestConfigWarning: Unknown config option: cache_dir. Complete stdout is committed at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-checks.txt (SHA-256 d2c46a882be14a1d19d2d46f54c19098260aa37cb03c16a27976a162ee7dbe6a)."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/scholar/search/jobs.py src/polisyos/scholar/search/models.py src/polisyos/scholar/search/service.py src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py tests/unit/scholar/search/test_service_jobs_tools.py tests/unit/scholar/test_api_web_bootstrap.py tests/unit/scientist/evidence/test_decision_packet_web_evidence.py",
+      "target_sha": "e6587d8994bb4dce602cf7953045021d43eb8f2d",
+      "environment": "Darwin; Python 3.14.0; cwd is the worktree's policy-engine directory.",
+      "input_closure": "The seven paths changed by the schema-profile correction commit e6587d8994bb4dce602cf7953045021d43eb8f2d.",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/scholar/search/jobs.py src/polisyos/scholar/search/models.py src/polisyos/scholar/search/service.py src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py tests/unit/scholar/search/test_service_jobs_tools.py tests/unit/scholar/test_api_web_bootstrap.py tests/unit/scientist/evidence/test_decision_packet_web_evidence.py",
+      "target_sha": "e6587d8994bb4dce602cf7953045021d43eb8f2d",
+      "environment": "Darwin; Python 3.14.0; cwd is the worktree's policy-engine directory.",
+      "input_closure": "The seven paths changed by the schema-profile correction commit e6587d8994bb4dce602cf7953045021d43eb8f2d.",
+      "outcome": "PASS",
+      "output": "7 files already formatted."
+    },
+    {
+      "command": "obs_udf mandatory admission gate",
+      "target_sha": "not_bound_to_candidate_sha",
+      "environment": "Root-reported admission state; exact argv and runtime were not retained in this leaf receipt.",
+      "input_closure": "An unrelated stale admin registration reported by root; no registration inventory was modified or pruned.",
+      "outcome": "UNRUN",
+      "output": "The admission gate reported exit 2 and stopped product checks. The user explicitly authorized continuing in the verified C worktree despite this unrelated admission failure. This is not a product result and is not classified as inherited under P41."
+    },
+    {
+      "command": "uv run polisyos-tools architecture guardrails check",
+      "target_sha": "not_established_for_interrupted_run",
+      "environment": "Local worktree; full elapsed runtime was not retained.",
+      "input_closure": "Repository architecture guardrails; no complete output was captured.",
+      "outcome": "UNRUN",
+      "output": "The run was interrupted with SIGTERM under root's resource direction before a complete result was produced. Runtime and complete output were not retained. This is not a product failure or an inherited-failure claim."
+    }
+  ],
+  "property": {
+    "statement": "Empty provider outcomes and failure reasons remain explicit. For the tested search-to-enrichment bridge, the bytes selected from the search-time CAS snapshot are passed as a bytes-backed SourceSpec after request URL/fetch-profile, artifact reference, digest, and size checks; a changed origin response does not replace that captured snapshot. Current WebEvidenceBundle/checkpoint writers bind the emitted 1.1 body to CAS SchemaInfo 1.1; strict readers accept only the established exact 1.0 profile or current 1.1 profile and return typed blocked outcomes for unsupported or mismatched profiles.",
+    "runtime_path": [
+      "ProviderFailoverPolicy -> ScholarDeepSearchService provider query trace -> SearchProviderAttempt outcome/error reason retained in WebEvidenceBundle and surfaced by the Scholar API error path.",
+      "ScholarDeepSearchService.deep_search/fetch -> raw response bytes persisted by FileSystemCAS -> WebEvidenceBundle SourceMetadata artifact_id/content_sha256/fetch_profile and persisted web-evidence artifact.",
+      "scholar.api.enrich_topic -> _seed_sources_from_web_bundle -> _source_spec_from_snapshot verifies request binding, fetch-profile agreement, CAS reference, digest, bytes and declared size -> bytes-backed SourceSpec passed to _enrich_topic; the test stub calls the real _acquire_bytes validator on that SourceSpec.",
+      "ScholarDeepSearchService.persist_bundle and DeepResearchJobManager checkpoint writer emit schema/body version 1.1; the decision-packet web-evidence reader and research-job checkpoint resume/snapshot readers validate the bound CAS profile; exact established 1.0 fixtures remain covered.",
+      "Decision-packet reader rejects CAS/body mismatches and unsupported versions as typed blocked/degraded output; job checkpoint parsing rejects mismatched or unsupported profiles rather than treating them as current."
+    ],
+    "proxy_divergence": "Comparing URL or source_id alone would claim identity when the origin now serves changed v2 bytes. The local HTTP test records the search fetch, then verifies enrichment receives the exact v1 bytes from CAS without a second request; CAS digest/ref and request binding are recomputed and compared. Likewise, a schema name or field-name check alone would accept bytes whose CAS and body versions disagree; the actual readers bind both and block mismatches.",
+    "negative_controls": [
+      "Mutated CAS bytes: reject when recomputed content digest differs from SourceMetadata.content_sha256.",
+      "Sibling artifact reference: reject with artifact_ref_mismatch rather than reading a different raw object.",
+      "Wrong request URL/fetch profile: reject with request_binding_mismatch.",
+      "Empty first provider followed by a local provider result: second permitted provider is called; an empty result does not mean global search exhaustion.",
+      "Exact legacy checkpoint/bundle fixture with new-only provider_attempts under v1.0: retain the established old shape and reject mislabeling.",
+      "CAS schema/body mismatch, unsupported future version, and v1.1 content mislabeled as legacy: strict actual readers return typed blocked/error outcomes."
+    ],
+    "schema_profile_evidence": [
+      "Exact established WebEvidenceBundle/checkpoint 1.0 fixtures remain loadable through their corresponding readers.",
+      "Current bundle and checkpoint writers persist body schema_version 1.1 with matching CAS SchemaInfo version 1.1.",
+      "Decision-packet and jobs are both exercised as actual consumers for current profiles; unsupported/mismatched profiles fail closed.",
+      "No claim is made that arbitrary older consumers accept newly emitted 1.1 bytes or that unobserved historical 1.0 variants are compatible."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "partial: preserve the current partial dispositions for B17, LA-024, and LA-025. B17 behavior is verified for empty-response continuation and reason persistence, without a claim of global search exhaustion. LA-024 shared transport/seed-route closure remains partial. LA-025 verifies the snapshot handoff through the bytes-backed enrichment input boundary, but the full _enrich_topic implementation is stubbed in the bridge fixture.",
+  "limitations_and_next_owner": [
+    "SCL-01 / LA-024 remains partial: this slice changes the Scholar search transport but does not complete the common discover/search transport and both-adapter cutover. Continue with the SCL-01 closure owner; preserve raw bytes, redirects, access, MIME, size and timeout semantics.",
+    "SCL-03 / LA-025 remains partial: test_api_web_bootstrap replaces _enrich_topic with a stub, then exercises the real _acquire_bytes verifier. Full producer-to-real-enrichment consumer behavior, enrichment artifact/event persistence, and downstream claim effects are not established by this receipt. Continue with the SCL-03 closure owner.",
+    "Only isolated local HTTP/CAS fixtures and local provider fixtures ran. No uncontrolled external requests or production CAS/data were used.",
+    "Schema compatibility is established for the exact known legacy 1.0 fixtures and current 1.1 producer/readers covered by tests. Unknown historical shapes and arbitrary old-reader compatibility with newly emitted 1.1 artifacts remain not established.",
+    "The obs_udf mandatory admission did not proceed past the root-reported unrelated stale-admin exit 2. Continuation used the user's explicit exception authorization; do not alter or prune the unrelated registrations. Re-run admission only through its owner after that state is resolved.",
+    "The architecture guardrail run was interrupted before a complete result and has no retained elapsed runtime or complete output. It remains UNRUN, not a product failure and not an inherited-failure claim.",
+    "No full backend, broad architecture, production-data, or numerical gate is claimed."
+  ],
+  "independent_review": {
+    "reviewer": "Independent schema-owner review (root)",
+    "outcome": "ACCEPT",
+    "reviewed_commit": "e6587d8994bb4dce602cf7953045021d43eb8f2d",
+    "reviewed_tree_sha": "b7fe0961bc9e37710cc55954f59e98c9d7edbbc5",
+    "scope": "Complete AST field delta from slice base c40d4acae1ce58b597267255026d9356565828fd: WebEvidenceBundle/SourceMetadata additions and trace-only provider_attempts; other cited fields were already present at base.",
+    "finding": "No actual schema leak remains. The only objection was a hypothetical future-field compatibility concern and was judged non-blocking. Acceptance covers the current 1.1 producer/profile handshake, the two actual readers, exact known legacy 1.0 fixtures, and typed blocking for mismatched/unsupported profiles; it does not establish compatibility with unobserved historical payloads or old readers of new 1.1 bytes."
+  }
+}

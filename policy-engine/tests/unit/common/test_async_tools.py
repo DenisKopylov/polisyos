@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
+import threading
 import time
 from contextvars import ContextVar
 from typing import get_type_hints
@@ -130,3 +132,73 @@ def test_run_blocking_async_concurrent_soak_smoke() -> None:
     results, executor_ids = run_coro_sync(_exercise())
     assert results == list(range(24))
     assert executor_ids == {id(get_shared_executor())}
+
+
+def test_nested_shared_executor_work_is_rejected_before_pool_saturation(monkeypatch) -> None:
+    """A pool worker cannot enqueue work that needs the same occupied pool."""
+    from polisyos.common import async_tools
+
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", None)
+    monkeypatch.setattr(async_tools.os, "cpu_count", lambda: 4)
+    barrier = threading.Barrier(4)
+    started: list[int] = []
+    finished: list[int] = []
+
+    async def _inner(index: int) -> int:
+        barrier.wait(timeout=3.0)
+        try:
+            return await run_blocking_async(
+                lambda: started.append(index) or 42,
+                timeout_seconds=0.1,
+            )
+        finally:
+            finished.append(index)
+
+    def _outer(index: int) -> Exception:
+        async def _running_loop() -> int:
+            return run_coro_sync(_inner(index), timeout_seconds=0.5)
+
+        try:
+            asyncio.run(_running_loop())
+        except Exception as exc:
+            return exc
+        raise AssertionError("unsupported reentry must be explicit")
+
+    executor = get_shared_executor()
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as callers:
+            errors = list(callers.map(_outer, range(4)))
+        assert all(type(error) is RuntimeError for error in errors)
+        assert all(
+            "shared executor does not support reentrant submission" in str(e) for e in errors
+        )
+        assert started == []
+        assert sorted(finished) == list(range(4))
+
+        async def _control() -> list[int]:
+            return await asyncio.gather(
+                *(run_blocking_async(lambda: 42, timeout_seconds=0.5) for _ in range(4))
+            )
+
+        assert asyncio.run(_control()) == [42, 42, 42, 42]
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_cooperative_timeout_releases_shared_coroutine_worker() -> None:
+    """Cancellation runs finally and makes the worker available to later work."""
+    cleaned = threading.Event()
+
+    async def _wait() -> None:
+        try:
+            await asyncio.sleep(10)
+        finally:
+            cleaned.set()
+
+    async def _running_loop() -> None:
+        with pytest.raises(TimeoutError):
+            run_coro_sync(_wait(), timeout_seconds=0.05)
+
+    asyncio.run(_running_loop())
+    assert cleaned.wait(timeout=0.5)
+    assert get_shared_executor().submit(lambda: 42).result(timeout=0.5) == 42

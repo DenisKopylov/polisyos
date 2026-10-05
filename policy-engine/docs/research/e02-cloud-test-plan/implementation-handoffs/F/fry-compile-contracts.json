@@ -21,7 +21,9 @@
     "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
     "policy-engine/tests/unit/foundry/compile/test_randomization.py",
     "policy-engine/tests/unit/foundry/contracts/test_layout.py",
-    "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+  ],
+  "mandatory_companions": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt"
   ],

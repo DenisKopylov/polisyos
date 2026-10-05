@@ -39,7 +39,7 @@
   "candidate_tree_sha": "2f320f79e56aa1da71dad92f171d9dbac5a72d2d",
   "frozen_executable_sha": "58b04116e25344835f482ef79c16ce87f2d0b771",
   "branch": "codex/e02-B-adapters",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/30",
   "changed_paths": [
     "policy-engine/release-fragments/unreleased/2026-10-05-e02-net01-pool-acquisition.toml",
     "policy-engine/src/polisyos/fabric/connectors/README.md",
@@ -516,7 +516,7 @@
     },
     {
       "id": "registry-half-open",
-      "command": "PYTHONPATH=/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/registry-half-open.py",
+      "command": "PYTHONPATH=/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/registry-half-open.py",
       "target_sha": "d9d61af6359033a08835cf5cc3fecb41c8e6967f",
       "environment": {
         "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
@@ -587,7 +587,7 @@
     },
     {
       "id": "style-companions",
-      "command": "ruff check <five changed Python paths>; ruff format --check <five changed Python paths>; git diff --check; Python tomllib release-fragment required fields/compatibility fields/evidence path assertions",
+      "command": "PYTHONPATH=/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/fabric/connectors/pool.py tests/unit/fabric/connectors/test_pool_e02.py tests/unit/foundry/methods/test_compiler_e02.py tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py; same python -m ruff format --check src/polisyos/fabric/connectors/pool.py tests/unit/fabric/connectors/test_pool_e02.py tests/unit/foundry/methods/test_compiler_e02.py tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py; git diff --check; Python tomllib required release/compatibility fields + evidence path assertions",
       "target_sha": "d9d61af6359033a08835cf5cc3fecb41c8e6967f",
       "environment": {
         "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
@@ -1065,6 +1065,25 @@
   "transport": {
     "published_implementation_head_before_receipt": "58b04116e25344835f482ef79c16ce87f2d0b771",
     "remote_readback": "58b04116e25344835f482ef79c16ce87f2d0b771 refs/heads/codex/e02-B-adapters",
-    "final_handoff_head": "read back after receipt commit; receipt never records its own future commit SHA"
+    "final_handoff_head": "read back after receipt commit; receipt never records its own future commit SHA",
+    "published_receipt_head_before_pr_binding": "10b84273c1e16947b1d8c9c8f15df0588d433e1e",
+    "receipt_remote_readback": "10b84273c1e16947b1d8c9c8f15df0588d433e1e refs/heads/codex/e02-B-adapters"
+  },
+  "receipt_replay_review": {
+    "executor": "independent B DUR reviewer",
+    "audited_head": "10b84273c1e16947b1d8c9c8f15df0588d433e1e",
+    "outcome": "base ancestry/candidate tree/7-path footprint/15 dispositions/37 cells/all 15 full deciding logs and 13 source context hashes PASS; registry command cwd mismatch corrected to absolute driver path and replayed from declared cwd",
+    "replay_command": "PYTHONPATH=/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/registry-half-open.py",
+    "replay_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/adapters-logs/registry-half-open-replay.log",
+    "replay_output_sha256": "4f9973b1edbfd80fa7a310daa514e1c2144ed8360553daff9bdb719e08abcfda",
+    "replay_outcome": "PASS"
+  },
+  "environment_setup_after_checks": {
+    "command": "corepack pnpm install --frozen-lockfile",
+    "cwd": "/workspace/e02-B-adapters/policy-engine",
+    "outcome": "PASS",
+    "output": "Done in 2.9s using pnpm v10.33.2; lockfile current, 1213 reused packages; hooks dispatcher works. Unsupported Node24 vs Node22 engine warning remains. No tracked manifests/lockfiles changed.",
+    "purpose": "checkout-local lefthook for normal commit/push hooks; no hook bypass",
+    "architecture_rerun": "UNRUN: earlier incomplete gate is not acceptance after installing partial inputs"
   }
 }

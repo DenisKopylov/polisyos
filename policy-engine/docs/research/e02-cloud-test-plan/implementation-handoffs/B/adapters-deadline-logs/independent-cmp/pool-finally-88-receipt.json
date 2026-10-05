@@ -1,0 +1,131 @@
+{
+  "schema": "policyos.e02.B_pool_finally_probe.v1",
+  "archive": {
+    "sha256": "390edb12c33c842a35bec63542db2542947af66a1484213a63bdb6c608037cec",
+    "bytes": 456724480,
+    "git_sha": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+    "git_tree": "e8d319521938bca8306425d45cd6543865fd2c6d",
+    "selection": "complete tracked Git tree",
+    "archive_command": [
+      "git",
+      "archive",
+      "--format=tar",
+      "88e27af5f3aedac68fdbe268ec87e17f239d755f"
+    ]
+  },
+  "owner_checkout_before": {
+    "head": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+    "status": ""
+  },
+  "owner_checkout_after": {
+    "head": "88e27af5f3aedac68fdbe268ec87e17f239d755f",
+    "status": ""
+  },
+  "source_root": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/source",
+  "pool_before_sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2",
+  "pool_after_sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2",
+  "canonical_git_source_sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2",
+  "source_identity_unchanged": true,
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "origins": {
+      "polisyos.fabric.connectors.pool": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/source/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "polisyos.fabric.connectors.base": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/source/policy-engine/src/polisyos/fabric/connectors/base.py",
+      "pytest": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+      "pydantic": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py"
+    },
+    "versions": {
+      "pytest": "9.0.2",
+      "pytest-asyncio": "1.3.0",
+      "pydantic": "2.12.5",
+      "duckdb": "1.4.3",
+      "numpy": "2.3.5"
+    }
+  },
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/source/policy-engine/src:/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/source/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "driver": {
+    "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-publication-finally-probe.py",
+    "sha256": "9fb23b7110bc6647b2933f53850ac49d8e2fc9ce5fc8a739c316ed0874a54051"
+  },
+  "checks": [
+    {
+      "name": "negative",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-publication-finally-probe.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 1.535522950000086,
+      "max_rss_kib": 137584,
+      "user_seconds": 1.780412,
+      "system_seconds": 0.161194,
+      "log": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-negative.txt",
+        "bytes": 1764,
+        "sha256": "3fc246bf2fe51b3211a5567f2f812ea5f2301740dd06fd9e3ce0cf0209ad2dbe"
+      }
+    },
+    {
+      "name": "control",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-publication-finally-probe.py",
+        "--release-before-expiry"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 1.4944258439991245,
+      "max_rss_kib": 137600,
+      "user_seconds": 1.722381,
+      "system_seconds": 0.144138,
+      "log": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-control.txt",
+        "bytes": 1763,
+        "sha256": "d799294acd49f1db38a155d6f47f5d2a43f815a39039cec0c0cc93d27ab56c15"
+      }
+    },
+    {
+      "name": "native",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "-ra",
+        "--basetemp",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/native-tmp",
+        "-o",
+        "cache_dir=/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/88-pool-source-0epbnalm/pytest-cache",
+        "--junitxml",
+        "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/native-pool-88.xml",
+        "tests/unit/fabric/connectors/test_pool_e02.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 3.055120576000263,
+      "max_rss_kib": 172676,
+      "user_seconds": 2.766314,
+      "system_seconds": 0.17402099999999998,
+      "log": {
+        "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/pool-finally-88-native.txt",
+        "bytes": 99,
+        "sha256": "6e2ff8346f32031453bf74d7b33efb5d6944a328f23006e950459699bead23b7"
+      }
+    }
+  ],
+  "junit": {
+    "path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/native-pool-88.xml",
+    "bytes": 2888,
+    "sha256": "a38e861c136a001ed49136dab8ae42133c4738f6fba6eedcfefbbcce566fd530"
+  },
+  "source_edit": "none; complete immutable Git archive avoids concurrent author receipt commits",
+  "scope": "actual ConnectionPool and actual close_all consumer, health/metadata locks; in-memory fixture, no data/ports/network; unchanged base falsifier/control plus complete native17 file",
+  "resource_method": "OS wait4 rusage, Linux maxrss KiB; no imposed process/numeric-worker limit",
+  "production_draining_limit": "Does not establish hard physical cancellation/drain wall-time for uncooperative I/O; no served streaming scope"
+}

@@ -3,7 +3,7 @@ title = "Bound connector acquisition and retain cleanup ownership"
 type = "fixed"
 component = "fabric-connectors"
 owner = "team-polisyos"
-summary = "Connector pools enforce the acquisition deadline through connect and health validation, and shutdown waits for admitted acquisitions even when a semaphore waiter is cancelled."
+summary = "Connector pools recompute their absolute acquisition budget before physical work, retries, and final handle publication. Suppressed connector cancellation cannot admit a late handle, and publication commits successful acquisition accounting without a later await. Shutdown retains physical ownership through cleanup."
 evidence = [
   "tests/unit/fabric/connectors/test_pool_e02.py",
   "src/polisyos/fabric/connectors/README.md",
@@ -13,7 +13,7 @@ change_class = "internal"
 surface_classification = "internal: polisyos.fabric.connectors.pool under the public-surface manifest default rule"
 migration = "Review acquire_timeout_seconds as the complete acquisition budget. No configuration fields or exports change."
 api = "ConnectionPool.acquire and close_all retain their signatures."
-limitations = "A disconnect that has not settled still retains ownership and can delay shutdown; the deadline does not authorize abandoning a live handle."
+limitations = "An entered connector operation or disconnect can suppress cancellation or remain blocked. The deadline prevents late admission; it is not a hard wall-time bound or permission to abandon a live handle. Failed disconnect retains ownership and can delay shutdown."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/fabric/connectors/README.md"]

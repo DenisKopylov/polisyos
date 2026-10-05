@@ -1,0 +1,50 @@
+2026-10-05 16:03:43.008 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-05 16:03:43.009 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-05 16:03:43.009 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+{
+  "probe": "real pool lock: publication queued before independent holder; expiry while final bookkeeping awaits",
+  "control_release_before_expiry": false,
+  "module_path": "/workspace/e02-B-cmp-res/policy-engine/_build/e02-B-cmp-res/raw/d0-pool-source-qr3qc6m1/source/policy-engine/src/polisyos/fabric/connectors/pool.py",
+  "module_sha256": "4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7",
+  "budget_seconds": 0.08,
+  "cancel_suppression_in_connector": false,
+  "start_monotonic": 8869.623941797,
+  "at_witness_entered": {
+    "in_use": [
+      "9af3ab77-7c86-4890-83d0-e874c95face9"
+    ],
+    "pending": [],
+    "active_acquires": 1,
+    "active_acquires_done": false,
+    "semaphore_value": 0,
+    "disconnects": []
+  },
+  "acquire_outcome": "PoolExhaustedError",
+  "after_acquire": {
+    "in_use": [
+      "9af3ab77-7c86-4890-83d0-e874c95face9"
+    ],
+    "pending": [],
+    "active_acquires": 1,
+    "active_acquires_done": false,
+    "semaphore_value": 0,
+    "disconnects": []
+  },
+  "close_outcome": "blocked_after_all_connector_operations_settled",
+  "after_close_observation": {
+    "in_use": [],
+    "pending": [
+      "9af3ab77-7c86-4890-83d0-e874c95face9"
+    ],
+    "active_acquires": 1,
+    "active_acquires_done": false,
+    "semaphore_value": 0,
+    "disconnects": []
+  },
+  "source_unchanged": true,
+  "failures": [
+    "Real close consumer cannot drain a completed expired acquire; all connector I/O cooperates",
+    "Completed acquire retains active registration"
+  ]
+}
+2026-10-05 16:03:43.140 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed

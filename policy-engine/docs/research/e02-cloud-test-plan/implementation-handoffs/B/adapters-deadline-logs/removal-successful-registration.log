@@ -1,0 +1,13 @@
+{"mode": "successful-registration", "module": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py", "module_sha256": "40182c5f1e931ada60fc0f584f260a99f9d9be30bb31eabd20526f6fba61d5d2", "driver_sha256": "3068af15d56d6eb43e247c456ae9b3a1f0ecbb7d7fed5dabc1b730893efea738", "scope": "Isolated interpreter only; candidate source/docs/markers untouched, actual pool path executes with one property removed."}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_successful_acquire_does_not_await_metadata_after_publication _______
+tests/unit/fabric/connectors/test_pool_e02.py:164: in test_successful_acquire_does_not_await_metadata_after_publication
+    assert acquire.done(), "published acquisition waited behind the next metadata owner"
+E   AssertionError: published acquisition waited behind the next metadata owner
+E   assert False
+E    +  where False = <built-in method done of _asyncio.Task object at 0x7f1b211b2030>()
+E    +    where <built-in method done of _asyncio.Task object at 0x7f1b211b2030> = <Task pending name='Task-2' coro=<ConnectionPool.acquire() running at /workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py:312> wait_for=<Future pending cb=[Task.task_wakeup()]>>.done
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/connectors/test_pool_e02.py::test_successful_acquire_does_not_await_metadata_after_publication
+1 failed in 0.10s

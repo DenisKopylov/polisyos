@@ -359,6 +359,7 @@ class ConnectionPool(Generic[ConnectorT]):
         try:
             async with timeout:
                 return await self._acquire_owned_before_deadline(
+                    deadline=deadline,
                     live_acquire_permit=live_acquire_permit,
                     live_connector_id=live_connector_id,
                     live_dataset_id=live_dataset_id,
@@ -370,9 +371,15 @@ class ConnectionPool(Generic[ConnectorT]):
                 ) from exc
             raise
 
+    def _raise_if_acquire_expired(self, deadline: float) -> None:
+        """Admit work and publication only while the absolute budget remains."""
+        if asyncio.get_running_loop().time() >= deadline:
+            raise PoolExhaustedError(self._pool_id, self._config.acquire_timeout_seconds)
+
     async def _acquire_owned_before_deadline(
         self,
         *,
+        deadline: float,
         live_acquire_permit: object | None = None,
         live_connector_id: str | None = None,
         live_dataset_id: str | None = None,
@@ -405,6 +412,7 @@ class ConnectionPool(Generic[ConnectorT]):
             async with self._lock:
                 if self._closed:
                     raise PoolClosedError(self._pool_id)
+                self._raise_if_acquire_expired(deadline)
             try:
                 acquired = await asyncio.wait_for(
                     self._semaphore.acquire(),
@@ -423,6 +431,7 @@ class ConnectionPool(Generic[ConnectorT]):
                 if self._closed:
                     permit_release = True
                     raise PoolClosedError(self._pool_id)
+                self._raise_if_acquire_expired(deadline)
                 self._active_acquires += 1
                 acquire_registered = True
                 self._active_acquires_done.clear()
@@ -432,6 +441,7 @@ class ConnectionPool(Generic[ConnectorT]):
                     if self._closed:
                         permit_release = True
                         raise PoolClosedError(self._pool_id)
+                    self._raise_if_acquire_expired(deadline)
                     generation = self._generation
                     pooled = self._idle.popleft() if self._idle else None
                     if pooled is not None:
@@ -444,6 +454,7 @@ class ConnectionPool(Generic[ConnectorT]):
                     async with self._lock:
                         self._register_pending_cleanup(pooled, pending_permit=True)
 
+                self._raise_if_acquire_expired(deadline)
                 if self._should_retire(pooled):
                     cleanup_attempted = True
                     if not await self._cleanup_pooled(pooled):
@@ -470,6 +481,9 @@ class ConnectionPool(Generic[ConnectorT]):
                     if self._closed or generation != self._generation:
                         publish_allowed = False
                     else:
+                        # Cancellation delivery is cooperative. A connector may return
+                        # after suppressing it, or this lock may have consumed the budget.
+                        self._raise_if_acquire_expired(deadline)
                         pooled.mark_used()
                         self._in_use[pooled.handle.session_id] = pooled
                         self._pending_cleanup.pop(pooled.handle.session_id, None)
@@ -488,10 +502,16 @@ class ConnectionPool(Generic[ConnectorT]):
                             idle_count=len(self._idle),
                             in_use_count=len(self._in_use),
                         )
+                        # Publication and the successful acquisition's registration
+                        # settle in this one commit. No await may follow publication.
+                        self._active_acquires -= 1
+                        acquire_registered = False
+                        if self._active_acquires == 0:
+                            self._active_acquires_done.set()
+                        published = True
                         publish_allowed = True
 
                 if publish_allowed:
-                    published = True
                     return pooled.connector, pooled.handle
 
                 # close_all won the generation race. The handle remains owned by this
@@ -525,8 +545,8 @@ class ConnectionPool(Generic[ConnectorT]):
         finally:
             if permit_acquired and not published and permit_release:
                 self._semaphore.release()
-            async with self._lock:
-                if acquire_registered:
+            if acquire_registered:
+                async with self._lock:
                     self._active_acquires -= 1
                     if self._active_acquires == 0:
                         self._active_acquires_done.set()

@@ -1,0 +1,39 @@
+{"module": "/workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py", "module_sha256": "4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7", "driver_sha256": "668e350ea85c130467f9c4c31ed95cd33eed1a1ccc688dc10be2619bad3650fc", "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]", "platform": "Linux-6.18.44-x86_64-with-glibc2.41", "input": "real ConnectionPool and synthetic event-gated connector protocol; real loop.time; no TCP/database/dataset; 4 cooperative/suppress connect/health variants"}
+2026-10-05 15:57:41.033 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-05 15:57:41.114 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+{"operation": "connect", "suppresses_cancellation": false, "submitted": 8507.648870609, "cancel_observed": 8507.729188111, "completion": 8507.729267881, "budget": 0.08, "before_proceed": {"active": 0, "in_use": [], "pending": [], "semaphore": 1, "task_done": true}, "outcome": "PoolExhaustedError", "returned_session": null, "late_handle_admitted": false, "state_after_acquire": {"active": 0, "in_use": [], "pending": [], "semaphore": 1}, "created_handles": [], "disconnects_before_close": [], "disconnects_after_close": [], "clean_after_close": true}
+2026-10-05 15:57:41.114 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-05 15:57:41.114 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-05 15:57:41.195 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-05 15:57:41.195 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-05 15:57:41.195 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+{"operation": "connect", "suppresses_cancellation": true, "submitted": 8507.729647084, "cancel_observed": 8507.809877533, "completion": 8507.810105942, "budget": 0.08, "before_proceed": {"active": 1, "in_use": [], "pending": [], "semaphore": 0, "task_done": false}, "outcome": "returned_handle", "returned_session": "cc37622c-d7fe-4f08-8430-033bb5d20f59", "late_handle_admitted": true, "state_after_acquire": {"active": 0, "in_use": ["cc37622c-d7fe-4f08-8430-033bb5d20f59"], "pending": [], "semaphore": 0}, "created_handles": ["cc37622c-d7fe-4f08-8430-033bb5d20f59"], "disconnects_before_close": [], "disconnects_after_close": ["cc37622c-d7fe-4f08-8430-033bb5d20f59"], "clean_after_close": true}
+2026-10-05 15:57:41.195 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-05 15:57:41.195 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-05 15:57:41.195 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-05 15:57:41.275 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+{"operation": "health", "suppresses_cancellation": false, "submitted": 8507.810382502, "cancel_observed": 8507.890685113, "completion": 8507.890850013, "budget": 0.08, "before_proceed": {"active": 1, "in_use": [], "pending": ["8687e56d-0fd6-4cbf-9a06-1080686d1e9b"], "semaphore": 0, "task_done": false}, "outcome": "PoolExhaustedError", "returned_session": null, "late_handle_admitted": false, "state_after_acquire": {"active": 0, "in_use": [], "pending": [], "semaphore": 1}, "created_handles": ["8687e56d-0fd6-4cbf-9a06-1080686d1e9b"], "disconnects_before_close": ["8687e56d-0fd6-4cbf-9a06-1080686d1e9b"], "disconnects_after_close": ["8687e56d-0fd6-4cbf-9a06-1080686d1e9b"], "clean_after_close": true}
+2026-10-05 15:57:41.276 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-05 15:57:41.276 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-05 15:57:41.276 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-05 15:57:41.356 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-05 15:57:41.356 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+{"operation": "health", "suppresses_cancellation": true, "submitted": 8507.891247551, "cancel_observed": 8507.971558687, "completion": 8507.971793479, "budget": 0.08, "before_proceed": {"active": 1, "in_use": [], "pending": ["7ce92662-d9fe-4a6d-ae52-d824553b5ea4"], "semaphore": 0, "task_done": false}, "outcome": "returned_handle", "returned_session": "7ce92662-d9fe-4a6d-ae52-d824553b5ea4", "late_handle_admitted": true, "state_after_acquire": {"active": 0, "in_use": ["7ce92662-d9fe-4a6d-ae52-d824553b5ea4"], "pending": [], "semaphore": 0}, "created_handles": ["7ce92662-d9fe-4a6d-ae52-d824553b5ea4"], "disconnects_before_close": [], "disconnects_after_close": ["7ce92662-d9fe-4a6d-ae52-d824553b5ea4"], "clean_after_close": true}
+2026-10-05 15:57:41.357 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+Traceback (most recent call last):
+  File "/tmp/e02-pool-late-admission-probe.py", line 89, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/tmp/e02-pool-late-admission-probe.py", line 85, in main
+    assert all(r['outcome'] == 'PoolExhaustedError' and not r['late_handle_admitted'] for r in rows), 'late actual handle admission after deadline'
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: late actual handle admission after deadline

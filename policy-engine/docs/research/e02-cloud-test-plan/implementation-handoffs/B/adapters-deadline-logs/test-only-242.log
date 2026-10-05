@@ -1,0 +1,24 @@
+....FFF.......                                                           [100%]
+=================================== FAILURES ===================================
+_ test_expired_acquire_cannot_publish_connector_returned_after_cancellation[True-connect] _
+tests/unit/fabric/connectors/test_pool_e02.py:121: in test_expired_acquire_cannot_publish_connector_returned_after_cancellation
+    with pytest.raises(PoolExhaustedError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.fabric.connectors.pool.PoolExhaustedError'>
+_ test_expired_acquire_cannot_publish_connector_returned_after_cancellation[True-health] _
+tests/unit/fabric/connectors/test_pool_e02.py:121: in test_expired_acquire_cannot_publish_connector_returned_after_cancellation
+    with pytest.raises(PoolExhaustedError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.fabric.connectors.pool.PoolExhaustedError'>
+______ test_successful_acquire_does_not_await_metadata_after_publication _______
+tests/unit/fabric/connectors/test_pool_e02.py:164: in test_successful_acquire_does_not_await_metadata_after_publication
+    assert acquire.done(), "published acquisition waited behind the next metadata owner"
+E   AssertionError: published acquisition waited behind the next metadata owner
+E   assert False
+E    +  where False = <built-in method done of _asyncio.Task object at 0x7f2e5e0525f0>()
+E    +    where <built-in method done of _asyncio.Task object at 0x7f2e5e0525f0> = <Task pending name='Task-36' coro=<ConnectionPool.acquire() running at /workspace/e02-B-adapters/policy-engine/src/polisyos/fabric/connectors/pool.py:312> wait_for=<Future pending cb=[Task.task_wakeup()]>>.done
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/connectors/test_pool_e02.py::test_expired_acquire_cannot_publish_connector_returned_after_cancellation[True-connect]
+FAILED tests/unit/fabric/connectors/test_pool_e02.py::test_expired_acquire_cannot_publish_connector_returned_after_cancellation[True-health]
+FAILED tests/unit/fabric/connectors/test_pool_e02.py::test_successful_acquire_does_not_await_metadata_after_publication
+3 failed, 11 passed in 0.58s

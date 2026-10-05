@@ -1,0 +1,22 @@
+id = "2026-10-05-e02-B-checkpoint-execution"
+title = "Preserve native checkpoint execution and publication ownership"
+type = "fixed"
+component = "foundry-methods"
+owner = "team-polisyos"
+summary = "Internal checkpoint execution now preserves compiled parameter and slot-binding behavior and keeps published sidecars readable when publication or rollback faults occur."
+evidence = [
+  "src/polisyos/foundry/methods/README.md",
+  "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+  "tests/unit/foundry/methods/backends/test_checkpointing.py",
+  "tests/unit/remediation/test_res_04.py",
+]
+compatibility = "Checkpoint request identity now uses the same effective static/node/override payload as sequential execution. Previously saved checkpoints whose identity omitted static parameters can be rejected; unbound historical checkpoints remain ineligible for resume. Original complete per-node history remains readable."
+change_class = "internal"
+surface_classification = "internal: polisyos.foundry.methods.backends checkpoint API"
+migration = "Restart execution from its original inputs when a checkpoint identity is rejected. Treat CheckpointSaveError after manifest publication as uncertain durability; read the actual manifest rather than assuming the previous generation remains current."
+api = "No public facade or checkpoint format version is added. Identity-bound checkpoints without per-node history declare checkpoint_per_node_history_missing instead of synthesizing original node results."
+limitations = "External FX-provider bindings remain unsupported. The direct executor has no established product orchestration bridge or served checkpoint surface. Fault probes do not establish power-loss durability after a failed directory fsync or method-output scientific validity."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/README.md"]
+runbook_docs = []

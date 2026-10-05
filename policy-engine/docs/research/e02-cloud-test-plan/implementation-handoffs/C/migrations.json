@@ -1,0 +1,457 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "migrations",
+  "closure_ids": [],
+  "bundle_ids": [
+    "MIG-01",
+    "MIG-02",
+    "MIG-04",
+    "MIG-05"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "6fa80a12aa764f06d75f55c3a21108dc2483ba85"
+  ],
+  "candidate_tree_sha": "1aa58a8f7973935fb4f40220d7c33c82290a34f1",
+  "branch": "codex/e02-C-migrations",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/remediation/test_mig_02.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P082",
+      "path": "policy-engine/tests/contract/test_ir_migrations.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-010",
+        "LA-047",
+        "LA-049"
+      ]
+    },
+    {
+      "id": "F03-P085",
+      "path": "policy-engine/tests/unit/remediation/test_mig_01.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-010",
+        "LA-049",
+        "LA-050"
+      ]
+    },
+    {
+      "id": "F04-P100",
+      "path": "policy-engine/tests/contract/test_trinity_migration.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-010",
+        "LA-049"
+      ]
+    },
+    {
+      "id": "F07-P078",
+      "path": "policy-engine/tests/unit/remediation/test_mig_01.py",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-010",
+        "LA-049",
+        "LA-050"
+      ]
+    },
+    {
+      "id": "F14-P098",
+      "path": "policy-engine/tests/unit/remediation/test_mig_01.py",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-010",
+        "LA-049",
+        "LA-050"
+      ]
+    },
+    {
+      "id": "F02-P041",
+      "path": "policy-engine/tests/unit/remediation/test_mig_05.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-047"
+      ]
+    },
+    {
+      "id": "F04-P129",
+      "path": "policy-engine/tests/unit/common/test_migrations_purity.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-047"
+      ]
+    },
+    {
+      "id": "F09-P047",
+      "path": "policy-engine/tests/unit/remediation/test_mig_05.py",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-047"
+      ]
+    },
+    {
+      "id": "F15-P050",
+      "path": "policy-engine/tests/unit/remediation/test_mig_05.py",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-047"
+      ]
+    },
+    {
+      "id": "F04-P091",
+      "path": "policy-engine/tests/unit/remediation/test_mig_02.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-048"
+      ]
+    },
+    {
+      "id": "F04-P093",
+      "path": "policy-engine/tests/unit/runtime/test_runtime_manifest_paths.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-048"
+      ]
+    },
+    {
+      "id": "F09-P093",
+      "path": "policy-engine/tests/unit/remediation/test_mig_02.py",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-048"
+      ]
+    },
+    {
+      "id": "F14-P106",
+      "path": "policy-engine/tests/unit/remediation/test_mig_02.py",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-048"
+      ]
+    },
+    {
+      "id": "F01-P135",
+      "path": "policy-engine/tests/unit/core/mirror_contracts/test_manifest.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-050"
+      ]
+    },
+    {
+      "id": "F04-P065",
+      "path": "policy-engine/tests/unit/remediation/test_mig_04.py",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-050"
+      ]
+    },
+    {
+      "id": "F09-P067",
+      "path": "policy-engine/tests/unit/remediation/test_mig_04.py",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-050"
+      ]
+    },
+    {
+      "id": "F13-P076",
+      "path": "policy-engine/tests/unit/remediation/test_mig_04.py",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_state": "PASS",
+      "finding_ids": [
+        "LA-050"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q -p no:cacheprovider policy-engine/tests/unit/remediation/test_mig_01.py policy-engine/tests/unit/remediation/test_mig_02.py policy-engine/tests/unit/remediation/test_mig_04.py policy-engine/tests/unit/remediation/test_mig_05.py policy-engine/tests/unit/runtime/test_runtime_manifest_paths.py",
+      "target_sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "environment": "macOS worktree; original /Users/deniskopylov/polisyos/policy-engine/.venv Python 3.14 read-only; PYTHONDONTWRITEBYTECODE=1; PYTHONPATH points only at this worktree policy-engine/src and policy-engine.",
+      "input_closure": "Five focused migration/runtime test files listed above; tmp_path fixtures only; no production dataset or database.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt#Focused migration/runtime tests; 66 passed, 1 existing pytest cache_dir configuration warning in 0.88s."
+    },
+    {
+      "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_mig_01.py tests/unit/remediation/test_mig_02.py tests/unit/remediation/test_mig_04.py tests/unit/remediation/test_mig_05.py tests/unit/runtime/test_runtime_manifest_paths.py",
+      "target_sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "environment": "Root coordinator worktree policy-engine; original Python venv; PYTHONPATH=src:.",
+      "input_closure": "Same five focused migration/runtime test files; independent exact-SHA rerun.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt#Root independent focused-suite rerun; 66 passed in 1.00s; stderr empty."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/remediation/test_mig_02.py",
+      "target_sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "environment": "Original Python venv; read-only package tool invocation.",
+      "input_closure": "Changed test file only.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt#Ruff; All checks passed!"
+    },
+    {
+      "command": "git diff --check",
+      "target_sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "environment": "Attached codex/e02-C-migrations branch before implementation commit.",
+      "input_closure": "Implementation diff.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt#Patch whitespace check; empty stdout."
+    },
+    {
+      "command": "Inline Python behavioral probe: replace canonical CLI path normalizer with deepcopy no-op; invoke CLI, strict RunManifest JSON load, and Runtime resolve_artifact_path.",
+      "target_sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "environment": "Original Python venv; temporary filesystem fixture; in-process monkeypatch restored after probe.",
+      "input_closure": "Absolute artifact path under declared run_root; same CLI/DTO/consumer path as the positive witness.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt#Removal control: remove path normalization; complete probe output retained."
+    },
+    {
+      "command": "Inline Python behavioral probe: replace canonical CLI path normalizer with basename-only conversion; invoke CLI, strict RunManifest JSON load, and Runtime resolve_artifact_path.",
+      "target_sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "environment": "Original Python venv; temporary filesystem fixture with nested source and same-basename root decoy; in-process monkeypatch restored after probe.",
+      "input_closure": "Nested source and root decoy contain distinct bytes; same actual consumer path as the positive witness.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt#Removal control: basename-only normalizer; complete probe output retained."
+    },
+    {
+      "command": "Schema-owner immutable review of implementation commit.",
+      "target_sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "environment": "Independent review; source and tests read-only.",
+      "input_closure": "10 MIG-02 cases plus Ruff.",
+      "outcome": "PASS",
+      "output": "Parent review attestation: accepted exact SHA with no blockers; recorded in migrations-verification.txt."
+    },
+    {
+      "command": "git commit -m 'test(runtime): exercise migration readback and recovery'",
+      "target_sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "environment": "Attached codex/e02-C-migrations branch; lefthook v2.1.6 available after isolated frozen workspace install.",
+      "input_closure": "The single changed MIG-02 test file.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt#Pre-commit hook on the implementation commit; exit 0."
+    }
+  ],
+  "property": {
+    "statement": "Canonical RunManifest path-only migration preserves the exact artifact identity and bytes through CLI serialization and the real Runtime consumer, including when a different root-level file has the same basename.",
+    "producer": "The test fixture writes a persisted RunManifest input directly; the upstream run producer is not invoked and no producer-capability claim is made.",
+    "artifact": "RunManifest JSON with schema_version 1.0, declared run_root, and an artifact reference.",
+    "bridge": "Canonical run_manifest migration CLI invokes the Runtime-owned path normalizer and atomically publishes the serialized JSON.",
+    "consumer": "Strict RunManifest.model_validate_json followed by the real Runtime resolve_artifact_path function.",
+    "surface": "Canonical CLI filesystem input/output surface; no API/dashboard/public-policy surface is in scope for this migration witness.",
+    "verification": "Focused positive test, injected atomic-publish failure/retry test, and in-process no-op/basename-only removal probes.",
+    "time_or_authority_semantics": "No authority or temporal decision is changed or asserted by this path-identity test.",
+    "runtime_path": [
+      "tools.ops_runners.migrations.migrate.main",
+      "polisyos.runtime.manifest_migrations.migrate_run_manifest_paths",
+      "tools.lib.fs.atomic_write_text JSON publication",
+      "polisyos.runtime.manifest.RunManifest.model_validate_json",
+      "polisyos.runtime.api.resolve_artifact_path"
+    ],
+    "proxy_divergence": "A basename-only normalizer preserves CLI/DTO/resolver field shape but resolves run-root/data.json instead of run-root/nested/data.json; the two files carry different bytes.",
+    "negative_controls": [
+      "Remove path normalization while retaining CLI/DTO/resolver: consumer rejects the absolute path.",
+      "Replace path normalization with basename-only conversion while retaining CLI/DTO/resolver: consumer resolves the wrong same-basename sibling.",
+      "Inject os.replace failure during atomic output publication: old output, input, and source remain intact; temp sibling is removed; retry succeeds and is consumer-readable.",
+      "Focused tests reject explicit --to, missing/external paths, and symlink escapes without replacing prior output."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Mixed recorded finding state; LA-010 and LA-049 remain previously bounded closed, LA-047/LA-048/LA-050 remain partial, and this handoff claims no closures (closure_ids is empty).",
+  "limitations_and_next_owner": [
+    "LA-010 and LA-049: keep closure bounded to the in-repository owner/caller contract; broad historical, reflected, or external compatibility is not claimed.",
+    "LA-047 remains partial. Historical-input and broader Common/IR profile compatibility remain unestablished. Next owner: MOVE-14 migration owner (role identified by triage; no individual appointment claimed).",
+    "LA-048 remains partial. Stale run_root and broader distinct-root/source-version compatibility remain unestablished; path-only mode refuses implicit relocation and explicit --to. Next owner: Migration owner for MIG-02 (role identified by triage; no individual appointment claimed).",
+    "LA-050 remains partial. Equal/conflicting alias policy, historical-format mapping, required/extra-field semantics, and complete real-consumer admission remain unresolved; do not invent provenance/time fields. Next owner: ManifestRegistry and corpus migration owner (role identified by triage; no individual appointment claimed).",
+    "Root owns push and remote branch readback. No ledger status changes were made."
+  ],
+  "finding_ids": [
+    "LA-010",
+    "LA-047",
+    "LA-048",
+    "LA-049",
+    "LA-050"
+  ],
+  "candidate_commit": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+  "source_tree_before_handoff": "1aa58a8f7973935fb4f40220d7c33c82290a34f1",
+  "admission": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos",
+    "branch_attachment_verified": true,
+    "admission_exception": "Parent serialized worktree creation after the unrelated stale missing-registration admission report; user-approved exception was provided before worktree attachment.",
+    "implementation_commit_readback": "Read from codex/e02-C-migrations after commit; branch attached and tracked tree clean."
+  },
+  "evidence": {
+    "implementation_record": {
+      "commit": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "tree": "1aa58a8f7973935fb4f40220d7c33c82290a34f1",
+      "parent": "c40d4acae1ce58b597267255026d9356565828fd",
+      "branch": "codex/e02-C-migrations",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos",
+      "source_frozen": true,
+      "changed_paths": [
+        "policy-engine/tests/unit/remediation/test_mig_02.py"
+      ],
+      "change_kind": "test_only",
+      "summary": "The migration and Runtime owner/consumer mechanisms were already present at base. Added behavioral witnesses for atomic publish recovery and actual serialized manifest consumption through the strict RunManifest DTO and Runtime path resolver, including a same-basename decoy."
+    },
+    "base_record": {
+      "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+      "tree": "897662caf73bd4487f798d66938b74d7abfe753e"
+    },
+    "acceptance_properties": [
+      {
+        "bundle": "MIG-02",
+        "property": "Canonical CLI output preserves the addressable artifact identity through serialization and Runtime consumption.",
+        "witness": "test_serialized_migration_loads_through_runtime_consumer",
+        "mechanism": "Creates run-root/nested/data.json and a different run-root/data.json; invokes the canonical CLI; parses the output with RunManifest.model_validate_json; resolves the loaded reference with resolve_artifact_path; asserts the nested path and nested source bytes."
+      },
+      {
+        "bundle": "MIG-02",
+        "property": "A publish fault leaves existing input and destination intact, removes the temporary sibling, and allows a successful consumer-readable retry.",
+        "witness": "test_publish_fault_preserves_destination_and_retry_is_readable",
+        "mechanism": "Injects os.replace failure at atomic publication; checks prior output/input/source bytes and temp cleanup; retries through the CLI and reads the result through RunManifest plus resolve_artifact_path."
+      }
+    ],
+    "verification_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt",
+    "verification_summary": {
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt",
+      "focused_suites": {
+        "targets": [
+          "policy-engine/tests/unit/remediation/test_mig_01.py",
+          "policy-engine/tests/unit/remediation/test_mig_02.py",
+          "policy-engine/tests/unit/remediation/test_mig_04.py",
+          "policy-engine/tests/unit/remediation/test_mig_05.py",
+          "policy-engine/tests/unit/runtime/test_runtime_manifest_paths.py"
+        ],
+        "exit_code": 0,
+        "result": "66 passed, 1 warning in 0.88s",
+        "warning": "Existing pytest configuration warning: Unknown config option: cache_dir."
+      },
+      "ruff": {
+        "target": "policy-engine/tests/unit/remediation/test_mig_02.py",
+        "exit_code": 0,
+        "result": "All checks passed!"
+      },
+      "diff_check": {
+        "command": "git diff --check",
+        "exit_code": 0,
+        "result": "PASS; empty stdout."
+      },
+      "root_independent_rerun": {
+        "target_commit": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos/policy-engine",
+        "command": "PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_mig_01.py tests/unit/remediation/test_mig_02.py tests/unit/remediation/test_mig_04.py tests/unit/remediation/test_mig_05.py tests/unit/runtime/test_runtime_manifest_paths.py",
+        "exit_code": 0,
+        "stdout": "..................................................................       [100%]\n66 passed in 1.00s\n",
+        "stderr": "",
+        "ruff": "PASS: All checks passed!",
+        "diff_check": "PASS: git diff --check; empty stdout."
+      },
+      "schema_owner_review": {
+        "target_commit": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+        "scope": "Immutable review of the MIG-02 implementation test witness; 10 MIG-02 checks plus Ruff.",
+        "result": "Accepted with no blockers; no source change requested."
+      },
+      "pre_commit": {
+        "exit_code": 0,
+        "hook": "lefthook v2.1.6 completed; applicable staged-file hooks skipped because the change is Python tests only.",
+        "dependency_setup": "corepack pnpm install --frozen-lockfile ran in this isolated worktree after the first commit attempt found the local lefthook binary absent."
+      },
+      "broader_suites": "Not run; scoped to the five affected migration/runtime suites. No production-data scan or database operation was performed."
+    },
+    "removal_probes": [
+      {
+        "property": "Path normalization must convert the persisted artifact reference into a form accepted by the real Runtime consumer.",
+        "mutation": "Replace the canonical path normalizer with an in-process deep-copy no-op while keeping CLI parsing, serialization, RunManifest loading, and resolve_artifact_path active.",
+        "observed": "The real consumer rejects the unnormalized absolute path with `Absolute artifact paths are not allowed by default`.",
+        "stdout": "PASS removal control: keeping CLI/parser/DTO/resolver markers but removing path normalization makes real consumer reject the serialization",
+        "exit_code": 0
+      },
+      {
+        "property": "Path normalization must preserve artifact identity when a same-basename decoy exists.",
+        "mutation": "Replace normalization with an in-process basename-only converter while keeping CLI/DTO/resolver shape and execution intact.",
+        "divergent_case": "nested/data.json and run-root/data.json contain different bytes; the mutated converter emits the basename and the real resolver reads the wrong root sibling.",
+        "observed": "The new CLI-to-consumer witness's nested-path and nested-bytes assertions would fail.",
+        "stdout": "PASS removal control: basename-only normalizer kept CLI/DTO/resolver shape but resolved to the wrong root sibling; the new assertion would fail",
+        "exit_code": 0
+      }
+    ],
+    "finding_disposition": [
+      {
+        "id": "LA-010",
+        "ledger_status_at_base": "closed",
+        "boundary": "Bounded to the in-repository root-entrypoint-to-canonical-runner owner/caller contract; broad historical or external compatibility is not claimed.",
+        "this_handoff": "No status change; the focused MIG-01 suite was freshly exercised."
+      },
+      {
+        "id": "LA-049",
+        "ledger_status_at_base": "closed",
+        "boundary": "Bounded to the in-repository public same-version Trinity validation and retained-helper owner/caller contract; dynamic/reflection/external uses remain unresolved by construction.",
+        "this_handoff": "No status change; the focused MIG-01 suite was freshly exercised."
+      },
+      {
+        "id": "LA-047",
+        "ledger_status_at_base": "partial",
+        "verified_here": "The Common and IR explicit migration profiles and their characterized copy, no-op identity, mutation, stamping, type, registration, cycle/missing-edge, and error distinctions passed the focused suite.",
+        "residual": "Historical-input and broader profile compatibility are not closed by these tests; keep the Common/IR boundary and Data Forge graph migration distinction."
+      },
+      {
+        "id": "LA-048",
+        "ledger_status_at_base": "partial",
+        "verified_here": "Nested same-basename identity is now proven end to end through canonical CLI serialization, RunManifest validation, and Runtime resolution; output replacement failure and retry are covered. Explicit --to, missing/external paths, and symlink escape negatives passed in the focused suite.",
+        "residual": "Stale run_root and broader distinct-root/source-version compatibility questions remain unestablished. Path-only mode still refuses implicit relocation and explicit --to. Do not claim full migration/relocation closure."
+      },
+      {
+        "id": "LA-050",
+        "ledger_status_at_base": "partial",
+        "verified_here": "The focused suite exercises the Fabric-owned converter registration/CLI route and strict DTO behavior for supported renames and invalid duplicate aliases.",
+        "residual": "Equal/conflicting alias policy, historical-format mapping, required/extra-field semantics, and real consumer admission are not comprehensively closed. Do not invent provenance/time fields or claim DatasetManifest migration closure."
+      }
+    ],
+    "historical_route_limit": {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py at base c40d4acae1ce58b597267255026d9356565828fd",
+      "source_grade": "source_reported_compact_text_only; candidate_routes",
+      "source_route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "raw_archives_received": 0,
+      "meaning": "Historical PASS cells are not treated as current semantic proof. The fresh direct run and removal controls above establish only their named properties."
+    },
+    "pattern_pass": {
+      "relevant_patterns": [
+        "P29",
+        "P38",
+        "P41"
+      ],
+      "closure_move": "Exercise the real serialized consumer path, retain an adversarial same-basename decoy, and run remove-the-property controls; verify branch attachment and read the committed file/tree back.",
+      "anti_patterns_avoided": [
+        "marker-only validation",
+        "basename substitution",
+        "claiming untested historical semantics",
+        "automatic ledger closure"
+      ]
+    },
+    "delivery": {
+      "implementation_commit": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+      "publish": "Not pushed by this worker; parent owns publication and remote readback.",
+      "ledger_edit": "None.",
+      "automatic_finding_closure": false
+    }
+  }
+}

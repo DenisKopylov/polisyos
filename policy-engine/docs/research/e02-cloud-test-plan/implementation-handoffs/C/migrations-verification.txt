@@ -62,7 +62,16 @@ Complete stdout:
 PASS removal control: basename-only normalizer kept CLI/DTO/resolver shape but resolved to the wrong root sibling; the new assertion would fail
 
 Independent review receipts
-Root reported an independent rerun at exact implementation SHA 6fa80a12aa764f06d75f55c3a21108dc2483ba85: same five suites, PASS 66 in 1.00s, Ruff PASS, diff-check PASS. The raw one-line report is: `Root independent exactSHA rerun same5suites PASS66 in1.00s, ruffPASS + diffcheckPASS.`
+Root independent focused-suite rerun at exact implementation SHA 6fa80a12aa764f06d75f55c3a21108dc2483ba85
+Working directory: /Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos/policy-engine
+Command:
+PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_mig_01.py tests/unit/remediation/test_mig_02.py tests/unit/remediation/test_mig_04.py tests/unit/remediation/test_mig_05.py tests/unit/runtime/test_runtime_manifest_paths.py
+Exit: 0
+Complete stdout:
+..................................................................       [100%]
+66 passed in 1.00s
+Complete stderr: (empty)
+Root independently reported Ruff PASS and diff-check PASS at the same exact SHA; concise results: `All checks passed!` and empty `git diff --check` output.
 Schema-owner immutable review of exact SHA 6fa80a12aa764f06d75f55c3a21108dc2483ba85: no blockers; review covered 10 MIG-02 cases plus Ruff. This is a structural review receipt, not a finding-status change.
 
 The implementation worktree used the documented isolated `corepack pnpm install --frozen-lockfile` only after the missing local lefthook binary blocked the first commit attempt. No shared venv, production data, database, full scan, or external service was modified.

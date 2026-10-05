@@ -6,6 +6,7 @@ import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field, replace
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Literal
@@ -142,6 +143,8 @@ def _cache_identity_value(value: Any) -> Any:
 
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
+    if isinstance(value, (datetime, date)):
+        return {"type": type(value).__name__, "iso8601": value.isoformat()}
     if isinstance(value, Enum):
         return _cache_identity_value(value.value)
     if isinstance(value, Mapping):
@@ -195,7 +198,7 @@ def _stable_context_identity(context: Mapping[str, Any]) -> dict[str, Any]:
         ) or normalized.endswith(("_ref", "_refs", "_version", "_versions"))
         if not is_identity_key and not isinstance(
             raw_value,
-            (str, int, float, bool, type(None)),
+            (str, int, float, bool, datetime, date, type(None)),
         ):
             continue
         projected = _cache_identity_value(raw_value)

@@ -983,6 +983,8 @@ def test_real_l2_defer_projection_is_independent_of_optional_stage_verdict():
 
 
 def test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty():
+    from datetime import UTC, date, datetime
+
     from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
 
     for key in (
@@ -1008,6 +1010,30 @@ def test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty(
         orch.advance(changed, policy="full")
         assert len(observations) == 2, key
         assert orch.get_outcome(first).trace == initial.trace
+    for first_time, next_time in (
+        (date(2026, 10, 1), date(2026, 10, 2)),
+        (datetime(2026, 10, 1, tzinfo=UTC), datetime(2026, 10, 2, tzinfo=UTC)),
+        (datetime(2026, 10, 1), datetime(2026, 10, 2)),
+    ):
+        for nested in (False, True):
+            observations = []
+            orch = FunnelOrchestrator([Level3MediumFidelity(_bootstrap_workflow(observations))])
+            candidate, context = {"candidate_id": "typed-time"}, _bootstrap_context()
+            changed_context = dict(context)
+            if nested:
+                context["evaluation_config"] = {"valid_at": first_time}
+                changed_context["evaluation_config"] = {"valid_at": next_time}
+            else:
+                context["valid_at"] = first_time
+                changed_context["valid_at"] = next_time
+            first = orch.submit(candidate, context)
+            orch.advance(first, policy="full")
+            changed = orch.submit(candidate, changed_context)
+            assert changed is not first
+            assert changed.stage_results == {}
+            orch.advance(changed, policy="full")
+            assert len(observations) == 2
+            assert orch.submit(candidate, context) is first
 
 
 def test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap(
@@ -1079,3 +1105,49 @@ def test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publ
         if relation != "aligned":
             assert calls == []
             assert outcome.final_action == "defer_to_human"
+
+
+def test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score():
+    from datetime import UTC, datetime
+
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+    from polisyos.scientist.orchestration.workflows import SimpleLoopEngine
+
+    observed_days = []
+
+    def estimate(state):
+        day = state["valid_at"].day
+        observed_days.append(day)
+        return {
+            **state,
+            "simulation_results": {"gdp_change": float(day)},
+            "feedback": {"verdict": "APPROVE"},
+        }
+
+    orch = FunnelOrchestrator([Level4FullFidelity(SimpleLoopEngine([("estimate", estimate)]))])
+    candidate = {"candidate_id": "dated-effect"}
+    first_context = {"valid_at": datetime(2026, 10, 1, tzinfo=UTC)}
+    first = orch.submit(candidate, first_context)
+    first_outcome = orch.advance(first, policy="full")
+    second = orch.submit(candidate, {"valid_at": datetime(2026, 10, 2, tzinfo=UTC)})
+    second_outcome = orch.advance(second, policy="full")
+    assert second is not first
+    assert first_outcome.final_result.objective_value == -1.0
+    assert second_outcome.final_result.objective_value == -2.0
+    assert observed_days == [1, 2]
+    assert orch.submit(candidate, first_context) is first
+
+
+def test_routing_budget_snapshot_does_not_establish_actual_spend_bridge():
+    """Bounded divergent control: reported stage cost does not charge its caller budget."""
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+
+    budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))})
+    orch = FunnelOrchestrator(
+        [Level4FullFidelity(_bootstrap_workflow([]), estimated_cost_usd=1.0)],
+        budget_state=budget,
+    )
+    outcome = orch.advance(orch.submit({"candidate_id": "spend-boundary"}, _bootstrap_context()))
+    assert outcome.compute_actual_usd >= 1.0
+    assert budget.remaining("run") == Decimal("5")
+    assert budget.spent == {}

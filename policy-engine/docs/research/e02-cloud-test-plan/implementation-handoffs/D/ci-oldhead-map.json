@@ -319,7 +319,8 @@
     }
   },
   "claims": {
-    "predicate_basis": "independently_reconciled decoded source logs with job metadata and immutable Git tree/source paths",
+    "predicate_basis": "independently_reconciled",
+    "predicate_basis_description": "Decoded source logs reconciled with job metadata and immutable Git tree/source paths.",
     "required_CI_checks": "preserved",
     "unit_suite": "SKIP after first import gate stop; neither FAIL nor PASS observed",
     "finding_closure": [],

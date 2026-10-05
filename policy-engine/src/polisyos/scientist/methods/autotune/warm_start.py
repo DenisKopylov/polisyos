@@ -131,8 +131,7 @@ class WarmStartBridge:
                 )
             source_directions = original.metadata.get("directions")
             if not isinstance(source_directions, dict) or any(
-                source_directions.get(name) != direction
-                for name, direction in directions.items()
+                source_directions.get(name) != direction for name, direction in directions.items()
             ):
                 raise TransferHistoryError(
                     "Original benchmark directions differ", ev.provenance_ref

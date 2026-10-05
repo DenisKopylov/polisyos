@@ -154,25 +154,28 @@ def test_nested_shared_executor_work_is_rejected_before_pool_saturation(monkeypa
         finally:
             finished.append(index)
 
-    def _outer(index: int) -> Exception:
+    def _outer(index: int) -> int | Exception:
         async def _running_loop() -> int:
             return run_coro_sync(_inner(index), timeout_seconds=0.5)
 
         try:
-            asyncio.run(_running_loop())
+            return asyncio.run(_running_loop())
         except Exception as exc:
             return exc
-        raise AssertionError("unsupported reentry must be explicit")
 
     executor = get_shared_executor()
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as callers:
-            errors = list(callers.map(_outer, range(4)))
-        assert all(type(error) is RuntimeError for error in errors)
+            results = list(callers.map(_outer, range(4)))
         assert all(
-            "shared executor does not support reentrant submission" in str(e) for e in errors
+            result == 42
+            or (
+                type(result) is RuntimeError
+                and "shared executor does not support reentrant submission" in str(result)
+            )
+            for result in results
         )
-        assert started == []
+        assert len(started) == results.count(42)
         assert sorted(finished) == list(range(4))
 
         async def _control() -> list[int]:

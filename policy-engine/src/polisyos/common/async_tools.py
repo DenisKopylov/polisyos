@@ -23,10 +23,13 @@ _DEFAULT_TIMEOUT_SECONDS = max(
 
 
 class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
-    """Reject reentry before an owned worker can wait on this same pool."""
+    """Admit nested work only while an unreserved worker can execute it."""
 
     def __init__(self, *, max_workers: int, thread_name_prefix: str) -> None:
         self._worker_identity = threading.local()
+        self._admission_lock = threading.RLock()
+        self._outstanding_jobs = 0
+        self._capacity = max_workers
         super().__init__(
             max_workers=max_workers,
             thread_name_prefix=thread_name_prefix,
@@ -36,6 +39,10 @@ class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
     def _register_worker(self) -> None:
         self._worker_identity.active = True
 
+    def _release_job(self, _future: object) -> None:
+        with self._admission_lock:
+            self._outstanding_jobs -= 1
+
     def submit[T](
         self,
         fn: Callable[..., T],
@@ -43,9 +50,22 @@ class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
         *args: object,
         **kwargs: object,
     ) -> concurrent.futures.Future[T]:
-        if getattr(self._worker_identity, "active", False):
-            raise RuntimeError("shared executor does not support reentrant submission")
-        return super().submit(fn, *args, **kwargs)
+        with self._admission_lock:
+            if (
+                getattr(self._worker_identity, "active", False)
+                and self._outstanding_jobs >= self._capacity
+            ):
+                raise RuntimeError(
+                    "shared executor does not support reentrant submission at capacity"
+                )
+            self._outstanding_jobs += 1
+            try:
+                future = super().submit(fn, *args, **kwargs)
+            except BaseException:
+                self._outstanding_jobs -= 1
+                raise
+            future.add_done_callback(self._release_job)
+            return future
 
 
 def _get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
@@ -76,11 +96,11 @@ atexit.register(shutdown_run_coro_sync_executor)
 
 
 def get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
-    """Return the shared bridge executor, which rejects worker reentry.
+    """Return the shared bridge executor, which rejects saturated worker reentry.
 
-    A worker may execute a coroutine directly, but it cannot submit another
-    job to this same pool. Call the existing async entrypoint from its async
-    owner, or move the synchronous boundary outside the shared executor.
+    A worker can submit nested work only while an unreserved worker remains.
+    At capacity, use the existing async entrypoint from its async owner, or
+    move the synchronous boundary outside the shared executor.
     """
     return _get_shared_executor()
 

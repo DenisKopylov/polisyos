@@ -1,0 +1,167 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "verification-baseline",
+  "closure_ids": [
+    "B01",
+    "B02",
+    "B03",
+    "B06",
+    "B07"
+  ],
+  "bundle_ids": [
+    "CYC-01",
+    "SIM-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "eab2a659451095cc6bb46b9f3af331aa5477d90a",
+    "9a29e554451bb5388834c5d56c492ce55ba46073"
+  ],
+  "candidate_tree_sha": "379efa6426dba8fb873e1d5c52da51efe43dcf74",
+  "branch": "codex/e02-A-custody",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-misbound-helper-removal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-normal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-removal.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-source-identity.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/sim-01.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline.md"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": ".venv/bin/python -m pytest -c pytest.ini -q tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_artifact_id_scalar_and_strictness",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/src",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "production_data": "not used",
+        "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR": "unset",
+        "mode": "normal"
+      },
+      "input_closure": "synthetic current-job V3 selected-view CAS fixture; no production input",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-normal.txt",
+      "exit_code": "not_established; grouped runner retained complete pytest stdout only"
+    },
+    {
+      "command": ".venv/bin/python -m pytest -c pytest.ini -q tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_artifact_id_scalar_and_strictness",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/src",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "production_data": "not used",
+        "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR": "1",
+        "mode": "removal"
+      },
+      "input_closure": "synthetic current-job V3 selected-view CAS fixture; no production input",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-removal.txt",
+      "exit_code": "not_established; grouped runner retained complete pytest stdout only"
+    },
+    {
+      "command": ".venv/bin/python -m pytest -c pytest.ini -q tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_binds_wmr_v2_selected_views tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_artifact_id_scalar_and_strictness",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/src",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "production_data": "not used",
+        "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR": "unset",
+        "mode": "restored"
+      },
+      "input_closure": "synthetic current-job V3 selected-view CAS fixture; no production input",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-normal.txt",
+      "exit_code": "not_established; grouped runner retained complete pytest stdout only"
+    },
+    {
+      "command": "POLISYOS_R1_REMOVE_V3_ARTIFACTID_SCALAR=1 .venv/bin/python -m pytest -c pytest.ini -vv tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v3_artifact_id_scalar_and_strictness",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/src",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "production_data": "not used"
+      },
+      "input_closure": "same helper fixture",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/r1-misbound-helper-removal.txt",
+      "exit_code": 0
+    },
+    {
+      "command": "env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/src OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /usr/bin/time -l /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -vv -p no:cacheprovider --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/_build/e02-A-custody/sim_engine_trace/basetemp tests/unit/remediation/test_sim_01.py",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "python": "3.14.3",
+        "pytest": "9.0.2",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/src",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine",
+        "production_data": "not used"
+      },
+      "input_closure": "registered engine fixture paths; no production data; direct controller only",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/verification-baseline-logs/sim-01.txt",
+      "exit_code": 0,
+      "wall_seconds": 26.57
+    }
+  ],
+  "property": {
+    "statement": "R1 targets real V3 selected-view serializer\u2192CAS\u2192typed owner readback; SIM-01 direct controller preserves selected engine and rejection history.",
+    "runtime_path": [
+      "CycleSubstrateContextArtifactOwner.persist_for_current_job",
+      "V3 CAS context artifact",
+      "resolve_for_current_job + canonical bytes",
+      "JointSimulationHorizonController + registered engine trajectories"
+    ],
+    "proxy_divergence": "R1 assigned helper does not consume removal flag. Its PASS survives removal while actual selected-view owner fails. Live selected-run checks do not establish persisted N8 run equivalence.",
+    "negative_controls": [
+      "ArtifactID scalar set removed: selected-view test fails as serializer_model_unregistered",
+      "same removal old helper stays green (misbinding witness)",
+      "restored selected-view test passes",
+      "SIM-01 incompatible/foreign/missing selected-run negatives pass"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "verification_only; source findings remain partial; proposed finding closures=[]",
+  "limitations_and_next_owner": [
+    "G reviews exact Git receipt/outputs before accepting verification artifact; no product code adoption or finding closure proposed.",
+    "Grouped R1 child exit status not retained; rerun exact mode commands if exit-status proof is needed.",
+    "B01\u2013B03 served HTTP chain not established; R1 uses synthetic current-job owner.",
+    "B06/B07 direct controller verified; served multi-plan producer and persisted selection consumer criterion remain partial.",
+    "All checks target c40 source; docs commits add evidence only. Broad final regression belongs to G frozen integration candidate."
+  ],
+  "source_identity": {
+    "historical_R1_source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "historical_runtime_blobs": "cycle_substrate.py, test_cycle_substrate.py and run_lifecycle.py identical to c40",
+    "simulation_source_cut": "c40d4acae1ce58b597267255026d9356565828fd"
+  },
+  "code_acceptance": "awaiting G verification-artifact acceptance",
+  "finding_closure": {
+    "proposed": [],
+    "baseline_PASS_closes_candidate": false
+  }
+}

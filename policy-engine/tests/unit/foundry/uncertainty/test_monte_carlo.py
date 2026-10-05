@@ -3,11 +3,14 @@ from __future__ import annotations
 import numpy as np
 import numpy.testing as npt
 import pytest
+
 from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    ParametricFitCarrier,
+    PosteriorSamplesCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
@@ -32,6 +35,129 @@ def _normal_env(point: float, std: float, level: float = 0.95) -> UncertaintyEnv
 
 def _linear_sim(**params: float) -> dict[str, float]:
     return {"y": 2.0 * params.get("x", 0.0) + 3.0 * params.get("z", 0.0)}
+
+
+def _joint_normal_inputs(
+    names: list[str], covariance: np.ndarray, columns: list[str]
+) -> dict[str, UncertaintyEnvelope]:
+    """Build declared Gaussian coordinates with independently known covariance."""
+    inputs = {}
+    for row, name in enumerate(names):
+        std = float(np.sqrt(covariance[row, row]))
+        inputs[name] = _normal_env(0.0, std).model_copy(
+            update={
+                "distribution_payload": ParametricFitCarrier(
+                    family=DistributionFamily.NORMAL, parameters={"mean": 0.0, "std": std}
+                ),
+                "gate_eligible": False,
+                "metadata": {
+                    "covariance_row": [float(covariance[row, names.index(col)]) for col in columns],
+                    "covariance_params": columns,
+                },
+            }
+        )
+    return inputs
+
+
+@pytest.mark.parametrize("sampling_method", ["random", "sobol", "halton"])
+def test_mc_gaussian_joint_draws_preserve_singular_law_and_covariance_axes(
+    sampling_method: str,
+) -> None:
+    """Every draw stays on a declared rank-one Gaussian support after axis reorder."""
+    names = ["a", "b", "c"]
+    scales = np.asarray([1.0, 2.0, 3.0])
+    inputs = _joint_normal_inputs(names, np.outer(scales, scales), ["c", "a", "b"])
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_n_samples=256,
+            mc_batch_size=60,
+            mc_sampling_method=sampling_method,
+            compute_sensitivity=False,
+        )
+    ).propagate(
+        lambda a, b, c: {"y": 2.0 * a - b, "z": 3.0 * a - c},
+        dict.fromkeys(names, 0.0),
+        inputs,
+        ["y", "z"],
+    )
+
+    for output in result:
+        payload = output.envelope.distribution_payload
+        assert isinstance(payload, PosteriorSamplesCarrier)
+        npt.assert_allclose(payload.samples, 0.0, atol=2e-6, rtol=0.0)
+        assert output.diagnostics["n_failed"] == 0
+        assert output.envelope.gate_eligible is False
+        assert output.envelope.metadata["gaussian_joint_identity_status"] == (
+            "declared_non_authoritative"
+        )
+        reopened = UncertaintyEnvelope.model_validate_json(output.envelope.model_dump_json())
+        assert isinstance(reopened.distribution_payload, PosteriorSamplesCarrier)
+        npt.assert_allclose(reopened.distribution_payload.samples, 0.0, atol=2e-6, rtol=0.0)
+
+
+def test_mc_declared_gaussian_joint_model_cannot_grant_authority_from_marginals() -> None:
+    """Admitted marginal envelopes do not verify the extra joint-Gaussian assumption."""
+    inputs = {
+        name: envelope.model_copy(update={"gate_eligible": True})
+        for name, envelope in _joint_normal_inputs(["a", "b"], np.ones((2, 2)), ["a", "b"]).items()
+    }
+    result = MonteCarloPropagator(
+        PropagationConfig(mc_n_samples=100, compute_sensitivity=False)
+    ).propagate(lambda a, b: {"y": a - b}, {"a": 0.0, "b": 0.0}, inputs, ["y"])[0]
+
+    assert result.envelope.gate_eligible is False
+    assert result.envelope.metadata["gaussian_joint_identity_status"] == (
+        "declared_non_authoritative"
+    )
+
+
+@pytest.mark.parametrize("sampling_method", ["random", "sobol", "halton"])
+def test_mc_gaussian_independent_control_retains_nonzero_difference_variance(
+    sampling_method: str,
+) -> None:
+    """Independent Gaussian coordinates must retain their variance of the difference."""
+    result = MonteCarloPropagator(
+        PropagationConfig(
+            mc_n_samples=1024,
+            mc_batch_size=128,
+            mc_sampling_method=sampling_method,
+            compute_sensitivity=False,
+        )
+    ).propagate(
+        lambda a, b: {"y": a - b},
+        {"a": 0.0, "b": 0.0},
+        _joint_normal_inputs(["a", "b"], np.eye(2), ["b", "a"]),
+        ["y"],
+    )[0]
+
+    payload = result.envelope.distribution_payload
+    assert isinstance(payload, PosteriorSamplesCarrier)
+    assert np.var(payload.samples) == pytest.approx(2.0, abs=0.3)
+
+
+@pytest.mark.parametrize("sampling_method", ["random", "sobol", "halton"])
+def test_mc_invalid_gaussian_covariance_is_refused_before_model_calls(
+    sampling_method: str,
+) -> None:
+    """A materially indefinite declaration cannot become independent fallback samples."""
+    calls = []
+
+    def simulation(**params: float) -> dict[str, float]:
+        calls.append(params)
+        return {"y": params["a"] - params["b"]}
+
+    result = MonteCarloPropagator(
+        PropagationConfig(mc_n_samples=100, mc_sampling_method=sampling_method)
+    ).propagate(
+        simulation,
+        {"a": 0.0, "b": 0.0},
+        _joint_normal_inputs(["a", "b"], np.asarray([[1.0, 2.0], [2.0, 1.0]]), ["a", "b"]),
+        ["y"],
+    )[0]
+
+    assert calls == []
+    assert result.envelope.metadata["failure"] == "incompatible_dependency"
+    assert result.envelope.gate_eligible is False
 
 
 class TestMonteCarloPropagator:

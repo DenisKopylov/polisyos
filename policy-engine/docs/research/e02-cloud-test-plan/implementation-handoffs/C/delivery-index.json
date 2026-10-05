@@ -1,0 +1,1340 @@
+{
+  "schema": "policyos.e02.C_delivery_index.v1",
+  "purpose": "Git delivery navigation and complete C inventory; no finding closure or combined-candidate PASS claim",
+  "source_cut": "c40d4acae1ce58b597267255026d9356565828fd",
+  "report_slice_base": "3178752cc2ce065a0758efecf1d967201c0815e5",
+  "g_checkpoint_observed": "46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+  "source_paths": {
+    "bundle_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    "finding_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    "cells": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+      "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152"
+    },
+    "routes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+      "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2"
+    },
+    "ledger": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+      "sha256": "610255c2c8718b997b114357c93df7fd6001e83de209f079a481d16768b357f1"
+    }
+  },
+  "denominator": {
+    "bundle_owner_rows": 127,
+    "C_bundles": 33,
+    "finding_owner_rows": 282,
+    "C_findings": 54,
+    "ledger_rows": 282,
+    "result_cells_rows": 2074,
+    "result_routes_rows": 2524,
+    "C_route_links": 402,
+    "C_distinct_cells": 192,
+    "C_cell_states": {
+      "PASS": 183,
+      "FAILED": 9
+    },
+    "C_ledger_states": {
+      "partial": 45,
+      "closed": 4,
+      "held": 5
+    }
+  },
+  "slices": {
+    "berl": {
+      "branch": "codex/e02-C-berl",
+      "head_sha": "942206505d1681ea1d4d46e93e21d0c566450acb",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01.json",
+      "implementation_commits": [
+        "bd845dd2264277344fccc6e2a8f716838ea1c626",
+        "13946765e32ebd3a5da0f6a4eda5d90d74a8ad1e"
+      ],
+      "candidate_tree_sha": "664231a3542f17768a7cc2cea61748ea16156668",
+      "delivery": "remote_verified",
+      "receipt_slice": "ber-01",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "canon": {
+      "branch": "codex/e02-C-canon",
+      "head_sha": "b98bc432e3afc0f17d992fc034029b68b0952169",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-ir-adapter-profile.json",
+      "implementation_commits": [
+        "21cb78f85d8e556776baadaa48fe90940dcf2cce",
+        "8f13193b79b366fe26101af37427da5f44ef490a"
+      ],
+      "candidate_tree_sha": "8a26ff846f97da07583ab25df12d550c8ad51317",
+      "delivery": "remote_verified",
+      "receipt_slice": "canon-ir-adapter-profile",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "catalog": {
+      "branch": "codex/e02-C-catalog",
+      "head_sha": "dfaadaac01f21b7b3994109c3cc76d522a2a3cb3",
+      "delivery": "remote_verified",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog.json",
+      "implementation_commits": [
+        "401fe6864c00b70417c3d63bee96a292718dead7",
+        "cf3068de71d7f3cd65aad433ce9ffcca6db9568a",
+        "c863664274c7cf08fe3340c21e3130dc3904b5ae"
+      ],
+      "candidate_tree_sha": "41b339f027ae7e84d0ad6ea77118ef887006ecb5",
+      "receipt_slice": "catalog"
+    },
+    "client": {
+      "branch": "codex/e02-C-client",
+      "head_sha": "13a723d8b6cb203583f856d949717427db858e37",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client.json",
+      "implementation_commits": [
+        "e39cbcff2e879d3763ab88873164f3d535541b87"
+      ],
+      "candidate_tree_sha": "3f5a9905892bdc2932b084a39401e34e3c10c72e",
+      "delivery": "remote_verified",
+      "receipt_slice": "client",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "dfi_emb": {
+      "branch": "codex/e02-C-dfi-emb",
+      "head_sha": "cd02697111861bbcbb8442287101decaaf3239fb",
+      "delivery": "remote_verified",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb.json",
+      "implementation_commits": [
+        "1c875e5ba9f161ba8c103794b85ebc2a03feea42",
+        "a25fac606b9b9cdbd15fb6c79e03dddd60855248",
+        "215c5f102eed26eb8079ed224b42d918dea1e8d4"
+      ],
+      "candidate_tree_sha": "4d226f4e597ba9bb520c8e62e317ccf5d0030293",
+      "receipt_slice": "dfi-emb",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "federation": {
+      "branch": "codex/e02-C-federation",
+      "head_sha": "ca9caf3d3cc26a57fc3cf225e9b17db981afff3f",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/federation.json",
+      "implementation_commits": [
+        "52f66689ebd29f0420bb0b4847c169a41d85a47c",
+        "c7ba52baa193d60c53dc07e3a09fb1889ddb0671",
+        "66a929f4c9422dbfaad7c8dfb80299daab1c71dd"
+      ],
+      "candidate_tree_sha": "ac60f327fee1c12706ee3ef52082fe0738067a94",
+      "delivery": "remote_verified",
+      "receipt_slice": "W07-federation",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "hygiene": {
+      "branch": "codex/e02-C-hygiene",
+      "head_sha": "b56ec6b1f802ab10d2927492bbc082f90c390139",
+      "delivery": "remote_verified",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c-w08-w09-hygiene-retirements.json",
+      "implementation_commits": [
+        "ea2d2d7d1c60c2747466a7679c72594ef3392f1d",
+        "59b9959c8776e9e80f4769de7bf8504a0ec4d285"
+      ],
+      "candidate_tree_sha": "b1c6f741c368cec06a3cfe6d9a4b4907efed4abe",
+      "receipt_slice": "c-w08-w09-hygiene-retirements"
+    },
+    "ing_support": {
+      "branch": "codex/e02-C-ing-support",
+      "head_sha": "a5bf3d536a9f1773b7110f64ac0d3b3f1230abdf",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-support.json",
+      "implementation_commits": [
+        "a29c183becd6d1221d46625c9ea6cad44e9931b0"
+      ],
+      "candidate_tree_sha": "480df93884a8df09c032ab325a73ef0ad6cf6773",
+      "delivery": "remote_verified",
+      "receipt_slice": "ing-support",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "migrations": {
+      "branch": "codex/e02-C-migrations",
+      "head_sha": "1164718054d3a409269a724c832706b524f78864",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations.json",
+      "implementation_commits": [
+        "6fa80a12aa764f06d75f55c3a21108dc2483ba85"
+      ],
+      "candidate_tree_sha": "1aa58a8f7973935fb4f40220d7c33c82290a34f1",
+      "delivery": "remote_verified",
+      "receipt_slice": "migrations",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "obs_udf": {
+      "branch": "codex/e02-C-obs-udf",
+      "head_sha": "6e24cbaf5fb1d78830fd918ab17e6495095250ed",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json",
+      "implementation_commits": [
+        "973fd3a5b3d8cfdd8ecaa04116b41d5e571d625c",
+        "ff77dec638da9e15d409154043d7ac84cbeb9236",
+        "00ba54821960e7468e501404976cb7bdde733e55",
+        "997367e433112d0963814e1df8065233725f5eee"
+      ],
+      "candidate_tree_sha": "bc1317b6e16fd7829c10f071ef2a70111cdde238",
+      "delivery": "remote_verified",
+      "receipt_slice": "obs-udf",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "plugin_discovery": {
+      "branch": "codex/e02-C-plugin-discovery",
+      "head_sha": "e30956352cd73e11c1c453e95859589cdd2e86c6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/plugin-discovery.json",
+      "implementation_commits": [
+        "9e5686bdcafe17c8c94f3b7a6fee3af6bd69f96f",
+        "be6c9dbe49c5eb13e8848523ecc12b2396238156"
+      ],
+      "candidate_tree_sha": "692722f5a58922941eb1157a3f708df1f0bc8b0a",
+      "delivery": "remote_verified",
+      "receipt_slice": "plugin-discovery",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "plugin_training": {
+      "branch": "codex/e02-C-plugin-training",
+      "head_sha": "5ee7dbc2d66fbb647ddc617fbfe19454737916b5",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/plugin-training.json",
+      "implementation_commits": [
+        "6e05749123250949cd0fb34c3c0e04a0cbbdd2b0"
+      ],
+      "candidate_tree_sha": "1ff5a966ec6b7149eaba208b0bc625b9ec603183",
+      "delivery": "remote_verified",
+      "receipt_slice": "plugin-training",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "scholar": {
+      "branch": "codex/e02-C-scholar",
+      "head_sha": "cafeeffa1577d45c02e1ff22f0db9f9f698f9046",
+      "delivery": "remote_verified",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar.json",
+      "implementation_commits": [
+        "b9657b90ea3c4b2c62b8e6036acc68e60f861c20",
+        "e6587d8994bb4dce602cf7953045021d43eb8f2d"
+      ],
+      "candidate_tree_sha": "b7fe0961bc9e37710cc55954f59e98c9d7edbbc5",
+      "receipt_slice": "scholar",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "streaming": {
+      "branch": "codex/e02-C-streaming",
+      "head_sha": "1013ae0d2292f732a2f0518b25a5a682dc156e81",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/streaming-retained-capacity.json",
+      "implementation_commits": [
+        "789e9e906cc52ff544fb05d4faa5db13359fee84"
+      ],
+      "candidate_tree_sha": "bc9e32dd74ad094c24c6012d161f7a669fb4f115",
+      "delivery": "remote_verified",
+      "receipt_slice": "streaming-retained-capacity",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    "ukraine_ops": {
+      "branch": "codex/e02-C-ukraine-ops",
+      "head_sha": "62a9140aaf28630d24688d5c850e752048dbbe9a",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ukraine-ops-root-server-gate.json",
+      "implementation_commits": [
+        "38c833079414a561bad7ec0a2fb9a68fad45b887"
+      ],
+      "candidate_tree_sha": "8c52551e6120c6826b63576dcc173fe44670ac1d",
+      "delivery": "remote_verified",
+      "receipt_slice": "ukraine-ops-root-server-gate",
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+    }
+  },
+  "bundle_dispositions": {
+    "BER-01": {
+      "slice_refs": [
+        "berl"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "CAN-01": {
+      "slice_refs": [
+        "canon"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "CLI-01": {
+      "slice_refs": [
+        "client"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "DFI-01": {
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "DFI-02": {
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "DFI-03": {
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "DFK-01": {
+      "slice_refs": [],
+      "scope": "Typed held owner decisions: LA005/026/027 FQN/schema/producer-consumer rulings remain unresolved; LA006 has only bounded source-cut import evidence, no new implementation."
+    },
+    "DFK-02": {
+      "slice_refs": [
+        "catalog"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "EMB-01": {
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "EMB-02": {
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "EMB-03": {
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "FED-01": {
+      "slice_refs": [
+        "federation"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "FED-02": {
+      "slice_refs": [
+        "federation"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "HYG-02": {
+      "slice_refs": [
+        "hygiene"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "HYG-04": {
+      "slice_refs": [
+        "hygiene"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "ING-01": {
+      "slice_refs": [
+        "ing_support"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "ING-02": {
+      "slice_refs": [],
+      "scope": "No new ING02 mechanism or full-source/evaluator/producer receipt. B81/B82/B85 remain partial with original input and semantic decision requirements."
+    },
+    "ING-03": {
+      "slice_refs": [
+        "streaming"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "MIG-01": {
+      "slice_refs": [
+        "migrations"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "MIG-02": {
+      "slice_refs": [
+        "migrations"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "MIG-04": {
+      "slice_refs": [
+        "migrations"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "MIG-05": {
+      "slice_refs": [
+        "migrations"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "OBS-01": {
+      "slice_refs": [
+        "obs_udf"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "OBS-02": {
+      "slice_refs": [
+        "obs_udf"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "PLG-01": {
+      "slice_refs": [
+        "plugin_discovery"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "PLG-02": {
+      "slice_refs": [
+        "plugin_training"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "PLG-03": {
+      "slice_refs": [
+        "plugin_training"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "SCL-01": {
+      "slice_refs": [
+        "scholar"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "SCL-03": {
+      "slice_refs": [
+        "scholar"
+      ],
+      "scope": "No delivered implementation receipt for this bundle; source/semantic owner hold or input gap remains."
+    },
+    "UDF-01": {
+      "slice_refs": [
+        "obs_udf"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "UDF-02": {
+      "slice_refs": [
+        "obs_udf"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "UDF-04": {
+      "slice_refs": [
+        "ukraine_ops"
+      ],
+      "scope": "Bounded receipt evidence; original residual unchanged"
+    },
+    "UDF-05": {
+      "slice_refs": [],
+      "scope": "LA032 remains held pending owner-issued exact shared member/content/layout/schema basis; existing per-file legacy fallback cannot prove common-snapshot readback."
+    }
+  },
+  "findings": [
+    {
+      "id": "B17",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "SCL-01"
+      ],
+      "slice_refs": [
+        "scholar"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#B17"
+    },
+    {
+      "id": "B79",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "ING-01"
+      ],
+      "slice_refs": [
+        "ing_support"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#B79"
+    },
+    {
+      "id": "B80",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "ING-01"
+      ],
+      "slice_refs": [
+        "ing_support"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#B80"
+    },
+    {
+      "id": "B81",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "ING-02"
+      ],
+      "slice_refs": [],
+      "initial_triage": "missing_input",
+      "residual_ref": "#B81"
+    },
+    {
+      "id": "B82",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "ING-02"
+      ],
+      "slice_refs": [],
+      "initial_triage": "missing_input",
+      "residual_ref": "#B82"
+    },
+    {
+      "id": "B83",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "ING-03"
+      ],
+      "slice_refs": [
+        "streaming"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#B83"
+    },
+    {
+      "id": "B84",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "ING-03"
+      ],
+      "slice_refs": [
+        "streaming"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#B84"
+    },
+    {
+      "id": "B85",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "ING-02"
+      ],
+      "slice_refs": [],
+      "initial_triage": "missing_input",
+      "residual_ref": "#B85"
+    },
+    {
+      "id": "B86",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "ING-03"
+      ],
+      "slice_refs": [
+        "streaming"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#B86"
+    },
+    {
+      "id": "B88",
+      "source_status": "closed",
+      "ledger_status": "closed",
+      "bundle_ids": [
+        "ING-01"
+      ],
+      "slice_refs": [
+        "ing_support"
+      ],
+      "initial_triage": "no_change_verified_bounded",
+      "residual_ref": "#B88"
+    },
+    {
+      "id": "B138",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "FED-01"
+      ],
+      "slice_refs": [
+        "federation"
+      ],
+      "initial_triage": "missing_input",
+      "residual_ref": "#B138"
+    },
+    {
+      "id": "B139",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "FED-02"
+      ],
+      "slice_refs": [
+        "federation"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#B139"
+    },
+    {
+      "id": "B140",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "FED-01"
+      ],
+      "slice_refs": [
+        "federation"
+      ],
+      "initial_triage": "missing_input",
+      "residual_ref": "#B140"
+    },
+    {
+      "id": "B141",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "FED-01"
+      ],
+      "slice_refs": [
+        "federation"
+      ],
+      "initial_triage": "missing_input",
+      "residual_ref": "#B141"
+    },
+    {
+      "id": "B142",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "FED-02"
+      ],
+      "slice_refs": [
+        "federation"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#B142"
+    },
+    {
+      "id": "B143",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "FED-02"
+      ],
+      "slice_refs": [
+        "federation"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#B143"
+    },
+    {
+      "id": "B144",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "FED-02"
+      ],
+      "slice_refs": [
+        "federation"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#B144"
+    },
+    {
+      "id": "B145",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "FED-01"
+      ],
+      "slice_refs": [
+        "federation"
+      ],
+      "initial_triage": "missing_input",
+      "residual_ref": "#B145"
+    },
+    {
+      "id": "B146",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "OBS-01"
+      ],
+      "slice_refs": [
+        "obs_udf"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#B146"
+    },
+    {
+      "id": "B147",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "OBS-02"
+      ],
+      "slice_refs": [
+        "obs_udf"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#B147"
+    },
+    {
+      "id": "LA-005",
+      "source_status": "held",
+      "ledger_status": "held",
+      "bundle_ids": [
+        "DFK-01"
+      ],
+      "slice_refs": [],
+      "initial_triage": "held_owner_decision",
+      "residual_ref": "#LA-005"
+    },
+    {
+      "id": "LA-006",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "DFK-01"
+      ],
+      "slice_refs": [],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#LA-006"
+    },
+    {
+      "id": "LA-008",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "HYG-02"
+      ],
+      "slice_refs": [
+        "hygiene"
+      ],
+      "initial_triage": "missing_input",
+      "residual_ref": "#LA-008"
+    },
+    {
+      "id": "LA-009",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "HYG-02"
+      ],
+      "slice_refs": [
+        "hygiene"
+      ],
+      "initial_triage": "missing_input",
+      "residual_ref": "#LA-009"
+    },
+    {
+      "id": "LA-010",
+      "source_status": "closed",
+      "ledger_status": "closed",
+      "bundle_ids": [
+        "MIG-01"
+      ],
+      "slice_refs": [
+        "migrations"
+      ],
+      "initial_triage": "no_change_verified_bounded",
+      "residual_ref": "#LA-010"
+    },
+    {
+      "id": "LA-011",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "HYG-04"
+      ],
+      "slice_refs": [
+        "hygiene"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-011"
+    },
+    {
+      "id": "LA-012",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "HYG-04"
+      ],
+      "slice_refs": [
+        "hygiene"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-012"
+    },
+    {
+      "id": "LA-013",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "HYG-04"
+      ],
+      "slice_refs": [
+        "hygiene"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#LA-013"
+    },
+    {
+      "id": "LA-018",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "HYG-02"
+      ],
+      "slice_refs": [
+        "hygiene"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-018"
+    },
+    {
+      "id": "LA-021",
+      "source_status": "closed",
+      "ledger_status": "closed",
+      "bundle_ids": [
+        "CAN-01"
+      ],
+      "slice_refs": [
+        "canon"
+      ],
+      "initial_triage": "no_change_verified_bounded",
+      "residual_ref": "#LA-021"
+    },
+    {
+      "id": "LA-022",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "PLG-01"
+      ],
+      "slice_refs": [
+        "plugin_discovery"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-022"
+    },
+    {
+      "id": "LA-023",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "PLG-02",
+        "PLG-03"
+      ],
+      "slice_refs": [
+        "plugin_training"
+      ],
+      "initial_triage": "held_owner_decision",
+      "residual_ref": "#LA-023"
+    },
+    {
+      "id": "LA-024",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "SCL-01"
+      ],
+      "slice_refs": [
+        "scholar"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-024"
+    },
+    {
+      "id": "LA-025",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "SCL-03"
+      ],
+      "slice_refs": [
+        "scholar"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-025"
+    },
+    {
+      "id": "LA-026",
+      "source_status": "held",
+      "ledger_status": "held",
+      "bundle_ids": [
+        "DFK-01"
+      ],
+      "slice_refs": [],
+      "initial_triage": "held_owner_decision",
+      "residual_ref": "#LA-026"
+    },
+    {
+      "id": "LA-027",
+      "source_status": "held",
+      "ledger_status": "held",
+      "bundle_ids": [
+        "DFK-01"
+      ],
+      "slice_refs": [],
+      "initial_triage": "held_owner_decision",
+      "residual_ref": "#LA-027"
+    },
+    {
+      "id": "LA-028",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "DFK-02"
+      ],
+      "slice_refs": [
+        "catalog"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-028"
+    },
+    {
+      "id": "LA-029",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "UDF-04"
+      ],
+      "slice_refs": [
+        "ukraine_ops"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-029"
+    },
+    {
+      "id": "LA-030",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "UDF-01"
+      ],
+      "slice_refs": [
+        "obs_udf"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#LA-030"
+    },
+    {
+      "id": "LA-031",
+      "source_status": "held",
+      "ledger_status": "held",
+      "bundle_ids": [
+        "OBS-01",
+        "UDF-01",
+        "UDF-02"
+      ],
+      "slice_refs": [
+        "obs_udf"
+      ],
+      "initial_triage": "missing_input",
+      "residual_ref": "#LA-031"
+    },
+    {
+      "id": "LA-032",
+      "source_status": "held",
+      "ledger_status": "held",
+      "bundle_ids": [
+        "UDF-05"
+      ],
+      "slice_refs": [],
+      "initial_triage": "missing_input",
+      "residual_ref": "#LA-032"
+    },
+    {
+      "id": "LA-034",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "BER-01"
+      ],
+      "slice_refs": [
+        "berl"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#LA-034"
+    },
+    {
+      "id": "LA-036",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "BER-01"
+      ],
+      "slice_refs": [
+        "berl"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#LA-036"
+    },
+    {
+      "id": "LA-038",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "DFI-01",
+        "DFI-02"
+      ],
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-038"
+    },
+    {
+      "id": "LA-039",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "EMB-01",
+        "EMB-02"
+      ],
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-039"
+    },
+    {
+      "id": "LA-040",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "EMB-03"
+      ],
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-040"
+    },
+    {
+      "id": "LA-041",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "DFI-03"
+      ],
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "initial_triage": "missing_input",
+      "residual_ref": "#LA-041"
+    },
+    {
+      "id": "LA-042",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "EMB-03"
+      ],
+      "slice_refs": [
+        "dfi_emb"
+      ],
+      "initial_triage": "oracle_verification",
+      "residual_ref": "#LA-042"
+    },
+    {
+      "id": "LA-043",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "CLI-01"
+      ],
+      "slice_refs": [
+        "client"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-043"
+    },
+    {
+      "id": "LA-044",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "CLI-01"
+      ],
+      "slice_refs": [
+        "client"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-044"
+    },
+    {
+      "id": "LA-047",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "MIG-05"
+      ],
+      "slice_refs": [
+        "migrations"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-047"
+    },
+    {
+      "id": "LA-048",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "MIG-02"
+      ],
+      "slice_refs": [
+        "migrations"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-048"
+    },
+    {
+      "id": "LA-049",
+      "source_status": "closed",
+      "ledger_status": "closed",
+      "bundle_ids": [
+        "MIG-01"
+      ],
+      "slice_refs": [
+        "migrations"
+      ],
+      "initial_triage": "no_change_verified_bounded",
+      "residual_ref": "#LA-049"
+    },
+    {
+      "id": "LA-050",
+      "source_status": "partial",
+      "ledger_status": "partial",
+      "bundle_ids": [
+        "MIG-04"
+      ],
+      "slice_refs": [
+        "migrations"
+      ],
+      "initial_triage": "mechanism",
+      "residual_ref": "#LA-050"
+    }
+  ],
+  "baseline_limits": {
+    "route_grades": [
+      "candidate_unverified"
+    ],
+    "semantic_adequacy": [
+      "not_established"
+    ],
+    "raw_archives_received": 0,
+    "original_failed_cells": [
+      "F02-P065",
+      "F03-P063",
+      "F05-P075",
+      "F08-P065",
+      "F09-P057",
+      "F10-P055",
+      "F13-P062",
+      "F14-P075",
+      "F15-P076"
+    ]
+  },
+  "source_input_census": {
+    "local_path": "/Users/deniskopylov/.codex/scratch/e02-c-source-input-census-20261005.json",
+    "sha256": "6e5de741d24e13c41c27bdea0f39ad6450d99d69eedad7dbc3b24f97bf559702",
+    "scope": "Local read-only source/input census and initial triage; not independent G acceptance bytes."
+  },
+  "admission": {
+    "outcome": "UNRUN",
+    "exit_code": 2,
+    "basis": "User explicitly authorized continued work in verified isolated C worktrees; stale registrations unchanged.",
+    "missing_registration": "/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos"
+  },
+  "G_reruns": [
+    {
+      "id": "G-C-INTEGRATION",
+      "slice_refs": [
+        "berl",
+        "canon",
+        "catalog",
+        "client",
+        "dfi_emb",
+        "federation",
+        "hygiene",
+        "ing_support",
+        "migrations",
+        "obs_udf",
+        "plugin_discovery",
+        "plugin_training",
+        "scholar",
+        "streaming",
+        "ukraine_ops"
+      ],
+      "integrated_candidate_sha": null,
+      "state": "held_until_G_freezes_integrated_SHA",
+      "command": "cd policy-engine && python3 -m tools.cli workspace verify --backend-only; then python3 -m tools.cli workspace ci-parity --skip-browser, using separate commands and complete receipts",
+      "inputs": "Fetch the exact slice heads in slices, review and integrate accepted implementation + handoff commits append-only; pin G candidate/tree before execution. One shared heavy local numerical/data slot, single numerical thread initially.",
+      "additional_boundary_checks": [
+        "Serialize BERL + Ukraine pyproject hunks, validate uv lock and installed ukraine-data entrypoint.",
+        "B pool is held by G cancellation-suppression probe integration/checks/b-pool-deadline.json@46748d3d0815b48df1e0d5ed39ffcdff4e251435. Obtain an accepted canonical B correction, then combine it with C streaming789e9e906cc52ff544fb05d4faa5db13359fee84 and run cooperative + cancel-suppress deadline/admission/cleanup together with streaming capacity/frontier/restart controls. Current pool2540 contract is not admitted by a C-only PASS.",
+        "Combine B CAS tenant-context guard a1ed35181947b23d64eb2a4cd25488f97d30bf01 with CAN adapter, run matching/mismatched actual put_bytes contexts and IR canonical readback. CAS archive publication9e8574b7c7afeec474e5a0e77c5142da4004d279 is separate from cursor-index behavior."
+      ],
+      "finding_selector": "complete findings array"
+    },
+    {
+      "id": "G-C-NINE-SOURCE-CELLS",
+      "finding_ids": [
+        "LA-028",
+        "LA-011",
+        "LA-012",
+        "LA-013"
+      ],
+      "slice_refs": [
+        "catalog",
+        "hygiene"
+      ],
+      "integrated_candidate_sha": null,
+      "state": "not_established_on_G_candidate",
+      "cells": [
+        "F02-P065",
+        "F03-P063",
+        "F05-P075",
+        "F08-P065",
+        "F09-P057",
+        "F10-P055",
+        "F13-P062",
+        "F14-P075",
+        "F15-P076"
+      ],
+      "commands": [
+        "cd policy-engine && POLISYOS_RUN_INTEGRATION=1 uv run pytest tests/unit/remediation/test_dfk_02.py tests/unit/fabric/test_retrieval_service_catalog.py::test_retrieval_service_discover_uses_injected_executor_explore_and_observability tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py::test_data_forge_catalog_fixture_source_contract_reaches_runtime_api",
+        "cd policy-engine && uv run pytest tests/unit/remediation/test_hyg_04.py"
+      ],
+      "inputs": "Tracked bounded catalog/source-contract replay fixtures and runtime HTTP importer dependencies; isolated temp DB/artifact roots. At catalog candidate cf3068de71d7f3cd65aad433ce9ffcca6db9568a the single HTTP bridge test failed before either HTTP request: default_substrate_catalog_paths selected absent worktree production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb, and ControlPlaneService/DatasetCatalogStore raised catalog_fetch_source_unreadable. Fixture/source-contract assertions passed; runtime consumer is not_established. No slice-base replay, so origin is not_established. A owns runtime HTTP run_lifecycle.py; G must bind an owner-approved runtime input/contract before rerun. Do not invent catalog data or substitute full production. Source-reported raw archives absent; preserve each outcome/skip/setup error separately from property PASS.",
+      "bounded_probe": {
+        "candidate_sha": "cf3068de71d7f3cd65aad433ce9ffcca6db9568a",
+        "outcome": "FAIL",
+        "property_outcome": "not_established",
+        "pytest_result": "1 failed in 19.05s",
+        "wall_seconds": 22.69,
+        "raw_sha256": "ccf5c1551f743f912da23a55e4d6a15edc7253d183f3652bb29a1de2a51259e9",
+        "raw_available_to_G_via_Git": false,
+        "next_owner": "A runtime HTTP lifecycle; G approved-input replay",
+        "raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog/polisyos/.tmp/e02-C-catalog/raw/catalog-runtime-cf3068de/pytest.log"
+      }
+    },
+    {
+      "id": "G-C-UKRAINE-BASIS",
+      "finding_ids": [
+        "LA-031",
+        "LA-032"
+      ],
+      "slice_refs": [
+        "obs_udf"
+      ],
+      "read_only_source_cut": "c40d4acae1ce58b597267255026d9356565828fd",
+      "integrated_candidate_sha": null,
+      "state": "held_missing_owner_input_basis",
+      "inputs": "External raw root /Users/deniskopylov/polisyos/data/ukraine_server_support_20260410 was absent at census. Local mirror aggregate counts/bytes supply neither member digests nor declared layout/schema-version inventory. Obtain an owner-issued exact member/path/content/layout/data/schema basis, then replay composite and sibling/public read_api consumers against that same read-only snapshot.",
+      "next_check": "Bind full D0/P0/D1/D2/D3/D4/D5 registered-stage parity and five .common importers to exact G SHA. Refuse mixed target/prior layouts; do not invent a member inventory or schema. Metadata-only census is not the missing authority.",
+      "data_boundary": "No full inputs in Git/cloud; retain local deciding output with candidate/input identity."
+    },
+    {
+      "id": "G-C-CATALOG-HISTORY",
+      "finding_ids": [
+        "LA-038",
+        "LA-039",
+        "LA-040",
+        "LA-041",
+        "LA-042"
+      ],
+      "slice_refs": [
+        "dfi_emb",
+        "catalog"
+      ],
+      "integrated_candidate_sha": null,
+      "state": "not_established_missing_history_model_revision_or_caller_basis",
+      "inputs": "Current datasets snapshot is ready_with_partial_sources, source_preflight_ready=false and consumer_ready=false. Full source membership/history completeness is not independently reconciled. LA040 needs actual same-dimension encoder-weight revision basis; legal facts/provisions/withdrawal/reuse are not populated by bounded tests. LA038/042 need complete FQN/config/notebook/external caller and API-retirement decisions.",
+      "next_check": "Use each exact slice implementation SHA from slices to review the changed mechanism, then bind full-history/evaluator/corpus/performance criteria to frozen G SHA and local read-only inputs. A selector/inventory hash is not evidence that no source row was omitted.",
+      "data_boundary": "Run full data checks locally without mutation or cloud transfer; isolated scratch only."
+    },
+    {
+      "id": "G-C-OWNER-DECISIONS",
+      "finding_ids": [
+        "LA-005",
+        "LA-026",
+        "LA-027",
+        "LA-022",
+        "LA-023",
+        "B81",
+        "B82",
+        "B85"
+      ],
+      "slice_refs": [
+        "plugin_discovery",
+        "plugin_training"
+      ],
+      "read_only_source_cut": "c40d4acae1ce58b597267255026d9356565828fd",
+      "integrated_candidate_sha": null,
+      "state": "held_or_unallocated_owner_decision",
+      "inputs": "Named residual owner must rule on supported-vs-retired FQNs, generated-schema descriptor producer/consumer-vs-retirement, canonical schema alias sunset, registered training stages/scientific ABI and cross-domain/RNG/continuation scope. PLG verification lacks an admitted verification producer/artifact/consumer; installation and metadata are not verification. ING02 full-source/evaluator/authority decisions are not replaced by streaming fixtures.",
+      "next_check": "Use original residual refs for the exact ID-specific decision and owner appointment. Keep capability labels such as producer_missing, consumer_missing, verification_missing, and absent/unallocated; do not invent a contract to obtain PASS."
+    },
+    {
+      "id": "G-C-INSTALLED-AND-NON-GREEN-GATES",
+      "finding_ids": [
+        "LA-034",
+        "LA-036",
+        "LA-038",
+        "LA-039",
+        "LA-043",
+        "LA-044",
+        "LA-029"
+      ],
+      "slice_refs": [
+        "berl",
+        "dfi_emb",
+        "client",
+        "ukraine_ops"
+      ],
+      "integrated_candidate_sha": null,
+      "state": "not_established_on_G_candidate",
+      "commands": [
+        "cd policy-engine && corepack pnpm install --frozen-lockfile",
+        "cd policy-engine && uv run polisyos-tools architecture guardrails check"
+      ],
+      "inputs": "Canonical package/generator/workspace consumers after integration. DFI/EMB full Ruff649 and BERL architecture guardrailsFAIL are recorded with origin not_established; replay exact failing checker inputs rather than assigning blanket inherited debt. Private installed wheel receipts use --no-deps/original dependencies; they are not hermetic full environment evidence.",
+      "next_check": "Run installed client JS/TS/public exports, schema consumers, canonical generator check + corrupt-field failure, ops command, and full changed-path Ruff on G candidate. Reserve Linux server lifecycle/C7 for its actual host and named owner."
+    }
+  ],
+  "residual_source_base": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd",
+  "finding_interpretation": "Each status is preserved. Slice refs identify bounded candidate receipts; original residual applies until G acceptance. Initial triage is planning, not a result or closure. G owns exact-SHA integration/replay; semantic/source decisions need the named owner in the original residual.",
+  "integration_dependency_refs": {
+    "B_adapters_handoff_head": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+    "B_cas_handoff_head": "f1db5d0d76fb93825a433bf8139235a93b213606",
+    "B_coordination_handoff_head": "42e120dacd7f577be10be4c06878657d4b21fde9",
+    "B_net_receipt_commit": "58b04116e25344835f482ef79c16ce87f2d0b771",
+    "scope": "Read from Git. B receipt scopes and later branch commits differ; fetch and inspect exact implementation objects. No B lifecycle file was changed by C.",
+    "B_pool_G_review": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/b-pool-deadline.json@46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+      "checked_candidate": "d9d61af6359033a08835cf5cc3fecb41c8e6967f",
+      "decision": "HOLD",
+      "property": "cancel-suppress connect/health returns a real handle after observed acquisition deadline cancellation;9 cooperative native controls pass",
+      "next_owner": "B pool canonical owner correction; G exact frozen consumer replay",
+      "pool_source_sha256": "4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7",
+      "remote_owner_source_matches_checked_candidate": true
+    },
+    "B_cas_delta": "Delta since 34b6c191cc617d89475bdb73c3b50bc0340e4b09 changes archive pathname-kind admission in _transfer_ops.py plus tests/README/receipts. store.py blob9f0e7ae36a6ab466cb6e18d45c396dc864a4d377 is unchanged; CAN put_bytes tenant-context seam unchanged."
+  },
+  "report_branch": "codex/e02-C-handoff"
+}

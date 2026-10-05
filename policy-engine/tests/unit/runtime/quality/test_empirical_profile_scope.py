@@ -81,7 +81,7 @@ def _catalog_gateway(
     )
 
 
-def _profile(gateway: RealValueOwnerGateway, region: str):
+def _profile(gateway: RealValueOwnerGateway, region: str | None):
     return gateway.load_value_data_profile(
         candidate=SimpleNamespace(atom=SimpleNamespace(target_world_slots=(_OUTCOME,))),
         problem=SimpleNamespace(
@@ -135,11 +135,20 @@ def test_supported_country_scope_filters_foreign_rows_before_profile_limit(
     assert ukrainian.treatment_assignment_status == "owner_assignment_unresolved"
 
 
-def test_non_country_scope_is_a_typed_refusal(
+@pytest.mark.parametrize(
+    ("region", "expected_code"),
+    [
+        ("Dniester basin", "acquire_data:value_scope_binding_missing"),
+        (None, "acquire_data:value_scope_unbound"),
+    ],
+)
+def test_unsupported_or_missing_scope_is_a_typed_refusal(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    region: str | None,
+    expected_code: str,
 ) -> None:
-    """A basin-like region is not silently copied into the country-code column."""
+    """Unsupported and absent scopes cannot fall through to an unscoped query."""
 
     rows = [
         ("UA", 2020 + index, float(index), "source", f"ua-{index}", "ratio")
@@ -148,9 +157,9 @@ def test_non_country_scope_is_a_typed_refusal(
     gateway = _catalog_gateway(tmp_path, monkeypatch, rows)
 
     with pytest.raises(ValueOwnerAccessError) as raised:
-        _profile(gateway, "Dniester basin")
+        _profile(gateway, region)
 
-    assert raised.value.code == "acquire_data:value_scope_binding_missing"
+    assert raised.value.code == expected_code
 
 
 @pytest.mark.parametrize(

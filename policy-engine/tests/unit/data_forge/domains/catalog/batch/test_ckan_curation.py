@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
 
 import aiohttp
+
 from polisyos.data_forge.domains.catalog.batch import harvester as batch_harvester
 from polisyos.data_forge.domains.catalog.batch.ckan_curation import (
     curate_ckan_package,
@@ -14,7 +16,10 @@ from polisyos.data_forge.domains.catalog.batch.harvester import (
     _harvest_json_with_retries,
     harvest_one_source,
 )
-from polisyos.data_forge.domains.catalog.batch.source_registry import SourceSpec
+from polisyos.data_forge.domains.catalog.batch.source_registry import (
+    SourceSpec,
+    load_source_registry,
+)
 
 
 def _exec_spec() -> SourceSpec:
@@ -73,6 +78,47 @@ def test_curate_ckan_package_prunes_resources_and_keeps_exec_dataset() -> None:
     assert curated is not None
     assert len(curated["resources"]) == 1
     assert curated["resources"][0]["format"] == "CSV"
+
+
+def test_registry_format_codes_are_normalized_before_ckan_curation(tmp_path: Path) -> None:
+    registry_path = tmp_path / "source-registry.yaml"
+    registry_path.write_text(
+        "version: 1\nsources:\n"
+        "  - name: allowlist_fixture\n"
+        "    family: ckan\n"
+        "    wave: A\n"
+        "    endpoint: https://example.invalid/api\n"
+        "    format_allowlist: [' csv ', ' json ']\n"
+        "  - name: denylist_fixture\n"
+        "    family: ckan\n"
+        "    wave: A\n"
+        "    endpoint: https://example.invalid/api\n"
+        "    format_denylist: [' pdf ', ' xml ']\n",
+        encoding="utf-8",
+    )
+    registry = load_source_registry(registry_path)
+    raw = {
+        "id": "budget-001",
+        "title": "Budget data",
+        "resources": [
+            {"id": "csv", "url": "https://example.test/data.csv", "format": " csv "},
+            {"id": "json", "url": "https://example.test/data.json", "format": "json"},
+            {"id": "pdf", "url": "https://example.test/report.pdf", "format": "pdf"},
+            {"id": "xml", "url": "https://example.test/report.xml", "format": "xml"},
+        ],
+    }
+
+    allowlist_curated = curate_ckan_package(raw, registry.sources[0])
+    denylist_curated = curate_ckan_package(raw, registry.sources[1])
+
+    assert allowlist_curated is not None
+    assert [resource["id"] for resource in allowlist_curated["resources"]] == ["csv", "json"]
+    assert denylist_curated is not None
+    assert [resource["id"] for resource in denylist_curated["resources"]] == ["csv", "json"]
+    assert [resource["format"] for resource in allowlist_curated["resources"]] == [
+        "CSV",
+        "JSON",
+    ]
 
 
 def test_curate_ckan_package_filters_non_exec_dataset() -> None:

@@ -39,6 +39,30 @@ class ArtifactControls(unittest.TestCase):
     def checker(self, blobs: dict[tuple[str, str], bytes]) -> MODULE.Verifier:
         return MODULE.Verifier(MemoryGit(blobs), "new", "old")
 
+    def test_available_filename_is_hashed_as_bytes_before_true_inline_text(self) -> None:
+        owner = MODULE.HANDOFF + "receipt.json"
+        path = MODULE.HANDOFF + "change.patch"
+        payload = b"actual patch file bytes\n"
+        checker = self.checker({("new", path): payload})
+        checker.walk(
+            {"patch": "change.patch", "patch_sha256": hashlib.sha256(payload).hexdigest()},
+            owner,
+        )
+        assert checker.errors == []
+        assert checker.counts["sha256_claims_checked"] == 1
+        inline = "*** Begin Patch\ninline content\n*** End Patch\n"
+        checker.walk(
+            {"patch": inline, "patch_sha256": hashlib.sha256(inline.encode()).hexdigest()}, owner
+        )
+        assert checker.errors == []
+        assert checker.counts["inline_utf8_sha256_claims_checked"] == 1
+        broken = self.checker({("new", path): payload + b"corruption"})
+        broken.walk(
+            {"patch": "change.patch", "patch_sha256": hashlib.sha256(payload).hexdigest()},
+            owner,
+        )
+        assert any(v["kind"] == "sha256_mismatch" for v in broken.errors)
+
     def test_payload_corruption_is_rejected_with_unchanged_labels_and_declared_hash(self) -> None:
         path = MODULE.HANDOFF + "result.txt"
         original = b"PASS\nactual retained payload\n"

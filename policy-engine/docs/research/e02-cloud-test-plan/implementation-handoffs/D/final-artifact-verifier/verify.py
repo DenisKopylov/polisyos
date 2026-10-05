@@ -25,7 +25,8 @@ HANDOFF = PLAN + "implementation-handoffs/D/"
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 HEX40 = re.compile(r"[0-9a-f]{40}\Z")
 PATH = re.compile(
-    r"[^\s<>;]+\.(?:py|json|jsonl|tsv|txt|log|md|toml|yml|yaml|ini|lock)(?:@[^#\s]+)?(?:#[^\s]+)?\Z"
+    r"[^\s<>;]+\.(?:py|json|jsonl|tsv|txt|log|md|toml|yml|yaml|ini|lock|patch|diff)"
+    r"(?:@[^#\s]+)?(?:#[^\s]+)?\Z"
 )
 REFERENCE_KEYS = {
     "path",
@@ -139,9 +140,11 @@ class Verifier:
         size: object = None,
         blob: str | None = None,
     ) -> bool:
-        if not isinstance(value, str) or not PATH.fullmatch(value):
+        if not isinstance(value, str):
             return False
         ref, path, data, external = self.resolve(value, owner, pin)
+        if data is None and not PATH.fullmatch(value):
+            return False
         signature = ref, path, digest, size, blob
         if signature in self.checked:
             return True
@@ -255,7 +258,14 @@ class Verifier:
                     (
                         value[n]
                         for n in names
-                        if isinstance(value.get(n), str) and PATH.fullmatch(value[n])
+                        if isinstance(value.get(n), str)
+                        and (
+                            PATH.fullmatch(value[n])
+                            or (
+                                "\n" not in value[n]
+                                and self.resolve(value[n], owner, pin)[2] is not None
+                            )
+                        )
                     ),
                     None,
                 )

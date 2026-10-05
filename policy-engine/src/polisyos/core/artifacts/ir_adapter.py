@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, cast, overload
+from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING, Any, overload
 
 from .backends.config import ArtifactStoreConfig, build_artifact_store
 from .ids import ArtifactID
@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
-    from polisyos.core.canon.canon_json import CanonSpec as CoreCanonSpec
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
     from polisyos.ir.artifacts import StorePutOptions
@@ -32,28 +31,6 @@ def _coerce_payload(value: Any) -> dict[str, Any]:
     if hasattr(value, "__dict__"):
         return dict(vars(value))
     raise TypeError(f"Cannot coerce {type(value)!r} into adapter payload")
-
-
-def _coerce_canon_spec(spec: IRCanonSpec | None) -> CoreCanonSpec | None:
-    if spec is None:
-        return None
-    from polisyos.core.canon import CanonSpec as CoreCanonSpec
-
-    payload = _coerce_payload(spec)
-    return CoreCanonSpec(
-        name=str(payload.get("name", "polisyos.canon.json")),
-        version=str(payload.get("version", "0.2.0")),
-        forbid_floats=bool(payload.get("forbid_floats", True)),
-        forbid_nan_inf=bool(payload.get("forbid_nan_inf", True)),
-        exclude_none=bool(payload.get("exclude_none", True)),
-        max_depth=int(payload.get("max_depth", 128)),
-        sort_keys=bool(payload.get("sort_keys", True)),
-        separators=cast(
-            "tuple[str, str]",
-            tuple(payload.get("separators", (",", ":"))),
-        ),
-        ensure_ascii=bool(payload.get("ensure_ascii", False)),
-    )
 
 
 def _coerce_schema(schema: Any | None) -> SchemaInfo | None:
@@ -114,11 +91,17 @@ class CoreToIRArtifactStoreAdapter:
         opts: StorePutOptions | Any,
         canon_spec: IRCanonSpec | None = None,
     ) -> Any:
-        return self.store.put_json(
-            obj,
-            _coerce_write_options(opts),
-            canon_spec=_coerce_canon_spec(canon_spec),
+        import polisyos.ir.model_layer.canon as ir_canon
+
+        spec = canon_spec or ir_canon.CanonSpec()
+        data = ir_canon.to_canonical_bytes(obj, spec)
+        write_options = _coerce_write_options(opts)
+        write_options = replace(
+            write_options,
+            media_type="application/json",
+            canon=write_options.canon or CanonInfo.from_spec(spec),
         )
+        return self.store.put_bytes(data, write_options)
 
     def get_bytes(self, artifact_id: Any) -> bytes:
         return self.store.get_bytes(ArtifactID.model_validate(str(artifact_id)))

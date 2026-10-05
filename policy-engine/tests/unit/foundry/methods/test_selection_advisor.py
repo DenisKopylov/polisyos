@@ -402,6 +402,30 @@ def test_controlled_single_value_projection_selects_real_method_but_blocks_ficti
     assert fictional["blockers"] == ("unsupported_method_unavailable",)
 
 
+def test_registered_non_value_method_request_is_refused_outside_value_denominator() -> None:
+    """A real registry member without native value output cannot be selected."""
+
+    registry = MethodRegistry.get_instance()
+    ensure_all_methods_registered(registry)
+    requested_method_fqn = "econometrics.diagnostics.hausman_test@1.0.0"
+    assert registry.get(requested_method_fqn).signature.fqn == requested_method_fqn
+
+    result = select_value_method_for_problem(
+        registry=registry,
+        candidate={"candidate_id": "registered-non-value-request"},
+        problem={
+            "design_problem_id": "registered-non-value-request",
+            "problem_statement": "Choose only an owner-backed value method.",
+            "domain": "generic_policy",
+        },
+        requested_method_fqn=requested_method_fqn,
+    )
+
+    assert result["status"] == "blocked"
+    assert result["blockers"] == ("unsupported_method_unavailable",)
+    assert requested_method_fqn not in result["denominator"]
+
+
 def test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_top_k(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

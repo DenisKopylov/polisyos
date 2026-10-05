@@ -83,6 +83,8 @@ class SearchSpace:
                 values.extend(1.0 if raw == candidate else 0.0 for candidate in bound.categories)
                 continue
             raw = float(params.get(bound.name, bound.lower))
+            if not math.isfinite(raw):
+                raise ValueError(f"Finite value required for '{bound.name}'")
             if bound.log_scale or bound.dtype == ParameterType.LOG_CONTINUOUS:
                 log_lower = math.log(bound.lower)
                 log_upper = math.log(bound.upper)
@@ -90,13 +92,23 @@ class SearchSpace:
                 raw_norm = (math.log(raw) - log_lower) / (log_upper - log_lower)
             else:
                 raw_clipped = min(max(raw, bound.lower), bound.upper)
-                raw_norm = (raw_clipped - bound.lower) / (bound.upper - bound.lower)
+                span = bound.upper - bound.lower
+                if math.isfinite(span):
+                    raw_norm = (raw_clipped - bound.lower) / span
+                else:
+                    scale = max(abs(bound.lower), abs(bound.upper))
+                    raw_norm = (raw_clipped / scale - bound.lower / scale) / (
+                        bound.upper / scale - bound.lower / scale
+                    )
             values.append(float(min(max(raw_norm, 0.0), 1.0)))
         return tuple(values)
 
     def denormalize(self, vector: NormalizedVector) -> dict[str, Any]:
         if len(vector) != self.dim:
             raise ValueError(f"Expected vector length {self.dim}, got {len(vector)}")
+        vector = tuple(float(value) for value in vector)
+        if any(not math.isfinite(value) for value in vector):
+            raise ValueError("Normalized proposal coordinates must be finite")
 
         params: dict[str, Any] = {}
         cursor = 0
@@ -117,13 +129,37 @@ class SearchSpace:
                 log_upper = math.log(bound.upper)
                 value = math.exp(log_lower + normalized * (log_upper - log_lower))
             else:
-                value = bound.lower + normalized * (bound.upper - bound.lower)
+                span = bound.upper - bound.lower
+                value = (
+                    bound.lower + normalized * span
+                    if math.isfinite(span)
+                    else (1.0 - normalized) * bound.lower + normalized * bound.upper
+                )
+            value = min(max(value, bound.lower), bound.upper)
             if bound.dtype == ParameterType.INTEGER:
-                params[bound.name] = int(round(value))
+                params[bound.name] = min(
+                    max(int(round(value)), math.ceil(bound.lower)), math.floor(bound.upper)
+                )
             else:
                 params[bound.name] = float(value)
             cursor += 1
         return params
+
+    def validate_params(self, params: dict[str, Any]) -> None:
+        """Admit physical observations only inside their attainable typed domain."""
+        for bound in self.bounds:
+            if bound.name not in params:
+                raise ValueError(f"Missing physical parameter '{bound.name}'")
+            raw = params[bound.name]
+            if bound.dtype == ParameterType.CATEGORICAL:
+                if raw not in bound.categories:
+                    raise ValueError(f"Unknown category for '{bound.name}'")
+                continue
+            value = float(raw)
+            if not math.isfinite(value) or not bound.lower <= value <= bound.upper:
+                raise ValueError(f"Physical parameter '{bound.name}' is outside finite bounds")
+            if bound.dtype == ParameterType.INTEGER and not value.is_integer():
+                raise ValueError(f"Physical parameter '{bound.name}' must be an integer")
 
     def sobol_backend(self) -> str:
         """Return the import-time backend preference for diagnostics only.
@@ -181,7 +217,8 @@ class SearchSpace:
             )
             for bound in self.bounds
         )
-        return hashlib.sha256(repr(signature).encode("utf-8")).hexdigest()
+        replay_basis = ("attainable_projection.v1", signature)
+        return hashlib.sha256(repr(replay_basis).encode("utf-8")).hexdigest()
 
     @property
     def last_sobol_sampler_identity(self) -> str | None:

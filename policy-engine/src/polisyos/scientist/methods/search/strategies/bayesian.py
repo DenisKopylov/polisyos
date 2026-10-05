@@ -547,6 +547,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         ):
             return False
         try:
+            self._space.validate_params(dict(evaluation.params))
             actual = self._space.normalize(dict(evaluation.params))
         except (TypeError, ValueError, OverflowError):
             return False

@@ -89,9 +89,13 @@ class ParameterBounds:
                     f"Categorical parameter '{self.name}' requires at least two categories"
                 )
             return
+        if not math.isfinite(self.lower) or not math.isfinite(self.upper):
+            raise ValueError(f"Finite bounds required for '{self.name}'")
         if self.lower >= self.upper:
             raise ValueError(f"Invalid bounds for '{self.name}': lower >= upper")
-        if self.log_scale and self.lower <= 0:
+        if self.dtype == ParameterType.INTEGER and math.ceil(self.lower) > math.floor(self.upper):
+            raise ValueError(f"Integer parameter '{self.name}' has no attainable values")
+        if (self.log_scale or self.dtype == ParameterType.LOG_CONTINUOUS) and self.lower <= 0:
             raise ValueError(f"Log-scale parameter '{self.name}' requires lower > 0")
 
 

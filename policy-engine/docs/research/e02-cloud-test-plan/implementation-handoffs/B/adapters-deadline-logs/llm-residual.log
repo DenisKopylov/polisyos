@@ -1,0 +1,13 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_cancelled_initiator_cannot_erase_actual_provider_cost __________
+tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py:177: in test_cancelled_initiator_cannot_erase_actual_provider_cost
+    assert sum(event.get("cost_usd") or 0.0 for event in metrics.events) == pytest.approx(0.02)
+E   assert 0.0 == 0.02 ± 2.0e-08
+E     
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.02 ± 2.0e-08
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_cannot_erase_actual_provider_cost
+1 failed in 0.17s

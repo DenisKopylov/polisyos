@@ -1,0 +1,14 @@
+import ast, __future__, inspect, pytest
+from polisyos.foundry.methods.catalog.causal import did
+for name in ("_cohort_time_cells", "_run_staggered_did"):
+    node=ast.parse(inspect.getsource(getattr(did,name))).body[0]
+    for child in ast.walk(node):
+        if isinstance(child,ast.If):
+            if name == "_cohort_time_cells" and ast.unparse(child.test) == "group_start >= data.n_periods":
+                child.test=ast.parse("group_start <= 0 or group_start >= data.n_periods",mode="eval").body
+            elif name == "_run_staggered_did" and "raw_anticipation < 0" in ast.unparse(child.test):
+                child.test=ast.Constant(value=False)
+    tree=ast.fix_missing_locations(ast.Module(body=[node],type_ignores=[]))
+    exec(compile(tree,did.__file__,"exec",flags=__future__.annotations.compiler_flag),did.__dict__)
+print("In-memory removal only; candidate source bytes unchanged; report/markers retained.")
+raise SystemExit(pytest.main(["tests/unit/remediation/test_cau_02.py","-q","-p","no:cacheprovider","--tb=short","--show-capture=no","--disable-warnings"]))

@@ -1,0 +1,416 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "cau-cohort-admission",
+  "closure_ids": [
+    "B207",
+    "B209"
+  ],
+  "bundle_ids": [
+    "CAU-02"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "c8e16d0abb7d10605475862ede8c6f327ff7cce9"
+  ],
+  "candidate_tree_sha": "a7b2625d8dc41f7ae364a5d98ebf6f3c4f60a2cf",
+  "branch": "codex/e02-F-cau",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+    "policy-engine/tests/unit/remediation/test_cau_02.py"
+  ],
+  "baseline_cells": [
+    "F01-P067",
+    "F01-P115",
+    "F02-P048",
+    "F02-P050",
+    "F02-P070",
+    "F03-P077",
+    "F03-P090",
+    "F04-P069",
+    "F04-P108",
+    "F05-P090",
+    "F07-P061",
+    "F07-P062",
+    "F08-P052",
+    "F08-P091",
+    "F08-P110",
+    "F09-P117",
+    "F10-P069",
+    "F13-P057",
+    "F14-P082",
+    "F14-P136",
+    "F15-P080",
+    "F15-P104",
+    "F15-P127"
+  ],
+  "baseline_identity": {
+    "cell_grade": "source_reported_compact_text_only; no transferred raw archives; not candidate verdict",
+    "routes_source": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@c40d4acae1ce58b597267255026d9356565828fd",
+    "cells_source": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@c40d4acae1ce58b597267255026d9356565828fd",
+    "complete_denominator": {
+      "path": "all routes.tsv and cells.tsv rows",
+      "file_type": "TSV",
+      "executor": "F CAU leaf",
+      "all_route_rows": 2524,
+      "selected_finding_ids": 11,
+      "selected_route_rows": 76,
+      "unique_file_by_cut_cells": 23,
+      "distinct_test_paths": 9,
+      "file_states": {
+        "PASS": 23
+      },
+      "call_pass": 192,
+      "call_skip": 5
+    },
+    "source_shas": [
+      "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "78187878ee188ff6d27442ba1498bd094da9785b"
+    ],
+    "decisive_source_skip": "received/F02.txt:335-337: five DoWhy calls SKIP, marker exclusion Python<3.13; EconML Python<3.14 excluded"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_cau_02.py -q -p no:cacheprovider --tb=short --show-capture=no --disable-warnings",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "shared Python3.14.2; candidate regression tests over unmodified slice-base mechanism",
+      "input_closure": "new bounded panels specified by test_cau_02.py at implementation commit; no production inputs",
+      "outcome": "FAIL",
+      "interpretation": "10 targeted failures,11 passing controls before fix",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+      "test_revision": "New regression test bodies staged over unmodified slice-base; implementation test revision includes only formatter-equivalent helper layout."
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/remediation/test_cau_02.py -q -p no:cacheprovider --tb=short --show-capture=no --disable-warnings",
+      "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "environment": "shared Python3.14.2",
+      "input_closure": "new bounded panels in test_cau_02.py@c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "outcome": "PASS",
+      "interpretation": "21 passed during development before formatter-only test-helper change; final candidate rerun included below",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+      "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "environment": "shared Python3.14.2; AST mutations only in child-process runtime; disk source preserved",
+      "input_closure": "same21 known synthetic cases; g=0 omission restored and anticipation guard disabled with rejection markers retained",
+      "outcome": "FAIL",
+      "interpretation": "expected detection:10 failed,11 valid controls passed; remove-property-keep-markers witness",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt"
+    },
+    {
+      "command": "shared interpreter: nine CAU/remediation+native test paths listed in isolated native log, original default addopts",
+      "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "environment": "shared Python3.14.2 statsmodels absent",
+      "input_closure": "nine native/remediation CAU paths",
+      "outcome": "ERROR",
+      "interpretation": "test_cau_01 collection blocked by missing real statsmodels; no method verdict",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt"
+    },
+    {
+      "command": "PYTHONPATH=src:.:/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages /workspace/e02-F-cau-env/bin/python -m pytest -o addopts= --import-mode=importlib --strict-markers tests/unit/remediation/test_cau_01.py tests/unit/remediation/test_cau_02.py tests/unit/remediation/test_cau_03.py tests/unit/remediation/test_cau_04.py tests/unit/remediation/test_cau_05.py tests/unit/foundry/methods/catalog/causal/test_did.py tests/unit/foundry/methods/catalog/causal/test_rdd.py tests/unit/foundry/methods/catalog/causal/test_registration.py tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py -q -ra -p no:cacheprovider --tb=short --show-capture=no --disable-warnings",
+      "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "environment": "isolated real analytics packages; source pinned to candidate; shared env read only",
+      "input_closure": "all9 routed CAU test paths with source fixtures; native NumPy and real statsmodels reference; DoWhy native excluded markers",
+      "outcome": "PASS",
+      "interpretation": "79passed,5DoWhySKIP,115warnings; pass applies executed tests only; optional native backend UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/methods/catalog/causal/did.py tests/unit/remediation/test_cau_02.py; ruff format --check same paths; git diff --check",
+      "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "environment": "shared Ruff; candidate product cwd",
+      "input_closure": "two changed Python files",
+      "outcome": "PASS",
+      "output": "All checks passed!\n2 files already formatted\ngit diff --check exit0"
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base c40d4acae1ce58b597267255026d9356565828fd --receipt /workspace/e02-F-receipts/cau-production-invocation.json",
+      "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "environment": "shared Python3.14.2; full source static instrument",
+      "input_closure": "full tracked Python source; instrument source-owned denominator",
+      "outcome": "PASS",
+      "interpretation": "static partial,regressions=[],runtime_invocation_established=false; not runtime proof",
+      "output": {
+        "local_raw": "/workspace/e02-F-receipts/cau-production-invocation.json",
+        "sha256": "c2ef625b9cc2f8c01b996179177712519ba9b07fe031076fb4b0cc4b031169e7",
+        "bytes": 170856211,
+        "transfer": "raw not committed; static-detail custody not established for G; exact rerun above",
+        "stdout": "status=passed coverage=partial regressions=[] new_unresolved_by_construction=[] runtime_invocation_established=false"
+      },
+      "evidence_transfer_verdict": "not_established for full static-detail receipt; not a runtime or closure gate"
+    }
+  ],
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "runtime_owner": "/workspace/e02-F-cau/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "statsmodels": "ABSENT",
+      "dowhy": "ABSENT",
+      "econml": "ABSENT"
+    },
+    "isolated_analytics_prefix": "/workspace/e02-F-cau-env",
+    "isolated_analytics_packages": {
+      "statsmodels": "0.14.6",
+      "patsy": "1.0.2"
+    },
+    "isolated_pythonpath": "src:.:/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+    "provisioning": "uv venv --python /workspace/polisyos/policy-engine/.venv/bin/python --system-site-packages /workspace/e02-F-cau-env; offline install cache unavailable; uv pip install --python /workspace/e02-F-cau-env/bin/python --no-deps statsmodels==0.14.6 patsy==1.0.2; uv.lock versions unchanged",
+    "config_sha256": {
+      "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    }
+  },
+  "property": {
+    "statement": "Every requested observed staggered cohort needs a valid pre-baseline; anticipation is an explicit nonnegative integer period count before control eligibility is constructed. Unsupported cohort admission yields a point-free typed refusal that survives CAS readback.",
+    "runtime_path": [
+      "causal.inference.did.staggered@1.0.0 facade/registry",
+      "MethodDispatcher/NumpyRunner",
+      "_run_staggered_did->_cohort_time_cells",
+      "CausalEffectReport(schema_version1.0) via wrap_causal_output",
+      "persist_causal_effect_report(FileSystemCAS,ir.causal_effect_report schema1.0)",
+      "load_causal_effect_report->to_uncertainty_envelope(gate_eligible=false)"
+    ],
+    "production_caller": "scientist/nodes/builtins/simulate/run_causal_evaluation.py generic registered method job; served full-node admission not claimed by bounded fixture",
+    "surface": "existing typed report/envelope projections; no new facade/IR fields",
+    "proxy_divergence": "On timing[0,0,2,2,-1,-1], count of valid constructed cells is positive but requested cohort set contains unsupported g=0; previous code emitted ATT3 for unnamed subset. int(0.5)==0 also changed the declared temporal window while construction remained successful.",
+    "negative_controls": [
+      "all and mixed unsupported g0 cohorts",
+      "negative/fractional/boolean/text/None/NaN/infinite anticipation",
+      "marker-preserving in-memory omission+guard removal",
+      "CAS reopened refusal with pointNone and gate_eligibleFalse"
+    ],
+    "positive_controls": [
+      "known ATT5 panel at integer0,1,np.int64(1)",
+      "existing never/not-yet-treated eligibility tests",
+      "supported historical and dedicated wrapper parity tests"
+    ],
+    "authority_purpose": "bounded methodological input-admission witness only; not effect authority on admitted real data",
+    "time_roles": "integer panel time index; cohort start and baseline are observation/intervention timing; no legal/publication epoch semantics added"
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "implemented bounded cohort-admission mechanism; all11 CAU findings remain limited/partial, no closure/status ledger mutation",
+  "pattern_pass": [
+    "P01/P02 actual producer+CAS readback+consumer; served node remains a separate boundary",
+    "P27/P31 canonical did.py shared admission invariant",
+    "P33 variant controls and source-preserving removal",
+    "P35 complete23file-by-cut route census over11IDs",
+    "P37/P38 constructed cohort-set/baseline property rather than cell-count proxy",
+    "P40 new admission class; calibrated inference/real-data/backend residuals preserved",
+    "P41 no inherited product-red claim; original missing-statsmodels ERROR is environment-specific"
+  ],
+  "independent_review": {
+    "reviewer": "F graph_scm leaf",
+    "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+    "verdict": "GO; no blocking delta findings",
+    "fresh_command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 sharedPython -m pytest -o addopts= -q -p no:cacheprovider tests/unit/remediation/test_cau_02.py",
+    "source_reported_result": "21passed,92warnings,85.98s; independent author-side receipts below provide full transferred deciding outputs"
+  },
+  "residual_map": [
+    {
+      "finding_id": "B204",
+      "bundle_id": "CAU-01",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "verification_owner",
+        "name": "CAU-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "remaining": "Known synthetic standard-DiD design tests pass; four-base replay and finding-level historical selector reconciliation are UNRUN. Real-data parallel-trend validity is not established.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_01.py::test_cau_01_standard_did_rejects_zero_pre_period"
+      ]
+    },
+    {
+      "finding_id": "B205",
+      "bundle_id": "CAU-01",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "verification_owner",
+        "name": "CAU-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "remaining": "Current CR0 reference and technical-period duplication tests pass with real statsmodels 0.14.6. Four-base replay is UNRUN; small-cluster coverage and admitted-real-data inference are not established.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_01.py::test_cau_01_statsmodels_cluster_reference"
+      ]
+    },
+    {
+      "finding_id": "B206",
+      "bundle_id": "CAU-01",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "verification_owner",
+        "name": "CAU-01 finding-level verification owner; E02-R2 baseline broker for historical selector/JUnit reconciliation",
+        "appointment_status": "owner roles named; individual appointment and discriminator-bound selector/result are not established"
+      },
+      "remaining": "Current confidence-level, 95% control and invalid-level tests pass. Four-base replay is UNRUN; no claim of nominal coverage, corrected standard error or RBC.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_01.py::test_cau_01_confidence_level_changes_did_interval",
+        "tests/unit/remediation/test_cau_01.py::test_cau_01_confidence_level_changes_rdd_interval"
+      ]
+    },
+    {
+      "finding_id": "B207",
+      "bundle_id": "CAU-02",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-02.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "data_record",
+        "name": "Causal-analysis data owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "remaining": "Finite known DGP proves varying panel units affect descriptive bootstrap and unsupported g=0 cannot be silently omitted. Admitted cohort/independent-unit data record and serial-correlated multi-cohort coverage remain pending causal-analysis data owner.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_02.py::test_staggered_bootstrap_resamples_panel_units_not_att_cells",
+        "tests/unit/remediation/test_cau_02.py::test_staggered_zero_start_cohort_is_not_silently_omitted"
+      ]
+    },
+    {
+      "finding_id": "B208",
+      "bundle_id": "CAU-02",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-02.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "data_record",
+        "name": "Causal-analysis data owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "remaining": "p-value and inferential CI remain absent. The descriptive multiplier interval is not a calibrated null distribution; null calibration/power and cohort data record remain pending causal-analysis data owner.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_02.py::test_staggered_p_value_is_absent_without_calibrated_null_distribution"
+      ]
+    },
+    {
+      "finding_id": "B209",
+      "bundle_id": "CAU-02",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-02.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "data_record",
+        "name": "Causal-analysis data owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "remaining": "Known synthetic eligibility and strict anticipation admission pass; requested unsupported cohort set refuses point output. Real-data anticipation/no-anticipation validity and cohort scope require causal-analysis data owner.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_excludes_already_affected_not_yet_controls",
+        "tests/unit/remediation/test_cau_02.py::test_staggered_anticipation_requires_declared_nonnegative_period_count"
+      ]
+    },
+    {
+      "finding_id": "B210",
+      "bundle_id": "CAU-03",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-03.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "principal_decision",
+        "name": "Principal (Denis)",
+        "appointment_status": "decision draft only; principal ruling pending"
+      },
+      "remaining": "Unsupported requested RBC is honestly refused and uncorrected mode remains supported. Actual RBC implementation/curvature correction is not established; preserve principal-decision residual.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_03.py::test_cau_03_true_bias_correction_fails_closed_without_an_estimate"
+      ]
+    },
+    {
+      "finding_id": "B211",
+      "bundle_id": "CAU-03",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-03.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "implementation_owner",
+        "name": "RDD causal-analysis owner",
+        "appointment_status": "owner role identified by reviewed triage; no individual appointment is claimed"
+      },
+      "remaining": "Current bounded vector WLS/reference/kernel/order/rank tests pass. No new implementation delta for this ID; full baseline/finding reconciliation remains with RDD causal-analysis owner, without RBC inference claim.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_03.py::test_cau_03_vector_weighted_fit_matches_independent_reference",
+        "tests/unit/remediation/test_cau_03.py::test_cau_03_fit_does_not_materialize_diagonal_or_repeat_factorization"
+      ]
+    },
+    {
+      "finding_id": "B212",
+      "bundle_id": "CAU-04",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-04.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "implementation_owner",
+        "name": "DoWhy adapter and causal-analysis owner",
+        "appointment_status": "owner role identified by reviewed triage; no individual appointment is claimed"
+      },
+      "remaining": "Recorder/IR tests preserve point-only and true interval; real DoWhy tests are SKIP under Python3.14 markers. Native DoWhy point-only consumer witness remains UNRUN for supported reference environment owner/G.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_04.py::test_point_only_dowhy_result_preserves_point_without_epsilon_ci",
+        "tests/unit/remediation/test_cau_04.py::test_real_interval_is_preserved_and_remains_success"
+      ]
+    },
+    {
+      "finding_id": "B213",
+      "bundle_id": "CAU-04",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-04.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "implementation_owner",
+        "name": "DoWhy adapter and causal-analysis owner",
+        "appointment_status": "owner role identified by reviewed triage; no individual appointment is claimed"
+      },
+      "remaining": "Recorder protocol/estimand mismatch controls pass; actual DoWhy version/API/population/adjustment native behavior is UNRUN under markers. No shim or unsupported backend installation used.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_04.py::test_requested_estimand_is_bound_to_model_and_identification",
+        "tests/unit/remediation/test_cau_04.py::test_backend_estimand_mismatch_is_not_relabelled"
+      ]
+    },
+    {
+      "finding_id": "LA-016",
+      "bundle_id": "CAU-05",
+      "source_status": "partial",
+      "candidate_verdict": "limited",
+      "source_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-05.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "residual_owner": {
+        "kind": "owner_appointment",
+        "name": "Native causal caller owner",
+        "appointment_status": "typed blocker recorded by reviewed triage; its required record/appointment remains pending"
+      },
+      "remaining": "Current supported old/dedicated adapter and metadata controls pass. Frozen production plan replay/native first-party caller completeness remains not established. Ledger residual references DoWhy while source CAU-05 defines DiD migration: G must reconcile by source criterion, not import a DoWhy closure into LA-016.",
+      "selectors": [
+        "tests/unit/remediation/test_cau_05.py::test_cau_05_legacy_staggered_slots_match_dedicated_request",
+        "tests/unit/remediation/test_cau_05.py::test_cau_05_legacy_staggered_flag_rejects_ambiguous_mode",
+        "tests/unit/remediation/test_cau_01.py::test_cau_01_dedicated_metadata_survives_deprecated_metadata_mutation"
+      ]
+    }
+  ],
+  "limitations_and_next_owner": [
+    "G: fetch exact topic head+implementation SHA; review this bounded code separately from finding closure.",
+    "G/causal-analysis data owner: admitted full production inputs remain local; rerun exact9path command on candidate SHA with the source-owner cohort record; do not promote synthetic-DGP property to real-data validity.",
+    "Causal methodology owner: staggered descriptive interval remains non-gate-eligible and no calibrated p/CI is produced; multi-cohort null/coverage checks remain unestablished.",
+    "G/DoWhy reference environment owner: native DoWhy tests listed as5SKIP remain UNRUN under canonicalPython3.14 markers; do not fabricate a shim or treat absence as a backend witness.",
+    "Causal ABI consumers: MethodDispatcher emits pre-existing raw-key warnings result/report and uncertainty_envelope/envelope; components/io has downstream canonical aliases. This slice changes no signature/facade; does not claim raw-output ABIgreen.",
+    "G: reconcile LA-016 residual prose that mentions DoWhy against authoritative DiD source card before any closure.",
+    "G: four-base historical replay for CAU-01 remains UNRUN; existing current-head tests do not substitute that replay.",
+    "G: production_invocation huge raw remains local163MiB; static detail receipt is unavailable acrossGit and runtime proof is supplied by bounded execution logs, not static summary."
+  ]
+}

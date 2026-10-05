@@ -1492,10 +1492,15 @@ async def _execute_with_timeout_thread_async(
     worker_ctx = _build_attempt_context(ctx, authority)
     worker_state = state.model_copy(deep=True)
     context = contextvars.copy_context()
-    task = asyncio.get_running_loop().run_in_executor(
-        get_shared_executor(), context.run, node.execute, worker_ctx, worker_state
-    )
-    return await _await_timed_attempt(task, authority, timeout_s=timeout_s)
+    future = get_shared_executor().submit(context.run, node.execute, worker_ctx, worker_state)
+    task = asyncio.wrap_future(future)
+    try:
+        return await _await_timed_attempt(task, authority, timeout_s=timeout_s)
+    except (NodeTimeoutError, asyncio.CancelledError):
+        # Cancelling only the asyncio wrapper defers forwarding to a loop
+        # callback. Refuse the actual queued compute before a worker is freed.
+        future.cancel()
+        raise
 
 
 async def _await_timed_attempt(

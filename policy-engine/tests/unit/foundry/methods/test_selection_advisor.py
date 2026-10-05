@@ -340,10 +340,10 @@ def test_value_advisor_trace_is_filtered_to_the_value_denominator() -> None:
     ) == 1
 
 
-def test_registered_singleton_value_denominator_is_accepted_but_fictional_request_is_blocked(
+def test_controlled_single_value_projection_selects_real_method_but_blocks_fictional_request(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A real one-member registry projection is not a fixed default."""
+    """A controlled one-entry projection is conditional, not registry completeness."""
 
     registry = MethodRegistry.get_instance()
     singleton = _catalog_with_real_entries(
@@ -405,20 +405,40 @@ def test_registered_singleton_value_denominator_is_accepted_but_fictional_reques
 def test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_top_k(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Eligibility is applied before ranking truncates the candidate set."""
+    """The public selector filters the complete catalog before advisor top-k."""
 
     registry = MethodRegistry.get_instance()
-    catalog = _catalog_with_real_entries(
-        registry,
-        "causal.diagnostics.parallel_trends_check@1.0.0",
-        "causal.inference.did.staggered@1.0.0",
-        "econometrics.panel.difference_gmm@1.0.0",
+    ensure_all_methods_registered(registry)
+    complete_catalog = build_method_catalog_snapshot(registry=registry)
+    value_entries = tuple(
+        entry
+        for entry in complete_catalog.entries
+        if advisor_module._catalog_entry_is_value_method(entry, registry=registry)
     )
-    monkeypatch.setattr(
-        advisor_module,
-        "build_method_catalog_snapshot",
-        lambda **_kwargs: catalog,
-    )
+    denominator = {entry.fqn for entry in value_entries}
+    required_data_modalities = {"panel"}
+    eligible_value_fqns = {
+        entry.fqn
+        for entry in value_entries
+        if entry.runnable
+        and required_data_modalities.issubset(set(entry.data_modalities))
+    }
+    assert eligible_value_fqns
+    actual_advisor_inputs: list[MethodCatalogSnapshot] = []
+    actual_advisor_results = []
+    unfiltered_advisor_results = []
+    original_advise_methods = advisor_module.advise_methods
+
+    def _observe_pre_filter_advice(advisor_catalog, query):
+        actual_advisor_inputs.append(advisor_catalog)
+        actual_result = original_advise_methods(advisor_catalog, query)
+        actual_advisor_results.append(actual_result)
+        # Counterfactual: rank the same complete, real snapshot with the exact
+        # selector query but without the pre-limit value-eligibility filter.
+        unfiltered_advisor_results.append(original_advise_methods(complete_catalog, query))
+        return actual_result
+
+    monkeypatch.setattr(advisor_module, "advise_methods", _observe_pre_filter_advice)
 
     result = select_value_method_for_problem(
         registry=registry,
@@ -445,12 +465,29 @@ def test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_t
     )
 
     assert result["status"] == "selected"
-    assert result["selected_method_fqn"] == "econometrics.panel.difference_gmm@1.0.0"
-    assert set(result["score_trace"]) <= {"econometrics.panel.difference_gmm@1.0.0"}
+    assert result["denominator"] == tuple(sorted(denominator))
+    assert result["selected_method_fqn"] in eligible_value_fqns
+    assert set(result["score_trace"]) <= denominator
     assert all(
-        row["method_fqn"] == "econometrics.panel.difference_gmm@1.0.0"
-        for row in result["ranked_alternatives"]
+        row["method_fqn"] in denominator for row in result["ranked_alternatives"]
     )
+    assert len(actual_advisor_inputs) == 1
+    assert len(actual_advisor_results) == 1
+    assert len(unfiltered_advisor_results) == 1
+    assert {entry.fqn for entry in actual_advisor_inputs[0].entries} == eligible_value_fqns
+    assert actual_advisor_results[0].query.limit == 8
+    assert len(actual_advisor_results[0].recommended) == min(
+        actual_advisor_results[0].query.limit,
+        len(eligible_value_fqns),
+    )
+    assert all(entry.fqn in denominator for entry in actual_advisor_results[0].recommended)
+    unfiltered_recommended = unfiltered_advisor_results[0].recommended
+    unfiltered_value_recommendations = tuple(
+        entry for entry in unfiltered_recommended if entry.fqn in denominator
+    )
+    assert len(unfiltered_recommended) == 8
+    assert unfiltered_value_recommendations
+    assert len(unfiltered_value_recommendations) < len(actual_advisor_results[0].recommended)
 
 
 def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected(
@@ -459,6 +496,18 @@ def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner
     """Unsupported panel stays a hard requirement; supported output is owner-backed."""
 
     registry = MethodRegistry.get_instance()
+    candidate = {
+        "candidate_id": "same-required-panel-request",
+        "diversity_key": ("panel", "effect"),
+    }
+    problem = {
+        "design_problem_id": "same-required-panel-request",
+        "problem_statement": "Estimate a panel effect.",
+        "domain": "generic_policy",
+        "runtime_hints": {
+            "value_required_data_modalities": ("panel",),
+        },
+    }
     tabular_only = _catalog_with_real_entries(
         registry,
         "bayesian.gp.gp_regression@1.0.0",
@@ -471,18 +520,8 @@ def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner
 
     unsupported = select_value_method_for_problem(
         registry=registry,
-        candidate={
-            "candidate_id": "unsupported-panel",
-            "diversity_key": ("panel", "effect"),
-        },
-        problem={
-            "design_problem_id": "unsupported-panel",
-            "problem_statement": "Estimate a panel effect.",
-            "domain": "generic_policy",
-            "runtime_hints": {
-                "value_required_data_modalities": ("panel",),
-            },
-        },
+        candidate=candidate,
+        problem=problem,
     )
 
     assert unsupported["status"] == "blocked"
@@ -501,22 +540,17 @@ def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner
     )
     supported = select_value_method_for_problem(
         registry=registry,
-        candidate={
-            "candidate_id": "supported-panel",
-            "diversity_key": ("panel", "effect"),
-        },
-        problem={
-            "design_problem_id": "supported-panel",
-            "problem_statement": "Estimate a panel effect.",
-            "domain": "generic_policy",
-            "runtime_hints": {
-                "value_required_data_modalities": ("panel",),
-            },
-        },
+        candidate=candidate,
+        problem=problem,
     )
 
     assert supported["status"] == "selected"
     assert supported["selected_method_fqn"] == "econometrics.panel.event_study@1.0.0"
+    assert supported["candidate_signal"] == "same-required-panel-request panel effect"
+    assert supported["problem_signal"] == (
+        "same-required-panel-request Estimate a panel effect. generic_policy"
+    )
+    assert problem["runtime_hints"]["value_required_data_modalities"] == ("panel",)
     selected_entry = panel_catalog.entries[0]
     assert selected_entry.runnable is True
     assert advisor_module._catalog_entry_is_value_method(selected_entry, registry=registry)

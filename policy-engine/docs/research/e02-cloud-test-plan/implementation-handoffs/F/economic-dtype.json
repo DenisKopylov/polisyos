@@ -414,8 +414,8 @@
     "source_bytes_stable": true,
     "native_output": {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
-      "sha256": "5ae619d919a946ccc5c12767b48092248cc8f4962a53ebbf909b75a300665797",
-      "bytes": 85093,
+      "sha256": "879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f",
+      "bytes": 84777,
       "section": "foundry-economic-review"
     },
     "analytic_controls": {

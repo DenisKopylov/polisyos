@@ -1,0 +1,128 @@
+Candidate cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2
+CWD /workspace/e02-F-foundry/policy-engine
+Environment PYTHONPATH=src:. JAX_PLATFORMS=cpu
+
+AUTHOR PYTEST
+.............................................                            [100%]
+45 passed in 28.35s
+
+{"target_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2", "argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "tests/unit/foundry/compile/test_compile_artifact_contracts.py", "tests/unit/foundry/compile/test_randomization.py", "tests/unit/foundry/contracts/test_layout.py", "tests/unit/foundry/methods/catalog/mechanism/test_families.py", "tests/unit/foundry/compile/test_compile_determinism.py", "tests/unit/foundry/compile/test_trinity_compiler.py", "tests/unit/foundry/facade/test_compile_facade.py", "tests/unit/foundry/mechanisms/test_treasury.py", "tests/unit/foundry/mechanisms/test_mechanism_design.py", "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py", "-o", "cache_dir=/workspace/e02-F-receipts/foundry-candidate-cache", "--basetemp=/workspace/e02-F-receipts/foundry-candidate-tmp"], "exit_code": 0, "wall_s": 41.43762562400002, "child_peak_rss_kib": 517096}
+
+ROOT INDEPENDENT PYTEST
+PYTHONPATH=src:. /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/compile/test_compile_artifact_contracts.py tests/unit/foundry/contracts/test_layout.py tests/unit/foundry/methods/catalog/mechanism/test_families.py -o addopts= -q -ra -p no:cacheprovider --basetemp=/workspace/e02-F-receipts/foundry-root-review-tmp
+..............                                                           [100%]
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+14 passed, 1 warning in 11.95s
+
+STATIC CHECKS
+[
+  {
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+      "tests/unit/foundry/compile/test_randomization.py",
+      "tests/unit/foundry/contracts/test_layout.py",
+      "tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+    ],
+    "exit_code": 0,
+    "output": "All checks passed!\n"
+  },
+  {
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+      "tests/unit/foundry/compile/test_randomization.py",
+      "tests/unit/foundry/contracts/test_layout.py",
+      "tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+    ],
+    "exit_code": 0,
+    "output": "4 files already formatted\n"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2"
+    ],
+    "exit_code": 0,
+    "output": ""
+  }
+]
+
+SOURCE CENSUS
+{
+  "executed_by": "F/foundry",
+  "predicate_basis": "recomputed",
+  "source_code_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+  "path_denominator": "complete git ls-files policy-engine/src",
+  "file_type_denominator": "tracked .py files",
+  "files_examined": 2697,
+  "selection_boundaries": "literal tokens and module paths in tracked Python source only",
+  "unresolved_by_construction": [
+    "dynamic access that does not spell the fields/module paths",
+    "external packages or plugins",
+    "untracked source and production data"
+  ],
+  "patterns": {
+    "treasury_salts": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+        "line": 23,
+        "text": "node_salts: dict[str, int] = Field(default_factory=dict)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+        "line": 24,
+        "text": "stream_salts: dict[str, int] = Field(default_factory=lambda: {\"default\": 0})"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+        "line": 43,
+        "text": "node_salts = {"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+        "line": 47,
+        "text": "stream_salts = {\"default\": _seeded_salt(\"stream:default\", root_seed=root_seed)}"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+        "line": 50,
+        "text": "node_salts=node_salts,"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+        "line": 51,
+        "text": "stream_salts=stream_salts,"
+      }
+    ],
+    "layout_addresses": [],
+    "families_addresses": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/mechanisms/design.py",
+        "line": 5,
+        "text": "from polisyos.foundry.methods.catalog.mechanism.families import ("
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+        "line": 26,
+        "text": "from polisyos.foundry.methods.catalog.mechanism.families import ("
+      }
+    ]
+  }
+}

@@ -23,7 +23,7 @@
     "policy-engine/tests/unit/foundry/contracts/test_layout.py",
     "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.log"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt"
   ],
   "baseline_cells": [
     {
@@ -268,7 +268,7 @@
       "environment": "environment_identity",
       "input_closure": "10 named source/test files at candidate; synthetic income_tax Trinity/default registry, isolated CAS and RunContext; synthetic monotone/nonmonotone tax schedule with explicit prior_weights and native float-prior canon profile; no production data",
       "outcome": "PASS",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.log#AUTHOR-PYTEST",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt#AUTHOR-PYTEST",
       "exit_code": 0,
       "pytest_summary": "45 passed in 28.35s; no skip/error",
       "wall_s": 41.43762562400002,
@@ -280,7 +280,7 @@
       "environment": "same read-only Python 3.14.2; cwd /workspace/e02-F-foundry/policy-engine; PYTHONPATH=src:.; cacheprovider explicitly disabled",
       "input_closure": "changed native compiler artifacts, layout and mechanism-family files; isolated root review basetemp",
       "outcome": "PASS",
-      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.log#ROOT-INDEPENDENT-PYTEST",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt#ROOT-INDEPENDENT-PYTEST",
       "pytest_summary": "14 passed, 1 PytestConfigWarning Unknown config option cache_dir in 11.95s",
       "review_owner": "F root; source/diff independently reviewed GO"
     },
@@ -357,7 +357,7 @@
       "layout_addresses": "polisyos\\.foundry\\.methods\\.(?:compiler\\.)?layout",
       "families_addresses": "polisyos\\.foundry\\.(?:mechanisms\\.design|methods\\.catalog\\.mechanism\\.families)"
     },
-    "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.log#SOURCE-CENSUS"
+    "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt#SOURCE-CENSUS"
   },
   "capability_state_or_finding_state": "bounded verification slice; no full finding closure promotion. LA-001 full execution salt binding remains bridge_missing; LA-002 native synthetic IC/catalog witness established; LA-037 native ABI/layout/compiler witness established with distribution/docs limitations.",
   "finding_dispositions": {

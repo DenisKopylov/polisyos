@@ -1,0 +1,93 @@
+.................F.F...FFF....................FFFF........               [100%]
+=================================== FAILURES ===================================
+___ test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows ___
+tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py:167: in test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows
+    front = promoter.compute_front([worst, best])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/pareto.py:377: in compute_front
+    return ParetoFront(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for ParetoFront
+E     Value error, complete coordinate artifact has a non-finite hypervolume [type=value_error, input_value={'members': [ParetoMember...ssessed_evaluations=())}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+____ test_autotune_first_suggestion_uses_real_space_and_checkpoint_protocol ____
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:50: in test_autotune_first_suggestion_uses_real_space_and_checkpoint_protocol
+    assert candidate["_strategy_metadata"]["source"] == "sobol_init"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: '_strategy_metadata'
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.methods.autotune.bayesian_generator:bayesian_generator.py:243 BayesianCandidateGenerator: suggest failed: 'SearchSpace' object has no attribute 'last_sobol_sampler_identity'
+___ test_real_discrete_suggestion_has_coordinates_of_executed_action[sobol] ____
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:156: in test_real_discrete_suggestion_has_coordinates_of_executed_action
+    assert candidate.params_normalized == pytest.approx(expected)
+E   assert (0.9183833003...2023401260376) == approx((1.0 ±...76 ± 8.1e-07))
+E     
+E     comparison failed. Mismatched elements: 3 / 5:
+E     Max absolute difference: 0.4964648187160492
+E     Max relative difference: 1.0
+E     Index | Obtained           | Expected     
+E     0     | 0.9183833003044128 | 1.0 ± 1.0e-06
+E     1     | 0.8541721701622009 | 1.0 ± 1.0e-06
+E     2     | 0.4964648187160492 | 0.0 ± 1.0e-12
+___ test_real_discrete_suggestion_has_coordinates_of_executed_action[random] ___
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:156: in test_real_discrete_suggestion_has_coordinates_of_executed_action
+    assert candidate.params_normalized == pytest.approx(expected)
+E   assert (0.5219839097...1074377979527) == approx((1.0 ±...28 ± 7.7e-07))
+E     
+E     comparison failed. Mismatched elements: 3 / 5:
+E     Max absolute difference: 0.8066907771186791
+E     Max relative difference: 1.0
+E     Index | Obtained           | Expected     
+E     0     | 0.5219839097124932 | 1.0 ± 1.0e-06
+E     1     | 0.8066907771186791 | 0.0 ± 1.0e-12
+E     2     | 0.9604947743238768 | 1.0 ± 1.0e-06
+_______ test_initial_suggestion_does_not_repeat_pending_binary_execution _______
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:164: in test_initial_suggestion_does_not_repeat_pending_binary_execution
+    assert first.params != second.params
+E   AssertionError: assert {'n': 1} != {'n': 1}
+E    +  where {'n': 1} = PolicyCandidate(candidate_id='c068fb27', params={'n': 1}, params_normalized=(0.9183833003044128,), semantic={'interventions': []}, acquisition_value=None, predicted_mean=None, predicted_std=None, source_strategy='sobol_init', metadata={}).params
+E    +  and   {'n': 1} = PolicyCandidate(candidate_id='9d0bdd50', params={'n': 1}, params_normalized=(0.9183833003044128,), semantic={'interventions': []}, acquisition_value=None, predicted_mean=None, predicted_std=None, source_strategy='sobol_init', metadata={}).params
+_ test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values0] _
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:95: in test_undefined_plateau_comparison_is_rejected_or_explicitly_limited
+    assert result.reason or result.details, (
+E   AssertionError: non-finite history silently entered numerical comparison
+E   assert (None or {})
+E    +  where None = StoppingCondition(should_stop=False, reason=None, details={}).reason
+E    +  and   {} = StoppingCondition(should_stop=False, reason=None, details={}).details
+_ test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values1] _
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:95: in test_undefined_plateau_comparison_is_rejected_or_explicitly_limited
+    assert result.reason or result.details, (
+E   AssertionError: non-finite history silently entered numerical comparison
+E   assert (None or {})
+E    +  where None = StoppingCondition(should_stop=False, reason=None, details={}).reason
+E    +  and   {} = StoppingCondition(should_stop=False, reason=None, details={}).details
+_ test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values2] _
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:95: in test_undefined_plateau_comparison_is_rejected_or_explicitly_limited
+    assert result.reason or result.details, (
+E   AssertionError: non-finite history silently entered numerical comparison
+E   assert (None or {})
+E    +  where None = StoppingCondition(should_stop=False, reason=None, details={}).reason
+E    +  and   {} = StoppingCondition(should_stop=False, reason=None, details={}).details
+_ test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values3] _
+tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py:95: in test_undefined_plateau_comparison_is_rejected_or_explicitly_limited
+    assert result.reason or result.details, (
+E   AssertionError: non-finite history silently entered numerical comparison
+E   assert (None or {})
+E    +  where None = StoppingCondition(should_stop=False, reason=None, details={}).reason
+E    +  and   {} = StoppingCondition(should_stop=False, reason=None, details={}).details
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_autotune_first_suggestion_uses_real_space_and_checkpoint_protocol
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_real_discrete_suggestion_has_coordinates_of_executed_action[sobol]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_real_discrete_suggestion_has_coordinates_of_executed_action[random]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_initial_suggestion_does_not_repeat_pending_binary_execution
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values0]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values1]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values2]
+FAILED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_undefined_plateau_comparison_is_rejected_or_explicitly_limited[values3]
+9 failed, 49 passed, 1 warning in 7.47s

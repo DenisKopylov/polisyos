@@ -1,0 +1,82 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "numerical-oracle-rl-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CTL-02"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "a401c0bb814d018a73f875379b328caec383782c"
+  ],
+  "candidate_tree_sha": "1fa3182db45637e34646c3d25ac13c407fd67ab6",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-rl-review-locked.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-rl-review.txt",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py"
+  ],
+  "baseline_cells": [
+    "F02-P095",
+    "F06-P112",
+    "F08-P096",
+    "F10-P086",
+    "F13-P108"
+  ],
+  "review_target_sha": "86584ad12436b10153efcf955e3eb7da3bdbc26d",
+  "review_target_tree_sha": "907e606c0d8098c26f3eef258cfbfe709025eead",
+  "checks": [
+    {
+      "command": "git archive 86584ad12436b10153efcf955e3eb7da3bdbc26d policy-engine/src policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_wrapper.py; extract into isolated TemporaryDirectory; copy test_rl_checkpoint_numerical_oracle.py@a401c0bb814d018a73f875379b328caec383782c; PYTHONPATH=<archive>/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_rl_wrapper.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py --tb=short -ra -q",
+      "target_sha": "86584ad12436b10153efcf955e3eb7da3bdbc26d",
+      "environment": "CPython 3.14.7 /workspace/e02-D-locked-env/bin/python; torch2.10.0 botorch0.16.1 gpytorch1.15.1 pytest9.0.2; isolated immutable source archive",
+      "input_closure": "All production source at review SHA; exact owner RL tests at SHA and independently authored nine controls at oracle implementation SHA; no production RL caller claimed",
+      "outcome": "FAIL",
+      "output": "5 failed, 15 passed, 2 warnings in 5.81s; all 11 owner cases pass, five non-object JSON controls fail with raw AttributeError, three independent persisted replay controls pass",
+      "log_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-rl-review-locked.txt@a401c0bb814d018a73f875379b328caec383782c",
+      "log_sha256": "194c25727af55fcc84bece4c6b7af9c018fced680bd1677abae4b6a28e8e250b"
+    },
+    {
+      "command": "git archive same target source/test; PYTHONPATH=<archive>/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_rl_wrapper.py --tb=short -ra -q; malformed nested JSON direct probe",
+      "target_sha": "86584ad12436b10153efcf955e3eb7da3bdbc26d",
+      "environment": "CPython3.14.2 torch2.14.1 botorch0.18.1 gpytorch1.15.2",
+      "input_closure": "Same immutable source and owner RL tests, malformed nested payload probe",
+      "outcome": "PASS_BOUNDED_WITH_FINDING",
+      "output": "11 passed, 1 warning in 5.67s. []/null decode AttributeError; all before/after states unchanged. {} and missing fields controlled ValueError.",
+      "log_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-rl-review.txt@a401c0bb814d018a73f875379b328caec383782c"
+    }
+  ],
+  "property": {
+    "statement": "Checkpoint JSON readback must replay wrapper/nested RNG/Sobol streams and refuse malformed nested JSON with controlled ValueError before mutating state",
+    "runtime_path": [
+      "RLStrategyWrapper.get_state -> StrategyState.to_artifact -> file write/read -> StrategyState.from_artifact -> RLStrategyWrapper.set_state -> native RandomSearchStrategy/Sobol replay"
+    ],
+    "proxy_divergence": "Valid JSON text in base_state can be a non-object; presence of a string does not prove a valid nested checkpoint",
+    "negative_controls": [
+      "Malformed [], null, string, numeric, boolean and incomplete object payloads",
+      "Replace nested base checkpoint while preserving outer wrapper stream: mixed/exploitation continuations diverge; pure-exploration continuation intentionally matches",
+      "Fresh target seed differs from restored stream; persisted owner Sobol prefix next value matches"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "FAIL_BOUNDED_REVIEW; no finding closure",
+  "review_findings": [
+    {
+      "classification": "P40 existing checkpoint-validation class one level deeper",
+      "severity": "P2",
+      "location": "StrategyState.from_artifact called by RLStrategyWrapper.set_state",
+      "reproduction": "state.metadata[base_state] = []/null JSON string then set_state(state)",
+      "actual": "raw AttributeError for each non-object JSON type",
+      "required": "Controlled ValueError refusal; retain nonmutation",
+      "owner": "search_owner; accepted remediation is canonical deserializer object/schema validation, not per-payload wrapper patches"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Search owner acknowledged and is extending canonical StrategyState JSON validation. Rerun exact new candidate before resolving finding.",
+    "B125/B126 remain partial: no production RL caller demonstrated.",
+    "Full deep state nonmutation on malformed object payloads passes; currently failing non-object tests deliberately remain FAIL until corrected candidate.",
+    "No scientific near-zero-scale/nonfinite policy is selected or relaxed."
+  ]
+}

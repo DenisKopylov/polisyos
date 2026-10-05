@@ -1,0 +1,84 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "numerical-oracle-stress-review",
+  "closure_ids": [],
+  "observed_ids": [
+    "B106",
+    "B107"
+  ],
+  "bundle_ids": [
+    "STR-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "952931c23917ac1d2e157e03d9c76472499d5f3e"
+  ],
+  "candidate_tree_sha": "36d9043a3b5ab0b419f1b7f9b2340fc9a12cc25e",
+  "review_target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+  "review_target_tree_sha": "510bb376bd86331a8c3cd6a119c6e09251fc4b7a",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-stress-review.txt"
+  ],
+  "baseline_cells": [],
+  "source_basis": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/src/polisyos/scientist/methods/search/adversarial.py@c6bc25386cd745ec07fb7d004e032598a03092dc",
+    "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py@c6bc25386cd745ec07fb7d004e032598a03092dc"
+  ],
+  "checks": [
+    {
+      "command": "git archive c6bc25386cd745ec07fb7d004e032598a03092dc policy-engine/src policy-engine/tests policy-engine/architecture policy-engine/pytest.ini policy-engine/pyproject.toml; extract into TemporaryDirectory; PYTHONPATH=<archive>/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py --tb=short -ra",
+      "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "environment": "CPython3.14.7, torch2.10.0, botorch0.16.1 gpytorch1.15.1 pytest9.0.2; isolated immutable source+test+architecture snapshot",
+      "input_closure": "Actual stress producer/objectives/StrategyAdapter/RandomSearchStrategy/native FileSystemCAS; bounded generated analytic x fixtures. 26 cases across exact two test files.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "26 passed, 2 warnings in 16.83s",
+      "log_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-stress-review.txt@952931c23917ac1d2e157e03d9c76472499d5f3e",
+      "log_sha256": "2ea1bbf23e5b1a967038e0a9a325e0abedf08c9eaba1bfa6a49fb4340ebe422a"
+    },
+    {
+      "command": "Same immutable archive/env. Call test_stress_keeps_full_vulnerability_payloads_bounded_during_sweep(1); then replace _VulnerabilitySummary.record by original record plus self.retained.append(vulnerability), keeping report/counters/collect_top_k untouched; rerun identical witness.",
+      "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "environment": "same locked stack",
+      "input_closure": "Real stress runtime and gc retained-object witness; in-memory removal only, no source edits",
+      "outcome": "PASS",
+      "output": "retained_payload_positive=PASS; retention_removed_keep_capped_report=FAIL_AS_REQUIRED; removal_probe_exit=0"
+    },
+    {
+      "command": "Initial request used wrong untracked methods/search test selector. Corrected to exact Git-tracked scientist/search path before deciding run.",
+      "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "environment": "same locked stack",
+      "input_closure": "No tests executed",
+      "outcome": "ERROR",
+      "exit_code": 4,
+      "output": "file or directory not found; no tests ran in 0.00s; selector harness error, not product evidence"
+    }
+  ],
+  "property": {
+    "statement": "Occurrence and severity counters account for every attempted violating/unusable evaluation before presentation deduplication; only collect_top_k distinct vulnerability payload examples remain retained, with one current transient. Typed GDP/cost direction, adapter feedback and CAS readback agree with physical analytic expected values.",
+    "runtime_path": [
+      "AdversarialPlan -> generated physical scenarios -> actual objective evaluation -> streaming vulnerability summary -> StressTestReport -> native FileSystemCAS persisted readback",
+      "SEARCH_LOOP -> StrategyAdapter/RandomSearchStrategy -> objective_details/raw score -> adversarial worst-case and counters"
+    ],
+    "proxy_divergence": "A final capped report cannot establish that the loop did not retain every prior payload; removal control preserves capped output and falsifies the retained-object witness.",
+    "negative_controls": [
+      "Retain every full payload in the live summary while keeping output markers/counters/cap unchanged; retained-object assertion fails",
+      "Repeated physical scenario has eight occurrences but one presentation key",
+      "None/empty/non-numeric evaluator output counts attempted/invalid/critical fully despite top_k=1",
+      "Typed GDP/cost signs and thresholds -0.5/+0.5 compared against independently evaluated actual x coordinates; native CAS reopen preserves results"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "PASS_BOUNDED_CODE_REVIEW; B106/B107 closure not claimed",
+  "review_findings": [],
+  "limitations_and_next_owner": [
+    "Exact presentation dedup remains O(unique) digest storage; initial scenario matrix and adaptive SearchIteration/evaluator history are outside the vulnerability-payload bound.",
+    "Tests exercise all 24 initial scenario attempts, 40 repeated-scenario attempts, and 36 real adapter attempts as declared analytic fixtures, not production history.",
+    "B106 empty/adaptive/early-stop semantic completeness policy remains held/open; no general probability-of-failure or set-adequacy claim is supplied.",
+    "Initial wrong-selector ERROR was repaired by selecting the existing tracked native test; not excluded as product inherited-red."
+  ]
+}

@@ -3,6 +3,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import (
     ExecPlan,
@@ -12,6 +13,8 @@ from polisyos.core.contracts.foundry import (
     ProgramNode,
 )
 from polisyos.foundry.calibration.pure_executor import (
+    PreparedNode,
+    StaticBundle,
     apply_nodes,
     compile_program,
     run_pure_scan,
@@ -557,3 +560,178 @@ def test_run_pure_scan_preserves_inactive_gradient_path(monkeypatch) -> None:
     gradient = jax.grad(scan_objective)(jnp.full((2,), 2.0, dtype=jnp.float32))
     assert jnp.all(jnp.isfinite(gradient))
     assert jnp.allclose(gradient, jnp.full((2,), 1.5, dtype=jnp.float32))
+
+
+def _instrumented_log_step():
+    observed = []
+    traced = []
+
+    class _ScheduledLog:
+        def emit_patches(self, state, key, *, target_mask=None):
+            del target_mask
+            traced.append(True)
+            # Unlike a Python call counter, this callback observes numerical
+            # execution after JIT/vmap/AD, rather than branch tracing.
+            jax.debug.callback(lambda income: observed.append(income.tolist()), state.agents.income)
+            return {"agents.income": [{"delta": jnp.log(state.agents.income)}]}, jax.random.fold_in(
+                key, 1
+            )
+
+    bundle = StaticBundle(
+        nodes=[
+            PreparedNode(
+                node_id="scheduled-log",
+                mechanism_type="scheduled_log",
+                rank=0,
+                start=1,
+                end=1,
+                mechanism=_ScheduledLog(),
+                outputs=["agents.income"],
+            )
+        ],
+        incoming_dependencies={},
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_field_registry=None,
+        trainables=[],
+    )
+    base = GlobalState.empty(n_agents=2, n_firms=1)
+
+    def run_one(income, t, key):
+        state = base.replace(agents=base.agents.replace(income=income))
+        result, next_key = apply_nodes(state, key, bundle=bundle, t=t)
+        return result.agents.income, next_key
+
+    return run_one, observed, traced
+
+
+def _evaluate_income_transform(run, income, transform):
+    if transform == "eager":
+        result = run(income)
+    elif transform == "jit":
+        result = jax.jit(run)(income)
+    elif transform == "grad":
+        result = jax.grad(lambda x: jnp.sum(run(x)))(income)
+    else:
+        result = jax.hessian(lambda x: jnp.sum(run(x)))(income)
+    result.block_until_ready()
+    jax.effects_barrier()
+    return result
+
+
+@pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])
+def test_apply_nodes_rejects_mapped_schedule_before_emission(transform) -> None:
+    run_one, observed, traced = _instrumented_log_step()
+    key = jax.random.PRNGKey(11)
+    times = jnp.array([0, 1], dtype=jnp.int32)
+    income = jnp.array([[0.0, 0.0], [2.0, 2.0]], dtype=jnp.float32)
+
+    def run(x):
+        return jax.vmap(lambda row, t: run_one(row, t, key)[0])(x, times)
+
+    with pytest.raises(ValueError, match="does not support mapped schedule predicates"):
+        _evaluate_income_transform(run, income, transform)
+    assert observed == []
+    assert traced == []
+
+
+@pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])
+def test_apply_nodes_mixed_schedule_scalar_map_executes_only_active_row(transform) -> None:
+    run_one, observed, _ = _instrumented_log_step()
+    key = jax.random.PRNGKey(11)
+    times = jnp.array([0, 1], dtype=jnp.int32)
+    income = jnp.array([[0.0, 0.0], [2.0, 2.0]], dtype=jnp.float32)
+
+    def run(x):
+        return jax.lax.map(lambda pair: run_one(*pair, key)[0], (x, times))
+
+    result = _evaluate_income_transform(run, income, transform)
+    if transform in {"eager", "jit"}:
+        expected = jnp.array([[0.0, 0.0], [2.0 + jnp.log(2.0)] * 2])
+    elif transform == "grad":
+        expected = jnp.array([[1.0, 1.0], [1.5, 1.5]])
+    else:
+        expected = jnp.diag(jnp.array([0.0, 0.0, -0.25, -0.25])).reshape((2, 2, 2, 2))
+    assert jnp.allclose(result, expected)
+    assert observed == [[2.0, 2.0]]
+
+    _, next_keys = jax.lax.map(lambda pair: run_one(*pair, key), (income, times))
+    next_keys.block_until_ready()
+    jax.effects_barrier()
+    assert jnp.array_equal(next_keys[0], key)
+    assert jnp.array_equal(next_keys[1], jax.random.fold_in(jax.random.split(key)[1], 1))
+
+
+@pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])
+@pytest.mark.parametrize("active", [False, True])
+def test_apply_nodes_state_vmap_preserves_scalar_schedule_execution(transform, active) -> None:
+    run_one, observed, _ = _instrumented_log_step()
+    key = jax.random.PRNGKey(11)
+    time = jnp.array(int(active), dtype=jnp.int32)
+    income = jnp.full((2, 2), 2.0 if active else 0.0, dtype=jnp.float32)
+
+    def run(x):
+        return jax.vmap(lambda row: run_one(row, time, key)[0])(x)
+
+    result = _evaluate_income_transform(run, income, transform)
+    if transform in {"eager", "jit"}:
+        expected = income + jnp.log(2.0) if active else income
+    elif transform == "grad":
+        expected = jnp.full_like(income, 1.5 if active else 1.0)
+    else:
+        expected = jnp.eye(4).reshape((2, 2, 2, 2)) * (-0.25 if active else 0.0)
+    assert jnp.allclose(result, expected)
+    assert observed == ([[2.0, 2.0], [2.0, 2.0]] if active else [])
+
+
+@pytest.mark.parametrize("time", [0, 1])
+def test_apply_nodes_mapped_equal_steps_remain_explicitly_unsupported(time) -> None:
+    run_one, observed, traced = _instrumented_log_step()
+    key = jax.random.PRNGKey(11)
+    with pytest.raises(ValueError, match="does not support mapped schedule predicates"):
+        jax.vmap(lambda row, t: run_one(row, t, key)[0])(
+            jnp.full((2, 2), 2.0), jnp.full((2,), time, dtype=jnp.int32)
+        )
+    assert observed == []
+    assert traced == []
+
+
+@pytest.mark.parametrize("transform", ["eager", "grad"])
+def test_apply_nodes_admission_removal_exposes_inactive_execution(monkeypatch, transform) -> None:
+    # Remove the behavioral admission while retaining the public call, its
+    # documentation, and branch/patch structure. Finite value/gradient checks
+    # alone cannot detect the inactive emitter execution on this JAX backend.
+    monkeypatch.setattr(
+        "polisyos.foundry.calibration.pure_executor._admit_schedule_predicate",
+        lambda active: active,
+    )
+    run_one, observed, _ = _instrumented_log_step()
+    key = jax.random.PRNGKey(11)
+    times = jnp.array([0, 1], dtype=jnp.int32)
+    income = jnp.array([[0.0, 0.0], [2.0, 2.0]], dtype=jnp.float32)
+
+    def run(x):
+        return jax.vmap(lambda row, t: run_one(row, t, key)[0])(x, times)
+
+    result = _evaluate_income_transform(run, income, transform)
+    expected = (
+        jnp.array([[1.0, 1.0], [1.5, 1.5]])
+        if transform == "grad"
+        else jnp.array([[0.0, 0.0], [2.0 + jnp.log(2.0)] * 2])
+    )
+    assert jnp.allclose(result, expected)
+    assert observed == [[0.0, 0.0], [2.0, 2.0]]
+
+
+@pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])
+def test_apply_nodes_active_invalid_log_is_not_replaced_by_neutral_input(transform) -> None:
+    run_one, observed, _ = _instrumented_log_step()
+    key = jax.random.PRNGKey(11)
+
+    def run(x):
+        return run_one(x, jnp.array(1, dtype=jnp.int32), key)[0]
+
+    result = _evaluate_income_transform(run, jnp.zeros(2, dtype=jnp.float32), transform)
+    assert not jnp.all(jnp.isfinite(result))
+    assert observed == [[0.0, 0.0]]

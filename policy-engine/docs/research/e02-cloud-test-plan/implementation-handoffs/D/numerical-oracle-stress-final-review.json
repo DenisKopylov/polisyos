@@ -1,0 +1,55 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "ce31f18eb8e9e90041134200fbb50a47a7cbb851"
+  ],
+  "candidate_tree_sha": "9a58518c1b1d7688b20d535bae1331d6dd530836",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "closure_ids": [],
+  "verdict": "PASS_BOUNDED_CODE_REVIEW",
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pytest": "9.0.2",
+    "hnswlib": "installed; actual native index executes",
+    "source_mode": "git archive exact SHA source/tests/architecture/pytest.ini/pyproject.toml into separate TemporaryDirectory; PYTHONPATH=<archive>/policy-engine/src"
+  },
+  "production_files_written": [],
+  "slice": "numerical-oracle-stress-final-review",
+  "review_target_sha": "eb18c8b740eed83280a36a440c5682ad4cbe6d00",
+  "review_target_tree_sha": "e63a15d8d63f178ec70538b692fd80068a32d250",
+  "observed_ids": [
+    "B106",
+    "B107"
+  ],
+  "bundle_ids": [
+    "STR-01"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-stress-final-review.txt"
+  ],
+  "prior_receipt": "numerical-oracle-stress-review.json@7cdf54e7f02dd8d14df82bdd38c06f2945adc27e",
+  "production_source_identity": "adversarial.py unchanged from reviewed c6bc25386cd745ec07fb7d004e032598a03092dc; eb18 adds only an existing consumer fixture delta",
+  "verification": [
+    {
+      "id": "STR-final-native-consumer",
+      "source_sha": "eb18c8b740eed83280a36a440c5682ad4cbe6d00",
+      "command": "Immutable archive with source/tests/architecture/pytest.ini/pyproject.toml. Locked python -m pytest tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution --tb=short -ra",
+      "input_closure": "Actual ScenarioAdversaryWorker with deterministic GRID_EXTREME physical first corner shock=noise0; normalized -GDP threshold-.5. Complete analytic expected count1, worst0, high1, vulnerability coordinate0/0 asserted.",
+      "output": "1passed,2warnings in13.61s; exit0",
+      "status": "PASS"
+    }
+  ],
+  "log_sha256": "c3362cd87b839f240f22876551ceeedfe3458c42d672a26f40d309f2c9bb7182",
+  "limitations": [
+    "Earlier bounded retained-payload/count/CAS review remains source-identical and authoritative only for its exact bounded fixtures.",
+    "B106 evaluated-set adequacy and exhaustive scenario probability remain held/open.",
+    "No finding closure claimed."
+  ]
+}

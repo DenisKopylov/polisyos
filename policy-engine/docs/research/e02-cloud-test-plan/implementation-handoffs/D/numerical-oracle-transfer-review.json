@@ -1,0 +1,115 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "ce31f18eb8e9e90041134200fbb50a47a7cbb851"
+  ],
+  "candidate_tree_sha": "9a58518c1b1d7688b20d535bae1331d6dd530836",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "closure_ids": [],
+  "verdict": "PASS_BOUNDED_CODE_REVIEW",
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pytest": "9.0.2",
+    "hnswlib": "installed; actual native index executes",
+    "source_mode": "git archive exact SHA source/tests/architecture/pytest.ini/pyproject.toml into separate TemporaryDirectory; PYTHONPATH=<archive>/policy-engine/src"
+  },
+  "production_files_written": [],
+  "slice": "numerical-oracle-transfer-review",
+  "review_target_sha": "830ddd02dcfbdc6b93492d740b397581b79c82fc",
+  "review_target_tree_sha": "68ad202bff60a17a15e9500be13d0dcaba28af24",
+  "observed_ids": [
+    "B128",
+    "B130",
+    "B131",
+    "B132"
+  ],
+  "bundle_ids": [
+    "TRN-01"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-transfer-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-transfer-typing-pending.txt"
+  ],
+  "log_sha256": {
+    "numerical-oracle-transfer-review.txt": "9805929f599f865a747cc1361f474e87d013fc9eba625e8133ff40d6e77dcd13",
+    "numerical-oracle-transfer-typing-pending.txt": "451ff3d3fc3c862cfc588fd456a3661cc13d8f635df1790a3b47a9907a1d17e2"
+  },
+  "source_basis": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py@830ddd02dcfbdc6b93492d740b397581b79c82fc",
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py@830ddd02dcfbdc6b93492d740b397581b79c82fc",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py@830ddd02dcfbdc6b93492d740b397581b79c82fc"
+  ],
+  "baseline_cells": [
+    {
+      "id": "TRN-malformed-outcome-old",
+      "source_sha": "57d0b809a3b28c6780ad91bfb4decf44f454c737",
+      "command": "Immutable archive. Native _measured_history(Path(tempdir)): four real CAS candidate/BenchmarkEvaluation refs and declared analytic quadratic measurements. Set rows[0].stage_a_passed=\"false\"; register_run; fresh manager.get_warm_start_evaluations([fp], target_fingerprint=fp with target run_id). Match first candidate ID and assert absent or invalid.",
+      "input_closure": "Real public transfer registration, canonical CAS bytes, native reader; one malformed nonboolean outcome on otherwise bound row. Synthetic analytic measurements are fixtures, not production history.",
+      "output": "serialized_stage_a_passed false string -> restored(True,True,None); report loaded4 accepted4 rejected0 selected4; AssertionError malformed boolean outcome became valid observation; exit1",
+      "status": "FAIL",
+      "review_class": "P40 same B128 faithful typed rehydration class, one level deeper. Owner accepted before correction."
+    }
+  ],
+  "verification": [
+    {
+      "id": "TRN5f-native",
+      "source_sha": "5f2d3498d075a5fd59aaee35964e8a8c9d6b7ce3",
+      "command": "Immutable archive with tracked architecture. Locked python -m pytest tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/agent/test_vector_memory.py --tb=short -ra",
+      "input_closure": "67 native cases: actual FileSystemCAS, HNSW catalog (>1000 distractions), exact history references, cold/cache deep-copy, compatible/minimize/maximize selection, partial quotas/rejections, reverse real benchmark identity, candidate content, physical coordinates, typed decode and artifact errors.",
+      "output": "67 passed,2warnings in11.86s; exit0",
+      "status": "PASS"
+    },
+    {
+      "id": "TRN5f-independent-origin-and-outcome",
+      "source_sha": "5f2d3498d075a5fd59aaee35964e8a8c9d6b7ce3",
+      "command": "Same snapshot. For separate fresh _measured_history fixtures, (1) persist actual candidate params x=.95 and original benchmark pointing to it but keep benchmark metadata/declared row x=.1; update row IDs/real provenance, register and restore; (2) set first row stage_a_passed=false string. Assert exactly one matching rejected row, loaded4/accepted3/rejected1/selected4.",
+      "input_closure": "Independent adversarial inputs with actual CAS candidate and original measurement bytes; three admitted bounded analytic controls remain.",
+      "output": "Candidate mismatch rejected: actual candidate parameters differ from the transferred observation. Malformed stage outcome rejected: stage_a_passed must be a boolean. Both counts loaded4 accepted3 rejected1 selected4; exit0",
+      "status": "PASS"
+    },
+    {
+      "id": "TRN5f-independent-canonical-typed-basis",
+      "source_sha": "5f2d3498d075a5fd59aaee35964e8a8c9d6b7ce3",
+      "command": "Build actual candidate/benchmark/row agreement with native explicit SearchSpace fingerprints and synthetic measured score3. INTEGER x in[0,2]: fractional1.2 coordinate.6 vs integral1 coordinate.5. Category kind A/B plus LOG_CONTINUOUS rate[.001,.1] raw.01: analytic coordinate(1,0,.5). Reverse only bounds dict insertion order while preserving original canonical space fingerprint. Register/read each one-row history.",
+      "input_closure": "Native canonical methods and persisted basis reconciled. Expected attainable integer set {0,1,2}; log midpoint analytically .5. No imaginary source data or invented transform basis.",
+      "output": "integer_fraction invalid with physical parameters differ from persisted source basis; integer_point valid; category_log valid; changed bound order invalid with unsupported source parameter basis: space identity differs. Each exact loaded1/accepted int(valid)/rejected int(!valid); exit0",
+      "status": "PASS"
+    },
+    {
+      "id": "TRN83-final-native",
+      "source_sha": "830ddd02dcfbdc6b93492d740b397581b79c82fc",
+      "command": "Identical exact three native selector paths at final immutable archive and locked environment.",
+      "input_closure": "Previous67 plus numeric-looking string and bool actual physical input controls. Only final production delta changes noncategorical raw input gate from bool-refusal to actual int/float requirement.",
+      "output": "70passed,2warnings in11.65s; exit0",
+      "status": "PASS"
+    },
+    {
+      "id": "TRN83-independent-origin-and-outcome",
+      "source_sha": "830ddd02dcfbdc6b93492d740b397581b79c82fc",
+      "command": "Identical two independent real CAS origin/outcome controls and four count assertions at final snapshot.",
+      "input_closure": "Same x.95 actual candidate vs x.1 observation and false string stage outcome; source unchanged synthetic numeric fixtures.",
+      "output": "Both matching rows invalid with precise candidate mismatch / stage boolean reasons; both exact report loaded4 accepted3 rejected1 selected4; exit0",
+      "status": "PASS"
+    }
+  ],
+  "review_notes": [
+    "Full final production diff reviewed from base for transfer.py and warm_start.py, then every typed/integrality/raw-input delta. Numeric candidates require actual addressed source/benchmark bytes and matching canonical reconstructed physical domain.",
+    "Final raw JSON type delta preserves prior float/integer/category/log/order matrix; matrix was executed at5f, precise source cell remains5f instead of being relabeled as83.",
+    "Native reverse view preserves original suite/run/candidate/metric/direction/provenance, absence of holdout and nonpromotable status. No scalar relabeling creates a benchmark."
+  ],
+  "limitations": [
+    "Configured native transfer\u2192Bayesian optimizer workflow remains a separate root integration dependency, UNRUN by this standalone transfer archive.",
+    "Tenant labels/metadata agreement are tested in isolated fixtures; no external authority/provider or permission claim.",
+    "Unknown source bounds encodings or reconstructed order mismatch are explicit refusals, not guessed transforms.",
+    "Source timestamp and confidence fixtures are declared; no production past measurement claim.",
+    "No finding closure is claimed."
+  ]
+}

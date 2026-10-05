@@ -17,6 +17,7 @@ from polisyos.core.artifacts.manifest import (
     ProducerInfo,
     SchemaInfo,
 )
+from polisyos.core.artifacts.ownership import ArtifactTransactionPendingError
 from polisyos.core.artifacts.signing import (
     Ed25519Signer,
     Ed25519Verifier,
@@ -199,13 +200,20 @@ def test_failed_reused_directory_export_preserves_prior_complete_generation(
         if path.is_file()
     }
 
-    def fail_replacement_copy(*_args: object, **_kwargs: object) -> None:
-        raise OSError("injected replacement copy failure")
+    original_fsync = transfer_ops.os.fsync
+    sync_attempts = 0
 
-    monkeypatch.setattr(transfer_ops.shutil, "copy2", fail_replacement_copy)
+    def fail_replacement_sync(descriptor: int) -> None:
+        nonlocal sync_attempts
+        sync_attempts += 1
+        raise OSError("injected replacement sync failure")
 
-    with pytest.raises(OSError, match="replacement copy"):
+    monkeypatch.setattr(transfer_ops.os, "fsync", fail_replacement_sync)
+
+    with pytest.raises(OSError, match="replacement sync"):
         source.export_subgraph([artifact_b.artifact_id], export_root, compress=False)
+    assert sync_attempts == 1
+    monkeypatch.setattr(transfer_ops.os, "fsync", original_fsync)
 
     current_members = {
         path.relative_to(export_root): path.read_bytes()
@@ -213,6 +221,16 @@ def test_failed_reused_directory_export_preserves_prior_complete_generation(
         if path.is_file()
     }
     assert current_members == prior_members
+    prior_consumer = FileSystemCAS(tmp_path / "prior-consumer")
+    prior_consumer.import_subgraph(export_root, verify_integrity=True)
+    assert prior_consumer.get_bytes(artifact_a) == PAYLOAD_A
+    assert not prior_consumer.has(artifact_b)
+
+    source.export_subgraph([artifact_b], export_root, compress=False)
+    final_consumer = FileSystemCAS(tmp_path / "final-consumer")
+    final_consumer.import_subgraph(export_root, verify_integrity=True)
+    assert final_consumer.get_bytes(artifact_b) == PAYLOAD_B
+    assert not final_consumer.has(artifact_a)
 
 
 def test_reused_directory_export_preserves_unowned_non_file_entries(
@@ -557,11 +575,12 @@ def test_import_rejects_malformed_or_mismatched_signature(
     assert not target.has(artifact.artifact_id)
 
 
-def test_import_rolls_back_new_generation_on_mid_publication_failure(
+def test_import_refuses_pending_publication_and_recovers_exact_retry(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A failed write cannot leave a partially accepted multi-artifact generation."""
+    """A failed first owner transaction stays unreadable and exact retry recovers."""
+    import polisyos.core.artifacts.store as store_module
     source = FileSystemCAS(tmp_path / "source")
     first = source.put_bytes(PAYLOAD_A, _options())
     second = source.put_bytes(PAYLOAD_B, _options())
@@ -570,20 +589,36 @@ def test_import_rolls_back_new_generation_on_mid_publication_failure(
         tmp_path / "mid-publication.tar.gz",
     )
     target = FileSystemCAS(tmp_path / "target")
-    original_write_once = target._files.write_once
+    original_link = store_module.os.link
     writes = 0
 
-    def fail_on_third_write(path: Path, data: bytes) -> bool:
+    def fail_on_third_link(
+        source_path: Path, destination: Path, *, follow_symlinks: bool = True
+    ) -> None:
         nonlocal writes
-        writes += 1
-        if writes == 3:
-            raise OSError("injected mid-publication failure")
-        return original_write_once(path, data)
+        if destination.is_relative_to(target.base):
+            writes += 1
+            if writes == 3:
+                raise OSError("injected mid-publication failure")
+        original_link(source_path, destination, follow_symlinks=follow_symlinks)
 
-    monkeypatch.setattr(target._files, "write_once", fail_on_third_write)
+    monkeypatch.setattr(store_module.os, "link", fail_on_third_link)
 
     with pytest.raises(OSError, match="mid-publication"):
         target.import_subgraph(export.output_path, verify_integrity=True)
 
-    assert not target.has(first.artifact_id)
-    assert not target.has(second.artifact_id)
+    interrupted, untouched = sorted((first, second), key=lambda ref: ref.artifact_id.hex)
+    with pytest.raises(ArtifactTransactionPendingError):
+        target.has(interrupted.artifact_id)
+    with pytest.raises(ArtifactTransactionPendingError):
+        target.get_bytes(interrupted)
+    assert not target.has(untouched.artifact_id)
+    assert not target._ownership_index.has_any_tenant_claim(interrupted.artifact_id)
+    assert writes == 3
+    monkeypatch.setattr(store_module.os, "link", original_link)
+    target.import_subgraph(export.output_path, verify_integrity=True)
+    reopened = FileSystemCAS(target.root)
+    assert reopened.get_bytes(first) == PAYLOAD_A
+    assert reopened.get_bytes(second) == PAYLOAD_B
+    assert reopened.get_manifest_bytes(first) == source.get_manifest_bytes(first)
+    assert reopened.get_manifest_bytes(second) == source.get_manifest_bytes(second)

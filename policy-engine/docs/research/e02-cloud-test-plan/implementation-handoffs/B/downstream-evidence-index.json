@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative-rerun.json",
+      "sha256": "67f883488c90d0a66202ba1b275901a00d146c760939fc283b061b500c41772c",
+      "bytes": 1351
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative-rerun.stderr.txt",
+      "sha256": "651b0c0926484d5b9303c30df5cc849f7f64daf22195075ec6f798cef6075692",
+      "bytes": 120
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative-wrapper.json",
+      "sha256": "a9c1392b9bd2ed428b1318449d18e8930b8d28b9a225b68b4cca40a98410717e",
+      "bytes": 1113
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative.json",
+      "sha256": "3937cdc1ac7ea8e2185944a251ec48b9b85f390f2b9e95480d81cde303314828",
+      "bytes": 1351
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative.py",
+      "sha256": "eab23bf57e432f7c71ba34b977d84e9d5708d0d47da87f35ea18903c0c368167",
+      "bytes": 2796
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/published-negative.txt",
+      "sha256": "a1082ee5322e67317b5920a160238045044e6093d2df3debbfcd47a9c3fc4d40",
+      "bytes": 2790
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/review.md",
+      "sha256": "af31befd69f4e7a70dc063c1e57c36947e2e2abcfbdd4e8b73eddaa4f1598e45",
+      "bytes": 6974
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/downstream-contracts.json",
+      "sha256": "562b16314ac3d0e69509ae2ebc8cb2d1ff69c8735005f9d8f76f8aa54b7fbde9",
+      "bytes": 17181
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.py",
+      "sha256": "892d997187bfc79d5d9c2c6c269f3c5bab878ae938b535f799ff2a65d28d9a31",
+      "bytes": 3454
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/downstream/stream-unpublished-owner-probe.txt",
+      "sha256": "d39185deaa695e5b95b708f4c9204ed79444ef2158afc2441d058aa1b358eb39",
+      "bytes": 5489
+    }
+  ],
+  "finding_closure": "not_established; declared capability/consumer/input residuals"
+}

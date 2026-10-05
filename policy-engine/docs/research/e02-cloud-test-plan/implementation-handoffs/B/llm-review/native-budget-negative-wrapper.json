@@ -1,0 +1,20 @@
+{
+  "source_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+  "cwd": "/workspace/e02-B-adapters/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/polisyos/.polisyos/e02-B-llm-producer-review/native-budget-negative.py"
+  ],
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-adapters/policy-engine/src:/workspace/e02-B-adapters/policy-engine/product",
+    "python": "Python 3.14.2",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "exit_code": 0,
+  "wall_s": 0.4888464539999404,
+  "rss_kib": 53440,
+  "script_sha256": "eab23bf57e432f7c71ba34b977d84e9d5708d0d47da87f35ea18903c0c368167",
+  "stdout_sha256": "67f883488c90d0a66202ba1b275901a00d146c760939fc283b061b500c41772c",
+  "stderr_sha256": "651b0c0926484d5b9303c30df5cc849f7f64daf22195075ec6f798cef6075692",
+  "input_closure": "pinned fixture _Provider/_Metrics; native Cache\u2192Traced\u2192LLMBudgetEnforcer\u2192BudgetState run cap1.00; two userhello max_tokens2 prompt_estimate3 runindependent-run; cancel first owner before provider release; received-usage only, not vendor billing"
+}

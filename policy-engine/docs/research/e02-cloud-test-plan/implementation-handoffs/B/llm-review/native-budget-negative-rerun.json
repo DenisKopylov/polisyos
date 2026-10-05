@@ -1,0 +1,39 @@
+{
+  "source_sha": "d0eb247a2dff81f0a3ca48ea844c9ce3b8559b83",
+  "fixture": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+  "provider_calls": 1,
+  "received_provider_usage_cost_usd": 0.02,
+  "budget_spent_run": "0.0",
+  "budget_reserved_before_cancel": "0.000055000000000000008",
+  "budget_reserved_after_cancel": "0.000027500000000000004",
+  "budget_reserved_final": "0",
+  "mandatory_accounting_events": [
+    {
+      "model": "gpt-4o",
+      "provider": "unknown",
+      "status": "cache_hit",
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "origin_prompt_tokens": 3,
+      "origin_completion_tokens": 2,
+      "origin_total_tokens": 5,
+      "cost_usd": 0.0,
+      "origin_cost_usd": 0.02,
+      "estimated_cost_usd": 2.7500000000000004e-05,
+      "cost_delta_usd": 0.0199725,
+      "latency_ms": 0,
+      "run_id": "independent-run",
+      "model_variant_id": null,
+      "request_id": null,
+      "cache_hit": true,
+      "provider_call": false,
+      "usage_origin": "provider",
+      "reuse_event_id": "cache-reuse:80b471b663554519a681060c157eac1f",
+      "cache_key": "57915023b65dc5c054183ee01aa62d90c78f56f63aa1eab5b07da3a842428eaf",
+      "event_identity": "cache-reuse:80b471b663554519a681060c157eac1f"
+    }
+  ],
+  "optional_trace_cost_total": 0,
+  "inflight_count_final": 0
+}

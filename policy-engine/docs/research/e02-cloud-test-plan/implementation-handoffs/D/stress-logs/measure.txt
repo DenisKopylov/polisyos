@@ -1,0 +1,8 @@
+import pathlib,resource,subprocess,sys,time,json
+output=pathlib.Path(sys.argv[1]); command=sys.argv[2:];start=time.perf_counter()
+with output.open('w') as log:
+    print(json.dumps({'argv':command,'measurement_boundary':'single executed child process plus descendants; ru_maxrss KiB on Linux'}),file=log,flush=True)
+    outcome=subprocess.run(command,stdout=log,stderr=subprocess.STDOUT)
+    print(json.dumps({'exit_code':outcome.returncode,'elapsed_s':round(time.perf_counter()-start,3),'max_rss_kib':resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss}),file=log)
+print(json.dumps({'log':str(output),'exit_code':outcome.returncode}))
+sys.exit(outcome.returncode)

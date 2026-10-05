@@ -1,0 +1,59 @@
+{"argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "tests/unit/scientist/search/test_adversarial_streaming.py", "tests/unit/scientist/search/test_adversarial.py", "tests/unit/scientist/mirror_contracts/test_stress_report.py", "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py", "-q", "-o", "cache_dir=_cache/pytest-stress-green"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+................................F.                                       [100%]
+=================================== FAILURES ===================================
+________________ test_scenario_adversary_fallback_and_execution ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-37/test_scenario_adversary_fallba0')
+
+    def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
+        worker = ScenarioAdversaryWorker(ScenarioAdversaryConfig(max_scenarios=3, collect_top_k=2))
+        surface = ScenarioAttackSurface(
+            candidate_id="candidate_policy",
+            parameter_specs=[
+                DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0),
+                DOEParameterSpec(name="noise", lower_bound=0.0, upper_bound=1.0),
+            ],
+            base_metrics={"gdp_change": [0.1, 0.2, 0.3]},
+            benchmark_split_manifest=BenchmarkSplitManifest(
+                suite_id="suite",
+                selection_ids=["a"],
+                holdout_ids=["b"],
+            ),
+            vulnerability_threshold=0.5,
+        )
+        bundle = worker.propose(surface, run_id="adv_test", budget_state=BudgetState())
+    
+        assert bundle.fallback_used is True
+        assert bundle.scenarios
+        assert any(item.target_split == "hidden_holdout_only" for item in bundle.scenarios)
+    
+        result = worker.execute(
+            surface=surface,
+            base_objective=CompositeObjective([GDPGrowthObjective()]),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {
+                    "gdp_change": float(candidate.get("shock", 0.0))
+                    + float(candidate.get("noise", 0.0))
+                }
+            },
+            cas=None,
+            run_id="adv_test",
+        )
+    
+        assert result.compiled_plan.parameter_specs
+        assert result.stress_test_report.total_scenarios_evaluated >= 1
+>       assert result.stress_test_report.vulnerabilities
+E       AssertionError: assert []
+E        +  where [] = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_f8872554252957b45dd834bd458a1bf3abf09f69ef39b7a...on_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}).vulnerabilities
+E        +    where StressTestReport(schema_version='1.0', report_id='stress.report.sha256_f8872554252957b45dd834bd458a1bf3abf09f69ef39b7a...on_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}) = AdversaryExecutionResult(scenario_bundle=AdversarialScenarioBundle(schema_version='1.0', candidate_id='candidate_polic..._vulnerability_count': 0, 'presented_vulnerability_count': 0}), stress_test_report_ref=None, adversary_bundle_ref=None).stress_test_report
+
+tests/unit/scientist/policy_design/test_phase_b_policy_workers.py:269: AssertionError
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution
+{"exit_code": 1, "elapsed_s": 37.187, "max_rss_kib": 1328076}

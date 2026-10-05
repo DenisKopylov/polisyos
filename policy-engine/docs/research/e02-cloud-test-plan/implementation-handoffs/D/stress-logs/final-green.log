@@ -1,0 +1,9 @@
+{"argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "tests/unit/scientist/search/test_adversarial_streaming.py", "tests/unit/scientist/search/test_adversarial.py", "tests/unit/scientist/mirror_contracts/test_stress_report.py", "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py", "-q", "-o", "cache_dir=_cache/pytest-stress-final"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+..................................                                       [100%]
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+{"exit_code": 0, "elapsed_s": 24.257, "max_rss_kib": 1329840}

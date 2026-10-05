@@ -1,0 +1,6 @@
+import subprocess,hashlib,json,pathlib,sys
+sha=sys.argv[1]
+paths=[p for p in subprocess.check_output(['git','ls-tree','-r','--name-only',sha],text=True).splitlines() if p.endswith('.py')]
+refs=[p for p in paths if b'_deduplicate_vulnerabilities' in subprocess.check_output(['git','show',sha+':'+p])]
+result={'target_sha':sha,'tracked_python_denominator':len(paths),'pathset_sha256':hashlib.sha256(('\n'.join(paths)+'\n').encode()).hexdigest(),'removed_helper':'_deduplicate_vulnerabilities','direct_named_references':refs,'dynamic_name_construction':'not_established','outcome':'PASS' if not refs else 'FAIL'}
+p=pathlib.Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/helper-census.json');p.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))

@@ -1,0 +1,218 @@
+{"argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "/tmp/e02_stress_probe.py", "direction_removal"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+probe_mode=direction_removal; source_sha256=b1472980545334fc94a1bfc5dcb4e2777a4104116123a4a4616dfcffa19c721e
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_stress_real_adaptive_objectives_persist_analytical_worst_case[-0.5-gdp_change] _
+
+metric = 'gdp_change', threshold = -0.5
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7ff9c37dfa10>
+
+    @pytest.mark.parametrize("metric", ["gdp_change", "gov_balance"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.5])
+    def test_stress_real_adaptive_objectives_persist_analytical_worst_case(
+        metric: str,
+        threshold: float,
+        store: FileSystemCAS,
+    ) -> None:
+        """Real objective normalization, adapter feedback and CAS readback agree with the DGP."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="x", lower_bound=-1, upper_bound=1)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            seed=37,
+            max_iterations=36,
+            vulnerability_threshold=threshold,
+            stop_on_first_vulnerability=False,
+            collect_top_k=2,
+        )
+        coordinates: list[float] = []
+    
+        def evaluate(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+            del context
+            coordinates.append(candidate["x"])
+            return {"simulation_results": {metric: candidate["x"]}}
+    
+        space = SearchSpace([ParameterBounds(name="x", lower=-1, upper=1)])
+        adapter = StrategyAdapter(strategy=RandomSearchStrategy(space=space, seed=5), space=space)
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective(
+                [GDPGrowthObjective() if metric == "gdp_change" else BudgetDeficitObjective()]
+            ),
+            stage_b_evaluator=evaluate,
+            candidate_generator=adapter,
+            cas=store,
+        )
+        expected_values = [-x if metric == "gdp_change" else max(-x, 0) for x in coordinates]
+        expected_worst_index = max(range(len(expected_values)), key=expected_values.__getitem__)
+        expected_violations = sum(value >= threshold for value in expected_values)
+    
+        assert len(coordinates) == 36  # Initial sampler contributes 32, adapter another four.
+>       assert report.worst_case_objective == expected_values[expected_worst_index]
+E       AssertionError: assert -0.9823370382861583 == 0.9581412373919049
+E        +  where -0.9823370382861583 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_2bc3d1b09e1019f37364a5128d186e2500496c0893a2750..._count': 36, 'observed_vulnerability_count': 10, 'unique_vulnerability_count': 10, 'presented_vulnerability_count': 2}).worst_case_objective
+
+tests/unit/scientist/search/test_adversarial_streaming.py:149: AssertionError
+_ test_stress_real_adaptive_objectives_persist_analytical_worst_case[-0.5-gov_balance] _
+
+metric = 'gov_balance', threshold = -0.5
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7ff8b2b53c50>
+
+    @pytest.mark.parametrize("metric", ["gdp_change", "gov_balance"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.5])
+    def test_stress_real_adaptive_objectives_persist_analytical_worst_case(
+        metric: str,
+        threshold: float,
+        store: FileSystemCAS,
+    ) -> None:
+        """Real objective normalization, adapter feedback and CAS readback agree with the DGP."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="x", lower_bound=-1, upper_bound=1)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            seed=37,
+            max_iterations=36,
+            vulnerability_threshold=threshold,
+            stop_on_first_vulnerability=False,
+            collect_top_k=2,
+        )
+        coordinates: list[float] = []
+    
+        def evaluate(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+            del context
+            coordinates.append(candidate["x"])
+            return {"simulation_results": {metric: candidate["x"]}}
+    
+        space = SearchSpace([ParameterBounds(name="x", lower=-1, upper=1)])
+        adapter = StrategyAdapter(strategy=RandomSearchStrategy(space=space, seed=5), space=space)
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective(
+                [GDPGrowthObjective() if metric == "gdp_change" else BudgetDeficitObjective()]
+            ),
+            stage_b_evaluator=evaluate,
+            candidate_generator=adapter,
+            cas=store,
+        )
+        expected_values = [-x if metric == "gdp_change" else max(-x, 0) for x in coordinates]
+        expected_worst_index = max(range(len(expected_values)), key=expected_values.__getitem__)
+        expected_violations = sum(value >= threshold for value in expected_values)
+    
+        assert len(coordinates) == 36  # Initial sampler contributes 32, adapter another four.
+>       assert report.worst_case_objective == expected_values[expected_worst_index]
+E       AssertionError: assert 0.0 == 0.9581412373919049
+E        +  where 0.0 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_ee95a1226bb948c1dcff6eb087713c06a16b5e3270a7ef8...on_count': 36, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}).worst_case_objective
+
+tests/unit/scientist/search/test_adversarial_streaming.py:149: AssertionError
+_ test_stress_real_adaptive_objectives_persist_analytical_worst_case[0.5-gdp_change] _
+
+metric = 'gdp_change', threshold = 0.5
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7ff8b2254b90>
+
+    @pytest.mark.parametrize("metric", ["gdp_change", "gov_balance"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.5])
+    def test_stress_real_adaptive_objectives_persist_analytical_worst_case(
+        metric: str,
+        threshold: float,
+        store: FileSystemCAS,
+    ) -> None:
+        """Real objective normalization, adapter feedback and CAS readback agree with the DGP."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="x", lower_bound=-1, upper_bound=1)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            seed=37,
+            max_iterations=36,
+            vulnerability_threshold=threshold,
+            stop_on_first_vulnerability=False,
+            collect_top_k=2,
+        )
+        coordinates: list[float] = []
+    
+        def evaluate(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+            del context
+            coordinates.append(candidate["x"])
+            return {"simulation_results": {metric: candidate["x"]}}
+    
+        space = SearchSpace([ParameterBounds(name="x", lower=-1, upper=1)])
+        adapter = StrategyAdapter(strategy=RandomSearchStrategy(space=space, seed=5), space=space)
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective(
+                [GDPGrowthObjective() if metric == "gdp_change" else BudgetDeficitObjective()]
+            ),
+            stage_b_evaluator=evaluate,
+            candidate_generator=adapter,
+            cas=store,
+        )
+        expected_values = [-x if metric == "gdp_change" else max(-x, 0) for x in coordinates]
+        expected_worst_index = max(range(len(expected_values)), key=expected_values.__getitem__)
+        expected_violations = sum(value >= threshold for value in expected_values)
+    
+        assert len(coordinates) == 36  # Initial sampler contributes 32, adapter another four.
+>       assert report.worst_case_objective == expected_values[expected_worst_index]
+E       AssertionError: assert -0.9823370382861583 == 0.9581412373919049
+E        +  where -0.9823370382861583 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_7dda5ca29d38a2d491ff48127827ec8701f9a357df4a857..._count': 36, 'observed_vulnerability_count': 28, 'unique_vulnerability_count': 28, 'presented_vulnerability_count': 2}).worst_case_objective
+
+tests/unit/scientist/search/test_adversarial_streaming.py:149: AssertionError
+_ test_stress_real_adaptive_objectives_persist_analytical_worst_case[0.5-gov_balance] _
+
+metric = 'gov_balance', threshold = 0.5
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7ff8b2bb1350>
+
+    @pytest.mark.parametrize("metric", ["gdp_change", "gov_balance"])
+    @pytest.mark.parametrize("threshold", [-0.5, 0.5])
+    def test_stress_real_adaptive_objectives_persist_analytical_worst_case(
+        metric: str,
+        threshold: float,
+        store: FileSystemCAS,
+    ) -> None:
+        """Real objective normalization, adapter feedback and CAS readback agree with the DGP."""
+        plan = AdversarialPlan(
+            parameter_specs=[ParameterSpec(name="x", lower_bound=-1, upper_bound=1)],
+            strategy=AdversarialStrategy.SEARCH_LOOP,
+            seed=37,
+            max_iterations=36,
+            vulnerability_threshold=threshold,
+            stop_on_first_vulnerability=False,
+            collect_top_k=2,
+        )
+        coordinates: list[float] = []
+    
+        def evaluate(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+            del context
+            coordinates.append(candidate["x"])
+            return {"simulation_results": {metric: candidate["x"]}}
+    
+        space = SearchSpace([ParameterBounds(name="x", lower=-1, upper=1)])
+        adapter = StrategyAdapter(strategy=RandomSearchStrategy(space=space, seed=5), space=space)
+        report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective(
+                [GDPGrowthObjective() if metric == "gdp_change" else BudgetDeficitObjective()]
+            ),
+            stage_b_evaluator=evaluate,
+            candidate_generator=adapter,
+            cas=store,
+        )
+        expected_values = [-x if metric == "gdp_change" else max(-x, 0) for x in coordinates]
+        expected_worst_index = max(range(len(expected_values)), key=expected_values.__getitem__)
+        expected_violations = sum(value >= threshold for value in expected_values)
+    
+        assert len(coordinates) == 36  # Initial sampler contributes 32, adapter another four.
+>       assert report.worst_case_objective == expected_values[expected_worst_index]
+E       AssertionError: assert 0.0 == 0.9581412373919049
+E        +  where 0.0 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_c809d646f4b34d601e4c1ba33e711222c2c04c47cc3a7df..._count': 36, 'observed_vulnerability_count': 28, 'unique_vulnerability_count': 28, 'presented_vulnerability_count': 2}).worst_case_objective
+
+tests/unit/scientist/search/test_adversarial_streaming.py:149: AssertionError
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_stress_real_adaptive_objectives_persist_analytical_worst_case[-0.5-gdp_change]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_stress_real_adaptive_objectives_persist_analytical_worst_case[-0.5-gov_balance]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_stress_real_adaptive_objectives_persist_analytical_worst_case[0.5-gdp_change]
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_stress_real_adaptive_objectives_persist_analytical_worst_case[0.5-gov_balance]
+{"exit_code": 1, "elapsed_s": 16.937, "max_rss_kib": 1166124}

@@ -16,6 +16,8 @@ from polisyos.foundry.methods._internal.loss import policy_loss_fn as internal_p
 from polisyos.foundry.methods.loss import policy_loss_fn as legacy_policy_loss_fn
 from polisyos.foundry.plugins.economics.mechanisms import (
     LaborMarketMechanism as EconomicLaborMarketMechanism,
+)
+from polisyos.foundry.plugins.economics.mechanisms import (
     TaxationMechanism,
 )
 
@@ -79,6 +81,25 @@ def test_legacy_policy_loss_fn_is_jittable_and_differentiable() -> None:
     assert bool(jnp.all(jnp.isfinite(gradient)))
 
 
+def test_named_baseline_gradient_is_the_normalized_formula_not_income_maximization() -> None:
+    """Analytic derivatives distinguish the retained baseline from a welfare objective."""
+    state = _global_state([-2.0, 4.0])
+
+    def loss(income):
+        return legacy_policy_loss_fn(state.replace(agents=state.agents.replace(income=income)))
+
+    # For (-2, 4), L=-(a+b)/(-a+b), so dL/da=-2/9 and dL/db=-1/9.
+    npt.assert_allclose(jax.grad(loss)(state.agents.income), [-2.0 / 9.0, -1.0 / 9.0])
+    npt.assert_allclose(jax.grad(loss)(jnp.array([1000.0, 2000.0])), [0.0, 0.0], atol=1e-9)
+
+
+@pytest.mark.parametrize("min_balance", [float("nan"), float("inf"), -float("inf")])
+def test_baseline_rejects_nonfinite_budget_threshold_under_jit(min_balance: float) -> None:
+    """A supplied invalid threshold remains a refusal after compilation."""
+    state = _global_state([1.0, 2.0])
+    assert float(jax.jit(legacy_policy_loss_fn)(state, min_balance)) == float("inf")
+
+
 @pytest.mark.parametrize(
     "state",
     [
@@ -94,9 +115,7 @@ def test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed(state: Glo
 def test_income_tax_and_economic_tax_keep_distinct_tax_bases() -> None:
     state = _global_state([100.0, 200.0])
     state = state.replace(
-        agents=state.agents.replace(
-            reported_income=jnp.asarray([10.0, 20.0], dtype=jnp.float32)
-        )
+        agents=state.agents.replace(reported_income=jnp.asarray([10.0, 20.0], dtype=jnp.float32))
     )
     npt.assert_allclose(
         compute_tax(state, jnp.asarray(0.2, dtype=jnp.float32)),
@@ -115,6 +134,27 @@ def test_income_tax_and_economic_tax_keep_distinct_tax_bases() -> None:
     taxed = TaxationMechanism().apply(economic)
     npt.assert_allclose(taxed.agents.income, economic.agents.income)
     assert bool(jnp.any(taxed.agents.wealth < economic.agents.wealth))
+
+
+def test_domain_plugin_fiscal_consumer_does_not_claim_patchmap_budget_equivalence() -> None:
+    """The actual plugin selection preserves its wealth effects and separate ABI."""
+    from polisyos.foundry.plugins.economics.plugin import EconomicsPlugin
+    from polisyos.foundry.plugins.economics.state import EconomicState
+
+    economic = EconomicState.empty(n_agents=3, seed=0)
+    economic = economic.replace(
+        agents=economic.agents.replace(
+            active=jnp.array([True, False, True]),
+            income=jnp.array([100.0, 200.0, 300.0]),
+            wealth=jnp.array([1000.0, 1000.0, 1000.0]),
+        )
+    )
+    taxation = next(item for item in EconomicsPlugin().get_mechanisms() if item.name == "taxation")
+    consumed = taxation.apply(economic)
+    npt.assert_allclose(consumed.agents.wealth, [990.0, 1000.0, 970.0])
+    npt.assert_array_equal(consumed.agents.income, economic.agents.income)
+    assert not hasattr(consumed, "government_balance")
+    assert consumed.time_step == economic.time_step
 
 
 def test_threshold_and_transition_labor_profiles_remain_distinct() -> None:

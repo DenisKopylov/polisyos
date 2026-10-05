@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import importlib
+import json
 from collections.abc import Mapping
+from decimal import Decimal
 from typing import Any
 
 import jax
@@ -101,11 +103,10 @@ def test_registry_and_spec_creation_resolve_the_canonical_kernel_owner() -> None
     assert type(create_mechanism_from_spec("income_tax", {"rate": 0.2}, 4, 2)) is (
         package.IncomeTax
     )
-    assert type(
-        create_mechanism_from_spec(
-            "labor_market", {"employment_threshold": 0.5}, 4, 2
-        )
-    ) is package.LaborMarketMechanism
+    assert (
+        type(create_mechanism_from_spec("labor_market", {"employment_threshold": 0.5}, 4, 2))
+        is package.LaborMarketMechanism
+    )
 
 
 def test_relocated_fiscal_kernels_preserve_patch_maps_and_prng_keys() -> None:
@@ -173,3 +174,189 @@ def test_canonical_fiscal_kernel_supports_jit_and_gradient() -> None:
     np.testing.assert_allclose(np.asarray(jit_tax(jnp.array(0.2))), [20.0, 10.0, 0.0])
     gradient = jax.grad(lambda rate: jnp.sum(fiscal.compute_tax(state, rate)))(jnp.array(0.2))
     assert float(gradient) == pytest.approx(150.0)
+
+
+@pytest.mark.parametrize(
+    ("mechanism_type", "params", "expected_income", "expected_balance"),
+    [
+        ("income_tax", {"rate": 0.2}, [80.0, 50.0, 25.0, 64.0], 36.0),
+        ("tax_subsidy", {"rate": 0.1}, [110.0, 50.0, 25.0, 88.0], -18.0),
+        ("labor_market", {"employment_threshold": 0.0}, [0.0, 50.0, 25.0, 0.0], 0.0),
+    ],
+)
+def test_registered_adapter_json_patches_require_a_native_consumer_bridge(
+    mechanism_type: str,
+    params: dict[str, float],
+    expected_income: list[float],
+    expected_balance: float,
+) -> None:
+    """Diagnostic JSON retains effects but is not the native PatchMap ABI."""
+    from polisyos.foundry.methods.catalog.mechanism._registry_boot import (
+        register_mechanism_methods,
+    )
+    from polisyos.foundry.methods.components.merge_engine import MergeConflictError
+    from polisyos.foundry.methods.registry import registry_scope
+
+    state = _state()
+    with registry_scope() as registry:
+        for method_class in register_mechanism_methods():
+            registry.register(method_class)
+        method = registry.get(f"mechanism.runtime.{mechanism_type}@1.0.0")
+        result = method.pure_step(
+            state, {**params, "target_mask": [True, False, True, True], "__seed__": 23}
+        )
+    # A real serialized boundary, rather than passing the producer's JAX objects.
+    patches = json.loads(json.dumps(result))["result"]["patches"]
+    projected_income = np.asarray(state.agents.income) + np.asarray(
+        patches["agents.income"][0]["delta"]
+    )
+    np.testing.assert_allclose(projected_income, expected_income)
+    projected_balance = float(state.government_balance) + float(
+        patches.get("government.balance", [{"delta": 0.0}])[0]["delta"]
+    )
+    assert projected_balance == pytest.approx(expected_balance)
+    # Presence of a registered method and JSON "patches" is a cheap proxy for
+    # consumer compatibility: list deltas require a real materialization bridge.
+    with pytest.raises(MergeConflictError, match=r"ArrayImpl.*list"):
+        apply_patch_map(
+            state,
+            patches,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            default_node_id="economic-runtime-consumer",
+        )
+    if mechanism_type != "labor_market":
+        before = float(jnp.sum(state.agents.income) + state.government_balance)
+        after = float(np.sum(projected_income) + projected_balance)
+        assert after == pytest.approx(before)
+    else:
+        assert patches["agents.is_employed"][0]["value"] == [False, True, True, False]
+        assert patches["agents.employer_id"][0]["value"] == [-1, 0, 1, -1]
+        assert patches["firms.labor_count"][0]["value"] == [1, 0]
+
+
+def test_labor_masked_counts_and_key_have_independent_oracle() -> None:
+    """An unselected incumbent counts, while an inactive incumbent does not."""
+    labor = _canonical_module("labor")
+    state = _state(n_firms=1)
+    key = jax.random.PRNGKey(23)
+    patches, next_key = labor.LaborMarketMechanism(employment_threshold=1.0).emit_patches(
+        state, key, target_mask=jnp.array([True, False, True, True], dtype=jnp.bool_)
+    )
+    consumed = apply_patch_map(
+        state,
+        patches,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        default_node_id="masked-labor-oracle",
+    )
+    np.testing.assert_allclose(consumed.agents.income, [20.0, 50.0, 25.0, 40.0])
+    assert consumed.agents.employer_id.tolist() == [0, 0, 1, 0]
+    assert consumed.agents.is_employed.tolist() == [True, True, True, True]
+    assert consumed.firms.labor_count.tolist() == [3.0]
+    np.testing.assert_array_equal(next_key, jax.random.split(key, 3)[2])
+
+
+@pytest.mark.parametrize(
+    ("mechanism_type", "params", "expected_income", "expected_balance"),
+    [
+        ("income_tax", {"rate": Decimal("0.2")}, [80.0, 40.0, 25.0, 64.0], 46.0),
+        ("tax_subsidy", {"rate": Decimal("0.1")}, [110.0, 55.0, 25.0, 88.0], -23.0),
+        ("labor_market", {"employment_threshold": Decimal("0")}, [0.0, 0.0, 25.0, 0.0], 0.0),
+    ],
+)
+def test_compiled_baseline_plan_persists_replayable_effects(
+    tmp_path,
+    mechanism_type: str,
+    params: dict[str, Decimal],
+    expected_income: list[float],
+    expected_balance: float,
+) -> None:
+    """Trinity compilation and native replay must agree on consumed state effects."""
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.contracts.foundry import CompileRequest
+    from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+    from polisyos.foundry.compile.api import compile as compile_foundry
+    from polisyos.foundry.execute.executor import (
+        apply_state_delta_and_snapshot,
+        execute_program_graph,
+        load_state_snapshot,
+    )
+    from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.governance.schedule import ScheduleSpec
+    from polisyos.ir.governance.selector_expr import SelectorPredicate
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.model_layer.types import SelectorOperator
+    from polisyos.ir.trinity import TrinityBundle
+
+    store = FileSystemCAS(tmp_path)
+    registries = build_default_registry_bundle(store)
+    content = load_registry_bundle_content(store, registries.bundle_ref)
+    policy = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="baseline_fixture", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(
+            policy_id="baseline_fixture",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="baseline",
+                    kind=mechanism_type,
+                    target=SelectorPredicate(
+                        field="id", operator=SelectorOperator.EQUALS, value="all"
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params=params,
+                )
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="baseline_fixture",
+            data_snapshot_ref="sha256:" + "0" * 64,
+            registry_bundle_ref=str(registries.bundle_ref.artifact_id),
+        ),
+    )
+    policy_ref = store.put_json(
+        policy,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy.schema_version),
+        ),
+    )
+    compiled = compile_foundry(
+        store, CompileRequest(policy_ref=policy_ref, registry_bundle_ref=registries.bundle_ref)
+    )
+    assert compiled.ok, compiled.notes
+    assert compiled.exec_plan_ref is not None
+    program_ref = next(item.ref for item in compiled.derived_refs if item.role == "program_graph")
+    state = _state()
+    delta_ids = []
+    for _ in range(2):
+        executed = execute_program_graph(
+            store,
+            program_ref=program_ref,
+            exec_plan_ref=compiled.exec_plan_ref,
+            base_state=state,
+            mechanism_registry=content.mechanism_registry,
+            slot_registry=content.slot_registry,
+            merge_registry=content.merge_registry,
+            seed=23,
+            welfare_bound_mode="off",
+        )
+        assert not executed.failure_cards
+        delta_ids.append(executed.state_delta_ref.artifact_id)
+        _, applied = apply_state_delta_and_snapshot(
+            store,
+            base_state=state,
+            state_delta_ref=executed.state_delta_ref,
+            slot_registry=content.slot_registry,
+            merge_registry=content.merge_registry,
+        )
+        reopened = load_state_snapshot(store, snapshot_ref=applied.state_snapshot_ref)
+        np.testing.assert_allclose(reopened.agents.income, expected_income)
+        assert float(reopened.government_balance) == pytest.approx(expected_balance)
+        if mechanism_type == "labor_market":
+            assert reopened.firms.labor_count.tolist() == [0.0, 0.0]
+            assert reopened.agents.employer_id.tolist() == [-1, -1, 1, -1]
+    assert delta_ids[0] == delta_ids[1]

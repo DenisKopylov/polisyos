@@ -1,0 +1,43 @@
+{
+  "schema": "e02-independent-git-artifact-verification/v1",
+  "target_sha": "cb6555b69120ad2a34b047ffb6359d9844c9d5b0",
+  "target_tree": "9b5c991926b5cb9d840217b01901bf32dbb21609",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "scope": {
+    "tracked_D_json_files": 81,
+    "changed_json_files": 81,
+    "changed_release_fragments": 13
+  },
+  "checks": {
+    "json_files_parsed": 82,
+    "git_object_claims_checked": 155,
+    "unique_reference_claims": 1005,
+    "available_reference_claims": 946,
+    "size_claims_checked": 276,
+    "sha256_claims_checked": 294,
+    "git_blob_claims_checked": 62,
+    "inline_utf8_sha256_claims_checked": 3,
+    "json_pointer_string_claims_checked": 1,
+    "release_fragments_parsed": 13,
+    "byte_line_locators_checked": 185
+  },
+  "sha256_declarations": 609,
+  "sha256_declarations_with_byte_locator": 451,
+  "errors": [],
+  "limitation_counts": {
+    "hash_without_byte_locator": 158,
+    "unavailable_raw_or_external": 48
+  },
+  "outcome": "PASS",
+  "interpretation": "Git byte/reference/census/syntax reconciliation only. No native runtime replay, closure verdict, authority admission, or unavailable raw-byte verification.",
+  "census": {
+    "finding_owner_rows": 45,
+    "bundle_owners": 17,
+    "route_rows": 456,
+    "distinct_primary_cells": 115,
+    "states": {
+      "PASS": 112,
+      "FAILED": 3
+    }
+  }
+}

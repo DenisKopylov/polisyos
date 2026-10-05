@@ -1,0 +1,259 @@
+CW13 OBS/UDF deciding output log
+Slice base: c40d4acae1ce58b597267255026d9356565828fd
+Implementation commits (append-only): 973fd3a5b3d8cfdd8ecaa04116b41d5e571d625c; ff77dec638da9e15d409154043d7ac84cbeb9236; 00ba54821960e7468e501404976cb7bdde733e55; 997367e433112d0963814e1df8065233725f5eee
+Final implementation tree: bc1317b6e16fd7829c10f071ef2a70111cdde238
+Environment: macOS; Python 3.14.0; pytest 9.0.2; ruff 0.14.10; shared original policy-engine venv read-only.
+The unknown pytest `cache_dir` config warning was emitted by the shared environment on pytest commands.
+Corrective property: readers parse a per-run temporary copy whose content SHA-256 equals the initial source SHA before any rows are yielded; persistent source-path changes still fail before D2 returns output records.
+
+=== Pinned-base-reproduction ===
+cwd: /Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos
+command: <shared-venv>/bin/python -m pytest -p no:cacheprovider policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/test_successful_stream_mutation.py
+
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_successful_stream_rejects_a_changed_input_snapshot ____________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-28/test_successful_stream_rejects0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x119d729e0>
+
+    def test_successful_stream_rejects_a_changed_input_snapshot(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        pytest.importorskip("pyarrow")
+        from polisyos.data_forge.domains.ukraine.builders import sources
+    
+        config, _, frame, artifact = _fixture(tmp_path)
+        initial_digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+        changed = frame.copy()
+        changed.loc[:, "metric_a"] += 1000.0
+        changed.loc[:, "metric_b"] += 10000.0
+    
+        class MutatingParquetFile:
+            def __init__(self, _path: Path) -> None:
+                pass
+    
+            def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
+                del batch_size, columns
+                yield _batch(frame.iloc[:2], size=2)
+                changed.to_parquet(artifact, index=False)
+                yield _batch(changed.iloc[2:], size=2)
+    
+        import pyarrow.parquet as parquet
+    
+        monkeypatch.setattr(parquet, "ParquetFile", MutatingParquetFile)
+    
+        try:
+            emitted = list(sources._iter_observation_metric_frames(config))
+        except RuntimeError as exc:
+            assert "snapshot" in str(exc)
+        else:
+            observed_metric_a = [
+                float(value)
+                for _, metric_id, _, metric_frame in emitted
+                if metric_id == "metric_a"
+                for value in metric_frame["observed_value"].tolist()
+            ]
+            final_digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+            assert final_digest != initial_digest
+>           assert False, (
+                "reader accepted mixed content from two generations; "
+                f"metric_a={observed_metric_a}, input_sha256={initial_digest}->{final_digest}"
+            )
+E           AssertionError: reader accepted mixed content from two generations; metric_a=[10.0, 20.0, 1030.0, 1040.0], input_sha256=3bc5bd09c5334d7c07dc74d85377d4d008d49601ab0fced6bc62aba8ad373b82->0a1991958dc159fb608c18d0cca33a9d2f1916581568e6da393a2113ed0d0557
+E           assert False
+
+policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/test_successful_stream_mutation.py:91: AssertionError
+=============================== warnings summary ===============================
+../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/test_successful_stream_mutation.py::test_successful_stream_rejects_a_changed_input_snapshot
+1 failed, 1 warning in 2.29s
+
+=== Intermediate-endpoint-hash-witness ===
+cwd: /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine
+command: <shared-venv>/bin/python -m pytest -s -p no:cacheprovider docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/test_transient_restore_probe.py
+
+transient mixed content accepted; sha256=0ec9543f6987afc5a230c1ba95aa182fcec62c95c03be57cbb6d3b0b14c2af22->0ec9543f6987afc5a230c1ba95aa182fcec62c95c03be57cbb6d3b0b14c2af22; observed_metric_a=[10.0, 20.0, 1030.0, 1040.0]
+.
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 1.88s
+
+=== Final-corrective-focused-slice ===
+cwd: /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine
+command: <shared-venv>/bin/python -m pytest -p no:cacheprovider tests/unit/remediation/test_obs_01.py tests/unit/remediation/test_obs_02.py tests/unit/remediation/test_udf_01.py tests/unit/remediation/test_udf_02.py tests/unit/data_forge/domains/ukraine/test_builders.py
+
+........................................................................ [100%]
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+72 passed, 1 warning in 41.31s
+
+=== Final-ABA-content-identity-D2-negative ===
+cwd: /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine
+command: <shared-venv>/bin/python -m pytest -p no:cacheprovider tests/unit/remediation/test_obs_02.py::test_real_parquet_reader_uses_frozen_bytes_during_source_aba tests/unit/remediation/test_obs_02.py::test_snapshot_copy_detects_same_size_mtime_content_change tests/unit/remediation/test_obs_02.py::test_d2_does_not_materialize_panels_after_persistent_source_change
+
+...                                                                      [100%]
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 1 warning in 1.43s
+
+=== Ruff-on-pinned-base ===
+cwd: /Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos/policy-engine
+command: <shared-venv>/bin/python -m ruff check src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py
+
+B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    --> src/polisyos/data_forge/domains/ukraine/builders/sources.py:1391:17
+     |
+1389 |           except (ImportError, OSError):
+1390 |               if sha256_file(artifact_path) != snapshot_sha256:
+1391 | /                 raise RuntimeError(
+1392 | |                     "normalized observation artifact changed during streaming; "
+1393 | |                     "cannot resume from an unconfirmed snapshot"
+1394 | |                 )
+     | |_________________^
+1395 |
+1396 |               if row_offset == 0 and not emitted_metric_ids:
+     |
+
+B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    --> src/polisyos/data_forge/domains/ukraine/builders/sources.py:1442:17
+     |
+1440 |                   del frame
+1441 |               if pending_metric_ids:
+1442 | /                 raise RuntimeError(
+1443 | |                     "stream restart ended before the pending observation metric cursor"
+1444 | |                 )
+     | |_________________^
+1445 |               if resumed_row_offset < row_offset:
+1446 |                   raise RuntimeError(
+     |
+
+B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    --> src/polisyos/data_forge/domains/ukraine/builders/sources.py:1446:17
+     |
+1444 |                   )
+1445 |               if resumed_row_offset < row_offset:
+1446 | /                 raise RuntimeError(
+1447 | |                     "stream restart ended before the confirmed observation cursor"
+1448 | |                 )
+     | |_________________^
+     |
+
+Found 3 errors.
+
+=== Ruff-final-full ===
+cwd: /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine
+command: <shared-venv>/bin/python -m ruff check src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py
+
+B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    --> src/polisyos/data_forge/domains/ukraine/builders/sources.py:1485:13
+     |
+1483 |               del frame
+1484 |           if pending_metric_ids:
+1485 | /             raise RuntimeError(
+1486 | |                 "stream restart ended before the pending observation metric cursor"
+1487 | |             )
+     | |_____________^
+1488 |           if resumed_row_offset < row_offset:
+1489 |               raise RuntimeError(
+     |
+
+B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+    --> src/polisyos/data_forge/domains/ukraine/builders/sources.py:1489:13
+     |
+1487 |               )
+1488 |           if resumed_row_offset < row_offset:
+1489 | /             raise RuntimeError(
+1490 | |                 "stream restart ended before the confirmed observation cursor"
+1491 | |             )
+     | |_____________^
+1492 |           _assert_source_unchanged()
+     |
+
+Found 2 errors.
+
+=== Ruff-final-corrective ===
+cwd: /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine
+command: <shared-venv>/bin/python -m ruff check --ignore B904 src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py
+
+All checks passed!
+
+=== Final-frozen-head-00ba ===
+HEAD: 00ba54821960e7468e501404976cb7bdde733e55
+tree: 3f4b3de9067741069fb66211fa0655b3d711fd7a
+cwd: /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine
+command: <shared-venv>/bin/python -m pytest -p no:cacheprovider tests/unit/remediation/test_obs_01.py tests/unit/remediation/test_obs_02.py tests/unit/remediation/test_udf_01.py tests/unit/remediation/test_udf_02.py tests/unit/data_forge/domains/ukraine/test_builders.py
+
+........................................................................ [100%]
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+72 passed, 1 warning in 13.06s
+
+ignored raw output: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/focused-pytest-final-head.log
+SHA-256: ceebaa41c2412ac5f5e4e11fac301e2d83108bb0d6b76f0ec1fd431255bb8810
+
+=== Ruff-final-frozen-head-00ba ===
+HEAD: 00ba54821960e7468e501404976cb7bdde733e55
+command: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py
+outcome: 2 B904 diagnostics remain in the restart-cursor RuntimeError branches.
+ignored raw output: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-full-frozen-head.log
+SHA-256: a6e8a50cdf20e0a069b4a7a416208e8b558893c88f3742b33e9ffe583436bdad
+
+=== Ruff-excluding-baseline-B904-frozen-head-00ba ===
+HEAD: 00ba54821960e7468e501404976cb7bdde733e55
+command: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check --ignore B904 src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py
+All checks passed!
+ignored raw output: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-ignored-frozen-head.log
+SHA-256: 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18
+
+=== Final-focused-slice-post-review-997 ===
+HEAD: 997367e433112d0963814e1df8065233725f5eee
+tree: bc1317b6e16fd7829c10f071ef2a70111cdde238
+cwd: /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf/polisyos/policy-engine
+command: <shared-venv>/bin/python -m pytest -p no:cacheprovider tests/unit/remediation/test_obs_01.py tests/unit/remediation/test_obs_02.py tests/unit/remediation/test_udf_01.py tests/unit/remediation/test_udf_02.py tests/unit/data_forge/domains/ukraine/test_builders.py
+
+........................................................................ [100%]
+=============================== warnings summary ===============================
+../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+72 passed, 1 warning in 14.07s
+
+ignored raw output: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/focused-post-review-final.log
+SHA-256: d288d34db31e984f972098dd64b9fc8da4b11fe24eb197254ab207e08dfb04a5
+
+=== Ruff-final-post-review-997 ===
+HEAD: 997367e433112d0963814e1df8065233725f5eee
+command: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py
+All checks passed!
+ignored raw output: policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-full-post-review-final.log
+SHA-256: 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18

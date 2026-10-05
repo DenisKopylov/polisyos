@@ -1,0 +1,242 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "obs-udf",
+  "closure_ids": [
+    "B146",
+    "B147",
+    "LA-030",
+    "LA-031"
+  ],
+  "bundle_ids": [
+    "OBS-01",
+    "OBS-02",
+    "UDF-01",
+    "UDF-02"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "973fd3a5b3d8cfdd8ecaa04116b41d5e571d625c",
+    "ff77dec638da9e15d409154043d7ac84cbeb9236",
+    "00ba54821960e7468e501404976cb7bdde733e55",
+    "997367e433112d0963814e1df8065233725f5eee"
+  ],
+  "candidate_tree_sha": "bc1317b6e16fd7829c10f071ef2a70111cdde238",
+  "branch": "codex/e02-C-obs-udf",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+    "policy-engine/tests/unit/remediation/test_obs_02.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-checks.txt"
+  ],
+  "baseline_cells": [
+    {
+      "finding_id": "B146",
+      "bundle": "OBS-01",
+      "cell_ids": [
+        "F02-P080",
+        "F03-P016",
+        "F07-P072",
+        "F14-P092"
+      ],
+      "recorded_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "source_archives_received": 0,
+      "bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OBS-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B146"
+    },
+    {
+      "finding_id": "B147",
+      "bundle": "OBS-02",
+      "cell_ids": [
+        "F03-P102",
+        "F09-P104",
+        "F13-P118"
+      ],
+      "recorded_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "source_archives_received": 0,
+      "bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OBS-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B147"
+    },
+    {
+      "finding_id": "LA-030",
+      "bundle": "UDF-01",
+      "cell_ids": [
+        "F03-P016",
+        "F03-P118",
+        "F09-P119",
+        "F14-P138"
+      ],
+      "recorded_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "source_archives_received": 0,
+      "bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UDF-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-030"
+    },
+    {
+      "finding_id": "LA-031",
+      "bundles": [
+        "OBS-01",
+        "UDF-01",
+        "UDF-02"
+      ],
+      "cell_ids": [
+        "F02-P080",
+        "F03-P016",
+        "F03-P118",
+        "F04-P096",
+        "F07-P072",
+        "F08-P098",
+        "F09-P119",
+        "F13-P110",
+        "F14-P092",
+        "F14-P138"
+      ],
+      "recorded_status": "held",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "source_archives_received": 0,
+      "bundle_refs": [
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OBS-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UDF-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UDF-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+      ],
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-031"
+    }
+  ],
+  "checks": [
+    {
+      "command": "pytest -p no:cacheprovider tests/unit/remediation/test_obs_01.py tests/unit/remediation/test_obs_02.py tests/unit/remediation/test_udf_01.py tests/unit/remediation/test_udf_02.py tests/unit/data_forge/domains/ukraine/test_builders.py",
+      "target_sha": "ff77dec638da9e15d409154043d7ac84cbeb9236",
+      "environment": "macOS; Python 3.14.0; pytest 9.0.2; shared original policy-engine venv read-only; PYTHONPATH points at the worktree's policy-engine/src and policy-engine",
+      "input_closure": "Synthetic unit fixtures only; no production data or shared scratch. Covers OBS calendar bounds, observation reader/restart behavior, D4 exact-byte artifact/read_api consumer, D2 builders, and UDF-02 writers.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-checks.txt#Final-corrective-focused-slice: 72 passed, 1 pytest cache_dir config warning"
+    },
+    {
+      "command": "pytest -p no:cacheprovider tests/unit/remediation/test_obs_02.py::test_real_parquet_reader_uses_frozen_bytes_during_source_aba tests/unit/remediation/test_obs_02.py::test_snapshot_copy_detects_same_size_mtime_content_change tests/unit/remediation/test_obs_02.py::test_d2_does_not_materialize_panels_after_persistent_source_change",
+      "target_sha": "ff77dec638da9e15d409154043d7ac84cbeb9236",
+      "environment": "macOS; Python 3.14.0; pytest 9.0.2; shared original policy-engine venv read-only; PYTHONPATH points at the worktree's policy-engine/src and policy-engine",
+      "input_closure": "Synthetic four-row/two-metric Parquet inputs in pytest tmp_path. ABA case wraps the real pyarrow ParquetFile; content-control case flips one byte while preserving file size and mtime; D2 case injects a persistent source rewrite.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-checks.txt#Corrective-ABA-content-identity-and-D2-negative: 3 passed, 1 pytest cache_dir config warning"
+    },
+    {
+      "command": "pytest -p no:cacheprovider policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/test_successful_stream_mutation.py",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "macOS; Python 3.14.0; pytest 9.0.2; shared original policy-engine venv read-only; exact slice base in coordinator worktree",
+      "input_closure": "Four-row/two-metric synthetic fixture; fake Parquet stream rewrites normalized content between batches without raising a reader error.",
+      "outcome": "FAIL",
+      "output": "Expected base reproduction: mixed metric_a=[10.0, 20.0, 1030.0, 1040.0] was accepted; source SHA-256 3bc5bd09c5334d7c07dc74d85377d4d008d49601ab0fced6bc62aba8ad373b82 -> 0a1991958dc159fb608c18d0cca33a9d2f1916581568e6da393a2113ed0d0557. policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-checks.txt#Pinned-base-reproduction"
+    },
+    {
+      "command": "pytest -s -p no:cacheprovider docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/test_transient_restore_probe.py",
+      "target_sha": "973fd3a5b3d8cfdd8ecaa04116b41d5e571d625c",
+      "environment": "macOS; Python 3.14.0; pytest 9.0.2; shared original policy-engine venv read-only; ignored per-worktree raw scratch",
+      "input_closure": "Intermediate candidate only: synthetic source was rewritten between two fake batches and restored before terminal hashing. This exposed the endpoint-hash escape and motivated the appended corrective commit; it is not the final candidate verdict.",
+      "outcome": "PASS",
+      "output": "Intermediate P38 witness accepted mixed metric_a=[10.0, 20.0, 1030.0, 1040.0] while before/after SHA matched. The corrective commit now reads a verified copy and its real-reader ABA test asserts all original rows. policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-checks.txt#Intermediate-endpoint-hash-witness"
+    },
+    {
+      "command": "python -m ruff check src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py",
+      "target_sha": "ff77dec638da9e15d409154043d7ac84cbeb9236",
+      "environment": "macOS; ruff 0.14.10 from shared original policy-engine venv",
+      "input_closure": "Only the two implementation files.",
+      "outcome": "FAIL",
+      "output": "Two B904 diagnostics remain in the restart-cursor RuntimeError branches; pinned-base run had three B904 diagnostics, including the replaced snapshot-mismatch error. policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-checks.txt#Ruff-on-pinned-base and policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-checks.txt#Ruff-final-full"
+    },
+    {
+      "command": "python -m ruff check --ignore B904 src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py",
+      "target_sha": "ff77dec638da9e15d409154043d7ac84cbeb9236",
+      "environment": "macOS; ruff 0.14.10 from shared original policy-engine venv",
+      "input_closure": "Only the two implementation files; B904 excluded after the separate pinned-base comparison.",
+      "outcome": "PASS",
+      "output": "All checks passed. policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-checks.txt#Ruff-final-corrective"
+    },
+    {
+      "command": "git diff --check; commit pre-commit Lefthook",
+      "target_sha": "ff77dec638da9e15d409154043d7ac84cbeb9236",
+      "environment": "Git worktree codex/e02-C-obs-udf; checkout-local frozen PNPM install provisioned Lefthook without lockfile changes",
+      "input_closure": "Corrective implementation commit.",
+      "outcome": "PASS",
+      "output": "No whitespace errors; both implementation commits passed the repository pre-commit hook."
+    },
+    {
+      "command": "pytest -p no:cacheprovider tests/unit/remediation/test_obs_01.py tests/unit/remediation/test_obs_02.py tests/unit/remediation/test_udf_01.py tests/unit/remediation/test_udf_02.py tests/unit/data_forge/domains/ukraine/test_builders.py",
+      "target_sha": "00ba54821960e7468e501404976cb7bdde733e55",
+      "environment": "macOS; Python 3.14.0; pytest 9.0.2; shared original policy-engine venv read-only; PYTHONPATH points at the worktree's policy-engine/src and policy-engine",
+      "input_closure": "Synthetic unit fixtures only; no production data or shared scratch. Re-run after the restart-continuity assertions landed in 00ba548; covers OBS calendar bounds, observation reader/restart behavior, D4 exact-byte artifact/read_api consumer, D2 builders, and UDF-02 writers.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-checks.txt#Final-frozen-head-00ba: 72 passed, 1 pytest cache_dir config warning, 13.06s; ignored raw output SHA-256 ceebaa41c2412ac5f5e4e11fac301e2d83108bb0d6b76f0ec1fd431255bb8810"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py",
+      "target_sha": "00ba54821960e7468e501404976cb7bdde733e55",
+      "environment": "macOS; ruff 0.14.10 from shared original policy-engine venv",
+      "input_closure": "Only the two implementation files at the frozen branch HEAD.",
+      "outcome": "FAIL",
+      "output": "Two B904 diagnostics remain in the restart-cursor RuntimeError branches; complete output is in ignored raw policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-full-frozen-head.log with SHA-256 a6e8a50cdf20e0a069b4a7a416208e8b558893c88f3742b33e9ffe583436bdad."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check --ignore B904 src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py",
+      "target_sha": "00ba54821960e7468e501404976cb7bdde733e55",
+      "environment": "macOS; ruff 0.14.10 from shared original policy-engine venv",
+      "input_closure": "Only the two implementation files at frozen branch HEAD; B904 excluded after the separate full Ruff run.",
+      "outcome": "PASS",
+      "output": "All checks passed. Ignored raw output SHA-256 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18."
+    },
+    {
+      "command": "pytest -p no:cacheprovider tests/unit/remediation/test_obs_01.py tests/unit/remediation/test_obs_02.py tests/unit/remediation/test_udf_01.py tests/unit/remediation/test_udf_02.py tests/unit/data_forge/domains/ukraine/test_builders.py",
+      "target_sha": "997367e433112d0963814e1df8065233725f5eee",
+      "environment": "macOS; Python 3.14.0; pytest 9.0.2; shared original policy-engine venv read-only; PYTHONPATH points at the worktree's policy-engine/src and policy-engine",
+      "input_closure": "Synthetic unit fixtures only; no production data or shared scratch. Confirms the final two B904 exception-cause fixes together with OBS calendar bounds, observation reader/restart behavior, D4 exact-byte artifact/read_api consumer, D2 builders, and UDF-02 writers.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/focused-post-review-final.log: 72 passed, 1 pytest cache_dir config warning, 14.07s; SHA-256 d288d34db31e984f972098dd64b9fc8da4b11fe24eb197254ab207e08dfb04a5"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/data_forge/domains/ukraine/builders/sources.py tests/unit/remediation/test_obs_02.py",
+      "target_sha": "997367e433112d0963814e1df8065233725f5eee",
+      "environment": "macOS; ruff 0.14.10 from shared original policy-engine venv",
+      "input_closure": "Only the two implementation files at the final source-fix HEAD.",
+      "outcome": "PASS",
+      "output": "All checks passed. policy-engine/docs/research/e02-cloud-test-plan/results/raw/cw13-obs-udf/ruff-full-post-review-final.log SHA-256 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18."
+    }
+  ],
+  "property": {
+    "statement": "For each normalized observation input, the reader creates a unique run-root copy, verifies the copied bytes against the source SHA before yielding, and streams/falls back/restarts only from that verified copy; a persistent raw-path change still fails before D2 returns new panel ArtifactRecords.",
+    "runtime_path": [
+      "Preexisting normalized observation Parquet input",
+      "_iter_observation_metric_frames creates a unique tempfile copy, compares sha256_file(copy) with the initial source digest, and delegates all PyArrow, pandas fallback, and restart reads to _iter_observation_metric_frames_from_snapshot",
+      "build_d2_stage writes temporary metric shards and only materializes monthly/annual Parquet and ArtifactRecord after the source iterator is fully exhausted",
+      "build_d2_stage StageBuildResult outputs feed the calibration-bundle copy plan in builders/release.py; changed-input D2 negative asserts this invocation returns no monthly/annual panel artifacts"
+    ],
+    "proxy_divergence": "Within the declared single-normalized-input property, the implementation reads an actual per-run byte copy verified by content SHA, not a size/mtime or endpoint-only proxy. The real pyarrow ParquetFile ABA test confirms it opens a path distinct from the source, rewrites the source between record batches, restores the source before EOF, and asserts all emitted metric values equal the frozen original rows. A same-size, same-mtime byte mutation before copy is rejected by SHA. This does not claim an atomic generation spanning multiple independent source files.",
+    "negative_controls": [
+      "test_successful_stream_rejects_a_changed_input_snapshot: persistent no-error rewrite between batches fails closed",
+      "test_real_parquet_reader_uses_frozen_bytes_during_source_aba: real Parquet reader returns only original rows when the raw path changes and is restored mid-stream",
+      "test_snapshot_copy_detects_same_size_mtime_content_change: same-length content mutation with restored mtime is rejected before any reader yields",
+      "test_d2_does_not_materialize_panels_after_persistent_source_change: D2 failure returns no new monthly/annual panel artifacts",
+      "test_partial_batch_failure_resumes_without_republishing_confirmed_prefix and test_failure_between_metric_frames_resumes_at_confirmed_metric_cursor: partial-yield restart continuity",
+      "test_partial_resume_aborts_when_normalized_snapshot_changes: changed source during failed partial read is rejected",
+      "test_canonical_period_owner_uses_inclusive_calendar_bounds and test_period_owner_rejects_unknown_periods_without_2025_fallback: calendar bounds and invalid-period negative",
+      "test_build_d2_materializes_unique_observation_shards_and_counts: final panel ArtifactRecord digest is read back from output bytes"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B147 remains recorded partial: the per-input mixed-generation stream gap is corrected on this candidate, but the source-reported route is not a finding-level closure. B146 remains partial; this slice adds no B146 mechanism. LA-030 remains partial; D4 exact-byte/read_api consumer tests pass but do not establish the full discriminator. LA-031 remains held and its semantic disposition is unchanged.",
+  "limitations_and_next_owner": [
+    "The transient ABA witness on intermediate commit 973fd3a5b3d8cfdd8ecaa04116b41d5e571d625c showed endpoint-only hashing could accept mixed rows. Corrective commit ff77dec638da9e15d409154043d7ac84cbeb9236 widens once to a verified per-run copy; real-reader ABA and same-size/mtime controls pass, including the frozen-head 00ba548 test rerun.",
+    "A delta Ruff run on 00ba548 found two B904 diagnostics in restart-cursor RuntimeError branches. Commit 997367e433112d0963814e1df8065233725f5eee adds `from None` to both intended cursor failures; full Ruff passes on that final source-fix HEAD.",
+    "The property is per normalized input file. No transactionally consistent generation across multiple independent sources is claimed.",
+    "A failing build does not return this invocation’s StageBuildResult, but this reader-level slice does not invalidate a stale panel already present in a reused D2 stage directory; broader stale-output lifecycle handling remains outside this slice.",
+    "B147 and LA-030 remain partial pending independent review and exact finding-level semantic discrimination; source-reported baseline PASS cells are candidate routes, not closure evidence.",
+    "LA-031 remains held. No ledger or semantic decision changed; no claim of stage-wide output parity is made.",
+    "No UDF-04 ops or UDF-05 demography/read_api files were modified. Full production data was not read; root-reserved heavy-data slot remains available.",
+    "No push or pull request was created; branch is local for independent review."
+  ]
+}

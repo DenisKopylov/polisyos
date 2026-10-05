@@ -1,0 +1,36 @@
+{
+  "schema": "e02-locked-environment-declaration-reconciliation/v1",
+  "frozen_target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "tracked_D_json_files": 35,
+  "pathset_sha256": "fb0ffbe3696f12a2f208e919b6cb2cb35931469bcc6e646770b7f9b96dab9a93",
+  "observations": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-funnel-review.json",
+      "locator": "$.environment",
+      "python": "3.14.7",
+      "identity": "  /workspace/e02-D-locked-env/bin/python ",
+      "status": "version_matches_3.14.7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-lessons-review.json",
+      "locator": "$.environment",
+      "python": "3.14.7",
+      "identity": "  /workspace/e02-D-locked-env/bin/python ",
+      "status": "version_matches_3.14.7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress.json",
+      "locator": "$.checks[10].environment",
+      "python": "3.14.2",
+      "identity": "root_independent_immutable_archive_locked_env /workspace/e02-D-locked-env/bin/python  ",
+      "status": "CONTRADICTORY_DECLARATION"
+    }
+  ],
+  "current_interpreter": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "version_command_output": "Python 3.14.7",
+    "version_command_time_role": "current directly recomputed; historicalstressreceipt identifies sameexecutable but omits Python version; root sourceowner supplied actualhistorical version3.14.7"
+  },
+  "stress_reconciliation": "Exact original receipt semantic equality after only checks[10].environment.python3.14.2->3.14.7; all native3.14.2 fields and original raw output/receipt bytes retained.",
+  "limitations": "This enumerates explicit locked profile identity/version declarations and explicit lockedPython3.14.2 strings. Other profiles, unversioned freeform claims and library version prose are not inferred as contradictions."
+}

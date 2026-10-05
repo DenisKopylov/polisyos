@@ -1,0 +1,81 @@
+{"source_sha": "c40d4acae1ce58b597267255026d9356565828fd", "test_sha": "6d1916ce2d41c3af81b00710acebc56c332b26f0", "argv": ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "tests/unit/scientist/methods/search/test_lesson_query_persistence.py", "--confcutdir=/workspace/e02-D-lessons/policy-engine/tests/unit/scientist/methods/search", "-k", "not access_writes and not removing_evidence and not post_projection", "-vv", "--tb=short", "--durations=10"], "cwd": "/workspace/e02-D-lessons/policy-engine", "PYTHONPATH": "/workspace/e02-D-lessons/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/lessons-base/policy-engine/src", "input_closure": "git archive slice-base complete src plus architecture; controller reads architecture source-owned dependency registry; same5 defining-property tests excluding3 implementation-specific sidecar/negative helper tests"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'default'
+rootdir: /workspace/e02-D-lessons/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 8 items / 3 deselected / 5 selected
+
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_nested_context_and_explicit_override_reach_real_lesson_consumer PASSED [ 20%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_transfer_query_filters_before_materialization_and_after_restart FAILED [ 40%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes FAILED [ 60%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_stale_transfer_preserves_evidence_age_before_and_after_materialization FAILED [ 80%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_new_producer_evidence_version_has_its_own_refs_and_clock PASSED [100%]
+
+=================================== FAILURES ===================================
+_____ test_transfer_query_filters_before_materialization_and_after_restart _____
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:121: in test_transfer_query_filters_before_materialization_and_after_restart
+    assert calls == [], "Rejected projected cards must not enter materialization"
+E   AssertionError: Rejected projected cards must not enter materialization
+E   assert [(LessonCard(...etadata={}),)] == []
+E     
+E     Left contains one more item: (LessonCard(lesson_id='lesson-source', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, summary='Keep the s...e, mutation_hints=[], anti_patterns=[], failure_card_refs=[], trace_refs=['fixture/source/evidence-v1'], metadata={}),)
+E     
+E     Full diff:
+E     - []
+E     + [
+E     +     (...
+E     
+E     ...Full output truncated (3 lines hidden), use '-vv' to show
+_ test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes _
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:169: in test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes
+    assert index_path.read_bytes() == before_index, (
+E   AssertionError: Access accounting must not rewrite evidence index
+E   assert b'{\n  "schem...    }\n  ]\n}' == b'{\n  "schem...    }\n  ]\n}'
+E     
+E     At index 76 diff: b'2' != b'0'
+E     
+E     Full diff:
+E       (b'{\n  "schema_version": "1.0",\n  "snapshot_created_at": "2026-10-05T14:09:'
+E     -  b'45.509679Z",\n  "task_family": "policy",\n  "domain": "source",\n  "entries'
+E     ?         ----...
+E     
+E     ...Full output truncated (39 lines hidden), use '-vv' to show
+_ test_stale_transfer_preserves_evidence_age_before_and_after_materialization __
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:188: in test_stale_transfer_preserves_evidence_age_before_and_after_materialization
+    assert registry.query_with_transfer(strict, target_context=target) == []
+E   AssertionError: assert [LessonCard(l...sfer': True})] == []
+E     
+E     Left contains one more item: LessonCard(lesson_id='1a28c583345d4063b85c56ab1f5c113a', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, s...patterns=[], failure_card_refs=[], trace_refs=['fixture/source/evidence-v1'], metadata={'materialized_transfer': True})
+E     
+E     Full diff:
+E     - []
+E     + [
+E     +     LessonCard(lesson_id='1a28c583345d4063b85c56ab1f5c113a', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, summary='Keep the source evidence boundary.', failure_type='source-boundary', stage_name='stage-source', fidelity_level=1, candidate_hash='candidate-source', source_run_id='run-source', created_a...
+E     
+E     ...Full output truncated (2 lines hidden), use '-vv' to show
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 10 durations =============================
+0.03s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_nested_context_and_explicit_override_reach_real_lesson_consumer
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_new_producer_evidence_version_has_its_own_refs_and_clock
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_stale_transfer_preserves_evidence_age_before_and_after_materialization
+0.01s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_transfer_query_filters_before_materialization_and_after_restart
+
+(5 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_transfer_query_filters_before_materialization_and_after_restart
+FAILED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes
+FAILED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_stale_transfer_preserves_evidence_age_before_and_after_materialization
+============ 3 failed, 2 passed, 3 deselected, 2 warnings in 8.71s =============
+{"exit_code": 1, "wall_s": 12.449900383000113}

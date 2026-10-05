@@ -21,6 +21,7 @@ from polisyos.scientist.methods.search.strategies._deps import (
     Normalize,
     ProbabilityOfImprovement,
     SingleTaskGP,
+    SobolQMCNormalSampler,
     Standardize,
     UpperConfidenceBound,
     fit_gpytorch_mll,
@@ -47,6 +48,7 @@ from polisyos.scientist.methods.search.strategies.types import (
 logger = get_logger(__name__)
 
 _WARM_COMPATIBILITY_METADATA = "warm_start_compatibility"
+_ACQUISITION_REPLAY_POLICY = "sobol_ranked_restarts_v1"
 _WARM_COMPATIBILITY_FIELDS = (
     "search_space_fingerprint",
     "input_transform_fingerprint",
@@ -247,13 +249,20 @@ class BayesianOptimizer(BaseSearchStrategy):
                 self._fit_gp(X, y_bo)
                 restarts, raw_samples = self._effective_optim_params(soft_limit=soft)
                 best_f = y_bo.max()
-                acq = qExpectedImprovement(model=self._model, best_f=best_f)
+                sampler = SobolQMCNormalSampler(
+                    sample_shape=self._torch.Size([128]), seed=self._next_acquisition_seed()
+                )
+                acq = qExpectedImprovement(model=self._model, best_f=best_f, sampler=sampler)
+                bounds = self._space.to_botorch_bounds().to(self._device)
+                initial_conditions = self._acquisition_initial_conditions(
+                    acq, bounds, batch_size, restarts, raw_samples
+                )
                 candidates, _ = optimize_acqf(
                     acq_function=acq,
-                    bounds=self._space.to_botorch_bounds().to(self._device),
+                    bounds=bounds,
                     q=batch_size,
                     num_restarts=restarts,
-                    raw_samples=raw_samples,
+                    batch_initial_conditions=initial_conditions,
                 )
                 output: list[PolicyCandidate] = []
                 occupied = self._completed_candidates(evaluations)
@@ -299,6 +308,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         metadata: dict[str, Any] = {
             **base_state.metadata,
             "gp_checkpoint_version": 1,
+            "acquisition_replay_policy": _ACQUISITION_REPLAY_POLICY,
             "config": asdict(self._config),
             "last_refit_iteration": self._last_refit_iteration,
             "last_train_size": self._last_train_size,
@@ -333,6 +343,8 @@ class BayesianOptimizer(BaseSearchStrategy):
             raise ValueError("GP checkpoint RNG state must be an object")
         if not isinstance(metadata, Mapping) or metadata.get("gp_checkpoint_version") != 1:
             raise ValueError("GP checkpoint is incompatible: replay basis is missing")
+        if metadata.get("acquisition_replay_policy") != _ACQUISITION_REPLAY_POLICY:
+            raise ValueError("GP checkpoint is incompatible: acquisition replay policy changed")
         config = metadata.get("config")
         if not isinstance(config, Mapping) or set(config) != set(asdict(self._config)):
             raise ValueError("GP checkpoint is incompatible: configuration is missing")
@@ -412,7 +424,9 @@ class BayesianOptimizer(BaseSearchStrategy):
                     self._torch.load(buffer, weights_only=True, map_location=self._device)
                 )
             except Exception as exc:
-                raise ValueError("GP checkpoint is incompatible: numerical model is invalid") from exc
+                raise ValueError(
+                    "GP checkpoint is incompatible: numerical model is invalid"
+                ) from exc
         elif (
             last_size != 0 or last_refit != -1 or "train_X" in metadata or "train_y_bo" in metadata
         ):
@@ -774,13 +788,46 @@ class BayesianOptimizer(BaseSearchStrategy):
             acq = ExpectedImprovement(model=self._model, best_f=best_f)
 
         restarts, raw_samples = self._effective_optim_params(soft_limit=soft_limit)
+        bounds = self._space.to_botorch_bounds().to(self._device)
+        initial_conditions = self._acquisition_initial_conditions(
+            acq, bounds, 1, restarts, raw_samples
+        )
         return optimize_acqf(
             acq_function=acq,
-            bounds=self._space.to_botorch_bounds().to(self._device),
+            bounds=bounds,
             q=1,
             num_restarts=restarts,
-            raw_samples=raw_samples,
+            batch_initial_conditions=initial_conditions,
         )
+
+    def _next_acquisition_seed(self) -> int:
+        """Advance only the checkpointed instance stream, never torch's global RNG."""
+        return int(self._torch.randint(0, 2**31 - 1, (1,), generator=self._torch_rng).item())
+
+    def _acquisition_initial_conditions(self, acquisition, bounds, q, restarts, raw_samples):
+        """Rank a locally seeded Sobol pool with stable ties before deterministic optimization.
+
+        This is a versioned acquisition policy: the best finite pool values select
+        restarts, and equal values retain Sobol order. It replaces BoTorch's global
+        random restart selection rather than merely passing a seed to that selector.
+        """
+        torch = self._torch
+        count = max(restarts, raw_samples)
+        dimension = bounds.shape[-1]
+        engine = torch.quasirandom.SobolEngine(
+            dimension=q * dimension, scramble=True, seed=self._next_acquisition_seed()
+        )
+        pool = engine.draw(count, dtype=bounds.dtype).to(bounds.device).reshape(count, q, dimension)
+        pool = bounds[0] + (bounds[1] - bounds[0]) * pool
+        with torch.no_grad():
+            scores = acquisition(pool).reshape(-1)
+        if scores.numel() != count:
+            raise StrategyError("Acquisition restart scores do not match the candidate pool")
+        finite = torch.isfinite(scores)
+        if int(finite.sum().item()) < restarts:
+            raise StrategyError("Insufficient finite acquisition scores for ranked restarts")
+        ranked = scores.masked_fill(~finite, -torch.inf).argsort(descending=True, stable=True)
+        return pool[ranked[:restarts]].detach()
 
     def _effective_optim_params(self, soft_limit: bool) -> tuple[int, int]:
         if not soft_limit:

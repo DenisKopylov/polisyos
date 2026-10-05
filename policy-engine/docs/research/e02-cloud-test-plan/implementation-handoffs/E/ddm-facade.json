@@ -19,7 +19,7 @@
   ],
   "candidate_tree_sha": "812ef9dba2cea4ee2cdc08c487b1ac31342303ac",
   "branch": "codex/e02-E-ddm",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/11",
   "changed_paths": [
     "policy-engine/tests/unit/ddm/test_facade.py"
   ],

@@ -50,6 +50,7 @@ from polisyos.core.contracts.control import (
 )
 from polisyos.core.contracts.runtime import FeedbackActionResponse
 from polisyos.runtime.http.authorization import (
+    BoundActionPermissionVerification,
     ResourceBindingSource,
     ResourceBindingSpec,
     require_action_permission,
@@ -67,7 +68,7 @@ from polisyos.runtime.http.dependencies import (
     get_runtime_api_context,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, not_found
+from polisyos.runtime.http.errors import bad_request, forbidden, not_found
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
@@ -383,10 +384,23 @@ async def launch_nl_run(
     )
     control = _get_control_service(request)
     request_id = ensure_request_id(request)
+    bound_permission = getattr(
+        request.state,
+        "action_permission_verification",
+        None,
+    )
+    if type(bound_permission) is not BoundActionPermissionVerification:
+        raise forbidden(
+            "The natural-language launch must consume its exact route authorization proof",
+            code="nl_route_authorization_proof_not_established",
+        )
     return await control.launch_nl_run(
         body,
         request_id=request_id,
         principal=_get_principal(request),
+        authorization_proof=bound_permission,
+        authorization_request_body=await request.body(),
+        authorization_query_bytes=bytes(request.scope.get("query_string", b"")),
     )
 
 

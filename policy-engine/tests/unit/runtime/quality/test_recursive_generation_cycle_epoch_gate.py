@@ -96,6 +96,52 @@ async def test_empty_eval_safety_map_is_rejected_before_n4_dispatch(
         )
 
 
+@pytest.mark.asyncio
+async def test_protected_intent_cannot_route_through_context_free_custom_factory(
+    tmp_path: Path,
+) -> None:
+    """A custom N6 factory cannot silently discard the protected intent context."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import _budget, _problem
+
+    problem = _problem(f"custom_factory_eval_safety_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    factory_calls: list[str] = []
+
+    def context_free_factory(node_ref: str, _problem: object):
+        factory_calls.append(node_ref)
+        raise AssertionError("protected leaf reached context-free custom factory")
+
+    controller = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=context_free_factory,
+        repo_root=Path(__file__).resolve().parents[4],
+    )
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_eval_safety_custom_factory_context_not_consumed",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            execution_intents_by_node={root_ref: "field_pilot"},
+        )
+    assert factory_calls == []
+
+
 @pytest.mark.parametrize("intent", ["candidate_only", "simulate_only"])
 @pytest.mark.asyncio
 async def test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch(
@@ -1295,11 +1341,12 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
         _budget,
-        _CgfGenerationPort,
-        _lane0_cycle_context,
+        _cyc01_owner_bound_n5_case,
+        _GenerationResult,
+        _Ranking,
     )
 
-    problem, substrate_context = _lane0_cycle_context()
+    problem, substrate_context, candidate = _cyc01_owner_bound_n5_case()
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
 
     class _NeverCalledVerifier:
@@ -1319,10 +1366,23 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
     class _ContextFixtureN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
-            self._delegate = _CgfGenerationPort()
+            self.calls = 0
 
         async def __call__(self, problem, *, cycle_index):
-            return await self._delegate(problem, cycle_index=cycle_index)
+            del problem, cycle_index
+            self.calls += 1
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(
+                        candidate_id=candidate.candidate_id,
+                        score=0.91,
+                        voi_estimate=0.1,
+                    ),
+                ),
+                grounding_dispositions=(),
+            )
 
     recursive_budget = RecursiveCycleBudget(
         max_depth=0,
@@ -1330,6 +1390,7 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
         min_cycles_per_leaf=1,
         max_cycles_per_leaf=1,
     )
+    n4_port = _ContextFixtureN4Port()
     compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
         raw_request=problem.nl_provenance.raw_request,
         context={},
@@ -1340,10 +1401,22 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
         root_evaluation_context=None,
         eval_safety_verifier=_NeverCalledVerifier(),
         cycle_substrate_context=substrate_context,
-        root_n4_generation_port=_ContextFixtureN4Port(),
+        root_n4_generation_port=n4_port,
         promotion_runtime=runtime,
         repo_root=REPO_ROOT,
     )
+
+    assert compiled.recursive_run.leaf_nodes[0].cycle_run is not None
+    leaf_cycle = compiled.recursive_run.leaf_nodes[0].cycle_run
+    assert leaf_cycle.cycles
+    simulation = leaf_cycle.cycles[0].simulation
+    assert simulation.status == "simulation_blocked"
+    assert simulation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
+    assert simulation.world_model_record is substrate_context.world_model_record
+    assert simulation.world_model_record.content_hash == (
+        substrate_context.world_model_record_content_hash
+    )
+    assert n4_port.calls == 1
 
     assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
     assert compiled.recursive_run.root_design_problem_ref == substrate_context.design_problem_ref
@@ -1465,6 +1538,7 @@ async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
         raw_request=problem.nl_provenance.raw_request,
         context={},
         model_name="fixture-model",
+        execution_intent="simulate_only",
         compiler_gateway=object(),  # type: ignore[arg-type]
         budget_state=_budget(),
         recursive_budget=RecursiveCycleBudget(
@@ -1486,6 +1560,8 @@ async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
     leaf = compiled.recursive_run.leaf_nodes[0]
     assert leaf.cycle_run is not None
     assert leaf.cycle_run.cycles
+    assert leaf.cycle_run.cycles[0].value_port.evaluation_mode == "simulate_only"
+    assert leaf.cycle_run.promotion_port.status != "promoted"
     simulation = leaf.cycle_run.cycles[0].simulation
     assert simulation.status == "simulation_blocked"
     assert simulation.authority_blockers == ("joint_simulation_ncm_spec_missing",)

@@ -1472,6 +1472,12 @@ class TestLaunchNlRun:
         monkeypatch: pytest.MonkeyPatch,
         tmp_path,
     ):
+        from polisyos.runtime.http.execution_policy import RuntimePrincipal
+        from tests.unit.runtime.http.control_service_test_support import (
+            bound_nl_authorization_proof,
+        )
+        from tests.unit.runtime.http.test_control_service_di import _fixture_claims
+
         monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
         execute_called = False
 
@@ -1533,14 +1539,19 @@ class TestLaunchNlRun:
             ),
         )
         try:
+            request = NaturalLanguageRunRequest(
+                request="Evaluate Ukraine MSME support.",
+                execution_profile="research",
+                llm_models=["missing-model"],
+                policy_flags={"allow_mock_fallback": False},
+            )
             response = await service.launch_nl_run(
-                NaturalLanguageRunRequest(
-                    request="Evaluate Ukraine MSME support.",
-                    execution_profile="research",
-                    llm_models=["missing-model"],
-                    policy_flags={"allow_mock_fallback": False},
-                ),
+                request,
                 request_id="req-red-preflight",
+                principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+                authorization_proof=bound_nl_authorization_proof(
+                    _fixture_claims(), request
+                ),
             )
             record = service._control_store.get_job(response.job_id)
         finally:
@@ -2076,6 +2087,129 @@ class TestIngestStreamingWindowed:
 
 
 class TestIngestRecordReplay:
+    def test_empty_replay_ref_refuses_before_batch_full_ingress(self, runtime_api_env):
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-empty-replay-ref-refused",
+        )
+        with (
+            client,
+            patch(
+                "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+                return_value=IngestionResult(datasets_fetched=1, mode_effective="batch_full"),
+            ) as live_ingestion,
+        ):
+            resp = client.post(
+                "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
+                json={
+                    "datasets": [
+                        {
+                            "connector_id": "test.conn",
+                            "dataset_id": "ds1",
+                        }
+                    ],
+                    "replay_ref": "",
+                },
+            )
+        live_ingestion.assert_not_called()
+        assert resp.status_code == 200
+        assert resp.json()["status"] == "failed"
+        assert resp.json()["mode_effective"] == "replay"
+
+    def test_ingest_replay_reports_effective_mode_on_served_success(self, runtime_api_env):
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-replay-effective-mode-success",
+        )
+        with (
+            client,
+            patch(
+                "polisyos.fabric.data_plane.modes.run_replay_mode",
+                return_value=IngestionResult(datasets_fetched=1, mode_effective="replay"),
+            ) as run_replay,
+        ):
+            resp = client.post(
+                "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
+                json={
+                    "datasets": [
+                        {
+                            "connector_id": "test.conn",
+                            "dataset_id": "ds1",
+                        }
+                    ],
+                    "replay_ref": "sha256:" + "a" * 64,
+                },
+            )
+        run_replay.assert_called_once()
+        assert resp.status_code == 200
+        assert resp.json()["status"] == "completed"
+        assert resp.json()["mode_effective"] == "replay"
+
+    def test_ingest_replay_reports_effective_mode_on_served_failure(self, runtime_api_env):
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-replay-effective-mode-failure",
+        )
+        with (
+            client,
+            patch(
+                "polisyos.fabric.data_plane.modes.run_replay_mode",
+                side_effect=RuntimeError("replay artifact unavailable"),
+            ) as run_replay,
+        ):
+            resp = client.post(
+                "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
+                json={
+                    "datasets": [
+                        {
+                            "connector_id": "test.conn",
+                            "dataset_id": "ds1",
+                        }
+                    ],
+                    "replay_ref": "sha256:" + "a" * 64,
+                },
+            )
+        run_replay.assert_called_once()
+        assert resp.status_code == 200
+        assert resp.json()["status"] == "failed"
+        assert resp.json()["mode_effective"] == "replay"
+
+    def test_ingest_batch_full_reports_effective_mode_control(self, runtime_api_env):
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-batch-full-effective-mode-control",
+        )
+        with (
+            client,
+            patch(
+                "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+                return_value=IngestionResult(datasets_fetched=1, mode_effective="batch_full"),
+            ) as run_batch_full,
+        ):
+            resp = client.post(
+                "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
+                json={
+                    "datasets": [
+                        {
+                            "connector_id": "test.conn",
+                            "dataset_id": "ds1",
+                        }
+                    ],
+                },
+            )
+        run_batch_full.assert_called_once()
+        assert resp.status_code == 200
+        assert resp.json()["status"] == "completed"
+        assert resp.json()["mode_effective"] == "batch_full"
+
     def test_ingest_record_mode(self, runtime_api_env):
         client, _cell_id, headers = _secure_control_client(
             runtime_api_env,

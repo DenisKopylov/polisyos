@@ -2421,11 +2421,21 @@ class ControlPlaneStore:
         capability_manifest_ref: str | None,
         payload_ref: str | None,
         submitted_by: str | None,
+        creation_event_payload: dict[str, Any] | None = None,
+        initial_state: Literal["pending", "failed"] = "pending",
+        initial_error_message: str | None = None,
+        initial_progress: dict[str, Any] | None = None,
     ) -> ControlJobRecord:
-        """Insert a pending job, initialize progress/event rows, and enqueue an event."""
+        """Insert a pending or terminally refused job and enqueue its creation event."""
+        if initial_state not in {"pending", "failed"}:
+            raise ValueError("control_job_initial_state_invalid")
+        if initial_state == "failed" and not initial_error_message:
+            raise ValueError("control_job_initial_failure_missing")
+        if initial_state == "pending" and initial_error_message is not None:
+            raise ValueError("control_job_pending_has_initial_failure")
         created_at = _utc_now()
         progress: dict[str, Any] = append_evidence_spine_handoff(
-            {},
+            dict(initial_progress or {}),
             control_plane_handoff(
                 handoff_kind="nl_request_creation",
                 job_id=job_id,
@@ -2446,12 +2456,12 @@ class ControlPlaneStore:
                 capability_manifest_ref, payload_ref, submitted_by,
                 created_at, started_at, finished_at,
                 lease_owner, lease_expires_at, attempt, error_message
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, 0, NULL)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, NULL, NULL, 0, ?)
         """
         params = (
             job_id,
             kind,
-            "pending",
+            initial_state,
             run_id,
             pipeline_id,
             requested_execution_profile,
@@ -2461,18 +2471,27 @@ class ControlPlaneStore:
             payload_ref,
             submitted_by,
             _iso(created_at),
+            _iso(created_at) if initial_state == "failed" else None,
+            initial_error_message,
         )
-        self._execute(sql, params)
-        self.upsert_progress(job_id=job_id, progress=progress)
-        self.append_event(job_id=job_id, event_type="job_created", payload={"state": "pending"})
-        record = self.get_job(job_id)
-        if record is None:
-            raise RuntimeError(f"Failed to persist control job {job_id}")
-        self._emit_job_outbox_event(
-            record=record,
-            event_type="job_created",
-            payload={"state": "pending"},
-        )
+        created_event_payload = dict(creation_event_payload or {})
+        created_event_payload["state"] = initial_state
+        with self._job_transaction():
+            self._execute(sql, params)
+            self.upsert_progress(job_id=job_id, progress=progress)
+            self.append_event(
+                job_id=job_id,
+                event_type="job_created",
+                payload=created_event_payload,
+            )
+            record = self.get_job(job_id)
+            if record is None:
+                raise RuntimeError(f"Failed to persist control job {job_id}")
+            self._emit_job_outbox_event(
+                record=record,
+                event_type="job_created",
+                payload=created_event_payload,
+            )
         return record
 
     def get_job(self, job_id: str) -> ControlJobRecord | None:
@@ -2923,6 +2942,55 @@ class ControlPlaneStore:
             """,
             (job_id, event_type, json.dumps(payload, sort_keys=True), _iso(_utc_now())),
         )
+
+    def get_job_created_event_payload(self, job_id: str) -> dict[str, Any]:
+        """Read exactly one typed job-created event payload from the durable event owner."""
+        rows = self._fetchall(
+            """
+            SELECT payload_json
+            FROM control_job_events
+            WHERE job_id = ? AND event_type = ?
+            ORDER BY event_id ASC
+            """,
+            (job_id, "job_created"),
+        )
+        if len(rows) != 1:
+            raise RuntimeError("control_job_created_event_count_not_one")
+        row = rows[0]
+        raw = row[0] if not isinstance(row, Mapping) else row.get("payload_json")
+        try:
+            payload = json.loads(str(raw))
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise RuntimeError("control_job_created_event_payload_malformed") from exc
+        if not isinstance(payload, dict):
+            raise RuntimeError("control_job_created_event_payload_not_object")
+        return dict(payload)
+
+    def get_job_created_outbox_event(self, job_id: str) -> ControlOutboxRecord | None:
+        """Read exactly one matching job-created event from the durable outbox owner."""
+        rows = self._fetchall(
+            """
+            SELECT
+                event_id,
+                topic,
+                event_key,
+                state,
+                job_id,
+                run_id,
+                payload_json,
+                created_at,
+                published_at,
+                attempt,
+                error_message
+            FROM control_outbox_events
+            WHERE topic = ? AND event_key = ? AND job_id = ?
+            ORDER BY created_at ASC
+            """,
+            ("control.job.created", f"{job_id}:job_created", job_id),
+        )
+        if len(rows) != 1:
+            raise RuntimeError("control_job_created_outbox_count_not_one")
+        return self._row_to_outbox_record(rows[0])
 
     def list_job_state_transitions(self, job_id: str) -> list[str]:
         """Return observed lifecycle states from the append-only job event log."""

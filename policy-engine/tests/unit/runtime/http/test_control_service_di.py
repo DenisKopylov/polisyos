@@ -53,6 +53,9 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 )
 from polisyos.scientist.evidence.claims.head_index import UnappointedClaimLedgerOwner
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from tests.unit.runtime.http.control_service_test_support import (
+    bound_nl_authorization_proof,
+)
 
 try:  # pragma: no cover - optional runtime dependency
     from fastapi.testclient import TestClient
@@ -481,11 +484,6 @@ async def test_plain_http_request_reaches_cycle_compiler_without_python_eval_con
         compile_problem,
     )
     monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
-    )
-    monkeypatch.setattr(
         llm_factory,
         "create_traced_gateway_client",
         lambda **_kwargs: None,
@@ -698,12 +696,17 @@ def test_runtime_principal_preserves_cell_id_in_policy_actor() -> None:
 async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -> None:
     service = _build_control_service(tmp_path)
     try:
+        request = NaturalLanguageRunRequest(
+            request="Check tenant propagation",
+            llm_model="simulated-qwen",
+        )
+        claims = _fixture_claims()
         launch = await service.launch_nl_run(
-            NaturalLanguageRunRequest(
-                request="Check tenant propagation",
-                llm_model="simulated-qwen",
+            request,
+            principal=RuntimePrincipal.from_user_claims(claims),
+            authorization_proof=bound_nl_authorization_proof(
+                claims, request
             ),
-            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
@@ -784,13 +787,17 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
             normative_context["normative_evidence"] = _signed_generation_evidence(
                 service, compiled_fixture, fault=normative_mode
             )
+        request = NaturalLanguageRunRequest(
+            request=problem.nl_provenance.raw_request,
+            llm_model="simulated-qwen",
+            context=normative_context,
+        )
         launch = await service.launch_nl_run(
-            NaturalLanguageRunRequest(
-                request=problem.nl_provenance.raw_request,
-                llm_model="simulated-qwen",
-                context=normative_context,
-            ),
+            request,
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+            authorization_proof=bound_nl_authorization_proof(
+                _fixture_claims(), request
+            ),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
@@ -1420,7 +1427,7 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
     tmp_path,
     missing_scope_field: str | None,
 ) -> None:
-    """Real served N4 may compute without scope but persists only a scoped candidate."""
+    """Served N4 preserves unknown cell as candidate and rejects altered tenant custody."""
     from polisyos.runtime.http.services.control import nl_pipeline
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.scientist.orchestration.llm import factory as llm_factory
@@ -1444,20 +1451,26 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         models=[model_id],
         arguments=_design_problem_tool_args(),
     )
+    compiler_gateway.arguments["nl_provenance"]["source_context"]["runtime_identity"] = {
+        "tenant_id": "tenant-llm-runtime-foreign",
+        "cell_id": "cell-llm-runtime-foreign",
+        "job_id": "job-llm-runtime-foreign",
+        "run_id": "run-llm-runtime-foreign",
+    }
     generation_gateway = RecordedClientWithCatalog(recording, model_ids=[model_id])
     original_compiler = nl_pipeline.build_design_problem_from_nl_request
+    compiler_contexts: list[dict[str, object]] = []
+    compiled_problems = []
 
     async def run_real_compiler(**kwargs):
         kwargs["gateway_client"] = compiler_gateway
         kwargs["span_support_client"] = _DeterministicSpanSupportClient()
-        return await original_compiler(**kwargs)
+        compiler_contexts.append(dict(kwargs["context"]))
+        problem = await original_compiler(**kwargs)
+        compiled_problems.append(problem)
+        return problem
 
     monkeypatch.setattr(generation_cycle_service, "build_design_problem_from_nl_request", run_real_compiler)
-    monkeypatch.setattr(
-        generation_cycle_service,
-        "_build_cycle_substrate_context_from_owner",
-        lambda **_kwargs: None,
-    )
     monkeypatch.setattr(
         llm_factory,
         "create_traced_gateway_client",
@@ -1466,13 +1479,28 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
 
     service = _build_control_service(tmp_path)
     try:
-        launch = await service.launch_nl_run(
-            NaturalLanguageRunRequest(
-                request=raw_request,
-                llm_model=model_id,
-                context=_intent_context(as_of="2026-05-12"),
+        request = NaturalLanguageRunRequest(
+            request=raw_request,
+            llm_model=model_id,
+            context=_intent_context(
+                as_of="2026-05-12",
+                runtime_identity={
+                    "tenant_id": "tenant-request-runtime-foreign",
+                    "cell_id": "cell-request-runtime-foreign",
+                    "job_id": "job-request-runtime-foreign",
+                    "run_id": "run-request-runtime-foreign",
+                },
             ),
-            principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        )
+        claims = _fixture_claims()
+        if missing_scope_field == "cell_id":
+            claims = claims.model_copy(update={"cell_id": None})
+        launch = await service.launch_nl_run(
+            request,
+            principal=RuntimePrincipal.from_user_claims(claims),
+            authorization_proof=bound_nl_authorization_proof(
+                claims, request
+            ),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
@@ -1507,10 +1535,48 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None
+        if missing_scope_field == "tenant_id":
+            # The authenticated tenant was established at enqueue; deleting it
+            # from the persisted payload is a custody mismatch, not unknown scope.
+            assert completed.state == "failed"
+            assert completed.error_message == "nl_job_execution_intent_not_established"
+            assert compiler_gateway.generate_calls == []
+            assert generation_gateway._cursor == 0
+            proposals = [
+                path
+                for path in service._artifact_store.base.rglob("*.manifest.json")
+                if "runtime.quality.n4_candidate_proposal" in path.read_text()
+            ]
+            assert not proposals
+            return
         assert completed.state == "completed"
         assert compiler_gateway.generate_calls
         assert generation_gateway._cursor > 0
         if missing_scope_field is not None:
+            assert compiled_problems
+            assert compiler_contexts
+            compiled_context = compiler_contexts[0]
+            assert "runtime_identity" not in compiled_context
+            candidate_context = compiled_context["candidate_context"]
+            assert isinstance(candidate_context, dict)
+            assert not set(candidate_context).intersection(
+                {"tenant_id", "cell_id", "job_id", "run_id", "runtime_identity"}
+            )
+            source_context = compiled_problems[0].nl_provenance.source_context
+            assert "runtime_identity" not in source_context
+            if missing_scope_field == "cell_id":
+                assert "cell_id" not in compiled_context
+                assert source_context["tenant_id"] == "tenant-fixture"
+                assert "cell_id" not in source_context
+                assert "cell-default" not in source_context.values()
+                assert source_context["job_id"] == record.job_id
+                assert source_context["run_id"] == str(record.run_id)
+                assert completed.progress["target_world_scope_status"] == "not_established"
+                stored_request = service._load_payload_ref(str(record.payload_ref))
+                assert (
+                    stored_request["context"]["runtime_identity"]["cell_id"]
+                    == "cell-request-runtime-foreign"
+                )
             assert completed.progress["state"] == "completed"
             assert completed.progress["execution_band"] == "candidate"
             assert completed.progress["status"] == "not_established"
@@ -1550,7 +1616,7 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         )
         assert proposal_locator["artifact_ref"]["media_type"] == "application/json"
         repository = GenerationSourceRepository(service._artifact_store)
-        proposal = repository.load_candidate_proposal(
+        proposal = repository.load_candidate_proposal_for_served_job(
             proposal_locator,
             job_id=launch.job_id,
             run_id=str(record.run_id),
@@ -1624,13 +1690,17 @@ async def test_served_nl_job_projects_n4_gateway_unavailable_without_artifact_or
 
     service = _build_control_service(tmp_path)
     try:
+        request = NaturalLanguageRunRequest(
+            request=raw_request,
+            llm_model=model_id,
+            context=_intent_context(as_of="2026-05-12"),
+        )
         launch = await service.launch_nl_run(
-            NaturalLanguageRunRequest(
-                request=raw_request,
-                llm_model=model_id,
-                context=_intent_context(as_of="2026-05-12"),
-            ),
+            request,
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+            authorization_proof=bound_nl_authorization_proof(
+                _fixture_claims(), request
+            ),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None

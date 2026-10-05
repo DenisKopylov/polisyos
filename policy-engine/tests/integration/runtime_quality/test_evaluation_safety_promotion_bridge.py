@@ -18,6 +18,9 @@ from tests.integration.runtime_quality.test_evaluation_safety_admission import (
     _field_pilot_intake,
     _run_blocked_attempt,
 )
+from tests.unit.runtime.http.control_service_test_support import (
+    bound_nl_authorization_proof,
+)
 from tests.unit.runtime.http.test_control_service_di import (
     _build_control_service,
     _fixture_claims,
@@ -362,10 +365,14 @@ def test_real_negative_n9_source_reaches_offer_cas_and_authoritative_classifier(
         return revised
 
     monkeypatch.setattr(generation, "compile_and_run_recursive_generation_cycle", compiled_owner_output)
+    request = NaturalLanguageRunRequest(
+        request=compiled.design_problem.nl_provenance.raw_request,
+        llm_model="simulated-qwen",
+    )
     source = asyncio.run(service.launch_nl_run(
-        NaturalLanguageRunRequest(
-            request=compiled.design_problem.nl_provenance.raw_request, llm_model="simulated-qwen",
-        ), principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        request,
+        principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+        authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
     ))
     source_job = service._control_store.get_job(source.job_id)
     service._process_control_job(source_job)

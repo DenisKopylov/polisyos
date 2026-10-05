@@ -166,6 +166,31 @@ class N4CandidateProposalLocator(_StrictModel):
         return self
 
 
+def _assert_n4_candidate_problem_owner_context(
+    problem: DesignProblem,
+    *,
+    job_id: str,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+) -> None:
+    """Bind current N4 provenance to its served job owner, not nested claims."""
+    source_context = problem.nl_provenance.source_context
+    for reserved_carrier in ("runtime_identity", "candidate_context"):
+        if reserved_carrier in source_context:
+            raise ValueError("n4_candidate_proposal_runtime_identity_not_owner_bound")
+    expected = {
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "job_id": job_id,
+        "run_id": run_id,
+    }
+    for field_name, value in expected.items():
+        if source_context.get(field_name) != value:
+            label = field_name.removesuffix("_id")
+            raise ValueError(f"n4_candidate_proposal_{label}_scope_binding_mismatch")
+
+
 def _has_synthetic_source(value: object) -> bool:
     pending = [value]
     while pending:
@@ -410,6 +435,13 @@ class GenerationSourceRepository:
         """Persist a candidate-only N4 proposal through the runtime-supplied CAS."""
         if problem.nl_provenance.raw_request != raw_request:
             raise ValueError("n4_candidate_proposal_request_mismatch")
+        _assert_n4_candidate_problem_owner_context(
+            problem,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
         problem_ref = gy_content_hash(problem.model_dump(mode="json"))
         if proposal.design_problem_ref != problem_ref:
             raise ValueError("n4_candidate_proposal_problem_mismatch")
@@ -480,6 +512,38 @@ class GenerationSourceRepository:
                 raise ValueError(f"n4_candidate_proposal_{label}_binding_mismatch")
         return artifact
 
+    def load_candidate_proposal_for_served_job(
+        self,
+        ref: artifacts.ArtifactRef | N4CandidateProposalLocator | Mapping[str, Any],
+        *,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        raw_request: str,
+    ) -> N4CandidateProposalRecord:
+        """Admit a current served proposal only when inner provenance matches its owner.
+
+        ``load_candidate_proposal`` remains the byte-exact historical v1 decoder;
+        current workers use this owner-reconciling boundary before consuming N4.
+        """
+        artifact = self.load_candidate_proposal(
+            ref,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            raw_request=raw_request,
+        )
+        _assert_n4_candidate_problem_owner_context(
+            artifact.problem,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        return artifact
+
     def persist(
         self,
         *,
@@ -535,23 +599,31 @@ class GenerationSourceRepository:
         summary: CandidateSummary,
         problem: DesignProblem,
     ) -> GenerationSourceResolution:
-        """Resolve the whole source set before selecting one exact candidate identity."""
+        """Resolve the whole source set before selecting one exact candidate occurrence."""
         if len(refs) != len(set(refs)):
             return GenerationSourceResolution(status="not_established", code="source_ref_duplicate")
         problem_ref = gy_content_hash(problem.model_dump(mode="json"))
         identity = (problem_ref, summary.candidate_id, summary.content_hash)
+        identity_matches = []
         matched = []
         try:
             for ref in refs:
                 artifact = self.load(ref, run_id=run_id)
                 if identity in artifact.identities():
-                    matched.append((ref, artifact))
+                    identity_matches.append((ref, artifact))
+                    if artifact.cycle_index == summary.cycle_index:
+                        matched.append((ref, artifact))
         except (KeyError, OSError, ValueError, TypeError):
             return GenerationSourceResolution(status="not_established", code="source_replay_failed")
-        if not matched or len({item.source_identity_hash() for _, item in matched}) != 1:
+        if not matched:
             return GenerationSourceResolution(
                 status="not_established",
-                code="source_missing" if not matched else "source_ambiguous",
+                code="source_occurrence_missing" if identity_matches else "source_missing",
+            )
+        if len({item.source_identity_hash() for _, item in matched}) != 1:
+            return GenerationSourceResolution(
+                status="not_established",
+                code="source_ambiguous",
             )
         ref, artifact = matched[0]
         source = next(

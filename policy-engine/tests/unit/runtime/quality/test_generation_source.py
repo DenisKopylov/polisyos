@@ -58,6 +58,21 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
     recording = _recording_with_successful_first_response()
     model_id = str(recording["model_id"])
     problem = contract._design_problem(recording)
+    problem = problem.model_copy(
+        update={
+            "nl_provenance": problem.nl_provenance.model_copy(
+                update={
+                    "source_context": {
+                        **problem.nl_provenance.source_context,
+                        "tenant_id": "tenant-a",
+                        "cell_id": "cell-a",
+                        "job_id": "job-n4-candidate",
+                        "run_id": "run-n4-candidate",
+                    }
+                }
+            )
+        }
+    )
     proposal = await n4.generate_design_candidate_proposal_under_a(
         problem,
         model_id=model_id,
@@ -99,6 +114,153 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
             raw_request=problem.nl_provenance.raw_request,
         )
 
+
+
+@pytest.mark.asyncio
+async def test_candidate_proposal_writer_rejects_inner_scope_from_another_owner(tmp_path):
+    """The current N4 writer binds inner DesignProblem scope to its outer owner."""
+    from polisyos.pdc import gy_content_hash
+
+    recording = _recording_with_successful_first_response()
+    model_id = str(recording["model_id"])
+    problem = contract._design_problem(recording)
+    problem = problem.model_copy(
+        update={
+            "nl_provenance": problem.nl_provenance.model_copy(
+                update={
+                    "source_context": {
+                        "tenant_id": "tenant-foreign",
+                        "cell_id": "cell-a",
+                        "job_id": "job-n4-candidate",
+                        "run_id": "run-n4-candidate",
+                    }
+                }
+            )
+        }
+    )
+    proposal = await n4.generate_design_candidate_proposal_under_a(
+        problem,
+        model_id=model_id,
+        llm_client=RecordedClientWithCatalog(recording, model_ids=[model_id]),
+        repo_root=REPO_ROOT,
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    proposal = proposal.model_copy(update={"design_problem_ref": problem_ref})
+    repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "tenant-cas"))
+
+    with pytest.raises(ValueError, match="n4_candidate_proposal_tenant_scope_binding_mismatch"):
+        repository.persist_candidate_proposal(
+            job_id="job-n4-candidate",
+            run_id="run-n4-candidate",
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            raw_request=problem.nl_provenance.raw_request,
+            problem=problem,
+            proposal=proposal,
+        )
+
+
+@pytest.mark.asyncio
+async def test_served_candidate_reader_reconciles_inner_scope_without_changing_v1_replay(
+    tmp_path,
+):
+    """Historical v1 bytes decode, while served admission reconciles their inner owner IDs."""
+    from polisyos.core import canon
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.generation_source import (
+        _SOURCE_CANON,
+        N4CandidateProposalRecord,
+        _n4_candidate_proposal_write_options,
+        _source_content_hash,
+    )
+
+    recording = _recording_with_successful_first_response()
+    model_id = str(recording["model_id"])
+    problem = contract._design_problem(recording)
+    owner_context = {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a",
+        "job_id": "job-n4-candidate",
+        "run_id": "run-n4-candidate",
+    }
+    problem = problem.model_copy(
+        update={
+            "nl_provenance": problem.nl_provenance.model_copy(
+                update={"source_context": owner_context}
+            )
+        }
+    )
+    proposal = await n4.generate_design_candidate_proposal_under_a(
+        problem,
+        model_id=model_id,
+        llm_client=RecordedClientWithCatalog(recording, model_ids=[model_id]),
+        repo_root=REPO_ROOT,
+    )
+    repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "tenant-cas"))
+    valid_ref = repository.persist_candidate_proposal(
+        job_id=owner_context["job_id"],
+        run_id=owner_context["run_id"],
+        tenant_id=owner_context["tenant_id"],
+        cell_id=owner_context["cell_id"],
+        raw_request=problem.nl_provenance.raw_request,
+        problem=problem,
+        proposal=proposal,
+    )
+    valid_record = repository.load_candidate_proposal(
+        valid_ref,
+        job_id=owner_context["job_id"],
+        run_id=owner_context["run_id"],
+        tenant_id=owner_context["tenant_id"],
+        cell_id=owner_context["cell_id"],
+        raw_request=problem.nl_provenance.raw_request,
+    )
+
+    foreign_problem = valid_record.problem.model_copy(
+        update={
+            "nl_provenance": valid_record.problem.nl_provenance.model_copy(
+                update={
+                    "source_context": {
+                        **valid_record.problem.nl_provenance.source_context,
+                        "tenant_id": "tenant-foreign",
+                    }
+                }
+            )
+        }
+    )
+    foreign_problem_ref = gy_content_hash(foreign_problem.model_dump(mode="json"))
+    foreign_proposal = valid_record.proposal.model_copy(
+        update={"design_problem_ref": foreign_problem_ref}
+    )
+    historical_payload = valid_record.model_dump(mode="python", exclude={"content_hash"})
+    historical_payload["problem"] = foreign_problem
+    historical_payload["proposal"] = foreign_proposal
+    historical_payload["design_problem_ref"] = foreign_problem_ref
+    historical_payload["content_hash"] = _source_content_hash(historical_payload)
+    historical_record = N4CandidateProposalRecord.model_validate(historical_payload)
+    historical_ref = repository.store.put_bytes(
+        canon.to_canonical_bytes(historical_record, _SOURCE_CANON),
+        _n4_candidate_proposal_write_options(),
+    )
+
+    decoded = repository.load_candidate_proposal(
+        historical_ref,
+        job_id=owner_context["job_id"],
+        run_id=owner_context["run_id"],
+        tenant_id=owner_context["tenant_id"],
+        cell_id=owner_context["cell_id"],
+        raw_request=problem.nl_provenance.raw_request,
+    )
+    assert decoded == historical_record
+    assert decoded.schema_version == "policyos.runtime.quality.n4_candidate_proposal_record.v1"
+    with pytest.raises(ValueError, match="n4_candidate_proposal_tenant_scope_binding_mismatch"):
+        repository.load_candidate_proposal_for_served_job(
+            historical_ref,
+            job_id=owner_context["job_id"],
+            run_id=owner_context["run_id"],
+            tenant_id=owner_context["tenant_id"],
+            cell_id=owner_context["cell_id"],
+            raw_request=problem.nl_provenance.raw_request,
+        )
 
 def test_synthetic_cg2_contract_mechanism_remains_non_promotable():
     """A v2 synthetic seed may exercise mechanics only in its explicit contract lane."""
@@ -374,6 +536,122 @@ def test_actual_source_roundtrip_and_repeat_identity(actual_n4_source, tmp_path)
         run_id=run_id, refs=refs, expected=(identity, identity)
     )
     assert receipt.status == "strangled", receipt.issues
+
+
+def _stub_repeated_occurrence_repository(monkeypatch, problem):
+    """Model replayed handoffs with one candidate identity at two source occurrences."""
+    from types import SimpleNamespace
+
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality import generation_source
+    from polisyos.runtime.quality.generation_cycle import CandidateSummary
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    candidate_id = "candidate-repeated-across-cycles"
+    atom_hash = "sha256:" + "1" * 64
+    identity = (gy_content_hash(problem.model_dump(mode="json")), candidate_id, atom_hash)
+    context = SimpleNamespace(world_model_record=object(), intervention_substrate=None)
+    intervention = SimpleNamespace(intervention_id="intervention-repeated", params={})
+    bundle = SimpleNamespace(
+        policy_spec=SimpleNamespace(interventions=(intervention,)),
+    )
+    handoffs = {
+        f"handoff-cycle-{cycle_index}": SimpleNamespace(
+            cycle_index=cycle_index,
+            identities=lambda: (identity,),
+            source_identity_hash=lambda: "sha256:" + "2" * 64,
+            candidate_sources=(
+                SimpleNamespace(
+                    candidate_id=candidate_id,
+                    intervention_id="intervention-repeated",
+                    grounding_decision_certificate=object(),
+                ),
+            ),
+            generation_result=SimpleNamespace(
+                candidates=(SimpleNamespace(candidate_id=candidate_id, atom=object()),),
+            ),
+            cycle_substrate_context=context,
+            reference=lambda: None,
+            trinity_bundle=bundle,
+        )
+        for cycle_index in (0, 1)
+    }
+    repository = GenerationSourceRepository(store=object())
+    monkeypatch.setattr(repository, "load", lambda ref, *, run_id: handoffs[ref])
+    monkeypatch.setattr(
+        generation_source,
+        "revalidate_cycle_substrate_context",
+        lambda _context: context,
+    )
+    monkeypatch.setattr(n4, "_candidate_parameter_value", lambda *_args, **_kwargs: None)
+
+    def summary(cycle_index):
+        return CandidateSummary(
+            candidate_id=candidate_id,
+            content_hash=atom_hash,
+            cycle_index=cycle_index,
+            proxy_score=0.0,
+            voi_estimate=0.0,
+            grounding_status="grounding_failed",
+            grounding_score=0.0,
+            current_valid=False,
+            front="research",
+            high_proxy=False,
+            low_grounding=True,
+        )
+
+    return repository, handoffs, summary
+
+
+def test_repeated_source_occurrence_preserves_same_occurrence_control(monkeypatch):
+    """A cycle-zero summary resolves to the cycle-zero source returned by replay."""
+    problem = _test_design_problem()
+    repository, handoffs, summary = _stub_repeated_occurrence_repository(monkeypatch, problem)
+
+    resolved = repository.resolve(
+        refs=tuple(handoffs),
+        run_id="run-with-repeated-source",
+        summary=summary(0),
+        problem=problem,
+    )
+
+    assert resolved.status == "resolved", resolved.code
+    assert resolved.source_ref == "handoff-cycle-0"
+    assert handoffs[resolved.source_ref].cycle_index == 0
+
+
+def test_repeated_candidate_resolves_requested_later_cycle_occurrence(monkeypatch):
+    """The resolver selects cycle one when identity-equivalent sources occur at 0 and 1."""
+    problem = _test_design_problem()
+    repository, handoffs, summary = _stub_repeated_occurrence_repository(monkeypatch, problem)
+
+    resolved = repository.resolve(
+        refs=tuple(handoffs),
+        run_id="run-with-repeated-source",
+        summary=summary(1),
+        problem=problem,
+    )
+
+    assert resolved.status == "resolved", resolved.code
+    assert resolved.source_ref == "handoff-cycle-1"
+    assert handoffs[resolved.source_ref].cycle_index == 1
+
+
+def test_wrong_source_occurrence_cannot_satisfy_later_cycle_summary(monkeypatch):
+    """A matching candidate from cycle zero cannot stand in for missing cycle one."""
+    problem = _test_design_problem()
+    repository, _handoffs, summary = _stub_repeated_occurrence_repository(monkeypatch, problem)
+
+    resolved = repository.resolve(
+        refs=("handoff-cycle-0",),
+        run_id="run-with-repeated-source",
+        summary=summary(1),
+        problem=problem,
+    )
+
+    assert resolved.status == "not_established"
+    assert resolved.code == "source_occurrence_missing"
+    assert not resolved.context
 
 
 def test_contract_scope_marks_each_persisted_capsule(tmp_path):

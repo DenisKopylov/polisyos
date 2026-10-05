@@ -17,12 +17,12 @@ from polisyos.pdc import (
     assert_ring2_verifier_provenance,
     gy_content_hash,
 )
+from polisyos.runtime.http.services.control.generation_cycle import (
+    _build_cycle_substrate_context_from_owner,
+)
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     _search_exit_binding_hash,
     derive_recursive_design_graph,
-)
-from polisyos.runtime.http.services.control.generation_cycle import (
-    _build_cycle_substrate_context_from_owner,
 )
 from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
 from polisyos.runtime.quality.generation_cycle import (
@@ -45,11 +45,11 @@ from tests.unit.remediation.test_cyc_02 import (
     _recursive_parent_request,
 )
 from tests.unit.runtime.quality.test_generation_cycle import (
-    _CgfGenerationPort,
-    _DataGapValuePort,
     REPO_ROOT,
     _budget,
+    _CgfGenerationPort,
     _cyc01_owner_bound_n5_case,
+    _DataGapValuePort,
     _problem,
 )
 
@@ -148,18 +148,20 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
 ) -> None:
     """The HTTP worker must retain requested limits beside its effective budget."""
 
-    from tests.unit.runtime.http.test_control_service_di import (
-        _NeverCalledEvalSafetyVerifier,
-        _build_control_service,
-        _fixture_claims,
-    )
-    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
     from polisyos.core.contracts.control import NaturalLanguageRunRequest
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.runtime.http.services.control.generation_cycle import (
         _resolve_http_recursive_budget,
     )
-    from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
+    from tests.unit.runtime.http.control_service_test_support import (
+        bound_nl_authorization_proof,
+    )
+    from tests.unit.runtime.http.test_control_service_di import (
+        _build_control_service,
+        _fixture_claims,
+        _NeverCalledEvalSafetyVerifier,
+    )
 
     service = _build_control_service(tmp_path)
     try:
@@ -202,13 +204,17 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
             )
         )
 
+        request = NaturalLanguageRunRequest(
+            request=problem.nl_provenance.raw_request,
+            llm_model="simulated-qwen",
+            max_iterations=7,
+        )
         launch = await service.launch_nl_run(
-            NaturalLanguageRunRequest(
-                request=problem.nl_provenance.raw_request,
-                llm_model="simulated-qwen",
-                max_iterations=7,
-            ),
+            request,
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
+            authorization_proof=bound_nl_authorization_proof(
+                _fixture_claims(), request
+            ),
         )
         record = service._control_store.get_job(launch.job_id)
         assert record is not None

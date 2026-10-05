@@ -202,9 +202,15 @@ def _assert_gp_corpus(generator, originals):
     torch = require_torch()
     optimizer = generator._optimizer
     model = optimizer._model
-    assert isinstance(model, SingleTaskGP), "Configured historical observations must reach a real GP"
-    expected_x = torch.tensor([[evaluation.params["x"]] for evaluation in originals], dtype=torch.float64)
-    expected_y = torch.tensor([[-evaluation.scalar_score] for evaluation in originals], dtype=torch.float64)
+    assert isinstance(model, SingleTaskGP), (
+        "Configured historical observations must reach a real GP"
+    )
+    expected_x = torch.tensor(
+        [[evaluation.params["x"]] for evaluation in originals], dtype=torch.float64
+    )
+    expected_y = torch.tensor(
+        [[-evaluation.scalar_score] for evaluation in originals], dtype=torch.float64
+    )
     actual_x = model._original_train_inputs
     if actual_x is None:
         actual_x = model.train_inputs[0]
@@ -223,7 +229,9 @@ def test_configured_cas_transfer_reaches_the_receiving_gp_on_the_live_loop(tmp_p
     assert metadata["acquisition_value"] is not None
     _LOG.warning(
         "TRANSFER_WORKFLOW source=%s train_rows=%d candidate=%s score=%s",
-        metadata["source"], model.train_targets.shape[-1], entry.candidate["x"],
+        metadata["source"],
+        model.train_targets.shape[-1],
+        entry.candidate["x"],
         entry.stage_b_result["simulation_results"]["score"],
     )
 

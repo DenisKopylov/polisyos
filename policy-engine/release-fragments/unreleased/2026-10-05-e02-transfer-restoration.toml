@@ -1,0 +1,20 @@
+id = "2026-10-05-e02-transfer-restoration"
+title = "Bind numerical transfer to original CAS observations and coherent vector generations"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Restore canonical floating-point CAS histories with exact snapshot references, original candidate input and evaluation content checks, strict declared-type decoding, and explicit refusals for unsupported source bases. Publish vector and metadata changes as one process-local generation and copy cached/query metadata before returning it to callers."
+evidence = [
+  "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+  "tests/unit/scientist/agent/test_vector_memory.py",
+  "tests/unit/scientist/methods/autotune/test_warm_start.py",
+  "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-physical-types.json",
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-4097.json",
+]
+compatibility = "Numerical restoration requires a complete compatible source/target basis and resolvable immutable original candidate/evaluation records. Malformed boolean/numeric/status/time fields, conflicting actual inputs, and unreconstructible native source encodings become visible rejected records. Legacy history inspection remains bounded and cannot become numeric training evidence. Historical benchmark conversion requires an original store/reference and preserves the source loop, suite, split and raw measurements as a nonpromotable view."
+change_class = "runtime-state"
+surface_classification = "internal: scientist.methods.search.strategies.transfer, scientist.methods.autotune.warm_start, scientist.agent.vector_memory; existing public facades unchanged"
+migration = "Migration owner: team-scientist. Supply actual original candidate/evaluation CAS references, persisted model/context fingerprints, complete bounds/units/split/origin/tenant declarations and timezone-aware source timestamps. Preserve rejected record diagnostics and unsupported-basis refusals. Recreate or independently reconcile legacy records before numeric reuse; do not mint compatibility or benchmark evidence from copied scores."
+limitations = "Origin and tenant declarations are caller supplied; equality and CAS consistency do not establish institutional source truth or tenant authorization. Vector generation atomicity is process local. B133 distributed consistency and principal deployment decisions remain held. Native catalog tests establish exact addressability after discovery, not a universal ANN recall guarantee. Analytic workflow tests establish numerical plumbing and do not establish production historical benchmark equivalence or acceleration. All finding closures remain subject to G adjudication."
+generated_client_compatibility = "not_applicable"

@@ -275,8 +275,9 @@ def test_original_and_history_cannot_share_a_false_normalized_coordinate(tmp_pat
         [source], target_fingerprint=source.model_copy(update={"run_id": "target"})
     )
     (rejected,) = [row for row in restored if not row.is_valid]
-    assert "normalized parameters differ from the persisted source basis" in (
-        rejected.metadata["transfer_error"]
+    assert (
+        "normalized parameters differ from the persisted source basis"
+        in (rejected.metadata["transfer_error"])
     )
     assert originals[0].metadata["params"] == rejected.params == {"x": 0.1}
 
@@ -331,8 +332,9 @@ def test_actual_candidate_must_be_in_the_persisted_attainable_domain(tmp_path, d
         [source], target_fingerprint=source.model_copy(update={"run_id": "target"})
     )
     assert not rejected.is_valid
-    assert "physical parameters differ from the persisted source basis" in (
-        rejected.metadata["transfer_error"]
+    assert (
+        "physical parameters differ from the persisted source basis"
+        in (rejected.metadata["transfer_error"])
     )
     assert reader.last_restore_report.accepted_rows == 0
 
@@ -351,7 +353,9 @@ def test_unsupported_candidate_input_basis_is_a_visible_refusal(tmp_path):
         [source], target_fingerprint=source.model_copy(update={"run_id": "target"})
     )
     assert all(not row.is_valid for row in restored)
-    assert all("unsupported source parameter basis" in row.metadata["transfer_error"] for row in restored)
+    assert all(
+        "unsupported source parameter basis" in row.metadata["transfer_error"] for row in restored
+    )
 
 
 @pytest.mark.parametrize(

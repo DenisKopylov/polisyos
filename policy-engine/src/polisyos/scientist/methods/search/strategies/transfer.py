@@ -573,7 +573,11 @@ class TransferLearningManager:
                     lower, upper = specification
                     options = {}
                 elif isinstance(specification, dict) and set(specification) <= {
-                    "lower", "upper", "dtype", "log_scale", "categories"
+                    "lower",
+                    "upper",
+                    "dtype",
+                    "log_scale",
+                    "categories",
                 }:
                     options = dict(specification)
                     lower, upper = options.pop("lower"), options.pop("upper")

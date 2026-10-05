@@ -379,12 +379,12 @@ def _validate_bundle_record(
 ) -> tuple[dict[str, Any], tuple[WarrantReliabilityIssue, ...]]:
     try:
         from polisyos.berl import (
-            ExplanationBundle,
             ValidationThresholds,
             validate_explanation_bundle,
         )
+        from polisyos.berl.contracts.schema import validate_persisted_explanation_bundle
 
-        bundle = ExplanationBundle.model_validate(bundle_payload)
+        bundle = validate_persisted_explanation_bundle(bundle_payload)
         validation = validate_explanation_bundle(
             bundle,
             thresholds=_validation_thresholds(ValidationThresholds, thresholds),
@@ -396,7 +396,7 @@ def _validate_bundle_record(
                 WarrantReliabilityIssue(
                     code="policy_design_warrant_berl_bundle_invalid",
                     field="warrant_reliability_records.explanation_bundle",
-                    message="BERL explanation bundle could not be validated.",
+                    message=f"Persisted BERL bundle rejected by current schema: {exc}",
                     evidence_ref=evidence_ref,
                 ),
             ),

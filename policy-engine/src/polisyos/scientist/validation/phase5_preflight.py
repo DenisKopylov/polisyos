@@ -1080,10 +1080,10 @@ def _input_refs_for_publication(
 
 def _run_berl_validation(record: Mapping[str, Any]) -> dict[str, Any] | None:
     try:
-        from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
+        from polisyos.berl.contracts.schema import validate_persisted_explanation_bundle
         from polisyos.berl.contracts.validation_rules import validate_explanation_bundle
 
-        bundle = ExplanationBundle.model_validate(record)
+        bundle = validate_persisted_explanation_bundle(record)
         result = validate_explanation_bundle(bundle)
         return {
             "passed": result.passed,
@@ -1091,8 +1091,13 @@ def _run_berl_validation(record: Mapping[str, Any]) -> dict[str, Any] | None:
             "violations": list(result.violations),
             "warnings": list(result.warnings),
         }
-    except (ImportError, TypeError, ValueError):
-        return None
+    except (ImportError, TypeError, ValueError) as exc:
+        return {
+            "passed": False,
+            "display_policy": "diagnostic_only",
+            "violations": [f"persisted_explanation_bundle_invalid:{exc}"],
+            "warnings": [],
+        }
 
 
 def _first_fairness_audit_payload(mappings: Iterable[Mapping[str, Any]]) -> dict[str, Any] | None:

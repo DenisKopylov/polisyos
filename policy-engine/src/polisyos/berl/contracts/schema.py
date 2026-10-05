@@ -3,14 +3,20 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from typing import TYPE_CHECKING
+
+from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
 
 from polisyos.berl.contracts.explanation_bundle import (
     EXPLANATION_BUNDLE_SCHEMA_VERSION,
+    ExplanationBundle,
     bundle_json_schema,
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
 
@@ -60,3 +66,41 @@ def write_explanation_bundle_schema(path: Path) -> None:
 
     payload = json.dumps(generated_explanation_bundle_schema(), indent=2, sort_keys=True)
     path.write_text(payload + "\n", encoding="utf-8")
+
+
+def validate_persisted_explanation_bundle(
+    payload: Mapping[str, object],
+) -> ExplanationBundle:
+    """Validate a serialized artifact against the canonical persisted profile.
+
+    The construction DTO remains permissive about supported defaults and
+    semver-shaped candidates. Persisted consumers must satisfy the generated
+    schema for the current wire version before receiving that DTO's defaults.
+
+    Args:
+        payload: JSON-compatible serialized bundle record.
+
+    Returns:
+        The DTO parsed after the persisted-output profile passes.
+
+    Raises:
+        ValueError: If the record violates the generated profile or DTO.
+    """
+
+    try:
+        _persisted_explanation_bundle_validator().validate(payload)
+    except JsonSchemaValidationError as exc:
+        field_path = ".".join(str(part) for part in exc.absolute_path) or "$"
+        raise ValueError(
+            "persisted ExplanationBundle does not satisfy the current schema: "
+            f"{field_path} ({exc.validator})"
+        ) from exc
+    return ExplanationBundle.model_validate(payload)
+
+
+@lru_cache(maxsize=1)
+def _persisted_explanation_bundle_validator() -> Draft202012Validator:
+    return Draft202012Validator(
+        generated_explanation_bundle_schema(),
+        format_checker=FormatChecker(),
+    )

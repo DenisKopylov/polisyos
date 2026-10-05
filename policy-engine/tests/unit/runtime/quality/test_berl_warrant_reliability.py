@@ -251,6 +251,7 @@ def _claim_argument_case() -> dict[str, object]:
 
 def _berl_bundle(*, upper_bound: float) -> dict[str, object]:
     return {
+        "schema_version": "1.0.0",
         "bundle_id": "berl-bundle-1",
         "created_at": datetime(2026, 5, 18, tzinfo=UTC).isoformat(),
         "faithfulness_claim": "bounded",

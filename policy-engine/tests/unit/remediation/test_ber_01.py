@@ -25,6 +25,7 @@ from polisyos.berl.adapters.shap_tree import TreeSHAPAdapter
 from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
 from polisyos.berl.contracts.schema import (
     generated_explanation_bundle_schema,
+    validate_persisted_explanation_bundle,
     write_explanation_bundle_schema,
 )
 from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
@@ -298,6 +299,7 @@ def test_orchestrator_bundle_round_trips_as_persisted_artifact(tmp_path: Path) -
     loaded = ExplanationBundle.model_validate_json(serialized)
 
     assert loaded == bundle
+    assert validate_persisted_explanation_bundle(json.loads(serialized)) == bundle
     assert loaded.methods[0].requested_method_id == "kernel_shap"
     assert loaded.methods[0].effective_method_id == "kernel_shap"
 

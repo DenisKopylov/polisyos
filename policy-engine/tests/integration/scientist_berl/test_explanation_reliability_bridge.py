@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
+from copy import deepcopy
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
 
 import pytest
+from pydantic import ValidationError as PydanticValidationError
 
 from polisyos.berl.contracts.explanation_bundle import (
     AuditReport,
@@ -22,6 +25,8 @@ from polisyos.berl.contracts.explanation_bundle import (
     SupportCheck,
     ValidityReport,
 )
+from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
+from polisyos.runtime.quality.explanation_reliability import _validate_bundle_record
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.validation.phase5_preflight import build_phase5_validation_report
 
@@ -55,11 +60,109 @@ def test_scientist_preflight_uses_berl_validation_for_explanation_reliability() 
     assert any("diagnostic-only" in item for item in unbounded_component.blockers)
 
 
+def test_orchestrator_persisted_bundle_is_admitted_by_both_consumers(
+    persisted_orchestrator_bundle: dict[str, object],
+) -> None:
+    runtime_record, runtime_issues = _validate_bundle_record(
+        persisted_orchestrator_bundle,
+        thresholds={},
+        evidence_ref="cas://berl/orchestrator-bundle",
+    )
+    phase5_component = _phase5_explanation_component(persisted_orchestrator_bundle)
+
+    threshold_decision = runtime_record["threshold_decision"]
+    assert isinstance(threshold_decision, dict)
+    assert threshold_decision["status"] == "pass"
+    assert runtime_issues == ()
+    assert phase5_component.status == "pass"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["unknown_version", "missing_defaulted_field", "nested_fake_field"],
+)
+def test_persisted_bundle_profile_rejects_invalid_artifact_at_both_consumers(
+    persisted_orchestrator_bundle: dict[str, object],
+    mutation: str,
+) -> None:
+    payload = deepcopy(persisted_orchestrator_bundle)
+    if mutation == "unknown_version":
+        payload["schema_version"] = "9.9.9"
+    elif mutation == "missing_defaulted_field":
+        payload.pop("validity")
+    else:
+        model_payload = payload["model"]
+        assert isinstance(model_payload, dict)
+        model_payload["unclaimed"] = "not in the persisted profile"
+
+    if mutation == "nested_fake_field":
+        with pytest.raises(PydanticValidationError):
+            ExplanationBundle.model_validate(payload)
+    else:
+        # The construction DTO is deliberately more permissive than the
+        # persisted-output contract for valid semver candidates and defaults.
+        ExplanationBundle.model_validate(payload)
+
+    runtime_record, runtime_issues = _validate_bundle_record(
+        payload,
+        thresholds={},
+        evidence_ref="cas://berl/orchestrator-bundle",
+    )
+    phase5_component = _phase5_explanation_component(payload)
+
+    threshold_decision = runtime_record["threshold_decision"]
+    assert isinstance(threshold_decision, dict)
+    assert threshold_decision["status"] == "fail"
+    assert any(
+        issue.code == "policy_design_warrant_berl_bundle_invalid" for issue in runtime_issues
+    )
+    assert any("persisted" in issue.message.lower() for issue in runtime_issues)
+    assert phase5_component.status == "blocked"
+    assert any("persisted" in item.lower() for item in phase5_component.blockers)
+
+
+@pytest.fixture(scope="module")
+def persisted_orchestrator_bundle(tmp_path_factory: pytest.TempPathFactory) -> dict[str, object]:
+    request = ExplanationRequest(
+        prediction_id="berl-persisted-prediction",
+        row_id="berl-persisted-row",
+        x={"x": 1.0},
+        feature_names=("x",),
+        methods=("kernel_shap",),
+        output_scale="score",
+        feature_dependence_policy="marginal",
+        model_id="persisted-policy-model",
+        model_hash="sha256:persisted-policy-model",
+        model_class="linear-policy-model",
+        training_data_hash="sha256:persisted-training-data",
+        feature_values_ref="cas://features/berl-persisted-row",
+        feature_schema_version="berl-fixture-v1",
+        constraints_ref="cas://constraints/berl-persisted-row",
+        background_rows=({"x": 0.0}, {"x": 1.0}),
+        n_eval_perturbations=256,
+        perturbation_radius=0.1,
+        residual_cap=1.0,
+        random_seed=7,
+        include_disagreement=False,
+    )
+    bundle = ExplanationOrchestrator().explain(
+        lambda features: 2.0 * float(features["x"]),
+        request,
+    )
+    artifact_path = tmp_path_factory.mktemp("berl-persisted") / "bundle.json"
+    artifact_path.write_text(bundle.model_dump_json() + "\n", encoding="utf-8")
+    return json.loads(artifact_path.read_text(encoding="utf-8"))
+
+
 def _explanation_component_for(bundle: ExplanationBundle) -> Phase5GateComponent:
+    return _phase5_explanation_component(bundle.model_dump(mode="json"))
+
+
+def _phase5_explanation_component(payload: dict[str, object]) -> Phase5GateComponent:
     report = build_phase5_validation_report(
         _ctx(),
         ExperimentState(run_id="scientist-berl-bridge"),
-        artifact_payload=bundle.model_dump(mode="json"),
+        artifact_payload=payload,
         artifact_kind="scientist.explanation_bundle",
     )
     return next(

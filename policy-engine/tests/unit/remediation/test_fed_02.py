@@ -219,22 +219,38 @@ def test_union_summary_bounds_peak_live_details_and_counts_every_conflict() -> N
 
     def run_census(*, transient_retention: bool) -> tuple[int, int, int, int]:
         resolver = TrackingResolver(retain_all=transient_retention)
-        composer = DataComposer(conflict_resolver=resolver)
+
+        class TransientRetentionComposer(DataComposer):
+            def _union(
+                self,
+                sources: list[tuple[pd.DataFrame, SourceMetadata]],
+                request: CompositionRequest,
+                collector: MergeLogCollector,
+            ) -> pd.DataFrame:
+                result = super()._union(sources, request, collector)
+                transient_details = list(resolver.retained_entries)
+                resolver.retained_entries.clear()
+                if len(transient_details) != row_count:
+                    raise AssertionError("transient control did not hold every detail")
+                return result
+
+        composer_type = (
+            TransientRetentionComposer if transient_retention else DataComposer
+        )
+        composer = composer_type(conflict_resolver=resolver)
         peak_live_details = 0
-        union_code = DataComposer._union.__code__
+        union_codes = {DataComposer._union.__code__}
+        if transient_retention:
+            union_codes.add(TransientRetentionComposer._union.__code__)
         previous_trace = sys.gettrace()
 
         def trace(frame, event, arg):  # type: ignore[no-untyped-def]
             nonlocal peak_live_details
-            if frame.f_code is union_code and event in {"line", "return"}:
+            if frame.f_code in union_codes and event in {"line", "return"}:
                 live_details = sum(
                     reference() is not None for reference in resolver.entry_refs
                 )
                 peak_live_details = max(peak_live_details, live_details)
-                if transient_retention and event == "return":
-                    # Model a transient detail sink that keeps each real entry
-                    # until the UNION return frame, then drops all references.
-                    resolver.retained_entries.clear()
             del arg
             return trace
 

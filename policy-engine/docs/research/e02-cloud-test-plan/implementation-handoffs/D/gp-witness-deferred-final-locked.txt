@@ -1,0 +1,82 @@
+{"source_sha": "e789e9523725fa081de5cdc69da5938489315b4a", "test_sha": "38ca365ec73d2684608c389ca9ed549f7200a07f", "argv": ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py", "--confcutdir=/workspace/e02-D-gp-witness/policy-engine/tests/unit/scientist/methods/search/strategies", "-vv", "--tb=short", "--log-cli-level=WARNING", "--durations=10"], "cwd": "/workspace/e02-D-gp-witness/policy-engine", "PYTHONPATH": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src", "input_closure": "full15 actualGP witnesses; all14 prior tests unchanged plus real ResourceArbiter fixturefit3/refitinterval1 hardRSS0 history4 retains3rowmodel -> JSONartifactrestore -> liftlimit -> actual duefit4 on original/restored compare actualmodel/corpus/posterior/ask; fivefuture/version/growth atomicrefusal controls retained"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'default'
+rootdir: /workspace/e02-D-gp-witness/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 15 items
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_warm_observations_reach_real_gp_and_match_unsplit_control 
+-------------------------------- live log call ---------------------------------
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:142 warm_split_real_gp {"ask": [0.41369339340754935], "botorch": "0.16.1", "device": "cpu", "gpytorch": "1.15.1", "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "posterior_mean": [-0.06704655026233786, -0.041320109067245044, -0.03147039539163175, -0.11344181365427919, -0.268384698924911], "posterior_variance": [0.0001408375918504738, 0.00012429653009366284, 0.00010915392928923453, 0.00020523965839130888, 0.0001966940043261673], "source": "bayesian_acquisition", "torch": "2.10.0+cu128", "train_rows": 9}
+PASSED                                                                   [  6%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_warm_corpus_survives_artifact_restore_without_cold_start 
+-------------------------------- live log setup --------------------------------
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:142 initial_real_fit {"ask": [0.4163437332242366], "botorch": "0.16.1", "device": "cpu", "gpytorch": "1.15.1", "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "posterior_mean": [-0.06393070914848814, -0.04446150806484305, -0.017555692347058047, -0.10904944916736348, -0.27652352863112256], "posterior_variance": [5.381221202866907e-05, 5.2163944150346794e-05, 4.9778600522353636e-05, 0.00014600089650465065, 0.00014846829555921983], "source": "bayesian_acquisition", "torch": "2.10.0+cu128", "train_rows": 8}
+-------------------------------- live log call ---------------------------------
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:142 restored_warm_corpus_no_cold_start {"ask": [0.41634373434076327], "botorch": "0.16.1", "device": "cpu", "gpytorch": "1.15.1", "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "posterior_mean": [-0.06393070914848814, -0.04446150806484305, -0.017555692347058047, -0.10904944916736348, -0.27652352863112256], "posterior_variance": [5.381221202866907e-05, 5.2163944150346794e-05, 4.9778600522353636e-05, 0.00014600089650465065, 0.00014846829555921983], "source": "bayesian_acquisition", "torch": "2.10.0+cu128", "train_rows": 8}
+PASSED                                                                   [ 13%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_real_gp_restores_numerical_model_and_same_corpus_ask_without_refit 
+-------------------------------- live log call ---------------------------------
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:142 restored_same_corpus_no_refit {"ask": [0.41634373434076327], "botorch": "0.16.1", "device": "cpu", "gpytorch": "1.15.1", "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "posterior_mean": [-0.06393070914848814, -0.04446150806484305, -0.017555692347058047, -0.10904944916736348, -0.27652352863112256], "posterior_variance": [5.381221202866907e-05, 5.2163944150346794e-05, 4.9778600522353636e-05, 0.00014600089650465065, 0.00014846829555921983], "source": "bayesian_acquisition", "torch": "2.10.0+cu128", "train_rows": 8}
+PASSED                                                                   [ 20%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_resumed_append_conditions_real_gp_and_preserves_learned_transforms 
+-------------------------------- live log call ---------------------------------
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:142 restored_append_no_refit {"ask": [0.4163750229442188], "botorch": "0.16.1", "device": "cpu", "gpytorch": "1.15.1", "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "posterior_mean": [-0.06394209322042956, -0.04485702650164868, -0.017688632645748686, -0.10159101266035249, -0.2887258637438376], "posterior_variance": [5.381212391515142e-05, 5.2057583550178014e-05, 4.976658450312654e-05, 0.00010817903430735623, 4.723270755287633e-05], "source": "bayesian_acquisition", "torch": "2.10.0+cu128", "train_rows": 9}
+PASSED                                                                   [ 26%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_conditioned_checkpoint_preserves_target_transform_basis_and_posterior 
+-------------------------------- live log call ---------------------------------
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:142 restored_conditioned_transform_basis {"ask": [1.0], "botorch": "0.16.1", "device": "cpu", "gpytorch": "1.15.1", "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "posterior_mean": [-0.06418623834239509, -0.05333939533170882, -0.020539697326777392, 0.05836413344873072, -0.5504196240904644], "posterior_variance": [5.381212391514649e-05, 5.2057583550180975e-05, 4.976658450313146e-05, 0.00010817903430735623, 4.7232707552877316e-05], "source": "bayesian_acquisition", "torch": "2.10.0+cu128", "train_rows": 9}
+PASSED                                                                   [ 33%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_numerical_restore_oracle_rejects_saved_markers_without_loaded_weights PASSED [ 40%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_refit_trap_rejects_reset_counter_with_model_markers_intact PASSED [ 46%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws 
+-------------------------------- live log call ---------------------------------
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:428 intrinsic_replay {"asks": [[0.41634373434076327]], "batch": false, "global_rng_unchanged": true, "local_rng_equal": true, "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"}
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:428 intrinsic_replay {"asks": [[0.4230930337398604], [0.4080604351554038]], "batch": true, "global_rng_unchanged": true, "local_rng_equal": true, "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"}
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:428 intrinsic_replay {"asks": [[0.4163437362448094]], "batch": false, "global_rng_unchanged": true, "local_rng_equal": true, "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"}
+PASSED                                                                   [ 53%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_removing_local_acquisition_rng_keeps_gp_markers_but_oracle_detects_global_draw PASSED [ 60%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_future_refit_clock_and_old_acquisition_policy_refuse_atomically[last_refit_iteration-999999] PASSED [ 66%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_future_refit_clock_and_old_acquisition_policy_refuse_atomically[acquisition_replay_policy-old_unconfined_policy] PASSED [ 73%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_future_refit_clock_and_old_acquisition_policy_refuse_atomically[acquisition_replay_policy-None] PASSED [ 80%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_future_refit_clock_and_old_acquisition_policy_refuse_atomically[gp_checkpoint_version-0] PASSED [ 86%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_future_refit_clock_and_old_acquisition_policy_refuse_atomically[last_train_size-1] PASSED [ 93%]
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_hard_limit_checkpoint_restores_and_performs_due_refit 
+-------------------------------- live log call ---------------------------------
+WARNING  tests.unit.scientist.methods.search.strategies.test_gp_resume_witness:test_gp_resume_witness.py:142 real_hard_limit_checkpoint_due_refit {"ask": [0.34392869287513395], "botorch": "0.16.1", "device": "cpu", "gpytorch": "1.15.1", "owner": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/gp-candidate-e789e95/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "posterior_mean": [-0.06833186378827703, -0.0030812022021349528, -0.02422538894141288, -0.1756039767937118, -0.3498127236391858], "posterior_variance": [0.00017101728980274463, 0.00026289854712209005, 0.00020640854632299047, 0.0011659871262710386, 0.0011664444208794374], "source": "bayesian_acquisition", "torch": "2.10.0+cu128", "train_rows": 4}
+PASSED                                                                   [100%]
+
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/monte_carlo.py:400: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 10 durations =============================
+5.63s call     tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws
+4.73s call     tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_warm_observations_reach_real_gp_and_match_unsplit_control
+2.70s call     tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_warm_corpus_survives_artifact_restore_without_cold_start
+2.08s setup    tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_warm_corpus_survives_artifact_restore_without_cold_start
+1.83s call     tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_conditioned_checkpoint_preserves_target_transform_basis_and_posterior
+0.75s call     tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_resumed_append_conditions_real_gp_and_preserves_learned_transforms
+0.68s call     tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_saved_real_gp_restores_numerical_model_and_same_corpus_ask_without_refit
+0.68s call     tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_removing_local_acquisition_rng_keeps_gp_markers_but_oracle_detects_global_draw
+0.65s call     tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_refit_trap_rejects_reset_counter_with_model_markers_intact
+0.32s call     tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_hard_limit_checkpoint_restores_and_performs_due_refit
+======================= 15 passed, 4 warnings in 28.02s ========================
+{"exit_code": 0, "wall_s": 32.99301857199953}

@@ -78,7 +78,13 @@ from polisyos.ir.registry.refs import (
     StrategicSCMRef,
     WelfareBundleRef,
 )
-from polisyos.scholar.search.models import WebEvidenceBundle
+from polisyos.scholar.search.models import (
+    WEB_EVIDENCE_BUNDLE_ARTIFACT_KIND,
+    WEB_EVIDENCE_BUNDLE_SCHEMA_NAME,
+    ScholarSchemaContractError,
+    WebEvidenceBundle,
+    parse_web_evidence_bundle,
+)
 from polisyos.scientist.evidence.claims.head_index import (
     ClaimLedgerIssuanceNonReceipt,
     PreparedClaimLedgerInitialization,
@@ -366,8 +372,43 @@ def _build_web_evidence_section(
     if ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
-        bundle = WebEvidenceBundle.model_validate(payload)
+        manifest = ctx.store.get_manifest(ref)
+        schema = manifest.artifact_schema
+        if (
+            ref.kind != WEB_EVIDENCE_BUNDLE_ARTIFACT_KIND
+            or manifest.kind != ref.kind
+            or manifest.media_type != "application/json"
+            or manifest.media_type != ref.media_type
+            or schema is None
+            or schema.name != WEB_EVIDENCE_BUNDLE_SCHEMA_NAME
+        ):
+            raise ScholarSchemaContractError(
+                "schema_binding_mismatch",
+                "WebEvidenceBundle CAS reference and manifest profile do not agree",
+                schema_name=(schema.name if schema is not None else ""),
+                schema_version=(schema.version if schema is not None else ""),
+            )
+        payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+        bundle = parse_web_evidence_bundle(
+            payload,
+            schema_name=schema.name,
+            schema_version=schema.version,
+        )
+    except ScholarSchemaContractError as exc:
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_web_evidence_bundle",
+            reason=exc.code,
+            exc=exc,
+            ref=ref,
+            artifact_key=ARTIFACT_WEB_EVIDENCE_BUNDLE_REF,
+        )
+        return {
+            "status": "blocked",
+            "reason": exc.code,
+            "schema_version": exc.schema_version,
+            "web_evidence_bundle_ref": str(ref.artifact_id),
+        }
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         _record_decision_packet_section_degraded(
             packet_payload,

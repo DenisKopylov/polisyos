@@ -19,9 +19,14 @@ from polisyos.scholar.errors import ScholarAcquireError, ScholarDiscoverError
 from polisyos.scholar.orchestrator.enrich import _acquire_bytes
 from polisyos.scholar.search.models import (
     FetchResult,
+    QueryGraph,
+    ResearchBrief,
     SearchBudgetControls,
     SearchConstraints,
+    SearchProviderAttempt,
+    SearchQueryTrace,
     SourceMetadata,
+    WebEvidenceBundle,
     WebSearchHit,
 )
 from polisyos.scholar.search.providers import ProviderFailoverPolicy
@@ -208,6 +213,43 @@ def test_enrich_topic_uses_shared_async_bridge(monkeypatch, tmp_path):
 
     assert captured["used_run_coro_sync"] is True
     assert result.bundle_id == "bundle.shared-bridge"
+
+
+def test_persist_bundle_versions_valid_legacy_shape_and_rejects_mislabeled_attempts(
+    tmp_path,
+):
+    cas = FileSystemCAS(tmp_path / "cas-bundle-version")
+    service = ScholarDeepSearchService(cas=cas)
+    brief = ResearchBrief(question="policy evidence")
+    legacy_bundle = WebEvidenceBundle(
+        schema_version="1.0",
+        bundle_id="legacy.bundle",
+        brief=brief,
+        query_graph=QueryGraph(brief=brief),
+        query_traces=[
+            SearchQueryTrace(
+                query_node_id="q1",
+                query="policy evidence",
+                perspective="overview",
+                provider="fixture",
+            )
+        ],
+    )
+
+    ref = service.persist_bundle(legacy_bundle)
+    manifest = cas.get_manifest(ref)
+    payload = json.loads(cas.get_bytes(ref))
+
+    assert payload["schema_version"] == "1.1"
+    assert payload["query_traces"][0]["provider_attempts"] == []
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.version == payload["schema_version"]
+
+    legacy_bundle.query_traces[0].provider_attempts.append(
+        SearchProviderAttempt(provider="fixture", outcome="no_hits", hit_count=0)
+    )
+    with pytest.raises(ValueError, match="cannot be promoted with provider_attempts"):
+        service.persist_bundle(legacy_bundle)
 
 
 def test_search_snapshot_bytes_are_reused_and_request_binding_is_enforced(monkeypatch, tmp_path):
@@ -413,6 +455,13 @@ def test_empty_provider_responses_and_failures_survive_search_bundle_and_api_err
     persisted_bundle = json.loads(
         cas.get_bytes(ArtifactID.model_validate(details["web_evidence_artifact_id"]))
     )
+    evidence_manifest = cas.get_manifest(
+        ArtifactID.model_validate(details["web_evidence_artifact_id"])
+    )
+    assert persisted_bundle["schema_version"] == "1.1"
+    assert evidence_manifest.artifact_schema is not None
+    assert evidence_manifest.artifact_schema.name == "polisyos.scholar.web_evidence_bundle"
+    assert evidence_manifest.artifact_schema.version == persisted_bundle["schema_version"]
     assert [
         (attempt["provider"], attempt["outcome"], attempt.get("error"))
         for attempt in persisted_bundle["query_traces"][0]["provider_attempts"]

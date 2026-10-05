@@ -2,10 +2,234 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
+
+WEB_EVIDENCE_BUNDLE_ARTIFACT_KIND = "scholar.web_evidence_bundle"
+WEB_EVIDENCE_BUNDLE_SCHEMA_NAME = "polisyos.scholar.web_evidence_bundle"
+WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION = "1.0"
+WEB_EVIDENCE_BUNDLE_SCHEMA_VERSION = "1.1"
+WEB_EVIDENCE_BUNDLE_SCHEMA_VERSIONS = frozenset(
+    {WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION, WEB_EVIDENCE_BUNDLE_SCHEMA_VERSION}
+)
+
+WEB_RESEARCH_CHECKPOINT_ARTIFACT_KIND = "scholar.web_research_checkpoint"
+WEB_RESEARCH_CHECKPOINT_SCHEMA_NAME = "polisyos.scholar.web_research_checkpoint"
+WEB_RESEARCH_CHECKPOINT_LEGACY_SCHEMA_VERSION = "1.0"
+WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSION = "1.1"
+WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSIONS = frozenset(
+    {WEB_RESEARCH_CHECKPOINT_LEGACY_SCHEMA_VERSION, WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSION}
+)
+
+
+class ScholarSchemaContractError(ValueError):
+    """Reject unsupported or mismatched persisted Scholar schema profiles."""
+
+    def __init__(
+        self,
+        code: Literal[
+            "schema_binding_mismatch",
+            "schema_version_content_mismatch",
+            "unsupported_schema_version",
+        ],
+        message: str,
+        *,
+        schema_name: str,
+        schema_version: str,
+    ) -> None:
+        self.code = code
+        self.schema_name = schema_name
+        self.schema_version = schema_version
+        super().__init__(message)
+
+
+def _validate_schema_profile(
+    payload: object,
+    *,
+    schema_name: str,
+    schema_version: str,
+    expected_schema_name: str,
+    supported_schema_versions: frozenset[str],
+    allow_legacy_body_version_absence: bool = False,
+) -> dict[str, Any]:
+    if schema_name != expected_schema_name:
+        raise ScholarSchemaContractError(
+            "schema_binding_mismatch",
+            f"Expected schema {expected_schema_name!r}, received {schema_name!r}",
+            schema_name=schema_name,
+            schema_version=schema_version,
+        )
+    if schema_version not in supported_schema_versions:
+        raise ScholarSchemaContractError(
+            "unsupported_schema_version",
+            f"Unsupported {schema_name} schema version {schema_version!r}",
+            schema_name=schema_name,
+            schema_version=schema_version,
+        )
+    if not isinstance(payload, Mapping):
+        raise ScholarSchemaContractError(
+            "schema_binding_mismatch",
+            f"{schema_name} payload must be a JSON object",
+            schema_name=schema_name,
+            schema_version=schema_version,
+        )
+    body_version = payload.get("schema_version")
+    if (
+        body_version is None
+        and allow_legacy_body_version_absence
+        and schema_version == WEB_RESEARCH_CHECKPOINT_LEGACY_SCHEMA_VERSION
+    ):
+        return dict(payload)
+    if body_version != schema_version:
+        raise ScholarSchemaContractError(
+            "schema_binding_mismatch",
+            f"{schema_name} body version {body_version!r} does not match "
+            f"profile {schema_version!r}",
+            schema_name=schema_name,
+            schema_version=schema_version,
+        )
+    return dict(payload)
+
+
+def parse_web_evidence_bundle(
+    payload: object,
+    *,
+    schema_name: str,
+    schema_version: str,
+) -> WebEvidenceBundle:
+    """Parse a persisted evidence bundle only when CAS and body profiles agree."""
+    bound_payload = _validate_schema_profile(
+        payload,
+        schema_name=schema_name,
+        schema_version=schema_version,
+        expected_schema_name=WEB_EVIDENCE_BUNDLE_SCHEMA_NAME,
+        supported_schema_versions=WEB_EVIDENCE_BUNDLE_SCHEMA_VERSIONS,
+    )
+    if schema_version == WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION:
+        traces = bound_payload.get("query_traces", [])
+        if isinstance(traces, list) and any(
+            isinstance(trace, Mapping) and "provider_attempts" in trace for trace in traces
+        ):
+            raise ScholarSchemaContractError(
+                "schema_version_content_mismatch",
+                "WebEvidenceBundle 1.0 cannot contain provider_attempts",
+                schema_name=schema_name,
+                schema_version=schema_version,
+            )
+    return WebEvidenceBundle.model_validate(bound_payload)
+
+
+def parse_research_job_checkpoint(
+    payload: object,
+    *,
+    schema_name: str,
+    schema_version: str,
+) -> ResearchJobCheckpoint:
+    """Parse a persisted checkpoint against its exact supported CAS profile."""
+    bound_payload = _validate_schema_profile(
+        payload,
+        schema_name=schema_name,
+        schema_version=schema_version,
+        expected_schema_name=WEB_RESEARCH_CHECKPOINT_SCHEMA_NAME,
+        supported_schema_versions=WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSIONS,
+        allow_legacy_body_version_absence=True,
+    )
+    if schema_version == WEB_RESEARCH_CHECKPOINT_LEGACY_SCHEMA_VERSION:
+        if "schema_version" in bound_payload:
+            raise ScholarSchemaContractError(
+                "schema_binding_mismatch",
+                "Web research checkpoint 1.0 payload must use its established unversioned body",
+                schema_name=schema_name,
+                schema_version=schema_version,
+            )
+        bundle_payload = bound_payload.get("bundle")
+        if not isinstance(bundle_payload, Mapping):
+            raise ScholarSchemaContractError(
+                "schema_binding_mismatch",
+                "Web research checkpoint 1.0 must contain its established bundle object",
+                schema_name=schema_name,
+                schema_version=schema_version,
+            )
+        if bundle_payload.get("schema_version") != WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION:
+            raise ScholarSchemaContractError(
+                "schema_binding_mismatch",
+                "Web research checkpoint 1.0 must contain a WebEvidenceBundle 1.0 payload",
+                schema_name=schema_name,
+                schema_version=schema_version,
+            )
+        bound_payload["schema_version"] = WEB_RESEARCH_CHECKPOINT_LEGACY_SCHEMA_VERSION
+    return ResearchJobCheckpoint.model_validate(bound_payload)
+
+
+def prepare_web_evidence_bundle_for_current_write(
+    bundle: WebEvidenceBundle,
+) -> WebEvidenceBundle:
+    """Validate and version a bundle before emitting the current wire shape."""
+    if (
+        not isinstance(bundle.schema_version, str)
+        or bundle.schema_version not in WEB_EVIDENCE_BUNDLE_SCHEMA_VERSIONS
+    ):
+        raise ScholarSchemaContractError(
+            "unsupported_schema_version",
+            f"Cannot write WebEvidenceBundle schema version {bundle.schema_version!r}",
+            schema_name=WEB_EVIDENCE_BUNDLE_SCHEMA_NAME,
+            schema_version=str(bundle.schema_version),
+        )
+    payload = bundle.model_dump(mode="python", exclude_none=True)
+    if bundle.schema_version == WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION:
+        traces = payload.get("query_traces", [])
+        if isinstance(traces, list):
+            for trace in traces:
+                if (
+                    isinstance(trace, dict)
+                    and "provider_attempts" in trace
+                    and trace["provider_attempts"] != []
+                ):
+                    raise ScholarSchemaContractError(
+                        "schema_version_content_mismatch",
+                        "WebEvidenceBundle 1.0 cannot be promoted with provider_attempts",
+                        schema_name=WEB_EVIDENCE_BUNDLE_SCHEMA_NAME,
+                        schema_version=WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION,
+                    )
+                if isinstance(trace, dict):
+                    trace.pop("provider_attempts", None)
+    payload["schema_version"] = WEB_EVIDENCE_BUNDLE_SCHEMA_VERSION
+    return WebEvidenceBundle.model_validate(payload)
+
+
+def prepare_research_job_checkpoint_for_current_write(
+    checkpoint: ResearchJobCheckpoint,
+) -> ResearchJobCheckpoint:
+    """Validate and version a job checkpoint before emitting the current wire shape."""
+    if (
+        not isinstance(checkpoint.schema_version, str)
+        or checkpoint.schema_version not in WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSIONS
+    ):
+        raise ScholarSchemaContractError(
+            "unsupported_schema_version",
+            f"Cannot write Web research checkpoint schema version {checkpoint.schema_version!r}",
+            schema_name=WEB_RESEARCH_CHECKPOINT_SCHEMA_NAME,
+            schema_version=str(checkpoint.schema_version),
+        )
+    if (
+        checkpoint.schema_version == WEB_RESEARCH_CHECKPOINT_LEGACY_SCHEMA_VERSION
+        and checkpoint.bundle.schema_version != WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION
+    ):
+        raise ScholarSchemaContractError(
+            "schema_binding_mismatch",
+            "Web research checkpoint 1.0 must contain a WebEvidenceBundle 1.0 payload",
+            schema_name=WEB_RESEARCH_CHECKPOINT_SCHEMA_NAME,
+            schema_version=WEB_RESEARCH_CHECKPOINT_LEGACY_SCHEMA_VERSION,
+        )
+    payload = checkpoint.model_dump(mode="python", exclude_none=True)
+    payload["schema_version"] = WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSION
+    payload["bundle"] = prepare_web_evidence_bundle_for_current_write(checkpoint.bundle).model_dump(
+        mode="python", exclude_none=True
+    )
+    return ResearchJobCheckpoint.model_validate(payload)
 
 
 class SearchBudgetControls(BaseModel):
@@ -323,7 +547,7 @@ class WebEvidenceBundle(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = WEB_EVIDENCE_BUNDLE_SCHEMA_VERSION
     bundle_id: str
     brief: ResearchBrief
     query_graph: QueryGraph
@@ -338,6 +562,23 @@ class WebEvidenceBundle(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     partial: bool = False
     checkpoint_artifact_id: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _reject_new_trace_fields_in_legacy_schema(cls, value: Any) -> Any:
+        """Keep the v1.0 trace contract strict after adding provider attempts."""
+        if not isinstance(value, Mapping):
+            return value
+        if value.get("schema_version", WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION) != (
+            WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION
+        ):
+            return value
+        traces = value.get("query_traces", [])
+        if isinstance(traces, list) and any(
+            isinstance(trace, Mapping) and "provider_attempts" in trace for trace in traces
+        ):
+            raise ValueError("WebEvidenceBundle 1.0 cannot contain provider_attempts")
+        return value
 
     @model_validator(mode="after")
     def _validate_evidence_links(self) -> WebEvidenceBundle:
@@ -391,6 +632,7 @@ class ResearchJobCheckpoint(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: Literal["1.0", "1.1"] = WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSION
     job_id: str
     status: Literal["pending", "running", "completed", "failed"]
     brief: ResearchBrief
@@ -402,6 +644,17 @@ class ResearchJobCheckpoint(BaseModel):
     progress_events: list[ResearchProgressEvent] = Field(default_factory=list)
     error: str | None = None
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+    @model_validator(mode="after")
+    def _validate_checkpoint_bundle_profile(self) -> ResearchJobCheckpoint:
+        if (
+            self.schema_version == WEB_RESEARCH_CHECKPOINT_LEGACY_SCHEMA_VERSION
+            and self.bundle.schema_version != WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION
+        ):
+            raise ValueError(
+                "Web research checkpoint 1.0 must contain a WebEvidenceBundle 1.0 payload"
+            )
+        return self
 
 
 class ResearchJobStatus(BaseModel):
@@ -420,6 +673,16 @@ class ResearchJobStatus(BaseModel):
 
 
 __all__ = [
+    "WEB_EVIDENCE_BUNDLE_ARTIFACT_KIND",
+    "WEB_EVIDENCE_BUNDLE_LEGACY_SCHEMA_VERSION",
+    "WEB_EVIDENCE_BUNDLE_SCHEMA_NAME",
+    "WEB_EVIDENCE_BUNDLE_SCHEMA_VERSION",
+    "WEB_EVIDENCE_BUNDLE_SCHEMA_VERSIONS",
+    "WEB_RESEARCH_CHECKPOINT_ARTIFACT_KIND",
+    "WEB_RESEARCH_CHECKPOINT_LEGACY_SCHEMA_VERSION",
+    "WEB_RESEARCH_CHECKPOINT_SCHEMA_NAME",
+    "WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSION",
+    "WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSIONS",
     "ClaimSupportLink",
     "FetchResult",
     "FetchSafetyEvent",
@@ -430,6 +693,7 @@ __all__ = [
     "ResearchJobCheckpoint",
     "ResearchJobStatus",
     "ResearchProgressEvent",
+    "ScholarSchemaContractError",
     "SearchBudgetControls",
     "SearchConstraints",
     "SearchProviderAttempt",
@@ -439,4 +703,8 @@ __all__ = [
     "SourceSnippet",
     "WebEvidenceBundle",
     "WebSearchHit",
+    "parse_research_job_checkpoint",
+    "parse_web_evidence_bundle",
+    "prepare_research_job_checkpoint_for_current_write",
+    "prepare_web_evidence_bundle_for_current_write",
 ]

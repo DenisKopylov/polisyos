@@ -8,14 +8,21 @@ import json
 import pytest
 
 import polisyos.scholar.search.jobs as jobs_module
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import BoundedLivenessConfig
 from polisyos.scholar.api import ScholarService
 from polisyos.scholar.search.jobs import DeepResearchJobManager
 from polisyos.scholar.search.models import (
     FetchResult,
+    QueryGraph,
+    ResearchBrief,
+    ResearchJobCheckpoint,
     SearchBudgetControls,
     SearchConstraints,
+    WebEvidenceBundle,
     WebSearchHit,
 )
 from polisyos.scholar.search.providers import ProviderFailoverPolicy
@@ -169,21 +176,25 @@ async def test_deep_search_consumes_scholar_requirement_spec(monkeypatch, tmp_pa
         "polisyos.scholar.search.service.fetch_open_page",
         _fake_fetch_open_page,
     )
-    spec = ScholarSupportRequirementCompiler().compile(
-        {
-            "run_id": "run.scholar.search",
-            "authority_level": "production",
-            "claims": [
-                {
-                    "claim_id": "claim.1",
-                    "claim_text": "Minimum wage increased earnings.",
-                    "claim_type": "causal",
-                    "claim_family": "causal",
-                    "claim_use": "decision_support",
-                }
-            ],
-        }
-    ).requirements[0]
+    spec = (
+        ScholarSupportRequirementCompiler()
+        .compile(
+            {
+                "run_id": "run.scholar.search",
+                "authority_level": "production",
+                "claims": [
+                    {
+                        "claim_id": "claim.1",
+                        "claim_text": "Minimum wage increased earnings.",
+                        "claim_type": "causal",
+                        "claim_family": "causal",
+                        "claim_use": "decision_support",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
     provider = _CapturingProvider()
     service = ScholarDeepSearchService(
         provider_policy=ProviderFailoverPolicy([provider]),
@@ -319,6 +330,16 @@ async def test_deep_research_job_manager_checkpoints_and_resumes(monkeypatch, tm
     assert failed_status.status == "failed"
     assert failed_status.checkpoint_artifact_id is not None
     assert failed_status.result_bundle is not None
+    first_checkpoint_ref = ArtifactID.model_validate(failed_status.checkpoint_artifact_id)
+    first_checkpoint_manifest = cas.get_manifest(first_checkpoint_ref)
+    first_checkpoint_payload = json.loads(cas.get_bytes(first_checkpoint_ref))
+    assert first_checkpoint_manifest.artifact_schema is not None
+    assert first_checkpoint_manifest.artifact_schema.name == (
+        "polisyos.scholar.web_research_checkpoint"
+    )
+    assert first_checkpoint_manifest.artifact_schema.version == "1.1"
+    assert first_checkpoint_payload["schema_version"] == "1.1"
+    assert first_checkpoint_payload["bundle"]["schema_version"] == "1.1"
 
     resumed_job_id = await manager.resume(
         checkpoint_artifact_id=failed_status.checkpoint_artifact_id,
@@ -334,6 +355,126 @@ async def test_deep_research_job_manager_checkpoints_and_resumes(monkeypatch, tm
     )
     assert report_payload["schema_version"] == "policyos.scholar.academic_evidence.v1"
     assert report_payload["capability_reality_status"] == "implemented"
+
+
+@pytest.mark.asyncio
+async def test_deep_research_job_manager_resumes_exact_legacy_v10_checkpoint(
+    monkeypatch,
+    tmp_path,
+):
+    monkeypatch.setattr(
+        "polisyos.scholar.search.service.fetch_open_page",
+        _fake_fetch_open_page,
+    )
+    cas = FileSystemCAS(tmp_path / "cas-legacy-checkpoint")
+    brief = ResearchBrief(question="minimum wage")
+    legacy_bundle = WebEvidenceBundle(
+        schema_version="1.0",
+        bundle_id="legacy.bundle",
+        brief=brief,
+        query_graph=QueryGraph(brief=brief),
+    )
+    legacy_checkpoint = ResearchJobCheckpoint(
+        schema_version="1.0",
+        job_id="research.legacy-checkpoint",
+        status="failed",
+        brief=brief,
+        query_graph=legacy_bundle.query_graph,
+        constraints=SearchConstraints(allowed_domains=["agency.gov", "journal.edu"]),
+        budgets=SearchBudgetControls(
+            max_search_queries=1,
+            max_fetch_pages=1,
+            max_parallel_fetches=1,
+            max_depth=0,
+        ),
+        bundle=legacy_bundle,
+    )
+    legacy_payload = legacy_checkpoint.model_dump(mode="json", exclude_none=True)
+    legacy_payload.pop("schema_version")
+    legacy_ref = cas.put_json(
+        legacy_payload,
+        PutOptions(
+            kind="scholar.web_research_checkpoint",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scholar.web_research_checkpoint",
+                version="1.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    manager = DeepResearchJobManager(
+        service=ScholarDeepSearchService(
+            provider_policy=ProviderFailoverPolicy([_StaticProvider()]),
+            cas=cas,
+        ),
+        cas=cas,
+    )
+
+    resumed_job_id = await manager.resume(checkpoint_artifact_id=str(legacy_ref.artifact_id))
+    resumed_status = await manager.wait(resumed_job_id)
+
+    assert resumed_status.status == "completed"
+    assert resumed_status.result_bundle is not None
+    assert resumed_status.result_bundle.schema_version == "1.1"
+    assert resumed_status.checkpoint_artifact_id is not None
+    new_checkpoint_ref = ArtifactID.model_validate(resumed_status.checkpoint_artifact_id)
+    new_checkpoint_manifest = cas.get_manifest(new_checkpoint_ref)
+    new_checkpoint_payload = json.loads(cas.get_bytes(new_checkpoint_ref))
+    assert new_checkpoint_manifest.artifact_schema is not None
+    assert new_checkpoint_manifest.artifact_schema.version == "1.1"
+    assert new_checkpoint_payload["schema_version"] == "1.1"
+    assert new_checkpoint_payload["bundle"]["schema_version"] == "1.1"
+
+
+@pytest.mark.asyncio
+async def test_deep_research_job_manager_rejects_v11_bundle_mislabeled_as_legacy_checkpoint(
+    tmp_path,
+):
+    cas = FileSystemCAS(tmp_path / "cas-mislabeled-checkpoint")
+    brief = ResearchBrief(question="minimum wage")
+    bundle = WebEvidenceBundle(
+        bundle_id="mislabeled.bundle",
+        brief=brief,
+        query_graph=QueryGraph(brief=brief),
+    )
+    payload = ResearchJobCheckpoint(
+        job_id="research.mislabeled-checkpoint",
+        status="failed",
+        brief=brief,
+        query_graph=bundle.query_graph,
+        bundle=bundle,
+    ).model_dump(mode="json", exclude_none=True)
+    payload.pop("schema_version")
+    payload["bundle"]["schema_version"] = "1.0"
+    payload["bundle"]["query_traces"] = [
+        {
+            "query_node_id": "q1",
+            "query": "minimum wage",
+            "perspective": "overview",
+            "provider": "fixture",
+            "provider_attempts": [{"provider": "fixture", "outcome": "no_hits", "hit_count": 0}],
+        }
+    ]
+    checkpoint_ref = cas.put_json(
+        payload,
+        PutOptions(
+            kind="scholar.web_research_checkpoint",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scholar.web_research_checkpoint",
+                version="1.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    manager = DeepResearchJobManager(
+        service=ScholarDeepSearchService(cas=cas),
+        cas=cas,
+    )
+
+    with pytest.raises(ValueError):
+        await manager.resume(checkpoint_artifact_id=str(checkpoint_ref.artifact_id))
 
 
 @pytest.mark.asyncio

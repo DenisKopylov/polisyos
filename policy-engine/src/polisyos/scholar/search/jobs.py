@@ -28,14 +28,21 @@ from polisyos.scholar import (
     build_scholar_academic_evidence_report_from_web_bundle,
 )
 from polisyos.scholar.search.models import (
+    WEB_RESEARCH_CHECKPOINT_ARTIFACT_KIND,
+    WEB_RESEARCH_CHECKPOINT_SCHEMA_NAME,
+    WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSION,
     QueryGraph,
     ResearchBrief,
     ResearchJobCheckpoint,
     ResearchJobStatus,
     ResearchProgressEvent,
+    ScholarSchemaContractError,
     SearchBudgetControls,
     SearchConstraints,
     WebEvidenceBundle,
+    parse_research_job_checkpoint,
+    prepare_research_job_checkpoint_for_current_write,
+    prepare_web_evidence_bundle_for_current_write,
 )
 from polisyos.scholar_requirement import (
     ScholarSupportRequirementSpec,
@@ -78,6 +85,28 @@ def _bundle_runtime_ref(bundle: WebEvidenceBundle, *, suffix: str) -> str:
     return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def _parse_checkpoint_with_manifest(payload: object, manifest: Any) -> ResearchJobCheckpoint:
+    schema = manifest.artifact_schema
+    schema_name = schema.name if schema is not None else ""
+    schema_version = schema.version if schema is not None else ""
+    if (
+        manifest.kind != WEB_RESEARCH_CHECKPOINT_ARTIFACT_KIND
+        or manifest.media_type != "application/json"
+        or schema is None
+    ):
+        raise ScholarSchemaContractError(
+            "schema_binding_mismatch",
+            "Web research checkpoint CAS manifest does not match the expected profile",
+            schema_name=schema_name,
+            schema_version=schema_version,
+        )
+    return parse_research_job_checkpoint(
+        payload,
+        schema_name=schema_name,
+        schema_version=schema_version,
+    )
+
+
 class DeepResearchJobManager:
     """Manage background deep-search jobs and checkpoint snapshots."""
 
@@ -104,8 +133,7 @@ class DeepResearchJobManager:
         brief: ResearchBrief | None = None,
         query_graph: QueryGraph | None = None,
         claim_texts: list[str] | None = None,
-        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]]
-        | None = None,
+        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]] | None = None,
         constraints: SearchConstraints | None = None,
         budgets: SearchBudgetControls | None = None,
     ) -> str:
@@ -132,18 +160,19 @@ class DeepResearchJobManager:
 
     async def resume(self, *, checkpoint_artifact_id: str) -> str:
         """Resume a failed/partial job from a CAS checkpoint artifact."""
-        payload = from_canonical_bytes(
-            await self._async_cas.get_bytes(ArtifactID.model_validate(checkpoint_artifact_id))
-        )
-        checkpoint = ResearchJobCheckpoint.model_validate(payload)
+        checkpoint_ref = ArtifactID.model_validate(checkpoint_artifact_id)
+        manifest = await self._async_cas.get_manifest(checkpoint_ref)
+        payload = from_canonical_bytes(await self._async_cas.get_bytes(checkpoint_ref))
+        checkpoint = _parse_checkpoint_with_manifest(payload, manifest)
         job_id = str(checkpoint.job_id)
+        current_bundle = prepare_web_evidence_bundle_for_current_write(checkpoint.bundle)
         self._jobs[job_id] = _JobRecord(
             status=ResearchJobStatus(
                 job_id=job_id,
                 status="pending",
                 checkpoint_artifact_id=checkpoint_artifact_id,
                 latest_event=checkpoint.progress_events[-1] if checkpoint.progress_events else None,
-                result_bundle=checkpoint.bundle,
+                result_bundle=current_bundle,
                 error=checkpoint.error,
             )
         )
@@ -154,12 +183,12 @@ class DeepResearchJobManager:
                 question=checkpoint.brief.question,
                 brief=checkpoint.brief,
                 query_graph=checkpoint.query_graph,
-                claim_texts=[item.claim_text for item in checkpoint.bundle.claim_supports]
+                claim_texts=[item.claim_text for item in current_bundle.claim_supports]
                 or [checkpoint.brief.question],
                 requirement_specs=checkpoint.requirement_specs,
                 constraints=checkpoint.constraints,
                 budgets=checkpoint.budgets,
-                resume_bundle=checkpoint.bundle,
+                resume_bundle=current_bundle,
             )
         )
         return job_id
@@ -178,10 +207,10 @@ class DeepResearchJobManager:
         checkpoint_artifact_id = status.checkpoint_artifact_id
         if not checkpoint_artifact_id:
             return None
-        payload = from_canonical_bytes(
-            self._cas.get_bytes(ArtifactID.model_validate(checkpoint_artifact_id))
-        )
-        checkpoint = ResearchJobCheckpoint.model_validate(payload)
+        checkpoint_ref = ArtifactID.model_validate(checkpoint_artifact_id)
+        manifest = self._cas.get_manifest(checkpoint_ref)
+        payload = from_canonical_bytes(self._cas.get_bytes(checkpoint_ref))
+        checkpoint = _parse_checkpoint_with_manifest(payload, manifest)
         return checkpoint.bundle
 
     async def wait(
@@ -205,10 +234,7 @@ class DeepResearchJobManager:
                 record.status = record.status.model_copy(
                     update={
                         "status": "escalated",
-                        "error": (
-                            "bounded_liveness_deadline_exceeded:"
-                            f"{liveness.producer_key}"
-                        ),
+                        "error": (f"bounded_liveness_deadline_exceeded:{liveness.producer_key}"),
                         "updated_at": datetime.now(UTC),
                     }
                 )
@@ -225,8 +251,7 @@ class DeepResearchJobManager:
         brief: ResearchBrief | None,
         query_graph: QueryGraph | None,
         claim_texts: list[str] | None,
-        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]]
-        | None,
+        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]] | None,
         constraints: SearchConstraints | None,
         budgets: SearchBudgetControls | None,
         resume_bundle: WebEvidenceBundle | None,
@@ -241,11 +266,14 @@ class DeepResearchJobManager:
 
         brief_for_checkpoint = brief or ResearchBrief(question=question or "research")
         graph_for_checkpoint = query_graph or QueryGraph(brief=brief_for_checkpoint)
-        bundle_for_checkpoint = resume_bundle or WebEvidenceBundle(
-            bundle_id=job_id,
-            brief=brief_for_checkpoint,
-            query_graph=graph_for_checkpoint,
-            partial=True,
+        bundle_for_checkpoint = prepare_web_evidence_bundle_for_current_write(
+            resume_bundle
+            or WebEvidenceBundle(
+                bundle_id=job_id,
+                brief=brief_for_checkpoint,
+                query_graph=graph_for_checkpoint,
+                partial=True,
+            )
         )
         progress_events: list[ResearchProgressEvent] = []
 
@@ -359,12 +387,16 @@ class DeepResearchJobManager:
             return bundle_for_checkpoint
 
     async def _persist_checkpoint_async(self, checkpoint: ResearchJobCheckpoint) -> ArtifactRef:
+        current_checkpoint = prepare_research_job_checkpoint_for_current_write(checkpoint)
         return await self._async_cas.put_json(
-            checkpoint.model_dump(mode="json", exclude_none=True),
+            current_checkpoint.model_dump(mode="json", exclude_none=True),
             ArtifactWriteOptions(
-                kind="scholar.web_research_checkpoint",
+                kind=WEB_RESEARCH_CHECKPOINT_ARTIFACT_KIND,
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scholar.web_research_checkpoint", version="1.0"),
+                schema=SchemaInfo(
+                    name=WEB_RESEARCH_CHECKPOINT_SCHEMA_NAME,
+                    version=WEB_RESEARCH_CHECKPOINT_SCHEMA_VERSION,
+                ),
                 producer=ProducerInfo(component="polisyos.scholar.search.jobs", version="1.0.0"),
             ),
             canon_spec=CanonSpec(forbid_floats=False),

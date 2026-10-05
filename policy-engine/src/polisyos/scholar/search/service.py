@@ -14,6 +14,9 @@ from polisyos.core.canon import CanonSpec, content_hash
 from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.fetcher import fetch_open_page, find_in_page, source_id_from_url
 from polisyos.scholar.search.models import (
+    WEB_EVIDENCE_BUNDLE_ARTIFACT_KIND,
+    WEB_EVIDENCE_BUNDLE_SCHEMA_NAME,
+    WEB_EVIDENCE_BUNDLE_SCHEMA_VERSION,
     ClaimSupportLink,
     FetchResult,
     NoHitFrontierRecord,
@@ -28,6 +31,7 @@ from polisyos.scholar.search.models import (
     SourceSnippet,
     WebEvidenceBundle,
     WebSearchHit,
+    prepare_web_evidence_bundle_for_current_write,
 )
 from polisyos.scholar.search.planner import (
     apply_adaptive_query_reformulation,
@@ -263,6 +267,7 @@ class ScholarDeepSearchService:
                 query_graph=graph,
             )
         )
+        bundle = prepare_web_evidence_bundle_for_current_write(bundle)
         if not bundle.query_graph.nodes:
             bundle.query_graph = graph
         if bundle.brief != active_brief:
@@ -481,12 +486,16 @@ class ScholarDeepSearchService:
         """Persist a `WebEvidenceBundle` into CAS."""
         if self._cas is None:
             raise ValueError("persist_bundle requires a CAS-backed ScholarDeepSearchService")
+        persisted_bundle = prepare_web_evidence_bundle_for_current_write(bundle)
         return self._cas.put_json(
-            bundle.model_dump(mode="json", exclude_none=True),
+            persisted_bundle.model_dump(mode="json", exclude_none=True),
             ArtifactWriteOptions(
-                kind="scholar.web_evidence_bundle",
+                kind=WEB_EVIDENCE_BUNDLE_ARTIFACT_KIND,
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scholar.web_evidence_bundle", version="1.0"),
+                schema=SchemaInfo(
+                    name=WEB_EVIDENCE_BUNDLE_SCHEMA_NAME,
+                    version=WEB_EVIDENCE_BUNDLE_SCHEMA_VERSION,
+                ),
                 producer=ProducerInfo(component="polisyos.scholar.search.service", version="1.0.0"),
             ),
             canon_spec=CanonSpec(forbid_floats=False),

@@ -20,11 +20,15 @@
     "b09e634d0c2b0c522e50a69f161ed373a2b3bed6",
     "570b7e75171d5ba97112230da44e97b16d3cc0f6",
     "23cd29e147b8a389023797e7369e910ee4e13ec7",
-    "b7c089f4e2a26ff3d3030f4e68abbf79a0c5676f"
+    "b7c089f4e2a26ff3d3030f4e68abbf79a0c5676f",
+    "fbc826c5efc7e57c6086fbb7c85fd14a016b1608",
+    "ad6f20d83260b65d2f9367fc087c892e7620f507",
+    "93b63081c686d1db77938bc6524d41d06bc0db86",
+    "dec491ba682832bd9a3eafc1eb0206eb7d6dc09d"
   ],
-  "candidate_tree_sha": "6faf765c81586950179485090170bb398ab2fe3d",
+  "candidate_tree_sha": "1d77c474fc68d3518bdd24d10c085806cc166b9a",
   "branch": "codex/e02-B-coordination",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/36",
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/README.md",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/baseline-navigation.json",
@@ -32,6 +36,18 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/probe.py",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/receipt.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/transfer-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/delta-b75.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/oracle.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/transfer-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/base.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/transfer-index.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/baseline-resolution.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.xml",
@@ -4830,6 +4846,133 @@
       "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/receipt.json",
       "predicate_basis": "recomputed",
       "next_owner": "EXE B52 frozen515054 candidate independent acceptance pending; native source here exact0f24"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-b52-review515/policy-engine/src:/workspace/e02-B-b52-review515/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/integration/scientist/test_async_cache_recovery.py -vv -s",
+      "target_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "environment": {
+        "cwd": "/workspace/e02-B-b52-review515/policy-engine",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000,
+        "PYTHONPATH": "/workspace/e02-B-b52-review515/policy-engine/src:/workspace/e02-B-b52-review515/policy-engine/product",
+        "isolation": "new temporary real FileSystemCAS per case; no DB, network, ports or productiondataset; shared interpreter unchanged"
+      },
+      "input_closure": "All 14 native methods from candidate test_async_cache_recovery.py; native cold AsyncWorkflowExecutor→CASCheckpointHook persisted checkpoint and RunContext trace→reopened FileSystemCAS cache recovery, deterministic physical read watchdog and ready task, typed BudgetMiddleware read gate, delayed startup persistence and readiness body, contextvars; actual chmod/digest/scope negatives; no externalinputs.",
+      "outcome": "PASS",
+      "deciding_output": "14 passed in 12.50s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/native.txt",
+        "sha256": "c6f411f974ca78d971fb9e31c30c3be6a9a1e2c1b39ef5faee6492c762373907"
+      },
+      "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/receipt.json",
+      "predicate_basis": "recomputed",
+      "finding_closure": "not_established"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-b52-review515/policy-engine/src:/workspace/e02-B-b52-review515/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/b52-review515/probe.py",
+      "target_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
+      "environment": {
+        "cwd": "/workspace/e02-B-dur-ledger",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000,
+        "PYTHONPATH": "/workspace/e02-B-b52-review515/policy-engine/src:/workspace/e02-B-b52-review515/policy-engine/product",
+        "isolation": "new temporary real FileSystemCAS per case; no DB, network, ports or productiondataset; shared interpreter unchanged"
+      },
+      "input_closure": "Independent baseline-derived oracle script loads exact native stateoperations fixture from pinned candidate. Six native trace/checkpoint × responsiveness/deadline/cancellation cases plus positive stateoperation replay and real chmod/digest/foreignscope negatives. Actual cold native cache entries+journals; checkpoint branch publishes CASCheckpointHook and resolves latest persisted checkpoint metadata refs, empties trace; real get_bytes paused120ms then delegates backend. No source mutation or naivecontrol on candidate.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/oracle.txt",
+        "sha256": "d08f31bf43a8426d9b9b5c08a91b261f78de815147b1ab3a02a471c516033f92"
+      },
+      "script": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/probe.py",
+        "sha256": "e9e9a430563e25e6b018c348f58c774a9e01ae2a514bd60041b015fa17b4362d"
+      },
+      "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-review/receipt.json",
+      "predicate_basis": "recomputed",
+      "finding_closure": "not_established"
+    },
+    {
+      "target_sha": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+      "environment": {
+        "cwd": "/workspace/e02-B-dur-ledger",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000,
+        "PYTHONPATH": "/workspace/e02-B-cas-alias-base/policy-engine/src:/workspace/e02-B-cas-alias-base/policy-engine/product",
+        "source_ref": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+        "source_tree": "69fbb88446ff432bd88815dc14d28be7b33df1f8",
+        "isolation": "TempDirectory perrun;7separate realfilesystemCAS roots; actualsymlink/dangling/FIFO/directory/UNIXsocket; no DB/ports/dataset"
+      },
+      "input_closure": "Exact same independentlywritten3670Bdriver forbase/candidate: native publicFileSystemCAS put_bytes→export_subgraph→archive→newFileSystemCAS importverify/get_bytes; missing+regularmode640positive, fiveactualnonregulartypes; suppliedinode/type/referent bytes andforeigndirectoryentry observed.",
+      "command": "PYTHONPATH=/workspace/e02-B-cas-alias-base/policy-engine/src:/workspace/e02-B-cas-alias-base/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/probe.py /workspace/e02-B-cas-alias-base base",
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/base.txt",
+        "sha256": "e55324d41a7f06808096ea9972842af383319e616caa5c60279b128723163a6f"
+      },
+      "script": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/probe.py",
+        "sha256": "cf6438b3fc35b414979182d3e8b508d7ff2a4afe2742578d821f7f798b3376ae"
+      },
+      "expected_outcome": "FAIL for suppliedentrytype admission property; probeexit0 confirms five expectednegative predicate observations plus positivecontrols.",
+      "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/receipt.json",
+      "predicate_basis": "recomputed",
+      "finding_closure": "not_established"
+    },
+    {
+      "target_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "environment": {
+        "cwd": "/workspace/e02-B-dur-ledger",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000,
+        "PYTHONPATH": "/workspace/e02-B-cas-alias-fix/policy-engine/src:/workspace/e02-B-cas-alias-fix/policy-engine/product",
+        "source_ref": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+        "source_tree": "613e40b149ec448c5b202cc8b5edd811e2e35a68",
+        "isolation": "TempDirectory perrun;7separate realfilesystemCAS roots; actualsymlink/dangling/FIFO/directory/UNIXsocket; no DB/ports/dataset"
+      },
+      "input_closure": "Exact same independentlywritten3670Bdriver forbase/candidate: native publicFileSystemCAS put_bytes→export_subgraph→archive→newFileSystemCAS importverify/get_bytes; missing+regularmode640positive, fiveactualnonregulartypes; suppliedinode/type/referent bytes andforeigndirectoryentry observed.",
+      "command": "PYTHONPATH=/workspace/e02-B-cas-alias-fix/policy-engine/src:/workspace/e02-B-cas-alias-fix/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/probe.py /workspace/e02-B-cas-alias-fix fixed",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/candidate.txt",
+        "sha256": "4e0b5f405f093546dd9df89da789724a537575b1a5b36fed97f3e5cab9f2e8d2"
+      },
+      "script": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/probe.py",
+        "sha256": "cf6438b3fc35b414979182d3e8b508d7ff2a4afe2742578d821f7f798b3376ae"
+      },
+      "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/receipt.json",
+      "predicate_basis": "recomputed",
+      "finding_closure": "not_established"
+    },
+    {
+      "target_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "environment": {
+        "cwd": "/workspace/e02-B-cas-alias-fix/policy-engine",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-cas-alias-fix/policy-engine/src:/workspace/e02-B-cas-alias-fix/policy-engine/product",
+        "source_ref": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+        "source_tree": "613e40b149ec448c5b202cc8b5edd811e2e35a68"
+      },
+      "command": "PYTHONPATH=/workspace/e02-B-cas-alias-fix/policy-engine/src:/workspace/e02-B-cas-alias-fix/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q -s tests/unit/core/artifacts/test_transfer_output_paths.py tests/unit/core/artifacts/test_transfer_publication.py",
+      "input_closure": "Exactcandidate7newoutputentrycases +7existingarchivefsync/replace/member/concurrent/SIGKILLpublication cases. RealreceivingCAS consumerreadbacks; isolatedspawnchildren fornonregularoutput; no markers-only evidence.",
+      "outcome": "PASS",
+      "deciding_output": "14 passed in2.47s; retainedresource_tracker warning",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/native.txt",
+        "sha256": "1d31ec9ccd8b9dda1daa68c5f49f16a61d9e0c5d7b5c2a3d7462a414400241d5"
+      },
+      "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/receipt.json",
+      "predicate_basis": "recomputed",
+      "finding_closure": "not_established"
     }
   ],
   "property": {
@@ -4850,15 +4993,23 @@
     ]
   },
   "predicate_basis": "independently_reconciled",
-  "capability_state_or_finding_state": "Seven independent bounded runtime checks, exact partial static diagnostic, and three distinct downstream/cold-seed negative witnesses transferred; no finding closure. Final RUN/EXE candidates and full B reconciliation pending.",
+  "capability_state_or_finding_state": "Independent bounded runtime checks and downstream falsifiers transferred with deciding bytes; G review follow-ups measured, final RUN shutdown and complete combined B acceptance pending. No finding closure.",
   "limitations_and_next_owner": [
     "G fetch exact slice commits and this evidence checkpoint; G alone owns integration/shared ledger and final finding closure.",
     "A owns generation_cycle.py/run_lifecycle.py; B13 local catalog producer/artifact/served-consumer input closure requires exact candidate replay.",
     "C owns streaming.py; committed real startup-cleanup negative and healthy-disconnect control require owner transfer before handle publication.",
     "LLM cancelled owner received-cost/accounting remains reproducibly FAIL; source lacks acknowledged producer/reservation settlement identity contract.",
-    "B52 cold recovery candidate515054 awaits frozen independent acceptance; this oracle stays bound to0f24.",
     "Static raw graph is ignored/untransferred and coveragepartial; full raw admission not_established until exact rerun. Static PASS never confers runtime wiring authority.",
     "Architecture base exit2 UNRUN and later CMP gate FAIL are not classified inherited. SupportedNode22 final candidate rerun pending.",
-    "All60 finding dispositions and25bundle census will be reconciled in the final coordination checkpoint."
-  ]
+    "All60 finding dispositions and25bundle census will be reconciled in the final coordination checkpoint.",
+    "Cold recovery515054 accepted independently; test-onlyb75 timingmargin and94f source-reselection timestamp oracle reviewed. Final combined nativewave stillpending.",
+    "CAS regular output inodekind admission3b2 accepted independently; hostileparent/pathswap/ownerACL/specialbits policy remains bounded. Final remotehead/sourcecleanreceipt is recorded later.",
+    "G actualcallbackcapacitycounterexample remains HOLD; admittedunfinishedFuture counter does not track physicalworkeroccupancy duringuserdonecallbacks.",
+    "G NEWshutdownlockcycle rootreviewedstructuralb439 fix; actualindependentruntimepending beforefinalsourcefreeze."
+  ],
+  "g_dependency_refresh": {
+    "observed_checkpoint": "15d50bac59d06a3fb010327abf8e0c90f9ccbed0",
+    "base_for_B_branches": "c40d4acae1ce58b597267255026d9356565828fd",
+    "note": "Fetched and reviewed new G HOLD. No A/C protectedsourcechanges at that G checkpoint. CASpathname3b2 independentlyaccepted; RUNshutdownb439 sourceaccepted, runtimeacceptancepending. Callbackcapacity residual actualG/Linuxnegative remains explicit."
+  }
 }

@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________________ test_pass_plan_is_frozen_at_admission _____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-26/test_pass_plan_is_frozen_at_ad0')
+
+    def test_pass_plan_is_frozen_at_admission(tmp_path: Path) -> None:
+        """An accepted mutable caller container cannot change the validated dispatch plan."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        requested = ["legal"]
+        analyzer = NormImpactAnalyzer(cas, passes=requested)  # type: ignore[arg-type]
+        requested.append("legla")
+        persisted = _read_report(
+            cas, analyzer.analyze(_pack("pack.old", 1), _pack("pack.new", 3))
+        )
+>       assert persisted.passes_executed == ["legal"]
+E       AssertionError: assert ['legal', 'legla'] == ['legal']
+E         
+E         Left contains one more item: 'legla'
+E         Use -v to get more diff
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:122: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_pass_plan_is_frozen_at_admission
+1 failed in 1.82s

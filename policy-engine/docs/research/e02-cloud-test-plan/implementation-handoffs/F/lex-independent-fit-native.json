@@ -1,0 +1,44 @@
+{
+  "source_sha": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+  "source_tree": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+  "cwd": "/workspace/e02-F-lex/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+    "tests/unit/lex/simulator",
+    "tests/unit/remediation/test_lex_01.py",
+    "tests/unit/core/phase0/test_cli.py::test_cli_lex_impact_json_output",
+    "tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py",
+    "-q",
+    "-ra",
+    "-o",
+    "cache_dir=/workspace/e02-F-receipts/lex-independent-fit-pytest-cache",
+    "--basetemp=/workspace/e02-F-receipts/lex-independent-fit-pytest-tmp"
+  ],
+  "PYTHONPATH": "src:.",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "exit_code": 0,
+  "wall_s": 27.718756885999937,
+  "max_rss_kib": 781328,
+  "stdout": "......................                                                   [100%]\n",
+  "stderr": "",
+  "sources": {
+    "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py": {
+      "bytes": 15760,
+      "sha256": "6d0ab011b18da214b74f6420b06e5838bf2a209f4e8ff70d796f6f73875fe42e"
+    },
+    "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py": {
+      "bytes": 7559,
+      "sha256": "22ca871c5c0e575478e0b78ebd2125ca8cb7541fb992032adeed66afeca4f982"
+    }
+  },
+  "counts": {
+    "passed": 22,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "denominator_basis": "22 complete native pytest call dots; full selected five-path scope; no warning/error output"
+  }
+}

@@ -1,0 +1,99 @@
+REP-01 / LA-033 replay-owner candidate deciding outputs
+
+Implementation commit: 7ca76586d69d2cbbf10272a00e44044982139ee0
+Implementation tree: 386951b3825107c581b29cb369b4eeaf3c15449c
+Slice base: c40d4acae1ce58b597267255026d9356565828fd
+Branch: codex/e02-A-replay-owner
+
+1. Focused pytest run
+
+Command:
+PYTHONPATH="$PWD/policy-engine/src:$PWD/policy-engine" OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -v -p no:cacheprovider --basetemp=policy-engine/_build/e02-A-replay-owner/pytest policy-engine/tests/unit/remediation/test_rep_01.py policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py
+
+Output:
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 12 items
+
+policy-engine/tests/unit/remediation/test_rep_01.py ..........           [ 83%]
+policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py . [ 91%]
+.                                                                        [100%]
+
+=============================== warnings summary ===============================
+../../e02-a-custody/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 12 passed, 1 warning in 33.50s ========================
+
+The only warning is the shared virtualenv's unrecognized pytest `cache_dir` option. It does not change the passing result.
+
+2. Ruff
+
+Command:
+PYTHONPATH="$PWD/policy-engine/src:$PWD/policy-engine" /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/remediation/test_rep_01.py
+
+Output:
+All checks passed!
+
+3. Interpreter and resolved source identity
+
+Command used the parent-provided interpreter with `PYTHONPATH=$PWD/policy-engine/src:$PWD/policy-engine` from the leaf repository root and OMP/OPENBLAS/MKL thread counts set to 1.
+
+python= /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python
+runtime= /Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/src/polisyos/runtime/__init__.py
+canonical= /Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/src/polisyos/scientist/replay/deterministic.py
+compatibility= /Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/src/polisyos/runtime/replay.py
+cli= /Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/src/polisyos/core/components/_cli_replay.py
+backend= /Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/src/polisyos/scientist/replay/backend.py
+benchmark= /Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/benchmarks/advanced/common.py
+canonical_exports= 20; runtime_exports= 10
+
+The full ordered export tuples are in `tests/unit/remediation/test_rep_01.py` at the implementation commit and `tests/unit/scientist/replay/test_deterministic_compatibility.py` at the slice base. The latter checks identity, signatures, and the supported ReplayStrategy, CompletenessLevel, and VerificationMode values.
+
+4. Persisted CLI bundle import/export and replay subprocess
+
+The committed test function was invoked with an absolute isolated scratch directory to retain the JSON emitted by its fresh child process. It used `_build_packet_fixture`, exported the complete 9-artifact dependency graph, imported/exported it through `_cmd_replay`, imported and checked the exported bundle, and ran CLI replay with a blocker that raises if `polisyos.runtime.replay` is imported.
+
+CLI_PROBE_SUBPROCESS_STDOUT_BEGIN
+{"export_status": 0, "export": {"bundle_import": {"imported_artifacts": 9, "imported_files": 18}, "exported_artifacts": 9, "missing_artifacts": [], "missing_manifests": [], "output_path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/_build/e02-A-replay-owner/probes/cli-output/round-trip-bundle.tar.gz", "total_bytes": 13170}, "readback_status": 0, "readback": {"bundle_import": {"imported_artifacts": 9, "imported_files": 18, "verification_failed": []}, "corrupted": [], "level": "complete", "missing": [], "present_artifacts": 9, "reason_codes": [], "strategy": "foundry", "total_artifacts": 9}, "replay_status": 0, "replay": {"bundle_import": {"imported_artifacts": 9, "imported_files": 18, "verification_failed": []}, "completeness": {"level": "complete", "strategy": "foundry"}, "errors": [], "original_packet_ref": "sha256:a6e2698641327d6cfe77b48063acd77f3e3cd85858d35b3b7d61f42834bd43bd", "replay_decision_packet_ref": null, "replay_simulation_result_ref": "sha256:ff73cdb038aa6e7fc554df21a8f8f950048cb218f96bd1451d39e1cccec16137", "run_id": "replay_20261005141712", "strategy": "foundry", "success": true, "verification": {"details": {"match": true}, "mode": "bit_exact", "passed": true}, "warnings": []}, "cli_file": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/src/polisyos/core/components/_cli_replay.py", "canonical_file": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/src/polisyos/scientist/replay/deterministic.py", "backend_file": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-owner/polisyos/policy-engine/src/polisyos/scientist/replay/backend.py", "compatibility_loaded": false}
+CLI_PROBE_SUBPROCESS_STDOUT_END
+CLI_PROBE_SUBPROCESS_STDERR_BEGIN
+CLI_PROBE_SUBPROCESS_STDERR_END
+REP01_CLI_PERSISTED_BUNDLE_ASSERTIONS_PASS
+
+The test additionally imported the exported bundle into a separate filesystem CAS, recomputed completeness, compared the full artifact-ID set, and byte-compared every dependency plus the packet and simulation-result artifacts to the source CAS.
+
+The Foundry execution adapter was the single isolated seam: `_execute_foundry_replay` returned the already-persisted simulation result from the imported graph. The CLI route, canonical replay coordinator, completeness computation, persisted bundle transfer, and bit-exact verification ran. This fixture does not prove a fresh Foundry engine execution.
+
+5. Full tracked source and benchmark caller census
+
+Pinned candidate source and benchmark trees are unchanged from the slice base. The scan walked every path returned by `git ls-files -z -- policy-engine/src policy-engine/benchmarks`; each tracked `.py` file was parsed with `ast.parse`, and the tree was searched for Import, ImportFrom, and string-literal references to `polisyos.runtime.replay`.
+
+Command logic: `git ls-files -z -- policy-engine/src policy-engine/benchmarks` -> parse every tracked `.py` under both roots -> inspect imports and string constants for the exact compatibility path.
+
+Output:
+paths= 3068 by_type= {'benchmarks_other': 12, 'benchmarks_py': 147, 'src_other': 212, 'src_py': 2697}
+python_parsed= 2844 parse_errors= 0 literal_or_ast_hits= 0
+The dynamic-import entry in `architecture/imports/dynamic.toml` declares exactly `polisyos.scientist.replay.deterministic` as pattern, target, and sole allowed target. The REP-01 test checks this entry.
+
+This census covers literal imports and literal strings in tracked `src/` and `benchmarks/`; it does not establish absence of public third-party, monkeypatch/FQN, or runtime-composed external consumers.
+
+6. Marker-retaining lazy-import removal probe
+
+An isolated overlay copy of `polisyos/runtime/__init__.py` retained `__all__`, `_LAZY_IMPORTS`, and `__getattr__`. A fresh interpreter first passed against the unmodified copy. The probe inserted only `importlib.import_module("polisyos.scientist.replay.deterministic")` at package import time. The same fresh-interpreter assertion then failed because the canonical module was already in `sys.modules`. The original file was recopied into the overlay and a third fresh interpreter passed.
+
+Complete run outputs:
+unmutated_control_before: returncode=0 stdout="LAZY_ROOT_CONTROL_PASS\n" stderr=""
+eager_import_mutation_expected_failure: returncode=1 stdout="" stderr="Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import importlib,sys; r=importlib.import_module('polisyos.runtime'); assert 'polisyos.scientist.replay.deterministic' not in sys.modules; assert 'polisyos.runtime.replay' not in sys.modules; print('LAZY_ROOT_CONTROL_PASS')\n                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+restored_control_after: returncode=0 stdout="LAZY_ROOT_CONTROL_PASS\n" stderr=""
+
+An earlier ad hoc wrapper used a relative scratch path for a manually supplied `tmp_path`; its child correctly resolved the path from the project root and failed to find the bundle. The committed pytest uses pytest's absolute `tmp_path` and passed; the retained-output rerun used an absolute scratch path and passed as shown above.

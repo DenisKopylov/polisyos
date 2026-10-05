@@ -1,0 +1,142 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "replay-owner",
+  "closure_ids": ["LA-033"],
+  "bundle_ids": ["REP-01"],
+  "criteria_ids": {
+    "source_evidence": ["E95", "E96", "E97", "E98", "E99", "E100", "E101"],
+    "protected_controls": ["A18", "LK15"],
+    "historical_routes": ["Q06", "C15", "D04"],
+    "owner_map_code": "P43"
+  },
+  "source_refs": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/REP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@81c1d47963d41d1cd356a3755cf6bdb4dde403fd#/rows/257",
+    "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md@ccaf817d9f6ebacd65930fee4e187bc5a6fc60d1#rep-01",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@c40d4acae1ce58b597267255026d9356565828fd#LA-033"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": ["7ca76586d69d2cbbf10272a00e44044982139ee0"],
+  "candidate_tree_sha": "386951b3825107c581b29cb369b4eeaf3c15449c",
+  "branch": "codex/e02-A-replay-owner",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/remediation/test_rep_01.py"
+  ],
+  "baseline_cells": [
+    {"id": "F01-P126", "status": "candidate_unverified", "rerun": false},
+    {"id": "F02-P135", "status": "candidate_unverified", "rerun": false},
+    {"id": "F04-P085", "status": "candidate_unverified", "rerun": false},
+    {"id": "F04-P126", "status": "candidate_unverified", "rerun": false},
+    {"id": "F09-P087", "status": "candidate_unverified", "rerun": false},
+    {"id": "F15-P099", "status": "candidate_unverified", "rerun": false}
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=\"$PWD/policy-engine/src:$PWD/policy-engine\" OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 <parent-provided-python> -m pytest -v -p no:cacheprovider --basetemp=policy-engine/_build/e02-A-replay-owner/pytest policy-engine/tests/unit/remediation/test_rep_01.py policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py",
+      "target_sha": "7ca76586d69d2cbbf10272a00e44044982139ee0",
+      "environment": "macOS; Python 3.14.3; pytest 9.0.2; own-worktree PYTHONPATH; OMP/OPENBLAS/MKL threads=1",
+      "input_closure": "10 REP-01 tests plus 2 existing deterministic compatibility tests; fixture CAS and bundle outputs isolated under ignored _build scratch",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-owner-checks.txt#1; 12 passed, 1 shared-environment pytest cache_dir warning"
+    },
+    {
+      "command": "<parent-provided-python> -m ruff check policy-engine/tests/unit/remediation/test_rep_01.py",
+      "target_sha": "7ca76586d69d2cbbf10272a00e44044982139ee0",
+      "environment": "Python 3.14.3; own-worktree test path",
+      "input_closure": "Changed REP-01 regression test",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-owner-checks.txt#2; All checks passed!"
+    },
+    {
+      "command": "<parent-provided-python> -c import-and-print-source-identity",
+      "target_sha": "7ca76586d69d2cbbf10272a00e44044982139ee0",
+      "environment": "PYTHONPATH=<own worktree>/policy-engine/src:<own worktree>/policy-engine; Python 3.14.3",
+      "input_closure": "Runtime root, canonical Scientist deterministic module, compatibility facade, CLI, backend, benchmark, and both export tuples",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-owner-checks.txt#3; all resolved source files are in the own worktree; canonical exports=20 and Runtime root exports=10"
+    },
+    {
+      "command": "Invoke committed test_cli_replays_persisted_packet_through_bundle_import_export_without_compatibility with an absolute scratch path; print its fresh child stdout/stderr",
+      "target_sha": "7ca76586d69d2cbbf10272a00e44044982139ee0",
+      "environment": "Python 3.14.3; fresh child PYTHONPATH resolves own worktree source",
+      "input_closure": "Persisted schema-3 decision packet and 9-artifact CAS dependency graph from tests/unit/runtime/test_replay_runtime.py::_build_packet_fixture",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-owner-checks.txt#4; export/readback/replay statuses=0; complete Foundry completeness; bit_exact passed; compatibility_loaded=false; byte readback passed"
+    },
+    {
+      "command": "Enumerate git ls-files -z -- policy-engine/src policy-engine/benchmarks; ast.parse every tracked .py; inspect Import, ImportFrom, and string constants for polisyos.runtime.replay",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "Leaf worktree; Python 3.14.3; complete tracked path walk",
+      "input_closure": "3,068 tracked files under src/ and benchmarks/: 2,697 src Python, 147 benchmark Python, 224 non-Python; all 2,844 Python files parsed",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-owner-checks.txt#5; parse_errors=0; alias AST/string hits=0; dynamic inventory declares Scientist deterministic as sole target"
+    },
+    {
+      "command": "In isolated overlay retain __all__, _LAZY_IMPORTS, and __getattr__; fresh subprocess control; inject eager import of Scientist deterministic; fresh subprocess negative; restore original overlay and repeat fresh control",
+      "target_sha": "7ca76586d69d2cbbf10272a00e44044982139ee0",
+      "environment": "Python 3.14.3; separate ignored overlay under policy-engine/_build/e02-A-replay-owner/probes/lazy-marker-retaining",
+      "input_closure": "Actual Runtime package initializer; the test checks canonical-module absence immediately after importing polisyos.runtime",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-owner-checks.txt#6; control 0/LAZY_ROOT_CONTROL_PASS, eager-import mutation 1/AssertionError, restored control 0/LAZY_ROOT_CONTROL_PASS"
+    },
+    {
+      "command": "Independent review by uuid_time_controls on immutable implementation commit",
+      "target_sha": "7ca76586d69d2cbbf10272a00e44044982139ee0",
+      "environment": "Independent reviewer; no repository mutation",
+      "input_closure": "REP-01 ownership and persisted CLI slice",
+      "outcome": "PASS",
+      "output": "GO for narrow ownership/persistence scope; 18 PASS; reviewer shorthand freshlazy0/1/0; explicitly no actual Foundry execution claim"
+    }
+  ],
+  "source_environment_identity": {
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.3",
+    "runtime_root": "policy-engine/src/polisyos/runtime/__init__.py",
+    "canonical_owner": "policy-engine/src/polisyos/scientist/replay/deterministic.py",
+    "compatibility_facade": "policy-engine/src/polisyos/runtime/replay.py",
+    "cli": "policy-engine/src/polisyos/core/components/_cli_replay.py",
+    "backend": "policy-engine/src/polisyos/scientist/replay/backend.py",
+    "benchmark": "policy-engine/benchmarks/advanced/common.py"
+  },
+  "property": {
+    "statement": "The Runtime root remains lazy and keeps exactly ten direct identity-preserving exports; internal CLI and benchmark routes resolve the canonical Scientist owner without importing the compatibility facade; the existing 20-symbol compatibility window preserves object identity, signatures, and enum values.",
+    "runtime_path": [
+      "Fresh interpreter imports polisyos.runtime and observes that neither Scientist deterministic nor polisyos.runtime.replay is loaded.",
+      "First Runtime root attribute request imports Scientist deterministic directly and all ten root objects match canonical identity.",
+      "Core _cmd_replay imports Scientist deterministic lazily, imports a persisted CAS bundle, and exercises check-only, export, bundle readback, replay coordination, and verification through its JSON consumer.",
+      "Benchmark helper imports and binds Scientist deterministic while an import finder fails if the compatibility facade is requested.",
+      "The 20-symbol compatibility facade remains present and identity-tested; no alias retirement is claimed."
+    ],
+    "persisted_artifact_and_readback": "A schema_version 3.0 decision packet and its 9-artifact dependency graph are persisted to FileSystemCAS, exported, imported by CLI, re-exported, re-imported into an independent CAS, completeness-recomputed, and byte-compared against the source graph. CLI reports complete/foundry and successful bit_exact verification against the persisted simulation-result ref.",
+    "isolated_seam": "The existing fixture is complete for replay planning but is not a schema-valid executable Foundry program. In this test only Scientist backend _execute_foundry_replay is patched to return the already-persisted simulation result. CLI ownership, bundle CAS transfer, replay_packet coordination, completeness, and verify_replay execute; fresh Foundry engine execution is not established.",
+    "surface": "CLI JSON status, CAS bundle import/export, and benchmark helper binding are checked.",
+    "authority_and_provenance": "This is an import-ownership and persisted replay verification test, not a policy recommendation or publication authority claim. Content-addressed artifact IDs and existing schema_version 3.0 are preserved byte-for-byte.",
+    "proxy_divergence": "The former root-laziness test imported Scientist deterministic before asserting module state, so it could not distinguish lazy root import from eager canonical import. The corrected fresh-process assertion runs immediately after importing polisyos.runtime; a mutation that eagerly imports Scientist while retaining __all__, _LAZY_IMPORTS, and __getattr__ now fails at that assertion.",
+    "negative_controls": [
+      "Unknown Runtime root symbol still raises AttributeError.",
+      "Incomplete persisted CLI packet remains a negative check-only result.",
+      "Fresh CLI and benchmark subprocesses install an import blocker for polisyos.runtime.replay.",
+      "Eager-import mutation with public markers retained fails; restoring original initializer returns the fresh-process control to pass.",
+      "Byte comparison and verification_failed=[] control ensure bundle readback is substantive, not status-only."
+    ],
+    "pattern_ids": ["P06", "P27", "P28", "P29", "P35", "P38"]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "LA-033 remains partial. This candidate closes a narrow behavioral verification gap but does not satisfy every REP-01 card arm; verification_missing remains for complete closure.",
+  "limitations_and_next_owner": [
+    "Keep the compatibility facade and its 20-symbol identity/signature/enum contract until its supported window and actual external consumers are resolved; no deprecation or removal is claimed.",
+    "The tracked src/ and benchmarks/ AST/string census does not establish absence of public external, monkeypatch/FQN, or runtime-composed consumers.",
+    "The CLI replay fixture patches the Foundry execution adapter to reuse a persisted simulation result; a fresh schema-valid Foundry execution remains unverified.",
+    "Wheel/package import validation remains assigned to CP6 and was not run here.",
+    "Historical RunManifest and runtime/quality/replay.py controls pass in test_rep_01, but no pre/post corpus-wide historical-byte comparison was run.",
+    "Assigned historical finding cells F01-P126, F02-P135, F04-P085, F04-P126, F09-P087, and F15-P099 remain candidate_unverified; this receipt does not close LA-033 globally."
+  ],
+  "independent_review": {
+    "reviewer": "uuid_time_controls",
+    "result": "GO",
+    "scope": "narrow ownership/persistence scope",
+    "review_output": "18 PASS; freshlazy0/1/0; no actual Foundry execution claim"
+  }
+}

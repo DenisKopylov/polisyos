@@ -185,9 +185,7 @@ class CalibrationRuleBinding(BaseModel):
     @model_validator(mode="after")
     def _validate_identity(self) -> CalibrationRuleBinding:
         if self.artifact_ref.kind != CALIBRATION_RULE_KIND:
-            raise ValueError(
-                f"calibration rule artifact kind must be {CALIBRATION_RULE_KIND!r}"
-            )
+            raise ValueError(f"calibration rule artifact kind must be {CALIBRATION_RULE_KIND!r}")
         if self.artifact_ref.media_type != "application/json":
             raise ValueError("calibration rule artifact must use application/json")
         return self
@@ -337,9 +335,7 @@ def _resolve_spec_ref(
     except FileNotFoundError as exc:
         raise ValueError(f"{role} specification CAS binding is missing") from exc
     if str(manifest.artifact_id) != str(resolved_id):
-        raise ValueError(
-            f"{role} specification manifest identity does not match the requested ID"
-        )
+        raise ValueError(f"{role} specification manifest identity does not match the requested ID")
     if manifest.kind != expected_kind:
         raise ValueError(
             f"{role} specification manifest kind mismatch: "
@@ -437,9 +433,7 @@ def _rule_contract(
     try:
         rule = CalibrationRuleArtifact.model_validate(payload)
     except (TypeError, ValueError, ValidationError) as exc:
-        raise ValueError(
-            "calibration rule artifact violates the supported v1 contract"
-        ) from exc
+        raise ValueError("calibration rule artifact violates the supported v1 contract") from exc
     if rule.rule_id != binding.rule_id:
         raise ValueError("calibration rule artifact identity does not match the request")
     if rule.estimand != estimand:
@@ -534,7 +528,9 @@ class ForecastOwner:
         observed_data_ref, observed_payload = _resolve_json(self._store, snapshot.data_ref)
         if not isinstance(observed_payload, Mapping):
             raise ValueError("observed source data must be a JSON object keyed by metric")
-        values = _finite_series(observed_payload.get(request.target_metric), field="observed source")
+        values = _finite_series(
+            observed_payload.get(request.target_metric), field="observed source"
+        )
         if request.split.holdout_end > values.size:
             raise ValueError("explicit train/holdout split exceeds observed source length")
         if request.split.train_end < _MIN_TRAIN_OBSERVATIONS:
@@ -585,7 +581,10 @@ class ForecastOwner:
         if not isinstance(result_payload, Mapping):
             raise ValueError("ETS owner result payload is missing")
         raw_forecast = result_payload.get("forecast")
-        if not isinstance(raw_forecast, (list, tuple)) or len(raw_forecast) != request.split.horizon:
+        if (
+            not isinstance(raw_forecast, (list, tuple))
+            or len(raw_forecast) != request.split.horizon
+        ):
             raise ValueError("ETS forecast horizon does not match the explicit holdout")
         point_forecast = tuple(
             _finite_scalar(value, field="point forecast") for value in raw_forecast
@@ -606,7 +605,10 @@ class ForecastOwner:
             raise ValueError("uncertainty bundle target identity disagrees with the request")
         if not math.isclose(bundle.nominal_coverage, nominal_coverage, rel_tol=0.0, abs_tol=1e-12):
             raise ValueError("uncertainty bundle nominal coverage disagrees with the rule artifact")
-        if bundle.interval_semantics is not ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL:
+        if (
+            bundle.interval_semantics
+            is not ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL
+        ):
             raise ValueError("ETS owner requires rolling-origin predictive intervals")
 
         intervals_by_horizon = {item.horizon: item for item in bundle.prediction_interval}
@@ -678,9 +680,7 @@ class ForecastOwner:
             train=train,
             backend=dispatcher_result.reproducibility.backend,
         )
-        method_artifact_ref = _ref_from_payload(
-            store_method_artifact(self._store, method_artifact)
-        )
+        method_artifact_ref = _ref_from_payload(store_method_artifact(self._store, method_artifact))
 
         bundle_ref = persist_forecasting_uncertainty_bundle(
             self._store,
@@ -810,7 +810,9 @@ class ForecastOwner:
             model_spec_ref=model_spec_ref,
             policy_spec_ref=policy_spec_ref,
         )
-        report_inputs = list(request.manifest_inputs) if request.manifest_inputs else required_inputs
+        report_inputs = (
+            list(request.manifest_inputs) if request.manifest_inputs else required_inputs
+        )
         required_pairs = {(str(item.artifact_id), item.role) for item in required_inputs}
         declared_pairs = {(str(item.artifact_id), item.role) for item in report_inputs}
         if not required_pairs.issubset(declared_pairs):
@@ -819,6 +821,14 @@ class ForecastOwner:
         for item in report_inputs:
             _resolve_input_ref(self._store, item)
 
+        method_ref, _, method_version = method_class.signature.fqn.rpartition("@")
+        method_rule_binding = {
+            "method_ref": method_ref,
+            "method_version": method_version,
+            "rule_version_ref": calibration_rule.rule_id,
+            "calibration_rule_version": calibration_rule.rule_version,
+            "calibration_rule_ref": calibration_rule_ref.model_dump(mode="json"),
+        }
         plan = HistoricalValidationPlan(
             plan_id=f"{request.report_id}:ets",
             plan_label="FRC-02 empirical ETS predictive calibration",
@@ -833,6 +843,7 @@ class ForecastOwner:
             model_spec_ref=None if model_spec_ref is None else str(model_spec_ref.artifact_id),
             policy_spec_ref=None if policy_spec_ref is None else str(policy_spec_ref.artifact_id),
             metadata={
+                **method_rule_binding,
                 "estimand": request.estimand,
                 "authority_scope": "predictive_only",
                 "bridge_status": "bridge_pending",
@@ -845,7 +856,6 @@ class ForecastOwner:
                     }
                 ),
                 "observed_source_ref": observed_source_ref.model_dump(mode="json"),
-                "calibration_rule_ref": calibration_rule_ref.model_dump(mode="json"),
                 "temporal_roles": request.temporal_roles.model_dump(mode="json"),
             },
         )
@@ -855,6 +865,7 @@ class ForecastOwner:
             inputs=report_inputs,
             trust_screening=TrustScreeningMode.PREDICTIVE_ONLY_BRIDGE_PENDING,
             metadata={
+                **method_rule_binding,
                 "estimand": request.estimand,
                 "authority_scope": "predictive_only",
                 "bridge_status": "bridge_pending",
@@ -866,9 +877,7 @@ class ForecastOwner:
                         "policy_spec_ref": str(policy_spec_ref.artifact_id),
                     }
                 ),
-                "calibration_diagnostics_ref": calibration_diagnostics_ref.model_dump(
-                    mode="json"
-                ),
+                "calibration_diagnostics_ref": calibration_diagnostics_ref.model_dump(mode="json"),
                 "uncertainty_bundle_ref": uncertainty_bundle_ref.model_dump(mode="json"),
                 "temporal_roles": request.temporal_roles.model_dump(mode="json"),
             },
@@ -906,9 +915,7 @@ class ForecastOwner:
             ]
             expected_edges = [] if expected_id is None else [(expected_id, role)]
             if actual_edges != expected_edges:
-                raise ValueError(
-                    f"persisted backtest report manifest has incorrect {role} binding"
-                )
+                raise ValueError(f"persisted backtest report manifest has incorrect {role} binding")
         if persisted_report.trust_eligible or persisted_report.trust_score is not None:
             raise ValueError(
                 "predictive-only bridge-pending backtest report cannot be trust eligible"

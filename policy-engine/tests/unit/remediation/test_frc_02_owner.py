@@ -13,6 +13,10 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from polisyos.calibration.forecast_bridge import (
+    persist_empirical_calibration_evidence,
+    produce_empirical_calibration_evidence,
+)
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
@@ -56,9 +60,7 @@ def _source(
     holdout: list[float],
     training: list[float] | None = None,
 ) -> DataSnapshotRef:
-    training_values = (
-        training if training is not None else [float(index) for index in range(1, 31)]
-    )
+    training_values = training if training is not None else [float(index) for index in range(1, 31)]
     values = training_values + holdout
     data_ref = _put_json(
         store,
@@ -200,9 +202,8 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     report = load_backtest_report(store, result.backtest_report_ref)
     assert report.overall_coverage_probability == pytest.approx(result.empirical_coverage)
     assert report.metadata["authority_scope"] == "predictive_only"
-    assert (
-        report.metadata["calibration_diagnostics_ref"]["artifact_id"]
-        == str(result.calibration_diagnostics_ref.artifact_id)
+    assert report.metadata["calibration_diagnostics_ref"]["artifact_id"] == str(
+        result.calibration_diagnostics_ref.artifact_id
     )
     assert report.trust_eligible is False
     assert report.trust_score is None
@@ -253,14 +254,10 @@ def test_real_ets_owner_persists_cas_bound_pair_in_report_metadata_and_manifest(
 
     manifest = store.get_manifest(result.backtest_report_ref.artifact_id)
     model_edges = [
-        (str(item.artifact_id), item.role)
-        for item in manifest.inputs
-        if item.role == "model_spec"
+        (str(item.artifact_id), item.role) for item in manifest.inputs if item.role == "model_spec"
     ]
     policy_edges = [
-        (str(item.artifact_id), item.role)
-        for item in manifest.inputs
-        if item.role == "policy_spec"
+        (str(item.artifact_id), item.role) for item in manifest.inputs if item.role == "policy_spec"
     ]
     assert model_edges == [(model_id, "model_spec")]
     assert policy_edges == [(policy_id, "policy_spec")]
@@ -355,6 +352,59 @@ def test_same_ets_shape_uses_held_out_observations_for_suitability(tmp_path: Pat
     assert out_of_profile.empirical_suitability == "limited"
 
 
+def test_real_ets_report_carries_method_rule_binding_without_inventing_bridge_evidence(
+    tmp_path: Path,
+) -> None:
+    """The real producer preserves its binding while absent context stays blocked."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
+    rule_ref = _rule(store)
+    model_ref = _spec(store, kind="ir.model_spec", spec_id="frc-owner-bound-model")
+    policy_ref = _spec(store, kind="ir.policy_spec", spec_id="frc-owner-bound-policy")
+    result = ForecastOwner(store).run(
+        _request(
+            source_ref,
+            rule_ref,
+            report_id="frc-owner-method-rule-binding",
+            model_spec_ref=str(model_ref.artifact_id),
+            policy_spec_ref=str(policy_ref.artifact_id),
+        )
+    )
+
+    report = load_backtest_report(store, result.backtest_report_ref)
+    for metadata in (report.metadata, *(scenario.metadata for scenario in report.scenarios)):
+        assert metadata["method_ref"] == "forecasting.univariate.exponential_smoothing"
+        assert metadata["method_version"] == "1.0.0"
+        assert metadata["rule_version_ref"] == RULE_ID
+        assert metadata["calibration_rule_version"] == "1.0"
+        assert metadata["calibration_rule_ref"]["artifact_id"] == str(rule_ref.artifact_id)
+    manifest = store.get_manifest(result.backtest_report_ref.artifact_id)
+    assert (str(rule_ref.artifact_id), "calibration_rule") in {
+        (str(item.artifact_id), item.role) for item in manifest.inputs
+    }
+
+    # A matching shape and version cannot establish an evaluation owner, its
+    # credible-evaluation evidence, or a calibrated S10 purpose.  The canonical
+    # consumer still recomputes useful observations from the actual report.
+    evidence = produce_empirical_calibration_evidence(store, result.backtest_report_ref)
+    assert evidence.recomputed_numerator == result.numerator
+    assert evidence.recomputed_denominator == result.denominator
+    assert evidence.recomputed_pass_rate == pytest.approx(result.empirical_coverage)
+    assert evidence.empirical_observations_available is True
+    assert evidence.failure_codes == ("explicit_context_missing",)
+    assert evidence.context_bound is False
+    assert evidence.usable_for_calibration is False
+    assert evidence.floor_passed is False
+    assert result.bridge_status == "bridge_pending"
+    assert evidence.authority_scope == "predictive_only"
+    assert "s10_authority" in evidence.may_not_use_for
+    before_ids = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+    with pytest.raises(ValueError, match="blocked empirical calibration evidence"):
+        persist_empirical_calibration_evidence(store, evidence)
+    assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} == before_ids
+
+
 def test_owner_rejects_incomplete_or_same_model_policy_pair_and_duplicate_inputs(
     tmp_path: Path,
 ) -> None:
@@ -404,8 +454,7 @@ def test_owner_rejects_subfloor_effective_ets_parameter(tmp_path: Path) -> None:
     matching_errors = [
         error
         for error in exc_info.value.errors()
-        if error["loc"] == ("method_params", "alpha")
-        and error["type"] == "greater_than_equal"
+        if error["loc"] == ("method_params", "alpha") and error["type"] == "greater_than_equal"
     ]
     assert matching_errors
     assert matching_errors[0]["ctx"]["ge"] == 1e-6
@@ -430,9 +479,7 @@ def test_owner_rejects_unadmitted_calibration_rule(
     rule_ref = _rule(store, payload_updates=payload_updates, kind=kind)
 
     with pytest.raises(ValueError, match=r"calibration rule|artifact kind"):
-        ForecastOwner(store).run(
-            _request(source_ref, rule_ref, report_id="frc-owner-invalid-rule")
-        )
+        ForecastOwner(store).run(_request(source_ref, rule_ref, report_id="frc-owner-invalid-rule"))
 
 
 def test_owner_rejects_naive_or_collapsed_temporal_roles(tmp_path: Path) -> None:
@@ -442,9 +489,7 @@ def test_owner_rejects_naive_or_collapsed_temporal_roles(tmp_path: Path) -> None
     roles = _temporal_roles().model_dump(mode="python")
     roles["observation_time"] = datetime(2026, 1, 1)
 
-    payload = _request(source_ref, rule_ref, report_id="frc-owner-naive").model_dump(
-        mode="python"
-    )
+    payload = _request(source_ref, rule_ref, report_id="frc-owner-naive").model_dump(mode="python")
     payload["temporal_roles"] = roles
     with pytest.raises(ValueError, match=r"timezone|distinct"):
         ForecastOwnerRequest.model_validate(payload)

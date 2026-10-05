@@ -168,7 +168,25 @@ def test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows() -
     assert [member.candidate_ref_id for member in front.members] == [
         str(best.candidate_ref.artifact_id)
     ]
-    assert math.isfinite(front.hypervolume)
+    assert front.coordinate_schema.status == "complete"
+    assert front.input_assessment.status == "complete"
+    assert front.input_assessment.input_count == front.input_assessment.assessed_count == 2
+    assert front.input_assessment.unassessed_evaluations == ()
+    assert set(front.members[0].coordinate_values.values()) == {1e308}
+    assert all(math.isfinite(value) for value in front.coordinate_reference_point.values())
+    # The mathematical volume exceeds binary64. Preserve the assessed front
+    # while admitting a declared unavailable derived quantity, never fake zero.
+    if front.hypervolume is None:
+        assessment = front.model_dump(mode="json")["hypervolume_assessment"]
+        assert assessment["status"] == "unavailable"
+        assert assessment["predicate_basis"] == "not_established"
+        assert assessment["reason"] == "non_finite_derived_hypervolume"
+    else:
+        assert math.isfinite(front.hypervolume) and front.hypervolume > 0.0
+    restored = ParetoFront.model_validate_json(front.model_dump_json())
+    assert restored == front
+    assert promoter.is_dominated(worst, restored)
+    assert not promoter.is_dominated(best, restored)
 
 
 def test_dominance_removal_control_keeps_dto_but_breaks_mathematical_property(

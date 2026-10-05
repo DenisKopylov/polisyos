@@ -1,0 +1,20 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows ___
+tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py:167: in test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows
+    front = promoter.compute_front([worst, best])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/pareto.py:377: in compute_front
+    return ParetoFront(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for ParetoFront
+E     Value error, complete coordinate artifact has a non-finite hypervolume [type=value_error, input_value={'members': [ParetoMember...ssessed_evaluations=())}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows
+1 failed, 18 deselected, 1 warning in 8.43s

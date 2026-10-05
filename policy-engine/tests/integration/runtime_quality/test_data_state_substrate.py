@@ -668,3 +668,195 @@ def test_unregistered_substrate_variant_is_caught_by_n3(tmp_path: Path) -> None:
         )
 
     assert exc.value.code == "substrate_entry_unresolved"
+
+
+def test_l4_period_projection_excludes_outside_rows_and_persists_family_coverage(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An out-of-period latest record cannot replace an in-period source row."""
+    import duckdb
+
+    source_root = tmp_path / "production_data" / "synthetic"
+    source_root.mkdir(parents=True)
+    manifest_bytes = b'{"manifest_id":"synthetic-data-state-test"}\n'
+    (tmp_path / "production_data" / "manifest.json").write_bytes(manifest_bytes)
+    paths = data_state_substrate_module._DataStatePaths(
+        l1_dcat_path=source_root / "l1.duckdb",
+        agent_registry_full=source_root / "agent_registry_full.parquet",
+        firm_fundamentals_annual=source_root / "firm_fundamentals_annual.parquet",
+        budget_flows_monthly_sparse=source_root / "budget_flows_monthly_sparse.parquet",
+        corrected_firm_panels=source_root / "corrected_firm_panels.parquet",
+        calibrated_household_cells=source_root / "calibrated_household_cells.parquet",
+    )
+    paths.l1_dcat_path.touch()
+    con = duckdb.connect(database=":memory:")
+    try:
+        con.execute(
+            """
+            COPY (
+                SELECT * FROM (VALUES
+                    ('firm-1', 'reg-1', 'UA25', 'sector-a', '2025-01', 'snap-current', 'hash-current')
+                ) AS rows(agent_id, registration_code, region_code, sector_id, period_id,
+                           source_snapshot_id, record_hash)
+            ) TO ? (FORMAT PARQUET)
+            """,
+            [str(paths.agent_registry_full)],
+        )
+        con.execute(
+            """
+            COPY (
+                SELECT * FROM (VALUES
+                    ('firm-1', 'reg-1', '2022-01', 'snap-in', 'hash-in', 1000.0, 400.0, 100.0, 10.0),
+                    ('firm-1', 'reg-1', '2024-01', 'snap-out', 'hash-out', 9000.0, 900.0, 300.0, 20.0)
+                ) AS rows(agent_id, registration_code, period_id, source_snapshot_id, record_hash,
+                           revenue, assets, liabilities, employees)
+            ) TO ? (FORMAT PARQUET)
+            """,
+            [str(paths.firm_fundamentals_annual)],
+        )
+        con.execute(
+            """
+            COPY (
+                SELECT * FROM (VALUES
+                    ('firm-1', 0.2, '2022-01'),
+                    ('firm-1', 0.8, '2024-01')
+                ) AS rows(agent_id, corrected_exit_bias, period_id)
+            ) TO ? (FORMAT PARQUET)
+            """,
+            [str(paths.corrected_firm_panels)],
+        )
+        con.execute(
+            """
+            COPY (
+                SELECT * FROM (VALUES ('2022-01', 15.0), ('2024-01', 90.0))
+                AS rows(period_id, amount)
+                ) TO ? (FORMAT PARQUET)
+                """,
+                [str(paths.budget_flows_monthly_sparse)],
+        )
+        con.execute(
+            """
+            COPY (
+                SELECT * FROM (VALUES
+                    ('2022-01', 'cell-in', 'UA01', 40.0, 2.0, FALSE, 0.9, 35.0, 38.0),
+                    ('2024-01', 'cell-out', 'UA99', 400.0, 3.0, TRUE, 0.2, 350.0, 390.0)
+                ) AS rows(period_id, cell_id, region_code, household_income_mean,
+                           household_weight_sum, measurement_bias_flag, trust_weight,
+                           market_income_mean, total_expenditure_mean)
+            ) TO ? (FORMAT PARQUET)
+            """,
+            [str(paths.calibrated_household_cells)],
+        )
+    finally:
+        con.close()
+
+    def _synthetic_l5_profile(
+        *_args: object,
+        period_start: str,
+        period_end: str,
+        **_kwargs: object,
+    ) -> data_state_substrate_module.L5FamilyBindingProfile:
+        return data_state_substrate_module.L5FamilyBindingProfile(
+            period_start=period_start,
+            period_end=period_end,
+            schema_regime_status="single_regime",
+            regime_ids=("synthetic-regime",),
+            boundary_buffer_periods=0,
+            families=tuple(
+                data_state_substrate_module.L5FamilyAuthority(
+                    family_id=family_id,
+                    coverage_score=1.0,
+                    trust_tier="synthetic-test",
+                    trust_cap=1.0,
+                    trust_multiplier=1.0,
+                    promotion_floor=0.5,
+                    identification_mode="point_identified",
+                    value_authority="point",
+                    measurement_registry_ref=f"measurement://{family_id}",
+                    identification_registry_ref=f"identification://{family_id}",
+                )
+                for family_id in data_state_substrate_module.DEFAULT_DATA_STATE_FAMILIES
+            ),
+        )
+    monkeypatch.setattr(
+        data_state_substrate_module,
+        "_default_data_state_paths",
+        lambda _root: paths,
+    )
+    monkeypatch.setattr(
+        data_state_substrate_module,
+        "build_l5_family_binding_profile",
+        _synthetic_l5_profile,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    materialized = materialize_l4_data_state_snapshot(
+        store,
+        repo_root=tmp_path,
+        workspace_dir=tmp_path / "workspace",
+        agent_limit=16,
+        required_l1_variables=(),
+        substrate_registry=SimpleNamespace(substrate_version_id="synthetic-substrate"),
+        period_start="2022-01",
+        period_end="2022-01",
+    )
+
+    snapshot = from_canonical_bytes(store.get_bytes(materialized.data_snapshot_ref.artifact_id))
+    payload = from_canonical_bytes(store.get_bytes(snapshot["data_ref"]["artifact_id"]))
+    assert payload["agents"]["income"] == [1000.0]
+    assert payload["cells"]["region_code"] == [25]
+    assert payload["cells"]["distress_score"] == [0.2]
+    assert payload["government_balance"] == 15.0
+    assert payload["household_cells"]["disposable_income"] == [40.0]
+
+    metadata = payload["_policyos_data_state"]
+    coverage = materialized.source_coverage.model_dump(mode="json")
+    assert metadata["source_coverage"] == coverage
+    assert snapshot["stats"]["source_coverage_hash"] == metadata["source_coverage_hash"]
+    assert coverage["source_manifest_status"] == "content_hashed"
+    assert coverage["source_manifest_sha256"] == (
+        "sha256:" + hashlib.sha256(manifest_bytes).hexdigest()
+    )
+    family_coverage = {family["family_id"]: family for family in coverage["families"]}
+    firm_sources = {
+        source["source_id"]: source
+        for source in family_coverage["firm_fundamentals"]["sources"]
+    }
+    assert family_coverage["firm_fundamentals"]["observation_status"] == (
+        "observed_period_ids_cover_requested_window"
+    )
+    assert firm_sources["firm_fundamentals_annual"]["requested_window_row_count"] == 1
+    assert firm_sources["firm_fundamentals_annual"]["out_of_requested_window_row_count"] == 1
+    assert firm_sources["agent_registry_full"]["time_role"] == "identity_snapshot_as_of"
+    assert firm_sources["agent_registry_full"]["requested_window_applied"] is False
+    assert firm_sources["agent_registry_full"]["snapshot_as_of"] == "2025-01"
+    assert "identity_snapshot_as_of_after_requested_observation_end:agent_registry_full" in (
+        coverage["limitations"]
+    )
+
+    partial = materialize_l4_data_state_snapshot(
+        store,
+        repo_root=tmp_path,
+        workspace_dir=tmp_path / "partial-workspace",
+        agent_limit=16,
+        required_l1_variables=(),
+        substrate_registry=SimpleNamespace(substrate_version_id="synthetic-substrate"),
+        period_start="2022-01",
+        period_end="2022-02",
+    )
+    assert partial.data_snapshot_stats["bound_agent_count"] == 1
+    assert "source_time_coverage_not_established:household_distribution" in (
+        partial.source_coverage.limitations
+    )
+
+
+@pytest.mark.parametrize(
+    "period",
+    [("2022-00",), ("2022-13",), ("2022-1",), ("2022-02x",)],
+)
+def test_data_state_period_rejects_non_calendar_months(period: str) -> None:
+    with pytest.raises(data_state_substrate_module.DataStateSubstrateError) as exc:
+        data_state_substrate_module._month_ordinal(period)
+
+    assert exc.value.code == "schema_regime_period_invalid"

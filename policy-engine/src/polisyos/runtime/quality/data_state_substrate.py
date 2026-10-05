@@ -19,6 +19,8 @@ from typing import TYPE_CHECKING, Any, Literal
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from duckdb import DuckDBPyConnection
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import contracts as core_contracts
@@ -60,7 +62,8 @@ L5SchemaRegimeDenominatorReceipt = core_contracts.L5SchemaRegimeDenominatorRecei
 ScopedSchemaRegimeProjection = core_contracts.ScopedSchemaRegimeProjection
 canonical_epoch_bytes = core_contracts.canonical_epoch_bytes
 
-DATA_STATE_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.data_state_substrate.v1"
+DATA_STATE_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.data_state_substrate.v2"
+DATA_STATE_SOURCE_COVERAGE_SCHEMA_VERSION = "policyos.runtime.data_state_source_coverage.v1"
 DEFAULT_L4_SNAPSHOT_ID = "ukraine_server_support_20260410"
 DEFAULT_DATA_STATE_PERIOD_START = "2021-12"
 DEFAULT_DATA_STATE_PERIOD_END = "2023-07"
@@ -71,6 +74,13 @@ DEFAULT_DATA_STATE_FAMILIES = (
     "household_distribution",
     "distress_enforcement",
 )
+_DATA_STATE_SOURCE_FAMILY_MAP = {
+    "firm_fundamentals": ("firm_fundamentals_annual", "agent_registry_full"),
+    "budget_flows": ("budget_flows_monthly_sparse",),
+    "distress_enforcement": ("corrected_firm_panels",),
+    "household_distribution": ("calibrated_household_cells",),
+}
+_DATA_STATE_IDENTITY_SOURCES = frozenset(("agent_registry_full",))
 _ACADEMIC_SKG_DB = Path(
     "production_data/policyos_academic_runtime_slim_20260411T112032Z/"
     "academic/graph/scholar_knowledge.duckdb"
@@ -161,6 +171,69 @@ class L5FamilyBindingProfile(_StrictModel):
         raise DataStateSubstrateError("l5_family_unidentified", family_id)
 
 
+class DataStateSourcePeriodInterval(_StrictModel):
+    """One distinct source period normalized to inclusive calendar months."""
+
+    start: str = Field(..., pattern=r"^\d{4}-\d{2}$")
+    end: str = Field(..., pattern=r"^\d{4}-\d{2}$")
+
+
+class DataStateSourceFileCoverage(_StrictModel):
+    """Observed period evidence for one L4 input file, without authority claims."""
+
+    source_id: str = Field(..., min_length=1)
+    source_ref: str = Field(..., min_length=1)
+    time_role: Literal["observation", "identity_snapshot_as_of"]
+    period_column: str = Field("period_id", min_length=1)
+    source_row_count: int = Field(..., ge=0)
+    period_recognized_row_count: int = Field(..., ge=0)
+    period_unresolved_row_count: int = Field(..., ge=0)
+    requested_window_applied: bool
+    requested_window_row_count: int = Field(..., ge=0)
+    out_of_requested_window_row_count: int = Field(..., ge=0)
+    observed_period_intervals: tuple[DataStateSourcePeriodInterval, ...]
+    observed_period_start: str | None = None
+    observed_period_end: str | None = None
+    snapshot_as_of: str | None = None
+    observed_month_count: int = Field(..., ge=0)
+    requested_month_count: int | None = Field(None, ge=0)
+    uncovered_period_ranges: tuple[DataStateSourcePeriodInterval, ...] = ()
+    status: Literal[
+        "observed_period_ids_cover_requested_window",
+        "observed_period_ids_do_not_cover_requested_window",
+        "period_ids_unresolved",
+        "identity_snapshot_as_of",
+    ]
+
+
+class DataStateSourceFamilyCoverage(_StrictModel):
+    """Per-family grouping of observation evidence and distinct identity inputs."""
+
+    family_id: str = Field(..., min_length=1)
+    sources: tuple[DataStateSourceFileCoverage, ...]
+    observation_status: Literal[
+        "observed_period_ids_cover_requested_window",
+        "not_established",
+        "not_applicable",
+    ]
+
+
+class DataStateSourceCoverage(_StrictModel):
+    """Content-bound source-period census; it is not an authority or completeness grant."""
+
+    schema_version: str = DATA_STATE_SOURCE_COVERAGE_SCHEMA_VERSION
+    requested_data_observation_start: str = Field(..., pattern=r"^\d{4}-\d{2}$")
+    requested_data_observation_end: str = Field(..., pattern=r"^\d{4}-\d{2}$")
+    period_selection_semantics: Literal["inclusive_source_period_overlap"] = (
+        "inclusive_source_period_overlap"
+    )
+    source_manifest_ref: str = Field(..., min_length=1)
+    source_manifest_status: Literal["content_hashed", "not_established"]
+    source_manifest_sha256: str | None = Field(None, pattern=r"^sha256:[0-9a-f]{64}$")
+    families: tuple[DataStateSourceFamilyCoverage, ...]
+    limitations: tuple[str, ...] = ()
+
+
 @dataclass(frozen=True)
 class DataStateMaterializationResult:
     """CAS and Data Forge artifacts emitted before N3 binds the world."""
@@ -168,6 +241,7 @@ class DataStateMaterializationResult:
     data_snapshot_ref: ArtifactRef
     data_forge_snapshot_binding_path: Path
     data_snapshot_stats: dict[str, Any]
+    source_coverage: DataStateSourceCoverage
     l1_availability: tuple[L1VariableAvailability, ...]
     l5_profile: L5FamilyBindingProfile
     payload_content_hash: str
@@ -380,16 +454,27 @@ def materialize_l4_data_state_snapshot(
         branch_mode=BranchMode.OBSERVED.value,
     )
 
-    payload, stats = _project_real_l4_payload(
+    payload, stats, source_coverage_rows = _project_real_l4_payload(
         paths,
         agent_limit=agent_limit,
         l5_profile=l5_profile,
         world_model_record_ref=world_preimage_ref,
+        period_start=period_start,
+        period_end=period_end,
     )
     bound_agent_count = int(stats.get("bound_agent_count") or 0)
     if bound_agent_count <= 0:
         raise DataStateSubstrateError("production_data_state_empty")
 
+    source_coverage = _build_source_coverage_record(
+        census_rows=source_coverage_rows,
+        source_paths=_relative_source_paths(paths, root),
+        source_manifest=_source_manifest_provenance(root),
+        period_start=period_start,
+        period_end=period_end,
+    )
+    source_coverage_dict = source_coverage.model_dump(mode="json")
+    source_coverage_hash = gy_content_hash(source_coverage_dict)
     profile_hash = gy_content_hash(l5_profile.model_dump(mode="json"))
     payload_with_meta = {
         **payload,
@@ -403,6 +488,8 @@ def materialize_l4_data_state_snapshot(
             "l5_profile_hash": profile_hash,
             "world_preimage_ref": world_preimage_ref,
             "source_paths": _relative_source_paths(paths, root),
+            "source_coverage": source_coverage_dict,
+            "source_coverage_hash": source_coverage_hash,
             "stats": stats,
         },
     }
@@ -432,12 +519,14 @@ def materialize_l4_data_state_snapshot(
             ),
             "l5_profile_hash": profile_hash,
             "world_preimage_ref": world_preimage_ref,
+            "source_coverage_hash": source_coverage_hash,
         },
         notes=[
             "gy_s1_real_l4_data_state",
             "data_forge_snapshot_binding:finalize_snapshot",
             "foundry_binding_owner:polisyos.foundry.data_plane.bindings.build_input_bindings",
             f"schema_regime_status:{l5_profile.schema_regime_status}",
+            f"source_coverage_hash:{source_coverage_hash}",
         ],
     )
     data_snapshot_ref = store.put_json(
@@ -463,11 +552,14 @@ def materialize_l4_data_state_snapshot(
         "snapshot_id": snapshot_id,
         "l5_profile_hash": profile_hash,
         "world_preimage_ref": world_preimage_ref,
+        "source_coverage": source_coverage_dict,
+        "source_coverage_hash": source_coverage_hash,
     }
     return DataStateMaterializationResult(
         data_snapshot_ref=data_snapshot_ref,
         data_forge_snapshot_binding_path=binding_path,
         data_snapshot_stats=stats,
+        source_coverage=source_coverage,
         l1_availability=availability,
         l5_profile=l5_profile,
         payload_content_hash=payload_content_hash,
@@ -550,9 +642,12 @@ def build_production_data_state_world_model_record(
                 else "inside"
             ),
             unresolved_conflicts=(
-                (f"schema_regime:{materialized.l5_profile.schema_regime_status}",)
-                if materialized.l5_profile.schema_regime_status != "single_regime"
-                else ()
+                (
+                    (f"schema_regime:{materialized.l5_profile.schema_regime_status}",)
+                    if materialized.l5_profile.schema_regime_status != "single_regime"
+                    else ()
+                )
+                + materialized.source_coverage.limitations
             ),
         )
         world_model = build_world_model_record(
@@ -625,9 +720,20 @@ def _project_real_l4_payload(
     agent_limit: int | None,
     l5_profile: L5FamilyBindingProfile,
     world_model_record_ref: str,
-) -> tuple[dict[str, Any], dict[str, Any]]:
+    period_start: str,
+    period_end: str,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, dict[str, Any]]]:
     import duckdb
 
+    start_month = _month_ordinal(period_start)
+    end_month = _month_ordinal(period_end)
+    if start_month > end_month:
+        raise DataStateSubstrateError("data_state_period_order_invalid")
+    requested_period_filter = _period_overlap_sql(
+        "period_id",
+        requested_start_month=start_month,
+        requested_end_month=end_month,
+    )
     params: list[object] = [agent_limit]
     query = """
         WITH latest_firm AS (
@@ -650,9 +756,10 @@ def _project_real_l4_payload(
                         assets,
                         liabilities,
                         employees
-                ) AS rn
+            ) AS rn
             FROM read_parquet(?)
             WHERE revenue IS NOT NULL AND revenue > 0
+                AND __requested_period_filter__
         ),
         distress AS (
             SELECT
@@ -660,6 +767,7 @@ def _project_real_l4_payload(
                 avg(CAST(corrected_exit_bias AS DOUBLE)) AS distress_score,
                 max(period_id) AS distress_period_id
             FROM read_parquet(?)
+            WHERE __requested_period_filter__
             GROUP BY agent_id
         ),
         agent_registry_conflicts AS (
@@ -791,9 +899,15 @@ def _project_real_l4_payload(
         FROM firm_sample f
         LEFT JOIN distress d USING (agent_id)
         ORDER BY f.representative_rank, f.registration_code, f.agent_id
-    """
+        """.replace("__requested_period_filter__", requested_period_filter)
     con = duckdb.connect(database=":memory:")
     try:
+        source_coverage_rows = _source_coverage_census(
+            con,
+            paths,
+            requested_start_month=start_month,
+            requested_end_month=end_month,
+        )
         rows = con.execute(
             query,
             [
@@ -804,49 +918,22 @@ def _project_real_l4_payload(
                 *params,
             ],
         ).fetchall()
-        agent_total = int(
-            con.execute(
-                "SELECT count(*) FROM read_parquet(?)",
-                [str(paths.agent_registry_full)],
-            ).fetchone()[0]
-            or 0
-        )
-        firm_total = int(
-            con.execute(
-                "SELECT count(*) FROM read_parquet(?)",
-                [str(paths.firm_fundamentals_annual)],
-            ).fetchone()[0]
-            or 0
-        )
-        distress_total = int(
-            con.execute(
-                "SELECT count(*) FROM read_parquet(?)",
-                [str(paths.corrected_firm_panels)],
-            ).fetchone()[0]
-            or 0
-        )
-        budget_total = int(
-            con.execute(
-                "SELECT count(*) FROM read_parquet(?)",
-                [str(paths.budget_flows_monthly_sparse)],
-            ).fetchone()[0]
-            or 0
-        )
-        budget_slice = con.execute(
-            """
+        budget_query = """
             SELECT
                 count(*) AS row_count,
                 COALESCE(sum(CAST(amount AS DOUBLE)), 0.0) AS amount_sum
             FROM (
                 SELECT amount
                 FROM read_parquet(?)
+                WHERE __requested_period_filter__
                 LIMIT 100000
             )
-            """,
+            """.replace("__requested_period_filter__", requested_period_filter)
+        budget_slice = con.execute(
+            budget_query,
             [str(paths.budget_flows_monthly_sparse)],
         ).fetchone()
-        household_rows = con.execute(
-            """
+        household_query = """
             SELECT
                 cell_id,
                 region_code,
@@ -857,37 +944,413 @@ def _project_real_l4_payload(
                 market_income_mean,
                 total_expenditure_mean
             FROM read_parquet(?)
+            WHERE __requested_period_filter__
             ORDER BY period_id DESC, region_code, cell_id
             LIMIT 100
-            """,
+            """.replace("__requested_period_filter__", requested_period_filter)
+        household_rows = con.execute(
+            household_query,
             [str(paths.calibrated_household_cells)],
         ).fetchall()
     finally:
         con.close()
+    totals = {
+        source_id: int(source_coverage_rows[source_id]["source_row_count"])
+        for source_id in source_coverage_rows
+    }
     if not rows:
         return {}, {
             "bound_agent_count": 0,
-            "l4_total_rows": {
-                "agent_registry_full": 0,
-                "firm_fundamentals_annual": 0,
-                "corrected_firm_panels": 0,
-                "budget_flows_monthly_sparse": 0,
-            },
-        }
-    return _payload_from_rows(
+            "l4_total_rows": totals,
+        }, source_coverage_rows
+    payload, stats = _payload_from_rows(
         rows=rows,
         household_rows=household_rows,
         l5_profile=l5_profile,
         world_model_record_ref=world_model_record_ref,
         budget_slice_count=int(budget_slice[0] or 0),
         budget_slice_amount_sum=float(budget_slice[1] or 0.0),
-        totals={
-            "agent_registry_full": agent_total,
-            "firm_fundamentals_annual": firm_total,
-            "corrected_firm_panels": distress_total,
-            "budget_flows_monthly_sparse": budget_total,
-        },
+        totals=totals,
     )
+    return payload, stats, source_coverage_rows
+
+
+def _source_coverage_census(
+    con: DuckDBPyConnection,
+    paths: _DataStatePaths,
+    *,
+    requested_start_month: int,
+    requested_end_month: int,
+) -> dict[str, dict[str, Any]]:
+    """Count all source rows and distinct normalized periods in one Parquet pass per file."""
+    source_paths = {
+        "agent_registry_full": paths.agent_registry_full,
+        "firm_fundamentals_annual": paths.firm_fundamentals_annual,
+        "budget_flows_monthly_sparse": paths.budget_flows_monthly_sparse,
+        "corrected_firm_panels": paths.corrected_firm_panels,
+        "calibrated_household_cells": paths.calibrated_household_cells,
+    }
+    source_ids = tuple(source_paths)
+    selects: list[str] = []
+    params: list[str] = []
+    for source_id, path in source_paths.items():
+        start_sql, end_sql = _source_period_bounds_sql("period_id")
+        selects.append(
+            "SELECT "  # noqa: S608 -- period expressions use a fixed owner column only.
+            "? AS source_id, "
+            f"{start_sql} AS source_start_month, "
+            f"{end_sql} AS source_end_month "
+            "FROM read_parquet(?)"
+        )
+        params.extend((source_id, str(path)))
+    start_filter = (
+        "source_start_month IS NOT NULL AND source_end_month IS NOT NULL "
+        f"AND source_start_month <= {requested_end_month} "
+        f"AND source_end_month >= {requested_start_month}"
+    )
+    source_file_rows = ", ".join(f"('{source_id}')" for source_id in source_ids)
+    query = """
+        WITH source_files AS (
+            SELECT * FROM (VALUES __source_file_rows__) AS source_files(source_id)
+        ),
+        source_periods AS MATERIALIZED (
+            __source_periods__
+        ),
+        source_counts AS (
+            SELECT
+                source_id,
+                count(*) AS source_row_count,
+                count(*) FILTER (
+                    WHERE source_start_month IS NOT NULL AND source_end_month IS NOT NULL
+                ) AS period_recognized_row_count,
+                count(*) FILTER (
+                    WHERE source_start_month IS NULL OR source_end_month IS NULL
+                ) AS period_unresolved_row_count,
+                count(*) FILTER (WHERE __start_filter__) AS requested_window_row_count,
+                count(*) FILTER (
+                    WHERE source_start_month IS NOT NULL AND source_end_month IS NOT NULL
+                    AND NOT (__start_filter__)
+                ) AS out_of_requested_window_row_count,
+                min(source_start_month) AS observed_period_start_month,
+                max(source_end_month) AS observed_period_end_month
+            FROM source_periods
+            GROUP BY source_id
+        ),
+        distinct_periods AS (
+            SELECT DISTINCT source_id, source_start_month, source_end_month
+            FROM source_periods
+            WHERE source_start_month IS NOT NULL AND source_end_month IS NOT NULL
+        ),
+        period_intervals AS (
+            SELECT
+                source_id,
+                list(struct_pack(
+                    start_month := source_start_month,
+                    end_month := source_end_month
+                )) AS observed_period_intervals
+            FROM distinct_periods
+            GROUP BY source_id
+        )
+        SELECT
+            f.source_id,
+            coalesce(c.source_row_count, 0) AS source_row_count,
+            coalesce(c.period_recognized_row_count, 0) AS period_recognized_row_count,
+            coalesce(c.period_unresolved_row_count, 0) AS period_unresolved_row_count,
+            coalesce(c.requested_window_row_count, 0) AS requested_window_row_count,
+            coalesce(c.out_of_requested_window_row_count, 0)
+                AS out_of_requested_window_row_count,
+            c.observed_period_start_month,
+            c.observed_period_end_month,
+            p.observed_period_intervals
+        FROM source_files f
+        LEFT JOIN source_counts c USING (source_id)
+        LEFT JOIN period_intervals p USING (source_id)
+        """.replace("__source_file_rows__", source_file_rows).replace(
+        "__source_periods__", " UNION ALL ".join(selects)
+    ).replace("__start_filter__", start_filter)
+    rows = con.execute(query, params).fetchall()
+    result: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        (
+            source_id,
+            source_row_count,
+            period_recognized_row_count,
+            period_unresolved_row_count,
+            requested_window_row_count,
+            out_of_requested_window_row_count,
+            observed_period_start_month,
+            observed_period_end_month,
+            observed_period_intervals,
+        ) = row
+        result[str(source_id)] = {
+            "source_row_count": int(source_row_count or 0),
+            "period_recognized_row_count": int(period_recognized_row_count or 0),
+            "period_unresolved_row_count": int(period_unresolved_row_count or 0),
+            "requested_window_row_count": int(requested_window_row_count or 0),
+            "out_of_requested_window_row_count": int(out_of_requested_window_row_count or 0),
+            "observed_period_start_month": (
+                None
+                if observed_period_start_month is None
+                else int(observed_period_start_month)
+            ),
+            "observed_period_end_month": (
+                None if observed_period_end_month is None else int(observed_period_end_month)
+            ),
+            "observed_period_intervals": tuple(observed_period_intervals or ()),
+        }
+    return result
+
+
+def _build_source_coverage_record(
+    *,
+    census_rows: Mapping[str, Mapping[str, Any]],
+    source_paths: Mapping[str, str],
+    source_manifest: Mapping[str, str | None],
+    period_start: str,
+    period_end: str,
+) -> DataStateSourceCoverage:
+    requested_start_month = _month_ordinal(period_start)
+    requested_end_month = _month_ordinal(period_end)
+    if requested_start_month > requested_end_month:
+        raise DataStateSubstrateError("data_state_period_order_invalid")
+    requested_month_count = requested_end_month - requested_start_month + 1
+    files: dict[str, DataStateSourceFileCoverage] = {}
+    for source_id, row in census_rows.items():
+        intervals = tuple(
+            sorted(
+                {
+                    (int(interval["start_month"]), int(interval["end_month"]))
+                    for interval in row["observed_period_intervals"]
+                }
+            )
+        )
+        identity_source = source_id in _DATA_STATE_IDENTITY_SOURCES
+        covered_months = _covered_source_months(
+            intervals,
+            requested_start_month=requested_start_month,
+            requested_end_month=requested_end_month,
+        )
+        uncovered_months = (
+            set()
+            if identity_source
+            else set(range(requested_start_month, requested_end_month + 1)) - covered_months
+        )
+        unresolved_rows = int(row["period_unresolved_row_count"])
+        if identity_source:
+            status = "identity_snapshot_as_of"
+        elif unresolved_rows:
+            status = "period_ids_unresolved"
+        elif uncovered_months:
+            status = "observed_period_ids_do_not_cover_requested_window"
+        else:
+            status = "observed_period_ids_cover_requested_window"
+        start_month = row["observed_period_start_month"]
+        end_month = row["observed_period_end_month"]
+        snapshot_as_of = None
+        if identity_source and len(intervals) == 1 and intervals[0][0] == intervals[0][1]:
+            snapshot_as_of = _month_from_ordinal(intervals[0][0])
+        files[source_id] = DataStateSourceFileCoverage(
+            source_id=source_id,
+            source_ref=source_paths[source_id],
+            time_role="identity_snapshot_as_of" if identity_source else "observation",
+            source_row_count=int(row["source_row_count"]),
+            period_recognized_row_count=int(row["period_recognized_row_count"]),
+            period_unresolved_row_count=unresolved_rows,
+            requested_window_applied=not identity_source,
+            requested_window_row_count=(
+                0 if identity_source else int(row["requested_window_row_count"])
+            ),
+            out_of_requested_window_row_count=(
+                0 if identity_source else int(row["out_of_requested_window_row_count"])
+            ),
+            observed_period_intervals=tuple(
+                DataStateSourcePeriodInterval(
+                    start=_month_from_ordinal(start),
+                    end=_month_from_ordinal(end),
+                )
+                for start, end in intervals
+            ),
+            observed_period_start=(
+                None if start_month is None else _month_from_ordinal(int(start_month))
+            ),
+            observed_period_end=(
+                None if end_month is None else _month_from_ordinal(int(end_month))
+            ),
+            snapshot_as_of=snapshot_as_of,
+            observed_month_count=len(
+                _covered_source_months(
+                    intervals,
+                    requested_start_month=(
+                        min((start for start, _ in intervals), default=requested_start_month)
+                    ),
+                    requested_end_month=(
+                        max((end for _, end in intervals), default=requested_end_month)
+                    ),
+                )
+            ),
+            requested_month_count=None if identity_source else requested_month_count,
+            uncovered_period_ranges=_month_ranges(uncovered_months),
+            status=status,
+        )
+
+    family_records: list[DataStateSourceFamilyCoverage] = []
+    limitations: list[str] = []
+    for family_id, source_ids in _DATA_STATE_SOURCE_FAMILY_MAP.items():
+        family_sources = tuple(files[source_id] for source_id in source_ids)
+        observation_sources = tuple(
+            source for source in family_sources if source.time_role == "observation"
+        )
+        if not observation_sources:
+            observation_status = "not_applicable"
+        elif all(
+            source.status == "observed_period_ids_cover_requested_window"
+            for source in observation_sources
+        ):
+            observation_status = "observed_period_ids_cover_requested_window"
+        else:
+            observation_status = "not_established"
+        family_records.append(
+            DataStateSourceFamilyCoverage(
+                family_id=family_id,
+                sources=family_sources,
+                observation_status=observation_status,
+            )
+        )
+        if observation_status == "not_established":
+            limitations.append(f"source_time_coverage_not_established:{family_id}")
+        for source in family_sources:
+            if source.time_role == "identity_snapshot_as_of":
+                if source.period_unresolved_row_count:
+                    limitations.append(
+                        f"identity_snapshot_period_not_established:{source.source_id}"
+                    )
+                if source.snapshot_as_of and source.snapshot_as_of > period_end:
+                    limitations.append(
+                        f"identity_snapshot_as_of_after_requested_observation_end:{source.source_id}"
+                    )
+    manifest_status = str(source_manifest.get("status") or "not_established")
+    manifest_sha256 = source_manifest.get("sha256")
+    if manifest_status != "content_hashed":
+        limitations.append("source_manifest_not_established")
+    return DataStateSourceCoverage(
+        requested_data_observation_start=period_start,
+        requested_data_observation_end=period_end,
+        source_manifest_ref=str(
+            source_manifest.get("ref") or "repo://production_data/manifest.json"
+        ),
+        source_manifest_status=manifest_status,
+        source_manifest_sha256=manifest_sha256,
+        families=tuple(family_records),
+        limitations=tuple(sorted(set(limitations))),
+    )
+
+
+def _source_manifest_provenance(root: Path) -> dict[str, str | None]:
+    manifest_path = root / "production_data" / "manifest.json"
+    relative_ref = "repo://production_data/manifest.json"
+    if not manifest_path.is_file():
+        return {"status": "not_established", "ref": relative_ref, "sha256": None}
+    digest = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    return {"status": "content_hashed", "ref": relative_ref, "sha256": f"sha256:{digest}"}
+
+
+def _source_period_bounds_sql(column: str) -> tuple[str, str]:
+    value = f"CAST({column} AS VARCHAR)"
+    year = f"TRY_CAST(substr({value}, 1, 4) AS BIGINT)"
+    month = f"TRY_CAST(substr({value}, 6, 2) AS BIGINT)"
+    is_year = f"regexp_full_match({value}, '[0-9]{{4}}')"
+    is_compact_month = f"regexp_full_match({value}, '[0-9]{{6}}')"
+    is_dash_month = f"regexp_full_match({value}, '[0-9]{{4}}-[0-9]{{2}}')"
+    is_date = (
+        f"regexp_full_match({value}, '[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}([T ].*)?') "
+        f"AND try_cast(substr({value}, 1, 10) AS DATE) IS NOT NULL"
+    )
+    compact_year = f"TRY_CAST(substr({value}, 1, 4) AS BIGINT)"
+    compact_month = f"TRY_CAST(substr({value}, 5, 2) AS BIGINT)"
+    month_valid = f"{month} BETWEEN 1 AND 12"
+    compact_month_valid = f"{compact_month} BETWEEN 1 AND 12"
+    start_sql = (
+        "CASE "
+        f"WHEN {is_year} AND {year} > 0 THEN {year} * 12 + 1 "
+        f"WHEN {is_compact_month} AND {compact_year} > 0 AND {compact_month_valid} "
+        f"THEN {compact_year} * 12 + {compact_month} "
+        f"WHEN ({is_dash_month} OR {is_date}) AND {year} > 0 AND {month_valid} "
+        f"THEN {year} * 12 + {month} "
+        "ELSE NULL END"
+    )
+    end_sql = (
+        "CASE "
+        f"WHEN {is_year} AND {year} > 0 THEN {year} * 12 + 12 "
+        f"WHEN {is_compact_month} AND {compact_year} > 0 AND {compact_month_valid} "
+        f"THEN {compact_year} * 12 + {compact_month} "
+        f"WHEN ({is_dash_month} OR {is_date}) AND {year} > 0 AND {month_valid} "
+        f"THEN {year} * 12 + {month} "
+        "ELSE NULL END"
+    )
+    return start_sql, end_sql
+
+
+def _period_overlap_sql(
+    column: str,
+    *,
+    requested_start_month: int,
+    requested_end_month: int,
+) -> str:
+    start_sql, end_sql = _source_period_bounds_sql(column)
+    return (
+        f"({start_sql} IS NOT NULL AND {end_sql} IS NOT NULL "
+        f"AND {start_sql} <= {requested_end_month} "
+        f"AND {end_sql} >= {requested_start_month})"
+    )
+
+
+def _covered_source_months(
+    intervals: Sequence[tuple[int, int]],
+    *,
+    requested_start_month: int,
+    requested_end_month: int,
+) -> set[int]:
+    months: set[int] = set()
+    for start, end in intervals:
+        months.update(
+            range(
+                max(start, requested_start_month),
+                min(end, requested_end_month) + 1,
+            )
+        )
+    return months
+
+
+def _month_ranges(months: set[int]) -> tuple[DataStateSourcePeriodInterval, ...]:
+    if not months:
+        return ()
+    ordered = sorted(months)
+    ranges: list[DataStateSourcePeriodInterval] = []
+    range_start = previous = ordered[0]
+    for month in ordered[1:]:
+        if month == previous + 1:
+            previous = month
+            continue
+        ranges.append(
+            DataStateSourcePeriodInterval(
+                start=_month_from_ordinal(range_start),
+                end=_month_from_ordinal(previous),
+            )
+        )
+        range_start = previous = month
+    ranges.append(
+        DataStateSourcePeriodInterval(
+            start=_month_from_ordinal(range_start),
+            end=_month_from_ordinal(previous),
+        )
+    )
+    return tuple(ranges)
+
+
+def _month_from_ordinal(month_ordinal: int) -> str:
+    year = (month_ordinal - 1) // 12
+    month = month_ordinal - year * 12
+    return f"{year:04d}-{month:02d}"
 
 
 def _payload_from_rows(
@@ -1572,10 +2035,13 @@ def _value_authority_for_identification(
 
 
 def _month_ordinal(period: str) -> int:
-    parts = period.split("-")
-    if len(parts) < 2 or not parts[0] or not parts[1]:
+    if len(period) != 7 or period[4] != "-":
         raise DataStateSubstrateError("schema_regime_period_invalid", period)
-    return int(parts[0]) * 12 + int(parts[1])
+    try:
+        parsed = date.fromisoformat(f"{period}-01")
+    except ValueError as exc:
+        raise DataStateSubstrateError("schema_regime_period_invalid", period) from exc
+    return parsed.year * 12 + parsed.month
 
 
 def _region_numeric(value: str) -> int:

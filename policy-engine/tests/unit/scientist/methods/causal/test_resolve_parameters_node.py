@@ -207,8 +207,8 @@ def test_existing_bundle_is_revalidated_for_changed_request(tmp_path) -> None:
     assert second_bundle.simulation_domain == "fiscal"
 
 
-def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatch) -> None:
-    """A valid same-request CAS bundle is reused without selecting again."""
+def test_matching_source_unbound_bundle_reselects_configured_source(tmp_path, monkeypatch) -> None:
+    """A v1 bundle without a selector-read binding cannot bypass a current source."""
     ctx = _build_ctx(tmp_path, run_id="R_phase15_reuse")
     db_path = tmp_path / "skg.duckdb"
     _seed_skg(db_path)
@@ -238,17 +238,24 @@ def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatc
     assert first.status == "ok"
     first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
 
-    def fail_if_selected(*args, **kwargs):
-        del args, kwargs
-        raise AssertionError("ParameterSelector must not run for a matching CAS bundle")
+    from polisyos.scientist.nodes.builtins.causal import resolve_parameters
+
+    original_selector = resolve_parameters.ParameterSelector
+    selections = 0
+
+    def counted_selector(*args, **kwargs):
+        nonlocal selections
+        selections += 1
+        return original_selector(*args, **kwargs)
 
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector",
-        fail_if_selected,
+        counted_selector,
     )
     replay = node.execute(ctx, first.state.model_copy(deep=True))
 
     assert replay.status == "ok"
+    assert selections == 1
     assert replay.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == first_ref
 
 

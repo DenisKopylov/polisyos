@@ -1812,6 +1812,15 @@ class AsyncWorkflowExecutor:
                         timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
                         deadline_monotonic=cache_deadline,
                     )
+                    self._ctx.run.emit(
+                        f"scientist.node.{alias}",
+                        "NODE_CACHE_STORE",
+                        outputs=[cache_entry_ref],
+                        metrics={
+                            "duration_ms": int((time.perf_counter() - started) * 1000),
+                            "cache_store": 1,
+                        },
+                    )
                 except _EXECUTOR_DEGRADED_ERRORS as exc:
                     self._cache.discard(cache_key)
                     envelope = _executor_degraded(

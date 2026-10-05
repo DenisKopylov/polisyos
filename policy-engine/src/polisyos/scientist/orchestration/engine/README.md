@@ -24,6 +24,12 @@ orchestration stack.
 - Idempotency/cache helpers in [`idempotency.py`](idempotency.py)
 - Runner backends and configuration in [`runner/`](runner/): `WorkflowRunnerConfig`, `WorkflowRunnerBackend`, and `build_workflow_runner(...)`
 
+Both executors publish `NODE_CACHE_STORE` after a successful cache-entry write.
+A fresh executor in the same run restores exact entry refs from this trace or
+checkpoint refs, then verifies the stored replay operations before applying
+them to current state. An underlying CAS write that finishes after cancellation
+is not admitted to the trace as a successful cached attempt.
+
 ## Depends On / Depended On By
 
 - Depends on: core artifacts, observability, tenant/security helpers, and node contracts consumed by workflow execution

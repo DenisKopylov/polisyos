@@ -1,0 +1,16 @@
+id = "2026-10-05-async-cache-recovery"
+title = "Restore async node cache entries from the run trace"
+type = "fixed"
+component = "scientist-engine"
+owner = "team-scientist"
+summary = "AsyncWorkflowExecutor now emits the existing NODE_CACHE_STORE event after successful cache persistence, so a new executor in the same run can recover its verified replay operations without rerunning the producer."
+evidence = ["tests/integration/scientist/test_execution_state_replay.py"]
+compatibility = "Internal trace parity with WorkflowExecutor; no public API or artifact schema changes."
+change_class = "internal-runtime-behavior"
+surface_classification = "internal: scientist orchestration engine"
+migration = "No migration. Older async traces without cache-store events remain readable but cannot seed their unreferenced cache entries."
+limitations = "The tests establish local FileSystemCAS and spawned worker transport; operated Temporal/Ray history and external-state sufficiency remain unverified."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []

@@ -20,22 +20,39 @@ from polisyos.fabric.connectors.pool import (
 class _GatedConnector:
     """A physical connector boundary whose I/O is controlled by events."""
 
-    def __init__(self, *, gate: str | None = None, disconnect_failures: int = 0) -> None:
+    def __init__(
+        self,
+        *,
+        gate: str | None = None,
+        disconnect_failures: int = 0,
+        suppress_cancellation: bool = False,
+    ) -> None:
         self.gate = gate
         self.started = asyncio.Event()
         self.proceed = asyncio.Event()
         self.disconnect_started = asyncio.Event()
         self.disconnected: list[str] = []
         self.disconnect_failures = disconnect_failures
+        self.suppress_cancellation = suppress_cancellation
+        self.cancellation_observed = asyncio.Event()
+        self.created: list[str] = []
 
     async def _wait(self, operation: str) -> None:
         if self.gate == operation:
             self.started.set()
-            await self.proceed.wait()
+            try:
+                await self.proceed.wait()
+            except asyncio.CancelledError:
+                self.cancellation_observed.set()
+                if not self.suppress_cancellation:
+                    raise
+                await self.proceed.wait()
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
         await self._wait("connect")
-        return ConnectionHandle(connector_id="e02-gated", config=config)
+        handle = ConnectionHandle(connector_id="e02-gated", config=config)
+        self.created.append(handle.session_id)
+        return handle
 
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         await self._wait("health")
@@ -83,6 +100,79 @@ async def test_acquire_deadline_covers_network_work(operation: str) -> None:
             task.cancel()
         with suppress(asyncio.CancelledError, PoolExhaustedError, TimeoutError):
             await task
+        await pool.close_all()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("operation", ["connect", "health"])
+@pytest.mark.parametrize("suppress_cancellation", [False, True])
+async def test_expired_acquire_cannot_publish_connector_returned_after_cancellation(
+    operation: str,
+    suppress_cancellation: bool,
+) -> None:
+    """A returned handle is usable only while the absolute acquire budget remains."""
+    connector = _GatedConnector(gate=operation, suppress_cancellation=suppress_cancellation)
+    pool = _pool(lambda: connector, validate_on_acquire=operation == "health")
+    acquire = asyncio.create_task(pool.acquire())
+    try:
+        await asyncio.wait_for(connector.started.wait(), timeout=0.5)
+        await asyncio.wait_for(connector.cancellation_observed.wait(), timeout=0.5)
+        connector.proceed.set()
+        with pytest.raises(PoolExhaustedError):
+            await asyncio.wait_for(asyncio.shield(acquire), timeout=0.5)
+        assert not pool._in_use and not pool._pending_cleanup
+        assert pool._active_acquires == 0
+        assert pool._semaphore._value == 1
+        assert connector.disconnected == connector.created
+    finally:
+        connector.proceed.set()
+        if not acquire.done():
+            acquire.cancel()
+        await asyncio.gather(acquire, return_exceptions=True)
+        await pool.close_all()
+
+
+@pytest.mark.asyncio
+async def test_successful_acquire_does_not_await_metadata_after_publication() -> None:
+    """Successful commit gives the caller its handle before another lock owner can wait."""
+    connector = _GatedConnector(gate="health")
+    pool = _pool(lambda: connector, validate_on_acquire=True, acquire_timeout_seconds=0.5)
+    acquire = asyncio.create_task(pool.acquire())
+    holder_started = asyncio.Event()
+    holder_release = asyncio.Event()
+    holder: asyncio.Task[None] | None = None
+
+    async def next_metadata_owner() -> None:
+        async with pool._lock:
+            holder_started.set()
+            await holder_release.wait()
+
+    try:
+        await asyncio.wait_for(connector.started.wait(), timeout=0.5)
+        await pool._lock.acquire()
+        connector.proceed.set()
+        # Observe publication queued on the real lock before adding its next owner.
+        async with asyncio.timeout(0.5):
+            while not pool._lock._waiters:
+                await asyncio.sleep(0)
+        holder = asyncio.create_task(next_metadata_owner())
+        async with asyncio.timeout(0.5):
+            while len(pool._lock._waiters) < 2:
+                await asyncio.sleep(0)
+        pool._lock.release()
+        await asyncio.wait_for(holder_started.wait(), timeout=0.5)
+        assert acquire.done(), "published acquisition waited behind the next metadata owner"
+        handle = acquire.result()
+        assert pool._active_acquires == 0
+        assert list(pool._in_use) == [handle.session_id]
+    finally:
+        holder_release.set()
+        if holder is not None:
+            await holder
+        if pool._lock.locked():
+            pool._lock.release()
+        connector.proceed.set()
+        await asyncio.gather(acquire, return_exceptions=True)
         await pool.close_all()
 
 

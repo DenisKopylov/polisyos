@@ -19,6 +19,7 @@
   "branch": "codex/e02-B-run",
   "pull_request": null,
   "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json",
     "policy-engine/src/polisyos/common/async_tools.py",
     "policy-engine/tests/unit/common/test_async_tools.py"
   ],
@@ -364,7 +365,7 @@
       "output": "............................................................             [100%]\n60 passed in 7.77s\n"
     },
     {
-      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -c \"import concurrent.futures,pytest,sys\\nfrom polisyos.common import async_tools\\nasync_tools._SharedExecutor.submit = concurrent.futures.ThreadPoolExecutor.submit\\nsys.exit(pytest.main(['-o','addopts=','-q','tests/unit/common/test_async_tools.py::test_nested_shared_executor_work_is_rejected_before_pool_saturation']))\\n\"",
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -c 'import concurrent.futures, pytest, sys\nfrom polisyos.common import async_tools\nasync_tools._SharedExecutor.submit = concurrent.futures.ThreadPoolExecutor.submit\nsys.exit(pytest.main(['\"'\"'-o'\"'\"', '\"'\"'addopts='\"'\"', '\"'\"'-q'\"'\"', '\"'\"'tests/unit/common/test_async_tools.py::test_nested_shared_executor_work_is_rejected_before_pool_saturation'\"'\"']))\n'",
       "cwd": "/workspace/e02-B-run/policy-engine",
       "target_sha": "3e95056bca6d0c15ab7778573172491628f48596",
       "mutation": "in isolated Python child replace only actual _SharedExecutor.submit with stdlib unrestricted submit; names, types, markers and inputs unchanged",
@@ -395,7 +396,8 @@
           "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
         },
         "fixtures": "real filesystem CAS in isolated pytest tmp_path; no ports/DB/external backends"
-      }
+      },
+      "serialization_correction": "Append-only receipt correction: actual multiline Python source in shell quoting; prior JSON command mistakenly embedded literal backslash-n. Compiled and shlex roundtripped; unchanged actual property-removal probe was rerun at process candidate and is recorded separately there."
     },
     {
       "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/common/async_tools.py tests/unit/common/test_async_tools.py && /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/common/async_tools.py tests/unit/common/test_async_tools.py",
@@ -436,11 +438,12 @@
         "production_data": "not required"
       },
       "input_closure": "full tracked source; static direct-call instrument boundaries as disclosed",
-      "outcome": "UNRUN",
+      "outcome": "ERROR",
       "exit_code": 3,
       "output": "status UNRESOLVED; coverage partial; regressions []; new unresolved_by_construction polisyos.common.async_tools._SharedExecutor.submit; runtime invocation not established by static receiver/callback instrument",
       "raw_ref": "policy-engine/_build/e02-B-run/production-invocation.json@sha256:27e20f92cd9b43fd342bfb5e2cd2361f8bda80f1ecd5dbdad3a92c9c7efe4f36",
-      "raw_transfer": "ignored raw only; 170860569 bytes; deciding source reachability re-run required for independent receipt"
+      "raw_transfer": "ignored raw only; 170860569 bytes; deciding source reachability re-run required for independent receipt",
+      "source_status": "UNRESOLVED"
     }
   ],
   "property": {
@@ -549,5 +552,10 @@
     "A: generation_cycle.py/run_lifecycle.py remain A-only; B14/B40 served current-write contracts require coordinated negative input handoff.",
     "C: streaming.py remains C-only; no edits here.",
     "Full production dataset not needed for generic pool/type properties; macOS native process behavior remains local G exact candidate rerun."
+  ],
+  "receipt_corrections": [
+    "Full slice-base-to-last-implementation footprint includes earlier run-typevar evidence companion.",
+    "Property-removal shell command now contains executable multiline Python source.",
+    "Production invocation scanner ran and exited3 with UNRESOLVED/partial instrument status; it was not UNRUN."
   ]
 }

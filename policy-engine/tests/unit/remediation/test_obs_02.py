@@ -100,15 +100,18 @@ def test_partial_batch_failure_resumes_without_republishing_confirmed_prefix(
     pytest.importorskip("pyarrow")
     from polisyos.data_forge.domains.ukraine.builders import sources
 
-    config, _, frame = _config(tmp_path)
+    config, source, frame = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
     instances: list[int] = []
+    opened_paths: list[Path] = []
 
     class FailingThenResumableParquetFile:
         """Fail once after a published batch, then expose the same snapshot."""
 
-        def __init__(self, _path: Path) -> None:
+        def __init__(self, path: Path) -> None:
             self.instance = len(instances)
             instances.append(self.instance)
+            opened_paths.append(Path(path))
 
         def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
             del batch_size, columns
@@ -126,6 +129,10 @@ def test_partial_batch_failure_resumes_without_republishing_confirmed_prefix(
     emitted = list(sources._iter_observation_metric_frames(config))
 
     assert len(instances) == 2
+    assert len(opened_paths) == 2
+    assert opened_paths[0] == opened_paths[1]
+    assert opened_paths[0] != artifact
+    assert not opened_paths[0].exists()
     assert [(metric_id, batch_index) for _, metric_id, batch_index, _ in emitted] == [
         ("metric_a", 0),
         ("metric_b", 0),
@@ -160,9 +167,11 @@ def test_failure_between_metric_frames_resumes_at_confirmed_metric_cursor(
     pytest.importorskip("pyarrow")
     from polisyos.data_forge.domains.ukraine.builders import sources
 
-    config, _, frame = _config(tmp_path)
+    config, source, frame = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
     original_mapper = sources._observation_metric_frames_from_frame
     mapper_calls = 0
+    opened_paths: list[Path] = []
 
     def fail_after_first_metric(*args: Any, **kwargs: Any):
         nonlocal mapper_calls
@@ -176,8 +185,8 @@ def test_failure_between_metric_frames_resumes_at_confirmed_metric_cursor(
     class SingleBatchParquetFile:
         """Expose one real batch; the mapper injects the inter-metric failure."""
 
-        def __init__(self, _path: Path) -> None:
-            pass
+        def __init__(self, path: Path) -> None:
+            opened_paths.append(Path(path))
 
         def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
             del batch_size, columns
@@ -203,6 +212,10 @@ def test_failure_between_metric_frames_resumes_at_confirmed_metric_cursor(
     emitted = list(sources._iter_observation_metric_frames(config))
 
     assert mapper_calls == 2
+    assert len(opened_paths) == 2
+    assert opened_paths[0] == opened_paths[1]
+    assert opened_paths[0] != artifact
+    assert not opened_paths[0].exists()
     assert read_calls == []
     assert [(metric_id, batch_index) for _, metric_id, batch_index, _ in emitted] == [
         ("metric_a", 0),

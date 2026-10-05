@@ -17,7 +17,7 @@
   "source_tree": "97ce175cf2b05527da710ffa3c2fdeb991dce86b",
   "production_sha": "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
   "production_tree": "bad622f8ba09cad03e4b7899c07982380efcfa81",
-  "production_equivalence": "git diff 515054e7427467bf6e72fcfa22cc809c7cfe2c19..94f378200d8684d61737f0561eccafea6eaa843f changes only two test files; no production delta.",
+  "production_equivalence": "git diff 515054e7427467bf6e72fcfa22cc809c7cfe2c19..94f378200d8684d61737f0561eccafea6eaa843f changes only two test files; no production delta. Candidate bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4 adds only author-owned release fragment plus prior handoff metadata; source/test94f and production515 bytes remain identical.",
   "prior_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/exe-state.json@0f24d18d988f579db20a84c734a587abe6cabe20",
   "supersedes": "Only the prior B52 synchronous cold recovery residual. All fifteen prior dispositions and limitations remain scoped to their pinned source; B59 narrow closure and B61 held rule remain unchanged.",
   "source_criterion": {
@@ -46,7 +46,8 @@
       "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
       "policy-engine/CHANGELOG.md",
       "policy-engine/tests/integration/scientist/test_async_cache_recovery.py",
-      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py"
+      "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "policy-engine/release-fragments/unreleased/2026-10-05-async-cache-recovery.toml"
     ],
     "coordination": "Root confirmed exclusive async executor ownership, then optional seed/load deadline extension lease; no A generation_cycle.py/run_lifecycle.py or C streaming.py edits."
   },
@@ -458,9 +459,11 @@
   ],
   "local_G_candidate": {
     "branch": "codex/e02-B-exe-state",
-    "candidate": "94f378200d8684d61737f0561eccafea6eaa843f",
+    "candidate": "bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4",
     "command_reference": "final-wave-wrapper.json contains the exact20-file command/input environment; selection-positive-wrapper.json contains the affected final file run. Root final joint cohort is a separate pinned result when published.",
-    "cloud_limit": "No production-data input is required for the established generic cold cache property. Broader served/production latency or thread-affine store claims require their own actual local input and consumer witness."
+    "cloud_limit": "No production-data input is required for the established generic cold cache property. Broader served/production latency or thread-affine store claims require their own actual local input and consumer witness.",
+    "source_test_checkpoint": "94f378200d8684d61737f0561eccafea6eaa843f",
+    "production_checkpoint": "515054e7427467bf6e72fcfa22cc809c7cfe2c19"
   },
   "pattern_pass": [
     "P31/P40: same blocking cache-I/O class includes both recovery inlets; remaining entered-backend/persistence boundary declared rather than per-site patches.",
@@ -477,12 +480,14 @@
     "515054e7427467bf6e72fcfa22cc809c7cfe2c19",
     "b75ea829d4b76285a399d75249117764211447b0",
     "c52c2e584444d712ded7f9349b537527dad02824",
-    "94f378200d8684d61737f0561eccafea6eaa843f"
+    "94f378200d8684d61737f0561eccafea6eaa843f",
+    "bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4"
   ],
-  "candidate_sha": "94f378200d8684d61737f0561eccafea6eaa843f",
-  "candidate_tree_sha": "97ce175cf2b05527da710ffa3c2fdeb991dce86b",
+  "candidate_sha": "bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4",
+  "candidate_tree_sha": "cedb439ea3e629884ea672fad487f3e2b6fdac72",
   "changed_paths": [
     "policy-engine/CHANGELOG.md",
+    "policy-engine/release-fragments/unreleased/2026-10-05-async-cache-recovery.toml",
     "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
     "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
     "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
@@ -795,5 +800,16 @@
     "sha256": "be9849bd7846511709c06b011b9aa61d646b041843a3399cccf889dba8cd4d3a",
     "bytes": 3735,
     "evidence_origin_commit": "79abecd30a4e14aa36d6e3b91ffa7591632b92f1"
-  }
+  },
+  "release_companion": {
+    "commit": "bd15f3cbc10ebcd7c8f369e1ad5845db980d27d4",
+    "tree": "cedb439ea3e629884ea672fad487f3e2b6fdac72",
+    "path": "policy-engine/release-fragments/unreleased/2026-10-05-async-cache-recovery.toml",
+    "sha256": "b38563221262b355e0e16163227902bad65881f45bbc11bbb274673925af3d21",
+    "bytes": 1840,
+    "authorization": "Root assigned existing fragment to EXE writer; mandatory CONTRIBUTING192 operator/runtime companion.",
+    "delta": "Five existing fields describe cold recovery publication, optional seed/load deadline defaults, real test paths and entered-backend/persistence/reentrant/thread-affinity limits. Production/test inputs remain94f/515 byte-identical.",
+    "check": "Python3.14.2 tomllib parses exact fragment; both native evidence paths exist. Metadata-only; no runtime rerun or claim of a new native result."
+  },
+  "implementation_footprint_definition": "Changed source/test/operator companion paths from slice_base_sha to candidate_sha; separate handoff/evidence commits are mandatory record companions outside mechanism footprint. Source/test checkpoint94f and production515 are unchanged by the release companion."
 }

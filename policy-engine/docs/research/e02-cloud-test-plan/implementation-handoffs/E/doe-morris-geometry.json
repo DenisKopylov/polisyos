@@ -1,0 +1,272 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "doe-morris-geometry",
+  "closure_ids": [
+    "B102"
+  ],
+  "bundle_ids": [
+    "DOE-03"
+  ],
+  "supporting_revalidation_ids": [
+    "B97",
+    "B98",
+    "B99",
+    "B100",
+    "B101",
+    "B102",
+    "B103",
+    "B104",
+    "B105"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "e468822ef5eb0096f3a1692da1fdd85843581203"
+  ],
+  "candidate_tree_sha": "d38dad891c8f0edf61689cc5d5f1e75128ae3b13",
+  "branch": "codex/e02-E-doe",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/17",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-doe-morris-geometry.toml",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+    "policy-engine/tests/unit/remediation/test_doe_02.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py"
+  ],
+  "surface_classification": "internal DOE paths; supported Scientist entrypoints unchanged",
+  "baseline_cells": [
+    {
+      "cell_id": "F14-P086",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/remediation/test_doe_03.py",
+      "source_locator": "results/received/F14.txt:436",
+      "observed": "PASS 12 collected/calls",
+      "wall_seconds": 8.744565576999776,
+      "peak_rss_kib": 280844,
+      "grade": "source_reported_compact_text_only; candidate_unverified",
+      "raw_archive_transfer": "missing",
+      "semantic_adequacy": "not_established",
+      "environment": {
+        "python": "3.14.2",
+        "cpu_quota": 4,
+        "cpuset": "0-4",
+        "memory_max_bytes": 17179869184,
+        "numerical_threads": 1,
+        "profile": "frozen-union-1 with sensitivity extra"
+      },
+      "data_identity": "test file and bounded fixtures at source_sha; full raw input/backend origins manifest unavailable",
+      "backend": "source-reported sensitivity profile; this compact receipt does not independently establish SALib build identity"
+    }
+  ],
+  "source_criteria": {
+    "B102": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md@c40d4acae1ce58b597267255026d9356565828fd",
+    "residual": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#B102"
+  },
+  "baseline_counterexample": {
+    "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "method": "isolated process compiled exact analysis.py and uncertainty.py bytes obtained by git show slice-base; designs.py and sampling.py are unchanged by the implementation",
+    "input": "Morris d=2, 4 trajectories, seed17, x[0,10], z[0,1], y=2x+3z, uncertainty percentile20 seed7",
+    "output": "valid: point {x:20,z:3}, uncertainty_status=ok; change samples[1,1]+=0.1 with outputs retained: point {x:20,z:8}, uncertainty_status=ok",
+    "classification": "same B102 class: finite/divisible positional blocks are a proxy for valid Morris geometry; this is not an inherited-red claim"
+  },
+  "environment": {
+    "python": "3.14.2 (Clang21.1.4)",
+    "platform": "Linux6.18.44-x86_64 glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "SALib": "1.5.2",
+      "scikit-learn": "1.8.0",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "multiprocess": "0.70.19",
+      "dill": "0.4.1"
+    },
+    "backend_origin": "SALib1.5.2, multiprocess0.70.19, dill0.4.1 installed with uv pip --no-deps into isolated /workspace/e02-runtime/doe-deps; remaining dependencies from read-only contributor venv",
+    "cpu_count": 5,
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "cpu_max": "400000 100000",
+    "memory_max_bytes": 17179869184,
+    "numerical_thread_env": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "JAX_PLATFORMS": null
+    },
+    "node": "24.19.0",
+    "pnpm": "10.33.2",
+    "node_limitation": "Supported Node22 differs; frozen pnpm hook install succeeded without lockfile change; no TypeScript verification claim"
+  },
+  "input_identity": {
+    "denominator": "all test cases selected by the native command below, at implementation SHA; no production inputs",
+    "fixture": "bounded analytic native SALib designs, primarily x[0,10],z[0,1],8 trajectories seed17,y=2x+3z,percentile20 seed7; source-coordinate native controls NORMAL(mean0.5,std0.2) and TRIANGULAR(mode0.75)",
+    "native_cases": 98,
+    "scientific_scope": "geometric admissibility, normalized effect-unit agreement and consumer readback; no coverage or production-source inference"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-runtime/doe-deps:src .venv/bin/python -m pytest tests/unit/scientist/methods/doe/test_morris_geometry.py tests/unit/remediation/test_doe_01.py tests/unit/remediation/test_doe_02.py tests/unit/remediation/test_doe_03.py tests/unit/scientist/methods/doe tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py -o addopts='' -q",
+      "cwd": "policy-engine",
+      "target_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "environment": "environment field above",
+      "input_closure": "input_identity plus exact native selectors",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "doe-morris-geometry-checks.txt#native-tests; 98 passed,6 warnings in6.82s"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-runtime/doe-deps:src .venv/bin/python - <<'PY'\nimport pytest\nimport polisyos.scientist.methods.doe.morris_geometry as geometry\ngeometry._validate_morris_trajectories = lambda *args, **kwargs: None\nraise SystemExit(pytest.main(['tests/unit/scientist/methods/doe/test_morris_geometry.py::test_invalid_morris_geometry_cannot_emit_point_or_pca_result[two_coordinates]', '-o', 'addopts=', '-q']))\nPY",
+      "cwd": "policy-engine",
+      "target_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "environment": "same genuine SALib1.5.2 environment; validator removed only in isolated process",
+      "input_closure": "exact two_coordinates selector; real backend unchanged and result markers retained",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "exit_code": 1,
+      "output": "doe-morris-geometry-checks.txt#removal-control; DID NOT RAISE ValueError,1 failed in1.26s"
+    },
+    {
+      "command": "bounded native producer -> SensitivityResult.model_dump_json -> filesystem fixture write/reopen with SensitivityResult.model_validate_json -> RankingStabilityChecker.check, using input_identity; runtime source exactly implementation SHA",
+      "target_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "environment": "same genuine native environment",
+      "input_closure": "24 native rows; no production data; fixture persistence only",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "doe-morris-geometry-checks.txt#numerical-readback; point/UQ{x:20,z:3}, stability1.0,8replicates,rank variances0; corrupted original refused by point and stability",
+      "wall_seconds": 1.538685371999918,
+      "peak_rss_kib": 142224
+    },
+    {
+      "command": "python -m ruff check changed Python files; python -m ruff format --check morris_geometry.py and test_morris_geometry.py; git diff --check",
+      "target_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "environment": "contributor venv",
+      "input_closure": "changed Python denominator; format only new files avoids unrelated reformatting",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "doe-morris-geometry-checks.txt#ruff; All checks passed;2 files already formatted"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-runtime/doe-deps:src .venv/bin/python -m polisyos.runtime.quality.production_invocation --base c40d4acae1ce58b597267255026d9356565828fd --receipt /workspace/e02-runtime/doe-final-production-invocation.json",
+      "target_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "environment": "same venv",
+      "input_closure": "complete tracked Python source denominator; static direct-call model only",
+      "outcome": "ERROR",
+      "output": "Final exact-candidate process was killed by the environment, with no stdout or receipt. Shell reports Killed. Exact cause is not_established; memory.max=17179869184 and cumulative cgroup oom_kill=2 at subsequent readback. Rerun the exact command at the pinned SHA when resource availability permits.",
+      "exit_code": 137,
+      "prior_nondeciding_observation": {
+        "outcome": "UNRESOLVED",
+        "exit_code": 3,
+        "source": "earlier uncommitted precursor",
+        "regressions": [],
+        "new_unresolved_by_construction": [
+          "polisyos.scientist.methods.doe.analysis.analyze_sensitivity",
+          "polisyos.scientist.methods.doe.stability.RankingStabilityChecker.check",
+          "polisyos.scientist.methods.doe.uncertainty.morris_elementary_effects_from_samples"
+        ],
+        "limitation": "not deciding evidence for the final implementation SHA"
+      }
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-runtime/doe-deps:src .venv/bin/python -m tools.cli architecture guardrails check",
+      "target_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "environment": "contributor venv; frozen pnpm installed; Node24 deviation disclosed",
+      "input_closure": "repository architecture checks",
+      "outcome": "FAIL",
+      "output": "doe-morris-geometry-architecture.txt (complete deciding output); deep-import baseline drift plus runtime-openapi snapshot and trust-claim-posture generated drift",
+      "exit_code": 1,
+      "failure_provenance": "not_established; not classified inherited because exact slice-base replay and zero complete-denominator intersection are not available"
+    }
+  ],
+  "property": {
+    "statement": "Each admitted ungrouped Morris trajectory changes exactly one physical coordinate per step and every factor once, with declared unit-coordinate grid and delta; scalar/PCA/EE consumers reject invalid paths, and ranking bootstrap validates its original successful design before resampling whole trajectories.",
+    "runtime_path": [
+      "generate_sensitivity_samples -> genuine SALib1.5.2 Morris sampling",
+      "bounded matrix and originating SensitivityPlan -> shared morris_geometry admission",
+      "analyze_sensitivity -> SensitivityResult and normalized elementary-effect bootstrap; MultiOutputAnalyzer -> same admission for components",
+      "RankingStabilityChecker -> original design admission -> whole-trajectory replicate -> real analyze_sensitivity ranking",
+      "autotune SensitivityBridge -> native analysis consumer tests; fixture SensitivityResult JSON write/reopen readback"
+    ],
+    "proxy_divergence": "A finite matrix with len divisible by d+1 can contain two-coordinate, repeated-coordinate, wrong-delta or invalid-grid transitions; slice-base emits point z8 and uncertainty ok where native linear truth is z3.",
+    "negative_controls": [
+      "two_coordinate_step",
+      "tiny_second_coordinate_1e-10",
+      "off_grid",
+      "wrong_delta",
+      "repeated_factor",
+      "zero_step",
+      "cross_trajectory_splice",
+      "outside_support",
+      "nonfinite",
+      "wrong_declared_num_levels",
+      "nonuniform_off_grid",
+      "ranking_stability_original_FAIL_FAST/DROP_FAILED/IMPUTE_BASELINE_failures",
+      "remove_geometry_keep_result_markers"
+    ],
+    "property_preserving_controls": [
+      "whole-trajectory permutation and reversal",
+      "physical unit rescaling preserving normalized effect",
+      "native SALib grid levels2,3,4,6",
+      "native admitted bounded normal/triangular coordinate transformations"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded library mechanism verified; B102 partial pending G disposition; source design provenance and served orchestration not established",
+  "pattern_pass": {
+    "relevant": [
+      "P10",
+      "P27",
+      "P29",
+      "P31",
+      "P33",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "P40": "Root review found same geometry class one level deeper in stability: successful-only bootstrap could hide malformed original blocks. The invariant was widened to original design admission; failed original outputs are refused without inventing a selection/recovery contract.",
+    "P41": "No architecture or static-invocation failure is classified inherited without exact slice-base replay and denominator-disjointness proof."
+  },
+  "independent_review": {
+    "reviewer": "E root orchestrator, separate from DOE author",
+    "implementation_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+    "status": "root reported no further blockers after source review and29 genuine native Morris/stability/SensitivityBridge checks; root deciding command/output retained by root, not promoted here to author-run evidence"
+  },
+  "limitations_and_next_owner": [
+    "G must fetch exact topic head, inspect this receipt, review/integrate and run affected regression; Git publication is separate from finding closure.",
+    "Authenticated design/trajectory identity is not established by geometry. A geometrically valid splice cannot be distinguished from an original path without an admitted source carrier; no new carrier or authority is invented.",
+    "Nonuniform Morris uncertainty remains unavailable; admitted distribution CDF inversion is used only to validate point-path geometry.",
+    "DROP_FAILED still carries selection_bias_status=not_established; ranking stability refuses failed original runs under every policy. No failure-selection correction is claimed.",
+    "Sobol/FAST ranking stability still uses the existing row resampling and lies outside this bounded Morris slice.",
+    "Odd num_levels preserves the native SALib design and warning about possible bias; it is not a scientific adequacy approval.",
+    "The filesystem SensitivityResult readback is an explicit bounded fixture, not production persistence or a served evaluator. Static production-invocation does not establish orchestration.",
+    "No full production history, source law, coverage campaign, local real-data calibration/backtest result or broad integration closure is claimed.",
+    "Shared generation_cycle.py and other A-owned bridge files are unchanged.",
+    "Repository architecture gate is red with unknown ownership: full deciding output is preserved; G or architecture owners must attribute against the correct slice-base, without inferring inherited status from unrelated-looking paths.",
+    "Final exact-candidate production-invocation scan was killed exit137 and is ERROR, not an invocation PASS. G should rerun that exact read-only command on implementation SHA or integrated descendant; the earlier static UNRESOLVED result is explicitly nondeciding."
+  ],
+  "transport": {
+    "status": "published",
+    "implementation_remote_readback_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+    "remote_ref": "refs/heads/codex/e02-E-doe",
+    "pull_request_draft": true,
+    "artifact_attachment": "attach_artifact was called after PR creation; desktop tool response remains pending in cloud, no successful attachment claim"
+  },
+  "local_reproduce_recipe": {
+    "checkout": "git fetch origin codex/e02-E-doe; use exact implementation SHA in an admitted isolated checkout; preserve append-only history",
+    "environment": "Python3.14.2 with SALib1.5.2/numpy2.3.5/scipy1.16.3/sklearn1.8.0 and pytest9.0.2; existing frozen sensitivity/test profile may supply these",
+    "command": "PYTHONPATH=src <python-with-the-declared-dependencies> -m pytest tests/unit/scientist/methods/doe/test_morris_geometry.py tests/unit/remediation/test_doe_01.py tests/unit/remediation/test_doe_02.py tests/unit/remediation/test_doe_03.py tests/unit/scientist/methods/doe tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py -o addopts='' -q",
+    "input": "No production data required for this geometric property. Inputs regenerate from tracked test fixtures and seeds.",
+    "expected": "98 passed; odd-level SALib bias warning and legacy Saltelli deprecation remain disclosed; no coverage verdict."
+  }
+}

@@ -8,15 +8,16 @@ from dataclasses import dataclass
 import numpy as np
 
 from .designs import (
+    _DOE_DISTRIBUTION_SCHEMA_VERSION,
+    _SALIB_BACKEND_ID,
     RunFailurePolicy,
     SensitivityMethod,
     SensitivityPlan,
     SensitivityResult,
-    _DOE_DISTRIBUTION_SCHEMA_VERSION,
-    _SALIB_BACKEND_ID,
     _build_salib_problem,
     _derive_backend_seed,
 )
+from .morris_geometry import _validate_morris_plan_samples
 from .uncertainty import (
     analyze_morris_trajectory_bootstrap,
     analyze_sobol_asymptotic_delta,
@@ -84,6 +85,7 @@ def analyze_sensitivity(
     backend_seed = _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}")
 
     if plan.method == SensitivityMethod.MORRIS:
+        _validate_morris_plan_samples(plan, prepared.samples, problem)
         from SALib.analyze import morris as morris_analyzer  # type: ignore[import-not-found]
 
         salib_result = morris_analyzer.analyze(
@@ -373,6 +375,7 @@ def _attach_morris_uncertainty(
             outputs,
             result.parameter_names,
             parameter_bounds=parameter_bounds,
+            num_levels=plan.parameter_specs[0].num_levels,
         )
         result.uncertainty = analyze_morris_trajectory_bootstrap(
             elementary_effects,

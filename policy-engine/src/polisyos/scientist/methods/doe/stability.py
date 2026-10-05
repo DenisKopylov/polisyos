@@ -6,7 +6,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from .designs import SensitivityPlan
+from .designs import SensitivityMethod, SensitivityPlan
+from .morris_geometry import _validate_morris_plan_samples
 
 
 @dataclass
@@ -41,7 +42,7 @@ class RankingStabilityChecker:
         Returns a ``StabilityReport`` with a score in [0, 1] where 1
         means perfectly stable rankings across all bootstrap samples.
         """
-        from .analysis import analyze_sensitivity
+        from .analysis import _prepare_analysis_inputs, analyze_sensitivity
 
         if samples.shape[0] < 10:
             return StabilityReport(
@@ -51,14 +52,28 @@ class RankingStabilityChecker:
             )
 
         rng = np.random.default_rng(self._seed)
-        n = samples.shape[0]
+        if plan.method == SensitivityMethod.MORRIS:
+            _validate_morris_plan_samples(plan, samples)
+            prepared = _prepare_analysis_inputs(plan, samples, outputs)
+            if prepared.failed_runs:
+                raise ValueError(
+                    "Morris stability requires complete successful trajectories; "
+                    "failed-run selection or imputation is not established for ranking stability"
+                )
+        # Morris rows are connected points, not independent observations.
+        # Preserve every original trajectory's order inside each replicate.
+        block_size = plan.num_parameters + 1 if plan.method == SensitivityMethod.MORRIS else 1
+        if samples.shape[0] % block_size:
+            raise ValueError("Morris stability requires complete trajectory blocks")
+        n_blocks = samples.shape[0] // block_size
         names = [p.name for p in plan.parameter_specs]
 
         # Collect rankings from bootstrap samples
         rank_positions: dict[str, list[int]] = {name: [] for name in names}
 
         for _ in range(self._n_bootstrap):
-            idx = rng.choice(n, size=n, replace=True)
+            block_ids = rng.choice(n_blocks, size=n_blocks, replace=True)
+            idx = (block_ids[:, None] * block_size + np.arange(block_size)).reshape(-1)
             boot_samples = samples[idx]
             boot_outputs = outputs[idx]
 

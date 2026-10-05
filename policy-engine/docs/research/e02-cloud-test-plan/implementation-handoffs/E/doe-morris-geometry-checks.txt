@@ -1,0 +1,72 @@
+Candidate e468822ef5eb0096f3a1692da1fdd85843581203; bounded fixtures only, no production data.
+
+# native-tests
+........................................................................ [ 73%]
+..........................                                               [100%]
+=============================== warnings summary ===============================
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_stops_before_oversized_follow_up_without_override
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_returns_last_result_when_later_round_fails
+  /workspace/e02-E-doe/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:222: RuntimeWarning: Degrees of freedom <= 0 for slice
+    ret = _var(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_stops_before_oversized_follow_up_without_override
+tests/unit/remediation/test_doe_01.py::test_adaptive_sampler_returns_last_result_when_later_round_fails
+  /workspace/e02-E-doe/policy-engine/.venv/lib/python3.14/site-packages/numpy/_core/_methods.py:211: RuntimeWarning: invalid value encountered in divide
+    ret = um.true_divide(
+
+tests/unit/scientist/methods/doe/test_morris_geometry.py::test_native_morris_blocks_preserve_point_uncertainty_under_units_and_order[3]
+  /workspace/e02-runtime/doe-deps/SALib/sample/morris/morris.py:382: UserWarning: num_levels should be an even number, sample may be biased
+    warnings.warn("num_levels should be an even number, " "sample may be biased")
+
+tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py::TestSensitivityBridge::test_sobol_bridge
+  /workspace/e02-E-doe/policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py:102: DeprecationWarning: `salib.sample.saltelli` will be removed in SALib 1.5.1 Please use `salib.sample.sobol`
+    samples = saltelli.sample(problem, N=n_trajectories)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+98 passed, 6 warnings in 6.82s
+
+# removal-control
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_invalid_morris_geometry_cannot_emit_point_or_pca_result[two_coordinates] _
+
+mutation = 'two_coordinates'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "two_coordinates",
+            "tiny_second_coordinate",
+            "off_grid",
+            "wrong_delta",
+            "repeated_factor",
+            "zero_step",
+            "cross_trajectory_splice",
+            "outside_support",
+            "nonfinite",
+        ],
+    )
+    def test_invalid_morris_geometry_cannot_emit_point_or_pca_result(mutation: str) -> None:
+        """Divisible finite matrices must still prove the defining trajectory geometry."""
+        plan = _plan()
+        samples = generate_sensitivity_samples(plan)
+        outputs = 2.0 * samples[:, 0] + 3.0 * samples[:, 1]
+        corrupted = _corrupt(samples, mutation)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/doe/test_morris_geometry.py:97: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/doe/test_morris_geometry.py::test_invalid_morris_geometry_cannot_emit_point_or_pca_result[two_coordinates]
+1 failed in 1.65s
+
+# numerical-readback
+{"source_sha": "e468822ef5eb0096f3a1692da1fdd85843581203", "fixture": "bounded_analytic_not_production", "rows": 24, "point": {"x": 20.0, "z": 3.0}, "uncertainty_mu_star": {"x": 20.0, "z": 3.0}, "consumer_rank_stability": 1.0, "consumer_replicates": 8, "rank_variance": {"x": 0.0, "z": 0.0}}
+{"negative_consumer": "point", "outcome": "REJECTED", "reason": "Morris coordinates do not lie on the declared sampling grid"}
+{"negative_consumer": "stability", "outcome": "REJECTED", "reason": "Morris coordinates do not lie on the declared sampling grid"}
+{"wall_seconds": 1.538685371999918, "peak_rss_kib": 142224}
+
+# ruff
+All checks passed!
+2 files already formatted

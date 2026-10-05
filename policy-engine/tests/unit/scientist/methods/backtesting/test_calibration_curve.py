@@ -9,12 +9,20 @@ from polisyos.calibration import (
 )
 from polisyos.calibration.curve import (
     CalibrationPoint as CurveCalibrationPoint,
+)
+from polisyos.calibration.curve import (
     CalibrationResult as CurveCalibrationResult,
+)
+from polisyos.calibration.curve import (
     compute_calibration_curve as curve_compute_calibration_curve,
 )
 from polisyos.scientist.methods.backtesting.calibration_curve import (
     CalibrationPoint as ScientistCalibrationPoint,
+)
+from polisyos.scientist.methods.backtesting.calibration_curve import (
     CalibrationResult as ScientistCalibrationResult,
+)
+from polisyos.scientist.methods.backtesting.calibration_curve import (
     compute_calibration_curve as scientist_compute_calibration_curve,
 )
 

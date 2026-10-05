@@ -209,9 +209,11 @@ def _prepare_interval_sets(
     if intervals is None and predictive_samples is None:
         raise ValueError("continuous diagnostics require intervals or predictive_samples")
     if intervals is None:
-        level_values = tuple(float(level) for level in (levels or _DEFAULT_LEVELS))
-        return level_values, _intervals_from_samples(predictive_samples, level_values)
-    if isinstance(intervals, Mapping):
+        level_values = tuple(
+            float(level) for level in (_DEFAULT_LEVELS if levels is None else levels)
+        )
+        interval_sets = None
+    elif isinstance(intervals, Mapping):
         ordered = sorted((float(level), interval_set) for level, interval_set in intervals.items())
         level_values = tuple(level for level, _ in ordered)
         interval_sets = [list(interval_set) for _, interval_set in ordered]
@@ -227,11 +229,14 @@ def _prepare_interval_sets(
         level_values = tuple(float(level) for level in levels)
         interval_sets = [list(interval_set) for interval_set in intervals]
 
+    for level in level_values:
+        if not math.isfinite(level) or level <= 0.0 or level >= 1.0:
+            raise ValueError("continuous interval levels must be finite and stay inside (0, 1)")
+    if interval_sets is None:
+        interval_sets = _intervals_from_samples(predictive_samples, level_values)
     if len(level_values) != len(interval_sets):
         raise ValueError("levels and interval sets must have identical length")
-    for level, interval_set in zip(level_values, interval_sets, strict=True):
-        if level <= 0.0 or level >= 1.0:
-            raise ValueError("continuous interval levels must stay inside (0, 1)")
+    for interval_set in interval_sets:
         if interval_set and len(interval_set) != y_true.size:
             raise ValueError("each interval set must align with y_true length")
         for lower, upper in interval_set:

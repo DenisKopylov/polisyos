@@ -1,0 +1,12 @@
+id = "2026-10-05-predictive-calibration-inputs"
+title = "Reject incomplete predictive calibration verdicts"
+type = "fixed"
+component = "calibration"
+owner = "team-polisyos"
+summary = "Incomplete interval curves retain measured coverage but cannot pass calibration. Curve inputs require finite observations, bounds, levels, and tolerance; continuous diagnostics apply the same level domain to supplied intervals and predictive samples."
+evidence = ["src/polisyos/calibration/curve.py", "src/polisyos/calibration/continuous.py", "tests/unit/calibration/test_curve.py", "tests/unit/calibration/test_continuous.py"]
+compatibility = "Valid finite diagnostics preserve their numerical results. Unusable curve inputs now raise ValueError. The supported Scientist calibration alias preserves object identity."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.calibration.compute_calibration_curve and evaluate_continuous"
+migration = "Use nonempty finite observations, finite interval bounds and tolerance, curve levels in [0, 1], and continuous levels in (0, 1). Omit continuous levels to use defaults; explicit levels=[] requests no interval comparisons and remains unverified. Re-evaluate earlier incomplete results rather than treating their positive flag as calibration evidence."
+limitations = "Predictive calibration remains diagnostic and does not establish causal or publication authority. Existing saved receipts are not rewritten, and no alias retirement date is introduced."

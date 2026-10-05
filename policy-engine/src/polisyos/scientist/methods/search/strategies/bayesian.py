@@ -110,6 +110,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._warm_context_fingerprint: str | None = None
         self._fitted_train_X: Any = None
         self._fitted_train_y_bo: Any = None
+        self._refit_train_X: Any = None
+        self._refit_train_y_bo: Any = None
         self._last_refit_iteration: int = -1
         self._last_train_size: int = 0
 
@@ -320,6 +322,10 @@ class BayesianOptimizer(BaseSearchStrategy):
                 raise ValueError("GP checkpoint is incompatible: fitted corpus is missing")
             metadata["train_X"] = self._fitted_train_X.tolist()
             metadata["train_y_bo"] = self._fitted_train_y_bo.tolist()
+            if self._refit_train_X is None or self._refit_train_y_bo is None:
+                raise ValueError("GP checkpoint is incompatible: full-refit corpus is missing")
+            metadata["refit_train_X"] = self._refit_train_X.tolist()
+            metadata["refit_train_y_bo"] = self._refit_train_y_bo.tolist()
             metadata["backend"] = self._backend_identity()
 
         rng_state = base_state.rng_state
@@ -388,6 +394,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             torch_rng.set_state(self._torch.tensor(torch_rng_state, dtype=self._torch.uint8))
 
         train_X = train_y = model = None
+        refit_X = refit_y = None
         if state.model_state is not None:
             if not self._botorch_ready or metadata.get("backend") != self._backend_identity():
                 raise ValueError("GP checkpoint is incompatible: numerical backend changed")
@@ -397,6 +404,12 @@ class BayesianOptimizer(BaseSearchStrategy):
                 )
                 train_y = self._torch.tensor(
                     metadata.get("train_y_bo"), dtype=self._torch.float64, device=self._device
+                )
+                refit_X = self._torch.tensor(
+                    metadata.get("refit_train_X"), dtype=self._torch.float64, device=self._device
+                )
+                refit_y = self._torch.tensor(
+                    metadata.get("refit_train_y_bo"), dtype=self._torch.float64, device=self._device
                 )
             except (TypeError, ValueError, RuntimeError) as exc:
                 raise ValueError("GP checkpoint is incompatible: fitted corpus is invalid") from exc
@@ -409,7 +422,18 @@ class BayesianOptimizer(BaseSearchStrategy):
                 or not self._torch.isfinite(train_y).all()
                 or not ((train_X >= 0) & (train_X <= 1)).all()
                 or not 0 < last_size <= train_X.shape[0]
+                or train_X.shape[0] > last_size * 1.2
                 or last_refit < 0
+                or (
+                    self._config.refit_interval > 0
+                    and state.iteration - last_refit >= self._config.refit_interval
+                )
+                or refit_X.shape != (last_size, self._space.dim)
+                or refit_y.shape != (last_size, 1)
+                or not self._torch.isfinite(refit_X).all()
+                or not self._torch.isfinite(refit_y).all()
+                or not self._torch.equal(refit_X, train_X[:last_size])
+                or not self._torch.equal(refit_y, train_y[:last_size])
             ):
                 raise ValueError("GP checkpoint is incompatible: fitted corpus shape/basis changed")
             try:
@@ -428,7 +452,12 @@ class BayesianOptimizer(BaseSearchStrategy):
                     "GP checkpoint is incompatible: numerical model is invalid"
                 ) from exc
         elif (
-            last_size != 0 or last_refit != -1 or "train_X" in metadata or "train_y_bo" in metadata
+            last_size != 0
+            or last_refit != -1
+            or any(
+                key in metadata
+                for key in ("train_X", "train_y_bo", "refit_train_X", "refit_train_y_bo")
+            )
         ):
             raise ValueError("GP checkpoint is incompatible: model/corpus mismatch")
 
@@ -439,6 +468,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._train_X, self._train_y_bo = train_X, train_y
         self._fitted_train_X = train_X.clone() if train_X is not None else None
         self._fitted_train_y_bo = train_y.clone() if train_y is not None else None
+        self._refit_train_X = refit_X
+        self._refit_train_y_bo = refit_y
         self._last_refit_iteration, self._last_train_size = last_refit, last_size
         self._warm_evals = warm_evals
         self._warm_evaluation_ids = {id(e) for e in warm_evals}
@@ -686,6 +717,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         fit_gpytorch_mll(mll)
         self._fitted_train_X = X.detach().clone()
         self._fitted_train_y_bo = y_bo.detach().clone()
+        self._refit_train_X = X.detach().clone()
+        self._refit_train_y_bo = y_bo.detach().clone()
         self._last_refit_iteration = self._iteration
         self._last_train_size = X.shape[0]
 

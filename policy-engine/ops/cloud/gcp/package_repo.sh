@@ -20,6 +20,7 @@ from __future__ import annotations
 import os
 import sys
 import tarfile
+import tomllib
 from pathlib import Path
 
 workspace_root = Path(sys.argv[1])
@@ -34,6 +35,18 @@ include_paths = [
     "policy-engine/schemas",
     "policy-engine/ops",
 ]
+product_root = workspace_root / "policy-engine"
+config_path = product_root / "hatch.toml"
+with config_path.open("rb") as config_file:
+    hatch_config = tomllib.load(config_file)
+force_include = (
+    hatch_config.get("build", {})
+    .get("targets", {})
+    .get("wheel", {})
+    .get("force-include", {})
+)
+if not isinstance(force_include, dict):
+    raise SystemExit("Configured Hatch wheel force-include must be a mapping")
 skip_parts = {"__pycache__", ".git"}
 skip_suffixes = {".pyc", ".pyo"}
 skip_names = {".DS_Store"}
@@ -66,11 +79,41 @@ def iter_paths(root: Path):
         yield path
 
 
+archive_members: dict[str, Path] = {}
+for rel in include_paths:
+    source = workspace_root / rel
+    if not source.exists():
+        raise SystemExit(f"Configured GCP package input is missing: {rel}")
+    for path in iter_paths(source):
+        archive_members[path.relative_to(workspace_root).as_posix()] = path
+
+for source in force_include:
+    if not isinstance(source, str) or not source:
+        raise SystemExit("Configured Hatch wheel force-include source must be a nonempty path")
+    candidate = Path(source)
+    if not candidate.is_absolute():
+        candidate = product_root / candidate
+    resolved_source = candidate.resolve()
+    try:
+        resolved_source.relative_to(product_root.resolve())
+    except ValueError as error:
+        raise SystemExit(
+            f"Configured Hatch wheel force-include source escapes policy-engine: {source}"
+        ) from error
+    if not resolved_source.exists():
+        raise SystemExit(
+            f"Configured Hatch wheel force-include source is missing: {source}"
+        )
+    if not resolved_source.is_file() and not resolved_source.is_dir():
+        raise SystemExit(
+            f"Configured Hatch wheel force-include source is not a file or directory: {source}"
+        )
+    for path in iter_paths(resolved_source):
+        archive_members[path.relative_to(workspace_root).as_posix()] = path
+
 with tarfile.open(archive_path, "w:gz", format=tarfile.GNU_FORMAT) as tar:
-    for rel in include_paths:
-        source = workspace_root / rel
-        for path in iter_paths(source):
-            tar.add(path, arcname=path.relative_to(workspace_root), recursive=False)
+    for arcname, path in sorted(archive_members.items()):
+        tar.add(path, arcname=arcname, recursive=False)
 PY
 
 echo "Created ${ARCHIVE_PATH}"

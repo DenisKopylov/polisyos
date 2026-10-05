@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/unit/runtime/quality/test_generation_cycle.py::test_default_value_port_binds_the_actual_n5_context PASSED [100%]
+
+============================== 1 passed in 58.34s ==============================
+       62.30 real        52.74 user        21.69 sys
+          4237377536  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+             1137884  page reclaims
+                8885  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+               13667  voluntary context switches
+              156939  involuntary context switches
+        689284999639  instructions retired
+        234410700103  cycles elapsed
+          5940598208  peak memory footprint

@@ -1,0 +1,2 @@
+Would reformat: src/polisyos/runtime/quality/generation_cycle.py
+1 file would be reformatted

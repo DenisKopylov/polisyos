@@ -1,0 +1,81 @@
+/Users/deniskopylov/.codex/worktrees/e02-a-n5-readback/polisyos/policy-engine
+c40d4acae1ce58b597267255026d9356565828fd
+Python 3.14.3
+/Users/deniskopylov/.codex/worktrees/e02-a-n5-readback/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_n5_result_reopens_and_n8_consumes_it_across_processes __________
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-74/test_n5_result_reopens_and_n8_0')
+
+    def test_n5_result_reopens_and_n8_consumes_it_across_processes(
+        tmp_path: Path,
+    ) -> None:
+        """A new process replays the exact numerical N5 artifact through N8."""
+    
+        project_root = Path(__file__).resolve().parents[3]
+        expected_source_path = (
+            project_root / "src/polisyos/runtime/quality/generation_cycle.py"
+        ).resolve()
+        assert Path(generation_cycle_module.__file__).resolve() == expected_source_path
+        store_root = tmp_path / "n5-process-cas"
+        produced = _run_n5_readback_child(
+            mode="produce",
+            project_root=project_root,
+            store_root=store_root,
+        )
+        consumed = _run_n5_readback_child(
+            mode="consume",
+            project_root=project_root,
+            store_root=store_root,
+            handoff=produced,
+        )
+    
+        assert produced["producer_pid"] != consumed["consumer_pid"]
+        assert produced["generation_cycle_source"] == str(expected_source_path)
+        assert consumed["generation_cycle_source"] == str(expected_source_path)
+        assert consumed["simulation_result_ref"] == produced["simulation_result_ref"]
+        assert consumed["result_fingerprint"] == produced["result_fingerprint"]
+        assert consumed["result_witness"] == produced["result_witness"]
+        assert consumed["simulation_ref_matches_receipt"]
+        assert "simulation_only_k_sim_not_world_evidence" in produced[
+            "simulation_authority_blockers"
+        ]
+    
+        value = consumed["value_observation"]
+        assert value["status"] == "value_conditional"
+        assert value["value_ref"] == produced["simulation_result_ref"]["artifact_id"]
+        assert value["evaluation_mode"] == "simulate_only"
+        assert value["decision_grade"] == "low"
+        assert "simulation_only_k_sim_not_world_evidence" in value["authority_blockers"]
+        assert value.get("value_receipt") is None
+        assert value.get("method_selection_receipt") is None
+    
+        negatives = consumed["negative_consumers"]
+        assert negatives["missing_result"]["status"] == "value_blocked"
+        assert negatives["missing_result"]["authority_blockers"] == [
+            "joint_simulation_result_unavailable"
+        ]
+        assert negatives["foreign_world"]["status"] == "value_blocked"
+        assert negatives["foreign_world"]["authority_blockers"] == [
+            "joint_simulation_result_wmr_mismatch"
+        ]
+        assert negatives["corrupt_result"]["status"] == "value_blocked"
+        assert negatives["corrupt_result"]["authority_blockers"] == [
+            "joint_simulation_result_integrity_invalid"
+        ]
+        unblocked = {
+            name: observation
+            for name, observation in negatives.items()
+            if observation["status"] != "value_blocked" or observation["value_ref"] is not None
+        }
+>       assert not unblocked, (
+            "N8 accepted result inputs that diverge from their typed engine/result identity: "
+            f"{unblocked}"
+        )
+E       AssertionError: N8 accepted result inputs that diverge from their typed engine/result identity: {'receipt_engine_selection': {'acquisition_requirement': None, 'authority_blockers': ['interaction_evidence_incomplete', 'simulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', 'decision_grade': 'low', 'evaluation_mode': 'simulate_only', 'identification_status': None, 'method_selection_receipt': None, 'reason': 'N8 consumed a content-bound numerical N5 result for simulation-only analysis; K_sim is not world evidence or promotion authority.', 'selected_method_fqn': None, 'status': 'value_conditional', 'transport_receipt': None, 'value_data_profile_content_hash': None, 'value_receipt': None, 'value_ref': 'sha256:e5af07bf8bba3ed1771fd1d281f4bb11f7fd5b72caf4c2c0d134531494574488', 'wall_time_ms': 2.167375001590699, 'world_model_record_content_hash': 'sha256:22d266af8dfedecef06e5fe3568e822d34503a32501e76247e92574cb41fab39'}, 'sibling_ref_mismatch': {'acquisition_requirement': None, 'authority_blockers': ['interaction_evidence_incomplete', 'simulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', 'decision_grade': 'low', 'evaluation_mode': 'simulate_only', 'identification_status': None, 'method_selection_receipt': None, 'reason': 'N8 consumed a content-bound numerical N5 result for simulation-only analysis; K_sim is not world evidence or promotion authority.', 'selected_method_fqn': None, 'status': 'value_conditional', 'transport_receipt': None, 'value_data_profile_content_hash': None, 'value_receipt': None, 'value_ref': 'sha256:cf5cdcc64ec91ed950fc71141bba47e03cb5836d1ce97af493b8aeef4d9dec93', 'wall_time_ms': 2.200250019086525, 'world_model_record_content_hash': 'sha256:22d266af8dfedecef06e5fe3568e822d34503a32501e76247e92574cb41fab39'}, 'trajectory_selection': {'acquisition_requirement': None, 'authority_blockers': ['interaction_evidence_incomplete', 'simulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', 'decision_grade': 'low', 'evaluation_mode': 'simulate_only', 'identification_status': None, 'method_selection_receipt': None, 'reason': 'N8 consumed a content-bound numerical N5 result for simulation-only analysis; K_sim is not world evidence or promotion authority.', 'selected_method_fqn': None, 'status': 'value_conditional', 'transport_receipt': None, 'value_data_profile_content_hash': None, 'value_receipt': None, 'value_ref': 'sha256:4d4ee5cac09be55b468ca16555f588d0f33d8606c894b91f20e7ad2b718d7eef', 'wall_time_ms': 2.1109590015839785, 'world_model_record_content_hash': 'sha256:22d266af8dfedecef06e5fe3568e822d34503a32501e76247e92574cb41fab39'}}
+E       assert not {'receipt_engine_selection': {'acquisition_requirement': None, 'authority_blockers': ['interaction_evidence_incomplete...ulation_only_k_sim_not_world_evidence'], 'calibration_receipt': None, 'candidate_id': 'candidate_cyc_n5_builder', ...}}
+
+tests/unit/remediation/test_cyc_02.py:1085: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cyc_02.py::test_n5_result_reopens_and_n8_consumes_it_across_processes

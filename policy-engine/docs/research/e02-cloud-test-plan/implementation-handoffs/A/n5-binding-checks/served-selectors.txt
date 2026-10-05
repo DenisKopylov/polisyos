@@ -1,0 +1,55 @@
+E02 A served N4/N5 bounded selector run (deciding venv run)
+run_started_utc=2026-10-05T14:42:57.550960+00:00
+head=34a0577f3a12a4c61e9914a005948fbc268900be
+git_status_before=## codex/e02-A-custody...origin/codex/e02-A-custody [ahead 3]
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/assessment.md
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/baseline-census.py
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/
+python_executable=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python
+python_version=3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]
+pytest_version=9.0.2
+pytest_asyncio_version=1.3.0
+cwd=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine
+workers=1 (single pytest process; no xdist)
+wall_cap_seconds=120 (process-group timeout)
+production_data_mount_mode=0o555
+required_l6_files:
+  present=True mode=0o444 path=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json
+  present=True mode=0o444 path=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json
+  present=True mode=0o444 path=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json
+source_sha256_before:
+  01278a3cecfc6d3ca20dca7c10b817adf16847cf1ed5c5d28e47d87fd5d3b821  tests/unit/runtime/http/test_control_service_di.py
+  9456d7811ff0b58e681c11733511f86be086f3a0b4ff8eb7695b7f7f1b9adf04  tests/_helpers/controlled_candidate_profile.py
+  6bc487cb658e6aad0ff6270b9aeffeba7850947424fa1b6116eb1794b5b8503b  src/polisyos/runtime/quality/intervention_substrate.py
+environment_overrides:
+  PYTHONDONTWRITEBYTECODE=1
+  TMPDIR=/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/
+  PYTEST_ADDOPTS=<unset>
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=<unset>
+  inherited POLISYOS_* variables=[]
+command=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider --basetemp /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/_build/e02-A-custody/served_http_trace/pytest-tmp-servedselectors-venv-20261005T144257Z tests/unit/runtime/http/test_control_service_di.py::test_served_simulate_only_replays_source_bound_n4_candidate_into_joint_n5 tests/unit/runtime/http/test_control_service_di.py::test_served_owner_context_keeps_missing_n4_source_candidate_limited
+previous non-deciding diagnostic: an earlier same-selector attempt used system Python 3.14.0, not this venv; its result is excluded.
+wall_seconds=26.921
+timed_out=False
+exit_code=0
+basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/_build/e02-A-custody/served_http_trace/pytest-tmp-servedselectors-venv-20261005T144257Z
+--- native pytest output ---
+..                                                                       [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 1 warning in 5.35s
+--- end native pytest output ---
+source_sha256_after:
+  01278a3cecfc6d3ca20dca7c10b817adf16847cf1ed5c5d28e47d87fd5d3b821  tests/unit/runtime/http/test_control_service_di.py
+  9456d7811ff0b58e681c11733511f86be086f3a0b4ff8eb7695b7f7f1b9adf04  tests/_helpers/controlled_candidate_profile.py
+  6bc487cb658e6aad0ff6270b9aeffeba7850947424fa1b6116eb1794b5b8503b  src/polisyos/runtime/quality/intervention_substrate.py
+head_after=34a0577f3a12a4c61e9914a005948fbc268900be
+git_status_after=## codex/e02-A-custody...origin/codex/e02-A-custody [ahead 3]
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/assessment.md
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/baseline-census.py
+?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-binding-checks/

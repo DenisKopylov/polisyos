@@ -1,0 +1,67 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 33 items
+
+tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence PASSED [  3%]
+tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_allowlist_covers_tracked_sources PASSED [  6%]
+tests/unit/remediation/test_cyc_02.py::test_k_sim_limitation_remains_a_usable_simulation_input PASSED [  9%]
+tests/unit/remediation/test_cyc_02.py::test_n5_transient_store_failure_is_unavailable_not_integrity_invalid PASSED [ 12%]
+tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError] PASSED [ 15%]
+tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError] PASSED [ 18%]
+tests/unit/remediation/test_cyc_02.py::test_n5_replay_does_not_mask_store_programming_errors PASSED [ 21%]
+tests/unit/remediation/test_cyc_02.py::test_conditional_n8_status_is_not_authority_ready PASSED [ 24%]
+tests/unit/remediation/test_cyc_02.py::test_n5_result_reopens_and_n8_consumes_it_across_processes PASSED [ 27%]
+tests/unit/remediation/test_cyc_02.py::test_program_graph_v2_blocker_removal_stays_out_of_eval_safety PASSED [ 30%]
+tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference PASSED [ 33%]
+tests/unit/remediation/test_cyc_02.py::test_recursive_parent_keeps_n5_cas_reference PASSED [ 36%]
+tests/unit/remediation/test_cyc_02.py::test_recursive_parent_without_store_refuses_before_n5_execution PASSED [ 39%]
+tests/unit/remediation/test_cyc_02.py::test_n5_replay_uses_supplied_guarded_tenant_store PASSED [ 42%]
+tests/unit/remediation/test_cyc_02.py::test_n5_does_not_execute_without_runtime_owned_store PASSED [ 45%]
+tests/unit/remediation/test_sim_01.py::test_unsupported_first_engine_falls_back_to_supported_second PASSED [ 48%]
+tests/unit/remediation/test_sim_01.py::test_all_engine_candidates_incompatible_return_typed_rejection PASSED [ 51%]
+tests/unit/remediation/test_sim_01.py::test_selected_plan_requires_its_executed_trajectory PASSED [ 54%]
+tests/unit/remediation/test_sim_01.py::test_rejected_engine_reasons_do_not_override_selected_success PASSED [ 57%]
+tests/unit/remediation/test_sim_01.py::test_foreign_trajectory_cannot_satisfy_selected_plan PASSED [ 60%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v3] PASSED [ 63%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v4] PASSED [ 66%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v5] PASSED [ 69%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v3] PASSED [ 72%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v4] PASSED [ 75%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v5] PASSED [ 78%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_serves_persisted_n5_into_default_n8_value_port PASSED [ 81%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits PASSED [ 84%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_blocker_after_lossy_simulation_projection PASSED [ 87%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[unknown-persisted-blocker] PASSED [ 90%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[malformed-blocker-container] PASSED [ 93%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[malformed-blocker-item] PASSED [ 96%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_default_value_port_binds_the_actual_n5_context SKIPPED [100%]
+
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/runtime/quality/test_generation_cycle.py:8020: production_data owner catalog is unavailable (production_data/manifest.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/identification_mode_registry.json, production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/schema_regime_registry.json, production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb); link the worktree's provisioned production_data owner tree read-only
+=================== 32 passed, 1 skipped in 79.43s (0:01:19) ===================
+       84.16 real        69.89 user         7.02 sys
+          1116487680  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              468864  page reclaims
+                9761  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                  30  messages sent
+                  42  messages received
+                   0  signals received
+               15182  voluntary context switches
+               83982  involuntary context switches
+        512798953225  instructions retired
+        145980725336  cycles elapsed
+           875792208  peak memory footprint

@@ -11,19 +11,13 @@ import numpy as np
 import pytest
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.base import (
-    ComplexityClass,
-    ComputeBackend,
-    FidelityLevel,
-    MethodSignature,
-)
 from polisyos.foundry.methods.backends.checkpointing import (
     ChainCheckpoint,
     CheckpointDigestMismatchError,
     CheckpointError,
+    CheckpointingChainExecutor,
     CheckpointLoadError,
     CheckpointSaveError,
-    CheckpointingChainExecutor,
     _compute_chain_digest,
 )
 from polisyos.foundry.methods.backends.protocol import (
@@ -36,6 +30,12 @@ from polisyos.foundry.methods.backends.validated import (
     ValidatedMethodFamily,
     ValidatedStatus,
 )
+from polisyos.foundry.methods.base import (
+    ComplexityClass,
+    ComputeBackend,
+    FidelityLevel,
+    MethodSignature,
+)
 from polisyos.foundry.methods.components.composer import (
     CompiledMethodChain,
     CompositionDAG,
@@ -47,12 +47,18 @@ class _FakeChain:
     def __init__(self, fqns: list[str]) -> None:
         self.execution_order = [uuid4() for _ in fqns]
         self._nodes = {
-            node_id: SimpleNamespace(method_fqn=fqn, params={})
+            node_id: SimpleNamespace(id=node_id, method_fqn=fqn, params={}, static_params={})
             for node_id, fqn in zip(self.execution_order, fqns, strict=True)
         }
 
     def get_node(self, node_id: UUID):
         return self._nodes[node_id]
+
+    def get_signature(self, node_id: UUID):
+        return SimpleNamespace(fqn=self.get_node(node_id).method_fqn, backend=ComputeBackend.NUMPY)
+
+    def get_bindings_for_target(self, node_id: UUID):
+        return []
 
 
 def _chain() -> _FakeChain:
@@ -201,11 +207,7 @@ def test_legacy_checkpoint_fails_closed_for_unbound_request(tmp_path, change) ->
         node_timing_ms=[1.0],
     )
     initial_state = {"value": 4 if change == "input" else 3}
-    params = (
-        {chain.execution_order[0]: {"factor": 3}}
-        if change == "parameter"
-        else None
-    )
+    params = {chain.execution_order[0]: {"factor": 3}} if change == "parameter" else None
     seed = 99 if change == "seed" else 7
 
     with pytest.raises(CheckpointDigestMismatchError, match="lacks execution identity"):

@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import multiprocessing
 import os
 import stat
+import time
 from collections.abc import Callable
+from dataclasses import replace
 from typing import Any, ClassVar
 
 import numpy as np
@@ -121,6 +124,35 @@ def test_checkpoint_execution_preserves_static_dynamic_and_override_payload(
     assert checkpointed.final_state["value"] == 11.0
     restored = ChainCheckpoint.load(next(tmp_path.glob("checkpoint_*.json")))
     assert restored.node_results[0]["output"]["value"] == 11.0
+    replayed = CheckpointingChainExecutor(registry=registry).execute(
+        chain, {"value": 3.0}, params_per_node=overrides, checkpoint=restored, seed=7
+    )
+    assert replayed.node_results[0][1].output["value"] == 11.0
+    assert (
+        replayed.node_results[0][1].reproducibility
+        == checkpointed.node_results[0][1].reproducibility
+    )
+    missing_history = replace(restored, node_results=[], history_complete=False)
+    limited_replay = CheckpointingChainExecutor(registry=registry).execute(
+        chain, {"value": 3.0}, params_per_node=overrides, checkpoint=missing_history, seed=7
+    )
+    assert limited_replay.final_state["value"] == 11.0
+    assert limited_replay.node_results == ()
+    assert limited_replay.reproducibility_contract["history_limitation"] == (
+        "checkpoint_per_node_history_missing"
+    )
+    with pytest.raises(CheckpointDigestMismatchError, match="execution identity"):
+        CheckpointingChainExecutor(registry=registry).execute(
+            chain,
+            {"value": 3.0},
+            params_per_node={node.id: {"factor": 4.0, "offset": 2.0}},
+            checkpoint=restored,
+            seed=7,
+        )
+    with pytest.raises(ValueError, match="Unknown parameters"):
+        CheckpointingChainExecutor(registry=registry).execute(
+            chain, {"value": 3.0}, params_per_node={node.id: {"unknown": 1}}, seed=7
+        )
 
 
 def test_checkpoint_resume_materializes_saved_slot_outputs_and_original_history(
@@ -206,3 +238,52 @@ def test_directory_fsync_failure_after_manifest_replace_preserves_readable_gener
     loaded = ChainCheckpoint.load(path)
     values = (loaded.intermediate_state["arr"].item(), loaded.intermediate_state["other"].item())
     assert values in ((1.0, 10.0), (2.0, 20.0))
+
+
+def _publish_checkpoint_series(path, value: float) -> None:
+    for _ in range(4):
+        ChainCheckpoint(
+            chain_digest="process_concurrency",
+            completed_fqns=[],
+            completed_node_ids=[],
+            intermediate_state={"arr": np.array([value]), "other": np.array([10.0 * value])},
+        ).save(path)
+
+
+def test_process_writers_and_concurrent_reader_observe_one_complete_generation(tmp_path) -> None:
+    """Independent processes and a live reader agree on paired sidecar values."""
+    path = tmp_path / "checkpoint_process.json"
+    _publish_checkpoint_series(path, 1.0)
+    context = multiprocessing.get_context("spawn")
+    writers = [
+        context.Process(target=_publish_checkpoint_series, args=(path, value))
+        for value in (2.0, 3.0, 4.0, 5.0)
+    ]
+    observed = set()
+    try:
+        for writer in writers:
+            writer.start()
+        deadline = time.monotonic() + 60.0
+        while any(writer.is_alive() for writer in writers):
+            assert time.monotonic() < deadline, "checkpoint writer did not finish"
+            checkpoint = ChainCheckpoint.load(path)
+            pair = (
+                checkpoint.intermediate_state["arr"].item(),
+                checkpoint.intermediate_state["other"].item(),
+            )
+            assert pair in {(value, 10.0 * value) for value in (1.0, 2.0, 3.0, 4.0, 5.0)}
+            observed.add(pair)
+        for writer in writers:
+            writer.join(timeout=1.0)
+            assert writer.exitcode == 0
+        assert observed
+        reopened = ChainCheckpoint.load(path)
+        assert reopened.intermediate_state["other"].item() == (
+            10.0 * reopened.intermediate_state["arr"].item()
+        )
+    finally:
+        for writer in writers:
+            if writer.is_alive():
+                writer.terminate()
+            if writer.pid is not None:
+                writer.join(timeout=5.0)

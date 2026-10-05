@@ -69,6 +69,13 @@ the fork boundary, and custom codes still obey `retry_on`. A provider's own
 raises `NodeTimeoutError`. Thread and async wrappers decide completion before
 reading the result so these two cases remain distinct.
 
+The timed async-to-thread fallback retains the underlying concurrent future.
+On timeout or caller cancellation it cancels that future before returning,
+preventing an unstarted job from executing when the pool later has capacity.
+Cancellation of an asyncio wrapper alone forwards in a deferred callback and
+cannot establish this boundary. Already running threads remain cooperative;
+genuine async tasks retain the revocable-authority behavior described above.
+
 This contract is process ownership rather than a sandbox for hostile node
 code. It does not undo completed filesystem or remote effects. Linux requires
 `prctl`, fork and readable `/proc` process metadata. Other fork platforms retain

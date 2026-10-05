@@ -2,14 +2,205 @@ from __future__ import annotations
 
 import asyncio
 import concurrent.futures
+import json
+import os
+import subprocess
+import sys
 import threading
 import time
 from contextvars import ContextVar
+from pathlib import Path
 from typing import get_type_hints
 
 import pytest
 
 from polisyos.common.async_tools import get_shared_executor, run_blocking_async, run_coro_sync
+
+
+def _probe_shared_executor_shutdown() -> None:
+    """Gate actual executor locks; exit rather than leak a deadlocked worker."""
+    from polisyos.common import async_tools
+
+    shutdown_owned = threading.Event()
+    allow_shutdown = threading.Event()
+    submit_waits_shutdown = threading.Event()
+    callback_touches_admission = threading.Event()
+
+    class ObservedLock:
+        def __init__(self, lock, *, before=None, after=None):
+            self.lock = lock
+            self.before = before
+            self.after = after
+            self.guard = threading.Lock()
+            self.owner = None
+            self.waiting = set()
+
+        def __enter__(self):
+            name = threading.current_thread().name
+            with self.guard:
+                self.waiting.add(name)
+            if self.before:
+                self.before(name)
+            self.lock.acquire()
+            with self.guard:
+                self.waiting.remove(name)
+                self.owner = name
+            if self.after:
+                self.after(name)
+            return self
+
+        def __exit__(self, *_args):
+            with self.guard:
+                self.owner = None
+            self.lock.release()
+
+        def snapshot(self):
+            with self.guard:
+                return {"owner": self.owner, "waiting": sorted(self.waiting)}
+
+    executor = async_tools._SharedExecutor(max_workers=1, thread_name_prefix="shutdown-probe")
+    release_worker = threading.Event()
+    worker_started = threading.Event()
+
+    def work():
+        worker_started.set()
+        assert release_worker.wait(3)
+        return 42
+
+    active = executor.submit(work)
+    assert worker_started.wait(1)
+    queued = executor.submit(lambda: "must not execute")
+
+    def before_shutdown(name):
+        if name == "submitter":
+            submit_waits_shutdown.set()
+
+    def after_shutdown(name):
+        if name == "shutdown":
+            shutdown_owned.set()
+            assert allow_shutdown.wait(1)
+
+    def before_admission(name):
+        if name == "shutdown":
+            callback_touches_admission.set()
+
+    executor._admission_lock = ObservedLock(executor._admission_lock, before=before_admission)
+    executor._shutdown_lock = ObservedLock(
+        executor._shutdown_lock, before=before_shutdown, after=after_shutdown
+    )
+    errors = []
+
+    def submit():
+        try:
+            executor.submit(lambda: "must be rejected")
+        except RuntimeError as exc:
+            errors.append(str(exc))
+
+    stopping = threading.Thread(
+        target=lambda: executor.shutdown(wait=False, cancel_futures=True),
+        name="shutdown",
+        daemon=True,
+    )
+    submitting = threading.Thread(target=submit, name="submitter", daemon=True)
+    stopping.start()
+    assert shutdown_owned.wait(1)
+    submitting.start()
+    assert submit_waits_shutdown.wait(1)
+    allow_shutdown.set()
+    assert callback_touches_admission.wait(1)
+    stopping.join(0.1)
+    submitting.join(0.1)
+    if stopping.is_alive() or submitting.is_alive():
+        record = {
+            "admission": executor._admission_lock.snapshot(),
+            "shutdown": executor._shutdown_lock.snapshot(),
+        }
+        print(json.dumps(record), flush=True)  # noqa: T201 - deciding child evidence
+        os._exit(73)
+    assert queued.cancelled()
+    assert errors == ["cannot schedule new futures after shutdown"]
+    assert executor._outstanding_jobs == 1
+    release_worker.set()
+    executor.shutdown(wait=True, cancel_futures=True)
+    assert active.result() == 42
+    assert executor._outstanding_jobs == 0
+
+
+def test_shared_executor_submit_and_shutdown_do_not_invert_locks() -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import runpy,sys; runpy.run_path(sys.argv[1])['_probe_shared_executor_shutdown']()",
+            str(Path(__file__).resolve()),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+
+
+def test_shared_executor_reservations_release_once_on_cancellation_and_rejection() -> None:
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, thread_name_prefix="accounting")
+    started = threading.Event()
+    release = threading.Event()
+    executions = []
+
+    def work():
+        started.set()
+        assert release.wait(3)
+        return 42
+
+    try:
+        active = executor.submit(work)
+        assert started.wait(1)
+        manual = executor.submit(lambda: executions.append("manual"))
+        shutdown = executor.submit(lambda: executions.append("shutdown"))
+        assert executor._outstanding_jobs == 3
+        assert manual.cancel()
+        assert manual.cancel()
+        assert executor._outstanding_jobs == 2
+        executor.shutdown(wait=False, cancel_futures=True)
+        assert shutdown.cancelled()
+        assert executor._outstanding_jobs == 1
+        with pytest.raises(RuntimeError, match="cannot schedule new futures after shutdown"):
+            executor.submit(lambda: executions.append("rejected"))
+        assert executor._outstanding_jobs == 1
+        release.set()
+        executor.shutdown(wait=True)
+        assert active.result() == 42
+        assert executor._outstanding_jobs == 0
+        assert executions == []
+    finally:
+        release.set()
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_shared_executor_reservations_release_after_fast_success_and_failure() -> None:
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=4, thread_name_prefix="fast-accounting")
+
+    def work(index):
+        if index % 2:
+            raise ValueError(index)
+        return index
+
+    try:
+        futures = [executor.submit(work, index) for index in range(256)]
+        for index, future in enumerate(futures):
+            if index % 2:
+                with pytest.raises(ValueError):
+                    future.result(timeout=2)
+            else:
+                assert future.result(timeout=2) == index
+    finally:
+        executor.shutdown(wait=True)
+    assert executor._outstanding_jobs == 0
 
 
 def test_function_type_parameters_resolve_without_module_typevar() -> None:

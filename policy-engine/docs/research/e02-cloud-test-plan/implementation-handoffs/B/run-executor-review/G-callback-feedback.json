@@ -1,0 +1,119 @@
+{
+  "candidate": "3e95056bca6d0c15ab7778573172491628f48596",
+  "candidate_tree": "c18cb706428ab16f69179020023311cf9d01f044",
+  "cases": [
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/_build/e02-g-check/b-callback/probe.py",
+        "--child",
+        "callback-saturation"
+      ],
+      "case": "callback-saturation",
+      "child_deadline_seconds": 12.0,
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine",
+      "environment": {
+        "HOME": "/Users/deniskopylov",
+        "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0cn7X2j:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONPATH": "src:.",
+        "PYTHONUNBUFFERED": "1",
+        "TMPDIR": "/tmp"
+      },
+      "exit_status": 0,
+      "stderr": "",
+      "stdout": "{\"all_callbacks_finished\": true, \"callback_observations\": [{\"all_outer_futures_done_at_barrier\": true, \"callback_future_done\": true, \"callback_thread_id\": 6146994176, \"index\": 0, \"outstanding_at_callback_barrier\": 0, \"queued_nested_cancelled\": true, \"submission\": \"accepted\", \"wait\": \"timed_out_while_all_callbacks_held\", \"worker_identity\": true}, {\"all_outer_futures_done_at_barrier\": true, \"callback_future_done\": true, \"callback_thread_id\": 6163820544, \"index\": 1, \"outstanding_at_callback_barrier\": 0, \"queued_nested_cancelled\": true, \"submission\": \"accepted\", \"wait\": \"timed_out_while_all_callbacks_held\", \"worker_identity\": true}, {\"all_outer_futures_done_at_barrier\": true, \"callback_future_done\": true, \"callback_thread_id\": 6180646912, \"index\": 2, \"outstanding_at_callback_barrier\": 0, \"queued_nested_cancelled\": true, \"submission\": \"accepted\", \"wait\": \"timed_out_while_all_callbacks_held\", \"worker_identity\": true}, {\"all_outer_futures_done_at_barrier\": true, \"callback_future_done\": true, \"callback_thread_id\": 6197473280, \"index\": 3, \"outstanding_at_callback_barrier\": 0, \"queued_nested_cancelled\": true, \"submission\": \"accepted\", \"wait\": \"timed_out_while_all_callbacks_held\", \"worker_identity\": true}], \"callback_worker_ids\": [6146994176, 6163820544, 6180646912, 6197473280], \"content_binding\": {\"git_blob\": \"34b8823153d1709677093b85542056cdb3e0afbb\", \"head\": \"3e95056bca6d0c15ab7778573172491628f48596\", \"module_path\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/src/polisyos/common/async_tools.py\", \"module_sha256\": \"04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72\", \"python_executable\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python\", \"python_version\": \"3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]\", \"tree\": \"c18cb706428ab16f69179020023311cf9d01f044\", \"worktree_git_blob\": \"34b8823153d1709677093b85542056cdb3e0afbb\"}, \"counterexample_reproduced\": true, \"final_outstanding_jobs\": 0, \"inner_started\": [], \"outer_worker_ids\": [6146994176, 6163820544, 6180646912, 6197473280], \"property_outcome\": \"FAIL_COUNTER_UNDERCOUNTS_BUSY_CALLBACK_WORKERS\", \"scenario\": \"all_workers_blocked_in_user_done_callbacks\", \"worker_count\": 4}\n",
+      "walltime_seconds": 0.4746588749985676
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/_build/e02-g-check/b-callback/probe.py",
+        "--child",
+        "spare-worker"
+      ],
+      "case": "spare-worker",
+      "child_deadline_seconds": 12.0,
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine",
+      "environment": {
+        "HOME": "/Users/deniskopylov",
+        "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0cn7X2j:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONPATH": "src:.",
+        "PYTHONUNBUFFERED": "1",
+        "TMPDIR": "/tmp"
+      },
+      "exit_status": 0,
+      "stderr": "",
+      "stdout": "{\"all_callbacks_finished\": true, \"callback_observations\": [{\"callback_thread_id\": 6105608192, \"index\": 0, \"outstanding_at_callback_barrier\": 0, \"result\": 42, \"submission\": \"accepted\", \"wait\": \"completed\", \"worker_identity\": true}, {\"callback_thread_id\": 6122434560, \"index\": 1, \"outstanding_at_callback_barrier\": 0, \"result\": 42, \"submission\": \"accepted\", \"wait\": \"completed\", \"worker_identity\": true}, {\"callback_thread_id\": 6139260928, \"index\": 2, \"outstanding_at_callback_barrier\": 0, \"result\": 42, \"submission\": \"accepted\", \"wait\": \"completed\", \"worker_identity\": true}], \"callback_worker_ids\": [6105608192, 6122434560, 6139260928], \"content_binding\": {\"git_blob\": \"34b8823153d1709677093b85542056cdb3e0afbb\", \"head\": \"3e95056bca6d0c15ab7778573172491628f48596\", \"module_path\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/src/polisyos/common/async_tools.py\", \"module_sha256\": \"04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72\", \"python_executable\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python\", \"python_version\": \"3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]\", \"tree\": \"c18cb706428ab16f69179020023311cf9d01f044\", \"worktree_git_blob\": \"34b8823153d1709677093b85542056cdb3e0afbb\"}, \"final_outstanding_jobs\": 0, \"free_worker_count_by_barrier_construction\": 1, \"inner_started\": [0, 1, 2], \"outer_count\": 3, \"outer_worker_ids\": [6105608192, 6122434560, 6139260928], \"positive_control_passed\": true, \"scenario\": \"N_minus_1_callbacks_leave_one_worker_free\", \"worker_count\": 4}\n",
+      "walltime_seconds": 0.11873887499677949
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/_build/e02-g-check/b-callback/probe.py",
+        "--child",
+        "accounting-controls"
+      ],
+      "case": "accounting-controls",
+      "child_deadline_seconds": 12.0,
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine",
+      "environment": {
+        "HOME": "/Users/deniskopylov",
+        "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0cn7X2j:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONPATH": "src:.",
+        "PYTHONUNBUFFERED": "1",
+        "TMPDIR": "/tmp"
+      },
+      "exit_status": 0,
+      "stderr": "",
+      "stdout": "{\"all_running_callbacks_finished\": true, \"before_cancel\": 2, \"content_binding\": {\"git_blob\": \"34b8823153d1709677093b85542056cdb3e0afbb\", \"head\": \"3e95056bca6d0c15ab7778573172491628f48596\", \"module_path\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/src/polisyos/common/async_tools.py\", \"module_sha256\": \"04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72\", \"python_executable\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python\", \"python_version\": \"3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]\", \"tree\": \"c18cb706428ab16f69179020023311cf9d01f044\", \"worktree_git_blob\": \"34b8823153d1709677093b85542056cdb3e0afbb\"}, \"controls_passed\": true, \"count_after_failed_submit\": 2, \"count_after_manual_cancel\": 2, \"count_after_queue\": 3, \"count_after_shutdown_cancel\": 2, \"count_before_shutdown\": 3, \"final_outstanding_jobs\": 0, \"manual_cancel_return\": true, \"manual_future_cancelled\": true, \"post_shutdown_submit\": \"rejected:RuntimeError:cannot schedule new futures after shutdown\", \"queued_functions_started\": [], \"running_results\": [\"running-0\", \"running-1\"], \"scenario\": \"queued_cancel_shutdown_cancel_and_failed_submit_rollback\", \"shutdown_future_cancelled\": true, \"worker_count\": 2}\n",
+      "walltime_seconds": 0.11189649999141693
+    }
+  ],
+  "completed": true,
+  "content_binding": {
+    "git_blob": "34b8823153d1709677093b85542056cdb3e0afbb",
+    "head": "3e95056bca6d0c15ab7778573172491628f48596",
+    "module_path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/src/polisyos/common/async_tools.py",
+    "module_sha256": "04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72",
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "tree": "c18cb706428ab16f69179020023311cf9d01f044",
+    "worktree_git_blob": "34b8823153d1709677093b85542056cdb3e0afbb"
+  },
+  "parent_argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/_build/e02-g-check/b-callback/probe.py"
+  ],
+  "parent_cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine",
+  "parent_environment": {
+    "HOME": "/Users/deniskopylov",
+    "LC_CTYPE": "C.UTF-8",
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0cn7X2j:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "src:.",
+    "PYTHONUNBUFFERED": "1",
+    "TMPDIR": "/tmp",
+    "__CF_USER_TEXT_ENCODING": "0x1F5:0x7:0x31"
+  },
+  "parent_python_executable": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/policy-engine/.venv/bin/python",
+  "parent_python_version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "parent_walltime_seconds": 0.7715049170074053,
+  "process_watchdog_deadline_seconds": 12.0,
+  "receipt_path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/_build/e02-g-check/b-callback/receipt.json",
+  "receipt_schema": "policyos.e02.b_callback_capacity_probe.v1",
+  "original_receipt_sha256": "620d7463c2cd125bf241d5a85f91242a17c58469baafe47801d539ea249267f5",
+  "branch_readback": {
+    "policy-engine/src/polisyos/common/async_tools.py": {
+      "git_blob": "34b8823153d1709677093b85542056cdb3e0afbb",
+      "sha256": "04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72"
+    }
+  },
+  "verdict": "HOLD capacity-proxy claim; counterexample same class deeper; existing PolicyOS callback consumer not established",
+  "probe_source_ref": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-run2/polisyos/_build/e02-g-check/b-callback/probe.py@sha256:e2f70820a3cd68c4d50ba30898866584167b0efba52a4bfe4a56468dba88b1ea"
+}

@@ -61,10 +61,21 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
 
 `async_tools` preserves the caller's context variables across its sync/async
 bridges. Nested calls from a shared-executor worker can submit work while the
-executor has capacity. When every worker slot is already reserved, nested
-submission raises `RuntimeError` before enqueueing work that could deadlock.
+number of unfinished-job reservations is below the configured worker count.
+At that count, nested submission raises `RuntimeError` before enqueueing work.
 Callers composing nested work should prefer the async entrypoints and handle
 this explicit refusal when bridging synchronously.
+
+Reservation release and rejected-submission rollback happen once per job.
+Submission releases the admission lock before entering the base executor,
+so concurrent shutdown can cancel queued jobs without reversing lock order.
+
+A completed Future does not mean its worker is free: user done callbacks run
+on that worker after the reservation is released. Blocking nested waits from
+user done callbacks are unsupported. Four blocking callbacks can occupy all
+four workers while the reservation count is zero; their accepted nested jobs
+cannot execute until a callback returns. The reservation guard does not own
+the base executor's physical worker/callback lifecycle.
 
 Cancelling a queued job releases its reservation. A running Python thread
 still needs cooperative cancellation; a timeout does not forcibly stop it.

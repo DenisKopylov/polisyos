@@ -1,0 +1,161 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "finding_ids": [
+    "B14",
+    "B40"
+  ],
+  "reviewer": "adapters_probe, independent read-only",
+  "candidate_sha": "4a68d5345ceca69a6148af082f59ae27372865de",
+  "candidate_tree_sha": "b5ec67fdc834099180485d0430ad78a725d1f9cc",
+  "slice_base_sha": "78e21bfaa282a51b61ec7e9b96cdddb8ae6f1ca3",
+  "module_readback": "/workspace/e02-B-run/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+  "module_sha256": "202bc6bf3255e20595bf6a5058f7285eb681e71bf37b0db74e925f66ef06f970",
+  "changed_source_boundary": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py:1483",
+  "unchanged_source_functions": [
+    "_await_timed_attempt",
+    "_execute_with_timeout_async",
+    "_node_execute_supervisor",
+    "_exception_retry_category",
+    "_worker_error_payload",
+    "_worker_error_from_payload"
+  ],
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "admission": "existing root-admitted /workspace/e02-B-run checkout, source frozen by author; no new checkout/worktree",
+    "input_closure": "unchanged independent driver, fresh empty /tmp/e02-run-queued-4a-evidence; actual repository SharedExecutor4 intentionally saturated with four event-gated jobs; real raw filesystem node execution/finish logs and gated store writes; no DB, ports, services, production data or imposed cloud process quota"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine/product:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-run-queued-review.py /tmp/e02-run-queued-4a-evidence 4a68d5345ceca69a6148af082f59ae27372865de",
+      "cwd": "/workspace/e02-B-run",
+      "target_sha": "4a68d5345ceca69a6148af082f59ae27372865de",
+      "outcome": "PASS",
+      "output": "/tmp/e02-run-queued-4a.log",
+      "deciding_output": "5PASS/0FAIL: sync queued deadline + async queued deadline/caller cancellation prevent physical start/write; both already-running controls may finish raw work with owned store writes blocked."
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run-review-candidate/policy-engine/src:/workspace/e02-B-run-review-candidate/policy-engine/product:/workspace/e02-B-run-review-candidate/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-run-queued-review.py /tmp/e02-run-queued-6c-evidence 6c2cab488368932479677bc036ffad25657c0367",
+      "target_sha": "6c2cab488368932479677bc036ffad25657c0367",
+      "outcome": "FAIL",
+      "output": "/tmp/e02-run-queued-6c.log",
+      "deciding_output": "Same independent driver5cases:3PASS/2FAIL; queued async expiry/cancel physically starts after boundary. retry.py git blob81b725236 is identical to declared78e slice base."
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q --tb=short tests/unit/scientist/orchestration/engine/test_retry.py::test_async_thread_refusal_cancels_queued_compute_before_pool_release",
+      "target_sha": "0cf61d9234580819a1a27ff441266a026d8f6049",
+      "outcome": "FAIL",
+      "output": "/tmp/e02-B-run-queue-before.json",
+      "deciding_output": "Already available native negative2FAIL on corrected test-only0cf checkpoint, source byte-identical to78e/6c. Exact0cf actual run preserved; not claiming native command executed on78e."
+    }
+  ],
+  "complete_output_sha256": {
+    "/tmp/e02-run-queued-review.py": "81bc54f522e2a40ffd432d21eebc783561c21f6bf7a68c4665b13e26ce0330a1",
+    "/tmp/e02-run-queued-4a.log": "4c9f7db764ae39ce2971ae0b83d8b65c1b497127eb457c36cfb4c84d94b82c29",
+    "/tmp/e02-run-queued-4a-evidence/observations.json": "c29f9a8e88eb0840d6ad6da400cefe0d85dab387669beaa792bebd48dfa14e06",
+    "/tmp/e02-run-queued-6c.log": "9c2e456766955e88bb513fd8946eb042a734fd7bfe3b6fb8eb9ecbfdb49ff23c",
+    "/tmp/e02-run-queued-6c-evidence/observations.json": "e9f07f9e92915f307824823013837d19e0f69cba47995f9c862c9f0c255a2ae1",
+    "/tmp/e02-B-run-queue-before.json": "f1afa35c2cccd0473622aa2917663e7fe0fa7a1a85b2f79173b15e92c149d7ac"
+  },
+  "observations": [
+    {
+      "mode": "sync",
+      "termination": "deadline",
+      "was_running_at_boundary": false,
+      "terminal": "NodeTimeoutError",
+      "unstarted_at_boundary": true,
+      "outstanding_before_release": 4,
+      "physically_executed_after_boundary": false,
+      "physical_events": [],
+      "physical_file": "/tmp/e02-run-queued-4a-evidence/sync-deadline-queued.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": true,
+      "pass": true
+    },
+    {
+      "mode": "async",
+      "termination": "deadline",
+      "was_running_at_boundary": false,
+      "terminal": "NodeTimeoutError",
+      "unstarted_at_boundary": true,
+      "outstanding_before_release": 4,
+      "physically_executed_after_boundary": false,
+      "physical_events": [],
+      "physical_file": "/tmp/e02-run-queued-4a-evidence/async-deadline-queued.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": true,
+      "pass": true
+    },
+    {
+      "mode": "async",
+      "termination": "caller-cancel",
+      "was_running_at_boundary": false,
+      "terminal": "CancelledError",
+      "unstarted_at_boundary": true,
+      "outstanding_before_release": 4,
+      "physically_executed_after_boundary": false,
+      "physical_events": [],
+      "physical_file": "/tmp/e02-run-queued-4a-evidence/async-caller-cancel-queued.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": true,
+      "pass": true
+    },
+    {
+      "mode": "async",
+      "termination": "deadline",
+      "was_running_at_boundary": true,
+      "terminal": "NodeTimeoutError",
+      "unstarted_at_boundary": false,
+      "outstanding_before_release": 1,
+      "physically_executed_after_boundary": true,
+      "physical_events": [
+        {
+          "event": "physical_execute",
+          "monotonic": 5512.49508996
+        },
+        {
+          "event": "physical_finish",
+          "monotonic": 5512.545436356
+        }
+      ],
+      "physical_file": "/tmp/e02-run-queued-4a-evidence/async-deadline-running.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": false,
+      "pass": true
+    },
+    {
+      "mode": "async",
+      "termination": "caller-cancel",
+      "was_running_at_boundary": true,
+      "terminal": "CancelledError",
+      "unstarted_at_boundary": false,
+      "outstanding_before_release": 1,
+      "physically_executed_after_boundary": true,
+      "physical_events": [
+        {
+          "event": "physical_execute",
+          "monotonic": 5512.546267436
+        },
+        {
+          "event": "physical_finish",
+          "monotonic": 5512.546462744
+        }
+      ],
+      "physical_file": "/tmp/e02-run-queued-4a-evidence/async-caller-cancel-running.physical",
+      "protected_owned_file_exists": false,
+      "expect_unstarted_job_cancelled": false,
+      "pass": true
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "decision": "no blocking finding in reviewed queued thread refusal class",
+  "source_reason": "Thread path owns actual concurrentFuture and calls future.cancel synchronously before refusal returns. The shared async waiter and genuineasync path remain byte-identical; avoiding loop callback forwarding race closes unstarted-job escape. Per-future cancellation reconciles SharedExecutor outstanding count before fixture workers release.",
+  "limitations": [
+    "Running thread cannot be preempted; physical raw work can continue after boundary, while declared owned store writes are revoked.",
+    "This verifies generic queued-start lifecycle with local nodes; no arbitrary external side-effect/idempotency law or full B14/B40 closure is claimed.",
+    "Own adaptersd0eb source/tests unchanged; no production/test edits in any checkout by reviewer.",
+    "RUN author/root must commit moderate driver/stdout/receipt for fetchable G evidence."
+  ]
+}

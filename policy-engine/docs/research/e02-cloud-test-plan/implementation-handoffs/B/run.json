@@ -16,16 +16,198 @@
     "3e95056bca6d0c15ab7778573172491628f48596",
     "ba79d141a3937541b3164db255ceda89883575ec",
     "ec8d20c76b49ab00fc72094982447c02001d3036",
-    "6c2cab488368932479677bc036ffad25657c0367"
+    "6c2cab488368932479677bc036ffad25657c0367",
+    "dfd31e978f11b4b801f5c8bb4a14747a0b25df26",
+    "0cf61d9234580819a1a27ff441266a026d8f6049",
+    "4a68d5345ceca69a6148af082f59ae27372865de",
+    "a9672a8609410af37582cdef6849e496e1a02e1a",
+    "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
   ],
-  "candidate_tree_sha": "9ab42758250e3c2f34f41bb5abc0d07d269b17f8",
+  "candidate_tree_sha": "0e881900f0526546364fe5336a6dd6d469185320",
   "branch": "codex/e02-B-run",
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/33",
   "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-caller-cancel-queued.physical",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-caller-cancel-running.physical",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-deadline-queued.physical",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-deadline-running.physical",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/observations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/async-caller-cancel-running.physical",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/async-deadline-running.physical",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/observations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__raised-invalid.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-fork__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__actual-deadline.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/async-sync-thread__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/direct__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/full.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-direct__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/genuine-async-timed__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/observations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__raised-invalid.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-fork__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/base/sync-thread__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/B39-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-fork__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/async-sync-thread__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/direct__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/full.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-direct__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/genuine-async-timed__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/native.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/observations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-fork__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__actual-deadline.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__node-timeout.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__node-timeout.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__raised-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__raised-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__raised-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__returned-invalid.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__returned-transient.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__returned-transient.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__typed-transient-value.attempts",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/candidate/sync-thread__typed-transient-value.events",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-review/probe.py",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run.json",
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-executor-shutdown.toml",
     "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-owned-process-cleanup.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-queued-thread-cancellation.toml",
     "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-retry-error-identity.toml",
     "policy-engine/src/polisyos/common/README.md",
     "policy-engine/src/polisyos/common/async_tools.py",
@@ -502,27 +684,375 @@
       "wall_s": 27.56026122200001,
       "max_rss_kib": 575448,
       "output": "........................................................................ [ 60%]\n................................................                         [100%]\n=============================== warnings summary ===============================\ntests/unit/scientist/orchestration/engine/test_retry.py: 50 warnings\ntests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning\n  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=30959) is multi-threaded, use of fork() may lead to deadlocks in the child.\n    self.pid = os.fork()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n120 passed, 51 warnings in 22.72s\n"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/remediation/test_run_03.py",
+        "tests/unit/scientist/orchestration/engine/test_retry_integration.py"
+      ],
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "real Linux fork/subprocess descendants and isolated pytest tmp_path files; no ports, DB or external services"
+      },
+      "target_sha": "4a68d5345ceca69a6148af082f59ae27372865de",
+      "target_tree": "b5ec67fdc834099180485d0430ad78a725d1f9cc",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 27.552604329999667,
+      "max_rss_kib": 575452,
+      "output": "........................................................................ [ 59%]\n..................................................                       [100%]\n=============================== warnings summary ===============================\ntests/unit/scientist/orchestration/engine/test_retry.py: 50 warnings\ntests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning\n  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=40750) is multi-threaded, use of fork() may lead to deadlocks in the child.\n    self.pid = os.fork()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n122 passed, 51 warnings in 22.75s\n"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/common/test_async_tools.py -k \"shutdown or reservations\" --tb=short",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "a9672a8609410af37582cdef6849e496e1a02e1a",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "Real stdlib locks/Future/ThreadPoolExecutor; subprocess watchdog for actual lock-cycle test; isolated callback worker barriers and actual inner filesystem effects; native retry fork/tmp_path plus consumer CAS/checkpoint fixtures; no DB, ports, services or production data."
+      },
+      "outcome": "FAIL",
+      "output": "F..                                                                      [100%]\n=================================== FAILURES ===================================\n_________ test_shared_executor_submit_and_shutdown_do_not_invert_locks _________\ntests/unit/common/test_async_tools.py:142: in test_shared_executor_submit_and_shutdown_do_not_invert_locks\n    assert completed.returncode == 0, completed.stdout + completed.stderr\nE   AssertionError: {\"admission\": {\"owner\": \"submitter\", \"waiting\": [\"shutdown\"]}, \"shutdown\": {\"owner\": \"shutdown\", \"waiting\": [\"submitter\"]}}\nE     \nE   assert 73 == 0\nE    +  where 73 = CompletedProcess(args=['/workspace/polisyos/policy-engine/.venv/bin/python', '-c', \"import runpy,sys; runpy.run_path(s...er\": \"submitter\", \"waiting\": [\"shutdown\"]}, \"shutdown\": {\"owner\": \"shutdown\", \"waiting\": [\"submitter\"]}}\\n', stderr='').returncode\n=========================== short test summary info ============================\nFAILED tests/unit/common/test_async_tools.py::test_shared_executor_submit_and_shutdown_do_not_invert_locks\n",
+      "source_binding": "New tests at test-only checkpoint; async_tools blob unchanged from slice-base34b8823153d1709677093b85542056cdb3e0afbb. Actual child exit73 demonstrates opposite physical lock ownership, rather than timeout alone."
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py --junitxml=/tmp/e02-B-run-executor-native.xml",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "Real stdlib locks/Future/ThreadPoolExecutor; subprocess watchdog for actual lock-cycle test; isolated callback worker barriers and actual inner filesystem effects; native retry fork/tmp_path plus consumer CAS/checkpoint fixtures; no DB, ports, services or production data."
+      },
+      "outcome": "PASS",
+      "output": "........................................................................ [ 57%]\n.....................................................                    [100%]\n=============================== warnings summary ===============================\ntests/unit/scientist/orchestration/engine/test_retry.py: 50 warnings\ntests/unit/scientist/orchestration/engine/test_retry_integration.py: 1 warning\n  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=52648) is multi-threaded, use of fork() may lead to deadlocks in the child.\n    self.pid = os.fork()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n125 passed, 51 warnings in 22.70s\n",
+      "exit_code": 0,
+      "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-native.xml"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/core/artifacts/test_async_store.py tests/unit/fabric/data_plane/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_checkpoint.py --junitxml=/tmp/e02-B-run-executor-consumer.xml",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "Real stdlib locks/Future/ThreadPoolExecutor; subprocess watchdog for actual lock-cycle test; isolated callback worker barriers and actual inner filesystem effects; native retry fork/tmp_path plus consumer CAS/checkpoint fixtures; no DB, ports, services or production data."
+      },
+      "outcome": "PASS",
+      "output": "...............................................................          [100%]\n63 passed in 8.05s\n",
+      "exit_code": 0,
+      "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-consumer.xml"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-run/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/probe.py --target d2dabbc2d49a815fd49114dab74554a51732f541 --output /tmp/e02-executor-author-base-replay-fresh",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "d2dabbc2d49a815fd49114dab74554a51732f541",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "Real stdlib locks/Future/ThreadPoolExecutor; subprocess watchdog for actual lock-cycle test; isolated callback worker barriers and actual inner filesystem effects; native retry fork/tmp_path plus consumer CAS/checkpoint fixtures; no DB, ports, services or production data."
+      },
+      "outcome": "FAIL",
+      "output": "{\"case\": \"shutdown-submit\", \"argv\": [\"/workspace/polisyos/policy-engine/.venv/bin/python\", \"-u\", \"/tmp/e02-executor-review.py\", \"--child\", \"shutdown-submit\", \"--output\", \"/tmp/e02-executor-author-base-evidence/shutdown-submit.inner\"], \"exit_code\": 73, \"wall_s\": 0.18457319200024358, \"stdout\": \"{\\\"case\\\": \\\"shutdown-submit\\\", \\\"identity\\\": {\\\"module\\\": \\\"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\\\", \\\"module_sha256\\\": \\\"04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72\\\", \\\"python\\\": \\\"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\\\", \\\"platform\\\": \\\"Linux-6.18.44-x86_64-with-glibc2.41\\\", \\\"pid\\\": 51252}, \\\"admission_before_cancel\\\": {\\\"owner\\\": \\\"submitter\\\", \\\"waiting\\\": [], \\\"depth\\\": 1}, \\\"locks\\\": {\\\"admission\\\": {\\\"owner\\\": \\\"submitter\\\", \\\"waiting\\\": [\\\"shutdown\\\"], \\\"depth\\\": 1}, \\\"shutdown\\\": {\\\"owner\\\": \\\"shutdown\\\", \\\"waiting\\\": [\\\"submitter\\\"], \\\"depth\\\": 1}}, \\\"lock_cycle\\\": true, \\\"shutdown_finished\\\": false, \\\"submit_finished\\\": false, \\\"submit_result\\\": [], \\\"queued_future_cancelled\\\": true, \\\"outstanding_before_worker_release\\\": 3, \\\"outcome\\\": \\\"FAIL_LOCK_ORDER_CYCLE\\\"}\\n\"}\n{\"case\": \"callback-saturated\", \"argv\": [\"/workspace/polisyos/policy-engine/.venv/bin/python\", \"-u\", \"/tmp/e02-executor-review.py\", \"--child\", \"callback-saturated\", \"--output\", \"/tmp/e02-executor-author-base-evidence/callback-saturated.inner\"], \"exit_code\": 0, \"wall_s\": 0.19973603600010392, \"stdout\": \"{\\\"case\\\": \\\"callback-saturated\\\", \\\"identity\\\": {\\\"module\\\": \\\"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\\\", \\\"module_sha256\\\": \\\"04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72\\\", \\\"python\\\": \\\"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\\\", \\\"platform\\\": \\\"Linux-6.18.44-x86_64-with-glibc2.41\\\", \\\"pid\\\": 51258}, \\\"physical_callback_workers\\\": 4, \\\"executor_workers\\\": 4, \\\"outstanding_at_callback_barrier\\\": 0, \\\"all_outer_futures_done\\\": true, \\\"rows\\\": [{\\\"index\\\": 0, \\\"worker_identity\\\": true, \\\"worker_id\\\": 140624657077952, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"wait\\\": \\\"timed_out_with_callbacks_held\\\", \\\"queued_cancelled\\\": true}, {\\\"index\\\": 1, \\\"worker_identity\\\": true, \\\"worker_id\\\": 140624648685248, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"wait\\\": \\\"timed_out_with_callbacks_held\\\", \\\"queued_cancelled\\\": true}, {\\\"index\\\": 2, \\\"worker_identity\\\": true, \\\"worker_id\\\": 140624640292544, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"wait\\\": \\\"timed_out_with_callbacks_held\\\", \\\"queued_cancelled\\\": true}, {\\\"index\\\": 3, \\\"worker_identity\\\": true, \\\"worker_id\\\": 140624631899840, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"wait\\\": \\\"timed_out_with_callbacks_held\\\", \\\"queued_cancelled\\\": true}], \\\"inner_started_while_callbacks_held\\\": [], \\\"actual_inner_file\\\": \\\"/tmp/e02-executor-author-base-evidence/callback-saturated.inner\\\", \\\"file_content\\\": \\\"\\\", \\\"final_outstanding\\\": 0, \\\"counterexample\\\": true, \\\"outcome\\\": \\\"FAIL_CALLBACK_CAPACITY_PROXY\\\"}\\n\"}\n{\"case\": \"callback-spare-worker\", \"argv\": [\"/workspace/polisyos/policy-engine/.venv/bin/python\", \"-u\", \"/tmp/e02-executor-review.py\", \"--child\", \"callback-spare-worker\", \"--output\", \"/tmp/e02-executor-author-base-evidence/callback-spare-worker.inner\"], \"exit_code\": 0, \"wall_s\": 0.11187597500065749, \"stdout\": \"{\\\"case\\\": \\\"callback-spare-worker\\\", \\\"identity\\\": {\\\"module\\\": \\\"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\\\", \\\"module_sha256\\\": \\\"04ac1143154407542ccd582e6b0319419b772df17e897d71bb9aacf0a5f5ba72\\\", \\\"python\\\": \\\"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\\\", \\\"platform\\\": \\\"Linux-6.18.44-x86_64-with-glibc2.41\\\", \\\"pid\\\": 51277}, \\\"physical_callback_workers\\\": 3, \\\"executor_workers\\\": 4, \\\"outstanding_at_callback_barrier\\\": 0, \\\"all_outer_futures_done\\\": true, \\\"rows\\\": [{\\\"index\\\": 0, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139830785140416, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"result\\\": 42, \\\"wait\\\": \\\"completed\\\"}, {\\\"index\\\": 1, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139830776747712, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"result\\\": 42, \\\"wait\\\": \\\"completed\\\"}, {\\\"index\\\": 2, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139830768355008, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"result\\\": 42, \\\"wait\\\": \\\"completed\\\"}], \\\"inner_started_while_callbacks_held\\\": [1, 0, 2], \\\"actual_inner_file\\\": \\\"/tmp/e02-executor-author-base-evidence/callback-spare-worker.inner\\\", \\\"file_content\\\": \\\"{\\\\\\\"inner\\\\\\\": 1, \\\\\\\"worker\\\\\\\": 139830759962304}\\\\n{\\\\\\\"inner\\\\\\\": 0, \\\\\\\"worker\\\\\\\": 139830759962304}\\\\n{\\\\\\\"inner\\\\\\\": 2, \\\\\\\"worker\\\\\\\": 139830759962304}\\\\n\\\", \\\"final_outstanding\\\": 0, \\\"positive_control\\\": true, \\\"outcome\\\": \\\"PASS_SPARE_WORKER\\\"}\\n\"}\n",
+      "verdict": "Driver supervisor exits0 after recording per-child results: shutdown child73 FAIL lock cycle, callback4/4 FAIL capacity proxy, callback3/4 PASS physical spare. Fresh output directory required; command uses committed byte-identical driver.",
+      "actual_command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-executor-review.py --target d2dabbc2d49a815fd49114dab74554a51732f541 --output /tmp/e02-executor-author-base-evidence > /tmp/e02-executor-author-base.log",
+      "replay_target_requirement": "Use source bytes pinned to target_sha (check emitted module_sha256 against source_binding), not the current checkout merely labelled by --target; driver argument alone does not select source. Published companion is byte-identical to actual /tmp driver."
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-run/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/probe.py --target b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2 --output /tmp/e02-executor-author-candidate-replay-fresh",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "Real stdlib locks/Future/ThreadPoolExecutor; subprocess watchdog for actual lock-cycle test; isolated callback worker barriers and actual inner filesystem effects; native retry fork/tmp_path plus consumer CAS/checkpoint fixtures; no DB, ports, services or production data."
+      },
+      "outcome": "FAIL",
+      "output": "{\"case\": \"shutdown-submit\", \"argv\": [\"/workspace/polisyos/policy-engine/.venv/bin/python\", \"-u\", \"/tmp/e02-executor-review.py\", \"--child\", \"shutdown-submit\", \"--output\", \"/tmp/e02-executor-author-candidate-evidence/shutdown-submit.inner\"], \"exit_code\": 0, \"wall_s\": 0.08962370099925465, \"stdout\": \"{\\\"case\\\": \\\"shutdown-submit\\\", \\\"identity\\\": {\\\"module\\\": \\\"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\\\", \\\"module_sha256\\\": \\\"86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e\\\", \\\"python\\\": \\\"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\\\", \\\"platform\\\": \\\"Linux-6.18.44-x86_64-with-glibc2.41\\\", \\\"pid\\\": 52665}, \\\"admission_before_cancel\\\": {\\\"owner\\\": null, \\\"waiting\\\": [], \\\"depth\\\": 0}, \\\"locks\\\": {\\\"admission\\\": {\\\"owner\\\": null, \\\"waiting\\\": [], \\\"depth\\\": 0}, \\\"shutdown\\\": {\\\"owner\\\": null, \\\"waiting\\\": [], \\\"depth\\\": 0}}, \\\"lock_cycle\\\": false, \\\"shutdown_finished\\\": true, \\\"submit_finished\\\": true, \\\"submit_result\\\": [\\\"RuntimeError: cannot schedule new futures after shutdown\\\"], \\\"queued_future_cancelled\\\": true, \\\"outstanding_before_worker_release\\\": 1, \\\"active_result\\\": \\\"running\\\", \\\"final_outstanding\\\": 0, \\\"outcome\\\": \\\"PASS_NO_CYCLE\\\"}\\n\"}\n{\"case\": \"callback-saturated\", \"argv\": [\"/workspace/polisyos/policy-engine/.venv/bin/python\", \"-u\", \"/tmp/e02-executor-review.py\", \"--child\", \"callback-saturated\", \"--output\", \"/tmp/e02-executor-author-candidate-evidence/callback-saturated.inner\"], \"exit_code\": 0, \"wall_s\": 0.2544183720001456, \"stdout\": \"{\\\"case\\\": \\\"callback-saturated\\\", \\\"identity\\\": {\\\"module\\\": \\\"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\\\", \\\"module_sha256\\\": \\\"86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e\\\", \\\"python\\\": \\\"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\\\", \\\"platform\\\": \\\"Linux-6.18.44-x86_64-with-glibc2.41\\\", \\\"pid\\\": 52671}, \\\"physical_callback_workers\\\": 4, \\\"executor_workers\\\": 4, \\\"outstanding_at_callback_barrier\\\": 0, \\\"all_outer_futures_done\\\": true, \\\"rows\\\": [{\\\"index\\\": 0, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139869444929216, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"wait\\\": \\\"timed_out_with_callbacks_held\\\", \\\"queued_cancelled\\\": true}, {\\\"index\\\": 1, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139869436536512, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"wait\\\": \\\"timed_out_with_callbacks_held\\\", \\\"queued_cancelled\\\": true}, {\\\"index\\\": 2, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139869428143808, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"wait\\\": \\\"timed_out_with_callbacks_held\\\", \\\"queued_cancelled\\\": true}, {\\\"index\\\": 3, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139869419751104, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"wait\\\": \\\"timed_out_with_callbacks_held\\\", \\\"queued_cancelled\\\": true}], \\\"inner_started_while_callbacks_held\\\": [], \\\"actual_inner_file\\\": \\\"/tmp/e02-executor-author-candidate-evidence/callback-saturated.inner\\\", \\\"file_content\\\": \\\"\\\", \\\"final_outstanding\\\": 0, \\\"counterexample\\\": true, \\\"outcome\\\": \\\"FAIL_CALLBACK_CAPACITY_PROXY\\\"}\\n\"}\n{\"case\": \"callback-spare-worker\", \"argv\": [\"/workspace/polisyos/policy-engine/.venv/bin/python\", \"-u\", \"/tmp/e02-executor-review.py\", \"--child\", \"callback-spare-worker\", \"--output\", \"/tmp/e02-executor-author-candidate-evidence/callback-spare-worker.inner\"], \"exit_code\": 0, \"wall_s\": 0.08298028399985924, \"stdout\": \"{\\\"case\\\": \\\"callback-spare-worker\\\", \\\"identity\\\": {\\\"module\\\": \\\"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\\\", \\\"module_sha256\\\": \\\"86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e\\\", \\\"python\\\": \\\"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\\\", \\\"platform\\\": \\\"Linux-6.18.44-x86_64-with-glibc2.41\\\", \\\"pid\\\": 52685}, \\\"physical_callback_workers\\\": 3, \\\"executor_workers\\\": 4, \\\"outstanding_at_callback_barrier\\\": 0, \\\"all_outer_futures_done\\\": true, \\\"rows\\\": [{\\\"index\\\": 0, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139986208335552, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"result\\\": 42, \\\"wait\\\": \\\"completed\\\"}, {\\\"index\\\": 1, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139986199942848, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"result\\\": 42, \\\"wait\\\": \\\"completed\\\"}, {\\\"index\\\": 2, \\\"worker_identity\\\": true, \\\"worker_id\\\": 139986191550144, \\\"outer_future_done\\\": true, \\\"submit\\\": \\\"accepted\\\", \\\"result\\\": 42, \\\"wait\\\": \\\"completed\\\"}], \\\"inner_started_while_callbacks_held\\\": [2, 0, 1], \\\"actual_inner_file\\\": \\\"/tmp/e02-executor-author-candidate-evidence/callback-spare-worker.inner\\\", \\\"file_content\\\": \\\"{\\\\\\\"inner\\\\\\\": 2, \\\\\\\"worker\\\\\\\": 139986183157440}\\\\n{\\\\\\\"inner\\\\\\\": 0, \\\\\\\"worker\\\\\\\": 139986183157440}\\\\n{\\\\\\\"inner\\\\\\\": 1, \\\\\\\"worker\\\\\\\": 139986183157440}\\\\n\\\", \\\"final_outstanding\\\": 0, \\\"positive_control\\\": true, \\\"outcome\\\": \\\"PASS_SPARE_WORKER\\\"}\\n\"}\n",
+      "verdict": "Shutdown PASS and actual spare-worker control PASS; callback4/4 remains FAIL, the falsifier of the explicitly declared unsupported callback capacity class. No B69 general physical-capacity closure.",
+      "actual_command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-executor-review.py --target b439fe982 --output /tmp/e02-executor-author-candidate-evidence > /tmp/e02-executor-author-candidate.log",
+      "replay_target_requirement": "Use source bytes pinned to target_sha (check emitted module_sha256 against source_binding), not the current checkout merely labelled by --target; driver argument alone does not select source. Published companion is byte-identical to actual /tmp driver."
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-run/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/remove-lock-order.py /workspace/e02-B-run/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/probe.py",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "Real stdlib locks/Future/ThreadPoolExecutor; subprocess watchdog for actual lock-cycle test; isolated callback worker barriers and actual inner filesystem effects; native retry fork/tmp_path plus consumer CAS/checkpoint fixtures; no DB, ports, services or production data."
+      },
+      "outcome": "FAIL",
+      "output": "{\n  \"command_argv\": [\n    \"/workspace/polisyos/policy-engine/.venv/bin/python\",\n    \"/tmp/e02-B-run-executor-remove-lock-order.py\",\n    \"/tmp/e02-executor-review.py\"\n  ],\n  \"cwd\": \"/workspace/e02-B-run/policy-engine\",\n  \"target_sha\": \"b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2\",\n  \"exit_code\": 73,\n  \"wall_s\": 0.1846848229997704,\n  \"stdout\": \"{\\\"case\\\": \\\"shutdown-submit\\\", \\\"identity\\\": {\\\"module\\\": \\\"/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py\\\", \\\"module_sha256\\\": \\\"86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e\\\", \\\"python\\\": \\\"3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]\\\", \\\"platform\\\": \\\"Linux-6.18.44-x86_64-with-glibc2.41\\\", \\\"pid\\\": 53982}, \\\"admission_before_cancel\\\": {\\\"owner\\\": \\\"submitter\\\", \\\"waiting\\\": [], \\\"depth\\\": 1}, \\\"locks\\\": {\\\"admission\\\": {\\\"owner\\\": \\\"submitter\\\", \\\"waiting\\\": [\\\"shutdown\\\"], \\\"depth\\\": 1}, \\\"shutdown\\\": {\\\"owner\\\": \\\"shutdown\\\", \\\"waiting\\\": [\\\"submitter\\\"], \\\"depth\\\": 1}}, \\\"lock_cycle\\\": true, \\\"shutdown_finished\\\": false, \\\"submit_finished\\\": false, \\\"submit_result\\\": [], \\\"queued_future_cancelled\\\": true, \\\"outstanding_before_worker_release\\\": 3, \\\"outcome\\\": \\\"FAIL_LOCK_ORDER_CYCLE\\\"}\\n\",\n  \"stderr\": \"\",\n  \"outcome\": \"EXPECTED_FAIL_PROPERTY_REMOVAL\"\n}",
+      "exit_code": 73,
+      "verdict": "Expected negative: remove only admission/base-lock separation using an isolated runtime wrapper; canonical candidate bytes/type annotations/docs remain unchanged; actual opposite lock owners/waits return."
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/common/async_tools.py tests/unit/common/test_async_tools.py && /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check src/polisyos/common/async_tools.py tests/unit/common/test_async_tools.py",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "Real stdlib locks/Future/ThreadPoolExecutor; subprocess watchdog for actual lock-cycle test; isolated callback worker barriers and actual inner filesystem effects; native retry fork/tmp_path plus consumer CAS/checkpoint fixtures; no DB, ports, services or production data."
+      },
+      "outcome": "PASS",
+      "output": "All checks passed!\n2 files already formatted\n",
+      "exit_code": 0
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base d2dabbc2d49a815fd49114dab74554a51732f541 --receipt _build/e02-B-run/executor-production-invocation.json",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "Real stdlib locks/Future/ThreadPoolExecutor; subprocess watchdog for actual lock-cycle test; isolated callback worker barriers and actual inner filesystem effects; native retry fork/tmp_path plus consumer CAS/checkpoint fixtures; no DB, ports, services or production data."
+      },
+      "outcome": "ERROR",
+      "output": "{\"status\": \"UNRESOLVED\", \"coverage\": \"partial\", \"summary\": \"Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.\", \"measured\": \"Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.\", \"unmeasured\": [\"HTTP router dispatch\", \"dependency injection/container dispatch\", \"event-bus dispatch\", \"registered callback invocation\", \"deferred lambda/coroutine execution and generator resumption\", \"reflection and dynamic receiver/factory resolution\", \"runtime execution, persisted business receipts, and gate substance\"], \"uninvoked_meaning\": \"No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.\", \"regressions\": [], \"new_unresolved_by_construction\": [\"polisyos.common.async_tools._SharedExecutor.submit\", \"polisyos.common.async_tools._SharedExecutor.submit.release_reservation\"], \"unresolved_by_construction_count\": 9193, \"unresolved_receiver_call_count\": 139747, \"receipt\": \"_build/e02-B-run/executor-production-invocation.json\", \"runtime_invocation_established\": false}\n",
+      "exit_code": 3,
+      "source_status": "UNRESOLVED",
+      "raw_ref": "policy-engine/_build/e02-B-run/executor-production-invocation.json@sha256:590794f8ad8916b78a979c630dfd1533e519d594ea65c9e360428ec7314f5e5a",
+      "raw_bytes": 170877547,
+      "limitation": "Static partial coverage, no regressions, submit and release_reservation receiver/callback invocation unresolved. runtime_invocation_established false; complete moderate deciding stdout committed, huge raw ignored. Not attributed as inherited red; independent full scanner rerun remains available."
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-run/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/owner-trace.py",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "installed_versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "ruff": "0.14.10"
+        },
+        "numerical_threads": "no orchestration override",
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
+      },
+      "input_closure": {
+        "source": "complete tracked modules at target SHA plus shared immutable venv",
+        "config_sha256": {
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+        },
+        "fixtures": "Real stdlib locks/Future/ThreadPoolExecutor; subprocess watchdog for actual lock-cycle test; isolated callback worker barriers and actual inner filesystem effects; native retry fork/tmp_path plus consumer CAS/checkpoint fixtures; no DB, ports, services or production data."
+      },
+      "outcome": "PASS",
+      "output": "Scope: complete tracked common Python files: 15\nINPUT src/polisyos/common/__init__.py sha256 80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080\nINPUT src/polisyos/common/async_tools.py sha256 86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e\nExecutor subclass: src/polisyos/common/async_tools.py _SharedExecutor methods: ['__init__', '_register_worker', 'submit']\nINPUT src/polisyos/common/canonical.py sha256 89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41\nINPUT src/polisyos/common/config.py sha256 126ca3bc685dbe60ad46f803090fca815c8ec520b5d3c3d8f34f18e62c98ef61\nINPUT src/polisyos/common/env_parsing.py sha256 90afe172cc0b46df9838e6c1f0eec656c62bd5d1e4162394e21cb58e9d8bb897\nINPUT src/polisyos/common/hashing.py sha256 4ecfe5e4ed78585a25dfd4ee7de1eee10f4d4b467bca95fd6716537a68ef3ead\nINPUT src/polisyos/common/jax_env.py sha256 c47cae7faa16a86b0353ba95149a3a9d3ba1c26f2e0f39bbdae78277d89214e1\nINPUT src/polisyos/common/logger.py sha256 d496cd41f388b185cc4c9c9bcb5d7f7c2c3eecba02fc9f437ae5f02f2201e5a0\nINPUT src/polisyos/common/markdown.py sha256 7d53f727efeb781975c786443d2542d78a8ec2e9b782fa3f151ce5e37d585e69\nINPUT src/polisyos/common/migrations/__init__.py sha256 f26b19cddaff94a28a7cd35dda419441e52d4714880ae106f1fec4abe6eac096\nINPUT src/polisyos/common/migrations/_engine.py sha256 67038f9da8e5948dbf4b898671c25f72244d4bed224d26193772010cbc544c48\nINPUT src/polisyos/common/migrations/base.py sha256 5575321803537f6c4f8b3d94be5cd959e54dec1e4e6f6536cdd3bc398caa088f\nINPUT src/polisyos/common/migrations/manifest.py sha256 7d7a8ecb625f23fb9e3e0dfc66f7837b9b30353d15a587c3a23525d991b72806\nINPUT src/polisyos/common/serialization.py sha256 03c7fc1756449d77aff0819a79038c632724a398fee1091b2423bffca9d93d24\nINPUT src/polisyos/common/timestamps.py sha256 c6343733a85b80f7b8eb2a2e607ad864e0059f30b6c01a818ba6eb97129d6963\nCode trace: submit delegates directly to stdlib submit; initializer only marks thread identity.\nSTDLIB ThreadPoolExecutor.submit /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py sha256 7f95079dda8064cd372c9c0ea60c7e172b34c8f2aa0c3d9213e85b8584aa033c\n    def submit(self, fn, /, *args, **kwargs):\n        with self._shutdown_lock, _global_shutdown_lock:\n            if self._broken:\n                raise self.BROKEN(self._broken)\n\n            if self._shutdown:\n                raise RuntimeError('cannot schedule new futures after shutdown')\n            if _shutdown:\n                raise RuntimeError('cannot schedule new futures after '\n                                   'interpreter shutdown')\n\n            f = _base.Future()\n            task = self._resolve_work_item_task(fn, args, kwargs)\n            w = _WorkItem(f, task)\n\n            self._work_queue.put(w)\n            self._adjust_thread_count()\n            return f\n\nSTDLIB _WorkItem.run /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py sha256 7f95079dda8064cd372c9c0ea60c7e172b34c8f2aa0c3d9213e85b8584aa033c\n    def run(self, ctx):\n        if not self.future.set_running_or_notify_cancel():\n            return\n\n        try:\n            result = ctx.run(self.task)\n        except BaseException as exc:\n            self.future.set_exception(exc)\n            # Break a reference cycle with the exception 'exc'\n            self = None\n        else:\n            self.future.set_result(result)\n\nSTDLIB Future.set_result /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py sha256 3665aa676031ee09ed6db32db6227e66f56c96230cfd26a2db7c2d83da49b69d\n    def set_result(self, result):\n        \"\"\"Sets the return value of work associated with the future.\n\n        Should only be used by Executor implementations and unit tests.\n        \"\"\"\n        with self._condition:\n            if self._state in {CANCELLED, CANCELLED_AND_NOTIFIED, FINISHED}:\n                raise InvalidStateError('{}: {!r}'.format(self._state, self))\n            self._result = result\n            self._state = FINISHED\n            for waiter in self._waiters:\n                waiter.add_result(self)\n            self._condition.notify_all()\n        self._invoke_callbacks()\n\nSTDLIB Future._invoke_callbacks /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py sha256 3665aa676031ee09ed6db32db6227e66f56c96230cfd26a2db7c2d83da49b69d\n    def _invoke_callbacks(self):\n        for callback in self._done_callbacks:\n            try:\n                callback(self)\n            except Exception:\n                LOGGER.exception('exception calling callback for %r', self)\n\nScoped missing capability: physical worker admission held through all user callbacks, or an owned nonblocking callback scheduling boundary. The canonical subclass does not wrap its delegated _WorkItem.run/Future callback lifecycle. Whole-repository absence, reflective/third-party callback consumers and general deadlock freedom are not established.\n",
+      "limitation": "Complete15 tracked common Python files plus exact stdlib sources/hashes and canonical delegation establish the missing physical callback lifecycle owner in this scope. Actual blocking PolicyOS callback consumer, external reflection and repository-wide absence are not established."
     }
   ],
   "property": {
-    "statement": "Shared executor reserves outstanding jobs atomically; a worker rejects reentry at the configured bound before enqueuing inner work, while capacity-free nested calls retain their previous behavior.",
+    "statement": "Submit never holds the job-admission lock while acquiring the base executor shutdown lock or registering completion callbacks. Per-job reservation completion/cancellation/rejection releases once. The admission guard counts unfinished submitted jobs and does not guarantee physical worker availability during user done callbacks.",
     "runtime_path": [
-      "run_coro_sync inside active event loop",
-      "actual shared ThreadPoolExecutor worker",
-      "run_blocking_async nested submission",
-      "explicit RuntimeError or computed result",
-      "subsequent async CAS read/write and partitioned ingestion/checkpoint consumers"
+      "actual SharedExecutor running job and queued Future",
+      "event-gated real base shutdown lock and actual concurrent submit",
+      "shutdown cancel_futures invokes real queued Future callback",
+      "admission reservation release and rejected-submit rollback",
+      "both threads terminate, running result42 and final reservations0",
+      "actual4/4 callback worker counterexample plus3/4 physical-spare filesystem control"
     ],
-    "proxy_divergence": "Ordinary async soak PASS uses no pool-occupying outer bridges; the same pool at bound4 with outer bridge workers starts zero inner computations and times out when admission is removed. Counting thread names is not ownership; per-executor initialized thread-local identity supplies actual worker membership.",
+    "proxy_divergence": "A done Future releases its unfinished-job reservation before user callbacks finish on its physical worker. With four callback workers occupied and outstanding0, all four nested submissions are accepted but none executes until callbacks return. Separately, ordinary submit/soak does not cover the real opposite lock ownership cycle with concurrent shutdown cancellation.",
     "negative_controls": [
-      "Same saturated4 input fails after removing only submit admission in isolated Python child; names/type annotations remain.",
-      "Pure async pool4 tasks return42 after reentry refusals; finally runs for every inner coroutine.",
-      "Cooperative timeout executes finally and a subsequent shared job returns42.",
-      "Real filesystem async CAS roundtrip, capacity-free serialized partition consumers and checkpoint tests pass."
+      "Exact slice-base d2d and test-only a967 produce physical admission/shutdown lock cycle, child73.",
+      "Remove only separation at current candidate bytes: actual lock cycle returns, child73.",
+      "Manual queued cancellation repeated twice, shutdown queued cancellation, rejected post-shutdown submit and fast success/failure256 finish counter0 exactly once.",
+      "Unchanged callback4/4 falsifier remains FAIL; actual physical-spare3/4 executes42 with real inner file bytes.",
+      "125 native retry/process/context/deadline/error/queue cases and63 actual CAS/fabric/checkpoint consumer cases pass on frozen source, separate counts."
     ]
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "bounded LA-057/B69/Linux process/B95/retry identity properties verified; B14/B40 broader residuals explicit; no finding closure self-minted",
+  "capability_state_or_finding_state": "bounded retry/process/context/queued-thread properties and ordinary executor lock-order verified; B69 physical callback capacity remains measured unsupported, with other per-finding residuals retained",
   "pattern_pass": [
     "P29 runtime+removal discriminator",
     "P31 shared executor admission chokepoint",
@@ -534,11 +1064,11 @@
     {
       "finding_id": "B14",
       "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
-      "state": "bounded_process_late_write_verified_with_served_worker_residual",
-      "scope_and_limitations": "Linux owned child/grandchild and escaped group are terminated/reaped, actual delayed filesystem write cannot occur; context-owned late-write tests pass. Arbitrary noncooperative thread/coroutine/served worker cancellation and completed external effects remain outside this bounded process contract.",
+      "state": "bounded_process_and_queued_thread_refusal_verified_with_served_worker_residual",
+      "scope_and_limitations": "Linux owned descendants/grandchildren/new-session tree are killed and reaped; unstarted async-thread job is synchronously cancelled on timeout or caller cancellation and cannot execute a raw file write after same-turn pool release. Already running arbitrary thread/coroutine/served-worker effects and completed external effects remain outside the bounded contract.",
       "next_owner": "B runtime worker owner; A served lifecycle consumer",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"late or timeout\"",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
     },
     {
       "finding_id": "B24",
@@ -547,7 +1077,7 @@
       "scope_and_limitations": "Actual small/1MiB sync+async fork transport, compute cutoff, send/serialization/start/setup faults, descendants/grandchildren and cancellation pass. Same original descendant input fails when supervisor ownership is removed. macOS/native non-Linux reaping remains local G; caller multithread-fork warning is explicit.",
       "next_owner": "G independent Linux acceptance and local macOS exact candidate",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"fork_transport or serialization_failure or descendant or worker_send\"",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
     },
     {
       "finding_id": "B39",
@@ -556,25 +1086,25 @@
       "scope_and_limitations": "Original category/code survives real sync+async fork IPC: permanent return/raise1, validation/contract failures terminal, explicit transient ValueError and custom policy codes obey policy. Immediate provider TimeoutError retries across direct/thread/fork/genuineasync, actual thread/async-thread/genuineasync expiry is terminal1. Writer120 and independent reviewer47 are separate matrices. External effects, arbitrary engine-specific control signals and broader serialization formats remain outside this bounded private transport contract.",
       "next_owner": "G independent bounded admission; external-action owner for idempotency",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py -k \"fork_permanent_error_shape or fork_exception_preserves or provider_timeout or wrapper_expiration\"",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
     },
     {
       "finding_id": "B40",
       "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
       "state": "mechanism_gap_unfixed",
-      "scope_and_limitations": "Untimed synchronous node async delegate still resolves shared helper default while direct sync has no helper deadline. Timed async-thread now owns one Future and includes its queue wait, but total workflow nested queue/init/attempt deadline and arbitrary late writes remain unclosed.",
+      "scope_and_limitations": "Timed async-thread owns one real Future and cancels unstarted compute before refusal; queue admission no longer escapes. Untimed sync-node async delegate still resolves shared helper default while direct sync has no helper deadline; total workflow queue/init/attempt deadline and arbitrary running late effects remain unclosed.",
       "next_owner": "B deadline owner with A top-level producer/served consumer",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/common/test_async_tools.py",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
     },
     {
       "finding_id": "B69",
       "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
-      "state": "bounded_property_verified_pending_independent_admission",
-      "scope_and_limitations": "At actual pool bound4 nested bridge work returns42 or explicit RuntimeError before unsupported submission; all coroutine finally paths complete and later direct work executes. Property removal with same names/types/inputs makes discriminator fail. Capacity-free nested consumers are preserved. Arbitrary user callbacks/noncooperative external work are not a general deadlock-free runtime proof.",
-      "next_owner": "G independent acceptance; C consumer if unsupported nested route needs async continuation",
-      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py::test_nested_shared_executor_work_is_rejected_before_pool_saturation tests/unit/common/test_async_tools.py::test_cooperative_timeout_releases_shared_coroutine_worker tests/unit/fabric/data_plane/test_orchestrator.py",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "state": "bounded_unfinished_job_and_shutdown_property_verified_with_callback_capacity_residual",
+      "scope_and_limitations": "Actual ordinary pool4 body reentry refuses at unfinished-job bound; functional spare-worker consumers retained. Concurrent submit/shutdown cancellation no longer reverses admission/base lock ownership; completion/cancellation/rejection reservation release once. Four user done callbacks can physically occupy all four workers after outstanding count0: nested submits accepted but no inner execution, bounded waits expire. Blocking nested waits from user done callbacks unsupported; no general physical availability or deadlock-free claim. Candidate125 native/63 consumer are separate green suites; unchanged3-case independent oracle retains that explicit callback FAIL and spare3/4 positive.",
+      "next_owner": "G bounded lock-order/admission acceptance; runtime callback consumer owner if physical callback lifecycle support is required",
+      "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/fabric/data_plane/test_orchestrator.py; PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-run/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/probe.py --target b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2 --output /tmp/e02-executor-G-fresh",
+      "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
     },
     {
       "finding_id": "B95",
@@ -583,7 +1113,7 @@
       "scope_and_limitations": "Two distinct concurrent requests preserve actual ContextVar request-A/request-B through direct sync, forced real thread fallback, Linux fork supervisor and genuine async nodes; outer context restores and original state remains unchanged. This proves propagation, not authorization/tenant authority; non-Linux launch remains local G.",
       "next_owner": "G independent bounded propagation acceptance; local G non-Linux process",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_retry.py::test_concurrent_request_contexts_match_across_retry_routes",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
     },
     {
       "finding_id": "B96",
@@ -592,7 +1122,7 @@
       "scope_and_limitations": "Existing mutation-to-returned-fail fresh baseline and real trace spend controls pass; raised mutation, cancellation, declared checkpoint continuation and full workflow external effects remain bounded.",
       "next_owner": "G regression/admission; B continuation-contract owner",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
     },
     {
       "finding_id": "LA-057",
@@ -601,7 +1131,7 @@
       "scope_and_limitations": "Only stale module T/TypeVar removed. All four local generic identities and real helper bodies preserved; complete tracked Python/config caller census retained in run-typevar receipt. External opaque dynamic callers and packaging not established.",
       "next_owner": "G typecheck/package scope decision",
       "replay_command": "cd /workspace/e02-B-run/policy-engine && PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py::test_function_type_parameters_resolve_without_module_typevar",
-      "replay_target_sha": "6c2cab488368932479677bc036ffad25657c0367"
+      "replay_target_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2"
     }
   ],
   "limitations_and_next_owner": [
@@ -609,18 +1139,27 @@
     "A: whole served-worker/current-write and total lifecycle deadlines still require A-owned generation_cycle.py/run_lifecycle.py contracts; files untouched.",
     "B40: untimed synchronous node through async delegate still uses shared helper default; total workflow queue/startup/attempt deadline is separate. Timed async-thread attempt now includes its one queue wait.",
     "Thread and coroutine cancellation remains cooperative; external side-effect idempotency/rollback/checkpoint continuation is not proved by retry classification.",
-    "Shared serializer and C streaming source untouched. Full production dataset unnecessary for generic retry/process input."
+    "Shared serializer and C streaming source untouched. Full production dataset unnecessary for generic retry/process input.",
+    "Historical 4a queued-thread slice closes queued/unstarted admission while preserving then-current common bridge and genuineasync source. Current b439 subsequently changes canonical common submission lock ownership; genuineasync/retry source remains byte-identical to4a.",
+    "B69 remains bounded: unfinished-job saturation refusal, ordinary body nested spare-capacity consumers and concurrent shutdown lock separation are verified. User-done-callback nested blocking waits are explicitly unsupported and reproduced as a capacity-counter counterexample.",
+    "Smallest closing capability for that declared callback class: owner of physical worker occupancy through all callbacks, or owned nonblocking callback scheduling boundary. Canonical common subclass delegates directly to stdlib worker/Future callback lifecycle; scoped15-file/stdlib trace confirms absence here. An actual PolicyOS blocking callback consumer and repository-wide dynamic absence are not established.",
+    "P40 bucket: shutdown lock inversion is a NEW lock-order class; callback saturation is SAME B69 admission proxy class one level deeper. No additional ladder patch or speculative Future/worker implementation.",
+    "G independently admits exact candidate; native macOS replay remains local G. Generic fixtures need no production dataset.",
+    "Prior B14/B24/B39/B40/B95/B96/LA-057 limitations and A/C path ownership remain as recorded per finding; arbitrary running thread/external effects and total workflow lifecycle deadline are unclosed.",
+    "Static invocation instrument is UNRESOLVED partial at this slice, not runtime evidence or an inherited-red assertion."
   ],
   "receipt_corrections": [
     "Full slice-base-to-last-implementation footprint includes earlier run-typevar evidence companion.",
     "Property-removal shell command now contains executable multiline Python source.",
     "Production invocation scanner ran and exited3 with UNRESOLVED/partial instrument status; it was not UNRUN."
   ],
-  "latest_checkpoint_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+  "latest_checkpoint_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json",
   "checkpoint_receipts": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-typevar.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-process.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-retry.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor.json"
   ],
   "source_and_residual_refs": {
     "canonical_cards_source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
@@ -631,7 +1170,7 @@
     ],
     "residual_ledger": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
     "baseline_denominator": "18 unique joined native cells for all8 RUN IDs; source/environment/input allocation retained per cell, source-reported summaries are baseline-only",
-    "mandatory_query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit B --failures-only --limit 30 followed by exact --finding ID --limit1000 for each of8 IDs"
+    "mandatory_query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit B --failures-only --limit 30 followed by exact --finding ID --limit 1000 for each of8 IDs"
   },
   "independent_review": {
     "reviewer": "/root/adapters_probe (read-only immutable snapshot)",
@@ -1439,11 +1978,413 @@
   },
   "publication": {
     "branch": "codex/e02-B-run",
-    "verified_remote_head_before_pr": "9a509ccf3b1c1274a6df14c8be06dd57cb4ce70a",
-    "source_implementation_sha": "6c2cab488368932479677bc036ffad25657c0367",
+    "verified_remote_head_before_pr": "d2dabbc2d49a815fd49114dab74554a51732f541",
+    "source_implementation_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
     "pr": "https://github.com/DenisKopylov/polisyos/pull/33",
     "pr_state": "draft; no merge/main push/history rewrite",
     "hook_validation": "Installed own ignored frontend dependencies with frozen lockfile; pre-commit and pre-push hooks executed normally; frontend typecheck passed.",
-    "app_attachment": "Child app attach tool was called but did not return; bounded orchestration cell terminated, root app attachment requested separately."
+    "app_attachment": "Root confirmed native app attachment success."
+  },
+  "independent_queued_review": {
+    "reviewer": "/root/adapters_probe (read-only immutable source)",
+    "candidate_sha": "4a68d5345ceca69a6148af082f59ae27372865de",
+    "candidate_tree_sha": "b5ec67fdc834099180485d0430ad78a725d1f9cc",
+    "result": "Unchanged independent5-case driver:6c baseline3PASS/2FAIL,4a candidate5PASS/0FAIL; physical execution/raw-write/store outputs retained. Already running thread effects remain the declared limitation.",
+    "source_verification": "Reviewer verified actual retry source SHA256 against4a commit before/after; supervisor/sharedwaiter/genuineasync path byte-identical to6c.",
+    "receipt_sha256": "e7ed94229117c1f2fcb7bbc53e720988aa27d5206b11ac13aaa12fd3aaf97e08",
+    "artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-caller-cancel-queued.physical",
+        "sha256": "b6e2c3ec3f45f139f5775606eea5f79cf82a645d4150964cb448c56258232f3a",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-caller-cancel-running.physical",
+        "sha256": "1d742cc249eee004baa1ceff72d8651184940343db0b4afd5434ece46dd00882",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-deadline-queued.physical",
+        "sha256": "225ef8faf120435d3d7b06bb2b2d5011a14d0c8c216190fc0650b22596a32773",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/async-deadline-running.physical",
+        "sha256": "ad077f9c67921464ef693be1c3917e346f8bc531c8d693d90e282bc34ea9973e",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base/observations.json",
+        "sha256": "e9f07f9e92915f307824823013837d19e0f69cba47995f9c862c9f0c255a2ae1",
+        "bytes": 3687
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base-independent-review.json",
+        "sha256": "27964f85cc5a152c5344420c684ac34c2c0ebcf296bfb7a355c2ef0d1e34348a",
+        "bytes": 6383
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/base.log",
+        "sha256": "9c2e456766955e88bb513fd8946eb042a734fd7bfe3b6fb8eb9ecbfdb49ff23c",
+        "bytes": 2715
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/async-caller-cancel-running.physical",
+        "sha256": "e1f416b584245d1ecad8f291ccef9b8305aae8cb5dab00cd3f8513597028dd16",
+        "bytes": 117
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/async-deadline-running.physical",
+        "sha256": "43dee42a5bbf796c6a67410b3d57a65e89cea7150866651996a39be0cbf0a32a",
+        "bytes": 116
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate/observations.json",
+        "sha256": "c29f9a8e88eb0840d6ad6da400cefe0d85dab387669beaa792bebd48dfa14e06",
+        "bytes": 3267
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate-independent-review.json",
+        "sha256": "e7ed94229117c1f2fcb7bbc53e720988aa27d5206b11ac13aaa12fd3aaf97e08",
+        "bytes": 8303
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/candidate.log",
+        "sha256": "4c9f7db764ae39ce2971ae0b83d8b65c1b497127eb457c36cfb4c84d94b82c29",
+        "bytes": 2463
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-queued-review/probe.py",
+        "sha256": "81bc54f522e2a40ffd432d21eebc783561c21f6bf7a68c4665b13e26ce0330a1",
+        "bytes": 5237
+      }
+    ]
+  },
+  "local_g_candidate": {
+    "sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+    "branch": "codex/e02-B-run",
+    "cwd": "policy-engine",
+    "command": "PYTHONPATH=src:. .venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+    "required_environment_receipt": "record actual macOS/Python/installed libraries + conftest/lock/config identity; Linux-only supervisor controls are platform limited and not macOS evidence",
+    "dataset": "not required for these generic fixtures"
+  },
+  "independent_executor_review": {
+    "reviewer": "/root/adapters_probe (read-only immutable source)",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate-review.json",
+    "receipt_sha256": "6ef8d5e659ef6d3d1b782d9238636c87ee4cc8406e6e4e2c40bb45f3441e87f4",
+    "complete_receipt": {
+      "schema": "policyos.e02.independent_review.v1",
+      "unit": "B",
+      "finding": "B69",
+      "reviewer": "adapters_probe independent read-only",
+      "source_binding": {
+        "candidate_sha": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+        "candidate_tree": "0e881900f0526546364fe5336a6dd6d469185320",
+        "slice_base_sha": "d2dabbc2d49a815fd49114dab74554a51732f541",
+        "slice_base_tree": "2e4222552e1a5fc8e3d2ed10803ba4bac29111e5",
+        "actual_checkout": "/workspace/e02-B-run",
+        "module": "/workspace/e02-B-run/policy-engine/src/polisyos/common/async_tools.py",
+        "module_git_blob": "45d2d97eb1c0aadc5a8936b10c089d6a67eb81a0",
+        "module_sha256": "86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e",
+        "postcheck_HEAD": "b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+        "postcheck_status_porcelain": "",
+        "candidate_paths_from_slice_base": [
+          "policy-engine/release-fragments/unreleased/2026-10-05-e02-run-executor-shutdown.toml",
+          "policy-engine/src/polisyos/common/README.md",
+          "policy-engine/src/polisyos/common/async_tools.py",
+          "policy-engine/tests/unit/common/test_async_tools.py"
+        ],
+        "changed_top_level_definitions": [
+          "_SharedExecutor",
+          "get_shared_executor"
+        ],
+        "unchanged_exact_definition_sha256": {
+          "_get_shared_executor": "9f646691bc8dd61c0330411955371fac057fa0ac5786b6f6649246774bbd8444",
+          "shutdown_run_coro_sync_executor": "5a750ed0c09e70186da83a1be4409e4466c2f8041909740078c8bc5583c52a82",
+          "_normalize_timeout": "2305c95c933bd6efb93aaa2d87d33cbca0060bbe298b810ff866c14d8e686887",
+          "_await_awaitable": "f2a84f56841f6ca351bf44a67d90a0fcf4b08eb62fb871138328d3d5a8a45f46",
+          "_run_coro_in_fresh_loop": "f99ec7a3e7a73d5dc37bcbe379b31387900f9504e1f4e76a7b15f03cf9930029",
+          "run_coro_sync": "169130b80e7c78e2f0314933dc71d7641bec32bc800e494b26f6629ea1d4d2c4",
+          "run_blocking_async": "2b597196d5f4b703520153bbc6ddeab4794a829b4f2afbc8bdf129298c9bdf47"
+        }
+      },
+      "environment": {
+        "cwd": "/workspace/e02-B-run/policy-engine",
+        "PYTHONPATH": "/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine/product:/workspace/e02-B-run/policy-engine",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+      },
+      "commands": [
+        {
+          "id": "same-unchanged-three-case-driver",
+          "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine/product:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-executor-review.py --output /tmp/e02-executor-b439-evidence --target b439fe982a8f8fd5e77a4a8d9f76aaead3b9cbb2",
+          "exit_code": 0,
+          "stdout": "/tmp/e02-executor-b439.log"
+        },
+        {
+          "id": "native-common",
+          "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine/product:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/common/test_async_tools.py -q --junitxml=/tmp/e02-executor-b439-evidence/native.xml",
+          "exit_code": 0,
+          "stdout": "/tmp/e02-executor-b439-evidence/native.log",
+          "xml_counts": [
+            {
+              "name": "pytest",
+              "errors": "0",
+              "failures": "0",
+              "skipped": "0",
+              "tests": "15",
+              "time": "0.459",
+              "timestamp": "2026-10-05T15:35:24.686006+00:00",
+              "hostname": "b878f4efbdfc"
+            }
+          ]
+        },
+        {
+          "id": "independent-accounting-and-bridge-controls",
+          "command": "PYTHONPATH=/workspace/e02-B-run/policy-engine/src:/workspace/e02-B-run/policy-engine/product:/workspace/e02-B-run/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-executor-accounting-review.py",
+          "exit_code": 0,
+          "stdout": "/tmp/e02-executor-b439-evidence/accounting.log"
+        }
+      ],
+      "input_closure": "Frozen existing RUN tree, complete content-bound unchanged three-case driver and separate accounting driver, real Future/ThreadPoolExecutor and OS threads/filesystem, fresh evidence directory, event-gated real lock wrappers without source-function replacement; native test/config dependencies from frozen tree and shared pre-existing Python venv. No DB/ports/production dataset. PYTHONPATH includes a nonexistent product directory but all identities read back actual candidate module. Imported dependency dataset beyond selected source/tests was not independently exhaustively enumerated.",
+      "source_review": {
+        "lock_order": "Reservation acquisition/increment ends before base submit. Shutdown queued cancel callback may take admission while owning base shutdown; submitter owns no admission while waiting for base lock. Actual old opposite-lock cycle no longer occurs.",
+        "release_once": "Job-local released flag is read/set and reservation decremented under admission lock. Real completion/cancel callback and rejection rollback share closure; callback and rejection cannot double decrement. No sampled counter correction.",
+        "boundaries": "Only _SharedExecutor implementation and get_shared_executor contract docstring changed. Other top-level definitions source byte-identical to declared base, including all async bridges and shutdown provider. No new Future wrapper or authority invented.",
+        "companions": "Owner README and release fragment expressly distinguish unfinished-job reservations from callback worker occupancy and retain unsupported blocking nested waits from user callbacks."
+      },
+      "verdict": {
+        "shutdown": "PASS_NO_CYCLE. Real opposite-lock base test child exit73 versus candidate both shutdown/submit finish exit0; queued Future physically cancelled, rejected submit rolled back, active worker later returns and outstanding1->0.",
+        "accounting": "PASS actual reservations3->2->1->1->0 under repeated queued cancel, shutdown cancellation, rejected submission and completed active job; cancelled/rejected jobs have no physical execution. Direct/running-loop/context and generic helper reflection controls PASS; native15PASS.",
+        "callback_capacity": "HOLD declared bounded B69 residual. Four actual workers occupied by user done callbacks, outstanding0; all4 nested jobs accepted, all4 bounded waits expire, none physically starts while callbacks held. This FAIL counterexample remains, not package closure.",
+        "spare_worker": "PASS positive physical control.3 user callbacks leave fourth worker; all3 accepted nested jobs actually write file and return42.",
+        "blocking_source_findings": "No blocker for narrow shutdown/release-once fix. Full physical worker reentry invariant remains unresolved as explicit bounded residual; formal finding closure belongs G."
+      },
+      "baseline_navigation": {
+        "canonical_finding": "policy-engine/docs/research/e02-cloud-test-plan/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1749-L1767",
+        "exact_cells": [
+          "F01-P008",
+          "F03-P083",
+          "F05-P104",
+          "F06-P021",
+          "F09-P017",
+          "F09-P084",
+          "F10-P012",
+          "F10-P080",
+          "F15-P012",
+          "F15-P096"
+        ],
+        "query_output": "/tmp/e02-executor-base-evidence/B69-navigation.json",
+        "role": "Navigation only. Baseline source refs, environments and job closures remain in details/job-context output. Raw baseline archives not independently available; no baseline package PASS used as new fix evidence."
+      },
+      "negative_base": {
+        "actual_target": "6c2cab488368932479677bc036ffad25657c0367",
+        "async_tools_blob_equal_at_d2d_and_3e950": "34b8823153d1709677093b85542056cdb3e0afbb",
+        "outcome": "shutdown actual opposite locks child73, callback4 accepted/no starts, spare3 physical42",
+        "historical_custody": "precreation_custody_not_established. These are qualified source-bound execution checks, not retroactive full admission/input closure."
+      },
+      "consumer_trace": {
+        "command": "rg -n add_done_callback|get_shared_executor policy-engine/src; inspected returned source consumers",
+        "named_paths": [
+          "polisyos/common/async_tools.py",
+          "polisyos/runtime/http/services/task_runner.py",
+          "polisyos/runtime/http/resilience.py",
+          "polisyos/scientist/orchestration/engine/retry.py",
+          "polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+        ],
+        "result": "Named producer trace found shared executor body submissions, standard async wrappers and asyncioFuture result-consumption callbacks. An actual PolicyOS shared-concurrentFuture user callback that blocks on nested submission is not established by this scan. Absence of reflective/third-party consumer is not proved."
+      },
+      "G_source_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/b-executor-shutdown.txt@15d50bac5",
+        "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/b-executor-callback.json@15d50bac5"
+      ],
+      "worktree_custody_checkpoint": "/tmp/e02-adapters-worktree-custody.json",
+      "evidence_sha256": {
+        "/tmp/e02-executor-review.py": "298dd6fe90fcc7aeda5275638427e5ad04a4f0204768b6923e4c2021ee251f39",
+        "/tmp/e02-executor-accounting-review.py": "51ab2cac558c34750dca492a5f210057ac2b4affa5ef0741e5ddc7b3ab393e5d",
+        "/tmp/e02-executor-base.log": "6d480a04848cb52b3e281563aa5ae497029a2f73324f64cd7407887a039b582f",
+        "/tmp/e02-executor-base-evidence/receipt.json": "049fca0d7c686dee5176986a2dd3406738c41633ca341ee766c49fd4df1d18e3",
+        "/tmp/e02-executor-base-evidence/callback-spare-worker.inner": "8615fbfd70cc663d5541aa323eb17698573d9692246093bdf67099ce65836bb5",
+        "/tmp/e02-executor-base-independent-review.json": "c1dd04e6407c7c7042f0a3bf02d4e5605742a10199827bb43e18f57b26d9738d",
+        "/tmp/e02-executor-b439.log": "4ce873865d019068bb7e94a6e68bf426a546a416d9f836a3ecd0f16f47a90574",
+        "/tmp/e02-executor-b439-evidence/receipt.json": "d97e3017b156552485916f28080d264eead57e79e3533b93d10ebccb7b17fecc",
+        "/tmp/e02-executor-b439-evidence/callback-spare-worker.inner": "c897aeb0fd16eeb6e28d18749c246f26cea8b5acd6a9b1b8c06dfcbd19113862",
+        "/tmp/e02-executor-b439-evidence/accounting.log": "10743c32362eee98480aa46b7fb0679c3e5651f547bb16e114461438a1f12910",
+        "/tmp/e02-executor-b439-evidence/native.log": "511fb971caf59261241ec2a3919d9d10c7dcb9ec044ee07d50b2db465184f057",
+        "/tmp/e02-executor-b439-evidence/native.xml": "98cc170b74412ce3cd2cfba945f01d1d7abfe5cfe6de0c88f78454a76e07f0c3",
+        "/tmp/e02-executor-base-evidence/B69-navigation.json": "4e2aada18406527f92656246a6173eca0bf42178af32d29803f37a14a0d594c7",
+        "/tmp/e02-adapters-worktree-custody.json": "333bf0f0080db8483368d35de8f10463720bcf802ec7ba29b27f35996c719e0d"
+      },
+      "next_owner": "RUN author Git-transfer complete drivers/stdout/receipts/native/accounting/custody checkpoint. G fetch frozen SHA and rerun named callback consumer or remain bounded residual; no speculative worker/Future redesign requested. Root acceptance separately.",
+      "no_edits": "No production/tests edits, no new worktree/reattach. Only /tmp deciding drivers/evidence written; own adaptersd0eb stays clean."
+    },
+    "artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/G-callback-feedback.json",
+        "sha256": "46954ef683ea614bcbbb0b3e2819d53867c9af340de04227ea7670937b970dcd",
+        "bytes": 14060
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/G-shutdown-feedback.txt",
+        "sha256": "bbd802e49eb33f50f014d68d404b8c286f86b9b58c07331e3d6bfe5c58916a19",
+        "bytes": 3721
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-base/callback-spare-worker.inner",
+        "sha256": "7c060a78adc85366dd1bb9c14695021a2532d43d9c480d5f1da50f2c541dc74a",
+        "bytes": 120
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-base/receipt.json",
+        "sha256": "c6e7b2f04133aa34de95b50ad26880d466f59043506af359c16aa201e2bf9784",
+        "bytes": 6075
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-base.log",
+        "sha256": "ff0fcca37c141cbb6cb099ba5788077510c40a6049ddfc55e78c068b9a1525f5",
+        "bytes": 4811
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-candidate/callback-spare-worker.inner",
+        "sha256": "9ebe7ae65dec84b144b183f837358140b23b5a3e4d789affad84c030dc2206bc",
+        "bytes": 120
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-candidate/receipt.json",
+        "sha256": "5921a9c6a173bce50f1d691d9e3c6a97d638f18b9dc365954bea9f18b7795480",
+        "bytes": 6125
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-candidate.log",
+        "sha256": "0d88080d561ce1e5a85a307800da7fe57c3802157ac1d503e0dafecb85ad9202",
+        "bytes": 4892
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-consumer.log",
+        "sha256": "73a75222aca0d8e1a4de08818f7876fe1c4909600328eb5afeac07848870366d",
+        "bytes": 99
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-consumer.xml",
+        "sha256": "f6d2f59467ca8bf870bc9bb351c2bcfacc03beec2014c177e8a9fc2f7ca828bd",
+        "bytes": 9913
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-native-before.log",
+        "sha256": "d18bfffb04943a35881406ef93b4e2d302e9aebd9016ddbe454e5646fa26880e",
+        "bytes": 1052
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-native.log",
+        "sha256": "d04b8e0ae0c8e41ad7667c601a6ea65ab470c3c5e1cb80f2ff1c08a02d803eeb",
+        "bytes": 758
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/author-native.xml",
+        "sha256": "1e38db4cdf84265df251604aed9463332e461a4e067d43966cf8b8aeb435f606",
+        "bytes": 19805
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-accounting-probe.py",
+        "sha256": "51ab2cac558c34750dca492a5f210057ac2b4affa5ef0741e5ddc7b3ab393e5d",
+        "bytes": 3512
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-base/B69-navigation.json",
+        "sha256": "4e2aada18406527f92656246a6173eca0bf42178af32d29803f37a14a0d594c7",
+        "bytes": 91276
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-base/callback-spare-worker.inner",
+        "sha256": "8615fbfd70cc663d5541aa323eb17698573d9692246093bdf67099ce65836bb5",
+        "bytes": 120
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-base/receipt.json",
+        "sha256": "049fca0d7c686dee5176986a2dd3406738c41633ca341ee766c49fd4df1d18e3",
+        "bytes": 6193
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-base-review.json",
+        "sha256": "c1dd04e6407c7c7042f0a3bf02d4e5605742a10199827bb43e18f57b26d9738d",
+        "bytes": 3843
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-base.log",
+        "sha256": "6d480a04848cb52b3e281563aa5ae497029a2f73324f64cd7407887a039b582f",
+        "bytes": 4827
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate/accounting.log",
+        "sha256": "10743c32362eee98480aa46b7fb0679c3e5651f547bb16e114461438a1f12910",
+        "bytes": 1385
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate/callback-spare-worker.inner",
+        "sha256": "c897aeb0fd16eeb6e28d18749c246f26cea8b5acd6a9b1b8c06dfcbd19113862",
+        "bytes": 120
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate/native.log",
+        "sha256": "511fb971caf59261241ec2a3919d9d10c7dcb9ec044ee07d50b2db465184f057",
+        "bytes": 80
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate/native.xml",
+        "sha256": "98cc170b74412ce3cd2cfba945f01d1d7abfe5cfe6de0c88f78454a76e07f0c3",
+        "bytes": 2283
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate/receipt.json",
+        "sha256": "d97e3017b156552485916f28080d264eead57e79e3533b93d10ebccb7b17fecc",
+        "bytes": 6140
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate-review.json",
+        "sha256": "6ef8d5e659ef6d3d1b782d9238636c87ee4cc8406e6e4e2c40bb45f3441e87f4",
+        "bytes": 11183
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-candidate.log",
+        "sha256": "4ce873865d019068bb7e94a6e68bf426a546a416d9f836a3ecd0f16f47a90574",
+        "bytes": 4833
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/independent-worktree-custody.json",
+        "sha256": "333bf0f0080db8483368d35de8f10463720bcf802ec7ba29b27f35996c719e0d",
+        "bytes": 2366
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/owner-trace.py",
+        "sha256": "ba3e35540205145c8902eb05bc15057518259643b5d79e3e7509db1d2a20337f",
+        "bytes": 1738
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/owner-trace.txt",
+        "sha256": "a5b58a68eff69308e54dd429af69b47fd137e1da6f153e8ecda23df5ccd7dc01",
+        "bytes": 5069
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/probe.py",
+        "sha256": "298dd6fe90fcc7aeda5275638427e5ad04a4f0204768b6923e4c2021ee251f39",
+        "bytes": 9725
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/production-invocation.log",
+        "sha256": "2197dda785948b525e206c29a3f8fade039ca9e921e0a75d943afe1d6e9c8bea",
+        "bytes": 1467
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/property-removal.json",
+        "sha256": "81614b744fa9f46ade7451cc3b6a36e0a3145d1acd322db3553427bd3d53eea4",
+        "bytes": 1267
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-executor-review/remove-lock-order.py",
+        "sha256": "d2edbc492c03ed4d4cb08592686e0e872affe02720174de24e9e85eb17eca8e3",
+        "bytes": 569
+      }
+    ]
   }
 }

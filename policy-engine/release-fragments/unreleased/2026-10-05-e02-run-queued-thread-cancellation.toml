@@ -1,0 +1,17 @@
+id = "2026-10-05-e02-run-queued-thread-cancellation"
+title = "Cancel queued thread computation before execution refusal returns"
+type = "fixed"
+component = "scientist-runtime"
+owner = "team-polisyos"
+summary = "Timed async-to-thread node execution now cancels the underlying concurrent future synchronously on timeout or caller cancellation, preventing an unstarted job from running after the executor has capacity."
+evidence = ["tests/unit/scientist/orchestration/engine/test_retry.py"]
+compatibility = "Retry entrypoints retain their signatures, provider TimeoutError semantics and genuine async attempt behavior."
+change_class = "internal"
+surface_classification = "internal: timed retry thread future ownership"
+migration = "No caller migration. Cancellation of unstarted compute is completed before the wrapper returns refusal."
+api = "No new public entrypoint or persisted format."
+limitations = "A running Python thread cannot be forcibly cancelled; revocable attempt authority still prevents selected owned context writes while arbitrary external effects remain cooperative."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]

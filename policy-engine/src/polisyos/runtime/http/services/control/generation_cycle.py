@@ -779,6 +779,11 @@ async def compile_and_run_recursive_generation_cycle(
     )
     limitations: list[OpenWorldRiskPublicLimitation] = []
     seen_vector_refs: set[str] = set()
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        eligible_n9_source_for_run,
+    )
+
     for leaf in recursive_run.leaf_nodes:
         cycle_run = leaf.cycle_run
         if cycle_run is None:  # pragma: no cover - enforced by RecursiveCycleNode
@@ -795,7 +800,20 @@ async def compile_and_run_recursive_generation_cycle(
                     raise PublicExportRedactionError("open_world_projection_duplicate")
                 seen_vector_refs.add(vector_key)
                 limitations.append(limitation)
-        for receipt_payload in cycle_run.promotion_port.receipts:
+        try:
+            n9_source = eligible_n9_source_for_run(cycle_run)
+        except GenerationCycleError as exc:
+            raise PublicExportRedactionError(
+                exc.code,
+                str(exc),
+            ) from exc
+        if n9_source is None:
+            if cycle_run.promotion_port.receipts:
+                raise PublicExportRedactionError(
+                    "generation_cycle_blocked_before_n9_cannot_supply_receipt"
+                )
+            continue
+        for receipt_payload in n9_source.promotion_port.receipts:
             try:
                 receipt = CanonicalPromotionReceipt.model_validate(receipt_payload)
             except ValueError as exc:
@@ -811,6 +829,7 @@ async def compile_and_run_recursive_generation_cycle(
                 receipt=receipt,
                 resolver=promotion_runtime.resolver,
                 repo_root=repo_root,
+                n9_source=n9_source,
             )
             if limitation is None:
                 continue

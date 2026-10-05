@@ -77,7 +77,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.generation_cycle import (
         CandidateSummary,
-        PromotionPortObservation,
+        N9EligibleRunSource,
         ValueGateReceipt,
     )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -139,7 +139,7 @@ class _PromotionReplaySource:
     candidate: CandidateSummary
     problem: DesignProblem
     value: ValueGateReceipt
-    promotion: PromotionPortObservation
+    n9_source: N9EligibleRunSource
 
 
 class EvaluationSafetyPromotionSourceResolution(BaseModel):
@@ -624,6 +624,7 @@ class EvaluationSafetyPersistenceService:
         from polisyos.runtime.http.services.control.generation_cycle import (
             CompiledRecursiveGenerationCycleRun,
         )
+        from polisyos.runtime.quality.generation_cycle import eligible_n9_source_for_run
 
         inputs_read: list[str] = []
         read_attempts: list[str] = []
@@ -700,6 +701,11 @@ class EvaluationSafetyPersistenceService:
                             raise ValueError("promotion_source_candidate_content_mismatch")
                         if node.design_problem_ref != intake.design_problem_ref:
                             raise ValueError("promotion_source_problem_mismatch")
+                        n9_source = eligible_n9_source_for_run(cycle)
+                        if n9_source is None:
+                            raise ValueError(
+                                "promotion_source_blocked_generation_cycle_cannot_supply_n9_receipt"
+                            )
                         problem = compiled.design_problem
                         if node.design_problem_ref != compiled.design_problem_ref:
                             from polisyos.runtime.quality.generation_source import (
@@ -729,7 +735,7 @@ class EvaluationSafetyPersistenceService:
 
                         receipts = tuple(
                             CanonicalPromotionReceipt.model_validate(payload)
-                            for payload in cycle.promotion_port.receipts
+                            for payload in n9_source.promotion_port.receipts
                             if payload.get("candidate_id") == candidate.candidate_id
                         )
                         if len(receipts) != 1:
@@ -753,8 +759,7 @@ class EvaluationSafetyPersistenceService:
                             raise ValueError("promotion_source_value_world_mismatch")
                         matches.append(_PromotionReplaySource(
                             compiled_ref=compiled_ref, candidate=owner.candidate_summary,
-                            problem=problem, value=value,
-                            promotion=cycle.promotion_port,
+                            problem=problem, value=value, n9_source=n9_source,
                         ))
             except (OSError, KeyError, TypeError, ValueError) as exc:
                 # A member that cannot be read is ambiguous, never silently a zero.
@@ -801,7 +806,7 @@ class EvaluationSafetyPersistenceService:
         try:
             receipts = [
                 CanonicalPromotionReceipt.model_validate(payload)
-                for payload in source.promotion.receipts
+                for payload in source.n9_source.promotion_port.receipts
                 if payload.get("candidate_id") == source.candidate.candidate_id
             ]
             if len(receipts) != 1:
@@ -864,7 +869,7 @@ class EvaluationSafetyPersistenceService:
                 promotion_rule_version=receipt.schema_version,
                 current_open_world_resolver_basis_ref=open_world_ref,
                 current_epoch_resolver_basis_ref=epoch_ref,
-                promotion=source.promotion, candidate_summary=source.candidate,
+                n9_source=source.n9_source, candidate_summary=source.candidate,
                 design_problem=source.problem, value_receipt=source.value,
                 open_world_resolver=sources.promotion_runtime.resolver,
                 epoch_validity_resolver=sources.promotion_runtime.epoch_n9_evidence_resolver,

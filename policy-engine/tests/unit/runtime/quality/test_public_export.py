@@ -116,6 +116,102 @@ def _open_world_problem() -> DesignProblem:
     )
 
 
+def test_terminal_blocked_n6_refuses_public_n9_projection_before_receipt_parse(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleRun,
+        PromotionPortObservation,
+    )
+
+    blocked_run = GenerationCycleRun.model_construct(
+        run_id="blocked-public-projection",
+        terminal_status="blocked",
+        promotion_port=PromotionPortObservation(
+            receipts=({"candidate_id": "grafted"},),
+        ),
+    )
+
+    def receipt_parser_must_not_run(cls, payload):
+        del cls, payload
+        raise AssertionError("blocked N6 reached the public N9 receipt parser")
+
+    monkeypatch.setattr(
+        public_export_module.CanonicalPromotionReceipt,
+        "model_validate",
+        classmethod(receipt_parser_must_not_run),
+    )
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="generation_cycle_blocked_before_n9_cannot_supply_receipt",
+    ):
+        public_export_module.project_promotion_open_world_limitation(
+            run=blocked_run,
+            design_problem=_open_world_problem(),
+            receipt={"candidate_id": "grafted"},
+            resolver=object(),  # type: ignore[arg-type]
+        )
+
+
+@pytest.mark.parametrize(
+    "schema_version",
+    (
+        "policyos.runtime.generation_cycle_controller.v1",
+        "policyos.runtime.generation_cycle_controller.v2",
+    ),
+)
+def test_persisted_historical_n6_cannot_supply_current_n9_receipt(
+    schema_version: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Historical bytes replay, but cannot be promoted into current N9 input."""
+
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleRun,
+        validate_generation_cycle_run_history,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle_history import (
+        _tracked_n6_runs,
+    )
+
+    _tracked_json_file_count, occurrences = _tracked_n6_runs()
+    matching_runs = tuple(
+        row
+        for row in occurrences
+        if row[2].get("schema_version") == schema_version
+    )
+    assert matching_runs, f"no persisted N6 run for historical schema {schema_version}"
+    path, pointer, payload = matching_runs[0]
+    assert validate_generation_cycle_run_history(payload) == (), f"{path}{pointer}"
+    run = GenerationCycleRun.model_validate(payload)
+    assert run.schema_version == schema_version
+
+    parsed_receipts: list[object] = []
+
+    def receipt_parser_must_not_run(cls, receipt_payload):
+        del cls
+        parsed_receipts.append(receipt_payload)
+        raise AssertionError("historical N6 reached the current N9 receipt parser")
+
+    monkeypatch.setattr(
+        public_export_module.CanonicalPromotionReceipt,
+        "model_validate",
+        classmethod(receipt_parser_must_not_run),
+    )
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="generation_cycle_historical_run_not_current_n9_source",
+    ) as error_info:
+        public_export_module.project_promotion_open_world_limitation(
+            run=run,
+            design_problem=_open_world_problem(),
+            receipt={"candidate_id": "must-not-be-parsed"},
+            resolver=object(),  # type: ignore[arg-type]
+        )
+    assert error_info.value.code == "generation_cycle_historical_run_not_current_n9_source"
+    assert parsed_receipts == []
+
+
 def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
         "faithfulness_id": "layer2.s9.faithfulness.public",

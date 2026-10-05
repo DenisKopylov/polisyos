@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_cycle import (
         CandidateSummary,
-        PromotionPortObservation,
+        N9EligibleRunSource,
         ValueGateReceipt,
     )
     from polisyos.runtime.quality.open_world_risk import OpenWorldRiskArtifactResolver
@@ -1701,7 +1701,7 @@ def verify_near_miss_classification(
     promotion_rule_version: str,
     current_open_world_resolver_basis_ref: ArtifactRef,
     current_epoch_resolver_basis_ref: ArtifactRef,
-    promotion: PromotionPortObservation,
+    n9_source: N9EligibleRunSource,
     candidate_summary: CandidateSummary,
     design_problem: DesignProblem,
     value_receipt: ValueGateReceipt,
@@ -1713,14 +1713,36 @@ def verify_near_miss_classification(
     """Produce an opaque post-core classification only after canonical N9 replay."""
 
     from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        N9EligibleRunSource,
+        eligible_n9_source_for_run,
+    )
     from polisyos.runtime.quality.promotion_sequence import (
         CanonicalPromotionReceipt,
         promotion_receipt_allows_decision_front,
         validate_canonical_promotion_receipt,
     )
 
+    if not isinstance(n9_source, N9EligibleRunSource):
+        return None
+    try:
+        rechecked_source = eligible_n9_source_for_run(n9_source.run)
+    except GenerationCycleError:
+        return None
+    if rechecked_source is None or rechecked_source.run is not n9_source.run:
+        return None
+    matching_summaries = tuple(
+        summary
+        for summary in n9_source.run.candidate_summaries
+        if summary.candidate_id == candidate_summary.candidate_id
+        and summary.content_hash == candidate_summary.content_hash
+    )
+    if len(matching_summaries) != 1:
+        return None
+
     parsed_receipts: list[CanonicalPromotionReceipt] = []
-    for payload in promotion.receipts:
+    for payload in n9_source.promotion_port.receipts:
         try:
             parsed = CanonicalPromotionReceipt.model_validate(payload)
         except (TypeError, ValueError):
@@ -1780,7 +1802,7 @@ def verify_near_miss_classification(
     ):
         return None
     safe = promotion_receipt_allows_decision_front(
-        promotion,
+        n9_source.promotion_port,
         candidate_summary,
         design_problem=design_problem,
         open_world_resolver=open_world_resolver,

@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import inspect
 import json
 from datetime import UTC, datetime, timedelta
+from functools import cache
 from pathlib import Path
 from types import SimpleNamespace
-from typing import get_args
+from typing import Any, get_args
 
 import pytest
 from pydantic import BaseModel
@@ -136,6 +138,53 @@ def _request(
         rule_version="transit_lab.eval_safety@1.0.0",
         external_executor_identity_ref=None,
     )
+
+
+@cache
+def _ordinary_completed_n6_for_near_miss() -> Any:
+    """Return one owner-produced ordinary stop without pinning ambient currentness."""
+
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        PendingN8ValuePort,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _budget,
+        _CounterexampleAwareGenerator,
+        _CurrentValidGrounding,
+        _problem,
+    )
+
+    class _OrdinaryStopController(GenerationCycleController):
+        def decide_next_action(self, **kwargs: Any) -> Any:
+            decision = super().decide_next_action(**kwargs)
+            return decision.model_copy(
+                update={"next_action": "stop", "reason": "ordinary_scheduler_stop"}
+            )
+
+    run = asyncio.run(
+        _OrdinaryStopController(
+            generation_port=_CounterexampleAwareGenerator(),
+            grounding_port=_CurrentValidGrounding(),
+            value_port=PendingN8ValuePort(),
+            authority_scope="contract_testing",
+            repo_root=REPO_ROOT,
+        ).run(
+            _problem("promotion_state_injection_source"),
+            budget_state=_budget(),
+            min_cycles=1,
+            max_cycles=1,
+        )
+    )
+    assert run.terminal_status == "completed"
+    assert run.cycles[-1].voi_decision.next_action == "stop"
+    assert run.deployment_identity_status in {"established", "not_established"}
+    if run.deployment_identity_status == "established":
+        assert run.deployment_identity is not None
+    else:
+        assert run.deployment_identity is None
+    return run
 
 
 def _requirement(
@@ -303,6 +352,11 @@ def test_promotion_state_injection_cannot_change_safety_core(
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality import evaluation_safety as es
     from polisyos.runtime.quality import promotion_sequence
+    from polisyos.runtime.quality.generation_cycle import eligible_n9_source_for_run
+
+    n6_run = _ordinary_completed_n6_for_near_miss()
+    candidate_summary = n6_run.candidate_summaries[0]
+    candidate_id = candidate_summary.candidate_id
 
     classification_producer = es.verify_near_miss_classification
 
@@ -400,7 +454,7 @@ def test_promotion_state_injection_cannot_change_safety_core(
         )
 
     projection_hash = _digest("1")
-    candidate_hash = _digest("2")
+    candidate_hash = candidate_summary.content_hash
     value_hash = _digest("3")
     world_hash = _digest("4")
     from polisyos.core import artifacts as core_artifacts
@@ -431,15 +485,21 @@ def test_promotion_state_injection_cannot_change_safety_core(
         projection_hash=projection_hash,
     )
     fake_receipt = SimpleNamespace(
-        candidate_id="candidate-classified",
+        candidate_id=candidate_id,
         owner_projection=owner_projection,
         schema_version="polisyos.promotion.canonical.v1",
         model_dump=lambda **_kwargs: {"receipt": "canonical"},
     )
+    receipt_parse_calls: list[object] = []
+
+    def parse_receipt(_payload: object) -> object:
+        receipt_parse_calls.append(_payload)
+        return fake_receipt
+
     monkeypatch.setattr(
         promotion_sequence,
         "CanonicalPromotionReceipt",
-        SimpleNamespace(model_validate=lambda _payload: fake_receipt),
+        SimpleNamespace(model_validate=parse_receipt),
     )
     monkeypatch.setattr(
         promotion_sequence,
@@ -465,7 +525,7 @@ def test_promotion_state_injection_cannot_change_safety_core(
         gy_content_hash(design_binding.model_dump()),
     )
     value_ref = named_ref("value", "value", value_hash)
-    candidate_ref = named_ref("candidate-classified", "candidate", candidate_hash)
+    candidate_ref = named_ref(candidate_id, "candidate", candidate_hash)
     world_ref = named_ref("wmr", "wmr", world_hash)
     validation_ref = named_ref("validation", "validation", projection_hash)
     offer_values = {
@@ -485,37 +545,56 @@ def test_promotion_state_injection_cannot_change_safety_core(
         **offer_values,
         content_hash=_content_hash_values(offer_values),
     )
-    classification = classification_producer(
-        offer=offer,
-        offer_ref=named_ref("offer", "classification-offer", offer.content_hash),
-        validation_basis_ref=validation_ref,
-        canonical_promotion_input_ref=canonical_input_ref,
-        design_problem_binding_ref=design_ref,
-        value_receipt_ref=value_ref,
-        candidate_ref=candidate_ref,
-        world_model_record_ref=world_ref,
-        promotion_rule_version=fake_receipt.schema_version,
-        current_open_world_resolver_basis_ref=open_ref,
-        current_epoch_resolver_basis_ref=epoch_ref,
-        promotion=SimpleNamespace(receipts=({"receipt": "canonical"},)),
-        candidate_summary=SimpleNamespace(
-            candidate_id="candidate-classified", content_hash=candidate_hash
-        ),
-        design_problem=SimpleNamespace(),
-        value_receipt=SimpleNamespace(
+    n6_run_with_n9_receipt = n6_run.model_copy(
+        update={
+            "promotion_port": n6_run.promotion_port.model_copy(
+                update={"receipts": ({"receipt": "canonical"},)}
+            )
+        }
+    )
+    n9_source = eligible_n9_source_for_run(n6_run_with_n9_receipt)
+    assert n9_source is not None
+    assert n9_source.run.deployment_identity_status == (
+        n6_run_with_n9_receipt.deployment_identity_status
+    )
+    assert n9_source.run.deployment_identity == n6_run_with_n9_receipt.deployment_identity
+    classification_inputs = {
+        "offer": offer,
+        "offer_ref": named_ref("offer", "classification-offer", offer.content_hash),
+        "validation_basis_ref": validation_ref,
+        "canonical_promotion_input_ref": canonical_input_ref,
+        "design_problem_binding_ref": design_ref,
+        "value_receipt_ref": value_ref,
+        "candidate_ref": candidate_ref,
+        "world_model_record_ref": world_ref,
+        "promotion_rule_version": fake_receipt.schema_version,
+        "current_open_world_resolver_basis_ref": open_ref,
+        "current_epoch_resolver_basis_ref": epoch_ref,
+        "n9_source": n9_source,
+        "candidate_summary": candidate_summary,
+        "design_problem": SimpleNamespace(),
+        "value_receipt": SimpleNamespace(
             value_ref=value_hash,
             world_model_record_content_hash=world_hash,
             evaluation_mode=core.evaluation_mode,
         ),
-        open_world_resolver=SimpleNamespace(),
-        epoch_validity_resolver=SimpleNamespace(),
-        core=core,
-    )
+        "open_world_resolver": SimpleNamespace(),
+        "epoch_validity_resolver": SimpleNamespace(),
+        "core": core,
+    }
+    assert classification_producer(
+        **{**classification_inputs, "n9_source": None}
+    ) is None
+    assert receipt_parse_calls == [], "a missing N9 source reached receipt parsing"
+    classification = classification_producer(**classification_inputs)
     assert classification is not None
+    assert receipt_parse_calls == [{"receipt": "canonical"}]
     classified_event = es.build_evaluation_safety_decision_event(
         core=core,
         classification=classification,
     )
+    assert classified_event.safety.status == "blocked"
+    assert classified_event.safety.safety_semantic_hash == core.safety_semantic_hash
     sibling_core = es.decide_evaluation_safety_core(
         intake=intake,
         intake_ref=intake_ref,

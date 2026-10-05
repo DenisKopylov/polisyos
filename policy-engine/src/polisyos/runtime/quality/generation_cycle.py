@@ -1920,6 +1920,86 @@ class GenerationCycleRun(_StrictModel):
         return payload
 
 
+class N9TerminalDisposition(str, Enum):
+    """N6 terminal outcome for candidate consideration by N9."""
+
+    ELIGIBLE_TO_CONTINUE = "eligible_to_continue"
+    TERMINAL_BLOCKED = "terminal_blocked"
+
+
+def n9_terminal_disposition(status: TerminalStatus) -> N9TerminalDisposition:
+    """Classify the typed N6 terminal status for downstream N9 eligibility.
+
+    This disposition only says whether N9 may consider the run's candidates;
+    it grants no promotion authority.
+    """
+
+    if status == "blocked":
+        return N9TerminalDisposition.TERMINAL_BLOCKED
+    if status == "completed":
+        return N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
+    raise ValueError("generation_cycle_terminal_status_not_canonical")
+
+
+_N9_ELIGIBLE_SOURCE_TOKEN = object()
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class N9EligibleRunSource:
+    """Opaque carrier proving a typed N6 run passed candidate semantic checks."""
+
+    run: GenerationCycleRun
+
+    def __init__(self, run: GenerationCycleRun, *, _token: object) -> None:
+        if _token is not _N9_ELIGIBLE_SOURCE_TOKEN:
+            raise ValueError("n9_eligible_source_must_be_issued_by_n6_owner")
+        if n9_terminal_disposition(run.terminal_status) is not (
+            N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
+        ):
+            raise ValueError("generation_cycle_terminal_blocked_before_n9")
+        if "terminal_status" not in run.model_fields_set:
+            raise GenerationCycleError("generation_cycle_terminal_status_not_supplied")
+        issues = validate_generation_cycle_candidate_run(run)
+        if issues:
+            issue_code = str(issues[0].get("code") or "generation_cycle_run_invalid")
+            raise GenerationCycleError(
+                "generation_cycle_run_invalid_before_n9",
+                issue_code,
+            )
+        object.__setattr__(self, "run", run)
+
+    @property
+    def promotion_port(self) -> PromotionPortObservation:
+        """Return the N9 observation carried by the eligible typed run."""
+
+        return self.run.promotion_port
+
+
+def eligible_n9_source_for_run(run: GenerationCycleRun) -> N9EligibleRunSource | None:
+    """Issue an N9 source only after owner candidate-semantic validation.
+
+    A blocked terminal status has no N9 source. A missing status or semantic
+    mismatch raises a typed refusal. Historical v1/v2 runs remain replayable
+    through the history owner but cannot supply current N9 evidence. Candidate-
+    band currentness may remain unknown because this validator does not require
+    deployment authority; N9's own authority gates still decide whether any
+    candidate can be promoted.
+    """
+
+    if type(run) is not GenerationCycleRun:
+        raise TypeError("n9_source_requires_typed_generation_cycle_run")
+    if run.schema_version != GENERATION_CYCLE_SCHEMA_VERSION:
+        raise GenerationCycleError(
+            "generation_cycle_historical_run_not_current_n9_source",
+            run.schema_version,
+        )
+    if n9_terminal_disposition(run.terminal_status) is (
+        N9TerminalDisposition.TERMINAL_BLOCKED
+    ):
+        return None
+    return N9EligibleRunSource(run, _token=_N9_ELIGIBLE_SOURCE_TOKEN)
+
+
 def _historical_generation_cycle_run_projection(
     run: GenerationCycleRun,
 ) -> dict[str, Any]:
@@ -4323,14 +4403,17 @@ class GenerationCycleController:
                     blocked_reason = fake_reason
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
             if (
-                terminal_status != "blocked"
+                n9_terminal_disposition(terminal_status)
+                is not N9TerminalDisposition.TERMINAL_BLOCKED
                 and cycle.voi_decision.next_action == "blocked"
             ):
                 terminal_status = "blocked"
                 blocked_reason = cycle.voi_decision.reason
                 cycle = _blocked_cycle(cycle, reason=blocked_reason)
             acquisition_receipt: AcquisitionReceipt | None = None
-            if terminal_status != "blocked":
+            if n9_terminal_disposition(terminal_status) is not (
+                N9TerminalDisposition.TERMINAL_BLOCKED
+            ):
                 try:
                     planned_route = self._plan_n7_requirement_gap_if_requested(
                         current_problem,
@@ -4364,7 +4447,9 @@ class GenerationCycleController:
             cycles.append(cycle)
             summaries.extend(cycle_summaries)
             last_cycle_problem = current_problem
-            if terminal_status == "blocked":
+            if n9_terminal_disposition(terminal_status) is (
+                N9TerminalDisposition.TERMINAL_BLOCKED
+            ):
                 break
             if cycle.voi_decision.next_action != "advance":
                 break
@@ -4387,7 +4472,9 @@ class GenerationCycleController:
 
         promotion_summaries = _current_candidate_summaries(tuple(summaries))
         promotion_basis_ref = _cycle_basis_ref(cycles[-1]) if cycles else None
-        if terminal_status == "blocked":
+        if n9_terminal_disposition(terminal_status) is (
+            N9TerminalDisposition.TERMINAL_BLOCKED
+        ):
             promotion = PromotionPortObservation(
                 status="not_promoted",
                 reason=(
@@ -6742,10 +6829,14 @@ def _validate_generation_cycle_run(
         if blocked_action_indexes:
             if blocked_action_indexes != (len(run.cycles) - 1,):
                 issues.append({"code": "voi_blocked_action_not_final"})
-            if run.terminal_status != "blocked":
+            if n9_terminal_disposition(run.terminal_status) is not (
+                N9TerminalDisposition.TERMINAL_BLOCKED
+            ):
                 issues.append({"code": "voi_blocked_action_run_terminal_mismatch"})
 
-        if run.terminal_status == "blocked":
+        if n9_terminal_disposition(run.terminal_status) is (
+            N9TerminalDisposition.TERMINAL_BLOCKED
+        ):
             if not run.blocked_reason:
                 issues.append({"code": "generation_cycle_blocked_reason_missing"})
             elif run.cycles:
@@ -6886,7 +6977,8 @@ def _validate_generation_cycle_run(
         if cycle.voi_decision.next_action in {"stop", "escalate"} and index < len(run.cycles) - 1:
             issues.append({"code": "voi_scheduler_ignored_fixed_cycle_count"})
     if (
-        run.terminal_status == "completed"
+        n9_terminal_disposition(run.terminal_status)
+        is N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
         and run.cycles
         and run.cycles[-1].voi_decision.next_action == "advance"
     ):
@@ -6976,7 +7068,8 @@ def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalSt
         )
     if (
         run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION
-        and run.terminal_status != "blocked"
+        and n9_terminal_disposition(run.terminal_status)
+        is N9TerminalDisposition.ELIGIBLE_TO_CONTINUE
         and any(cycle.voi_decision.next_action == "blocked" for cycle in run.cycles)
     ):
         return SearchTerminalState(
@@ -6984,7 +7077,9 @@ def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalSt
             reason="The N6 VOI action is blocked but its enclosing run is not.",
             blocking_obligations=["voi_blocked_action_run_terminal_mismatch"],
         )
-    if run.terminal_status == "blocked":
+    if n9_terminal_disposition(run.terminal_status) is (
+        N9TerminalDisposition.TERMINAL_BLOCKED
+    ):
         reason = run.blocked_reason or "generation_cycle_blocked"
         if reason == "voi_safety_cap_reached_without_scheduler_stop":
             return SearchTerminalState(
@@ -10691,6 +10786,8 @@ __all__ = [
     "LoopVOIDecision",
     "N4GenerationPort",
     "N6SourceCensusGateResult",
+    "N9EligibleRunSource",
+    "N9TerminalDisposition",
     "PendingN8ValuePort",
     "PendingN9PromotionPort",
     "PolicyGroundingPort",
@@ -10704,11 +10801,13 @@ __all__ = [
     "ValuePortObservation",
     "ValueTransportReceipt",
     "currentness_for_generation_cycle_run",
+    "eligible_n9_source_for_run",
     "enforce_no_retry_without_new_grammar",
     "generation_cycle_terminal_state",
     "inspect_n6_source_census",
     "is_value_panel_shape",
     "load_joint_simulation_result",
+    "n9_terminal_disposition",
     "persist_joint_simulation_result",
     "simulation_evaluation_input_ref",
     "simulation_value_execution_context",

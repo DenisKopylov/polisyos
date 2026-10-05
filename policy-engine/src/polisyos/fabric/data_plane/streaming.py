@@ -845,6 +845,51 @@ class StreamWindowAccumulator:
         rows.extend(row for row, _ts in self._sliding_time_rows)
         return sum(_estimate_row_bytes(row) for row in rows)
 
+    def _assert_rows_fit(
+        self,
+        rows: list[dict[str, Any]],
+        *,
+        max_rows: int,
+        max_bytes: int,
+        strategy: BackpressureStrategy,
+    ) -> None:
+        """Check each real retained-state transition before publishing a chunk.
+
+        A closing window can release rows while admitting a new one. Source
+        chunk size therefore cannot substitute for retained operator state.
+        Preview uses the same operator with a restored copy, leaving the live
+        state untouched on refusal. Byte sizes are cached for retained rows;
+        the bounded horizon is scanned without reserializing it for every row.
+        Input chunks and completed emissions have separate memory lifetimes.
+        """
+        preview = StreamWindowAccumulator(self.policy)
+        preview.restore(self.snapshot())
+        byte_sizes: dict[int, int] = {}
+        for row in rows:
+            preview._add_row(row)
+            retained = preview._buffered_row_objects()
+            next_sizes: dict[int, int] = {}
+            retained_bytes = 0
+            for retained_row in retained:
+                row_id = id(retained_row)
+                size = byte_sizes.get(row_id)
+                if size is None:
+                    size = _estimate_row_bytes(retained_row)
+                next_sizes[row_id] = size
+                retained_bytes += size
+            byte_sizes = next_sizes
+            if len(retained) > max_rows or retained_bytes > max_bytes:
+                reason = (
+                    "spill_to_disk backpressure is unsupported without a spill consumer"
+                    if strategy == BackpressureStrategy.SPILL_TO_DISK
+                    else "stream backpressure capacity exceeded"
+                )
+                raise RuntimeError(
+                    f"{reason}; refusing retained window rows={len(retained)} "
+                    f"bytes={retained_bytes} beyond max_buffered_rows={max_rows} "
+                    f"max_buffered_bytes={max_bytes}"
+                )
+
     def _add_row(self, row: dict[str, Any]) -> list[WindowAssignment]:
         strategy = self.policy.strategy
         if strategy == WindowStrategy.COUNT:
@@ -1877,8 +1922,7 @@ async def process_stream_dataset(
                 has_frontier_evidence = (
                     latest_checkpoint.offset > 0
                     or bool(latest_checkpoint.dedupe_keys)
-                    or latest_checkpoint.lifecycle_state
-                    != StreamLifecycleState.ACTIVE
+                    or latest_checkpoint.lifecycle_state != StreamLifecycleState.ACTIVE
                     or any(
                         latest_checkpoint.metadata.get(name)
                         for name in (
@@ -1920,40 +1964,23 @@ async def process_stream_dataset(
         while True:
             buffered_rows = accumulator.buffered_rows()
             buffered_bytes = accumulator.buffered_bytes()
-            if buffered_rows >= processing_contract.backpressure.max_buffered_rows or (
-                buffered_bytes >= processing_contract.backpressure.max_buffered_bytes
+            if processing_contract.backpressure.strategy in {
+                BackpressureStrategy.PAUSE,
+                BackpressureStrategy.THROTTLE,
+            } and (
+                buffered_rows >= processing_contract.backpressure.max_buffered_rows
+                or buffered_bytes >= processing_contract.backpressure.max_buffered_bytes
             ):
                 result.backpressure_events += 1
-                max_backpressure_events = (
-                    processing_contract.backpressure.max_backpressure_events
-                )
+                max_backpressure_events = processing_contract.backpressure.max_backpressure_events
                 if (
                     max_backpressure_events is not None
                     and result.backpressure_events > max_backpressure_events
                 ):
                     raise RuntimeError("stream backpressure event budget exceeded")
-                if (
-                    processing_contract.backpressure.strategy
-                    == BackpressureStrategy.FAIL_CLOSED
-                ):
-                    raise RuntimeError("stream backpressure contract failed closed")
-                if (
-                    processing_contract.backpressure.strategy
-                    == BackpressureStrategy.SPILL_TO_DISK
-                ):
-                    # This runtime has no spill-segment consumer yet.  Continuing
-                    # through the pause path would only defer the same unbounded
-                    # accumulator growth until the next poll, so refuse the
-                    # unsupported capacity explicitly instead of claiming spill.
-                    raise RuntimeError(
-                        "spill_to_disk backpressure is unsupported without a "
-                        "spill consumer; refusing to exceed the stream window "
-                        f"capacity rows={buffered_rows} bytes={buffered_bytes}"
-                    )
                 await session.pause(
                     reason=(
-                        "window buffer above threshold "
-                        f"rows={buffered_rows} bytes={buffered_bytes}"
+                        f"window buffer above threshold rows={buffered_rows} bytes={buffered_bytes}"
                     )
                 )
                 await asyncio.sleep(processing_contract.backpressure.pause_seconds)
@@ -1965,9 +1992,6 @@ async def process_stream_dataset(
 
             result.chunks_processed += 1
             clean_rows: list[dict[str, Any]] = []
-            spill_buffered_rows = buffered_rows
-            spill_buffered_bytes = buffered_bytes
-            clean_rows_bytes = 0
             chunk_warnings: list[str] = []
             chunk_quarantined = 0
             async for batch in iter_record_batches(
@@ -1986,9 +2010,7 @@ async def process_stream_dataset(
                     dedupe_key = resolve_dedupe_key(
                         row,
                         fields=processing_contract.idempotency.key_fields,
-                        missing_key_action=(
-                            processing_contract.idempotency.missing_key_action
-                        ),
+                        missing_key_action=(processing_contract.idempotency.missing_key_action),
                     )
                     if not dedupe_key:
                         result.late_rows_quarantined += 1
@@ -1998,34 +2020,6 @@ async def process_stream_dataset(
                     if dedupe_key in dedupe_seen:
                         result.dedupe_dropped += 1
                         continue
-                    if (
-                        processing_contract.backpressure.strategy
-                        == BackpressureStrategy.SPILL_TO_DISK
-                    ):
-                        row_bytes = _estimate_row_bytes(row)
-                        next_rows = spill_buffered_rows + len(clean_rows) + 1
-                        next_bytes = spill_buffered_bytes + clean_rows_bytes + row_bytes
-                        if (
-                            next_rows
-                            > processing_contract.backpressure.max_buffered_rows
-                        ):
-                            raise RuntimeError(
-                                "spill_to_disk backpressure is unsupported for an "
-                                "oversized input chunk; refusing to materialize "
-                                f"more than max_buffered_rows="
-                                f"{processing_contract.backpressure.max_buffered_rows}"
-                            )
-                        if (
-                            next_bytes
-                            > processing_contract.backpressure.max_buffered_bytes
-                        ):
-                            raise RuntimeError(
-                                "spill_to_disk backpressure is unsupported for an "
-                                "oversized input chunk; refusing to materialize "
-                                f"more than max_buffered_bytes="
-                                f"{processing_contract.backpressure.max_buffered_bytes}"
-                            )
-                        clean_rows_bytes += row_bytes
                     _remember_dedupe_key(dedupe_keys, dedupe_seen, dedupe_key)
                     clean_rows.append(row)
 
@@ -2053,6 +2047,12 @@ async def process_stream_dataset(
             if not clean_rows:
                 continue
 
+            accumulator._assert_rows_fit(
+                clean_rows,
+                max_rows=processing_contract.backpressure.max_buffered_rows,
+                max_bytes=processing_contract.backpressure.max_buffered_bytes,
+                strategy=processing_contract.backpressure.strategy,
+            )
             visible_schema = tuple(sorted({str(key) for row in clean_rows for key in row}))
             declared_schema = (
                 set(schema_binding.schema.field_names()) if schema_binding is not None else set()
@@ -2104,9 +2104,7 @@ async def process_stream_dataset(
                     handling_action,
                 ):
                     result.quarantined_rows += len(clean_rows)
-                    result.warnings.append(
-                        "CDC incompatible breaking change quarantined"
-                    )
+                    result.warnings.append("CDC incompatible breaking change quarantined")
                     persist_quarantine_record(
                         sync_store,
                         record=QuarantineRecord.new(
@@ -2369,9 +2367,7 @@ async def process_stream_dataset(
                         "observed_offset": int(session.last_chunk.chunk_index),
                         "observed_resume_token": session.last_chunk.resume_token,
                         "rows_emitted": frontier_rows,
-                        "processing": processing_contract_snapshot(
-                            processing_contract
-                        ),
+                        "processing": processing_contract_snapshot(processing_contract),
                     },
                 }
             )
@@ -2386,9 +2382,7 @@ async def process_stream_dataset(
         except BaseException as cleanup_exc:
             if primary_exc is None:
                 raise
-            primary_exc.add_note(
-                f"stream session final cleanup failed: {cleanup_exc!r}"
-            )
+            primary_exc.add_note(f"stream session final cleanup failed: {cleanup_exc!r}")
 
 
 async def _persist_stream_chunk_async(

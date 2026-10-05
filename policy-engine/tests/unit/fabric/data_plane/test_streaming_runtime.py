@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import pytest
+
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -647,9 +648,7 @@ async def test_stream_partitions_keep_frontiers_isolated_across_restart(
 
     assert resumed_left.final_checkpoint is not None
     assert resumed_left.final_checkpoint.partition_key == "left"
-    left_cursor = reopened.find_latest_cursor(
-        "stream.jsonl", "shared-events", partition_key="left"
-    )
+    left_cursor = reopened.find_latest_cursor("stream.jsonl", "shared-events", partition_key="left")
     right_cursor = reopened.find_latest_cursor(
         "stream.jsonl", "shared-events", partition_key="right"
     )
@@ -776,8 +775,7 @@ async def test_stream_failure_before_chunk_persistence_replays_dedupe_rows(
 
     stream_path = tmp_path / "pre-chunk-failure.jsonl"
     stream_path.write_text(
-        '{"_message_id":"m1","value":1}\n'
-        '{"_message_id":"m2","value":2}\n',
+        '{"_message_id":"m1","value":1}\n{"_message_id":"m2","value":2}\n',
         encoding="utf-8",
     )
     ConnectorRegistry.reset_instance()
@@ -1129,8 +1127,7 @@ async def test_stream_window_lineage_covers_trigger_and_final_flush(tmp_path: Pa
     stream_path = tmp_path / "trigger-final-lineage.jsonl"
     stream_path.write_text(
         "".join(
-            json.dumps({"_message_id": f"m{index}", "value": index}) + "\n"
-            for index in range(1, 4)
+            json.dumps({"_message_id": f"m{index}", "value": index}) + "\n" for index in range(1, 4)
         ),
         encoding="utf-8",
     )
@@ -1436,10 +1433,13 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
     assert unresolved.metadata["frontier_committed"] is False
     # The pair was cleared before the post-restore failure; the unresolved
     # marker remains the fail-closed guard for recovery.
-    assert cursor_store.find_latest_cursor(
-        "stream.jsonl",
-        "partial-first-frontier",
-    ) is None
+    assert (
+        cursor_store.find_latest_cursor(
+            "stream.jsonl",
+            "partial-first-frontier",
+        )
+        is None
+    )
 
 
 @pytest.mark.asyncio
@@ -2174,7 +2174,7 @@ async def test_process_stream_dataset_propagates_backpressure(tmp_path: Path):
             window_policy=WindowPolicy(
                 strategy=WindowStrategy.SESSION,
                 size=300,
-                session_gap_seconds=300,
+                session_gap_seconds=5,
                 timestamp_field="event_time",
             ),
         ),
@@ -2182,11 +2182,11 @@ async def test_process_stream_dataset_propagates_backpressure(tmp_path: Path):
 
     assert result.rows_emitted == 4
     assert result.backpressure_events >= 1
-    assert len(result.window_refs) == 1
+    assert len(result.window_refs) == 4
 
 
 @pytest.mark.asyncio
-async def test_process_stream_dataset_propagates_byte_backpressure(tmp_path: Path):
+async def test_process_stream_dataset_refuses_retained_byte_overflow(tmp_path: Path):
     stream_path = tmp_path / "byte-backpressure.jsonl"
     stream_path.write_text(
         "\n".join(
@@ -2208,36 +2208,34 @@ async def test_process_stream_dataset_propagates_byte_backpressure(tmp_path: Pat
         ),
     )
 
-    result = await process_stream_dataset(
-        connector_id="stream.jsonl",
-        dataset_id="byte-backpressure",
-        store=FileSystemCAS(tmp_path / ".polisyos"),
-        cursor_store=CursorStore(FileSystemCAS(tmp_path / ".polisyos")),
-        sanitize_rows=_valid_rows,
-        runtime_options=StreamRuntimeOptions(
-            max_buffered_rows=10_000,
-            max_buffered_bytes=1,
-            pause_seconds=0.0,
-            window_policy=WindowPolicy(
-                strategy=WindowStrategy.SESSION,
-                size=300,
-                session_gap_seconds=300,
-                timestamp_field="event_time",
+    with pytest.raises(RuntimeError, match="capacity exceeded"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="byte-backpressure",
+            store=FileSystemCAS(tmp_path / ".polisyos"),
+            cursor_store=CursorStore(FileSystemCAS(tmp_path / ".polisyos")),
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                max_buffered_rows=10_000,
+                max_buffered_bytes=1,
+                pause_seconds=0.0,
+                window_policy=WindowPolicy(
+                    strategy=WindowStrategy.SESSION,
+                    size=300,
+                    session_gap_seconds=300,
+                    timestamp_field="event_time",
+                ),
             ),
-        ),
-        registry=registry,
-    )
-
-    assert result.rows_emitted == 2
-    assert result.backpressure_events >= 1
+            registry=registry,
+        )
 
 
 @pytest.mark.asyncio
-async def test_stream_characterizes_oversized_chunk_crossing_row_and_byte_limits(
+async def test_stream_refuses_oversized_retained_state_before_mutating_live_operator(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Characterize B84: pause is reached only after an oversized chunk is buffered."""
+    """Refuse B84 overflow before live window mutation and frontier publication."""
 
     rows = [
         {
@@ -2290,35 +2288,29 @@ async def test_stream_characterizes_oversized_chunk_crossing_row_and_byte_limits
         observe_buffer_after_add,
     )
     store = FileSystemCAS(tmp_path / ".polisyos")
-    result = await process_stream_dataset(
-        connector_id="stream.jsonl",
-        dataset_id="oversized-chunk",
-        store=store,
-        cursor_store=CursorStore(store),
-        sanitize_rows=_valid_rows,
-        runtime_options=StreamRuntimeOptions(
-            batch_size=1,
-            max_buffered_rows=1,
-            max_buffered_bytes=1,
-            pause_seconds=0.0,
-            window_policy=WindowPolicy(
-                strategy=WindowStrategy.SESSION,
-                size=300,
-                session_gap_seconds=300,
-                timestamp_field="event_time",
+    with pytest.raises(RuntimeError, match="capacity exceeded"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id="oversized-chunk",
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                batch_size=1,
+                max_buffered_rows=1,
+                max_buffered_bytes=1,
+                pause_seconds=0.0,
+                window_policy=WindowPolicy(
+                    strategy=WindowStrategy.SESSION,
+                    size=300,
+                    session_gap_seconds=300,
+                    timestamp_field="event_time",
+                ),
             ),
-        ),
-        registry=registry,
-    )
+            registry=registry,
+        )
 
-    assert result.rows_emitted == 3
-    assert result.backpressure_events >= 1
-    assert observed_buffer
-    assert observed_buffer[0][2] == 3
-    # This is an intentionally non-normative witness: it records the current
-    # pause-after-buffering behavior without claiming a spill implementation.
-    assert observed_buffer[0][0] > 1
-    assert observed_buffer[0][1] > 1
+    assert observed_buffer == []
 
 
 @pytest.mark.asyncio
@@ -2377,9 +2369,7 @@ async def test_stream_spill_to_disk_does_not_silently_buffer_oversized_chunk(
         registry=registry_for_stream(),
     )
     assert control.chunk_refs
-    control_chunk = from_canonical_bytes(
-        control_store.get_bytes(control.chunk_refs[0].artifact_id)
-    )
+    control_chunk = from_canonical_bytes(control_store.get_bytes(control.chunk_refs[0].artifact_id))
     expected_ids = tuple(row["_message_id"] for row in control_chunk["data"])
 
     observed_buffer: list[tuple[int, int, int]] = []
@@ -2501,7 +2491,7 @@ async def test_process_stream_dataset_enforces_backpressure_event_budget(tmp_pat
                 window_policy=WindowPolicy(
                     strategy=WindowStrategy.SESSION,
                     size=300,
-                    session_gap_seconds=300,
+                    session_gap_seconds=5,
                     timestamp_field="event_time",
                 ),
             ),
@@ -2657,8 +2647,7 @@ async def test_bound_optional_presence_does_not_emit_removal_cdc(
 
     assert result.rows_emitted == 2
     cdc_payloads = [
-        from_canonical_bytes(store.get_bytes(ref.artifact_id))
-        for ref in result.cdc_event_refs
+        from_canonical_bytes(store.get_bytes(ref.artifact_id)) for ref in result.cdc_event_refs
     ]
     assert len(cdc_payloads) == 1
     cdc_payload = cdc_payloads[0]
@@ -2694,8 +2683,10 @@ def test_stream_schema_binding_rejects_registry_revision_change() -> None:
     updated_schema = DataSchema(
         schema_id=contract.schema.schema_id,
         version=SchemaVersion(1, 1, 0),
-        fields=contract.schema.fields
-        + (FieldSpec(name="extra", data_type=SchemaType.STRING, presence="optional"),),
+        fields=(
+            *contract.schema.fields,
+            FieldSpec(name="extra", data_type=SchemaType.STRING, presence="optional"),
+        ),
         primary_key=contract.schema.primary_key,
         required_completeness=0.0,
     )

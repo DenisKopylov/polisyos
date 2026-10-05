@@ -93,6 +93,7 @@ from polisyos.runtime.http.services.channel_contracts import (
     validate_runs_channel_data_event,
 )
 from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionWriteContext
+from polisyos.runtime.http.services.human_decisions import HumanDecisionPersistenceError
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 from polisyos.runtime.http.services.run_paper_contracts import (
     RunPaperPacket,
@@ -918,23 +919,29 @@ if router is not None:
         )
         scope = require_access_scope(request)
         request_id = ensure_request_id(request)
-        persisted = resolver.persist_authorized_packet(
-            authority,
-            packet,
-            write_context=HumanDecisionWriteContext(
-                tenant_id=tenant_id,
-                cell_id=run.details.cell_id,
-                run_id=run_id,
-                job_id=f"production-approval-http-{request_id}",
-                trace_id=str(getattr(request.state, "trace_id", None) or f"trace-{request_id}"),
-                span_id=str(getattr(request.state, "span_id", None) or f"span-{request_id}"),
-                parent_span_id=None,
-                owner=scope.user_sub or scope.spiffe_id,
-                requested_execution_profile="governed",
-                effective_execution_profile="governed",
-                effective_mode_ref="runtime://production-approval/http",
-            ),
-        )
+        try:
+            persisted = resolver.persist_authorized_packet(
+                authority,
+                packet,
+                write_context=HumanDecisionWriteContext(
+                    tenant_id=tenant_id,
+                    cell_id=run.details.cell_id,
+                    run_id=run_id,
+                    job_id=f"production-approval-http-{request_id}",
+                    trace_id=str(getattr(request.state, "trace_id", None) or f"trace-{request_id}"),
+                    span_id=str(getattr(request.state, "span_id", None) or f"span-{request_id}"),
+                    parent_span_id=None,
+                    owner=scope.user_sub or scope.spiffe_id,
+                    requested_execution_profile="governed",
+                    effective_execution_profile="governed",
+                    effective_mode_ref="runtime://production-approval/http",
+                ),
+            )
+        except HumanDecisionPersistenceError as exc:
+            raise service_unavailable(
+                "The production approval owner format cannot accept a V2 authority packet",
+                code=exc.code,
+            ) from exc
         approval_packet_ref = {
             "artifact_id": persisted.packet_ref,
             "kind": "runtime.production_approval_packet",

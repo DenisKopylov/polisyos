@@ -1758,6 +1758,22 @@ class HumanDecisionAuthoritySink:
             reconciled_at=reconciled_at,
         )
 
+    def ownership_evidence(
+        self,
+        *,
+        tenant_id: str | None,
+        cell_id: str | None,
+    ) -> Mapping[str, object]:
+        """Read active ownership-format evidence from the supplied runtime store."""
+
+        read_evidence = getattr(self._artifact_store, "ownership_evidence", None)
+        if not callable(read_evidence):
+            raise RuntimeError("artifact_ownership_evidence_unavailable")
+        evidence = read_evidence(tenant_id=tenant_id, cell_id=cell_id)
+        if not isinstance(evidence, Mapping):
+            raise RuntimeError("artifact_ownership_evidence_invalid")
+        return dict(evidence)
+
     def write_authority_artifact(
         self,
         payload: object,

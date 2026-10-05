@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -26,6 +29,7 @@ def simulator() -> PolisySimulator:
         "economics",
         DomainConfig(
             n_agents=10,
+            max_agents=10,
             enabled_mechanisms=("taxation", "transfers", "consumption", "savings"),
         ),
     )
@@ -70,6 +74,7 @@ def test_cmd_train_reports_unsupported_labor_market_profile_as_bridge_pending(
                 "domains": {
                     "economics": {
                         "n_agents": 10,
+                        "max_agents": 10,
                         "enabled_mechanisms": [
                             "taxation",
                             "transfers",
@@ -84,7 +89,7 @@ def test_cmd_train_reports_unsupported_labor_market_profile_as_bridge_pending(
     )
     output_dir = tmp_path / "output"
 
-    cmd_train(
+    exit_code = cmd_train(
         argparse.Namespace(
             config=config_path,
             domain=None,
@@ -98,3 +103,61 @@ def test_cmd_train_reports_unsupported_labor_market_profile_as_bridge_pending(
     assert "Final loss:" not in output
     assert "bridge_pending" in output
     assert "training_composite_profile_unsupported" in output
+    assert exit_code == 1
+    assert not output_dir.exists()
+
+
+def test_module_cli_returns_failure_for_a_blocked_train_request(tmp_path: Path) -> None:
+    """The installed CLI cannot make a typed training blocker look like success."""
+
+    product_root = Path(__file__).resolve().parents[3]
+    config_path = tmp_path / "config.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "domains": {
+                    "economics": {
+                        "n_agents": 10,
+                        "max_agents": 10,
+                        "enabled_mechanisms": [
+                            "taxation",
+                            "transfers",
+                            "consumption",
+                            "savings",
+                        ],
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "output"
+    env = os.environ.copy()
+    src_path = str(product_root / "src")
+    env["PYTHONPATH"] = os.pathsep.join([src_path, env.get("PYTHONPATH", "")]).rstrip(os.pathsep)
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "polisyos.foundry.plugins.cli",
+            "train",
+            "--config",
+            str(config_path),
+            "--n-episodes",
+            "1",
+            "--output",
+            str(output_dir),
+        ],
+        cwd=product_root,
+        env=env,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+
+    assert completed.returncode == 1
+    assert "Training bridge pending." in completed.stdout
+    assert "training_composite_profile_unsupported" in completed.stdout
+    assert "Training complete!" not in completed.stdout
+    assert not output_dir.exists()

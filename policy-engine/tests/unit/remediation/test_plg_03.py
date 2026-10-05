@@ -18,8 +18,10 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.agent_sim import ActorCritic, TrainingConfig, build_temporal_observations
+from polisyos.foundry.contracts.fidelity import FidelityLevel
 from polisyos.foundry.plugins.api import PolisySimulator, TrainingResult
 from polisyos.foundry.plugins.cli import cmd_train
+from polisyos.foundry.plugins.composite import CompositeState
 from polisyos.foundry.plugins.core import DomainConfig, PluginRegistry
 from polisyos.foundry.plugins.economics import EconomicsPlugin
 from polisyos.foundry.plugins.training_adapter import EconomicsTrainingAdapter
@@ -60,6 +62,29 @@ def _tree_delta(before: object, after: object) -> float:
     return float(jnp.sum(jnp.stack(leaves)))
 
 
+def _expected_hard_discrete_consumption(
+    policy: ActorCritic,
+    adapter: EconomicsTrainingAdapter,
+    state: CompositeState,
+    config: TrainingConfig,
+    seed: int,
+) -> jnp.ndarray:
+    """Calculate the one-step Economics consumption implied by a policy action."""
+
+    native_state = adapter.to_native_state(seed=seed, state=state)
+    observations = build_temporal_observations(
+        native_state,
+        horizon=config.horizon,
+        include_expectations=config.include_expectations,
+    )
+    action, _ = policy(observations, deterministic=True)
+    if action.ndim == 2:
+        action = action[:, 0]
+    budget = native_state.agents.wealth + native_state.agents.income
+    consumption = jnp.maximum(jax.nn.sigmoid(action) * budget, 0.01)
+    return jnp.where(native_state.agents.active, consumption, 0.0)
+
+
 def test_native_projection_preserves_economics_wage_and_hours(
     simulator: PolisySimulator,
 ) -> None:
@@ -86,6 +111,7 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     """The bridge must use the native optimizer and expose a learned artifact."""
 
     simulator.initialize(seed=7)
+    training_start_state = simulator.get_state()
     adapter = EconomicsTrainingAdapter.from_composite(
         simulator.get_state(),
         simulator._executor,
@@ -115,6 +141,46 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert result.loss_history
     assert all(jnp.isfinite(jnp.asarray(result.loss_history)))
     assert _tree_delta(initial_policy, result.trained_policy) > 0.0
+
+    initial_action, _ = initial_policy(obs, deterministic=True)
+    trained_action, _ = result.trained_policy(obs, deterministic=True)
+    assert float(jnp.max(jnp.abs(trained_action - initial_action))) > 0.0
+
+    consumer_config = TrainingConfig(
+        n_episodes=1,
+        steps_per_episode=1,
+        horizon=12,
+        ppo_epochs=1,
+        learning_rate=1e-2,
+        fidelity=FidelityLevel.HARD_DISCRETE,
+    )
+    expected_initial_consumption = _expected_hard_discrete_consumption(
+        initial_policy, adapter, training_start_state, consumer_config, seed=7
+    )
+    expected_trained_consumption = _expected_hard_discrete_consumption(
+        result.trained_policy, adapter, training_start_state, consumer_config, seed=7
+    )
+    initial_consumer_state, _ = adapter.run(
+        initial_policy,
+        consumer_config,
+        seed=7,
+        state=training_start_state,
+        n_steps=1,
+    )
+    trained_consumer_state, _ = adapter.run(
+        result.trained_policy,
+        consumer_config,
+        seed=7,
+        state=training_start_state,
+        n_steps=1,
+    )
+    observed_initial_consumption = initial_consumer_state.get_domain("economics").agents.consumption
+    observed_trained_consumption = trained_consumer_state.get_domain("economics").agents.consumption
+    assert jnp.allclose(observed_initial_consumption, expected_initial_consumption)
+    assert jnp.allclose(observed_trained_consumption, expected_trained_consumption)
+    assert (
+        float(jnp.max(jnp.abs(observed_trained_consumption - observed_initial_consumption))) > 0.0
+    )
 
     manifest_payload = from_canonical_bytes(
         FileSystemCAS(tmp_path / "training-output" / "artifacts").get_bytes(
@@ -346,6 +412,33 @@ def test_unsupported_composite_remains_bridge_pending() -> None:
     assert result.trained_policy is None
     assert result.reason is not None
     assert result.reason.code == "training_composite_profile_unsupported"
+
+
+def test_missing_optimizer_stage_remains_typed_bridge_pending() -> None:
+    """A request without PPO updates cannot become a successful training result."""
+
+    registry = PluginRegistry()
+    registry.clear()
+    registry.register(EconomicsPlugin())
+    simulator = PolisySimulator(registry, auto_discover=False)
+    simulator.add_domain("economics", DomainConfig(n_agents=10, max_agents=10))
+
+    result = simulator.train(
+        training_config=TrainingConfig(
+            n_episodes=1,
+            steps_per_episode=2,
+            horizon=12,
+            ppo_epochs=0,
+        ),
+        seed=7,
+    )
+
+    assert result.status == "bridge_pending"
+    assert result.trained_policy is None
+    assert result.loss_history == []
+    assert result.artifact is None
+    assert result.reason is not None
+    assert result.reason.code == "training_update_not_observed"
 
 
 def test_cli_reports_optimizer_loss_and_artifact_without_reward_alias(

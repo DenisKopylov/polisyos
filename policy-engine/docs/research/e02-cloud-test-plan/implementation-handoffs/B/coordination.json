@@ -24,13 +24,23 @@
     "fbc826c5efc7e57c6086fbb7c85fd14a016b1608",
     "ad6f20d83260b65d2f9367fc087c892e7620f507",
     "93b63081c686d1db77938bc6524d41d06bc0db86",
-    "dec491ba682832bd9a3eafc1eb0206eb7d6dc09d"
+    "dec491ba682832bd9a3eafc1eb0206eb7d6dc09d",
+    "2fe743de5f39f0f622db83318a123cb547a67470",
+    "087c84a2d7223971e6faca71b8533f41c56327d7",
+    "75f7648864f541757ba443828f94d6cdf80cc30c",
+    "b34ddfad3b4dbfc4d893a83337769d22ac0c9639"
   ],
-  "candidate_tree_sha": "1d77c474fc68d3518bdd24d10c085806cc166b9a",
+  "candidate_tree_sha": "5ebaba59ec2fd28f8172931a127c21a9d96a1203",
   "branch": "codex/e02-B-coordination",
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/36",
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/b52-oracle-current-checkpoint.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/b52-review515-current-checkpoint.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/cas-alias-base-current-checkpoint.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/cas-alias-fix-current-checkpoint.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/admission-qualifications/transfer-index.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/baseline-navigation.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/output-checkpoint.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/b52-oracle/probe.py",
@@ -81,7 +91,23 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/native-budget-negative.py",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/published-negative.txt",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/review.md"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/llm-review/review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/commands-original.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/control.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/pinned-tool-identity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/prepare-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/prepare-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/remove-B37-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/static-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/transfer-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/metadata-review/unaltered-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/B-preparation-usage.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/b_family_inputs.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/prepare_native_cohort.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/reconcile_b_owners.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/run_native_cohort.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/transfer-index.json"
   ],
   "baseline_cells": [
     {
@@ -4973,6 +4999,14 @@
       "independent_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-alias-review/receipt.json",
       "predicate_basis": "recomputed",
       "finding_closure": "not_established"
+    },
+    {
+      "command": "metadata-review/control.py: actual pinned reconcile unaltered and in-memory B37 row removal; exact argv in metadata-review/summary.json",
+      "target_sha": "75f7648864f541757ba443828f94d6cdf80cc30c",
+      "environment": "Read-only Python3.12 metadata tools on Linux; Git repo /workspace/e02-B-acceptance exact pre-freeze8b14958355d00fa489673528a8bf49cf5442bad0; no pytest/runtime/new worktree",
+      "input_closure": "Complete canonical127 bundle/282 finding TSV rows and six exact remote family head receipts with explicit EXE/CAS ordered overlays and six source points; bindings in summary.json. Metadata-only input, no runtime/closure authority.",
+      "outcome": "PASS",
+      "output": "metadata-review/summary.json and complete unaltered-stdout/remove-B37-stdout/prepare-stdout.txt; original60/25, deletion59/24 with actual missingB37/DUR01 errors. Pre-freeze74files12waves ready, final execution pending."
     }
   ],
   "property": {
@@ -5005,11 +5039,39 @@
     "Cold recovery515054 accepted independently; test-onlyb75 timingmargin and94f source-reselection timestamp oracle reviewed. Final combined nativewave stillpending.",
     "CAS regular output inodekind admission3b2 accepted independently; hostileparent/pathswap/ownerACL/specialbits policy remains bounded. Final remotehead/sourcecleanreceipt is recorded later.",
     "G actualcallbackcapacitycounterexample remains HOLD; admittedunfinishedFuture counter does not track physicalworkeroccupancy duringuserdonecallbacks.",
-    "G NEWshutdownlockcycle rootreviewedstructuralb439 fix; actualindependentruntimepending beforefinalsourcefreeze."
+    "G NEWshutdownlockcycle rootreviewedstructuralb439 fix; actualindependentruntimepending beforefinalsourcefreeze.",
+    "Historical precreation admission is not established for seven detached review/baseline trees: DUR4 qualification@2fe; adapters2 in run-executor-review/independent-worktree-custody.json@8b913; CASbase36 cas-workspace-qualification.json@f1db. Current identity snapshots cannot establish earlier admission; G fresh admitted rerun if that criterion is decisive. Root-provided six writer lanes and acceptance lane remain independently admitted.",
+    "Fresh G467 sameNET01 deadline class deeper reproduced independently on Linux; adapters widening actual absolute budget/publication/accounting commit boundary before final freeze. No physical cancellation/cleanup wall bound claim.",
+    "All25/60 owner/disposition pre-freeze join passes with explicit CAS01/03 scope advertisement warning; final refreshed heads/whole native output still pending. DUR closure_ids B37 is a slice proposal/context, never formal closure from this metadata join."
   ],
   "g_dependency_refresh": {
-    "observed_checkpoint": "15d50bac59d06a3fb010327abf8e0c90f9ccbed0",
-    "base_for_B_branches": "c40d4acae1ce58b597267255026d9356565828fd",
-    "note": "Fetched and reviewed new G HOLD. No A/C protectedsourcechanges at that G checkpoint. CASpathname3b2 independentlyaccepted; RUNshutdownb439 sourceaccepted, runtimeacceptancepending. Callbackcapacity residual actualG/Linuxnegative remains explicit."
+    "schema": "policyos.e02.B_dependency_refresh.v1",
+    "read_at_utc": "2026-10-05T15:56:27.266514+00:00",
+    "previous_checkpoint": "15d50bac59d06a3fb010327abf8e0c90f9ccbed0",
+    "fetched_checkpoint": "46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+    "source_refs": [
+      {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/b-pool-deadline.json@46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+        "git_blob": "4a7cda3cc06067ca598d6228172c90b3eadf8c88",
+        "bytes": 21220,
+        "sha256": "31ab8b564f10fd71a3041c76303eea581688e1c58fb034fd6aad644759a36f7f"
+      },
+      {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-04.json@46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+        "git_blob": "58db9a70c25c0cf563abad8d0f12ec155ff78f28",
+        "bytes": 5162,
+        "sha256": "c5599fb61b5c51a71f8da51ea870e86731bf9616f205b5e26bc3888c08c48c0c"
+      },
+      {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-05-first-pass.md@46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+        "git_blob": "ec458aac18dbbf50e4b230f7dfe93b9de7b2a533",
+        "bytes": 9865,
+        "sha256": "9192ec593212f584f6f2a9a975bbc3cf27390c09b7726c576e6181d2be0d11fa"
+      }
+    ],
+    "new_B_decision": "NET-01 same deadline admission class deeper; actual realpool connector cancellation suppression returns late handles connect/health; cooperative native9pass, propertyFAIL.",
+    "owner": "B/adapters; Cstreaming remains protected",
+    "action": "Widen actual absolute deadline admission quantity before publication; physical cancellation/cleanup drain remains bounded; source/test/receipt followup pending before final freeze.",
+    "input_limit": "Gfullmoderate deciding outputs embedded in tracked receipt; original probe script111b1892776f3317a0e4ea7d59ee1bc4b33236e3bf69990748fb0cc11f399ddd bytes unavailable. Owner independent cloud repro required; original environment macOS/Python3.14.0 distinct from Linux cloud."
   }
 }

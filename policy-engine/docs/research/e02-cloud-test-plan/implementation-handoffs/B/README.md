@@ -61,9 +61,25 @@ remain property FAIL witnesses on exact `0f24d18`; the candidate source and
 independent acceptance are separate exact `515054e` measurements. A successful
 witness process exit does not convert an observed property failure into PASS.
 
-Fetched G checkpoint `15d50bac59d06a3fb010327abf8e0c90f9ccbed0` adds B HOLD
-observations for submit/shutdown lock order, worker occupancy during user done
-callbacks, and CAS archive pathname identity. Canonical RUN/CAS follow-ups are
-pending. Earlier independent positive checks remain source-bound and do not
-settle those new boundaries. The final reconciliation will preserve each
-mechanism, verification, missing-input and semantic-owner residual.
+RUN submit/shutdown lock-order fix `b439fe9` and CAS regular output-entry
+admission `3b2bcc6` passed separate native and independent runtime checks. Four
+occupied user done callbacks still falsify general physical worker availability;
+that measured boundary remains held. Fetched G checkpoint
+`46748d3d0815b48df1e0d5ed39ffcdff4e251435` adds a real NET-01 late-handle
+admission counterexample when a connector suppresses cancellation. The owner
+reproduced it on Linux and is widening the common admission boundary before the
+final source freeze. No physical cleanup deadline is asserted.
+
+Seven detached historical review/baseline worktrees lack saved precreation
+admission: DUR four, adapters two, CAS one. Current identity checkpoints and
+complete evidence bytes remain source-bound, while historical admission is
+`not_established`; G needs a fresh admitted replay if that protocol criterion is
+decisive. See [admission-qualifications](admission-qualifications/), the published
+RUN custody companion and CAS workspace qualification.
+
+[Metadata tools](verification-tools/) explicitly join all25 B bundles/all60 B
+findings and prepare74 whole native files. [Independent metadata control](metadata-review/)
+rejects a missing B37 row even while its declaration remains present. These
+checks establish bookkeeping and input binding; final runtime execution and
+formal finding closure remain separate. CAS01/03 advertisement warnings are
+retained, and no earlier PASS is carried to the final union.

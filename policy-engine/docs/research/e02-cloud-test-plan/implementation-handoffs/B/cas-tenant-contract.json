@@ -469,16 +469,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -516,16 +519,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -560,16 +566,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -604,16 +613,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -648,16 +660,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -692,16 +707,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -739,16 +757,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -786,16 +807,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -832,16 +856,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -900,16 +927,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -982,16 +1012,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -1027,16 +1060,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -1120,16 +1156,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -1166,16 +1205,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -1211,16 +1253,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -1255,16 +1300,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -1301,16 +1349,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -1343,16 +1394,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -1386,16 +1440,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": {
@@ -1438,16 +1495,19 @@
         },
         "production_dataset": "absent in this cloud worktree",
         "fixture_isolation": "pytest tmp_path and driver TemporaryDirectory; intentional same-output export workers; no imposed process/numeric-worker quota",
-        "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
-        "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
-        "sha256": {
-          "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
-          "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
-          "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
-          "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
-          "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
-          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+        "final_snapshot_custody": {
+          "source_ref": "46283ae1cbcaa775cebac51f0361262f64b5b206",
+          "source_tree": "93cde666e1a95970bad1a6875eb9f8ccf6b56714",
+          "sha256": {
+            "policy-engine/src/polisyos/core/artifacts/store.py": "af5b860b31413b53bc084a5cdfce8e980fa071493f57b870ab74881374617e10",
+            "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "992b41e9fb0ae7bdd1d3f9a565fdc9789a6c2c5f1c81cd3567576240aff15055",
+            "policy-engine/tests/unit/core/artifacts/test_import_tenant_context.py": "f9b744c0b89fd21edeed4d1e2aecf3a485ca1abec6c766e0973f7703beb6dedd",
+            "policy-engine/tests/unit/core/artifacts/test_transfer_publication.py": "551610b71b1ce4eaf2577b19f57110031be5af6dd01adcf8b4a6f5ee23da0dfa",
+            "policy-engine/tests/unit/remediation/test_cas_02.py": "f6edafe5a56e2ab114c286bc4077713e2138b3c7393026e32cdbb336cd247226",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/removal_probe.py": "61d2828a145bac69eda154d98fae11ccab048ba6c5c521b57663a36e69b4d16e",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-probes/tenant_intake.py": "db159d5eae156672d6d3fd29a641859a85b6f3889cc78c2c2320ab3b50aca1a0"
+          },
+          "meaning": "Captured once at the final implementation snapshot. These are custody hashes, NOT this check executed source. Executed identity is check.target_sha plus its input_closure source/test/overlay/driver refs and the full deciding log metadata."
         }
       },
       "input_closure": "new native admission test and both committed probe drivers; full existing store/remediation file formatter is separate FAIL",

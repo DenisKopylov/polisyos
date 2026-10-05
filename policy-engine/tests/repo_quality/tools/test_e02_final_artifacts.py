@@ -3,6 +3,7 @@
 import hashlib
 import importlib.util
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -38,6 +39,39 @@ class MemoryGit:
 class ArtifactControls(unittest.TestCase):
     def checker(self, blobs: dict[tuple[str, str], bytes]) -> MODULE.Verifier:
         return MODULE.Verifier(MemoryGit(blobs), "new", "old")
+
+    def test_git_tree_and_empty_path_cannot_supply_file_payload_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "folder").mkdir()
+            (root / "folder/payload").write_bytes(b"actual file payload\n")
+            git = MODULE.Git(root)
+            git.run("init", "-q")
+            git.run("add", "folder/payload")
+            tree = git.run("write-tree").decode().strip()
+            assert git.blob(tree, "folder/payload") == b"actual file payload\n"
+            assert git.blob(tree, "folder") is None
+            assert git.blob(tree, "") is None
+
+    def test_json_pointer_hash_uses_decoded_string_bytes_and_rejects_bad_pointer(self) -> None:
+        owner = MODULE.HANDOFF + "receipt.json"
+        payload = "print('actual source')\n"
+        document = {"source/probe": {"~body": payload}, "outcome": "PASS"}
+        checker = self.checker({("new", owner): json.dumps(document).encode()})
+        claim = {
+            "probe_source_ref": "#/source~1probe/~0body",
+            "probe_source_sha256": hashlib.sha256(payload.encode()).hexdigest(),
+        }
+        checker.walk(claim, owner)
+        assert checker.errors == []
+        assert checker.counts["json_pointer_string_claims_checked"] == 1
+        document["source/probe"]["~body"] += "changed source\n"
+        changed = self.checker({("new", owner): json.dumps(document).encode()})
+        changed.walk(claim, owner)
+        assert any(v["kind"] == "sha256_mismatch" for v in changed.errors)
+        claim["probe_source_ref"] = "#/missing/body"
+        checker.walk(claim, owner)
+        assert any(v["kind"] == "missing_git_reference" for v in checker.errors)
 
     def test_available_filename_is_hashed_as_bytes_before_true_inline_text(self) -> None:
         owner = MODULE.HANDOFF + "receipt.json"

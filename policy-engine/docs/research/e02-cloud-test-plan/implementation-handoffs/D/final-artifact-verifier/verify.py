@@ -66,7 +66,7 @@ class Git:
         key = ref, path
         if key not in self.cache:
             try:
-                self.cache[key] = self.run("show", f"{ref}:{path}")
+                self.cache[key] = self.run("cat-file", "blob", f"{ref}:{path}")
             except subprocess.CalledProcessError:
                 self.cache[key] = None
         return self.cache[key]
@@ -98,6 +98,18 @@ class Verifier:
     def resolve(
         self, value: str, owner: str, pin: str | None = None
     ) -> tuple[str, str, bytes | None, bool]:
+        if value.startswith("#/"):
+            ref = pin or self.target
+            owner_bytes = self.git.blob(ref, owner)
+            try:
+                result = json.loads(owner_bytes)
+                for token in value[2:].split("/"):
+                    key = token.replace("~1", "/").replace("~0", "~")
+                    result = result[int(key)] if isinstance(result, list) else result[key]
+                data = result.encode() if isinstance(result, str) else None
+            except (ValueError, TypeError, KeyError, IndexError):
+                data = None
+            return ref, owner + value, data, False
         raw = value.split("#", 1)[0]
         if "@" in raw:
             raw, pin = raw.rsplit("@", 1)
@@ -143,7 +155,7 @@ class Verifier:
         if not isinstance(value, str):
             return False
         ref, path, data, external = self.resolve(value, owner, pin)
-        if data is None and not PATH.fullmatch(value):
+        if data is None and not PATH.fullmatch(value) and not value.startswith("#/"):
             return False
         signature = ref, path, digest, size, blob
         if signature in self.checked:
@@ -160,6 +172,8 @@ class Verifier:
             )
             return True
         self.counts["available_reference_claims"] += 1
+        if value.startswith("#/"):
+            self.counts["json_pointer_string_claims_checked"] += 1
         if digest is not None:
             actual = hashlib.sha256(data).hexdigest()
             self.counts["sha256_claims_checked"] += 1
@@ -261,6 +275,7 @@ class Verifier:
                         if isinstance(value.get(n), str)
                         and (
                             PATH.fullmatch(value[n])
+                            or value[n].startswith("#/")
                             or (
                                 "\n" not in value[n]
                                 and self.resolve(value[n], owner, pin)[2] is not None

@@ -3,7 +3,8 @@
 G ведёт `codex/e02-integration` от опубликованного `origin/main`:
 `c40d4acae1ce58b597267255026d9356565828fd`, tree
 `897662caf73bd4487f798d66938b74d7abfe753e`. Этот checkpoint фиксирует входы
-и подготовку приёмки. Принятых implementation commits и новых finding closure
+и подготовку приёмки. Решения фиксируются в [checkpoint-01](checkpoint-01.json)
+и [independent review](reviews/2026-10-05-first-pass.md). Новых finding closure
 decisions пока нет. Исследовательский source `6978076…` не является новым
 кандидатом. Протокол исполнения — [HANDOFF](../execution-prompts/HANDOFF.md).
 
@@ -22,7 +23,7 @@ text и index binding; product closure и VM receipt custody остаются
 1 COLLECTION_ERROR). Query `--failures-only --limit 30` имеет 401 совпадение;
 лимит показа не задаёт множество и не определяет владельцев. Владельцы
 берутся из [bundle owners](../execution-organization/bundle-owners.tsv) и
-[finding owners](../execution-organization/finding-owners.tsv). Полный
+[finding owners](../execution-organization/finding-owners.tsv).
 Для transferred source pack F01–F15 получены reports о полном чтении пяти
 раздельных helper-партиций. Эти reports служат intake-навигацией; scientific
 predicates проверяются по source bytes, коду и deciding outputs.

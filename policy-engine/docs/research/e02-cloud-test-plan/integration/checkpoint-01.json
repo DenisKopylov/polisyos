@@ -1,0 +1,109 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-05",
+  "publisher": "G",
+  "integration_sha": "de8600fcb47dde17b8c6f989f91d37b7e07439e7",
+  "integration_parents": [
+    "3178752cc2ce065a0758efecf1d967201c0815e5",
+    "d7705039d1b509fee606d204b60585fcf137dbd8"
+  ],
+  "accepted_slices": [
+    {
+      "unit": "D",
+      "slice": "baseline-map",
+      "fetched_head": "d7705039d1b509fee606d204b60585fcf137dbd8",
+      "implementation_commits": [
+        "d259a0102b143c83b145ad9d1b0e5d128eca72f0"
+      ],
+      "receipt_commit": "d7705039d1b509fee606d204b60585fcf137dbd8",
+      "acceptance": "documentation/navigation only",
+      "independent_reviewers": [
+        "receipt_protocol",
+        "edge_emp_forecast"
+      ],
+      "predicate_basis": "independently_reconciled",
+      "branch_readback": {
+        "map_sha256": "14cee3e4fd1325207e79a0760130d2d1a6f1eeb9e064c9b4d76a3981d7d27c60",
+        "matches_candidate": true,
+        "handoff_candidate_tree_matches": true
+      },
+      "check": {
+        "argv": [
+          "python3",
+          "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/raw/reviews/d-baseline/audit.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+        "env": {
+          "branch_at_execution": "codex/e02-integration",
+          "git_version": "git version 2.49.0",
+          "head_at_execution": "3178752cc2ce065a0758efecf1d967201c0815e5",
+          "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+          "python_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "python_version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+          "tracked_unignored_status_at_receipt": ""
+        },
+        "script_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/raw/reviews/d-baseline/audit.py@sha256:25b222e7387963852680bcc5aab34d81bc2b1d67ee18c2a16c25dd05a72818ad",
+        "exit": 0,
+        "stderr": "",
+        "complete_output_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/raw/reviews/d-baseline/receipt.json@sha256:11848e0a6911b476fe2c0824ff780b7a108e171f7c91cec1fe9ab6dee2b97943",
+        "deciding_summary": {
+          "audit": "PASS",
+          "complete_denominators": {
+            "bundle_owner_rows": 17,
+            "cell_state_counts": {
+              "FAILED": 3,
+              "PASS": 112
+            },
+            "criterion_source_card_field_counts": {
+              "not_established": 38,
+              "present": 7
+            },
+            "distinct_routed_cells": 115,
+            "finding_test_status_counts": {
+              "PASS_BOUNDED": 3,
+              "UNRUN": 42
+            },
+            "ledger_status_counts": {
+              "partial": 45
+            },
+            "owner_rows": 45,
+            "route_grade_counts": {
+              "candidate_unverified": 456
+            },
+            "route_rows": 456,
+            "semantic_adequacy_counts": {
+              "not_established": 456
+            },
+            "source_jobs": 15
+          },
+          "negative_controls": [
+            {
+              "cell_id": "F01-P022",
+              "mutation": "remove one routed cell in-memory",
+              "reason": "cell set differs from complete D route cell set",
+              "result": "REJECTED"
+            },
+            {
+              "attempted_value": "closed",
+              "finding_id": "B114",
+              "mutation": "promote B114 product_closure in-memory",
+              "reason": "B114 finding is promoted to closure",
+              "result": "REJECTED"
+            }
+          ],
+          "product_closure": "not_established"
+        },
+        "availability": "complete locally; ignored raw is not delivered to remote reviewers"
+      },
+      "limitations": [
+        "Raw source archives unavailable.",
+        "Criterion-source-card coverage not established; map accepted only for exact census and source navigation.",
+        "No product tests or scientific finding closure."
+      ]
+    }
+  ],
+  "finding_closures": [],
+  "freeze": "not_frozen; incoming owner queue active",
+  "broad_replay": "UNRUN pending freeze",
+  "main_publication": "not_authorized"
+}

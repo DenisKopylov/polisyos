@@ -198,58 +198,63 @@ class ChainCheckpoint:
         manifest_published = False
         try:
             with _checkpoint_write_lock(path):
-                generation = _checkpoint_generation(path, self.intermediate_state)
-                stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
-                force_encoded = generation is not None
-                payload, sidecars = _serialise_state(
-                    self.intermediate_state,
-                    stem,
-                    force_encoded=force_encoded,
-                )
-                history_payload: dict[str, Any] | None = None
-                if self.history_complete:
-                    history_payload, history_sidecars = _serialise_state(
-                        {"node_results": self.node_results},
+                try:
+                    generation = _checkpoint_generation(path, self.intermediate_state)
+                    stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
+                    force_encoded = generation is not None
+                    payload, sidecars = _serialise_state(
+                        self.intermediate_state,
                         stem,
-                        force_encoded=True,
+                        force_encoded=force_encoded,
                     )
-                    sidecars.update(history_sidecars)
-                data = {
-                    "chain_digest": self.chain_digest,
-                    "completed_fqns": self.completed_fqns,
-                    "completed_node_ids": self.completed_node_ids,
-                    "intermediate_state": payload,
-                    "node_timing_ms": self.node_timing_ms,
-                    "created_at": self.created_at,
-                    "execution_digest": self.execution_digest,
-                    "history_complete": self.history_complete,
-                }
-                if history_payload is not None:
-                    data["node_results"] = history_payload["node_results"]
+                    history_payload: dict[str, Any] | None = None
+                    if self.history_complete:
+                        history_payload, history_sidecars = _serialise_state(
+                            {"node_results": self.node_results},
+                            stem,
+                            force_encoded=True,
+                        )
+                        sidecars.update(history_sidecars)
+                    data = {
+                        "chain_digest": self.chain_digest,
+                        "completed_fqns": self.completed_fqns,
+                        "completed_node_ids": self.completed_node_ids,
+                        "intermediate_state": payload,
+                        "node_timing_ms": self.node_timing_ms,
+                        "created_at": self.created_at,
+                        "execution_digest": self.execution_digest,
+                        "history_complete": self.history_complete,
+                    }
+                    if history_payload is not None:
+                        data["node_results"] = history_payload["node_results"]
 
-                for sidecar_name, arr in sidecars.items():
-                    sidecar_path = path.parent / sidecar_name
-                    published_sidecars.append(sidecar_path)
-                    tmp_sidecar = _tmp_path_for(sidecar_path)
-                    tmp_paths.append(tmp_sidecar)
-                    _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
-                    tmp_paths.remove(tmp_sidecar)
+                    for sidecar_name, arr in sidecars.items():
+                        sidecar_path = path.parent / sidecar_name
+                        published_sidecars.append(sidecar_path)
+                        tmp_sidecar = _tmp_path_for(sidecar_path)
+                        tmp_paths.append(tmp_sidecar)
+                        _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
+                        tmp_paths.remove(tmp_sidecar)
 
-                json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
-                tmp_json = _tmp_path_for(path)
-                tmp_paths.append(tmp_json)
-                # Track the actual publication boundary before directory sync.
-                # A sync error can leave the complete new manifest visible;
-                # deleting its sidecars would turn that uncertainty into loss.
-                _atomic_write_bytes(tmp_json, path, json_bytes, fsync_directory=False)
-                manifest_published = True
-                tmp_paths.remove(tmp_json)
-                _fsync_dir(path.parent)
-                self.checkpoint_path = path
+                    json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                    tmp_json = _tmp_path_for(path)
+                    tmp_paths.append(tmp_json)
+                    # Track the actual publication boundary before directory sync.
+                    # A sync error can leave the complete new manifest visible;
+                    # deleting its sidecars would turn that uncertainty into loss.
+                    _atomic_write_bytes(tmp_json, path, json_bytes, fsync_directory=False)
+                    manifest_published = True
+                    tmp_paths.remove(tmp_json)
+                    _fsync_dir(path.parent)
+                    self.checkpoint_path = path
+                except (OSError, TypeError, ValueError, CheckpointSerializationError):
+                    # Rollback owns these paths until cleanup finishes. A peer
+                    # must not publish a cold manifest reusing them meanwhile.
+                    _cleanup_paths(tmp_paths)
+                    if not manifest_published:
+                        _cleanup_paths(published_sidecars)
+                    raise
         except (OSError, TypeError, ValueError, CheckpointSerializationError) as exc:
-            _cleanup_paths(tmp_paths)
-            if not manifest_published:
-                _cleanup_paths(published_sidecars)
             raise CheckpointSaveError(f"Failed to save checkpoint at {path}: {exc}") from exc
 
     @classmethod

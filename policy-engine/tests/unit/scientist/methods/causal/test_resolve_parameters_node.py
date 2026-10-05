@@ -282,10 +282,15 @@ def test_matching_source_unbound_bundle_reselects_configured_source(tmp_path, mo
     assert first_ref != replay_ref
     for ref in (first_ref, replay_ref):
         manifest = ctx.store.get_manifest(ref.artifact_id)
-        assert [(item.role, item.artifact_id) for item in manifest.inputs] == [
+        assert [(item.role, str(item.artifact_id)) for item in manifest.inputs] == [
             ("causal_graph", str(graph_ref.artifact_id))
         ]
     assert replay.state.params == first.state.params
+    # Keeping the valid v1 artifact cannot authorize a missing current source.
+    db_path.rename(tmp_path / "unavailable.duckdb")
+    unavailable = node.execute(ctx, replay.state.model_copy(deep=True))
+    assert unavailable.status == "skip"
+    assert selections == 1
 
 
 def test_changed_domain_invalidates_bundle_and_idempotency_key(tmp_path) -> None:

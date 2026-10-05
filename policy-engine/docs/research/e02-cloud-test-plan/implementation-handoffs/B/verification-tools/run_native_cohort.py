@@ -47,10 +47,18 @@ print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':pl
                          cwd=repo / "policy-engine", env=env, text=True))
     started = datetime.now(timezone.utc).isoformat()
     clock = time.monotonic()
+    measurement_error = None
     with (args.output / "native.txt").open("wb") as stream:
         run = subprocess.Popen(argv, cwd=repo / "policy-engine", env=env,
                                stdout=stream, stderr=subprocess.STDOUT)
-        _pid, status, usage = os.wait4(run.pid, 0)
+        try:
+            _pid, status, usage = os.wait4(run.pid, 0)
+        except BaseException as error:
+            measurement_error = {"type": type(error).__name__, "message": str(error)}
+            # Reap this measured child before writing a terminal harness receipt.
+            # This does not claim containment of arbitrary descendant sessions.
+            run.kill()
+            _pid, status, usage = os.wait4(run.pid, 0)
         run.returncode = os.waitstatus_to_exitcode(status)
     elapsed = time.monotonic() - clock
     after = {"sha": git("rev-parse", "HEAD"), "tree": git("rev-parse", "HEAD^{tree}"),
@@ -74,12 +82,13 @@ print(json.dumps({'python':sys.version,'executable':sys.executable,'platform':pl
                "input": {"path": str(args.input.resolve()), "sha256": input_sha256,
                          "bytes": len(input_bytes), "hash_basis": "Initial bytes parsed to construct this argv"},
                "resource_policy": "No imposed process or numerical worker quota; isolated test tmp/cache/metrics port.",
-               "outcome": "PASS" if run.returncode == 0 and before == after else "FAIL",
+               "measurement_error": measurement_error,
+               "outcome": "ERROR" if measurement_error else "PASS" if run.returncode == 0 and before == after else "FAIL",
                "scope": "Actual affected native whole-file execution; formal closure, full production and live optional backends not established."}
     (args.output / "wrapper.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps({"exit_code": run.returncode, "wall_s": elapsed,
                       "source_unchanged": before == after, "output": str(args.output)}))
-    return run.returncode or int(before != after)
+    return run.returncode or int(before != after or measurement_error is not None)
 
 
 if __name__ == "__main__":

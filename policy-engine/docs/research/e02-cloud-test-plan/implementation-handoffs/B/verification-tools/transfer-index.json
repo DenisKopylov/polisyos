@@ -1,0 +1,26 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/b_family_inputs.py",
+      "sha256": "325817e9603a44cde3b53429629b6cb08f640dbe5adc400d0acab32499be5559",
+      "bytes": 6692
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/reconcile_b_owners.py",
+      "sha256": "6b3a66a7352d57a669870fa90b04ba7a45f67c60d861a26c90fa135d1088d980",
+      "bytes": 8669
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/prepare_native_cohort.py",
+      "sha256": "5ffd0aa53cd47318c27b455daf1b3f686a4fb2d98b129a7b2bbaddab230dff8c",
+      "bytes": 11713
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/verification-tools/B-preparation-usage.md",
+      "sha256": "aaff25cfd3a1dc8d21f962cc3806296c1956f041ad40f12e08fe9aaaa3e7a0f5",
+      "bytes": 3519
+    }
+  ],
+  "scope": "Read-only immutable Git/TSV metadata input resolution; no collection or runtime execution. Actual finalnativeJUnit remains separate.",
+  "source_note": "Always --repo explicit; ordered overlays and source pins are callerprovided reviewinputs, not inferredclosure."
+}

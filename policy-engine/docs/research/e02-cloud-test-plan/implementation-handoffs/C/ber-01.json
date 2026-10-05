@@ -197,6 +197,14 @@
       "An adapter lying through its typed method identity field or params receives no attribution under the forged identity; registry identity is retained.",
       "kernel_shap_conditional is diagnostic-only because the existing implementation is marginal SHAP, not a conditional estimator.",
       "Marginal aliases continue sharing kernel_shap_marginal computation and its marginal confidence policy."
+    ],
+    "runtime_path": [
+      "Producer: polisyos.berl.service.ExplanationOrchestrator.explain(model, request) selects adapters and creates an ExplanationBundle.",
+      "Artifact: serialize the actual producer result with model_dump(mode='json'); write the JSON to a temporary file, read it back as a record, and preserve schema_version 1.0.0 plus provenance/time fields.",
+      "Canonical profile admission: polisyos.berl.contracts.schema.validate_persisted_explanation_bundle(record) recomputes validation against generated_explanation_bundle_schema() using Draft 2020-12 and FormatChecker before constructing the DTO.",
+      "Runtime bridge and consumer: polisyos.runtime.quality.explanation_reliability._validate_bundle_record(record) returns the validated reliability result or a bundle-invalid WarrantReliabilityIssue.",
+      "Scientist bridge and consumer: polisyos.scientist.validation.phase5_preflight._run_berl_validation(record) returns the validated result or passed=false with display_policy=diagnostic_only.",
+      "Producer identity binding: the effective method ID is taken from the orchestrator adapter-registry key; a mismatching adapter method_id field or params identity does not receive attribution, and unsupported conditional SHAP remains diagnostic-only."
     ]
   },
   "predicate_basis": "recomputed",

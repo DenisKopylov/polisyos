@@ -311,6 +311,41 @@ def test_resumed_append_conditions_real_gp_and_preserves_learned_transforms(
     _emit("restored_append_no_refit", restored, candidate)
 
 
+def test_conditioned_checkpoint_preserves_target_transform_basis_and_posterior(
+    fitted_scene: _Scene,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Saving a fantasy GP must not re-standardize targets against its enlarged corpus."""
+    torch = require_torch()
+    scene = fitted_scene
+    expanded = [*scene.evaluations, replace(_evaluation(scene.space, 8, 0.82), scalar_score=0.7)]
+    uninterrupted = _new(scene.space)
+    with torch.random.fork_rng():
+        torch.manual_seed(107)
+        _assert_candidate(uninterrupted.suggest(scene.evaluations))
+    _forbid_refit(monkeypatch)
+    with torch.random.fork_rng():
+        torch.manual_seed(109)
+        _assert_candidate(uninterrupted.suggest(expanded))
+    _assert_gp_corpus(uninterrupted, expanded)
+    restored = _new(scene.space)
+    restored.set_state(StrategyState.from_artifact(uninterrupted.get_state().to_artifact()))
+    _assert_gp_corpus(restored, expanded)
+    _assert_same_model(uninterrupted._model, restored._model)
+    with torch.random.fork_rng():
+        torch.manual_seed(113)
+        expected_tensor, _ = uninterrupted._optimize_acquisition(
+            uninterrupted._train_y_bo, soft_limit=False, evaluations=expanded
+        )
+        torch.manual_seed(113)
+        candidate = restored.suggest(expanded)
+    _assert_candidate(candidate)
+    assert candidate.params_normalized == pytest.approx(
+        expected_tensor.flatten().tolist(), abs=1e-8
+    )
+    _emit("restored_conditioned_transform_basis", restored, candidate)
+
+
 def test_numerical_restore_oracle_rejects_saved_markers_without_loaded_weights(
     fitted_scene: _Scene,
     monkeypatch: pytest.MonkeyPatch,

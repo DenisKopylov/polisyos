@@ -1,6 +1,6 @@
 # F: передача causal / graph / SCM / economics / Lex
 
-Все 17 назначенных пакетов и 35 уникальных finding представлены в [INDEX.json](INDEX.json). Девять законченных slices опубликованы через отдельные topic branches и draft PR. Implementation commits, candidate trees, receipt heads и SHA256 указаны для каждого slice; код и deciding evidence доступны G через Git. Приёмка G и finding closure ещё не установлены: accepted_finding_closures пуст, B219 held; остальные критерии ограничены явно указанными остатками.
+Все 17 назначенных пакетов и 35 уникальных finding представлены в [INDEX.json](INDEX.json). Девять законченных slices опубликованы через отдельные topic branches и draft PR. Implementation commits, candidate trees, receipt heads и SHA256 указаны для каждого slice; код и deciding evidence доступны G через Git. Приёмка полного F-набора G и finding closure ещё не установлены: accepted_finding_closures пуст, B219 held; остальные критерии ограничены явно указанными остатками.
 
 | Slice | PR | Основное bounded evidence |
 | --- | --- | --- |
@@ -16,7 +16,7 @@
 
 Числа выше относятся к отдельным запускам и перекрывающимся scopes; их нельзя суммировать как уникальный общий test denominator. DoWhy/EconML исключены markers Python3.14 и отсутствуют: SKIP/UNRUN не служат backend witness. Statsmodels и NetworkX проверены в отдельных настоящих locked environments, без shim и изменения общей среды.
 
-[Полная семантическая матрица](F-residual-authority-map.json) содержит по каждому ID missing inputs, semantic owner, authority limit и next action. Это неизменённый ранний snapshot семи receipts; актуальные девять head/tree bindings берутся из INDEX, включая новый Lex tuple snapshot, dtype и common causal outputs. [Независимый исходный audit](receipt-audit.json) и [final delta audit](receipt-audit-delta-approved.json) разделяют исходные и последующие checkpoints. [Remote/PR readback](foundry-index-published-snapshot.json) связывает draft PR с опубликованными heads.
+[Полная семантическая матрица](F-residual-authority-map.json) содержит по каждому ID missing inputs, semantic owner, authority limit и next action. Это неизменённый ранний snapshot семи receipts; актуальные девять head/tree bindings берутся из INDEX, включая Lex tuple snapshot, dtype, common causal outputs и отдельные substantive doc companions CAU/API. [Независимый исходный audit](receipt-audit.json) и [delta audit раннего checkpoint](receipt-audit-delta-approved.json) разделяют исходные и последующие checkpoints. [Ранний remote/PR readback](foundry-index-published-snapshot.json) сохраняет собственные heads; финальный readback и CI evidence указаны в delivery-index receipt.
 
 Изменённые invariants: отказ от неподдержанного окна staggered cohort; соответствие GCM/shared causal declared ports реальным результатам; TMLE cache input binding и immutable fit storage; JAX scalar branch promotion; Lex compared-pack binding и замороженный validated pass plan. API/Foundry/economic-profile slices добавляют native consumer/oracle evidence и сохраняют unresolved bridges, profiles и decisions. Catalog membership, facade identity, pass/report ID и dispatcher success сами по себе не доказывают scientific или institutional authority.
 
@@ -39,3 +39,11 @@ G применяет только принятые implementation commits, с о
 Для data-dependent критериев G связывает локальные admitted bytes, caller/backend, estimand и authority с точным интеграционным candidate SHA и выполняет next action соответствующего finding. Full production inputs остаются локально/read-only. B210 и LA-004/LA-035 требуют principal scope/objective decision; B219 held не снимается установкой backend. C/G проверяют actual installed external/plugin consumers и real caller custody; local literal-import census не покрывает динамические/внешние consumers. Никакая недостающая семантика не выдумывается ради PASS.
 
 Доступная ёмкость составляла шесть прямых субагентов плюс root; использованы все шесть с перераспределением задач. Cloud checks стартовали по готовности без искусственного process/thread/CPU лимита. Root не публикует integration или main; merges, force push и переписывание истории не выполнялись.
+
+## Фактический CI и остатки для G
+
+Полные логи CI с source/merge/job identity переданы в [ci-evidence](ci-evidence/README.md); [manifest](ci-evidence/transfer-manifest.json) связывает Git bytes с исходными логами. Python quality останавливается на import policy до pytest. Canary требует genuine service-principal token; performance/accessibility требуют локальный production catalog. Schema snapshots, OpenAPI dependency receipts, locale/CAS assertions и directory-health/JUnit reporting имеют отдельные FAIL; ownership/introduction не установлены одной красной строкой. SKIP и UNRUN не становятся PASS.
+
+Собственные CAU/API `foundry_docs` gaps исправлены в существующих canonical docs и проверены независимым удалением companion. Полный native DocsGate на новых doc commits остаётся FAIL: freshness exception просрочен, observed violations 10 вместо 0; strict docs build UNRUN после этого отказа. Runtime native checks остаются привязаны к прежним implementation SHA. Новые published heads требуют собственного CI; исторические красные outcomes сохраняются. Никакие exceptions, baselines, credentials или missing production inputs не подменялись.
+
+G уже опубликовал bounded acceptance раннего API runtime (`baada065` / `0c709ea`) в [checkpoint-03](https://github.com/DenisKopylov/polisyos/blob/15d50bac59d06a3fb010327abf8e0c90f9ccbed0/policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-03.json): собственный native run 26 PASS, без LA-020 closure. Это решение сохранено отдельно в INDEX; новые doc/receipt commits API и полный F-набор остаются на приёмке.

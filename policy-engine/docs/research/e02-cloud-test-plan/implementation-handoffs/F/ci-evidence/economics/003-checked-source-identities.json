@@ -1,0 +1,236 @@
+[
+  {
+    "pr": 15,
+    "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+    "name": "Standard PR / Frontend quality",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321206372",
+    "job_id": "111800441948",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800441948",
+    "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "merge_parents_from_checkout": [
+      "e642bb9025a67739c201393acca5712603cb064d",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "a87477cc68fa671ef728cbf15de062cd174cca8c5a84b9f7b9fed703d1e2d792",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111800441948.complete.txt",
+    "full_log_bytes": 287456
+  },
+  {
+    "pr": 15,
+    "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+    "name": "Standard PR / Frontend contract drift",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321206372",
+    "job_id": "111800442457",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442457",
+    "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "merge_parents_from_checkout": [
+      "e642bb9025a67739c201393acca5712603cb064d",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "f50fbd2d4a39ef907ff11200fb1f48fe9168ce3e444b2f761d4579368e246fa0",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111800442457.complete.txt",
+    "full_log_bytes": 69301
+  },
+  {
+    "pr": 15,
+    "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+    "name": "Standard PR / Performance",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321206372",
+    "job_id": "111800442523",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442523",
+    "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "merge_parents_from_checkout": [
+      "e642bb9025a67739c201393acca5712603cb064d",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "1fa3c52175ab89fda658b851c643e0a1309b1fa69e0ad4aa2a29e1339f614763",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111800442523.complete.txt",
+    "full_log_bytes": 80543
+  },
+  {
+    "pr": 15,
+    "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+    "name": "Standard PR / Frontend unit coverage",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321206372",
+    "job_id": "111800442368",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442368",
+    "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "merge_parents_from_checkout": [
+      "e642bb9025a67739c201393acca5712603cb064d",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "d4b2e953a3847a5714ff2f09df32645f8eba7d70d75c451272c02c9202682fcf",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111800442368.complete.txt",
+    "full_log_bytes": 403965
+  },
+  {
+    "pr": 18,
+    "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "name": "Standard PR / Frontend quality",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321831625",
+    "job_id": "111802574400",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574400",
+    "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+    "merge_parents_from_checkout": [
+      "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "36fd1fc21b556a517be61d4acbcc4ecfb854111e823f6ade7fba7c5b1d8a6b83",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802574400.complete.txt",
+    "full_log_bytes": 290405
+  },
+  {
+    "pr": 18,
+    "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "name": "Standard PR / Frontend contract drift",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321831625",
+    "job_id": "111802574428",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574428",
+    "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+    "merge_parents_from_checkout": [
+      "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "69b41241dd9eadaa61ea338d437601e16be021e47f9779655b96210d706a1a74",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802574428.complete.txt",
+    "full_log_bytes": 69383
+  },
+  {
+    "pr": 18,
+    "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "name": "Standard PR / Performance",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321831625",
+    "job_id": "111802574080",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574080",
+    "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+    "merge_parents_from_checkout": [
+      "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "6de48929033707e73b03d3e6e100a7ab466f8660663f8fea6f99022deb82b7b6",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802574080.complete.txt",
+    "full_log_bytes": 79106
+  },
+  {
+    "pr": 18,
+    "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "name": "Standard PR / Frontend unit coverage",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321831625",
+    "job_id": "111802574468",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574468",
+    "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+    "merge_parents_from_checkout": [
+      "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "6ead92f3fab0c2e4ce7a70d7958f98791734aca28a392a16647e1e7a03e78809",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802574468.complete.txt",
+    "full_log_bytes": 395636
+  },
+  {
+    "pr": 19,
+    "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+    "name": "Standard PR / Frontend quality",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321848405",
+    "job_id": "111802650701",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650701",
+    "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+    "merge_parents_from_checkout": [
+      "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "7677e6382a1566c314f921638aa88fc67d2c651d80f9160d38883f2bcc385a72",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802650701.complete.txt",
+    "full_log_bytes": 290417
+  },
+  {
+    "pr": 19,
+    "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+    "name": "Standard PR / Frontend contract drift",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321848405",
+    "job_id": "111802650045",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650045",
+    "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+    "merge_parents_from_checkout": [
+      "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "7f56a6db229e18f68c30355d04e88f22e677c436f4dfc1394775d2f4002b5673",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802650045.complete.txt",
+    "full_log_bytes": 69365
+  },
+  {
+    "pr": 19,
+    "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+    "name": "Standard PR / Performance",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321848405",
+    "job_id": "111802650513",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650513",
+    "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+    "merge_parents_from_checkout": [
+      "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "c54bb9e2edb7f6f8f1370d70de224b2e42a0ae571c1429b344f53461266931d0",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802650513.complete.txt",
+    "full_log_bytes": 80214
+  },
+  {
+    "pr": 19,
+    "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+    "name": "Standard PR / Frontend unit coverage",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37321848405",
+    "job_id": "111802650848",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650848",
+    "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+    "merge_parents_from_checkout": [
+      "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "3c3fa2667d5e2162005a86d334d31c2613a0dd8c5db29cb20a3312e18cee608b",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802650848.complete.txt",
+    "full_log_bytes": 395426
+  },
+  {
+    "pr": 29,
+    "pr_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+    "name": "Standard PR / Test economics",
+    "conclusion": "FAILURE",
+    "status": "COMPLETED",
+    "run_id": "37324581716",
+    "job_id": "111811969133",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811969133",
+    "checked_merge_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+    "merge_parents_from_checkout": [
+      "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "c40d4acae1ce58b597267255026d9356565828fd"
+    ],
+    "full_log_sha256": "e6f899c175ba013de70ef2d05617c6394e205e3377f4f3d527795f79468bfb1c",
+    "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111811969133.complete.txt",
+    "full_log_bytes": 48498
+  }
+]

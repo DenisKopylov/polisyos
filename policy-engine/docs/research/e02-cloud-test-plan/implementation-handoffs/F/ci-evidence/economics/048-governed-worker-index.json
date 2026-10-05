@@ -1,0 +1,18 @@
+[
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+    "blob_sha": "ca4663b1c53fb05d966f39be2686de7112e59df3",
+    "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536",
+    "bytes": 38045,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py"
+  },
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+    "blob_sha": "c02e29a3d44552ba38ded8c14530f5a798e0c40f",
+    "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa",
+    "bytes": 7934,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py"
+  }
+]

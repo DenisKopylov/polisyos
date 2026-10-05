@@ -1,0 +1,272 @@
+[
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-111800440922-job.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111800440922"
+    ],
+    "exit_code": 0,
+    "bytes": 2054,
+    "sha256": "c4ed2e6c37fce38f9941376b34bf1e4d82d46d75d4829c45255ab4b9ae841889",
+    "wall_s": 0.8283005570001478,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-111800440922-full-log.txt",
+    "argv": [
+      "gh",
+      "run",
+      "view",
+      "37321206325",
+      "--job",
+      "111800440922",
+      "--log",
+      "--repo",
+      "DenisKopylov/polisyos"
+    ],
+    "exit_code": 0,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 4.333477058999961,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-111800440690-job.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111800440690"
+    ],
+    "exit_code": 0,
+    "bytes": 3241,
+    "sha256": "2907c63c7c0a799aec8a418555e963e35cd3a349b1a988db30f9e7a0e48b80c6",
+    "wall_s": 0.7264914819998012,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-111800440690-full-log.txt",
+    "argv": [
+      "gh",
+      "run",
+      "view",
+      "37321206325",
+      "--job",
+      "111800440690",
+      "--log",
+      "--repo",
+      "DenisKopylov/polisyos"
+    ],
+    "exit_code": 0,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 4.16299702500055,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-111802572091-job.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111802572091"
+    ],
+    "exit_code": 0,
+    "bytes": 2048,
+    "sha256": "bfeff982c92ddfa40ba425b8f99de6dc3585eb418a218e88792f850477a2e9f9",
+    "wall_s": 0.6997144150000167,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-111802572091-full-log.txt",
+    "argv": [
+      "gh",
+      "run",
+      "view",
+      "37321831696",
+      "--job",
+      "111802572091",
+      "--log",
+      "--repo",
+      "DenisKopylov/polisyos"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 1.973980746000052,
+    "stderr": "run 37321831696 is still in progress; logs will be available when it is complete\n"
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-111802571950-job.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111802571950"
+    ],
+    "exit_code": 0,
+    "bytes": 3235,
+    "sha256": "f8bb702fc2128155f285a7cdd562706a7b3fc5d26aeb6739e06de22d2970e12b",
+    "wall_s": 0.658400299999812,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-111802571950-full-log.txt",
+    "argv": [
+      "gh",
+      "run",
+      "view",
+      "37321831696",
+      "--job",
+      "111802571950",
+      "--log",
+      "--repo",
+      "DenisKopylov/polisyos"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 1.8674757300004785,
+    "stderr": "run 37321831696 is still in progress; logs will be available when it is complete\n"
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-111802631692-job.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111802631692"
+    ],
+    "exit_code": 0,
+    "bytes": 2055,
+    "sha256": "abd6a0ab8265afb92b0696df67ad5550b75f45ed2fc1ed45b15247d9510b4a6f",
+    "wall_s": 0.8566901969998071,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-111802631692-full-log.txt",
+    "argv": [
+      "gh",
+      "run",
+      "view",
+      "37321848468",
+      "--job",
+      "111802631692",
+      "--log",
+      "--repo",
+      "DenisKopylov/polisyos"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 2.059262234999551,
+    "stderr": "run 37321848468 is still in progress; logs will be available when it is complete\n"
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-111802631813-job.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111802631813"
+    ],
+    "exit_code": 0,
+    "bytes": 3242,
+    "sha256": "198f001972677651b3d4ce05e2aef4bfc77b4848b9aa56109b79346e01a3e425",
+    "wall_s": 0.6395559279999361,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-111802631813-full-log.txt",
+    "argv": [
+      "gh",
+      "run",
+      "view",
+      "37321848468",
+      "--job",
+      "111802631813",
+      "--log",
+      "--repo",
+      "DenisKopylov/polisyos"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 1.803843319000407,
+    "stderr": "run 37321848468 is still in progress; logs will be available when it is complete\n"
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321206325.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/runs/37321206325"
+    ],
+    "exit_code": 0,
+    "bytes": 12885,
+    "sha256": "d6fa30e3f8bc2293f1d3a1eb27f385a502aaf4848fe0b0dcf058775cba3cb018",
+    "wall_s": 0.7316709049991914,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321831696.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/runs/37321831696"
+    ],
+    "exit_code": 0,
+    "bytes": 12845,
+    "sha256": "39e39ef5326cb841e126f61068b95154851aa42d96232f16415455bd230367a1",
+    "wall_s": 0.5874061669992443,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321848468.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/runs/37321848468"
+    ],
+    "exit_code": 0,
+    "bytes": 12863,
+    "sha256": "dc3a38483cd12420f39ee1e8c9c22c1bb5081b8ecdab1579b5a60a3cb8cc59d5",
+    "wall_s": 0.6117632850000518,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr-15.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/pulls/15"
+    ],
+    "exit_code": 0,
+    "bytes": 18913,
+    "sha256": "9001ffd73eab3da69713c68a58254ce2d2b418a52d694f87bc474d03003e81d3",
+    "wall_s": 1.1153464539993365,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr-18.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/pulls/18"
+    ],
+    "exit_code": 0,
+    "bytes": 18662,
+    "sha256": "31d040d7c8cf9f7fc0442ed5175b7c1d5e09c1f371666614307ba28e0ea987b5",
+    "wall_s": 1.2068819169999188,
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr-19.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/pulls/19"
+    ],
+    "exit_code": 0,
+    "bytes": 18718,
+    "sha256": "ae99a1918ee546ff04a70115ae8ebc458b672570b043ed900df3c0578cac3049",
+    "wall_s": 3.257696564000071,
+    "stderr": ""
+  }
+]

@@ -1,0 +1,590 @@
+{
+  "schema_version": "e02.F.readonly_ci_cluster_diagnosis.v1",
+  "scope": "Read-only analysis of all 13 FAILURE jobs from the root-provided status snapshot for Performance, Frontend quality, Frontend contract drift, Frontend unit coverage, and Test economics. No source edit, receipt append, remote workflow rerun, installation, or local full gate replay.",
+  "snapshot": {
+    "path": "/workspace/e02-F-receipts/F-pr-status-snapshot.json",
+    "sha256": "f35e5c38d614985d8b127fdf6e98ff37f1673fcaedc4a5c87c5366d830ce9048",
+    "bytes": 53447
+  },
+  "selected_statuses": {
+    "path": "/workspace/e02-F-receipts/ci-economics-selected-jobs.json",
+    "sha256": "4ef297ef84d1a6b2a980e148e7a07338fbd94440e8016b6c0ad0313c76592007",
+    "bytes": 6785
+  },
+  "snapshot_status_boundary": {
+    "selected_status_count": 20,
+    "failed_job_count": 13,
+    "queued_test_economics_jobs": 3,
+    "cancelled_pr29_frontend_or_performance_jobs": 4,
+    "other_statuses": "Queued/cancelled jobs are unmeasured; no PASS claim."
+  },
+  "source_identity": {
+    "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "checked_sources": "Actual actions/checkout merge SHA captured from full job stdout and independently verified via GitHub git/commits API. Workflow run head_sha is the PR head, not the checked source.",
+    "merge_commits": [
+      {
+        "sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+        "parents": [
+          "c40d4acae1ce58b597267255026d9356565828fd",
+          "e642bb9025a67739c201393acca5712603cb064d"
+        ],
+        "tree_sha": "a51d4d9c7151a3a25867adc8c38a1cd4f1f7b008"
+      },
+      {
+        "sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "parents": [
+          "c40d4acae1ce58b597267255026d9356565828fd",
+          "6a6ddfe9542000914bffd6502d72a166c1d33261"
+        ],
+        "tree_sha": "450181a90ce9cc1698b4bcf18896521b564147ec"
+      },
+      {
+        "sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "parents": [
+          "c40d4acae1ce58b597267255026d9356565828fd",
+          "baada065af0aaa4edafb8d53abce5fd797de2c6c"
+        ],
+        "tree_sha": "1c33f0376faa6ff13e76e70e5a91cad216a48b61"
+      },
+      {
+        "sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "parents": [
+          "c40d4acae1ce58b597267255026d9356565828fd",
+          "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42"
+        ],
+        "tree_sha": "f80d2aabdadb85c2a8c44e13205811f217be8ae5"
+      }
+    ],
+    "jobs": [
+      {
+        "pr": 15,
+        "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+        "name": "Standard PR / Frontend quality",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321206372",
+        "job_id": "111800441948",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800441948",
+        "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+        "merge_parents_from_checkout": [
+          "e642bb9025a67739c201393acca5712603cb064d",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "a87477cc68fa671ef728cbf15de062cd174cca8c5a84b9f7b9fed703d1e2d792",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111800441948.complete.txt",
+        "full_log_bytes": 287456
+      },
+      {
+        "pr": 15,
+        "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+        "name": "Standard PR / Frontend contract drift",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321206372",
+        "job_id": "111800442457",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442457",
+        "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+        "merge_parents_from_checkout": [
+          "e642bb9025a67739c201393acca5712603cb064d",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "f50fbd2d4a39ef907ff11200fb1f48fe9168ce3e444b2f761d4579368e246fa0",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111800442457.complete.txt",
+        "full_log_bytes": 69301
+      },
+      {
+        "pr": 15,
+        "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+        "name": "Standard PR / Performance",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321206372",
+        "job_id": "111800442523",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442523",
+        "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+        "merge_parents_from_checkout": [
+          "e642bb9025a67739c201393acca5712603cb064d",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "1fa3c52175ab89fda658b851c643e0a1309b1fa69e0ad4aa2a29e1339f614763",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111800442523.complete.txt",
+        "full_log_bytes": 80543
+      },
+      {
+        "pr": 15,
+        "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+        "name": "Standard PR / Frontend unit coverage",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321206372",
+        "job_id": "111800442368",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442368",
+        "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+        "merge_parents_from_checkout": [
+          "e642bb9025a67739c201393acca5712603cb064d",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "d4b2e953a3847a5714ff2f09df32645f8eba7d70d75c451272c02c9202682fcf",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111800442368.complete.txt",
+        "full_log_bytes": 403965
+      },
+      {
+        "pr": 18,
+        "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+        "name": "Standard PR / Frontend quality",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321831625",
+        "job_id": "111802574400",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574400",
+        "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "merge_parents_from_checkout": [
+          "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "36fd1fc21b556a517be61d4acbcc4ecfb854111e823f6ade7fba7c5b1d8a6b83",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802574400.complete.txt",
+        "full_log_bytes": 290405
+      },
+      {
+        "pr": 18,
+        "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+        "name": "Standard PR / Frontend contract drift",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321831625",
+        "job_id": "111802574428",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574428",
+        "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "merge_parents_from_checkout": [
+          "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "69b41241dd9eadaa61ea338d437601e16be021e47f9779655b96210d706a1a74",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802574428.complete.txt",
+        "full_log_bytes": 69383
+      },
+      {
+        "pr": 18,
+        "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+        "name": "Standard PR / Performance",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321831625",
+        "job_id": "111802574080",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574080",
+        "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "merge_parents_from_checkout": [
+          "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "6de48929033707e73b03d3e6e100a7ab466f8660663f8fea6f99022deb82b7b6",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802574080.complete.txt",
+        "full_log_bytes": 79106
+      },
+      {
+        "pr": 18,
+        "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+        "name": "Standard PR / Frontend unit coverage",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321831625",
+        "job_id": "111802574468",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574468",
+        "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "merge_parents_from_checkout": [
+          "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "6ead92f3fab0c2e4ce7a70d7958f98791734aca28a392a16647e1e7a03e78809",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802574468.complete.txt",
+        "full_log_bytes": 395636
+      },
+      {
+        "pr": 19,
+        "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+        "name": "Standard PR / Frontend quality",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321848405",
+        "job_id": "111802650701",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650701",
+        "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "merge_parents_from_checkout": [
+          "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "7677e6382a1566c314f921638aa88fc67d2c651d80f9160d38883f2bcc385a72",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802650701.complete.txt",
+        "full_log_bytes": 290417
+      },
+      {
+        "pr": 19,
+        "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+        "name": "Standard PR / Frontend contract drift",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321848405",
+        "job_id": "111802650045",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650045",
+        "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "merge_parents_from_checkout": [
+          "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "7f56a6db229e18f68c30355d04e88f22e677c436f4dfc1394775d2f4002b5673",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802650045.complete.txt",
+        "full_log_bytes": 69365
+      },
+      {
+        "pr": 19,
+        "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+        "name": "Standard PR / Performance",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321848405",
+        "job_id": "111802650513",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650513",
+        "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "merge_parents_from_checkout": [
+          "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "c54bb9e2edb7f6f8f1370d70de224b2e42a0ae571c1429b344f53461266931d0",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802650513.complete.txt",
+        "full_log_bytes": 80214
+      },
+      {
+        "pr": 19,
+        "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+        "name": "Standard PR / Frontend unit coverage",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37321848405",
+        "job_id": "111802650848",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650848",
+        "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "merge_parents_from_checkout": [
+          "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "3c3fa2667d5e2162005a86d334d31c2613a0dd8c5db29cb20a3312e18cee608b",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111802650848.complete.txt",
+        "full_log_bytes": 395426
+      },
+      {
+        "pr": 29,
+        "pr_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+        "name": "Standard PR / Test economics",
+        "conclusion": "FAILURE",
+        "status": "COMPLETED",
+        "run_id": "37324581716",
+        "job_id": "111811969133",
+        "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811969133",
+        "checked_merge_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "merge_parents_from_checkout": [
+          "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+          "c40d4acae1ce58b597267255026d9356565828fd"
+        ],
+        "full_log_sha256": "e6f899c175ba013de70ef2d05617c6394e205e3377f4f3d527795f79468bfb1c",
+        "full_log_path": "/workspace/e02-F-receipts/ci-economics/job-111811969133.complete.txt",
+        "full_log_bytes": 48498
+      }
+    ]
+  },
+  "runtime_profile": {
+    "python": "3.14.7 in these hosted jobs, distinct from read-only cloud interpreter 3.14.2",
+    "node": "22.23.3 in frontend jobs; frozen pnpm installation and required dependencies occurred. Local Node24/missing frontend installation is not an explanation of these failures.",
+    "performance_markers": "performance and not quarantine",
+    "do_why_econml_backend_witness": "No backend availability or absence inference was used in this cluster."
+  },
+  "clusters": [
+    {
+      "id": "runtime-fixture-catalog-input",
+      "job_families": [
+        "Performance",
+        "Frontend quality/accessibility"
+      ],
+      "prs": [
+        15,
+        18,
+        19
+      ],
+      "observed_status": "FAILURE",
+      "classification": "Missing required production catalog input in actual runtime fixture startup; no observed performance-timing or F estimator failure before startup.",
+      "performance_runs": [
+        {
+          "pr": 15,
+          "job_id": "111800442523",
+          "pytest_complete_summary": "9 failed, 96 passed, 6 skipped, 6 warnings in 307.72s (0:05:07)",
+          "failed_nodeids": [
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_refresh_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_list_runs_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_incremental_refresh_cycle_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_incremental_refresh_soak_smoke",
+            "tests/performance/test_runtime_hot_paths.py::test_timeline_build_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_lineage_build_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_async_artifact_store_round_trip_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_async_artifact_store_repeated_round_trip_soak_smoke",
+            "tests/performance/test_runtime_hot_paths.py::test_async_artifact_store_concurrent_round_trip_soak_smoke"
+          ]
+        },
+        {
+          "pr": 18,
+          "job_id": "111802574080",
+          "pytest_complete_summary": "9 failed, 96 passed, 6 skipped, 6 warnings in 183.76s (0:03:03)",
+          "failed_nodeids": [
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_refresh_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_list_runs_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_incremental_refresh_cycle_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_incremental_refresh_soak_smoke",
+            "tests/performance/test_runtime_hot_paths.py::test_timeline_build_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_lineage_build_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_async_artifact_store_round_trip_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_async_artifact_store_repeated_round_trip_soak_smoke",
+            "tests/performance/test_runtime_hot_paths.py::test_async_artifact_store_concurrent_round_trip_soak_smoke"
+          ]
+        },
+        {
+          "pr": 19,
+          "job_id": "111802650513",
+          "pytest_complete_summary": "9 failed, 96 passed, 6 skipped, 6 warnings in 232.51s (0:03:52)",
+          "failed_nodeids": [
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_refresh_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_list_runs_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_incremental_refresh_cycle_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_run_index_incremental_refresh_soak_smoke",
+            "tests/performance/test_runtime_hot_paths.py::test_timeline_build_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_lineage_build_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_async_artifact_store_round_trip_hot_path",
+            "tests/performance/test_runtime_hot_paths.py::test_async_artifact_store_repeated_round_trip_soak_smoke",
+            "tests/performance/test_runtime_hot_paths.py::test_async_artifact_store_concurrent_round_trip_soak_smoke"
+          ]
+        }
+      ],
+      "accessibility_result": {
+        "unit_tests": "87 files / 161 tests passed in each run",
+        "browser_e2e": "Playwright config.webServer startup exits 1; browser accessibility result unavailable."
+      },
+      "missing_path": "/home/runner/work/polisyos/polisyos/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "trace": [
+        "tests/performance/test_runtime_hot_paths.py build_runtime_api_env(tmp_path, include_test_client=False)",
+        "Frontend playwright.config.ts webServer -> scripts/serve_fixture_runtime_api.py -> same build_runtime_api_env",
+        "tests/_helpers/runtime_http.py:1394 fallback ControlPlaneService",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py:2232 DatasetCatalogGraph",
+        "src/polisyos/data_forge/domains/catalog/knowledge/store.py:138 -> _fetch_source_identities:982 -> identify:966",
+        "path.is_file false -> ValueError catalog_fetch_source_unreadable"
+      ],
+      "owner_boundary": "C/runtime fixture/service and dataset catalog admission owners; full production input remains local and can only be replayed by G on admitted candidate SHA. Do not loosen identity/admission guard to make CI green.",
+      "introduction_attribution": "NOT_ESTABLISHED; no exact c40 gate replay plus full disjoint input denominator."
+    },
+    {
+      "id": "frontend-generated-openapi-drift",
+      "prs": [
+        15,
+        18,
+        19
+      ],
+      "observed_status": "FAILURE",
+      "command": "uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "classification": "Real byte drift of the generated confidence-ledger-risk-spend example against committed schemas/runtime_api_v1.openapi.json; generator ran in provisioned CI profile.",
+      "actual_diff": {
+        "bound_dependency_count": "1489 committed -> 1490 generated in all three runs",
+        "changed_existing_fields": [
+          "bound_dependency_aggregate_identity",
+          "source_dependency_hash",
+          "projection_hash",
+          "replay_address",
+          "worker_validation_receipt_hash",
+          "worker_validation_receipt_ref"
+        ],
+        "semantic_boundary": "Frozen semantic projection hash, artifact content hash, validator version and empty issue_codes remained equal in deciding example. Existing field/hash updates, not new schema-field addition.",
+        "aggregate_by_pr": {
+          "15": "sha256:cb3a79d687a9c929873c2c8a916462d7d6cc7441e5f85495dd6df6b73aeb4b66",
+          "18": "sha256:303e0954212e1856b7b0759b4fd1d7c81f03f1278c9976386e36ef24ff0178f7",
+          "19": "sha256:cb3a79d687a9c929873c2c8a916462d7d6cc7441e5f85495dd6df6b73aeb4b66"
+        }
+      },
+      "canonical_dependency_boundary": "governed_projections.py validates worker dependency aggregate and projects len(result.dependency_bindings). governed_projection_validation_worker.py instruments owner validation with DependencyTracker, then records repository-loaded modules. Tracker binds actual file bytes, absence, directory listing identities and loaded repository modules, excludes .git/.tmp/.venv/__pycache__/_cache/node_modules. Complete 1490-entry dynamic receipt is not present in the job diff; a selected source search cannot establish zero intersection.",
+      "unmeasured_subsequent_steps": [
+        "Verify architecture and generated-client freshness",
+        "Verify runtime contract fixtures",
+        "Build dashboard"
+      ],
+      "owner_boundary": "C/runtime governed projection/OpenAPI owner. Obtain full dynamic worker receipt and deterministic checked-source regeneration before assigning source causality or fixing artifact.",
+      "introduction_attribution": "UNKNOWN_SOURCE_DEPENDENCY; full dynamic denominator and exact c40 gate replay absent. Not inherited P41."
+    },
+    {
+      "id": "frontend-unit-assertions",
+      "prs": [
+        15,
+        18,
+        19
+      ],
+      "observed_status": "FAILURE",
+      "command": "corepack pnpm run test:coverage",
+      "complete_result": "2 failed / 1926 passed / 2 skipped (1930 tests); 2 failed / 410 passed / 1 skipped (413 files), each run",
+      "failures": [
+        {
+          "node": "src/shared/i18n/parity.test.ts > locale catalogs > freezes the complete quantitative-use declaration set",
+          "observed": "Expected [2879,2879]; actual [2907,2907].",
+          "independent_input_census": {
+            "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+            "canonical_test_constant": 2879,
+            "independently_recomputed_counts": [
+              {
+                "locale": "en",
+                "leaf_count": 2907,
+                "paths_sha256": "3645e6e757ec5726e0eda3880193e38e2ac4c7b075d1951255a3a156e2f908eb",
+                "all_values_string": true,
+                "source": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json"
+              },
+              {
+                "locale": "uk",
+                "leaf_count": 2907,
+                "paths_sha256": "3645e6e757ec5726e0eda3880193e38e2ac4c7b075d1951255a3a156e2f908eb",
+                "all_values_string": true,
+                "source": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json"
+              }
+            ],
+            "original_test_command_replayed": false,
+            "complete_locale_leaf_denominator": true,
+            "attribution": "not_established_no_base_replay"
+          },
+          "scope_boundary": "Recomputed every leaf from immutable PR15 checked en/uk JSON using the canonical collectLeafPairs recursion. This is a source census, not a Vitest replay or remaining quantitative-use assertion verdict.",
+          "owner_boundary": "Frontend i18n declarations and locale author."
+        },
+        {
+          "node": "src/test/evidence/atlasAutomatedEvidenceCapture.test.ts > Atlas automated evidence capture > executes Core put, resolve, lineage, and integrity checks and fails on corruption",
+          "observed": "After real blob overwrite, native Python adapter returns exit1, ok:false, code atlas_evidence_persistence_failed, type ArtifactIntegrityError and message Blob sha256 mismatch...; test expects /integrity verification failed/.",
+          "mechanism": "The native adapter puts the same raw report and/or gets canonical bytes before its report.verify/_assert_verification wrapper. Low-level CAS mismatch can raise early and _fail preserves type and message. The actual failure is consumer error-message contract disagreement; corruption was rejected.",
+          "owner_boundary": "Frontend evidence adapter plus Core/CAS error ABI owners; no weakened integrity assertion."
+        }
+      ],
+      "introduction_attribution": "NOT_ESTABLISHED; repeated identical failures across PRs and unchanged selected direct input blobs are evidence of a common symptom, not P41 proof."
+    },
+    {
+      "id": "pr29-test-economics-ratchet",
+      "pr": 29,
+      "observed_status": "FAILURE",
+      "name_boundary": "CI test-economics reports suite economics and repository directory health; it is not an ECO/FRY statistical estimator test.",
+      "missing_junit": {
+        "reports_parsed": "0 / 3",
+        "test_counts_zero": "The command uses --allow-missing; no measurement/PASS follows from zero counts. Artifact-download errors are continue-on-error and step conclusion success.",
+        "missing_suite_labels": [
+          "runtime-http",
+          "performance",
+          "integration"
+        ]
+      },
+      "failed_step": "Check directory health ratchet",
+      "directory_health": {
+        "complete_verdict": true,
+        "status": "failed",
+        "contract_error_count": 0,
+        "closure_findings": 0,
+        "regressions": [
+          {
+            "check": "directory-health-regression",
+            "detail": "observed=98.35 baseline=100.0",
+            "message": "metric decreased below baseline",
+            "severity": "blocker",
+            "subject": "high_volume_subtree_documentation_coverage_percent"
+          }
+        ],
+        "high_volume_subtree_complete_denominator": 182,
+        "documented": 179,
+        "undocumented_complete_subset": [
+          {
+            "documented": false,
+            "immediate_child_directory_count": 2,
+            "path": "docs/plans/active/agent-packages",
+            "tracked_file_count": 239
+          },
+          {
+            "documented": false,
+            "immediate_child_directory_count": 3,
+            "path": "docs/superpowers/journals/acquisition-movement",
+            "tracked_file_count": 20
+          },
+          {
+            "documented": false,
+            "immediate_child_directory_count": 0,
+            "path": "tests/unit/remediation",
+            "tracked_file_count": 87
+          }
+        ],
+        "coverage_percent": 98.35,
+        "configured_baseline": 100,
+        "input_boundary": "tracked repository-file census and configured local documentation/directory filesystem checks; complete result artifact retained."
+      },
+      "unmeasured_subsequent_step": "Render test ratchet summary skipped",
+      "owner_boundary": "Documentation of the three actual high-volume directories; tests/unit/remediation includes F work and needs owner coordination. Do not weaken baseline/threshold.",
+      "introduction_attribution": "NOT_ESTABLISHED; broad directory-health input set includes topic changes and no exact c40 replay. Not inherited P41."
+    }
+  ],
+  "source_inputs": {
+    "selected_canonical_index": {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/index.json",
+      "sha256": "32f0c41db6f98c469bf2d1f57338fc568433d54623d8637ab58195c18f2c0acc",
+      "bytes": 23247
+    },
+    "selected_records": 48,
+    "selected_distinct_paths": 12,
+    "same_selected_blob_across_all_four_checked_merges": true,
+    "complete_gate_denominator": false,
+    "additional_indexes": [
+      {
+        "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/extended-index.json",
+        "sha256": "006fb81136399d5d34fbf1d68000edbd65174ffe8d0177ba65e36a4c4aa36d4b",
+        "bytes": 2365
+      },
+      {
+        "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/extended-additional-index.json",
+        "sha256": "aea9cfb9d94e129515f21d46b487ada382c5706f9adb9ee5ffea491c9831293a",
+        "bytes": 2029
+      },
+      {
+        "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/governed-projection-index.json",
+        "sha256": "1787fce964bf5adf20de28627c7b4ac8f03f9c8e028cfeb0051329462abad4fa",
+        "bytes": 492
+      },
+      {
+        "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/governed-worker-index.json",
+        "sha256": "80f7a1651e3da2bd6d35d19c91adeb6a55f75376515dee894d7bca3fa9b95c6f",
+        "bytes": 1076
+      }
+    ]
+  },
+  "artifact": {
+    "id": 11352910341,
+    "name": "test-economics-summary",
+    "zip": {
+      "path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-summary.zip",
+      "sha256": "28917e793b36ca1f487c91862da8913e5995771d693dbd9ee8303b71a711b6b4",
+      "bytes": 6156
+    },
+    "directory_health_json": {
+      "path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-artifact/last-mile/directory-health.json",
+      "sha256": "f6831f02a12d2cb0820caaf212dc114d03a70756c4c94fd5f2d088aa68a73be2",
+      "bytes": 39229
+    },
+    "directory_health_md": {
+      "path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-artifact/last-mile/directory-health.md",
+      "sha256": "af51f058028a7e102dfba3d6dfeb3cda5776c341ba580275dcb15873b9bab3c3",
+      "bytes": 3157
+    },
+    "test_economics_summary_md": {
+      "path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-artifact/test-reports/test-economics-summary.md",
+      "sha256": "4546b310e3d79719dc22ea0ac3b339c69bb296fdfa61ced9b60ede4db34d836c",
+      "bytes": 549
+    }
+  },
+  "verdict": {
+    "F_estimator_or_scalar_dtype_regression_observed": false,
+    "F_own_source_regression_excluded": false,
+    "gate_pass": false,
+    "inherited_P41": false,
+    "reason": "Logs establish input/startup, generated artifact, consumer assertion and documentation causes. Source ownership/introduction needs complete exact-base replay and denominator. The original topic heads and own implementation receipts remain frozen; no task request for source remediation yet."
+  }
+}

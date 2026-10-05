@@ -1,0 +1,116 @@
+[
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-merge-commit.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/git/commits/8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+    ],
+    "exit_code": 0,
+    "bytes": 2640,
+    "sha256": "7f2757feeb20bb66ad11cdf8213925a237532c80015dd3e8c3db724328dae8ef",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-changed-files.json",
+    "argv": [
+      "gh",
+      "api",
+      "--paginate",
+      "repos/DenisKopylov/polisyos/pulls/15/files"
+    ],
+    "exit_code": 0,
+    "bytes": 66210,
+    "sha256": "3c6576c39c6fae4bbe03240b7da15d3364c0007ca9613a5abd4748ef7eed7647",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-check-annotations.json",
+    "argv": [
+      "gh",
+      "api",
+      "--paginate",
+      "repos/DenisKopylov/polisyos/check-runs/111800440922/annotations"
+    ],
+    "exit_code": 0,
+    "bytes": 1337,
+    "sha256": "15451db57c41944255ff4545f2b54aeb5489e6ff60cb047b4faf38f7ec2d9095",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-merge-commit.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/git/commits/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225"
+    ],
+    "exit_code": 0,
+    "bytes": 2640,
+    "sha256": "ebfdc11edf04fa920e973442db1db18593c1b73ae78418daa09728aee4eca7fd",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-changed-files.json",
+    "argv": [
+      "gh",
+      "api",
+      "--paginate",
+      "repos/DenisKopylov/polisyos/pulls/18/files"
+    ],
+    "exit_code": 0,
+    "bytes": 70463,
+    "sha256": "d9795fdfad32d7181e139a0f2302b7d742d6f416c1690bb6a3690caa69a9f74c",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-check-annotations.json",
+    "argv": [
+      "gh",
+      "api",
+      "--paginate",
+      "repos/DenisKopylov/polisyos/check-runs/111802572091/annotations"
+    ],
+    "exit_code": 0,
+    "bytes": 1337,
+    "sha256": "4cfea05117f6947e350eecfae90f56510770bf30d6f429a11c61d50e139eddb1",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-merge-commit.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/git/commits/674146c9053dc61b9db08bd88d16a76f7cdf51eb"
+    ],
+    "exit_code": 0,
+    "bytes": 2640,
+    "sha256": "509ff3a37e3950fade076157019a3f69d8c9f404d59350d01407b34e85a5fd39",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-changed-files.json",
+    "argv": [
+      "gh",
+      "api",
+      "--paginate",
+      "repos/DenisKopylov/polisyos/pulls/19/files"
+    ],
+    "exit_code": 0,
+    "bytes": 33397,
+    "sha256": "9c7ddb22351ecba845848fc38ebd15fe5da7924968e1da9b418e3eb93d337cff",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-check-annotations.json",
+    "argv": [
+      "gh",
+      "api",
+      "--paginate",
+      "repos/DenisKopylov/polisyos/check-runs/111802631692/annotations"
+    ],
+    "exit_code": 0,
+    "bytes": 1337,
+    "sha256": "4f05b04513bdf18ea7e49890ac0abe455a603471dad10a5fe8e6c5ca8429f524",
+    "stderr": ""
+  }
+]

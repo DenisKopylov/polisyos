@@ -1,0 +1,310 @@
+{
+  "baseline": "c40d4acae1ce58b597267255026d9356565828fd",
+  "source_denominator_file": "/workspace/e02-F-receipts/fit-ci-schema-abi/base-c40-source-denominator.json",
+  "source_denominator_sha256": "acc9e04fbcd5cb09137baee0177d3b79c0dc9114c44367a05ba348e38f313b76",
+  "complete_registry_count": 101,
+  "denominator_count": 961,
+  "basis": "same complete native c40gen-schema invocation with854 observed sourceexecs,961 tracked readinputs,7814 literal ASTimport rows; static directclass registry separately; this is finite-source evidence not future arbitrary dynamic dispatch",
+  "comparisons": [
+    {
+      "pr": 15,
+      "head": "e642bb9025a67739c201393acca5712603cb064d",
+      "changed_path_count": 6,
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-candidate-deciding.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-mask-removal.txt",
+        "policy-engine/src/polisyos/foundry/plugins/README.md",
+        "policy-engine/tests/unit/remediation/test_eco_01.py",
+        "policy-engine/tests/unit/remediation/test_fry_03.py"
+      ],
+      "full_observed_schema_input_intersection": [],
+      "current_schema_abi_snapshot_status": [
+        {
+          "name": "Fast PR / Schema snapshots",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440922"
+        },
+        {
+          "name": "Fast PR / ABI drift",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440690"
+        }
+      ]
+    },
+    {
+      "pr": 18,
+      "head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "changed_path_count": 9,
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "policy-engine/tests/unit/remediation/test_cau_02.py"
+      ],
+      "full_observed_schema_input_intersection": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py"
+      ],
+      "current_schema_abi_snapshot_status": [
+        {
+          "name": "Fast PR / Schema snapshots",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572091"
+        },
+        {
+          "name": "Fast PR / ABI drift",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802571950"
+        }
+      ]
+    },
+    {
+      "pr": 19,
+      "head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "changed_path_count": 5,
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "full_observed_schema_input_intersection": [],
+      "current_schema_abi_snapshot_status": [
+        {
+          "name": "Fast PR / Schema snapshots",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631692"
+        },
+        {
+          "name": "Fast PR / ABI drift",
+          "status": "COMPLETED",
+          "conclusion": "FAILURE",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631813"
+        }
+      ]
+    },
+    {
+      "pr": 20,
+      "head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "changed_path_count": 6,
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+        "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+        "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+        "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+      ],
+      "full_observed_schema_input_intersection": [],
+      "current_schema_abi_snapshot_status": [
+        {
+          "name": "Fast PR / Schema snapshots",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811931253"
+        },
+        {
+          "name": "Fast PR / ABI drift",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811931534"
+        }
+      ]
+    },
+    {
+      "pr": 21,
+      "head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "changed_path_count": 20,
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-frozen-tests.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-removed-controls.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-invocation.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-selector-error.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-removal.txt",
+        "policy-engine/release-fragments/unreleased/2026-10-05-lex-impact-input-binding.toml",
+        "policy-engine/src/polisyos/core/components/_cli_lex.py",
+        "policy-engine/src/polisyos/lex/legal_evaluation/README.md",
+        "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+        "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+      ],
+      "full_observed_schema_input_intersection": [],
+      "current_schema_abi_snapshot_status": [
+        {
+          "name": "Fast PR / Schema snapshots",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034607/job/111823102195"
+        },
+        {
+          "name": "Fast PR / ABI drift",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034607/job/111823101947"
+        }
+      ]
+    },
+    {
+      "pr": 23,
+      "head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "changed_path_count": 10,
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-contract-targeted.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-oracle.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-targeted.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-independent-review.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-targeted.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+        "policy-engine/tests/unit/remediation/test_scm_02.py"
+      ],
+      "full_observed_schema_input_intersection": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py"
+      ],
+      "current_schema_abi_snapshot_status": [
+        {
+          "name": "Fast PR / Schema snapshots",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047535/job/111812226440"
+        },
+        {
+          "name": "Fast PR / ABI drift",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047535/job/111812226307"
+        }
+      ]
+    },
+    {
+      "pr": 26,
+      "head": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "changed_path_count": 12,
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/.gitignore",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/base-probes.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/consumer-regression.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-adversarial.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/native-frozen.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/removal-controls.txt",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+      ],
+      "full_observed_schema_input_intersection": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py"
+      ],
+      "current_schema_abi_snapshot_status": [
+        {
+          "name": "Fast PR / Schema snapshots",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919936/job/111822282722"
+        },
+        {
+          "name": "Fast PR / ABI drift",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919936/job/111822282742"
+        }
+      ]
+    },
+    {
+      "pr": 29,
+      "head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "changed_path_count": 7,
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-removal.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json",
+        "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+        "policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py"
+      ],
+      "full_observed_schema_input_intersection": [
+        "policy-engine/src/polisyos/foundry/agent_sim/distributions.py"
+      ],
+      "current_schema_abi_snapshot_status": [
+        {
+          "name": "Fast PR / Schema snapshots",
+          "status": "COMPLETED",
+          "conclusion": "CANCELLED",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581446/job/111811925650"
+        },
+        {
+          "name": "Fast PR / Schema snapshots",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592706/job/111822628864"
+        },
+        {
+          "name": "Fast PR / ABI drift",
+          "status": "COMPLETED",
+          "conclusion": "CANCELLED",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581446/job/111811925348"
+        },
+        {
+          "name": "Fast PR / ABI drift",
+          "status": "QUEUED",
+          "conclusion": "",
+          "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592706/job/111822628705"
+        }
+      ]
+    },
+    {
+      "pr": 31,
+      "head": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+      "changed_path_count": 18,
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-census.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-fragment-check.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent-removal.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-invocation-summary.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-invocation.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-native-command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-aliases.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-authority.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-probe.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output.json",
+        "policy-engine/release-fragments/unreleased/2026-10-05-e02-causal-output-abi.toml",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_output_contract.py"
+      ],
+      "full_observed_schema_input_intersection": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py"
+      ],
+      "current_schema_abi_snapshot_status": []
+    }
+  ]
+}

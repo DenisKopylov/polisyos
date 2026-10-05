@@ -1,0 +1,1592 @@
+{
+  "schema_version": "e02.F.ci_transfer_selection.v1",
+  "status": "READ_ONLY_CANDIDATE_ROOT_GIT_ADMISSION_PENDING",
+  "local_scratch_root": "/workspace/e02-F-receipts/ci-economics",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "checked_merge_sources": [
+    {
+      "sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "e642bb9025a67739c201393acca5712603cb064d"
+      ],
+      "tree_sha": "a51d4d9c7151a3a25867adc8c38a1cd4f1f7b008"
+    },
+    {
+      "sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "6a6ddfe9542000914bffd6502d72a166c1d33261"
+      ],
+      "tree_sha": "450181a90ce9cc1698b4bcf18896521b564147ec"
+    },
+    {
+      "sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "baada065af0aaa4edafb8d53abce5fd797de2c6c"
+      ],
+      "tree_sha": "1c33f0376faa6ff13e76e70e5a91cad216a48b61"
+    },
+    {
+      "sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42"
+      ],
+      "tree_sha": "f80d2aabdadb85c2a8c44e13205811f217be8ae5"
+    }
+  ],
+  "scope": "Complete deciding evidence of13failed jobs in root-assigned economics/performance/frontend cluster. No worktree or source edits, receipt append or publication. Complete raw decoded moderate logs are retained; selected source equivalence is explicitly bounded.",
+  "proposed_git_files": [
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/summary.txt",
+      "bytes": 4739,
+      "sha256": "73416171a0708ff45b6140a7cfd80a16607f88143e581023a3cc3aab10254fdf",
+      "category": "deciding_summary_or_identity",
+      "purpose": "Complete concise deciding diagnosis and measured/unmeasured owner boundaries",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/summary.txt"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/summary.json",
+      "bytes": 30355,
+      "sha256": "fd1e885714b08b0abb756de8a287e83884bea2abaddeb0f17c7f2589fe0a36bc",
+      "category": "deciding_summary_or_identity",
+      "purpose": "Complete structured deciding job/source/count/failure/owner evidence",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/summary.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/checked-source-identities.json",
+      "bytes": 9963,
+      "sha256": "c6c9dc792777f093998a15462efa6d519d1e94c0fde9b014c46f9979ecc63370",
+      "category": "deciding_summary_or_identity",
+      "purpose": "Actual checkout merge SHA, PR head, job/run URL and full decoded log byte identities",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/checked-source-identities.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/merge-commit-identities.json",
+      "bytes": 987,
+      "sha256": "d8bb2527be24b32c67713f284691a46f16f07f9db1a2416050481701f8df4d9f",
+      "category": "deciding_summary_or_identity",
+      "purpose": "Independently verified exact merge parent and tree identities",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/merge-commit-identities.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/locale-leaf-census.json",
+      "bytes": 1009,
+      "sha256": "3af1e0ecceed1be21a7c2f01c65dac7478a46d2ae7866cfe34736f100723a289",
+      "category": "deciding_summary_or_identity",
+      "purpose": "Complete en/uk leaf denominator independently recomputed at PR15 actual merge; no Vitest replay claim",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/locale-leaf-census.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/transfer-url-scan.json",
+      "bytes": 27419,
+      "sha256": "e7c2184bcd0d0d60297d1c57425ebdc6d3717967c903c94b7cdb3080b10cbe63",
+      "category": "deciding_summary_or_identity",
+      "purpose": "Offline credential-like URL scan across all107text evidence files, exact byte identities, zero matches",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/transfer-url-scan.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800441948.complete.txt",
+      "bytes": 287456,
+      "sha256": "a87477cc68fa671ef728cbf15de062cd174cca8c5a84b9f7b9fed703d1e2d792",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111800441948.complete.txt",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "pr": 15,
+      "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+      "run_id": "37321206372",
+      "job_id": "111800441948",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800441948",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800441948.json",
+      "bytes": 3212,
+      "sha256": "451e43b5379e24bbfe42908416903b4935e69cd5248b3cb322390a916133c65e",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111800441948.json",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "pr": 15,
+      "run_id": "37321206372",
+      "job_id": "111800441948"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442457.complete.txt",
+      "bytes": 69301,
+      "sha256": "f50fbd2d4a39ef907ff11200fb1f48fe9168ce3e444b2f761d4579368e246fa0",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111800442457.complete.txt",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "pr": 15,
+      "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+      "run_id": "37321206372",
+      "job_id": "111800442457",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442457",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442457.json",
+      "bytes": 3299,
+      "sha256": "a483ba8ad1a94bd514e57764d6a9cd0b0f3f4e512d8c1bf90f78ad7b00baffae",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111800442457.json",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "pr": 15,
+      "run_id": "37321206372",
+      "job_id": "111800442457"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442523.complete.txt",
+      "bytes": 80543,
+      "sha256": "1fa3c52175ab89fda658b851c643e0a1309b1fa69e0ad4aa2a29e1339f614763",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111800442523.complete.txt",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "pr": 15,
+      "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+      "run_id": "37321206372",
+      "job_id": "111800442523",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442523",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442523.json",
+      "bytes": 2223,
+      "sha256": "110f858632440e2b3c04a0af025c728a312387460cf2b2fc7971ec4a524e3772",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111800442523.json",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "pr": 15,
+      "run_id": "37321206372",
+      "job_id": "111800442523"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442368.complete.txt",
+      "bytes": 403965,
+      "sha256": "d4b2e953a3847a5714ff2f09df32645f8eba7d70d75c451272c02c9202682fcf",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111800442368.complete.txt",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "pr": 15,
+      "pr_head": "e642bb9025a67739c201393acca5712603cb064d",
+      "run_id": "37321206372",
+      "job_id": "111800442368",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442368",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442368.json",
+      "bytes": 2399,
+      "sha256": "fc23bd221b9d9e808f7bb8cc1d77c1b06e633b64001580f84088fc4c5ac47d2e",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111800442368.json",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "pr": 15,
+      "run_id": "37321206372",
+      "job_id": "111800442368"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574400.complete.txt",
+      "bytes": 290405,
+      "sha256": "36fd1fc21b556a517be61d4acbcc4ecfb854111e823f6ade7fba7c5b1d8a6b83",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802574400.complete.txt",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "pr": 18,
+      "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "run_id": "37321831625",
+      "job_id": "111802574400",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574400",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574400.json",
+      "bytes": 3206,
+      "sha256": "83d3a3356035ec1845b706e3e92e3805af6bec8d0f9fc18c30d22710b4e48898",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802574400.json",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "pr": 18,
+      "run_id": "37321831625",
+      "job_id": "111802574400"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574428.complete.txt",
+      "bytes": 69383,
+      "sha256": "69b41241dd9eadaa61ea338d437601e16be021e47f9779655b96210d706a1a74",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802574428.complete.txt",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "pr": 18,
+      "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "run_id": "37321831625",
+      "job_id": "111802574428",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574428",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574428.json",
+      "bytes": 3293,
+      "sha256": "2a52a7fc6b33ca7ce40bdcca93db760ab1fcb4f9c791946a2333066197a39083",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802574428.json",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "pr": 18,
+      "run_id": "37321831625",
+      "job_id": "111802574428"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574080.complete.txt",
+      "bytes": 79106,
+      "sha256": "6de48929033707e73b03d3e6e100a7ab466f8660663f8fea6f99022deb82b7b6",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802574080.complete.txt",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "pr": 18,
+      "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "run_id": "37321831625",
+      "job_id": "111802574080",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574080",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574080.json",
+      "bytes": 2217,
+      "sha256": "1b2b67b68db65a5c8d962855a0923051e427875cbb4fd1a8b2524f61182536b3",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802574080.json",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "pr": 18,
+      "run_id": "37321831625",
+      "job_id": "111802574080"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574468.complete.txt",
+      "bytes": 395636,
+      "sha256": "6ead92f3fab0c2e4ce7a70d7958f98791734aca28a392a16647e1e7a03e78809",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802574468.complete.txt",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "pr": 18,
+      "pr_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "run_id": "37321831625",
+      "job_id": "111802574468",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831625/job/111802574468",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574468.json",
+      "bytes": 2393,
+      "sha256": "d7c2922505acac48781a257ba7ae24839b1fc6f425259954e0bce87c19501aeb",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802574468.json",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "pr": 18,
+      "run_id": "37321831625",
+      "job_id": "111802574468"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650701.complete.txt",
+      "bytes": 290417,
+      "sha256": "7677e6382a1566c314f921638aa88fc67d2c651d80f9160d38883f2bcc385a72",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802650701.complete.txt",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "pr": 19,
+      "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "run_id": "37321848405",
+      "job_id": "111802650701",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650701",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650701.json",
+      "bytes": 3213,
+      "sha256": "ab5ea04bbe77aa2df2c1cb48d3def7dd368b165db5b9ea2ee72f9f5f66e2f334",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802650701.json",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "pr": 19,
+      "run_id": "37321848405",
+      "job_id": "111802650701"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650045.complete.txt",
+      "bytes": 69365,
+      "sha256": "7f56a6db229e18f68c30355d04e88f22e677c436f4dfc1394775d2f4002b5673",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802650045.complete.txt",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "pr": 19,
+      "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "run_id": "37321848405",
+      "job_id": "111802650045",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650045",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650045.json",
+      "bytes": 3300,
+      "sha256": "31d2a49efdf9d044e57bbd6292558a5f0388e0c74b455fed59827604bf3b009f",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802650045.json",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "pr": 19,
+      "run_id": "37321848405",
+      "job_id": "111802650045"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650513.complete.txt",
+      "bytes": 80214,
+      "sha256": "c54bb9e2edb7f6f8f1370d70de224b2e42a0ae571c1429b344f53461266931d0",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802650513.complete.txt",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "pr": 19,
+      "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "run_id": "37321848405",
+      "job_id": "111802650513",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650513",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650513.json",
+      "bytes": 2224,
+      "sha256": "ef6e8464bddf9e54a29a4fbdd7d5fac695dbed822aae906883f49134bfedc04b",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802650513.json",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "pr": 19,
+      "run_id": "37321848405",
+      "job_id": "111802650513"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650848.complete.txt",
+      "bytes": 395426,
+      "sha256": "3c3fa2667d5e2162005a86d334d31c2613a0dd8c5db29cb20a3312e18cee608b",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802650848.complete.txt",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "pr": 19,
+      "pr_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "run_id": "37321848405",
+      "job_id": "111802650848",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848405/job/111802650848",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650848.json",
+      "bytes": 2400,
+      "sha256": "ab4803ab74dd5dad462909d85a962498ba4b271025086b840586d319f32f7fe5",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111802650848.json",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "pr": 19,
+      "run_id": "37321848405",
+      "job_id": "111802650848"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111811969133.complete.txt",
+      "bytes": 48498,
+      "sha256": "e6f899c175ba013de70ef2d05617c6394e205e3377f4f3d527795f79468bfb1c",
+      "category": "complete_job_log",
+      "purpose": "Complete connector-decoded deciding failed job stdout, not excerpts; no sanitation or truncation",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111811969133.complete.txt",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "pr": 29,
+      "pr_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "run_id": "37324581716",
+      "job_id": "111811969133",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811969133",
+      "conclusion": "FAILURE"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111811969133.json",
+      "bytes": 3077,
+      "sha256": "711e9330acc83720b02ac6601407234c93c35e81e86e7f703781feb93eb758ea",
+      "category": "github_job_metadata",
+      "purpose": "Actual failed/skip/success step metadata",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/job-111811969133.json",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "pr": 29,
+      "run_id": "37324581716",
+      "job_id": "111811969133"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/commit-8280a4aa6e028af0dd74d2f987ce6fc6e498b877.json",
+      "bytes": 2640,
+      "sha256": "7f2757feeb20bb66ad11cdf8213925a237532c80015dd3e8c3db724328dae8ef",
+      "category": "github_merge_commit_metadata",
+      "purpose": "Complete git/commits response for checked tree and parents",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/commit-8280a4aa6e028af0dd74d2f987ce6fc6e498b877.json",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "tree_sha": "a51d4d9c7151a3a25867adc8c38a1cd4f1f7b008",
+      "parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "e642bb9025a67739c201393acca5712603cb064d"
+      ]
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/commit-2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225.json",
+      "bytes": 2640,
+      "sha256": "ebfdc11edf04fa920e973442db1db18593c1b73ae78418daa09728aee4eca7fd",
+      "category": "github_merge_commit_metadata",
+      "purpose": "Complete git/commits response for checked tree and parents",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/commit-2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225.json",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "tree_sha": "450181a90ce9cc1698b4bcf18896521b564147ec",
+      "parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "6a6ddfe9542000914bffd6502d72a166c1d33261"
+      ]
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/commit-674146c9053dc61b9db08bd88d16a76f7cdf51eb.json",
+      "bytes": 2640,
+      "sha256": "509ff3a37e3950fade076157019a3f69d8c9f404d59350d01407b34e85a5fd39",
+      "category": "github_merge_commit_metadata",
+      "purpose": "Complete git/commits response for checked tree and parents",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/commit-674146c9053dc61b9db08bd88d16a76f7cdf51eb.json",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "tree_sha": "1c33f0376faa6ff13e76e70e5a91cad216a48b61",
+      "parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "baada065af0aaa4edafb8d53abce5fd797de2c6c"
+      ]
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/commit-51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b.json",
+      "bytes": 2640,
+      "sha256": "9369f89145b9249e505890eec70f80525e929f1224283a8844188e6db3829d8c",
+      "category": "github_merge_commit_metadata",
+      "purpose": "Complete git/commits response for checked tree and parents",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/commit-51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b.json",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "tree_sha": "f80d2aabdadb85c2a8c44e13205811f217be8ae5",
+      "parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42"
+      ]
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/run-37321206372.json",
+      "bytes": 12885,
+      "sha256": "03147faf38a31ba292ac203229b9c1ccc94bd22718d1d74f204c858629f62431",
+      "category": "github_workflow_run_metadata",
+      "purpose": "Complete workflow run response; retains PR-head-vs-actual-merge distinction",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/run-37321206372.json",
+      "run_id": "37321206372"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/run-37321831625.json",
+      "bytes": 12848,
+      "sha256": "69389f8795c08e7fd3f010ee69724d6c6137916174caf6d2a0ba288d97dce379",
+      "category": "github_workflow_run_metadata",
+      "purpose": "Complete workflow run response; retains PR-head-vs-actual-merge distinction",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/run-37321831625.json",
+      "run_id": "37321831625"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/run-37321848405.json",
+      "bytes": 12866,
+      "sha256": "2f4663988b168579869dc27fbeb2d23fc20a4b2e52b44f55a019d09706bdd81f",
+      "category": "github_workflow_run_metadata",
+      "purpose": "Complete workflow run response; retains PR-head-vs-actual-merge distinction",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/run-37321848405.json",
+      "run_id": "37321848405"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/run-37324581716.json",
+      "bytes": 12880,
+      "sha256": "369ac8089f355dee43d110607f6a4a9ce58a1e254bdedb6038eb6f2b86407ee7",
+      "category": "github_workflow_run_metadata",
+      "purpose": "Complete workflow run response; retains PR-head-vs-actual-merge distinction",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/run-37324581716.json",
+      "run_id": "37324581716"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-artifact/last-mile/directory-health.json",
+      "bytes": 39229,
+      "sha256": "f6831f02a12d2cb0820caaf212dc114d03a70756c4c94fd5f2d088aa68a73be2",
+      "category": "complete_uploaded_artifact_entry",
+      "purpose": "Full original extracted artifact file. Directory health JSON retains all182 high-volume rows, complete3undocumented subset, configured regressions/measurement/omission; suite summary retains0/3missing inputs.",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/pr29-test-economics-artifact/last-mile/directory-health.json",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "pr": 29,
+      "run_id": "37324581716",
+      "job_id": "111811969133",
+      "github_artifact_id": 11352910341,
+      "raw_zip_sha256": "28917e793b36ca1f487c91862da8913e5995771d693dbd9ee8303b71a711b6b4"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-artifact/last-mile/directory-health.md",
+      "bytes": 3157,
+      "sha256": "af51f058028a7e102dfba3d6dfeb3cda5776c341ba580275dcb15873b9bab3c3",
+      "category": "complete_uploaded_artifact_entry",
+      "purpose": "Full original extracted artifact file. Directory health JSON retains all182 high-volume rows, complete3undocumented subset, configured regressions/measurement/omission; suite summary retains0/3missing inputs.",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/pr29-test-economics-artifact/last-mile/directory-health.md",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "pr": 29,
+      "run_id": "37324581716",
+      "job_id": "111811969133",
+      "github_artifact_id": 11352910341,
+      "raw_zip_sha256": "28917e793b36ca1f487c91862da8913e5995771d693dbd9ee8303b71a711b6b4"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-artifact/test-reports/test-economics-summary.md",
+      "bytes": 549,
+      "sha256": "4546b310e3d79719dc22ea0ac3b339c69bb296fdfa61ced9b60ede4db34d836c",
+      "category": "complete_uploaded_artifact_entry",
+      "purpose": "Full original extracted artifact file. Directory health JSON retains all182 high-volume rows, complete3undocumented subset, configured regressions/measurement/omission; suite summary retains0/3missing inputs.",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/pr29-test-economics-artifact/test-reports/test-economics-summary.md",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "pr": 29,
+      "run_id": "37324581716",
+      "job_id": "111811969133",
+      "github_artifact_id": 11352910341,
+      "raw_zip_sha256": "28917e793b36ca1f487c91862da8913e5995771d693dbd9ee8303b71a711b6b4"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/index.json",
+      "bytes": 23247,
+      "sha256": "32f0c41db6f98c469bf2d1f57338fc568433d54623d8637ab58195c18f2c0acc",
+      "category": "canonical_source_index",
+      "purpose": "Complete immutable canonical source byte/blob identity records; aliases below resolve identical selected blobs at all4actual merges. Wrong-path404 requests remain explicit unsuccessful observations.",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/index.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/extended-index.json",
+      "bytes": 2365,
+      "sha256": "006fb81136399d5d34fbf1d68000edbd65174ffe8d0177ba65e36a4c4aa36d4b",
+      "category": "canonical_source_index",
+      "purpose": "Complete immutable canonical source byte/blob identity records; aliases below resolve identical selected blobs at all4actual merges. Wrong-path404 requests remain explicit unsuccessful observations.",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/extended-index.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/extended-additional-index.json",
+      "bytes": 2029,
+      "sha256": "aea9cfb9d94e129515f21d46b487ada382c5706f9adb9ee5ffea491c9831293a",
+      "category": "canonical_source_index",
+      "purpose": "Complete immutable canonical source byte/blob identity records; aliases below resolve identical selected blobs at all4actual merges. Wrong-path404 requests remain explicit unsuccessful observations.",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/extended-additional-index.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/governed-projection-index.json",
+      "bytes": 492,
+      "sha256": "1787fce964bf5adf20de28627c7b4ac8f03f9c8e028cfeb0051329462abad4fa",
+      "category": "canonical_source_index",
+      "purpose": "Complete immutable canonical source byte/blob identity records; aliases below resolve identical selected blobs at all4actual merges. Wrong-path404 requests remain explicit unsuccessful observations.",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/governed-projection-index.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/governed-worker-index.json",
+      "bytes": 1076,
+      "sha256": "80f7a1651e3da2bd6d35d19c91adeb6a55f75376515dee894d7bca3fa9b95c6f",
+      "category": "canonical_source_index",
+      "purpose": "Complete immutable canonical source byte/blob identity records; aliases below resolve identical selected blobs at all4actual merges. Wrong-path404 requests remain explicit unsuccessful observations.",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/governed-worker-index.json"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/actions/setup-runtime-dashboard/action.yml",
+      "bytes": 2739,
+      "sha256": "ed6341360ddad176ed1ae72d3c90bf6a0f4b60c6ca4528ae00a2a69068805626",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/actions/setup-runtime-dashboard/action.yml",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": ".github/actions/setup-runtime-dashboard/action.yml",
+      "git_blob_sha": "9571179606624587c0afb3c09e9685793a39e7ae"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/workflows/ci.yml",
+      "bytes": 14253,
+      "sha256": "8a5d685ea40caeaaf54be090c44d62aac4167ff835d26b055ee64a008c204018",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/workflows/ci.yml",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": ".github/workflows/ci.yml",
+      "git_blob_sha": "15c4cfcea71967675c324deb0ec9b8e3aa59414c"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/package.json",
+      "bytes": 11599,
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/package.json",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/package.json",
+      "git_blob_sha": "0eca7ad3345d1492d108b8847d79ea55c7719615"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/playwright.config.ts",
+      "bytes": 2819,
+      "sha256": "04e27f939d43268b2c678bc205c941c0cf1ef719e430bdb65ecf6d197d844927",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/playwright.config.ts",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/playwright.config.ts",
+      "git_blob_sha": "d65eb9f3499cbbe5cf179c586b4f09b002bcf9e5"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
+      "bytes": 98913,
+      "sha256": "ca2bcf8841eea740103afcf500e546e3c0f03b6000a1050e8d3e1cf8c486c328",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
+      "git_blob_sha": "b5137139cd1b02305277d051d104393912271b7b"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "bytes": 7457,
+      "sha256": "210a02646fc4bdade933ca85fa53ced9b91dcdea4ca49d62abd265b5d7826dce",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "git_blob_sha": "a352e3c08a99d9c1466ee4caae7ec6e6d1a9004d"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "bytes": 152836,
+      "sha256": "6cb6dc4550d0f4ff3b49dd38ae8c4f0eaa34f0218c405616bfc5d233f907a4c7",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "git_blob_sha": "e86d49007c139051a7058b76806913149426deeb"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "bytes": 198820,
+      "sha256": "f103c6daabb31632ef3882329af5f5742f071cb387ddc6d3cb4b647667b8c1a7",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "git_blob_sha": "18d4cac049193373d592002a6e0dbf1189df0ed1"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "bytes": 72843,
+      "sha256": "21f83038635e61acd446c4433f6da62a70fba03b3ce5b0ecd4ccb39cf7208a11",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "git_blob_sha": "cc696cb34e3ab561975f76dae311067f50bb2c2c"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "bytes": 23569,
+      "sha256": "d24d8de12e67166bac7bae0976a460999757fe9a4fd9f5c668d151f1572aa384",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "git_blob_sha": "abe3e26587d2995fe83f7b4428b3e13e10955d5e"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/architecture/policies/directory_health.toml",
+      "bytes": 10504,
+      "sha256": "83866ac4983eace76221baa832d9bb999a5d78b5b4075042572342e603e658ec",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/architecture/policies/directory_health.toml",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/architecture/policies/directory_health.toml",
+      "git_blob_sha": "3b726829013249b2ab0358a54c301c5b9e86fcae"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "bytes": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "git_blob_sha": "1f037ef49a940c80dd5592eac5e4bb5655699329"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "git_blob_sha": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "bytes": 7934,
+      "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "git_blob_sha": "c02e29a3d44552ba38ded8c14530f5a798e0c40f"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "bytes": 38045,
+      "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "git_blob_sha": "ca4663b1c53fb05d966f39be2686de7112e59df3"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "bytes": 106265,
+      "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "git_blob_sha": "11e2b068fafa53361ba96ad847fa93da5e169b7e"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "bytes": 79191,
+      "sha256": "a2a4f06452428a225b393941ae16cf3cb42043c01a38679bb725595818cb9f62",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "git_blob_sha": "f03a5304bb8d61190c7ff2a91b0671a04e7e9176"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/_helpers/runtime_http.py",
+      "bytes": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/_helpers/runtime_http.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/tests/_helpers/runtime_http.py",
+      "git_blob_sha": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "bytes": 30760,
+      "sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "git_blob_sha": "02f4ba3bbc5690cf79f730243af7c843433c50a4"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "git_blob_sha": "37ceb13937e36ab6c237595a74e7be70ca987c8d"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/testing/report_test_economics.py",
+      "bytes": 9837,
+      "sha256": "f7df1df0c8c2cfdd2fcb54c84d496fd0774198bf509e77ea47ac81ee61d07dae",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/testing/report_test_economics.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/tools/quality/testing/report_test_economics.py",
+      "git_blob_sha": "91da772b72f9275ba1d12e7955a870985a2beab5"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "bytes": 197019,
+      "sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "git_blob_sha": "f18726c6d7896450089c0a992d6fe701d2894fd6"
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/directory_health.py",
+      "bytes": 49252,
+      "sha256": "8eb2025d08401282a716debbedb00f4cf527611a5947040a13d0fc94a4ba4417",
+      "category": "full_canonical_input_source",
+      "purpose": "Full immutable source bytes required for runtime-input/error-ABI/dependency-tracker/locale/directory-health trace; repository source, no full production data",
+      "proposed_for_git_transfer": true,
+      "transfer_relative_path": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/directory_health.py",
+      "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "source_shas_with_equal_selected_blob": [
+        "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+        "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+        "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+        "8280a4aa6e028af0dd74d2f987ce6fc6e498b877"
+      ],
+      "canonical_repository_path": "policy-engine/tools/quality/validation/directory_health.py",
+      "git_blob_sha": "c034f0188460991ce95fd53a226292299f51efba"
+    }
+  ],
+  "counts": {
+    "proposed_files": 71,
+    "proposed_complete_job_logs": 13,
+    "proposed_full_canonical_source_files": 23,
+    "proposed_total_bytes": 4373524,
+    "largest_proposed_file_bytes": 403965,
+    "identical_source_byte_aliases": 36,
+    "full_uploaded_artifact_entries": 3
+  },
+  "nontransferred_equal_byte_aliases": [
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/.github/workflows/ci.yml",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": ".github/workflows/ci.yml",
+      "blob_sha": "15c4cfcea71967675c324deb0ec9b8e3aa59414c",
+      "bytes": 14253,
+      "sha256": "8a5d685ea40caeaaf54be090c44d62aac4167ff835d26b055ee64a008c204018",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/workflows/ci.yml",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/apps/runtime-dashboard/package.json",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/package.json",
+      "blob_sha": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+      "bytes": 11599,
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/package.json",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "blob_sha": "cc696cb34e3ab561975f76dae311067f50bb2c2c",
+      "bytes": 72843,
+      "sha256": "21f83038635e61acd446c4433f6da62a70fba03b3ce5b0ecd4ccb39cf7208a11",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "blob_sha": "abe3e26587d2995fe83f7b4428b3e13e10955d5e",
+      "bytes": 23569,
+      "sha256": "d24d8de12e67166bac7bae0976a460999757fe9a4fd9f5c668d151f1572aa384",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/architecture/policies/directory_health.toml",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/architecture/policies/directory_health.toml",
+      "blob_sha": "3b726829013249b2ab0358a54c301c5b9e86fcae",
+      "bytes": 10504,
+      "sha256": "83866ac4983eace76221baa832d9bb999a5d78b5b4075042572342e603e658ec",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/architecture/policies/directory_health.toml",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "blob_sha": "1f037ef49a940c80dd5592eac5e4bb5655699329",
+      "bytes": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "blob_sha": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tests/_helpers/runtime_http.py",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/tests/_helpers/runtime_http.py",
+      "blob_sha": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78",
+      "bytes": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/_helpers/runtime_http.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "blob_sha": "02f4ba3bbc5690cf79f730243af7c843433c50a4",
+      "bytes": 30760,
+      "sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "blob_sha": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tools/quality/testing/report_test_economics.py",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/tools/quality/testing/report_test_economics.py",
+      "blob_sha": "91da772b72f9275ba1d12e7955a870985a2beab5",
+      "bytes": 9837,
+      "sha256": "f7df1df0c8c2cfdd2fcb54c84d496fd0774198bf509e77ea47ac81ee61d07dae",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/testing/report_test_economics.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tools/quality/validation/directory_health.py",
+      "source_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "canonical_repository_path": "policy-engine/tools/quality/validation/directory_health.py",
+      "blob_sha": "c034f0188460991ce95fd53a226292299f51efba",
+      "bytes": 49252,
+      "sha256": "8eb2025d08401282a716debbedb00f4cf527611a5947040a13d0fc94a4ba4417",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/directory_health.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/.github/workflows/ci.yml",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": ".github/workflows/ci.yml",
+      "blob_sha": "15c4cfcea71967675c324deb0ec9b8e3aa59414c",
+      "bytes": 14253,
+      "sha256": "8a5d685ea40caeaaf54be090c44d62aac4167ff835d26b055ee64a008c204018",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/workflows/ci.yml",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/apps/runtime-dashboard/package.json",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/package.json",
+      "blob_sha": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+      "bytes": 11599,
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/package.json",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "blob_sha": "cc696cb34e3ab561975f76dae311067f50bb2c2c",
+      "bytes": 72843,
+      "sha256": "21f83038635e61acd446c4433f6da62a70fba03b3ce5b0ecd4ccb39cf7208a11",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "blob_sha": "abe3e26587d2995fe83f7b4428b3e13e10955d5e",
+      "bytes": 23569,
+      "sha256": "d24d8de12e67166bac7bae0976a460999757fe9a4fd9f5c668d151f1572aa384",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/architecture/policies/directory_health.toml",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/architecture/policies/directory_health.toml",
+      "blob_sha": "3b726829013249b2ab0358a54c301c5b9e86fcae",
+      "bytes": 10504,
+      "sha256": "83866ac4983eace76221baa832d9bb999a5d78b5b4075042572342e603e658ec",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/architecture/policies/directory_health.toml",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "blob_sha": "1f037ef49a940c80dd5592eac5e4bb5655699329",
+      "bytes": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "blob_sha": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tests/_helpers/runtime_http.py",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/tests/_helpers/runtime_http.py",
+      "blob_sha": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78",
+      "bytes": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/_helpers/runtime_http.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "blob_sha": "02f4ba3bbc5690cf79f730243af7c843433c50a4",
+      "bytes": 30760,
+      "sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "blob_sha": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tools/quality/testing/report_test_economics.py",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/tools/quality/testing/report_test_economics.py",
+      "blob_sha": "91da772b72f9275ba1d12e7955a870985a2beab5",
+      "bytes": 9837,
+      "sha256": "f7df1df0c8c2cfdd2fcb54c84d496fd0774198bf509e77ea47ac81ee61d07dae",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/testing/report_test_economics.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tools/quality/validation/directory_health.py",
+      "source_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "canonical_repository_path": "policy-engine/tools/quality/validation/directory_health.py",
+      "blob_sha": "c034f0188460991ce95fd53a226292299f51efba",
+      "bytes": 49252,
+      "sha256": "8eb2025d08401282a716debbedb00f4cf527611a5947040a13d0fc94a4ba4417",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/directory_health.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/.github/workflows/ci.yml",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": ".github/workflows/ci.yml",
+      "blob_sha": "15c4cfcea71967675c324deb0ec9b8e3aa59414c",
+      "bytes": 14253,
+      "sha256": "8a5d685ea40caeaaf54be090c44d62aac4167ff835d26b055ee64a008c204018",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/workflows/ci.yml",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/apps/runtime-dashboard/package.json",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/package.json",
+      "blob_sha": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+      "bytes": 11599,
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/package.json",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "blob_sha": "cc696cb34e3ab561975f76dae311067f50bb2c2c",
+      "bytes": 72843,
+      "sha256": "21f83038635e61acd446c4433f6da62a70fba03b3ce5b0ecd4ccb39cf7208a11",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "blob_sha": "abe3e26587d2995fe83f7b4428b3e13e10955d5e",
+      "bytes": 23569,
+      "sha256": "d24d8de12e67166bac7bae0976a460999757fe9a4fd9f5c668d151f1572aa384",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/architecture/policies/directory_health.toml",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/architecture/policies/directory_health.toml",
+      "blob_sha": "3b726829013249b2ab0358a54c301c5b9e86fcae",
+      "bytes": 10504,
+      "sha256": "83866ac4983eace76221baa832d9bb999a5d78b5b4075042572342e603e658ec",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/architecture/policies/directory_health.toml",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "blob_sha": "1f037ef49a940c80dd5592eac5e4bb5655699329",
+      "bytes": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "blob_sha": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tests/_helpers/runtime_http.py",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/tests/_helpers/runtime_http.py",
+      "blob_sha": "fcf3b172b787ac8f6e8f43ebca5ebea1babaac78",
+      "bytes": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/_helpers/runtime_http.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "blob_sha": "02f4ba3bbc5690cf79f730243af7c843433c50a4",
+      "bytes": 30760,
+      "sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "blob_sha": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tools/quality/testing/report_test_economics.py",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/tools/quality/testing/report_test_economics.py",
+      "blob_sha": "91da772b72f9275ba1d12e7955a870985a2beab5",
+      "bytes": 9837,
+      "sha256": "f7df1df0c8c2cfdd2fcb54c84d496fd0774198bf509e77ea47ac81ee61d07dae",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/testing/report_test_economics.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    },
+    {
+      "nontransferred_duplicate_local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tools/quality/validation/directory_health.py",
+      "source_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "canonical_repository_path": "policy-engine/tools/quality/validation/directory_health.py",
+      "blob_sha": "c034f0188460991ce95fd53a226292299f51efba",
+      "bytes": 49252,
+      "sha256": "8eb2025d08401282a716debbedb00f4cf527611a5947040a13d0fc94a4ba4417",
+      "transferred_full_byte_alias": "ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/directory_health.py",
+      "why_not_duplicated": "Exactly equal canonical path Git blob and verified full-file SHA256/byte size at this alternate checked merge; complete source identity is retained in source-inputs/index.json. This equivalence applies only to selected files, not full gate closure."
+    }
+  ],
+  "local_not_git_admitted": [
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-summary.zip",
+      "bytes": 6156,
+      "sha256": "28917e793b36ca1f487c91862da8913e5995771d693dbd9ee8303b71a711b6b4",
+      "git_admitted": false,
+      "reason": "Local raw ZIP container; not required for deciding transfer because all3 original artifact entry bytes are proposed above and raw ZIP identity is preserved. This archive is small6156B, not a large bundle. Root Git-admission not requested for raw container."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/download-index.json",
+      "bytes": 19108,
+      "sha256": "d846b1f63189f3955b717aac3f0e405283644285f0b5d8804fc95fe4bdb3b521",
+      "git_admitted": false,
+      "reason": "Local failed transport diagnostic, not deciding job evidence. Previously signed query URLs were removed from failed gh transport stdout; original transport error SHA/size retained in this local index. No deciding complete.txt log was sanitized."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/evidence-manifest.json",
+      "bytes": 26159,
+      "sha256": "98ef402186ae0c29b3b5b744f0432041c1c79ed5f0bacd09fd91040f66fcc546",
+      "git_admitted": false,
+      "reason": "Local complete scratch census includes duplicate byte copies, raw ZIP and transport diagnostics. transfer-selection.json is the precise proposed Git admission list instead."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800441948.clean.txt",
+      "bytes": 267090,
+      "sha256": "e44e8a76fa5fe2121e5a467390506c55de27427e93579f8f74dcc3b423cd860f",
+      "git_admitted": false,
+      "reason": "ANSI-stripped reading copy only; the complete unsanitized connector-decoded log is proposed above."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442368.clean.txt",
+      "bytes": 352075,
+      "sha256": "d40e76802efbeda87c4b1382a26f06f5f8c43d2b9c8682b4641f60254cbd00de",
+      "git_admitted": false,
+      "reason": "ANSI-stripped reading copy only; the complete unsanitized connector-decoded log is proposed above."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442457.clean.txt",
+      "bytes": 65643,
+      "sha256": "66eafbcdbe14db0ecab7e782bcb7537b6565fe350cf8f8c8250cbc40a9cdbc2d",
+      "git_admitted": false,
+      "reason": "ANSI-stripped reading copy only; the complete unsanitized connector-decoded log is proposed above."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800441948.txt",
+      "bytes": 230,
+      "sha256": "b742ded7b6fc05b37d32ace7cdd779dbb113283b0a3b2125c94eb37baef73177",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442368.txt",
+      "bytes": 230,
+      "sha256": "2a6963cc34331a8d7d362ab0441030665ef23e5080ee03549ec3f05beb656a0f",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442457.txt",
+      "bytes": 230,
+      "sha256": "2dd80275a9b16363936ab56e05069c65ca385fd63ad6f3449ed29ac11f7fb2cb",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111800442523.txt",
+      "bytes": 230,
+      "sha256": "32c5bfd8e3e21cda74be021b009087669543a8157ba6d4669913f9520ac78e71",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574080.txt",
+      "bytes": 230,
+      "sha256": "1aaaafafc3442ea82ae6a4eb20f7b6070cd8377467864e7bf8bcf6ba506cfc80",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574400.txt",
+      "bytes": 230,
+      "sha256": "2c8a4c04ebcc77f15b33e2085e7e04b8253e19c89e961770314ffa70c8e96d16",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574428.txt",
+      "bytes": 230,
+      "sha256": "efbb08faa9f4550dbabe9c6a8b6e40c47fbeeb273ff3a3ad1baf046cd9d8d4d0",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802574468.txt",
+      "bytes": 230,
+      "sha256": "2b1e0a516778633f7fd8f63b327e65c944cc49ce70d455677198f44b7ac03604",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650045.txt",
+      "bytes": 230,
+      "sha256": "54e117ca06eab6cf78918b9be6e3f9af4e05ee1b34849d62b1858c49e34983f6",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650513.txt",
+      "bytes": 230,
+      "sha256": "23a9991665109a2478a77802079a62d1986c6ff49d24d814f90b4ddcc151e033",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650701.txt",
+      "bytes": 230,
+      "sha256": "18ad139689974b833a6787c323a47583566b2b20173a88530eab211bbe16f6e3",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111802650848.txt",
+      "bytes": 230,
+      "sha256": "8562f9d0795f35e32e3827d9bd1ddf1942a26b2ebf26e4486f6281982588c065",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/job-111811969133.txt",
+      "bytes": 230,
+      "sha256": "9dc5c7e11998224e0b568903827d828a46245373c31c4e2d3565cd10c93c72b4",
+      "git_admitted": false,
+      "reason": "Failed gh log redirect transport error only, not actual job stdout; signed query redaction exists in this local file. No decision uses it."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/economics-job-gh-log.txt",
+      "bytes": 81,
+      "sha256": "80cfd44ad69ba148db59258fac2f088c2348dd197bb7a8195094364746496ab6",
+      "git_admitted": false,
+      "reason": "gh run view refused logs while run active; transport/tool output only, not deciding evidence."
+    },
+    {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/performance-job-gh-log.txt",
+      "bytes": 81,
+      "sha256": "5aee0558228c00e30df5963552f8dd192be51409477ea79f02b80c8a6491b2ca",
+      "git_admitted": false,
+      "reason": "gh run view refused logs while run active; transport/tool output only, not deciding evidence."
+    }
+  ],
+  "large_archive_boundary": {
+    "large_zip_admitted": false,
+    "large_zip_in_own_cluster": false,
+    "full_production_inputs_admitted": false,
+    "raw_small_artifact_zip_local_only": {
+      "local_path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-summary.zip",
+      "bytes": 6156,
+      "sha256": "28917e793b36ca1f487c91862da8913e5995771d693dbd9ee8303b71a711b6b4"
+    },
+    "full_required_moderate_artifacts": "All3originaluploadedentries are proposed complete; full directory-health denominator retained, no summary-only substitute."
+  },
+  "denominators_and_limits": {
+    "directory_health": "Complete actual182rows +3missing subset retained in full directory-health.json; exactc40base replay absent, no inherited attribution.",
+    "locale_leaf_census": "Complete full en/uk JSONbytes +canonical collector/test retained;2907each sourcecensus only, no remaining Vitest assertion PASS.",
+    "performance_and_frontend": "13completeactualjob logs retainallfailures and summaries; skips/cancelled/missingXMLnotPASS.",
+    "openapi_worker": "Full dependency tracker and validation worker source retained. Dynamic1490binding map is absent from CI output and not recreated; UNKNOWNsource introduction. No fake complete denominator or zero intersection.",
+    "selected_source_aliases": "Selected12path bytes equal across4mergeSHAs only; no fullgate closure."
+  },
+  "url_sanitation": {
+    "scan_report": "ci-economics/transfer-url-scan.json",
+    "credential_like_url_matches_in_proposed_files": 0,
+    "deciding_logs_transfer_sanitized": false,
+    "deciding_logs_lossless_raw": "All13complete.txt original decoded log bytes remain local with exactsha256 and are proposed unchanged. No signed credential query found in these files.",
+    "new_transfer_sanitation_needed": false,
+    "local_transport_exception": "Earlier failed gh signed redirect errors are local-only/nondeciding; specific signed query removal was recorded in local download-index.json with original/modified byte hashes. Complete deciding connector logs were independently fetched and unchanged. Do not infer availability of original lossless failed transport URL bytes from the recorded original hash."
+  },
+  "transfer_reference_resolution": "Use each proposed_git_files.transfer_relative_path and the explicit equal-byte alias table. Absolute scratch paths inside deciding historical metadata are provenance; resolve through this selection rather than claiming excluded local files are Git-admitted."
+}

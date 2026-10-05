@@ -1,0 +1,92 @@
+[
+  {
+    "pr": 15,
+    "job": "111800440922",
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-111800440922-api-full-log.txt",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111800440922/logs"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 0.6858071779997772,
+    "stderr": "Get \"<redirect URL redacted>\": Forbidden\n"
+  },
+  {
+    "pr": 15,
+    "job": "111800440690",
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-111800440690-api-full-log.txt",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111800440690/logs"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 0.6783556139998836,
+    "stderr": "Get \"<redirect URL redacted>\": Forbidden\n"
+  },
+  {
+    "pr": 18,
+    "job": "111802572091",
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-111802572091-api-full-log.txt",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111802572091/logs"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 0.6193908080003894,
+    "stderr": "Get \"<redirect URL redacted>\": Forbidden\n"
+  },
+  {
+    "pr": 18,
+    "job": "111802571950",
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-111802571950-api-full-log.txt",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111802571950/logs"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 0.7223090640000009,
+    "stderr": "Get \"<redirect URL redacted>\": Forbidden\n"
+  },
+  {
+    "pr": 19,
+    "job": "111802631692",
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-111802631692-api-full-log.txt",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111802631692/logs"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 1.0731751229996007,
+    "stderr": "Get \"<redirect URL redacted>\": Forbidden\n"
+  },
+  {
+    "pr": 19,
+    "job": "111802631813",
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-111802631813-api-full-log.txt",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/jobs/111802631813/logs"
+    ],
+    "exit_code": 1,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wall_s": 1.486217769999712,
+    "stderr": "Get \"<redirect URL redacted>\": Forbidden\n"
+  }
+]

@@ -1,0 +1,1913 @@
+{
+  "schema": "F-canary-ci-classification-v1",
+  "observed_status_utc": "2026-10-05T15:22:32.422906+00:00",
+  "repo": "DenisKopylov/polisyos",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "actual_completed_deciding_runs": 13,
+  "classification": "missing_or_invalid_required_identity_input_before_runtime_app_launch",
+  "common_cause": "POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token",
+  "f_method_regression": "not_established",
+  "inherited_failure_attribution": "not_established",
+  "P41": "No exact-base CI replay or complete invocation-input closure proof. Equality of five canonical workflow/runner owner files is a bounded source observation only.",
+  "execution_denominator": "Each completed run selected1/executed1/failed1/passed0/blocked0/skipped0; executed means child process started, not authenticated API launch or causal estimation.",
+  "identity_boundary": "Token value was not inspected; canonical resolver rejects absent/empty/newline token. Workflow has no declared service-principal token injection. Proper deployment verification configuration and genuine principal RUNS_LAUNCH/RUNS_VIEW are required; no fixture identity/security bypass/dummy token was used.",
+  "next_owner": "G and canonical CI/runtime deployment identity owner: provision genuine short-lived service principal and matching deployment security verifier; rerun exact candidate/merge SHA.",
+  "sources": [
+    {
+      "checked_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "repository_path": ".github/workflows/policyos-canary-matrix.yml",
+      "blob_sha": "feb8ac7417598199cf5c6066022196a60c8b6044",
+      "local_path": "/workspace/e02-F-receipts/canary-ci/checked-.github__workflows__policyos-canary-matrix.yml",
+      "bytes": 3698,
+      "sha256": "604ce4dd1bd5fc874b2ca3856d53773503e60326712ef1febeed1088c09699e8"
+    },
+    {
+      "checked_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "repository_path": ".github/actions/setup-policy-engine-python/action.yml",
+      "blob_sha": "9257b2039596a820081dc89ad052a89901e7fc76",
+      "local_path": "/workspace/e02-F-receipts/canary-ci/checked-.github__actions__setup-policy-engine-python__action.yml",
+      "bytes": 1963,
+      "sha256": "32958e0c11c8e6a1ccf5118a2c72ec86db5d16a33428e24989f2fdb6a13e7c62"
+    },
+    {
+      "checked_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "repository_path": "policy-engine/tools/ops_runners/runtime/run_canary_matrix.py",
+      "blob_sha": "baa58f7a128f4afc33e388345ab323dd239a66bc",
+      "local_path": "/workspace/e02-F-receipts/canary-ci/checked-policy-engine__tools__ops_runners__runtime__run_canary_matrix.py",
+      "bytes": 26411,
+      "sha256": "7734d98c28560d0d9670f33db21b17bb2a097c8fc0cb186888ebf1cdcf8e3b04"
+    },
+    {
+      "checked_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "repository_path": "policy-engine/tools/ops_runners/runtime/canary_matrix.py",
+      "blob_sha": "6a47f4bf7fb02fb97c57d221d94dc5068a3b2297",
+      "local_path": "/workspace/e02-F-receipts/canary-ci/checked-policy-engine__tools__ops_runners__runtime__canary_matrix.py",
+      "bytes": 16490,
+      "sha256": "757609d466e7359fcdcb1c5d346308550ba4abf34e67c63456cdeb0792d57ff7"
+    },
+    {
+      "checked_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "repository_path": "policy-engine/tools/ops_runners/runtime/local_production_canary.py",
+      "blob_sha": "b91da16e905a3b4ef38c72fd1d366ef2a3df4636",
+      "local_path": "/workspace/e02-F-receipts/canary-ci/checked-policy-engine__tools__ops_runners__runtime__local_production_canary.py",
+      "bytes": 111135,
+      "sha256": "8e930dad1c6789a146cf4f8ed1916d9c1dafe21a2a70e0047142c368dbf03a09"
+    }
+  ],
+  "bounded_source_equality": {
+    "path": "/workspace/e02-F-receipts/canary-ci/canonical-owner-equality.json",
+    "all_50_equal": true,
+    "does_not_establish_input_disjointness": true
+  },
+  "completed_runs": [
+    {
+      "pr": 15,
+      "source_head": "e642bb9025a67739c201393acca5712603cb064d",
+      "checked_checkout_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "run_id": 37321206367,
+      "job_id": 111800438545,
+      "event": "pull_request",
+      "job_conclusion": "failure",
+      "artifact_id": 11350435751,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr15-run37321206367-artifact11350435751-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "58361cff275adfe8f801f9e97698d184fc1ef0dd5317fb317b48f47e0c14bf3a"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr15-run37321206367-job111800438545.log",
+        "bytes": 74379,
+        "sha256": "c9e260f8bad929ec3cce7b65646a7c3e1ccd119084a221e9a48fe52e44d3f5d8",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:01:47+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T140127Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 15,
+      "source_head": "e642bb9025a67739c201393acca5712603cb064d",
+      "checked_checkout_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "run_id": 37321036478,
+      "job_id": 111799868493,
+      "event": "push",
+      "job_conclusion": "failure",
+      "artifact_id": 11350425828,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr15-run37321036478-artifact11350425828-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "f9fc04df31c4ca4bcae31093dcd6b0642d26da733e2b0bea8c9313111aae9166"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr15-run37321036478-job111799868493.log",
+        "bytes": 74408,
+        "sha256": "6845af89df14d21b04f13ce702bae0732c6162b499a1bd952ef1a19ee3024217",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:00:55+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T140029Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 18,
+      "source_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "checked_checkout_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "run_id": 37321832053,
+      "job_id": 111802572756,
+      "event": "pull_request",
+      "job_conclusion": "failure",
+      "artifact_id": 11349958299,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr18-run37321832053-artifact11349958299-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "c5309a518651ede0fd789f6275762fefd8d936079300da28bcee993d0ceb0dad"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr18-run37321832053-job111802572756.log",
+        "bytes": 76671,
+        "sha256": "f835355c2d46dbd26c1345163f19bdb7ec07495de8f9518ec9ba42c4838b296c",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:11:06+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T141039Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 18,
+      "source_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "checked_checkout_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "run_id": 37321169101,
+      "job_id": 111800321281,
+      "event": "push",
+      "job_conclusion": "failure",
+      "artifact_id": 11350271368,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr18-run37321169101-artifact11350271368-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "fb98e1f5ebe19a3582f0dc2dbe3c5425f574d9f85708bb9b631e7ee6f39f6e27"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr18-run37321169101-job111800321281.log",
+        "bytes": 72379,
+        "sha256": "48dfaed29537652806d291d2911baaf5d03af82e9b23c3773c408ba1a91e69c5",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:03:10+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T140250Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 19,
+      "source_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "checked_checkout_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "run_id": 37321848673,
+      "job_id": 111802628524,
+      "event": "pull_request",
+      "job_conclusion": "failure",
+      "artifact_id": 11352060038,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr19-run37321848673-artifact11352060038-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "8f6e34295610ef1624aee62a2219bed2a98fee6267a672a2f28cad760a30f202"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr19-run37321848673-job111802628524.log",
+        "bytes": 75145,
+        "sha256": "b022f28aa56f2447b3626beb108618fbae93b68de54e7eaa7951915975f157ad",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:23:37+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T142315Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 19,
+      "source_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "checked_checkout_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "run_id": 37321389178,
+      "job_id": 111801044537,
+      "event": "push",
+      "job_conclusion": "failure",
+      "artifact_id": 11351051421,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr19-run37321389178-artifact11351051421-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "b3932bb7b201f95e1f35248e02f86481c3ee5302487e2e941f67c3cd2376bc30"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr19-run37321389178-job111801044537.log",
+        "bytes": 76891,
+        "sha256": "7a16cfe01e859ebf3018d994edc734625d28e863f006be1f1601169120f1f09d",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:08:43+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T140812Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 21,
+      "source_head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "checked_checkout_sha": "99856c944c7d6e62cbaf7f502b7164900061a6bc",
+      "run_id": 37325034517,
+      "job_id": 111813480049,
+      "event": "pull_request",
+      "job_conclusion": "failure",
+      "artifact_id": 11353071430,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr21-run37325034517-artifact11353071430-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "5730ca9fc739ae63886b757e57e79912f2073ddd7b01c46d789afda2e84dde47"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr21-run37325034517-job111813480049.log",
+        "bytes": 79273,
+        "sha256": "1665910573d0843a0bf369da0ddc740106bd1bb46a88abea14380c8e664212f1",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:52:57+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T145224Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 23,
+      "source_head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "checked_checkout_sha": "37e43479a08a42fed998c56d328a21b4a997547b",
+      "run_id": 37323047501,
+      "job_id": 111806705313,
+      "event": "pull_request",
+      "job_conclusion": "failure",
+      "artifact_id": 11352500763,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr23-run37323047501-artifact11352500763-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "25d44a74b3af6fa90d5117adef08a80d069317e9877f15f95d40e21fa7e9b0a3"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr23-run37323047501-job111806705313.log",
+        "bytes": 79274,
+        "sha256": "f8f367b0fb07414cef29080daa0b96f2bcc6fae547e3aa53863e28030efe9eb4",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:33:00+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T143232Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 26,
+      "source_head": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "checked_checkout_sha": "6d2c1df282709dcfbe1fcbff95b7da3da5da60dc",
+      "run_id": 37324919982,
+      "job_id": 111813090804,
+      "event": "pull_request",
+      "job_conclusion": "failure",
+      "artifact_id": 11352896930,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr26-run37324919982-artifact11352896930-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "d3de18fad44bf7abe1ebb02ae28a9a048a56196429aa9a96aeff016451200dd3"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr26-run37324919982-job111813090804.log",
+        "bytes": 79431,
+        "sha256": "52d8d869cb9819933656f5aabd1b4daca285ac801d37ecfad7b963e8b7c62e7a",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:50:36+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T145003Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 29,
+      "source_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "checked_checkout_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "run_id": 37324581530,
+      "job_id": 111811923370,
+      "event": "pull_request",
+      "job_conclusion": "failure",
+      "artifact_id": 11352584147,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr29-run37324581530-artifact11352584147-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "b47f87c6068d10b770c3f08ed4482e5cf2a7d9fd431ab961ba4a51d0662735f5"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr29-run37324581530-job111811923370.log",
+        "bytes": 79398,
+        "sha256": "feb7a036ce171b83c3f04fe341aa5efb4419bf469b5ddc3cc831838ca87bb86f",
+        "download_exit": 0,
+        "download_error": ""
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:54:09+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T145334Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 21,
+      "source_head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "checked_checkout_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "run_id": 37325029585,
+      "job_id": 111813461947,
+      "event": "push",
+      "job_conclusion": "failure",
+      "artifact_id": 11353795188,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/artifact-11353795188-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "13e99ee2dce09dbb7a5320b72b00557042a457962a100f72765004fd5f8ad242"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr21-run37325029585-job111813461947.log",
+        "bytes": 76689,
+        "sha256": "51fe90f334d6c86267cbd2448e069934e0c04e656df041b32e0b225fbdb9ee7a"
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:55:51+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T145521Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 29,
+      "source_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "checked_checkout_sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+      "run_id": 37324592560,
+      "job_id": 111811960391,
+      "event": "pull_request",
+      "job_conclusion": "failure",
+      "artifact_id": 11353730256,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/artifact-11353730256-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "a2de2eb27209f3706bbfc7ed6265eda186d33368ad09aefaf81196b9a35c223f"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr29-run37324592560-job111811960391.log",
+        "bytes": 79120,
+        "sha256": "c9d0708365a0d2e42f4dbf15aa36feccd04efd02df3177ecd363b5ed2b8bc92b"
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T14:55:36+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T145506Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "pr": 31,
+      "source_head": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+      "checked_checkout_sha": "a5a165adbdf800a0d2598d41e2008e7cae13ee58",
+      "run_id": 37326442567,
+      "job_id": 111818298240,
+      "event": "pull_request",
+      "job_conclusion": "failure",
+      "artifact_id": 11354038639,
+      "artifact": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr31-run37326442567-artifact11354038639-canary_matrix_result.json",
+        "bytes": 5747,
+        "sha256": "7ae7796c33fe8c50d64b69f899a15748eb57165351d89700f709c6c4af1ee0a1"
+      },
+      "full_job_log": {
+        "path": "/workspace/e02-F-receipts/canary-ci/pr31-run37326442567-job111818298240.log",
+        "bytes": 79125,
+        "sha256": "aae57eab19706fa67274f00bf7232dc772c8904475d5ffeb3ba2dbc0256e8634"
+      },
+      "lane_deciding_output": {
+        "created_at": "2026-10-05T15:14:12+00:00",
+        "lanes": [
+          {
+            "bundle_path": null,
+            "ci_safe": false,
+            "closeout_compatibility_status": "not_applicable",
+            "closeout_required": true,
+            "command": [
+              "/home/runner/work/polisyos/polisyos/policy-engine/.venv/bin/python3",
+              "-m",
+              "tools.ops_runners.runtime.local_production_canary",
+              "--mode=simulated",
+              "--execution-profile=research",
+              "--canary-kind=research",
+              "--production-data-root=production_data",
+              "--quality-scenario=ukraine_msme_wartime_credit_support",
+              "--max-iterations=1",
+              "--output-root=.polisyos/canary_evidence/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--run-root=/home/runner/work/polisyos/polisyos/policy-engine/.polisyos/canary_matrix_runs/20261005T151342Z/profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "--matrix-lane-id=profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+            ],
+            "declared_status": "ready",
+            "exit_code": 1,
+            "failure_envelope": {
+              "bundle_failure": null,
+              "bundle_path": null,
+              "closeout_compatibility": null,
+              "code": "canary_lane_failed",
+              "exit_code": 1,
+              "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+              "message": "Canary lane command failed or did not emit a scorecard bundle.",
+              "missing_required_evidence": [],
+              "scorecard_status": "missing",
+              "source_truth_conflicts": [],
+              "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+              "stdout_tail": ""
+            },
+            "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+            "provider": "simulated",
+            "scenario": "public_golden",
+            "scorecard_status": "missing",
+            "status": "failed"
+          }
+        ],
+        "schema_version": "policyos.canary_matrix_run.v1",
+        "selected_lane_ids": [
+          "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only"
+        ],
+        "selection": {
+          "allow_live_provider": false,
+          "ci_smoke": false,
+          "deterministic": true,
+          "lane_id": null,
+          "only_lane": null,
+          "scenario": null
+        },
+        "summary": {
+          "blocked": 0,
+          "bundle_paths": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": null
+          },
+          "executed": 1,
+          "failed": 1,
+          "failure_envelope": {
+            "code": "canary_matrix_has_failures",
+            "failed_lanes": 1,
+            "failures": [
+              {
+                "failure_envelope": {
+                  "bundle_failure": null,
+                  "bundle_path": null,
+                  "closeout_compatibility": null,
+                  "code": "canary_lane_failed",
+                  "exit_code": 1,
+                  "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                  "message": "Canary lane command failed or did not emit a scorecard bundle.",
+                  "missing_required_evidence": [],
+                  "scorecard_status": "missing",
+                  "source_truth_conflicts": [],
+                  "stderr_tail": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2796, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2595, in main\n    bearer_token = _runtime_canary_bearer_token()\n  File \"/home/runner/work/polisyos/polisyos/policy-engine/tools/ops_runners/runtime/local_production_canary.py\", line 2413, in _runtime_canary_bearer_token\n    raise RuntimeError(\n        f\"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token\"\n    )\nRuntimeError: POLISYOS_RUNTIME_CANARY_BEARER_TOKEN must contain a short-lived service-principal token\n",
+                  "stdout_tail": ""
+                },
+                "lane_id": "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only",
+                "status": "failed"
+              }
+            ]
+          },
+          "lane_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "failed"
+          },
+          "passed": 0,
+          "scorecard_statuses": {
+            "profile-research__provider-simulated__data-canonical_production__scenario-public_golden__ui-api_only": "missing"
+          },
+          "selected_lanes": 1,
+          "skipped": 0
+        }
+      },
+      "checked_commit_parents": [
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "9a952415bb988e6ff79983fa9ef782ac28f2e672"
+      ]
+    }
+  ],
+  "nonpass_states": [
+    {
+      "pr": 15,
+      "current_source_head": "e642bb9025a67739c201393acca5712603cb064d",
+      "checks": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:01:53Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206367/job/111800438545",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:00:30Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:01:02Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321036478/job/111799868493",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T13:59:26Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:00:17Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206367/job/111800440459",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:00:18Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T13:59:01Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321036478/job/111799870176",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T13:59:01Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        }
+      ]
+    },
+    {
+      "pr": 18,
+      "current_source_head": "08aaccebfce37aa652ff243fce8037ff48020807",
+      "checks": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707113/job/111836157403",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:18:09Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707113/job/111836205770",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T15:18:15Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        }
+      ]
+    },
+    {
+      "pr": 19,
+      "current_source_head": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+      "checks": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018165/job/111837222771",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T15:20:26Z",
+          "status": "QUEUED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:20:25Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018165/job/111837284390",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T15:20:33Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        }
+      ]
+    },
+    {
+      "pr": 20,
+      "current_source_head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "checks": []
+    },
+    {
+      "pr": 21,
+      "current_source_head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "checks": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:53:04Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034517/job/111813480049",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:51:20Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:55:57Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325029585/job/111813461947",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:54:20Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:28:50Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034517/job/111813481877",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:28:50Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:28:48Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325029585/job/111813464183",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:28:48Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        }
+      ]
+    },
+    {
+      "pr": 23,
+      "current_source_head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "checks": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:33:06Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047501/job/111806705313",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:31:31Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:14:02Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047501/job/111806706825",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:14:03Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        }
+      ]
+    },
+    {
+      "pr": 26,
+      "current_source_head": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "checks": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:50:43Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919982/job/111813090804",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:48:56Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:27:58Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919982/job/111813093594",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:27:59Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        }
+      ]
+    },
+    {
+      "pr": 29,
+      "current_source_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "checks": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:54:16Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581530/job/111811923370",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:52:22Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:55:40Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592560/job/111811960391",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:54:06Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:28Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581530/job/111811924995",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:32Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592560/job/111811962086",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:25:33Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        }
+      ]
+    },
+    {
+      "pr": 31,
+      "current_source_head": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+      "checks": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:14:18Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442567/job/111818298240",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T15:12:38Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:39:19Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442567/job/111818301000",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:39:19Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        }
+      ]
+    }
+  ],
+  "untransferred_basis": "All referenced raw GH job logs and complete artifacts are scratch paths, not committed to any F topic by this read-only CI task. Native connector downloaded complete artifacts after gh Azure redirect403; no signed download URLs are included in this verdict.",
+  "historical_classification_sha256": "b96b11a350cb4e88eb7f74b6c8c9c4809e65f0cb755195090d7b6a87a2d964f4",
+  "source_head_boundary": "Completed deciding receipts bind their observed source heads and actual checked merge/push SHAs. New documentation receipt heads for PR18/19 differ; prior completed failure is not a current-head PASS or regression attribution. Fresh rollup records current pending/absent status."
+}

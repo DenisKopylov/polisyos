@@ -1,0 +1,46 @@
+[
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": ".github/actions/setup-runtime-dashboard/action.yml",
+    "blob_sha": "9571179606624587c0afb3c09e9685793a39e7ae",
+    "sha256": "ed6341360ddad176ed1ae72d3c90bf6a0f4b60c6ca4528ae00a2a69068805626",
+    "bytes": 2739,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/actions/setup-runtime-dashboard/action.yml"
+  },
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/apps/runtime-dashboard/playwright.config.ts",
+    "blob_sha": "d65eb9f3499cbbe5cf179c586b4f09b002bcf9e5",
+    "sha256": "04e27f939d43268b2c678bc205c941c0cf1ef719e430bdb65ecf6d197d844927",
+    "bytes": 2819,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/playwright.config.ts"
+  },
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
+    "blob_sha": "b5137139cd1b02305277d051d104393912271b7b",
+    "sha256": "ca2bcf8841eea740103afcf500e546e3c0f03b6000a1050e8d3e1cf8c486c328",
+    "bytes": 98913,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/scripts/persist_atlas_evidence.py"
+  },
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/catalogs/en.json",
+    "exit": 1,
+    "error": "gh: Not Found (HTTP 404)\n"
+  },
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/catalogs/uk.json",
+    "exit": 1,
+    "error": "gh: Not Found (HTTP 404)\n"
+  },
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+    "blob_sha": "f03a5304bb8d61190c7ff2a91b0671a04e7e9176",
+    "sha256": "a2a4f06452428a225b393941ae16cf3cb42043c01a38679bb725595818cb9f62",
+    "bytes": 79191,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/quality/substrate_registry.py"
+  }
+]

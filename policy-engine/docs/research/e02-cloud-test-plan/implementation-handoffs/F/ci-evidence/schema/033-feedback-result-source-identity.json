@@ -1,0 +1,155 @@
+{
+  "source_c40": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+  "same_defining_files": {
+    "15": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "base_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+        "head_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "base_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "head_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+        "base_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+        "head_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "base_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "head_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py",
+        "base_blob": "40cdebf82921f87b1d3bd8601291f03ad7fe635e",
+        "head_blob": "40cdebf82921f87b1d3bd8601291f03ad7fe635e",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "base_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "head_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "base_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "head_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "base_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "head_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "equal": true
+      }
+    ],
+    "18": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "base_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+        "head_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "base_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "head_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+        "base_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+        "head_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "base_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "head_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py",
+        "base_blob": "40cdebf82921f87b1d3bd8601291f03ad7fe635e",
+        "head_blob": "40cdebf82921f87b1d3bd8601291f03ad7fe635e",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "base_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "head_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "base_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "head_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "base_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "head_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "equal": true
+      }
+    ],
+    "19": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "base_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+        "head_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "base_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "head_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+        "base_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+        "head_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "base_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "head_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py",
+        "base_blob": "40cdebf82921f87b1d3bd8601291f03ad7fe635e",
+        "head_blob": "40cdebf82921f87b1d3bd8601291f03ad7fe635e",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "base_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "head_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "base_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "head_blob": "cea9bbf6dc36fbb3935c32cde0766560321bd821",
+        "equal": true
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "base_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "head_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+        "equal": true
+      }
+    ]
+  }
+}

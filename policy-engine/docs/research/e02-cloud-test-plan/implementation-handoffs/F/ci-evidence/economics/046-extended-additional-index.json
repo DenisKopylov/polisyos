@@ -1,0 +1,34 @@
+[
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+    "blob_sha": "e86d49007c139051a7058b76806913149426deeb",
+    "sha256": "6cb6dc4550d0f4ff3b49dd38ae8c4f0eaa34f0218c405616bfc5d233f907a4c7",
+    "bytes": 152836,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json"
+  },
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+    "blob_sha": "18d4cac049193373d592002a6e0dbf1189df0ed1",
+    "sha256": "f103c6daabb31632ef3882329af5f5742f071cb387ddc6d3cb4b647667b8c1a7",
+    "bytes": 198820,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json"
+  },
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+    "blob_sha": "f18726c6d7896450089c0a992d6fe701d2894fd6",
+    "sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7",
+    "bytes": 197019,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py"
+  },
+  {
+    "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "path": "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+    "blob_sha": "a352e3c08a99d9c1466ee4caae7ec6e6d1a9004d",
+    "sha256": "210a02646fc4bdade933ca85fa53ced9b91dcdea4ca49d62abd265b5d7826dce",
+    "bytes": 7457,
+    "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py"
+  }
+]

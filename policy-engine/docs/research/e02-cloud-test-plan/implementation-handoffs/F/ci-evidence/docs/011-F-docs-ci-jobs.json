@@ -1,0 +1,526 @@
+[
+  {
+    "pr": 15,
+    "snapshot_head": "e642bb9025a67739c201393acca5712603cb064d",
+    "run_id": "37321206325",
+    "job_id": "111800440136",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440136",
+    "job_head_sha": "e642bb9025a67739c201393acca5712603cb064d",
+    "job_status": "completed",
+    "conclusion": "failure",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-05T14:00:56Z",
+        "completed_at": "2026-10-05T14:00:57Z"
+      },
+      {
+        "name": "Checkout repository",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-05T14:00:57Z",
+        "completed_at": "2026-10-05T14:01:08Z"
+      },
+      {
+        "name": "Setup Policy Engine Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-05T14:01:08Z",
+        "completed_at": "2026-10-05T14:01:22Z"
+      },
+      {
+        "name": "Run path-aware docs drift gate",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 4,
+        "started_at": "2026-10-05T14:01:22Z",
+        "completed_at": "2026-10-05T14:01:28Z"
+      },
+      {
+        "name": "Run path-aware docs drift gate for push",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-05T14:01:28Z",
+        "completed_at": "2026-10-05T14:01:28Z"
+      },
+      {
+        "name": "Check docs freshness baseline",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-05T14:01:28Z",
+        "completed_at": "2026-10-05T14:01:28Z"
+      },
+      {
+        "name": "Check docs lifecycle gates",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-05T14:01:28Z",
+        "completed_at": "2026-10-05T14:01:28Z"
+      },
+      {
+        "name": "Check ADR thematic index freshness",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-05T14:01:28Z",
+        "completed_at": "2026-10-05T14:01:28Z"
+      },
+      {
+        "name": "Check tool config split drift",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-05T14:01:28Z",
+        "completed_at": "2026-10-05T14:01:28Z"
+      },
+      {
+        "name": "Build docs in strict mode",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-05T14:01:28Z",
+        "completed_at": "2026-10-05T14:01:28Z"
+      },
+      {
+        "name": "Check public-surface docstring quality",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-05T14:01:28Z",
+        "completed_at": "2026-10-05T14:01:28Z"
+      },
+      {
+        "name": "Post Setup Policy Engine Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21,
+        "started_at": "2026-10-05T14:01:28Z",
+        "completed_at": "2026-10-05T14:01:28Z"
+      },
+      {
+        "name": "Post Checkout repository",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-05T14:01:28Z",
+        "completed_at": "2026-10-05T14:01:29Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-05T14:01:29Z",
+        "completed_at": "2026-10-05T14:01:29Z"
+      }
+    ],
+    "metadata_path": "/workspace/e02-F-receipts/F-docs-pr15-job-111800440136.json",
+    "metadata_exit": 0,
+    "log_path": "/workspace/e02-F-receipts/F-docs-pr15-job-111800440136.txt",
+    "log_exit": 0,
+    "bytes": 12,
+    "sha256": "bd44a80c9d2a80399f7c6d0187d082cc7cfbde389643952c8238abc71aa6ee54",
+    "wall_s": 2.488
+  },
+  {
+    "pr": 18,
+    "snapshot_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "run_id": "37321831696",
+    "job_id": "111802572067",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572067",
+    "job_head_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "job_status": "completed",
+    "conclusion": "failure",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-05T14:15:04Z",
+        "completed_at": "2026-10-05T14:15:05Z"
+      },
+      {
+        "name": "Checkout repository",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-05T14:15:05Z",
+        "completed_at": "2026-10-05T14:15:15Z"
+      },
+      {
+        "name": "Setup Policy Engine Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-05T14:15:15Z",
+        "completed_at": "2026-10-05T14:15:28Z"
+      },
+      {
+        "name": "Run path-aware docs drift gate",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 4,
+        "started_at": "2026-10-05T14:15:28Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Run path-aware docs drift gate for push",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Check docs freshness baseline",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Check docs lifecycle gates",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Check ADR thematic index freshness",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Check tool config split drift",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Build docs in strict mode",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Check public-surface docstring quality",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Post Setup Policy Engine Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Post Checkout repository",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-05T14:15:35Z",
+        "completed_at": "2026-10-05T14:15:35Z"
+      }
+    ],
+    "metadata_path": "/workspace/e02-F-receipts/F-docs-pr18-job-111802572067.json",
+    "metadata_exit": 0,
+    "log_path": "/workspace/e02-F-receipts/F-docs-pr18-job-111802572067.txt",
+    "log_exit": 1,
+    "bytes": 93,
+    "sha256": "d9f320f416a0e880fa93d8365b05ffe1fb1abf488aa88bc11a3ed7bef91ab87f",
+    "wall_s": 2.428
+  },
+  {
+    "pr": 19,
+    "snapshot_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+    "run_id": "37321848468",
+    "job_id": "111802631444",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631444",
+    "job_head_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+    "job_status": "completed",
+    "conclusion": "failure",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-05T14:13:01Z",
+        "completed_at": "2026-10-05T14:13:02Z"
+      },
+      {
+        "name": "Checkout repository",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-05T14:13:02Z",
+        "completed_at": "2026-10-05T14:13:11Z"
+      },
+      {
+        "name": "Setup Policy Engine Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-05T14:13:11Z",
+        "completed_at": "2026-10-05T14:13:44Z"
+      },
+      {
+        "name": "Run path-aware docs drift gate",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 4,
+        "started_at": "2026-10-05T14:13:44Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Run path-aware docs drift gate for push",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Check docs freshness baseline",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Check docs lifecycle gates",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Check ADR thematic index freshness",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Check tool config split drift",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Build docs in strict mode",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Check public-surface docstring quality",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Post Setup Policy Engine Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Post Checkout repository",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:50Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-05T14:13:50Z",
+        "completed_at": "2026-10-05T14:13:51Z"
+      }
+    ],
+    "metadata_path": "/workspace/e02-F-receipts/F-docs-pr19-job-111802631444.json",
+    "metadata_exit": 0,
+    "log_path": "/workspace/e02-F-receipts/F-docs-pr19-job-111802631444.txt",
+    "log_exit": 1,
+    "bytes": 93,
+    "sha256": "afe2d9240c3dcc2e24c0cd5e35ca9643853534f042acdd339642cde8420e7fc2",
+    "wall_s": 2.54
+  },
+  {
+    "pr": 20,
+    "snapshot_head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+    "run_id": "37322540817",
+    "job_id": "111811930974",
+    "url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930974",
+    "job_head_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+    "job_status": "completed",
+    "conclusion": "failure",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-05T14:47:59Z",
+        "completed_at": "2026-10-05T14:48:00Z"
+      },
+      {
+        "name": "Checkout repository",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-05T14:48:00Z",
+        "completed_at": "2026-10-05T14:48:10Z"
+      },
+      {
+        "name": "Setup Policy Engine Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-05T14:48:10Z",
+        "completed_at": "2026-10-05T14:48:24Z"
+      },
+      {
+        "name": "Run path-aware docs drift gate",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 4,
+        "started_at": "2026-10-05T14:48:24Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Run path-aware docs drift gate for push",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Check docs freshness baseline",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Check docs lifecycle gates",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Check ADR thematic index freshness",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Check tool config split drift",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Build docs in strict mode",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Check public-surface docstring quality",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Post Setup Policy Engine Python",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Post Checkout repository",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-05T14:48:31Z",
+        "completed_at": "2026-10-05T14:48:31Z"
+      }
+    ],
+    "metadata_path": "/workspace/e02-F-receipts/F-docs-pr20-job-111811930974.json",
+    "metadata_exit": 0,
+    "log_path": "/workspace/e02-F-receipts/F-docs-pr20-job-111811930974.txt",
+    "log_exit": 1,
+    "bytes": 93,
+    "sha256": "f4648fbe3086f54bd612c000f4b419d110b70a1d892e409c05838934f1210f76",
+    "wall_s": 2.526
+  }
+]

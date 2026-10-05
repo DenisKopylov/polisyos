@@ -1,0 +1,373 @@
+{
+  "schema": "policyos.e02.receipt_audit_docs_companion_delta.v1",
+  "reviewer": "F/causal_api",
+  "mode": "read_only_exact_published_ref_bytes",
+  "initial_audit_path": "/workspace/e02-F-receipts/receipt-audit.json",
+  "initial_audit_sha256": "e12587bb65fda2f576f4cbd8a2796fcce6a56755cf2bd03c43f013ffa7b8d08a",
+  "published_heads": {
+    "codex/e02-F-cau": "08aaccebfce37aa652ff243fce8037ff48020807",
+    "codex/e02-F-causal-api": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+    "codex/e02-F-causal-output": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+    "codex/e02-F-economic-dtype": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+    "codex/e02-F-economics": "e642bb9025a67739c201393acca5712603cb064d",
+    "codex/e02-F-fit-tmle": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+    "codex/e02-F-foundry": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+    "codex/e02-F-graph-scm": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+    "codex/e02-F-lex": "3fab28d98997527b2a26d46fe4e16220e42383b7"
+  },
+  "changed_or_added_heads": {
+    "codex/e02-F-cau": "08aaccebfce37aa652ff243fce8037ff48020807",
+    "codex/e02-F-causal-api": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+    "codex/e02-F-causal-output": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+    "codex/e02-F-economic-dtype": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+    "codex/e02-F-fit-tmle": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+    "codex/e02-F-lex": "3fab28d98997527b2a26d46fe4e16220e42383b7"
+  },
+  "records": [
+    {
+      "slice": "cau-cohort-admission",
+      "branch": "codex/e02-F-cau",
+      "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+      "previous_audited_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+      "receipt_sha256": "561a89549fe513551a793b3cc07587c2d652d51cb170c0b619b4dd39e39a6e0c",
+      "implementation_commits": [
+        "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+        "d27227d03a7c78b90c442e6f258c45987104f8a1"
+      ],
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "candidate_tree_sha": "f8f48556b06648b51364389595d17470fd94beb2",
+      "receipt_last_update_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+      "bindings": {
+        "base_ancestor_candidate": true,
+        "implementation_commits_ancestors_of_candidate": true,
+        "candidate_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_last_update_separate_later_than_implementation": true,
+        "changed_paths_match_declared_implementation_commit_union": true
+      },
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 11600,
+          "sha256": "7dd60eaa7f67c619b9bd2b00d6878fa36441e559f491259d8929fc34a47ac60e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 133,
+          "sha256": "ad25613c8f4e665b39b986034c0ab797f63964e69ec7203c392b8b4e9fcdfb5a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 11662,
+          "sha256": "77c84ff79a151d8cb47531e7454cff5cbe2d4a9c31b02f09e2924c88743adcb6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 761,
+          "sha256": "fc1e6b1dbf1f930b62b6833259013af7b908177a3f9fd3c0fdc8a19655b99949"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 1596,
+          "sha256": "73db34872d8305dac18500be06505568706ac3fddde8b7ab8c492f1c527135ca"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.txt",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 1425,
+          "sha256": "ec5cecf19cc7c4b1c900c23eb19d762e24676281950a63a5c0965087e2141610"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.json",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 829,
+          "sha256": "de48d559dfabe5661e5bcd8c0b5048ce6a5ee923b038090fbeaab37afb0ab855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.txt",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 1033,
+          "sha256": "3b486d999d00b9c7c666ed721f0fdcb4cbb0a53c015eaa9454b6e601cdc0237b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.json",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 828,
+          "sha256": "c05407d34839d185f835919cd0759c3f2be5c9fc24fca27e7c96e6835618341d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-runtime-identity.json",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 1767,
+          "sha256": "1aefbc9a3275a13f4af0aeb615e4261d35fb15a80a51c385d1ccb4433385dd04"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-gate-plan.json",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 4408,
+          "sha256": "d2963bb5d18485b679102477b03a6eee075f8c2b33a77266117765c8971be110"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-after-native.txt",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 1511,
+          "sha256": "57679fb3c7e2f303dd4c9076f0fd493dc872667cf2c0becdaf9305a22e841f34"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-review.json",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 12232,
+          "sha256": "1dd10e413808c8e3e972f18861d4455b96384fe1c592b549cae20efef2f7cb21"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-full.txt",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 45822,
+          "sha256": "18c9bb90ad2939ee609081987c67304db0eabaded32f21a1e332dd49ff0cee44"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-triage.json",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 13456,
+          "sha256": "a863fe7d40627f92e53fa3e9d294ff2de2970c377779abbf18adeacae5c2d294"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-resume.json",
+          "topic_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+          "bytes": 70307,
+          "sha256": "e9e3bc6c56596125a90e314011414d3e93333d571f3b6c3ae5a5e1f2fd6df0e4"
+        }
+      ],
+      "declared_hashes_checked": 13,
+      "non_git_raw_paths": [],
+      "cross_branch_receipt_dependencies": [],
+      "checks": [
+        {
+          "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "ERROR",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "d27227d03a7c78b90c442e6f258c45987104f8a1",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "target_is_not_future": true
+        }
+      ],
+      "closure_ids_are_targets_only": [
+        "B207",
+        "B209"
+      ],
+      "related_ids": [],
+      "bundle_ids": [
+        "CAU-02"
+      ],
+      "finding_state_as_declared": "implemented bounded cohort-admission mechanism; all11 CAU findings remain limited/partial, no closure/status ledger mutation",
+      "limitations_as_declared": [
+        "G: fetch exact topic head+implementation SHA; review this bounded code separately from finding closure.",
+        "G/causal-analysis data owner: admitted full production inputs remain local; rerun exact9path command on candidate SHA with the source-owner cohort record; do not promote synthetic-DGP property to real-data validity.",
+        "Causal methodology owner: staggered descriptive interval remains non-gate-eligible and no calibrated p/CI is produced; multi-cohort null/coverage checks remain unestablished.",
+        "G/DoWhy reference environment owner: native DoWhy tests listed as5SKIP remain UNRUN under canonicalPython3.14 markers; do not fabricate a shim or treat absence as a backend witness.",
+        "Causal ABI consumers: MethodDispatcher emits pre-existing raw-key warnings result/report and uncertainty_envelope/envelope; components/io has downstream canonical aliases. This slice changes no signature/facade; does not claim raw-output ABIgreen.",
+        "G: reconcile LA-016 residual prose that mentions DoWhy against authoritative DiD source card before any closure.",
+        "G: four-base historical replay for CAU-01 remains UNRUN; existing current-head tests do not substitute that replay.",
+        "G: production_invocation huge raw remains local163MiB; static detail receipt is unavailable acrossGit and runtime proof is supplied by bounded execution logs, not static summary.",
+        "G/docs freshness owner: full path-aware docs gate still FAIL on global baseline expiry/count/hash; strict MkDocs build is UNRUN after first command failure. No baseline or exception was changed.",
+        "G/C import API owner: prior PR18 Python quality/unit CI failed at canonical import policy and downstream tests were SKIPPED; native local79PASS5SKIP does not imply whole CI PASS. Source-only cause/denominator triage supplied separately to root; no estimator edit or inherited-red claim."
+      ]
+    },
+    {
+      "slice": "api-consumer-abi",
+      "branch": "codex/e02-F-causal-api",
+      "topic_head_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+      "previous_audited_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+      "receipt_sha256": "8c53362ed404df13afeb0deeb3021eee149e3bb9106d8cf1139d58d1b924a58b",
+      "implementation_commits": [
+        "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+        "4b8cdf8ab88006c572c2b2d0039053d5a0138f14"
+      ],
+      "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "candidate_tree_sha": "81d0eace9b45d1a920e30a5564244c85bfc00ea8",
+      "receipt_last_update_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+      "bindings": {
+        "base_ancestor_candidate": true,
+        "implementation_commits_ancestors_of_candidate": true,
+        "candidate_ancestor_topic_head": true,
+        "candidate_tree_matches": true,
+        "receipt_last_update_separate_later_than_implementation": true,
+        "changed_paths_match_declared_implementation_commit_union": true
+      },
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+          "topic_head_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+          "bytes": 17269,
+          "sha256": "8c53362ed404df13afeb0deeb3021eee149e3bb9106d8cf1139d58d1b924a58b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+          "topic_head_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+          "bytes": 1301,
+          "sha256": "f680fe0dcd61b71818a851e79396298cb9c35351ebb679fcefca7488352c1160"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+          "topic_head_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+          "bytes": 2125,
+          "sha256": "b5ae83d4ffee3d281723c75304b430e041dc5b2f9f9350ad88a448ddc6c6a633"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.txt",
+          "topic_head_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+          "bytes": 990,
+          "sha256": "f011710e49f63d54cf5becafa997ee796606c6ca11e871541aeebdf07013f20f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent.txt",
+          "topic_head_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+          "bytes": 1475,
+          "sha256": "9328d6b96467793b7ed817cb1e6f859ff2235567921555ba1bb5d6a5a5742efe"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.json",
+          "topic_head_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+          "bytes": 1944,
+          "sha256": "2a29b9155764d3a28d38cd96f1b01f847b9b4312d3fe364cfbcadb7a38b6dcd4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent-review.json",
+          "topic_head_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+          "bytes": 16300,
+          "sha256": "bf9d98a64cd40b62d582d6a670d46c7587c6ff4974f635759bcad2ffd3a40601"
+        }
+      ],
+      "declared_hashes_checked": 7,
+      "non_git_raw_paths": [],
+      "cross_branch_receipt_dependencies": [],
+      "checks": [
+        {
+          "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+          "outcome": "PASS",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
+          "outcome": "FAIL",
+          "exit_code": null,
+          "target_is_not_future": true
+        },
+        {
+          "target_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
+          "outcome": "PASS bounded companion predicate; full gate FAIL1",
+          "exit_code": null,
+          "target_is_not_future": true
+        }
+      ],
+      "closure_ids_are_targets_only": [
+        "LA-020"
+      ],
+      "related_ids": [],
+      "bundle_ids": [
+        "API-01"
+      ],
+      "finding_state_as_declared": "limited: supported-facade ABI witness and canonical package/reference documentation complete; own bounded foundry_docs deficiency resolved, wholeDocsqualityFAILED and LA-020 blanket closure not claimed",
+      "limitations_as_declared": [
+        "G fetches exact topic head and receipt and reruns these checks after integration; commit acceptance is separate from finding closure.",
+        "LA-020 remains limited pending API-owner external/computed caller migration and compatibility retirement decision. Supported historical private aliases are retained.",
+        "UtilityJudge real-identification ranking remains FAIL on exact base/candidate; G and the graph/Scientist semantic owner must resolve it. Full P41 attribution not established.",
+        "Method-signature/native-output ABI mismatch (independently observed RDD signature causal_effect_report versus report/envelope) is handed to CAU canonical _common/dispatcher owner; this slice does not claim its closure.",
+        "Native pydoc rendering verified; MkDocs site generation, optional DoWhy/EconML backends and real admitted-data inference are UNRUN/outside this witness. Python3.14 markers exclude those optional backends, not a positive backend witness.",
+        "Class/function global FQNs pickle roundtrip verified. Result DTOs use the supported JSON reader; default pickling of immutable graph instances is not claimed.",
+        "Plugin registration/discovery belongs to C. Existing parent causal facade and _registry_boot consume the retained class identities; no plugin discovery or entrypoint mutation is made.",
+        "CurrentAPI reference docs fullactualpath DocsGate remainsFAIL: expired freshness baseline observed10/hash459cc; strictMkDocs buildUNRUN after child failure. G/canonical docs freshness owners must resolve without treating companion coverage or prior CI reproduction as provenance exemption."
+      ]
+    }
+  ],
+  "binding_or_hash_problems": [],
+  "finding_closure_accepted_by_this_audit": [],
+  "initial_17_bundle_35_finding_denominator_preserved": {
+    "bundle_owner_tsv_total": 127,
+    "F_bundles": 17,
+    "finding_owner_tsv_total": 282,
+    "F_findings": 35,
+    "ledger_rows": 282,
+    "ledger_unique_ids": 282,
+    "F_represented_in_receipt_related_residual_union": 35
+  },
+  "scope": "Read-only final-publication documentation delta only: CAU08aac andAPI6eb; prior7ref and4refdelta audits remain immutable,17bundle/35finding classification denominator unchanged. Other branches in remote snapshot are not reaudited here.",
+  "previous_approved_delta": {
+    "path": "/workspace/e02-F-receipts/receipt-audit-delta-approved.json",
+    "sha256": "ad97e4a9231a23784d9dd979c8c9703f7e4b58f42eebb0e904ac867557cf0330"
+  },
+  "reviewer_scope": "CAU published bytes independently inspected. API published receipt bytes self-verified by its author; independentgraphreview covers exactfrozen4b8doc implementation and native docs/removal controls. No independent-G acceptance is inferred.",
+  "documentation_rule_boundary": "Both doc companions remove only their actual foundry_docs path predicate. Canonical fullDocsGate stillFAILexpiredfreshness expected0/observed10/hash459cc; strictdocsbuildUNRUN after nativefirst-command failure. Prior native checks retain originalimplementationSHA; no rerun at newerdocSHA is invented."
+}

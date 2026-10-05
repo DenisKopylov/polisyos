@@ -1,0 +1,336 @@
+{
+  "schema": "policyos.e02.readonly_transfer_selection.v1",
+  "unit": "F",
+  "slice": "fast-ci-schema-abi-readonly",
+  "source_baseline_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "required_files": [
+    {
+      "file": "summary.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/summary.json",
+      "bytes": 10810,
+      "sha256": "5e8f02f0209abc66c76837f3be15b48d6c24e1e0dc3d29bba33155fd624d7863",
+      "purpose": "conclusions and limits"
+    },
+    {
+      "file": "main-c40-fast-runs.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-fast-runs.json",
+      "bytes": 355,
+      "sha256": "83130aca151f1acd48e89784e1e0742a2be88771481a3e349b4e1ec373b14e35",
+      "purpose": "exact baseline run discovery"
+    },
+    {
+      "file": "main-c40-run.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-run.json",
+      "bytes": 12705,
+      "sha256": "db1e67038ba9297851376c4d216610069fa2370833d57e2398a7c1babf2540dc",
+      "purpose": "actual baseline source/event identity"
+    },
+    {
+      "file": "main-c40-jobs.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-jobs.json",
+      "bytes": 15930,
+      "sha256": "235a1aa2931d57e93112c797e4129424a7839edb0d8ce067a85a071c8ade18b7",
+      "purpose": "baseline schema failure and ABI skipped state"
+    },
+    {
+      "file": "main-c40-archive-5_Fast PR _ Schema snapshots.txt",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-archive-5_Fast PR _ Schema snapshots.txt",
+      "bytes": 36987,
+      "sha256": "169ade6c2e253e3ac12020e4ab547c676693e2c1abbf90e330a46e0d9f0a89b9",
+      "purpose": "complete actual baseline checkout/environment/deciding output"
+    },
+    {
+      "file": "main-c40-schema-complete-normalized.txt",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-schema-complete-normalized.txt",
+      "bytes": 21446,
+      "sha256": "960ab08bdf924db8c258ce6e388c4cd1c652fd68a65e940e263c72e6e14bb557",
+      "purpose": "complete readable baseline log, declared normalization"
+    },
+    {
+      "file": "run-37321206325.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321206325.json",
+      "bytes": 12885,
+      "sha256": "d6fa30e3f8bc2293f1d3a1eb27f385a502aaf4848fe0b0dcf058775cba3cb018",
+      "purpose": "PR15 run/head/base identity"
+    },
+    {
+      "file": "pr15-111800440922-job.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-111800440922-job.json",
+      "bytes": 2054,
+      "sha256": "c4ed2e6c37fce38f9941376b34bf1e4d82d46d75d4829c45255ab4b9ae841889",
+      "purpose": "PR15 schema job and failed step metadata"
+    },
+    {
+      "file": "pr15-111800440690-job.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-111800440690-job.json",
+      "bytes": 3241,
+      "sha256": "2907c63c7c0a799aec8a418555e963e35cd3a349b1a988db30f9e7a0e48b80c6",
+      "purpose": "PR15 ABI job; semantic diff skipped metadata"
+    },
+    {
+      "file": "pr15-merge-commit.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-merge-commit.json",
+      "bytes": 2640,
+      "sha256": "7f2757feeb20bb66ad11cdf8213925a237532c80015dd3e8c3db724328dae8ef",
+      "purpose": "actual PR15 merge parents and tree paired to checkout log"
+    },
+    {
+      "file": "run-37321206325-archive-1_Fast PR _ Schema snapshots.txt",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321206325-archive-1_Fast PR _ Schema snapshots.txt",
+      "bytes": 37990,
+      "sha256": "4ab66c530dce94117a2e5aee1c1c3d82f9743026d893d12d77f0a837610418f9",
+      "purpose": "complete actual PR15 schema checkout/environment/deciding output"
+    },
+    {
+      "file": "run-37321206325-archive-2_Fast PR _ ABI drift.txt",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321206325-archive-2_Fast PR _ ABI drift.txt",
+      "bytes": 53448,
+      "sha256": "a573cea376eceaf551cd022542e2ca10ccf5cac071e0092883792b9aa322bd66",
+      "purpose": "complete actual PR15 ABI checkout/environment/deciding output"
+    },
+    {
+      "file": "pr15-schema-complete-normalized.txt",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-schema-complete-normalized.txt",
+      "bytes": 22014,
+      "sha256": "e8fb7ee9f048ec02209633949ff424b6026057234b4017ca6a188a3365578463",
+      "purpose": "complete readable PR15 schema log, declared normalization"
+    },
+    {
+      "file": "pr15-abi-complete-normalized.txt",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-abi-complete-normalized.txt",
+      "bytes": 32507,
+      "sha256": "a97e49ffca2eb80543fb56e5250f51b550073ccad52b9853d0a05ce0f0803a87",
+      "purpose": "complete readable PR15 ABI log, declared normalization"
+    },
+    {
+      "file": "complete-log-normalization-receipts.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/complete-log-normalization-receipts.json",
+      "bytes": 2021,
+      "sha256": "b87e3f26b0e6183dcb4fd339ef9d9d9f358cb37e1d47ef3b7080e8d317f852a3",
+      "purpose": "raw-to-normalized byte hashes and line preservation"
+    },
+    {
+      "file": "run-37321831696.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321831696.json",
+      "bytes": 12845,
+      "sha256": "39e39ef5326cb841e126f61068b95154851aa42d96232f16415455bd230367a1",
+      "purpose": "PR18 actual run/head/base state"
+    },
+    {
+      "file": "run-37321848468.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321848468.json",
+      "bytes": 12863,
+      "sha256": "dc3a38483cd12420f39ee1e8c9c22c1bb5081b8ecdab1579b5a60a3cb8cc59d5",
+      "purpose": "PR19 actual run/head/base state"
+    },
+    {
+      "file": "pr18-111802572091-job.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-111802572091-job.json",
+      "bytes": 2048,
+      "sha256": "bfeff982c92ddfa40ba425b8f99de6dc3585eb418a218e88792f850477a2e9f9",
+      "purpose": "PR18 schema completed failure metadata"
+    },
+    {
+      "file": "pr18-111802571950-job.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-111802571950-job.json",
+      "bytes": 3235,
+      "sha256": "f8bb702fc2128155f285a7cdd562706a7b3fc5d26aeb6739e06de22d2970e12b",
+      "purpose": "PR18 ABI failed check and skipped semantic diff metadata"
+    },
+    {
+      "file": "pr19-111802631692-job.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-111802631692-job.json",
+      "bytes": 2055,
+      "sha256": "abd6a0ab8265afb92b0696df67ad5550b75f45ed2fc1ed45b15247d9510b4a6f",
+      "purpose": "PR19 schema completed failure metadata"
+    },
+    {
+      "file": "pr19-111802631813-job.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-111802631813-job.json",
+      "bytes": 3242,
+      "sha256": "198f001972677651b3d4ce05e2aef4bfc77b4848b9aa56109b79346e01a3e425",
+      "purpose": "PR19 ABI failed check and skipped semantic diff metadata"
+    },
+    {
+      "file": "pr18-merge-commit.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-merge-commit.json",
+      "bytes": 2640,
+      "sha256": "ebfdc11edf04fa920e973442db1db18593c1b73ae78418daa09728aee4eca7fd",
+      "purpose": "PR18 API merge parents/tree; actual checkout still not established"
+    },
+    {
+      "file": "pr19-merge-commit.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-merge-commit.json",
+      "bytes": 2640,
+      "sha256": "509ff3a37e3950fade076157019a3f69d8c9f404d59350d01407b34e85a5fd39",
+      "purpose": "PR19 API merge parents/tree; actual checkout still not established"
+    },
+    {
+      "file": "pr15-check-annotations.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-check-annotations.json",
+      "bytes": 1337,
+      "sha256": "15451db57c41944255ff4545f2b54aeb5489e6ff60cb047b4faf38f7ec2d9095",
+      "purpose": "actual schema failure exit annotation"
+    },
+    {
+      "file": "pr18-check-annotations.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr18-check-annotations.json",
+      "bytes": 1337,
+      "sha256": "4cfea05117f6947e350eecfae90f56510770bf30d6f429a11c61d50e139eddb1",
+      "purpose": "actual schema failure exit annotation"
+    },
+    {
+      "file": "pr19-check-annotations.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr19-check-annotations.json",
+      "bytes": 1337,
+      "sha256": "4f05b04513bdf18ea7e49890ac0abe455a603471dad10a5fe8e6c5ca8429f524",
+      "purpose": "actual schema failure exit annotation"
+    },
+    {
+      "file": "selected-jobs-snapshot.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/selected-jobs-snapshot.json",
+      "bytes": 5874,
+      "sha256": "19712a3847e0c65423c28fba8e9f30b7ab4087f968153c366fed1cb16ba88530",
+      "purpose": "all selected jobs/statuses at pinned F snapshot"
+    },
+    {
+      "file": "full-gen-schema-native-replays.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/full-gen-schema-native-replays.json",
+      "bytes": 5777,
+      "sha256": "d96ffb6047144fa102efa6ae93dc516143fb1dde4dce763706eb263b767a0938",
+      "purpose": "complete exact c40 and PR15/18/19 native argv/source/tree/streams"
+    },
+    {
+      "file": "other-F-full-gen-schema-native-replays.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/other-F-full-gen-schema-native-replays.json",
+      "bytes": 8420,
+      "sha256": "03aaf322e3346bb60db4d3949c045ced8aa0080869e7fdf74071ea5280ea7542",
+      "purpose": "complete native argv/source/tree/streams for remaining six F heads"
+    },
+    {
+      "file": "base-c40-source-denominator.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/base-c40-source-denominator.json",
+      "bytes": 2431749,
+      "sha256": "acc9e04fbcd5cb09137baee0177d3b79c0dc9114c44367a05ba348e38f313b76",
+      "purpose": "full 101 registry, 854 executed sources, 961 input hashes and 7814 literal-import rows; essential full denominator"
+    },
+    {
+      "file": "all-F-static-input-comparisons.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/all-F-static-input-comparisons.json",
+      "bytes": 17043,
+      "sha256": "8528ef2479924a6dcb055867aa96d753872cc85554090443eb0c3221a3191685",
+      "purpose": "nine F source changes and explicit input intersections"
+    },
+    {
+      "file": "source-denominator-trace.py",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/source-denominator-trace.py",
+      "bytes": 4743,
+      "sha256": "dc34c47ef1f5d521e88936c450774048f98206ca3704c0af1bf01c6bf8d0b28d",
+      "purpose": "exact-source replayer for full generator and input/import census"
+    },
+    {
+      "file": "feedback-result-source-identity.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/feedback-result-source-identity.json",
+      "bytes": 6013,
+      "sha256": "94c5e03534b8ed0a1ee3367d0a94ec63378d7bf6e334296d16794e1a203c5ca3",
+      "purpose": "unchanged source/schema blobs for concrete mechanism"
+    },
+    {
+      "file": "base-c40-feedback-result-direct-diff.txt",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/base-c40-feedback-result-direct-diff.txt",
+      "bytes": 2786,
+      "sha256": "84eee19676f2ac4f40a6584e1a4976c20611d211d850c2dffa50e0c84ff5e895",
+      "purpose": "complete five-definition schema divergence"
+    },
+    {
+      "file": "base-c40-feedback-result-generated-direct.schema.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/base-c40-feedback-result-generated-direct.schema.json",
+      "bytes": 10458,
+      "sha256": "27dad4e3ca52c016d9203c5d70b27299bfbb38698fc6f64f4e2bc7377d2045d3",
+      "purpose": "complete native generated consumer schema"
+    },
+    {
+      "file": "fetch-receipts.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/fetch-receipts.json",
+      "bytes": 7391,
+      "sha256": "d3bf4e6d9baf4ca7e99a3f401a0befe5ae9c0c90d8753173335dab63677a1f75",
+      "purpose": "initial metadata/job-log command results, including empty/unavailable output"
+    },
+    {
+      "file": "fetch-direct-logs-receipts.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/fetch-direct-logs-receipts.json",
+      "bytes": 2822,
+      "sha256": "b18a55b9b31b34d5461bace46b31b02207bcf5e78faec06e62f4993fb1e73319",
+      "purpose": "direct storage fetch failures; signed redirect URLs already explicitly redacted"
+    },
+    {
+      "file": "fetch-runzip-receipts.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/fetch-runzip-receipts.json",
+      "bytes": 8282,
+      "sha256": "6902a2823bb619df8404440c89baea1d05fa512aec96cfe68bbafad3da34be07",
+      "purpose": "successful complete PR15 archive fetch and active-run 404 transport results"
+    },
+    {
+      "file": "fetch-identity-receipts.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/fetch-identity-receipts.json",
+      "bytes": 3255,
+      "sha256": "3c6a6964eab19dc7ba4a0166e202a34beb244619271de2b765ebe49a95c7ddac",
+      "purpose": "source/merge/annotation fetch identity"
+    },
+    {
+      "file": "fetch-main-c40-receipts.json",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/fetch-main-c40-receipts.json",
+      "bytes": 1984,
+      "sha256": "6155e42bbd1aaf5bb307ec7e52379c78661875e20cd23829f59f23cb4865b5b4",
+      "purpose": "actual baseline run/jobs/ZIP fetch and hashes"
+    }
+  ],
+  "required_total_bytes": 2829209,
+  "complete_deciding_logs": "Full original and normalized relevant logs are required, including checkout, installed environment and deciding step; no excerpt stands in for complete moderate output.",
+  "baseline_pair": {
+    "run": 37317558355,
+    "job": 111788040376,
+    "checkout_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "environment": "actual CI Python3.14.7/Pydantic2.12.5; complete log binds both source and failed schema check",
+    "pr15_pair": "run37321206325/jobs111800440922+111800440690, actual checkout8280a4aa6e028af0dd74d2f987ce6fc6e498b877 merged e642bb into c40, same actual interpreter/Pydantic"
+  },
+  "sanitation": {
+    "credential_scan": {
+      "scope": "every required file, complete strict UTF-8 bytes and JSON parse; no content mutation during this selection",
+      "patterns": [
+        "github_credential",
+        "aws_access_key",
+        "private_key",
+        "unmasked_bearer",
+        "unmasked_basic",
+        "signed_query"
+      ],
+      "unmasked_credentials_or_signed_queries_found": 0,
+      "limits": "pattern scan is a bounded inspection; source metadata/import names and public URLs are not credentials",
+      "already_masked_by_GitHub": "CI checkout AUTHORIZATION headers and action tokens appear as *** in supplied GitHub logs; original downloaded log bytes preserved"
+    },
+    "normalization": "Separate normalized log companions remove only UTF-8 BOM, ANSI color and per-line timestamps; all lines/order retained. Raw and normalized sizes/hashes are required in complete-log-normalization-receipts.json.",
+    "earlier_transport_sanitation": "Direct per-job storage fetch error text contained temporary signed redirect URLs. Only those URLs were replaced by <redirect URL redacted> in fetch-direct-logs-receipts.json and standalone stderr companions. Status Forbidden and command/job identity remain. These sanitized transport errors are distinct from complete deciding CI logs; no CI log output was redacted. Original signed redirect strings are not selected for transfer."
+  },
+  "optional_local_raw": [
+    {
+      "file": "main-c40-run-full-logs.zip",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-run-full-logs.zip",
+      "bytes": 42489,
+      "sha256": "95086d4a2317a83705986fadf2ba9465d1adbb92941dc9e6ee5cd42013eea507",
+      "kind": "complete whole-run ZIP archive, optional local raw",
+      "reason": "required selection already includes complete relevant schema/ABI logs and paired run/job metadata; ZIP contains other workflow jobs and duplicate raw/step logs; no conclusion depends on omitted ZIP bytes"
+    },
+    {
+      "file": "run-37321206325-full-logs.zip",
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321206325-full-logs.zip",
+      "bytes": 144568,
+      "sha256": "70deddb365d5bfc6b0e0d0f1cc65e5ff0513a5f3e94174b2cf639744997c15ac",
+      "kind": "complete whole-run ZIP archive, optional local raw",
+      "reason": "required selection already includes complete relevant schema/ABI logs and paired run/job metadata; ZIP contains other workflow jobs and duplicate raw/step logs; no conclusion depends on omitted ZIP bytes"
+    }
+  ],
+  "excluded": "Zero-byte gh run view outputs, duplicate per-step logs already present in required complete job logs, cache directories and HTTP404 JSON payloads named .zip are not deciding evidence and are not selected.",
+  "boundaries": "All native schema checks remain FAIL exit1. Semantic ABI diff was skipped. PR18/19 full decisive CI payload/actual checkout remain not_established. No blanket inherited attribution for PR18/23/26/29/31, whose changed source intersects the full observed schema invocation input denominator. This manifest does not close a scientific finding or real-data/authority claim.",
+  "replay": "Native full replay receipts preserve exact original argv/source SHA/tree/streams. For denominator reproduction, fetch the pinned commits, checkout exact c40, run source-denominator-trace.py from policy-engine with PYTHONPATH=src:. under supported native Python/ML environment; replayer retains original cloud scratch paths explicitly and requires target SHA. Source files are obtained from pinned repository commits, not reflection or an alternate shim."
+}

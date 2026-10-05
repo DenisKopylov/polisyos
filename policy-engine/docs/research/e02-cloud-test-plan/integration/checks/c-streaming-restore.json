@@ -1,0 +1,31 @@
+{
+  "schema": "policyos.e02.independent_property_receipt.v1",
+  "publisher": "G",
+  "candidate_sha": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+  "candidate_tree": "bc9e32dd74ad094c24c6012d161f7a669fb4f115",
+  "remote_head": "1013ae0d2292f732a2f0518b25a5a682dc156e81",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "tester": "edge_connector_ingest",
+  "property": "Restored retained operator state must fit the current declared row/JSON-byte capacity before processing or flushing.",
+  "verdict": "HOLD",
+  "classification": "same B84 retained-capacity class one level deeper (P40); incoming row preview works, restored-state admission is absent",
+  "complete_deciding_output": "Candidate: 789e9e906cc52ff544fb05d4faa5db13359fee84\nTree: bc9e32dd74ad094c24c6012d161f7a669fb4f115\nCommand (cwd policy-engine): PYTHONPATH=src:. LOG_LEVEL=WARNING .venv/bin/python _build/e02-g-review-stream-restore-lower-cap/probe.py\nExit: 0\nRuntime: 7.13s\nProbe source: _build/e02-g-review-stream-restore-lower-cap/probe.py\nProbe source SHA256: computed separately after run\nScratch: ignored policy-engine/_build/e02-g-review-stream-restore-lower-cap/\n\nComplete stdout:\nCANDIDATE_COMMIT=789e9e906cc52ff544fb05d4faa5db13359fee84\nCANDIDATE_TREE=bc9e32dd74ad094c24c6012d161f7a669fb4f115\nMODULE_ORIGIN=/Users/deniskopylov/.codex/worktrees/e02-g-check-c-streaming/polisyos/policy-engine/src/polisyos/fabric/data_plane/streaming.py\nMODULE_SHA256=f096387f19db865674b653a9d76849589d26b3370f089b9839a2a0c63bc39367\nPYTHON=3.14.0 (macOS-27.0.1-arm64-arm-64bit-Mach-O)\nCWD=/Users/deniskopylov/.codex/worktrees/e02-g-check-c-streaming/polisyos/policy-engine\nPYTHONPATH=src:.\nSCRATCH=/Users/deniskopylov/.codex/worktrees/e02-g-check-c-streaming/polisyos/policy-engine/_build/e02-g-review-stream-restore-lower-cap\nBEFORE_RESTART={\"checkpoint_id\": \"stream.jsonl:restore-lower-cap:default:0\", \"frontier_committed\": true, \"lifecycle\": \"paused\", \"offset\": 0, \"operator_state_required\": true, \"operator_state_version\": 1, \"persisted_max_buffered_rows\": 3, \"retained_rows\": [\"m0\", \"m1\"]}\nRESTORE_OBSERVATION={\"current_max_buffered_rows\": 1, \"restored_buffered_bytes\": 163, \"restored_buffered_rows\": 2, \"source_chunks_processed_after_restart\": 0}\nAFTER_RESTART={\"checkpoint_id\": \"stream.jsonl:restore-lower-cap:default:0\", \"final_max_buffered_rows\": 1, \"final_retained_rows\": 0, \"lifecycle\": \"closed\", \"offset\": 0, \"operator_state_required\": true, \"persisted_window_ids\": [\"m0\", \"m1\"], \"persisted_window_row_count\": 2, \"source_sha256_unchanged\": true, \"window_artifact_count\": 1}\nVERDICT=RESTORE_ACCEPTED_2_ROWS_ABOVE_CURRENT_CAP_1_THEN_EOF_FLUSH_PERSISTED_BOTH\nPROBE=PASS (the falsifier assertions observed the declared-cap escape)\n",
+  "raw_harness_refs": [
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/c-streaming/probe.py",
+      "sha256": "86fffdeaf21e7baeba675916b6ab37a5e5eb0c43fa88df748d51a83b860ceeed",
+      "bytes": 11638
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/c-streaming/probe-receipt.txt",
+      "sha256": "9dc8f43842d5782dd69742723258fc60f474e985e851750d69557a93326dbfbd",
+      "bytes": 2012
+    }
+  ],
+  "limitations": [
+    "Controlled JSONL source with pass-through sanitizer; actual process/CAS/CursorStore/EOF readback path. No production-data or all-memory claim.",
+    "Observer calls real accumulator.restore then records row/byte quantities; restore/poll/EOF logic otherwise executes candidate.",
+    "Runner exit0 means falsifier observed the escape; it is not product PASS.",
+    "Canonical writer C must validate restored state against current cap or refuse incompatible saved/current contract. The existing five-module witness omits lower-cap restart. G does not repair source."
+  ]
+}

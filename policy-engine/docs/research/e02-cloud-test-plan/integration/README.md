@@ -3,7 +3,7 @@
 G ведёт `codex/e02-integration` от опубликованного `origin/main`:
 `c40d4acae1ce58b597267255026d9356565828fd`, tree
 `897662caf73bd4487f798d66938b74d7abfe753e`. Этот checkpoint фиксирует входы
-и подготовку приёмки. Решения фиксируются в [checkpoint-04](checkpoint-04.json)
+и подготовку приёмки. Решения фиксируются в [checkpoint-05](checkpoint-05.json)
 и [independent review](reviews/2026-10-05-first-pass.md). Новых finding closure
 decisions пока нет. Исследовательский source `6978076…` не является новым
 кандидатом. Протокол исполнения — [HANDOFF](../execution-prompts/HANDOFF.md).
@@ -118,3 +118,8 @@ declared bounded residual с falsifier. P41: красный атрибутиру
 незамкнутые served producers и held public-IR decisions. Workspace admission
 теперь установлен для точной G пары. Acceptance signal — проверенный slice и consumed
 artifact/readback, не число jobs или цвет baseline.
+
+Текущие адресные HOLD, dependency interlocks и consumer rechecks перечислены в
+[owner actions](reviews/2026-10-05-owner-actions.md). В checkpoint-05 приняты
+CAU и FRY code slices. Cal/UQ и streaming сохраняют HOLD по независимым
+локальным falsifiers; runner exit 0 этих probes не является product PASS.

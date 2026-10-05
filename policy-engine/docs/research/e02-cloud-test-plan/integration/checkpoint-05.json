@@ -1,0 +1,98 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-05",
+  "publisher": "G",
+  "integration_sha": "fc15fab5d420e312717e69425243d9099bd45175",
+  "integration_tree": "5b6636f78d0118c09e95910285c21e229d3adaa0",
+  "previous_checkpoint": "checkpoint-04.json",
+  "accepted_slices": [
+    {
+      "unit": "F",
+      "slice": "cau-cohort-admission",
+      "accepted_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "candidate_sha": "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+      "candidate_tree": "a7b2625d8dc41f7ae364a5d98ebf6f3c4f60a2cf",
+      "merge_sha": "d612a1d276c23baf705cd9c977af6dd5926972dd",
+      "merge_parents": [
+        "46748d3d0815b48df1e0d5ed39ffcdff4e251435",
+        "6a6ddfe9542000914bffd6502d72a166c1d33261"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "policy-engine/tests/unit/remediation/test_cau_02.py"
+      ],
+      "reviewers": [
+        "consumer_f",
+        "G"
+      ],
+      "deciding_receipt": "checks/f-cau.json",
+      "code_acceptance": "Observed requested cohorts must retain a valid baseline; anticipation is a declared nonnegative integer before eligibility",
+      "limitations": [
+        "B207/B208/B209 partial; admitted data/coverage unestablished",
+        "Timing array coercion remains bounded residual; output contract warnings require affected consumer wave"
+      ],
+      "readback": "Every complete topic-footprint blob byte-identical on integration; original history is ancestor",
+      "finding_closure": false
+    },
+    {
+      "unit": "F",
+      "slice": "fry-compile-contracts",
+      "accepted_head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "candidate_sha": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+      "candidate_tree": "465c255a4022c2506fb21d41c0bc0fc10ed774b6",
+      "merge_sha": "fc15fab5d420e312717e69425243d9099bd45175",
+      "merge_parents": [
+        "d612a1d276c23baf705cd9c977af6dd5926972dd",
+        "ea577ac3185829e066a39f51a8a2eae8f1bb5d43"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+        "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+        "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+        "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+      ],
+      "reviewers": [
+        "consumer_e",
+        "G"
+      ],
+      "deciding_receipt": "checks/f-fry.json",
+      "code_acceptance": "Real compiler artifacts reach Scientist state and CAS readback; native IC schedule discriminator and ABI/layout remain intact",
+      "limitations": [
+        "LA-001 salt consumption bridge_missing",
+        "Synthetic IC/layout witness; package/docs/data applicability unverified"
+      ],
+      "readback": "Every complete topic-footprint blob byte-identical on integration; original history is ancestor",
+      "finding_closure": false
+    }
+  ],
+  "held_decisions": [
+    {
+      "unit": "E",
+      "slice": "cal-UQ",
+      "candidate_sha": "f07058a3eb782463eedce65a6d0d54c332a46efe",
+      "deciding_receipt": "checks/e-cal-uq-range.json",
+      "reason": "Finite PSD1e40 yields nonfinite evaluator draws on random/Sobol/Halton"
+    },
+    {
+      "unit": "C",
+      "slice": "streaming-retained-capacity",
+      "candidate_sha": "789e9e906cc52ff544fb05d4faa5db13359fee84",
+      "deciding_receipt": "checks/c-streaming-restore.json",
+      "reason": "Current cap1 admits restored2 rows and EOF publishes both"
+    }
+  ],
+  "finding_closures": [],
+  "freeze": "not_frozen",
+  "remaining_review_queue": "reviews/2026-10-05-owner-actions.md",
+  "broad_replay": "UNRUN; reserved once after source freeze and all reviews",
+  "main_publication": "not_authorized"
+}

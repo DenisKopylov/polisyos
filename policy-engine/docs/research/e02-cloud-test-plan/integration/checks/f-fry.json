@@ -1,0 +1,157 @@
+{
+  "schema": "policyos.e02.local_test_receipt.v1",
+  "candidate": {
+    "commit": "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2",
+    "tree": "465c255a4022c2506fb21d41c0bc0fc10ed774b6",
+    "base": "c40d4acae1ce58b597267255026d9356565828fd",
+    "branch": "codex/e02-G-check-f-fry",
+    "four_test_paths_and_git_blob_bindings": [
+      {
+        "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+        "git_blob": "fb0431ed5dd230a009e354c85cfe197bb57e5dd0",
+        "sha256_worktree_bytes": "9ca677813ae51acff462b386ca82c2b20767dd8dae59aad3ca9f8752cafba756"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+        "git_blob": "ad7e6024c4c43960fae52c74f2d1d2208165cf3d",
+        "sha256_worktree_bytes": "3ce0d5d8187d9fd005465925965d36b5ecbe889fad8823e9d2d412b70b2b6ae4"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+        "git_blob": "ecab027e577267ffd680d96b816bee31352f922e",
+        "sha256_worktree_bytes": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+        "git_blob": "a76ec31da00b706e251a43e72d0b4a4ba58b09f3",
+        "sha256_worktree_bytes": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092"
+      }
+    ]
+  },
+  "local_g_result": {
+    "status": "PASS",
+    "pytest_summary": "...................                                                      [100%]\n19 passed in 22.46s",
+    "exit_code": 0,
+    "pytest_wall_seconds": 31.437878041993827,
+    "child_peak_rss_raw": 587431936,
+    "child_peak_rss_units": "bytes on macOS; KiB on Linux",
+    "runner_python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "stdout_complete": "...................                                                      [100%]\n19 passed in 22.46s\n",
+    "stderr_complete": ""
+  },
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+    "tests/unit/foundry/compile/test_randomization.py",
+    "tests/unit/foundry/contracts/test_layout.py",
+    "tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/_build/e02-g-check/fry-local-g/pytest-cache",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/_build/e02-g-check/fry-local-g/pytest-tmp"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "JAX_PLATFORMS": "cpu",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1"
+  },
+  "packages": {
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5",
+    "jax": "0.8.2",
+    "ruff": "0.14.10"
+  },
+  "relevant_module_origins": {
+    "polisyos": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/src/polisyos/__init__.py",
+    "polisyos.foundry.compile.randomization": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/src/polisyos/foundry/compile/randomization.py",
+    "polisyos.foundry.compile.trinity_compiler": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+    "polisyos.ir.kernel.slots": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/src/polisyos/ir/kernel/slots.py",
+    "polisyos.foundry.methods.catalog.mechanism.families": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py",
+    "polisyos.scientist.validation.verification.ic.service": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+    "polisyos.scientist.nodes.builtins.compile.compile_foundry": "/Users/deniskopylov/.codex/worktrees/e02-g-check-f-fry/polisyos/policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py"
+  },
+  "numeric_slot": "released",
+  "limitations": [
+    "LA-001 remains partial/limited: persisted TreasuryPlan salts have no established runtime consumer (bridge_missing).",
+    "This is synthetic fixture evidence; it makes no production-data or general economic conclusion.",
+    "The committed cloud 45-pass author run and separate 14-pass F-root subset remain distinct from this local four-file 19-pass run.",
+    "Source census covers tracked Python literals/module paths only; dynamic access, external packages/plugins, untracked source and production data remain outside its boundary."
+  ],
+  "tracked_tree_readback": {
+    "before_and_after_head_equal": true,
+    "before_and_after_tree_equal": true,
+    "branch": "codex/e02-G-check-f-fry",
+    "tracked_worktree_status_after": ""
+  },
+  "raw_files": [
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/candidate-bindings.json",
+      "size_bytes": 1380,
+      "sha256": "1548c020861f8304783ca08fb985bc71aa69fe1675b4d1fa804b643d2d37805d"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/module-origins.exit_code",
+      "size_bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/module-origins.stderr",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/module-origins.stdout",
+      "size_bytes": 2726,
+      "sha256": "9508813733938ef04d9ec65d3dc4ee1f30190d70eab28c0770c0ea77ee2f9523"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/package-path.stderr",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/package-path.stdout",
+      "size_bytes": 241,
+      "sha256": "2ac20895f96d5333e2a8319bf1afb341b3b5d9fde33ff5920c6f420ecfccd1ee"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/pytest.exit_code",
+      "size_bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/pytest.metrics.json",
+      "size_bytes": 217,
+      "sha256": "4ca517ce66e3f247ac445dbd765f8a9766cb63e72a7b0558658b2a3a0555003e"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/pytest.stderr",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/pytest.stdout",
+      "size_bytes": 100,
+      "sha256": "79f45c014be09b7c999cfdb9658448bdf462d9dc61b1b7c37f62307c9d32c283"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/readback.json",
+      "size_bytes": 591,
+      "sha256": "2dc88b13701742ad6c00fe5f8e972d5f2cd462de8f200254b01b71a2232773f1"
+    },
+    {
+      "path": "policy-engine/_build/e02-g-review/raw/f-fry/run.json",
+      "size_bytes": 3554,
+      "sha256": "6b8b349c03129924f9745d087f20b8c8860d406c3037ed54e083d43a8f7d8ceb"
+    }
+  ],
+  "custody_note": "Copied first to original checkout ignored scratch, then byte-equal relocation to actual G integration ignored raw directory; both tracked trees unchanged by custody."
+}

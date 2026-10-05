@@ -52,7 +52,16 @@ def main():
         if family == "run":
             # Root requested the latest four-file native RUN cohort; queued cases are
             # inside complete test_retry.py, never a selected-only rerun.
-            checks = checks[-1:]
+            native_files = {
+                "tests/unit/common/test_async_tools.py",
+                "tests/unit/scientist/orchestration/engine/test_retry.py",
+                "tests/unit/remediation/test_run_03.py",
+                "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+            }
+            checks = [c for c in checks
+                      if set(whole_test_paths(c["command"])) == native_files][-1:]
+            if not checks:
+                raise ValueError("RUN receipt lacks the complete requested native four-file wave")
         elif family == "exe":
             checks = checks[:1]  # Full family wave, not its narrower independent review.
         elif family == "cmp":

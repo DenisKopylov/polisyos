@@ -1,0 +1,432 @@
+AUTHOR RED: base runtime plus new mapped-schedule regression tests
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_______ test_apply_nodes_rejects_mapped_schedule_before_emission[eager] ________
+
+transform = 'eager'
+
+    @pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])
+    def test_apply_nodes_rejects_mapped_schedule_before_emission(transform) -> None:
+        run_one, observed, traced = _instrumented_log_step()
+        key = jax.random.PRNGKey(11)
+        times = jnp.array([0, 1], dtype=jnp.int32)
+        income = jnp.array([[0.0, 0.0], [2.0, 2.0]], dtype=jnp.float32)
+    
+        def run(x):
+            return jax.vmap(lambda row, t: run_one(row, t, key)[0])(x, times)
+    
+>       with pytest.raises(ValueError, match="does not support mapped schedule predicates"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/foundry/calibration/test_pure_executor_semantics.py:632: Failed
+________ test_apply_nodes_rejects_mapped_schedule_before_emission[jit] _________
+
+transform = 'jit'
+
+    @pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])
+    def test_apply_nodes_rejects_mapped_schedule_before_emission(transform) -> None:
+        run_one, observed, traced = _instrumented_log_step()
+        key = jax.random.PRNGKey(11)
+        times = jnp.array([0, 1], dtype=jnp.int32)
+        income = jnp.array([[0.0, 0.0], [2.0, 2.0]], dtype=jnp.float32)
+    
+        def run(x):
+            return jax.vmap(lambda row, t: run_one(row, t, key)[0])(x, times)
+    
+>       with pytest.raises(ValueError, match="does not support mapped schedule predicates"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/foundry/calibration/test_pure_executor_semantics.py:632: Failed
+________ test_apply_nodes_rejects_mapped_schedule_before_emission[grad] ________
+
+transform = 'grad'
+
+    @pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])
+    def test_apply_nodes_rejects_mapped_schedule_before_emission(transform) -> None:
+        run_one, observed, traced = _instrumented_log_step()
+        key = jax.random.PRNGKey(11)
+        times = jnp.array([0, 1], dtype=jnp.int32)
+        income = jnp.array([[0.0, 0.0], [2.0, 2.0]], dtype=jnp.float32)
+    
+        def run(x):
+            return jax.vmap(lambda row, t: run_one(row, t, key)[0])(x, times)
+    
+>       with pytest.raises(ValueError, match="does not support mapped schedule predicates"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/foundry/calibration/test_pure_executor_semantics.py:632: Failed
+______ test_apply_nodes_rejects_mapped_schedule_before_emission[hessian] _______
+
+transform = 'hessian'
+
+    @pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])
+    def test_apply_nodes_rejects_mapped_schedule_before_emission(transform) -> None:
+        run_one, observed, traced = _instrumented_log_step()
+        key = jax.random.PRNGKey(11)
+        times = jnp.array([0, 1], dtype=jnp.int32)
+        income = jnp.array([[0.0, 0.0], [2.0, 2.0]], dtype=jnp.float32)
+    
+        def run(x):
+            return jax.vmap(lambda row, t: run_one(row, t, key)[0])(x, times)
+    
+>       with pytest.raises(ValueError, match="does not support mapped schedule predicates"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/foundry/calibration/test_pure_executor_semantics.py:632: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/calibration/test_pure_executor_semantics.py::test_apply_nodes_rejects_mapped_schedule_before_emission[eager]
+FAILED tests/unit/foundry/calibration/test_pure_executor_semantics.py::test_apply_nodes_rejects_mapped_schedule_before_emission[jit]
+FAILED tests/unit/foundry/calibration/test_pure_executor_semantics.py::test_apply_nodes_rejects_mapped_schedule_before_emission[grad]
+FAILED tests/unit/foundry/calibration/test_pure_executor_semantics.py::test_apply_nodes_rejects_mapped_schedule_before_emission[hessian]
+
+AUTHOR CANDIDATE: frozen source/test bytes subsequently committed as 714f69153d4736f3f8478936611e68eccb29f2d5
+..........................................................               [100%]
+58 passed in 32.88s
+
+RESOURCES
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+    "tests/unit/foundry/calibration/test_pure_executor.py",
+    "tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+    "tests/unit/foundry/analysis/test_merge_determinism.py"
+  ],
+  "cwd": "/workspace/e02-E-cal05/policy-engine",
+  "wall_s": 40.69136077300004,
+  "rss_kib": 930556,
+  "exit_code": 0
+}
+
+LINT
+All checks passed!
+2 files already formatted
+
+PRODUCTION INVOCATION DIAGNOSTIC
+ERROR: author terminated own process with SIGTERM, exit 143. At 03:20 elapsed, ps reported RSS 7846216 KiB; no output/receipt was emitted. This is an execution limitation, not product-failure evidence.
+
+FINAL QUALIFIED CANDIDATE bbc40582786b2e9c898aa7dd23b89dbac3062059
+.................................                                        [100%]
+33 passed in 14.57s
+
+INDEPENDENT REVIEW: immutable runtime/test bytes714f691, workspacehead983e066 companion-only
+{"label": "semantics", "command_argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "tests/unit/foundry/calibration/test_pure_executor_semantics.py", "-q", "--basetemp=/workspace/e02-runtime/cal05-independent/semantics-scratch/tmp", "-o", "cache_dir=/workspace/e02-runtime/cal05-independent/semantics-scratch/cache"], "cwd": "/workspace/e02-E-cal05/policy-engine", "environment_overrides": {"PYTHONPATH": "/workspace/e02-E-cal05/policy-engine/src"}, "exit_code": 0, "wall_seconds": 20.8770464170002, "output_path": "/workspace/e02-runtime/cal05-independent/semantics.log", "output_sha256": "5cba8a0d336f6301764b9e7cb54d2168880bd1238a4afa7c45b0666fad715409"}
+................................                                         [100%]
+
+{"label": "calibrator_native", "command_argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_recovers_income_tax_rate", "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_resolves_slot_id_metric", "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_gradnorm_updates_weights", "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_hessian_uncertainty", "-q", "--basetemp=/workspace/e02-runtime/cal05-independent/calibrator_native-scratch/tmp", "-o", "cache_dir=/workspace/e02-runtime/cal05-independent/calibrator_native-scratch/cache"], "cwd": "/workspace/e02-E-cal05/policy-engine", "environment_overrides": {"PYTHONPATH": "/workspace/e02-E-cal05/policy-engine/src"}, "exit_code": 0, "wall_seconds": 19.86642403499991, "output_path": "/workspace/e02-runtime/cal05-independent/calibrator_native.log", "output_sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"}
+....                                                                     [100%]
+
+
+INDEPENDENT NUMERICAL CONTROLS
+{
+  "source_module": "/workspace/e02-E-cal05/policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "jax_backend": "cpu",
+  "jax_devices": [
+    "TFRT_CPU_0"
+  ],
+  "versions": {
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "numpy": "2.3.5",
+    "equinox": "0.13.2",
+    "optax": "0.2.6",
+    "pytest": "9.0.2"
+  },
+  "numerical_environment": {
+    "TF_CPP_MIN_LOG_LEVEL": "1"
+  },
+  "controls": [
+    {
+      "control": "vmap_jit",
+      "verdict": "rejected",
+      "error": "apply_nodes does not support mapped schedule predicates; use scalar schedules with vmap or jax.lax.map for per-row schedules",
+      "numerical_callbacks": [],
+      "emitter_tracing_calls": 1
+    },
+    {
+      "control": "vmap_grad",
+      "verdict": "rejected",
+      "error": "apply_nodes does not support mapped schedule predicates; use scalar schedules with vmap or jax.lax.map for per-row schedules",
+      "numerical_callbacks": [],
+      "emitter_tracing_calls": 0
+    },
+    {
+      "control": "vmap_hessian",
+      "verdict": "rejected",
+      "error": "apply_nodes does not support mapped schedule predicates; use scalar schedules with vmap or jax.lax.map for per-row schedules",
+      "numerical_callbacks": [],
+      "emitter_tracing_calls": 0
+    },
+    {
+      "control": "nested_vmap",
+      "verdict": "rejected",
+      "error": "apply_nodes does not support mapped schedule predicates; use scalar schedules with vmap or jax.lax.map for per-row schedules",
+      "numerical_callbacks": [],
+      "emitter_tracing_calls": 0
+    },
+    {
+      "control": "jit_state_vmap",
+      "scalar_active": false,
+      "verdict": "pass",
+      "value": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "numerical_callbacks": [],
+      "emitter_tracing_calls": 1
+    },
+    {
+      "control": "vmap_grad",
+      "scalar_active": false,
+      "verdict": "pass",
+      "value": [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ]
+      ],
+      "numerical_callbacks": [],
+      "emitter_tracing_calls": 0
+    },
+    {
+      "control": "vmap_hessian",
+      "scalar_active": false,
+      "verdict": "pass",
+      "value": [
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      ],
+      "numerical_callbacks": [],
+      "emitter_tracing_calls": 0
+    },
+    {
+      "control": "jit_state_vmap",
+      "scalar_active": true,
+      "verdict": "pass",
+      "value": [
+        [
+          2.6931471824645996,
+          2.6931471824645996
+        ],
+        [
+          2.6931471824645996,
+          2.6931471824645996
+        ]
+      ],
+      "numerical_callbacks": [
+        [
+          2.0,
+          2.0
+        ],
+        [
+          2.0,
+          2.0
+        ]
+      ],
+      "emitter_tracing_calls": 1
+    },
+    {
+      "control": "vmap_grad",
+      "scalar_active": true,
+      "verdict": "pass",
+      "value": [
+        [
+          1.5,
+          1.5
+        ],
+        [
+          1.5,
+          1.5
+        ]
+      ],
+      "numerical_callbacks": [
+        [
+          2.0,
+          2.0
+        ],
+        [
+          2.0,
+          2.0
+        ]
+      ],
+      "emitter_tracing_calls": 1
+    },
+    {
+      "control": "vmap_hessian",
+      "scalar_active": true,
+      "verdict": "pass",
+      "value": [
+        [
+          [
+            -0.25,
+            0.0
+          ],
+          [
+            0.0,
+            -0.25
+          ]
+        ],
+        [
+          [
+            -0.25,
+            0.0
+          ],
+          [
+            0.0,
+            -0.25
+          ]
+        ]
+      ],
+      "numerical_callbacks": [
+        [
+          2.0,
+          2.0
+        ],
+        [
+          2.0,
+          2.0
+        ]
+      ],
+      "emitter_tracing_calls": 1
+    },
+    {
+      "control": "guard_removed",
+      "verdict": "oracle_detects_inactive_execution",
+      "finite_gradient": [
+        [
+          1.0,
+          1.0
+        ],
+        [
+          1.5,
+          1.5
+        ]
+      ],
+      "numerical_callbacks": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          2.0,
+          2.0
+        ]
+      ]
+    }
+  ]
+}
+
+INDEPENDENT FINAL SEMANTICS
+.................................                                        [100%]
+
+INDEPENDENT DELAYED CALIBRATOR COMPLETE RAW STDOUT
+2026-10-05 14:16:49 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-05 14:16:49 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-05 14:16:49 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-05 14:16:49 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-05 14:16:49 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+{
+  "target_implementation_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+  "calibrator_module": "/workspace/e02-E-cal05/policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+  "pure_executor_module": "/workspace/e02-E-cal05/policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+  "consumer_function_identity_verified": true,
+  "jax_backend": "cpu",
+  "data_identity": {
+    "kind": "synthetic_analytic_fixture",
+    "agents": 5,
+    "income": 100.0,
+    "target_balance": [
+      0.0,
+      50.0
+    ],
+    "schedule_start": 1,
+    "schedule_end": 1,
+    "seed": 0,
+    "initial_rate": 0.3
+  },
+  "calibrated_params": {
+    "tax.rate": 0.0991758182644844
+  },
+  "total_loss": 0.00013585726264864206,
+  "uncertainty": {
+    "method": "laplace",
+    "params": [
+      "tax.rate"
+    ],
+    "covariance": [
+      [
+        0.0024999999441206455
+      ]
+    ],
+    "correlation": [
+      [
+        1.0
+      ]
+    ],
+    "std": [
+      0.05000000074505806
+    ],
+    "damping": 1e-06,
+    "hessian_rank": 1,
+    "hessian_condition": 1.0,
+    "non_identifiable": []
+  },
+  "replay_balance": [
+    0.0,
+    49.58790588378906
+  ],
+  "assertions": [
+    "rate within .02 of .1",
+    "loss < 1",
+    "positive finite std and parameter axis tax.rate",
+    "correlation = 1",
+    "inactive balance = 0; active balance = 500*rate"
+  ]
+}
+
+INDEPENDENT CALIBRATOR ANALYTIC COMPARISON
+{
+  "loss": "(500*rate-50)^2/(2*25^2)",
+  "raw_hessian": 400.0,
+  "damped_covariance": 0.00249999999375,
+  "verdict": "pass"
+}

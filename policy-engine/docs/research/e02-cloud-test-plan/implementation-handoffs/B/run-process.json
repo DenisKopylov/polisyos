@@ -432,7 +432,8 @@
           "ruff": "0.14.10"
         },
         "numerical_threads": "no orchestration override",
-        "production_data": "not required"
+        "production_data": "not required",
+        "dependency_inventory_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/run-environment.json@sha256:fb8a0b9406559778b7d1d73035f2123d6a9f61ad825d65458c770b43176f273b"
       },
       "input_closure": {
         "source": "complete tracked modules at target SHA plus shared immutable venv",
@@ -597,7 +598,8 @@
       "Injected process.start and supervisor setup faults preserve refusal and cannot publish success.",
       "Small and1MiB outcomes, output-aware complete outcome, computation cutoff, serialization/send faults and concurrent request context routes remain exercised.",
       "Caller prctl GET flag unchanged before/after real worker execution."
-    ]
+    ],
+    "proxy_divergence": "A killed descendant that still has a real zombie PID is not reaped. Candidate checks actual PID absence and a real delayed filesystem write; removing only the supervisor makes unchanged original descendant tests fail. Ordinary process exit or a marker count alone cannot establish owned cleanup."
   },
   "predicate_basis": "recomputed",
   "capability_state_or_finding_state": "bounded Linux owned-process property verified; finding closure remains with G",

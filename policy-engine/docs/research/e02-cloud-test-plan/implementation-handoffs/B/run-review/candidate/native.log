@@ -1,0 +1,54 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-run-review-candidate/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-run-review-candidate/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 92 items / 53 deselected / 39 selected
+
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_permanent_error_shape_keeps_one_real_attempt[return-sync] PASSED [  2%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_permanent_error_shape_keeps_one_real_attempt[return-async] PASSED [  5%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_permanent_error_shape_keeps_one_real_attempt[raise-sync] PASSED [  7%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_permanent_error_shape_keeps_one_real_attempt[raise-async] PASSED [ 10%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error0-retry_on0-1-sync] PASSED [ 12%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error0-retry_on0-1-async] PASSED [ 15%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error1-retry_on1-1-sync] PASSED [ 17%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error1-retry_on1-1-async] PASSED [ 20%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error2-retry_on2-1-sync] PASSED [ 23%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error2-retry_on2-1-async] PASSED [ 25%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error3-retry_on3-2-sync] PASSED [ 28%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error3-retry_on3-2-async] PASSED [ 30%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error4-retry_on4-2-sync] PASSED [ 33%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error4-retry_on4-2-async] PASSED [ 35%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error5-retry_on5-1-sync] PASSED [ 38%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error5-retry_on5-1-async] PASSED [ 41%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error6-retry_on6-2-sync] PASSED [ 43%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error6-retry_on6-2-async] PASSED [ 46%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error7-retry_on7-1-sync] PASSED [ 48%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_exception_preserves_category_and_policy_code[error7-retry_on7-1-async] PASSED [ 51%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_transport_drains_small_and_large_outcomes[small-sync] PASSED [ 53%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_transport_drains_small_and_large_outcomes[small-async] PASSED [ 56%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_transport_drains_small_and_large_outcomes[one-mib-sync] PASSED [ 58%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_fork_transport_drains_small_and_large_outcomes[one-mib-async] PASSED [ 61%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_worker_send_failure_is_fail_closed PASSED [ 64%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_serialization_failure_is_not_reported_as_success PASSED [ 66%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant[sync] PASSED [ 69%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_cleans_owned_process_descendant[async] PASSED [ 71%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_cleanup_kills_descendant_after_worker_exit PASSED [ 74%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_reaps_term_resistant_grandchildren_before_refusal[owned-group-sync] PASSED [ 76%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_reaps_term_resistant_grandchildren_before_refusal[owned-group-async] PASSED [ 79%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_reaps_term_resistant_grandchildren_before_refusal[new-session-sync] PASSED [ 82%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_reaps_term_resistant_grandchildren_before_refusal[new-session-async] PASSED [ 84%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_cancelled_process_wait_reaps_descendants PASSED [ 87%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_supervisor_setup_failure_cannot_publish_success PASSED [ 89%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_process_start_failure_retains_original_exception PASSED [ 92%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_timeout_supervisor_does_not_change_caller_subreaper_status PASSED [ 94%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_output_aware_fork_retry_preserves_complete_outcome[sync] PASSED [ 97%]
+tests/unit/scientist/orchestration/engine/test_retry.py::test_output_aware_fork_retry_preserves_complete_outcome[async] PASSED [100%]
+
+---- generated xml file: /tmp/e02-run-review-candidate-evidence/native.xml -----
+====================== 39 passed, 53 deselected in 11.48s ======================

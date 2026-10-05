@@ -1,0 +1,57 @@
+IMMUTABLE_COMBINED_SOURCE 4097a0174164564d5feb1f93c11fa137468a6d77
+SOURCE_ROOT /tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src
+IMPORT_ORIGINS {"polisyos.scientist.agent.vector_memory": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/agent/vector_memory.py", "polisyos.scientist.methods.autotune.bayesian_generator": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py", "polisyos.scientist.methods.autotune.runtime": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py", "polisyos.scientist.methods.autotune.warm_start": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py", "polisyos.scientist.methods.search.strategies.bayesian": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "polisyos.scientist.methods.search.strategies.transfer": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"}
+
+../external_probes/test_transfer_workflow.py::test_configured_cas_transfer_reaches_the_receiving_gp_on_the_live_loop 
+-------------------------------- live log call ---------------------------------
+WARNING  test_transfer_workflow:test_transfer_workflow.py:224 TRANSFER_WORKFLOW source=bayesian_acquisition train_rows=8 candidate=0.0 score=0.0
+PASSED                                                                   [ 33%]
+../external_probes/test_transfer_workflow.py::test_changed_origin_never_reaches_the_receiving_gp_on_the_live_loop PASSED [ 66%]
+../external_probes/test_transfer_workflow.py::test_malformed_source_outcome_is_excluded_from_the_real_receiving_gp PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+external_probes/test_transfer_workflow.py::test_configured_cas_transfer_reaches_the_receiving_gp_on_the_live_loop
+external_probes/test_transfer_workflow.py::test_malformed_source_outcome_is_excluded_from_the_real_receiving_gp
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/botorch/acquisition/analytic.py:343: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+____ test_configured_cas_transfer_reaches_the_receiving_gp_on_the_live_loop ____
+----------------------------- Captured stderr call -----------------------------
+2026-10-05 14:51:33.520 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-05 14:51:33.533 | INFO     | polisyos.common.logger:_call:120 - Bayesian warm-start: added 8 historical evaluations; rejected 0
+2026-10-05 14:51:33.534 | INFO     | polisyos.common.logger:_call:120 - Starting search 8f7c6fe7
+2026-10-05 14:51:36.417 | INFO     | polisyos.common.logger:_call:120 - Iteration 0: New best objective = 0.000000
+2026-10-05 14:51:36.417 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+------------------------------ Captured log call -------------------------------
+WARNING  test_transfer_workflow:test_transfer_workflow.py:224 TRANSFER_WORKFLOW source=bayesian_acquisition train_rows=8 candidate=0.0 score=0.0
+_____ test_changed_origin_never_reaches_the_receiving_gp_on_the_live_loop ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-05 14:51:36.941 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-05 14:51:36.941 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-05 14:51:36.941 | INFO     | polisyos.common.logger:_call:120 - Bayesian warm-start: added 0 historical evaluations; rejected 0
+2026-10-05 14:51:36.941 | INFO     | polisyos.common.logger:_call:120 - Starting search 8b710338
+2026-10-05 14:51:36.962 | INFO     | polisyos.common.logger:_call:120 - Iteration 0: New best objective = 20.868183
+2026-10-05 14:51:36.962 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+_____ test_malformed_source_outcome_is_excluded_from_the_real_receiving_gp _____
+----------------------------- Captured stderr call -----------------------------
+2026-10-05 14:51:37.090 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-05 14:51:37.090 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-05 14:51:37.102 | INFO     | polisyos.common.logger:_call:120 - Bayesian warm-start: added 7 historical evaluations; rejected 1
+2026-10-05 14:51:37.102 | INFO     | polisyos.common.logger:_call:120 - Starting search bc4abf9b
+2026-10-05 14:51:39.655 | INFO     | polisyos.common.logger:_call:120 - Iteration 0: New best objective = 0.000000
+2026-10-05 14:51:39.655 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+=========================== short test summary info ============================
+PASSED ../external_probes/test_transfer_workflow.py::test_configured_cas_transfer_reaches_the_receiving_gp_on_the_live_loop
+PASSED ../external_probes/test_transfer_workflow.py::test_changed_origin_never_reaches_the_receiving_gp_on_the_live_loop
+PASSED ../external_probes/test_transfer_workflow.py::test_malformed_source_outcome_is_excluded_from_the_real_receiving_gp
+======================== 3 passed, 3 warnings in 13.79s ========================

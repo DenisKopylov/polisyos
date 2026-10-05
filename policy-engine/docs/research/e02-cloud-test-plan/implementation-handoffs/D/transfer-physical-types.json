@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "implementation_lane": "D",
+  "bundle_ids": [
+    "TRN-01",
+    "TRN-02"
+  ],
+  "covered_finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134"
+  ],
+  "closure_ids": [],
+  "implementation_sha": "830ddd02dcfbdc6b93492d740b397581b79c82fc",
+  "candidate_tree": "68ad202bff60a17a15e9500be13d0dcaba28af24",
+  "slice_base_sha": "5653c68fe66e62f13f37e6ee48fd1435f2842f8f",
+  "entry_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "mechanism": "Noncategorical physical input must be a declared JSON number (integer/float excludingboolean/string) before checking finite interval/integrality and native normalization; typed categories retain membership semantics.",
+  "input": "Real candidateCAS+originalbenchmarkCAS+historyCAS all share malformedphysicalvalue strings0.1/1 orbooltrue under declaredcontinuous/integerbasis; no forgedreference or missingmarkershortcut.",
+  "source_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+  "test_path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.2",
+    "PYTHONPATH": "/workspace/e02-D-transfer/policy-engine/src",
+    "hnswlib": "0.8.0",
+    "node_hook": "22.23.3",
+    "shared_env_write": false
+  },
+  "checks": [
+    {
+      "target_sha": "830ddd02dcfbdc6b93492d740b397581b79c82fc",
+      "result": "PASS",
+      "passed_node_count": 75,
+      "scope": "complete four focused nativefiles",
+      "log": "transfer-physical-types-checks.txt",
+      "sha256": "7b249437e3182c0eef676718fb086c6044dc25038e42d19a30dc5a3a3768f45f"
+    },
+    {
+      "target_sha": "5f2d3498d075a5fd59aaee35964e8a8c9d6b7ce3",
+      "result": "FAIL_EXPECTED",
+      "failed_node_count": 2,
+      "passed_node_count": 3,
+      "scope": "isolated archived prior source on same attainablephysicalinput probes",
+      "raw_log": "raw/transfer-physical-types-negative.txt",
+      "sha256": "7c29ae0c1f0019e164b9db49bf095975bc0ad77bebbd036c07bafe2deba44f2c"
+    },
+    {
+      "result": "PASS",
+      "scope": "ruff changedsource+tests, gitdiffcheck"
+    }
+  ],
+  "prior_receipts_preserved": [
+    "transfer-generation.json",
+    "transfer-numerical.json",
+    "transfer-input-binding.json",
+    "transfer-typed-restore.json"
+  ],
+  "workflow_status": "UNRUN pending exact combinedrootcandidate; new configuredworkflowtest authored separately.",
+  "limitations": [
+    "Boundedanalyticmeasurements only, no production historicalbenchmark/performance claim.",
+    "Source truth/tenantauthorization notestablished.",
+    "B133principaldecision andB134data_recordheld; all closureids remainempty."
+  ]
+}

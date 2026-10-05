@@ -32,6 +32,7 @@ from polisyos.ir.analytics.cross_graph import (
     persist_interface_mapping,
     persist_scm_fragment,
 )
+from polisyos.ir.artifacts import normalize_artifact_ref
 from polisyos.scientist.cross_graph.compiler import (
     _verify_fragment_bundle_alignment_with_governance,
 )
@@ -196,19 +197,21 @@ def replay_fragment_composition_case(
     certificate = load_composition_certificate(
         ir_store,
         CompositionCertificateRef.model_validate(
-            outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+            normalize_artifact_ref(
+                outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+            )
         ),
     )
     alignment_report = load_alignment_report(
         ir_store,
         AlignmentReportRef.model_validate(
-            outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF]
+            normalize_artifact_ref(outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF])
         ),
     )
     interface_mapping = load_interface_mapping(
         ir_store,
         InterfaceMappingRef.model_validate(
-            outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]
+            normalize_artifact_ref(outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF])
         ),
     )
     persisted_artifacts = {
@@ -225,7 +228,9 @@ def replay_fragment_composition_case(
         composed_graph = load_causal_graph_model(
             ir_store,
             CausalGraphModelRef.model_validate(
-                outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
+                normalize_artifact_ref(
+                    outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
+                )
             ),
         )
         composed_graph_signature = _graph_signature(composed_graph)
@@ -233,7 +238,9 @@ def replay_fragment_composition_case(
         load_interface_mapping(
             ir_store,
             InterfaceMappingRef.model_validate(
-                outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]
+                normalize_artifact_ref(
+                    outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]
+                )
             ),
         )
     failure_cards: list[dict[str, Any]] = []
@@ -241,7 +248,9 @@ def replay_fragment_composition_case(
         bundle = load_composition_failure_card_bundle(
             ir_store,
             CompositionFailureCardBundleRef.model_validate(
-                outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF]
+                normalize_artifact_ref(
+                    outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF]
+                )
             ),
         )
         failure_cards = [

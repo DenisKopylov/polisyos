@@ -1,0 +1,28 @@
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+2026-10-05 14:45:38.046 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/botorch/acquisition/analytic.py:343: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+
+	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+
+instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+  legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+2026-10-05 14:45:38.361 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-05 14:45:38.361 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+{"phase": "initial_real_fit", "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a", "module_path": "/tmp/e02-D-gp-403-replay/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "module_sha256": "1c33d1235c8aa09ac6f251c06fa989f49cb6af9781df8b82fb13e8208351d118", "python": "3.14.2", "initial_candidate_source": "bayesian_acquisition", "model_type": "botorch.models.gp_regression.SingleTaskGP", "iteration": 3, "last_refit_iteration": 3, "fitted_rows": 3, "checkpoint_sha256": "860fb1947a81c34d9683cd988239934fab3ea002e3e62b1600590e75acb4a9e8", "JSON_roundtrip_restore": "PASS", "arbiter_memory": {"rss_mb": 973.16015625, "soft_rss_mb": 10000, "hard_rss_mb": 12000}, "limits": "No orchestration quota or GP/arbiter mock. RSS thresholds are fixture inputs to the real production arbiter."}
+2026-10-05 14:45:38.369 | WARNING  | polisyos.common.logger:_call:120 - ResourceArbiter soft RSS limit exceeded: 973.2MB (soft=0MB hard=0MB)
+2026-10-05 14:45:38.369 | ERROR    | polisyos.common.logger:_call:120 - ResourceArbiter hard RSS limit exceeded: 973.2MB (hard=0MB)
+{"phase": "legitimate_hard_limit_produced_checkpoint", "target_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a", "candidate_source": "random_hard_limit", "arbiter_class": "polisyos.scientist.methods.search.strategies.resource_arbiter.ResourceArbiter", "arbiter_memory": {"rss_mb": 973.28515625, "soft_rss_mb": 0, "hard_rss_mb": 0}, "retained_same_actual_model": true, "iteration": 4, "last_refit_iteration": 3, "refit_interval": 1, "fitted_rows": 3, "refit_rows": 3, "JSON_checkpoint_path": "/tmp/e02-D-gp-403-replay/produced-checkpoint.json", "checkpoint_sha256": "f473e9480d710e9d63fb2ad6b729e4b2dd566c7ad2923f5eb1c0ce5bf577fec4", "JSON_roundtrip_set_state": "FAIL", "error": "GP checkpoint is incompatible: fitted corpus shape/basis changed"}
+{"phase": "future_counter_negative_control", "iteration": 4, "last_refit_iteration": 5, "result": "REJECTED", "error": "GP checkpoint is incompatible: refit counters are invalid"}
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/botorch/acquisition/analytic.py:343: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+
+	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+
+instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+  legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+{"phase": "scheduled_refit_after_hard_limit_lifted", "candidate_source": "bayesian_acquisition", "iteration": 4, "last_refit_iteration": 4, "fitted_rows": 4, "JSON_roundtrip_set_state": "PASS", "wall_seconds": 0.418}
+Traceback (most recent call last):
+  File "/tmp/e02-D-gp-403-replay/probe.py", line 76, in <module>
+    assert restore_result=='PASS',f'Produced checkpoint refused despite legitimate hard fallback: {restore_error}'
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Produced checkpoint refused despite legitimate hard fallback: GP checkpoint is incompatible: fitted corpus shape/basis changed

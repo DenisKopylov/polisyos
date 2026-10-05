@@ -117,7 +117,7 @@ class ScholarDeepSearchService:
             locale=locale,
             user_location=user_location,
         )
-        provider_name, hits, error = await self._provider_policy.search(
+        provider_name, hits, error, attempts = await self._provider_policy.search_with_attempts(
             query,
             constraints=constraints,
             max_results=max_results,
@@ -128,6 +128,9 @@ class ScholarDeepSearchService:
             "provider": provider_name,
             "query": query,
             "error": error,
+            "provider_attempts": [
+                attempt.model_dump(mode="json", exclude_none=True) for attempt in attempts
+            ],
             "results": [hit.model_dump(mode="json") for hit in scored],
         }
 
@@ -317,7 +320,7 @@ class ScholarDeepSearchService:
 
             search_results = await asyncio.gather(
                 *[
-                    self._provider_policy.search(
+                    self._provider_policy.search_with_attempts(
                         node.query,
                         constraints=active_constraints,
                         max_results=max(5, min(search_budgets.max_fetch_pages, 20)),
@@ -329,7 +332,7 @@ class ScholarDeepSearchService:
 
             fetch_specs: list[tuple[WebSearchHit, QueryNode]] = []
             batch_seen_urls: set[str] = set()
-            for node, (provider_name, hits, error) in zip(
+            for node, (provider_name, hits, error, provider_attempts) in zip(
                 batch_nodes, search_results, strict=False
             ):
                 node.provider = provider_name
@@ -342,6 +345,7 @@ class ScholarDeepSearchService:
                     provider=provider_name,
                     hit_count=len(hits),
                     error=error,
+                    provider_attempts=provider_attempts,
                 )
                 bundle.query_traces.append(query_trace)
                 if not hits:
@@ -350,11 +354,7 @@ class ScholarDeepSearchService:
                         query=node.query,
                         perspective=node.perspective,
                         provider=provider_name,
-                        reason=(
-                            "provider_error_no_hits"
-                            if error
-                            else "provider_returned_no_hits"
-                        ),
+                        reason=("provider_error_no_hits" if error else "provider_returned_no_hits"),
                         searched_at=query_trace.searched_at,
                         error=error,
                     )
@@ -594,8 +594,7 @@ def _build_claim_supports(
         )
     else:
         claim_rows.extend(
-            (f"claim.{index + 1}", claim_text, None)
-            for index, claim_text in enumerate(claim_texts)
+            (f"claim.{index + 1}", claim_text, None) for index, claim_text in enumerate(claim_texts)
         )
     for _index, (claim_id, claim_text, requirement) in enumerate(claim_rows):
         ranked = sorted(

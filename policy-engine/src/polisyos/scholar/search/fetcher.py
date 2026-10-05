@@ -39,6 +39,13 @@ async def fetch_open_page(
 ) -> FetchResult:
     """Fetch one URL safely, reuse cache when fresh, and extract normalized page text."""
     validate_fetch_url(url, constraints)
+    fetch_profile = _fetch_profile(
+        url,
+        constraints=constraints,
+        timeout_s=timeout_s,
+        user_agent=user_agent,
+        max_bytes=max_bytes,
+    )
     cached = cache.get(url) if cache is not None else None
     if cached is not None:
         return cached.to_fetch_result()
@@ -80,6 +87,7 @@ async def fetch_open_page(
             redirect_chain=redirect_chain,
             paywalled=paywalled,
             error=error,
+            fetch_profile=fetch_profile,
             source_type=_infer_source_type(
                 final_url,
                 title=title,
@@ -97,6 +105,7 @@ async def fetch_open_page(
             text="",
             status="error",
             error=str(exc),
+            fetch_profile=fetch_profile,
             source_type=source_type_hint,
         )
         return result
@@ -162,6 +171,27 @@ async def fetch_and_find_in_page(
 def source_id_from_url(url: str, content_sha256: str | None = None) -> str:
     payload = f"{url}|{content_sha256 or ''}".encode()
     return f"src.{hashlib.sha256(payload).hexdigest()[:24]}"
+
+
+def _fetch_profile(
+    url: str,
+    *,
+    constraints: SearchConstraints,
+    timeout_s: float,
+    user_agent: str,
+    max_bytes: int,
+) -> dict[str, object]:
+    """Capture the request identity and fetch safety profile beside cached raw bytes."""
+    return {
+        "request_url": url,
+        "timeout_s": float(timeout_s),
+        "max_bytes": int(max_bytes),
+        "user_agent": user_agent,
+        "allowed_domains": list(constraints.allowed_domains),
+        "blocked_domains": list(constraints.blocked_domains),
+        "allowed_content_types": list(constraints.allowed_content_types),
+        "allow_private_networks": constraints.allow_private_networks,
+    }
 
 
 def _fetch_url_bytes_sync(

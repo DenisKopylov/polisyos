@@ -117,6 +117,17 @@ class WebSearchHit(BaseModel):
     score: float = 0.0
 
 
+class SearchProviderAttempt(BaseModel):
+    """Outcome from one provider in a failover search sequence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    provider: str
+    outcome: Literal["hits", "no_hits", "error"]
+    hit_count: int = Field(default=0, ge=0)
+    error: str | None = None
+
+
 class FetchResult(BaseModel):
     """Extracted page payload plus retrieval metadata."""
 
@@ -227,6 +238,7 @@ class SearchQueryTrace(BaseModel):
     hit_count: int = Field(default=0, ge=0)
     searched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     error: str | None = None
+    provider_attempts: list[SearchProviderAttempt] = Field(default_factory=list)
 
 
 class NoHitFrontierRecord(BaseModel):
@@ -420,6 +432,7 @@ __all__ = [
     "ResearchProgressEvent",
     "SearchBudgetControls",
     "SearchConstraints",
+    "SearchProviderAttempt",
     "SearchQueryTrace",
     "SourceMetadata",
     "SourceQualitySignal",

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 import pytest
+
 from polisyos.scholar.search import providers as provider_module
 from polisyos.scholar.search.models import SearchConstraints, WebSearchHit
 from polisyos.scholar.search.providers import (
@@ -102,6 +103,64 @@ async def test_provider_failover_policy_continues_after_empty_response():
     assert provider_name == "working"
     assert error is None
     assert len(hits) == 1
+
+
+@pytest.mark.asyncio
+async def test_provider_failover_records_empty_error_and_success_attempts():
+    calls: list[str] = []
+    policy = ProviderFailoverPolicy(
+        [_EmptyProvider(calls), _FailingProvider(), _RecordingWorkingProvider(calls)],
+    )
+
+    provider_name, hits, error, attempts = await policy.search_with_attempts(
+        "minimum wage",
+        constraints=SearchConstraints(source_types=["government"]),
+        max_results=5,
+        timeout_s=5,
+    )
+
+    assert calls == ["empty", "working"]
+    assert provider_name == "working"
+    assert error is None
+    assert len(hits) == 1
+    assert [attempt.model_dump() for attempt in attempts] == [
+        {
+            "provider": "empty",
+            "outcome": "no_hits",
+            "hit_count": 0,
+            "error": None,
+        },
+        {
+            "provider": "failing",
+            "outcome": "error",
+            "hit_count": 0,
+            "error": "boom",
+        },
+        {
+            "provider": "working",
+            "outcome": "hits",
+            "hit_count": 1,
+            "error": None,
+        },
+    ]
+
+
+@pytest.mark.asyncio
+async def test_provider_failover_preserves_all_empty_attempts_without_inventing_error():
+    calls: list[str] = []
+    policy = ProviderFailoverPolicy([_EmptyProvider(calls), _EmptyProvider(calls)])
+
+    provider_name, hits, error, attempts = await policy.search_with_attempts(
+        "minimum wage",
+        constraints=SearchConstraints(),
+        max_results=5,
+    )
+
+    assert calls == ["empty", "empty"]
+    assert provider_name == "empty"
+    assert hits == []
+    assert error is None
+    assert [attempt.outcome for attempt in attempts] == ["no_hits", "no_hits"]
 
 
 @pytest.mark.asyncio

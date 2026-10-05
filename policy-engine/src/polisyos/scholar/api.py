@@ -12,7 +12,7 @@ from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, SourceSpec
-from polisyos.scholar.errors import ScholarAcquireError
+from polisyos.scholar.errors import ScholarAcquireError, ScholarDiscoverError
 from polisyos.scholar.orchestrator.enrich import enrich_topic as _enrich_topic
 from polisyos.scholar.search.jobs import DeepResearchJobManager
 from polisyos.scholar.search.service import ScholarDeepSearchService
@@ -78,12 +78,33 @@ def enrich_topic(
                 budgets=web_search_budgets,
             )
         )
-        if not web_bundle.sources:
-            raise ValueError("web search bootstrap returned no sources")
         try:
             web_bundle_artifact_id = str(search_service.persist_bundle(web_bundle).artifact_id)
         except ValueError:
             web_bundle_artifact_id = None
+        if not web_bundle.sources:
+            raise ScholarDiscoverError(
+                "web search bootstrap returned no sources",
+                details={
+                    "reason": "search_returned_no_sources",
+                    "web_evidence_bundle_id": web_bundle.bundle_id,
+                    "web_evidence_artifact_id": web_bundle_artifact_id,
+                    "provider_attempts": [
+                        {
+                            "query_node_id": trace.query_node_id,
+                            **attempt.model_dump(mode="json", exclude_none=False),
+                        }
+                        for trace in web_bundle.query_traces
+                        for attempt in trace.provider_attempts
+                    ],
+                    "no_hit_frontier": [
+                        frontier.model_dump(mode="json", exclude_none=False)
+                        for frontier in web_bundle.no_hit_frontier
+                    ],
+                    "partial": web_bundle.partial,
+                    "uncertainty_notes": list(web_bundle.uncertainty_notes),
+                },
+            )
         hydrated_intent = intent.model_copy(
             update={
                 "seed_sources": _seed_sources_from_web_bundle(
@@ -152,8 +173,7 @@ class ScholarService:
         brief: ResearchBrief | None = None,
         query_graph: QueryGraph | None = None,
         claim_texts: list[str] | None = None,
-        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, object]]
-        | None = None,
+        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, object]] | None = None,
         constraints: SearchConstraints | None = None,
         budgets: SearchBudgetControls | None = None,
     ) -> str:
@@ -234,10 +254,34 @@ def _seed_sources_from_web_bundle(
         and source.duplicate_of_source_id is None
         and source.error is None
     ]
+    eligible = list(selected)
     if max_docs is not None:
         selected = selected[:max_docs]
     if not selected:
-        raise ValueError("web search bootstrap produced no usable sources")
+        raise ScholarAcquireError(
+            "web search bootstrap produced no usable sources",
+            details={
+                "reason": "no_usable_sources" if eligible else "all_sources_unusable",
+                "max_docs": max_docs,
+                "source_failures": [
+                    {
+                        "source_id": source.source_id,
+                        "url": str(source.url),
+                        "fetch_status": source.fetch_status,
+                        "error": source.error,
+                        "paywalled": source.paywalled,
+                        "duplicate_of_source_id": source.duplicate_of_source_id,
+                    }
+                    for source in bundle.sources
+                ],
+                "no_hit_frontier": [
+                    frontier.model_dump(mode="json", exclude_none=False)
+                    for frontier in bundle.no_hit_frontier
+                ],
+                "partial": bundle.partial,
+                "uncertainty_notes": list(bundle.uncertainty_notes),
+            },
+        )
     return [_source_spec_from_snapshot(source, cas=cas, cache=cache) for source in selected]
 
 
@@ -250,9 +294,80 @@ def _source_spec_from_snapshot(
     """Resolve one search source to its exact CAS snapshot before enrichment."""
     cached_record = _cache_record_for_source(source, cache)
     source_identity = str(getattr(source, "url", "")) or None
+    source_ref = getattr(source, "artifact_id", None) or getattr(source, "raw_artifact_id", None)
+    cached_ref = getattr(cached_record, "artifact_id", None)
+    cached_url = getattr(cached_record, "url", None)
+    if cached_record is not None and str(cached_url or "") != str(source_identity or ""):
+        raise ScholarAcquireError(
+            "web source cache entry is bound to a different request URL",
+            source_identity=source_identity,
+            details={
+                "reason": "request_binding_mismatch",
+                "source_url": source_identity,
+                "cache_url": str(cached_url or ""),
+            },
+        )
+    if source_ref is not None and cached_ref is not None and str(source_ref) != str(cached_ref):
+        raise ScholarAcquireError(
+            "web source and URL cache point to different raw snapshots",
+            source_identity=source_identity,
+            details={
+                "reason": "artifact_ref_mismatch",
+                "source_artifact_id": str(source_ref),
+                "cache_artifact_id": str(cached_ref),
+            },
+        )
+    source_profile = getattr(source, "fetch_profile", None) or {}
+    cached_profile = getattr(cached_record, "fetch_profile", None) or {}
+    if not isinstance(source_profile, Mapping):
+        source_profile = {}
+    if not isinstance(cached_profile, Mapping):
+        cached_profile = {}
+    request_profiles = [profile for profile in (source_profile, cached_profile) if profile]
+    if not request_profiles:
+        raise ScholarAcquireError(
+            "web source raw snapshot has no request binding",
+            source_identity=source_identity,
+            details={"reason": "request_binding_missing"},
+        )
+    for profile in request_profiles:
+        request_url = profile.get("request_url")
+        if not isinstance(request_url, str) or not request_url:
+            raise ScholarAcquireError(
+                "web source raw snapshot request binding is incomplete",
+                source_identity=source_identity,
+                details={"reason": "request_binding_missing"},
+            )
+        if request_url != source_identity:
+            raise ScholarAcquireError(
+                "web source raw snapshot is bound to a different request URL",
+                source_identity=source_identity,
+                details={
+                    "reason": "request_binding_mismatch",
+                    "source_url": source_identity,
+                    "profile_request_url": request_url,
+                },
+            )
+    if source_profile and cached_profile and dict(source_profile) != dict(cached_profile):
+        raise ScholarAcquireError(
+            "web source and URL cache fetch profiles disagree",
+            source_identity=source_identity,
+            details={"reason": "fetch_profile_mismatch"},
+        )
+    source_digest = getattr(source, "content_sha256", None)
+    cached_digest = getattr(cached_record, "content_sha256", None)
+    if source_digest and cached_digest:
+        normalized_source_digest = _normalize_digest(source_digest)
+        normalized_cache_digest = _normalize_digest(cached_digest)
+        if normalized_source_digest != normalized_cache_digest:
+            raise ScholarAcquireError(
+                "web source and URL cache content digests disagree",
+                source_identity=source_identity,
+                details={"reason": "content_digest_mismatch"},
+            )
     expected_digest = _normalize_digest(getattr(source, "content_sha256", None))
     candidate_ref = (
-        getattr(source, "artifact_id", None)
+        source_ref
         or getattr(source, "raw_artifact_id", None)
         or getattr(cached_record, "artifact_id", None)
     )
@@ -279,6 +394,7 @@ def _source_spec_from_snapshot(
             "web source raw snapshot reference does not match its digest",
             source_identity=source_identity,
             details={
+                "reason": "artifact_ref_digest_mismatch",
                 "artifact_id": str(artifact_id),
                 "content_sha256": expected_digest,
             },
@@ -314,7 +430,9 @@ def _source_spec_from_snapshot(
             },
         )
 
-    declared_size = getattr(source, "byte_size", None) or getattr(cached_record, "byte_size", None)
+    declared_size = getattr(source, "byte_size", None)
+    if declared_size is None:
+        declared_size = getattr(cached_record, "byte_size", None)
     if declared_size is not None:
         try:
             declared_size = int(declared_size)
@@ -349,12 +467,10 @@ def _source_spec_from_snapshot(
         "byte_size": str(len(raw_bytes)),
         "fetch_status": str(getattr(source, "fetch_status", "ok")),
         "fetch_profile": _json_prop(
-            getattr(source, "fetch_profile", None)
-            or getattr(cached_record, "fetch_profile", {})
+            getattr(source, "fetch_profile", None) or getattr(cached_record, "fetch_profile", {})
         ),
         "redirect_chain": _json_prop(
-            getattr(source, "redirect_chain", None)
-            or getattr(cached_record, "redirect_chain", [])
+            getattr(source, "redirect_chain", None) or getattr(cached_record, "redirect_chain", [])
         ),
     }
     for metadata_field in (

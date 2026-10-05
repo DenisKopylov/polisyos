@@ -15,7 +15,7 @@ import httpx
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.fabric.connectors import RateLimiter, RetryPolicy
-from polisyos.scholar.search.models import SearchConstraints, WebSearchHit
+from polisyos.scholar.search.models import SearchConstraints, SearchProviderAttempt, WebSearchHit
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -73,7 +73,25 @@ class ProviderFailoverPolicy:
         timeout_s: float = 10.0,
     ) -> tuple[str, list[WebSearchHit], str | None]:
         """Search with failover and return ``(provider_name, hits, error)``."""
+        provider_name, hits, error, _attempts = await self.search_with_attempts(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
+        return provider_name, hits, error
+
+    async def search_with_attempts(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float = 10.0,
+    ) -> tuple[str, list[WebSearchHit], str | None, list[SearchProviderAttempt]]:
+        """Search providers in order and retain every empty, failed, and successful attempt."""
         last_error: str | None = None
+        attempts: list[SearchProviderAttempt] = []
         for provider in self._providers:
             try:
                 hits = await provider.search(
@@ -83,12 +101,32 @@ class ProviderFailoverPolicy:
                     timeout_s=timeout_s,
                 )
                 if not hits:
+                    attempts.append(
+                        SearchProviderAttempt(
+                            provider=provider.name,
+                            outcome="no_hits",
+                        )
+                    )
                     continue
-                return provider.name, hits, None
+                attempts.append(
+                    SearchProviderAttempt(
+                        provider=provider.name,
+                        outcome="hits",
+                        hit_count=len(hits),
+                    )
+                )
+                return provider.name, hits, None, attempts
             except Exception as exc:
                 last_error = f"{provider.name}: {exc}"
+                attempts.append(
+                    SearchProviderAttempt(
+                        provider=provider.name,
+                        outcome="error",
+                        error=str(exc),
+                    )
+                )
                 continue
-        return self._providers[-1].name, [], last_error
+        return self._providers[-1].name, [], last_error, attempts
 
 
 class BraveSearchProvider:

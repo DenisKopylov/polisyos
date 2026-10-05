@@ -131,7 +131,10 @@ def test_tmle_helper_and_aipw_helper_share_stable_contract():
     assert tmle_bundle.contract.selection_objective == "causal_risk"
     assert aipw_bundle.contract.propensity_backend_candidates
     assert tmle_bundle.contract.outcome_backend_candidates
-    assert aipw_bundle is tmle_bundle
+    assert aipw_bundle is not tmle_bundle
+    np.testing.assert_array_equal(aipw_bundle.propensity, tmle_bundle.propensity)
+    np.testing.assert_array_equal(aipw_bundle.mu1, tmle_bundle.mu1)
+    np.testing.assert_array_equal(aipw_bundle.mu0, tmle_bundle.mu0)
 
 
 def test_aipw_does_not_delegate_to_dml_when_econml_backend_is_requested():

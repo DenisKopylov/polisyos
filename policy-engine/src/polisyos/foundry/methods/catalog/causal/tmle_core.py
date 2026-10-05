@@ -304,26 +304,29 @@ class _ATENuisanceFitCore:
 
     def materialize(self, contract: ATENuisanceContract) -> ATENuisanceBundle:
         """Return an isolated bundle bound to the caller's current contract."""
+        selection_manifest = deepcopy(self.selection_manifest)
+        for record in selection_manifest:
+            # This is the current diagnostic policy, not a fitted split input.
+            record["split_policy"] = contract.overlap_diagnostic_policy
         return ATENuisanceBundle(
-            propensity=_readonly_array(self.propensity),
-            mu1=_readonly_array(self.mu1),
-            mu0=_readonly_array(self.mu0),
-            trim_mask=_readonly_array(self.trim_mask),
+            propensity=self.propensity.view(),
+            mu1=self.mu1.view(),
+            mu0=self.mu0.view(),
+            trim_mask=self.trim_mask.view(),
             scaler=deepcopy(self.scaler),
             contract=contract,
             split_manifest=deepcopy(self.split_manifest),
             calibration_modes=deepcopy(self.calibration_modes),
             propensity_backends=deepcopy(self.propensity_backends),
             outcome_backends=deepcopy(self.outcome_backends),
-            selection_manifest=deepcopy(self.selection_manifest),
+            selection_manifest=selection_manifest,
         )
 
 
 def _readonly_array(value: np.ndarray) -> np.ndarray:
-    """Copy an array and prevent mutation of the fitted artifact boundary."""
-    copied = np.array(value, copy=True)
-    copied.setflags(write=False)
-    return copied
+    """Freeze numeric fit bytes once; readers cannot restore write permission."""
+    array = np.ascontiguousarray(value)
+    return np.frombuffer(array.tobytes(), dtype=array.dtype).reshape(array.shape)
 
 
 _SHARED_NUISANCE_CACHE: dict[str, _ATENuisanceFitCore] = {}
@@ -752,11 +755,9 @@ def _shared_nuisance_cache_key(
         return None
     explicit = None if params is None else params.get("__shared_nuisance_key")
     signature = _contract_fingerprint(contract)
-    if explicit is not None:
-        return f"explicit::{explicit!s}::{signature}"
     return "::".join(
         [
-            "auto",
+            "auto" if explicit is None else f"explicit::{explicit!s}",
             _hash_array(np.asarray(X, dtype=float)),
             _hash_array(np.asarray(T, dtype=float)),
             _hash_array(np.asarray(Y, dtype=float)),

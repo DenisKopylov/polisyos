@@ -345,6 +345,55 @@ def test_unsupported_candidate_input_basis_is_a_visible_refusal(tmp_path):
     assert all("unsupported source parameter basis" in row.metadata["transfer_error"] for row in restored)
 
 
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("stage_a_passed", "false"),
+        ("stage_a_passed", 1),
+        ("is_satisfied", "false"),
+        ("is_satisfied", 1),
+        ("scalar_score", "1.0"),
+        ("scalar_score", True),
+        ("params_normalized", ["0.1"]),
+        ("params_normalized", [True]),
+        ("raw_value", "1.0"),
+        ("raw_value", True),
+        ("weight", "1.0"),
+        ("weight", True),
+        ("threshold", "1.0"),
+        ("threshold", True),
+        ("wall_time_seconds", "0.1"),
+        ("wall_time_seconds", True),
+        ("status", True),
+        ("timestamp", True),
+        ("timestamp", "2026-10-05T00:00:00"),
+    ],
+)
+def test_declared_persisted_types_cannot_be_coerced_into_success(tmp_path, field, value):
+    store, index, _, source, _, _ = _measured_history(tmp_path)
+    payload = from_canonical_bytes(store.get_bytes(source.history_ref.artifact_id))
+    row = payload["evaluations"][0]
+    if field in {"raw_value", "weight", "threshold", "is_satisfied"}:
+        row["objectives"][0][field] = value
+    else:
+        row[field] = value
+    source.history_ref = store.put_json(
+        payload,
+        PutOptions(kind="search.transfer.history", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    reader = TransferLearningManager(store, index)
+    restored = reader.get_warm_start_evaluations(
+        [source], target_fingerprint=source.model_copy(update={"run_id": "target"})
+    )
+    (rejected,) = [evaluation for evaluation in restored if not evaluation.is_valid]
+    assert rejected.candidate_id == row["candidate_id"]
+    assert rejected.stage_a_passed is False
+    assert field.split("_")[0] in rejected.metadata["transfer_error"]
+    assert reader.last_restore_report.accepted_rows == 3
+    assert reader.last_restore_report.rejected_rows == 1
+
+
 def test_changed_scalar_cannot_relabel_an_unchanged_benchmark(tmp_path):
     store, index, _, source, evaluations, _ = _measured_history(tmp_path)
     evaluations[0].scalar_score = -999.0

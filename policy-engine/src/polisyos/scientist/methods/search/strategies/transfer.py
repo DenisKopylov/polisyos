@@ -646,6 +646,10 @@ class TransferLearningManager:
         provenance_ref = row.get("provenance_ref")
 
         try:
+            if not isinstance(row.get("candidate_id"), str):
+                raise TypeError("candidate_id must be a string")
+            if provenance_ref is not None and not isinstance(provenance_ref, str):
+                raise TypeError("provenance_ref must be a string or null")
             params = row.get("params", {})
             if not isinstance(params, dict):
                 raise TypeError("params must be an object")
@@ -653,34 +657,50 @@ class TransferLearningManager:
             if not isinstance(objectives_payload, list) or not objectives_payload:
                 raise ValueError("objectives must be a non-empty list")
             objectives = [cls._deserialize_objective(payload) for payload in objectives_payload]
-            scalar_score = float(row["scalar_score"])
-            if not math.isfinite(scalar_score):
-                raise ValueError("scalar_score must be finite")
-            status = EvaluationStatus(row.get("status", EvaluationStatus.SUCCESS.value))
+            scalar_score = cls._finite_number(row["scalar_score"], "scalar_score")
+            stage_a_passed = row["stage_a_passed"]
+            if type(stage_a_passed) is not bool:
+                raise TypeError("stage_a_passed must be a boolean")
+            if not isinstance(row["status"], str):
+                raise TypeError("status must be a string")
+            status = EvaluationStatus(row["status"])
             normalized = row.get("params_normalized", [])
             if not isinstance(normalized, (list, tuple)):
                 raise TypeError("params_normalized must be a list or tuple")
+            normalized = tuple(
+                cls._finite_number(value, "params_normalized coordinate") for value in normalized
+            )
+            if not isinstance(row["timestamp"], str):
+                raise TypeError("timestamp must be an ISO datetime string")
+            timestamp = datetime.fromisoformat(row["timestamp"])
+            if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+                raise ValueError("timestamp must include an explicit timezone")
+            wall_time = cls._finite_number(row.get("wall_time_seconds", 0.0), "wall_time_seconds")
+            if wall_time < 0:
+                raise ValueError("wall_time_seconds must be non-negative")
             return Evaluation(
                 candidate_id=candidate_id,
                 params=params,
                 params_normalized=tuple(normalized),
                 objectives=objectives,
                 scalar_score=scalar_score,
-                stage_a_passed=bool(row.get("stage_a_passed", False)),
+                stage_a_passed=stage_a_passed,
                 stage_b_result=row.get("stage_b_result"),
                 status=status,
                 provenance_ref=provenance_ref,
-                wall_time_seconds=float(row.get("wall_time_seconds", 0.0)),
-                **(
-                    {"timestamp": datetime.fromisoformat(row["timestamp"])}
-                    if "timestamp" in row
-                    else {}
-                ),
+                wall_time_seconds=wall_time,
+                timestamp=timestamp,
                 metadata=metadata,
             )
         except (KeyError, TypeError, ValueError, OverflowError) as exc:
             metadata["transfer_status"] = "rejected"
             metadata["transfer_error"] = str(exc)
+            # Retain a well-typed diagnostic score for legacy inspection order;
+            # failed status and the empty objective corpus prevent numeric use.
+            try:
+                rejected_score = cls._finite_number(row.get("scalar_score", 0.0), "scalar_score")
+            except (TypeError, ValueError, OverflowError):
+                rejected_score = 0.0
             return Evaluation(
                 candidate_id=candidate_id,
                 params=row.get("params", {}) if isinstance(row.get("params", {}), dict) else {},
@@ -688,7 +708,7 @@ class TransferLearningManager:
                 if isinstance(row.get("params_normalized", []), (list, tuple))
                 else (),
                 objectives=[],
-                scalar_score=0.0,
+                scalar_score=rejected_score,
                 stage_a_passed=False,
                 status=EvaluationStatus.STAGE_B_ERROR,
                 provenance_ref=provenance_ref,
@@ -696,27 +716,41 @@ class TransferLearningManager:
             )
 
     @staticmethod
-    def _deserialize_objective(payload: Any) -> ObjectiveValue:
+    def _finite_number(value: Any, field: str) -> float:
+        """Decode a declared JSON number without coercing strings or booleans."""
+        if type(value) not in (int, float):
+            raise TypeError(f"{field} must be a number")
+        result = float(value)
+        if not math.isfinite(result):
+            raise ValueError(f"{field} must be finite")
+        return result
+
+    @classmethod
+    def _deserialize_objective(cls, payload: Any) -> ObjectiveValue:
         """Rehydrate one objective without guessing legacy scalar semantics."""
         if not isinstance(payload, dict):
             raise TypeError("objective must be an object")
         name = payload["name"]
-        raw_value = float(payload["raw_value"])
-        if not math.isfinite(raw_value):
-            raise ValueError("objective raw_value must be finite")
+        if not isinstance(name, str) or not name:
+            raise TypeError("objective name must be a non-empty string")
+        raw_value = cls._finite_number(payload["raw_value"], "objective raw_value")
         direction_value = payload["direction"]
-        if isinstance(direction_value, OptimizationDirection):
-            direction = direction_value
-        else:
-            direction = OptimizationDirection(str(direction_value))
+        if not isinstance(direction_value, str):
+            raise TypeError("objective direction must be a string")
+        direction = OptimizationDirection(direction_value)
+        is_satisfied = payload.get("is_satisfied", True)
+        if type(is_satisfied) is not bool:
+            raise TypeError("objective is_satisfied must be a boolean")
         return ObjectiveValue(
-            name=str(name),
+            name=name,
             raw_value=raw_value,
             direction=direction,
-            weight=float(payload.get("weight", 1.0)),
-            is_satisfied=bool(payload.get("is_satisfied", True)),
+            weight=cls._finite_number(payload.get("weight", 1.0), "objective weight"),
+            is_satisfied=is_satisfied,
             threshold=(
-                float(payload["threshold"]) if payload.get("threshold") is not None else None
+                cls._finite_number(payload["threshold"], "objective threshold")
+                if payload.get("threshold") is not None
+                else None
             ),
         )
 

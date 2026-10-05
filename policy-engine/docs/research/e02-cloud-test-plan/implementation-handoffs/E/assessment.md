@@ -176,3 +176,7 @@ original topics or the aggregate once, without duplicate cherry-picks. Fetch
 these branch refs explicitly: the cloud clone's configured refspec only fetches
 main. Full deciding stdout and portable witness inputs are committed under
 `root-checks/`; their SHA256 values are bound in the aggregate receipt.
+
+The complete E aggregate and handoff are published in [draft PR34](https://github.com/DenisKopylov/polisyos/pull/34),
+branch `codex/e02-E-assessment`. Remote receipt checkpoint:
+`085491b6367bc5c208a26a882f97f11623513347`. No code changed after the tested freeze.

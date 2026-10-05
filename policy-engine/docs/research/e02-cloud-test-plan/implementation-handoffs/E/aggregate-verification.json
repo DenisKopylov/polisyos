@@ -445,5 +445,7 @@
     "5d8c9849be66562dba782763e7fc36d399e7daed": "e1fed60c4bbb85044535e0b89f2741b524205546",
     "a4781aef87e9b3c8c44eedb51fc88119567afc59": "fffba20890d511a6ca25ff4ea5cc7ab064f9e577",
     "6a7c96535fea02b3108728cf5e27d1955f65f6ea": "86baeda3d73695d386012a67657f749b8f405c33"
-  }
+  },
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/34",
+  "remote_receipt_readback_sha": "085491b6367bc5c208a26a882f97f11623513347"
 }

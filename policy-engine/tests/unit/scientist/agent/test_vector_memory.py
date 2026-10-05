@@ -16,7 +16,7 @@ pytest.importorskip("hnswlib")
 
 def test_metadata_cannot_mutate_the_published_generation(tmp_path):
     memory = VectorMemoryStore(dim=2, max_elements=4)
-    metadata = {"binding": {"origin": "original"}}
+    metadata = {"binding": {"origin": "original", "quality": 0.8}}
     memory.add("first", [1.0, 0.0], metadata)
     metadata["binding"]["origin"] = "input mutation"
     result = memory.query([1.0, 0.0], top_k=1)[0]
@@ -25,7 +25,9 @@ def test_metadata_cannot_mutate_the_published_generation(tmp_path):
     store = FileSystemCAS(tmp_path / "cas")
     restored = VectorMemoryStore(dim=2)
     restored.load_from_artifact(store, memory.save_to_artifact(store))
-    assert restored.query([1.0, 0.0], top_k=1)[0][2] == {"binding": {"origin": "original"}}
+    assert restored.query([1.0, 0.0], top_k=1)[0][2] == {
+        "binding": {"origin": "original", "quality": 0.8}
+    }
 
 
 @pytest.mark.parametrize("mutation", ["missing_label", "duplicate_key", "bad_metadata"])

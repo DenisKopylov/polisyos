@@ -6,9 +6,13 @@ evaluations for new searches.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import math
 from copy import deepcopy
+from dataclasses import dataclass
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -22,6 +26,26 @@ if TYPE_CHECKING:
     from polisyos.scientist.agent.vector_memory import VectorMemoryStore
 
 logger = logging.getLogger(__name__)
+
+
+class TransferHistoryError(ValueError):
+    """An addressed history could not be restored without losing its identity."""
+
+    def __init__(self, reason: str, artifact_id: str | None = None) -> None:
+        self.reason = reason
+        self.artifact_id = artifact_id
+        super().__init__(f"Transfer history {artifact_id or '<unbound>'}: {reason}")
+
+
+@dataclass(frozen=True)
+class TransferRestoreReport:
+    """Reconciled counts for the most recent bounded restore operation."""
+
+    loaded_rows: int = 0
+    accepted_rows: int = 0
+    rejected_rows: int = 0
+    selected_rows: int = 0
+    excluded_run_ids: tuple[str, ...] = ()
 
 
 class RunFingerprint(BaseModel):
@@ -44,6 +68,29 @@ class RunFingerprint(BaseModel):
     num_evaluations: int = 0
     history_ref: ArtifactRef | None = None
 
+    def numeric_context_fingerprint(self) -> str:
+        """Bind numeric reuse to the complete experiment basis, excluding run aliases."""
+        basis = self.model_dump(
+            mode="json",
+            include={
+                "space_hash",
+                "objective_names",
+                "bounds",
+                "split",
+                "units",
+                "origin",
+                "tenant_id",
+                "objective_directions",
+            },
+        )
+        basis["objective_names"] = sorted(basis["objective_names"])
+        return (
+            "sha256:"
+            + hashlib.sha256(
+                json.dumps(basis, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+            ).hexdigest()
+        )
+
 
 class TransferLearningManager:
     """Finds similar past runs and extracts warm-start data.
@@ -64,6 +111,8 @@ class TransferLearningManager:
         self._store = store
         self._index = index
         self._eval_cache: dict[str, list[dict[str, Any]]] = {}
+        self._history_bindings: dict[str, dict[str, Any]] = {}
+        self.last_restore_report = TransferRestoreReport()
 
     def register_run(
         self,
@@ -76,6 +125,7 @@ class TransferLearningManager:
         run fingerprint for similarity search.
         """
         from polisyos.core.artifacts.store import PutOptions
+        from polisyos.core.canon.canon_json import CanonSpec
 
         if not evaluations:
             return None
@@ -105,6 +155,7 @@ class TransferLearningManager:
                 kind="search.transfer.history",
                 media_type="application/json",
             ),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
 
         # Index the run in vector memory
@@ -206,18 +257,42 @@ class TransferLearningManager:
         Collects the best evaluations from each similar run, up to
         ``max_evals`` total.
         """
+        self.last_restore_report = TransferRestoreReport()
         if max_evals <= 0 or not similar_runs:
             return []
 
         prepared: list[list[Evaluation]] = []
+        loaded_rows = rejected_rows = accepted_rows = 0
+        excluded_runs: list[str] = []
         for fp in similar_runs:
-            if target_fingerprint is not None and not self._binding_matches(
-                target_fingerprint, fp
-            ):
+            if target_fingerprint is not None and not self._binding_matches(target_fingerprint, fp):
+                excluded_runs.append(fp.run_id)
                 continue
 
-            rows = self._load_run_evaluations(fp)
-            evaluations = [self._deserialize_evaluation(row, fp.run_id) for row in rows]
+            rows = self._load_run_evaluations(fp, require_binding=target_fingerprint is not None)
+            evaluations = []
+            for row in rows:
+                evaluation = self._deserialize_evaluation(row, fp.run_id)
+                reason = (
+                    evaluation.metadata.get("transfer_error") if not evaluation.is_valid else None
+                )
+                if reason is None:
+                    reason = (
+                        self._numeric_rejection(evaluation, fp)
+                        if target_fingerprint is not None
+                        else "Numeric restore requires an explicit target fingerprint"
+                    )
+                if reason is not None:
+                    evaluation.status = EvaluationStatus.STAGE_B_ERROR
+                    evaluation.stage_a_passed = False
+                    evaluation.metadata["transfer_status"] = "rejected"
+                    evaluation.metadata["transfer_error"] = reason
+                    rejected_rows += 1
+                else:
+                    accepted_rows += 1
+                    evaluation.metadata["source_history_ref"] = str(fp.history_ref.artifact_id)
+                evaluations.append(evaluation)
+            loaded_rows += len(rows)
             evaluations.sort(key=self._evaluation_sort_key)
             if evaluations:
                 prepared.append(evaluations)
@@ -242,6 +317,9 @@ class TransferLearningManager:
             if not progressed:
                 break
 
+        self.last_restore_report = TransferRestoreReport(
+            loaded_rows, accepted_rows, rejected_rows, len(all_evals), tuple(excluded_runs)
+        )
         return all_evals
 
     @staticmethod
@@ -277,6 +355,18 @@ class TransferLearningManager:
         """Return whether source observations are numerically reusable for target."""
         return (
             bool(target.space_hash)
+            and bool(target.bounds)
+            and target.split == "selection"
+            and bool(target.origin and target.origin.strip())
+            and bool(target.tenant_id and target.tenant_id.strip())
+            and bool(target.objective_names)
+            and set(target.units) == set(target.objective_names)
+            and all(isinstance(unit, str) and unit.strip() for unit in target.units.values())
+            and set(target.objective_directions) == set(target.objective_names)
+            and all(
+                direction in {"minimize", "maximize"}
+                for direction in target.objective_directions.values()
+            )
             and target.space_hash == source.space_hash
             and set(target.objective_names) == set(source.objective_names)
             and target.bounds == source.bounds
@@ -286,6 +376,98 @@ class TransferLearningManager:
             and target.tenant_id == source.tenant_id
             and target.objective_directions == source.objective_directions
         )
+
+    def _numeric_rejection(self, evaluation: Evaluation, source: RunFingerprint) -> str | None:
+        """Resolve and content-bind an observation before numeric reuse."""
+        if not evaluation.is_valid:
+            return evaluation.metadata.get("transfer_error", "invalid source outcome")
+        if evaluation.metadata.get("source_run_id") != source.run_id:
+            return "source run identity differs from the addressed snapshot"
+        if evaluation.metadata.get("source_candidate_id") != evaluation.candidate_id:
+            return "source candidate identity differs from the observation"
+        if {objective.name for objective in evaluation.objectives} != set(source.objective_names):
+            return "objective names differ from the bound experiment"
+        if any(
+            source.objective_directions[obj.name] != obj.direction.value
+            for obj in evaluation.objectives
+        ):
+            return "objective directions differ from the bound experiment"
+        if any(not math.isfinite(obj.weight) for obj in evaluation.objectives):
+            return "objective weights must be finite"
+        compatibility = evaluation.metadata.get("warm_start_compatibility")
+        if not isinstance(compatibility, dict) or (
+            compatibility.get("search_space_fingerprint") != source.space_hash
+            or compatibility.get("context_fingerprint") != source.numeric_context_fingerprint()
+        ):
+            return "missing or incompatible persisted model/context basis"
+        if not evaluation.provenance_ref:
+            return "missing original evaluation reference"
+        try:
+            from polisyos.core.canon import from_canonical_bytes
+
+            candidate_ref = ArtifactRef(
+                artifact_id=evaluation.candidate_id,
+                kind="search.candidate",
+                media_type="application/json",
+            )
+            self._store.get_bytes(candidate_ref.artifact_id)
+            ref = ArtifactRef(
+                artifact_id=evaluation.provenance_ref,
+                kind="search.evaluation",
+                media_type="application/json",
+            )
+            payload = from_canonical_bytes(self._store.get_bytes(ref.artifact_id))
+        except (TypeError, ValueError, OSError, KeyError) as exc:
+            return f"original evaluation unavailable or corrupt: {exc}"
+        expected = self._serialize_evaluation(evaluation)
+        fields = (
+            "candidate_id",
+            "params",
+            "params_normalized",
+            "objectives",
+            "scalar_score",
+            "stage_a_passed",
+            "status",
+            "timestamp",
+        )
+        if isinstance(payload, dict) and all(payload.get(key) == expected[key] for key in fields):
+            return None
+        if isinstance(payload, dict) and "candidate_ref" in payload:
+            from polisyos.scientist.methods.autotune.models import (
+                BenchmarkEvaluation,
+                BenchmarkSplit,
+            )
+
+            try:
+                benchmark = BenchmarkEvaluation.model_validate(payload)
+            except ValueError:
+                return "original benchmark schema is incompatible"
+            if any(obj.weight != 1.0 for obj in evaluation.objectives) or not math.isclose(
+                evaluation.scalar_score,
+                math.fsum(obj.normalized_value for obj in evaluation.objectives),
+                rel_tol=1e-12,
+                abs_tol=1e-12,
+            ):
+                return "benchmark scalarization is not the declared unweighted minimization"
+            source_directions = benchmark.metadata.get("directions")
+            if not isinstance(source_directions, dict):
+                return "original benchmark lacks typed objective directions"
+            if (
+                str(benchmark.candidate_ref.artifact_id) == evaluation.candidate_id
+                and benchmark.matches_runtime_split(BenchmarkSplit.SELECTION)
+                and benchmark.metadata.get("params") == evaluation.params
+                and all(
+                    benchmark.selection_metrics.get(obj.name) == obj.raw_value
+                    for obj in evaluation.objectives
+                )
+                and all(
+                    source_directions.get(obj.name) == obj.direction.value
+                    for obj in evaluation.objectives
+                )
+                and not benchmark.metadata.get("warm_start")
+            ):
+                return None
+        return "original evaluation content does not match the transferred observation"
 
     @staticmethod
     def _history_ref_from_metadata(meta: dict[str, Any]) -> ArtifactRef | None:
@@ -305,13 +487,17 @@ class TransferLearningManager:
     @staticmethod
     def _evaluation_sort_key(evaluation: Evaluation) -> tuple[int, float]:
         """Sort valid normalized scores first; retain rejected rows for visibility."""
-        if not evaluation.is_valid or not math.isfinite(evaluation.scalar_score):
+        if not math.isfinite(evaluation.scalar_score):
             return (1, 0.0)
+        if not evaluation.is_valid:
+            return (1, evaluation.scalar_score)
         return (0, evaluation.scalar_score)
 
     @classmethod
     def _deserialize_evaluation(cls, row: dict[str, Any], run_id: str) -> Evaluation:
         """Rehydrate one row, returning a visible rejection for malformed data."""
+        if not isinstance(row, dict):
+            row = {"metadata": {"transfer_error": "evaluation row must be an object"}}
         candidate_id = str(row.get("candidate_id", "transfer"))
         source_metadata = row.get("metadata", {})
         metadata = dict(source_metadata) if isinstance(source_metadata, dict) else {}
@@ -345,6 +531,11 @@ class TransferLearningManager:
                 status=status,
                 provenance_ref=provenance_ref,
                 wall_time_seconds=float(row.get("wall_time_seconds", 0.0)),
+                **(
+                    {"timestamp": datetime.fromisoformat(row["timestamp"])}
+                    if "timestamp" in row
+                    else {}
+                ),
                 metadata=metadata,
             )
         except (KeyError, TypeError, ValueError, OverflowError) as exc:
@@ -392,6 +583,8 @@ class TransferLearningManager:
     def _load_run_evaluations(
         self,
         source: RunFingerprint | str,
+        *,
+        require_binding: bool = False,
     ) -> list[dict[str, Any]]:
         """Load persisted evaluations from an exact snapshot reference.
 
@@ -407,11 +600,22 @@ class TransferLearningManager:
             history_ref = None
 
         cache_key = str(history_ref.artifact_id) if history_ref is not None else run_id
+        if not hasattr(self, "_history_bindings"):
+            self._history_bindings = {}
+        if require_binding and history_ref is None:
+            raise TransferHistoryError("missing exact snapshot reference")
         if cache_key in self._eval_cache:
+            if require_binding:
+                binding = self._history_bindings.get(cache_key)
+                if binding is None:
+                    raise TransferHistoryError(
+                        "cached snapshot has no experiment binding", cache_key
+                    )
+                self._validate_history_binding(binding, source, history_ref)
             return deepcopy(self._eval_cache[cache_key])
 
         if history_ref is not None:
-            evals = self._read_history(history_ref)
+            evals = self._read_history(history_ref, source if require_binding else None)
             self._eval_cache[cache_key] = evals
             return deepcopy(evals)
 
@@ -431,20 +635,47 @@ class TransferLearningManager:
                 return deepcopy(evals)
         return []
 
-    def _read_history(self, ref: ArtifactRef) -> list[dict[str, Any]]:
+    def _read_history(
+        self, ref: ArtifactRef, source: RunFingerprint | None = None
+    ) -> list[dict[str, Any]]:
         """Read one validated JSON history payload from its exact CAS ref."""
-        import json as _json
+        from polisyos.core.canon import from_canonical_bytes
 
-        raw = self._store.get_bytes(ref.artifact_id)
         try:
-            data = _json.loads(raw)
+            raw = self._store.get_bytes(ref.artifact_id)
+        except (OSError, KeyError) as exc:
+            raise TransferHistoryError("snapshot unavailable", str(ref.artifact_id)) from exc
+        try:
+            data = from_canonical_bytes(raw)
         except (TypeError, ValueError) as exc:
-            raise ValueError(f"Malformed transfer history artifact {ref.artifact_id}") from exc
+            raise TransferHistoryError("snapshot corrupt", str(ref.artifact_id)) from exc
         if not isinstance(data, dict):
-            raise ValueError(f"Transfer history artifact {ref.artifact_id} is not an object")
+            raise TransferHistoryError("snapshot is not an object", str(ref.artifact_id))
         evals = data.get("evaluations")
         if not isinstance(evals, list):
-            raise ValueError(
-                f"Transfer history artifact {ref.artifact_id} has no evaluations list"
-            )
+            raise TransferHistoryError("snapshot has no evaluations list", str(ref.artifact_id))
+        if source is not None:
+            self._validate_history_binding(data, source, ref)
+        self._history_bindings[str(ref.artifact_id)] = {
+            key: deepcopy(value) for key, value in data.items() if key != "evaluations"
+        }
         return list(evals)
+
+    @staticmethod
+    def _validate_history_binding(
+        payload: dict[str, Any], source: RunFingerprint, ref: ArtifactRef
+    ) -> None:
+        """Reconcile discovery declarations against the selected immutable bytes."""
+        fields = (
+            "run_id",
+            "space_hash",
+            "objective_names",
+            "bounds",
+            "split",
+            "units",
+            "origin",
+            "tenant_id",
+            "objective_directions",
+        )
+        if any(payload.get(field) != getattr(source, field) for field in fields):
+            raise TransferHistoryError("snapshot experiment binding differs", str(ref.artifact_id))

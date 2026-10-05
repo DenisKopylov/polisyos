@@ -200,6 +200,7 @@ class VectorMemoryStore:
             Reference to the persisted index artifact.
         """
         from polisyos.core.artifacts.store import PutOptions
+        from polisyos.core.canon.canon_json import CanonSpec
 
         with self._generation_lock:
             index_bytes = self._save_index_bytes()
@@ -224,14 +225,15 @@ class VectorMemoryStore:
         return store.put_json(
             payload,
             PutOptions(kind="vector_memory.bundle", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
 
     def load_from_artifact(self, store: ArtifactStore, ref: ArtifactRef) -> None:
         """Load the index + metadata from the artifact store."""
-        import json
+        from polisyos.core.canon import from_canonical_bytes
 
         bundle_bytes = store.get_bytes(ref.artifact_id)
-        bundle = json.loads(bundle_bytes)
+        bundle = from_canonical_bytes(bundle_bytes)
 
         dim = int(bundle["dim"])
         max_elements = int(bundle["max_elements"])

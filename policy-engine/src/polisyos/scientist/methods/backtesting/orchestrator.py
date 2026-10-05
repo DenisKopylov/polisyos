@@ -148,9 +148,7 @@ def _normalize_manifest_inputs(inputs: Sequence[Any] | None) -> list[InputRef] |
             has_artifact_id = getattr(item, "artifact_id", None) is not None
             has_role = getattr(item, "role", None) is not None
         if not has_artifact_id or not has_role:
-            raise ValueError(
-                "manifest inputs must provide both artifact_id and role"
-            )
+            raise ValueError("manifest inputs must provide both artifact_id and role")
     try:
         normalized = normalize_input_refs(inputs)
     except (TypeError, ValueError) as exc:
@@ -159,15 +157,15 @@ def _normalize_manifest_inputs(inputs: Sequence[Any] | None) -> list[InputRef] |
     seen_pairs: set[tuple[str, str]] = set()
     for item in normalized:
         role = item.role
-        if not role or role != role.strip() or any(
-            ord(char) < 0x20 or ord(char) == 0x7F for char in role
+        if (
+            not role
+            or role != role.strip()
+            or any(ord(char) < 0x20 or ord(char) == 0x7F for char in role)
         ):
             raise ValueError("manifest input role must be a non-empty clean string")
         pair = (str(item.artifact_id), role)
         if pair in seen_pairs:
-            raise ValueError(
-                "duplicate manifest input role/artifact pair is not allowed"
-            )
+            raise ValueError("duplicate manifest input role/artifact pair is not allowed")
         seen_pairs.add(pair)
     return normalized
 
@@ -619,9 +617,7 @@ class BacktestOrchestrator:
         except (TypeError, ValueError) as exc:
             raise ValueError("uncertainty_envelope_interval_semantics_invalid") from exc
 
-        raw_intervals = payload.get(
-            "confidence_interval", payload.get("confidence_intervals")
-        )
+        raw_intervals = payload.get("confidence_interval", payload.get("confidence_intervals"))
         representative_interval = raw_intervals
         if (
             isinstance(raw_intervals, (list, tuple))
@@ -810,8 +806,7 @@ class BacktestOrchestrator:
                 )
 
             squared_error_sum = sum(
-                comparison.absolute_error**2
-                for comparison in scenario.outcome_comparisons
+                comparison.absolute_error**2 for comparison in scenario.outcome_comparisons
             )
             absolute_error_sum = sum(
                 comparison.absolute_error for comparison in scenario.outcome_comparisons
@@ -862,9 +857,7 @@ class BacktestOrchestrator:
             else (float(np.mean(coverage_values)) if coverage_values else None)
         )
         macro_rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
-        overall_macro_rmse = (
-            float(np.mean(macro_rmse_values)) if macro_rmse_values else None
-        )
+        overall_macro_rmse = float(np.mean(macro_rmse_values)) if macro_rmse_values else None
         interval_contracts = [
             {
                 "scenario_id": item.scenario_id,
@@ -904,8 +897,10 @@ class BacktestOrchestrator:
                 and len(scenario.outcome_comparisons) == scenario.compared_count
             )
 
-        trust_eligible = bool(scenarios) and not degraded and all(
-            has_complete_point_comparisons(scenario) for scenario in scenarios
+        trust_eligible = (
+            bool(scenarios)
+            and not degraded
+            and all(has_complete_point_comparisons(scenario) for scenario in scenarios)
         )
         trust_score, trust_grade = (None, None)
         if trust_eligible:
@@ -958,20 +953,23 @@ class BacktestOrchestrator:
             test_result = self._two_sided_ttest(arr)
 
             if test_result.p_value is None:
-                if abs(mean) <= 1e-12:
+                # Exact agreement is an observed identity. A zero (or tiny)
+                # mean of nonzero errors cannot establish statistical support.
+                if np.all(arr == 0.0):
                     continue
                 assert test_result.reason is not None
                 degraded_reasons.append(
-                    f"bias_statistical_test_{test_result.status}:{metric}:"
-                    f"{test_result.reason}"
+                    f"bias_statistical_test_{test_result.status}:{metric}:{test_result.reason}"
                 )
+                if mean == 0.0:
+                    # There is no descriptive direction to assign, while the
+                    # unresolved test must still withhold aggregate trust.
+                    continue
                 biases.append(
                     SystematicBias(
                         bias_type="directional",
                         direction=(
-                            BiasDirection.OPTIMISTIC
-                            if mean > 0
-                            else BiasDirection.PESSIMISTIC
+                            BiasDirection.OPTIMISTIC if mean > 0 else BiasDirection.PESSIMISTIC
                         ),
                         magnitude=float(abs(mean)),
                         affected_metrics=[metric],

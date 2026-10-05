@@ -1,0 +1,690 @@
+{
+  "schema": "policyos.e02.production_invocation_evidence.v1",
+  "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+  "exit_code": 3,
+  "outcome": "UNRESOLVED",
+  "output": {
+    "status": "UNRESOLVED",
+    "coverage": "partial",
+    "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+    "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ],
+    "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+    "regressions": [],
+    "new_unresolved_by_construction": [
+      "polisyos.scientist.methods.search.funnel.level6_promotion.Level6PromotionStage.evaluate",
+      "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.advance",
+      "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.submit"
+    ],
+    "unresolved_by_construction_count": 9191,
+    "unresolved_receiver_call_count": 139727,
+    "receipt": "/tmp/e02-D-funnel-evidence/final-production-invocation.json",
+    "runtime_invocation_established": false
+  },
+  "denominator": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5898,
+    "base_files": 5897,
+    "source_files": 2697,
+    "current_sha256": "0d447a0b3a20bed38633a8798dd73bd1003e6f889c75ac03f3fcde8b6e9c3b13",
+    "base_sha256": "5e0603c4e62090abea17ccfff1ab6c7976d0656f8b01367f1dec048e08364773"
+  },
+  "changed_symbols": {
+    "polisyos.scientist.methods.search.funnel.level6_promotion.Level6PromotionStage.evaluate": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [],
+      "test_callers": [],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.scientist.methods.search.funnel.level6_promotion.Level6PromotionStage.evaluate",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "line": 73,
+          "column": 24,
+          "scope": "polisyos.scientist.methods.search.funnel.level6_promotion.Level6PromotionStage.evaluate",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "line": 238,
+          "column": 34,
+          "scope": "polisyos.scientist.methods.search.funnel.level6_promotion.Level6PromotionStage.evaluate",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "line": 238,
+          "column": 71,
+          "scope": "polisyos.scientist.methods.search.funnel.level6_promotion.Level6PromotionStage.evaluate",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "line": 242,
+          "column": 64,
+          "scope": "polisyos.scientist.methods.search.funnel.level6_promotion.Level6PromotionStage.evaluate",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "line": 278,
+          "column": 16,
+          "scope": "polisyos.scientist.methods.search.funnel.level6_promotion.Level6PromotionStage.evaluate",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+          "line": 279,
+          "column": 27,
+          "scope": "polisyos.scientist.methods.search.funnel.level6_promotion.Level6PromotionStage.evaluate",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        }
+      ]
+    },
+    "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.advance": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [
+        "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.as_stage_a_callable._stage_a",
+        "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.as_stage_b_callable._stage_b",
+        "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.evaluate",
+        "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime.RunPolicyBlueprintRuntimeNode.execute"
+      ],
+      "test_callers": [
+        "tests.unit.remediation.test_fun_03.test_orchestrator_honors_persisted_no_promotion_projection_without_tracker",
+        "tests.unit.remediation.test_fun_03.test_same_scope_refinement_is_current_while_history_keeps_unknown_risk",
+        "tests.unit.remediation.test_fun_03.test_scope_identity_prevents_cross_scope_continuation",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_budget_continuation_requires_improved_capacity_and_preserves_progress",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_burn_in_policy_bypasses_cheap_rejection_until_level4",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_interleaved_context_continuation_uses_exact_context_predecessor",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_level5_and_level6_runtime_generalization_collects_audit_refs",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_level5_blocks_runtime_split_type_mismatch",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_level6_respects_no_promotion_degraded_mode",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_records_failure_lessons_on_terminal_reject",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_records_success_lesson_on_level4_success",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_retry_cheaper_continuation_preserves_partial_progress",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_spend_does_not_authorize_skipping_a_deferred_stage",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_stage_defer_continuation_without_scheduler_decision",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_submit_cache_is_scoped_to_effective_context",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_real_workflow_context_roles_do_not_reuse_or_mutate_ordinary_attempt",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_real_workflow_full_and_split_recheck_budget_before_l3",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_routing_budget_snapshot_does_not_establish_actual_spend_bridge",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.advance",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 304,
+          "column": 64,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 305,
+          "column": 15,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 305,
+          "column": 46,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 307,
+          "column": 74,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 315,
+          "column": 25,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 325,
+          "column": 20,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.stages",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 440,
+          "column": 20,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.advance",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 570,
+          "column": 66,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.advance",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 740,
+          "column": 63,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._continuation_context_key",
+          "reason": "callable_value_escape",
+          "expression": "candidate"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 754,
+          "column": 17,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._cached_ticket_for_key",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 832,
+          "column": 39,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 833,
+          "column": 31,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 834,
+          "column": 34,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 835,
+          "column": 31,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 836,
+          "column": 41,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 899,
+          "column": 12,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_schedule_transition",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 900,
+          "column": 12,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_schedule_transition",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 938,
+          "column": 27,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._resolved_max_level",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 941,
+          "column": 19,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._resolved_max_level",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 944,
+          "column": 19,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._stage_a_execution_target",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 949,
+          "column": 22,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._first_level",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 996,
+          "column": 41,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._build_stage_context",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1032,
+          "column": 19,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._routing_mode",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1064,
+          "column": 35,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._fast_track_level",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1093,
+          "column": 29,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._empty_result",
+          "reason": "callable_value_escape",
+          "expression": "candidate"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1143,
+          "column": 36,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._compatibility_result",
+          "reason": "callable_value_escape",
+          "expression": "outcome"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1144,
+          "column": 47,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._compatibility_result",
+          "reason": "callable_value_escape",
+          "expression": "outcome"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1168,
+          "column": 27,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._decimal_from_float",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1174,
+          "column": 27,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_record_correlation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1209,
+          "column": 23,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_record_voi_observation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1253,
+          "column": 12,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_update_voi_calibration_state",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        }
+      ]
+    },
+    "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.submit": {
+      "status": "unresolved_by_construction",
+      "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "terminus": null,
+      "changed": true,
+      "lost_path": false,
+      "source_callers": [
+        "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.as_stage_a_callable._stage_a",
+        "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.as_stage_b_callable._stage_b",
+        "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.evaluate",
+        "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime.RunPolicyBlueprintRuntimeNode.execute"
+      ],
+      "test_callers": [
+        "tests.unit.remediation.test_fun_03.test_orchestrator_honors_persisted_no_promotion_projection_without_tracker",
+        "tests.unit.remediation.test_fun_03.test_same_scope_refinement_is_current_while_history_keeps_unknown_risk",
+        "tests.unit.remediation.test_fun_03.test_scope_identity_prevents_cross_scope_continuation",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_budget_continuation_requires_improved_capacity_and_preserves_progress",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_burn_in_policy_bypasses_cheap_rejection_until_level4",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_interleaved_context_continuation_uses_exact_context_predecessor",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_level5_and_level6_runtime_generalization_collects_audit_refs",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_level5_blocks_runtime_split_type_mismatch",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_level6_respects_no_promotion_degraded_mode",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_records_failure_lessons_on_terminal_reject",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_records_success_lesson_on_level4_success",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_retry_cheaper_continuation_preserves_partial_progress",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_spend_does_not_authorize_skipping_a_deferred_stage",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_stage_defer_continuation_without_scheduler_decision",
+        "tests.unit.scientist.search.funnel.test_orchestrator.TestFunnelOrchestrator.test_submit_cache_is_scoped_to_effective_context",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_real_workflow_context_roles_do_not_reuse_or_mutate_ordinary_attempt",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_real_workflow_full_and_split_recheck_budget_before_l3",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_routing_budget_snapshot_does_not_establish_actual_spend_bridge",
+        "tests.unit.scientist.search.funnel.test_orchestrator.test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty"
+      ],
+      "deferral": null,
+      "indirect_boundary_origin": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.submit",
+      "indirect_boundary_evidence": [
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 304,
+          "column": 64,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 305,
+          "column": 15,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 305,
+          "column": 46,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 307,
+          "column": 74,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 315,
+          "column": 25,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.__init__",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 325,
+          "column": 20,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.stages",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 440,
+          "column": 20,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.advance",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 570,
+          "column": 66,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator.advance",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 740,
+          "column": 63,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._continuation_context_key",
+          "reason": "callable_value_escape",
+          "expression": "candidate"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 754,
+          "column": 17,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._cached_ticket_for_key",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 832,
+          "column": 39,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 833,
+          "column": 31,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 834,
+          "column": 34,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 835,
+          "column": 31,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 836,
+          "column": 41,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._carry_forward_continuation",
+          "reason": "callable_value_escape",
+          "expression": "previous"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 899,
+          "column": 12,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_schedule_transition",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 900,
+          "column": 12,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_schedule_transition",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 938,
+          "column": 27,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._resolved_max_level",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 941,
+          "column": 19,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._resolved_max_level",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 944,
+          "column": 19,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._stage_a_execution_target",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 949,
+          "column": 22,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._first_level",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 996,
+          "column": 41,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._build_stage_context",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1032,
+          "column": 19,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._routing_mode",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1064,
+          "column": 35,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._fast_track_level",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1093,
+          "column": 29,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._empty_result",
+          "reason": "callable_value_escape",
+          "expression": "candidate"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1143,
+          "column": 36,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._compatibility_result",
+          "reason": "callable_value_escape",
+          "expression": "outcome"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1144,
+          "column": 47,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._compatibility_result",
+          "reason": "callable_value_escape",
+          "expression": "outcome"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1168,
+          "column": 27,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._decimal_from_float",
+          "reason": "callable_value_escape",
+          "expression": "value"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1174,
+          "column": 27,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_record_correlation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1209,
+          "column": 23,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_record_voi_observation",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "line": 1253,
+          "column": 12,
+          "scope": "polisyos.scientist.methods.search.funnel.orchestrator.FunnelOrchestrator._maybe_update_voi_calibration_state",
+          "reason": "callable_value_escape",
+          "expression": "self"
+        }
+      ]
+    }
+  },
+  "full_receipt": {
+    "path": "/tmp/e02-D-funnel-evidence/final-production-invocation.json",
+    "sha256": "e478b98934b79ea208970a8748e65a30b6eb402eca5c18fade99e72722ac01b4",
+    "bytes": 170886316,
+    "transfer": "local raw170MB not committed; receiver must rerun for complete mechanism census"
+  },
+  "discarded_attempts": [
+    "Repository-root invocation enumerated0files; vacuous status excluded.",
+    "First correct product-root run exited137 during concurrent numerical controls; no verdict. Retry completed."
+  ],
+  "limits": "Static unresolved receiver/callback dispatch is not disproved by constructor/import evidence. Bounded real method execution is separately recorded; production invocation remains not established."
+}

@@ -5,37 +5,41 @@
   "closure_ids": [],
   "bundle_ids": ["CAN-01"],
   "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
-  "implementation_commits": ["21cb78f85d8e556776baadaa48fe90940dcf2cce"],
-  "candidate_tree_sha": "0e9f42a84d8ede6dfc687017d2366cb331644000",
+  "implementation_commits": [
+    "21cb78f85d8e556776baadaa48fe90940dcf2cce",
+    "8f13193b79b366fe26101af37427da5f44ef490a"
+  ],
+  "candidate_tree_sha": "8a26ff846f97da07583ab25df12d550c8ad51317",
   "branch": "codex/e02-C-canon",
   "pull_request": null,
   "changed_paths": [
     "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
-    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py"
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+    "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py"
   ],
   "baseline_cells": [],
   "checks": [
     {
-      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/core/artifacts/test_ir_adapter.py policy-engine/tests/unit/ir/test_canon_hardening.py policy-engine/tests/unit/ir/test_canon_hash_parity.py policy-engine/tests/unit/remediation/test_can_01.py -q",
-      "target_sha": "21cb78f85d8e556776baadaa48fe90940dcf2cce",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py policy-engine/tests/unit/core/artifacts/test_ir_adapter.py policy-engine/tests/unit/ir/test_canon_hardening.py policy-engine/tests/unit/ir/test_canon_hash_parity.py policy-engine/tests/unit/remediation/test_can_01.py -q",
+      "target_sha": "8f13193b79b366fe26101af37427da5f44ef490a",
       "environment": "macOS; original policy-engine .venv Python 3.14; worktree source via PYTHONPATH",
       "input_closure": "Bounded pytest fixtures only: real temporary FileSystemCAS; Decimal(12.30) positive payload; core-only, synonym, malformed, and nested tag negatives; no production inputs.",
       "outcome": "PASS",
-      "output": "[100%]; all selected adapter, IR canon, and CAN-01 tests passed. Pytest emitted an existing unknown cache_dir config warning."
+      "output": "46 tests passed ([100%]); the registry protocol module, adapter, IR canon, and CAN-01 tests all passed. Pytest emitted an existing unknown cache_dir config warning."
     },
     {
-      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/core/artifacts/ir_adapter.py policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
-      "target_sha": "21cb78f85d8e556776baadaa48fe90940dcf2cce",
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/core/artifacts/ir_adapter.py policy-engine/tests/unit/core/artifacts/test_ir_adapter.py policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+      "target_sha": "8f13193b79b366fe26101af37427da5f44ef490a",
       "environment": "macOS; original policy-engine .venv Python 3.14",
-      "input_closure": "The two changed Python paths.",
+      "input_closure": "The three changed Python paths.",
       "outcome": "PASS",
       "output": "All checks passed!"
     },
     {
-      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/core/artifacts/ir_adapter.py policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
-      "target_sha": "21cb78f85d8e556776baadaa48fe90940dcf2cce",
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/core/artifacts/ir_adapter.py policy-engine/tests/unit/core/artifacts/test_ir_adapter.py policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+      "target_sha": "8f13193b79b366fe26101af37427da5f44ef490a",
       "environment": "macOS; original policy-engine .venv Python 3.14",
-      "input_closure": "The two changed Python paths.",
+      "input_closure": "The three changed Python paths.",
       "outcome": "PASS",
       "output": "2 files already formatted."
     },
@@ -43,9 +47,25 @@
       "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py::test_registry_bundle_build_and_load_work_with_protocol_store -q",
       "target_sha": "21cb78f85d8e556776baadaa48fe90940dcf2cce",
       "environment": "macOS; original policy-engine .venv Python 3.14; worktree source via PYTHONPATH",
-      "input_closure": "One existing registry-bundle protocol test using RecordingArtifactStore; no production inputs. Exact slice-base replay was not run.",
+      "input_closure": "One existing registry-bundle protocol test using RecordingArtifactStore; no production inputs.",
       "outcome": "FAIL",
-      "output": "load_registry_bundle -> RecordingArtifactStore.get_bytes raised KeyError because the lookup key was the repr of an ArtifactRef rather than its artifact ID. This is outside the adapter property; ownership remains not_established under P41 without exact-base replay and a zero-intersection proof."
+      "output": "load_registry_bundle -> load_registry_bundle_payload -> _store_read_ref preserves ArtifactRef -> RecordingArtifactStore.get_bytes indexes _payloads[str(ref)] and raises KeyError on the ArtifactRef repr instead of the stored sha256 key."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py::test_registry_bundle_build_and_load_work_with_protocol_store -q",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "macOS; original policy-engine .venv Python 3.14; archived slice-base source via PYTHONPATH",
+      "input_closure": "Exact selected registry-bundle protocol test on a git archive of slice base c40d4acae1ce58b597267255026d9356565828fd; no production inputs.",
+      "outcome": "FAIL",
+      "output": "Same failure path and KeyError as the candidate: _store_read_ref passes ArtifactRef to RecordingArtifactStore.get_bytes, which indexes by the repr instead of the stored sha256 key."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=policy-engine/src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py::test_registry_bundle_build_and_load_work_with_protocol_store -q",
+      "target_sha": "8f13193b79b366fe26101af37427da5f44ef490a",
+      "environment": "macOS; original policy-engine .venv Python 3.14; worktree source via PYTHONPATH",
+      "input_closure": "The registry-bundle protocol consumer test after the RecordingArtifactStore reference-normalization correction; no production inputs.",
+      "outcome": "PASS",
+      "output": "1 passed; the same test now exercises ArtifactRef, ArtifactID, and str inputs through the fake's has, get_bytes, and get_manifest methods."
     }
   ],
   "property": {
@@ -71,7 +91,7 @@
   "limitations_and_next_owner": [
     "P40 classification: same Core/IR canonical-profile split class one level deeper at the shared adapter write seam; the correction uses that single adapter chokepoint, does not patch individual producers, and does not widen the IR decoder.",
     "LA-021 status and ledger were not changed. Its earlier bounded codec-corpus closure does not assert this adapter integration property.",
-    "The candidate also reproduces one registry protocol test failure; exact slice-base replay and complete zero-intersection proof were not performed, so P41 ownership is not_established. Keep it separate from this adapter result until the registry owner or slice integrator resolves provenance.",
+    "The registry protocol test failed with the same ArtifactRef-repr KeyError on slice base c40 and initial adapter candidate 21cb. Root cause: the fake keyed writes by normalized ArtifactID but stringified ArtifactRef directly in its read methods; the consumer deliberately preserves ArtifactRef, while real FileSystemCAS normalizes it. Commit 8f13193b corrects the test fake with one reference normalizer shared by has, get_bytes, and get_manifest, and exercises ArtifactRef, ArtifactID, and str inputs. This does not change the registry loader or adapter. No broad zero-intersection proof was established for the overall test-suite denominator, so the original red is not blanket-labeled inherited under P41.",
     "Test artifact metadata uses kind test.ir-canon-profile, schema test.ir-canon-profile@1.0, and the existing IR canonical profile 0.2.0. No authority or time-role semantics or external surface are changed; external surface is out_of_scope for this storage-profile correction."
   ]
 }

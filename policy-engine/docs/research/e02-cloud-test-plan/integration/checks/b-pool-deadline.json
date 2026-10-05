@@ -1,0 +1,133 @@
+{
+  "base": "c40d4acae1ce58b597267255026d9356565828fd",
+  "branch": "refs/heads/codex/e02-G-check-b-adapters",
+  "changed_paths_base_to_head": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-net01-pool-acquisition.toml",
+    "policy-engine/src/polisyos/fabric/connectors/README.md",
+    "policy-engine/src/polisyos/fabric/connectors/pool.py",
+    "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+    "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "-v",
+        "--tb=short",
+        "-o",
+        "addopts="
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine",
+      "duration_seconds": 9.40221354100504,
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "exit_code": 0,
+      "name": "native-pool-suite",
+      "started_at_utc": "2026-10-05T15:14:07.598718+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/native-pool-suite.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 2262,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/native-pool-suite.stdout.txt",
+      "stdout_sha256": "c8757aa8de2ee0afb5c119d1b587d3b1547886784b9a17c185e3719bb5b9f7f1",
+      "timed_out": false,
+      "stdout": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/.venv/bin/python\ncachedir: _cache/pytest\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\nhypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_cache/hypothesis'))\ntest taxonomy enabled; active pytest quarantines=0\nrootdir: /Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine\nconfigfile: pytest.ini\nplugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0\nasyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollecting ... collected 9 items\n\ntests/unit/fabric/connectors/test_pool_e02.py::test_acquire_deadline_covers_network_work[connect] PASSED [ 11%]\ntests/unit/fabric/connectors/test_pool_e02.py::test_acquire_deadline_covers_network_work[health] PASSED [ 22%]\ntests/unit/fabric/connectors/test_pool_e02.py::test_blocked_network_work_allows_independent_release[connect] PASSED [ 33%]\ntests/unit/fabric/connectors/test_pool_e02.py::test_blocked_network_work_allows_independent_release[health] PASSED [ 44%]\ntests/unit/fabric/connectors/test_pool_e02.py::test_failed_disconnect_retry_and_close_share_one_physical_owner PASSED [ 55%]\ntests/unit/fabric/connectors/test_pool_e02.py::test_cancelled_semaphore_waiter_cannot_hide_connect_from_close PASSED [ 66%]\ntests/unit/fabric/connectors/test_pool_e02.py::test_semaphore_wait_cannot_restart_absolute_network_deadline PASSED [ 77%]\ntests/unit/fabric/connectors/test_pool_e02.py::test_expired_acquire_retains_physical_owner_until_cleanup_settles[False] PASSED [ 88%]\ntests/unit/fabric/connectors/test_pool_e02.py::test_expired_acquire_retains_physical_owner_until_cleanup_settles[True] PASSED [100%]\n\n============================== 9 passed in 0.40s ===============================\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/.venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/probe.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine",
+      "duration_seconds": 1.2174306660017464,
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "exit_code": 1,
+      "name": "gated-cancellation-probe",
+      "started_at_utc": "2026-10-05T15:14:17.001570+00:00",
+      "stderr_bytes": 3628,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/gated-cancellation-probe.stderr.txt",
+      "stderr_sha256": "d21749e3d364a376b5c615c212bcfe7ecccbc3cb29bfa19190e427c16216baa9",
+      "stdout_bytes": 7310,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/gated-cancellation-probe.stdout.txt",
+      "stdout_sha256": "c65e6204bddb9f94da9a79885e5b713c5b3af66e1b9bb2eee7c943585eaf9d23",
+      "timed_out": false,
+      "stdout": "{\n  \"cases\": [\n    {\n      \"acquire_error\": \"Connection pool 'deadline-probe-connect-cooperative' exhausted. Could not acquire connection within 0.08s\",\n      \"acquire_outcome\": \"PoolExhaustedError\",\n      \"budget_seconds\": 0.08,\n      \"cancel_observed_at_loop_monotonic\": 261870.864199666,\n      \"cancellation_mode\": \"cooperative\",\n      \"clean_after_close\": true,\n      \"completion_at_loop_monotonic\": 261870.864265416,\n      \"connection_timeout_seconds\": 2.0,\n      \"created_handle_disconnected_exactly_once\": true,\n      \"created_session_id\": null,\n      \"deadline_witness\": true,\n      \"disconnects_after_close\": [],\n      \"disconnects_before_close\": [],\n      \"health_wait_for_seconds\": 10.0,\n      \"late_handle_admitted\": false,\n      \"operation\": \"connect\",\n      \"operation_started_at_loop_monotonic\": 261870.782195875,\n      \"pool_state_after_close\": {\n        \"active_acquires\": 0,\n        \"closed\": true,\n        \"in_use_session_ids\": [],\n        \"pending_cleanup_session_ids\": [],\n        \"semaphore_value\": 1\n      },\n      \"pool_state_before_close\": {\n        \"active_acquires\": 0,\n        \"in_use_session_ids\": [],\n        \"pending_cleanup_session_ids\": [],\n        \"semaphore_value\": 1\n      },\n      \"submitted_at_loop_monotonic\": 261870.782091041,\n      \"task_done_before_release\": true\n    },\n    {\n      \"acquire_outcome\": \"returned_handle\",\n      \"budget_seconds\": 0.08,\n      \"cancel_observed_at_loop_monotonic\": 261870.946632958,\n      \"cancellation_mode\": \"suppress\",\n      \"clean_after_close\": true,\n      \"completion_at_loop_monotonic\": 261870.946959375,\n      \"connection_timeout_seconds\": 2.0,\n      \"created_handle_disconnected_exactly_once\": true,\n      \"created_session_id\": \"9cf35b74-1707-4e5f-9ceb-1deacbd3776c\",\n      \"deadline_witness\": true,\n      \"disconnects_after_close\": [\n        \"9cf35b74-1707-4e5f-9ceb-1deacbd3776c\"\n      ],\n      \"disconnects_before_close\": [],\n      \"health_wait_for_seconds\": 10.0,\n      \"late_handle_admitted\": true,\n      \"operation\": \"connect\",\n      \"operation_started_at_loop_monotonic\": 261870.86457025,\n      \"pool_state_after_close\": {\n        \"active_acquires\": 0,\n        \"closed\": true,\n        \"in_use_session_ids\": [],\n        \"pending_cleanup_session_ids\": [],\n        \"semaphore_value\": 1\n      },\n      \"pool_state_before_close\": {\n        \"active_acquires\": 0,\n        \"in_use_session_ids\": [\n          \"9cf35b74-1707-4e5f-9ceb-1deacbd3776c\"\n        ],\n        \"pending_cleanup_session_ids\": [],\n        \"semaphore_value\": 0\n      },\n      \"proceed_at_loop_monotonic\": 261870.946665875,\n      \"return_at_loop_monotonic\": 261870.946959166,\n      \"returned_session_id\": \"9cf35b74-1707-4e5f-9ceb-1deacbd3776c\",\n      \"submitted_at_loop_monotonic\": 261870.864494958,\n      \"task_done_before_release\": false\n    },\n    {\n      \"acquire_error\": \"Connection pool 'deadline-probe-health-cooperative' exhausted. Could not acquire connection within 0.08s\",\n      \"acquire_outcome\": \"PoolExhaustedError\",\n      \"budget_seconds\": 0.08,\n      \"cancel_observed_at_loop_monotonic\": 261871.029285375,\n      \"cancellation_mode\": \"cooperative\",\n      \"clean_after_close\": true,\n      \"completion_at_loop_monotonic\": 261871.029457416,\n      \"connection_timeout_seconds\": 2.0,\n      \"created_handle_disconnected_exactly_once\": true,\n      \"created_session_id\": \"f1e85b08-9b6a-4d13-af1c-234372547e63\",\n      \"deadline_witness\": true,\n      \"disconnects_after_close\": [\n        \"f1e85b08-9b6a-4d13-af1c-234372547e63\"\n      ],\n      \"disconnects_before_close\": [\n        \"f1e85b08-9b6a-4d13-af1c-234372547e63\"\n      ],\n      \"health_wait_for_seconds\": 10.0,\n      \"late_handle_admitted\": false,\n      \"operation\": \"health\",\n      \"operation_started_at_loop_monotonic\": 261870.947294291,\n      \"pool_state_after_close\": {\n        \"active_acquires\": 0,\n        \"closed\": true,\n        \"in_use_session_ids\": [],\n        \"pending_cleanup_session_ids\": [],\n        \"semaphore_value\": 1\n      },\n      \"pool_state_before_close\": {\n        \"active_acquires\": 0,\n        \"in_use_session_ids\": [],\n        \"pending_cleanup_session_ids\": [],\n        \"semaphore_value\": 1\n      },\n      \"submitted_at_loop_monotonic\": 261870.947189958,\n      \"task_done_before_release\": false\n    },\n    {\n      \"acquire_outcome\": \"returned_handle\",\n      \"budget_seconds\": 0.08,\n      \"cancel_observed_at_loop_monotonic\": 261871.111804166,\n      \"cancellation_mode\": \"suppress\",\n      \"clean_after_close\": true,\n      \"completion_at_loop_monotonic\": 261871.112080125,\n      \"connection_timeout_seconds\": 2.0,\n      \"created_handle_disconnected_exactly_once\": true,\n      \"created_session_id\": \"0cd166af-3d9b-4ba7-8cb3-8c22da108f5c\",\n      \"deadline_witness\": true,\n      \"disconnects_after_close\": [\n        \"0cd166af-3d9b-4ba7-8cb3-8c22da108f5c\"\n      ],\n      \"disconnects_before_close\": [],\n      \"health_wait_for_seconds\": 10.0,\n      \"late_handle_admitted\": true,\n      \"operation\": \"health\",\n      \"operation_started_at_loop_monotonic\": 261871.0297785,\n      \"pool_state_after_close\": {\n        \"active_acquires\": 0,\n        \"closed\": true,\n        \"in_use_session_ids\": [],\n        \"pending_cleanup_session_ids\": [],\n        \"semaphore_value\": 1\n      },\n      \"pool_state_before_close\": {\n        \"active_acquires\": 0,\n        \"in_use_session_ids\": [\n          \"0cd166af-3d9b-4ba7-8cb3-8c22da108f5c\"\n        ],\n        \"pending_cleanup_session_ids\": [],\n        \"semaphore_value\": 0\n      },\n      \"proceed_at_loop_monotonic\": 261871.111843333,\n      \"return_at_loop_monotonic\": 261871.112079875,\n      \"returned_session_id\": \"0cd166af-3d9b-4ba7-8cb3-8c22da108f5c\",\n      \"submitted_at_loop_monotonic\": 261871.029655625,\n      \"task_done_before_release\": false\n    }\n  ],\n  \"clock_used\": \"real asyncio loop.time monotonic clock; event-gated completion\",\n  \"event_loop_class\": \"_UnixSelectorEventLoop\",\n  \"failures\": [\n    \"connect/suppress: real handle was returned after deadline cancellation\",\n    \"connect/suppress: connector completion after deadline was admitted\",\n    \"connect/suppress: acquisition completion left pool ownership before close: {'in_use_session_ids': ['9cf35b74-1707-4e5f-9ceb-1deacbd3776c'], 'pending_cleanup_session_ids': [], 'semaphore_value': 0, 'active_acquires': 0}\",\n    \"health/suppress: real handle was returned after deadline cancellation\",\n    \"health/suppress: connector completion after deadline was admitted\",\n    \"health/suppress: acquisition completion left pool ownership before close: {'in_use_session_ids': ['0cd166af-3d9b-4ba7-8cb3-8c22da108f5c'], 'pending_cleanup_session_ids': [], 'semaphore_value': 0, 'active_acquires': 0}\"\n  ],\n  \"network\": \"none; synthetic connector protocol only\",\n  \"platform\": \"macOS-27.0.1-arm64-arm-64bit-Mach-O\",\n  \"pool_module\": {\n    \"path\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/src/polisyos/fabric/connectors/pool.py\",\n    \"sha256\": \"4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7\"\n  },\n  \"pool_module_import_path\": \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/src/polisyos/fabric/connectors/pool.py\",\n  \"probe\": \"real ConnectionPool deadline cancellation boundary\",\n  \"python_version\": \"3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]\",\n  \"runtime_verdict\": \"FAIL\"\n}\n",
+      "stderr": "2026-10-05 18:14:17.732 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized\n2026-10-05 18:14:17.815 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed\n2026-10-05 18:14:17.815 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized\n2026-10-05 18:14:17.897 | DEBUG    | polisyos.common.logger:_call:120 - New connection created\n2026-10-05 18:14:17.897 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired\n2026-10-05 18:14:17.897 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed\n2026-10-05 18:14:17.897 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized\n2026-10-05 18:14:17.897 | DEBUG    | polisyos.common.logger:_call:120 - New connection created\n2026-10-05 18:14:17.980 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed\n2026-10-05 18:14:17.980 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized\n2026-10-05 18:14:17.980 | DEBUG    | polisyos.common.logger:_call:120 - New connection created\n2026-10-05 18:14:18.062 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired\n2026-10-05 18:14:18.062 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed\nTraceback (most recent call last):\n  File \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/probe.py\", line 265, in <module>\n    asyncio.run(bounded(main(), \"entire probe\", seconds=15.0))\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py\", line 204, in run\n    return runner.run(main)\n           ~~~~~~~~~~^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py\", line 127, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py\", line 719, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/probe.py\", line 77, in bounded\n    return await asyncio.wait_for(awaitable, timeout=seconds)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/tasks.py\", line 488, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/probe.py\", line 261, in main\n    raise AssertionError(\"; \".join(failures))\nAssertionError: connect/suppress: real handle was returned after deadline cancellation; connect/suppress: connector completion after deadline was admitted; connect/suppress: acquisition completion left pool ownership before close: {'in_use_session_ids': ['9cf35b74-1707-4e5f-9ceb-1deacbd3776c'], 'pending_cleanup_session_ids': [], 'semaphore_value': 0, 'active_acquires': 0}; health/suppress: real handle was returned after deadline cancellation; health/suppress: connector completion after deadline was admitted; health/suppress: acquisition completion left pool ownership before close: {'in_use_session_ids': ['0cd166af-3d9b-4ba7-8cb3-8c22da108f5c'], 'pending_cleanup_session_ids': [], 'semaphore_value': 0, 'active_acquires': 0}\n"
+    }
+  ],
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos",
+    "environment_sha256_including_redacted_values": "4962f4be6c28a88be9163cafaf59d52a8f2cbc09b3858dbc88603738c907e63b",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/.venv/bin/python",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "redacted_environment_keys": [],
+    "safe_environment": {
+      "CODEX_CI": "1",
+      "PYTHONPATH": "src:."
+    }
+  },
+  "final_tracked_status_porcelain": "",
+  "head": "d9d61af6359033a08835cf5cc3fecb41c8e6967f",
+  "ignored_output_rule": "policy-engine/.gitignore:10:_build/\tpolicy-engine/_build/e02-g-check/deadline-probe",
+  "initial_tracked_status_porcelain": "",
+  "overall_harness_exit_code": 1,
+  "probe": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/probe.py",
+  "probe_sha256": "111b1892776f3317a0e4ea7d59ee1bc4b33236e3bf69990748fb0cc11f399ddd",
+  "receipt": "G E02 B-adapters pool deadline cancellation probe",
+  "repo_root": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos",
+  "runner": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/run_and_capture.py",
+  "runner_sha256": "1c588478dcf825478ac8ef5f54f67cec540176a994b625adbdc70b47f1f96f6c",
+  "source_bindings": {
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-net01-pool-acquisition.toml": {
+      "bytes": 2013,
+      "git_blob": "a6bb32ba3e32d4a44be7aa0caf2d6a07d6990947",
+      "sha256": "571f94ba03cc977557f6851dd5b82ff498a84da287636bc75764112859890b55"
+    },
+    "policy-engine/src/polisyos/fabric/connectors/README.md": {
+      "bytes": 6113,
+      "git_blob": "b5fd95fc0ec4a461fa17ff65cc6b41abc8b2d678",
+      "sha256": "9e82357217a81a4d7fdb5633646e85a13e283ac0df14c14b080331bd4d6930b9"
+    },
+    "policy-engine/src/polisyos/fabric/connectors/base.py": {
+      "bytes": 19819,
+      "git_blob": "791d3927acc040a7932e69a4886339f08b190bb1",
+      "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5"
+    },
+    "policy-engine/src/polisyos/fabric/connectors/pool.py": {
+      "bytes": 41042,
+      "git_blob": "48fa66bbf804a01f18c33ad12d321aecb2889053",
+      "sha256": "4fa505408f10cd1b9133f842ad7564185a0a3bcebe06c8424bf7aeb26f23ddb7"
+    },
+    "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py": {
+      "bytes": 8912,
+      "git_blob": "8d13dc75e11301eb2f702095c38d579c43e5f261",
+      "sha256": "a459bf407a26dfe6d4e13367a2956ca0e68b6c5ddda96107049189e08c742626"
+    }
+  },
+  "tree": "2f320f79e56aa1da71dad92f171d9dbac5a72d2d",
+  "schema": "policyos.e02.independent_check.v1",
+  "original_receipt": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-g-check-b-adapters/polisyos/policy-engine/_build/e02-g-check/deadline-probe/receipt.json",
+    "sha256": "0356e49bf524175553893096a9a91567b8465405ee4760a49fa328cfef6d4a11",
+    "retention": "Unrelated session environment omitted; full deciding stdout/stderr retained"
+  },
+  "root_review": "G read entire discriminator source and complete native/probe outputs; recomputed source/original-output bindings; actual imported pool matches immutable candidate; no network",
+  "decision": "HOLD same NET-01 deadline admission class deeper: cancel-suppress connect and health return handles after observed budget cancellation;9 native cooperative controls pass; physical cleanup settles on close",
+  "limits": [
+    "No hard physical cancellation bound claimed; publication after expiry must refuse and cleanup any returned handle",
+    "APFS258 environment snapshot, PYTHONPATH actual candidate module binding; no production stream ING-02 evidence",
+    "Original other adapter test additions not admitted independently as whole topic; canonical owner must revise/redeclare bounded deadline contract and provide new receipt",
+    "Finding closure and main publication not authorized by this receipt"
+  ]
+}

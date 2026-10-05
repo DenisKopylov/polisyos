@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-05",
+  "publisher": "G",
+  "integration_sha": "5a9b5814436dfd69e38dd1a8d95db1a08b7c2498",
+  "integration_tree": "46534b6038b3e20bb574221c9ba16295e4ea4c8f",
+  "previous_checkpoint": "checkpoint-03.json",
+  "accepted_slices": [
+    {
+      "unit": "E",
+      "slice": "composition-readback",
+      "accepted_head": "991f5f280027dfa8e95b61cfb49bd01234811ca2",
+      "candidate_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+      "candidate_tree": "7600249e28d6eb3bd5dbba2afa7677097c914d9d",
+      "merge_sha": "8d5a490ff78f68683fdf867699846b98d1be961b",
+      "merge_parents": [
+        "15d50bac59d06a3fb010327abf8e0c90f9ccbed0",
+        "991f5f280027dfa8e95b61cfb49bd01234811ca2"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/composition-readback-checks.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/composition-readback.json",
+        "policy-engine/release-fragments/unreleased/2026-10-05-e02-composition-readback.toml",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py"
+      ],
+      "code_acceptance": "Core refs normalized through existing canonical helper before six strict typed IR loads",
+      "reviewers": [
+        "receipt_protocol",
+        "G"
+      ],
+      "deciding_receipt": "../implementation-handoffs/E/composition-readback.json@991f5f280027dfa8e95b61cfb49bd01234811ca2",
+      "readback": "Complete topic footprint blobs byte-identical on integration branch; ancestry established",
+      "limitations": [
+        "Shared Scientist node repeats same ref normalization omission; existing helper available, own writer follow-up needed",
+        "No BKT/FRC closure; cloud-root aggregate claims in owner receipt are not G receipts"
+      ],
+      "finding_closure": false
+    },
+    {
+      "unit": "E",
+      "slice": "pcl",
+      "accepted_head": "5e08960ff606cc8c0b1323746c4a2e9f60a73a8b",
+      "candidate_sha": "1b2aa525bdb74b90ca444eb411bf230c13a9b50a",
+      "candidate_tree": "22bd30b54b3d4b99f8a2163e9c019d3f04033558",
+      "merge_sha": "5a9b5814436dfd69e38dd1a8d95db1a08b7c2498",
+      "merge_parents": [
+        "8d5a490ff78f68683fdf867699846b98d1be961b",
+        "5e08960ff606cc8c0b1323746c4a2e9f60a73a8b"
+      ],
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-base-reproduction.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-baseline-reproduce.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-invocation.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-property-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-removal-probe.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-removal.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-ruff.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl.json",
+        "policy-engine/release-fragments/unreleased/2026-10-05-predictive-calibration-inputs.toml",
+        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/calibration/curve.py",
+        "policy-engine/tests/unit/calibration/test_continuous.py",
+        "policy-engine/tests/unit/calibration/test_curve.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py"
+      ],
+      "code_acceptance": "Incomplete interval comparisons cannot emit positive curve verdict; unified continuous level admission and canonical test migration",
+      "reviewers": [
+        "consumer_f",
+        "sources_f13_f15",
+        "G"
+      ],
+      "deciding_receipt": "../implementation-handoffs/E/pcl.json@5e08960ff606cc8c0b1323746c4a2e9f60a73a8b",
+      "readback": "Complete topic footprint blobs byte-identical on integration branch; ancestry established",
+      "limitations": [
+        "Attached positive truthfulness receipt is returned without content reconciliation by unchanged consumer; hostile readback authority not established",
+        "Architecture incomplete/partial FAIL not_established attribution; static invocation SIGKILL is no absence proof",
+        "Predictive diagnostic producer only; alias remains supported; LA-052/LA-053 not closed"
+      ],
+      "finding_closure": false
+    }
+  ],
+  "finding_closures": [],
+  "freeze": "not_frozen",
+  "affected_checks": "PCL/BKT/FRC importer recomposition queued after pending bias/FRC supplier decisions; no per-merge broad regression",
+  "main_publication": "not_authorized"
+}

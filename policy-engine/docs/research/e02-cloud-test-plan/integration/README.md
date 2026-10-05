@@ -3,7 +3,7 @@
 G ведёт `codex/e02-integration` от опубликованного `origin/main`:
 `c40d4acae1ce58b597267255026d9356565828fd`, tree
 `897662caf73bd4487f798d66938b74d7abfe753e`. Этот checkpoint фиксирует входы
-и подготовку приёмки. Решения фиксируются в [checkpoint-03](checkpoint-03.json)
+и подготовку приёмки. Решения фиксируются в [checkpoint-04](checkpoint-04.json)
 и [independent review](reviews/2026-10-05-first-pass.md). Новых finding closure
 decisions пока нет. Исследовательский source `6978076…` не является новым
 кандидатом. Протокол исполнения — [HANDOFF](../execution-prompts/HANDOFF.md).

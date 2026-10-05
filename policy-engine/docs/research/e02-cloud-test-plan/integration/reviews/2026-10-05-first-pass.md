@@ -33,7 +33,7 @@ probe не устанавливает существующего PolicyOS callba
 возвращает новую размерность до публикации keys; query ждёт завершения swap.
 [D RL observations](../checks/d-rl-admission.json) подтверждают приём `True`
 и `1.0`; missing/unsupported version и malformed outer/Python RNG отвергнуты
-без mutation. Отдельный `metadata.wrapped_rng_state` этими probes не проверен.
+без mutation. В текущем decoder нет `metadata.wrapped_rng_state`: отдельный ранний AttributeError относится к nested `metadata.base_state`, а не к Python RNG codec. Эти probes проверяют outer/Python RNG; nested-base delta рассматривается на source `4030275…` со старым, не обновлённым handoff.
 Все четыре HOLD сохраняются. Full moderate deciding outputs находятся в Git;
 probe scripts остаются локально ignored и связаны hashes, remote bytes не
 переданы.

@@ -633,7 +633,22 @@ def test_apply_nodes_rejects_mapped_schedule_before_emission(transform) -> None:
     with pytest.raises(ValueError, match="does not support mapped schedule predicates"):
         _evaluate_income_transform(run, income, transform)
     assert observed == []
+    # These transform orders also reject before emitter tracing; a caller
+    # that jits the scalar call before mapping may trace it first (below).
     assert traced == []
+
+
+def test_apply_nodes_vmap_of_jit_rejects_before_numerical_emission() -> None:
+    run_one, observed, _ = _instrumented_log_step()
+    key = jax.random.PRNGKey(11)
+    compiled = jax.jit(lambda row, t: run_one(row, t, key)[0])
+    with pytest.raises(ValueError, match="does not support mapped schedule predicates"):
+        jax.vmap(compiled)(
+            jnp.array([[0.0, 0.0], [2.0, 2.0]], dtype=jnp.float32),
+            jnp.array([0, 1], dtype=jnp.int32),
+        )
+    jax.effects_barrier()
+    assert observed == []
 
 
 @pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])

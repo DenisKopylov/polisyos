@@ -1,0 +1,375 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "frc",
+  "closure_ids": [
+    "B32",
+    "LA-051"
+  ],
+  "bundle_ids": [
+    "FRC-01",
+    "FRC-02"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "integration_dependency_checkpoint": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+    "29b93f55ef50b86392fe6b6c4e56c8ed05e82f9c",
+    "45a7b1be8951cad62e45b4c560bad88a1a8c0c53"
+  ],
+  "candidate_tree_sha": "2c84e5f2d1051344d0f4ecdc18fd5317a9d4e1ed",
+  "tested_source_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+  "source_unchanged_after_checks": {
+    "source_blob": "e9302eb353ab7be6b03f4812ab9b473fb9555f64",
+    "test_blob": "f86ecee0c4630b5182e7132bff11ecdc88f372f5",
+    "condition": "Both blobs identical to tested implementation SHA; later commits contain release documentation only."
+  },
+  "branch": "codex/e02-E-frc",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/13",
+  "remote_implementation_readback_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-forecast-method-rule-binding.toml",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "policy-engine/tests/unit/remediation/test_frc_02_owner.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F04-P095",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "source_tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@sha256:17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "source_events": [
+        {
+          "line": 441,
+          "text": "[\"F04-P095\",\"call\",\"failed\",\"builtins.AttributeError\",\"'NoneType' object has no attribute 'prediction_time'\",[[\"test_calibration_time_roles_are_preserved_from_bound_evidence\",[1]]]]"
+        },
+        {
+          "line": 442,
+          "text": "[\"F04-P095\",\"call\",\"failed\",\"builtins.AssertionError\",\"assert 's10://calibration/fail-closed/insufficient-history' in []\\n +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs\",[[\"test_missing_calibration_evidence_refs_stays_typed_blocked\",[1]]]]"
+        }
+      ],
+      "source_test_blob": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+      "environment": {
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.22.0",
+          "corepack": "0.34.0",
+          "pnpm": "10.33.2",
+          "gnu_time_package": "time_1.9-0.2_amd64.deb",
+          "gnu_time_runtime_version": "GNU Time UNKNOWN"
+        },
+        "vm": {
+          "os": "Linux",
+          "arch": "x86_64",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_max_bytes": 17179869184
+        }
+      },
+      "profile": [
+        "lint",
+        "test",
+        "runtime",
+        "ml",
+        "analytics",
+        "bayesian",
+        "optimization-advanced",
+        "sensitivity",
+        "causal-discovery",
+        "vector-search",
+        "solvers"
+      ],
+      "backend": "Inline estimator-shaped SimpleNamespace and actual adapter helpers, no numerical estimator backend. Source numerical profile uses one thread/JAX CPU: F04 lines367-368, F08 environment, F13 toolchain.",
+      "data_identity": "test_frc_01.py blob10af66233d02c2d7a6a04ef163d9241a760316a8 identical on all cuts; inline fixtures only. No production inputs required by these two cases. Full VM input custody/raw archives missing.",
+      "state": "source_reported FAILED:5pass/2fail",
+      "grade": "institutionally_supplied compact text; candidate independently reproduces both errors"
+    },
+    {
+      "cell_id": "F08-P097",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "source_tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@sha256:d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+      "source_events": [
+        {
+          "line": 414,
+          "text": "F08-P097\tcall\tfailed\tE67\t{\"test_calibration_time_roles_are_preserved_from_bound_evidence\":[null]}"
+        },
+        {
+          "line": 415,
+          "text": "F08-P097\tcall\tfailed\tE68\t{\"test_missing_calibration_evidence_refs_stays_typed_blocked\":[null]}"
+        }
+      ],
+      "source_test_blob": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+      "environment": {
+        "os": "Debian 13",
+        "architecture": "x86_64",
+        "cpu_max": "400000 100000",
+        "effective_cpu_quota": 4,
+        "memory_max_bytes": 17179869184,
+        "python": "3.14.2",
+        "uv": "0.9.21",
+        "node": "22.23.3",
+        "corepack": "0.36.0",
+        "pnpm": "10.33.2",
+        "distribution_count": 253,
+        "distribution_metadata_drift": [],
+        "numerical_threads": 1,
+        "jax_platforms": "cpu"
+      },
+      "profile": [
+        "lint",
+        "test",
+        "runtime",
+        "ml",
+        "analytics",
+        "bayesian",
+        "optimization-advanced",
+        "sensitivity",
+        "causal-discovery",
+        "vector-search",
+        "solvers",
+        "search_bo",
+        "agent-sim",
+        "causal-discovery-scale"
+      ],
+      "backend": "Inline estimator-shaped SimpleNamespace and actual adapter helpers, no numerical estimator backend. Source numerical profile uses one thread/JAX CPU: F04 lines367-368, F08 environment, F13 toolchain.",
+      "data_identity": "test_frc_01.py blob10af66233d02c2d7a6a04ef163d9241a760316a8 identical on all cuts; inline fixtures only. No production inputs required by these two cases. Full VM input custody/raw archives missing.",
+      "state": "source_reported FAILED:5pass/2fail",
+      "grade": "institutionally_supplied compact text; candidate independently reproduces both errors"
+    },
+    {
+      "cell_id": "F13-P109",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "source_tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "source_text": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@sha256:7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "source_events": [
+        {
+          "line": 406,
+          "text": "[\"F13-P109\",1,\"call\",\"failed\",\"{{test_path}}:158: AttributeError\",[\"AttributeError: 'NoneType' object has no attribute 'prediction_time'\"],[\"::test_calibration_time_roles_are_preserved_from_bound_evidence\"]]"
+        },
+        {
+          "line": 407,
+          "text": "[\"F13-P109\",1,\"call\",\"failed\",\"{{test_path}}:224: AssertionError\",[\"assert inputs[\\\"forecast_calibration_record\\\"] is None\",\"assert support.forecast_tier == \\\"blocked\\\"\",\"assert support.calibration_record_ref is None\",\"AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []\",\"+  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs\"],[\"::test_missing_calibration_evidence_refs_stays_typed_blocked\"]]"
+        }
+      ],
+      "source_test_blob": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+      "environment": {
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.22.0",
+          "pnpm": "10.33.2",
+          "installed_distributions": 241,
+          "installed_version_changes": 0,
+          "numeric_threads": 1,
+          "JAX_PLATFORMS": "cpu"
+        },
+        "vm": "not_recorded_in_compact_metadata"
+      },
+      "profile": [
+        "lint",
+        "test",
+        "runtime",
+        "ml",
+        "analytics",
+        "bayesian",
+        "optimization-advanced",
+        "sensitivity",
+        "causal-discovery",
+        "causal-discovery-scale",
+        "search_bo",
+        "solvers",
+        "vector-search"
+      ],
+      "backend": "Inline estimator-shaped SimpleNamespace and actual adapter helpers, no numerical estimator backend. Source numerical profile uses one thread/JAX CPU: F04 lines367-368, F08 environment, F13 toolchain.",
+      "data_identity": "test_frc_01.py blob10af66233d02c2d7a6a04ef163d9241a760316a8 identical on all cuts; inline fixtures only. No production inputs required by these two cases. Full VM input custody/raw archives missing.",
+      "state": "source_reported FAILED:5pass/2fail",
+      "grade": "institutionally_supplied compact text; candidate independently reproduces both errors"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-E-frc/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/remediation/test_frc_02_owner.py",
+        "tests/unit/remediation/test_frc_02.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/workspace/e02-E-frc/_build/e02-frc/producer-tmp",
+        "-o",
+        "cache_dir=/workspace/e02-E-frc/_build/e02-frc/producer-cache"
+      ],
+      "cwd": "/workspace/e02-E-frc/policy-engine",
+      "target_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/producer.json",
+      "input_closure": "Complete selected test files and live product imports; inline fixtures, isolated CAS and per-process scratch; no production inputs.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/producer.log@sha256:dad33d9cd4371d2b9242137ba7db055c9181b9ded80bcd85a5de91cb57408907",
+      "wall_s": 22.744275515000027,
+      "pytest_process_maxrss_kib": 493528
+    },
+    {
+      "command": [
+        "/workspace/e02-E-frc/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/remediation/test_frc_02_bridge.py",
+        "tests/unit/remediation/test_frc_02_s10.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/workspace/e02-E-frc/_build/e02-frc/bridge-tmp",
+        "-o",
+        "cache_dir=/workspace/e02-E-frc/_build/e02-frc/bridge-cache"
+      ],
+      "cwd": "/workspace/e02-E-frc/policy-engine",
+      "target_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/bridge.json",
+      "input_closure": "Complete selected test files and live product imports; inline fixtures, isolated CAS and per-process scratch; no production inputs.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/bridge.log@sha256:3af3bc516c92341f354688d0d3da18f81d21965ed7d1246769c6e133c5bd94f2",
+      "wall_s": 55.558012289999965,
+      "pytest_process_maxrss_kib": 790908
+    },
+    {
+      "command": [
+        "/workspace/e02-E-frc/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/remediation/test_frc_01.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/workspace/e02-E-frc/_build/e02-frc/frc01-tmp",
+        "-o",
+        "cache_dir=/workspace/e02-E-frc/_build/e02-frc/frc01-cache"
+      ],
+      "cwd": "/workspace/e02-E-frc/policy-engine",
+      "target_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/frc01.json",
+      "input_closure": "Complete selected test files and live product imports; inline fixtures, isolated CAS and per-process scratch; no production inputs.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/frc01.log@sha256:6d4250e145f7e46a204e528c9d256da2cc7b21ca3f692e9737f9edf74166bf9a",
+      "wall_s": 37.55226352400007,
+      "pytest_process_maxrss_kib": 783772
+    },
+    {
+      "command": "PYTHONPATH=policy-engine/src policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/numerical_witness.py",
+      "target_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/producer.json",
+      "input_closure": "Existing real-owner fixture: train 10..19; holdouts 20..22 vs1000..1002; horizon3 alpha.3 beta.1 seed0; rule nominal.90; registered ETS NumPy backend. Synthetic bounded fixture only.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/numerical-witness.json@sha256:c296edebefb2585bed8d87ece826f23c10ec65e28a26a9526ca79003eb17854c"
+    },
+    {
+      "command": "policy-engine/.venv/bin/python -m ruff check src/polisyos/scientist/methods/backtesting/forecast_owner.py tests/unit/remediation/test_frc_02_owner.py",
+      "cwd": "policy-engine",
+      "target_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+      "environment": "Shared read-only venv, ruff0.14.10",
+      "input_closure": "Both changed implementation files",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "policy-engine/.venv/bin/python -m ruff format --check src/polisyos/scientist/methods/backtesting/forecast_owner.py tests/unit/remediation/test_frc_02_owner.py",
+      "cwd": "policy-engine",
+      "target_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+      "environment": "Shared read-only venv, ruff0.14.10",
+      "input_closure": "Both changed implementation files",
+      "outcome": "PASS",
+      "output": "2 files already formatted"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m polisyos.runtime.quality.production_invocation --base c40d4acae1ce58b597267255026d9356565828fd --receipt _build/e02-frc/production-invocation.json",
+      "cwd": "policy-engine",
+      "target_sha": "0d90241ff1d4c8b4ebb2452460c8c2406b41728b",
+      "environment": "Shared read-only venv with worktree src",
+      "input_closure": "Complete tracked Python tree, project entrypoints; static direct-call graph compared against slice base.",
+      "outcome": "UNRUN",
+      "semantic_status": "UNRESOLVED",
+      "exit_code": 3,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-logs/production-invocation-summary.json@sha256:d3d27252e67cf0c11b1575faec9d44649557fd5bb965fdc87a8f1d8821034d41",
+      "limitations": "No regressions; ForecastOwner.run unresolved_by_construction. Full170MB ignored raw diagnostic is not transferred. Runtime invocation is not established."
+    }
+  ],
+  "property": {
+    "statement": "Real ETS backtest reports retain resolved method/admitted rule bindings. Canonical CAS readback recomputes observation-side interval counts and refuses calibration evidence persistence without explicit context.",
+    "runtime_path": [
+      "ForecastOwner.run -> MethodDispatcher/ETS ComputeBackend.NUMPY -> evaluate_continuous",
+      "Persist training/method/uncertainty/calibration/ir.backtest_report CAS artifacts",
+      "load_backtest_report -> produce_empirical_calibration_evidence",
+      "persist_empirical_calibration_evidence refuses missing context with no additional CAS writes; served S10 pending"
+    ],
+    "proxy_divergence": "Same forecasts[20,21,22] and intervals under fixed nominal confidence produce3/3=1.0 supported versus0/3=0.0 limited for different holdouts. Both remain unusable for calibration authority without context.",
+    "negative_controls": [
+      "New real-owner witness: missing context is blocked and persistence raises before any additional CAS writes.",
+      "Existing owner shape control: same forecast/intervals with distant holdout changes observed coverage/suitability.",
+      "Existing missing/wrong-kind model refs and unadmitted rules are refused.",
+      "Existing bridge/S10 controls reject forged bounds/projections/refs, method/rule mismatch and temporal mismatch."
+    ],
+    "test_first_red": {
+      "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "command": "PYTHONPATH=/workspace/e02-E-frc/policy-engine/src .venv/bin/python -m pytest tests/unit/remediation/test_frc_02_owner.py::test_real_ets_report_carries_method_rule_binding_without_inventing_bridge_evidence -q",
+      "outcome": "FAIL",
+      "output": "Before source edit, new uncommitted witness: KeyError:'method_ref' on persisted report metadata. Real dispatcher logged backend=numpy and successful execution. Green counterpart is pinned implementation producer log; pre-change test bytes were not separately committed."
+    }
+  },
+  "predicate_basis": "recomputed",
+  "predicate_limits": {
+    "method_rule": "recomputed from resolved method signature and CAS rule",
+    "observed_counts": "recomputed from persisted outcomes/bounds",
+    "request_time_semantics": "consumer_asserted; preserved explicit roles are not production-source meaning",
+    "credible_evaluation": "not_established",
+    "served_invocation": "not_established"
+  },
+  "capability_state_or_finding_state": "implemented_but_not_orchestrated; predictive_only; bridge_pending",
+  "finding_closure_verdicts": {
+    "B32": "partial; legacy positive selector and A limitation-ref gap remain, no closure claimed",
+    "LA-051": "partial; actual producer observation readback established, admitted evaluation-context/served consumer chain not established"
+  },
+  "public_surface_classification": "internal; new metadata only, historical CAS artifacts unchanged",
+  "surface_scope": "Internal CAS readback/DTOs only; no served/public recommendation authority",
+  "patterns": [
+    "P01",
+    "P02",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P29",
+    "P32",
+    "P37",
+    "P38",
+    "P41"
+  ],
+  "limitations_and_next_owner": [
+    "A owns generation_cycle.py. On implementation SHA run test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked. It fails because _s10_limitation_refs sees evidence without calibration_status although the builder argument is limit. Preserve explicit blocked/insufficient-history reason; do not weaken admission.",
+    "A/verification owner: test_frc_01.py::test_calibration_time_roles_are_preserved_from_bound_evidence requests a record from a naked unverified mapping, omits prediction/threshold refs and violates current temporal ordering. Reconcile the stale positive witness to resolved producer evidence; do not add fake evidence acceptance.",
+    "Forecast/evaluation owner must appoint report-bound scope_binding, threshold, observed_outcome, prediction, evaluation_design, credible_evaluation, source_lineage and method_lineage evidence. No credible-evaluation authority is minted by this producer slice.",
+    "After G accepts this producer checkpoint, A alone applies the result/typed-evidence-to-S10 served bridge and verifies current persisted consumer readback. Existing S10 tests use handcrafted persisted reports/context and do not demonstrate ForecastOwner served invocation.",
+    "G local reproduce: fetch exact implementation SHA; run22 producer/backtest and24 bridge/S10 selectors from checks. For production-dependent closure instantiate ForecastOwnerRequest with admitted read-only local CAS DataSnapshot, model/policy pair, existing versioned rule, authorized train/holdout split,target metric and six meaningful source times. Preserve source/ref hashes and observed counts. Missing evaluation context or served path remains not_established/bridge_pending. Full production history/source law stays local.",
+    "FRC01 errors are recorded, not excluded as inherited red: no P41 zero-input-intersection claim. Full static invocation raw remains ignored/untransferred; rerun its exact command if needed, never infer production absence from its incomplete graph."
+  ],
+  "publication": {
+    "pr_labels": [
+      "kind:runtime-behavior",
+      "compat:internal",
+      "release:fix"
+    ],
+    "release_fragment": "policy-engine/release-fragments/unreleased/2026-10-05-forecast-method-rule-binding.toml",
+    "pnpm": "corepack pnpm install --frozen-lockfile completed before receipt/release commits;1213 packages,engine warning Node24.19.0 vs22 baseline. No TypeScript scanner or frontend correctness claim."
+  }
+}

@@ -1,0 +1,68 @@
+Migration implementation handoff verification
+Target implementation: 6fa80a12aa764f06d75f55c3a21108dc2483ba85
+Base: c40d4acae1ce58b597267255026d9356565828fd
+Worktree: /Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos
+Branch: codex/e02-C-migrations
+
+Focused migration/runtime tests
+Command:
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-migrations/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q -p no:cacheprovider policy-engine/tests/unit/remediation/test_mig_01.py policy-engine/tests/unit/remediation/test_mig_02.py policy-engine/tests/unit/remediation/test_mig_04.py policy-engine/tests/unit/remediation/test_mig_05.py policy-engine/tests/unit/runtime/test_runtime_manifest_paths.py
+Exit: 0
+Complete stdout:
+..................................................................       [100%]
+=============================== warnings summary ===============================
+../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+66 passed, 1 warning in 0.88s
+
+Ruff
+Command:
+PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/remediation/test_mig_02.py
+Exit: 0
+Complete stdout:
+All checks passed!
+
+Patch whitespace check
+Command: git diff --check
+Exit: 0
+Complete stdout: (empty)
+
+Pre-commit hook on the implementation commit
+Command: git commit -m "test(runtime): exercise migration readback and recovery"
+Exit: 0
+Complete stdout:
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  check-contrast (skip) no matching staged files
+│  check-reduced-motion (skip) no matching staged files
+│  eslint (skip) no files for inspection
+│  prettier (skip) no files for inspection
+
+  ────────────────────────────────────
+summary: (done in 0.24 seconds)
+[codex/e02-C-migrations 6fa80a12a] test(runtime): exercise migration readback and recovery
+ Date: Mon Oct 5 16:54:29 2026 +0300
+ 1 file changed, 66 insertions(+)
+
+Removal control: remove path normalization, retain CLI/DTO/resolver
+Probe: the canonical migration module's path normalizer was replaced in-process with a deep-copy no-op; the CLI still serialized, RunManifest.model_validate_json still loaded, and resolve_artifact_path was called on the resulting ref. The consumer rejected the unmigrated absolute path with `Absolute artifact paths are not allowed by default`.
+Exit: 0
+Complete stdout:
+PASS removal control: keeping CLI/parser/DTO/resolver markers but removing path normalization makes real consumer reject the serialization
+
+Removal control: basename-only normalizer, retain CLI/DTO/resolver
+Probe: a temporary run root contained `nested/data.json` with `nested-source` bytes and root-level `data.json` with `wrong-basename` bytes. The in-process converter mutation rewrote path fields to the basename only; the CLI serialized, the strict DTO loaded, and the real resolver returned the wrong root sibling. This is the divergent case guarded by `test_serialized_migration_loads_through_runtime_consumer`.
+Exit: 0
+Complete stdout:
+PASS removal control: basename-only normalizer kept CLI/DTO/resolver shape but resolved to the wrong root sibling; the new assertion would fail
+
+Independent review receipts
+Root reported an independent rerun at exact implementation SHA 6fa80a12aa764f06d75f55c3a21108dc2483ba85: same five suites, PASS 66 in 1.00s, Ruff PASS, diff-check PASS. The raw one-line report is: `Root independent exactSHA rerun same5suites PASS66 in1.00s, ruffPASS + diffcheckPASS.`
+Schema-owner immutable review of exact SHA 6fa80a12aa764f06d75f55c3a21108dc2483ba85: no blockers; review covered 10 MIG-02 cases plus Ruff. This is a structural review receipt, not a finding-status change.
+
+The implementation worktree used the documented isolated `corepack pnpm install --frozen-lockfile` only after the missing local lefthook binary blocked the first commit attempt. No shared venv, production data, database, full scan, or external service was modified.

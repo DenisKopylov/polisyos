@@ -1,0 +1,140 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "ukraine-ops-root-server-gate",
+  "closure_ids": ["LA-029"],
+  "bundle_ids": ["UDF-04"],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": ["38c833079414a561bad7ec0a2fb9a68fad45b887"],
+  "candidate_tree_sha": "8c52551e6120c6826b63576dcc173fe44670ac1d",
+  "branch": "codex/e02-C-ukraine-ops",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/architecture/domain_migration_batches.toml",
+    "policy-engine/pyproject.toml",
+    "policy-engine/src/polisyos/data_forge/domains/ukraine/cli.py",
+    "policy-engine/src/polisyos/data_forge/domains/ukraine/server.py",
+    "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py",
+    "policy-engine/tests/unit/data_forge/test_phase8_shim_sunset.py",
+    "policy-engine/tests/unit/remediation/test_udf_04.py",
+    "policy-engine/tools/ops_runners/ukraine_data/cli.py",
+    "policy-engine/tools/ops_runners/ukraine_data/validate_part_a.py"
+  ],
+  "baseline_cells": [
+    "F01-P106",
+    "F01-P129",
+    "F02-P096",
+    "F06-P124",
+    "F07-P090",
+    "F09-P108",
+    "F10-P096",
+    "F14-P112",
+    "F14-P124"
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=\"$PWD/src:$PWD\" python3 -m pytest -c pytest.ini tests/unit/remediation/test_udf_04.py tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py::test_phase2_production_entrypoints_target_new_facades tests/unit/data_forge/test_phase8_shim_sunset.py::test_phase8_ukraine_console_entrypoint_targets_data_forge -q",
+      "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
+      "environment": "macOS, Python 3.14; source checkout; temporary build roots and outside-working-directory subprocess fixtures; fake uv only",
+      "input_closure": "UDF-04 orchestration, workspace discovery, shared pytest-summary classifier, public tools CLI composition, pyproject console-script mapping, and D4 governance request fixture",
+      "outcome": "PASS",
+      "output": "20 passed. Public tools CLI from a temporary cwd produced a passed gate manifest with 0 skipped, then D4 completed and its d4_governance_request.json was read back. Public failure and invalid-checkout controls also passed."
+    },
+    {
+      "command": "python3 -m ruff check src/polisyos/data_forge/domains/ukraine/cli.py src/polisyos/data_forge/domains/ukraine/server.py tools/ops_runners/ukraine_data/cli.py tools/ops_runners/ukraine_data/validate_part_a.py tests/unit/remediation/test_udf_04.py tests/unit/data_forge/test_phase8_shim_sunset.py tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py",
+      "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
+      "environment": "macOS, Python 3.14, ruff module",
+      "input_closure": "All changed Python modules and their edited entrypoint tests",
+      "outcome": "PASS",
+      "output": "All checks passed."
+    },
+    {
+      "command": "python3 -m ruff format --check src/polisyos/data_forge/domains/ukraine/cli.py src/polisyos/data_forge/domains/ukraine/server.py tools/ops_runners/ukraine_data/cli.py tools/ops_runners/ukraine_data/validate_part_a.py tests/unit/remediation/test_udf_04.py",
+      "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
+      "environment": "macOS, Python 3.14, ruff module",
+      "input_closure": "Changed implementation and regression test files",
+      "outcome": "PASS",
+      "output": "5 files already formatted."
+    },
+    {
+      "command": "git diff --check",
+      "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
+      "environment": "attached local worktree",
+      "input_closure": "Staged implementation patch",
+      "outcome": "PASS",
+      "output": "No whitespace errors."
+    },
+    {
+      "command": "PYTHONPATH=\"$PWD/src:$PWD\" python3 -m pytest -c pytest.ini tests/unit/data_forge/test_phase8_shim_sunset.py::test_phase8_fabric_and_foundry_use_data_forge_read_api_only -q",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "fresh ignored git-archive snapshot of policy-engine at slice base; macOS, Python 3.14",
+      "input_closure": "Complete Fabric and Foundry Python source trees and unchanged architecture test",
+      "outcome": "FAIL",
+      "output": "Reproduced at base: one violation, src/polisyos/foundry/methods/catalog/causal/literature_prior.py imports polisyos.data_forge.domains.academic.knowledge.skg_query. Changed source paths are outside this test's scanned directories."
+    },
+    {
+      "command": "PYTHONPATH=\"$PWD/src:$PWD\" python3 -m pytest -c pytest.ini tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py::test_phase2_runtime_consumers_use_data_forge_read_api_not_internals -q",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "fresh ignored git-archive snapshot of policy-engine at slice base; macOS, Python 3.14",
+      "input_closure": "All src/polisyos Python files except src/polisyos/data_forge/ and unchanged architecture test",
+      "outcome": "FAIL",
+      "output": "Reproduced at base: same 25 existing violations (first is literature_prior.py importing polisyos.data_forge.domains.academic.knowledge.skg_query). The changed src files are under the excluded data_forge tree; tools/tests/metadata are outside the scanned source denominator."
+    },
+    {
+      "command": "Coordinator-reported worktree admission; exact argv unavailable in this leaf context",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "E02 coordinator admission",
+      "input_closure": "Managed worktree registration records",
+      "outcome": "FAIL",
+      "output": "Exit 2 due to an unrelated stale registration. The coordinator explicitly authorized continuation on this verified branch. Stale registration records were left untouched."
+    },
+    {
+      "command": "Build/install the real wheel and launch its ukraine-data console script with no checkout",
+      "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
+      "environment": "not run; current checks execute the packaged module entrypoint from the source checkout",
+      "input_closure": "Installed-wheel package contents and no-checkout unavailable result",
+      "outcome": "UNRUN",
+      "output": "The synthetic site-packages discovery fixture returns no workspace; it does not replace a real wheel launch."
+    },
+    {
+      "command": "Run server-only C7 / apt-get / CPX62 deployment and lifecycle checks",
+      "target_sha": "38c833079414a561bad7ec0a2fb9a68fad45b887",
+      "environment": "not run on this general macOS host",
+      "input_closure": "Target Linux server lifecycle and real repository C7 integration suite",
+      "outcome": "UNRUN",
+      "output": "No apt-get, CPX62 provisioning, server-only C7, or production dataset access was performed."
+    }
+  ],
+  "property": {
+    "statement": "The public ukraine-data command passes an explicit workspace root or discovers the product checkout independent of cwd, composes the repository gate and bootstrap seams through the ops owner, records the gate result, and allows downstream stage execution only when that persisted gate is passed. Skip status reflects a positive pytest summary skip count; a nonzero exit remains failed.",
+    "runtime_path": [
+      "pyproject.toml ukraine-data entrypoint",
+      "tools.ops_runners.ukraine_data.cli.main/build_orchestrator",
+      "polisyos.data_forge.domains.ukraine.cli.main(orchestrator_factory)",
+      "UkraineDataOrchestrator",
+      "tools.ops_runners.ukraine_data.validate_part_a.run_part_a_gate",
+      "domain server root/admission check and shared summary classifier",
+      "recording subprocess invocation from the selected workspace root",
+      "persisted PartAGateManifest",
+      "D4 stage gate consumption and d4_governance_request.json readback"
+    ],
+    "proxy_divergence": "The prior shared owners classified any stdout containing ' skipped' as skipped. With return code 0 and the exact terminal summary '1 passed, 0 skipped in 0.1s', that proxy disagreed with the property and suppressed a genuine pass. It also allowed a nonzero failed run containing skips to be mislabeled skipped. The shared classifier now parses a positive skipped count and preserves nonzero failure.",
+    "negative_controls": [
+      "Public CLI with an explicit non-checkout workspace writes status=unavailable and starts no subprocess.",
+      "Ops gate on a non-server platform raises LocalExecutionBlockedError before subprocess invocation.",
+      "A zero-exit terminal summary with 0 skipped records passed=true and skipped=false.",
+      "A nonzero terminal summary with both failed and skipped counts records failed=true and skipped=true.",
+      "A recording fake subprocess failure is persisted as a failed gate and returned with a nonzero CLI exit.",
+      "A positive fake gate is persisted, consumed by a fixture-backed D4 build, and the D4 request is read back."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "LA-029 remains partial: the public source-checkout CLI is wired through ops callbacks and the fixture gate/result path is verified; real installed-wheel launch and target-server lifecycle are unverified.",
+  "limitations_and_next_owner": [
+    "G/root: independently review commit 38c833079414a561bad7ec0a2fb9a68fad45b887 and integrate only after checking the receipt and exact diff.",
+    "Platform owner: run a real installed-wheel launch without a checkout and verify typed unavailable before subprocess startup.",
+    "Linux server owner: verify create/start/stop/restart/concurrent shutdown, resource closure exactly once, and a healthy restart control; do not run those operations on this Mac.",
+    "Admission exception: worktree admission exited 2 for an unrelated stale registration; continuation was explicitly authorized by root and the stale registration was not modified.",
+    "No push or pull request was created."
+  ]
+}

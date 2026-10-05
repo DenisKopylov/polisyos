@@ -1,0 +1,167 @@
+{
+  "schema": "policyos.e02.g-code-admission.v1",
+  "unit": "E",
+  "slice": "doe-morris-geometry",
+  "tuple": {
+    "ancestry": [
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "40b911e6c086830825dc088df8d64a378589270e"
+    ],
+    "candidate": {
+      "branch": "codex/e02-E-doe",
+      "parent_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/17",
+      "sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "tree": "d38dad891c8f0edf61689cc5d5f1e75128ae3b13"
+    },
+    "handoff_path_at_receipt_head": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry.json",
+    "handoff_sha256": "f8266394296cfc5b663c0a8129fc65357bb58206fad84e523700f6311e7f4a25",
+    "receipt_head": {
+      "is_descendant_of_candidate": true,
+      "parent_sha": "e468822ef5eb0096f3a1692da1fdd85843581203",
+      "sha": "40b911e6c086830825dc088df8d64a378589270e",
+      "tree": "66317e7ea0f82360dae3582772cb3aa3698a7296"
+    },
+    "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+  },
+  "code_decision": "GO_bounded_generic_runtime_property",
+  "finding_closure": [],
+  "handoff": {
+    "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry.json@40b911e6c086830825dc088df8d64a378589270e",
+    "sha256": "f8266394296cfc5b663c0a8129fc65357bb58206fad84e523700f6311e7f4a25"
+  },
+  "canonical_writer": {
+    "profile": "polisyos.canon.json/0.2.0",
+    "spec": {
+      "ensure_ascii": false,
+      "exclude_none": true,
+      "forbid_floats": true,
+      "forbid_nan_inf": true,
+      "separators": [
+        ",",
+        ":"
+      ],
+      "sort_keys": true
+    },
+    "trailing_newline": false,
+    "writer": "polisyos.core.canon.canon_json.to_canonical_bytes"
+  },
+  "full_topic_footprint": [
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry-architecture.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry-checks.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry.json",
+    "A\tpolicy-engine/release-fragments/unreleased/2026-10-05-doe-morris-geometry.toml",
+    "M\tpolicy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "M\tpolicy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "A\tpolicy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+    "M\tpolicy-engine/src/polisyos/scientist/methods/doe/stability.py",
+    "M\tpolicy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+    "M\tpolicy-engine/tests/unit/remediation/test_doe_02.py",
+    "A\tpolicy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py"
+  ],
+  "property": {
+    "statement": "Each admitted ungrouped Morris trajectory changes exactly one physical coordinate per step and every factor once, with declared unit-coordinate grid and delta; scalar/PCA/EE consumers reject invalid paths, and ranking bootstrap validates its original successful design before resampling whole trajectories.",
+    "runtime_path": [
+      "generate_sensitivity_samples -> genuine SALib1.5.2 Morris sampling",
+      "bounded matrix and originating SensitivityPlan -> shared morris_geometry admission",
+      "analyze_sensitivity -> SensitivityResult and normalized elementary-effect bootstrap; MultiOutputAnalyzer -> same admission for components",
+      "RankingStabilityChecker -> original design admission -> whole-trajectory replicate -> real analyze_sensitivity ranking",
+      "autotune SensitivityBridge -> native analysis consumer tests; fixture SensitivityResult JSON write/reopen readback"
+    ],
+    "proxy_divergence": "A finite matrix with len divisible by d+1 can contain two-coordinate, repeated-coordinate, wrong-delta or invalid-grid transitions; slice-base emits point z8 and uncertainty ok where native linear truth is z3.",
+    "negative_controls": [
+      "two_coordinate_step",
+      "tiny_second_coordinate_1e-10",
+      "off_grid",
+      "wrong_delta",
+      "repeated_factor",
+      "zero_step",
+      "cross_trajectory_splice",
+      "outside_support",
+      "nonfinite",
+      "wrong_declared_num_levels",
+      "nonuniform_off_grid",
+      "ranking_stability_original_FAIL_FAST/DROP_FAILED/IMPUTE_BASELINE_failures",
+      "remove_geometry_keep_result_markers"
+    ],
+    "property_preserving_controls": [
+      "whole-trajectory permutation and reversal",
+      "physical unit rescaling preserving normalized effect",
+      "native SALib grid levels2,3,4,6",
+      "native admitted bounded normal/triangular coordinate transformations"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "limits": [
+    "G must fetch exact topic head, inspect this receipt, review/integrate and run affected regression; Git publication is separate from finding closure.",
+    "Authenticated design/trajectory identity is not established by geometry. A geometrically valid splice cannot be distinguished from an original path without an admitted source carrier; no new carrier or authority is invented.",
+    "Nonuniform Morris uncertainty remains unavailable; admitted distribution CDF inversion is used only to validate point-path geometry.",
+    "DROP_FAILED still carries selection_bias_status=not_established; ranking stability refuses failed original runs under every policy. No failure-selection correction is claimed.",
+    "Sobol/FAST ranking stability still uses the existing row resampling and lies outside this bounded Morris slice.",
+    "Odd num_levels preserves the native SALib design and warning about possible bias; it is not a scientific adequacy approval.",
+    "The filesystem SensitivityResult readback is an explicit bounded fixture, not production persistence or a served evaluator. Static production-invocation does not establish orchestration.",
+    "No full production history, source law, coverage campaign, local real-data calibration/backtest result or broad integration closure is claimed.",
+    "Shared generation_cycle.py and other A-owned bridge files are unchanged.",
+    "Repository architecture gate is red with unknown ownership: full deciding output is preserved; G or architecture owners must attribute against the correct slice-base, without inferring inherited status from unrelated-looking paths.",
+    "Final exact-candidate production-invocation scan was killed exit137 and is ERROR, not an invocation PASS. G should rerun that exact read-only command on implementation SHA or integrated descendant; the earlier static UNRESOLVED result is explicitly nondeciding."
+  ],
+  "partial_findings_and_limits": {
+    "B102": "partial; no closure claim. Handoff closure_ids contains B102, but its capability_state says partial pending G disposition and its own limitations retain design/provenance/coverage gaps; preserve partial status.",
+    "adequacy": "Odd level counts preserve the native SALib design warning and do not prove scientific sufficiency; no production coverage/source-law inference.",
+    "architecture_red": "Unknown provenance; see deciding output and exact rerun/classification note above.",
+    "design_identity": "Authenticated design/trajectory identity is not established; geometrically valid splice cannot be detected without an admitted source carrier.",
+    "surface": "Fixture SensitivityResult persistence is not production persistence or served orchestration; capability labels remain artifact/bridge/surface not established outside stated library flow.",
+    "uncertainty": "Nonuniform Morris uncertainty remains unavailable; DROP_FAILED selection-bias status remains not_established; Sobol/FAST stability is outside scope."
+  },
+  "complete_deciding_outputs": [
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry-checks.txt@40b911e6c086830825dc088df8d64a378589270e#native-tests",
+      "sha256": "ecd760d29c8db9172b22fffaba1eaadc03333bf8372630e742b1a1c0b1cebd35",
+      "bytes": 4149,
+      "outcome": "PASS",
+      "label": "native candidate tests"
+    },
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry-checks.txt@40b911e6c086830825dc088df8d64a378589270e#removal-control",
+      "sha256": "ecd760d29c8db9172b22fffaba1eaadc03333bf8372630e742b1a1c0b1cebd35",
+      "bytes": 4149,
+      "outcome": "EXPECTED_FAIL; behavioral property removal detected",
+      "label": "remove-geometry-keep-markers control"
+    },
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry-checks.txt@40b911e6c086830825dc088df8d64a378589270e#numerical-readback",
+      "sha256": "ecd760d29c8db9172b22fffaba1eaadc03333bf8372630e742b1a1c0b1cebd35",
+      "bytes": 4149,
+      "outcome": "PASS; bounded filesystem fixture only",
+      "label": "native producer and persisted fixture consumer readback"
+    },
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-morris-geometry-architecture.txt@40b911e6c086830825dc088df8d64a378589270e",
+      "sha256": "3d68fc547dc5ec754787ba58e13ed1bfa76323a0bf6473c330a617d3cd046ac5",
+      "bytes": 115168,
+      "outcome": "FAIL exit 1; failure provenance not_established",
+      "label": "architecture guardrails"
+    }
+  ],
+  "root_review": "Immutable primary handoff and complete source/test/companions diff read. Deciding native/property-removal outputs read and Git hashes recomputed. Independent reviewers distinct from author.",
+  "independent_reviewers": [
+    "G integrator: source/handoff/output review",
+    "G/sources_f07_f09: full independent source/output review",
+    "E root or FRC independent input review, distinguished from author-run evidence"
+  ],
+  "affected_consumer_checks": {
+    "acceptance_signal": "The candidate-recorded native suite passes on the integrated descendant; separately attribute any architecture/static diagnostic against its proper exact base.",
+    "owner": "G integration owner",
+    "run_after_candidate_is_on_the_integration_descendant": true,
+    "selectors": [
+      "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+      "tests/unit/remediation/test_doe_01.py",
+      "tests/unit/remediation/test_doe_02.py",
+      "tests/unit/remediation/test_doe_03.py",
+      "tests/unit/scientist/methods/doe",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py"
+    ]
+  },
+  "closeout_remaining": "Integrated descendant affected checks, exact source freeze and one broad expensive wave still pending. Static diagnostic failures are execution limits, never production absence."
+}

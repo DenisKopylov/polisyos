@@ -1,0 +1,183 @@
+{
+  "schema": "policyos.e02.g-code-admission.v1",
+  "unit": "E",
+  "slice": "cal05-mapped-schedules",
+  "tuple": {
+    "candidate": {
+      "branch": "codex/e02-E-cal05",
+      "parent_sha": "983e06616e805ccd35931df1acb39fb0d7201f97",
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/24",
+      "sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+      "tree": "a4358e381d07812ceaa9a770e2b9991e0a68fd9f"
+    },
+    "implementation_ancestry": [
+      {
+        "parent_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+        "sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+        "tree": "48fb44adad982d81d2829e382f1a6f8d5abf346c"
+      },
+      {
+        "parent_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+        "sha": "983e06616e805ccd35931df1acb39fb0d7201f97",
+        "tree": "3a9383b07a9a7e93d0264960bfd928e20fa56299"
+      },
+      {
+        "parent_sha": "983e06616e805ccd35931df1acb39fb0d7201f97",
+        "sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+        "tree": "a4358e381d07812ceaa9a770e2b9991e0a68fd9f"
+      },
+      {
+        "parent_sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+        "sha": "5b2c4ec9c245ddcd9b56c3ca204cae791bb37fb6",
+        "tree": "88c2675dcf571e249c50fa7bb56eea7034c125dd"
+      },
+      {
+        "parent_sha": "5b2c4ec9c245ddcd9b56c3ca204cae791bb37fb6",
+        "sha": "9847a87192c66fd1dabfad027ed06b633eb97fb4",
+        "tree": "239549a2f6e48d553c80053510585bb6c481e9f2"
+      }
+    ],
+    "receipt_head": {
+      "is_descendant_of_candidate": true,
+      "parent_sha": "5b2c4ec9c245ddcd9b56c3ca204cae791bb37fb6",
+      "receipt_path_at_head": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.json",
+      "receipt_sha256": "d78c6a86809fd17a6255ccf99684acbc3fa69d874dc32c1c6adc7cd7d2b77c6c",
+      "sha": "9847a87192c66fd1dabfad027ed06b633eb97fb4",
+      "tree": "239549a2f6e48d553c80053510585bb6c481e9f2"
+    },
+    "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd"
+  },
+  "code_decision": "GO_bounded_generic_runtime_property",
+  "finding_closure": [],
+  "handoff": {
+    "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.json@9847a87192c66fd1dabfad027ed06b633eb97fb4",
+    "sha256": "d78c6a86809fd17a6255ccf99684acbc3fa69d874dc32c1c6adc7cd7d2b77c6c"
+  },
+  "canonical_writer": {
+    "profile": "polisyos.canon.json/0.2.0",
+    "spec": {
+      "ensure_ascii": false,
+      "exclude_none": true,
+      "forbid_floats": true,
+      "forbid_nan_inf": true,
+      "separators": [
+        ",",
+        ":"
+      ],
+      "sort_keys": true
+    },
+    "trailing_newline": false,
+    "writer": "polisyos.core.canon.canon_json.to_canonical_bytes"
+  },
+  "full_topic_footprint": [
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-independent-review.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration_schedule_readback.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/schedule_execution_controls.py.txt",
+    "A\tpolicy-engine/release-fragments/unreleased/2026-10-05-calibration-mapped-schedules.toml",
+    "M\tpolicy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+    "M\tpolicy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py"
+  ],
+  "property": {
+    "statement": "A supported scalar schedule never numerically invokes an inactive emitter; mapping the schedule predicate is refused before numerical emitter execution so unsupported batching cannot silently weaken this property.",
+    "runtime_path": [
+      "compile_program produces StaticBundle with immutable schedules",
+      "apply_nodes scalar schedule admission, conditional emitter, neutral inactive patches and PRNG carry",
+      "run_pure_scan produces in-memory state/trace tensors",
+      "Calibrator.run consumes run_pure_scan for parameter-connected loss/report/Hessian; independent importer and delayed-schedule report/replay readback exercised at714f691."
+    ],
+    "proxy_divergence": "On JAX0.8.2 CPU, removing admission makes mixed vmap return correct finite values [[0,0],[2+log2,2+log2]] and gradient [[1,1],[1.5,1.5]], while debug.callback sees emitter inputs [[0,0],[2,2]], including the inactive row. Finite outputs/gradients are therefore an inadequate no-execution proxy.",
+    "negative_controls": [
+      "Admission removal under real vmap exposes inactive numerical callback while retaining correct values and gradients.",
+      "Active x=0 remains nonfinite under eager/JIT/grad/Hessian; no neutral/synthetic active input or nan_to_num is used.",
+      "Existing eager active mechanism refusal remains ValueError.",
+      "Mapped equal steps are also refused; shared scalar schedule state-vmap remains supported."
+    ],
+    "analytic_oracles": "Identity inactive map: gradient1,Hessian0,key unchanged. Active x+logx at x=2: gradient1.5,Hessian diagonal -0.25,next_key fold_in(split(key)[1],1). Scalar lax.map executes only [2,2] for mixed fixture.",
+    "artifact_and_surface_scope": "In-memory replay state/traces and existing Calibrator report DTO. This slice makes no persisted heterogeneous-schedule artifact, bridge, or served capability claim.",
+    "tracing_scope": "The four author eager/jit(vmap)/grad(vmap)/Hessian(vmap) orders reject before Python emitter tracing. vmap(jit(scalar_run)) may trace the scalar emitter once before batching rejects; it produces zero numerical callbacks. Source comment/release qualification and native regression added at bbc40582786b2e9c898aa7dd23b89dbac3062059; numerical kernel unchanged."
+  },
+  "predicate_basis": "recomputed",
+  "limits": [
+    "Calibration schedule owner must appoint a consuming heterogeneous-schedule API and an AD-safe batching mechanism that preserves scalar branches per row, then produce a consumer witness. This slice intentionally does not redesign reverse-mode AD or invent scientific input/authority.",
+    "Public JAX sequential_vmap uses lax.map but documents lack of reverse-mode autodiff; wrapping the full executor would not safely preserve calibration gradient/Hessian support. Current callers can explicitly use lax.map for per-row apply_nodes schedules.",
+    "G must rerun production_invocation diagnostic on exact candidate SHA with local available resources; diagnostic execution ERROR is not inherited red or a product defect.",
+    "Four-base historical replay/raw archive semantic adequacy remains not_established; compact reported PASS cells are navigation only.",
+    "GPU/Metal and production history/source law were not exercised and are not evidence for this generic CPU runtime property."
+  ],
+  "partial_findings_and_limits": {
+    "B185": "partial; no closure claim. Bounded refusal for unsupported mapped schedules does not provide a heterogeneous per-row schedule consumer/API or AD-safe mapped scheduling capability.",
+    "artifact_bridge_surface": "In-memory scan/replay state and existing Calibrator DTO only; no persisted heterogeneous-schedule artifact, orchestration bridge, or served capability is claimed.",
+    "calibration_semantics": "Active x=0 log emitter remains nonfinite; no neutral substitution. Public JAX sequential_vmap maps via lax.map but lacks reverse-mode AD, so it is not a safe full executor wrapper.",
+    "historical_evidence": "Earlier compact PASS source cells have no raw archives here; per-cell loaded JAX version/backend branch and semantic adequacy remain not_established.",
+    "static_scan": "Production-invocation diagnostic SIGTERM exit 143 is execution-limited, not absence, inherited-red attribution, or product-failure evidence.",
+    "unavailable_backends": "Only actual JAX CPU backend TFRT_CPU_0 was exercised; GPU/Metal and production history/source law are not covered."
+  },
+  "complete_deciding_outputs": [
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt@9847a87192c66fd1dabfad027ed06b633eb97fb4#AUTHOR RED",
+      "sha256": "680cc8f47849ab23241b49ac7617e9889810fa6e42752e094a2a9769d43c41d9",
+      "bytes": 15423,
+      "outcome": "EXPECTED_FAIL; establishes original mapped-schedule defect",
+      "label": "original base-red regression control"
+    },
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt@9847a87192c66fd1dabfad027ed06b633eb97fb4#AUTHOR CANDIDATE",
+      "sha256": "680cc8f47849ab23241b49ac7617e9889810fa6e42752e094a2a9769d43c41d9",
+      "bytes": 15423,
+      "outcome": "PASS",
+      "label": "native changed runtime/importer suite at first implementation"
+    },
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt@9847a87192c66fd1dabfad027ed06b633eb97fb4#QUALIFIED CANDIDATE",
+      "sha256": "680cc8f47849ab23241b49ac7617e9889810fa6e42752e094a2a9769d43c41d9",
+      "bytes": 15423,
+      "outcome": "PASS",
+      "label": "final candidate native semantics suite"
+    },
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt@9847a87192c66fd1dabfad027ed06b633eb97fb4#INDEPENDENT NUMERICAL CONTROLS",
+      "sha256": "680cc8f47849ab23241b49ac7617e9889810fa6e42752e094a2a9769d43c41d9",
+      "bytes": 15423,
+      "outcome": "property removal exposes inactive numerical callback; preserved values/gradients do not pass the property",
+      "label": "real JAX property removal/control outputs"
+    },
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt@9847a87192c66fd1dabfad027ed06b633eb97fb4#INDEPENDENT NUMERICAL CONTROLS",
+      "sha256": "680cc8f47849ab23241b49ac7617e9889810fa6e42752e094a2a9769d43c41d9",
+      "bytes": 15423,
+      "outcome": "bounded reviewer source drives Calibrator delayed-schedule report/replay readback; no production persistence claim",
+      "label": "persisted report/replay consumer readback source"
+    },
+    {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules-output.txt@9847a87192c66fd1dabfad027ed06b633eb97fb4#PRODUCTION INVOCATION DIAGNOSTIC",
+      "sha256": "680cc8f47849ab23241b49ac7617e9889810fa6e42752e094a2a9769d43c41d9",
+      "bytes": 15423,
+      "outcome": "ERROR SIGTERM exit 143; not_established, not absence",
+      "label": "static production-invocation diagnostic"
+    }
+  ],
+  "root_review": "Immutable primary handoff and complete source/test/companions diff read. Deciding native/property-removal outputs read and Git hashes recomputed. Independent reviewers distinct from author.",
+  "independent_reviewers": [
+    "G integrator: source/handoff/output review",
+    "G/sources_f07_f09: full independent source/output review",
+    "E root or FRC independent input review, distinguished from author-run evidence"
+  ],
+  "affected_consumer_checks": {
+    "acceptance_signal": "Run native JAX CPU selection on the integrated descendant; separately preserve the vmap(jit) nuance that Python tracing may occur once while numerical callbacks remain zero.",
+    "owner": "G integration owner",
+    "run_after_candidate_is_on_the_integration_descendant": true,
+    "selectors": [
+      "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "tests/unit/foundry/calibration/test_pure_executor.py",
+      "tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+      "tests/unit/foundry/analysis/test_merge_determinism.py",
+      "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_recovers_income_tax_rate",
+      "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_resolves_slot_id_metric",
+      "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_gradnorm_updates_weights",
+      "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_hessian_uncertainty"
+    ]
+  },
+  "closeout_remaining": "Integrated descendant affected checks, exact source freeze and one broad expensive wave still pending. Static diagnostic failures are execution limits, never production absence."
+}

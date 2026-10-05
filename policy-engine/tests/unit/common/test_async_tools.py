@@ -103,7 +103,7 @@ def test_run_blocking_async_preserves_inner_timeout_message() -> None:
     async def _exercise() -> None:
         await run_blocking_async(_raise_inner_timeout, timeout_seconds=5.0)
 
-    with pytest.raises(TimeoutError, match="^inner worker timeout$"):
+    with pytest.raises(TimeoutError, match=r"^inner worker timeout$"):
         asyncio.run(_exercise())
 
 

@@ -1,0 +1,177 @@
+{
+  "schema": "policyos.e02.independent_bounded_review.v1",
+  "reviewer": "E/frc",
+  "target_implementation_sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+  "initial_implementation_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "target_tree": "a4358e381d07812ceaa9a770e2b9991e0a68fd9f",
+  "specification_verdict": "pass_bounded_mapped_refusal",
+  "full_finding_verdict": "partial",
+  "finding_id": "B185",
+  "engineering_verdict": "no_unresolved_findings_in_bounded_slice",
+  "source_final_blobs": {
+    "src/polisyos/foundry/calibration/pure_executor.py": "a9b76ab67933ff16518a32d9f98347223c6da840",
+    "tests/unit/foundry/calibration/test_pure_executor_semantics.py": "013f2b7d85e28b723cae17a964e95f7f9789b715",
+    "src/polisyos/foundry/calibration/calibrator.py": "f64ce5319b4fd88c98ba6cd5bab7af9e8f880c37",
+    "tests/unit/foundry/calibration/test_calibrator_mvp.py": "5ad18cea6a7e8355a5d120e63f6df293b21e2faf"
+  },
+  "source_matches_target": true,
+  "final_head": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+  "final_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/\n",
+  "checks": [
+    {
+      "label": "semantics",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "-q",
+        "--basetemp=/workspace/e02-runtime/cal05-independent/semantics-scratch/tmp",
+        "-o",
+        "cache_dir=/workspace/e02-runtime/cal05-independent/semantics-scratch/cache"
+      ],
+      "cwd": "/workspace/e02-E-cal05/policy-engine",
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-cal05/policy-engine/src"
+      },
+      "exit_code": 0,
+      "wall_seconds": 20.8770464170002,
+      "output_path": "/workspace/e02-runtime/cal05-independent/semantics.log",
+      "output_sha256": "5cba8a0d336f6301764b9e7cb54d2168880bd1238a4afa7c45b0666fad715409"
+    },
+    {
+      "label": "calibrator_native",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_recovers_income_tax_rate",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_resolves_slot_id_metric",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_gradnorm_updates_weights",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_hessian_uncertainty",
+        "-q",
+        "--basetemp=/workspace/e02-runtime/cal05-independent/calibrator_native-scratch/tmp",
+        "-o",
+        "cache_dir=/workspace/e02-runtime/cal05-independent/calibrator_native-scratch/cache"
+      ],
+      "cwd": "/workspace/e02-E-cal05/policy-engine",
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-cal05/policy-engine/src"
+      },
+      "exit_code": 0,
+      "wall_seconds": 19.86642403499991,
+      "output_path": "/workspace/e02-runtime/cal05-independent/calibrator_native.log",
+      "output_sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"
+    },
+    {
+      "target_sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+      "target_tree": "a4358e381d07812ceaa9a770e2b9991e0a68fd9f",
+      "initial_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+      "executable_source_ast_unchanged": true,
+      "initial_to_final_source_change": "comment qualification only",
+      "final_test_change": "additional vmap(jit) callback regression control",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "-q",
+        "--basetemp=/workspace/e02-runtime/cal05-independent/final-semantics-scratch/tmp",
+        "-o",
+        "cache_dir=/workspace/e02-runtime/cal05-independent/final-semantics-scratch/cache"
+      ],
+      "cwd": "/workspace/e02-E-cal05/policy-engine",
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-cal05/policy-engine/src"
+      },
+      "exit_code": 0,
+      "wall_seconds": 20.527699130999736,
+      "source_before_blobs": {
+        "policy-engine/src/polisyos/foundry/calibration/pure_executor.py": "a9b76ab67933ff16518a32d9f98347223c6da840",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py": "013f2b7d85e28b723cae17a964e95f7f9789b715"
+      },
+      "source_after_blobs": {
+        "policy-engine/src/polisyos/foundry/calibration/pure_executor.py": "a9b76ab67933ff16518a32d9f98347223c6da840",
+        "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py": "013f2b7d85e28b723cae17a964e95f7f9789b715"
+      },
+      "source_matches_target": true,
+      "output_path": "/workspace/e02-runtime/cal05-independent/final_semantics.log",
+      "output_sha256": "cb27fd7f42b6d224dfa05db3fc71777af0a383bcb32d6cfe1be44ebfcab22739"
+    }
+  ],
+  "test_counts": {
+    "initial_semantics": 32,
+    "final_semantics": 33,
+    "calibrator_native": 4,
+    "independent_transform_mutation_controls": 11,
+    "delayed_calibrator_readback": 1
+  },
+  "extra_checks": [
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-runtime/cal05-independent/numerical_controls.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05/policy-engine",
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-cal05/policy-engine/src"
+      },
+      "stdout_path": "/workspace/e02-runtime/cal05-independent/numerical_controls.json",
+      "stderr_path": "/workspace/e02-runtime/cal05-independent/numerical_controls.stderr.log",
+      "structured_result_path": "/workspace/e02-runtime/cal05-independent/numerical_controls.json",
+      "exit_code": 0,
+      "wall_seconds": null,
+      "note": "Native numerical runs each executed once. Structured Calibrator result parsed from preserved raw stdout. Wall time not measured for extra scripts; same executor AST as finalSHA."
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-runtime/cal05-independent/calibrator_readback.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05/policy-engine",
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-cal05/policy-engine/src"
+      },
+      "stdout_path": "/workspace/e02-runtime/cal05-independent/calibrator_readback.stdout.log",
+      "stderr_path": "/workspace/e02-runtime/cal05-independent/calibrator_readback.stderr.log",
+      "structured_result_path": "/workspace/e02-runtime/cal05-independent/calibrator_readback.json",
+      "exit_code": 0,
+      "wall_seconds": null,
+      "note": "Native numerical runs each executed once. Structured Calibrator result parsed from preserved raw stdout. Wall time not measured for extra scripts; same executor AST as finalSHA."
+    }
+  ],
+  "qualification": {
+    "location": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py:545",
+    "confidence": "confirmed",
+    "severity": "evidence_wording",
+    "status": "addressed_in_final_comment_and_native_test_companion",
+    "trigger": "jax.vmap(jax.jit(scalar_run)) with mapped schedule",
+    "observable": "one Python emitter tracing call; zero numerical callbacks; mapped schedule rejected",
+    "guarantee": "Refusal before numerical emitter execution; pretrace only for covered transform orders."
+  },
+  "residuals": [
+    "heterogeneous per-row calibration path unsupported",
+    "mapped equal steps refused",
+    "production source law and served authority not established"
+  ],
+  "artifact_sha256": {
+    "numerical_controls.json": "15c6a470e557d9aaf5ec64ac41be889afea82c723fd62276395e1e4a9f6a4b94",
+    "semantics.json": "56aad5c36c9db264be1a59d453b550960a34986e66f56a23b6b925deca4435fe",
+    "calibrator_readback.json": "ed54790e082f8898175cd769dca56d82cf560a115f8872d94d403d21c2d141ba",
+    "semantics.log": "5cba8a0d336f6301764b9e7cb54d2168880bd1238a4afa7c45b0666fad715409",
+    "final_semantics.log": "cb27fd7f42b6d224dfa05db3fc71777af0a383bcb32d6cfe1be44ebfcab22739",
+    "calibrator_native.log": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+    "calibrator_readback.stdout.log": "a4423645d7f319bde48c20f14bf7f79dafcbf1c81d7e3725c7b910c128ca4778",
+    "calibrator_native.json": "52c2285abf262f950489cba3f48d7f3890db6948bf5df5c98f39781bdcaca340",
+    "calibrator_readback.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final_semantics.json": "04dcc7fb0f5cfe9a0df5f0eb158b09586ef948919f6bd8887e73eb02a4d5d5fe",
+    "review.md": "560e86411c83ecaffefcd50de16451c4febd15ecf50fbde23e818924ec723432",
+    "calibrator_readback.py": "d5be479e86b609bf7afbff5f13f3c9f563ac35ec6311bb1d23e02921b5ef2ca0",
+    "numerical_controls.py": "bacac2c3051b842abf1a50e37a8876340d56159b4f813dadcf2ede725c345477",
+    "numerical_controls.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final_semantics.py": "db7eabec2eeb339877766db639bfd30c0199cf83a7679d344b9e567d93e15bb2",
+    "run_checks.py": "ec4d8c4c92e768b92e9f3b62767199482904931b9229de9f2e2cd5ee1929f150",
+    "checks.json": "d550a003a3a87f34f67753fbfe2722268558dbf8cffbcda4141e75c64af43c6b"
+  }
+}

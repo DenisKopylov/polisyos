@@ -1,0 +1,11 @@
+id = "2026-10-05-calibration-mapped-schedules"
+title = "Refuse mapped calibration schedules before mechanism execution"
+type = "fixed"
+component = "foundry-calibration"
+owner = "team-policyos-runtime"
+summary = "Pure calibration replay rejects mapped schedule predicates before numerical emitter execution, preventing inactive rows from executing through JAX's batched conditional lowering."
+surface_classification = "internal: internal-only"
+evidence = ["tests/unit/foundry/calibration/test_pure_executor_semantics.py"]
+compatibility = "Scalar schedules and state-vectorized calls with a shared scalar schedule retain their behavior. Mapping the schedule predicate, including equal mapped steps, now raises ValueError instead of silently evaluating inactive emitters."
+migration = "Keep the schedule scalar when using jax.vmap. Callers needing per-row schedules must preserve scalar conditional branches with jax.lax.map."
+limitations = "This is a conservative unsupported-profile refusal. It does not implement heterogeneous schedule vectorization through a consuming Calibrator API or establish full B185 closure."

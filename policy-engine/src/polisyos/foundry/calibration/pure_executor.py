@@ -17,6 +17,7 @@ from typing import Any
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+from jax import custom_batching
 from pydantic import TypeAdapter
 
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
@@ -527,6 +528,31 @@ def _emit_node_patches(
     return patch_map, next_key
 
 
+@custom_batching.custom_vmap
+def _admit_schedule_predicate(active: jax.Array) -> jax.Array:
+    """Keep scalar schedules; refuse batching that erases conditional execution."""
+    return active
+
+
+@_admit_schedule_predicate.def_vmap
+def _batch_schedule_predicate(
+    axis_size: int,
+    in_batched: Sequence[bool],
+    active: jax.Array,
+) -> tuple[jax.Array, bool]:
+    del axis_size
+    if in_batched[0]:
+        # JAX batches a cond with mapped predicates into select, evaluating
+        # the emitter even for inactive rows. Refuse mapped numerical execution.
+        # A scalar jitted call may already have been traced before this rule
+        # runs. Boolean admission is independent of differentiable state/parameters.
+        raise ValueError(
+            "apply_nodes does not support mapped schedule predicates; "
+            "use scalar schedules with vmap or jax.lax.map for per-row schedules"
+        )
+    return active, False
+
+
 def apply_nodes(
     state: GlobalState,
     key: jax.Array,
@@ -534,7 +560,17 @@ def apply_nodes(
     bundle: StaticBundle,
     t: jax.Array,
 ) -> tuple[GlobalState, jax.Array]:
-    """Apply all active nodes for one step and merge emitted patches into state."""
+    """Apply active nodes for one scalar schedule step and merge their patches.
+
+    State/parameter rows may be vectorized with a shared scalar schedule.
+    Mapping the schedule predicate itself is unsupported, including a mapped
+    array of equal steps: JAX cannot establish that homogeneity while tracing.
+    Callers needing per-row schedules must retain scalar branches with
+    ``jax.lax.map`` rather than ``jax.vmap``.
+
+    Raises:
+        ValueError: If a schedule predicate is mapped by ``jax.vmap``.
+    """
     visible_state = state
     cur_key = key
     pending_records: tuple[PendingPatchRecord, ...] = ()
@@ -551,7 +587,7 @@ def apply_nodes(
                 pending_records,
                 bundle=bundle,
             )
-        active = (t >= node.start) & (t <= node.end)
+        active = _admit_schedule_predicate((t >= node.start) & (t <= node.end))
         if node.selector is not None:
             mask, mask_scope = _evaluate_selector(
                 node.selector, visible_state, selector_field_registry=bundle.selector_field_registry

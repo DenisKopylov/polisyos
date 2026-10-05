@@ -333,10 +333,10 @@
       "exit_code": 2,
       "output": "Architecture guardrail check UNRUN: required measurements unavailable; no complete verdict. runtime-api-client/runtime-dashboard-api-types generation exit254: openapi-typescript missing. Partial completed findings report deep-import baseline drift and runtime-openapi/trust-posture generated drift. These are not a complete verdict and ownership is not_established.",
       "raw_output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/raw/architecture.log",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/architecture.txt",
         "sha256": "b9b2738bae8ba398b3a29bdc899ee7f160f891d959eb04e87e72c0da4b39e764",
         "bytes": 118089,
-        "git_transfer": "not transferred; ignored oversized log; G must rerun exact command"
+        "git_transfer": "complete moderate deciding output committed in receipt companion; UTF-8/LF bytes identical to retained original local raw log; G receives via fetch/PR"
       },
       "P41": "not_established; no exact full-gate base replay or zero intersection proof; changed canonical source belongs to full gate input denominator"
     }
@@ -439,5 +439,24 @@
     "equivalent": "For stable inputs and scientific fit contract, fitted predictions, fold/repeat/seed plan, AIPW/TMLE point estimate and measured uncertainty remain identical across current-view reuse and allowed execution parallelism. Immutable numeric bytes are frozen once and shared via isolated ndarray views.",
     "intended_fix": "An explicit key is a namespace, never an input identity: changed X/T/Y bytes refit. Current diagnostic split_policy now refreshes inside nested selection records without refit. Publicly returned read-only arrays cannot restore write permission to shared backing storage."
   },
-  "input_stability_scope": "Controlled fixture arrays are stable throughout a fit. This witness does not admit concurrently mutable or unverified real-source/precomputed input snapshots to policy authority."
+  "input_stability_scope": "Controlled fixture arrays are stable throughout a fit. This witness does not admit concurrently mutable or unverified real-source/precomputed input snapshots to policy authority.",
+  "receipt_corrections": [
+    {
+      "kind": "complete_moderate_architecture_output_transfer",
+      "prior_receipt_head": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+      "implementation_sha": "b57708fcc95a778d7ff88c4001e4ac8ca74b7889",
+      "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+      "original_local_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/raw/architecture.log",
+      "transferred_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/architecture.txt",
+      "sha256": "b9b2738bae8ba398b3a29bdc899ee7f160f891d959eb04e87e72c0da4b39e764",
+      "bytes": 118089,
+      "lines": 2020,
+      "normalization": "already UTF-8 with LF; no transformations or omitted lines; transferred TXT byte-identical to original output",
+      "inspection": "native gate diagnostics, complete deep-import source inventory diff and generated-artifact diagnostic lines; strict UTF-8, no NUL/ANSI/CR, no credential/private-key/token/URL markers in complete text",
+      "outcome": "UNRUN",
+      "exit_code": 2,
+      "explanation": "The earlier receipt incorrectly classified this 118KB deciding log as oversized and left its bytes ignored. This append-only receipt correction transfers the complete moderate log without changing or rerunning implementation, tests, or gate verdict.",
+      "limits": "No complete architecture verdict or inherited-red attribution; Node22 and installed generator dependencies still required for G/C rerun."
+    }
+  ]
 }

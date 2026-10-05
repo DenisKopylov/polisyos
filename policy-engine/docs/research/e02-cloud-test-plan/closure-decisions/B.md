@@ -120,11 +120,21 @@ cd policy-engine && PYTHONPATH=src .venv/bin/python -m pytest -o addopts= -q tes
 
 Точечная приёмка после admission:
 
+Текущие регрессионные файлы (не заменяют process witness):
+
 ```sh
-cd policy-engine && PYTHONPATH=src .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py tests/unit/scientist/mirror_contracts/test_budget_ledger.py
+cd policy-engine && PYTHONPATH=src .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/mirror_contracts/test_budget_ledger.py
 ```
 
-- **B37** — Перенести completeness и amount validation из _decode_snapshot; различать absent bootstrap и present empty/corrupt/incomplete.
+В G97 отсутствует `tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py`. Добавить туда process-level witness; после появления файла запустить:
+
+```sh
+cd policy-engine && PYTHONPATH=src .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/mirror_contracts/test_budget_ledger.py
+```
+
+- **B37** — Различать отсутствующий, но ещё не bootstrap-нутый ledger от malformed existing и от намеренно unlimited state. Прямой публичный cold `FileBudgetLedger.record_spend` не должен молча сохранять default `BudgetState()` без лимитов: требовать явную валидную bootstrap-конфигурацию и отказать до мутации, если её нет. Положительный контроль: `load_or_bootstrap(BudgetState())` — это явное валидное no-limit решение, которое остаётся unlimited после записи и reopen.
+
+Текущие semantic controls в `test_budget_middleware.py`: `test_ledger_persists_state_across_middleware_instances`, `test_ledger_reader_never_observes_blank_snapshot_during_writer_pause`, `test_ledger_failed_atomic_replace_preserves_last_valid_snapshot`, `test_ledger_corrupt_existing_snapshot_never_becomes_unlimited`; они не являются process-level cold-mutation witness. Будущий файл должен включить `test_cold_record_spend_requires_bootstrap_across_processes`, `test_explicit_unlimited_bootstrap_remains_valid_across_processes` и `test_malformed_existing_ledger_is_not_rebootstrapped`. Первый запускает public cold `FileBudgetLedger.record_spend` на отсутствующем пути; затем отдельные процессы упражняют настроенный `BudgetMiddleware` через `record_spend_safe` и `pre_check`. После исправления cold writer не подменяет configured ledger состоянием unlimited, а middleware сохраняет заданный лимит и блокирует исчерпанный бюджет. Явный unlimited bootstrap остаётся разрешён; malformed existing отвергается без перезаписи.
 
 <a id="bundle-dur-02"></a>
 

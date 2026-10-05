@@ -2197,15 +2197,15 @@
       ],
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
-        "selected_minimal_route": "**Рекомендуемое решение.** До презентационного dedupe/cap фиксировать счётчики испытанных сценариев, наблюдавшихся нарушений, нечисленных/неполученных результатов и полноту проверки. Отдельно хранить уникальные issue-группы и отобранные примеры. Формулу и единицу `robustness_score` определить явно; исходные occurrence-count не выводить из короткого списка. Не хранить все большие сообщения ради счётчика: достаточно потоковой статистики и ссылок на ограниченные примеры.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Principal completeness/empty-evaluation/robustness-formula/whole-domain probability ruling; production distribution law not supplied. Digest keys remain O(unique); sampler arrays/adaptive history are outside full-payload bound. Назначенный владелец: Principal (Denis) for semantic ruling; STR runtime owner for bounded mechanism; appointed STR-01 verification owner and G for acceptance..",
-        "next_owner": "Principal (Denis) for semantic ruling; STR runtime owner for bounded mechanism; appointed STR-01 verification owner and G for acceptance.",
-        "remaining_input": "Principal completeness/empty-evaluation/robustness-formula/whole-domain probability ruling; production distribution law not supplied. Digest keys remain O(unique); sampler arrays/adaptive history are outside full-payload bound.",
+        "selected_minimal_route": "До presentation grouping/dedupe/top-k считать occurrences и выбрать observed empirical robustness (finite_evaluated−violated_scenarios)/finite_evaluated; один scenario даёт максимум одну violation в знаменателе. При zero finite_evaluated score unavailable. Сохранять attempted, unknown/nonfinite и completeness отдельно; incomplete run маркировать partial/conditional. Это доля конечных наблюдавшихся outcomes, не вероятность для всего пространства.",
+        "concrete_next_task": "Implement finite-evaluated empirical fraction plus attempted/unknown/completeness fields; test grouping/top-k invariance, repeated issue occurrences, zero denominator and adaptive incomplete run. Zero denominator unavailable; incomplete sample partial.",
+        "next_owner": "STR runtime owner for formula/projection and independent full-stream test; G for finding-level acceptance. No principal ruling is required for this bounded empirical definition.",
+        "remaining_input": "Production sampling/distribution law and full evaluation evidence are absent; needed only for population probability claim, which this profile does not make. Selected formula, zero denominator and incomplete controls remain engineering acceptance.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/search/adversarial.py"
         ],
-        "independent_oracle_after_integration": "Сравнить observed counters с full-history reference до dedupe и подтвердить retained payloads ≤k+1; analytic maximize/minimize corner.",
-        "negative_control": "Сначала выполнить исходный counterexample/acceptance из полного bundle блока, затем удалить или подменить само runtime property, сохранив контрактные поля/маркеры; consumer result обязан отличиться. Сохранить позитивный контроль из блока.",
+        "independent_oracle_after_integration": "Walk the complete scenario stream independently; count attempted, finite evaluated, per-scenario violation, unknown/nonfinite and completeness before grouping; recompute (finite_evaluated−violated_scenarios)/finite_evaluated. Vary grouping/top-k without changing inputs; require same score/counters, no score at zero denominator, and partial status for incomplete runs.",
+        "negative_control": "At fixed scenario stream alter top-k/grouping or repeat one issue ten times; score computed from issue examples must diverge and fail. Remove per-scenario counter while markers remain; independent full-stream comparison fails. Positive control keeps formula and ≤k+1 full payloads.",
         "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
         "capability_state_label": "semantic_test_missing",
         "P40": {
@@ -2603,7 +2603,7 @@
           "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
           "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
         ],
-        "independent_oracle_after_integration": "Функциональный consumer: WarmStartBridge→BayesianCandidateGenerator→SearchLoopRunner реально подаёт разрешённые train_X/train_Y; затем независимый CPU oracle берёт 8–12 неповторяющихся 1D точек с невырожденной covariance, фиксирует fitted mean/kernel/likelihood parameters и сохранённые Normalize/Standardize state. В double precision отдельно вычисляет C=K(X,X)+σ²I, Cholesky C=LLᵀ, α=L⁻ᵀL⁻¹(y−m(X)), μ*=m(X*)+K(X*,X)α и полную latent Σ*=K(X*,X*)−VᵀV, V=L⁻¹K(X,X*); применяет тот же сохранённый input transform и unscales Y: mean×s_y, covariance×s_y². Сравнить original и restored `SingleTaskGP.posterior(observation_noise=False)` со своим oracle; для append пересчитать объединённые X/Y при замороженных fitted params. Не вызывать `model.posterior` внутри oracle. MLL-fit count: 0 на same-basis restore/append, >0 только на явно due refit. Это точный numerics acceptance, не calibration/production truth.",
+        "independent_oracle_after_integration": "Функциональный consumer: WarmStartBridge→BayesianCandidateGenerator→SearchLoopRunner реально подаёт разрешённые train_X/train_Y; затем независимый CPU oracle берёт 8–12 неповторяющихся 1D точек с невырожденной covariance, фиксирует fitted mean/kernel/likelihood parameters и сохранённые Normalize/Standardize state. В double precision отдельно вычисляет C=K(X,X)+σ²I, Cholesky C=LLᵀ, α=L⁻ᵀL⁻¹(y−m(X)), μ*=m(X*)+K(X*,X)α и полную latent Σ*=K(X*_norm,X*_norm)−VᵀV, V=L⁻¹K(X,X*); применяет тот же сохранённый input transform и unscales Y: mean×s_y, covariance×s_y². Сравнить original и restored `SingleTaskGP.posterior(observation_noise=False)` со своим oracle; для append пересчитать объединённые X/Y при замороженных fitted params. Не вызывать `model.posterior` внутри oracle. MLL-fit count: 0 на same-basis restore/append, >0 только на явно due refit. Это точный numerics acceptance, не calibration/production truth.",
         "negative_control": "Сохранить корректный fitted-state positive control. Затем при неизменных contract/marker fields отдельно удалить state_dict load, подменить одно fitted lengthscale/likelihood noise, подменить Normalize/Standardize state или исключить admitted warm row. Независимо вычисленный mean и полная covariance обязаны отличаться от BoTorch consumer до публикации/мутации; spy показывает ноль fit на same-basis append и ожидаемый fit только при due refit. Не считать same-model `posterior()` replay отрицательным контролем.",
         "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
         "capability_state_label": "verification_missing",
@@ -2650,7 +2650,7 @@
           "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
           "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
         ],
-        "independent_oracle_after_integration": "Функциональный consumer: WarmStartBridge→BayesianCandidateGenerator→SearchLoopRunner реально подаёт разрешённые train_X/train_Y; затем независимый CPU oracle берёт 8–12 неповторяющихся 1D точек с невырожденной covariance, фиксирует fitted mean/kernel/likelihood parameters и сохранённые Normalize/Standardize state. В double precision отдельно вычисляет C=K(X,X)+σ²I, Cholesky C=LLᵀ, α=L⁻ᵀL⁻¹(y−m(X)), μ*=m(X*)+K(X*,X)α и полную latent Σ*=K(X*,X*)−VᵀV, V=L⁻¹K(X,X*); применяет тот же сохранённый input transform и unscales Y: mean×s_y, covariance×s_y². Сравнить original и restored `SingleTaskGP.posterior(observation_noise=False)` со своим oracle; для append пересчитать объединённые X/Y при замороженных fitted params. Не вызывать `model.posterior` внутри oracle. MLL-fit count: 0 на same-basis restore/append, >0 только на явно due refit. Это точный numerics acceptance, не calibration/production truth.",
+        "independent_oracle_after_integration": "Функциональный consumer: WarmStartBridge→BayesianCandidateGenerator→SearchLoopRunner реально подаёт разрешённые train_X/train_Y; затем независимый CPU oracle берёт 8–12 неповторяющихся 1D точек с невырожденной covariance, фиксирует fitted mean/kernel/likelihood parameters и сохранённые Normalize/Standardize state. В double precision отдельно вычисляет C=K(X,X)+σ²I, Cholesky C=LLᵀ, α=L⁻ᵀL⁻¹(y−m(X)), μ*=m(X*)+K(X*,X)α и полную latent Σ*=K(X*_norm,X*_norm)−VᵀV, V=L⁻¹K(X,X*); применяет тот же сохранённый input transform и unscales Y: mean×s_y, covariance×s_y². Сравнить original и restored `SingleTaskGP.posterior(observation_noise=False)` со своим oracle; для append пересчитать объединённые X/Y при замороженных fitted params. Не вызывать `model.posterior` внутри oracle. MLL-fit count: 0 на same-basis restore/append, >0 только на явно due refit. Это точный numerics acceptance, не calibration/production truth.",
         "negative_control": "Сохранить корректный fitted-state positive control. Затем при неизменных contract/marker fields отдельно удалить state_dict load, подменить одно fitted lengthscale/likelihood noise, подменить Normalize/Standardize state или исключить admitted warm row. Независимо вычисленный mean и полная covariance обязаны отличаться от BoTorch consumer до публикации/мутации; spy показывает ноль fit на same-basis append и ожидаемый fit только при due refit. Не считать same-model `posterior()` replay отрицательным контролем.",
         "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
         "capability_state_label": "verification_missing",
@@ -2697,16 +2697,16 @@
       ],
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
-        "selected_minimal_route": "**Рекомендуемое решение.** До использования числа связать candidate, evaluation и активную политику; подтвердить применимую версию suite, split, методику метрики и data basis. Не сравнивать два числа только потому, что ключ метрики одинаков. Для новой suite — переоценить текущий champion на новой базе либо явно начать новое сравнение; не запрещать развитие benchmark вообще.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Supported historical legacy pointer/suite protocol window not decided. Назначенный владелец: Principal Denis: held compatibility boundary/removal cost..",
-        "next_owner": "Principal Denis: held compatibility boundary/removal cost.",
-        "remaining_input": "Supported historical legacy pointer/suite protocol window not decided.",
+        "selected_minimal_route": "Bind candidate/evaluation to exact active suite ArtifactRef/content, split/data basis, metric/profile and version. On suite change re-evaluate current champion on the same basis or start an explicit separate comparison. Use existing ChampionRegistry; no new latest pointer.",
+        "concrete_next_task": "Add matched-basis positive and wrong candidate/evaluation/suite ArtifactRef/content/split/profile/version negatives; changed suite requires champion reevaluation or separate comparison.",
+        "next_owner": "Canonical ChampionRegistry/runtime owner; G for acceptance.",
+        "remaining_input": "Exact content comparability and same-basis reevaluation need behavioral acceptance on canonical G97 registry path. No generic historical-reader decision is required.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
           "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py"
         ],
-        "independent_oracle_after_integration": "Два конкурентных compare/publish на одной generation; после независимого registry reopen ровно один winner.",
-        "negative_control": "Сначала выполнить исходный counterexample/acceptance из полного bundle блока, затем удалить или подменить само runtime property, сохранив контрактные поля/маркеры; consumer result обязан отличиться. Сохранить позитивный контроль из блока.",
+        "independent_oracle_after_integration": "Resolve/content-bind exact suite ArtifactRef and candidate/evaluation/split/profile. Mismatch cannot change pointer. New suite forces current-champion reevaluation or separately identified comparison; reopen registry and verify binding.",
+        "negative_control": "Keep metric field name/value but substitute suite content/split/candidate/profile version; name/value-only gate stays green, exact content-bound consumer must reject before pointer change.",
         "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
         "capability_state_label": "semantic_test_missing",
         "P40": {
@@ -2743,16 +2743,16 @@
       ],
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
-        "selected_minimal_route": "**Рекомендуемое решение.** Сделать conditional publish относительно конкретной версии predecessor под существующим владельцем: транзакция/compare-and-swap или подходящий стабильный lock вокруг чтения, сравнения и фиксации. На конфликте заново сравнить с актуальным pointer, а не слепо повторять старую запись. Дорогой benchmark исполняется вне критической секции; под ней остаётся короткая проверка неизменяемых артефактов и перехода.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Legacy crash/reopen protocol and accepted historical reader window not decided. Назначенный владелец: Principal Denis: held legacy boundary and removal cost..",
-        "next_owner": "Principal Denis: held legacy boundary and removal cost.",
-        "remaining_input": "Legacy crash/reopen protocol and accepted historical reader window not decided.",
+        "selected_minimal_route": "Reuse one existing ChampionRegistry owner: stable local POSIX lock around reread/compare/conditional pointer publish using expected predecessor. Keep expensive evaluation outside lock. Atomic replace gives whole old/new pointer; claim-adjudication promotion_basis mismatch fails closed. No second registry/latest authority.",
+        "concrete_next_task": "Race two conditional promotions from same predecessor: one commits, other rereads/recompares. Add coherent old/new reader and crash injection around pointer replace; basis mismatch fails closed.",
+        "next_owner": "Canonical ChampionRegistry/runtime owner; G for acceptance.",
+        "remaining_input": "Competing-writer/read/crash-boundary contract needs behavioral acceptance on canonical owner. Profile relies on existing local POSIX lock; no new distributed registry guarantee.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
           "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py"
         ],
-        "independent_oracle_after_integration": "Два конкурентных compare/publish на одной generation; после независимого registry reopen ровно один winner.",
-        "negative_control": "Сначала выполнить исходный counterexample/acceptance из полного bundle блока, затем удалить или подменить само runtime property, сохранив контрактные поля/маркеры; consumer result обязан отличиться. Сохранить позитивный контроль из блока.",
+        "independent_oracle_after_integration": "Two registry instances/processes on one local canonical registry and expected predecessor: only one conditional transition succeeds, loser sees new generation, readers/reopen observe complete old/new pointer; claim-basis mismatch blocks.",
+        "negative_control": "Remove expected-generation reread/CAS but leave atomic rename; competing stale writes must break oracle. Remove basis digest validation but leave marker; crash-mismatched claim promotion must be admitted in broken control.",
         "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
         "capability_state_label": "semantic_test_missing",
         "P40": {
@@ -3008,16 +3008,16 @@
       ],
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
-        "selected_minimal_route": "**Рекомендуемое исправление.** Сначала вычислять знаковую разность `best_historical - best_recent`, затем сравнивать её с определённым для цели абсолютным и относительным порогом. Масштаб около нуля задаётся контрактом метрики или явно принятой политикой; машинный epsilon сам по себе не определяет содержательно значимое улучшение.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Accepted universal scientific near-zero scale/nonfinite stopping policy not decided. Назначенный владелец: Principal Denis: held scientific policy; diagnostic chooses no new threshold/stop law..",
-        "next_owner": "Principal Denis: held scientific policy; diagnostic chooses no new threshold/stop law.",
-        "remaining_input": "Accepted universal scientific near-zero scale/nonfinite stopping policy not decided.",
+        "selected_minimal_route": "Use versioned profile abs_tol=0.01 in declared objective units and rel_tol=0.01. Direction-normalized gain is recent_best−historical_best for maximize, historical_best−recent_best for minimize. Plateau iff gain ≤ max(abs_tol, rel_tol×|historical_best|); at zero use abs_tol. Missing unit/profile means no plateau claim.",
+        "concrete_next_task": "Implement profile and test direction/sign near zero/small-large baseline/unit conversion/absent unit/nonfinite; remove denominator-floor or machine-epsilon substitute.",
+        "next_owner": "Canonical stopping/runtime owner; G for acceptance. No additional principal threshold ruling is needed for this explicit profile.",
+        "remaining_input": "Chosen tolerance is a transparent engineering default, not statistical significance. Candidate hardcoded near-zero branch does not implement it yet; profile and behavior tests remain. Missing objective unit stays unavailable.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
           "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py"
         ],
-        "independent_oracle_after_integration": "Численная oracle fresh vectors/profile отдельно пробует stale/model/dim error и zero/near-zero delta.",
-        "negative_control": "Сначала выполнить исходный counterexample/acceptance из полного bundle блока, затем удалить или подменить само runtime property, сохранив контрактные поля/маркеры; consumer result обязан отличиться. Сохранить позитивный контроль из блока.",
+        "independent_oracle_after_integration": "Independently normalize direction and compare against max(0.01 objective units, 0.01×abs(historical_best)); test boundary, zero/near-zero, large baseline, maximize/minimize, coherent unit conversion and missing unit.",
+        "negative_control": "Keep profile fields but replace predicate with relative division at abs(baseline) or machine epsilon; near-zero worsening must not be treated as infinite improvement, oracle fails.",
         "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
         "capability_state_label": "semantic_test_missing",
         "P40": {
@@ -3055,18 +3055,18 @@
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
         "selected_minimal_route": "**Рекомендуемое исправление.** Сохранять различие отсутствия, недоступности и ошибки проверки на границе resolver/consumer. Для заявленного typed-режима повреждённый вектор ведёт к адресному ремонту и сохранённому ограниченному результату, а не к молчаливому выбору менее требовательного пути. Полученное численное вычисление можно оставить доступным в исследовательской области, не делая его лучшим допустимым кандидатом только по scalar-score.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Real decision/promotion authority cannot follow from local surrogate checks. Назначенный владелец: PolicyEvaluation/decision readiness owner supplies authority..",
-        "next_owner": "PolicyEvaluation/decision readiness owner supplies authority.",
-        "remaining_input": "Real decision/promotion authority cannot follow from local surrogate checks.",
+        "concrete_next_task": "Run the existing `test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective` from `tests/unit/scientist/search/test_search_loop.py` on the accepted integration target. Preserve positive absent-typed legacy behavior and malformed-present `best_candidate is None` plus invalid reason. Do not add a publication gate to B123.",
+        "next_owner": "Canonical SearchLoop/typed-evaluation consumer owner for integration; G for finding acceptance. No PolicyEvaluation/decision-readiness authority owner dependency in B123.",
+        "remaining_input": "The focused malformed-present consumer test exists in candidate evidence and is cross-referenced from CTL-03. B123 is limited to preventing malformed typed evaluation from becoming scalar best_candidate; no publication/promotion authority claim or authority input is required here. B164 separately owns the effect permission boundary.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
           "policy-engine/src/polisyos/scientist/methods/search/controller.py",
           "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
         ],
-        "independent_oracle_after_integration": "Независимый бюджетный ledger + раздельные warm/new/sentinel/evaluation counters; malformed-present отличается от absent.",
-        "negative_control": "Сначала выполнить исходный counterexample/acceptance из полного bundle блока, затем удалить или подменить само runtime property, сохранив контрактные поля/маркеры; consumer result обязан отличиться. Сохранить позитивный контроль из блока.",
-        "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py -ra",
-        "capability_state_label": "bridge_missing",
+        "independent_oracle_after_integration": "Invoke the actual SearchLoop consumer with absent typed input, valid typed infeasible result, and present malformed typed evaluation. Existing test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective asserts malformed-present leaves best_candidate=None and retains the invalid reason; absent typed still follows the supported legacy objective path.",
+        "negative_control": "Keep the malformed-present marker but remove the typed validation/fallback guard; the scalar legacy objective can become best_candidate and the focused consumer assertion fails. Keep absent typed input as the positive legacy control.",
+        "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective -ra",
+        "capability_state_label": "verification_missing",
         "P40": {
           "bucket": "new_or_distinct_class",
           "relation": null
@@ -3574,31 +3574,31 @@
       ],
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
-        "selected_minimal_route": "**Рекомендуемый локальный маршрут:** повторное объявление run_id не меняет pinned CAS bundle; точный immutable composite `ArtifactRef` остаётся версией содержимого. Кэш и consumer используют immutable records из одного snapshot pointer, захваченного один раз на запрос.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: distributed guarantee/principal ruling remains held Назначенный владелец: Principal (Denis) for distributed guarantee; transfer runtime for local cache.",
-        "next_owner": "Principal (Denis) for distributed guarantee; transfer runtime for local cache",
-        "remaining_input": "distributed guarantee/principal ruling remains held; same-object query/load/add snapshot race has no deciding barrier receipt. Persistent full-bundle identity is already provided by the composite CAS ArtifactRef; no second local latest-pointer owner has been identified.",
+        "selected_minimal_route": "Use full immutable CAS ArtifactRef plus schema version as cache identity. Bounded local profile: immutable/copy-on-read LRU ≤128 entries and 32MiB serialized payload; oversized items bypass cache. Same run_id with a different ref is a different value. No current/latest pointer; distributed latest-pointer semantics are outside original bounded cache criterion.",
+        "concrete_next_task": "Extend CAS-backed cache test: cold/warm exact-ref equality; replace same run_id with a different ref and reject alias; caller mutation leaves cache unchanged; test LRU eviction, 128-entry/32MiB caps and oversized bypass.",
+        "next_owner": "Transfer runtime/cache owner; G for acceptance. No principal decision or second pointer owner.",
+        "remaining_input": "Canonical consumer needs exact-ref cache warm/cold, same-run-id/new-ref, mutation-isolation, eviction and byte-cap tests. No distributed/latest pointer owner is required by this criterion.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
           "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
           "policy-engine/src/polisyos/core/artifacts/store.py"
         ],
-        "independent_oracle_after_integration": "Барьерный oracle на настоящем HNSW/CAS: reader один раз захватывает immutable snapshot, параллельно load/add публикует другой. Возвратить можно только полностью согласованный old или new `(key,distance,metadata)`; отдельно во втором процессе открыть тот же immutable composite ArtifactRef и разрешить весь pinned bundle. Известный ref разрешается точным CAS независимо от ANN top_k. Новый cross-process mutable latest pointer не тестировать без назначенного его canonical owner.",
-        "negative_control": "Оставить valid refs/metadata markers и положительный старый/новый read, но заменить single-pointer snapshot публикацию/захват последовательными чтениями `_keys/_index/_metadata`; принудительный barrier должен выявить смешанный key-distance-metadata и сделать gate красным. Отдельно подменить или удалить exact CAS binding: известный ref не должен вернуть другой bundle.",
+        "independent_oracle_after_integration": "Observe exact ArtifactRef and bytes on cold/warm paths, after same-run-id replacement and caller mutation; independently sum cache bytes under LRU pressure, with entries≤128 and payload≤32MiB.",
+        "negative_control": "Key by run_id only, return shared mutable payload, or remove size eviction while markers remain; replacement aliases, caller mutation persists, or memory exceeds bound.",
         "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
         "capability_state_label": "semantic_test_missing",
         "P40": {
           "bucket": "same_class_one_level_deeper",
-          "relation": "same class one level deeper than B129 (exact artifact ref must invalidate/key current cache).",
+          "relation": "same class one level deeper than B129: exact immutable ref must drive the local cache identity, and captured snapshot must remain coherent through query/load.",
           "linked_finding_ids": [
             "B129",
             "B133"
           ],
           "combined_owner_bundle": "TRN-02",
-          "combined_mechanism": "HNSW только находит кандидатов; CAS ref — адрес данных. Cache version keyed и consumer immutable. Публиковать согласованное index+metadata поколение через staging/swap.",
-          "combined_independent_oracle": "Native HNSW + exact CAS: retrieve known out-of-top_k record by exact ref; failed load/add preserves consistent published generation.",
+          "combined_mechanism": "Existing composite immutable CAS ArtifactRef + bounded exact-ref local cache and one frozen in-memory VectorMemoryStore snapshot published by one pointer swap.",
+          "combined_independent_oracle": "Barrier old/new query-load test plus exact-ref cache cold/warm, same-run-id new-ref, mutation-isolation, LRU/byte-bound and pinned-ref reopen controls.",
           "combined_acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
-          "required_falsifier": "At the one combined acceptance for this owner bundle, preserve contract fields and a positive control, execute every linked original counterexample, then remove the shared runtime mechanism while leaving markers/declared inputs intact; the relevant consumer/property assertions must fail, and pass again when restored. Candidate receipts are bounded evidence only; G97 integration and this audit did not execute this combined falsifier."
+          "required_falsifier": "At one TRN-02 acceptance, keep ArtifactRef/cache markers but mutate run_id-only keying or publish snapshot members separately: exact-ref replacement must alias or query must return a mixed key/distance/metadata tuple; preserve positive old/new and exact-ref controls. No distributed latest-pointer test is required."
         },
         "P41": "No inherited waiver: no evidence for this row of exact command at D slice base c40d4acae1ce58b597267255026d9356565828fd plus complete command-denominator intersection=0."
       }
@@ -3858,15 +3858,15 @@
           "src/polisyos/fabric/connectors/federation/evidence_aggregation.py",
           "tests/unit/remediation/test_fed_02.py"
         ],
-        "dependency": "Reuse MergeLogCollector at DataComposer._join. The current B139 equal-priority case directly constructs MergeLogCollector and B143 runs UNION; neither is the criterion-specific JOIN path. The result surface is the existing compose tuple (frame, sampled merge_log) plus get_last_merge_summary; an externally served federation API is not established by this test.",
+        "dependency": "Reuse MergeLogCollector at DataComposer._join. The current B139 equal-priority case directly constructs MergeLogCollector and B143 runs UNION; neither is the criterion-specific JOIN path. The criterion surface is the existing DataComposer.compose result (frame, sampled merge_log) plus get_last_merge_summary(); an external federation HTTP/export endpoint is surface_out_of_scope and must not become a new closure prerequisite.",
         "positive": "Construct two synthetic tables with the same join key, equal-priority conflicting values, distinct row/event IDs, and repeated conflicts. Call full DataComposer.compose→JOIN→SUMMARY for cap=1 and cap=3, then FULL and NONE. Read back the joined frame, sampled log, `get_last_merge_summary()` total/by-source/by-column counts, deterministic top-k event IDs, and FULL/NONE numeric result parity.",
         "oracle": "A separate stdlib relational join/reference builds conflict identity as (join key, row/event ID, source pair, column), independently resolves values under equal-priority rule, calculates complete counters and seeded top-k, and checks that live retained details never exceed cap.",
         "negative": "Same payload on different event IDs must still count two conflicts. Remove heap bound but keep cap and summary markers; active-frame live-object count must exceed cap. Break top-k tie ordering; exact IDs diverge. FULL/NONE numeric result mismatch fails independently of the log.",
         "command": "FED",
         "test_target": "Add test_join_summary_is_bounded_deterministic_and_preserves_full_counters to test_fed_02.py; invoke public DataComposer.compose(strategy=JOIN, audit_level=SUMMARY), not MergeLogCollector directly.",
-        "decision_boundary": "Do not substitute the existing direct-collector tie test or UNION sample test for this JOIN-through-owner witness; the current capability still lacks its finding-specific semantic test and a demonstrated external surface."
+        "decision_boundary": "Do not substitute the existing direct-collector tie test or UNION sample test for this JOIN-through-owner witness. The bounded internal result/readback surface already exists; external HTTP/export is surface_out_of_scope. The only remaining B139 gap is the finding-specific semantic test."
       },
-      "capability_label": "surface_missing"
+      "capability_label": "semantic_test_missing"
     },
     {
       "id": "B14",
@@ -4770,7 +4770,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "A real admitted ETS forecast with aligned held-out outcomes must flow through strict ir.empirical_calibration_evidence CAS and the default gateway; independent source/count/threshold/scope/time recomputation agrees. A fake verifier with unchanged pass markers but altered evidence must fail closed.",
+      "criterion_specific_acceptance_not_executed": "Actual admitted ETS forecast and paired held-out outcomes traverse strict CAS and the default gateway. A configured in-process verifier reruns ETS on training rows only, rejects leakage, independently recomputes held-out coverage/threshold/scope/time, and serves predictive-only support. Content-valid false receipt/control fails.",
       "capability_label": "verification_missing"
     },
     {
@@ -5001,12 +5001,12 @@
         "capability_state_label": "bridge_missing",
         "P40": {
           "bucket": "same_class_one_level_deeper",
-          "relation": "Deeper unresolved discriminator inside the same original B164 owner-permission invariant: the candidate rejects unsafe modes and rechecks binding, but boolean promotion_write_allowed is still self-attested permission. Do not open a further local strict-bool repair round.",
+          "relation": "Deeper unresolved discriminator inside the same original B164 owner-permission invariant: boolean promotion_write_allowed remains self-attested. Stop local bool repair; retain typed owner-verifier/current-revocation residual.",
           "linked_finding_ids": [
             "B164"
           ],
-          "required_treatment": "Keep the typed-owner-verifier/current-revocation requirement as a bounded bridge_missing residual until the existing permission owner is appointed; do not add a second local bool gate or treat an unverified fake permit as closure.",
-          "required_falsifier": "With marker promotion_write_allowed=True and the candidate/evidence/run fields valid, absent/fake/wrong-owner/expired/revoked-after-preflight permits must all leave the real test writer at zero effects; valid owner-verified current permit may effect once. This new owner-permit falsifier is not in candidate receipts and was not executed here."
+          "required_treatment": "Keep fail-closed bridge_missing until existing permission issuer/verifier and write owner are named; do not add a second bool gate or treat fake permit as closure.",
+          "required_falsifier": "With promotion_write_allowed=True and candidate/evidence/run valid, absent/fake/wrong issuer/candidate/run/ticket/purpose/expired/revoked-after-preflight permits leave the real writer at zero effects; independently verified current permit may write once. Not in candidate receipt and not run here."
         },
         "P41": "No inherited waiver: no evidence for this row of exact command at D slice base c40d4acae1ce58b597267255026d9356565828fd plus complete command-denominator intersection=0."
       }
@@ -7354,11 +7354,11 @@
       ],
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
-        "gap": "G уже атомарно публикует snapshot через temp/fsync/replace, но декодирование может принять sparse persisted snapshot с defaults; candidate strict decoder это закрывает.",
-        "task": "Перенести completeness и amount validation из _decode_snapshot; различать absent bootstrap и present empty/corrupt/incomplete.",
-        "independent_oracle": "Независимый reopen сверяет обязательные поля, карты и spend conservation; explicit unlimited valid.",
-        "negative_control": "По одному убрать обязательные поля и SIGKILL на границах temp/fsync/replace: только old или complete new; неполный persisted state отказывает до мутации.",
-        "dependency_or_input": "Power loss/multihost guarantees и forged valid accounting не доказаны.",
+        "gap": "G97 atomically publishes snapshots, but the public FileBudgetLedger.record_spend path on an absent file constructs a default no-limit BudgetState and persists it. A later configured BudgetMiddleware accepts that existing no-limit snapshot. Existing corrupted files must remain distinct from absent-new state; explicit load_or_bootstrap(BudgetState()) is a deliberate, valid unlimited configuration.",
+        "task": "Add a process-level ledger witness at tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py (this file is absent in G97). A direct cold FileBudgetLedger.record_spend on an absent path must fail closed with a typed bootstrap-required outcome before persisting a default unlimited snapshot. Then exercise the real configured BudgetMiddleware path through record_spend_safe, reopen in a fresh process, and prove pre_check enforces the configured limit. Keep explicit load_or_bootstrap(BudgetState()) as a valid unlimited control; malformed existing state must refuse without rewrite.",
+        "independent_oracle": "Use subprocess A to call public FileBudgetLedger.record_spend on a missing path and capture the typed refusal plus unchanged/no data snapshot; subprocess B constructs BudgetMiddleware with an explicitly configured capped state (limit=10, spent=9), uses record_spend_safe(amount=1), and a fresh process/middleware reread proves spend conservation and pre_check blocks at the cap. A separate explicit BudgetState() bootstrap remains unlimited after spend/reopen.",
+        "negative_control": "Remove the bootstrap guard: the cold direct mutation must recreate the recorded bypass—persisted limits={} then configured middleware pre_check allows a spend the fresh configured control blocks. Also start from truncated/nonempty malformed existing bytes and assert no bootstrap/rewrite, while retaining an old-or-complete-new publication control for interrupted temp/fsync/replace.",
+        "dependency_or_input": "Existing paths: tests/unit/scientist/orchestration/engine/test_budget_middleware.py and tests/unit/scientist/mirror_contracts/test_budget_ledger.py. The proposed process-level file does not exist in G97; add it before running the process acceptance command. Exercise both explicit capped configuration and explicit unlimited configuration; power-loss, multi-host, and forged-accounting guarantees remain separate.",
         "test_bundle": "DUR-01",
         "p40": "snapshot-completeness",
         "p41": "not_established for G97 by this leaf"
@@ -9070,13 +9070,13 @@
           "tests/unit/fabric/data_plane/test_processing_guarantees.py",
           "tests/unit/fabric/data_plane/test_cursor_store.py"
         ],
-        "dependency": "Keep the declared 86,400-second dedupe window; define its clock as persisted UTC ingestion-time and one source/partition-scoped key identity. A memory cap must spill to a durable bounded index or fail closed before evicting still-live keys; never silently replace 24-hour semantics with count-only semantics.",
-        "positive": "For a,b,c,a with max in-memory keys=2 and all events inside the declared 86,400-second window, compare uninterrupted with crash-after-c/resume; both suppress final a. Advance injected UTC clock beyond 24h and it is accepted. Same key in another source/partition remains independent. Disabled policy is explicitly non-deduping/at_least_once.",
-        "oracle": "An independently implemented UTC timestamp→source/partition/key map predicts each accepted ID and expiry. Reopen the persisted horizon through CursorStore and compare exact timestamps/keys; do not use the production eviction helper as the oracle.",
-        "negative": "A count-only deque/set eviction accepts a before TTL and must fail. Corrupt/remove the timestamp index or overflow live keys before TTL; the system must refuse or use durable bounded storage, never silently evict. Remove the state binding while retaining fields and result labels; restart parity fails.",
+        "dependency": "Keep the declared 86,400-second dedupe window with persisted UTC ingestion-time. Require a typed source-owned event/version idempotency key scoped by source and partition; entity ID alone and local hashes are invalid substitutes. Reused entity IDs at different source versions are distinct events. Until the connector supplies this key contract, a missing/ambiguous key returns typed unsupported. A memory cap must spill to a durable bounded index or fail closed before evicting still-live keys; never silently replace 24-hour semantics with count-only semantics.",
+        "positive": "Treat a,b,c,a as source-provided event/version keys. With max in-memory keys=2 and all events inside the declared 86,400-second window, compare uninterrupted with crash-after-c/resume; both suppress final a. Reuse one entity ID at two source versions and verify the distinct event keys do not collapse. Advance injected UTC clock beyond 24h and the expired key is accepted. The same key in another source/partition remains independent. Missing/ambiguous source key returns typed unsupported; disabled policy is explicitly non-deduping/at_least_once.",
+        "oracle": "An independently implemented UTC timestamp→(source, partition, source event/version key) map predicts each accepted ID and expiry. Reopen the persisted horizon through CursorStore and compare exact timestamps/keys; assert that one entity ID at two versions produces two keys; do not use the production eviction helper as the oracle.",
+        "negative": "A count-only deque/set eviction accepts a before TTL and must fail. Remove the source event/version key, supply an ambiguous key, or mutate code to substitute entity ID/local hash; the real path must return typed unsupported rather than merge or dedupe by the substitute. Corrupt/remove the timestamp index or overflow live keys before TTL; the system must refuse or use durable bounded storage, never silently evict. Remove the state binding while retaining fields and result labels; restart parity fails.",
         "command": "ING",
         "test_target": "Add test_dedupe_window_a_b_c_a_is_stable_across_restart to test_processing_guarantees.py; persist/reopen state through the real CursorStore.",
-        "decision_boundary": "Keep B83 distinct from B84: this is dedupe horizon and restart equality. The source card’s explicit 24-hour promise is not satisfied by a count-only cap."
+        "decision_boundary": "Keep B83 distinct from B84: this is source-owned event/version identity, dedupe horizon, and restart equality. Require the connector owner to supply the event/version idempotency-key contract; until then return typed unsupported. The source card’s explicit 24-hour promise is not satisfied by a count-only cap or an entity-ID/local-hash substitute."
       },
       "capability_label": "semantic_test_missing"
     },
@@ -11062,9 +11062,9 @@
           "src/polisyos/berl/service.py",
           "src/polisyos/berl/contracts/schema.py"
         ],
-        "dependency": "Use a verified typed law ref from E, or F SCM law only when exact nodes/population/schema/epoch coincide. Until those producers exist, unsupported is a diagnostic mitigation, not conditional capability.",
-        "positive": "Implement exact linear-Gaussian and finite discrete conditional providers at same coalition engine. For correlated N(0,[[1,.8],[.8,1]]), f=x1, x=(1,1), conditional result is (.6,.4); independent marginal Kernel result is (1,0). Include rho=0 control and finite-support conditioning.",
-        "oracle": "Analytical conditional Gaussian formula and separately written four-coalition Shapley calculation; empirical discrete strata counted from raw rows.",
+        "dependency": "Use a verifier-admitted typed law ref from E, or F SCM law only when exact nodes/variable order, admitted source, population/cohort/time, model/schema epoch, and provenance coincide. A supplied covariance alone does not establish the law. Until those producers exist, unsupported is a diagnostic mitigation, not conditional capability.",
+        "positive": "At the same coalition engine, test the conditional-law formula and analytic linear-Gaussian fixture exactly: for correlated N(0,[[1,.8],[.8,1]]), f=x1, x=(1,1), conditional Shapley is (.6,.4), while independent marginal Kernel is (1,0); rho=0 gives (1,0). Enumerate finite-support conditional strata as exact weighted sums. For nonlinear Monte Carlo coalition expectations, declare estimator, seed, error/confidence procedure, and per-coalition and final-Shapley tolerance before acceptance; report them as approximate, never exact.",
+        "oracle": "Independently derive the conditional Gaussian formula and four-coalition Shapley result exactly for the analytic linear fixture; independently enumerate finite-support strata from raw rows. For nonlinear Monte Carlo, compare to an independent known-answer/sampler oracle and require the predeclared estimator error bound and Shapley tolerance.",
         "negative": "Existing G97 mapping is the divergent mutant: correlated test produces marginal (1,0) under conditional request. Require either exact conditional (.6,.4) or typed refusal with no attribution; a marginal output plus conditional label fails. Remove the law-bound sampler while keeping method/schema markers; acceptance fails.",
         "command": "BER",
         "G97_actual_divergence": "G97 service.py#L431-L434 maps kernel_shap_conditional to KernelSHAPAdapter; shap_kernel.py#L46-L60 does background replacement. It can emit the marginal game under conditional_observational. Candidate-only diagnostic refusal is not integrated proof.",

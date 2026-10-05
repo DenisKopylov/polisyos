@@ -91,7 +91,8 @@ P29/P32/P33/P37/P38 требуют property witness, independently bound inputs 
 случай расхождения с proxy. P35 требует полного 127/282 покрытия с denominator.
 P40 запрещает бесконечную лестницу patch→escape: после второго случая расширить
 общий механизм либо сформулировать конечную supported boundary с falsifier.
-P41 требует точной команды на slice-base и доказанного disjoint input denominator.
+Для утверждения об унаследованном красном P41 требует точной команды на slice-base
+и доказанного disjoint input denominator; это не универсальный replay для каждого ID.
 
 Acceptance документа: каждый исходный finding ссылается на конкретную задачу,
 каждый bundle учтён; задача содержит selected mechanism, writer, consumer,

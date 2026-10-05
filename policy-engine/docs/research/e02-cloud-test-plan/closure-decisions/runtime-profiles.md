@@ -121,7 +121,7 @@ The current `foundry/methods/catalog/causal/tmle_core.py@97c` already owns a bro
 
 `RDDObservationalData@97c:L988-L1019` contains outcome, running variable and cutoff; it has no treatment/compliance vector. `rdd.py@97c:L306-L329` honestly refuses `bias_correction=True` without validated `rdrobust`, but the uncorrected branch manually fits separate local polynomials, an “IK-like” bandwidth heuristic and asymptotic normal CI. The function neither calculates a fuzzy first stage nor accepts treatment status. Therefore supported claim must be explicit sharp/uncorrected local-polynomial profile under declared threshold assignment; fuzzy RDD is not implemented. A `bias_correction` flag refusal is correct bounded behavior, not RBC closure. Do not remove it to make tests green.
 
-Choose `rdrobust==2.1.0` as a narrow optional scientific profile for the actual RBC estimator path, and pin the target artifact: PyPI's universal `rdrobust-2.1.0-py3-none-any.whl` has SHA-256 `8179f8f75445876297317a9805b81cbbf2e1e39bf804a460a8c23d0d7fa33263`; its published provenance binds it to upstream commit `4322d4f57ce653668043f9bb262f00bbc2423554` ([PyPI 2.1.0 file and attestation](https://pypi.org/project/rdrobust/2.1.0/), [upstream LICENSE.md at that commit](https://raw.githubusercontent.com/rdpackages/rdrobust/4322d4f57ce653668043f9bb262f00bbc2423554/LICENSE.md)). That source identifies GPL-3.0; the product `policy-engine/LICENSE@97c` is proprietary / all rights reserved. This is a concrete dependency-distribution conflict requiring an explicit decision by the product/license owner, not a legal ruling inferred from process separation. Run the optional target-profile scientific test and integrate its actual results into the canonical RDD adapter while that distribution decision proceeds; do not add the package to the default/required product extra or claim it is cleared for bundling. If the owner declines bundling, explicitly choose the alternative work item: independently derive and implement the published Calonico-Cattaneo-Titiunik RBC weights and bias-covariance calculation from the paper, use pinned rdrobust only as an independent reference where policy permits, and do not copy GPL source. Either implementation must meet the same full numerical criterion before the product advertises RBC.
+Choose `rdrobust==2.1.0` as a narrow optional scientific profile for the actual RBC estimator path, and pin the target artifact: PyPI's universal `rdrobust-2.1.0-py3-none-any.whl` has SHA-256 `8179f8f75445876297317a9805b81cbbf2e1e39bf804a460a8c23d0d7fa33263`; its published provenance binds it to upstream commit `4322d4f57ce653668043f9bb262f00bbc2423554` ([PyPI 2.1.0 file and attestation](https://pypi.org/project/rdrobust/2.1.0/), [upstream LICENSE.md at that commit](https://raw.githubusercontent.com/rdpackages/rdrobust/4322d4f57ce653668043f9bb262f00bbc2423554/LICENSE.md)). That source identifies GPL-3.0; the product `policy-engine/LICENSE@97c` is proprietary / all rights reserved. This is a concrete dependency-distribution conflict requiring an explicit decision by the product/license owner, not a legal ruling inferred from process separation. An explicitly approved development/oracle use may run the isolated target-profile numerical test while the separate distribution decision proceeds. Integrating or publishing a bundled product dependency waits for the explicit owner disposition; neither a subprocess nor this research recommendation supplies that permission. Do not add the package to the default/required product extra or claim it is cleared for bundling. If the owner declines bundling, explicitly choose the alternative work item: independently derive and implement the published Calonico-Cattaneo-Titiunik RBC weights and bias-covariance calculation from the paper, use pinned rdrobust only as an independent reference where policy permits, and do not copy GPL source. Either implementation must meet the same full numerical criterion before the product advertises RBC.
 
 The first bounded profile should be sharp RD because `RDDObservationalData@97c` has no treatment/compliance vector; keep fuzzy RD unsupported until a versioned input contract adds that field. Adapt every output and selection input into the existing causal owner: point vs RBC point, `p/q`, `h/b`, kernel, bandwidth selector, VCE/clustering/mass points, assignment, and exact interval type. The real-target positive oracle must exercise the repository adapter with the pinned backend, compare selected bandwidth/estimate/RBC interval against an independent implementation of the published formulas on a deterministic sharp-RD design, and verify finite-sample coverage across repeated generated data. Negatives vary bandwidth, polynomial order, variance method, mass points, cutoff/treatment assignment, backend absence and unsupported fuzzy input; package import/metadata alone is not a pass. Existing selectors: `tests/unit/foundry/methods/catalog/causal/test_rdd.py`, `tests/unit/remediation/test_cau_03.py`; add the actual-backend consumer test under the canonical causal-method tests. The local G97 environment lacks rdrobust, so this recommendation is not an execution receipt.
 
@@ -138,7 +138,7 @@ cd policy-engine && uv run --extra causal-core pytest \
   tests/unit/foundry/methods/catalog/causal/test_stochastic_policies.py -q
 ```
 
-Split DoWhy into its real separate Python 3.12 worker command above; a marker skip in the 3.14 suite is not evidence. Keep zEpid and rdrobust profile tests separate from native tests so their actual `fit` is visible; run the rdrobust numerical profile independently of the explicit distribution decision.
+Split DoWhy into its real separate Python 3.12 worker command above; a marker skip in the 3.14 suite is not evidence. Keep zEpid and rdrobust profile tests separate from native tests so their actual `fit` is visible; an isolated rdrobust numerical/oracle run needs an explicit approved development-use disposition, while product bundling/publishing separately needs the distribution decision.
 
 ## Sequence, capability labels and pattern pass
 
@@ -151,3 +151,35 @@ Split DoWhy into its real separate Python 3.12 worker command above; a marker sk
 7. **P01/P02/P05/P10/P13/P27/P29/P32/P33/P39:** require producer→typed artifact→execution bridge→real reader→property oracle; keep authority/status and refusal; correct owner duplication instead of adding abstraction; include real no-property/fake-marker controls. Lock/profile/test receipts are companions, not mechanism count. Research conclusions do not close source findings.
 
 **Current judgement:** reuse choices are mostly correct and targeted optional installs are more maintainable than replacing libraries. The substantive red flags are the existing G97 range narrowing before E draws, D restored no-refit state, C’s unsupported conditional interpretation, F’s DoWhy/EconML runtime profile, RDD’s absent fuzzy treatment input, and its independently tracked GPL distribution decision. E/F DoWhy worker has a finite design and narrow acceptance path; until actual worker fit and 3.14 consumer readback, DoWhy remains unavailable. Nothing in this note claims a new scientific or production-authority capability.
+
+
+## RDD: точный следующий execution gate
+
+На G97 нет extra `causal-rdd` и нет предлагаемого нового теста
+`tests/unit/foundry/methods/catalog/causal/test_rdrobust_backend_profile.py`.
+F сначала создаёт выбранный optional profile в `pyproject.toml` и `uv.lock`,
+фиксирует указанный wheel и transitive artifacts, реализует adapter и этот
+непропускающий backend test. Решение о распространении оформляется отдельно;
+наличие subprocess не разрешает лицензионный вопрос. Ниже — только будущая
+команда после создания/допуска профиля, а не runnable G97 receipt:
+
+```sh
+cd policy-engine
+uv sync --frozen --extra causal-rdd
+uv run --no-sync --extra causal-rdd pytest -o addopts= -q \
+  tests/unit/foundry/methods/catalog/causal/test_rdrobust_backend_profile.py \
+  tests/unit/remediation/test_cau_03.py \
+  tests/unit/foundry/methods/catalog/causal/test_rdd.py
+```
+
+Новый test делает настоящий import и backend fit; отсутствие выбранного
+backend проваливает preflight, а не `importorskip`. Он запускает repository
+adapter на curved heteroskedastic sharp-RD DGP, проверяет `tau_bc`, robust SE/CI
+и все выбранные параметры против pinned backend и независимых CCT-формул,
+затем typed result → CAS → свежий Scientist causal consumer. Coverage проверяется
+по повторным независимым DGP с заранее объявленным Monte Carlo допуском.
+Control удаляет adapter/backend execution при сохранённых result markers;
+приёмка должна стать красной. Не использовать normal uncorrected CI как RBC.
+При выборе собственного CCT пути вместо package binding используется отдельный
+предусмотренный numerical test того же свойства; новый extra не объявляется
+существующим. Текущий статус этих новых проверок — UNRUN.

@@ -460,7 +460,12 @@ def test_removing_local_acquisition_rng_keeps_gp_markers_but_oracle_detects_glob
 
 @pytest.mark.parametrize(
     "field,value",
-    [("last_refit_iteration", 999999), ("acquisition_replay_policy", "old_unconfined_policy")],
+    [
+        ("last_refit_iteration", 999999),
+        ("acquisition_replay_policy", "old_unconfined_policy"),
+        ("acquisition_replay_policy", None),
+        ("gp_checkpoint_version", 0),
+    ],
 )
 def test_future_refit_clock_and_old_acquisition_policy_refuse_atomically(
     fitted_scene: _Scene, field: str, value: Any

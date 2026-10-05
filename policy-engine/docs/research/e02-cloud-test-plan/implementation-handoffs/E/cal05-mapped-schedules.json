@@ -1,0 +1,456 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "cal05-mapped-schedules",
+  "closure_ids": [],
+  "finding_ids": [
+    "B185"
+  ],
+  "bundle_ids": [
+    "CAL-05"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "714f69153d4736f3f8478936611e68eccb29f2d5",
+    "983e06616e805ccd35931df1acb39fb0d7201f97",
+    "bbc40582786b2e9c898aa7dd23b89dbac3062059"
+  ],
+  "candidate_tree_sha": "a4358e381d07812ceaa9a770e2b9991e0a68fd9f",
+  "branch": "codex/e02-E-cal05",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/24",
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+    "policy-engine/release-fragments/unreleased/2026-10-05-calibration-mapped-schedules.toml"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F01-P034",
+      "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_locator": "received/F01.txt:151",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F01",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F01-P048",
+      "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+      "source_locator": "received/F01.txt:165",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F01",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F01-P058",
+      "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py",
+      "source_locator": "received/F01.txt:175",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/analysis/test_merge_engine_regressions.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F01",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F03-P019",
+      "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_locator": "received/F03.txt:149",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py@69780761ae091d8fcc6ab8778c7f5f7227eeef0b (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F03",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F05-P036",
+      "source_commit": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_locator": "received/F05.txt:446",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py@78187878ee188ff6d27442ba1498bd094da9785b (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F05",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F05-P055",
+      "source_commit": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_locator": "received/F05.txt:465",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py@78187878ee188ff6d27442ba1498bd094da9785b (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F05",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F08-P041",
+      "source_commit": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_locator": "received/F08.txt:164",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py@00d946c2b7d052522be092f9c70eb9902f6521c2 (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F08",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F09-P027",
+      "source_commit": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_locator": "received/F09.txt:143",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py@00d946c2b7d052522be092f9c70eb9902f6521c2 (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F09",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F11-P027",
+      "source_commit": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_locator": "received/F11.txt:156",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py@5fd3ebcc15637e98bbd4938de5d62ee5004504a8 (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F11",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F11-P042",
+      "source_commit": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_locator": "received/F11.txt:171",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py@5fd3ebcc15637e98bbd4938de5d62ee5004504a8 (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F11",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F14-P023",
+      "source_commit": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "test_path": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py",
+      "source_locator": "received/F14.txt:373",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/analysis/test_merge_determinism.py@0213101b6d124e6f855b1aff7c442bb0912a61c2 (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F14",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "cell_id": "F14-P042",
+      "source_commit": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "test_path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "source_locator": "received/F14.txt:392",
+      "reported_state": "PASS",
+      "data_identity": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py@0213101b6d124e6f855b1aff7c442bb0912a61c2 (source-defined test fixtures; raw per-cell inputs not transferred)",
+      "environment_ref": "F14",
+      "semantic_adequacy": "not_established"
+    }
+  ],
+  "baseline_profiles": {
+    "F01": {
+      "source_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@c40d4acae1ce58b597267255026d9356565828fd#first-metadata-object (environment/profile/environment_compact/toolchain as provided)",
+      "backend_scope": "Source-reported CPU setting where provided; JAX package version/per-cell runtime branch execution not established in compact reported PASS",
+      "raw_archive_transfer": "missing"
+    },
+    "F03": {
+      "source_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@c40d4acae1ce58b597267255026d9356565828fd#first-metadata-object (environment/profile/environment_compact/toolchain as provided)",
+      "backend_scope": "Source-reported CPU setting where provided; JAX package version/per-cell runtime branch execution not established in compact reported PASS",
+      "raw_archive_transfer": "missing"
+    },
+    "F05": {
+      "source_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@c40d4acae1ce58b597267255026d9356565828fd#first-metadata-object (environment/profile/environment_compact/toolchain as provided)",
+      "backend_scope": "Source-reported CPU setting where provided; JAX package version/per-cell runtime branch execution not established in compact reported PASS",
+      "raw_archive_transfer": "missing"
+    },
+    "F08": {
+      "source_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt@c40d4acae1ce58b597267255026d9356565828fd#first-metadata-object (environment/profile/environment_compact/toolchain as provided)",
+      "backend_scope": "Source-reported CPU setting where provided; JAX package version/per-cell runtime branch execution not established in compact reported PASS",
+      "raw_archive_transfer": "missing"
+    },
+    "F09": {
+      "source_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@c40d4acae1ce58b597267255026d9356565828fd#first-metadata-object (environment/profile/environment_compact/toolchain as provided)",
+      "backend_scope": "Source-reported CPU setting where provided; JAX package version/per-cell runtime branch execution not established in compact reported PASS",
+      "raw_archive_transfer": "missing"
+    },
+    "F11": {
+      "source_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@c40d4acae1ce58b597267255026d9356565828fd#first-metadata-object (environment/profile/environment_compact/toolchain as provided)",
+      "backend_scope": "Source-reported CPU setting where provided; JAX package version/per-cell runtime branch execution not established in compact reported PASS",
+      "raw_archive_transfer": "missing"
+    },
+    "F14": {
+      "source_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@c40d4acae1ce58b597267255026d9356565828fd",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@c40d4acae1ce58b597267255026d9356565828fd#first-metadata-object (environment/profile/environment_compact/toolchain as provided)",
+      "backend_scope": "Source-reported CPU setting where provided; JAX package version/per-cell runtime branch execution not established in compact reported PASS",
+      "raw_archive_transfer": "missing"
+    }
+  },
+  "environment": {
+    "python": "3.14.2 (Clang 21.1.4)",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "jax": "0.8.2",
+    "equinox": "0.13.2",
+    "numpy": "2.3.5",
+    "backend": "cpu",
+    "device": "TFRT_CPU_0",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src",
+    "actual_runtime_origin": "/workspace/e02-E-cal05/policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+    "concurrency": "No numerical process/thread caps imposed by author; independent checks scheduled by readiness."
+  },
+  "data_identity": {
+    "class": "bounded analytic fixtures on actual JAX CPU backend",
+    "source": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py@bbc40582786b2e9c898aa7dd23b89dbac3062059",
+    "fixture": "StaticBundle scheduled-log active only at t=1; two agents; mixed income [[0,0],[2,2]], steps [0,1], float32; PRNGKey(11); emitter delta=log(income), next_key=fold_in(split(key)[1],1)",
+    "production_data": "not required for this generic control-flow property; no production evidence claimed",
+    "recorded_oracles": "Standalone reviewer source inputs are stored as .py.txt to preserve exact independently executed bytes; run via Python directly with PYTHONPATH=src. Their original emitted source target label is714f691; G records actual checked-out candidate SHA separately. No helper is added to product code or test collection."
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/foundry/calibration/test_pure_executor_semantics.py -k rejects_mapped_schedule_before_emission",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "environment (candidate CPU runtime profile in this receipt)",
+      "input_closure": "Base runtime plus new regression tests later committed at 714f69153d4736f3f8478936611e68eccb29f2d5",
+      "outcome": "FAIL",
+      "output": "Four expected failures: DID NOT RAISE ValueError for eager/JIT/grad/Hessian. Full deciding output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.log"
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/foundry/calibration/test_pure_executor_semantics.py tests/unit/foundry/calibration/test_pure_executor.py tests/unit/foundry/analysis/test_merge_engine_regressions.py tests/unit/foundry/analysis/test_merge_determinism.py",
+      "target_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+      "environment": "environment (candidate CPU runtime profile in this receipt)",
+      "input_closure": "Complete four named test files; real pure-executor and merge runtime. No skipped test/backend substitutions. Source/test bytes frozen before this run and unchanged in companion commit 983e06616e805ccd35931df1acb39fb0d7201f97",
+      "outcome": "PASS",
+      "output": "58 passed in 32.88s; supervisor wall 40.691360773s, peak child RSS 930556 KiB. Complete deciding output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.log",
+      "resource_measurement": {
+        "wall_s": 40.69136077300004,
+        "peak_child_rss_kib": 930556,
+        "boundary": "resource.getrusage(RUSAGE_CHILDREN) for one subprocess and children; not VM peak"
+      }
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/foundry/calibration/pure_executor.py tests/unit/foundry/calibration/test_pure_executor_semantics.py; python -m ruff format --check same paths",
+      "target_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+      "environment": "shared frozen venv, worktree paths",
+      "input_closure": "Two changed Python files",
+      "outcome": "PASS",
+      "output": "All checks passed; 2 files already formatted."
+    },
+    {
+      "command": "corepack pnpm install --frozen-lockfile",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "Node workspace in isolated CAL-05 worktree",
+      "input_closure": "pnpm-lock.yaml and existing workspace packages; no dependency edits",
+      "outcome": "PASS",
+      "output": "Done in 4.8s using pnpm10.33.2; ordinary lefthook pre-commit passed both implementation commits."
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base c40d4acae1ce58b597267255026d9356565828fd --receipt /workspace/e02-runtime/cal05-production-invocation.json",
+      "target_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+      "environment": "environment (candidate CPU runtime profile in this receipt)",
+      "input_closure": "Repository-wide static AST diagnostic; no measured invocation verdict emitted",
+      "outcome": "ERROR",
+      "output": "Terminated own diagnostic with SIGTERM/exit143 after observed no output and RSS7846216 KiB at03:20. No static/reachability/production absence claim."
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "target_sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+      "environment": "environment",
+      "input_closure": "Complete final native semantics file, including vmap(jit(scalar_run)) refusal/no numerical callback. Only source comments, release wording, and this regression differ from previous numerical kernel.",
+      "outcome": "PASS",
+      "output": "33 passed in14.57s; complete output in cal05-mapped-schedules.log. Ruff check and format also PASS."
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "-q",
+        "--basetemp=/workspace/e02-runtime/cal05-independent/semantics-scratch/tmp",
+        "-o",
+        "cache_dir=/workspace/e02-runtime/cal05-independent/semantics-scratch/cache"
+      ],
+      "target_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+      "environment": "environment",
+      "input_closure": "Independent reviewer verified source/test/importer bytes identical before/after and match714f691; workspacehead983e066 changes release fragment only.",
+      "outcome": "PASS",
+      "output": "32 semantics cases; exit0, wall 20.8770464170002s. Complete output in cal05-mapped-schedules.log."
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_recovers_income_tax_rate",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_resolves_slot_id_metric",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_gradnorm_updates_weights",
+        "tests/unit/foundry/calibration/test_calibrator_mvp.py::test_calibrator_hessian_uncertainty",
+        "-q",
+        "--basetemp=/workspace/e02-runtime/cal05-independent/calibrator_native-scratch/tmp",
+        "-o",
+        "cache_dir=/workspace/e02-runtime/cal05-independent/calibrator_native-scratch/cache"
+      ],
+      "target_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+      "environment": "environment",
+      "input_closure": "Independent reviewer verified source/test/importer bytes identical before/after and match714f691; workspacehead983e066 changes release fragment only.",
+      "outcome": "PASS",
+      "output": "4 actual Calibrator cases (rate recovery, slot metric, GradNorm, Hessian); exit0, wall 19.86642403499991s. Complete output in cal05-mapped-schedules.log."
+    },
+    {
+      "command": "PYTHONPATH=src python docs/research/e02-cloud-test-plan/implementation-handoffs/E/schedule_execution_controls.py.txt",
+      "target_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+      "environment": "environment",
+      "input_closure": "Independent JAXCPU11 controls: vmap(jit), vmap(grad), vmap(Hessian), nestedvmap, scalar dynamicJIT/statevmap, guard-removal negative. Original script committed beside receipt.",
+      "outcome": "PASS",
+      "output": "11 controls asserted. Mapped schedule orders refuse with zero numerical callbacks; vmap(jit) has one Python tracing call. Shared scalar active/inactive results and derivatives match analytic oracles. Complete deciding JSON in cal05-mapped-schedules.log."
+    },
+    {
+      "command": "PYTHONPATH=src python docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration_schedule_readback.py.txt",
+      "target_sha": "714f69153d4736f3f8478936611e68eccb29f2d5",
+      "environment": "environment",
+      "input_closure": "Independent actual Calibrator delayed-income-tax fixture:5 agents100 income, targetbalance[0,50], schedule[1,1], initialrate0.3, seed0, Hessianenabled; report DTO and replay from calibrated params. Not production dataset.",
+      "outcome": "PASS",
+      "output": "rate0.0991758182644844; total_loss0.00013585726264864206; covariance[[0.0024999999441206455]]; std0.05000000074505806; replay balance[0.0,49.58790588378906] matches [0,500*rate]. Complete deciding output in cal05-mapped-schedules.log."
+    },
+    {
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "-q",
+        "--basetemp=/workspace/e02-runtime/cal05-independent/final-semantics-scratch/tmp",
+        "-o",
+        "cache_dir=/workspace/e02-runtime/cal05-independent/final-semantics-scratch/cache"
+      ],
+      "target_sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+      "environment": "environment",
+      "input_closure": "Independent complete final semantics file; source/test before/after blobs equal pinnedbbc4058, executable executor AST equal714f691.",
+      "outcome": "PASS",
+      "output": "33 native semantics cases; exit0, wall20.527699130999736s. Complete output in cal05-mapped-schedules.log."
+    }
+  ],
+  "property": {
+    "statement": "A supported scalar schedule never numerically invokes an inactive emitter; mapping the schedule predicate is refused before numerical emitter execution so unsupported batching cannot silently weaken this property.",
+    "runtime_path": [
+      "compile_program produces StaticBundle with immutable schedules",
+      "apply_nodes scalar schedule admission, conditional emitter, neutral inactive patches and PRNG carry",
+      "run_pure_scan produces in-memory state/trace tensors",
+      "Calibrator.run consumes run_pure_scan for parameter-connected loss/report/Hessian; independent importer and delayed-schedule report/replay readback exercised at714f691."
+    ],
+    "proxy_divergence": "On JAX0.8.2 CPU, removing admission makes mixed vmap return correct finite values [[0,0],[2+log2,2+log2]] and gradient [[1,1],[1.5,1.5]], while debug.callback sees emitter inputs [[0,0],[2,2]], including the inactive row. Finite outputs/gradients are therefore an inadequate no-execution proxy.",
+    "negative_controls": [
+      "Admission removal under real vmap exposes inactive numerical callback while retaining correct values and gradients.",
+      "Active x=0 remains nonfinite under eager/JIT/grad/Hessian; no neutral/synthetic active input or nan_to_num is used.",
+      "Existing eager active mechanism refusal remains ValueError.",
+      "Mapped equal steps are also refused; shared scalar schedule state-vmap remains supported."
+    ],
+    "analytic_oracles": "Identity inactive map: gradient1,Hessian0,key unchanged. Active x+logx at x=2: gradient1.5,Hessian diagonal -0.25,next_key fold_in(split(key)[1],1). Scalar lax.map executes only [2,2] for mixed fixture.",
+    "artifact_and_surface_scope": "In-memory replay state/traces and existing Calibrator report DTO. This slice makes no persisted heterogeneous-schedule artifact, bridge, or served capability claim.",
+    "tracing_scope": "The four author eager/jit(vmap)/grad(vmap)/Hessian(vmap) orders reject before Python emitter tracing. vmap(jit(scalar_run)) may trace the scalar emitter once before batching rejects; it produces zero numerical callbacks. Source comment/release qualification and native regression added at bbc40582786b2e9c898aa7dd23b89dbac3062059; numerical kernel unchanged."
+  },
+  "predicate_basis": "recomputed",
+  "predicates": [
+    {
+      "name": "mapped predicate admission",
+      "basis": "recomputed",
+      "source": "Public JAX custom_vmap in_batched flag; refuses before numerical emitter execution, while scalar JIT tracing can precede batching."
+    },
+    {
+      "name": "scalar inactive numerical execution",
+      "basis": "recomputed",
+      "source": "Actual JAX debug.callback plus block_until_ready/effects_barrier controls."
+    },
+    {
+      "name": "heterogeneous schedules through a consuming Calibrator API",
+      "basis": "not_established",
+      "source": "Existing Calibrator calls run_pure_scan with one static bundle and scalar scan time; no served mixed-row contract claimed."
+    }
+  ],
+  "capability_state_or_finding_state": "B185 partial; bounded unsupported-profile refusal implemented, prior scalar inactive-path witness preserved. Full heterogeneous calibration schedule capability not established.",
+  "limitations_and_next_owner": [
+    "Calibration schedule owner must appoint a consuming heterogeneous-schedule API and an AD-safe batching mechanism that preserves scalar branches per row, then produce a consumer witness. This slice intentionally does not redesign reverse-mode AD or invent scientific input/authority.",
+    "Public JAX sequential_vmap uses lax.map but documents lack of reverse-mode autodiff; wrapping the full executor would not safely preserve calibration gradient/Hessian support. Current callers can explicitly use lax.map for per-row apply_nodes schedules.",
+    "G must rerun production_invocation diagnostic on exact candidate SHA with local available resources; diagnostic execution ERROR is not inherited red or a product defect.",
+    "Four-base historical replay/raw archive semantic adequacy remains not_established; compact reported PASS cells are navigation only.",
+    "GPU/Metal and production history/source law were not exercised and are not evidence for this generic CPU runtime property."
+  ],
+  "local_reproduce_recipe": {
+    "candidate_source_sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+    "companion_sha": "983e06616e805ccd35931df1acb39fb0d7201f97",
+    "runtime_checks": "From policy-engine at latest candidate, Python3.14.x/JAX0.8.2CPU and PYTHONPATH=src; run the four exact native paths from author check. Final semantics33 was rerun after comment/regression addition. The prior complete four-file check passed58 at714f691.",
+    "importer_checks": "Run the four exact Calibrator selectors recorded in independent check, then PYTHONPATH=src python docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration_schedule_readback.py.txt and schedule_execution_controls.py.txt. Their emitted target label names originallyreviewed714f691; record actual latest candidate independently.",
+    "diagnostic": "python -m polisyos.runtime.quality.production_invocation --base c40d4acae1ce58b597267255026d9356565828fd --receipt <ignored-local-receipt>; record actual output/resource verdict.",
+    "no_full_production_required_for_this_slice": true
+  },
+  "pattern_pass": [
+    "P10/P29: numerical callback execution, not tracing counter or marker check.",
+    "P27/P31: canonical pure executor owner; no duplicate scientific engine or merge owner edits.",
+    "P33: mixed/scalar/homogeneous transforms and active invalid controls.",
+    "P37/P38: recomputed batch admission and explicit finite-gradient proxy divergence.",
+    "P40: remaining heterogeneous consuming capability declared, not patched by an AD workaround.",
+    "P41: diagnostic ERROR has no product/inherited attribution."
+  ],
+  "independent_review": {
+    "reviewer": "/root/frc",
+    "target_sha": "bbc40582786b2e9c898aa7dd23b89dbac3062059",
+    "review_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-independent-review.json",
+    "review_sha256": "ee3e2bfa8f26c4b81e6b2f610ca2dfb2252cb11408c193f4a80bf3e29a93c414",
+    "outcome": "PASS bounded numerical/refusal property; no unresolved implementation finding. Final semantics33 refreshed with locked blobs, executable AST identical to714f691. Native4, independent11 controls, delayed Calibrator report/replay readback all PASS. B185 remainspartial."
+  },
+  "oracle_sources": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/schedule_execution_controls.py.txt",
+      "sha256": "bacac2c3051b842abf1a50e37a8876340d56159b4f813dadcf2ede725c345477",
+      "origin": "independent reviewer /root/frc; original standalone script bytes retained without modification",
+      "classification": "immutable recorded independent probe source; evidence input, not a shipped Python module"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration_schedule_readback.py.txt",
+      "sha256": "d5be479e86b609bf7afbff5f13f3c9f563ac35ec6311bb1d23e02921b5ef2ca0",
+      "origin": "independent reviewer /root/frc; original standalone script bytes retained without modification",
+      "classification": "immutable recorded independent probe source; evidence input, not a shipped Python module"
+    }
+  ],
+  "receipt_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.log",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/schedule_execution_controls.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration_schedule_readback.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-independent-review.json"
+  ],
+  "publication": {
+    "remote": "origin",
+    "topic_branch": "codex/e02-E-cal05",
+    "pull_request": "https://github.com/DenisKopylov/polisyos/pull/24",
+    "labels": [
+      "kind:runtime-behavior",
+      "compat:internal",
+      "release:fix"
+    ],
+    "app_attachment": "attach_artifact invoked but no result after several minutes; pending tool cell terminated; attachment not_established. Git handoff remains published."
+  },
+  "evidence_input_lint_scope": "Original recorded probe sources are immutable evidence inputs, not shipped Python modules. An initial lint invocation on temporary .py copies reported assert/print/type/loopstyle findings; those copies were reclassified and saved as .py.txt without modifying bytes. Production source/native test Ruff check and formatting PASS; no repository lint rule disabled.",
+  "evidence_locator_map": {
+    "independent original logs and JSON": "cal05-mapped-schedules.log contains complete deciding stdout/controls; cal05-independent-review.json retains original paths/hashes as immutable provenance.",
+    "independent numerical_controls.py": "schedule_execution_controls.py.txt (identical bytes/hash)",
+    "independent calibrator_readback.py": "calibration_schedule_readback.py.txt (identical bytes/hash)",
+    "review artifact indexes not copied separately": "Local harness scripts and duplicate metadata/derived views are not additional deciding evidence; exact argv/blobs remain in immutable review and original standalone oracle inputs."
+  }
+}

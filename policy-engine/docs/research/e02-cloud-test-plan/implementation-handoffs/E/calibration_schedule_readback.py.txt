@@ -1,0 +1,74 @@
+from __future__ import annotations
+
+import inspect
+import json
+
+import jax
+import jax.numpy as jnp
+import numpy as np
+
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph, ProgramGraphRef, ProgramNode
+from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
+from polisyos.foundry.calibration import calibrator as consumer
+from polisyos.foundry.calibration import pure_executor as producer
+from polisyos.foundry.contracts.state import GlobalState
+from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget
+from polisyos.ir.kernel.mechanisms import DEFAULT_MECHANISM_REGISTRY
+from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
+from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
+
+dummy = ArtifactID.from_sha256_hex('0' * 64)
+node = ProgramNode(node_id='tax', node_kind='mechanism', mechanism_type='income_tax',
+                   outputs=['agents.income', 'government.balance'])
+graph = ProgramGraph(ir_ref=ArtifactRef(artifact_id=dummy, kind='ir.trinity_bundle', media_type='application/json'),
+                     nodes=[node], edges=[], entrypoints=[])
+plan = ExecPlan(program_ref=ProgramGraphRef(artifact_id=dummy), order=['tax'])
+base = GlobalState.empty(n_agents=5, n_firms=1)
+base = base.replace(agents=base.agents.replace(income=jnp.full((5,), 100.), reported_income=jnp.full((5,), 100.)),
+                    government_balance=jnp.asarray(0.))
+target = jnp.asarray([0., 50.], dtype=jnp.float32)
+config = CalibrationConfig(
+    targets=[CalibrationTarget(target_id='balance', model_metric_path='government_balance')],
+    max_steps=60, learning_rate=.1, seed=0, hessian={'enabled': True, 'damping': 1e-6},
+)
+
+def loader(_):
+    return {'params': {'rate': .3}, 'schedule': {'start_step': 1, 'end_step': 1}}
+
+inputs = CalibratorInputs(config=config, program_graph=graph, exec_plan=plan, base_state=base,
+    mechanism_registry=DEFAULT_MECHANISM_REGISTRY, slot_registry=DEFAULT_SLOT_REGISTRY,
+    merge_registry=DEFAULT_MERGE_RULE_REGISTRY, selector_field_registry=None,
+    parameter_loader=loader, raw_targets={'balance': target}, controls_seq=jnp.arange(2))
+assert consumer.run_pure_scan is producer.run_pure_scan
+report = Calibrator(inputs).run()
+rate = report.calibrated_params['tax.rate']
+assert abs(rate - .1) < .02
+assert report.total_loss < 1.
+uncertainty = report.uncertainties
+assert uncertainty is not None
+assert uncertainty.params == ['tax.rate']
+assert len(uncertainty.std) == 1 and np.isfinite(uncertainty.std[0]) and uncertainty.std[0] > 0
+np.testing.assert_allclose(uncertainty.correlation, [[1.]], atol=1e-6)
+bundle = producer.compile_program(graph, plan, mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+    slot_registry=DEFAULT_SLOT_REGISTRY, merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+    base_state=base, parameter_loader=lambda _: {'params': {'rate': rate}, 'schedule': {'start_step': 1, 'end_step': 1}})
+_, traces = producer.run_pure_scan(base, steps=2, root_key=jax.random.PRNGKey(0), bundle=bundle,
+    metric_paths=['government_balance'], controls_seq=jnp.arange(2))
+actual = traces['government_balance']
+actual.block_until_ready()
+np.testing.assert_allclose(np.asarray(actual), [0., 500. * rate], atol=1e-5)
+assert jax.default_backend() == 'cpu'
+print(json.dumps({
+    'target_implementation_sha': '714f69153d4736f3f8478936611e68eccb29f2d5',
+    'calibrator_module': inspect.getfile(Calibrator), 'pure_executor_module': producer.__file__,
+    'consumer_function_identity_verified': True, 'jax_backend': jax.default_backend(),
+    'data_identity': {'kind': 'synthetic_analytic_fixture', 'agents': 5, 'income': 100.,
+                      'target_balance': [0., 50.], 'schedule_start': 1, 'schedule_end': 1,
+                      'seed': 0, 'initial_rate': .3},
+    'calibrated_params': report.calibrated_params, 'total_loss': report.total_loss,
+    'uncertainty': uncertainty.model_dump(mode='json'), 'replay_balance': np.asarray(actual).tolist(),
+    'assertions': ['rate within .02 of .1', 'loss < 1', 'positive finite std and parameter axis tax.rate',
+                   'correlation = 1', 'inactive balance = 0; active balance = 500*rate'],
+}, indent=2))

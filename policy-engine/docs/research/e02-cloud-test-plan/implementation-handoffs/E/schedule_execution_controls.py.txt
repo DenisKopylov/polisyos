@@ -1,0 +1,125 @@
+from __future__ import annotations
+
+import importlib.metadata
+import json
+import os
+import platform
+import sys
+
+import jax
+import jax.numpy as jnp
+import numpy as np
+
+from polisyos.foundry.calibration import pure_executor as pe
+from polisyos.foundry.contracts.state import GlobalState
+from polisyos.ir.kernel.mechanisms import DEFAULT_MECHANISM_REGISTRY
+from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
+from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
+
+results = []
+base = GlobalState.empty(n_agents=2, n_firms=1)
+key = jax.random.PRNGKey(23)
+
+
+def make_run():
+    numerical_calls = []
+    tracing_calls = []
+
+    class LogEmitter:
+        def emit_patches(self, state, key, *, target_mask=None):
+            tracing_calls.append(True)
+            jax.debug.callback(lambda values: numerical_calls.append(np.asarray(values).tolist()), state.agents.income)
+            return {'agents.income': [{'delta': jnp.log(state.agents.income)}]}, jax.random.fold_in(key, 9)
+
+    bundle = pe.StaticBundle(
+        nodes=[pe.PreparedNode('log', 'log', 0, 1, 1, LogEmitter(), ['agents.income'])],
+        incoming_dependencies={}, slot_registry=DEFAULT_SLOT_REGISTRY,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_field_registry=None, trainables=[],
+    )
+
+    def run(income, time):
+        state = base.replace(agents=base.agents.replace(income=income))
+        output, output_key = pe.apply_nodes(state, key, bundle=bundle, t=time)
+        return output.agents.income, output_key
+
+    return run, numerical_calls, tracing_calls
+
+
+def finish(value):
+    jax.tree.map(lambda leaf: leaf.block_until_ready(), value)
+    jax.effects_barrier()
+    return value
+
+
+# Transform order is independent from the author's grad(vmap)/jit(vmap) cases.
+for transform in ['vmap_jit', 'vmap_grad', 'vmap_hessian', 'nested_vmap']:
+    run, calls, traced = make_run()
+    times = jnp.asarray([0, 1], dtype=jnp.int32)
+    incomes = jnp.asarray([[0., 0.], [2., 2.]], dtype=jnp.float32)
+    if transform == 'vmap_jit':
+        execute = jax.vmap(jax.jit(lambda x, t: run(x, t)[0]))
+    elif transform == 'vmap_grad':
+        execute = jax.vmap(jax.grad(lambda x, t: jnp.sum(run(x, t)[0]), argnums=0))
+    elif transform == 'vmap_hessian':
+        execute = jax.vmap(jax.hessian(lambda x, t: jnp.sum(run(x, t)[0]), argnums=0))
+    else:
+        execute = jax.vmap(jax.vmap(lambda x, t: run(x, t)[0]), in_axes=(0, None))
+        incomes = jnp.stack([incomes, incomes])
+    try:
+        finish(execute(incomes, times))
+        raise AssertionError('mapped schedule escaped admission: ' + transform)
+    except ValueError as error:
+        assert 'does not support mapped schedule predicates' in str(error)
+        jax.effects_barrier()
+        assert calls == []
+        results.append({'control': transform, 'verdict': 'rejected', 'error': str(error),
+                        'numerical_callbacks': calls, 'emitter_tracing_calls': len(traced)})
+
+# A shared scalar schedule remains legal when it is a dynamic JIT argument.
+for active in [False, True]:
+    for transform in ['jit_state_vmap', 'vmap_grad', 'vmap_hessian']:
+        run, calls, traced = make_run()
+        incomes = jnp.full((2, 2), 2. if active else 0., dtype=jnp.float32)
+        if transform == 'jit_state_vmap':
+            execute = jax.jit(jax.vmap(lambda x, t: run(x, t)[0], in_axes=(0, None)))
+            expected = np.asarray(incomes) + (np.log(2) if active else 0)
+        elif transform == 'vmap_grad':
+            execute = jax.vmap(jax.grad(lambda x, t: jnp.sum(run(x, t)[0]), argnums=0), in_axes=(0, None))
+            expected = np.full((2, 2), 1.5 if active else 1.)
+        else:
+            execute = jax.vmap(jax.hessian(lambda x, t: jnp.sum(run(x, t)[0]), argnums=0), in_axes=(0, None))
+            expected = np.tile(np.eye(2)[None] * (-0.25 if active else 0), (2, 1, 1))
+        actual = finish(execute(incomes, jnp.asarray(int(active), dtype=jnp.int32)))
+        np.testing.assert_allclose(np.asarray(actual), expected, atol=1e-6)
+        assert calls == ([[2., 2.], [2., 2.]] if active else [])
+        results.append({'control': transform, 'scalar_active': active, 'verdict': 'pass',
+                        'value': np.asarray(actual).tolist(), 'numerical_callbacks': calls,
+                        'emitter_tracing_calls': len(traced)})
+
+# Mutation control: preserve finite outputs/gradients while exposing forbidden
+# inactive numerical execution, so finiteness cannot serve as a proxy oracle.
+admission = pe._admit_schedule_predicate
+try:
+    pe._admit_schedule_predicate = lambda active: active
+    run, calls, traced = make_run()
+    incomes = jnp.asarray([[0., 0.], [2., 2.]], dtype=jnp.float32)
+    times = jnp.asarray([0, 1], dtype=jnp.int32)
+    actual = finish(jax.vmap(jax.grad(lambda x, t: jnp.sum(run(x, t)[0]), argnums=0))(incomes, times))
+    np.testing.assert_allclose(np.asarray(actual), [[1., 1.], [1.5, 1.5]])
+    assert calls == [[0., 0.], [2., 2.]]
+    results.append({'control': 'guard_removed', 'verdict': 'oracle_detects_inactive_execution',
+                    'finite_gradient': np.asarray(actual).tolist(), 'numerical_callbacks': calls})
+finally:
+    pe._admit_schedule_predicate = admission
+
+assert jax.default_backend() == 'cpu'
+print(json.dumps({
+    'source_module': pe.__file__, 'python': sys.version,
+    'platform': platform.platform(), 'jax_backend': jax.default_backend(),
+    'jax_devices': [str(device) for device in jax.devices()],
+    'versions': {name: importlib.metadata.version(name) for name in ['jax', 'jaxlib', 'numpy', 'equinox', 'optax', 'pytest']},
+    'numerical_environment': {k: v for k, v in os.environ.items() if k.startswith(('JAX', 'XLA', 'OMP', 'OPENBLAS', 'MKL', 'NUMEXPR', 'TF_'))},
+    'controls': results,
+}, indent=2))

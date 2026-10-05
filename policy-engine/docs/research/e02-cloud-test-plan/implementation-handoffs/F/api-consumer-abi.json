@@ -119,7 +119,7 @@
       "command": "Independent canonical load_changed_paths/build_gate_plan actualbefore/after and removeexactdocpath; native fullgate --base-ref c40d... --head-ref4b8cdf",
       "target_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
       "executing_party": "F/graph_scm",
-      "outcome": "PASS bounded companion predicate; full gate FAIL1",
+      "outcome": "PASS",
       "output": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent-review.json",
         "bytes": 16300,
@@ -131,7 +131,8 @@
         "sha256": "9328d6b96467793b7ed817cb1e6f859ff2235567921555ba1bb5d6a5a5742efe"
       },
       "negative_control": "actualdocpath removal restores foundry_docs with same methodREADME input; no global rule exclusion",
-      "strict_docs_build": "UNRUN"
+      "strict_docs_build": "UNRUN",
+      "scope": "Bounded docs-companion path predicate only; separate actual full Docs Gate remains FAIL1 and strict_docs_build UNRUN."
     }
   ],
   "property": {

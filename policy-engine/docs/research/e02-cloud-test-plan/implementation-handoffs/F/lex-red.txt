@@ -1,0 +1,184 @@
+.FFF.FFFFF.                                                              [100%]
+=================================== FAILURES ===================================
+____ test_report_checks_the_compared_packs_despite_context_norm_pack[empty] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-8/test_report_checks_the_compare1')
+override = 'empty'
+
+    @pytest.mark.parametrize("override", [None, "empty", "permissive", "restrictive"])
+    def test_report_checks_the_compared_packs_despite_context_norm_pack(
+        tmp_path: Path, override: str | None
+    ) -> None:
+        """The compared packs, rather than a caller context entry, supply legal rules."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
+        context: dict[str, object] = {"income": 2}
+        if override == "empty":
+            context["norm_pack"] = NormPack(pack_id="pack.empty", jurisdiction="ua")
+        elif override is not None:
+            context["norm_pack"] = _pack("pack.override", 0 if override == "permissive" else 5)
+        report = NormImpactAnalyzer(cas, passes=("legal",), legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context=context, decision_packet_ref="decision.test"
+        )
+        persisted = _read_report(cas, report)
+        assert persisted.old_pack_id == old_pack.pack_id
+        assert persisted.new_pack_id == new_pack.pack_id
+>       assert persisted.new_blockers == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = NormImpactReport(schema_version='1.0', report_id='lex.impact_report.sha256_7f162eb6b739ad1b39b0f6f09ef84f7f35950c955f3...ef='decision.test', cas_artifact_id=None, metadata={'new_issues_total': 0, 'old_issues_total': 0, 'profile': 'strict'}).new_blockers
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:65: AssertionError
+_ test_report_checks_the_compared_packs_despite_context_norm_pack[permissive] __
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-8/test_report_checks_the_compare2')
+override = 'permissive'
+
+    @pytest.mark.parametrize("override", [None, "empty", "permissive", "restrictive"])
+    def test_report_checks_the_compared_packs_despite_context_norm_pack(
+        tmp_path: Path, override: str | None
+    ) -> None:
+        """The compared packs, rather than a caller context entry, supply legal rules."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
+        context: dict[str, object] = {"income": 2}
+        if override == "empty":
+            context["norm_pack"] = NormPack(pack_id="pack.empty", jurisdiction="ua")
+        elif override is not None:
+            context["norm_pack"] = _pack("pack.override", 0 if override == "permissive" else 5)
+        report = NormImpactAnalyzer(cas, passes=("legal",), legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context=context, decision_packet_ref="decision.test"
+        )
+        persisted = _read_report(cas, report)
+        assert persisted.old_pack_id == old_pack.pack_id
+        assert persisted.new_pack_id == new_pack.pack_id
+>       assert persisted.new_blockers == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = NormImpactReport(schema_version='1.0', report_id='lex.impact_report.sha256_7f162eb6b739ad1b39b0f6f09ef84f7f35950c955f3...ef='decision.test', cas_artifact_id=None, metadata={'new_issues_total': 0, 'old_issues_total': 0, 'profile': 'strict'}).new_blockers
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:65: AssertionError
+_ test_report_checks_the_compared_packs_despite_context_norm_pack[restrictive] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-8/test_report_checks_the_compare3')
+override = 'restrictive'
+
+    @pytest.mark.parametrize("override", [None, "empty", "permissive", "restrictive"])
+    def test_report_checks_the_compared_packs_despite_context_norm_pack(
+        tmp_path: Path, override: str | None
+    ) -> None:
+        """The compared packs, rather than a caller context entry, supply legal rules."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
+        context: dict[str, object] = {"income": 2}
+        if override == "empty":
+            context["norm_pack"] = NormPack(pack_id="pack.empty", jurisdiction="ua")
+        elif override is not None:
+            context["norm_pack"] = _pack("pack.override", 0 if override == "permissive" else 5)
+        report = NormImpactAnalyzer(cas, passes=("legal",), legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context=context, decision_packet_ref="decision.test"
+        )
+        persisted = _read_report(cas, report)
+        assert persisted.old_pack_id == old_pack.pack_id
+        assert persisted.new_pack_id == new_pack.pack_id
+>       assert persisted.new_blockers == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = NormImpactReport(schema_version='1.0', report_id='lex.impact_report.sha256_7f162eb6b739ad1b39b0f6f09ef84f7f35950c955f3...ef='decision.test', cas_artifact_id=None, metadata={'new_issues_total': 1, 'old_issues_total': 1, 'profile': 'strict'}).new_blockers
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:65: AssertionError
+__________________ test_explicit_empty_pass_plan_is_preserved __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-8/test_explicit_empty_pass_plan_0')
+
+    def test_explicit_empty_pass_plan_is_preserved(tmp_path: Path) -> None:
+        """An empty API plan performs a norm comparison without silently adding checks."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        report = NormImpactAnalyzer(cas, passes=(), legal_backend="expr_ast").analyze(
+            _pack("pack.old", 1), _pack("pack.new", 3), context={"income": 2}
+        )
+        persisted = _read_report(cas, report)
+>       assert persisted.passes_executed == []
+E       AssertionError: assert ['legal', 'safety'] == []
+E         
+E         Left contains 2 more items, first extra item: 'legal'
+E         Use -v to get more diff
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:108: AssertionError
+__________ test_unknown_pass_cannot_be_attested_as_executed[passes0] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-8/test_unknown_pass_cannot_be_at0')
+passes = ('unknown',)
+
+    @pytest.mark.parametrize("passes", [("unknown",), ("legal", "legla"), ("",)])
+    def test_unknown_pass_cannot_be_attested_as_executed(
+        tmp_path: Path, passes: tuple[str, ...]
+    ) -> None:
+        """Unsupported configuration is refused before a plausible report is produced."""
+        cas = FileSystemCAS(tmp_path / "cas")
+>       with pytest.raises(ValueError, match="Unsupported impact pass"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:119: Failed
+__________ test_unknown_pass_cannot_be_attested_as_executed[passes1] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-8/test_unknown_pass_cannot_be_at1')
+passes = ('legal', 'legla')
+
+    @pytest.mark.parametrize("passes", [("unknown",), ("legal", "legla"), ("",)])
+    def test_unknown_pass_cannot_be_attested_as_executed(
+        tmp_path: Path, passes: tuple[str, ...]
+    ) -> None:
+        """Unsupported configuration is refused before a plausible report is produced."""
+        cas = FileSystemCAS(tmp_path / "cas")
+>       with pytest.raises(ValueError, match="Unsupported impact pass"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:119: Failed
+__________ test_unknown_pass_cannot_be_attested_as_executed[passes2] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-8/test_unknown_pass_cannot_be_at2')
+passes = ('',)
+
+    @pytest.mark.parametrize("passes", [("unknown",), ("legal", "legla"), ("",)])
+    def test_unknown_pass_cannot_be_attested_as_executed(
+        tmp_path: Path, passes: tuple[str, ...]
+    ) -> None:
+        """Unsupported configuration is refused before a plausible report is produced."""
+        cas = FileSystemCAS(tmp_path / "cas")
+>       with pytest.raises(ValueError, match="Unsupported impact pass"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:119: Failed
+___________ test_cli_refuses_unknown_pass_without_publishing_report ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-8/test_cli_refuses_unknown_pass_0')
+capsys = <_pytest.capture.CaptureFixture object at 0x7f0a48cd1010>
+
+    def test_cli_refuses_unknown_pass_without_publishing_report(tmp_path: Path, capsys) -> None:
+        """The real CLI turns an unsupported pass into an error without report output."""
+        old_path, new_path = tmp_path / "old.json", tmp_path / "new.json"
+        old_path.write_text(_pack("pack.old", 1).model_dump_json(), encoding="utf-8")
+        new_path.write_text(_pack("pack.new", 3).model_dump_json(), encoding="utf-8")
+        output_path = tmp_path / "report.json"
+        code = main(
+            [
+                "lex", "impact", str(old_path), str(new_path), "--passes", "legal,legla",
+                "--format", "json", "--output", str(output_path),
+                "--cas-root", str(tmp_path / "cas"),
+            ]
+        )
+        captured = capsys.readouterr()
+>       assert code == 2
+E       assert 0 == 2
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:139: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_report_checks_the_compared_packs_despite_context_norm_pack[empty]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_report_checks_the_compared_packs_despite_context_norm_pack[permissive]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_report_checks_the_compared_packs_despite_context_norm_pack[restrictive]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_explicit_empty_pass_plan_is_preserved
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_unknown_pass_cannot_be_attested_as_executed[passes0]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_unknown_pass_cannot_be_attested_as_executed[passes1]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_unknown_pass_cannot_be_attested_as_executed[passes2]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_cli_refuses_unknown_pass_without_publishing_report

@@ -1,0 +1,91 @@
+.FFF.                                                                    [100%]
+=================================== FAILURES ===================================
+____ test_report_checks_the_compared_packs_despite_context_norm_pack[empty] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-24/test_report_checks_the_compare1')
+override = 'empty'
+
+    @pytest.mark.parametrize("override", [None, "empty", "permissive", "restrictive"])
+    def test_report_checks_the_compared_packs_despite_context_norm_pack(
+        tmp_path: Path, override: str | None
+    ) -> None:
+        """The compared packs, rather than a caller context entry, supply legal rules."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
+        context: dict[str, object] = {"income": 2}
+        if override == "empty":
+            context["norm_pack"] = NormPack(pack_id="pack.empty", jurisdiction="ua")
+        elif override is not None:
+            context["norm_pack"] = _pack("pack.override", 0 if override == "permissive" else 5)
+        report = NormImpactAnalyzer(cas, passes=("legal",), legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context=context, decision_packet_ref="decision.test"
+        )
+        persisted = _read_report(cas, report)
+        assert persisted.old_pack_id == old_pack.pack_id
+        assert persisted.new_pack_id == new_pack.pack_id
+>       assert persisted.new_blockers == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = NormImpactReport(schema_version='1.0', report_id='lex.impact_report.sha256_7f162eb6b739ad1b39b0f6f09ef84f7f35950c955f3...ef='decision.test', cas_artifact_id=None, metadata={'new_issues_total': 0, 'old_issues_total': 0, 'profile': 'strict'}).new_blockers
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:65: AssertionError
+_ test_report_checks_the_compared_packs_despite_context_norm_pack[permissive] __
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-24/test_report_checks_the_compare2')
+override = 'permissive'
+
+    @pytest.mark.parametrize("override", [None, "empty", "permissive", "restrictive"])
+    def test_report_checks_the_compared_packs_despite_context_norm_pack(
+        tmp_path: Path, override: str | None
+    ) -> None:
+        """The compared packs, rather than a caller context entry, supply legal rules."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
+        context: dict[str, object] = {"income": 2}
+        if override == "empty":
+            context["norm_pack"] = NormPack(pack_id="pack.empty", jurisdiction="ua")
+        elif override is not None:
+            context["norm_pack"] = _pack("pack.override", 0 if override == "permissive" else 5)
+        report = NormImpactAnalyzer(cas, passes=("legal",), legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context=context, decision_packet_ref="decision.test"
+        )
+        persisted = _read_report(cas, report)
+        assert persisted.old_pack_id == old_pack.pack_id
+        assert persisted.new_pack_id == new_pack.pack_id
+>       assert persisted.new_blockers == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = NormImpactReport(schema_version='1.0', report_id='lex.impact_report.sha256_7f162eb6b739ad1b39b0f6f09ef84f7f35950c955f3...ef='decision.test', cas_artifact_id=None, metadata={'new_issues_total': 0, 'old_issues_total': 0, 'profile': 'strict'}).new_blockers
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:65: AssertionError
+_ test_report_checks_the_compared_packs_despite_context_norm_pack[restrictive] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-24/test_report_checks_the_compare3')
+override = 'restrictive'
+
+    @pytest.mark.parametrize("override", [None, "empty", "permissive", "restrictive"])
+    def test_report_checks_the_compared_packs_despite_context_norm_pack(
+        tmp_path: Path, override: str | None
+    ) -> None:
+        """The compared packs, rather than a caller context entry, supply legal rules."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
+        context: dict[str, object] = {"income": 2}
+        if override == "empty":
+            context["norm_pack"] = NormPack(pack_id="pack.empty", jurisdiction="ua")
+        elif override is not None:
+            context["norm_pack"] = _pack("pack.override", 0 if override == "permissive" else 5)
+        report = NormImpactAnalyzer(cas, passes=("legal",), legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context=context, decision_packet_ref="decision.test"
+        )
+        persisted = _read_report(cas, report)
+        assert persisted.old_pack_id == old_pack.pack_id
+        assert persisted.new_pack_id == new_pack.pack_id
+>       assert persisted.new_blockers == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = NormImpactReport(schema_version='1.0', report_id='lex.impact_report.sha256_7f162eb6b739ad1b39b0f6f09ef84f7f35950c955f3...ef='decision.test', cas_artifact_id=None, metadata={'new_issues_total': 1, 'old_issues_total': 1, 'profile': 'strict'}).new_blockers
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:65: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_report_checks_the_compared_packs_despite_context_norm_pack[empty]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_report_checks_the_compared_packs_despite_context_norm_pack[permissive]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_report_checks_the_compared_packs_despite_context_norm_pack[restrictive]
+3 failed, 2 passed, 6 deselected in 0.14s

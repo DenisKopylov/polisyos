@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "implementation_lane": "D",
+  "bundle_ids": [
+    "TRN-01",
+    "TRN-02"
+  ],
+  "covered_finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "9f84c0f89b7147c763c889f2a60f372570ae21ef",
+  "entry_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_sha": "5f2d3498d075a5fd59aaee35964e8a8c9d6b7ce3",
+  "candidate_tree": "a0117bc1853dfbd688a0e5f41cc3d78502c2ac15",
+  "source_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+  "test_path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+  "review_discriminator": "Actual registered stage_a_passed string false was truthy and became numeric success; generic declared-type validation replaces boolean/numeric coercion.",
+  "mechanism": [
+    "Flags require actual bool. Coordinates/scalars/raw objectives/weights/threshold/durations require finite JSON numeric types excludingbool/string.",
+    "Candidate/provenance identifiers require strings; status requires declared string and known enum. Timestamp requires explicit timezone-aware ISO string, no fabricated defaulttime.",
+    "Malformed rows remain visible with addressed candidate/history/reason; stageAfalse,errorstatus,emptyobjectives prevent optimizertraining. Well-typed diagnostic score retained for legacy inspection ordering."
+  ],
+  "input": {
+    "kind": "actual bounded analytic benchmark/candidate/history CAS, mutate one persisted declared field without changing original immutable candidate/evaluation/binding",
+    "negative_matrix": "19 string/integer/bool/naive timestamp cases across fields; field validation independent of measured source truth"
+  },
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.2",
+    "hnswlib": "0.8.0",
+    "node_hook": "22.23.3",
+    "PYTHONPATH": "/workspace/e02-D-transfer/policy-engine/src",
+    "shared_env_write": false
+  },
+  "checks": [
+    {
+      "target_sha": "5f2d3498d075a5fd59aaee35964e8a8c9d6b7ce3",
+      "result": "PASS",
+      "passed_node_count": 72,
+      "failed_node_count": 0,
+      "scope": "complete four focused native files",
+      "log": "transfer-typed-restore-checks.txt",
+      "log_sha256": "9d78e764592c720ec5e6485827776f1d9a482ccb6c9b4732c274f79237d91f6c"
+    },
+    {
+      "target_sha": "d535ac4698f556b1ba4d96d180190918f4f5a778",
+      "result": "FAIL_EXPECTED",
+      "failed_discriminator_count": 19,
+      "scope": "declared type probes on isolated archived immutable source, current probes copied outsidecheckoutconftest; some prior refusals fail stricter diagnostic oracle; does not claim19sourceadmissions",
+      "raw_log": "raw/transfer-typed-restore-negative.txt",
+      "log_sha256": "c36280ad76e292e336aa947f235a0fe30de77ca16fb1bae0830e60c02e700996"
+    },
+    {
+      "result": "PASS",
+      "scope": "ruff changedsource+test, gitdiffcheck; real Node22 commit hook"
+    }
+  ],
+  "preserved_prior_evidence": [
+    "transfer-generation.json correctedclosureids=[]",
+    "transfer-numerical.json47PASSonb773; knownnegativecandidatecontentintermediate",
+    "transfer-input-binding.json53PASSond535; knownnegativeoutcometypingintermediate"
+  ],
+  "workflow_status": "UNRUN awaiting exact combined root candidate; configured receiver source4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a knowndependency",
+  "scope_limits": [
+    "No production historical evaluator/performance/acceleration claim; boundedanalyticmeasurementonly.",
+    "Input/CAS consistency does not establish institutional measurementtruth or tenantauthorization.",
+    "B133principaldecision andB134data_record remainresidual; Gacceptance absent, closureids[]."
+  ]
+}

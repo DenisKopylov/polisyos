@@ -110,6 +110,16 @@ def test_explicit_empty_pass_plan_is_preserved(tmp_path: Path) -> None:
     assert persisted.norms_modified == 1
 
 
+def test_pass_plan_is_frozen_at_admission(tmp_path: Path) -> None:
+    """An accepted mutable caller container cannot change the validated dispatch plan."""
+    cas = FileSystemCAS(tmp_path / "cas")
+    requested = ["legal"]
+    analyzer = NormImpactAnalyzer(cas, passes=requested)  # type: ignore[arg-type]
+    requested.append("legla")
+    persisted = _read_report(cas, analyzer.analyze(_pack("pack.old", 1), _pack("pack.new", 3)))
+    assert persisted.passes_executed == ["legal"]
+
+
 @pytest.mark.parametrize("passes", [("unknown",), ("legal", "legla"), ("",)])
 def test_unknown_pass_cannot_be_attested_as_executed(
     tmp_path: Path, passes: tuple[str, ...]

@@ -105,7 +105,7 @@ class NormImpactAnalyzer:
     ) -> None:
         self._cas = cas
         self._profile = profile or ValidationProfile.strict()
-        self._pass_ids = self.DEFAULT_PASSES if passes is None else passes
+        self._pass_ids = self.DEFAULT_PASSES if passes is None else tuple(passes)
         for pass_id in self._pass_ids:
             if pass_id not in self.DEFAULT_PASSES:
                 raise ValueError(f"Unsupported impact pass: {pass_id!r}")

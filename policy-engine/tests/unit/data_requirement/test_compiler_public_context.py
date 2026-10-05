@@ -23,6 +23,11 @@ _CREDIT_REQUEST = (
     "northern regions in 2026, funded by budget appropriation and delivered "
     "through partner banks to preserve employment."
 )
+_NATIONAL_CREDIT_REQUEST = (
+    "Create a concessional credit guarantee programme for MSMEs at a national "
+    "level in 2026, funded by budget appropriation and delivered through "
+    "partner banks to preserve employment."
+)
 
 
 class _RecordingCapabilityResolver:
@@ -182,7 +187,7 @@ def test_public_scenario_adapter_uses_only_named_pilot_scope() -> None:
     ).compile_for_scenario(
         {
             "scenario_id": "pilot-case",
-            "request": _CREDIT_REQUEST,
+            "request": _NATIONAL_CREDIT_REQUEST,
             "domain_hint": "fiscal",
             "scenario_profile": {
                 "profile_id": "ua-msme-pilot:2022-v1",
@@ -197,7 +202,7 @@ def test_public_scenario_adapter_uses_only_named_pilot_scope() -> None:
     ).compile_for_scenario(
         {
             "scenario_id": "generic-case",
-            "text": _CREDIT_REQUEST,
+            "text": _NATIONAL_CREDIT_REQUEST,
             "domain": "fiscal",
         }
     )
@@ -208,9 +213,6 @@ def test_public_scenario_adapter_uses_only_named_pilot_scope() -> None:
         "program_participation_rate",
         "firm_survival",
         "employment_count",
-        "regional_displacement_pressure",
-        "wartime_displacement_indicator",
-        "logistics_friction",
     }
     assert named_report.metadata.get("fallback") is None
     assert generic_report.metadata.get("fallback") is None
@@ -221,8 +223,10 @@ def test_public_scenario_adapter_uses_only_named_pilot_scope() -> None:
     } == {
         "credit_program_registry",
         "production_msme_panel",
-        "regional_displacement_indicators",
     }
+    assert {
+        family for spec in generic_report.specs for family in spec.required_data_families
+    } == {"credit_program_registry", "production_msme_panel"}
     assert {spec.scope.time for spec in generic_report.specs} == {"annual"}
 
     assert all(
@@ -232,7 +236,7 @@ def test_public_scenario_adapter_uses_only_named_pilot_scope() -> None:
         for query in named_resolver.queries
     )
     assert all(
-        query.geography == "state_or_region"
+        query.geography == "national"
         and query.time_window.start is None
         and query.time_window.end is None
         for query in generic_resolver.queries

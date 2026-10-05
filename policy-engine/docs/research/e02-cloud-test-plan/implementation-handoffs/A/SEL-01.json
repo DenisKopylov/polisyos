@@ -1,0 +1,163 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "SEL-01",
+  "closure_ids": ["B34", "B35", "B36"],
+  "bundle_ids": ["SEL-01"],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "717e7eda6fe5e71115d2a747b0b1227708c2c375",
+    "0acfb58fc9de28d1af945633ea14c8ebff4b451c"
+  ],
+  "candidate_tree_sha": "4c4da97d70e3a68604f1d6af92b82de59e59369d",
+  "branch": "codex/e02-A-selection",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F03-P002",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "state": "PASS",
+      "finding_routes": ["B34", "B35", "B36"],
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F06-P007",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "state": "PASS",
+      "finding_routes": ["B34", "B35", "B36"],
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F09-P007",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "state": "PASS",
+      "finding_routes": ["B34", "B35", "B36"],
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F11-P006",
+      "source_sha": "5fd3ebcc15637e98bb4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "state": "PASS",
+      "finding_routes": ["B34", "B35", "B36"],
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    },
+    {
+      "id": "F14-P002",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "state": "PASS",
+      "finding_routes": ["B34", "B35", "B36"],
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established"
+    }
+  ],
+  "checks": [
+    {
+      "command": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=\"/Users/deniskopylov/.codex/worktrees/e02-a-selection/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-selection/polisyos/policy-engine\" /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -vv -q policy-engine/tests/unit/foundry/methods/test_selection_advisor.py::test_controlled_single_value_projection_selects_real_method_but_blocks_fictional_request",
+      "target_sha": "717e7eda6fe5e71115d2a747b0b1227708c2c375",
+      "environment": "macOS; Python 3.14.3; pytest 9.0.2; source imports resolved from the attached e02-a-selection worktree via PYTHONPATH; OMP/OPENBLAS/MKL thread counts set to 1.",
+      "input_closure": "Conditional fixture built by selecting one real owner-backed Difference-GMM row from a real catalog snapshot; the selector builder is then monkeypatched to that one-entry projection. This does not establish complete registry membership or a genuine singleton scope.",
+      "outcome": "PASS",
+      "output": "Complete concise output: collected 1 item; test passed; 1 passed in 36.52s. Full log: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/SEL-01-b34-bounded-fixture.log"
+    },
+    {
+      "command": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=\"/Users/deniskopylov/.codex/worktrees/e02-a-selection/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-selection/polisyos/policy-engine\" /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -vv -q policy-engine/tests/unit/foundry/methods/test_selection_advisor.py::test_registered_non_value_method_request_is_refused_outside_value_denominator",
+      "target_sha": "0acfb58fc9de28d1af945633ea14c8ebff4b451c",
+      "environment": "macOS; Python 3.14.3; pytest 9.0.2; source imports resolved from the attached e02-a-selection worktree via PYTHONPATH; OMP/OPENBLAS/MKL thread counts set to 1.",
+      "input_closure": "Full, unpatched public selector and canonical registry. The requested Hausman diagnostic FQN is resolved from the live registry before selection; selection refuses it outside the native value denominator.",
+      "outcome": "PASS",
+      "output": "Complete concise output: collected 1 item; test passed; 1 passed in 13.02s. Full log: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/SEL-01-b34-outside-set.log"
+    },
+    {
+      "command": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=\"/Users/deniskopylov/.codex/worktrees/e02-a-selection/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-selection/polisyos/policy-engine\" /Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m pytest -vv -q policy-engine/tests/unit/foundry/methods/test_selection_advisor.py::test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_top_k policy-engine/tests/unit/foundry/methods/test_selection_advisor.py::test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected",
+      "target_sha": "717e7eda6fe5e71115d2a747b0b1227708c2c375",
+      "environment": "macOS; Python 3.14.3; pytest 9.0.2; source imports resolved from the attached e02-a-selection worktree via PYTHONPATH; OMP/OPENBLAS/MKL thread counts set to 1.",
+      "input_closure": "B35 uses the real complete catalog builder and live registry with an explicit required-panel request. The same-query counterfactual runs the real advisor over the same full snapshot without the selector's pre-limit value eligibility projection. B36 reuses the identical candidate/problem object across unavailable and supported panel catalog fixtures; the fixtures test requirement preservation, not catalog completeness.",
+      "outcome": "PASS",
+      "output": "Complete concise output: collected 2 items; both passed; 2 passed in 97.20s. Full log: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/SEL-01-b35-b36-full-catalog.log"
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-custody/polisyos/policy-engine/.venv/bin/python -m ruff check tests/unit/foundry/methods/test_selection_advisor.py",
+      "target_sha": "0acfb58fc9de28d1af945633ea14c8ebff4b451c",
+      "environment": "Ruff module from the supplied Python 3.14.3 environment; command run from policy-engine/ in the attached e02-a-selection worktree.",
+      "input_closure": "Only the modified selection-advisor unit test file.",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "corepack pnpm install --frozen-lockfile",
+      "target_sha": "717e7eda6fe5e71115d2a747b0b1227708c2c375",
+      "environment": "policy-engine/ in the attached e02-a-selection worktree; pnpm 10.33.2.",
+      "input_closure": "Fresh worktree dependency installation required to provide the checkout-local Lefthook binary and repository commit hooks.",
+      "outcome": "PASS",
+      "output": "Lockfile up to date; 1,215 packages added from cache; repository hook prepare completed; Done in 9.2s. No tracked dependency files changed."
+    },
+    {
+      "command": "git commit implementation commits; native pre-commit Lefthook v2.1.6",
+      "target_sha": "0acfb58fc9de28d1af945633ea14c8ebff4b451c",
+      "environment": "Attached worktree branch codex/e02-A-selection; checkout-local dispatcher resolves Lefthook from this worktree.",
+      "input_closure": "Both implementation commits, each with only the leased selection-advisor test file staged.",
+      "outcome": "PASS",
+      "output": "Both commit hooks passed. Contrast and reduced-motion checks skipped unmatched staged paths; Prettier and ESLint skipped the Python-only staged paths."
+    }
+  ],
+  "property": {
+    "statement": "The canonical selector derives the native-value denominator from the real registry/catalog owner, filters runnable methods by the hard required modality before advisor top-k, refuses an explicitly requested registered diagnostic outside that denominator, and does not rewrite the same panel request when catalog fixtures differ.",
+    "runtime_path": [
+      "MethodRegistry",
+      "build_method_catalog_snapshot",
+      "select_value_method_for_problem",
+      "advise_methods",
+      "MethodSelectionReceipt"
+    ],
+    "proxy_divergence": "Checking only that a selected FQN belongs to the denominator would miss top-k crowding. On the same full real catalog and panel query, the unfiltered top-8 counterfactual contains fewer eligible value recommendations than the selector's prefiltered advisor result; the test also verifies the exact eligible owner-backed set reaches the advisor before its limit.",
+    "negative_controls": [
+      "A real registered Hausman diagnostic requested through the full public selector is blocked and absent from the owner-derived value denominator.",
+      "For the same unchanged panel candidate/problem input, a tabular-only controlled catalog blocks and preserves required_data_modalities=(panel,); a panel-capable native value owner is selected.",
+      "The controlled one-entry fixture accepts one real registered value method and blocks an unknown FQN, but is explicitly conditional and is not evidence of a complete singleton registry scope."
+    ],
+    "surface": "No new API, audit export, dashboard surface, or downstream causal outcome claim; this slice tests the existing Foundry selection owner only."
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "Partial bounded evidence: B35 pre-limit behavior and B36 hard-modality preservation are exercised; a registered non-value request is refused. B34 complete-singleton membership and hidden-member provenance remain not_established. B36 transformation producer/provenance is not established in the inspected selection path.",
+  "limitations_and_next_owner": [
+    "B34: the canonical catalog builder ensures the configured registry set; no supported closed registry scope with exactly one owner-backed value method was available. The controlled singleton projection is conditional only. A catalog/registry admission owner must expose a complete scope witness before singleton completeness or hidden-member rejection can be claimed.",
+    "B36: tests cover preservation and refusal for a hard panel modality, but no typed transform contract, real transform producer, declared input/output artifact, or provenance bridge was established in the SEL-01 selection path. Keep transformation support out of scope until its owner supplies that producer chain.",
+    "Historical baseline cells are source-reported PASS observations with candidate_unverified routes and semantic_adequacy=not_established; they are not closure evidence. No four-base P41 replay or source-archive raw bytes were available in this slice."
+  ],
+  "pattern_pass": {
+    "ids": ["P29", "P31", "P32", "P33", "P35", "P37", "P38", "P40", "P41"],
+    "existing_anti_patterns_found": [
+      "The earlier B34 singleton test name implied complete registry authority despite a manually projected one-entry catalog; it is now explicitly identified as conditional.",
+      "The earlier B35 fixture did not establish which non-value methods survived the actual top-k limit; it was replaced with a full-catalog same-query counterfactual and an assertion on the real selector's pre-limit advisor input.",
+      "Historical PASS cells had semantic adequacy not established and were not treated as closure."
+    ],
+    "target_pattern": "Exercise the canonical selection path, reconcile the full registry catalog to live owner-backed eligibility, include a same-query top-k counterfactual and a hard-requirement refusal, and label incomplete provenance as not_established.",
+    "missing_capability_labels": [
+      "not_established: B34 complete singleton/hidden-member proof",
+      "not_established: B36 transform producer and provenance chain",
+      "surface_out_of_scope: new API/audit/dashboard exposure"
+    ],
+    "acceptance_signal": "The focused B34/B35/B36 owner tests, Ruff check, and native pre-commit hook pass; residuals remain explicit and no selection authority is manufactured."
+  },
+  "source_refs": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SEL-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/query.py@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/src/polisyos/foundry/methods/selection/advisor.py@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/src/polisyos/foundry/methods/selection/receipt.py@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/src/polisyos/foundry/methods/catalog/snapshot.py@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py@0acfb58fc9de28d1af945633ea14c8ebff4b451c"
+  ]
+}

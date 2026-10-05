@@ -312,7 +312,16 @@
         "bytes": 170857261,
         "transfer": "not_transferred; rerun exact command for full evidence"
       },
-      "predicate_basis": "recomputed by independent root; complete compact stdout/wrapper transferred; full raw unavailable to receiver, which reruns exact command for full diagnostic evidence"
+      "predicate_basis": "recomputed by independent root; complete compact stdout/wrapper transferred; full raw unavailable to receiver, which reruns exact command for full diagnostic evidence",
+      "independent_git_evidence": {
+        "commit": "b09e634d0c2b0c522e50a69f161ed373a2b3bed6",
+        "full_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation.txt",
+        "wrapper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation-wrapper.json",
+        "summary_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation-summary.json",
+        "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/evidence-index.json",
+        "stdout_sha256": "9bea5cddc75736db76129158aa37a8b066a2c08b538048d53813154ca3f5d989",
+        "readback": "Committed root stdout bytes exactly match the copy delivered in this leaf receipt."
+      }
     }
   ],
   "property": {

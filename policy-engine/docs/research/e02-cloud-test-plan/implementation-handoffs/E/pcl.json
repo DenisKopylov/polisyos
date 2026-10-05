@@ -1,0 +1,434 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "pcl",
+  "closure_ids": [
+    "LA-052",
+    "LA-053"
+  ],
+  "bundle_ids": [
+    "PCL-01"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "integration_checkpoint_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "23b3e9447494b3404f004286516377c3632ff947",
+    "1b2aa525bdb74b90ca444eb411bf230c13a9b50a"
+  ],
+  "candidate_tree_sha": "22bd30b54b3d4b99f8a2163e9c019d3f04033558",
+  "branch": "codex/e02-E-pcl",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-predictive-calibration-inputs.toml",
+    "policy-engine/src/polisyos/calibration/continuous.py",
+    "policy-engine/src/polisyos/calibration/curve.py",
+    "policy-engine/tests/unit/calibration/test_continuous.py",
+    "policy-engine/tests/unit/calibration/test_curve.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P087",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "9",
+      "source_file": "received/F01.txt",
+      "source_line": "204",
+      "receipt_status": "valid_bound",
+      "source_ref": "research_main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "e1191be4f258f170c59328626be638d8d3a81399",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@sha256:5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F03-P040",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "8",
+      "source_file": "received/F03.txt",
+      "source_line": "170",
+      "receipt_status": "valid_bound",
+      "source_ref": "research_main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "88cf8a89e9b27fd5f34bc48ba3d069abcd1f7fc7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@sha256:1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F04-P123",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+      "state": "PASS",
+      "calls": "3",
+      "source_file": "received/F04.txt",
+      "source_line": "333",
+      "receipt_status": "valid_reconciled_parent",
+      "source_ref": "research_main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "ebb574a17c29f6d3e8004dc984d2a86a7e5d0462",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@sha256:17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F05-P060",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "2",
+      "source_file": "received/F05.txt",
+      "source_line": "470",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "e02_execution_base",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "1363ee91aad9e5157ae340577212cde79dc83bb7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@sha256:2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F06-P108",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "4",
+      "source_file": "received/F06.txt",
+      "source_line": "292",
+      "receipt_status": "valid",
+      "source_ref": "e02_execution_base",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "9a6260328fa743eed7822af3a471117c6029c34f",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@sha256:b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F07-P037",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "8",
+      "source_file": "received/F07.txt",
+      "source_line": "43",
+      "receipt_status": "valid",
+      "source_ref": "e02_head",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "88cf8a89e9b27fd5f34bc48ba3d069abcd1f7fc7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@sha256:eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F09-P090",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "9",
+      "source_file": "received/F09.txt",
+      "source_line": "206",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "e02_head",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "e1191be4f258f170c59328626be638d8d3a81399",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@sha256:0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F12-P048",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "2",
+      "source_file": "received/F12.txt",
+      "source_line": "633",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "1363ee91aad9e5157ae340577212cde79dc83bb7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@sha256:03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F12-P086",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "4",
+      "source_file": "received/F12.txt",
+      "source_line": "671",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "9a6260328fa743eed7822af3a471117c6029c34f",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@sha256:03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F13-P048",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "8",
+      "source_file": "received/F13.txt",
+      "source_line": "175",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "integration_head",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "88cf8a89e9b27fd5f34bc48ba3d069abcd1f7fc7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@sha256:7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F15-P102",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "9",
+      "source_file": "received/F15.txt",
+      "source_line": "257",
+      "receipt_status": "valid",
+      "source_ref": "integration_head",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "e1191be4f258f170c59328626be638d8d3a81399",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@sha256:efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/unit/calibration tests/unit/scientist/methods/backtesting/test_calibration_curve.py tests/unit/ir/analytics/test_calibration_diagnostics_report.py tests/unit/remediation/test_frc_02_owner.py -q",
+      "target_sha": "1b2aa525bdb74b90ca444eb411bf230c13a9b50a",
+      "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
+      "input_closure": "All tests in these explicitly selected Python suites; 81 executed calls, 0 failures/errors/skips; native NumPy producer, JSON report readback, real receipt reconciliation, forecast-owner CAS importer.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-native.log",
+      "wall_s": 17.442,
+      "max_rss_kib": 515628
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-removal-probe.py",
+      "target_sha": "1b2aa525bdb74b90ca444eb411bf230c13a9b50a",
+      "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
+      "input_closure": "Isolated copy of exact candidate curve.py with only completeness guard removed; both permutation tests fail with fields/metrics preserved. Wrapper asserts pytest exit 1.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-removal.log",
+      "wall_s": 2.541,
+      "max_rss_kib": 207812
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-baseline-reproduce.py",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
+      "input_closure": "Exact git-show curve/continuous source bytes at slice base, actual unchanged native IR; analytic 100-observation fixture. Reproduces baseline gaps, not baseline package success.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-base-reproduction.log",
+      "wall_s": 1.445,
+      "max_rss_kib": 159484
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m ruff check src/polisyos/calibration/curve.py src/polisyos/calibration/continuous.py tests/unit/calibration/test_curve.py tests/unit/calibration/test_continuous.py tests/unit/scientist/methods/backtesting/test_calibration_curve.py; same paths ruff format --check",
+      "target_sha": "1b2aa525bdb74b90ca444eb411bf230c13a9b50a",
+      "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
+      "input_closure": "Exact changed source/test files.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-ruff.log"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m tools.cli architecture guardrails check",
+      "target_sha": "1b2aa525bdb74b90ca444eb411bf230c13a9b50a",
+      "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
+      "input_closure": "Full architecture scan including unchanged repository files; exit 2. No exact slice-base/disjoint full-input proof, so attribution not_established.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-architecture.log",
+      "wall_s": 237.762,
+      "max_rss_kib": 1106044,
+      "exit_code": 2,
+      "attribution": "not_established",
+      "next_owner": "G broad integration verification"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m polisyos.runtime.quality.production_invocation --base c40d4acae1ce58b597267255026d9356565828fd --receipt <isolated-scratch>/pcl-invocation.json",
+      "target_sha": "1b2aa525bdb74b90ca444eb411bf230c13a9b50a",
+      "environment": "actual_environment in this receipt (same shared Python3.14.2 venv; no numeric-thread overrides)",
+      "input_closure": "Full tracked Python src/tools/tests static scan; final JSON absent, SIGKILL observed. No candidate static or runtime invocation verdict.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-invocation.log",
+      "wall_s": 183.329,
+      "max_rss_kib": 6615936,
+      "exit_code": -9,
+      "cause": "not_established",
+      "next_owner": "G or environment owner if full static scan required"
+    }
+  ],
+  "property": {
+    "statement": "A positive curve verdict requires finite observations, bounds, levels and tolerance, and complete evaluation of the requested interval sets. Continuous levels follow one (0,1) policy regardless of interval source; explicit empty levels remain unevaluated.",
+    "runtime_path": [
+      "polisyos.calibration.compute_calibration_curve",
+      "polisyos.calibration.evaluate_continuous",
+      "CalibrationDiagnosticsReport.model_dump_json -> file -> model_validate_json",
+      "CalibrationDiagnosticsReport.to_truthfulness_receipt -> actual TruthfulnessReceipt reconciliation",
+      "ForecastOwner -> FileSystemCAS persisted/read-back predictive diagnostics (native importer suite)"
+    ],
+    "proxy_divergence": "Slice-base skipped one requested interval set yet accepted max_ce=0 over the surviving point: evaluation_status=incomplete and is_well_calibrated=True. One NaN observation at nominal .99 also yielded ece0/positive. Sample-derived continuous level1 bypassed the supplied-interval (0,1) domain and emitted approximate_calibrated.",
+    "negative_controls": [
+      "Both orders of skipped/valid interval set preserve measured ece0 but require a negative verdict.",
+      "All-skipped and empty interval input leave unknown metrics and unverified receipts.",
+      "Finite 95/100 coverage and 0/100 coverage retain distinct numerical results and tiers after real report write/reopen; NumPy bootstrap executes on evaluated comparisons.",
+      "NaN/inf observations, bounds, levels/tolerance and out-of-domain levels reject. Both supplied and predictive-sample branches are tested.",
+      "Explicit sample levels=[] remain not_evaluated; omitted levels preserve defaults.",
+      "strict=False reversed continuous bounds retain existing negative coverage; small-sample downgrade and binary report semantics remain.",
+      "Isolated remove-property-keep-fields mutation fails both incomplete-curve tests."
+    ],
+    "actual_backend": "NumPy 2.3.5 CPU, native coverage/quantile/bootstrap functions; NumPy forecast-owner backend exercised in importer suite. No production-source-law or optional statsmodels claim."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_generic_property_verified; supported compatibility alias retained; finding-wide closure remains a G decision",
+  "finding_dispositions": {
+    "LA-052": "Generic remaining curve/continuous input-completeness gap repaired and verified. Production publication/use and historical receipt reevaluation not_established.",
+    "LA-053": "Canonical numerical suite moved without duplicate old numerical suite; legacy test now only preserves exact three-object identity. Supported alias remains; sunset/retirement decision not_established."
+  },
+  "migration": {
+    "equivalent_test_move_commit": "23b3e9447494b3404f004286516377c3632ff947",
+    "intentional_property_change_commit": "1b2aa525bdb74b90ca444eb411bf230c13a9b50a",
+    "source_test_path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+    "target_test_path": "policy-engine/tests/unit/calibration/test_curve.py",
+    "legacy_identity_test_retained": true,
+    "public_surface": "public_experimental: polisyos.calibration; no symbol/signature/schema changes; invalid-input behavior intentionally tighter"
+  },
+  "authority_purpose": "predictive_calibration diagnostic runtime_only; no causal, Calibrator, publication, institutional or generation-cycle authority added",
+  "contracts": {
+    "report": "ir.calibration_diagnostics_report.v1 schema_version1.0",
+    "receipt": "existing native TruthfulnessReceipt task-specific reconciliation unchanged"
+  },
+  "pattern_pass": [
+    "P06/P27/P28 canonical numerical owner and preserved supported alias identity; no invented sunset",
+    "P29/P31/P33 runtime property and removal/near-variant controls",
+    "P37/P38 completeness and finite-domain recomputed rather than zero-error proxy",
+    "P40 second same-class source-alternative escape widened into common preparation validation",
+    "P41 architecture failure attribution not_established without exact-base/disjoint-denominator proof"
+  ],
+  "independent_review": {
+    "reviewer": "root E orchestrator, distinct from PCL author",
+    "target_sha": "1b2aa525bdb74b90ca444eb411bf230c13a9b50a",
+    "verdict": "no blockers reported after source diff review; independently reran calibration + Scientist identity + IR report (69 tests passed)",
+    "receipt_scope": "Review message is navigation; G fetches exact published head and reruns as needed."
+  },
+  "limitations_and_next_owner": [
+    "G independently fetches/accepts implementation and decides closure separately from code integration.",
+    "No production history/source law used or exported. Generic fixtures are not production calibration evidence.",
+    "No served generation_cycle bridge changes; A owns that shared file.",
+    "Architecture full-gate failure cause/ownership not_established. Exact command and full output retained for G.",
+    "Final current static invocation audit was killed; no final JSON, no runtime invocation claim. G/environment owner may rerun exact command on candidate.",
+    "Historical receipts are not rewritten; publication/use census and alias lifecycle/sunset remain owner inputs.",
+    "Node24.19 used during local install outside documented22 baseline; no frontend or TypeScript verification claim. Receipt Git hooks use provisioned Node22.23.3.",
+    "Existing interval-ordering policy is preserved: strict=False continuous reversed bounds still compute negative coverage; curve endpoint levels remain supported mathematical diagnostics."
+  ],
+  "actual_environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "executable": "/workspace/e02-E-pcl/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "machine": "x86_64",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "jax": "0.8.2",
+      "statsmodels": "not_installed"
+    },
+    "numeric_environment": {
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "JAX_PLATFORMS": null,
+      "XLA_FLAGS": null
+    },
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "cgroup": {
+      "cpu.max": "400000 100000",
+      "memory.max": "17179869184"
+    },
+    "actual_backend": "NumPy CPU coverage and bootstrap; native FRC forecast-owner consumer tested",
+    "node": "v24.19.0",
+    "pnpm_worktree": "10.33.2"
+  },
+  "development_characterization": {
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-property-red.log",
+    "source_under_test_sha": "23b3e9447494b3404f004286516377c3632ff947",
+    "test_state": "uncommitted characterization tests before property fix; exact standalone baseline reproducer is the portable deciding code-gap witness",
+    "outcome": "Observed 16 intended failures before source fix; no historical candidate test-PASS claim."
+  }
+}

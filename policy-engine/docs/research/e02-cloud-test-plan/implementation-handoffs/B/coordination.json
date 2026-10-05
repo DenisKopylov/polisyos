@@ -17,14 +17,17 @@
   "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
   "implementation_commits": [
     "dba6117d9be329ec0959111118fac275c7d4209b",
-    "b09e634d0c2b0c522e50a69f161ed373a2b3bed6"
+    "b09e634d0c2b0c522e50a69f161ed373a2b3bed6",
+    "570b7e75171d5ba97112230da44e97b16d3cc0f6"
   ],
-  "candidate_tree_sha": "aa7a26f69725f36f8be489656521565262e7cb6b",
+  "candidate_tree_sha": "5449e55a924a0e63cbe75cb16970cd64f35e19b1",
   "branch": "codex/e02-B-coordination",
   "pull_request": null,
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/README.md",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/baseline-resolution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.xml",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-review.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-review.xml",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cmp-review.txt",
@@ -41,7 +44,10 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/import-check.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/pool-review.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/pool-review.xml",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/transferred-source-check.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/run-process-review.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/run-process-review.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/transferred-source-check.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination.json"
   ],
   "baseline_cells": [
     {
@@ -4701,6 +4707,47 @@
       "runtime_invocation_established": false,
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation.txt",
       "raw_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/exe-acceptance-invocation-summary.json"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/common/test_async_tools.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/remediation/test_run_03.py --junitxml=/workspace/e02-B-coordination/.polisyos/e02-B/raw/run-process-review.xml",
+      "cwd": "/workspace/e02-B-run/policy-engine",
+      "target_sha": "ba79d141a3937541b3164db255ceda89883575ec",
+      "environment": "Linux6.18.44 x86_64, Python3.14.2, unchanged interpreter; PYTHONPATH=src:.",
+      "input_closure": {
+        "command_files": [
+          "tests/unit/common/test_async_tools.py",
+          "tests/unit/scientist/orchestration/engine/test_retry.py",
+          "tests/unit/remediation/test_run_03.py"
+        ],
+        "source": "Frozen target SHA source and tests; no production input needed; isolated pytest temp FS/process/cache fixtures"
+      },
+      "outcome": "PASS",
+      "call_pass": 85,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/run-process-review.txt",
+        "sha256": "d3c21c8416135d3cd8d2eead647872b251f3a7122a4fb6c2ff64ecb2ffc6a22a"
+      },
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/run-process-review.xml"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/core/artifacts/test_import_tenant_context.py tests/unit/core/artifacts/backends/test_caching_store.py --junitxml=/workspace/e02-B-coordination/.polisyos/e02-B/raw/cas-admission-review.xml",
+      "cwd": "/workspace/e02-B-cas/policy-engine",
+      "target_sha": "34b6c191cc617d89475bdb73c3b50bc0340e4b09",
+      "environment": "Linux6.18.44 x86_64, Python3.14.2, unchanged interpreter; PYTHONPATH=src:.",
+      "input_closure": {
+        "command_files": [
+          "tests/unit/core/artifacts/test_import_tenant_context.py",
+          "tests/unit/core/artifacts/backends/test_caching_store.py"
+        ],
+        "source": "Frozen target SHA source and tests; no production input needed; isolated pytest temp FS/process/cache fixtures"
+      },
+      "outcome": "PASS",
+      "call_pass": 67,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.txt",
+        "sha256": "805e13f541f4d2677f5d56d958555ebd5d5c82d1ee4e013e291b6e008ae76a71"
+      },
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/coordination-evidence/cas-admission-review.xml"
     }
   ],
   "property": {
@@ -4721,7 +4768,7 @@
     ]
   },
   "predicate_basis": "independently_reconciled",
-  "capability_state_or_finding_state": "Bounded independent evidence only; no finding closure and no full B closeout yet.",
+  "capability_state_or_finding_state": "Seven independent bounded runtime checks plus exact partial static diagnostic; no finding closure and no full B closeout yet.",
   "limitations_and_next_owner": [
     "G fetch exact slice commits and this evidence checkpoint; code integration/shared ledger remain G-owned.",
     "Additional RUN process and scoped CAS admission reviews are separate later checkpoints.",
